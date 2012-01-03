@@ -836,7 +836,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				SDKROOT = iphoneos;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -855,7 +855,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				SDKROOT = iphoneos;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -875,10 +875,10 @@
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
-				OBJROOT = /Users/ymagnien/DevBuild;
+				OBJROOT = build;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -898,10 +898,10 @@
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
-				OBJROOT = /Users/ymagnien/DevBuild;
+				OBJROOT = build;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
