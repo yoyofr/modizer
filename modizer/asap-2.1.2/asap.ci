@@ -1,0 +1,164 @@
+// asap.ci - ASAP in the Ci programming language
+//
+// Copyright (C) 2010  Piotr Fusik
+//
+// This file is part of ASAP (Another Slight Atari Player),
+// see http://asap.sourceforge.net
+//
+// ASAP is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published
+// by the Free Software Foundation; either version 2 of the License,
+// or (at your option) any later version.
+//
+// ASAP is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with ASAP; if not, write to the Free Software Foundation, Inc.,
+// 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+namespace net.Sf.Asap;
+
+/// Information about a music file.
+public class ASAP_ModuleInfo
+{
+	/// Author's name.
+	///
+	/// A nickname may be included in parentheses after the real name.
+	/// Multiple authors are separated with `" & "`.
+	/// Empty string means the author is unknown.
+	public string(127) author;
+
+	/// Music title.
+	///
+	/// Empty string means the title is unknown.
+	public string(127) name;
+
+	/// Music creation date.
+	///
+	/// Some of the possible formats are:
+	/// * YYYY
+	/// * MM/YYYY
+	/// * DD/MM/YYYY
+	/// * YYYY-YYYY
+	///
+	/// Empty string means the date is unknown.
+	public string(127) date;
+
+	/// 1 for mono or 2 for stereo.
+	public int channels;
+
+	/// Number of songs in the file.
+	public int songs;
+
+	/// 0-based index of the "main" song.
+	///
+	/// The specified song should be played by default.
+	public int default_song;
+
+	/// Lengths of songs.
+	///
+	/// Each element of the array represents length of one song,
+	/// in milliseconds. -1 means the length is indeterminate.
+	public int[32] durations;
+
+	/// Information about finite vs infinite songs.
+	///
+	/// Each element of the array represents one song, and is:
+	/// * `true` if the song loops
+	/// * `false` if the song stops
+	public bool[32] loops;
+
+	bool ntsc;
+	int type;
+	int fastplay;
+	int music;
+	int init;
+	int player;
+	int covox_addr;
+	int header_len;
+	byte[32] song_pos;
+}
+
+class PokeyState
+{
+	int audctl;
+	bool init;
+	int poly_index;
+	int div_cycles;
+	int mute1;
+	int mute2;
+	int mute3;
+	int mute4;
+	int audf1;
+	int audf2;
+	int audf3;
+	int audf4;
+	int audc1;
+	int audc2;
+	int audc3;
+	int audc4;
+	int tick_cycle1;
+	int tick_cycle2;
+	int tick_cycle3;
+	int tick_cycle4;
+	int period_cycles1;
+	int period_cycles2;
+	int period_cycles3;
+	int period_cycles4;
+	int reload_cycles1;
+	int reload_cycles3;
+	int out1;
+	int out2;
+	int out3;
+	int out4;
+	int delta1;
+	int delta2;
+	int delta3;
+	int delta4;
+	int skctl;
+	int[888] delta_buffer;
+}
+
+class ASAP_State
+{
+	int cycle;
+	int cpu_pc;
+	int cpu_a;
+	int cpu_x;
+	int cpu_y;
+	int cpu_s;
+	int cpu_nz;
+	int cpu_c;
+	int cpu_vdi;
+	int scanline_number;
+	int nearest_event_cycle;
+	int next_scanline_cycle;
+	int timer1_cycle;
+	int timer2_cycle;
+	int timer4_cycle;
+	int irqst;
+	int extra_pokey_mask;
+	int consol;
+	byte[4] covox;
+	PokeyState() base_pokey;
+	PokeyState() extra_pokey;
+	int sample_offset;
+	int sample_index;
+	int samples;
+	int iir_acc_left;
+	int iir_acc_right;
+	public ASAP_ModuleInfo() module_info;
+	int tmc_per_frame;
+	int tmc_per_frame_counter;
+	int current_song;
+	int current_duration;
+	int blocks_played;
+	int silence_cycles;
+	int silence_cycles_counter;
+	byte[511] poly9_lookup;
+	byte[16385] poly17_lookup;
+	byte[65536] memory;
+}

@@ -1,0 +1,6 @@
+Playgsf has been tested on Freebsd, but it should
+work on all unixes supporting /dev/dsp
+
+Refer to readme.linux for building and usage instructions.
+
+

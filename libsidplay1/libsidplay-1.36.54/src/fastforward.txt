@@ -1,0 +1,22 @@
+FAST FORWARD PLAYBACK
+
+Fast-forward playback is protected against a bufferfill deadlock.
+Use it like this: 
+
+  extern sidEmuFastForwardReplay(int samplesPercentage);
+
+Where the parameter is out of [1=fastest,...,100=normal_speed].
+Examples:
+
+  50 = 2x faster
+  25 = 4x faster
+  12 ~= 8x faster
+  3 ~= 32x faster
+
+Playback speed is increased by calculating fewer samples per C64 player call.
+To fill the sample buffer more C64 player calls have to be done. Hence the
+6510-interpreter usage increases. This might be too much for slower machines.
+
+Alternatively, it would be possible to call the 6510-interpreter without
+calculating any samples at all.
+

@@ -1,0 +1,96 @@
+*************** Overview
+This is playgsf, a linux version of gsf input plugin for winamp, Highly Advanced.
+
+Highly advanced was coded by CaitSith2 and Zoopd. It is available
+at GSF Central:
+http://www.caitsith2.com/gsf/
+
+Linux port was done by Raphael Assenat, and can be found there:
+http://projects.raphnet.net/
+
+
+*************** Changelog
+v0.7.1: - Fixed a crash when the -e option was used.
+		Thanks to nemesis661 for reporting this.
+
+v0.07: Got a patch from Urpo Lankinen which adds:
+       - Output to wave file
+       - Sound output using libao (http://www.xiph.org/ao/).
+              
+v0.06: - Improvements in the configure script to support non-Linux unix like
+         platforms (Tested on freebsd), 
+       - Added a configure option to disable optimisations in case gcc runs 
+         out of memory (happens on freebsd with g++ 3.4.2)
+	   
+	   Many thanks to Emanuel Haupt for providing me a shell on a FreeBSD
+	   machine!
+v0.05: Added a configure script, tested on non-x86 archs and on big-endian.
+       Fixed a path manipulation bug and a typo. Updated documentation.
+v0.04: Fixed way timing/fade was handled (CaitSith2)
+v0.03: Sync with Highly Advanced Version 0.11
+v0.02: Added option -r to play files in random order and fixed a display bug
+v0.01: Initial release
+
+
+***************** Building
+Note: Since libresample is required to build this project and
+it is not distributed yet by most Linux distributions (not in gentoo 
+yet, and the libresample makefile does not have an install target...),
+I have included libresample-0.1.3 with playgsf. It will be built automatically.
+
+Start by running the configure script:
+# ./configure
+
+You may pass some options to configure:
+
+--enable-ccore    Build the C version of the GBA emulation core instead of asm
+                  version. If not specified, the C core will be enabled if
+				  the CPU is not x86 or x86_64.
+
+--enable-asmcore  Use the ASM emulation code. x86 only. (Default is
+                  guessed)
+
+--disable-interpolation
+	The highly advanced website metions that the interpolation 
+	code may be the cause of some crashing issues some people have experienced.
+	This options allows you to disable the interpolation code.
+
+--disable-optimisations
+	This options disables compiler optimisation. Some versions of gcc seem
+	to enter an infinite memory consuming loop while compiling the emulation
+	engine. If this happens, disabling optimisations will prevent this.
+
+# make
+on a BSD variant, you should use:
+# gmake
+
+Enjoy!
+
+**************** Usage
+./playgsf [options] files...
+
+  -l        Enable low pass filer
+  -s        Detect silence
+  -L        Set silence length in seconds (for detection). Default 5
+  -t        Set default track length in milliseconds. Default 150000 ms
+  -i        Ignore track length (use default length)
+  -e        Endless play
+  -r        Play files in random order
+  -h        Displays what you are reading right now
+
+eg: 
+$ playgsf Krawall-1.minigsf
+
+NOTE: .minigsf files usually requires a library file (.gsflib). playgsf expects
+this file to be in the same directory as the .minigsf
+
+**************** Todo
+- Make a clean C interface (configuration structure instead of extern variables, struct with
+  function pointers for sound output, end of tune notification...) and make something like libplaygsf
+- Write a plugin for xmms using the lib
+- Keep up with new Highly Advanced versions
+
+**************** Music
+gsf tunes are available from GSF Central:
+http://www.caitsith2.com/gsf/
+

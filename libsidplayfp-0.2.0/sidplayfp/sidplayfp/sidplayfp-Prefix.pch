@@ -1,0 +1,11 @@
+//
+// Prefix header for all source files of the 'sidplayfp' target in the 'sidplayfp' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif
+
+#define NDEBUG 1
+#define HAVE_CONFIG_H 1
+

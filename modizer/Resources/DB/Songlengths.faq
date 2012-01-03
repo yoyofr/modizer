@@ -1,0 +1,101 @@
+SONGLENGTH DATABASE
+
+  Newer implementations of the experimental songlength database use
+  MD5 fingerprints to lookup the playtimes for sidtunes. This
+  separates sidtune files from the fixed structure of the HVSC.
+  As of HVSC 5.0, a modified fingerprint calculation is required.
+
+  In other words, you can install the songlength database file in a
+  place where your particular player finds it (provided that it
+  supports these kind of database files) and use it together with
+  files previously fetched from the HVSC but now stored at arbitrary
+  locations in your filesystem.
+
+  If you add sid files to a playlist and have the songlength
+  database enabled, the sidtune and its playtime will be identified
+  by its MD5 fingerprint.
+
+  If your particular sidtune file doesn't match any fingerprint in
+  the database, you are left with playlist defaults and need to
+  determine the playtime of the song yourself.
+
+  If you fetch your sids from the HVSC usually, it is recommended
+  that you update your private collection of sidtunes with possibly
+  newer versions from the HVSC. Also check out for possibly newer
+  and improved releases of prebuilt songlength database files.
+
+  The database contains only the playtimes for PAL emulation clock
+  speed and for PSID v2NG files either PAL or NTSC as defined in the
+  file, but not both. Make sure you configure your SID player for
+  PAL emulation.
+  
+-----------------------------------------------------------------------
+
+The file format is INI-style. One group/section called [Database] at
+the top and each line in key=value format. Unless specified
+otherwise, fields -- inparticular timestamps -- may be separated by
+one or more whitespace.
+
+  ini-identifier:
+        "[Database]"
+
+  entry-list:
+        entry
+        entry-list [entry]
+
+  entry:
+        md5-fingerprint=timestamp-list
+
+  md5-fingerprint:
+        16-character_hexadecimal_ASCII_representation_of_128-bit_fingerprint
+        
+  timestamp-list:
+        timestamp
+        timestamp-list [timestamp]
+
+  timestamp:
+        min:sec
+        min:sec(attribute)
+        -:--
+
+  min:
+        <integer out of [0,1,...)>
+
+  sec:
+        <integer out of [00,01,02,...,58,59]>
+
+  attribute:
+        G
+        B
+        M
+        Z
+
+Note, that there are just minutes and seconds but no hours in a
+timestamp. A -:-- timestamp is put where my tool was unable to
+detect a song-length. The reason most likely is a bad rip which
+reads entire memory (or arbitrary parts thereof) while it doesn't
+stop playing either. Below VARIOUS are only a very few sids where
+this has happened.
+
+The ``attribute'' has diagnostic purposes only. Right now, you can
+skip it or do an inversion, i.e. add a (L) flag (song loops) to every
+timestamp that has no attribute, and erase the attribute of all other
+timestamps. The tool did not check whether a sub-song loops infinitely
+or whether it does end after it has looped for some time. This may
+need a second pass or additional code.
+
+Timestamps with an attribute 0:00 (G) may need to be rounded up by
+one second. Sids touched in HVSC Update #22 _no longer_ need such a
+fix. For instance, sound effects which play less than one second
+have a timestamp 0:01 (G) from now on. Old entries will be updated
+some day. Right now it doesn't matter if the playtime of songs that
+stop is increased by one second.
+
+  (G) = all three SID voices have had GATE off...
+  (M) = Master Volume turned zero...
+  (Z) = all three SID voices have been silent...
+
+  ... for X seconds (where X is an internal parameter of siddiag).
+
+  (B) = sidtune does bad things in memory / timestamp estimated
+

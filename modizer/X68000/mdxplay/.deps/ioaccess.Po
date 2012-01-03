@@ -1,0 +1,3 @@
+ioaccess.o ioaccess.o: ioaccess.c ../config.h
+
+../config.h:

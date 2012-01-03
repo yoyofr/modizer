@@ -1,0 +1,5 @@
+SIDTUNE FILE FORMATS
+
+Some are documented on the SIDPLAY Home Page in the ``INFO'' section:
+http://www.geocities.com/SiliconValley/Lakes/5147/
+

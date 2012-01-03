@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libsidutils
+Description: Utils for supporting the libsidplay2 library.
+Version: 1.0.4
+Libs: ${libdir}/libsidutils.la
+Cflags: -DHAVE_UNIX -I${includedir}

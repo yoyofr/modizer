@@ -1,0 +1,67 @@
+//
+//  GoogleAppHelper.m
+//  modizer
+//
+//  Created by yoyofr on 23/10/10.
+//  Copyright 2010 __MyCompanyName__. All rights reserved.
+//
+
+#import "GoogleAppHelper.h"
+#import "DBHelper.h"
+
+@implementation GoogleAppHelper
+
++(void) SendStatistics:(NSString*)fileName path:(NSString*)filePath rating:(int)rating playcount:(int)playcount country:(NSString*)country city:(NSString*)city longitude:(double)lon latitude:(double)lat {
+	int collectionType=0;
+	NSRange r;
+	NSString *strPath=nil;
+	r=[filePath rangeOfString:@"Documents/MODLAND" options:NSCaseInsensitiveSearch];
+	if (r.location!=NSNotFound) {
+		strPath=DBHelper::getFullPathFromLocalPath([filePath substringFromIndex:18]);
+		if (strPath!=nil) collectionType=1;
+		else { //Not found but keep path
+			strPath=[filePath substringFromIndex:18];
+		}
+	} else {
+		r.location=NSNotFound;
+		r=[filePath rangeOfString:@"Documents/HVSC" options:NSCaseInsensitiveSearch];
+		if (r.location!=NSNotFound) {
+			collectionType=2;
+			strPath=[filePath substringFromIndex:15];
+		}
+	}
+	if (strPath==nil) {
+		//Remove the Documents/ and keep the rest
+		strPath=[filePath substringFromIndex:10];
+	}
+		
+	NSString *urlString=[NSString stringWithFormat:@"%@/Stats?Name=%@&Path=%@&Rating=%d&Played=%d&UID=%@&Type=%d&Country=%@&City=%@&%@",
+						 STATISTICS_URL,
+						 [[fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"&" withString:@"$$"],
+						 [[[strPath stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding] stringByReplacingOccurrencesOfString:@"%" withString:@"//"] stringByReplacingOccurrencesOfString:@"&" withString:@"$$"],
+						 rating,playcount,[[UIDevice currentDevice] uniqueIdentifier],
+						 collectionType,
+						 (country?country:@"Unknown"),
+						 (city?city:@"Unknown"),
+						 [[NSString stringWithFormat:@"Lat=%f&Lon=%f",lat,lon] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+						  ];
+	NSURL *url=[NSURL URLWithString:urlString];
+	//NSLog(@"%@",[url absoluteString]);
+	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+	[request setDelegate:self];
+	[request startAsynchronous];
+}
+
+- (void)requestFinished:(ASIHTTPRequest *)request {
+	// Use when fetching text data
+//	NSString *responseString = [request responseString];
+	
+	// Use when fetching binary data
+//	NSData *responseData = [request responseData];
+}
+
+- (void)requestFailed:(ASIHTTPRequest *)request {
+//	NSError *error = [request error];
+}
+
+@end

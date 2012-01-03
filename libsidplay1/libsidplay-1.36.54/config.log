@@ -1,0 +1,77 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:732: checking for a BSD compatible install
+configure:785: checking whether build environment is sane
+configure:842: checking whether make sets ${MAKE}
+configure:888: checking for working aclocal
+configure:901: checking for working autoconf
+configure:914: checking for working automake
+configure:927: checking for working autoheader
+configure:940: checking for working makeinfo
+configure:962: checking host system type
+configure:989: checking for c++
+configure:1021: checking whether the C++ compiler (c++  ) works
+configure:1037: c++ -o conftest    conftest.C  1>&5
+configure:1063: checking whether the C++ compiler (c++  ) is a cross-compiler
+configure:1068: checking whether we are using GNU C++
+configure:1096: checking whether c++ accepts -g
+configure:1145: cc -c   conftest.c 1>&5
+configure:1162: cc -c   conftest.c 1>&5
+configure: In function 'main':
+configure:1158: warning: incompatible implicit declaration of built-in function 'exit'
+configure:1188: checking for bool
+configure:1231: checking whether exception-handling is supported
+configure:1274: checking whether standard member ios::binary is available
+configure:1321: checking whether byte ordering is bigendian
+configure:1423: checking size of char
+configure:1462: checking size of short int
+configure:1501: checking size of int
+configure:1540: checking size of long int
+configure:1585: checking how to run the C++ preprocessor
+configure:1628: checking for ANSI C header files
+configure:1733: checking for strncasecmp
+configure:1791: checking for strnicmp
+configure:1849: checking for stricmp
+configure:1907: checking for strcasecmp
+configure:1967: checking for unistd.h
+configure:2007: checking for sys/stat.h
+configure:2047: checking for sys/types.h
+configure:2088: checking for sstream
+configure:2128: checking for long file names
+configure:2195: checking for Cygwin environment
+configure:2228: checking for mingw32 environment
+configure:2326: checking build system type
+configure:2346: checking for gcc
+configure:2459: checking whether the C compiler (gcc  ) works
+configure:2475: gcc -o conftest    conftest.c  1>&5
+configure:2501: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:2506: checking whether we are using GNU C
+configure:2534: checking whether gcc accepts -g
+configure:2577: checking for ld used by GCC
+configure:2645: checking if the linker (/usr/libexec/gcc/i686-apple-darwin10/4.2.1/ld) is GNU ld
+configure:2662: checking for /usr/libexec/gcc/i686-apple-darwin10/4.2.1/ld option to reload object files
+configure:2674: checking for BSD-compatible nm
+configure:2712: checking whether ln -s works
+configure:2733: checking how to recognise dependant libraries
+configure:2916: checking for object suffix
+configure:2942: checking for executable suffix
+configure:2983: checking command to parse /usr/bin/nm output
+configure:3166: checking for dlfcn.h
+configure:3344: checking for ranlib
+configure:3411: checking for strip
+configure:3654: checking for objdir
+configure:3681: checking for gcc option to produce PIC
+configure:3833: checking if gcc PIC flag  -fno-common works
+configure:3899: checking if gcc static flag  works
+configure:3941: checking if gcc supports -c -o file.o
+configure:4038: checking if we can lock with hard links
+configure:4057: checking if gcc supports -fno-rtti -fno-exceptions
+configure:4070: c++ -c -g -O2  conftest.C 1>&5
+configure:4097: checking whether the linker (/usr/libexec/gcc/i686-apple-darwin10/4.2.1/ld) supports shared libraries
+configure:4781: checking how to hardcode library paths into programs
+configure:4809: checking whether stripping libraries is possible
+configure:4823: checking dynamic linker characteristics
+configure:5220: checking if libtool supports shared libraries
+configure:5224: checking whether to build shared libraries
+configure:5247: checking whether to build static libraries

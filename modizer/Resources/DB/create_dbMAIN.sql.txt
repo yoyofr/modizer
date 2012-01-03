@@ -1,0 +1,185 @@
+CREATE TABLE mod_file (id integer primary key autoincrement,id_type integer,id_author integer,id_album integer,filename text,filesize integer,fullpath text,localpath text);
+
+CREATE TABLE mod_author (id integer primary key autoincrement, author text, num_files integer);
+
+CREATE TABLE mod_type (id integer primary key autoincrement, filetype text, num_files integer);
+
+CREATE TABLE mod_album (id integer primary key autoincrement,id_author integer, album text, num_files integer);
+
+CREATE TABLE mod_type_author (id_type integer,id_author integer,num_files integer);
+
+CREATE TABLE mod_author_album (id_author integer,id_album integer,num_files integer);
+
+CREATE TABLE mod_type_author_album (id_type integer,id_author integer,id_album integer,num_files integer);
+
+CREATE TABLE import_4comp (filesize integer,filetype text,author text,filename text,fullpath text);
+CREATE TABLE import_5comp (filesize integer,filetype text,author text,album text,filename text,fullpath text);
+CREATE TABLE import_6comp (filesize integer,filetype text,filetype2 text,author text,album text,filename text,fullpath text);
+CREATE TABLE import_7comp (filesize integer,filetype text,filetype2 text,filetype3 text,author text,album text,filename text,fullpath text);
+
+.separator '\'
+
+.import "./comp4.txt" import_4comp
+.import "./comp5.txt" import_5comp
+.import "./comp6.txt" import_6comp
+.import "./comp7.txt" import_7comp
+
+
+INSERT INTO import_7comp (filesize,filetype,author,filename,fullpath)
+	SELECT filesize,filetype,author,filename,fullpath
+	FROM import_4comp;
+INSERT INTO import_7comp (filesize,filetype,author,album,filename,fullpath)
+	SELECT filesize,filetype,author,album,filename,fullpath
+	FROM import_5comp;
+INSERT INTO import_7comp (filesize,filetype,filetype2,author,album,filename,fullpath)
+	SELECT filesize,filetype,filetype2,author,album,filename,fullpath
+	FROM import_6comp;
+
+DROP TABLE import_4comp;
+DROP TABLE import_5comp;
+DROP TABLE import_6comp;
+
+CREATE INDEX idx_import_albumAuthor on import_7comp (author);
+CREATE INDEX idx_import_albumFiletype on import_7comp (filetype);
+CREATE INDEX idx_import_albumAlbum on import_7comp (album);
+
+
+INSERT INTO mod_author (author,num_files)
+	SELECT author,count(1) 
+	FROM import_7comp
+	GROUP BY author;
+
+INSERT INTO mod_type (filetype,num_files)
+	SELECT filetype,count(1) 
+	FROM import_7comp
+	GROUP BY filetype;
+
+INSERT INTO mod_album (album,num_files)
+	SELECT album,count(1) 
+	FROM import_7comp
+	WHERE album is not null
+	GROUP BY album;
+
+CREATE INDEX idx_mod_authorAuthor on mod_author (author);
+CREATE INDEX idx_mod_authorId on mod_author (id);
+
+CREATE INDEX idx_mod_typeFiletype on mod_type (filetype);
+CREATE INDEX idx_mod_typeId on mod_type (id);
+
+CREATE INDEX idx_mod_albumAlbum on mod_album (album);
+CREATE INDEX idx_mod_albumId on mod_album (id);
+
+INSERT INTO mod_file (id_type,id_author,id_album,filename,filesize,fullpath)
+	SELECT t.id,au.id,al.id,i.filename,i.filesize,i.fullpath
+	FROM import_7comp i,mod_type t,mod_author au,mod_album al
+	WHERE i.filetype=t.filetype
+	AND   i.author=au.author
+	AND   i.album=al.album;
+
+INSERT INTO mod_file (id_type,id_author,filename,filesize,fullpath)
+	SELECT t.id,au.id,i.filename,i.filesize,i.fullpath
+	FROM import_7comp i,mod_type t,mod_author au
+	WHERE i.filetype=t.filetype
+	AND   i.author=au.author
+	AND   i.album is null;
+
+INSERT INTO mod_type_author (id_type,id_author,num_files)
+	SELECT id_type,id_author,count(1)
+	FROM mod_file
+	GROUP BY id_type,id_author;
+
+INSERT INTO mod_author_album (id_author,id_album,num_files)
+	SELECT id_author,id_album,count(1)
+	FROM mod_file
+	GROUP BY id_author,id_album;
+
+INSERT INTO mod_type_author_album (id_type,id_author,id_album,num_files)
+	SELECT id_type,id_author,id_album,count(1)
+	FROM mod_file
+	GROUP BY id_type,id_author,id_album;
+
+CREATE INDEX idx_modauthor on mod_file (id_author);
+CREATE INDEX idx_modtype on mod_file (id_type);
+CREATE INDEX idx_modalbum on mod_file (id_album);
+CREATE INDEX idx_mod_fileTypeAuthor on mod_file (id_type,id_author);
+CREATE INDEX idx_mod_fileAuthorAlbum on mod_file (id_author,id_album);
+CREATE INDEX idx_mod_fileFullpath on mod_file (fullpath);
+CREATE INDEX idx_mod_fileLocalpath on mod_file (localpath);
+
+CREATE INDEX idx_mod_type_authorAuthor on mod_type_author (id_author);
+CREATE INDEX idx_mod_type_authorId_type on mod_type_author (id_type);
+
+CREATE INDEX idx_mod_author_albumAuthor on mod_author_album (id_author);
+
+DROP TABLE import_7comp;
+
+CREATE TABLE songlength (id_md5 text,track_nb int,song_length int);
+CREATE TABLE hvsc_path (id_md5 text,filepath text);
+
+.separator ';'
+.import "./hvsc_songl.txt" songlength
+.import "./hvsc_pathmd5.txt" hvsc_path
+
+CREATE INDEX idx_songlengthMD5 on songlength (id_md5);
+CREATE INDEX idx_hvsc_pathMD5 on hvsc_path (id_md5);
+
+
+UPDATE mod_file
+SET localpath=( SELECT a.author||"/"||t.filetype||"/"||l.album||"/"||mod_file.filename
+				FROM mod_author a,mod_type t,mod_album l
+				WHERE mod_file.id_author=a.id AND mod_file.id_type=t.id AND mod_file.id_album=l.id)
+WHERE id_album is not null;
+
+UPDATE mod_file
+SET localpath=( SELECT a.author||"/"||t.filetype||"/"||mod_file.filename
+				FROM mod_author a,mod_type t
+				WHERE mod_file.id_author=a.id AND mod_file.id_type=t.id)
+WHERE id_album is null;
+
+CREATE TABLE import_4hvsc (id_md5 text,dir1 text,dir2 text,filename text);
+CREATE TABLE import_5hvsc (id_md5 text,dir1 text,dir2 text,dir3 text,filename text);
+CREATE TABLE import_6hvsc (id_md5 text,dir1 text,dir2 text,dir3 text,dir4 text,filename text);
+CREATE TABLE import_7hvsc (id_md5 text,dir1 text,dir2 text,dir3 text,dir4 text,dir5 text,filename text);
+
+.separator '/'
+
+.import "./hvsc4.txt" import_4hvsc
+.import "./hvsc5.txt" import_5hvsc
+.import "./hvsc6.txt" import_6hvsc
+.import "./hvsc7.txt" import_7hvsc
+
+CREATE TABLE hvsc_file (id_md5,dir1 text,dir2 text,dir3 text,dir4 text,dir5 text,filename text,fullpath text);
+
+INSERT INTO hvsc_file (id_md5,dir1,dir2,filename,fullpath)
+SELECT id_md5,dir1,dir2,filename,'/'||dir1||'/'||dir2||'/'||filename FROM import_4hvsc;
+
+INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,filename,fullpath)
+SELECT id_md5,dir1,dir2,dir3,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||filename FROM import_5hvsc;
+
+INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,dir4,filename,fullpath)
+SELECT id_md5,dir1,dir2,dir3,dir4,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||filename FROM import_6hvsc;
+
+INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,dir4,dir5,filename,fullpath)
+SELECT id_md5,dir1,dir2,dir3,dir4,dir5,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||dir5||'/'||filename FROM import_7hvsc;
+
+DROP TABLE import_4hvsc;
+DROP TABLE import_5hvsc;
+DROP TABLE import_6hvsc;
+DROP TABLE import_7hvsc;
+
+CREATE INDEX idx_hvsc_fileMD5 on hvsc_file (id_md5);
+CREATE INDEX idx_hvsc_fileFullpath on hvsc_file (fullpath);
+CREATE INDEX idx_hvsc_fileDirs on hvsc_file (dir1,dir2,dir3,dir4,dir5);
+
+CREATE TABLE stil (fullpath text,stil_info text);
+.separator ";;"
+.import "./stilconverted" stil 
+CREATE INDEX idx_stil_fullpath on stil (fullpath);
+
+CREATE TABLE version (major integer,minor integer);
+INSERT INTO version (major,minor)
+VALUES (1,4);
+
+
+
+VACUUM;
