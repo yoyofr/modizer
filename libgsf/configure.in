@@ -1,0 +1,143 @@
+AC_INIT(linuxmain.cpp)
+
+AC_PROG_CC
+AC_CHECK_HEADERS(sys/soundcard.h)
+AC_PROG_CPP
+AC_PROG_CXX
+AC_C_BIGENDIAN
+AC_C_INLINE
+AC_CANONICAL_HOST
+
+AC_CHECK_LIB(ao, ao_initialize, has_libao=yes , [
+	echo "Could not find libao. Please install it."
+	exit
+])
+
+CFLAGS="-DLINUX -I./VBA -DVERSION_STR=\\\"0.07\\\" -DHA_VERSION_STR=\\\"0.11\\\" -I./libresample-0.1.3/include"
+LDFLAGS="-lz -lresample -L./libresample-0.1.3 -lao"
+
+use_c_core=yes
+auto_c_core=yes
+interpolation=yes
+use_optimisation=yes
+
+
+AC_ARG_ENABLE(
+		[ccore], 
+		AS_HELP_STRING([--enable-ccore],[Use the C emulation code. (Default is guessed)]),
+		if test "$enableval" = "yes"
+		then
+			auto_c_core=no
+			use_c_core=yes
+		else
+			auto_c_core=no
+			use_c_core=no
+		fi
+)
+
+AC_ARG_ENABLE(
+		[asmcore],
+		AS_HELP_STRING([--enable-asmcore],[Use the ASM emulation code. x86 only. (Default is guessed)]),
+		if test "$enableval" = "yes"
+		then
+			auto_c_core=no
+			use_c_core=no
+		else
+			auto_c_core=no
+			use_c_core=no
+		fi
+)
+
+
+AC_ARG_ENABLE(
+		[interpolation],
+		AS_HELP_STRING([--disable-interpolation],
+		[Dont compile interpolation code. (Default is NO)]),
+		if test "$enableval" = "no"
+		then
+			CFLAGS="$CFLAGS -DNO_INTERPOLATION"
+			interpolation=no
+		fi
+)
+
+AC_ARG_ENABLE(
+		[optimisations],
+		AS_HELP_STRING([--disable-optimisations],
+		[Disable compiler optimisations. (Default is NO)]),
+		if test "$enableval" = "no"
+		then
+			use_optimisation=no
+		fi
+)
+
+if test $auto_c_core == "yes"
+then
+case $host in
+	i386-*-*)
+		use_c_core=no;;
+	i486-*-*)
+		use_c_core=no;;
+	i586-*-*)
+		use_c_core=no;;
+	i686-*-*)
+		use_c_core=no;;
+	x86_64-*-*)
+		use_c_core=no;;
+	*)	
+		use_c_core=yes;;
+esac
+fi
+
+#echo -en "checking cpu type... "
+#arch=`arch`
+#echo $arch
+#if test $auto_c_core == "yes"
+#then
+#	if test $arch == "i586"
+#	then
+#	use_c_core=yes
+#	fi
+
+#	if test $arch == "i586"
+#	then
+#	use_c_core=no
+#	fi
+
+#	if test $arch == "x86_64"
+#	then
+#	use_c_core=no
+#	fi
+#fi
+
+if test $use_optimisation == "yes"
+then
+echo "Using optimisations"
+CFLAGS="$CFLAGS -O3"
+else
+echo "Not using optimisations"
+fi
+
+
+if test $use_c_core == "yes"
+then
+CFLAGS="$CFLAGS -DC_CORE"
+fi
+
+AC_CONFIG_HEADER(config.h)
+AC_OUTPUT(Makefile)
+echo
+echo "--- Configuration:"
+if test $use_c_core == "yes"
+then
+echo "Using C emulation core"
+else
+echo "Using ASM emulation core"
+fi
+
+if test $interpolation == "yes"
+then
+echo "Interpolation enabled"
+else
+echo "Interpolation disabled"
+fi
+

@@ -1,0 +1,159 @@
+/* 
+   Localizable.strings
+   modizer
+
+   Created by yoyofr on 21/10/10.
+   Copyright 2010 __MyCompanyName__. All rights reserved.
+ */
+
+//Localizable.String file for the French version.
+"Browser_LocalBrowsing_MainKey"="Fichiers locaux";
+"Browser_LocalBrowsing_SubKey"="Parcourir, écouter, supprimer.";
+
+"Browser_MODLAND_MainKey"="MODLAND collection";
+"Browser_MODLAND_SubKey"="%d fichiers téléchargeables.";
+
+"Browser_HVSC_MainKey"="HVSC collection";
+"Browser_HVSC_SubKey"="%d fichiers téléchargeables.";
+
+"Browser_Playlists_MainKey"="Listes de lecture";
+"Browser_Playlists_SubKey"="Organiser, créer, supprimer & écouter.";
+
+"Browser_Favorites_MainKey"="Favoris";
+"Browser_Favorites_SubKey"="Ecouter les fichiers les mieux notés.";
+
+"Browser_Most_played_MainKey"="Les plus joués";
+"Browser_Most_played_SubKey"="Ecouter les fichiers les plus joués.";
+
+"Browser_Web_MainKey"="Web";
+"Browser_Web_SubKey"="Naviguer et télécharger des fichiers.";
+
+"Browser_WorldCharts_MainKey"="Classements mondial";
+"Browser_WorldCharts_SubKey"="Top listes & liens.";
+
+"Browser_UserGuide_MainKey"="Guide d'utilisation";
+"Browser_UserGuide_SubKey"="Manuel, FAQ, astuces.";
+
+"GetAllEntries_MainKey"="Tout télécharger";
+"GetAllEntries_SubKey"="Limité à 256 téléchargements.";
+
+"DisplayDir_MainKey"="Lister/Dossier";
+"DisplayDir_SubKey"="Tout:";
+
+"DisplayAll_MainKey"="Lister tout";
+"DisplayAll_SubKey"="Dossier courant:";
+
+"Formats/Artists/Files"="Formats/Artistes/Fichiers";
+"Artists/Formats/Files"="Artistes/Formats/Fichiers";
+"Artists/Files"="Artistes/Fichiers";
+"Formats: %d entries."="Formats: %d entrées.";
+"Artists: %d entries."="Artistes: %d entrées.";
+
+"Played %d times."="Joué %d fois.";
+"Played once."="Joué 1 fois.";
+"Never played."="Jamais joué.";
+"%d files."="%d fichiers.";
+"1 file."="1 fichier.";
+
+"New playlist"="Nouvelle liste";
+"Save current one"="Sauver liste en cours";
+
+"Create a new empty playlist."="Créer une nouvelle liste vide.";
+"Create a playlist from currently played files."="Sauve la liste en cours d'écoute.";
+
+"Browse files"="Parcourir les fichiers";
+"Add or remove entries from browser."="Ajouter/supprimer des fichiers.";
+
+
+"Rename playlist"="Renommer la liste";
+"Choose a new name."="Choisir un nouveau nom.";
+
+"Playlist (%d)"="Listes (%d)";
+"Playlist/Search off"="Listes/Recherche off";
+
+"Local (%d, limited to %d)"="Local (%d, limité à %d)";
+"Local (%d)"="Local (%d)";
+"Local/Search off"="Local/Recherche off";
+
+"Modland (%d, limited to %d)"="Modland (%d, limité à %d)";
+"Modland (%d)"="Modland (%d)";
+"Modland/Search off"="Modland/Recherche off";
+
+"HVSC (%d, limited to %d)"="HVSC (%d, limité à %d)";
+"HVSC (%d)"="HVSC (%d)";
+"HVSC/Search off"="HVSC/Recherche off";
+
+"Searching Playlists..."="Recherche listes...";
+"Searching Local files..."="Recherche en local...";
+"Searching MODLAND..."="Recherche MODLAND...";
+"Searching HVSC..."="Recherche HVSC...";
+
+"Please enter at least 2 characters for your search."="Entrez au moins 2 caractères svp.";
+"Please activate at least 1 section for your search."="Activez au moins 1 section svp.";
+
+"Database created."="Base de données créée.";
+"Database will now be recreated. Please validate & wait."="La base de donnée va être recréée. Veuillez valider et patienter svp.";
+"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait."="Mauvaise version : %d.%d. Veuillez valider et patienter pour mettre à jour en %d.%d svp.";
+"No database found. Will create a new one. Please validate & wait..."="Pas de base de données. Veuillez svp valider et patienter pendant la création.";
+"File already available locally. Do you want to download it again?"="Fichier déjà disponible. Souhaitez vous poursuivre le téléchargement ?";
+"Playlist is full. Delete some entries to add more."="La liste est pleine. Veuillez supprimer des entrées.";
+
+
+"No download in progress"="Pas de téléchargement en cours";
+"Downloaded %@"="%@ téléchargé";
+"Could not add files. Please check manually with file browser (Local Browsing/Downloads)."="Les fichiers n'ont pas pu être ajoutés. Veuillez vérifier manuellement dans le dossier 'Downloads'.";
+"Downloading %@"="Télécharge %@";
+"Cannot download from this URL."="Téléchargement impossible depuis cette URL.";
+
+"Yes"="Oui";
+"No"="Non";
+"Warning"="Attention";
+"Close"="Fermer";
+"First launch or issue encountered last time Modizer was running. Apply default settings ?"="Premier lancement ou problème lors du dernier. Appliquer les réglages par défaut ?";
+"File cannot be played. Skipping to next playable file."="Ne pas jouer le fichier. Saut jusqu'au prochain fichier jouable.";
+"Seeking %d%%"="Recherche %d%%";
+"Seeking"="Recherche";
+"Too much entries! Playlist will be limited to %d first entries."="Trop d'entrées! La liste est limitée à %d entrées.";
+"Size: %dKB"="Taille: %dKB";
+
+"Settings_General"="General";
+"Settings_Player"="Lecteur";
+"Settings_Display"="Affichage";
+"Settings_Download"="Téléchargement";
+"Settings_FTP"="FTP";
+"Settings_PlaybackLib"="Bibliothèques de lecture";
+"Settings_DB"="Base de données";
+"Settings_CleanDB"="Nettoyage de la base";
+"Settings_ResetPlCnt"="Reset des compteurs de lecture";
+"Settings_ResetRatings"="Reset des notes";
+"Settings_ResetDB"="Reset complet de la base";
+"Settings_LocalFiles"="Fichiers locaux";
+"Settings_RecreateSamples"="Recréer le dossier 'Samples'";
+"Settings_FormatDownloads"="Formater le dossier 'Downloads'";
+"Settings_RemCovers"="Supprimer jaquettes";
+
+"Confirm_DBClean"="Lancer le nettoyage de la base (potentiellement long) ?";
+"Confirm_Reset_PlCnt"="Voulez vous reinitialiser les compteurs de lecture ?";
+"Confirm_Reset_Ratings"="Voulez vous reinitialiser les notes ?";
+"Confirm_ResetDB"="Voulez vous reinitialiser toute la base de donées ? Les playlists, notes et compteurs de lecture seront effacés.";
+"Confirm_RecreateSamples"="Voulez vous recréer le dossier 'Samples' ?";
+"Confirm_FormatDownloads"="Voulez vous formater le dossier 'Downloads' ?";
+
+"Image detected"="Image détectée";
+"Choose_SaveCover"="Enregistrer comme jaquette pour %@ ?";
+"CoverFolder"="Jaquette/Dossier";
+"CoverFile"="Jaquette/Fichier";
+
+"Confirm_RemCurCovers"="Effacer les couvertures de %@ (fichier et dossier) ?";
+"Settings_Settings"="Réglages";
+"Settings_SettingsDefault"="Défaut";
+"Settings_SettingsHigh"="Haut";
+"Settings_SettingsMed"="Moyen";
+"Settings_SettingsLow"="Bas";
+"Confirm_SettingsDef"="Voulez vous réinitialiser les réglages avec les valeurs par défaut ?";
+"Confirm_SettingsHigh"="Voulez vous réinitialiser les réglages avec les valeurs hautes ?";
+"Confirm_SettingsMed"="Voulez vous réinitialiser les réglages avec les valeurs moyennes ?";
+"Confirm_SettingsLow"="Voulez vous réinitialiser les réglages avec les valeurs basses ?";
+
+"Browser not enough mem."="Trop d'entrées, ne peut allouer assez de mémoire.";
+"Browser not enough mem. Limited."="Trop d'entrées, ne peut allouer assez de mémoire. Liste tronquée.";

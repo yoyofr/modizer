@@ -1,0 +1,9 @@
+//
+// Prefix header for all source files of the 'libtim' target in the 'libtim' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif
+
+#define HAVE_CONFIG_H 1

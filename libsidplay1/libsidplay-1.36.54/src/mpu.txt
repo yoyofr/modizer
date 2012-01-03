@@ -1,0 +1,31 @@
+MPU_BANK_SWITCHING
+
+Emulates any C64 memory bank-switching that could be considered as being
+useful for emulation of C64 music players. This should be the preferred
+setting.
+
+
+MPU_TRANSPARENT_ROM
+
+A simplified emulator environment with partial C64 memory bank-switching.
+Not as powerful as MPU_BANK_SWITCHING, but allows running sidtunes which
+
+ - use the RAM under the I/O address space
+ - use RAM at $E000-$FFFA + jump to Kernal functions
+
+If a sidtune requires this mode to be enabled, the sidtune ought to be
+fixed to make proper use of bank-switching.
+
+
+MPU_PLAYSID_ENVIRONMENT
+
+A PlaySID-like emulator environment. Allows running sidtunes which:
+
+ - are specific to PlaySID
+ - do not contain bank-switching code
+ - would not run on a real C64 because their players were prepared
+   to assume the certain emulator environment provided by PlaySID
+
+If a sidtune requires this mode to be enabled, the sidtune ought to be
+fixed to make proper use of bank-switching.
+

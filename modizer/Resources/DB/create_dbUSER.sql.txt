@@ -1,0 +1,17 @@
+CREATE TABLE user_stats (name text,fullpath text, play_count integer, rating integer,length int,channels int,songs int,mod_type int);
+
+CREATE TABLE playlists (id integer primary key autoincrement, name text, num_files integer);
+
+CREATE TABLE playlists_entries (id_playlist integer,name text,fullpath text);
+
+CREATE TABLE songlength_user (id_md5 text,track_nb int,song_length int);
+
+CREATE INDEX idx_playlists_entries_id on playlists_entries (id_playlist);
+CREATE INDEX idx_user_stats_fullpath on user_stats (fullpath);
+CREATE INDEX idx_songlength_user_id_md5 on songlength_user (id_md5);
+
+CREATE TABLE version (major integer,minor integer);
+INSERT INTO version (major,minor)
+VALUES (1,4);
+
+VACUUM;

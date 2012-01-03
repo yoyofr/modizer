@@ -1,0 +1,640 @@
+NOTES:
+
+The API and emulator are heavily out-of-date and would benefit from changes
+in various places. For instance (but not limited to),
+
+ - configuration constants should be members
+ - the emulator still contains obsolete experimental code and data
+ - the audio drivers (not part of libsidplay though) should be changed
+   to XSIDPLAY-style
+
+Since any of these changes would break available applications, the
+code has not been altered. If there were any noticable changes in the
+emulation, this would justify changes in the API. But as long as there
+are no emulation improvements, we better stick to the current design.
+
+For bleeding-edge development, checkout the sidplay2 project:
+http://sourceforge.net/projects/sidplay2
+
+
+CHANGES since 1.36.53:
+
+--- samples.cpp.orig	Sun Aug  6 20:48:27 2000
++++ samples.cpp	Wed May 22 19:38:18 2002
+@@ -6,7 +6,7 @@
+ 
+ extern ubyte* c64mem1;
+ extern ubyte* c64mem2;
+-extern uword PCMfreq;
++extern udword PCMfreq;
+ extern udword C64_clockSpeed;
+ 
+ void sampleEmuTryStopAll();
+
+
+CHANGES since 1.36.52:
+
+* Fixed a minor bug in PSID v1 -> v2NG conversion that was ported
+  from HVSC's Update Tool. PSID v1 has no reserved word. Hence the
+  PSID reader must not read v2NG fields from a v1 header.
+
+
+CHANGES since 1.36.51:
+
+  **
+  ** This is another release which is only source-compatible
+  ** and requires applications to be rebuilt!
+  **
+
++ Added rudimentary support for PSID v2NG as introduced with sidplay2.
+  The PSID loader/saver now copies these extensions. Conversion to
+  other file formats loses information. The emulator takes into
+  account only the clock speed setting (unless Force Song Speed is
+  enabled). The final sidtune speed description string is available
+  only after song initialization.
+
++ Added configure switches --enable-optfixpoint and --enable-optendian
+  to enable code optimizations DIRECT_FIXPOINT and OPTIMIZE_ENDIAN_ACCESS
+  in libcfg.h, which previously had to be edited manually. They are
+  disabled by default but highly recommended on little-endian platforms
+  (ix86, Duron, Athlon), where word alignment of values in memory is not
+  an issue.
+
+
+CHANGES since 1.36.49:
+
+* Put back in conditional compatibility code for old
+  non-standard <strstream.h>.
+
+* Merged MVSC compatibility changes.
+
+- Removed dependency on non-standard stricmp/strnicmp or
+  strcasecmp/strncasecmp.
+
+* Made compatible with libstdc++3 and GCC3.
+
+
+CHANGES since 1.36.46:
+
+* Changed emuEngine::getSecondsTotal() to count only the actual
+  listening time unlike emuEngine::getSecondsThisSong() which has
+  the purpose of reflecting the current song position/time.
+
+
+CHANGES since 1.36.45:
+
+* Fixed configure check for "strncasecmp".
+
+* Changed all header include-check preprocessor conditionals to
+  SIDPLAY1_<HEADERNAME>.
+
+* Changed emu defaults to 44.1 kHz, 16-bit, and full bank-switching.
+
+
+CHANGES since 1.36.44:
+
+* Minor 'configure' and Automake related set-up fix.
+
+* If all goes well with the various distributions this package
+  compiles on, this will be the last stability fix for some time.
+  Meanwhile, check out and support the public sidplay2 development
+  project at:
+  
+   --> http://sidplay2.sourceforge.net
+
+
+CHANGES since 1.36.43:
+
+* Fixed another of those SID_HAVE_EXCEPTIONS conditionals.
+
+* Another change to Galway Noise emulation. A digi sound that has
+  been set up during playback of an active sound is played right
+  after the currently active sound has ended.
+
+* Standard C++ fixes.
+
+
+CHANGES since 1.36.41:
+
+* Moved a couple of SID_HAVE_EXCEPTIONS conditionals to where they
+  belong (behind #include "compconf.h").
+
+
+CHANGES since 1.36.41:
+
+* Added the missing and most likely unused function:
+  bool sidTune::open(const char*, const bool);
+
+- Dropped a few lines of superfluous code in sidTune constructor.
+
+* Fixed conditional NO_STDIN_LOADER in sidtune.cpp and libcfg.h
+  which was left over since SID_NO_STDIN_LOADER was introduced
+  in pl36.
+
+
+CHANGES since 1.36.40:
+
+* Fixed a bug in the DigiScan-preprocessing which didn't consider
+  bank-switching.
+
+* Fixed conditional NO_STDIN_LOADER in sidtune.h which was
+  left over since SID_NO_STDIN_LOADER was introduced in pl36.
+
+
+CHANGES since 1.36.39:
+
+* Fixed a minor bug in the Galway Noise emulation
+  (visible in WAV files, but (again) isn't really audible, is it?).
+  (Thanks to Simon White for digging into it as well)
+
+
+CHANGES since 1.36.38:
+
+* Changed implementation of Galway Noise emulation slightly
+  (simplifies the code, but is not really audible).
+
+
+CHANGES since 1.36.37:
+
+* Since standard C++ compilers seem to be widely available nowadays,
+  this patchlevel gets rid of the pre-exception-handling-C++
+  convention that the default "new" operator returns 0 upon memory
+  exhaustion. However, rather than catching the bad_alloc
+  exceptions, the "nothrow allocator" is used.
+
+
+CHANGES since 1.36.35:
+
+* Took a different implementation of illegal opcode $AB from VICE.
+  A single sidtune has been found so far (not in HVSC!) which seems
+  to need such an implementation.
+
+* Changed configuration mechanism and files, so that automake
+  packages which use libsidplay don't clash with all the definitions
+  in the previously included header file config.h. Configuration is
+  now divided into two files (compconf.h and libcfg.h).
+
+  Some words on libtool's versioning system. The purpose of library
+  interface versions is understood. But since libsidplay is made of
+  experimental code, it may be necessary to break the versioning
+  system occasionally in order to avoid any confusion caused by the
+  introduction of library versions that are higher than the emulator
+  version (even though the emu_version is defined in version.h).
+  Usage of libtool's option -release to set a custom library version
+  is inappropriate, because it breaks binary compatibility anytime
+  the library version changes.
+
+
+CHANGES since 1.36.34:
+
+* Don't allow SID to disable voice 3 if it has filters enabled.
+
+* Improved emulation of Galway Noise based on PlaySID's
+  Extended SID registers.
+
+* Improved random number generator's bit 0.
+
+* Improved ASCII conversion of CHR$-strings in MUS file format.
+  (Peter Weighill)
+
+
+CHANGES since 1.36.33:
+
+* Fixed digiPlayerScans to detect usage of digi registers during song
+  initialization already. (Reported by S.Schneider)
+
++ Merged publicly available patches for NetBSD.
+
+
+CHANGES since 1.36.32:
+
+* New C64 player code for MUS file format fixes non-working MUS files.
+  New player is "Compute's Basic Sidplayer" by Craig Chamberlain.
+  (Peter Weighill and Adam Lorentzon)
+
+* Improved ASCII conversion of CHR$-strings in MUS file format.
+
+
+CHANGES since 1.36:
+
+* Random number generator fixed.  (Spotted by Adam Lorentzon)
+
+* Changed standard input loader to read up to maxSidtuneFileLen.
+
++ Added separate member function for setting the file name extension
+  search list. Else this would only work during initialization with a
+  constructor.
+
++ Added special support for path names from POSIX function readdir().
+  By setting an extra flag you can specify whether a supplied path name
+  has the forward slash (/) as file/directory separator. The class then
+  can successfully split the path name into directory and file name
+  regardless of what the file system's standard file separator is.
+
+* Changed sidTune::open() to allow reading from standard input as well.
+
+- Dropped obsolete experimental envelope code.
+
+* Updated smart.h.
+
++ Added error message for loading empty files.
+
+* Adapted some MOS-6581 read-out combined waveforms from reSID.
+
++ Integrated Vincent Penné's fixed-point class as a configurable alternative
+  for floating-point calculations.
+
+* Fixed digiPlayerScans variable in sidEmuConfig to accept values other
+  than 0 and 1 (*still* experimental though). Reported by Thomas Neumann.
+
++ Added security to fix more bad sidtunes (songs==0, startsong>songs,...).
+
+* Changed MS Windows/DOS file/path separator to backslash and colon.
+
+* Band-pass test.
+
+* Dropped path from sidtune file names in info structure.
+  Added separate path string. I've never thought about more of those sidTune
+  class related issues. If anything else is not so usable, tell.
+
+* Const, const, const.
+
+* No bug fixes. Merely a few internal changes.
+
+* Dropped the last few old public member functions of name ``returnFoo(..)''.
+  Use ``getFoo(..)'' instead.
+
+* Changed any platform-detecting and portability-specific preprocessor
+  instructions to be configurable in ``include/config.h''.
+
++ Now using Cygnus configure on Un*x systems. On all other systems create
+  your custom ``include/config.h'' from the template ``include/config.h.in''.
+
++ Security: Fixed PP-support against segmentation faults in case of
+  damaged compressed data. Changed PP-support to use bool. That file
+  is a mess!
+
+- Dropped definition of TRUE+FALSE from ``mytypes.h''.
+
+* Merged in compiler dependent preprocessor code. Check ``compconf.h'' for
+  dependencies. Only a very few __POWERPC__ and __GNUC__ checks are left
+  outside that header file.
+
++ Perform ``4th-channel'' DigiScans also for second digi channel.
+
+* Replaced the heavily detuned combined waveform $50 and dropped support for
+  the very old combined waveforms.
+
++ Added emulation of SID feature ``silent voice 3''. Better late than never.
+
+* Made essential filter calculations fully dependent from output frequency.
+
+* SIDEMU_HWMIXING didn't work in 16-bit mode. Not used by Linux version.
+
+* Waveform $60 is audible on a MOS-6581 as well.
+
+* Made speed of auto-panning independent from fast sidtune speed. However
+  it was not worth the effort to do the same for slow sidtune speed.
+  
+- Dropped normal (!) auto-panning (SIDEMU_AUTOPANNING). It actually doesn't
+  sound good for a high number of songs in the HVSC.
+
+* Band-pass and high-pass filter reconfigured. Band-pass filter is not yet
+  adjustable.
+
+- Integer-arithmetic filter (SID_FPUFILTER) dropped. In case of quick
+  filter tests and adjustsments it would be too much effort to maintain
+  the separate code.
+
+* Changed the noise seed value.
+
+* Minor fix to the SID filter cut-off frequency value.
+  Take three least significant bits instead of eight.
+
+* Minor fix to the noise waveform. Now it is also correct for very high noise
+  frequencies as well as low soundcard frequencies.
+
+* A few changes to the SID file support based on proof-reading.
+
+* Trying to get rid of problems on big-endian architectures RiscPC and UltraSPARC.
+  
+* Added definable OPTIMIZE_ENDIAN_ACCESS to ``compconf.h''. This needs to be
+  undefined on machines with 4-byte or 8-byte alignment.
+
+- Dropped the old confusing functions m68k(), m68word() and m68dword()
+  from ``myendian.h''. Equivalent functions are still available:
+  readEndian(hi-byte,..,lo-byte) and convertEndianess(uword or udword)
+
+
+CHANGES from 1.35 to 1.36:
+
++ Merged Phill's floating-point-to-fix-point-arithmetic changes.
+  Configurable in include/compconf.h.
+  
+! Fix-point filter functions break existent filter view dialogs.
+
+* sidTune class:
+   - save functions now take filename as (const char*)
+   - save functions don't affect object's state any longer
+   - added function load(..), which takes one-file format sidtune
+     data from a memory buffer
+
+* Finalized synchronization click fix from v1.32 (e.g. R1D1.sid).
+
+
+CHANGES from 1.34.2 to 1.35:
+
+* Emergency release: Experimental envelope emulation changes in the 1.31 version
+  have broken sidtunes. Since emulation emphasis is put on older sidtunes, the
+  changes have been cancelled.
+  
++ Added an alternative combined waveform (-> MOS-6581).
+
+
+CHANGES from 1.34 to 1.34.2:
+
+* Fixed digi bug: Galway-Noise sample period interfered with normal samples.
+  Reported first by: Kristoffer Johansson.
+
+* Fixed sample frequency-shifting register $D45D.
+  Reported first by: Warren Pilkington.
+
+
+CHANGES from 1.33i to 1.34:
+
+* Changed most file name arguments in sidtune class to ``const''.
+
++ Second digi channel (real samples only) at $D51D upwards.
+
+* Fixed high/low sample-order bug.
+
+* Linux command-line sidplay:
+
+  + Finished fragmentation and buffer size set up possibilities.
+  - Dropped non-Linux audio drivers to external files.
+
+
+CHANGES from 1.32.3 to 1.33i (interim release):
+
+* Security: Fast-forward protected against bufferfill deadlock.
+
+  Usage unchanged: extern sidEmuFastForwardReplay(int samplesPercentage);
+  Where parameter is out of [1=fastest,...,100=normal_speed].
+  50 would be double-speed, 25 would be quadro-speed. This fast-forward
+  replay works by calculating fewer samples per C64 player call.
+  To fill the sample buffer more C64 player calls have to be done.
+  Hence the 6510-interpreter usage increases. This might be too much
+  for slower machines.
+
+* Portability: Got rid of some annoying non-GCC compiler warnings that
+  can cause quite some confusion when applying changes.
+   
++ Revised selection of default file name extensions in sidtune class.
+  When I cleaned up my harddisc /sidmusic directory this selection managed
+  to load *all* sidtunes.
+  (.sid, .dat, .inf, '', .DAT, .SID, .INF, .c64, .prg, .C64, .PRG,
+  .info, .INFO, .data, .DATA)
+  
+	// Preferred default file extension for single-file sidtunes
+	// or sidtune description files in SIDPLAY INFOFILE format.
+	".sid",
+	// Common file extension for single-file sidtunes due to SIDPLAY/DOS
+	// displaying files *.DAT in its file selector by default.
+	// Originally this was intended to be the extension of the raw data file
+	// of two-file sidtunes in SIDPLAY INFOFILE format.
+	".dat",
+	// Extension of Amiga Workbench tooltype icon info files, which
+	// have been cut to MS-DOS file name length (8.3).
+	".inf",
+	// No extension for the raw data file of two-file sidtunes in
+	// PlaySID Amiga Workbench tooltype icon info format.
+	"",
+	// Common upper-case file extensions from MS-DOS (unconverted).
+	".DAT", ".SID", ".INF", 
+	// File extensions used (and created) by various C64 emulators and
+	// related utilities. These extensions are recommended to be used as
+	// a replacement for ".dat" in conjunction with two-file sidtunes.
+	".c64", ".prg", ".C64", ".PRG",
+	// Uncut extensions from Amiga.
+	".info", ".INFO", ".data", ".DATA",
+	// End.
+	0
+
+* Changed filter type 7 as Andreas suggested.
+
++ Define SIDEMU_TIME_COUNT to compile an internal time counter plus
+  related member functions. Sample buffers smaller than bytesPerSecond
+  (frequency*channels*bytesPerSample) will result in the counters being
+  incremented sufficiently fast. Supported right now are:
+  
+  int emuEngine::getSecondsThisSong();
+  int emuEngine::getSecondsTotal();     // good for listening mileage
+
+* SIDEMU_HWMIXING: Stereo did fill half of the buffer only. Perhaps I was
+  the only one using this mode when looking at samples. Never tried stereo
+  until now.
+
+* Linux command-line sidplay:
+
+  * Changed audio device driver to return correct number of fragments.
+  * Changed evaluation of argument line to protect against segmentation
+    faults caused by compiler/linker stack frame problems (aka ``argc'').
+  * Fixed non-Linux audio driver code.
+  
+* Initial problem perhaps was specific to gcc/ld. Anyway, all compile
+  time definitions, such as IS_LITTLE_ENDIAN, moved to include file 
+  ``compconf.h''. This prevents compiling emulator engine related class
+  code with different settings than there were used in libsidplay.
+
++ Regrouped envelope emulator code. Allows better inline-optimizations.
+  Regrouped waveform emulator code. Allows better inline-optimizations.
+  
+
+CHANGES from 1.32.2 to 1.32.3:
+
+* Try to please Alpha-Linux (and ...) with different gcc settings in makefile.
+
+
+CHANGES from 1.31-beta to 1.32:
+
+* Minor quality fix on digi emulation in high/low order.
+  Thanks to Ulf Jaenicke-Roessler for the mention.
+  
+* Sync+Ring click fix. Thanks for the excellent tip, Kristoffer Johansson !
+
++ Implemented readable SID + operator 3 (frame based).
+
++ Added additional sidtune constructor, which takes one-file format sidtune
+  data from a memory buffer.
+
+
+CHANGES from 1.30-pl6 to 1.31-beta:
+
++ Implementation of short temporary attack in ADSR volume envelope. Under
+  normal circumstances this would *require* a precise cycle-based 6510- and
+  ADSR-emulation. (e.g. drax/jsschrst.dat)
+  
+  [Note: VACSID and Frodo don't handle it. CCS64, C64S do, but are not 100%
+  right either.]
+
++ Smarter locking/unlocking of noise waveform.
+
+
+CHANGES from 1.27.4 to 1.30:
+
++ Most wanted feature: SID chip clock speed now can be set to either PAL or NTSC.
+  This affects the pitch but not the song speed unless "force song speed" is
+  chosen, which will force the C64 clock to be equal to the SID clock, setting
+  any PAL song to NTSC and vice versa. NTSC users now can listen to sids with the
+  intended song speed (the one preset for each sidtune), but the sound of an NTSC
+  SID chip. Clock speed checkbox's name still should be "C64 clock speed".
+
+- Dropped ``forceClockSpeed''. More below.
+
++ Improved dynamic ADSR envelope emulation. A few sidtunes were dropping notes
+  since v1.27. If some still do, they are most likely bad rips, like the one
+  already found. Check the next HVSC update for working ones.
+
++ New measured volume mode (default, but experimental). Replaces previous
+  "measured master volume" mode, since that one did not achieve what I wanted
+  it to, anyway. Related checkbox should be renamed to just ``measured volume''.
+
++ Now setVoiceVolume() accepts a further argument, the relative voice volume from
+  0 (mute) to 256 (max). This also makes it possible to mute the centered auto
+  panning.
+  Previously you most likely used own code similar to this:
+
+    voice_volume = left_or_right_level * new_voice_volume / max_voice_volume
+    where: 0 <= new_voice_volume <= max_voice_volume
+    e.g.: 0 <= x <= 256, half volume: x = 128
+
+  If you don't feel like changing that code, use 256=max when calling 
+  setVoiceVolume() in your code anywhere.
+
+* Auto-panning default: Reset 4th voice to middle position.
+
+o Stereo volume control documentation update.
+
+  In stereo mode and panning modes either modulate both, left and right, levels
+  with the voice_volume technique from above or via the new argument of
+  setVoiceVolume().
+  
+  SIDEMU_FULLPANNING:
+
+     Slider position
+         Voice A
+  Left              Right
+   X...................        : full left, L=255/R=0
+   ...................X        : full right, L=0/R=255
+   ..........X.........        : middle, L=128/R=127 or L=127/R=128
+   ....................        : mute, L=0/R=0
+   .....X..............        : more left than right, L=200/R=55
+
+  But also and *only* in FULLPANNING mode, but most likely not used, you can
+  set any possible combination of volume levels out of 0<=x<=255, for instance:
+
+   X..................X        : louder middle, L=255/R=255
+   X.........x.........        : full left and 50% right, L=255/R=128
+   
+  SIDEMU_VOLCONTROL  info was also unclear IMHO. setVoiceVolume() does not anymore
+  check the correctness of the given volume settings, since this would limit the
+  possibilities badly. But it does not do anything and returns false upon an invalid
+  voice number, voice_volume > 256 or no mixing mode, respectively.
+
+  Two voices should build a pair, satisfying the equation:
+  
+    left(voice_A) + left(voice_B) <= 255
+
+  Generally, the equations:
+    
+	sum leftLevel(i) <= 512       i=[1,2,3,4]
+	sum rightLevel(i) <= 512      i=[1,2,3,4]
+  
+  must be satisfied, because only a maximum of two voices can be mixed
+  to one physical audio channel.
+  
+  Building pairs can be, but don't has to be, done like this:
+  
+    left(voice_A) = right(voice_B)
+	right(voice_A) = left(voice_B)
+    left(voice_A) + right(voice_A) <= 255
+    left(voice_B) + right(voice_B) <= 255
+
+  It is not possible to position both from a pair of voices on the same side.
+
+                  Slider Pos.
+			    Pair of voices
+            Left              Right
+  Voice A:   X...................        : full left, L=255/R=0
+  Voice B:   ...................X        : full right, L=0/R=255
+  
+  Voice A:   ....X...............        : L=200/R=55
+  Voice B:   ...............X....        : L=55/R=200
+
+  Voice A:   .........X..........        : middle, L=128/R=127
+  Voice B:   .........X..........        : middle, L=127/R=128 (or vice versa)
+
+  Voice A:   ...............X....        : L=55/R=200
+  Voice B:   ....X...............        : L=200/R=55
+
+  Voice A:   ...................X        : full right, L=0/R=255
+  Voice B:   X...................        : full left, L=255/R=0
+
+  Side note: You could also mute voice_A and then could safely do
+  left(voice_B)+right(voice_B) > 255, but you most likely will never do so,
+  as this would require a much more complex mixer.
+  
+o The following was done due to consistency and because I have replaced any internal
+  constants with the external configuration constants and because I think the name
+  "configuration" suits better than "specifications", which I found confusing and
+  unreadable. These changes build upon everything I found to be better in the
+  now obsolete pre-2.0 testing engine.
+  
+  Single header file to include has not changed and still is ``player.h'' only.
+
+o Dropped directories mos_6510/ and mos_6581/. Put all the emulation stuff into emu/. 
+  Some files became obsolete.
+  *** Do the renaming in this order and you'll likely be safe !
+  
+   o Renamed class ``sidEmuConfig'' to ``emuEngine''.
+   o Renamed structure ``sidEmuSpecs'' to ``emuConfig''.
+   o Renamed header file ``sidemu.h'' to ``emucfg.h''.
+     All configuration information resides in here.
+   o Renamed member function ``setSpecs'' to ``setConfig''.
+   o Renamed member function ``returnSpecs'' to ``returnConfig''.
+   o Dropped class ``mpuEmu''. Integrated its functionality into the
+     ``emuEngine'' class. Also affects sidEmuFillBuffer() calls.
+   o Renamed ``MPU_PAL_CLOCK'' to ``SIDTUNE_CLOCK_PAL''.
+   o Renamed ``MPU_NTSC_CLOCK'' to ``SIDTUNE_CLOCK_NTSC''.
+   o Above was named SIDTUNE_* because it is the same enum constant as in the
+     sidtune format support.
+   o Hope I didn't miss anything here.
+
+! Changed the behaviour of the emulator engine configuration class in case of
+  invalid settings. Although the return value still is ``false'', the engine
+  will not be locked and neither be moved into an unusable state. Be aware that
+  this is not really a difference to before, because you are able to make
+  settings different than you made for your audio driver (e.g. replaying stereo
+  SID data on a mono soundcard set up).
+  At any time you can read out the current settings using returnConfig().
+  Consider the ``false'' return value of functions like setVoiceVolume() or
+  setConfig() as a hint and debugging aid. Basically, you should only write
+  valid settings to the emulator engine, so your application never receives
+  a ``false''.
+
+- Dropped ``forceClockSpeed''. Now is ``forceSongSpeed'' and was moved to the 
+  ``emuConfig'' structure. If ``true'' it overrides the sidtune song speed and
+  sets the C64 clock to the SID clock. Drop the ``forceClockSpeed'' argument
+  from every call to sidEmuInitializeSong().
+
+  Changing ``clockSpeed'' will affect the playback upon the next call to
+  setConfig().
+  
+  Changing ``forceSongSpeed'' will affect the playback upon the next call to
+  sidEmuInitializeSong().
+
+* Typos in (abandoned) portable fixpoint mode (DIRECT_FIXPOINT off).
+
+* By default set a random seed value from a virtual member function using <time.h>.
+
+

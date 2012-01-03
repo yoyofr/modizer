@@ -1,0 +1,7 @@
+allpass.o allpass.o: allpass.cpp allpass.hpp tuning.h denormals.h
+
+allpass.hpp:
+
+tuning.h:
+
+denormals.h:

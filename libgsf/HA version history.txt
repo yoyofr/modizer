@@ -1,0 +1,93 @@
+Version 0.01 (private #psf channel build) (too many builds to count)
+
+* Initial Release (CaitSith2, Zoopd)
+
+Version 0.02 (private group build)
+
+* Fixed total time being set if viewing info on currently playing file. (CaitSith2)
+* Fixed display time being set when files are added to playlist. (CaitSith2)
+
+Version 0.03 (First official public release)
+
+* PCM channel interpolation. (Kode54)
+* A few bug fixes to registry configuration storage. (All DWORD
+reads/writes should point to a DWORD-sized buffer.) (Kode54)
+* Registry key no longer contains the version number. If future
+versions need different defaults, then the key can be changed slightly
+or something, or a version number value can be kept inside the key to
+prompt certain values to be upgraded if they equal the previous
+defaults. (Kode54)
+* Removed default length option, and changed all relevant functions to
+check for zero Ignore length option. (Kode54)
+* Tag or default length is always reported, regardless of the ignore
+length setting. (Kode54)
+* Seeking ms constant changed to (1. / 44100.) * 1000., 
+as it seems to be close to the original constant. (Kode54)
+* Minor layout changes to the configuration dialog, not including the
+interpolation option. (Kode54)
+* Slight change to the raw tag edit dialog. (Kode54)
+* Converted certain bitmap resources to JPEG and threw in a
+OLE-powered image loader for them. (Kode54)
+* Applied RLE8 compression to the logo image, without any quality loss. (Kode54)
+* Defined the CRT killing _DllMainCRTStartup function out for debug targets. (Kode54)
+* VRAM / Pallete ram / OAM emulation removed (Zoopd)
+* Checks for gb / gzip / zip files removed. (Zoopd)
+
+Version 0.04 build 0
+
+* Bugfix - Games that read outside of allocated rom space now get 0xFF, instead of 
+crashing. Fixes RPG Tsukuru Advance (CaitSith2)
+
+Version 0.04 build 1
+
+* #ifndef'd the interpolation code, and provided that build for people having crashing problems.
+
+Version 0.05 build 0
+
+* Bugfix - Fixed a memory leak I inadvertently added in a previous build. (CaitSith2)
+* Bugfix - clicking ok on the edit info dialog box no longer destroys the info of the currently playing song, if the song changed in one way or another. (CaitSith2)
+* Bugfix - Garbage is no longer added to the tags, if a song was currently playing when some lines of multiline comments were deleted. (CaitSith2)
+* Added a disable playback timer checkbox to the info dialog, unchecked by default, so that those viewing tags only, can still have the song change automatically, while people timing the songs, can time the songs without the timer expiring. (CaitSith2)
+* Added Raw tag editing. (CaitSith2)
+* Added Volume tag support (CaitSith2)
+* Added Default Volume Setting (CaitSith2)
+
+Version 0.05 build 1
+
+* Bugfix - Found a really stupid string formatting bug, with the default volume setting. (CaitSith2)
+* Revised the nsis install scripts. Now they autodetect the winamp directory, whenever possible. (CaitSith2)
+
+Version 0.06
+
+* Bugfix - A rare bug, where a single gsf file would have severe amounts of static, was fixed. The bug was a result of a lack of the [TAG] identifier, along with no checks for invalid string characters in the volume string.  Both instances of the bug are fixed now. (CaitSith2)
+
+Version 0.07 build 0
+
+* Performance Boost - (decode_pos_ms - (mod.outMod->GetWrittenTime()-mod.outMod->GetOutputTime())) is now only called twice a second, rather than about 100,000 times a second, at all times. CPU usage is no longer 95-100% on most systems, when using XM-Play.  If you have a slower system. (less than 1GHz,  you might notice this performance boost in winamp as well.)
+* Feature addition - Added trailing silence, default to 1000 milliseconds (1 second).
+* SoundMix is no longer called, when TrackLength is exceeded and none of the ignore tracklength options are currently turned on.  Fixes a few after fade out artifacts in XMPlay.
+* Fixed the silence detection / buffer length issues once and for all. (songs no longer end 10-15 seconds early, if silence detection is on with a 20 second output buffer.)
+
+Version 0.07 build 1
+
+* Revised the NSIS scripts again. This time, they will now install if either winamp or xmplay is detected.
+* Forgot to change the version number in the plugin. *Doh*.
+
+Version 0.08
+
+* Added GBA CPU usage display, very useful for finding out what levels of cpu usage perform well on your computer. (The GBA mixes everything in software, and some songs are cpu intensive because of that.)
+* Added a workaround for XMPlay's returning of a negative number from mod.outMod->GetWrittenTime(), which was causing fade out issues.
+
+Version 0.09
+
+* Performance boost introduced a seeking bug,  fixed.
+* Multiple gsflib support. (some games use 2 completely different sound engines)
+
+Version 0.10
+
+* Added Tagged by Field.  (to avoid having tagger mixed in with the ripper, in the gsfby field.)
+* VRAM/OAM/Pallete ram now emulated. (some introtunes need these in order to boot up.)
+
+Version 0.11
+
+* Permenantly Disabled SWI 3 (stop), as there is no pratical use for it in GSFs.

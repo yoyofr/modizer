@@ -1,0 +1,153 @@
+MIXING POSSIBILITIES
+
+  uword getVoiceVolume(voice);
+  bool setVoiceVolume(voice,leftLevel,rightLevel,total);
+
+Relative voice volume can be set via ``total'' from 0 (mute) to 256 (max).
+If you use this feature, you don't need to modulate each left/right level
+yourself like this:
+
+    voice_volume = left_or_right_level * new_voice_volume / max_voice_volume
+    where: 0 <= new_voice_volume <= max_voice_volume
+    e.g.: 0 <= x <= 256, half volume: x = 128
+
+This also makes it possible to mute voices in centered auto panning mode.
+
+A noticable difference between FULLPANNING and VOLCONTROL is FULLPANNING's
+capability to mix four (all) logical voices to a single physical audio
+channel, whereas VOLCONTROL is only able to mix two (half of all) logical
+voices to a physical channel. Therefore VOLCONTROL results in slightly better
+sample quality, because it mixes at higher amplitude. Especially when using
+a sample precision of 8-bit and stereo. In mono mode both modes operate
+equally.
+
+Changing the volume control mode resets the current volume level settings for
+all voices to a default:
+
+   MONO  | left | right    STEREO | left | right    SURROUND | left | right 
+ ----------------------   ----------------------   ------------------------
+ voice 1 |  255 |   0     voice 1 |  255 |   0       voice 1 |  255 |  255
+ voice 2 |  255 |   0     voice 2 |    0 | 255       voice 2 |  255 |  255
+ voice 3 |  255 |   0     voice 3 |  255 |   0       voice 3 |  255 |  255
+ voice 4 |  255 |   0     voice 4 |    0 | 255       voice 4 |  255 |  255
+
+Because of the asymmetric ``three-voice'' nature of the SID and most
+sidtunes, it is strongly advised to *not* use plain stereo without
+pan-positioning the voices.
+
+
+FULLPANNING (stereo only)
+
+Each physical audio channel is divided into four logical channels (voices).
+The volume level of each voice is adjustable between 255 (max) and 0 (off).
+This allows each voice to be positioned freely between left and right.
+
+Example:
+
+     Slider position
+         Voice A
+  Left              Right
+   X...................        : full left, L=255/R=0
+   ...................X        : full right, L=0/R=255
+   ..........X.........        : middle, L=128/R=127 or L=127/R=128
+   ....................        : mute, L=0/R=0
+   .....X..............        : more left than right, L=200/R=55
+
+But also and *only* in FULLPANNING mode, but most likely not used, you can
+set any possible combination of volume levels out of 0<=x<=255, for instance:
+
+   X..................X        : louder middle, L=255/R=255
+   X.........x.........        : full left and 50% right, L=255/R=128
+
+Generally, the equations
+    
+	sum leftLevel(i) <= 1024       i=[1,2,3,4]
+	sum rightLevel(i) <= 1024      i=[1,2,3,4]
+  
+must be satisfied, because only a maximum of four voices (4*256=1024) can
+be mixed to one physical audio channel.
+
+
+VOLCONTROL (stereo and mono)
+
+
+In STEREO mode two voices should build a pair, satisfying the
+equation (leftlevel_A + leftlevel_B) <= 255. Generally, the equations:
+sum leftLevel(i) <= 512   and   sum rightLevel(i) <= 512
+must be satisfied, i = [1,2,3,4].
+
+In MONO mode only the left level is used to specify a voice's
+volume. If you specify a right level, it will be set to zero.
+
+setVoiceVolume() does not check the correctness of the given volume settings,
+since this would limit the possibilities badly. But it does not do anything
+and returns ``false'' upon an invalid voice number, voice_volume >= 256 or
+no mixing mode, respectively.
+
+Two voices should build a pair, satisfying the equation:
+  
+    left(voice_A) + left(voice_B) <= 255
+
+Generally, the equations:
+    
+	sum leftLevel(i) <= 512       i=[1,2,3,4]
+	sum rightLevel(i) <= 512      i=[1,2,3,4]
+  
+must be satisfied, because only a maximum of two voices can be mixed
+to one physical audio channel.
+  
+Building pairs can be, but doesn't need to be, done like this:
+  
+    left(voice_A) = right(voice_B)
+	right(voice_A) = left(voice_B)
+    left(voice_A) + right(voice_A) <= 255
+    left(voice_B) + right(voice_B) <= 255
+
+And similar for the other two voices (C and D).
+It is not possible to position both of a pair of voices on the same side,
+except if the other pair is on the opposite side.
+
+                  Slider Pos.
+			    Pair of voices
+            Left              Right
+  Voice A:   X...................        : full left, L=255/R=0
+  Voice B:   ...................X        : full right, L=0/R=255
+  
+  Voice A:   ....X...............        : L=200/R=55
+  Voice B:   ...............X....        : L=55/R=200
+
+  Voice A:   .........X..........        : middle, L=128/R=127
+  Voice B:   .........X..........        : middle, L=127/R=128 (or vice versa)
+
+  Voice A:   ...............X....        : L=55/R=200
+  Voice B:   ....X...............        : L=200/R=55
+
+  Voice A:   ...................X        : full right, L=0/R=255
+  Voice B:   X...................        : full left, L=255/R=0
+
+You could also mute voice_A and then could safely do
+left(voice_B)+right(voice_B) > 255, but you most likely will never do so,
+as this would require a much more complex mixer interface.
+  
+
+STEREOSURROUND
+
+Volume level of each voice is adjustable between 255 (max) and 0 (off).
+Each voice can be freely positioned between left and right.
+Effect is best for left=255 plus right=255.
+
+
+HWMIXING
+
+Can be used where external mixing devices are available. Splits the sample
+buffer into four (4) equivalent chunks, each representing a single voice.
+The client has to take care of the total sample buffer length to be dividable
+by four.
+
+
+NO CONTROL (NONE)
+
+No volume control at all. Volume level of each voice is not adjustable.
+Voices cannot be turned off. No panning possible. Most likely maximum
+software mixing speed.
+

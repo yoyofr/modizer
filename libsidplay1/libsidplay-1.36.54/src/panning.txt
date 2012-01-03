@@ -1,0 +1,14 @@
+CENTERED AUTOPANNING
+
+Auto-panning is only valid for stereo and mixing modes ``FULLPANNING''
+or ``STEREOSURROUND''.
+
+The volume levels left/right build the panning boundaries. The panning range
+is the difference between left and right level. After enabling this you can
+override the default levels with your own ones by using setVoiceVolume(..).
+A default is provided to ensure sane initial settings. You can mute a voice
+by setting left=right=0 or total=0.
+
+Centered auto-panning starts in the middle, moves to one side and then moves
+from left to right panning boundary (volume level) and vice versa.
+

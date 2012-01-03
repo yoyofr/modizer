@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libsidplayfp
+Description: C64 cycle exact stereo sidplayer library.
+Version: 0.2.0
+Libs: -L${libdir} -lsidplayfp -lsidplayfp-residfp -lsidplayfp-resid 
+Cflags: -I${includedir}

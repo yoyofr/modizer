@@ -1,0 +1,33 @@
+#
+# Makefile for linux-zaurus
+#
+# Made by Studio Breeze. Nov.03.2005
+#
+
+CC=arm-linux-gcc
+CPP=arm-linux-g++
+LD=arm-linux-gcc
+
+LIBS=-L$(QPEDIR)/lib -L$(QTDIR)/lib -lm -lstdc++ -s
+CIFLAGS=$(CFLAGS) -fomit-frame-pointer -finline-functions -fno-default-inline -ffast-math -DHAVE_CONFIG_H -O3
+CXXIFLAGS=$(CFLAGS) -fomit-frame-pointer -finline-functions -fno-default-inline -ffast-math -DHAVE_CONFIG_H -O3
+
+ALL: mdxplay
+
+OBJECTS=getopt.o getopt1.o main.o mdx2151.o mdxfile.o mdxmml_ym2151.o pcm8.o pdxfile.o ym2151.o
+
+FREEVERB_PATH=../freeverb
+FREEVERB_OBJS=$(FREEVERB_PATH)/allpass.cpp $(FREEVERB_PATH)/comb.cpp $(FREEVERB_PATH)/freeverb.cpp $(FREEVERB_PATH)/revmodel.cpp
+
+mdxplay: $(OBJECTS) $(FREEVERB_OBJS)
+	$(LD) $(LDFLAGS) -o $@ $(LIBS) $(OBJECTS) $(FREEVERB_OBJS)
+
+%.o: %.c
+	$(CC) -I. -I/opt/Qtopia/include $(CIFLAGS) -c -o $@ $<
+
+%.o: %.cpp
+	$(CPP) -I. -I/opt/Qtopia/include $(CXXIFLAGS) -c -o $@ $<
+
+clean:
+	rm -f *.o
+	rm -f mdxplay

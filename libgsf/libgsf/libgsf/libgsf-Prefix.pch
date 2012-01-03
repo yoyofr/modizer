@@ -1,0 +1,10 @@
+//
+// Prefix header for all source files of the 'libgsf' target in the 'libgsf' project
+//
+
+#ifdef __OBJC__
+    #import <Foundation/Foundation.h>
+#endif
+
+#define LSB_FIRST 1
+#define LINUX

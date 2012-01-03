@@ -1,0 +1,44 @@
+0.2.0 2011-08-13
+* ported reSIDfp engine from jsidplay2 featuring two pass resampler
+  and triangular dithering and new filter model based on reSID's one
+* improved CIA emulation, fixes a bunch of tunes with digi samples
+* few fixes to the 6510 core based on Lorenz testuite
+* added support for PSIDv3 tunes
+* Updated reSID to the 1.0rc1 version (see the NEWS file in the resid dir)
+* Added version defines
+
+API changes:
+
+deprecated method filter(const sid_filter_t *filter) from reSID builder
+deprecated method filter(const sid_filterfp_t *filter) from reSIDfp builder
+
+added method bias(const double dac_bias) to the reSID builder
+The bias is given in millivolts, and a maximum reasonable control range is
+approximately -500 to 500 (Actually from testing the value seems to be
+in volts so dac_bias value should be in the range -0.5 - 0.5)
+
+added methods filter6581Curve(const double filterCurve) which sets the filter
+curve for 6581 chip filter in a range from 0.0 (light) to 1.0 (dark)
+(default 0.5) and filter8580Curve(const double filterCurve) which sets the
+filter frequency for 8580 chip (default 12500)
+
+SidDatabase.h does not include SidTuneMod.h anymore
+
+
+
+0.1.0 2010-11-10
+
+you can read a summary of changes from the original libsidplay2
+at http://www.bel.fi/~alankila/c64-sw/index-cpp.html
+
+other changes includes:
+* audio output is now signed 16bit
+* added sampling method and fast sampling parameters and removed precision
+  and samplingFormat from the sid_config_t structure
+* removed filter(const sid_filter_t*) from sidbuilder class
+  and made it builder specific
+* removed optimization method from builders
+* rewritten ini parser to be locale agnostic and use it only internally
+* headers are now installed under $(includedir)/sidplayfp
+* libsidplay and libsidutils are merged in a single library
+* two resid builders (original and distortion patched)

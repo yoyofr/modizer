@@ -1,0 +1,2717 @@
+//
+//  RootViewControllerMODLAND.m
+//  modizer1
+//
+//  Created by Yohann Magnien on 04/06/10.
+//  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
+//
+
+#define PRI_SEC_ACTIONS_IMAGE_SIZE 40
+#define ROW_HEIGHT 40
+
+#define LIMITED_LIST_SIZE 1024
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+
+#include <pthread.h>
+extern pthread_mutex_t db_mutex;
+//static int shouldFillKeys;
+static int local_flag;
+static volatile int mPopupAnimation=0;
+
+static NSFileManager *mFileMngr;
+
+#import "AppDelegate_Phone.h"
+#import "RootViewControllerMODLAND.h"
+#import "DetailViewControllerIphone.h"
+#import "DownloadViewController.h"
+#import "QuartzCore/CAAnimation.h"
+
+@implementation RootViewControllerMODLAND
+
+@synthesize detailViewController;
+@synthesize downloadViewController;
+@synthesize tabView,sBar;
+@synthesize list;
+@synthesize keys;
+@synthesize currentPath;
+@synthesize childController;
+@synthesize playerButton;
+@synthesize mSearchText;
+
+#pragma mark -
+#pragma mark View lifecycle
+
+
+- (NSString *)machine {
+	size_t size;
+	
+	// Set 'oldp' parameter to NULL to get the size of the data
+	// returned so we can allocate appropriate amount of space
+	sysctlbyname("hw.machine", NULL, &size, NULL, 0); 
+	
+	// Allocate the space to store name
+	char *name = (char*)malloc(size);
+	
+	// Get the platform name
+	sysctlbyname("hw.machine", name, &size, NULL, 0);
+	
+	// Place name into a string
+	NSString *machine = [[[NSString alloc] initWithCString:name] autorelease];
+	
+	// Done with this
+	free(name);
+	
+	return machine;
+}
+
+-(void)showWaiting{
+	waitingView.hidden=FALSE;
+}
+
+-(void)hideWaiting{
+	waitingView.hidden=TRUE;
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (alertView==alertAlreadyAvail) {
+		if (buttonIndex==1) {//force new download
+			[self checkCreate:[FTPlocalPath stringByDeletingLastPathComponent]];
+			mCurrentWinAskedDownload=1;
+			[downloadViewController addFTPToDownloadList:FTPlocalPath ftpURL:FTPftpPath  ftpHost:MODLAND_FTPHOST filesize:FTPfilesize filename:FTPfilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+		} else {
+			if (mClickedPrimAction==1) {
+				NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+				NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+				[array_label addObject:FTPfilename];
+				[array_path addObject:FTPlocalPath];
+				[detailViewController play_listmodules:array_label start_index:0 path:array_path];
+				//[self goPlayer];
+			} else {
+				if ([detailViewController add_to_playlist:FTPlocalPath fileName:FTPfilename forcenoplay:1]) {
+					if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+					else [[super tableView] reloadData];
+				}
+			}
+		}
+		[FTPfilename autorelease];
+		[FTPlocalPath autorelease];
+		[FTPftpPath autorelease];
+		[FTPfilePath autorelease];
+	}
+}
+
+
+- (void)viewDidLoad {
+	clock_t start_time,end_time;	
+	start_time=clock();	
+	childController=NULL;
+    
+    mFileMngr=[[NSFileManager alloc] init];
+	
+	NSString *strMachine=[self machine];
+	mSlowDevice=0;
+	NSRange r = [strMachine rangeOfString:@"iPhone1," options:NSCaseInsensitiveSearch];
+	if (r.location != NSNotFound) {
+		mSlowDevice=1;
+	}
+	r.location=NSNotFound;
+	r = [strMachine rangeOfString:@"iPod1," options:NSCaseInsensitiveSearch];
+	if (r.location != NSNotFound) {
+		mSlowDevice=1;
+	}
+	
+	ratingImg[0] = @"rating0.png";
+    ratingImg[1] = @"rating1.png";
+	ratingImg[2] = @"rating2.png";
+	ratingImg[3] = @"rating3.png";
+	ratingImg[4] = @"rating4.png";
+	ratingImg[5] = @"rating5.png";
+	
+	/* Init popup view*/
+	/**/
+	
+	//self.tableView.pagingEnabled;
+	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+	self.tableView.sectionHeaderHeight = 18;
+	//self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+	self.tableView.rowHeight = 50;
+    //self.tableView.backgroundColor = [UIColor clearColor];
+//	self.tableView.backgroundColor = [UIColor blackColor];
+	
+	shouldFillKeys=1;
+	mSearch=0;	
+	search_db=0;  //reset to ensure search_db is not used by default
+	
+	db_nb_entries=0;
+	search_db_nb_entries=0;
+	
+	search_db_hasFiles=0;
+	db_hasFiles=0;
+	
+	mSearchText=nil;
+	mCurrentWinAskedDownload=0;
+	mClickedPrimAction=0;
+	list=nil;
+	keys=nil;
+		
+		if (browse_depth==1) { //browse mode menu
+			sBar.frame=CGRectMake(0,0,0,0);
+			sBar.hidden=TRUE;
+			//get stats on nb of entries
+			mNbFormatEntries=DBHelper::getNbFormatEntries();
+			mNbAuthorEntries=DBHelper::getNbAuthorEntries();
+		}
+		self.navigationItem.rightBarButtonItem = playerButton; //self.editButtonItem;
+	
+	indexTitles = [[NSMutableArray alloc] init];
+	[indexTitles addObject:@"{search}"];
+	[indexTitles addObject:@"#"];
+	[indexTitles addObject:@"A"];
+	[indexTitles addObject:@"B"];
+	[indexTitles addObject:@"C"];
+	[indexTitles addObject:@"D"];
+	[indexTitles addObject:@"E"];
+	[indexTitles addObject:@"F"];
+	[indexTitles addObject:@"G"];
+	[indexTitles addObject:@"H"];	
+	[indexTitles addObject:@"I"];
+	[indexTitles addObject:@"J"];
+	[indexTitles addObject:@"K"];
+	[indexTitles addObject:@"L"];
+	[indexTitles addObject:@"M"];
+	[indexTitles addObject:@"N"];
+	[indexTitles addObject:@"O"];
+	[indexTitles addObject:@"P"];
+	[indexTitles addObject:@"Q"];
+	[indexTitles addObject:@"R"];
+	[indexTitles addObject:@"S"];
+	[indexTitles addObject:@"T"];
+	[indexTitles addObject:@"U"];
+	[indexTitles addObject:@"V"];
+	[indexTitles addObject:@"W"];
+	[indexTitles addObject:@"X"];
+	[indexTitles addObject:@"Y"];
+	[indexTitles addObject:@"Z"];
+	
+	indexTitlesDownload = [[NSMutableArray alloc] init];
+	[indexTitlesDownload addObject:@"{search}"];
+	[indexTitlesDownload addObject:@" "];
+	[indexTitlesDownload addObject:@"#"];
+	[indexTitlesDownload addObject:@"A"];
+	[indexTitlesDownload addObject:@"B"];
+	[indexTitlesDownload addObject:@"C"];
+	[indexTitlesDownload addObject:@"D"];
+	[indexTitlesDownload addObject:@"E"];
+	[indexTitlesDownload addObject:@"F"];
+	[indexTitlesDownload addObject:@"G"];
+	[indexTitlesDownload addObject:@"H"];	
+	[indexTitlesDownload addObject:@"I"];
+	[indexTitlesDownload addObject:@"J"];
+	[indexTitlesDownload addObject:@"K"];
+	[indexTitlesDownload addObject:@"L"];
+	[indexTitlesDownload addObject:@"M"];
+	[indexTitlesDownload addObject:@"N"];
+	[indexTitlesDownload addObject:@"O"];
+	[indexTitlesDownload addObject:@"P"];
+	[indexTitlesDownload addObject:@"Q"];
+	[indexTitlesDownload addObject:@"R"];
+	[indexTitlesDownload addObject:@"S"];
+	[indexTitlesDownload addObject:@"T"];
+	[indexTitlesDownload addObject:@"U"];
+	[indexTitlesDownload addObject:@"V"];
+	[indexTitlesDownload addObject:@"W"];
+	[indexTitlesDownload addObject:@"X"];
+	[indexTitlesDownload addObject:@"Y"];
+	[indexTitlesDownload addObject:@"Z"];
+	
+	UIWindow *window=[[UIApplication sharedApplication] keyWindow];		
+	
+	waitingView = [[UIView alloc] initWithFrame:CGRectMake(window.bounds.size.width/2-40,window.bounds.size.height/2-40,80,80)];
+	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
+	waitingView.opaque=TRUE;
+	waitingView.hidden=TRUE;
+	waitingView.layer.cornerRadius=20;
+	
+	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
+	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
+	[waitingView addSubview:indView];
+	[indView startAnimating];		
+	[indView autorelease];
+	
+	[window addSubview:waitingView];
+	
+	[super viewDidLoad];
+	
+	end_time=clock();	
+#ifdef LOAD_PROFILE
+	NSLog(@"rootview : %d",end_time-start_time);
+#endif
+}
+
+-(void) fillKeys {
+	
+		if (shouldFillKeys) {
+			shouldFillKeys=0;
+			switch (modland_browse_mode) {
+				case 0://Formats/Authors/Files
+					if (browse_depth==2) [self fillKeysWithDB_fileType];
+					if (browse_depth==3) [self fillKeysWithDB_fileAuthor:mFiletypeID];
+					if (browse_depth==4) [self fillKeysWithDB_albumORfilename:mFiletypeID fileAuthorID:mAuthorID];
+					if (browse_depth==5) [self fillKeysWithDB_filename:mFiletypeID fileAuthorID:mAuthorID fileAlbumID:mAlbumID];
+					break;
+				case 1://Authors/Formats/Files
+					if (browse_depth==2) [self fillKeysWithDB_fileAuthor];
+					if (browse_depth==3) [self fillKeysWithDB_fileType:mAuthorID];
+					if (browse_depth==4) [self fillKeysWithDB_albumORfilename:mFiletypeID fileAuthorID:mAuthorID];
+					if (browse_depth==5) [self fillKeysWithDB_filename:mFiletypeID fileAuthorID:mAuthorID fileAlbumID:mAlbumID];
+					break;
+				case 2://Authors/Files
+					if (browse_depth==2) [self fillKeysWithDB_fileAuthor];
+					if (browse_depth==3) [self fillKeysWithDB_albumORfilename:mAuthorID];
+					if (browse_depth==4) [self fillKeysWithDB_filename:mAuthorID fileAlbumID:mAlbumID];
+					break;
+			}
+		} else {//reset downloaded, rating & playcount flags
+			for (int i=0;i<db_nb_entries;i++) {
+				db_entries_data[i].downloaded=-1;
+				db_entries_data[i].rating=-1;
+				db_entries_data[i].playcount=-1;
+			}
+		}
+}
+
+-(void) fillKeysWithDB_fileType:(int)authorID{
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	db_hasFiles=search_db_hasFiles=0;
+	
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					search_db_entries[i][search_db_entries_count[i]].id_type=db_entries[i][j].id_type;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_author=search_db_entries[i][search_db_entries_count[i]].id_album=search_db_entries[i][search_db_entries_count[i]].id_mod=-1;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;										
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	
+	pthread_mutex_lock(&db_mutex);
+	
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have
+		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_type t,mod_type_author ta\
+							 WHERE ta.id_author=%d AND ta.id_type=t.id AND t.filetype like \"%%%s%%\"",authorID,[mSearchText UTF8String]);
+		else sprintf(sqlStatement,"SELECT count(1) FROM mod_type t,mod_type_author ta\
+					 WHERE ta.id_author=%d AND ta.id_type=t.id",authorID);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT t.filetype,ta.num_files,t.id FROM mod_type t,mod_type_author ta\
+								 WHERE ta.id_author=%d AND ta.id_type=t.id AND t.filetype like \"%%%s%%\" ORDER BY t.filetype COLLATE NOCASE",authorID,[mSearchText UTF8String]);
+			else sprintf(sqlStatement,"SELECT t.filetype,ta.num_files,t.id FROM mod_type t,mod_type_author ta\
+						 WHERE ta.id_author=%d AND ta.id_type=t.id ORDER BY t.filetype COLLATE NOCASE",authorID);
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}
+					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+					db_entries[index][db_entries_count[index]].id_type=sqlite3_column_int(stmt, 2);
+					db_entries[index][db_entries_count[index]].id_author=authorID;
+					db_entries[index][db_entries_count[index]].id_album=db_entries[index][db_entries_count[index]].id_mod=-1;
+					db_entries[index][db_entries_count[index]].downloaded=-1;
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+-(void) fillKeysWithDB_fileType{
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	db_hasFiles=search_db_hasFiles=0;
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					search_db_entries[i][search_db_entries_count[i]].id_type=db_entries[i][j].id_type;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_author=search_db_entries[i][search_db_entries_count[i]].id_album=search_db_entries[i][search_db_entries_count[i]].id_mod=-1;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	pthread_mutex_lock(&db_mutex);
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have		
+		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type WHERE filetype LIKE \"%%%s%%\"",[mSearchText UTF8String]);
+		else  sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type");
+		
+		
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT filetype,num_files,id FROM mod_type WHERE filetype LIKE \"%%%s%%\" ORDER BY filetype COLLATE NOCASE",[mSearchText UTF8String]);
+			else  sprintf(sqlStatement,"SELECT filetype,num_files,id FROM mod_type ORDER BY filetype COLLATE NOCASE");
+			
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}
+					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+					db_entries[index][db_entries_count[index]].id_type=sqlite3_column_int(stmt, 2);
+					db_entries[index][db_entries_count[index]].id_author=db_entries[index][db_entries_count[index]].id_album=db_entries[index][db_entries_count[index]].id_mod=-1;
+					db_entries[index][db_entries_count[index]].downloaded=-1;		
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+-(void) fillKeysWithDB_fileAuthor{
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	db_hasFiles=search_db_hasFiles=0;
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					search_db_entries[i][search_db_entries_count[i]].id_author=db_entries[i][j].id_author;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					search_db_entries[i][search_db_entries_count[i]].id_type=search_db_entries[i][search_db_entries_count[i]].id_album=search_db_entries[i][search_db_entries_count[i]].id_mod=-1;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	pthread_mutex_lock(&db_mutex);
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have		
+		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_author WHERE author LIKE \"%%%s%%\"",[mSearchText UTF8String]);
+		else sprintf(sqlStatement,"SELECT count(1) FROM mod_author");
+		
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT author,num_files,id FROM mod_author WHERE author LIKE \"%%%s%%\" ORDER BY author COLLATE NOCASE",[mSearchText UTF8String]);
+			else sprintf(sqlStatement,"SELECT author,num_files,id FROM mod_author ORDER BY author COLLATE NOCASE");
+			
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}
+					
+					
+					//if (sqlite3_column_int(stmt, 1)==37) NSLog(@"%s",(const char*)sqlite3_column_text(stmt, 0));
+					
+					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					if (db_entries[index][db_entries_count[index]].label==nil) db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",(const char*)sqlite3_column_text(stmt, 0)];
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+					db_entries[index][db_entries_count[index]].id_author=sqlite3_column_int(stmt, 2);
+					db_entries[index][db_entries_count[index]].id_type=db_entries[index][db_entries_count[index]].id_album=db_entries[index][db_entries_count[index]].id_mod=-1;
+					db_entries[index][db_entries_count[index]].downloaded=-1;
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+-(void) fillKeysWithDB_fileAuthor:(int)filetypeID{
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	db_hasFiles=search_db_hasFiles=0;
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_author=db_entries[i][j].id_author;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_type=filetypeID;
+					search_db_entries[i][search_db_entries_count[i]].id_album=search_db_entries[i][search_db_entries_count[i]].id_mod=-1;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	pthread_mutex_lock(&db_mutex);
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have		
+		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\"",filetypeID,[mSearchText UTF8String]);
+		else sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type_author m WHERE m.id_type=%d",filetypeID);
+		
+		
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT a.author,m.num_files,a.id FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\" ORDER BY a.author COLLATE NOCASE",filetypeID,[mSearchText UTF8String]);
+			else sprintf(sqlStatement,"SELECT a.author,m.num_files,a.id FROM mod_type_author m,mod_author a WHERE m.id_type=%d AND m.id_author=a.id ORDER BY a.author COLLATE NOCASE",filetypeID);
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            
+            
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}
+					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+					db_entries[index][db_entries_count[index]].id_author=sqlite3_column_int(stmt, 2);
+					db_entries[index][db_entries_count[index]].id_type=filetypeID;
+					db_entries[index][db_entries_count[index]].id_album=db_entries[index][db_entries_count[index]].id_mod=-1;
+					db_entries[index][db_entries_count[index]].downloaded=-1;		
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);		
+}
+-(void) fillKeysWithDB_albumORfilename:(int)authorID {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	db_hasFiles=search_db_hasFiles=0;
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_type=-1;
+					search_db_entries[i][search_db_entries_count[i]].id_album=db_entries[i][j].id_album;
+					search_db_entries[i][search_db_entries_count[i]].id_mod=db_entries[i][j].id_mod;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;
+					
+					if (db_entries[i][j].id_mod>0) search_db_hasFiles++;
+					
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	pthread_mutex_lock(&db_mutex);
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have		
+		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
+							 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
+		else sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null \
+					 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id",authorID,authorID);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		db_nb_entries=0;
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries+=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+								 WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
+								 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
+								 WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\" \
+								 ORDER BY 1  COLLATE NOCASE",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
+			else sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+						 WHERE id_author=%d AND id_album is null \
+						 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
+						 WHERE m.id_author=%d AND m.id_album=a.id \
+						 ORDER BY 1 COLLATE NOCASE",authorID,authorID);
+			
+			
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					int is_album=sqlite3_column_int(stmt, 3);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}					
+					db_entries[index][db_entries_count[index]].id_author=authorID;
+					db_entries[index][db_entries_count[index]].id_type=-1;
+					if (is_album) {
+						db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+						db_entries[index][db_entries_count[index]].id_album=sqlite3_column_int(stmt, 2);
+						db_entries[index][db_entries_count[index]].id_mod=-1;
+					} else {
+						db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+						db_entries[index][db_entries_count[index]].id_album=-1;
+						db_entries[index][db_entries_count[index]].id_mod=sqlite3_column_int(stmt, 2);						
+						db_hasFiles++;
+					}
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+					
+					db_entries[index][db_entries_count[index]].downloaded=-1;
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+			
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+-(void) fillKeysWithDB_albumORfilename:(int)filetypeID fileAuthorID:(int)authorID {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	db_hasFiles=search_db_hasFiles=0;
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_type=filetypeID;
+					search_db_entries[i][search_db_entries_count[i]].id_album=db_entries[i][j].id_album;
+					search_db_entries[i][search_db_entries_count[i]].id_mod=db_entries[i][j].id_mod;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;
+					if (db_entries[i][j].id_mod>0) search_db_hasFiles++;
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	pthread_mutex_lock(&db_mutex);
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have		
+		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file \
+							 WHERE id_author=%d AND id_type=%d id_album is null AND filename like \"%%%s%%\" \
+							 UNION SELECT count(1),1 FROM mod_type_author_album m,mod_album a \
+							 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
+		else sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file \
+					 WHERE id_author=%d AND id_type=%d AND id_album is null \
+					 UNION SELECT count(1),1 FROM mod_type_author_album m,mod_album a \
+					 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id",authorID,filetypeID,authorID,filetypeID);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		db_nb_entries=0;
+        
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries+=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+								 WHERE id_author=%d AND id_type=%d AND id_album is null AND filename like \"%%%s%%\" \
+								 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
+								 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\" \
+								 ORDER BY 1  COLLATE NOCASE",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
+			else sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
+						 WHERE id_author=%d AND id_type=%d AND id_album is null \
+						 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
+						 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id \
+						 ORDER BY 1 COLLATE NOCASE",authorID,filetypeID,authorID,filetypeID);
+            
+            
+            
+            
+			
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					int is_album=sqlite3_column_int(stmt, 3);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+							index=previndex;
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}
+					db_entries[index][db_entries_count[index]].id_author=authorID;
+					db_entries[index][db_entries_count[index]].id_type=filetypeID;
+					if (is_album) {
+						db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+						db_entries[index][db_entries_count[index]].id_album=sqlite3_column_int(stmt, 2);
+						db_entries[index][db_entries_count[index]].id_mod=-1;
+					} else {
+						db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+						db_entries[index][db_entries_count[index]].id_album=-1;
+						db_entries[index][db_entries_count[index]].id_mod=sqlite3_column_int(stmt, 2);
+						db_hasFiles++;
+					}
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+					db_entries[index][db_entries_count[index]].downloaded=-1;
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+-(void) fillKeysWithDB_filename:(int)authorID fileAlbumID:(int)albumID {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	
+	db_hasFiles=search_db_hasFiles=0;
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_type=-1;
+					search_db_entries[i][search_db_entries_count[i]].id_album=albumID;
+					search_db_entries[i][search_db_entries_count[i]].id_mod=db_entries[i][j].id_mod;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;
+					if (db_entries[i][j].id_mod>0) search_db_hasFiles++;
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	pthread_mutex_lock(&db_mutex);
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have		
+		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename",authorID,albumID,[mSearchText UTF8String]);
+		else sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename",authorID,albumID);
+		
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename COLLATE NOCASE",authorID,albumID,[mSearchText UTF8String]);
+			else sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename COLLATE NOCASE",authorID,albumID);
+			
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}
+					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					db_entries[index][db_entries_count[index]].id_author=authorID;
+					db_entries[index][db_entries_count[index]].id_type=-1;
+					db_entries[index][db_entries_count[index]].id_album=albumID;
+					db_entries[index][db_entries_count[index]].id_mod=sqlite3_column_int(stmt,2);
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt,1);
+					db_entries[index][db_entries_count[index]].downloaded=-1;					
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_hasFiles++;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+-(void) fillKeysWithDB_filename:(int)filetypeID fileAuthorID:(int)authorID fileAlbumID:(int)albumID {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_index;
+	int index,previndex;
+	NSRange r;
+	
+	db_hasFiles=search_db_hasFiles=0;
+	// in case of search, do not ask DB again => duplicate already found entries & filter them
+	if (mSearch) {
+		search_db=1;
+		
+		if (search_db_nb_entries) {
+			search_db_nb_entries=0;
+			free(search_db_entries_data);
+		}
+		search_db_entries_data=(t_db_browse_entry*)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+		
+		for (int i=0;i<27;i++) {
+			search_db_entries_count[i]=0;
+			if (db_entries_count[i]) search_db_entries[i]=&(search_db_entries_data[search_db_nb_entries]);
+			for (int j=0;j<db_entries_count[i];j++)  {
+				r.location=NSNotFound;
+				r = [db_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+					search_db_entries[i][search_db_entries_count[i]].label=db_entries[i][j].label;
+					search_db_entries[i][search_db_entries_count[i]].id_author=authorID;
+					search_db_entries[i][search_db_entries_count[i]].downloaded=db_entries[i][j].downloaded;
+					search_db_entries[i][search_db_entries_count[i]].rating=db_entries[i][j].rating;
+					search_db_entries[i][search_db_entries_count[i]].playcount=db_entries[i][j].playcount;
+					
+					search_db_entries[i][search_db_entries_count[i]].id_type=filetypeID;
+					search_db_entries[i][search_db_entries_count[i]].id_album=albumID;
+					search_db_entries[i][search_db_entries_count[i]].id_mod=db_entries[i][j].id_mod;
+					search_db_entries[i][search_db_entries_count[i]].filesize=db_entries[i][j].filesize;
+					if (db_entries[i][j].id_mod>0) search_db_hasFiles++;
+					search_db_entries_count[i]++;
+					search_db_nb_entries++;
+				}
+			}
+		}
+		return;
+	}
+	pthread_mutex_lock(&db_mutex);
+	if (db_nb_entries) {
+		for (int i=0;i<db_nb_entries;i++) {
+			[db_entries_data[i].label release];
+		}
+		free(db_entries_data);db_entries_data=NULL;
+		db_nb_entries=0;
+	}
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		//1st : count how many entries we'll have		
+		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\"",filetypeID,authorID,albumID,[mSearchText UTF8String]);
+		else sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d",filetypeID,authorID,albumID);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		db_nb_entries=0;
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				db_nb_entries+=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		
+		if (db_nb_entries) {
+			//2nd initialize array to receive entries
+			db_entries_data=(t_db_browse_entry *)malloc(db_nb_entries*sizeof(t_db_browse_entry));
+			db_entries_index=0;
+			for (int i=0;i<27;i++) {
+				db_entries_count[i]=0;
+				db_entries[i]=NULL;
+			}
+			//3rd get the entries
+			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file \
+								 WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\" ORDER BY 1 COLLATE NOCASE",filetypeID,authorID,albumID,[mSearchText UTF8String]);
+			else sprintf(sqlStatement,"SELECT filename,filesize,id FROM mod_file \
+						 WHERE id_type=%d AND id_author=%d AND id_album=%d ORDER BY 1 COLLATE NOCASE",filetypeID,authorID,albumID);
+			
+			
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				index=-1;
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					char *str=(char*)sqlite3_column_text(stmt, 0);
+					previndex=index;
+					index=0;
+					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+					
+					//sections are determined 'on the fly' since result set is already sorted
+					if (previndex!=index) {
+						if (previndex>index) {
+							NSLog(@"********* %s",str);
+						} else db_entries[index]=&(db_entries_data[db_entries_index]);
+					}
+					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					db_entries[index][db_entries_count[index]].id_author=authorID;
+					db_entries[index][db_entries_count[index]].id_type=filetypeID;
+					db_entries[index][db_entries_count[index]].id_album=albumID;
+					db_entries[index][db_entries_count[index]].id_mod=sqlite3_column_int(stmt, 2);
+					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+					db_entries[index][db_entries_count[index]].downloaded=-1;
+					db_entries[index][db_entries_count[index]].rating=-1;
+					db_entries[index][db_entries_count[index]].playcount=-1;
+					db_hasFiles++;
+					db_entries_count[index]++;
+					db_entries_index++;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+			
+		}
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	
+	
+	
+}
+
+-(NSString*) getCompletePath:(int)id_mod {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	NSString *fullpath=nil;
+	
+	pthread_mutex_lock(&db_mutex);
+	
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;		
+		
+		sprintf(sqlStatement,"select fullpath from mod_file where id=%d",id_mod);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);		
+	}
+	
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return fullpath;
+}
+-(NSString*) getCompleteLocalPath:(int)id_mod {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	NSString *localpath=nil;
+	
+	pthread_mutex_lock(&db_mutex);
+	
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;		
+		
+		sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				localpath=[NSString  stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);		
+	}
+	
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return localpath;
+}
+-(int) getFileSize:(NSString*)fileName {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int iFileSize;
+	
+	pthread_mutex_lock(&db_mutex);
+	
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;		
+		
+		sprintf(sqlStatement,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				iFileSize=(int)sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return iFileSize;
+}
+-(NSString *) getModFilename:(int)idmod {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	NSString *fileName;
+	pthread_mutex_lock(&db_mutex);
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;		
+		
+		sprintf(sqlStatement,"select filename from mod_file where id=%d",idmod);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				fileName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return fileName;
+}
+
+-(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating{
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	sqlite3 *db;
+	int err;	
+	
+	if (playcount) *playcount=0;
+	if (rating) *rating=0;
+	
+	pthread_mutex_lock(&db_mutex);
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		
+		
+		//Get playlist name
+		sprintf(sqlStatement,"SELECT play_count,rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				if (playcount) *playcount=(short int)sqlite3_column_int(stmt, 0);
+				if (rating) {
+					*rating=(signed char)sqlite3_column_int(stmt, 1);
+					if (*rating<0) *rating=0;
+					if (*rating>5) *rating=5;
+				}
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+-(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating song_length:(int*)song_length songs:(int*)songs channels_nb:(char*)channels_nb {
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	sqlite3 *db;
+	int err;	
+	
+	if (playcount) *playcount=0;
+	if (rating) *rating=0;
+	if (song_length) *song_length=0;
+	if (songs) *songs=0;
+	if (channels_nb) *channels_nb=0;
+	
+	pthread_mutex_lock(&db_mutex);
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		
+		
+		//Get playlist name
+		sprintf(sqlStatement,"SELECT play_count,rating,length,songs,channels FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				if (playcount) *playcount=(short int)sqlite3_column_int(stmt, 0);
+				if (rating) {
+					*rating=(signed char)sqlite3_column_int(stmt, 1);
+					if (*rating<0) *rating=0;
+					if (*rating>5) *rating=5;
+				}
+				if (song_length) *song_length=(int)sqlite3_column_int(stmt, 2);				
+				if (songs) *songs=(int)sqlite3_column_int(stmt, 3);
+				if (channels_nb) *channels_nb=(char)sqlite3_column_int(stmt, 4);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+}
+
+-(int) deleteStatsFileDB:(NSString*)fullpath {
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	sqlite3 *db;
+	int err,ret;	
+	pthread_mutex_lock(&db_mutex);
+	ret=1;
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		
+		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+		if (err==SQLITE_OK){
+		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
+		
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return ret;
+}
+-(int) deleteStatsDirDB:(NSString*)fullpath {
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	sqlite3 *db;
+	int err,ret;	
+	pthread_mutex_lock(&db_mutex);
+	ret=1;
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		
+		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
+		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+		if (err==SQLITE_OK){
+		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
+		
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return ret;
+}
+
+-(void) viewWillAppear:(BOOL)animated {
+    if (keys) {
+        [keys release]; 
+        keys=nil;
+    }
+    if (list) {
+        [list release]; 
+        list=nil;
+    }
+    if (childController) {
+        [childController release];
+        childController = NULL;
+    } 
+    
+    //Reset rating if applicable (ensure updated value)
+        if (db_nb_entries) {
+            for (int i=0;i<db_nb_entries;i++) {
+                db_entries_data[i].rating=-1;
+            }            
+        }
+        if (search_db_nb_entries) {
+            for (int i=0;i<search_db_nb_entries;i++) {
+                search_db_entries_data[i].rating=-1;
+            }            
+        }
+    /////////////
+    
+    if (detailViewController.mShouldHaveFocus) {
+        detailViewController.mShouldHaveFocus=0;
+        [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
+    } else {				
+        if (shouldFillKeys&&(browse_depth>0)) {
+            
+            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            
+            [self fillKeys];
+            [[super tableView] reloadData];
+            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        } else {
+            [self fillKeys];
+            [[super tableView] reloadData];
+        }
+    }
+    
+    
+    
+    [super viewWillAppear:animated];	
+    
+}
+-(void) refreshMODLANDView {
+    if (childController) [(RootViewControllerMODLAND*)childController refreshMODLANDView];
+    else  {
+        shouldFillKeys=1;
+        [self fillKeys];
+        [[super tableView] reloadData];
+    }
+}
+
+- (void)checkCreate:(NSString *)filePath {
+    NSString *completePath=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),filePath];
+    NSError *err;
+    [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];	
+}
+
+- (void)viewDidAppear:(BOOL)animated {        
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+
+    [super viewDidAppear:animated];		
+}
+
+-(void)hideAllWaitingPopup {
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    if (childController) {
+        [childController hideAllWaitingPopup];
+    }
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    if (childController) {
+        [childController viewDidDisappear:FALSE];
+    }
+    [super viewDidDisappear:animated];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
+    [[super tableView] reloadData];
+}
+
+// Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    [[super tableView] reloadData];
+    return YES;
+}
+
+-(int) checkIsDownloadedMod:(int)id_mod {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSFileManager *fileManager = mFileMngr;
+    BOOL success;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *checkPath,*strFullPath;
+    
+    pthread_mutex_lock(&db_mutex);
+    strFullPath=nil;
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strFullPath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    if (strFullPath) {
+        checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@",MODLAND_BASEDIR,strFullPath]];
+        success = [fileManager fileExistsAtPath:checkPath];
+        if (success) return 1;
+    }
+    return 0;
+}
+-(int) checkIsDownloaded:(int)id_author {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSFileManager *fileManager = mFileMngr;
+    BOOL success;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *checkPath,*strAuthor;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@",MODLAND_BASEDIR,strAuthor]];
+    success = [fileManager fileExistsAtPath:checkPath];
+    if (success) return 1;
+    return 0;
+}
+-(int) checkIsDownloaded:(int)id_author id_type:(int)id_type{
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSFileManager *fileManager = mFileMngr;
+    BOOL success;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *checkPath,*strType,*strAuthor;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@/%@",MODLAND_BASEDIR,strAuthor,strType]];
+    success = [fileManager fileExistsAtPath:checkPath];
+    if (success) return 1;
+    return 0;
+}
+-(int) checkIsDownloaded:(int)id_author id_type:(int)id_type id_album:(int)id_album {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSFileManager *fileManager = mFileMngr;
+    BOOL success;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *checkPath,*strType,*strAuthor,*strAlbum;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        sprintf(sqlStatement,"SELECT album FROM mod_album WHERE id=%d",id_album);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strAlbum=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@/%@/%@",MODLAND_BASEDIR,strAuthor,strType,strAlbum]];
+    success = [fileManager fileExistsAtPath:checkPath];
+    if (success) return 1;
+    return 0;
+}
+-(int) checkIsDownloadedNoAuthor:(int)id_type{
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSFileManager *fileManager = mFileMngr;
+    BOOL success;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *checkPath,*strType,*strAuthor;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        sprintf(sqlStatement,"SELECT a.author FROM mod_type_author m,mod_author a WHERE m.id_type=%d AND m.id_author=a.id",id_type);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@/%@",MODLAND_BASEDIR,strAuthor,strType]];
+                success = [fileManager fileExistsAtPath:checkPath];
+                if (success) break;
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    if (success) return 1;
+    return 0;
+}
+-(int) checkIsDownloadedNoAuthor:(int)id_type id_album:(int)id_album {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSFileManager *fileManager = mFileMngr;
+    BOOL success;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *checkPath,*strType,*strAuthor,*strAlbum;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strType=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        sprintf(sqlStatement,"SELECT album FROM mod_album WHERE id=%d",id_album);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strAlbum=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        
+        sprintf(sqlStatement,"SELECT a.author FROM mod_type_author_album m,mod_author a WHERE m.id_type=%d AND m.id_album=%d m.id_author=a.id",id_type,id_album);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                strAuthor=[NSString stringWithFormat:@"%s",(char*)sqlite3_column_text(stmt, 0)];
+                checkPath = [documentsDirectory stringByAppendingPathComponent: [NSString stringWithFormat:@"%@/%@/%@/%@",MODLAND_BASEDIR,strAuthor,strType,strAlbum]];
+                success = [fileManager fileExistsAtPath:checkPath];
+                if (success) break;
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    if (success) return 1;
+    return 0;
+}
+
+
+#pragma mark -
+#pragma mark Table view data source
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    if (browse_depth==0) return nil;
+    if (mSearch) return nil;	
+        if (browse_depth==1) return nil; //Modland browse mode chooser
+        if (section==0) return nil;
+        else {
+            int file_or_album=0;
+            if (search_db) {
+                if (search_db_hasFiles) file_or_album=1;
+            } else {
+                if (db_hasFiles) file_or_album=1;
+            }
+            
+            if (file_or_album&&(section==1)) return @"";
+            if ((search_db?search_db_entries_count[section-1-file_or_album]:db_entries_count[section-1-file_or_album])) {
+                if (file_or_album) return [indexTitlesDownload objectAtIndex:section];
+                else return [indexTitles objectAtIndex:section];
+            }
+            return nil;
+        }
+    if (browse_depth>=2) return [indexTitles objectAtIndex:section];
+    return nil;
+}
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    local_flag=0;
+    
+    if (browse_depth==0) return [keys count];
+        if (browse_depth==1) return 1; //Modland browse mode chooser
+        if (browse_depth>1) {
+            int file_or_album=0;
+            if (search_db) {
+                if (search_db_hasFiles) file_or_album=1;
+            } else {
+                if (db_hasFiles) file_or_album=1;
+            }
+            return 28+file_or_album;
+        }
+    return 28;
+}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (browse_depth>=1) {//modland DB
+        if (browse_depth==1) return 3; //Modland browse mode chooser
+        if (section==0) return 0;
+        else {
+            int file_or_album=0;
+            if (search_db) {
+                if (search_db_hasFiles) file_or_album=1;
+            } else {
+                if (db_hasFiles) file_or_album=1;
+            }
+            
+            if (file_or_album&&(section==1)) return 1;
+            return (search_db?search_db_entries_count[section-1-file_or_album]:db_entries_count[section-1-file_or_album]);
+        }
+    } else {
+        NSDictionary *dictionary = [keys objectAtIndex:section];
+        NSArray *array = [dictionary objectForKey:@"entries"];
+        return [array count];
+    }
+}
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+    if (browse_depth==0) return nil;
+    if (mSearch) return nil;	
+        if (browse_depth==1) return nil; //Modland browse mode chooser
+        if (browse_depth>1) {
+            int file_or_album=0;
+            if (search_db) {
+                if (search_db_hasFiles) file_or_album=1;
+            } else {
+                if (db_hasFiles) file_or_album=1;
+            }
+            
+            if (file_or_album) return indexTitlesDownload;
+        }
+        return indexTitles;
+    if (browse_depth>=2) return indexTitles;
+    return nil;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+    if (mSearch) return -1;
+    if (browse_depth==1) return -1; //Modland browse mode chooser
+        if (index == 0) {
+            [tableView setContentOffset:CGPointZero animated:NO];
+            return NSNotFound;
+        }
+        return index;
+    return -1;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"Cell";
+    NSString *cellValue;
+    const NSInteger TOP_LABEL_TAG = 1001;
+    const NSInteger BOTTOM_LABEL_TAG = 1002;
+    const NSInteger BOTTOM_IMAGE_TAG = 1003;
+    const NSInteger ACT_IMAGE_TAG = 1004;
+    const NSInteger SECACT_IMAGE_TAG = 1005;
+    UILabel *topLabel;
+    UILabel *bottomLabel;
+    UIImageView *bottomImageView;
+    UIButton *actionView,*secActionView;
+    NSString *playedXtimes=NSLocalizedString(@"Played %d times.",@"");
+    NSString *played1time=NSLocalizedString(@"Played once.",@"");	
+    NSString *played0time=NSLocalizedString(@"Never played.",@"");	
+    NSString *nbFiles=NSLocalizedString(@"%d files.",@"");	
+    NSString *nb1File=NSLocalizedString(@"1 file.",@"");	
+    
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+        //
+        // Create the label for the top row of text
+        //
+        topLabel = [[[UILabel alloc] init] autorelease];
+        [cell.contentView addSubview:topLabel];
+        
+        //
+        // Configure the properties for the text that are the same on every row
+        //
+        topLabel.tag = TOP_LABEL_TAG;
+        topLabel.backgroundColor = [UIColor clearColor];
+        topLabel.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
+        topLabel.font = [UIFont boldSystemFontOfSize:20];
+        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.opaque=TRUE;
+        
+        //
+        // Create the label for the top row of text
+        //
+        bottomLabel = [[[UILabel alloc] init] autorelease];
+        [cell.contentView addSubview:bottomLabel];
+        //
+        // Configure the properties for the text that are the same on every row
+        //
+        bottomLabel.tag = BOTTOM_LABEL_TAG;
+        bottomLabel.backgroundColor = [UIColor clearColor];
+        bottomLabel.textColor = [UIColor colorWithRed:0.25 green:0.20 blue:0.20 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.75 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.font = [UIFont systemFontOfSize:12];
+        //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
+        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        bottomLabel.opaque=TRUE;
+        
+        
+        bottomImageView = [[[UIImageView alloc] initWithImage:nil]  autorelease];
+        bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
+                                           26,
+                                           50,9);
+        bottomImageView.tag = BOTTOM_IMAGE_TAG;
+        bottomImageView.opaque=TRUE;
+        [cell.contentView addSubview:bottomImageView];
+        
+        actionView                = [UIButton buttonWithType: UIButtonTypeCustom];
+        [cell.contentView addSubview:actionView];
+        actionView.tag = ACT_IMAGE_TAG;        
+        
+        secActionView                = [UIButton buttonWithType: UIButtonTypeCustom];
+        [cell.contentView addSubview:secActionView];
+        secActionView.tag = SECACT_IMAGE_TAG;
+        
+        cell.accessoryView=nil;
+        cell.selectionStyle=UITableViewCellSelectionStyleGray;
+    } else {
+        topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
+        bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
+        actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
+        secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
+    }
+    actionView.hidden=TRUE;
+    secActionView.hidden=TRUE;
+    
+    topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+                               0,
+                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32,
+                               22);
+    bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
+                                   22,
+                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32,
+                                   18);
+    bottomLabel.text=@""; //default value
+    bottomImageView.image=nil;
+    
+    cell.accessoryType = UITableViewCellAccessoryNone;
+    
+    // Set up the cell...
+    if (browse_depth==0) {
+    } else {//modland
+        if (browse_depth==1) {//choose browse mode
+            if (indexPath.row==0) {
+                cellValue=NSLocalizedString(@"Formats/Artists/Files",@"");
+                //topLabel.textColor=[UIColor colorWithRed:0.1f green:0.4f blue:0.8f alpha:1.0f];
+                bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Formats: %d entries.",@""),mNbFormatEntries];
+            } else if (indexPath.row==1) {
+                cellValue=NSLocalizedString(@"Artists/Formats/Files",@"");
+                //topLabel.textColor=[UIColor colorWithRed:0.3f green:0.3f blue:0.8f alpha:1.0f];
+                bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Artists: %d entries.",@""),mNbAuthorEntries];
+            } else if (indexPath.row==2) {
+                cellValue=NSLocalizedString(@"Artists/Files",@"");
+                //topLabel.textColor=[UIColor colorWithRed:0.6f green:0.2f blue:0.7f alpha:1.0f];
+                bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Artists: %d entries.",@""),mNbAuthorEntries];
+            }
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        } else {
+            t_db_browse_entry **cur_db_entries;
+            cur_db_entries=(search_db?search_db_entries:db_entries);
+            int file_or_album=0;
+            if (search_db) {
+                if (search_db_hasFiles) file_or_album=1;
+            } else {
+                if (db_hasFiles) file_or_album=1;
+            }
+            int section=indexPath.section-1-file_or_album;
+            if (file_or_album&&(indexPath.section==1)){
+                cellValue=NSLocalizedString(@"GetAllEntries_MainKey","");
+                topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.8f alpha:1.0];
+                bottomLabel.text=NSLocalizedString(@"GetAllEntries_SubKey","");;
+                //cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
+            } else {
+                cellValue=cur_db_entries[section][indexPath.row].label;
+                int colFactor;
+                //update downloaded if needed
+                if(cur_db_entries[section][indexPath.row].downloaded==-1) {
+                    if (cur_db_entries[section][indexPath.row].id_mod>=0) {  //id_mod is known
+                        cur_db_entries[section][indexPath.row].downloaded=[self checkIsDownloadedMod:cur_db_entries[section][indexPath.row].id_mod];
+                    } else {
+                        cur_db_entries[section][indexPath.row].downloaded=1;
+                    }
+                }
+                
+                if(cur_db_entries[section][indexPath.row].downloaded==1) {
+                    colFactor=1;
+                } else colFactor=0;
+                
+                if (cur_db_entries[section][indexPath.row].id_mod>=0) { //MOD ?
+                    if (colFactor) topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
+                    else topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
+                    topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+                                               0,
+                                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                               22);
+                    
+                    if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                        if (cur_db_entries[section][indexPath.row].rating==-1) {
+                            [self getFileStatsDB:cur_db_entries[section][indexPath.row].label
+                                        fullpath:[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,
+                                                  [self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]]
+                                       playcount:&cur_db_entries[section][indexPath.row].playcount
+                                          rating:&cur_db_entries[section][indexPath.row].rating
+                                     song_length:&cur_db_entries[section][indexPath.row].song_length									 
+                                           songs:&cur_db_entries[section][indexPath.row].songs
+                                     channels_nb:&cur_db_entries[section][indexPath.row].channels_nb];
+                        }
+                        if (cur_db_entries[section][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_db_entries[section][indexPath.row].rating]];
+                        
+                        /*if (!cur_db_entries[section][indexPath.row].playcount) bottomLabel.text = [NSString stringWithString:played0time]; 
+                         else if (cur_db_entries[section][indexPath.row].playcount==1) bottomLabel.text = [NSString stringWithString:played1time];
+                         else bottomLabel.text = [NSString stringWithFormat:playedXtimes,cur_db_entries[section][indexPath.row].playcount];				
+                         */
+                        NSString *bottomStr;
+                        if (cur_db_entries[section][indexPath.row].song_length>0)
+                            bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_db_entries[section][indexPath.row].song_length/1000/60,(cur_db_entries[section][indexPath.row].song_length/1000)%60];
+                        else bottomStr=@"--:--";						
+                        if (cur_db_entries[section][indexPath.row].channels_nb)
+                            bottomStr=[NSString stringWithFormat:@"%@ / %02dch",bottomStr,cur_db_entries[section][indexPath.row].channels_nb];
+                        else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];						
+                        if (cur_db_entries[section][indexPath.row].songs) {
+                            if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@ / 1 song",bottomStr];
+                            else bottomStr=[NSString stringWithFormat:@"%@ / %d songs",bottomStr,cur_db_entries[section][indexPath.row].songs];
+                        }
+                        else bottomStr=[NSString stringWithFormat:@"%@ / - song",bottomStr];		   						
+                        bottomStr=[NSString stringWithFormat:@"%@ / Pl:%d",bottomStr,cur_db_entries[section][indexPath.row].playcount];
+                        
+                        bottomLabel.text=bottomStr;
+                        
+                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+                                                       22,
+                                                       tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                                       18);
+                    } else {
+                        bottomLabel.text=[NSString stringWithFormat:@"%dKB",cur_db_entries[section][indexPath.row].filesize/1024];
+                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+                                                       22,
+                                                       tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                                       18);
+                    }
+                    
+                    
+                    if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+                        [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
+                        [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
+                        [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                        [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                    } else {
+                        [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
+                        [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
+                        [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                        [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                    }
+                    actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                    actionView.enabled=YES;
+                    actionView.hidden=NO;
+                    
+                } else if (cur_db_entries[section][indexPath.row].id_album>=0) {// ALBUM ?
+                    bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+                                                   22,
+                                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                                   18);
+                    topLabel.textColor=[UIColor colorWithRed:0.8f green:0.6f blue:0.0f alpha:1.0f];
+                    bottomLabel.text=[NSString stringWithFormat:(cur_db_entries[section][indexPath.row].filesize>1?nbFiles:nb1File),cur_db_entries[section][indexPath.row].filesize];
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                } else if (cur_db_entries[section][indexPath.row].id_author>=0) {// AUTHOR ?
+                    bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+                                                   22,
+                                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                                   18);
+                    topLabel.textColor=[UIColor colorWithRed:1.0f green:0.0f blue:0.8f alpha:1.0f];
+                    bottomLabel.text=[NSString stringWithFormat:(cur_db_entries[section][indexPath.row].filesize>1?nbFiles:nb1File),cur_db_entries[section][indexPath.row].filesize];
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;				
+                } else  {
+                    bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+                                                   22,
+                                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                                   18);
+                    topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+                    bottomLabel.text=[NSString stringWithFormat:(cur_db_entries[section][indexPath.row].filesize>1?nbFiles:nb1File),cur_db_entries[section][indexPath.row].filesize];
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;				
+                }		
+                
+            }
+        }
+    }
+    
+    topLabel.text = cellValue;
+    
+    return cell;
+}
+
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        // Delete the row from the data source
+        
+        //delete entry
+        
+            t_db_browse_entry **cur_db_entries;
+            cur_db_entries=(search_db?search_db_entries:db_entries);
+            int section = indexPath.section-1;
+            int download_all=0;
+            if (search_db) {
+                if (search_db_hasFiles) download_all=1;
+            } else {
+                if (db_hasFiles) download_all=1;
+            }
+            section-=download_all;
+            //delete file
+            NSString *localpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]]];
+            NSError *err;
+            //			NSLog(@"%@",localpath);
+            [self deleteStatsFileDB:localpath];
+            cur_db_entries[section][indexPath.row].downloaded=0;
+            //delete local file
+            [mFileMngr removeItemAtPath:localpath error:&err];
+            //ask for a reload/redraw
+            [tableView reloadData];
+        
+    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
+        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+    }
+}
+- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
+    
+    return proposedDestinationIndexPath;
+}
+// Override to support rearranging the table view.
+- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+}
+// Override to support conditional rearranging of the table view.
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Return NO if you do not want the item to be re-orderable.
+    return NO;
+}
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Return NO if you do not want the item to be re-orderable.
+        t_db_browse_entry **cur_db_entries=(search_db?search_db_entries:db_entries);
+        int section =indexPath.section-1;
+        if (search_db) {
+            if (search_db_hasFiles) section--;
+        } else {
+            if (db_hasFiles) section--;
+        }
+        if (section>=0) {
+            if (cur_db_entries[section][indexPath.row].downloaded==1) return YES;
+        }
+    return NO;
+}
+
+#pragma mark UISearchBarDelegate
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
+    // only show the status bar’s cancel button while in edit mode
+    sBar.showsCancelButton = YES;
+    sBar.autocorrectionType = UITextAutocorrectionTypeNo;
+    mSearch=1;
+    // flush the previous search content
+    //[tableData removeAllObjects];
+}
+- (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar {
+    //[self fillKeys];
+    //[[super tableView] reloadData];
+    //mSearch=0;
+    sBar.showsCancelButton = NO;
+}
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    if (mSearchText) [mSearchText release];
+    
+    mSearchText=[[NSString alloc] initWithString:searchText];
+    shouldFillKeys=1;
+    [self fillKeys];
+    [[super tableView] reloadData];
+}
+- (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    if (mSearchText) [mSearchText release];
+    mSearchText=nil;
+    sBar.text=nil;
+    mSearch=0;
+    sBar.showsCancelButton = NO;
+    [searchBar resignFirstResponder];
+    
+    [[super tableView] reloadData];
+}
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    [searchBar resignFirstResponder];
+}
+
+
+-(IBAction)goPlayer {
+    //	self.navigationController.navigationBar.hidden = YES;
+    //[self performSelectorInBackground:@selector(showWaiting) withObject:nil];    
+    [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
+}
+
+#pragma mark -
+#pragma mark Table view delegate
+- (void) primaryActionTapped: (UIButton*) sender {
+    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    
+    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
+    
+    
+    if (browse_depth==0) {
+        
+    } else {
+            NSString *filePath;
+            NSString *modFilename;
+            t_db_browse_entry **cur_db_entries;
+            cur_db_entries=(search_db?search_db_entries:db_entries);
+            int download_all=0;
+            int section=indexPath.section-1;
+            if (search_db) {
+                if (search_db_hasFiles) download_all=1;
+            } else {
+                if (db_hasFiles) download_all=1;
+            }
+            section-=download_all;
+            
+            filePath=[self getCompletePath:cur_db_entries[section][indexPath.row].id_mod];
+            modFilename=[self getModFilename:cur_db_entries[section][indexPath.row].id_mod];
+            
+            NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+            NSString *localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]];
+            mClickedPrimAction=1;
+            
+            if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                [array_label addObject:modFilename];
+                [array_path addObject:localPath];
+                cur_db_entries[section][indexPath.row].rating=-1;
+                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                else [[super tableView] reloadData];
+            } else {
+                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                mCurrentWinAskedDownload=1;
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1];
+            }
+    }
+    
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    
+    
+}
+- (void) secondaryActionTapped: (UIButton*) sender {
+    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    
+    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
+
+    
+    if (browse_depth==0) {
+    } else {
+            t_db_browse_entry **cur_db_entries;
+            cur_db_entries=(search_db?search_db_entries:db_entries);
+            int download_all=0;
+            int section=indexPath.section-1;
+            if (search_db) {
+                if (search_db_hasFiles) download_all=1;
+            } else {
+                if (db_hasFiles) download_all=1;
+            }
+            section-=download_all;
+            
+            NSString *filePath=[self getCompletePath:cur_db_entries[section][indexPath.row].id_mod];
+            NSString *modFilename=[self getModFilename:cur_db_entries[section][indexPath.row].id_mod];
+            NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+            NSString *localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]];
+            mClickedPrimAction=2;
+            
+            if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                if ([detailViewController add_to_playlist:localPath fileName:modFilename forcenoplay:1]) {
+                    cur_db_entries[section][indexPath.row].rating=-1;
+                    if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                    else [[super tableView] reloadData];
+                }
+            } else {
+                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                mCurrentWinAskedDownload=1;
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:2];
+            }
+        }
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+}
+
+
+- (void) accessoryActionTapped: (UIButton*) sender {
+    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    
+    mAccessoryButton=1;
+    [self tableView:[super tableView] didSelectRowAtIndexPath:indexPath];
+}
+
+
+-(void) fillKeysSearchWithPopup {
+    int old_mSearch=mSearch;
+    NSString *old_mSearchText=mSearchText;
+    mSearch=0;
+    mSearchText=nil;
+    [self fillKeys];   //1st load eveything
+    mSearch=old_mSearch;
+    mSearchText=old_mSearchText;
+    if (mSearch) {
+        shouldFillKeys=1;
+        [self fillKeys];   //2nd filter for drawing
+    }
+    [[super tableView] reloadData];
+}
+
+-(void) fillKeysWithPopup {
+    [self fillKeys];
+    [[super tableView] reloadData];
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Navigation logic may go here. Create and push another view controller.
+    //First get the dictionary object
+    NSString *cellValue;
+    
+    if (browse_depth==0) {
+        NSDictionary *dictionary = [keys objectAtIndex:indexPath.section];
+        NSArray *array = [dictionary objectForKey:@"entries"];
+        cellValue = [array objectAtIndex:indexPath.row];
+        
+            if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+            else {			// Don't cache childviews
+            }
+            //set new title
+            childController.title = cellValue;
+            // Set new directory
+            ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
+            ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
+            ((RootViewControllerMODLAND*)childController)->playerButton=playerButton;
+            // And push the window
+            [self.navigationController pushViewController:childController animated:YES];	
+            [keys release];keys=nil;
+            [list release];list=nil;
+    } else {
+         
+            if (browse_depth==1) {
+                if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+                else {// Don't cache childviews
+                }
+                
+                if (indexPath.row==0) { //Formats/Authors/Files
+                    modland_browse_mode=0;
+                    childController.title = @"Formats";
+                    
+                } else if (indexPath.row==1) {  //Authors/Formats/Files
+                    modland_browse_mode=1;
+                    childController.title = @"Artists";
+                    
+                } else if (indexPath.row==2) {  //Authors/Files
+                    modland_browse_mode=2;
+                    childController.title = @"Artists";
+                }
+                // Set new depth
+                ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
+                ((RootViewControllerMODLAND*)childController)->modland_browse_mode=modland_browse_mode;
+                ((RootViewControllerMODLAND*)childController)->playerButton=playerButton;
+                ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
+                ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
+                
+                // And push the window
+                [self.navigationController pushViewController:childController animated:YES];
+                
+            } else {
+                int file_or_album=0;
+                t_db_browse_entry **cur_db_entries;
+                cur_db_entries=(search_db?search_db_entries:db_entries);
+                
+                if (search_db) {
+                    if (search_db_hasFiles) file_or_album=1;
+                } else {
+                    if (db_hasFiles) file_or_album=1;
+                }
+                int section=indexPath.section-1-file_or_album;
+                if (!file_or_album) {
+                    cellValue=cur_db_entries[section][indexPath.row].label;
+                    
+                    if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+                    else {// Don't cache childviews
+                    }
+                    //set new title
+                    childController.title = cellValue;
+                    // Set new depth
+                    ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
+                    ((RootViewControllerMODLAND*)childController)->modland_browse_mode=modland_browse_mode;
+                    ((RootViewControllerMODLAND*)childController)->playerButton=playerButton;
+                    
+                    switch (modland_browse_mode) {
+                        case 0:		//Formats/Authors/Files
+                            //Filetype selected
+                            if (browse_depth==2) {
+                                ((RootViewControllerMODLAND*)childController)->mFiletypeID = cur_db_entries[section][indexPath.row].id_type;
+                            } else ((RootViewControllerMODLAND*)childController)->mFiletypeID = mFiletypeID;
+                            //Author selected
+                            if (browse_depth==3) {
+                                ((RootViewControllerMODLAND*)childController)->mAuthorID = cur_db_entries[section][indexPath.row].id_author;
+                            } else ((RootViewControllerMODLAND*)childController)->mAuthorID = mAuthorID;
+                            if (browse_depth==4) {
+                                ((RootViewControllerMODLAND*)childController)->mAlbumID = cur_db_entries[section][indexPath.row].id_album;
+                            } else ((RootViewControllerMODLAND*)childController)->mAlbumID = mAlbumID;
+                            break;
+                        case 1:		//Authors/Formats/Files
+                            //Author selected
+                            if (browse_depth==2) {
+                                ((RootViewControllerMODLAND*)childController)->mAuthorID = cur_db_entries[section][indexPath.row].id_author;
+                            } else ((RootViewControllerMODLAND*)childController)->mAuthorID = mAuthorID;
+                            //Filetype selected
+                            if (browse_depth==3) {
+                                ((RootViewControllerMODLAND*)childController)->mFiletypeID = cur_db_entries[section][indexPath.row].id_type;
+                            } else ((RootViewControllerMODLAND*)childController)->mFiletypeID = mFiletypeID;
+                            if (browse_depth==4) {
+                                ((RootViewControllerMODLAND*)childController)->mAlbumID = cur_db_entries[section][indexPath.row].id_album;
+                            } else ((RootViewControllerMODLAND*)childController)->mAlbumID = mAlbumID;
+                            break;
+                        case 2:		//Authors/Files
+                            //Author selected
+                            if (browse_depth==2) {
+                                ((RootViewControllerMODLAND*)childController)->mAuthorID = cur_db_entries[section][indexPath.row].id_author;
+                            } else ((RootViewControllerMODLAND*)childController)->mAuthorID = mAuthorID;
+                            if (browse_depth==3) {
+                                ((RootViewControllerMODLAND*)childController)->mAlbumID = cur_db_entries[section][indexPath.row].id_album;
+                            } else ((RootViewControllerMODLAND*)childController)->mAlbumID = mAlbumID;
+                            break;
+                    }
+                    
+                    ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
+                    ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
+                    
+                    // And push the window
+                    [self.navigationController pushViewController:childController animated:YES];
+                    
+                    
+                    //				[childController autorelease];
+                } else { 
+                    if (indexPath.section==1) {//download all dir
+                        NSString *filePath;
+                        NSString *modFilename;
+                        NSString *ftpPath;
+                        NSString *localPath;
+                        int first=0; //1;  Do not play even first file => TODO : add a setting for this
+                        int existing;
+                        int tooMuch=0;
+                        if (detailViewController.sc_DefaultAction.selectedSegmentIndex==2) first=0;//enqueue only
+                        
+                        int *cur_db_entries_count=(search_db?search_db_entries_count:db_entries_count);
+                        
+                        for (int i=0;i<27;i++) {
+                            for (int j=0;j<cur_db_entries_count[i];j++) {
+                                if (cur_db_entries[i][j].id_mod!=-1) {//mod found
+                                    
+                                    existing=cur_db_entries[i][j].downloaded;
+                                    if (existing==-1) {
+                                        existing=cur_db_entries[i][j].downloaded=[self checkIsDownloadedMod:cur_db_entries[i][j].id_mod];
+                                    }
+                                    
+                                    if (existing==0) {
+                                        filePath=[self getCompletePath:cur_db_entries[i][j].id_mod];
+                                        modFilename=[self getModFilename:cur_db_entries[i][j].id_mod];
+                                        ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+                                        localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[i][j].id_mod]];
+                                        mCurrentWinAskedDownload=1;
+                                        [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                                        
+                                        if (first) {
+                                            if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[i][j].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1]) {
+                                                tooMuch=1;
+                                                break;
+                                            }
+                                            first=0;
+                                        } else {
+                                            if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[i][j].filesize filename:modFilename isMODLAND:1 usePrimaryAction:2]) {
+                                                tooMuch=1;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (tooMuch) break;
+                        }
+                        
+                    } else {
+                        cellValue=cur_db_entries[section][indexPath.row].label;
+                        
+                        //Check if an album was selected
+                        if (cur_db_entries[section][indexPath.row].id_mod==-1) {//no mod : Album selcted
+                            if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+                            else {// Don't cache childviews
+                            }
+                            //set new title
+                            childController.title = cellValue;	
+                            // Set new depth
+                            ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
+                            ((RootViewControllerMODLAND*)childController)->modland_browse_mode=modland_browse_mode;
+                            ((RootViewControllerMODLAND*)childController)->playerButton=playerButton;
+                            //Filetype & Author selected
+                            if (mFiletypeID>=0) ((RootViewControllerMODLAND*)childController)->mFiletypeID = mFiletypeID;
+                            if (mAuthorID>=0) ((RootViewControllerMODLAND*)childController)->mAuthorID = mAuthorID;
+                            //Album selected
+                            ((RootViewControllerMODLAND*)childController)->mAlbumID = cur_db_entries[section][indexPath.row].id_album;
+                            
+                            ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
+                            ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
+                            // And push the window
+                            [self.navigationController pushViewController:childController animated:YES];
+                            
+                        } else { //File selected, start download is needed
+                            NSString *filePath=[self getCompletePath:cur_db_entries[section][indexPath.row].id_mod];
+                            NSString *modFilename=[self getModFilename:cur_db_entries[section][indexPath.row].id_mod];
+                            NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+                            NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]];
+                            mClickedPrimAction=(detailViewController.sc_DefaultAction.selectedSegmentIndex==0);
+                            
+                            if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                                if (detailViewController.sc_checkBeforeRedownload.selectedSegmentIndex==1) {
+                                    FTPfilePath=[[NSString alloc] initWithString:filePath];
+                                    FTPlocalPath=[[NSString alloc] initWithString:localPath];
+                                    FTPftpPath=[[NSString alloc] initWithString:ftpPath];
+                                    FTPfilename=[[NSString alloc] initWithString:modFilename];
+                                    FTPfilesize=cur_db_entries[section][indexPath.row].filesize;
+                                    alertAlreadyAvail = [[[UIAlertView alloc] initWithTitle:@"Warning" 
+                                                                                    message:NSLocalizedString(@"File already available locally. Do you want to download it again?",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"Yes",@""),nil] autorelease];
+                                    [alertAlreadyAvail show];
+                                } else {
+                                    if (mClickedPrimAction) {
+                                        NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                                        NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                                        [array_label addObject:modFilename];
+                                        [array_path addObject:localPath];
+                                        [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                                        cur_db_entries[section][indexPath.row].rating=-1;
+                                        if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                                        else [tableView reloadData];
+                                    } else {
+                                        if ([detailViewController add_to_playlist:localPath fileName:modFilename forcenoplay:(detailViewController.sc_DefaultAction.selectedSegmentIndex==1)]) {
+                                            cur_db_entries[section][indexPath.row].rating=-1;
+                                            if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                                            else [tableView reloadData];
+                                        }
+                                    }
+                                }
+                            } else {
+                                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                                mCurrentWinAskedDownload=1;
+                                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                            }
+                        }
+                    }
+                }
+            }
+    }
+    mAccessoryButton=0;
+}
+
+
+/* POPUP functions */
+-(void) hidePopup {
+    infoMsgView.hidden=YES;
+    mPopupAnimation=0;
+}
+
+-(void) openPopup:(NSString *)msg {
+    CGRect frame;
+    if (mPopupAnimation) return;
+    mPopupAnimation=1;	
+    frame=infoMsgView.frame;
+    frame.origin.y=self.view.frame.size.height;
+    infoMsgView.frame=frame;
+    infoMsgView.hidden=NO;
+    infoMsgLbl.text=[NSString stringWithString:msg];
+    [UIView beginAnimations:nil context:nil];				
+    [UIView setAnimationDelay:0];				
+    [UIView setAnimationDuration:0.5];
+    [UIView setAnimationDelegate:self];
+    frame=infoMsgView.frame;
+    frame.origin.y=self.view.frame.size.height-64;
+    infoMsgView.frame=frame;
+    [UIView setAnimationDidStopSelector:@selector(closePopup)];
+    [UIView commitAnimations];
+}
+-(void) closePopup {
+    CGRect frame;
+    [UIView beginAnimations:nil context:nil];
+    [UIView setAnimationDelay:1.0];				
+    [UIView setAnimationDuration:0.5];
+    [UIView setAnimationDelegate:self];	
+    frame=infoMsgView.frame;
+    frame.origin.y=self.view.frame.size.height;
+    infoMsgView.frame=frame;
+    [UIView setAnimationDidStopSelector:@selector(hidePopup)];
+    [UIView commitAnimations];
+}
+
+
+#pragma mark -
+#pragma mark Memory management
+
+- (void)didReceiveMemoryWarning {
+    // Releases the view if it doesn't have a superview.
+    [super didReceiveMemoryWarning];
+    
+    // Relinquish ownership any cached data, images, etc. that aren't in use.
+}
+- (void)viewDidUnload {
+    // Relinquish ownership of anything that can be recreated in viewDidLoad or on demand.
+    // For example: self.myOutlet = nil;;
+}
+
+- (void)dealloc {
+    [waitingView removeFromSuperview];
+    [waitingView release];
+    
+    [currentPath release];
+    if (mSearchText) {
+        [mSearchText release];
+        mSearchText=nil;
+    }
+    if (keys) {
+        [keys release];
+        keys=nil;
+    }
+    if (list) {
+        [list release];
+        list=nil;
+    }	
+    
+    
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++)
+            [db_entries_data[i].label release];
+        free(db_entries_data);
+    }
+    if (search_db_nb_entries) {
+        free(search_db_entries_data);
+    }
+        
+    if (indexTitles) [indexTitles release];
+    if (indexTitlesDownload) [indexTitlesDownload release];
+    
+    [super dealloc];
+}
+
+
+@end

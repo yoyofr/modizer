@@ -1,0 +1,7 @@
+To gain support for cc file extentions in VC5/6 you must modify
+the existing Windows registry keys to be as follows:
+
+[HKEY_CURRENT_USER\Software\Microsoft\Devstudio\6.0\Build System\Components\Platforms\Win32 (x86)\Tools\32-bit C/C++ Compiler for 80x86]
+"Input_Spec"="*.c;*.cpp;*.cxx;*.cc"
+[HKEY_CURRENT_USER\Software\Microsoft\Devstudio\6.0\Text Editor\Tabs/Language Settings\C/C++]
+"FileExtensions"="cpp;cxx;c;h;hxx;hpp;inl;tlh;tli;rc;rc2;cc"

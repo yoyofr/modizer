@@ -1,0 +1,8 @@
+fft4g.o fft4g.o: fft4g.c /usr/include/math.h \
+  /usr/include/architecture/i386/math.h /usr/include/sys/cdefs.h
+
+/usr/include/math.h:
+
+/usr/include/architecture/i386/math.h:
+
+/usr/include/sys/cdefs.h:

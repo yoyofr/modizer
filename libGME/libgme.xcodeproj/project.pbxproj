@@ -1,0 +1,976 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		33CA1777140677BB00CBEF9B /* Spc_Dsp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33CA1775140677BB00CBEF9B /* Spc_Dsp.cpp */; };
+		33CA1778140677BB00CBEF9B /* Spc_Dsp.h in Headers */ = {isa = PBXBuildFile; fileRef = 33CA1776140677BB00CBEF9B /* Spc_Dsp.h */; };
+		AA747D9F0F9514B9006C5449 /* libgme_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* libgme_Prefix.pch */; };
+		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		CC6BDF0612FF3B7C0035A210 /* Ay_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE4F12FF3B7C0035A210 /* Ay_Apu.cpp */; };
+		CC6BDF0712FF3B7C0035A210 /* Ay_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE5012FF3B7C0035A210 /* Ay_Apu.h */; };
+		CC6BDF0812FF3B7C0035A210 /* Ay_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE5112FF3B7C0035A210 /* Ay_Core.cpp */; };
+		CC6BDF0912FF3B7C0035A210 /* Ay_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE5212FF3B7C0035A210 /* Ay_Core.h */; };
+		CC6BDF0A12FF3B7C0035A210 /* Ay_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE5312FF3B7C0035A210 /* Ay_Cpu.cpp */; };
+		CC6BDF0B12FF3B7C0035A210 /* Ay_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE5412FF3B7C0035A210 /* Ay_Emu.cpp */; };
+		CC6BDF0C12FF3B7C0035A210 /* Ay_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE5512FF3B7C0035A210 /* Ay_Emu.h */; };
+		CC6BDF0F12FF3B7C0035A210 /* blargg_common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE5912FF3B7C0035A210 /* blargg_common.cpp */; };
+		CC6BDF1012FF3B7C0035A210 /* blargg_common.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE5A12FF3B7C0035A210 /* blargg_common.h */; };
+		CC6BDF1112FF3B7C0035A210 /* blargg_config.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE5C12FF3B7C0035A210 /* blargg_config.h */; };
+		CC6BDF1212FF3B7C0035A210 /* blargg_endian.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE5D12FF3B7C0035A210 /* blargg_endian.h */; };
+		CC6BDF1312FF3B7C0035A210 /* blargg_errors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE5E12FF3B7C0035A210 /* blargg_errors.cpp */; };
+		CC6BDF1412FF3B7C0035A210 /* blargg_errors.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE5F12FF3B7C0035A210 /* blargg_errors.h */; };
+		CC6BDF1512FF3B7C0035A210 /* blargg_source.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6012FF3B7C0035A210 /* blargg_source.h */; };
+		CC6BDF1612FF3B7C0035A210 /* Blip_Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE6112FF3B7C0035A210 /* Blip_Buffer.cpp */; };
+		CC6BDF1712FF3B7C0035A210 /* Blip_Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6212FF3B7C0035A210 /* Blip_Buffer.h */; };
+		CC6BDF1812FF3B7C0035A210 /* Blip_Buffer_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6312FF3B7C0035A210 /* Blip_Buffer_impl.h */; };
+		CC6BDF1912FF3B7C0035A210 /* Blip_Buffer_impl2.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6412FF3B7C0035A210 /* Blip_Buffer_impl2.h */; };
+		CC6BDF1A12FF3B7C0035A210 /* Classic_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE6512FF3B7C0035A210 /* Classic_Emu.cpp */; };
+		CC6BDF1B12FF3B7C0035A210 /* Classic_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6612FF3B7C0035A210 /* Classic_Emu.h */; };
+		CC6BDF1C12FF3B7C0035A210 /* divfix.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6712FF3B7C0035A210 /* divfix.h */; };
+		CC6BDF1D12FF3B7C0035A210 /* Downsampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE6812FF3B7C0035A210 /* Downsampler.cpp */; };
+		CC6BDF1E12FF3B7C0035A210 /* Downsampler.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6912FF3B7C0035A210 /* Downsampler.h */; };
+		CC6BDF1F12FF3B7C0035A210 /* Dual_Resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE6A12FF3B7C0035A210 /* Dual_Resampler.cpp */; };
+		CC6BDF2012FF3B7C0035A210 /* Dual_Resampler.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6B12FF3B7C0035A210 /* Dual_Resampler.h */; };
+		CC6BDF2112FF3B7C0035A210 /* Effects_Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE6C12FF3B7C0035A210 /* Effects_Buffer.cpp */; };
+		CC6BDF2212FF3B7C0035A210 /* Effects_Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6D12FF3B7C0035A210 /* Effects_Buffer.h */; };
+		CC6BDF2312FF3B7C0035A210 /* emu2413.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE6E12FF3B7C0035A210 /* emu2413.cpp */; };
+		CC6BDF2412FF3B7C0035A210 /* emu2413.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE6F12FF3B7C0035A210 /* emu2413.h */; };
+		CC6BDF2712FF3B7C0035A210 /* Fir_Resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE7312FF3B7C0035A210 /* Fir_Resampler.cpp */; };
+		CC6BDF2812FF3B7C0035A210 /* Fir_Resampler.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE7412FF3B7C0035A210 /* Fir_Resampler.h */; };
+		CC6BDF2912FF3B7C0035A210 /* fmopl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE7512FF3B7C0035A210 /* fmopl.cpp */; };
+		CC6BDF2A12FF3B7C0035A210 /* fmopl.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE7612FF3B7C0035A210 /* fmopl.h */; };
+		CC6BDF2B12FF3B7C0035A210 /* Gb_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE7712FF3B7C0035A210 /* Gb_Apu.cpp */; };
+		CC6BDF2C12FF3B7C0035A210 /* Gb_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE7812FF3B7C0035A210 /* Gb_Apu.h */; };
+		CC6BDF2D12FF3B7C0035A210 /* Gb_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE7912FF3B7C0035A210 /* Gb_Cpu.cpp */; };
+		CC6BDF2E12FF3B7C0035A210 /* Gb_Cpu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE7A12FF3B7C0035A210 /* Gb_Cpu.h */; };
+		CC6BDF2F12FF3B7C0035A210 /* Gb_Cpu_run.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE7B12FF3B7C0035A210 /* Gb_Cpu_run.h */; };
+		CC6BDF3012FF3B7C0035A210 /* Gb_Oscs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE7C12FF3B7C0035A210 /* Gb_Oscs.cpp */; };
+		CC6BDF3112FF3B7C0035A210 /* Gb_Oscs.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE7D12FF3B7C0035A210 /* Gb_Oscs.h */; };
+		CC6BDF3212FF3B7C0035A210 /* Gbs_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE7E12FF3B7C0035A210 /* Gbs_Core.cpp */; };
+		CC6BDF3312FF3B7C0035A210 /* Gbs_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE7F12FF3B7C0035A210 /* Gbs_Core.h */; };
+		CC6BDF3412FF3B7C0035A210 /* Gbs_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8012FF3B7C0035A210 /* Gbs_Cpu.cpp */; };
+		CC6BDF3512FF3B7C0035A210 /* Gbs_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8112FF3B7C0035A210 /* Gbs_Emu.cpp */; };
+		CC6BDF3612FF3B7C0035A210 /* Gbs_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE8212FF3B7C0035A210 /* Gbs_Emu.h */; };
+		CC6BDF3712FF3B7C0035A210 /* gme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8312FF3B7C0035A210 /* gme.cpp */; };
+		CC6BDF3812FF3B7C0035A210 /* gme.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE8412FF3B7C0035A210 /* gme.h */; };
+		CC6BDF3912FF3B7C0035A210 /* Gme_File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8512FF3B7C0035A210 /* Gme_File.cpp */; };
+		CC6BDF3A12FF3B7C0035A210 /* Gme_File.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE8612FF3B7C0035A210 /* Gme_File.h */; };
+		CC6BDF3B12FF3B7C0035A210 /* Gme_Loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8712FF3B7C0035A210 /* Gme_Loader.cpp */; };
+		CC6BDF3C12FF3B7C0035A210 /* Gme_Loader.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE8812FF3B7C0035A210 /* Gme_Loader.h */; };
+		CC6BDF3D12FF3B7C0035A210 /* Gym_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8912FF3B7C0035A210 /* Gym_Emu.cpp */; };
+		CC6BDF3E12FF3B7C0035A210 /* Gym_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE8A12FF3B7C0035A210 /* Gym_Emu.h */; };
+		CC6BDF3F12FF3B7C0035A210 /* Hes_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8B12FF3B7C0035A210 /* Hes_Apu.cpp */; };
+		CC6BDF4012FF3B7C0035A210 /* Hes_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE8C12FF3B7C0035A210 /* Hes_Apu.h */; };
+		CC6BDF4112FF3B7C0035A210 /* Hes_Apu_Adpcm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8D12FF3B7C0035A210 /* Hes_Apu_Adpcm.cpp */; };
+		CC6BDF4212FF3B7C0035A210 /* Hes_Apu_Adpcm.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE8E12FF3B7C0035A210 /* Hes_Apu_Adpcm.h */; };
+		CC6BDF4312FF3B7C0035A210 /* Hes_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE8F12FF3B7C0035A210 /* Hes_Core.cpp */; };
+		CC6BDF4412FF3B7C0035A210 /* Hes_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9012FF3B7C0035A210 /* Hes_Core.h */; };
+		CC6BDF4512FF3B7C0035A210 /* Hes_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE9112FF3B7C0035A210 /* Hes_Cpu.cpp */; };
+		CC6BDF4612FF3B7C0035A210 /* Hes_Cpu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9212FF3B7C0035A210 /* Hes_Cpu.h */; };
+		CC6BDF4712FF3B7C0035A210 /* Hes_Cpu_run.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9312FF3B7C0035A210 /* Hes_Cpu_run.h */; };
+		CC6BDF4812FF3B7C0035A210 /* Hes_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE9412FF3B7C0035A210 /* Hes_Emu.cpp */; };
+		CC6BDF4912FF3B7C0035A210 /* Hes_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9512FF3B7C0035A210 /* Hes_Emu.h */; };
+		CC6BDF4A12FF3B7C0035A210 /* i_fmpac.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9612FF3B7C0035A210 /* i_fmpac.h */; };
+		CC6BDF4B12FF3B7C0035A210 /* i_fmunit.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9712FF3B7C0035A210 /* i_fmunit.h */; };
+		CC6BDF4C12FF3B7C0035A210 /* i_vrc7.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9812FF3B7C0035A210 /* i_vrc7.h */; };
+		CC6BDF4D12FF3B7C0035A210 /* kmsnddev.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9912FF3B7C0035A210 /* kmsnddev.h */; };
+		CC6BDF4E12FF3B7C0035A210 /* Kss_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE9A12FF3B7C0035A210 /* Kss_Core.cpp */; };
+		CC6BDF4F12FF3B7C0035A210 /* Kss_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9B12FF3B7C0035A210 /* Kss_Core.h */; };
+		CC6BDF5012FF3B7C0035A210 /* Kss_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE9C12FF3B7C0035A210 /* Kss_Cpu.cpp */; };
+		CC6BDF5112FF3B7C0035A210 /* Kss_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE9D12FF3B7C0035A210 /* Kss_Emu.cpp */; };
+		CC6BDF5212FF3B7C0035A210 /* Kss_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDE9E12FF3B7C0035A210 /* Kss_Emu.h */; };
+		CC6BDF5312FF3B7C0035A210 /* Kss_Scc_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDE9F12FF3B7C0035A210 /* Kss_Scc_Apu.cpp */; };
+		CC6BDF5412FF3B7C0035A210 /* Kss_Scc_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEA012FF3B7C0035A210 /* Kss_Scc_Apu.h */; };
+		CC6BDF5512FF3B7C0035A210 /* M3u_Playlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEA112FF3B7C0035A210 /* M3u_Playlist.cpp */; };
+		CC6BDF5612FF3B7C0035A210 /* M3u_Playlist.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEA212FF3B7C0035A210 /* M3u_Playlist.h */; };
+		CC6BDF5712FF3B7C0035A210 /* Multi_Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEA312FF3B7C0035A210 /* Multi_Buffer.cpp */; };
+		CC6BDF5812FF3B7C0035A210 /* Multi_Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEA412FF3B7C0035A210 /* Multi_Buffer.h */; };
+		CC6BDF5912FF3B7C0035A210 /* Music_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEA512FF3B7C0035A210 /* Music_Emu.cpp */; };
+		CC6BDF5A12FF3B7C0035A210 /* Music_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEA612FF3B7C0035A210 /* Music_Emu.h */; };
+		CC6BDF5B12FF3B7C0035A210 /* Nes_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEA712FF3B7C0035A210 /* Nes_Apu.cpp */; };
+		CC6BDF5C12FF3B7C0035A210 /* Nes_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEA812FF3B7C0035A210 /* Nes_Apu.h */; };
+		CC6BDF5D12FF3B7C0035A210 /* Nes_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEA912FF3B7C0035A210 /* Nes_Cpu.cpp */; };
+		CC6BDF5E12FF3B7C0035A210 /* Nes_Cpu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEAA12FF3B7C0035A210 /* Nes_Cpu.h */; };
+		CC6BDF5F12FF3B7C0035A210 /* Nes_Cpu_run.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEAB12FF3B7C0035A210 /* Nes_Cpu_run.h */; };
+		CC6BDF6012FF3B7C0035A210 /* Nes_Fds_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEAC12FF3B7C0035A210 /* Nes_Fds_Apu.cpp */; };
+		CC6BDF6112FF3B7C0035A210 /* Nes_Fds_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEAD12FF3B7C0035A210 /* Nes_Fds_Apu.h */; };
+		CC6BDF6212FF3B7C0035A210 /* Nes_Fme7_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEAE12FF3B7C0035A210 /* Nes_Fme7_Apu.cpp */; };
+		CC6BDF6312FF3B7C0035A210 /* Nes_Fme7_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEAF12FF3B7C0035A210 /* Nes_Fme7_Apu.h */; };
+		CC6BDF6412FF3B7C0035A210 /* Nes_Mmc5_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEB012FF3B7C0035A210 /* Nes_Mmc5_Apu.h */; };
+		CC6BDF6512FF3B7C0035A210 /* Nes_Namco_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEB112FF3B7C0035A210 /* Nes_Namco_Apu.cpp */; };
+		CC6BDF6612FF3B7C0035A210 /* Nes_Namco_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEB212FF3B7C0035A210 /* Nes_Namco_Apu.h */; };
+		CC6BDF6712FF3B7C0035A210 /* Nes_Oscs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEB312FF3B7C0035A210 /* Nes_Oscs.cpp */; };
+		CC6BDF6812FF3B7C0035A210 /* Nes_Oscs.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEB412FF3B7C0035A210 /* Nes_Oscs.h */; };
+		CC6BDF6912FF3B7C0035A210 /* Nes_Vrc6_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEB512FF3B7C0035A210 /* Nes_Vrc6_Apu.cpp */; };
+		CC6BDF6A12FF3B7C0035A210 /* Nes_Vrc6_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEB612FF3B7C0035A210 /* Nes_Vrc6_Apu.h */; };
+		CC6BDF6B12FF3B7C0035A210 /* Nes_Vrc7_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEB712FF3B7C0035A210 /* Nes_Vrc7_Apu.cpp */; };
+		CC6BDF6C12FF3B7C0035A210 /* Nes_Vrc7_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEB812FF3B7C0035A210 /* Nes_Vrc7_Apu.h */; };
+		CC6BDF6D12FF3B7C0035A210 /* nestypes.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEB912FF3B7C0035A210 /* nestypes.h */; };
+		CC6BDF6E12FF3B7C0035A210 /* Nsf_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEBA12FF3B7C0035A210 /* Nsf_Core.cpp */; };
+		CC6BDF6F12FF3B7C0035A210 /* Nsf_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEBB12FF3B7C0035A210 /* Nsf_Core.h */; };
+		CC6BDF7012FF3B7C0035A210 /* Nsf_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEBC12FF3B7C0035A210 /* Nsf_Cpu.cpp */; };
+		CC6BDF7112FF3B7C0035A210 /* Nsf_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEBD12FF3B7C0035A210 /* Nsf_Emu.cpp */; };
+		CC6BDF7212FF3B7C0035A210 /* Nsf_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEBE12FF3B7C0035A210 /* Nsf_Emu.h */; };
+		CC6BDF7312FF3B7C0035A210 /* Nsf_Impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEBF12FF3B7C0035A210 /* Nsf_Impl.cpp */; };
+		CC6BDF7412FF3B7C0035A210 /* Nsf_Impl.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEC012FF3B7C0035A210 /* Nsf_Impl.h */; };
+		CC6BDF7512FF3B7C0035A210 /* Nsfe_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEC112FF3B7C0035A210 /* Nsfe_Emu.cpp */; };
+		CC6BDF7612FF3B7C0035A210 /* Nsfe_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEC212FF3B7C0035A210 /* Nsfe_Emu.h */; };
+		CC6BDF7712FF3B7C0035A210 /* Opl_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEC312FF3B7C0035A210 /* Opl_Apu.cpp */; };
+		CC6BDF7812FF3B7C0035A210 /* Opl_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEC412FF3B7C0035A210 /* Opl_Apu.h */; };
+		CC6BDF7E12FF3B7C0035A210 /* Resampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDECB12FF3B7C0035A210 /* Resampler.cpp */; };
+		CC6BDF7F12FF3B7C0035A210 /* Resampler.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDECC12FF3B7C0035A210 /* Resampler.h */; };
+		CC6BDF8012FF3B7C0035A210 /* Rom_Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDECD12FF3B7C0035A210 /* Rom_Data.cpp */; };
+		CC6BDF8112FF3B7C0035A210 /* Rom_Data.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDECE12FF3B7C0035A210 /* Rom_Data.h */; };
+		CC6BDF8312FF3B7C0035A210 /* s_deltat.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDED012FF3B7C0035A210 /* s_deltat.h */; };
+		CC6BDF8512FF3B7C0035A210 /* s_logtbl.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDED212FF3B7C0035A210 /* s_logtbl.h */; };
+		CC6BDF8712FF3B7C0035A210 /* s_opl.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDED412FF3B7C0035A210 /* s_opl.h */; };
+		CC6BDF8912FF3B7C0035A210 /* s_opltbl.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDED612FF3B7C0035A210 /* s_opltbl.h */; };
+		CC6BDF8A12FF3B7C0035A210 /* Sap_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDED712FF3B7C0035A210 /* Sap_Apu.cpp */; };
+		CC6BDF8B12FF3B7C0035A210 /* Sap_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDED812FF3B7C0035A210 /* Sap_Apu.h */; };
+		CC6BDF8C12FF3B7C0035A210 /* Sap_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDED912FF3B7C0035A210 /* Sap_Core.cpp */; };
+		CC6BDF8D12FF3B7C0035A210 /* Sap_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEDA12FF3B7C0035A210 /* Sap_Core.h */; };
+		CC6BDF8E12FF3B7C0035A210 /* Sap_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEDB12FF3B7C0035A210 /* Sap_Cpu.cpp */; };
+		CC6BDF8F12FF3B7C0035A210 /* Sap_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEDC12FF3B7C0035A210 /* Sap_Emu.cpp */; };
+		CC6BDF9012FF3B7C0035A210 /* Sap_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEDD12FF3B7C0035A210 /* Sap_Emu.h */; };
+		CC6BDF9112FF3B7C0035A210 /* Sgc_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEDE12FF3B7C0035A210 /* Sgc_Core.cpp */; };
+		CC6BDF9212FF3B7C0035A210 /* Sgc_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEDF12FF3B7C0035A210 /* Sgc_Core.h */; };
+		CC6BDF9312FF3B7C0035A210 /* Sgc_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEE012FF3B7C0035A210 /* Sgc_Cpu.cpp */; };
+		CC6BDF9412FF3B7C0035A210 /* Sgc_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEE112FF3B7C0035A210 /* Sgc_Emu.cpp */; };
+		CC6BDF9512FF3B7C0035A210 /* Sgc_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEE212FF3B7C0035A210 /* Sgc_Emu.h */; };
+		CC6BDF9612FF3B7C0035A210 /* Sgc_Impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEE312FF3B7C0035A210 /* Sgc_Impl.cpp */; };
+		CC6BDF9712FF3B7C0035A210 /* Sgc_Impl.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEE412FF3B7C0035A210 /* Sgc_Impl.h */; };
+		CC6BDF9812FF3B7C0035A210 /* Sms_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEE512FF3B7C0035A210 /* Sms_Apu.cpp */; };
+		CC6BDF9912FF3B7C0035A210 /* Sms_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEE612FF3B7C0035A210 /* Sms_Apu.h */; };
+		CC6BDF9A12FF3B7C0035A210 /* Sms_Fm_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEE712FF3B7C0035A210 /* Sms_Fm_Apu.cpp */; };
+		CC6BDF9B12FF3B7C0035A210 /* Sms_Fm_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEE812FF3B7C0035A210 /* Sms_Fm_Apu.h */; };
+		CC6BDF9C12FF3B7C0035A210 /* Snes_Spc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEE912FF3B7C0035A210 /* Snes_Spc.cpp */; };
+		CC6BDF9D12FF3B7C0035A210 /* Snes_Spc.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEEA12FF3B7C0035A210 /* Snes_Spc.h */; };
+		CC6BDF9E12FF3B7C0035A210 /* Spc_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEEB12FF3B7C0035A210 /* Spc_Cpu.cpp */; };
+		CC6BDF9F12FF3B7C0035A210 /* Spc_Cpu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEEC12FF3B7C0035A210 /* Spc_Cpu.h */; };
+		CC6BDFA212FF3B7C0035A210 /* Spc_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEEF12FF3B7C0035A210 /* Spc_Emu.cpp */; };
+		CC6BDFA312FF3B7C0035A210 /* Spc_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEF012FF3B7C0035A210 /* Spc_Emu.h */; };
+		CC6BDFA412FF3B7C0035A210 /* SPC_Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEF112FF3B7C0035A210 /* SPC_Filter.cpp */; };
+		CC6BDFA512FF3B7C0035A210 /* SPC_Filter.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEF212FF3B7C0035A210 /* SPC_Filter.h */; };
+		CC6BDFA612FF3B7C0035A210 /* Track_Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEF312FF3B7C0035A210 /* Track_Filter.cpp */; };
+		CC6BDFA712FF3B7C0035A210 /* Track_Filter.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEF412FF3B7C0035A210 /* Track_Filter.h */; };
+		CC6BDFA812FF3B7C0035A210 /* Upsampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEF512FF3B7C0035A210 /* Upsampler.cpp */; };
+		CC6BDFA912FF3B7C0035A210 /* Upsampler.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEF612FF3B7C0035A210 /* Upsampler.h */; };
+		CC6BDFAA12FF3B7C0035A210 /* Vgm_Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEF712FF3B7C0035A210 /* Vgm_Core.cpp */; };
+		CC6BDFAB12FF3B7C0035A210 /* Vgm_Core.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEF812FF3B7C0035A210 /* Vgm_Core.h */; };
+		CC6BDFAC12FF3B7C0035A210 /* Vgm_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEF912FF3B7C0035A210 /* Vgm_Emu.cpp */; };
+		CC6BDFAD12FF3B7C0035A210 /* Vgm_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEFA12FF3B7C0035A210 /* Vgm_Emu.h */; };
+		CC6BDFAE12FF3B7C0035A210 /* ym2413.c in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEFB12FF3B7C0035A210 /* ym2413.c */; };
+		CC6BDFAF12FF3B7C0035A210 /* ym2413.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEFC12FF3B7C0035A210 /* ym2413.h */; };
+		CC6BDFB012FF3B7C0035A210 /* Ym2413_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEFD12FF3B7C0035A210 /* Ym2413_Emu.cpp */; };
+		CC6BDFB112FF3B7C0035A210 /* Ym2413_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDEFE12FF3B7C0035A210 /* Ym2413_Emu.h */; };
+		CC6BDFB212FF3B7C0035A210 /* Ym2612_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDEFF12FF3B7C0035A210 /* Ym2612_Emu.cpp */; };
+		CC6BDFB312FF3B7C0035A210 /* Ym2612_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDF0012FF3B7C0035A210 /* Ym2612_Emu.h */; };
+		CC6BDFB412FF3B7C0035A210 /* ymdeltat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDF0112FF3B7C0035A210 /* ymdeltat.cpp */; };
+		CC6BDFB512FF3B7C0035A210 /* ymdeltat.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDF0212FF3B7C0035A210 /* ymdeltat.h */; };
+		CC6BDFB612FF3B7C0035A210 /* Z80_Cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC6BDF0312FF3B7C0035A210 /* Z80_Cpu.cpp */; };
+		CC6BDFB712FF3B7C0035A210 /* Z80_Cpu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDF0412FF3B7C0035A210 /* Z80_Cpu.h */; };
+		CC6BDFB812FF3B7C0035A210 /* Z80_Cpu_run.h in Headers */ = {isa = PBXBuildFile; fileRef = CC6BDF0512FF3B7C0035A210 /* Z80_Cpu_run.h */; };
+		CC9349721328057B00703666 /* Data_Reader.h in Headers */ = {isa = PBXBuildFile; fileRef = CC9349711328057B00703666 /* Data_Reader.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		33CA1775140677BB00CBEF9B /* Spc_Dsp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Spc_Dsp.cpp; sourceTree = "<group>"; };
+		33CA1776140677BB00CBEF9B /* Spc_Dsp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Spc_Dsp.h; sourceTree = "<group>"; };
+		AA747D9E0F9514B9006C5449 /* libgme_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libgme_Prefix.pch; sourceTree = SOURCE_ROOT; };
+		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		CC6BDE4F12FF3B7C0035A210 /* Ay_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ay_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDE5012FF3B7C0035A210 /* Ay_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ay_Apu.h; sourceTree = "<group>"; };
+		CC6BDE5112FF3B7C0035A210 /* Ay_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ay_Core.cpp; sourceTree = "<group>"; };
+		CC6BDE5212FF3B7C0035A210 /* Ay_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ay_Core.h; sourceTree = "<group>"; };
+		CC6BDE5312FF3B7C0035A210 /* Ay_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ay_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDE5412FF3B7C0035A210 /* Ay_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ay_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDE5512FF3B7C0035A210 /* Ay_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ay_Emu.h; sourceTree = "<group>"; };
+		CC6BDE5712FF3B7C0035A210 /* Data_Reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Data_Reader.cpp; sourceTree = "<group>"; };
+		CC6BDE5812FF3B7C0035A210 /* Data_Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Data_Reader.h; sourceTree = "<group>"; };
+		CC6BDE5912FF3B7C0035A210 /* blargg_common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blargg_common.cpp; sourceTree = "<group>"; };
+		CC6BDE5A12FF3B7C0035A210 /* blargg_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_common.h; sourceTree = "<group>"; };
+		CC6BDE5B12FF3B7C0035A210 /* blargg_common.h.orig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = blargg_common.h.orig; sourceTree = "<group>"; };
+		CC6BDE5C12FF3B7C0035A210 /* blargg_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_config.h; sourceTree = "<group>"; };
+		CC6BDE5D12FF3B7C0035A210 /* blargg_endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_endian.h; sourceTree = "<group>"; };
+		CC6BDE5E12FF3B7C0035A210 /* blargg_errors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blargg_errors.cpp; sourceTree = "<group>"; };
+		CC6BDE5F12FF3B7C0035A210 /* blargg_errors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_errors.h; sourceTree = "<group>"; };
+		CC6BDE6012FF3B7C0035A210 /* blargg_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_source.h; sourceTree = "<group>"; };
+		CC6BDE6112FF3B7C0035A210 /* Blip_Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Blip_Buffer.cpp; sourceTree = "<group>"; };
+		CC6BDE6212FF3B7C0035A210 /* Blip_Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Blip_Buffer.h; sourceTree = "<group>"; };
+		CC6BDE6312FF3B7C0035A210 /* Blip_Buffer_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Blip_Buffer_impl.h; sourceTree = "<group>"; };
+		CC6BDE6412FF3B7C0035A210 /* Blip_Buffer_impl2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Blip_Buffer_impl2.h; sourceTree = "<group>"; };
+		CC6BDE6512FF3B7C0035A210 /* Classic_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Classic_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDE6612FF3B7C0035A210 /* Classic_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Classic_Emu.h; sourceTree = "<group>"; };
+		CC6BDE6712FF3B7C0035A210 /* divfix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = divfix.h; sourceTree = "<group>"; };
+		CC6BDE6812FF3B7C0035A210 /* Downsampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Downsampler.cpp; sourceTree = "<group>"; };
+		CC6BDE6912FF3B7C0035A210 /* Downsampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Downsampler.h; sourceTree = "<group>"; };
+		CC6BDE6A12FF3B7C0035A210 /* Dual_Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dual_Resampler.cpp; sourceTree = "<group>"; };
+		CC6BDE6B12FF3B7C0035A210 /* Dual_Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dual_Resampler.h; sourceTree = "<group>"; };
+		CC6BDE6C12FF3B7C0035A210 /* Effects_Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Effects_Buffer.cpp; sourceTree = "<group>"; };
+		CC6BDE6D12FF3B7C0035A210 /* Effects_Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Effects_Buffer.h; sourceTree = "<group>"; };
+		CC6BDE6E12FF3B7C0035A210 /* emu2413.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = emu2413.cpp; sourceTree = "<group>"; };
+		CC6BDE6F12FF3B7C0035A210 /* emu2413.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emu2413.h; sourceTree = "<group>"; };
+		CC6BDE7312FF3B7C0035A210 /* Fir_Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Fir_Resampler.cpp; sourceTree = "<group>"; };
+		CC6BDE7412FF3B7C0035A210 /* Fir_Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Fir_Resampler.h; sourceTree = "<group>"; };
+		CC6BDE7512FF3B7C0035A210 /* fmopl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fmopl.cpp; sourceTree = "<group>"; };
+		CC6BDE7612FF3B7C0035A210 /* fmopl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmopl.h; sourceTree = "<group>"; };
+		CC6BDE7712FF3B7C0035A210 /* Gb_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gb_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDE7812FF3B7C0035A210 /* Gb_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gb_Apu.h; sourceTree = "<group>"; };
+		CC6BDE7912FF3B7C0035A210 /* Gb_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gb_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDE7A12FF3B7C0035A210 /* Gb_Cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gb_Cpu.h; sourceTree = "<group>"; };
+		CC6BDE7B12FF3B7C0035A210 /* Gb_Cpu_run.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gb_Cpu_run.h; sourceTree = "<group>"; };
+		CC6BDE7C12FF3B7C0035A210 /* Gb_Oscs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gb_Oscs.cpp; sourceTree = "<group>"; };
+		CC6BDE7D12FF3B7C0035A210 /* Gb_Oscs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gb_Oscs.h; sourceTree = "<group>"; };
+		CC6BDE7E12FF3B7C0035A210 /* Gbs_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gbs_Core.cpp; sourceTree = "<group>"; };
+		CC6BDE7F12FF3B7C0035A210 /* Gbs_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gbs_Core.h; sourceTree = "<group>"; };
+		CC6BDE8012FF3B7C0035A210 /* Gbs_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gbs_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDE8112FF3B7C0035A210 /* Gbs_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gbs_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDE8212FF3B7C0035A210 /* Gbs_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gbs_Emu.h; sourceTree = "<group>"; };
+		CC6BDE8312FF3B7C0035A210 /* gme.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gme.cpp; sourceTree = "<group>"; };
+		CC6BDE8412FF3B7C0035A210 /* gme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gme.h; sourceTree = "<group>"; };
+		CC6BDE8512FF3B7C0035A210 /* Gme_File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gme_File.cpp; sourceTree = "<group>"; };
+		CC6BDE8612FF3B7C0035A210 /* Gme_File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gme_File.h; sourceTree = "<group>"; };
+		CC6BDE8712FF3B7C0035A210 /* Gme_Loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gme_Loader.cpp; sourceTree = "<group>"; };
+		CC6BDE8812FF3B7C0035A210 /* Gme_Loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gme_Loader.h; sourceTree = "<group>"; };
+		CC6BDE8912FF3B7C0035A210 /* Gym_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Gym_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDE8A12FF3B7C0035A210 /* Gym_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Gym_Emu.h; sourceTree = "<group>"; };
+		CC6BDE8B12FF3B7C0035A210 /* Hes_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hes_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDE8C12FF3B7C0035A210 /* Hes_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hes_Apu.h; sourceTree = "<group>"; };
+		CC6BDE8D12FF3B7C0035A210 /* Hes_Apu_Adpcm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hes_Apu_Adpcm.cpp; sourceTree = "<group>"; };
+		CC6BDE8E12FF3B7C0035A210 /* Hes_Apu_Adpcm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hes_Apu_Adpcm.h; sourceTree = "<group>"; };
+		CC6BDE8F12FF3B7C0035A210 /* Hes_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hes_Core.cpp; sourceTree = "<group>"; };
+		CC6BDE9012FF3B7C0035A210 /* Hes_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hes_Core.h; sourceTree = "<group>"; };
+		CC6BDE9112FF3B7C0035A210 /* Hes_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hes_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDE9212FF3B7C0035A210 /* Hes_Cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hes_Cpu.h; sourceTree = "<group>"; };
+		CC6BDE9312FF3B7C0035A210 /* Hes_Cpu_run.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hes_Cpu_run.h; sourceTree = "<group>"; };
+		CC6BDE9412FF3B7C0035A210 /* Hes_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Hes_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDE9512FF3B7C0035A210 /* Hes_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hes_Emu.h; sourceTree = "<group>"; };
+		CC6BDE9612FF3B7C0035A210 /* i_fmpac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = i_fmpac.h; sourceTree = "<group>"; };
+		CC6BDE9712FF3B7C0035A210 /* i_fmunit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = i_fmunit.h; sourceTree = "<group>"; };
+		CC6BDE9812FF3B7C0035A210 /* i_vrc7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = i_vrc7.h; sourceTree = "<group>"; };
+		CC6BDE9912FF3B7C0035A210 /* kmsnddev.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kmsnddev.h; sourceTree = "<group>"; };
+		CC6BDE9A12FF3B7C0035A210 /* Kss_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kss_Core.cpp; sourceTree = "<group>"; };
+		CC6BDE9B12FF3B7C0035A210 /* Kss_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Kss_Core.h; sourceTree = "<group>"; };
+		CC6BDE9C12FF3B7C0035A210 /* Kss_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kss_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDE9D12FF3B7C0035A210 /* Kss_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kss_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDE9E12FF3B7C0035A210 /* Kss_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Kss_Emu.h; sourceTree = "<group>"; };
+		CC6BDE9F12FF3B7C0035A210 /* Kss_Scc_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kss_Scc_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEA012FF3B7C0035A210 /* Kss_Scc_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Kss_Scc_Apu.h; sourceTree = "<group>"; };
+		CC6BDEA112FF3B7C0035A210 /* M3u_Playlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = M3u_Playlist.cpp; sourceTree = "<group>"; };
+		CC6BDEA212FF3B7C0035A210 /* M3u_Playlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = M3u_Playlist.h; sourceTree = "<group>"; };
+		CC6BDEA312FF3B7C0035A210 /* Multi_Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Multi_Buffer.cpp; sourceTree = "<group>"; };
+		CC6BDEA412FF3B7C0035A210 /* Multi_Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Multi_Buffer.h; sourceTree = "<group>"; };
+		CC6BDEA512FF3B7C0035A210 /* Music_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Music_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEA612FF3B7C0035A210 /* Music_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Music_Emu.h; sourceTree = "<group>"; };
+		CC6BDEA712FF3B7C0035A210 /* Nes_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEA812FF3B7C0035A210 /* Nes_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Apu.h; sourceTree = "<group>"; };
+		CC6BDEA912FF3B7C0035A210 /* Nes_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDEAA12FF3B7C0035A210 /* Nes_Cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Cpu.h; sourceTree = "<group>"; };
+		CC6BDEAB12FF3B7C0035A210 /* Nes_Cpu_run.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Cpu_run.h; sourceTree = "<group>"; };
+		CC6BDEAC12FF3B7C0035A210 /* Nes_Fds_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Fds_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEAD12FF3B7C0035A210 /* Nes_Fds_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Fds_Apu.h; sourceTree = "<group>"; };
+		CC6BDEAE12FF3B7C0035A210 /* Nes_Fme7_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Fme7_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEAF12FF3B7C0035A210 /* Nes_Fme7_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Fme7_Apu.h; sourceTree = "<group>"; };
+		CC6BDEB012FF3B7C0035A210 /* Nes_Mmc5_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Mmc5_Apu.h; sourceTree = "<group>"; };
+		CC6BDEB112FF3B7C0035A210 /* Nes_Namco_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Namco_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEB212FF3B7C0035A210 /* Nes_Namco_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Namco_Apu.h; sourceTree = "<group>"; };
+		CC6BDEB312FF3B7C0035A210 /* Nes_Oscs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Oscs.cpp; sourceTree = "<group>"; };
+		CC6BDEB412FF3B7C0035A210 /* Nes_Oscs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Oscs.h; sourceTree = "<group>"; };
+		CC6BDEB512FF3B7C0035A210 /* Nes_Vrc6_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Vrc6_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEB612FF3B7C0035A210 /* Nes_Vrc6_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Vrc6_Apu.h; sourceTree = "<group>"; };
+		CC6BDEB712FF3B7C0035A210 /* Nes_Vrc7_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nes_Vrc7_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEB812FF3B7C0035A210 /* Nes_Vrc7_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nes_Vrc7_Apu.h; sourceTree = "<group>"; };
+		CC6BDEB912FF3B7C0035A210 /* nestypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nestypes.h; sourceTree = "<group>"; };
+		CC6BDEBA12FF3B7C0035A210 /* Nsf_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nsf_Core.cpp; sourceTree = "<group>"; };
+		CC6BDEBB12FF3B7C0035A210 /* Nsf_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nsf_Core.h; sourceTree = "<group>"; };
+		CC6BDEBC12FF3B7C0035A210 /* Nsf_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nsf_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDEBD12FF3B7C0035A210 /* Nsf_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nsf_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEBE12FF3B7C0035A210 /* Nsf_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nsf_Emu.h; sourceTree = "<group>"; };
+		CC6BDEBF12FF3B7C0035A210 /* Nsf_Impl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nsf_Impl.cpp; sourceTree = "<group>"; };
+		CC6BDEC012FF3B7C0035A210 /* Nsf_Impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nsf_Impl.h; sourceTree = "<group>"; };
+		CC6BDEC112FF3B7C0035A210 /* Nsfe_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nsfe_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEC212FF3B7C0035A210 /* Nsfe_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nsfe_Emu.h; sourceTree = "<group>"; };
+		CC6BDEC312FF3B7C0035A210 /* Opl_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Opl_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEC412FF3B7C0035A210 /* Opl_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Opl_Apu.h; sourceTree = "<group>"; };
+		CC6BDEC612FF3B7C0035A210 /* Opl_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Opl_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEC712FF3B7C0035A210 /* Opl_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Opl_Apu.h; sourceTree = "<group>"; };
+		CC6BDEC812FF3B7C0035A210 /* Ym2413_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ym2413_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEC912FF3B7C0035A210 /* Ym2413_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ym2413_Emu.h; sourceTree = "<group>"; };
+		CC6BDECA12FF3B7C0035A210 /* Ym2612_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ym2612_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDECB12FF3B7C0035A210 /* Resampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Resampler.cpp; sourceTree = "<group>"; };
+		CC6BDECC12FF3B7C0035A210 /* Resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Resampler.h; sourceTree = "<group>"; };
+		CC6BDECD12FF3B7C0035A210 /* Rom_Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Rom_Data.cpp; sourceTree = "<group>"; };
+		CC6BDECE12FF3B7C0035A210 /* Rom_Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Rom_Data.h; sourceTree = "<group>"; };
+		CC6BDECF12FF3B7C0035A210 /* s_deltat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s_deltat.c; sourceTree = "<group>"; };
+		CC6BDED012FF3B7C0035A210 /* s_deltat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = s_deltat.h; sourceTree = "<group>"; };
+		CC6BDED112FF3B7C0035A210 /* s_logtbl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s_logtbl.c; sourceTree = "<group>"; };
+		CC6BDED212FF3B7C0035A210 /* s_logtbl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = s_logtbl.h; sourceTree = "<group>"; };
+		CC6BDED312FF3B7C0035A210 /* s_opl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s_opl.c; sourceTree = "<group>"; };
+		CC6BDED412FF3B7C0035A210 /* s_opl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = s_opl.h; sourceTree = "<group>"; };
+		CC6BDED512FF3B7C0035A210 /* s_opltbl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = s_opltbl.c; sourceTree = "<group>"; };
+		CC6BDED612FF3B7C0035A210 /* s_opltbl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = s_opltbl.h; sourceTree = "<group>"; };
+		CC6BDED712FF3B7C0035A210 /* Sap_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sap_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDED812FF3B7C0035A210 /* Sap_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sap_Apu.h; sourceTree = "<group>"; };
+		CC6BDED912FF3B7C0035A210 /* Sap_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sap_Core.cpp; sourceTree = "<group>"; };
+		CC6BDEDA12FF3B7C0035A210 /* Sap_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sap_Core.h; sourceTree = "<group>"; };
+		CC6BDEDB12FF3B7C0035A210 /* Sap_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sap_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDEDC12FF3B7C0035A210 /* Sap_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sap_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEDD12FF3B7C0035A210 /* Sap_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sap_Emu.h; sourceTree = "<group>"; };
+		CC6BDEDE12FF3B7C0035A210 /* Sgc_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sgc_Core.cpp; sourceTree = "<group>"; };
+		CC6BDEDF12FF3B7C0035A210 /* Sgc_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sgc_Core.h; sourceTree = "<group>"; };
+		CC6BDEE012FF3B7C0035A210 /* Sgc_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sgc_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDEE112FF3B7C0035A210 /* Sgc_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sgc_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEE212FF3B7C0035A210 /* Sgc_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sgc_Emu.h; sourceTree = "<group>"; };
+		CC6BDEE312FF3B7C0035A210 /* Sgc_Impl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sgc_Impl.cpp; sourceTree = "<group>"; };
+		CC6BDEE412FF3B7C0035A210 /* Sgc_Impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sgc_Impl.h; sourceTree = "<group>"; };
+		CC6BDEE512FF3B7C0035A210 /* Sms_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sms_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEE612FF3B7C0035A210 /* Sms_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sms_Apu.h; sourceTree = "<group>"; };
+		CC6BDEE712FF3B7C0035A210 /* Sms_Fm_Apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sms_Fm_Apu.cpp; sourceTree = "<group>"; };
+		CC6BDEE812FF3B7C0035A210 /* Sms_Fm_Apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sms_Fm_Apu.h; sourceTree = "<group>"; };
+		CC6BDEE912FF3B7C0035A210 /* Snes_Spc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Snes_Spc.cpp; sourceTree = "<group>"; };
+		CC6BDEEA12FF3B7C0035A210 /* Snes_Spc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Snes_Spc.h; sourceTree = "<group>"; };
+		CC6BDEEB12FF3B7C0035A210 /* Spc_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Spc_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDEEC12FF3B7C0035A210 /* Spc_Cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Spc_Cpu.h; sourceTree = "<group>"; };
+		CC6BDEEF12FF3B7C0035A210 /* Spc_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Spc_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEF012FF3B7C0035A210 /* Spc_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Spc_Emu.h; sourceTree = "<group>"; };
+		CC6BDEF112FF3B7C0035A210 /* SPC_Filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPC_Filter.cpp; sourceTree = "<group>"; };
+		CC6BDEF212FF3B7C0035A210 /* SPC_Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPC_Filter.h; sourceTree = "<group>"; };
+		CC6BDEF312FF3B7C0035A210 /* Track_Filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Track_Filter.cpp; sourceTree = "<group>"; };
+		CC6BDEF412FF3B7C0035A210 /* Track_Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track_Filter.h; sourceTree = "<group>"; };
+		CC6BDEF512FF3B7C0035A210 /* Upsampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Upsampler.cpp; sourceTree = "<group>"; };
+		CC6BDEF612FF3B7C0035A210 /* Upsampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Upsampler.h; sourceTree = "<group>"; };
+		CC6BDEF712FF3B7C0035A210 /* Vgm_Core.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vgm_Core.cpp; sourceTree = "<group>"; };
+		CC6BDEF812FF3B7C0035A210 /* Vgm_Core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vgm_Core.h; sourceTree = "<group>"; };
+		CC6BDEF912FF3B7C0035A210 /* Vgm_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vgm_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEFA12FF3B7C0035A210 /* Vgm_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vgm_Emu.h; sourceTree = "<group>"; };
+		CC6BDEFB12FF3B7C0035A210 /* ym2413.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ym2413.c; sourceTree = "<group>"; };
+		CC6BDEFC12FF3B7C0035A210 /* ym2413.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ym2413.h; sourceTree = "<group>"; };
+		CC6BDEFD12FF3B7C0035A210 /* Ym2413_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ym2413_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDEFE12FF3B7C0035A210 /* Ym2413_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ym2413_Emu.h; sourceTree = "<group>"; };
+		CC6BDEFF12FF3B7C0035A210 /* Ym2612_Emu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ym2612_Emu.cpp; sourceTree = "<group>"; };
+		CC6BDF0012FF3B7C0035A210 /* Ym2612_Emu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ym2612_Emu.h; sourceTree = "<group>"; };
+		CC6BDF0112FF3B7C0035A210 /* ymdeltat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ymdeltat.cpp; sourceTree = "<group>"; };
+		CC6BDF0212FF3B7C0035A210 /* ymdeltat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ymdeltat.h; sourceTree = "<group>"; };
+		CC6BDF0312FF3B7C0035A210 /* Z80_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Z80_Cpu.cpp; sourceTree = "<group>"; };
+		CC6BDF0412FF3B7C0035A210 /* Z80_Cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Z80_Cpu.h; sourceTree = "<group>"; };
+		CC6BDF0512FF3B7C0035A210 /* Z80_Cpu_run.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Z80_Cpu_run.h; sourceTree = "<group>"; };
+		CC9349711328057B00703666 /* Data_Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Data_Reader.h; sourceTree = "<group>"; };
+		D2AAC07E0554694100DB518D /* liblibgme.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibgme.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D2AAC07C0554694100DB518D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D2AAC07E0554694100DB518D /* liblibgme.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* libgme */ = {
+			isa = PBXGroup;
+			children = (
+				CC6BDE4E12FF3B7C0035A210 /* gme */,
+				08FB77AEFE84172EC02AAC07 /* Classes */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				0867D69AFE84028FC02AAC07 /* Frameworks */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = libgme;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AA747D9E0F9514B9006C5449 /* libgme_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		CC6BDE4E12FF3B7C0035A210 /* gme */ = {
+			isa = PBXGroup;
+			children = (
+				CC9349711328057B00703666 /* Data_Reader.h */,
+				CC6BDE4F12FF3B7C0035A210 /* Ay_Apu.cpp */,
+				CC6BDE5012FF3B7C0035A210 /* Ay_Apu.h */,
+				CC6BDE5112FF3B7C0035A210 /* Ay_Core.cpp */,
+				CC6BDE5212FF3B7C0035A210 /* Ay_Core.h */,
+				CC6BDE5312FF3B7C0035A210 /* Ay_Cpu.cpp */,
+				CC6BDE5412FF3B7C0035A210 /* Ay_Emu.cpp */,
+				CC6BDE5512FF3B7C0035A210 /* Ay_Emu.h */,
+				CC6BDE5612FF3B7C0035A210 /* backup */,
+				CC6BDE5912FF3B7C0035A210 /* blargg_common.cpp */,
+				CC6BDE5A12FF3B7C0035A210 /* blargg_common.h */,
+				CC6BDE5B12FF3B7C0035A210 /* blargg_common.h.orig */,
+				CC6BDE5C12FF3B7C0035A210 /* blargg_config.h */,
+				CC6BDE5D12FF3B7C0035A210 /* blargg_endian.h */,
+				CC6BDE5E12FF3B7C0035A210 /* blargg_errors.cpp */,
+				CC6BDE5F12FF3B7C0035A210 /* blargg_errors.h */,
+				CC6BDE6012FF3B7C0035A210 /* blargg_source.h */,
+				CC6BDE6112FF3B7C0035A210 /* Blip_Buffer.cpp */,
+				CC6BDE6212FF3B7C0035A210 /* Blip_Buffer.h */,
+				CC6BDE6312FF3B7C0035A210 /* Blip_Buffer_impl.h */,
+				CC6BDE6412FF3B7C0035A210 /* Blip_Buffer_impl2.h */,
+				CC6BDE6512FF3B7C0035A210 /* Classic_Emu.cpp */,
+				CC6BDE6612FF3B7C0035A210 /* Classic_Emu.h */,
+				CC6BDE6712FF3B7C0035A210 /* divfix.h */,
+				CC6BDE6812FF3B7C0035A210 /* Downsampler.cpp */,
+				CC6BDE6912FF3B7C0035A210 /* Downsampler.h */,
+				CC6BDE6A12FF3B7C0035A210 /* Dual_Resampler.cpp */,
+				CC6BDE6B12FF3B7C0035A210 /* Dual_Resampler.h */,
+				CC6BDE6C12FF3B7C0035A210 /* Effects_Buffer.cpp */,
+				CC6BDE6D12FF3B7C0035A210 /* Effects_Buffer.h */,
+				CC6BDE6E12FF3B7C0035A210 /* emu2413.cpp */,
+				CC6BDE6F12FF3B7C0035A210 /* emu2413.h */,
+				CC6BDE7312FF3B7C0035A210 /* Fir_Resampler.cpp */,
+				CC6BDE7412FF3B7C0035A210 /* Fir_Resampler.h */,
+				CC6BDE7512FF3B7C0035A210 /* fmopl.cpp */,
+				CC6BDE7612FF3B7C0035A210 /* fmopl.h */,
+				CC6BDE7712FF3B7C0035A210 /* Gb_Apu.cpp */,
+				CC6BDE7812FF3B7C0035A210 /* Gb_Apu.h */,
+				CC6BDE7912FF3B7C0035A210 /* Gb_Cpu.cpp */,
+				CC6BDE7A12FF3B7C0035A210 /* Gb_Cpu.h */,
+				CC6BDE7B12FF3B7C0035A210 /* Gb_Cpu_run.h */,
+				CC6BDE7C12FF3B7C0035A210 /* Gb_Oscs.cpp */,
+				CC6BDE7D12FF3B7C0035A210 /* Gb_Oscs.h */,
+				CC6BDE7E12FF3B7C0035A210 /* Gbs_Core.cpp */,
+				CC6BDE7F12FF3B7C0035A210 /* Gbs_Core.h */,
+				CC6BDE8012FF3B7C0035A210 /* Gbs_Cpu.cpp */,
+				CC6BDE8112FF3B7C0035A210 /* Gbs_Emu.cpp */,
+				CC6BDE8212FF3B7C0035A210 /* Gbs_Emu.h */,
+				CC6BDE8312FF3B7C0035A210 /* gme.cpp */,
+				CC6BDE8412FF3B7C0035A210 /* gme.h */,
+				CC6BDE8512FF3B7C0035A210 /* Gme_File.cpp */,
+				CC6BDE8612FF3B7C0035A210 /* Gme_File.h */,
+				CC6BDE8712FF3B7C0035A210 /* Gme_Loader.cpp */,
+				CC6BDE8812FF3B7C0035A210 /* Gme_Loader.h */,
+				CC6BDE8912FF3B7C0035A210 /* Gym_Emu.cpp */,
+				CC6BDE8A12FF3B7C0035A210 /* Gym_Emu.h */,
+				CC6BDE8B12FF3B7C0035A210 /* Hes_Apu.cpp */,
+				CC6BDE8C12FF3B7C0035A210 /* Hes_Apu.h */,
+				CC6BDE8D12FF3B7C0035A210 /* Hes_Apu_Adpcm.cpp */,
+				CC6BDE8E12FF3B7C0035A210 /* Hes_Apu_Adpcm.h */,
+				CC6BDE8F12FF3B7C0035A210 /* Hes_Core.cpp */,
+				CC6BDE9012FF3B7C0035A210 /* Hes_Core.h */,
+				CC6BDE9112FF3B7C0035A210 /* Hes_Cpu.cpp */,
+				CC6BDE9212FF3B7C0035A210 /* Hes_Cpu.h */,
+				CC6BDE9312FF3B7C0035A210 /* Hes_Cpu_run.h */,
+				CC6BDE9412FF3B7C0035A210 /* Hes_Emu.cpp */,
+				CC6BDE9512FF3B7C0035A210 /* Hes_Emu.h */,
+				CC6BDE9612FF3B7C0035A210 /* i_fmpac.h */,
+				CC6BDE9712FF3B7C0035A210 /* i_fmunit.h */,
+				CC6BDE9812FF3B7C0035A210 /* i_vrc7.h */,
+				CC6BDE9912FF3B7C0035A210 /* kmsnddev.h */,
+				CC6BDE9A12FF3B7C0035A210 /* Kss_Core.cpp */,
+				CC6BDE9B12FF3B7C0035A210 /* Kss_Core.h */,
+				CC6BDE9C12FF3B7C0035A210 /* Kss_Cpu.cpp */,
+				CC6BDE9D12FF3B7C0035A210 /* Kss_Emu.cpp */,
+				CC6BDE9E12FF3B7C0035A210 /* Kss_Emu.h */,
+				CC6BDE9F12FF3B7C0035A210 /* Kss_Scc_Apu.cpp */,
+				CC6BDEA012FF3B7C0035A210 /* Kss_Scc_Apu.h */,
+				CC6BDEA112FF3B7C0035A210 /* M3u_Playlist.cpp */,
+				CC6BDEA212FF3B7C0035A210 /* M3u_Playlist.h */,
+				CC6BDEA312FF3B7C0035A210 /* Multi_Buffer.cpp */,
+				CC6BDEA412FF3B7C0035A210 /* Multi_Buffer.h */,
+				CC6BDEA512FF3B7C0035A210 /* Music_Emu.cpp */,
+				CC6BDEA612FF3B7C0035A210 /* Music_Emu.h */,
+				CC6BDEA712FF3B7C0035A210 /* Nes_Apu.cpp */,
+				CC6BDEA812FF3B7C0035A210 /* Nes_Apu.h */,
+				CC6BDEA912FF3B7C0035A210 /* Nes_Cpu.cpp */,
+				CC6BDEAA12FF3B7C0035A210 /* Nes_Cpu.h */,
+				CC6BDEAB12FF3B7C0035A210 /* Nes_Cpu_run.h */,
+				CC6BDEAC12FF3B7C0035A210 /* Nes_Fds_Apu.cpp */,
+				CC6BDEAD12FF3B7C0035A210 /* Nes_Fds_Apu.h */,
+				CC6BDEAE12FF3B7C0035A210 /* Nes_Fme7_Apu.cpp */,
+				CC6BDEAF12FF3B7C0035A210 /* Nes_Fme7_Apu.h */,
+				CC6BDEB012FF3B7C0035A210 /* Nes_Mmc5_Apu.h */,
+				CC6BDEB112FF3B7C0035A210 /* Nes_Namco_Apu.cpp */,
+				CC6BDEB212FF3B7C0035A210 /* Nes_Namco_Apu.h */,
+				CC6BDEB312FF3B7C0035A210 /* Nes_Oscs.cpp */,
+				CC6BDEB412FF3B7C0035A210 /* Nes_Oscs.h */,
+				CC6BDEB512FF3B7C0035A210 /* Nes_Vrc6_Apu.cpp */,
+				CC6BDEB612FF3B7C0035A210 /* Nes_Vrc6_Apu.h */,
+				CC6BDEB712FF3B7C0035A210 /* Nes_Vrc7_Apu.cpp */,
+				CC6BDEB812FF3B7C0035A210 /* Nes_Vrc7_Apu.h */,
+				CC6BDEB912FF3B7C0035A210 /* nestypes.h */,
+				CC6BDEBA12FF3B7C0035A210 /* Nsf_Core.cpp */,
+				CC6BDEBB12FF3B7C0035A210 /* Nsf_Core.h */,
+				CC6BDEBC12FF3B7C0035A210 /* Nsf_Cpu.cpp */,
+				CC6BDEBD12FF3B7C0035A210 /* Nsf_Emu.cpp */,
+				CC6BDEBE12FF3B7C0035A210 /* Nsf_Emu.h */,
+				CC6BDEBF12FF3B7C0035A210 /* Nsf_Impl.cpp */,
+				CC6BDEC012FF3B7C0035A210 /* Nsf_Impl.h */,
+				CC6BDEC112FF3B7C0035A210 /* Nsfe_Emu.cpp */,
+				CC6BDEC212FF3B7C0035A210 /* Nsfe_Emu.h */,
+				CC6BDEC312FF3B7C0035A210 /* Opl_Apu.cpp */,
+				CC6BDEC412FF3B7C0035A210 /* Opl_Apu.h */,
+				CC6BDEC512FF3B7C0035A210 /* orig */,
+				CC6BDECB12FF3B7C0035A210 /* Resampler.cpp */,
+				CC6BDECC12FF3B7C0035A210 /* Resampler.h */,
+				CC6BDECD12FF3B7C0035A210 /* Rom_Data.cpp */,
+				CC6BDECE12FF3B7C0035A210 /* Rom_Data.h */,
+				CC6BDECF12FF3B7C0035A210 /* s_deltat.c */,
+				CC6BDED012FF3B7C0035A210 /* s_deltat.h */,
+				CC6BDED112FF3B7C0035A210 /* s_logtbl.c */,
+				CC6BDED212FF3B7C0035A210 /* s_logtbl.h */,
+				CC6BDED312FF3B7C0035A210 /* s_opl.c */,
+				CC6BDED412FF3B7C0035A210 /* s_opl.h */,
+				CC6BDED512FF3B7C0035A210 /* s_opltbl.c */,
+				CC6BDED612FF3B7C0035A210 /* s_opltbl.h */,
+				CC6BDED712FF3B7C0035A210 /* Sap_Apu.cpp */,
+				CC6BDED812FF3B7C0035A210 /* Sap_Apu.h */,
+				CC6BDED912FF3B7C0035A210 /* Sap_Core.cpp */,
+				CC6BDEDA12FF3B7C0035A210 /* Sap_Core.h */,
+				CC6BDEDB12FF3B7C0035A210 /* Sap_Cpu.cpp */,
+				CC6BDEDC12FF3B7C0035A210 /* Sap_Emu.cpp */,
+				CC6BDEDD12FF3B7C0035A210 /* Sap_Emu.h */,
+				CC6BDEDE12FF3B7C0035A210 /* Sgc_Core.cpp */,
+				CC6BDEDF12FF3B7C0035A210 /* Sgc_Core.h */,
+				CC6BDEE012FF3B7C0035A210 /* Sgc_Cpu.cpp */,
+				CC6BDEE112FF3B7C0035A210 /* Sgc_Emu.cpp */,
+				CC6BDEE212FF3B7C0035A210 /* Sgc_Emu.h */,
+				CC6BDEE312FF3B7C0035A210 /* Sgc_Impl.cpp */,
+				CC6BDEE412FF3B7C0035A210 /* Sgc_Impl.h */,
+				CC6BDEE512FF3B7C0035A210 /* Sms_Apu.cpp */,
+				CC6BDEE612FF3B7C0035A210 /* Sms_Apu.h */,
+				CC6BDEE712FF3B7C0035A210 /* Sms_Fm_Apu.cpp */,
+				CC6BDEE812FF3B7C0035A210 /* Sms_Fm_Apu.h */,
+				CC6BDEE912FF3B7C0035A210 /* Snes_Spc.cpp */,
+				CC6BDEEA12FF3B7C0035A210 /* Snes_Spc.h */,
+				CC6BDEEB12FF3B7C0035A210 /* Spc_Cpu.cpp */,
+				CC6BDEEC12FF3B7C0035A210 /* Spc_Cpu.h */,
+				33CA1775140677BB00CBEF9B /* Spc_Dsp.cpp */,
+				33CA1776140677BB00CBEF9B /* Spc_Dsp.h */,
+				CC6BDEEF12FF3B7C0035A210 /* Spc_Emu.cpp */,
+				CC6BDEF012FF3B7C0035A210 /* Spc_Emu.h */,
+				CC6BDEF112FF3B7C0035A210 /* SPC_Filter.cpp */,
+				CC6BDEF212FF3B7C0035A210 /* SPC_Filter.h */,
+				CC6BDEF312FF3B7C0035A210 /* Track_Filter.cpp */,
+				CC6BDEF412FF3B7C0035A210 /* Track_Filter.h */,
+				CC6BDEF512FF3B7C0035A210 /* Upsampler.cpp */,
+				CC6BDEF612FF3B7C0035A210 /* Upsampler.h */,
+				CC6BDEF712FF3B7C0035A210 /* Vgm_Core.cpp */,
+				CC6BDEF812FF3B7C0035A210 /* Vgm_Core.h */,
+				CC6BDEF912FF3B7C0035A210 /* Vgm_Emu.cpp */,
+				CC6BDEFA12FF3B7C0035A210 /* Vgm_Emu.h */,
+				CC6BDEFB12FF3B7C0035A210 /* ym2413.c */,
+				CC6BDEFC12FF3B7C0035A210 /* ym2413.h */,
+				CC6BDEFD12FF3B7C0035A210 /* Ym2413_Emu.cpp */,
+				CC6BDEFE12FF3B7C0035A210 /* Ym2413_Emu.h */,
+				CC6BDEFF12FF3B7C0035A210 /* Ym2612_Emu.cpp */,
+				CC6BDF0012FF3B7C0035A210 /* Ym2612_Emu.h */,
+				CC6BDF0112FF3B7C0035A210 /* ymdeltat.cpp */,
+				CC6BDF0212FF3B7C0035A210 /* ymdeltat.h */,
+				CC6BDF0312FF3B7C0035A210 /* Z80_Cpu.cpp */,
+				CC6BDF0412FF3B7C0035A210 /* Z80_Cpu.h */,
+				CC6BDF0512FF3B7C0035A210 /* Z80_Cpu_run.h */,
+			);
+			name = gme;
+			path = ../libGME/gme;
+			sourceTree = SOURCE_ROOT;
+		};
+		CC6BDE5612FF3B7C0035A210 /* backup */ = {
+			isa = PBXGroup;
+			children = (
+				CC6BDE5712FF3B7C0035A210 /* Data_Reader.cpp */,
+				CC6BDE5812FF3B7C0035A210 /* Data_Reader.h */,
+			);
+			path = backup;
+			sourceTree = "<group>";
+		};
+		CC6BDEC512FF3B7C0035A210 /* orig */ = {
+			isa = PBXGroup;
+			children = (
+				CC6BDEC612FF3B7C0035A210 /* Opl_Apu.cpp */,
+				CC6BDEC712FF3B7C0035A210 /* Opl_Apu.h */,
+				CC6BDEC812FF3B7C0035A210 /* Ym2413_Emu.cpp */,
+				CC6BDEC912FF3B7C0035A210 /* Ym2413_Emu.h */,
+				CC6BDECA12FF3B7C0035A210 /* Ym2612_Emu.cpp */,
+			);
+			path = orig;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D2AAC07A0554694100DB518D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA747D9F0F9514B9006C5449 /* libgme_Prefix.pch in Headers */,
+				CC6BDF0712FF3B7C0035A210 /* Ay_Apu.h in Headers */,
+				CC6BDF0912FF3B7C0035A210 /* Ay_Core.h in Headers */,
+				CC6BDF0C12FF3B7C0035A210 /* Ay_Emu.h in Headers */,
+				CC6BDF1012FF3B7C0035A210 /* blargg_common.h in Headers */,
+				CC6BDF1112FF3B7C0035A210 /* blargg_config.h in Headers */,
+				CC6BDF1212FF3B7C0035A210 /* blargg_endian.h in Headers */,
+				CC6BDF1412FF3B7C0035A210 /* blargg_errors.h in Headers */,
+				CC6BDF1512FF3B7C0035A210 /* blargg_source.h in Headers */,
+				CC6BDF1712FF3B7C0035A210 /* Blip_Buffer.h in Headers */,
+				CC6BDF1812FF3B7C0035A210 /* Blip_Buffer_impl.h in Headers */,
+				CC6BDF1912FF3B7C0035A210 /* Blip_Buffer_impl2.h in Headers */,
+				CC6BDF1B12FF3B7C0035A210 /* Classic_Emu.h in Headers */,
+				CC6BDF1C12FF3B7C0035A210 /* divfix.h in Headers */,
+				CC6BDF1E12FF3B7C0035A210 /* Downsampler.h in Headers */,
+				CC6BDF2012FF3B7C0035A210 /* Dual_Resampler.h in Headers */,
+				CC6BDF2212FF3B7C0035A210 /* Effects_Buffer.h in Headers */,
+				CC6BDF2412FF3B7C0035A210 /* emu2413.h in Headers */,
+				CC6BDF2812FF3B7C0035A210 /* Fir_Resampler.h in Headers */,
+				CC6BDF2A12FF3B7C0035A210 /* fmopl.h in Headers */,
+				CC6BDF2C12FF3B7C0035A210 /* Gb_Apu.h in Headers */,
+				CC6BDF2E12FF3B7C0035A210 /* Gb_Cpu.h in Headers */,
+				CC6BDF2F12FF3B7C0035A210 /* Gb_Cpu_run.h in Headers */,
+				CC6BDF3112FF3B7C0035A210 /* Gb_Oscs.h in Headers */,
+				CC6BDF3312FF3B7C0035A210 /* Gbs_Core.h in Headers */,
+				CC6BDF3612FF3B7C0035A210 /* Gbs_Emu.h in Headers */,
+				CC6BDF3812FF3B7C0035A210 /* gme.h in Headers */,
+				CC6BDF3A12FF3B7C0035A210 /* Gme_File.h in Headers */,
+				CC6BDF3C12FF3B7C0035A210 /* Gme_Loader.h in Headers */,
+				CC6BDF3E12FF3B7C0035A210 /* Gym_Emu.h in Headers */,
+				CC6BDF4012FF3B7C0035A210 /* Hes_Apu.h in Headers */,
+				CC6BDF4212FF3B7C0035A210 /* Hes_Apu_Adpcm.h in Headers */,
+				CC6BDF4412FF3B7C0035A210 /* Hes_Core.h in Headers */,
+				CC6BDF4612FF3B7C0035A210 /* Hes_Cpu.h in Headers */,
+				CC6BDF4712FF3B7C0035A210 /* Hes_Cpu_run.h in Headers */,
+				CC6BDF4912FF3B7C0035A210 /* Hes_Emu.h in Headers */,
+				CC6BDF4A12FF3B7C0035A210 /* i_fmpac.h in Headers */,
+				CC6BDF4B12FF3B7C0035A210 /* i_fmunit.h in Headers */,
+				CC6BDF4C12FF3B7C0035A210 /* i_vrc7.h in Headers */,
+				CC6BDF4D12FF3B7C0035A210 /* kmsnddev.h in Headers */,
+				CC6BDF4F12FF3B7C0035A210 /* Kss_Core.h in Headers */,
+				CC6BDF5212FF3B7C0035A210 /* Kss_Emu.h in Headers */,
+				CC6BDF5412FF3B7C0035A210 /* Kss_Scc_Apu.h in Headers */,
+				CC6BDF5612FF3B7C0035A210 /* M3u_Playlist.h in Headers */,
+				CC6BDF5812FF3B7C0035A210 /* Multi_Buffer.h in Headers */,
+				CC6BDF5A12FF3B7C0035A210 /* Music_Emu.h in Headers */,
+				CC6BDF5C12FF3B7C0035A210 /* Nes_Apu.h in Headers */,
+				CC6BDF5E12FF3B7C0035A210 /* Nes_Cpu.h in Headers */,
+				CC6BDF5F12FF3B7C0035A210 /* Nes_Cpu_run.h in Headers */,
+				CC6BDF6112FF3B7C0035A210 /* Nes_Fds_Apu.h in Headers */,
+				CC6BDF6312FF3B7C0035A210 /* Nes_Fme7_Apu.h in Headers */,
+				CC6BDF6412FF3B7C0035A210 /* Nes_Mmc5_Apu.h in Headers */,
+				CC6BDF6612FF3B7C0035A210 /* Nes_Namco_Apu.h in Headers */,
+				CC6BDF6812FF3B7C0035A210 /* Nes_Oscs.h in Headers */,
+				CC6BDF6A12FF3B7C0035A210 /* Nes_Vrc6_Apu.h in Headers */,
+				CC6BDF6C12FF3B7C0035A210 /* Nes_Vrc7_Apu.h in Headers */,
+				CC6BDF6D12FF3B7C0035A210 /* nestypes.h in Headers */,
+				CC6BDF6F12FF3B7C0035A210 /* Nsf_Core.h in Headers */,
+				CC6BDF7212FF3B7C0035A210 /* Nsf_Emu.h in Headers */,
+				CC6BDF7412FF3B7C0035A210 /* Nsf_Impl.h in Headers */,
+				CC6BDF7612FF3B7C0035A210 /* Nsfe_Emu.h in Headers */,
+				CC6BDF7812FF3B7C0035A210 /* Opl_Apu.h in Headers */,
+				CC6BDF7F12FF3B7C0035A210 /* Resampler.h in Headers */,
+				CC6BDF8112FF3B7C0035A210 /* Rom_Data.h in Headers */,
+				CC6BDF8312FF3B7C0035A210 /* s_deltat.h in Headers */,
+				CC6BDF8512FF3B7C0035A210 /* s_logtbl.h in Headers */,
+				CC6BDF8712FF3B7C0035A210 /* s_opl.h in Headers */,
+				CC6BDF8912FF3B7C0035A210 /* s_opltbl.h in Headers */,
+				CC6BDF8B12FF3B7C0035A210 /* Sap_Apu.h in Headers */,
+				CC6BDF8D12FF3B7C0035A210 /* Sap_Core.h in Headers */,
+				CC6BDF9012FF3B7C0035A210 /* Sap_Emu.h in Headers */,
+				CC6BDF9212FF3B7C0035A210 /* Sgc_Core.h in Headers */,
+				CC6BDF9512FF3B7C0035A210 /* Sgc_Emu.h in Headers */,
+				CC6BDF9712FF3B7C0035A210 /* Sgc_Impl.h in Headers */,
+				CC6BDF9912FF3B7C0035A210 /* Sms_Apu.h in Headers */,
+				CC6BDF9B12FF3B7C0035A210 /* Sms_Fm_Apu.h in Headers */,
+				CC6BDF9D12FF3B7C0035A210 /* Snes_Spc.h in Headers */,
+				CC6BDF9F12FF3B7C0035A210 /* Spc_Cpu.h in Headers */,
+				CC6BDFA312FF3B7C0035A210 /* Spc_Emu.h in Headers */,
+				CC6BDFA512FF3B7C0035A210 /* SPC_Filter.h in Headers */,
+				CC6BDFA712FF3B7C0035A210 /* Track_Filter.h in Headers */,
+				CC6BDFA912FF3B7C0035A210 /* Upsampler.h in Headers */,
+				CC6BDFAB12FF3B7C0035A210 /* Vgm_Core.h in Headers */,
+				CC6BDFAD12FF3B7C0035A210 /* Vgm_Emu.h in Headers */,
+				CC6BDFAF12FF3B7C0035A210 /* ym2413.h in Headers */,
+				CC6BDFB112FF3B7C0035A210 /* Ym2413_Emu.h in Headers */,
+				CC6BDFB312FF3B7C0035A210 /* Ym2612_Emu.h in Headers */,
+				CC6BDFB512FF3B7C0035A210 /* ymdeltat.h in Headers */,
+				CC6BDFB712FF3B7C0035A210 /* Z80_Cpu.h in Headers */,
+				CC6BDFB812FF3B7C0035A210 /* Z80_Cpu_run.h in Headers */,
+				CC9349721328057B00703666 /* Data_Reader.h in Headers */,
+				33CA1778140677BB00CBEF9B /* Spc_Dsp.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D2AAC07D0554694100DB518D /* libgme */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "libgme" */;
+			buildPhases = (
+				D2AAC07A0554694100DB518D /* Headers */,
+				D2AAC07B0554694100DB518D /* Sources */,
+				D2AAC07C0554694100DB518D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libgme;
+			productName = libgme;
+			productReference = D2AAC07E0554694100DB518D /* liblibgme.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "libgme" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* libgme */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D2AAC07D0554694100DB518D /* libgme */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D2AAC07B0554694100DB518D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC6BDF0612FF3B7C0035A210 /* Ay_Apu.cpp in Sources */,
+				CC6BDF0812FF3B7C0035A210 /* Ay_Core.cpp in Sources */,
+				CC6BDF0A12FF3B7C0035A210 /* Ay_Cpu.cpp in Sources */,
+				CC6BDF0B12FF3B7C0035A210 /* Ay_Emu.cpp in Sources */,
+				CC6BDF0F12FF3B7C0035A210 /* blargg_common.cpp in Sources */,
+				CC6BDF1312FF3B7C0035A210 /* blargg_errors.cpp in Sources */,
+				CC6BDF1612FF3B7C0035A210 /* Blip_Buffer.cpp in Sources */,
+				CC6BDF1A12FF3B7C0035A210 /* Classic_Emu.cpp in Sources */,
+				CC6BDF1D12FF3B7C0035A210 /* Downsampler.cpp in Sources */,
+				CC6BDF1F12FF3B7C0035A210 /* Dual_Resampler.cpp in Sources */,
+				CC6BDF2112FF3B7C0035A210 /* Effects_Buffer.cpp in Sources */,
+				CC6BDF2312FF3B7C0035A210 /* emu2413.cpp in Sources */,
+				CC6BDF2712FF3B7C0035A210 /* Fir_Resampler.cpp in Sources */,
+				CC6BDF2912FF3B7C0035A210 /* fmopl.cpp in Sources */,
+				CC6BDF2B12FF3B7C0035A210 /* Gb_Apu.cpp in Sources */,
+				CC6BDF2D12FF3B7C0035A210 /* Gb_Cpu.cpp in Sources */,
+				CC6BDF3012FF3B7C0035A210 /* Gb_Oscs.cpp in Sources */,
+				CC6BDF3212FF3B7C0035A210 /* Gbs_Core.cpp in Sources */,
+				CC6BDF3412FF3B7C0035A210 /* Gbs_Cpu.cpp in Sources */,
+				CC6BDF3512FF3B7C0035A210 /* Gbs_Emu.cpp in Sources */,
+				CC6BDF3712FF3B7C0035A210 /* gme.cpp in Sources */,
+				CC6BDF3912FF3B7C0035A210 /* Gme_File.cpp in Sources */,
+				CC6BDF3B12FF3B7C0035A210 /* Gme_Loader.cpp in Sources */,
+				CC6BDF3D12FF3B7C0035A210 /* Gym_Emu.cpp in Sources */,
+				CC6BDF3F12FF3B7C0035A210 /* Hes_Apu.cpp in Sources */,
+				CC6BDF4112FF3B7C0035A210 /* Hes_Apu_Adpcm.cpp in Sources */,
+				CC6BDF4312FF3B7C0035A210 /* Hes_Core.cpp in Sources */,
+				CC6BDF4512FF3B7C0035A210 /* Hes_Cpu.cpp in Sources */,
+				CC6BDF4812FF3B7C0035A210 /* Hes_Emu.cpp in Sources */,
+				CC6BDF4E12FF3B7C0035A210 /* Kss_Core.cpp in Sources */,
+				CC6BDF5012FF3B7C0035A210 /* Kss_Cpu.cpp in Sources */,
+				CC6BDF5112FF3B7C0035A210 /* Kss_Emu.cpp in Sources */,
+				CC6BDF5312FF3B7C0035A210 /* Kss_Scc_Apu.cpp in Sources */,
+				CC6BDF5512FF3B7C0035A210 /* M3u_Playlist.cpp in Sources */,
+				CC6BDF5712FF3B7C0035A210 /* Multi_Buffer.cpp in Sources */,
+				CC6BDF5912FF3B7C0035A210 /* Music_Emu.cpp in Sources */,
+				CC6BDF5B12FF3B7C0035A210 /* Nes_Apu.cpp in Sources */,
+				CC6BDF5D12FF3B7C0035A210 /* Nes_Cpu.cpp in Sources */,
+				CC6BDF6012FF3B7C0035A210 /* Nes_Fds_Apu.cpp in Sources */,
+				CC6BDF6212FF3B7C0035A210 /* Nes_Fme7_Apu.cpp in Sources */,
+				CC6BDF6512FF3B7C0035A210 /* Nes_Namco_Apu.cpp in Sources */,
+				CC6BDF6712FF3B7C0035A210 /* Nes_Oscs.cpp in Sources */,
+				CC6BDF6912FF3B7C0035A210 /* Nes_Vrc6_Apu.cpp in Sources */,
+				CC6BDF6B12FF3B7C0035A210 /* Nes_Vrc7_Apu.cpp in Sources */,
+				CC6BDF6E12FF3B7C0035A210 /* Nsf_Core.cpp in Sources */,
+				CC6BDF7012FF3B7C0035A210 /* Nsf_Cpu.cpp in Sources */,
+				CC6BDF7112FF3B7C0035A210 /* Nsf_Emu.cpp in Sources */,
+				CC6BDF7312FF3B7C0035A210 /* Nsf_Impl.cpp in Sources */,
+				CC6BDF7512FF3B7C0035A210 /* Nsfe_Emu.cpp in Sources */,
+				CC6BDF7712FF3B7C0035A210 /* Opl_Apu.cpp in Sources */,
+				CC6BDF7E12FF3B7C0035A210 /* Resampler.cpp in Sources */,
+				CC6BDF8012FF3B7C0035A210 /* Rom_Data.cpp in Sources */,
+				CC6BDF8A12FF3B7C0035A210 /* Sap_Apu.cpp in Sources */,
+				CC6BDF8C12FF3B7C0035A210 /* Sap_Core.cpp in Sources */,
+				CC6BDF8E12FF3B7C0035A210 /* Sap_Cpu.cpp in Sources */,
+				CC6BDF8F12FF3B7C0035A210 /* Sap_Emu.cpp in Sources */,
+				CC6BDF9112FF3B7C0035A210 /* Sgc_Core.cpp in Sources */,
+				CC6BDF9312FF3B7C0035A210 /* Sgc_Cpu.cpp in Sources */,
+				CC6BDF9412FF3B7C0035A210 /* Sgc_Emu.cpp in Sources */,
+				CC6BDF9612FF3B7C0035A210 /* Sgc_Impl.cpp in Sources */,
+				CC6BDF9812FF3B7C0035A210 /* Sms_Apu.cpp in Sources */,
+				CC6BDF9A12FF3B7C0035A210 /* Sms_Fm_Apu.cpp in Sources */,
+				CC6BDF9C12FF3B7C0035A210 /* Snes_Spc.cpp in Sources */,
+				CC6BDF9E12FF3B7C0035A210 /* Spc_Cpu.cpp in Sources */,
+				CC6BDFA212FF3B7C0035A210 /* Spc_Emu.cpp in Sources */,
+				CC6BDFA412FF3B7C0035A210 /* SPC_Filter.cpp in Sources */,
+				CC6BDFA612FF3B7C0035A210 /* Track_Filter.cpp in Sources */,
+				CC6BDFA812FF3B7C0035A210 /* Upsampler.cpp in Sources */,
+				CC6BDFAA12FF3B7C0035A210 /* Vgm_Core.cpp in Sources */,
+				CC6BDFAC12FF3B7C0035A210 /* Vgm_Emu.cpp in Sources */,
+				CC6BDFAE12FF3B7C0035A210 /* ym2413.c in Sources */,
+				CC6BDFB012FF3B7C0035A210 /* Ym2413_Emu.cpp in Sources */,
+				CC6BDFB212FF3B7C0035A210 /* Ym2612_Emu.cpp in Sources */,
+				CC6BDFB412FF3B7C0035A210 /* ymdeltat.cpp in Sources */,
+				CC6BDFB612FF3B7C0035A210 /* Z80_Cpu.cpp in Sources */,
+				33CA1777140677BB00CBEF9B /* Spc_Dsp.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB921F08733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					armv6,
+					armv7,
+					"$(ARCHS_STANDARD_32_BIT)",
+				);
+				COPY_PHASE_STRIP = YES;
+				DSTROOT = /tmp/libgme.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = libgme_Prefix.pch;
+				GCC_THUMB_SUPPORT = YES;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				INSTALL_PATH = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				PRODUCT_NAME = libgme;
+			};
+			name = Debug;
+		};
+		1DEB922008733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					armv6,
+					armv7,
+					"$(ARCHS_STANDARD_32_BIT)",
+				);
+				COPY_PHASE_STRIP = YES;
+				DSTROOT = /tmp/libgme.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = libgme_Prefix.pch;
+				GCC_THUMB_SUPPORT = YES;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				INSTALL_PATH = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				PRODUCT_NAME = libgme;
+			};
+			name = Release;
+		};
+		1DEB922308733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					armv6,
+					armv7,
+					"$(ARCHS_STANDARD_32_BIT)",
+				);
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SYMROOT = /Users/ymagnien/DevBuild;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1DEB922408733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					armv6,
+					armv7,
+					"$(ARCHS_STANDARD_32_BIT)",
+				);
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SYMROOT = /Users/ymagnien/DevBuild;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "libgme" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB921F08733DC00010E9CD /* Debug */,
+				1DEB922008733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "libgme" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB922308733DC00010E9CD /* Debug */,
+				1DEB922408733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}
