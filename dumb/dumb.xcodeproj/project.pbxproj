@@ -631,7 +631,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = src/include;
 			};
@@ -654,7 +654,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = src/include;
 			};
@@ -678,7 +678,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -701,7 +701,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
