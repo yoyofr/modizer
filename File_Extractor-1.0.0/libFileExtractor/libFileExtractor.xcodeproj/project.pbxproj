@@ -638,7 +638,7 @@
 				PRODUCT_NAME = libFileExtractor;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 			};
 			name = Debug;
 		};
@@ -660,7 +660,7 @@
 				PRODUCT_NAME = libFileExtractor;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 			};
 			name = Release;
 		};
@@ -682,7 +682,7 @@
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -704,7 +704,7 @@
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

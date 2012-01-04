@@ -336,7 +336,7 @@
 				PRODUCT_NAME = libmodplug;
 				SDKROOT = iphoneos;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -362,7 +362,7 @@
 				PRODUCT_NAME = libmodplug;
 				SDKROOT = iphoneos;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -390,7 +390,7 @@
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -418,7 +418,7 @@
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/ymagnien/DevBuild;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
