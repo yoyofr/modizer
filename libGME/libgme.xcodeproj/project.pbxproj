@@ -878,6 +878,7 @@
 				INSTALL_PATH = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				PRODUCT_NAME = libgme;
+				SYMROOT = build;
 			};
 			name = Debug;
 		};
@@ -901,6 +902,7 @@
 				INSTALL_PATH = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				PRODUCT_NAME = libgme;
+				SYMROOT = build;
 			};
 			name = Release;
 		};
