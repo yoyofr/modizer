@@ -307,6 +307,20 @@
 		33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33CAECAD13E93D7100088A37 /* arc_details@2x.png */; };
 		33D1BD89126C31B700B06781 /* eng_psf.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57CA1200B3B7000A8A4E /* eng_psf.c */; };
 		33EDF0EF145939850038C673 /* RootViewControllerHVSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */; };
+		50819A2714B3E06F0062FA86 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0214B3E06F0062FA86 /* file.cpp */; };
+		50819A2814B3E06F0062FA86 /* fmgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0414B3E06F0062FA86 /* fmgen.cpp */; };
+		50819A2914B3E06F0062FA86 /* fmtimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0814B3E06F0062FA86 /* fmtimer.cpp */; };
+		50819A2A14B3E06F0062FA86 /* opm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0C14B3E06F0062FA86 /* opm.cpp */; };
+		50819A2B14B3E06F0062FA86 /* opna.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0E14B3E06F0062FA86 /* opna.cpp */; };
+		50819A2C14B3E06F0062FA86 /* psg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1014B3E06F0062FA86 /* psg.cpp */; };
+		50819A2D14B3E06F0062FA86 /* pmdmini.c in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1314B3E06F0062FA86 /* pmdmini.c */; };
+		50819A2E14B3E06F0062FA86 /* opnaw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1714B3E06F0062FA86 /* opnaw.cpp */; };
+		50819A2F14B3E06F0062FA86 /* p86drv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1914B3E06F0062FA86 /* p86drv.cpp */; };
+		50819A3014B3E06F0062FA86 /* pmdwin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1C14B3E06F0062FA86 /* pmdwin.cpp */; };
+		50819A3114B3E06F0062FA86 /* ppsdrv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */; };
+		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
+		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
+		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
 		CC03F2CE12160E9500F2AC65 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CC12160E9500F2AC65 /* button.png */; };
 		CC03F2DB12160FE000F2AC65 /* buttonB-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */; };
@@ -1396,6 +1410,44 @@
 		33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerHVSC.mm; sourceTree = "<group>"; };
 		33EDF0ED145939850038C673 /* RootViewControllerPlaylist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerPlaylist.h; sourceTree = "<group>"; };
 		33EDF0EE145939850038C673 /* RootViewControllerPlaylist.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerPlaylist.mm; sourceTree = "<group>"; };
+		50819A0014B3E06F0062FA86 /* compat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
+		50819A0114B3E06F0062FA86 /* diag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = diag.h; sourceTree = "<group>"; };
+		50819A0214B3E06F0062FA86 /* file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file.cpp; sourceTree = "<group>"; };
+		50819A0314B3E06F0062FA86 /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
+		50819A0414B3E06F0062FA86 /* fmgen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fmgen.cpp; sourceTree = "<group>"; };
+		50819A0514B3E06F0062FA86 /* fmgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmgen.h; sourceTree = "<group>"; };
+		50819A0614B3E06F0062FA86 /* fmgeninl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmgeninl.h; sourceTree = "<group>"; };
+		50819A0714B3E06F0062FA86 /* fmgenx86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmgenx86.h; sourceTree = "<group>"; };
+		50819A0814B3E06F0062FA86 /* fmtimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fmtimer.cpp; sourceTree = "<group>"; };
+		50819A0914B3E06F0062FA86 /* fmtimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmtimer.h; sourceTree = "<group>"; };
+		50819A0A14B3E06F0062FA86 /* headers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headers.h; sourceTree = "<group>"; };
+		50819A0B14B3E06F0062FA86 /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
+		50819A0C14B3E06F0062FA86 /* opm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opm.cpp; sourceTree = "<group>"; };
+		50819A0D14B3E06F0062FA86 /* opm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opm.h; sourceTree = "<group>"; };
+		50819A0E14B3E06F0062FA86 /* opna.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opna.cpp; sourceTree = "<group>"; };
+		50819A0F14B3E06F0062FA86 /* opna.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opna.h; sourceTree = "<group>"; };
+		50819A1014B3E06F0062FA86 /* psg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = psg.cpp; sourceTree = "<group>"; };
+		50819A1114B3E06F0062FA86 /* psg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psg.h; sourceTree = "<group>"; };
+		50819A1214B3E06F0062FA86 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		50819A1314B3E06F0062FA86 /* pmdmini.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pmdmini.c; sourceTree = "<group>"; };
+		50819A1414B3E06F0062FA86 /* pmdmini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdmini.h; sourceTree = "<group>"; };
+		50819A1614B3E06F0062FA86 /* compat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
+		50819A1714B3E06F0062FA86 /* opnaw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opnaw.cpp; sourceTree = "<group>"; };
+		50819A1814B3E06F0062FA86 /* opnaw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnaw.h; sourceTree = "<group>"; };
+		50819A1914B3E06F0062FA86 /* p86drv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = p86drv.cpp; sourceTree = "<group>"; };
+		50819A1A14B3E06F0062FA86 /* p86drv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = p86drv.h; sourceTree = "<group>"; };
+		50819A1B14B3E06F0062FA86 /* PCMMusDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCMMusDriver.h; sourceTree = "<group>"; };
+		50819A1C14B3E06F0062FA86 /* pmdwin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pmdwin.cpp; sourceTree = "<group>"; };
+		50819A1D14B3E06F0062FA86 /* pmdwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdwin.h; sourceTree = "<group>"; };
+		50819A1E14B3E06F0062FA86 /* pmdwinimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdwinimport.h; sourceTree = "<group>"; };
+		50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppsdrv.cpp; sourceTree = "<group>"; };
+		50819A2014B3E06F0062FA86 /* ppsdrv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppsdrv.h; sourceTree = "<group>"; };
+		50819A2114B3E06F0062FA86 /* ppz8l.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppz8l.cpp; sourceTree = "<group>"; };
+		50819A2214B3E06F0062FA86 /* ppz8l.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppz8l.h; sourceTree = "<group>"; };
+		50819A2314B3E06F0062FA86 /* table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = table.cpp; sourceTree = "<group>"; };
+		50819A2414B3E06F0062FA86 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
+		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
+		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -2940,6 +2992,67 @@
 			name = libFileExtractor;
 			sourceTree = "<group>";
 		};
+		508199FE14B3E06F0062FA86 /* pmdmini */ = {
+			isa = PBXGroup;
+			children = (
+				508199FF14B3E06F0062FA86 /* fmgen */,
+				50819A1314B3E06F0062FA86 /* pmdmini.c */,
+				50819A1414B3E06F0062FA86 /* pmdmini.h */,
+				50819A1514B3E06F0062FA86 /* pmdwin */,
+			);
+			path = pmdmini;
+			sourceTree = "<group>";
+		};
+		508199FF14B3E06F0062FA86 /* fmgen */ = {
+			isa = PBXGroup;
+			children = (
+				50819A0014B3E06F0062FA86 /* compat.h */,
+				50819A0114B3E06F0062FA86 /* diag.h */,
+				50819A0214B3E06F0062FA86 /* file.cpp */,
+				50819A0314B3E06F0062FA86 /* file.h */,
+				50819A0414B3E06F0062FA86 /* fmgen.cpp */,
+				50819A0514B3E06F0062FA86 /* fmgen.h */,
+				50819A0614B3E06F0062FA86 /* fmgeninl.h */,
+				50819A0714B3E06F0062FA86 /* fmgenx86.h */,
+				50819A0814B3E06F0062FA86 /* fmtimer.cpp */,
+				50819A0914B3E06F0062FA86 /* fmtimer.h */,
+				50819A0A14B3E06F0062FA86 /* headers.h */,
+				50819A0B14B3E06F0062FA86 /* misc.h */,
+				50819A0C14B3E06F0062FA86 /* opm.cpp */,
+				50819A0D14B3E06F0062FA86 /* opm.h */,
+				50819A0E14B3E06F0062FA86 /* opna.cpp */,
+				50819A0F14B3E06F0062FA86 /* opna.h */,
+				50819A1014B3E06F0062FA86 /* psg.cpp */,
+				50819A1114B3E06F0062FA86 /* psg.h */,
+				50819A1214B3E06F0062FA86 /* types.h */,
+			);
+			path = fmgen;
+			sourceTree = "<group>";
+		};
+		50819A1514B3E06F0062FA86 /* pmdwin */ = {
+			isa = PBXGroup;
+			children = (
+				50819A1614B3E06F0062FA86 /* compat.h */,
+				50819A1714B3E06F0062FA86 /* opnaw.cpp */,
+				50819A1814B3E06F0062FA86 /* opnaw.h */,
+				50819A1914B3E06F0062FA86 /* p86drv.cpp */,
+				50819A1A14B3E06F0062FA86 /* p86drv.h */,
+				50819A1B14B3E06F0062FA86 /* PCMMusDriver.h */,
+				50819A1C14B3E06F0062FA86 /* pmdwin.cpp */,
+				50819A1D14B3E06F0062FA86 /* pmdwin.h */,
+				50819A1E14B3E06F0062FA86 /* pmdwinimport.h */,
+				50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */,
+				50819A2014B3E06F0062FA86 /* ppsdrv.h */,
+				50819A2114B3E06F0062FA86 /* ppz8l.cpp */,
+				50819A2214B3E06F0062FA86 /* ppz8l.h */,
+				50819A2314B3E06F0062FA86 /* table.cpp */,
+				50819A2414B3E06F0062FA86 /* table.h */,
+				50819A2514B3E06F0062FA86 /* util.cpp */,
+				50819A2614B3E06F0062FA86 /* util.h */,
+			);
+			path = pmdwin;
+			sourceTree = "<group>";
+		};
 		CC0B7BFB12EB79E100F89DEA /* asap-2.1.2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -3941,6 +4054,7 @@
 		CC9B193312FF0B9800985967 /* SndPlayers */ = {
 			isa = PBXGroup;
 			children = (
+				508199FE14B3E06F0062FA86 /* pmdmini */,
 				33C294C213ACA187006A3BC0 /* dumb */,
 				33B9D4CF138B92A200E8B191 /* timidity */,
 				CC6BE1F612FF3CCD0035A210 /* libgme */,
@@ -5169,6 +5283,20 @@
 				336BF215144FF4BE0086700A /* RootViewControllerLocalBrowser.mm in Sources */,
 				336BF21A1451E96F0086700A /* RootViewControllerMODLAND.mm in Sources */,
 				33EDF0EF145939850038C673 /* RootViewControllerHVSC.mm in Sources */,
+				50819A2714B3E06F0062FA86 /* file.cpp in Sources */,
+				50819A2814B3E06F0062FA86 /* fmgen.cpp in Sources */,
+				50819A2914B3E06F0062FA86 /* fmtimer.cpp in Sources */,
+				50819A2A14B3E06F0062FA86 /* opm.cpp in Sources */,
+				50819A2B14B3E06F0062FA86 /* opna.cpp in Sources */,
+				50819A2C14B3E06F0062FA86 /* psg.cpp in Sources */,
+				50819A2D14B3E06F0062FA86 /* pmdmini.c in Sources */,
+				50819A2E14B3E06F0062FA86 /* opnaw.cpp in Sources */,
+				50819A2F14B3E06F0062FA86 /* p86drv.cpp in Sources */,
+				50819A3014B3E06F0062FA86 /* pmdwin.cpp in Sources */,
+				50819A3114B3E06F0062FA86 /* ppsdrv.cpp in Sources */,
+				50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */,
+				50819A3314B3E0700062FA86 /* table.cpp in Sources */,
+				50819A3414B3E0700062FA86 /* util.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

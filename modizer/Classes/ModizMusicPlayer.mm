@@ -2061,6 +2061,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                                 dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);        
                             }
                         }
+                        if (mPlayType==16) { //PMDMini : not supported
+                            mNeedSeek=0;
+                        }
 					}
 					if (moveToNextSubSong) {
 						if (mod_currentsub<mod_maxsub) {
@@ -2455,6 +2458,22 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         //						genOffset[buffer_ana_gen_ofs]=genCurOffset;
 						nbBytes = ModPlug_Read(mp_file,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
 					}
+                    if (mPlayType==16) { //PMD
+                        // render audio into sound buffer
+                        // TODO does this work OK on mSlowDevices?
+                        pmd_renderer(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        // pmd_renderer gives no useful information on when song is done
+                        // and will happily keep playing forever, so check song length against
+                        // current playtime
+                        if (iCurrentTime>=iModuleLength) {
+                            AudioQueueStop( mAudioQueue, TRUE );
+                            AudioQueueReset( mAudioQueue );	
+                            mQueueIsBeingStopped = FALSE;
+                            bGlobalEndReached=1;
+                            bGlobalAudioPause=2;
+                        }
+                    }
 					if (mPlayType==3) {  //ADPLUG
 						if (opl_towrite) {
 							int written=0;
@@ -2987,6 +3006,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSDirectoryEnumerator *dirEnum;
 	NSDictionary *fileAttributes;
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
 	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
 	NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
 	NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
@@ -3002,7 +3022,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
-	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
+	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
+                                  [filetype_extSTSOUND count]+[filetype_extPMD count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
 								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
@@ -3015,6 +3036,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	
 	[filetype_ext addObjectsFromArray:filetype_extMDX];
+    [filetype_ext addObjectsFromArray:filetype_extPMD];
 	[filetype_ext addObjectsFromArray:filetype_extSID];
 	[filetype_ext addObjectsFromArray:filetype_extSTSOUND];
 	[filetype_ext addObjectsFromArray:filetype_extSC68];
@@ -3091,6 +3113,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 
 -(int) isAcceptedFile:(NSString*)_filePath {
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@"."];
 	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
 	NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
 	NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
@@ -3135,6 +3158,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		for (int i=0;i<[filetype_extMDX count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
+		}
+    if (!found)
+		for (int i=0;i<[filetype_extPMD count];i++) {
+			if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extADPLUG count];i++) {
@@ -3201,6 +3229,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
 	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
 	NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
 	NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
@@ -3433,6 +3462,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		for (int i=0;i<[filetype_extMDX count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
+		}
+	if (!found)
+		for (int i=0;i<[filetype_extPMD count];i++) {
+			if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extADPLUG count];i++) {
@@ -4897,6 +4931,69 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         
 		return 0;
 	}
+    if (found==16) { //PMD
+        char tmp_mod_name[1024];
+        tmp_mod_name[0] = 0;
+        char tmp_mod_message[1024];
+        tmp_mod_message[0] = 0;
+        
+        mPlayType=16;
+        pmd_init();
+        pmd_setrate(mSlowDevice?PLAYBACK_FREQ/2:PLAYBACK_FREQ); // 22kHz or 44.1kHz?
+        
+        FILE *f=fopen([filePath UTF8String],"rb");
+        if (f==NULL) {
+            NSLog(@"PMDMini Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        
+        fseek(f,0L,SEEK_END);
+        mp_datasize=ftell(f);
+        fclose(f);
+        
+        if (!pmd_is_pmd((char*)[filePath UTF8String])) {
+            // not PMD; try AdPlug instead
+            for (int i=0;i<[filetype_extADPLUG count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
+			}
+        } else {
+            // doesn't actually play, just loads file into RAM & extracts data
+            pmd_play((char*)[filePath UTF8String], (char*)[[filePath stringByDeletingLastPathComponent] UTF8String]);
+            
+            //iModuleLength=pmd_length_sec()*1000;
+            // pmdmini's convenience pmd_get_length function returns seconds
+            // w/ loss of precision; use pmdwinimport.h's getlength for ms
+            int loop_length;
+            getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
+            if (iModuleLength<=0) iModuleLength=PMD_DEFAULT_LENGTH;
+            iCurrentTime=0;
+            
+            // these strings are SJIS
+            pmd_get_title(tmp_mod_name);
+            printf("tmp_mod_name: %s",tmp_mod_name);
+            if (tmp_mod_name[0]) sprintf(mod_name," %s",tmp_mod_name);
+            else sprintf(mod_name," %s",mod_filename);
+            
+            pmd_get_compo(tmp_mod_message);
+            if (tmp_mod_message[0]) sprintf(mod_message,"Title: %s\nComposer: %s",tmp_mod_name, tmp_mod_message);
+            
+            // PMD doesn't have subsongs
+            mod_subsongs=1;
+            mod_minsub=1;
+            mod_maxsub=1;
+            mod_currentsub=1;
+            
+            numChannels=pmd_get_tracks();
+            
+            //Loop
+            if (mLoopMode==1) iModuleLength=-1;
+            
+            return 0;
+            }
+        }
+        
 	return 1;  //Could not find a lib to load module
 }
 //*****************************************
@@ -5101,6 +5198,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             }//[self Seek:startPos];
 			[self Play];
 			break;
+        case 16: //PMD
+			[self Play];
+			break;
 	}
 }
 -(void) Stop {
@@ -5214,6 +5314,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             unload_duh(duh); duh=NULL;
         }
     }
+    if (mPlayType==16) { //PMD
+        pmd_stop();
+    }
     
 }
 -(void) Pause:(BOOL) paused {
@@ -5226,7 +5329,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 //Playback infos
 -(NSString*) getModMessage {	
 	NSString *modMessage;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
 	else {
 		modMessage=[NSString stringWithCString:mod_message encoding:NSUTF8StringEncoding];
 		if (modMessage==nil) modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -5236,7 +5339,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(NSString*) getModName {
 	NSString *modName;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
 	else {
 		modName=[NSString stringWithCString:mod_name encoding:NSUTF8StringEncoding];
 		if (modName==nil) modName=[NSString stringWithFormat:@"%s",mod_name];
@@ -5259,7 +5362,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	if (mPlayType==12) return @"GSF";
 	if (mPlayType==13) return @"ASAP";
     if (mPlayType==14) return @"DUMB";
-    if (mPlayType==15) return @"Timidity";	
+    if (mPlayType==15) return @"Timidity";
+    if (mPlayType==16) return @"PMDMini";
 	return @"";	
 }
 -(NSString*) getSubTitle:(int)subsong {
@@ -5339,6 +5443,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         else return @"mod?";
     }
     if (mPlayType==15) return @"MIDI";
+    if (mPlayType==16) return @"PMD";
 	return @" ";
 }
 -(BOOL) isPlaying {
@@ -5523,7 +5628,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(void) Seek:(int) seek_time {
 	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)
-        ||(mPlayType==11)||(mPlayType==12)||mNeedSeek) return;
+        ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||mNeedSeek) return;
 	
 	if (mPlayType==9) {
 		if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;

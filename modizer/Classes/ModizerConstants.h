@@ -50,6 +50,7 @@
 #define SID_DEFAULT_LENGTH 150000
 #define SC68_DEFAULT_LENGTH 150000
 #define MDX_DEFAULT_LENGTH 150000
+#define PMD_DEFAULT_LENGTH 150000
 #define AOSDK_DEFAULT_LENGTH 150000
 
 #define SONG_DEFAULT_LENGTH 150000
@@ -85,6 +86,8 @@
 #define HVSC_FTPHOST @"hangar18.exotica.org.uk/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"
 
 #define SUPPORTED_FILETYPE_MDX @"MDX"
+
+#define SUPPORTED_FILETYPE_PMD @"M,M2,MZ"
 
 #define SUPPORTED_FILETYPE_SID @"SID"
 
