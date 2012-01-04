@@ -39,7 +39,9 @@ extern "C" {
 #import "driver.h"
 // MDX
 #import "mdx.h"
-	
+// PMD
+#import "pmdmini.h"
+#import "pmdwinimport.h"
 }
 
 @interface ModizMusicPlayer : NSObject {
