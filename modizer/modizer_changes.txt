@@ -1,3 +1,8 @@
+Cover: pas de maj apres download d'une cover pour le morceau en cours
+(coverflow mis ˆ jour ˆ la prochaine maj playlist)
+
+ALL: ecran cover flow => ajout play/pause/back/for & timeline
+
 todo:
 - elapsed/remaining time: not sync ?
 =>
@@ -42,11 +47,12 @@ BROWSER / SEARCH / SETTINGS / DOWNLOAD / OTHERS
 ---
 [Improvements]
 - Settings: now a single setting for default length (in Player settings menu).
-
+- Pmdmini: new playback library supporting japanese PC-9801 computer.
 [BugFixes]
 - AOSDK playback: issue fixed in file decoding, was preventing playback of dsf, ssf, sqf, psf2, ... files.
 - french translations: issues fixed.
 - "Loading..." window now correctly rotated.
+- File browser: directories with a '.' in their name were detected as files.
 
 1.4
 ---

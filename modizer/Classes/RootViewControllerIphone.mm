@@ -2972,6 +2972,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	NSDirectoryEnumerator *dirEnum,*dirEnum2;
 	NSDictionary *fileAttributes;
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
 	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
 	NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
 	NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
@@ -2987,7 +2988,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];    
-	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
+	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
 								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
@@ -3047,6 +3048,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	if (sqlite3_open([pathToDB UTF8String], &db) != SQLITE_OK) db=NULL;
 	
 	[filetype_ext addObjectsFromArray:filetype_extMDX];
+    [filetype_ext addObjectsFromArray:filetype_extPMD];
 	[filetype_ext addObjectsFromArray:filetype_extSID];
 	[filetype_ext addObjectsFromArray:filetype_extSTSOUND];
 	[filetype_ext addObjectsFromArray:filetype_extSC68];
@@ -6093,6 +6095,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
             ((RootViewControllerMODLAND*)childController)->playerButton=playerButton;
+            ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];	
             [keys release];keys=nil;
@@ -6107,6 +6110,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             ((RootViewControllerHVSC*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerHVSC*)childController)->detailViewController=detailViewController;
             ((RootViewControllerHVSC*)childController)->playerButton=playerButton;
+            ((RootViewControllerHVSC*)childController)->downloadViewController=downloadViewController;
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];	
             [keys release];keys=nil;
@@ -6899,6 +6903,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     if (indexTitles) [indexTitles release];
     if (indexTitlesDownload) [indexTitlesDownload release];
+    
+    if (mFileMngr) {
+        [mFileMngr release];
+        mFileMngr=nil;
+    }
     
     [super dealloc];
 }

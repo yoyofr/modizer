@@ -2401,6 +2401,7 @@ static NSFileManager *mFileMngr;
             ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
             ((RootViewControllerMODLAND*)childController)->playerButton=playerButton;
+            ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];	
             [keys release];keys=nil;

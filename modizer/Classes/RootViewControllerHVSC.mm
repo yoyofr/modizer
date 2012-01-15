@@ -2178,6 +2178,11 @@ static NSFileManager *mFileMngr;
     if (indexTitles) [indexTitles release];
     if (indexTitlesDownload) [indexTitlesDownload release];
     
+    if (mFileMngr) {
+        [mFileMngr release];
+        mFileMngr=nil;
+    }
+    
     [super dealloc];
 }
 

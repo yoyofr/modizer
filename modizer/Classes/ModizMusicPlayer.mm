@@ -4017,7 +4017,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		fread(ao_buffer,mp_datasize,sizeof(char),f);
 		fclose(f);
 
-		NSLog(@"%s, %d",[filePath UTF8String],mp_datasize);        
+//		NSLog(@"%s, %d",[filePath UTF8String],mp_datasize);        
 		
 		NSString *fileDir=[filePath stringByDeletingLastPathComponent];
 		pathdir=[fileDir UTF8String];
@@ -4972,7 +4972,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             
             // these strings are SJIS
             pmd_get_title(tmp_mod_name);
-            printf("tmp_mod_name: %s",tmp_mod_name);
+            //printf("tmp_mod_name: %s",tmp_mod_name);
             if (tmp_mod_name[0]) sprintf(mod_name," %s",tmp_mod_name);
             else sprintf(mod_name," %s",mod_filename);
             

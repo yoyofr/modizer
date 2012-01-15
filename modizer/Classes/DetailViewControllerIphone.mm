@@ -112,7 +112,8 @@ static 	UIImage *covers_default; // album covers images
 
 @implementation DetailViewControllerIphone
 
-@synthesize coverflow,lblMainCoverflow,lblSecCoverflow;
+@synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
+@synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow;
 @synthesize sld_DefaultLength,labelDefaultLength;
 
 @synthesize mDeviceType;
@@ -211,6 +212,8 @@ static 	UIImage *covers_default; // album covers images
     NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;    
     if (sc_titleFilename.selectedSegmentIndex) labelModuleName.text=[NSString stringWithString:fileName];
     else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+    
+    lblCurrentSongCFlow.text=labelModuleName.text;
 }
 
 
@@ -434,7 +437,7 @@ static 	UIImage *covers_default; // album covers images
 static char note2charA[12]={'C','C','D','D','E','F','F','G','G','A','A','B'};
 static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy,oldMoveRPx;
+static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 
 - (IBAction)settingsChanged:(id)sender {
 	ModPlug_Settings *mpsettings;
@@ -582,9 +585,19 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy,oldMove
 	[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 }
 
+- (IBAction)backPushed:(id)sender {
+    [[self navigationController] setNavigationBarHidden:NO animated:NO];
+    [[self navigationController] popViewControllerAnimated:YES];
+}
+
 - (IBAction)playPushed:(id)sender {
 	mPaused=0;
 	if (mIsPlaying) {
+        if (btnPlayCFlow.hidden==NO) {
+            btnPlayCFlow.hidden=YES;
+            btnPauseCFlow.hidden=NO;
+        }
+        
 		self.pauseBarSub.hidden=YES;
 		self.playBarSub.hidden=YES;
 		self.pauseBar.hidden=YES;
@@ -598,13 +611,18 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy,oldMove
 		[self updateBarPos];
 		[mplayer Pause:NO];        
 	} else {
-		[self play_curEntry];
+		[self play_curEntry];                
 	}
 	return;
 }
 - (IBAction)pausePushed:(id)sender {
 	mPaused=1;
 	if (mIsPlaying) {
+        if (btnPauseCFlow.hidden==NO) {
+            btnPauseCFlow.hidden=YES;
+            btnPlayCFlow.hidden=NO;
+        }
+        
 		self.pauseBarSub.hidden=YES;
 		self.playBarSub.hidden=YES;
 		self.pauseBar.hidden=YES;
@@ -670,7 +688,10 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy,oldMove
         }
 		if (mpl_upd>=2) {			
 			if (mpl_upd==2) {
-                if (sc_titleFilename.selectedSegmentIndex==0) labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+                if (sc_titleFilename.selectedSegmentIndex==0) {
+                    labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+                    lblCurrentSongCFlow.text=labelModuleName.text;
+                }
             }
             if (infoView.hidden==FALSE) textMessage.text=[NSString stringWithFormat:@"%@",[mplayer getModMessage]];
             if (mpl_upd==3) {
@@ -734,6 +755,12 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy,oldMove
 	
 	if (!sliderProgressModuleEdit) {
 		labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+        
+        if ([mplayer getSongLength]>0) {
+            lblTimeFCflow.text=[NSString stringWithFormat:@"%.2d:%.2d - %.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+        } else {
+            lblTimeFCflow.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+        }
 		if ([mplayer getSongLength]>0) {
 			labelModuleLength.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-itime)/1000)/60,(([mplayer getSongLength]-itime)/1000)%60];
 			sliderProgressModule.value=(float)(itime)/(float)([mplayer getSongLength]);
@@ -1814,6 +1841,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	labelModuleName.hidden=NO;
     if (sc_titleFilename.selectedSegmentIndex) labelModuleName.text=[NSString stringWithString:fileName];
     else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+    lblCurrentSongCFlow.text=labelModuleName.text;
 	labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
 	labelModuleName.glowColor = [UIColor colorWithRed:0.40 green:0.40 blue:0.99 alpha:1.0];
 	labelModuleName.glowOffset = CGSizeMake(0.0, 0.0);
@@ -1861,6 +1889,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	mIsPlaying=YES;
 	mPaused=0;	
     
+    if (coverflow.hidden==NO) {
+        btnPlayCFlow.hidden=YES;
+        btnPauseCFlow.hidden=NO;
+    }
+    
 	//		[self openPopup:fileName];
     //    if (sc_SpokenTitle.selectedSegmentIndex==1) [fliteTTS speakText:[mplayer getModName]];
     
@@ -1882,11 +1915,19 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	//Activate timer for play infos
 	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.33 target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //3 times/second
 	
+    if (sc_cflow.selectedSegmentIndex) {
+        if (coverflow.currentIndex!=mPlaylist_pos) {
+            coverflow_pos=mPlaylist_pos;
+            [coverflow setCurrentIndex:mPlaylist_pos];
+            //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
+        }
+    }
+    
 	return TRUE;
 }
 
 - (void)titleTap:(UITapGestureRecognizer *)sender {
-    NSLog(@"%@",labelModuleName.text);
+//    NSLog(@"%@",labelModuleName.text);
     [self openPopup:labelModuleName.text];
 }
 
@@ -2015,8 +2056,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     if (cover_img) {
         cover_view.image=cover_img;
-        cover_view.hidden=FALSE;    
-        
+        cover_view.hidden=FALSE;        
     } else cover_view.hidden=TRUE;
     
     [self checkAvailableCovers:mPlaylist_pos];        
@@ -2049,7 +2089,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     labelModuleName.hidden=NO;
     if (sc_titleFilename.selectedSegmentIndex) labelModuleName.text=[NSString stringWithString:fileName];
     else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
-	
+	lblCurrentSongCFlow.text=labelModuleName.text;
     labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
     labelModuleName.glowColor = [UIColor colorWithRed:0.40 green:0.40 blue:0.99 alpha:1.0];
     labelModuleName.glowOffset = CGSizeMake(0.0, 0.0);
@@ -2131,7 +2171,19 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     mRestart_arc=0;
 	//set volume (if applicable)
 	[mplayer setModPlugMasterVol:mastVolSld.value];
-	
+    
+    if (coverflow.hidden==NO) {
+        btnPlayCFlow.hidden=YES;
+        btnPauseCFlow.hidden=NO;
+    }
+
+	if (sc_cflow.selectedSegmentIndex) {
+        if (coverflow.currentIndex!=mPlaylist_pos) {
+            coverflow_pos=mPlaylist_pos;
+            [coverflow setCurrentIndex:mPlaylist_pos];
+            //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
+        }
+    }
 	
 	labelTime.text=@"00:00";
 	if (mplayer.numChannels) {
@@ -2205,6 +2257,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             coverflow.alpha=0.0;
             lblMainCoverflow.alpha=0;
             lblSecCoverflow.alpha=0;
+            lblCurrentSongCFlow.alpha=0;
+            lblTimeFCflow.alpha=0;
+            btnPlayCFlow.alpha=0;
+            btnPauseCFlow.alpha=0;
+            btnBackCFlow.alpha=0;
             [UIView commitAnimations];
             [[self navigationController] setNavigationBarHidden:NO animated:NO];
         }
@@ -2279,18 +2336,25 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //coverflow.currentIndex=mPlaylist_pos;                
                 [coverflow setCurrentIndex:mPlaylist_pos];
             }
-
-
             
             coverflow.alpha=0;
             lblMainCoverflow.alpha=0;
             lblSecCoverflow.alpha=0;
+            lblCurrentSongCFlow.alpha=0;
+            lblTimeFCflow.alpha=0;
+            btnPlayCFlow.alpha=0;
+            btnPauseCFlow.alpha=0;
+            btnBackCFlow.alpha=0;
             
             coverflow.hidden=FALSE;
             lblMainCoverflow.hidden=FALSE;
             lblSecCoverflow.hidden=FALSE;
-            //lblMainCoverflow.text=mPlaylist[mPlaylist_pos].mPlaylistFilename;
-            //lblSecCoverflow.text=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+            lblCurrentSongCFlow.hidden=FALSE;
+            lblTimeFCflow.hidden=FALSE;
+            btnBackCFlow.hidden=FALSE;
+            
+            if (mPaused||(![mplayer isPlaying])) btnPlayCFlow.hidden=FALSE;
+            else btnPauseCFlow.hidden=FALSE;
             
             [[self navigationController] setNavigationBarHidden:YES animated:NO];
             
@@ -2301,22 +2365,51 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             coverflow.alpha=1.0;
             lblMainCoverflow.alpha=1.0;
             lblSecCoverflow.alpha=1.0;
+            lblCurrentSongCFlow.alpha=1.0;
+            lblTimeFCflow.alpha=1.0;
+            btnPlayCFlow.alpha=1.0;
+            btnPauseCFlow.alpha=1.0;
+            btnBackCFlow.alpha=1.0;
+            
             [UIView commitAnimations];
             
             
             
             if (mDeviceType==1) {
                 lblMainCoverflow.frame=CGRectMake(0,mDevice_ww-40-64,mDevice_hh,40);
-                lblSecCoverflow.frame=CGRectMake(0,mDevice_ww-40-24,mDevice_hh,24);
+                lblSecCoverflow.frame=CGRectMake(40,mDevice_ww-40-24,mDevice_hh-80,24);
                 
+                lblCurrentSongCFlow.frame=CGRectMake(0,0,mDevice_hh*2/3,24);
+                lblTimeFCflow.frame=CGRectMake(mDevice_hh*2/3,0,mDevice_hh/3,24);
+                btnPlayCFlow.frame=CGRectMake(8,mDevice_ww-40-32,32,32);
+                btnPauseCFlow.frame=CGRectMake(8,mDevice_ww-40-32,32,32);
+                btnBackCFlow.frame=CGRectMake(8,32,32,32);
             } else {
                 lblMainCoverflow.frame=CGRectMake(0,mDevice_ww-40-32,mDevice_hh,20);
-                lblSecCoverflow.frame=CGRectMake(0,mDevice_ww-40-12,mDevice_hh,12);
+                lblSecCoverflow.frame=CGRectMake(40,mDevice_ww-40-12,mDevice_hh-80,12);
                 
+                lblCurrentSongCFlow.frame=CGRectMake(0,0,mDevice_hh*2/3,12);
+                lblTimeFCflow.frame=CGRectMake(mDevice_hh*2/3,0,mDevice_hh/3,12);
+                btnPlayCFlow.frame=CGRectMake(4,mDevice_ww-32-32,32,32);
+                btnPauseCFlow.frame=CGRectMake(4,mDevice_ww-32-32,32,32);
+                btnBackCFlow.frame=CGRectMake(4,16,32,32);
             }
             
             lblMainCoverflow.hidden=FALSE;
             lblSecCoverflow.hidden=FALSE;
+            lblCurrentSongCFlow.hidden=FALSE;
+            lblTimeFCflow.hidden=FALSE;
+            btnBackCFlow.hidden=FALSE;
+            if (mPaused||(![mplayer isPlaying])) {
+                btnPlayCFlow.hidden=FALSE;
+                btnPauseCFlow.hidden=TRUE;
+            }
+            else {
+                btnPauseCFlow.hidden=FALSE;
+                btnPlayCFlow.hidden=TRUE;
+            }
+
+            
         } else {
             
             
@@ -4065,25 +4158,79 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     //
     lblMainCoverflow=[[UILabel alloc] init];
     lblSecCoverflow=[[UILabel alloc] init];
+    
+    lblCurrentSongCFlow=[[UILabel alloc] init];
+    lblTimeFCflow=[[UILabel alloc] init];
+    btnPlayCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
+    btnPauseCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
+    btnBackCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
+    
+    [btnPlayCFlow setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    btnPlayCFlow.backgroundColor = [UIColor colorWithRed:0.22 green:0.18 blue:0.22 alpha:1.0];
+    btnPlayCFlow.layer.borderColor = [UIColor blackColor].CGColor;
+    btnPlayCFlow.layer.borderWidth = 0.5f;
+    btnPlayCFlow.layer.cornerRadius = 14.0f;
+    
+    [btnPauseCFlow setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    btnPauseCFlow.backgroundColor = [UIColor colorWithRed:0.2 green:0.15 blue:0.2 alpha:1.0];
+    btnPauseCFlow.layer.borderColor = [UIColor blackColor].CGColor;
+    btnPauseCFlow.layer.borderWidth = 0.5f;
+    btnPauseCFlow.layer.cornerRadius = 14.0f;
+    
+    [btnPlayCFlow setImage:[UIImage imageNamed:@"btnplay.png"] forState:UIControlStateNormal];
+    [btnPlayCFlow setImage:[UIImage imageNamed:@"btnplay.png"] forState:UIControlStateHighlighted];    
+    [btnPlayCFlow addTarget: self action: @selector(playPushed:) forControlEvents: UIControlEventTouchUpInside];
+    [btnPauseCFlow setImage:[UIImage imageNamed:@"btnpause.png"] forState:UIControlStateNormal];
+    [btnPauseCFlow setImage:[UIImage imageNamed:@"btnpause.png"] forState:UIControlStateHighlighted];    
+    [btnPauseCFlow addTarget: self action: @selector(pausePushed:) forControlEvents: UIControlEventTouchUpInside];
+    [btnBackCFlow setImage:[UIImage imageNamed:@"btnback.png"] forState:UIControlStateNormal];
+    [btnBackCFlow setImage:[UIImage imageNamed:@"btnback.png"] forState:UIControlStateHighlighted];    
+    [btnBackCFlow addTarget: self action: @selector(backPushed:) forControlEvents: UIControlEventTouchUpInside];
+    
     lblMainCoverflow.hidden=TRUE;
     lblSecCoverflow.hidden=TRUE;
+    lblCurrentSongCFlow.hidden=TRUE;
+    lblTimeFCflow.hidden=TRUE;
+    btnPlayCFlow.hidden=TRUE;
+    btnPauseCFlow.hidden=TRUE;
+    btnBackCFlow.hidden=TRUE;
+    
     lblMainCoverflow.font=[UIFont boldSystemFontOfSize:(mDeviceType==1?32:16)];
     lblSecCoverflow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
+    lblCurrentSongCFlow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
+    lblTimeFCflow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
+        
     lblMainCoverflow.backgroundColor=[UIColor clearColor];
     lblSecCoverflow.backgroundColor=[UIColor clearColor];
+    lblCurrentSongCFlow.backgroundColor=[UIColor clearColor];
+    lblTimeFCflow.backgroundColor=[UIColor clearColor];
+    
+    
     lblMainCoverflow.textColor=[UIColor whiteColor];
     lblSecCoverflow.textColor=[UIColor whiteColor];
+    lblCurrentSongCFlow.textColor=[UIColor whiteColor];
+    lblTimeFCflow.textColor=[UIColor whiteColor];
+    
+    
     lblMainCoverflow.textAlignment=UITextAlignmentCenter;
     lblSecCoverflow.textAlignment=UITextAlignmentCenter;
+    lblCurrentSongCFlow.textAlignment=UITextAlignmentLeft;
+    lblTimeFCflow.textAlignment=UITextAlignmentRight;
+    
     lblMainCoverflow.lineBreakMode=UILineBreakModeMiddleTruncation;
     lblSecCoverflow.lineBreakMode=UILineBreakModeMiddleTruncation;
+    lblCurrentSongCFlow.lineBreakMode=UILineBreakModeMiddleTruncation;
+    lblTimeFCflow.lineBreakMode=UILineBreakModeMiddleTruncation;
+    
     [self.view addSubview:coverflow];
     [self.view addSubview:lblMainCoverflow];
     [self.view addSubview:lblSecCoverflow];
+    [self.view addSubview:lblCurrentSongCFlow];
+    [self.view addSubview:lblTimeFCflow];
+    [self.view addSubview:btnPlayCFlow];
+    [self.view addSubview:btnPauseCFlow];
+    [self.view addSubview:btnBackCFlow];
     
-//    [self.view bringSubviewToFront:infoMsgView];
-    
-	
     // Get location
 	/*self.locManager = [[[CLLocationManager alloc] init] autorelease];
      if (!self.locManager.locationServicesEnabled) {
@@ -5651,20 +5798,41 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         coverflow.alpha=0;
         lblMainCoverflow.alpha=0;
         lblSecCoverflow.alpha=0;
+        lblCurrentSongCFlow.alpha=0;
+        lblTimeFCflow.alpha=0;
+        btnPlayCFlow.alpha=0;
+        btnPauseCFlow.alpha=0;
+        btnBackCFlow.alpha=0;
+        
         coverflow.hidden=TRUE;
         lblMainCoverflow.hidden=TRUE;
         lblSecCoverflow.hidden=TRUE;
+        lblCurrentSongCFlow.hidden=TRUE;
+        lblTimeFCflow.hidden=TRUE;
+        btnPlayCFlow.hidden=TRUE;
+        btnPauseCFlow.hidden=TRUE;
+        btnBackCFlow.hidden=TRUE;
+        
         
     } else if ([animationID compare:@"cflow_in"]==NSOrderedSame) {
         coverflow.alpha=1;
         lblMainCoverflow.alpha=1;
         lblSecCoverflow.alpha=1;
+        lblCurrentSongCFlow.alpha=1.0;
+        lblTimeFCflow.alpha=1.0;
+        btnPlayCFlow.alpha=1.0;
+        btnPauseCFlow.alpha=1.0;
+        btnBackCFlow.alpha=1.0;
+        
         coverflow.hidden=FALSE;
         lblMainCoverflow.hidden=FALSE;
         lblSecCoverflow.hidden=FALSE;
-//        lblMainCoverflow.text=mPlaylist[mPlaylist_pos].mPlaylistFilename;
-//        lblSecCoverflow.text=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
-
+        lblCurrentSongCFlow.hidden=FALSE;
+        lblTimeFCflow.hidden=FALSE;
+        if (mPaused||(![mplayer isPlaying])) btnPlayCFlow.hidden=FALSE;
+        else btnPauseCFlow.hidden=FALSE;
+        btnPauseCFlow.hidden=FALSE;
+        
     } else if ([animationID compare:@"selectCov1"]==NSOrderedSame) {
         [UIView beginAnimations:@"selectCov2" context:context];
         [UIView setAnimationDuration:0.2f];    
