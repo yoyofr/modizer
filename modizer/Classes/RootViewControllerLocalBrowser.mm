@@ -807,13 +807,15 @@ static NSFileManager *mFileMngr;
         NSError *error;
         NSRange rdir;
         NSArray *dirContent;//
+        BOOL isDir;
         if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
         else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
         for (file in dirContent) {
             //check if dir
-            rdir.location=NSNotFound;
-            rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-            if (rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
+            //rdir.location=NSNotFound;
+            //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
+            [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
                     if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
@@ -919,9 +921,10 @@ static NSFileManager *mFileMngr;
                 // Second check count for each section
                 for (file in dirContent) {
                     if (shouldStop) break;
-                    rdir.location=NSNotFound;
-                    rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-                    if (rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
+                    //rdir.location=NSNotFound;
+                   // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
+                    [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+                    if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
                             if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
@@ -1999,8 +2002,19 @@ static NSFileManager *mFileMngr;
     }
     
     
-    if (indexTitles) [indexTitles release];
-    if (indexTitlesSpace) [indexTitlesSpace release];
+    if (indexTitles) {
+        indexTitles=nil;
+        [indexTitles release];
+    }
+    if (indexTitlesSpace) {
+        indexTitlesSpace=nil;
+        [indexTitlesSpace release];
+    }
+    
+    if (mFileMngr) {
+        [mFileMngr release];
+        mFileMngr=nil;
+    }
     
     [super dealloc];
 }

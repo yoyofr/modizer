@@ -24,7 +24,6 @@
 	
 	UIView *waitingView;
 	
-    IBOutlet DownloadViewController *downloadViewController;
     IBOutlet UITableView *tabView;
 
 	IBOutlet UISearchBar *sBar;
@@ -73,7 +72,7 @@
     int browse_depth;
     IBOutlet DetailViewControllerIphone *detailViewController;	
 	IBOutlet UIBarButtonItem *playerButton;    	
-    
+    IBOutlet DownloadViewController *downloadViewController;    
 }
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
