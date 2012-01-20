@@ -92,7 +92,11 @@ uint32 dc_read32(int addr)
 {
 	if (addr < 0x800000)
 	{
+#ifdef LITTLE_ENDIAN
+		return *((uint32*)(dc_ram+addr));
+#else
 		return dc_ram[addr] | (dc_ram[addr+1]<<8) | (dc_ram[addr+2]<<16) | (dc_ram[addr+3]<<24);
+#endif
 	}
 
 	if ((addr >= 0x800000) && (addr <= 0x807fff))
