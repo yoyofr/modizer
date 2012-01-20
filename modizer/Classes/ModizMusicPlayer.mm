@@ -144,6 +144,7 @@ extern "C" {
     extern volatile int intr;
     
     extern int aosdk_dsf_samplecycle_ratio;
+    extern unsigned char aosdk_dsf_22khz;
     extern int aosdk_dsfdsp;
     extern int aosdk_ssf_samplecycle_ratio;
     extern int aosdk_ssfdsp;
@@ -5518,6 +5519,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         case 3:aosdk_dsf_samplecycle_ratio=30;break;            
     }
 }
+
 -(void) optAOSDK_SSFDSP:(int)value{
     aosdk_ssfdsp=value;    
 }

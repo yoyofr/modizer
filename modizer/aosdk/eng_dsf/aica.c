@@ -321,7 +321,7 @@ static void Compute_EG(struct _AICA *AICA,struct _SLOT *slot)
 
 static void AICA_StopSlot(struct _SLOT *slot,int keyoff);
 
-static int EG_Update(struct _SLOT *slot)
+INLINE static int EG_Update(struct _SLOT *slot)
 {
 	switch(slot->EG.state)
 	{
@@ -408,7 +408,11 @@ static INLINE signed short DecodeADPCM(int *PrevSignal, unsigned char Delta, int
 {
 	int x = *PrevQuant * quant_mul [Delta & 15];
         x = *PrevSignal + ((int)(x + ((UINT32)x >> 29)) >> 3);
+#if defined(TARGET_OS_IPHONE) && !TARGET_IPHONE_SIMULATOR
+	__asm__("ssat %0, #16, %1\n\t" : "=r"(*PrevSignal) : "r"(x));
+#else
 	*PrevSignal=ICLIP16(x);
+#endif
 	*PrevQuant=(*PrevQuant*TableQuant[Delta&7])>>ADPCMSHIFT;
 	*PrevQuant=(*PrevQuant<0x7f)?0x7f:((*PrevQuant>0x6000)?0x6000:*PrevQuant);
 	return *PrevSignal;
@@ -975,7 +979,8 @@ static INLINE INT32 AICA_UpdateSlot(struct _AICA *AICA, struct _SLOT *slot)
 		step>>=SHIFT;
 	}
 
-	if(PCMS(slot) == 0) 
+    UINT8 pcmsVal = PCMS(slot);
+	if(pcmsVal == 0) 
 	{
 		addr1=(slot->cur_addr>>(SHIFT-1))&0x7ffffe;
 		addr2=(slot->nxt_addr>>(SHIFT-1))&0x7ffffe;
@@ -986,14 +991,14 @@ static INLINE INT32 AICA_UpdateSlot(struct _AICA *AICA, struct _SLOT *slot)
 		addr2=slot->nxt_addr>>SHIFT;
 	}
 
-	if(PCMS(slot) == 1)	// 8-bit signed
+	if(pcmsVal == 1)	// 8-bit signed
 	{
 		INT8 *p1=(signed char *) (AICA->AICARAM+(((SA(slot)+addr1))&0x7fffff));
 		INT8 *p2=(signed char *) (AICA->AICARAM+(((SA(slot)+addr2))&0x7fffff));
 		cur_sample = p1[0] << 8;
 		nxt_sample = p2[0] << 8;
 	}
-	else if (PCMS(slot) == 0)	//16 bit signed
+	else if (pcmsVal == 0)	//16 bit signed
 	{
 		INT16 *p1=(signed short *) (AICA->AICARAM+((SA(slot)+addr1)&0x7fffff));
 		INT16 *p2=(signed short *) (AICA->AICARAM+((SA(slot)+addr2)&0x7fffff));
@@ -1013,7 +1018,7 @@ static INLINE INT32 AICA_UpdateSlot(struct _AICA *AICA, struct _SLOT *slot)
 			while (curstep < steps_to_go)
 			{
 				int shift1, delta1;
-				shift1 = 4*((curstep&1));
+				shift1 = ((curstep&1))<<2;
 				delta1 = (*base>>shift1)&0xf;
 				DecodeADPCM(&(slot->cur_sample),delta1,&(slot->cur_quant));
 				curstep++;
@@ -1074,12 +1079,12 @@ static INLINE INT32 AICA_UpdateSlot(struct _AICA *AICA, struct _SLOT *slot)
 				slot->cur_addr = (LSA(slot)<<SHIFT) + rem_addr;
 			}
 				
-			if(PCMS(slot)>=2)
+			if(pcmsVal>=2)
 			{
 				// restore the state @ LSA - the sampler will naturally walk to (LSA + remainder)
 				slot->adbase = &AICA->AICARAM[SA(slot)+(LSA(slot)/2)];
 				slot->curstep = LSA(slot);
-				if (PCMS(slot) == 2)
+				if (pcmsVal == 2)
 				{
 					slot->cur_sample = slot->cur_lpsample;
 					slot->cur_quant = slot->cur_lpquant;
@@ -1113,7 +1118,7 @@ static INLINE INT32 AICA_UpdateSlot(struct _AICA *AICA, struct _SLOT *slot)
 			res = 0x3FF - (slot->EG.volume>>EG_SHIFT);
 
 			res *= 959;
-			res /= 1024;
+			res >>= 10;
 
 			if (res > 959) res = 959;
 
@@ -1123,6 +1128,173 @@ static INLINE INT32 AICA_UpdateSlot(struct _AICA *AICA, struct _SLOT *slot)
 		}
 	}
 
+	return sample;
+}
+
+static INLINE INT32 AICA_UpdateSlot22khz(struct _AICA *AICA, struct _SLOT *slot)
+{
+	INT32 sample, fpart;
+	int cur_sample;       //current sample
+	int nxt_sample;       //next sample
+	int step=slot->step;
+	UINT32 addr1,addr2;                                   // current and next sample addresses
+    
+	if(SSCTL(slot)!=0)	//no FM or noise yet
+		return 0;
+    
+	if(PLFOS(slot)!=0)
+	{
+		step=step*AICAPLFO_Step(&(slot->PLFO));
+		step>>=SHIFT;
+	}
+    
+    UINT8 pcmsVal = PCMS(slot);
+	if(pcmsVal == 0) 
+	{
+		addr1=(slot->cur_addr>>(SHIFT-1))&0x7ffffe;
+		addr2=(slot->nxt_addr>>(SHIFT-1))&0x7ffffe;
+	}
+	else
+	{
+		addr1=slot->cur_addr>>SHIFT;
+		addr2=slot->nxt_addr>>SHIFT;
+	}
+    
+	if(pcmsVal == 1)	// 8-bit signed
+	{
+		INT8 *p1=(signed char *) (AICA->AICARAM+(((SA(slot)+addr1))&0x7fffff));
+		INT8 *p2=(signed char *) (AICA->AICARAM+(((SA(slot)+addr2))&0x7fffff));
+		cur_sample = p1[0] << 8;
+		nxt_sample = p2[0] << 8;
+	}
+	else if (pcmsVal == 0)	//16 bit signed
+	{
+		INT16 *p1=(signed short *) (AICA->AICARAM+((SA(slot)+addr1)&0x7fffff));
+		INT16 *p2=(signed short *) (AICA->AICARAM+((SA(slot)+addr2)&0x7fffff));
+		cur_sample = LE16(p1[0]);
+		nxt_sample = LE16(p2[0]);
+	}
+	else	// 4-bit ADPCM
+	{
+		UINT8 *base= slot->adbase;
+		UINT32 steps_to_go = addr2, curstep = slot->curstep;
+        
+		if (base)
+		{
+			cur_sample = slot->cur_sample; // may already contains current decoded sample 
+            
+			// seek to the interpolation sample
+			while (curstep < steps_to_go)
+			{
+				int shift1, delta1;
+				shift1 = ((curstep&1))<<2;
+				delta1 = (*base>>shift1)&0xf;
+				DecodeADPCM(&(slot->cur_sample),delta1,&(slot->cur_quant));
+				curstep++;
+				if (!(curstep & 1))
+				{
+					base++;
+				}
+				if (curstep == addr1)
+					cur_sample = slot->cur_sample;
+			}
+			nxt_sample = slot->cur_sample;
+            
+			slot->adbase = base;
+			slot->curstep = curstep;
+		}
+		else
+		{
+			cur_sample = nxt_sample = 0;
+		}
+	}
+	sample = nxt_sample;
+    
+	slot->prv_addr=slot->cur_addr;
+	slot->cur_addr+=(step<<1);
+	slot->nxt_addr=slot->cur_addr+(1<<SHIFT);
+    
+	addr1=slot->cur_addr>>SHIFT;
+	addr2=slot->nxt_addr>>SHIFT;
+    
+	/*if(addr1>=LSA(slot))
+	{
+		if(LPSLNK(slot) && slot->EG.state==ATTACK)
+			slot->EG.state = DECAY1;
+	}*/
+    
+	switch(LPCTL(slot))
+	{
+        case 0:	//no loop
+            if(addr2>=LSA(slot) && addr2>=LEA(slot)) // if next sample exceed then current must exceed too
+            {
+                //slot->active=0;
+                if(slot->mslc) AICA->udata.data[8] |= 0x8000;
+                AICA_StopSlot(slot,0);
+            }
+            break;
+        case 1: //normal loop
+            if(addr2>=LEA(slot))
+            {
+                INT32 rem_addr;
+                if(slot->mslc) AICA->udata.data[8] |= 0x8000;
+                rem_addr = slot->nxt_addr - (LEA(slot)<<SHIFT);
+                slot->nxt_addr = (LSA(slot)<<SHIFT) + rem_addr;
+                if(addr1>=LEA(slot))
+                {
+                    rem_addr = slot->cur_addr - (LEA(slot)<<SHIFT);
+                    slot->cur_addr = (LSA(slot)<<SHIFT) + rem_addr;
+                }
+				
+                if(pcmsVal>=2)
+                {
+                    // restore the state @ LSA - the sampler will naturally walk to (LSA + remainder)
+                    slot->adbase = &AICA->AICARAM[SA(slot)+(LSA(slot)/2)];
+                    slot->curstep = LSA(slot);
+                    if (pcmsVal == 2)
+                    {
+                        slot->cur_sample = slot->cur_lpsample;
+                        slot->cur_quant = slot->cur_lpquant;
+                    }
+                    //printf("Looping: slot_addr %x LSA %x LEA %x step %x base %x\n", slot->cur_addr>>SHIFT, LSA(slot), LEA(slot), slot->curstep, slot->adbase);
+                }
+            }
+            break;
+	}
+    
+	if(ALFOS(slot)!=0)
+	{
+		sample=sample*AICAALFO_Step(&(slot->ALFO));
+		sample>>=SHIFT;
+	}
+    
+	if(slot->EG.state==ATTACK)
+		sample=(sample*EG_Update(slot))>>SHIFT;
+	else
+		sample=(sample*EG_TABLE[EG_Update(slot)>>(SHIFT-10)])>>SHIFT;
+    
+	if(slot->mslc) 
+	{
+		AICA->udata.data[0x14/2] = addr1;
+		if (!(AFSEL(AICA)))
+		{
+			UINT16 res;
+            
+			AICA->udata.data[0x10/2] |= slot->EG.state<<13;
+            
+			res = 0x3FF - (slot->EG.volume>>EG_SHIFT);
+            
+			res *= 959;
+			res >>= 10;
+            
+			if (res > 959) res = 959;
+            
+			AICA->udata.data[0x10/2] = res;
+            
+			//AICA->udata.data[0x10/2] |= 0x3FF - (slot->EG.volume>>EG_SHIFT);
+		}
+	}
+    
 	return sample;
 }
 
@@ -1165,27 +1337,95 @@ static void AICA_DoMasterSamples(struct _AICA *AICA, int nsamples)
 			
 			AICA->BUFPTR&=63;
 		}
-
+        
 		// process the DSP
         if (aosdk_dsfdsp) {
-		AICADSP_Step(&AICA->DSP);
-
-		// mix DSP output
-		for(i=0;i<16;++i)
-		{
-			if(EFSDL(i))
-			{
-				unsigned int Enc=((EFPAN(i))<<0x8)|((EFSDL(i))<<0xd);
-				smpl+=(AICA->DSP.EFREG[i]*AICA->LPANTABLE[Enc])>>SHIFT;
-				smpr+=(AICA->DSP.EFREG[i]*AICA->RPANTABLE[Enc])>>SHIFT;
-			}
-		}
-
+            AICADSP_Step(&AICA->DSP);
+            
+            // mix DSP output
+            for(i=0;i<16;++i)
+            {
+                if(EFSDL(i))
+                {
+                    unsigned int Enc=((EFPAN(i))<<0x8)|((EFSDL(i))<<0xd);
+                    smpl+=(AICA->DSP.EFREG[i]*AICA->LPANTABLE[Enc])>>SHIFT;
+                    smpr+=(AICA->DSP.EFREG[i]*AICA->RPANTABLE[Enc])>>SHIFT;
+                }
+            }
+            
         }
-            *bufl++ = ICLIP16(smpl>>3);
-            *bufr++ = ICLIP16(smpr>>3);
+        *bufl++ = ICLIP16(smpl>>3);
+        *bufr++ = ICLIP16(smpr>>3);
          
 		AICA_TimersAddTicks(AICA, 1);
+		CheckPendingIRQ(AICA);
+	}
+}
+
+static void AICA_DoMasterSamples22khz(struct _AICA *AICA, int nsamples)
+{
+	INT16 *bufr,*bufl;
+	int sl, s, i;
+    
+	bufr=bufferr;
+	bufl=bufferl;
+    
+	for(s=0;s<nsamples;++s)
+	{
+ 		INT32 smpl, smpr;
+		smpl = smpr = 0;
+        
+		// mix slots' direct output
+		for(sl=0;sl<64;++sl)
+		{
+			if(AICA->Slots[sl].active)
+			{
+                struct _SLOT *slot=AICA->Slots+sl;
+                slot->mslc = (MSLC(AICA)==sl);
+                RBUFDST=AICA->RINGBUF+AICA->BUFPTR;
+                
+				unsigned int Enc;
+				signed int sample;
+                
+				sample=AICA_UpdateSlot22khz(AICA, slot);
+                
+				Enc=((TL(slot))<<0x0)|((IMXL(slot))<<0xd);
+				AICADSP_SetSample(&AICA->DSP,(sample*AICA->LPANTABLE[Enc])>>(SHIFT-2),ISEL(slot),IMXL(slot));
+				Enc=((TL(slot))<<0x0)|((DIPAN(slot))<<0x8)|((DISDL(slot))<<0xd);
+				{
+					smpl+=(sample*AICA->LPANTABLE[Enc])>>SHIFT;
+					smpr+=(sample*AICA->RPANTABLE[Enc])>>SHIFT;
+				}
+			}
+			
+			AICA->BUFPTR&=63;
+		}
+        
+		// process the DSP
+        if (aosdk_dsfdsp) {
+            AICADSP_Step(&AICA->DSP);
+            
+            // mix DSP output
+            for(i=0;i<16;++i)
+            {
+                if(EFSDL(i))
+                {
+                    unsigned int Enc=((EFPAN(i))<<0x8)|((EFSDL(i))<<0xd);
+                    smpl+=(AICA->DSP.EFREG[i]*AICA->LPANTABLE[Enc])>>SHIFT;
+                    smpr+=(AICA->DSP.EFREG[i]*AICA->RPANTABLE[Enc])>>SHIFT;
+                }
+            }
+            
+        }
+#if defined(TARGET_OS_IPHONE) && !TARGET_IPHONE_SIMULATOR
+        __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufl++) : "r"(smpl>>3));
+        __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufr++) : "r"(smpr>>3));
+#else
+        *bufl++ = ICLIP16(smpl>>3);
+        *bufr++ = ICLIP16(smpr>>3);
+#endif
+        
+		AICA_TimersAddTicks(AICA, 2);
 		CheckPendingIRQ(AICA);
 	}
 }
@@ -1203,6 +1443,15 @@ void AICA_Update(void *param, INT16 **inputs, INT16 **buf, int samples)
 	bufferr = buf[1];
 	length = samples;
 	AICA_DoMasterSamples(AICA, samples);
+}
+
+void AICA_Update22khz(void *param, INT16 **inputs, INT16 **buf, int samples)
+{
+	struct _AICA *AICA = AllocedAICA;
+	bufferl = buf[0];
+	bufferr = buf[1];
+	length = samples;
+	AICA_DoMasterSamples22khz(AICA, samples);
 }
 
 void *aica_start(const void *config)
