@@ -1545,9 +1545,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	}
     coverflow_needredraw=1;
 	
-	mPlaylist_pos=index;
+	mPlaylist_pos=(index>0?index:0);
     
-    if (mShuffle) {
+    if (mShuffle&&(index<0)) {
         int i;
         int minval;
         minval=mPlaylist[0].mPlaylistCount;
@@ -2890,6 +2890,49 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	return retcode;
 }
 
+-(void) updateAllSettingsAfterChange {
+    /////////////////////////////////////
+	//update according to settings
+	if (oglViewFullscreen) {
+		oglViewFullscreen=0;
+		[self oglViewSwitchFS];
+	}
+	mLoopMode--;
+	[self changeLoopMode];
+	mShuffle^=1;	
+	[self shuffle];
+	
+	//update settings according toi what was loaded
+	[self optUADE_Led];
+	[self optUADE_Norm];
+	[self optUADE_PostFX];
+	[self optUADE_Pan];
+	[self optUADE_Head];
+	[self optUADE_Gain];
+	[self optUADE_PanValue];
+	[self optUADE_GainValue];
+    [self optGEN_DefaultLength];
+    [self optTIM_Polyphony];
+    [self optFX_Alpha];
+	[self optSID_Optim];
+	[self optSID_LibVersion];
+    [self optSID_Filter];
+    
+    [self optDUMBMastVol];
+    [self optDUMBResampling];
+    
+    [self optAOSDK_DSFEmuRatio];
+    [self optAOSDK_DSFDSP];
+    [self optAOSDK_SSFEmuRatio];
+    [self optAOSDK_SSFDSP];
+    
+    [self optGLOB_Panning];
+    [self optGLOB_PanningValue];
+    
+    [self settingsChanged:nil];
+
+}
+
 -(void) loadDefaultSettings {
     ///////////////////////////////////
     // General
@@ -2984,6 +3027,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	revDepSld.value = 0.8f;
 	revDelSld.value = 0.7f;
 	mpPanningSld.value = 0.5f;
+    
+    [self updateAllSettingsAfterChange];
 }
 -(void) loadHighSettings {
     ///////////////////////////////////
@@ -3086,6 +3131,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	revDepSld.value = 0.8f;
 	revDelSld.value = 0.7f;
 	mpPanningSld.value = 0.5f;
+    
+    [self updateAllSettingsAfterChange];    
 }
 -(void) loadMedSettings {
     ///////////////////////////////////
@@ -3189,6 +3236,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	revDelSld.value = 0.7f;
 	mpPanningSld.value = 0.5f;
     
+    [self updateAllSettingsAfterChange];        
 }
 -(void) loadLowSettings {
     ///////////////////////////////////
@@ -3292,6 +3340,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	revDelSld.value = 0.7f;
 	mpPanningSld.value = 0.5f;
     
+    [self updateAllSettingsAfterChange];    
 }
 
 
@@ -3627,41 +3676,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		}
 	}
     
-	
-    /////////////////////////////////////
-	//update according to settings
-	if (oglViewFullscreen) {
-		oglViewFullscreen=0;
-		[self oglViewSwitchFS];
-	}
-	mLoopMode--;
-	[self changeLoopMode];
-	mShuffle^=1;	
-	[self shuffle];
-	
-	//update settings according toi what was loaded
-	[self optUADE_Led];
-	[self optUADE_Norm];
-	[self optUADE_PostFX];
-	[self optUADE_Pan];
-	[self optUADE_Head];
-	[self optUADE_Gain];
-	[self optUADE_PanValue];
-	[self optUADE_GainValue];
-    [self optGEN_DefaultLength];
-    [self optTIM_Polyphony];
-    [self optFX_Alpha];
-	[self optSID_Optim];
-	[self optSID_LibVersion];
-    [self optSID_Filter];
-    
-    [self optDUMBMastVol];
-    [self optDUMBResampling];
-    
-    [self optGLOB_Panning];
-    [self optGLOB_PanningValue];
-    
-    [self settingsChanged:nil];
+    [self updateAllSettingsAfterChange];
 }
 
 -(void)saveSettings{

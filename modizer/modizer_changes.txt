@@ -1,12 +1,3 @@
-Cover: pas de maj apres download d'une cover pour le morceau en cours
-(coverflow mis ˆ jour ˆ la prochaine maj playlist)
-
-ALL: ecran cover flow => ajout play/pause/back/for & timeline
-
-todo:
-- elapsed/remaining time: not sync ?
-=>
------------------------
 - archives: add a way to expand them
 =>
 -----------------------

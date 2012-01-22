@@ -2720,21 +2720,44 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	bool result;
 	pthread_mutex_lock(&db_mutex);
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
+		char sqlStatement[4096];
+        char sqlTmp[1024];
+		int cur_sqllen;
+        sqlStatement[0]=0;
+        cur_sqllen=0;
 		for (int i=0;i<nb_entries;i++) {
-			sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
+			sprintf(sqlTmp,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 					[id_playlist UTF8String],[pl_entries[i].mPlaylistFilename UTF8String],[pl_entries[i].mPlaylistFilepath UTF8String]);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-				result=TRUE;
-			} else {
-				result=FALSE;
-				NSLog(@"ErrSQL : %d",err);
-				break;
-			}
-		}
+            if (strlen(sqlTmp)+cur_sqllen+1<4096) {
+                if (cur_sqllen==0) strcpy(sqlStatement,sqlTmp);
+                else sprintf(sqlStatement,"%s;%s",sqlStatement,sqlTmp);
+                cur_sqllen+=strlen(sqlTmp)+1;
+            } else {
+                err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+                if (err==SQLITE_OK){
+                    result=TRUE;
+                } else {
+                    result=FALSE;
+                    NSLog(@"ErrSQL : %d",err);
+                    break;
+                }
+                strcpy(sqlStatement,sqlTmp);
+                cur_sqllen=strlen(sqlTmp);
+            }
+		}        
 		if (result) {
+            if (sqlStatement[0]) {
+                err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+                if (err==SQLITE_OK){
+                    result=TRUE;
+                } else {
+                    result=FALSE;
+                    NSLog(@"ErrSQL : %d",err);                
+                }
+            }
+            
+            if (result) {
+            
 			sprintf(sqlStatement,"UPDATE playlists SET num_files=\
 					(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
 					WHERE id=%s",
@@ -2746,6 +2769,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 				result=FALSE;
 				NSLog(@"ErrSQL : %d",err);
 			}
+            }
 		}
 	};
 	sqlite3_close(db);
@@ -5591,7 +5615,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     memset(playlist,0,sizeof(t_playlist));
                     [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-2)] intoPlaylist:playlist];
                     if (playlist->nb_entries) {
-                        int pos=0;
                         //						self.tabBarController.selectedViewController = detailViewController;
                         //						self.navigationController.navigationBar.hidden = YES;
                         if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
@@ -5603,7 +5626,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                             [array_label addObject:playlist->label[j]];
                             [array_path addObject:playlist->fullpath[j]];
                         }
-                        [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:playlist->ratings playcounts:playlist->playcounts];
+                        [detailViewController play_listmodules:array_label start_index:-1 path:array_path ratings:playlist->ratings playcounts:playlist->playcounts];
                         if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) {
                             [keys release];keys=nil;
                             [list release];list=nil;
