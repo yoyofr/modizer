@@ -5406,10 +5406,11 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
@@ -5446,6 +5447,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
@@ -5538,8 +5540,8 @@
 					armv6,
 					armv7,
 				);
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
@@ -5551,8 +5553,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
-				PROVISIONING_PROFILE = "1EF8FBBB-9EFC-4D61-93AB-60BD7948849F";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "1EF8FBBB-9EFC-4D61-93AB-60BD7948849F";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
@@ -5565,13 +5567,14 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "~/Desktop/Dev/iphone/modizerWS/modizer/Entitlements.plist";
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
@@ -5593,7 +5596,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "82BE6FA1-472F-48E7-BD8A-8726F54FFFE3";
+				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5608,8 +5611,8 @@
 					armv6,
 					armv7,
 				);
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
@@ -5621,8 +5624,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
-				PROVISIONING_PROFILE = "4DCBEB37-8B58-4DE9-ABFC-839E9A2E58F1";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4DCBEB37-8B58-4DE9-ABFC-839E9A2E58F1";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
@@ -5635,13 +5638,14 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "~/Desktop/Dev/iphone/modizerWS/modizer/Entitlements.plist";
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
@@ -5663,7 +5667,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "1A98BC0B-C341-4A5B-910D-C4BF09F46829";
+				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
