@@ -10,6 +10,7 @@
 //
 
 int aosdk_dsf_samplecycle_ratio=15;
+unsigned char aosdk_dsf_22khz=1;
 
 #include <stdio.h>
 #include <string.h>
@@ -36,6 +37,7 @@ static uint32		decaybegin, decayend, total_samples;
 
 void *aica_start(const void *config);
 void AICA_Update(void *param, INT16 **inputs, INT16 **buf, int samples);
+void AICA_Update22khz(void *param, INT16 **inputs, INT16 **buf, int samples);
 
 int32 dsf_start(uint8 *buffer, uint32 length,int32 loop_infinite,int32 defaultlength)
 {
@@ -166,54 +168,112 @@ int32 dsf_gen(int16 *buffer, uint32 samples)
 	int16 output[44100/30], output2[44100/30];
 	int16 *stereo[2];
 	int16 *outp = buffer;
-	int opos;
+	int opos = 0;
     int shouldExit=0;
     int cycle_ratio=aosdk_dsf_samplecycle_ratio;
+    unsigned char dsf_22hkzmode = aosdk_dsf_22khz;
+    
+    if(dsf_22hkzmode == 0)
+    {
+        for (i = 0; i < samples; i+=cycle_ratio)
+        {
+#if DK_CORE
+            ARM7_Execute((33000000 / 60 / 4) / 735 *cycle_ratio);
+#else
+            arm7_execute((33000000 / 60 / 4) / 735 *cycle_ratio);
+#endif
+            stereo[0] = &output[opos];
+            stereo[1] = &output2[opos];
+            AICA_Update(NULL, NULL, stereo, 1*cycle_ratio);
+            opos+=cycle_ratio;
+        }
+        
+        for (i = 0; i < samples; i++)
+        {
+            // process the fade tags
+            if (total_samples >= decaybegin)
+            {
+                if (total_samples >= decayend)
+                {
+                    // song is done here, signal your player appropriately!
+                    //				ao_song_done = 1;
+                    output[i] = 0;
+                    output2[i] = 0;
+                    shouldExit=1;
+                }
+                else
+                {
+                    int32 fader = 256 - (256*(total_samples - decaybegin)/(decayend-decaybegin));
+                    output[i] = (output[i] * fader)>>8;
+                    output2[i] = (output2[i] * fader)>>8;
+                    
+                    total_samples++;
+                }
+            }
+            else
+            {
+                total_samples++;
+            }
+            
+            *outp++ = output[i];
+            *outp++ = output2[i];
+        }
+    }
+    else
+    {
+        for (i = 0; i < samples; i+=(cycle_ratio<<1))
+        {
+#if DK_CORE
+            ARM7_Execute((33000000 / 60 / 4) / 735 *cycle_ratio);
+#else
+            arm7_execute((33000000 / 60 / 4) / 735 *cycle_ratio);
+#endif
+            stereo[0] = &output[opos];
+            stereo[1] = &output2[opos];
+            AICA_Update22khz(NULL, NULL, stereo, cycle_ratio);
+            opos+=(cycle_ratio<<1);
+        }
+        
+        int skippy = 0;
+        for (i = 0; i < samples; i++)
+        {
+            // process the fade tags
+            if (total_samples >= decaybegin)
+            {
+                if (total_samples >= decayend)
+                {
+                    // song is done here, signal your player appropriately!
+                    //				ao_song_done = 1;
+                    output[i] = 0;
+                    output2[i] = 0;
+                    shouldExit=1;
+                }
+                else
+                {
+                    int32 fader = 256 - (256*(total_samples - decaybegin)/(decayend-decaybegin));
+                    output[i] = (output[i] * fader)>>8;
+                    output2[i] = (output2[i] * fader)>>8;
+                    
+                    total_samples++;
+                }
+            }
+            else
+            {
+                total_samples+=2;
+            }
+            
+            *outp++ = output[i];
+            *outp++ = output2[i];
+            *outp++ = output[i];
+            *outp++ = output2[i];
+            skippy++;
+            if(skippy==cycle_ratio){
+                skippy=0;
+                i+=cycle_ratio;
+            }
 
-	opos = 0;
-	for (i = 0; i < samples; i+=cycle_ratio)
-	{
-		#if DK_CORE
-		ARM7_Execute((33000000 / 60 / 4) / 735 *cycle_ratio);
-		#else
-		arm7_execute((33000000 / 60 / 4) / 735 *cycle_ratio);
-		#endif
-		stereo[0] = &output[opos];
-		stereo[1] = &output2[opos];
-		AICA_Update(NULL, NULL, stereo, 1*cycle_ratio);
-		opos+=cycle_ratio;
-	}
-
-	for (i = 0; i < samples; i++)
-	{
-		// process the fade tags
-		if (total_samples >= decaybegin)
-		{
-			if (total_samples >= decayend)
-			{
-				// song is done here, signal your player appropriately!
-//				ao_song_done = 1;
-				output[i] = 0;
-				output2[i] = 0;
-                shouldExit=1;
-			}
-			else
-			{
-				int32 fader = 256 - (256*(total_samples - decaybegin)/(decayend-decaybegin));
-				output[i] = (output[i] * fader)>>8;
-				output2[i] = (output2[i] * fader)>>8;
-
-				total_samples++;
-			}
-		}
-		else
-		{
-			total_samples++;
-		}
-
-		*outp++ = output[i];
-		*outp++ = output2[i];
-	}
+        }
+    }
     if (shouldExit)return AO_FAIL;
 	return AO_SUCCESS;
 }
