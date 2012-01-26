@@ -331,7 +331,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = libmodplug_Prefix.pch;
 				GCC_USE_INDIRECT_FUNCTION_CALLS = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				INSTALL_PATH = "";
 				PRODUCT_NAME = libmodplug;
 				SDKROOT = iphoneos;
@@ -357,7 +357,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = libmodplug_Prefix.pch;
 				GCC_USE_INDIRECT_FUNCTION_CALLS = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				INSTALL_PATH = "";
 				PRODUCT_NAME = libmodplug;
 				SDKROOT = iphoneos;
@@ -381,7 +381,7 @@
 					HAVE_SETENV,
 					HAVE_SINF,
 				);
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
@@ -409,7 +409,7 @@
 					HAVE_SETENV,
 					HAVE_SINF,
 				);
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;

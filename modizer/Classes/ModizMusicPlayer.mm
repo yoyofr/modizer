@@ -1653,6 +1653,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			}
 			
 			if (uade_song_end_trigger) {
+               // uade_song_end_trigger=0;
 				next_song=1;
 				//				printf("now exiting\n");
 				if (uade_send_short_message(UADE_EXIT, ipc)) {
@@ -3713,9 +3714,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			iModuleLength=adPlugPlayer->songlength();
 			
 			//Loop
-			if (mLoopMode==1) {
-				iModuleLength=-1;
-			}
+			if (mLoopMode==1) iModuleLength=-1;
+            
 			numChannels=9;
 			
 			return 0;
@@ -4414,6 +4414,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		UADEstate.config.normalise=mUADE_OptNORM;
 		UADEstate.config.panning_enable=mUADE_OptPAN;
 		UADEstate.config.panning=mUADE_OptPANValue;
+        UADEstate.config.no_ep_end=(mLoopMode==1?1:0);
 		
 		uade_set_effects(&UADEstate);
 		
@@ -4477,7 +4478,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		fclose(f);
 		
 		[self getMPSettings];
-		if (mLoopMode==1) mp_settings.mLoopCount=1<<30; //Should be like "infinite"
+		if (mLoopMode==1) mp_settings.mLoopCount=-1; //Should be like "infinite"
 		[self updateMPSettings];
 		
 		mp_file=ModPlug_Load(mp_data,mp_datasize);
@@ -4485,8 +4486,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			free(mp_data); /* ? */
 			NSLog(@"ModPlug_load error");
 			mPlayType=0;
-		} else {
-			
+		} else {			
 			iModuleLength=ModPlug_GetLength(mp_file);
 			iCurrentTime=0;
             mPatternDataAvail=1;
@@ -4529,8 +4529,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			}
 			
 			//Loop
-			if (mLoopMode==1) iModuleLength=-1;
-			
+			if (mLoopMode==1) {
+                iModuleLength=-1;
+            }			
 			
 			return 0;
 		}
