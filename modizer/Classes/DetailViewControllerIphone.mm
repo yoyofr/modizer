@@ -1489,6 +1489,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mPlaylist[i].mPlaylistRating=-1;//rating;
 		mPlaylist[i].mPlaylistCount=0;
         //[self checkAvailableCovers:i];
+        mPlaylist[i].cover_flag=-1;
 	}
     coverflow_needredraw=1;   
 	
@@ -1542,6 +1543,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mPlaylist[i].mPlaylistRating=ratings[i];
 		mPlaylist[i].mPlaylistCount=0;
 //        [self checkAvailableCovers:i];
+        mPlaylist[i].cover_flag=-1;
 	}
     coverflow_needredraw=1;
 	
@@ -1606,6 +1608,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 				mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i].mPlaylistRating=-1;
                 //[self checkAvailableCovers:i];
+                mPlaylist[i].cover_flag=-1;
 			}
 			added_pos=0;
 			mPlaylist_pos+=add_entries_nb;
@@ -1620,6 +1623,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 				mPlaylist[i+mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_pos+1].mPlaylistRating=-1;
                 //[self checkAvailableCovers:i+mPlaylist_pos+1];
+                mPlaylist[i+mPlaylist_pos+1].cover_flag=-1;
 			}
 			added_pos=mPlaylist_pos+1;
 		} else { //last
@@ -1628,6 +1632,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 				mPlaylist[i+mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_size].mPlaylistRating=-1;
                 //[self checkAvailableCovers:i+mPlaylist_size];
+                mPlaylist[i+mPlaylist_size].cover_flag=-1;
 			}
 			added_pos=mPlaylist_size;
 		}
@@ -1648,6 +1653,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			mPlaylist[i].mPlaylistCount=0;
             mPlaylist[i].mPlaylistRating=-1;
             //[self checkAvailableCovers:i];
+            mPlaylist[i].cover_flag=-1;
 		}
 		mPlaylist_size=add_entries_nb;
 		//DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);
@@ -1690,7 +1696,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			}
 			mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
 			mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-            [self checkAvailableCovers:0];
+            //[self checkAvailableCovers:0];
+            mPlaylist[0].cover_flag=-1;
 			
 			added_pos=0;
 			mPlaylist_pos++;
@@ -1702,12 +1709,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 			mPlaylist[mPlaylist_pos+1].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
 			mPlaylist[mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-            [self checkAvailableCovers:mPlaylist_pos+1];
+            //[self checkAvailableCovers:mPlaylist_pos+1];
+            mPlaylist[mPlaylist_pos+1].cover_flag=-1;
 			added_pos=mPlaylist_pos+1;
 		} else { //last
 			mPlaylist[mPlaylist_size].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
 			mPlaylist[mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-            [self checkAvailableCovers:mPlaylist_size];
+//            [self checkAvailableCovers:mPlaylist_size];
+            mPlaylist[mPlaylist_size].cover_flag=-1;
 			added_pos=mPlaylist_size;
 		}
 		mPlaylist_size++;
@@ -1723,7 +1732,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	} else { //create a new playlist with downloaded song
 		mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
 		mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-        [self checkAvailableCovers:0];
+        //[self checkAvailableCovers:0];
+        mPlaylist[0].cover_flag=-1;
 		added_pos=0;
 		mPlaylist_size=1;
 		mPlaylist[added_pos].mPlaylistCount=0;
@@ -2059,7 +2069,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         cover_view.hidden=FALSE;        
     } else cover_view.hidden=TRUE;
     
-    [self checkAvailableCovers:mPlaylist_pos];        
+    //[self checkAvailableCovers:mPlaylist_pos];        
+    mPlaylist[mPlaylist_pos].cover_flag=-1;
     
 	pvSubSongSel.hidden=true;
 	pvSubSongLabel.hidden=true;
@@ -2899,6 +2910,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	}
 	mLoopMode--;
 	[self changeLoopMode];
+    [mplayer setLoopInf:mplayer.mLoopMode^1];
+    [self pushedLoopInf];
 	mShuffle^=1;	
 	[self shuffle];
 	
@@ -3628,7 +3641,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[prefs objectForKey:@"LoopMode"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mLoopMode = 0;
 	else mLoopMode = [valNb intValue];	
-	valNb=[prefs objectForKey:@"Shuffle"];if (safe_mode) valNb=nil;
+    valNb=[prefs objectForKey:@"LoopModeInf"];if (safe_mode) valNb=nil;
+	if (valNb == nil) [mplayer setLoopInf:0];
+	else [mplayer setLoopInf:([valNb intValue]?1:0)];
+    valNb=[prefs objectForKey:@"Shuffle"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mShuffle = 0;
 	else mShuffle = [valNb intValue];
 	valNb=[prefs objectForKey:@"IsPlaying"];if (safe_mode) valNb=nil;
@@ -3880,6 +3896,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	valNb=[[NSNumber alloc] initWithInt:mLoopMode];
 	[prefs setObject:valNb forKey:@"LoopMode"];[valNb autorelease];
+	valNb=[[NSNumber alloc] initWithInt:mplayer.mLoopMode];
+	[prefs setObject:valNb forKey:@"LoopModeInf"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:mShuffle];
 	[prefs setObject:valNb forKey:@"Shuffle"];[valNb autorelease];
     
