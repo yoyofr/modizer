@@ -289,6 +289,9 @@
 /* Begin PBXProject section */
 		CCB6EA8112FEEFEC007064CB /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = CCB6EA8412FEEFEC007064CB /* Build configuration list for PBXProject "libgsf" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;

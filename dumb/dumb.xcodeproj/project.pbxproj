@@ -501,6 +501,7 @@
 		335E9DB213AB2A4200A32A0C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = YoyoFR;
 			};
 			buildConfigurationList = 335E9DB513AB2A4200A32A0C /* Build configuration list for PBXProject "dumb" */;

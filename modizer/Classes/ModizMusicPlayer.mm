@@ -4479,6 +4479,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		
 		[self getMPSettings];
 		if (mLoopMode==1) mp_settings.mLoopCount=-1; //Should be like "infinite"
+        else mp_settings.mLoopCount=0;
 		[self updateMPSettings];
 		
 		mp_file=ModPlug_Load(mp_data,mp_datasize);
