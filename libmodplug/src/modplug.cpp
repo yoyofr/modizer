@@ -34,7 +34,7 @@ namespace ModPlug
 		0,
 		0,
 		0,
-		-1
+		0
 	};
 
 	int gSampleSize;

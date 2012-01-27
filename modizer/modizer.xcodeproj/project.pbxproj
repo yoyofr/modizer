@@ -281,9 +281,6 @@
 		33888AA212231EEA0030C82E /* 1237346308.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 33888AA112231EEA0030C82E /* 1237346308.jpg */; };
 		3388C3BC13842E9100DA8F05 /* playlist_del_all.png in Resources */ = {isa = PBXBuildFile; fileRef = 3388C3BA13842E9100DA8F05 /* playlist_del_all.png */; };
 		3388C3BD13842E9100DA8F05 /* playlist_del_all@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3388C3BB13842E9100DA8F05 /* playlist_del_all@2x.png */; };
-		33952D8B139BF81B000B7839 /* liblibFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33952D87139BF81B000B7839 /* liblibFileExtractor.a */; };
-		33952D8D139BF81B000B7839 /* liblibmodplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33952D89139BF81B000B7839 /* liblibmodplug.a */; };
-		33952D8E139BF81B000B7839 /* liblibtim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33952D8A139BF81B000B7839 /* liblibtim.a */; };
 		33952DD1139F5476000B7839 /* eng_dsf.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57C61200B3B7000A8A4E /* eng_dsf.c */; };
 		33952DD2139F5481000B7839 /* dc_hw.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57C41200B3B7000A8A4E /* dc_hw.c */; };
 		33952DD3139F5487000B7839 /* arm7thumb.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57C21200B3B7000A8A4E /* arm7thumb.c */; };
@@ -292,8 +289,6 @@
 		33952DD7139F54D5000B7839 /* aica.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57B81200B3B7000A8A4E /* aica.c */; };
 		33952DD8139F559C000B7839 /* arm7.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57BD1200B3B7000A8A4E /* arm7.c */; };
 		3396B6DD13297F8E001792E0 /* timidity.cfg in Copy Files-Timidity */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
-		3396BEE513C11208001BB246 /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3396BEE213C11207001BB246 /* libdumb.a */; };
-		3396BEE713C11208001BB246 /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3396BEE413C11207001BB246 /* libTapkuLibrary.a */; };
 		33A9678C140E4789007F22F5 /* char.bin in Resources */ = {isa = PBXBuildFile; fileRef = 33A96692140E4788007F22F5 /* char.bin */; };
 		33B4EA4314B373420060F9B1 /* liblibgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33CA194414079ADC00CBEF9B /* liblibgme.a */; };
 		33B4EA4514B374C00060F9B1 /* liblibgsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33A961D91407F195007F22F5 /* liblibgsf.a */; };
@@ -312,6 +307,11 @@
 		33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33CAECAD13E93D7100088A37 /* arc_details@2x.png */; };
 		33D1BD89126C31B700B06781 /* eng_psf.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57CA1200B3B7000A8A4E /* eng_psf.c */; };
 		33EDF0EF145939850038C673 /* RootViewControllerHVSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */; };
+		33F60A8814D1D6F5009ABA8F /* liblibmodplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 330FB723137DEF63001EC7A2 /* liblibmodplug.a */; };
+		33F60A8914D1D700009ABA8F /* liblibtim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33BA70661407A1300099E943 /* liblibtim.a */; };
+		33F60A8A14D1D709009ABA8F /* liblibFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33D3B9221414253C004679CD /* liblibFileExtractor.a */; };
+		33F60A8B14D1D711009ABA8F /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33C7397413A0AC220012221C /* libTapkuLibrary.a */; };
+		33F60A8C14D1D719009ABA8F /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33C294CB13ACA1A3006A3BC0 /* libdumb.a */; };
 		50819A2714B3E06F0062FA86 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0214B3E06F0062FA86 /* file.cpp */; };
 		50819A2814B3E06F0062FA86 /* fmgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0414B3E06F0062FA86 /* fmgen.cpp */; };
 		50819A2914B3E06F0062FA86 /* fmtimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0814B3E06F0062FA86 /* fmtimer.cpp */; };
@@ -501,7 +501,6 @@
 		CC1E5FF61202F24F000A8A4E /* custom.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5F631202F24F000A8A4E /* custom.c */; };
 		CC1E5FF71202F24F000A8A4E /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5F641202F24F000A8A4E /* debug.c */; };
 		CC1E5FF81202F24F000A8A4E /* fpp.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5F651202F24F000A8A4E /* fpp.c */; };
-		CC1E60251202F24F000A8A4E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5FBD1202F24F000A8A4E /* .gitignore */; };
 		CC1E60291202F24F000A8A4E /* md-support.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5FDE1202F24F000A8A4E /* md-support.c */; };
 		CC1E602A1202F24F000A8A4E /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5FDF1202F24F000A8A4E /* memory.c */; };
 		CC1E602B1202F24F000A8A4E /* missing.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5FE01202F24F000A8A4E /* missing.c */; };
@@ -1307,12 +1306,7 @@
 		33888AA112231EEA0030C82E /* 1237346308.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 1237346308.jpg; sourceTree = "<group>"; };
 		3388C3BA13842E9100DA8F05 /* playlist_del_all.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist_del_all.png; sourceTree = "<group>"; };
 		3388C3BB13842E9100DA8F05 /* playlist_del_all@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "playlist_del_all@2x.png"; sourceTree = "<group>"; };
-		33952D87139BF81B000B7839 /* liblibFileExtractor.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = liblibFileExtractor.a; path = "/Users/ymagnien/Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos/liblibFileExtractor.a"; sourceTree = "<absolute>"; };
-		33952D89139BF81B000B7839 /* liblibmodplug.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = liblibmodplug.a; path = "/Users/ymagnien/Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos/liblibmodplug.a"; sourceTree = "<absolute>"; };
-		33952D8A139BF81B000B7839 /* liblibtim.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = liblibtim.a; path = "/Users/ymagnien/Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos/liblibtim.a"; sourceTree = "<absolute>"; };
 		3396B61A13297F8E001792E0 /* timidity.cfg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timidity.cfg; sourceTree = "<group>"; };
-		3396BEE213C11207001BB246 /* libdumb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libdumb.a; path = "/Users/ymagnien/Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos/libdumb.a"; sourceTree = "<absolute>"; };
-		3396BEE413C11207001BB246 /* libTapkuLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; name = libTapkuLibrary.a; path = "/Users/ymagnien/Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos/libTapkuLibrary.a"; sourceTree = "<absolute>"; };
 		33A7183513ACA587009858B7 /* dumb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dumb.h; path = ../dumb/src/include/dumb.h; sourceTree = "<group>"; };
 		33A7186713ACDD06009858B7 /* it.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = it.h; path = ../dumb/src/include/internal/it.h; sourceTree = "<group>"; };
 		33A7186A13AE802A009858B7 /* modplug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = modplug.h; path = ../libmodplug/src/modplug.h; sourceTree = "<group>"; };
@@ -1878,7 +1872,6 @@
 		CC1E5F871202F24F000A8A4E /* unixwalkdir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unixwalkdir.h; sourceTree = "<group>"; };
 		CC1E5F881202F24F000A8A4E /* vplist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vplist.c; sourceTree = "<group>"; };
 		CC1E5F891202F24F000A8A4E /* vplist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vplist.h; sourceTree = "<group>"; };
-		CC1E5FBD1202F24F000A8A4E /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		CC1E5FBE1202F24F000A8A4E /* amigafilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amigafilter.h; sourceTree = "<group>"; };
 		CC1E5FBF1202F24F000A8A4E /* amigamsg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amigamsg.h; sourceTree = "<group>"; };
 		CC1E5FC01202F24F000A8A4E /* audio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audio.h; sourceTree = "<group>"; };
@@ -2394,15 +2387,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33F60A8C14D1D719009ABA8F /* libdumb.a in Frameworks */,
+				33F60A8B14D1D711009ABA8F /* libTapkuLibrary.a in Frameworks */,
+				33F60A8A14D1D709009ABA8F /* liblibFileExtractor.a in Frameworks */,
+				33F60A8914D1D700009ABA8F /* liblibtim.a in Frameworks */,
+				33F60A8814D1D6F5009ABA8F /* liblibmodplug.a in Frameworks */,
 				33B4EA4514B374C00060F9B1 /* liblibgsf.a in Frameworks */,
 				33B4EA4614B374C00060F9B1 /* liblibsidplay1.a in Frameworks */,
 				33B4EA4714B374C00060F9B1 /* libsidplayfp.a in Frameworks */,
 				33B4EA4314B373420060F9B1 /* liblibgme.a in Frameworks */,
-				3396BEE513C11208001BB246 /* libdumb.a in Frameworks */,
-				3396BEE713C11208001BB246 /* libTapkuLibrary.a in Frameworks */,
-				33952D8B139BF81B000B7839 /* liblibFileExtractor.a in Frameworks */,
-				33952D8D139BF81B000B7839 /* liblibmodplug.a in Frameworks */,
-				33952D8E139BF81B000B7839 /* liblibtim.a in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
@@ -2433,11 +2426,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				3396BEE213C11207001BB246 /* libdumb.a */,
-				3396BEE413C11207001BB246 /* libTapkuLibrary.a */,
-				33952D87139BF81B000B7839 /* liblibFileExtractor.a */,
-				33952D89139BF81B000B7839 /* liblibmodplug.a */,
-				33952D8A139BF81B000B7839 /* liblibtim.a */,
 				3314C185132C222D007F171B /* Default-Landscape~ipad.png */,
 				3314C183132C221B007F171B /* Default-Portrait~ipad.png */,
 				CC9B194812FF0C1E00985967 /* Splashscreens */,
@@ -3779,7 +3767,6 @@
 				CC1E60D212034111000A8A4E /* ossupport.h */,
 				CC1E60D312034111000A8A4E /* sysincludes.h */,
 				CC1E60D412034111000A8A4E /* uadeconfig.h */,
-				CC1E5FBD1202F24F000A8A4E /* .gitignore */,
 				CC1E5FBE1202F24F000A8A4E /* amigafilter.h */,
 				CC1E5FBF1202F24F000A8A4E /* amigamsg.h */,
 				CC1E5FC01202F24F000A8A4E /* audio.h */,
@@ -4723,7 +4710,6 @@
 				CC1E5F14120154F9000A8A4E /* Icon-Small-50.png in Resources */,
 				CC1E5F1B120155FC000A8A4E /* Default-Landscape.png in Resources */,
 				CC1E5F1C120155FC000A8A4E /* Default-Portrait.png in Resources */,
-				CC1E60251202F24F000A8A4E /* .gitignore in Resources */,
 				CC1E6310120423DF000A8A4E /* eagleplayer.conf in Resources */,
 				CC1E6311120423DF000A8A4E /* AbyssHighestExperience in Resources */,
 				CC1E6312120423DF000A8A4E /* ActionAmics in Resources */,
