@@ -4302,6 +4302,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     //Init pickerview linebreakmode
     //    pvArcSel.inputView.
     //    .lineBreakMode
+
     
 	
 	orientationHV=(int)UIInterfaceOrientationPortrait;
@@ -5704,10 +5705,35 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     return 0;
 }
 
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {	
+/*- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {	
     if (pickerView==pvSubSongSel) return [mplayer getSubTitle:row+mplayer.mod_minsub];
     if (pickerView==pvArcSel) return [mplayer getArcEntryTitle:row];
     return nil;
+}*/
+- (UIView *)pickerView:(UIPickerView *)pickerView
+            viewForRow:(NSInteger)row
+          forComponent:(NSInteger)component
+           reusingView:(UIView *)view {
+    
+    UILabel *pickerLabel = (UILabel *)view;
+    
+    if (pickerLabel == nil) {
+        CGRect frame = CGRectMake(0.0, 0.0, pickerView.frame.size.width-32, 32);
+        pickerLabel = [[[UILabel alloc] initWithFrame:frame] autorelease];
+        pickerLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        [pickerLabel setTextAlignment:UITextAlignmentLeft];
+        [pickerLabel setBackgroundColor:[UIColor clearColor]];
+        [pickerLabel setFont:[UIFont boldSystemFontOfSize:15]];
+    }
+    
+    if (pickerView==pvSubSongSel) [pickerLabel setText:[mplayer getSubTitle:row+mplayer.mod_minsub]];
+    if (pickerView==pvArcSel) [pickerLabel setText:[mplayer getArcEntryTitle:row]];
+
+    
+    
+    
+    return pickerLabel;
+    
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {

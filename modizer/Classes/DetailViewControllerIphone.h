@@ -23,6 +23,8 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
+#import "OBSlider.h"
+
 #import "ModizMusicPlayer.h"
 
 #import "AppDelegate_Phone.h"
@@ -109,7 +111,9 @@ class CGLString;
 	IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
 	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;	
     
-	IBOutlet UISlider *sliderProgressModule,*surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning;
+    IBOutlet OBSlider *sliderProgressModule,*sld_TIMPoly,*sld_DefaultLength;
+
+	IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning;
 	IBOutlet UITextView *textMessage;
 	IBOutlet UITableView *playlistTabView;
 	IBOutlet UIView *playlistView,*detailView,*commandViewU,*mainView,*infoView;
@@ -131,7 +135,6 @@ class CGLString;
 	IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
    	IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
     IBOutlet UISegmentedControl *sc_TIMreverb,*sc_TIMfilter,*sc_TIMresample,*sc_TIMchorus,*sc_DUMBResampling;
-	IBOutlet UISlider *sld_TIMPoly,*sld_DefaultLength;
 	IBOutlet UILabel *labelTimPolyphony,*labelDUMBMastVol,*lblPanningValue,*labelDefaultLength;
 
 	IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
@@ -323,7 +326,8 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
-@property (nonatomic, retain) IBOutlet UISlider *sliderProgressModule,*surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning,*sld_DefaultLength;
+@property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule,*sld_TIMPoly,*sld_DefaultLength;
+@property (nonatomic, retain) IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 
 @property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_randFx,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio;
@@ -339,7 +343,6 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_TIMreverb,*sc_TIMfilter,*sc_TIMresample,*sc_TIMchorus,*sc_DUMBResampling;
 @property (nonatomic, retain) IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
 
-@property (nonatomic, retain) IBOutlet UISlider *sld_TIMPoly;
 @property (nonatomic, retain) IBOutlet UILabel *labelTimPolyphony,*labelDUMBMastVol,*lblPanningValue;
 
 @property (nonatomic, retain) IBOutlet UIViewController *textInputView;

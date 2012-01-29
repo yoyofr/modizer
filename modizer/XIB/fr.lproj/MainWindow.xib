@@ -576,6 +576,7 @@
 					<string key="IBUITitle">Téléchargements</string>
 					<object class="IBUITabBarItem" key="IBUITabBarItem" id="807767033">
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+						<reference key="IBUITabBar" ref="334982523"/>
 						<int key="IBUISystemItemIdentifier">9</int>
 					</object>
 					<reference key="IBUIToolbarItems" ref="0"/>
@@ -809,6 +810,7 @@
 								<string key="NSResourceName">folder32.png</string>
 							</object>
 							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+							<reference key="IBUITabBar" ref="334982523"/>
 						</object>
 						<reference key="IBUIParentViewController" ref="66685802"/>
 						<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics"/>
@@ -866,6 +868,7 @@
 						<object class="IBUITabBarItem" key="IBUITabBarItem" id="169566383">
 							<string key="IBUITitle"/>
 							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+							<reference key="IBUITabBar" ref="334982523"/>
 							<int key="IBUISystemItemIdentifier">8</int>
 						</object>
 						<reference key="IBUIToolbarItems" ref="0"/>
@@ -1032,6 +1035,7 @@
 								<string key="NSResourceName">spanner32.png</string>
 							</object>
 							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+							<reference key="IBUITabBar" ref="334982523"/>
 						</object>
 						<reference key="IBUIToolbarItems" ref="0"/>
 						<reference key="IBUIParentViewController" ref="66685802"/>
@@ -1101,6 +1105,7 @@
 								<string key="NSResourceName">smile32.png</string>
 							</object>
 							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+							<reference key="IBUITabBar" ref="334982523"/>
 						</object>
 						<reference key="IBUIToolbarItems" ref="0"/>
 						<reference key="IBUIParentViewController" ref="66685802"/>
@@ -1273,6 +1278,15 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 					<bool key="IBUIClipsSubviews">YES</bool>
 					<bool key="IBUIMultipleTouchEnabled">YES</bool>
 					<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+					<object class="NSMutableArray" key="IBUIItems">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<reference ref="935402107"/>
+						<reference ref="169566383"/>
+						<reference ref="875429644"/>
+						<reference ref="807767033"/>
+						<reference ref="1026034716"/>
+					</object>
+					<reference key="IBUISelectedItem" ref="807767033"/>
 				</object>
 			</object>
 			<object class="IBUIViewController" id="795604609">
@@ -3170,6 +3184,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 							<int key="IBUIBaselineAdjustment">1</int>
 							<float key="IBUIMinimumFontSize">10</float>
 							<int key="IBUITextAlignment">1</int>
+							<int key="IBUILineBreakMode">5</int>
 							<object class="IBUIFontDescription" key="IBUIFontDescription" id="1017429498">
 								<string key="name">Helvetica</string>
 								<string key="family">Helvetica</string>
@@ -3232,6 +3247,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 							<int key="IBUIBaselineAdjustment">1</int>
 							<float key="IBUIMinimumFontSize">10</float>
 							<int key="IBUITextAlignment">1</int>
+							<int key="IBUILineBreakMode">5</int>
 							<reference key="IBUIFontDescription" ref="1017429498"/>
 							<reference key="IBUIFont" ref="747920462"/>
 						</object>
@@ -3534,7 +3550,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{161, 155}, {149, 30}}</string>
 								<reference key="NSSuperview" ref="591328274"/>
-								<reference key="NSNextKeyView" ref="135574807"/>
+								<reference key="NSNextKeyView" ref="389242505"/>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								<int key="IBSegmentControlStyle">2</int>
 								<int key="IBNumberOfSegments">3</int>
@@ -3702,7 +3718,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{162, 275}, {149, 23}}</string>
 								<reference key="NSSuperview" ref="591328274"/>
-								<reference key="NSNextKeyView" ref="363818687"/>
+								<reference key="NSNextKeyView" ref="135574807"/>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								<int key="IBUIContentHorizontalAlignment">0</int>
 								<int key="IBUIContentVerticalAlignment">0</int>
@@ -3872,7 +3888,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{163, 395}, {149, 30}}</string>
 								<reference key="NSSuperview" ref="591328274"/>
-								<reference key="NSNextKeyView" ref="389242505"/>
+								<reference key="NSNextKeyView" ref="363818687"/>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								<int key="IBSegmentControlStyle">2</int>
 								<int key="IBNumberOfSegments">2</int>
@@ -7516,6 +7532,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{5, 0}, {187, 32}}</string>
 								<reference key="NSSuperview" ref="891517419"/>
+								<reference key="NSNextKeyView" ref="736297780"/>
 								<reference key="IBUIBackgroundColor" ref="883063613"/>
 								<int key="IBUIContentMode">7</int>
 								<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -7822,6 +7839,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{115, 75}, {195, 30}}</string>
 								<reference key="NSSuperview" ref="394811693"/>
+								<reference key="NSNextKeyView" ref="989542220"/>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								<int key="IBSegmentControlStyle">2</int>
 								<int key="IBNumberOfSegments">4</int>
@@ -9584,6 +9602,24 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 						<int key="IBEventType">7</int>
 					</object>
 					<int key="connectionID">94</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">sliderProgressModuleTest:</string>
+						<reference key="source" ref="574918034"/>
+						<reference key="destination" ref="795604609"/>
+						<int key="IBEventType">13</int>
+					</object>
+					<int key="connectionID">1878</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchEventConnection" key="connection">
+						<string key="label">sliderProgressModuleValueChanged:</string>
+						<reference key="source" ref="574918034"/>
+						<reference key="destination" ref="795604609"/>
+						<int key="IBEventType">8</int>
+					</object>
+					<int key="connectionID">1879</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBCocoaTouchOutletConnection" key="connection">
@@ -14280,6 +14316,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 					<string>1678.IBPluginDependency</string>
 					<string>1678.IUISegmentedControlInspectorSelectedSegmentMetadataKey</string>
 					<string>1681.IBPluginDependency</string>
+					<string>1684.CustomClassName</string>
 					<string>1684.IBPluginDependency</string>
 					<string>1685.IBPluginDependency</string>
 					<string>1695.IBPluginDependency</string>
@@ -14340,6 +14377,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 					<string>1862.IBPluginDependency</string>
 					<string>1863.IBPluginDependency</string>
 					<string>1870.IBPluginDependency</string>
+					<string>1871.CustomClassName</string>
 					<string>1871.IBPluginDependency</string>
 					<string>2.CustomClassName</string>
 					<string>2.IBAttributePlaceholdersKey</string>
@@ -14348,6 +14386,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 					<string>22.IBPluginDependency</string>
 					<string>223.IBPluginDependency</string>
 					<string>228.IBPluginDependency</string>
+					<string>23.CustomClassName</string>
 					<string>23.IBPluginDependency</string>
 					<string>235.IBPluginDependency</string>
 					<string>239.IBPluginDependency</string>
@@ -14693,6 +14732,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<string>OBSlider</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -14753,6 +14793,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<string>OBSlider</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>ModizerWin</string>
 					<object class="NSMutableDictionary">
@@ -14765,6 +14806,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+					<string>OBSlider</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
@@ -14937,9 +14979,2553 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</string>
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">1877</int>
+			<int key="maxID">1879</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes"/>
+		<object class="IBClassDescriber" key="IBDocument.Classes">
+			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<object class="IBPartialClassDescription">
+					<string key="className">AboutViewController</string>
+					<string key="superclassName">UIViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">goPlayer</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">goPlayer</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">goPlayer</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewControllerIphone</string>
+							<string>textView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>DetailViewControllerIphone</string>
+							<string>UITextView</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewControllerIphone</string>
+							<string>textView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewControllerIphone</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">textView</string>
+								<string key="candidateClassName">UITextView</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/AboutViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">AppDelegate_Phone</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewControlleriPhone</string>
+							<string>modizerWin</string>
+							<string>rootViewControlleriPhone</string>
+							<string>tabBarController</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>DetailViewControllerIphone</string>
+							<string>ModizerWin</string>
+							<string>RootViewControllerIphone</string>
+							<string>UITabBarController</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewControlleriPhone</string>
+							<string>modizerWin</string>
+							<string>rootViewControlleriPhone</string>
+							<string>tabBarController</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewControlleriPhone</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">modizerWin</string>
+								<string key="candidateClassName">ModizerWin</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rootViewControlleriPhone</string>
+								<string key="candidateClassName">RootViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">tabBarController</string>
+								<string key="candidateClassName">UITabBarController</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/AppDelegate_Phone.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">DetailViewControllerIphone</string>
+					<string key="superclassName">UIViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>ADPLUG_OptChanged</string>
+							<string>AOSDK_OptChanged</string>
+							<string>SEXYPSF_OptChanged</string>
+							<string>cancelPlaylistName</string>
+							<string>changeLoopMode</string>
+							<string>hideInfo</string>
+							<string>hidePlaylist</string>
+							<string>infoFullscreen</string>
+							<string>infoNormal</string>
+							<string>oglButtonPushed</string>
+							<string>optAOSDK_DSFDSP</string>
+							<string>optAOSDK_DSFEmuRatio</string>
+							<string>optAOSDK_SSFDSP</string>
+							<string>optAOSDK_SSFEmuRatio</string>
+							<string>optDUMBMastVol</string>
+							<string>optDUMBResampling</string>
+							<string>optFX_Alpha</string>
+							<string>optGENTitleFilename</string>
+							<string>optGEN_DefaultLength</string>
+							<string>optGLOB_Panning</string>
+							<string>optGLOB_PanningValue</string>
+							<string>optSID_Filter</string>
+							<string>optSID_LibVersion</string>
+							<string>optSID_Optim</string>
+							<string>optTIM_Polyphony</string>
+							<string>optUADE_Gain</string>
+							<string>optUADE_GainValue</string>
+							<string>optUADE_Head</string>
+							<string>optUADE_Led</string>
+							<string>optUADE_Norm</string>
+							<string>optUADE_Pan</string>
+							<string>optUADE_PanValue</string>
+							<string>optUADE_PostFX</string>
+							<string>pausePushed:</string>
+							<string>plClear</string>
+							<string>plDone</string>
+							<string>plEdit</string>
+							<string>plFullscreen</string>
+							<string>plNormal</string>
+							<string>plShuffle</string>
+							<string>plSortAZ</string>
+							<string>plSortZA</string>
+							<string>playNext</string>
+							<string>playNextSub</string>
+							<string>playPrev</string>
+							<string>playPrevSub</string>
+							<string>playPushed:</string>
+							<string>playSelectedArc</string>
+							<string>playSelectedSubSong</string>
+							<string>pushedLoopInf</string>
+							<string>pushedRating1</string>
+							<string>pushedRating2</string>
+							<string>pushedRating3</string>
+							<string>pushedRating4</string>
+							<string>pushedRating5</string>
+							<string>savePlaylist</string>
+							<string>settingsChanged:</string>
+							<string>showArcSelector</string>
+							<string>showInfo</string>
+							<string>showPlaylist</string>
+							<string>showSubSongSelector</string>
+							<string>shuffle</string>
+							<string>sliderProgressModuleTest:</string>
+							<string>sliderProgressModuleValueChanged:</string>
+							<string>validatePlaylistName</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>ADPLUG_OptChanged</string>
+							<string>AOSDK_OptChanged</string>
+							<string>SEXYPSF_OptChanged</string>
+							<string>cancelPlaylistName</string>
+							<string>changeLoopMode</string>
+							<string>hideInfo</string>
+							<string>hidePlaylist</string>
+							<string>infoFullscreen</string>
+							<string>infoNormal</string>
+							<string>oglButtonPushed</string>
+							<string>optAOSDK_DSFDSP</string>
+							<string>optAOSDK_DSFEmuRatio</string>
+							<string>optAOSDK_SSFDSP</string>
+							<string>optAOSDK_SSFEmuRatio</string>
+							<string>optDUMBMastVol</string>
+							<string>optDUMBResampling</string>
+							<string>optFX_Alpha</string>
+							<string>optGENTitleFilename</string>
+							<string>optGEN_DefaultLength</string>
+							<string>optGLOB_Panning</string>
+							<string>optGLOB_PanningValue</string>
+							<string>optSID_Filter</string>
+							<string>optSID_LibVersion</string>
+							<string>optSID_Optim</string>
+							<string>optTIM_Polyphony</string>
+							<string>optUADE_Gain</string>
+							<string>optUADE_GainValue</string>
+							<string>optUADE_Head</string>
+							<string>optUADE_Led</string>
+							<string>optUADE_Norm</string>
+							<string>optUADE_Pan</string>
+							<string>optUADE_PanValue</string>
+							<string>optUADE_PostFX</string>
+							<string>pausePushed:</string>
+							<string>plClear</string>
+							<string>plDone</string>
+							<string>plEdit</string>
+							<string>plFullscreen</string>
+							<string>plNormal</string>
+							<string>plShuffle</string>
+							<string>plSortAZ</string>
+							<string>plSortZA</string>
+							<string>playNext</string>
+							<string>playNextSub</string>
+							<string>playPrev</string>
+							<string>playPrevSub</string>
+							<string>playPushed:</string>
+							<string>playSelectedArc</string>
+							<string>playSelectedSubSong</string>
+							<string>pushedLoopInf</string>
+							<string>pushedRating1</string>
+							<string>pushedRating2</string>
+							<string>pushedRating3</string>
+							<string>pushedRating4</string>
+							<string>pushedRating5</string>
+							<string>savePlaylist</string>
+							<string>settingsChanged:</string>
+							<string>showArcSelector</string>
+							<string>showInfo</string>
+							<string>showPlaylist</string>
+							<string>showSubSongSelector</string>
+							<string>shuffle</string>
+							<string>sliderProgressModuleTest:</string>
+							<string>sliderProgressModuleValueChanged:</string>
+							<string>validatePlaylistName</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">ADPLUG_OptChanged</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">AOSDK_OptChanged</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">SEXYPSF_OptChanged</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">cancelPlaylistName</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">changeLoopMode</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">hideInfo</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">hidePlaylist</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">infoFullscreen</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">infoNormal</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">oglButtonPushed</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optAOSDK_DSFDSP</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optAOSDK_DSFEmuRatio</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optAOSDK_SSFDSP</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optAOSDK_SSFEmuRatio</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optDUMBMastVol</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optDUMBResampling</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optFX_Alpha</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optGENTitleFilename</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optGEN_DefaultLength</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optGLOB_Panning</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optGLOB_PanningValue</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optSID_Filter</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optSID_LibVersion</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optSID_Optim</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optTIM_Polyphony</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_Gain</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_GainValue</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_Head</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_Led</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_Norm</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_Pan</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_PanValue</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">optUADE_PostFX</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">pausePushed:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plClear</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plDone</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plEdit</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plFullscreen</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plNormal</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plShuffle</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plSortAZ</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">plSortZA</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">playNext</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">playNextSub</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">playPrev</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">playPrevSub</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">playPushed:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">playSelectedArc</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">playSelectedSubSong</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">pushedLoopInf</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">pushedRating1</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">pushedRating2</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">pushedRating3</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">pushedRating4</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">pushedRating5</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">savePlaylist</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">settingsChanged:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">showArcSelector</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">showInfo</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">showPlaylist</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">showSubSongSelector</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">shuffle</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">sliderProgressModuleTest:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">sliderProgressModuleValueChanged:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">validatePlaylistName</string>
+								<string key="candidateClassName">id</string>
+							</object>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>backInfo</string>
+							<string>backPlaylist</string>
+							<string>bassAmoSld</string>
+							<string>bassRanSld</string>
+							<string>btnLoopInf</string>
+							<string>btnPlClear</string>
+							<string>btnPlEdit</string>
+							<string>btnPlOk</string>
+							<string>btnPlShuffle</string>
+							<string>btnShowArcList</string>
+							<string>btnShowSubSong</string>
+							<string>btnSortPlAZ</string>
+							<string>btnSortPlZA</string>
+							<string>buttonLoopList</string>
+							<string>buttonLoopListSel</string>
+							<string>buttonLoopTitleSel</string>
+							<string>buttonShuffle</string>
+							<string>buttonShuffleSel</string>
+							<string>commandViewU</string>
+							<string>cover_view</string>
+							<string>detailDescriptionLabel</string>
+							<string>detailView</string>
+							<string>gifAnimation</string>
+							<string>infoButton</string>
+							<string>infoMsgLbl</string>
+							<string>infoMsgView</string>
+							<string>infoUnzoom</string>
+							<string>infoView</string>
+							<string>infoZoom</string>
+							<string>inputText</string>
+							<string>labelDUMBMastVol</string>
+							<string>labelDefaultLength</string>
+							<string>labelLibName</string>
+							<string>labelModuleLength</string>
+							<string>labelModuleName</string>
+							<string>labelModuleSize</string>
+							<string>labelModuleType</string>
+							<string>labelNumChannels</string>
+							<string>labelSeeking</string>
+							<string>labelTimPolyphony</string>
+							<string>labelTime</string>
+							<string>lblPanningValue</string>
+							<string>m_oglView</string>
+							<string>mainRating1</string>
+							<string>mainRating1off</string>
+							<string>mainRating2</string>
+							<string>mainRating2off</string>
+							<string>mainRating3</string>
+							<string>mainRating3off</string>
+							<string>mainRating4</string>
+							<string>mainRating4off</string>
+							<string>mainRating5</string>
+							<string>mainRating5off</string>
+							<string>mainView</string>
+							<string>mastVolSld</string>
+							<string>mpPanningSld</string>
+							<string>oglButton</string>
+							<string>pauseBar</string>
+							<string>pauseBarSub</string>
+							<string>plUnzoom</string>
+							<string>plZoom</string>
+							<string>playBar</string>
+							<string>playBarSub</string>
+							<string>playlistPos</string>
+							<string>playlistTabView</string>
+							<string>playlistView</string>
+							<string>pvArcLabel</string>
+							<string>pvArcSel</string>
+							<string>pvArcValidate</string>
+							<string>pvSubSongLabel</string>
+							<string>pvSubSongSel</string>
+							<string>pvSubSongValidate</string>
+							<string>rating1</string>
+							<string>rating1off</string>
+							<string>rating2</string>
+							<string>rating2off</string>
+							<string>rating3</string>
+							<string>rating3off</string>
+							<string>rating4</string>
+							<string>rating4off</string>
+							<string>rating5</string>
+							<string>rating5off</string>
+							<string>revDelSld</string>
+							<string>revDepSld</string>
+							<string>rootViewControllerIphone</string>
+							<string>sc_ADPLUG_opltype</string>
+							<string>sc_AOSDKDSFDSP</string>
+							<string>sc_AOSDKDSFEmuRatio</string>
+							<string>sc_AOSDKSSFDSP</string>
+							<string>sc_AOSDKSSFEmuRatio</string>
+							<string>sc_AOSDK_Interpol</string>
+							<string>sc_AOSDK_Reverb</string>
+							<string>sc_AfterDownload</string>
+							<string>sc_DUMBResampling</string>
+							<string>sc_DefaultAction</string>
+							<string>sc_EnqueueMode</string>
+							<string>sc_FXDetail</string>
+							<string>sc_Panning</string>
+							<string>sc_PlayerViewOnPlay</string>
+							<string>sc_SEXYPSF_Interpol</string>
+							<string>sc_SEXYPSF_Reverb</string>
+							<string>sc_SID_Filter</string>
+							<string>sc_SID_LibVersion</string>
+							<string>sc_SID_Optim</string>
+							<string>sc_SpokenTitle</string>
+							<string>sc_StatsUpload</string>
+							<string>sc_TIMchorus</string>
+							<string>sc_TIMfilter</string>
+							<string>sc_TIMresample</string>
+							<string>sc_TIMreverb</string>
+							<string>sc_UADE_Gain</string>
+							<string>sc_UADE_Head</string>
+							<string>sc_UADE_Led</string>
+							<string>sc_UADE_Norm</string>
+							<string>sc_UADE_Pan</string>
+							<string>sc_UADE_PostFX</string>
+							<string>sc_allowPopup</string>
+							<string>sc_bgPlay</string>
+							<string>sc_cflow</string>
+							<string>sc_checkBeforeRedownload</string>
+							<string>sc_defaultMODplayer</string>
+							<string>sc_showDebug</string>
+							<string>sc_titleFilename</string>
+							<string>segcont_FxBeat</string>
+							<string>segcont_forceMono</string>
+							<string>segcont_fx1</string>
+							<string>segcont_fx2</string>
+							<string>segcont_fx3</string>
+							<string>segcont_fx4</string>
+							<string>segcont_fx5</string>
+							<string>segcont_mpMB</string>
+							<string>segcont_mpReverb</string>
+							<string>segcont_mpSUR</string>
+							<string>segcont_mpSampling</string>
+							<string>segcont_oscillo</string>
+							<string>segcont_randFx</string>
+							<string>segcont_shownote</string>
+							<string>segcont_spectrum</string>
+							<string>sldDUMBMastVol</string>
+							<string>sldFxAlpha</string>
+							<string>sldPanning</string>
+							<string>sld_DefaultLength</string>
+							<string>sld_TIMPoly</string>
+							<string>sld_UADEgain</string>
+							<string>sld_UADEpan</string>
+							<string>sliderProgressModule</string>
+							<string>surDelSld</string>
+							<string>surDepSld</string>
+							<string>textInputView</string>
+							<string>textMessage</string>
+							<string>volWin</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UISlider</string>
+							<string>UISlider</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIView</string>
+							<string>UIImageView</string>
+							<string>UILabel</string>
+							<string>UIView</string>
+							<string>UIImageView</string>
+							<string>UIButton</string>
+							<string>UILabel</string>
+							<string>UIView</string>
+							<string>UIButton</string>
+							<string>UIView</string>
+							<string>UIButton</string>
+							<string>UITextField</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>RRSGlowLabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>OGLView</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIView</string>
+							<string>UISlider</string>
+							<string>UISlider</string>
+							<string>UIButton</string>
+							<string>UIToolbar</string>
+							<string>UIToolbar</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIToolbar</string>
+							<string>UIToolbar</string>
+							<string>UILabel</string>
+							<string>UITableView</string>
+							<string>UIView</string>
+							<string>UILabel</string>
+							<string>UIPickerView</string>
+							<string>UIButton</string>
+							<string>UILabel</string>
+							<string>UIPickerView</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UISlider</string>
+							<string>UISlider</string>
+							<string>RootViewControllerIphone</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UISlider</string>
+							<string>UISlider</string>
+							<string>UISlider</string>
+							<string>OBSlider</string>
+							<string>OBSlider</string>
+							<string>UISlider</string>
+							<string>UISlider</string>
+							<string>OBSlider</string>
+							<string>UISlider</string>
+							<string>UISlider</string>
+							<string>UIViewController</string>
+							<string>UITextView</string>
+							<string>UIView</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>backInfo</string>
+							<string>backPlaylist</string>
+							<string>bassAmoSld</string>
+							<string>bassRanSld</string>
+							<string>btnLoopInf</string>
+							<string>btnPlClear</string>
+							<string>btnPlEdit</string>
+							<string>btnPlOk</string>
+							<string>btnPlShuffle</string>
+							<string>btnShowArcList</string>
+							<string>btnShowSubSong</string>
+							<string>btnSortPlAZ</string>
+							<string>btnSortPlZA</string>
+							<string>buttonLoopList</string>
+							<string>buttonLoopListSel</string>
+							<string>buttonLoopTitleSel</string>
+							<string>buttonShuffle</string>
+							<string>buttonShuffleSel</string>
+							<string>commandViewU</string>
+							<string>cover_view</string>
+							<string>detailDescriptionLabel</string>
+							<string>detailView</string>
+							<string>gifAnimation</string>
+							<string>infoButton</string>
+							<string>infoMsgLbl</string>
+							<string>infoMsgView</string>
+							<string>infoUnzoom</string>
+							<string>infoView</string>
+							<string>infoZoom</string>
+							<string>inputText</string>
+							<string>labelDUMBMastVol</string>
+							<string>labelDefaultLength</string>
+							<string>labelLibName</string>
+							<string>labelModuleLength</string>
+							<string>labelModuleName</string>
+							<string>labelModuleSize</string>
+							<string>labelModuleType</string>
+							<string>labelNumChannels</string>
+							<string>labelSeeking</string>
+							<string>labelTimPolyphony</string>
+							<string>labelTime</string>
+							<string>lblPanningValue</string>
+							<string>m_oglView</string>
+							<string>mainRating1</string>
+							<string>mainRating1off</string>
+							<string>mainRating2</string>
+							<string>mainRating2off</string>
+							<string>mainRating3</string>
+							<string>mainRating3off</string>
+							<string>mainRating4</string>
+							<string>mainRating4off</string>
+							<string>mainRating5</string>
+							<string>mainRating5off</string>
+							<string>mainView</string>
+							<string>mastVolSld</string>
+							<string>mpPanningSld</string>
+							<string>oglButton</string>
+							<string>pauseBar</string>
+							<string>pauseBarSub</string>
+							<string>plUnzoom</string>
+							<string>plZoom</string>
+							<string>playBar</string>
+							<string>playBarSub</string>
+							<string>playlistPos</string>
+							<string>playlistTabView</string>
+							<string>playlistView</string>
+							<string>pvArcLabel</string>
+							<string>pvArcSel</string>
+							<string>pvArcValidate</string>
+							<string>pvSubSongLabel</string>
+							<string>pvSubSongSel</string>
+							<string>pvSubSongValidate</string>
+							<string>rating1</string>
+							<string>rating1off</string>
+							<string>rating2</string>
+							<string>rating2off</string>
+							<string>rating3</string>
+							<string>rating3off</string>
+							<string>rating4</string>
+							<string>rating4off</string>
+							<string>rating5</string>
+							<string>rating5off</string>
+							<string>revDelSld</string>
+							<string>revDepSld</string>
+							<string>rootViewControllerIphone</string>
+							<string>sc_ADPLUG_opltype</string>
+							<string>sc_AOSDKDSFDSP</string>
+							<string>sc_AOSDKDSFEmuRatio</string>
+							<string>sc_AOSDKSSFDSP</string>
+							<string>sc_AOSDKSSFEmuRatio</string>
+							<string>sc_AOSDK_Interpol</string>
+							<string>sc_AOSDK_Reverb</string>
+							<string>sc_AfterDownload</string>
+							<string>sc_DUMBResampling</string>
+							<string>sc_DefaultAction</string>
+							<string>sc_EnqueueMode</string>
+							<string>sc_FXDetail</string>
+							<string>sc_Panning</string>
+							<string>sc_PlayerViewOnPlay</string>
+							<string>sc_SEXYPSF_Interpol</string>
+							<string>sc_SEXYPSF_Reverb</string>
+							<string>sc_SID_Filter</string>
+							<string>sc_SID_LibVersion</string>
+							<string>sc_SID_Optim</string>
+							<string>sc_SpokenTitle</string>
+							<string>sc_StatsUpload</string>
+							<string>sc_TIMchorus</string>
+							<string>sc_TIMfilter</string>
+							<string>sc_TIMresample</string>
+							<string>sc_TIMreverb</string>
+							<string>sc_UADE_Gain</string>
+							<string>sc_UADE_Head</string>
+							<string>sc_UADE_Led</string>
+							<string>sc_UADE_Norm</string>
+							<string>sc_UADE_Pan</string>
+							<string>sc_UADE_PostFX</string>
+							<string>sc_allowPopup</string>
+							<string>sc_bgPlay</string>
+							<string>sc_cflow</string>
+							<string>sc_checkBeforeRedownload</string>
+							<string>sc_defaultMODplayer</string>
+							<string>sc_showDebug</string>
+							<string>sc_titleFilename</string>
+							<string>segcont_FxBeat</string>
+							<string>segcont_forceMono</string>
+							<string>segcont_fx1</string>
+							<string>segcont_fx2</string>
+							<string>segcont_fx3</string>
+							<string>segcont_fx4</string>
+							<string>segcont_fx5</string>
+							<string>segcont_mpMB</string>
+							<string>segcont_mpReverb</string>
+							<string>segcont_mpSUR</string>
+							<string>segcont_mpSampling</string>
+							<string>segcont_oscillo</string>
+							<string>segcont_randFx</string>
+							<string>segcont_shownote</string>
+							<string>segcont_spectrum</string>
+							<string>sldDUMBMastVol</string>
+							<string>sldFxAlpha</string>
+							<string>sldPanning</string>
+							<string>sld_DefaultLength</string>
+							<string>sld_TIMPoly</string>
+							<string>sld_UADEgain</string>
+							<string>sld_UADEpan</string>
+							<string>sliderProgressModule</string>
+							<string>surDelSld</string>
+							<string>surDepSld</string>
+							<string>textInputView</string>
+							<string>textMessage</string>
+							<string>volWin</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">backInfo</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">backPlaylist</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">bassAmoSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">bassRanSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnLoopInf</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnPlClear</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnPlEdit</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnPlOk</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnPlShuffle</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnShowArcList</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnShowSubSong</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnSortPlAZ</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnSortPlZA</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">buttonLoopList</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">buttonLoopListSel</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">buttonLoopTitleSel</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">buttonShuffle</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">buttonShuffleSel</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">commandViewU</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cover_view</string>
+								<string key="candidateClassName">UIImageView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailDescriptionLabel</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailView</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">gifAnimation</string>
+								<string key="candidateClassName">UIImageView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoButton</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoMsgLbl</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoMsgView</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoUnzoom</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoView</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoZoom</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">inputText</string>
+								<string key="candidateClassName">UITextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelDUMBMastVol</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelDefaultLength</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelLibName</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelModuleLength</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelModuleName</string>
+								<string key="candidateClassName">RRSGlowLabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelModuleSize</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelModuleType</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelNumChannels</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelSeeking</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelTimPolyphony</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">labelTime</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">lblPanningValue</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">m_oglView</string>
+								<string key="candidateClassName">OGLView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating1</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating1off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating2</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating2off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating3</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating3off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating4</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating4off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating5</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainRating5off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mainView</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mastVolSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">mpPanningSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">oglButton</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pauseBar</string>
+								<string key="candidateClassName">UIToolbar</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pauseBarSub</string>
+								<string key="candidateClassName">UIToolbar</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">plUnzoom</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">plZoom</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">playBar</string>
+								<string key="candidateClassName">UIToolbar</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">playBarSub</string>
+								<string key="candidateClassName">UIToolbar</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">playlistPos</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">playlistTabView</string>
+								<string key="candidateClassName">UITableView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">playlistView</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pvArcLabel</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pvArcSel</string>
+								<string key="candidateClassName">UIPickerView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pvArcValidate</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pvSubSongLabel</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pvSubSongSel</string>
+								<string key="candidateClassName">UIPickerView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">pvSubSongValidate</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating1</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating1off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating2</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating2off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating3</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating3off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating4</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating4off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating5</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rating5off</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">revDelSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">revDepSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rootViewControllerIphone</string>
+								<string key="candidateClassName">RootViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_ADPLUG_opltype</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_AOSDKDSFDSP</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_AOSDKDSFEmuRatio</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_AOSDKSSFDSP</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_AOSDKSSFEmuRatio</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_AOSDK_Interpol</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_AOSDK_Reverb</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_AfterDownload</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_DUMBResampling</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_DefaultAction</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_EnqueueMode</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_FXDetail</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_Panning</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_PlayerViewOnPlay</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_SEXYPSF_Interpol</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_SEXYPSF_Reverb</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_SID_Filter</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_SID_LibVersion</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_SID_Optim</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_SpokenTitle</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_StatsUpload</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_TIMchorus</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_TIMfilter</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_TIMresample</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_TIMreverb</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_UADE_Gain</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_UADE_Head</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_UADE_Led</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_UADE_Norm</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_UADE_Pan</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_UADE_PostFX</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_allowPopup</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_bgPlay</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_cflow</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_checkBeforeRedownload</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_defaultMODplayer</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_showDebug</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_titleFilename</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_FxBeat</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_forceMono</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_fx1</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_fx2</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_fx3</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_fx4</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_fx5</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_mpMB</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_mpReverb</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_mpSUR</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_mpSampling</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_oscillo</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_randFx</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_shownote</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">segcont_spectrum</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sldDUMBMastVol</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sldFxAlpha</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sldPanning</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sld_DefaultLength</string>
+								<string key="candidateClassName">OBSlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sld_TIMPoly</string>
+								<string key="candidateClassName">OBSlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sld_UADEgain</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sld_UADEpan</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sliderProgressModule</string>
+								<string key="candidateClassName">OBSlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">surDelSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">surDepSld</string>
+								<string key="candidateClassName">UISlider</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">textInputView</string>
+								<string key="candidateClassName">UIViewController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">textMessage</string>
+								<string key="candidateClassName">UITextView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">volWin</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/DetailViewControllerIphone.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">DownloadViewController</string>
+					<string key="superclassName">UIViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>cancelCurrent</string>
+							<string>goPlayer</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>cancelCurrent</string>
+							<string>goPlayer</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">cancelCurrent</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">goPlayer</string>
+								<string key="candidateClassName">id</string>
+							</object>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>barItem</string>
+							<string>btnCancel</string>
+							<string>btnClear</string>
+							<string>btnResume</string>
+							<string>btnSuspend</string>
+							<string>detailViewController</string>
+							<string>downloadLabelName</string>
+							<string>downloadLabelSize</string>
+							<string>downloadPrgView</string>
+							<string>downloadTabView</string>
+							<string>rootViewController</string>
+							<string>searchViewController</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UITabBarItem</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>UIButton</string>
+							<string>DetailViewControllerIphone</string>
+							<string>UILabel</string>
+							<string>UILabel</string>
+							<string>UIProgressView</string>
+							<string>UITableView</string>
+							<string>RootViewControllerIphone</string>
+							<string>SearchViewController</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>barItem</string>
+							<string>btnCancel</string>
+							<string>btnClear</string>
+							<string>btnResume</string>
+							<string>btnSuspend</string>
+							<string>detailViewController</string>
+							<string>downloadLabelName</string>
+							<string>downloadLabelSize</string>
+							<string>downloadPrgView</string>
+							<string>downloadTabView</string>
+							<string>rootViewController</string>
+							<string>searchViewController</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">barItem</string>
+								<string key="candidateClassName">UITabBarItem</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnCancel</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnClear</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnResume</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">btnSuspend</string>
+								<string key="candidateClassName">UIButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewController</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">downloadLabelName</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">downloadLabelSize</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">downloadPrgView</string>
+								<string key="candidateClassName">UIProgressView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">downloadTabView</string>
+								<string key="candidateClassName">UITableView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rootViewController</string>
+								<string key="candidateClassName">RootViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">searchViewController</string>
+								<string key="candidateClassName">SearchViewController</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/DownloadViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">ModizerWin</string>
+					<string key="superclassName">UIWindow</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">detailViewControllerIphone</string>
+						<string key="NS.object.0">DetailViewControllerIphone</string>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<string key="NS.key.0">detailViewControllerIphone</string>
+						<object class="IBToOneOutletInfo" key="NS.object.0">
+							<string key="name">detailViewControllerIphone</string>
+							<string key="candidateClassName">DetailViewControllerIphone</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/ModizerWin.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">OBSlider</string>
+					<string key="superclassName">UISlider</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/OBSlider.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">OGLView</string>
+					<string key="superclassName">UIView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/OGLView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">RRSGlowLabel</string>
+					<string key="superclassName">UILabel</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/RRSGlowLabel.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">RootViewControllerIphone</string>
+					<string key="superclassName">UITableViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>cancelPlaylistName</string>
+							<string>goPlayer</string>
+							<string>validatePlaylistName</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>cancelPlaylistName</string>
+							<string>goPlayer</string>
+							<string>validatePlaylistName</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">cancelPlaylistName</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">goPlayer</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">validatePlaylistName</string>
+								<string key="candidateClassName">id</string>
+							</object>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>childController</string>
+							<string>detailViewController</string>
+							<string>downloadViewController</string>
+							<string>inputText</string>
+							<string>playerButton</string>
+							<string>sBar</string>
+							<string>tabView</string>
+							<string>textInputView</string>
+							<string>webBrowser</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UIViewController</string>
+							<string>DetailViewControllerIphone</string>
+							<string>DownloadViewController</string>
+							<string>UITextField</string>
+							<string>UIBarButtonItem</string>
+							<string>UISearchBar</string>
+							<string>UITableView</string>
+							<string>UIViewController</string>
+							<string>WebBrowser</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>childController</string>
+							<string>detailViewController</string>
+							<string>downloadViewController</string>
+							<string>inputText</string>
+							<string>playerButton</string>
+							<string>sBar</string>
+							<string>tabView</string>
+							<string>textInputView</string>
+							<string>webBrowser</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">childController</string>
+								<string key="candidateClassName">UIViewController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewController</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">downloadViewController</string>
+								<string key="candidateClassName">DownloadViewController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">inputText</string>
+								<string key="candidateClassName">UITextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">playerButton</string>
+								<string key="candidateClassName">UIBarButtonItem</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sBar</string>
+								<string key="candidateClassName">UISearchBar</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">tabView</string>
+								<string key="candidateClassName">UITableView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">textInputView</string>
+								<string key="candidateClassName">UIViewController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">webBrowser</string>
+								<string key="candidateClassName">WebBrowser</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/RootViewControllerIphone.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">SearchViewController</string>
+					<string key="superclassName">UIViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">goPlayer</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">goPlayer</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">goPlayer</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewController</string>
+							<string>downloadViewController</string>
+							<string>prgView</string>
+							<string>rootViewControllerIphone</string>
+							<string>sBar</string>
+							<string>searchLabel</string>
+							<string>searchPrgView</string>
+							<string>searchResultTabView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>DetailViewControllerIphone</string>
+							<string>DownloadViewController</string>
+							<string>UIProgressView</string>
+							<string>RootViewControllerIphone</string>
+							<string>UISearchBar</string>
+							<string>UILabel</string>
+							<string>UIView</string>
+							<string>UITableView</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewController</string>
+							<string>downloadViewController</string>
+							<string>prgView</string>
+							<string>rootViewControllerIphone</string>
+							<string>sBar</string>
+							<string>searchLabel</string>
+							<string>searchPrgView</string>
+							<string>searchResultTabView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewController</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">downloadViewController</string>
+								<string key="candidateClassName">DownloadViewController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">prgView</string>
+								<string key="candidateClassName">UIProgressView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rootViewControllerIphone</string>
+								<string key="candidateClassName">RootViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sBar</string>
+								<string key="candidateClassName">UISearchBar</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">searchLabel</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">searchPrgView</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">searchResultTabView</string>
+								<string key="candidateClassName">UITableView</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/SearchViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">SettingsViewController</string>
+					<string key="superclassName">UITableViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>FTPanonChanged</string>
+							<string>FTPswitchChanged</string>
+							<string>goPlayer</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>FTPanonChanged</string>
+							<string>FTPswitchChanged</string>
+							<string>goPlayer</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">FTPanonChanged</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">FTPswitchChanged</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">goPlayer</string>
+								<string key="candidateClassName">id</string>
+							</object>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>cSettingsViewADPLUG</string>
+							<string>cSettingsViewAOSDK</string>
+							<string>cSettingsViewDOWNLOAD</string>
+							<string>cSettingsViewDUMB</string>
+							<string>cSettingsViewFTP</string>
+							<string>cSettingsViewGENDISPLAY</string>
+							<string>cSettingsViewGENPLAYER</string>
+							<string>cSettingsViewGME</string>
+							<string>cSettingsViewMODPLUG</string>
+							<string>cSettingsViewSEXYPSF</string>
+							<string>cSettingsViewSID</string>
+							<string>cSettingsViewTIM</string>
+							<string>cSettingsViewUADE</string>
+							<string>detailViewControllerIphone</string>
+							<string>ftpPassword</string>
+							<string>ftpPort</string>
+							<string>ftpUser</string>
+							<string>lbl_FTPstatus</string>
+							<string>rootViewControllerIphone</string>
+							<string>sc_FTPanonymous</string>
+							<string>sc_FTPswitch</string>
+							<string>scrollSettingsView</string>
+							<string>settingsView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>UIView</string>
+							<string>DetailViewControllerIphone</string>
+							<string>UITextField</string>
+							<string>UITextField</string>
+							<string>UITextField</string>
+							<string>UILabel</string>
+							<string>RootViewControllerIphone</string>
+							<string>UISegmentedControl</string>
+							<string>UISegmentedControl</string>
+							<string>UIScrollView</string>
+							<string>UIViewController</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>cSettingsViewADPLUG</string>
+							<string>cSettingsViewAOSDK</string>
+							<string>cSettingsViewDOWNLOAD</string>
+							<string>cSettingsViewDUMB</string>
+							<string>cSettingsViewFTP</string>
+							<string>cSettingsViewGENDISPLAY</string>
+							<string>cSettingsViewGENPLAYER</string>
+							<string>cSettingsViewGME</string>
+							<string>cSettingsViewMODPLUG</string>
+							<string>cSettingsViewSEXYPSF</string>
+							<string>cSettingsViewSID</string>
+							<string>cSettingsViewTIM</string>
+							<string>cSettingsViewUADE</string>
+							<string>detailViewControllerIphone</string>
+							<string>ftpPassword</string>
+							<string>ftpPort</string>
+							<string>ftpUser</string>
+							<string>lbl_FTPstatus</string>
+							<string>rootViewControllerIphone</string>
+							<string>sc_FTPanonymous</string>
+							<string>sc_FTPswitch</string>
+							<string>scrollSettingsView</string>
+							<string>settingsView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewADPLUG</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewAOSDK</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewDOWNLOAD</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewDUMB</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewFTP</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewGENDISPLAY</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewGENPLAYER</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewGME</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewMODPLUG</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewSEXYPSF</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewSID</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewTIM</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">cSettingsViewUADE</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewControllerIphone</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">ftpPassword</string>
+								<string key="candidateClassName">UITextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">ftpPort</string>
+								<string key="candidateClassName">UITextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">ftpUser</string>
+								<string key="candidateClassName">UITextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">lbl_FTPstatus</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rootViewControllerIphone</string>
+								<string key="candidateClassName">RootViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_FTPanonymous</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">sc_FTPswitch</string>
+								<string key="candidateClassName">UISegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">scrollSettingsView</string>
+								<string key="candidateClassName">UIScrollView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">settingsView</string>
+								<string key="candidateClassName">UIViewController</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/SettingsViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">WebBrowser</string>
+					<string key="superclassName">UIViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>goAbout:</string>
+							<string>goBack:</string>
+							<string>newBookmark:</string>
+							<string>newUrlEntered:</string>
+							<string>stopLoading:</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>goAbout:</string>
+							<string>goBack:</string>
+							<string>newBookmark:</string>
+							<string>newUrlEntered:</string>
+							<string>stopLoading:</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBActionInfo">
+								<string key="name">goAbout:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">goBack:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">newBookmark:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">newUrlEntered:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">stopLoading:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>activityIndicator</string>
+							<string>addressTestField</string>
+							<string>backButton</string>
+							<string>detailViewController</string>
+							<string>downloadViewController</string>
+							<string>forwardButton</string>
+							<string>infoDownloadLbl</string>
+							<string>infoDownloadView</string>
+							<string>toolBar</string>
+							<string>webView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>UIActivityIndicatorView</string>
+							<string>UITextField</string>
+							<string>UIBarButtonItem</string>
+							<string>DetailViewControllerIphone</string>
+							<string>DownloadViewController</string>
+							<string>UIBarButtonItem</string>
+							<string>UILabel</string>
+							<string>UIView</string>
+							<string>UIToolbar</string>
+							<string>UIWebView</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>activityIndicator</string>
+							<string>addressTestField</string>
+							<string>backButton</string>
+							<string>detailViewController</string>
+							<string>downloadViewController</string>
+							<string>forwardButton</string>
+							<string>infoDownloadLbl</string>
+							<string>infoDownloadView</string>
+							<string>toolBar</string>
+							<string>webView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">activityIndicator</string>
+								<string key="candidateClassName">UIActivityIndicatorView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">addressTestField</string>
+								<string key="candidateClassName">UITextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">backButton</string>
+								<string key="candidateClassName">UIBarButtonItem</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewController</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">downloadViewController</string>
+								<string key="candidateClassName">DownloadViewController</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">forwardButton</string>
+								<string key="candidateClassName">UIBarButtonItem</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoDownloadLbl</string>
+								<string key="candidateClassName">UILabel</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">infoDownloadView</string>
+								<string key="candidateClassName">UIView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">toolBar</string>
+								<string key="candidateClassName">UIToolbar</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">webView</string>
+								<string key="candidateClassName">UIWebView</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/WebBrowser.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">myNavViewController</string>
+					<string key="superclassName">UIViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">goPlayer</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="actionInfosByName">
+						<string key="NS.key.0">goPlayer</string>
+						<object class="IBActionInfo" key="NS.object.0">
+							<string key="name">goPlayer</string>
+							<string key="candidateClassName">id</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailView</string>
+							<string>playerButton</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>DetailViewControllerIphone</string>
+							<string>UIBarButtonItem</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailView</string>
+							<string>playerButton</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailView</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">playerButton</string>
+								<string key="candidateClassName">UIBarButtonItem</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/myNavViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">myTabBarController</string>
+					<string key="superclassName">UITabBarController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewControlleriPhone</string>
+							<string>rootViewControllerIphone</string>
+							<string>webBrowser</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>DetailViewControllerIphone</string>
+							<string>RootViewControllerIphone</string>
+							<string>WebBrowser</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>detailViewControlleriPhone</string>
+							<string>rootViewControllerIphone</string>
+							<string>webBrowser</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">detailViewControlleriPhone</string>
+								<string key="candidateClassName">DetailViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">rootViewControllerIphone</string>
+								<string key="candidateClassName">RootViewControllerIphone</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">webBrowser</string>
+								<string key="candidateClassName">WebBrowser</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/myTabBarController.h</string>
+					</object>
+				</object>
+			</object>
+		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaTouchFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">

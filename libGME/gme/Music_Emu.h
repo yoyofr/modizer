@@ -58,7 +58,7 @@ public:
 	// Sets start time and length of track fade out. Once fade ends track_ended() returns
 	// true. Fade time must be set after track has been started, and can be changed
 	// at any time.
-	void set_fade( int start_msec, int length_msec = 8000 );
+	void set_fade( int start_msec, int length_msec = 1000 );
 	
 	// Disables automatic end-of-track detection and skipping of silence at beginning
 	void ignore_silence( bool disable = true );

@@ -1,0 +1,15 @@
+Welcome to Modland - probably the largest module archive in the world.
+These servers are available:
+
+Name		Role			Address
+----------------------------------------------------------------------
+Modland		Main server		ftp://ftp.modland.com
+Amigascne	Mirror			ftp://ftp.amigascne.org/mirrors/ftp.modland.com
+Exotica		Mirror			ftp://aero.exotica.org.uk/pub/mirrors/modland
+Ziphoid		Mirror			ftp://modland.ziphoid.com
+Mindkiller	Secondary mirror	ftp://modland.mindkiller.com
+ftp.rave.ca	Secondary mirror	ftp://ftp.rave.ca
+
+Use the mirrors for faster downloading, and the main server for uploading.
+Secondary mirrors are not mirroring the main server directly, and may not
+be updated daily.

@@ -178,7 +178,7 @@ CREATE INDEX idx_stil_fullpath on stil (fullpath);
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)
-VALUES (1,4);
+VALUES (1,5);
 
 
 
