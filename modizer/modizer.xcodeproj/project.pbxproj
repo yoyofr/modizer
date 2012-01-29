@@ -300,6 +300,7 @@
 		33BA5B581434EE1F00C87F5B /* txtMenu9.png in Resources */ = {isa = PBXBuildFile; fileRef = 33BA5B551434EE1F00C87F5B /* txtMenu9.png */; };
 		33BA5B671439018200C87F5B /* txtMenu10.png in Resources */ = {isa = PBXBuildFile; fileRef = 33BA5B651439018200C87F5B /* txtMenu10.png */; };
 		33BA5B681439018200C87F5B /* txtMenu11.png in Resources */ = {isa = PBXBuildFile; fileRef = 33BA5B661439018200C87F5B /* txtMenu11.png */; };
+		33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BB80CE14D4679B00EA4B32 /* OBSlider.m */; };
 		33C658B1139437FE00265A1D /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		33C658B21394381F00265A1D /* merlin_gold.sf2 in Copy Files-Timidity */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		33C7397E13A2137A0012221C /* default_art.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C7397D13A2137A0012221C /* default_art.png */; };
@@ -1399,6 +1400,8 @@
 		33BA5B651439018200C87F5B /* txtMenu10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu10.png; sourceTree = "<group>"; };
 		33BA5B661439018200C87F5B /* txtMenu11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11.png; sourceTree = "<group>"; };
 		33BA705E1407A12F0099E943 /* libtim.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libtim.xcodeproj; path = ../libtim/libtim.xcodeproj; sourceTree = "<group>"; };
+		33BB80CD14D4679B00EA4B32 /* OBSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OBSlider.h; sourceTree = "<group>"; };
+		33BB80CE14D4679B00EA4B32 /* OBSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OBSlider.m; sourceTree = "<group>"; };
 		33C294C313ACA1A3006A3BC0 /* dumb.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dumb.xcodeproj; path = ../dumb/dumb.xcodeproj; sourceTree = "<group>"; };
 		33C658B0139437FE00265A1D /* merlin_gold.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = merlin_gold.sf2; sourceTree = "<group>"; };
 		33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TapkuLibrary.xcodeproj; path = tapkulib/TapkuLibrary.xcodeproj; sourceTree = "<group>"; };
@@ -2928,6 +2931,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		33BB80CC14D4679B00EA4B32 /* OBSlider */ = {
+			isa = PBXGroup;
+			children = (
+				33BB80CD14D4679B00EA4B32 /* OBSlider.h */,
+				33BB80CE14D4679B00EA4B32 /* OBSlider.m */,
+			);
+			path = OBSlider;
+			sourceTree = "<group>";
+		};
 		33C294C213ACA187006A3BC0 /* dumb */ = {
 			isa = PBXGroup;
 			children = (
@@ -4080,6 +4092,7 @@
 		CC9B194012FF0BCA00985967 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				33BB80CC14D4679B00EA4B32 /* OBSlider */,
 				33BA5B4F1431B3F200C87F5B /* VisuFX */,
 				33C7395613A0AA700012221C /* tapkulib */,
 				CC1E5A021200B3B8000A8A4E /* MISC */,
@@ -5302,6 +5315,7 @@
 				50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */,
 				50819A3314B3E0700062FA86 /* table.cpp in Sources */,
 				50819A3414B3E0700062FA86 /* util.cpp in Sources */,
+				33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5553,7 +5567,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "~/Desktop/Dev/iphone/modizerWS/modizer/Entitlements.plist";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -5582,7 +5596,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "82BE6FA1-472F-48E7-BD8A-8726F54FFFE3";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5624,7 +5638,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CODE_SIGN_ENTITLEMENTS = "~/Desktop/Dev/iphone/modizerWS/modizer/Entitlements.plist";
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -5653,7 +5667,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "1A98BC0B-C341-4A5B-910D-C4BF09F46829";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

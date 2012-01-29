@@ -42,7 +42,7 @@
 //#define BLIP_BUFFER_FAST 1
 
 // Reduce memory usage of gme.h by disabling gme_set_effects_config().
-#define GME_DISABLE_EFFECTS 1
+//#define GME_DISABLE_EFFECTS 1
 
 // Force library to use assume big-endian processor.
 //#define BLARGG_BIG_ENDIAN 1

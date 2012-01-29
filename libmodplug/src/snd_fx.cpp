@@ -1208,7 +1208,10 @@ BOOL CSoundFile::ProcessEffects()
 		if ((nBreakRow >= 0) || (nPosJump >= 0))
 		{
 			BOOL bNoLoop = FALSE;
-			if (nPosJump < 0) nPosJump = m_nCurrentPattern;//+1;  yoyofr fix for modizer
+			if (nPosJump < 0) {
+                if (nBreakRow==0) nPosJump = m_nCurrentPattern+1;
+                else nPosJump = m_nCurrentPattern;
+            }
 			if (nBreakRow < 0) nBreakRow = 0;
 			// Modplug Tracker & ModPlugin allow backward jumps
 		#ifndef MODPLUG_FASTSOUNDLIB
