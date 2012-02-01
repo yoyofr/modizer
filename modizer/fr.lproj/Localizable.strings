@@ -157,3 +157,5 @@
 
 "Browser not enough mem."="Trop d'entrées, ne peut allouer assez de mémoire.";
 "Browser not enough mem. Limited."="Trop d'entrées, ne peut allouer assez de mémoire. Liste tronquée.";
+
+"Default length %d:%.2d"="Durée par défaut %d:%.2d";
