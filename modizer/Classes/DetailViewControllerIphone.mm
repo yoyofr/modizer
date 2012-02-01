@@ -304,7 +304,7 @@ static 	UIImage *covers_default; // album covers images
 
 -(IBAction) optGEN_DefaultLength {
 	[mplayer optGEN_DefaultLength:sld_DefaultLength.value];
-	labelDefaultLength.text=[NSString stringWithFormat:@"Default length %d:%.2d",(int)(sld_DefaultLength.value)/60,(int)(sld_DefaultLength.value)%60];
+	labelDefaultLength.text=[NSString stringWithFormat:NSLocalizedString(@"Default length %d:%.2d", @""),(int)(sld_DefaultLength.value)/60,(int)(sld_DefaultLength.value)%60];
 }
 
 
