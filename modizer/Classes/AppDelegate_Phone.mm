@@ -185,9 +185,9 @@ pthread_mutex_t play_mutex;
         name:UIPasteboardRemovedNotification
         object:[UIPasteboard generalPasteboard]];*/
 	//
-	/*if (detailViewControlleriPhone.mPlaylist_size) {		
-		[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
-	}*/
+	if (detailViewControlleriPhone.mPlaylist_size) {		
+		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
+	}
 #endif
 	
 	return YES;

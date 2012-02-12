@@ -1,4 +1,7 @@
 #include "sysconfig.h"
+
+#ifdef C_68K_CORE
+
 #include "sysdeps.h"
 #include "options.h"
 #include "readcpu.h"
@@ -170,3 +173,5 @@ struct instr_def defs68k[] = {
 { 62272, 6, {11,11,11,12,12,12,0,0,0,0,0,0,0,0,0,0}, 65472, 3, 2, { { 3, 5 }, { 3, 5 }, { 3, 5 }, { 3, 5 }, { 3, 5 }  }, 16, "FRESTORE s[!Dreg,Areg,Apdi,Immd]"},
 { 61440, 6, {11,11,11,12,12,12,0,0,0,0,0,0,0,0,0,0}, 65472, 4, 0, { { 3, 5 }, { 3, 5 }, { 3, 5 }, { 3, 5 }, { 3, 5 }  }, 17, "MMUOP    #1,s"}};
 int n_defs68k = 166;
+
+#endif

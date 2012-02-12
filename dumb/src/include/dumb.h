@@ -194,6 +194,8 @@ int dumbfile_close(DUMBFILE *f);
 
 void dumb_register_stdfiles(void);
 
+void dumb_register_memfiles(void);
+
 DUMBFILE *dumbfile_open_stdfile(FILE *p);
 
 

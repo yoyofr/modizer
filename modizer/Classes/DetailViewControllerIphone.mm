@@ -1374,7 +1374,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
 		[myindex autorelease];
 	}
-	mShouldUpdateInfos=1;
+	
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];    
     
@@ -1798,7 +1798,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     if (!filePath) return FALSE;
 	
-	
+    
     mOnlyCurrentEntry=0;
     mOnlyCurrentSubEntry=0;
 	mSendStatTimer=0;
@@ -1809,7 +1809,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 		[mplayer Stop];
 	}
-    
+    mShouldUpdateInfos=1;
+	
     
     
 	// load module
@@ -1829,7 +1830,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	pvSubSongLabel.hidden=true;
 	pvSubSongValidate.hidden=true;	
 	[pvSubSongSel reloadAllComponents];
-	if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) btnShowSubSong.hidden=false;
+	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
 	else btnShowSubSong.hidden=true;
     
     pvArcSel.hidden=true,
@@ -1946,8 +1947,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	int retcode;
     NSString *filePathTmp;
 	
-	mSendStatTimer=0;
-    
+	mSendStatTimer=0;    
     shouldRestart=0;
     
     if (!filePath) return FALSE;
@@ -1959,6 +1959,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 		[mplayer Stop];
 	}
+    mShouldUpdateInfos=1;        
 	//Update position
     /*	if (locManager_isOn==1) {		
      if (locationLastUpdate) {
@@ -2076,7 +2077,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	pvSubSongLabel.hidden=true;
 	pvSubSongValidate.hidden=true;	
 	[pvSubSongSel reloadAllComponents];
-	if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) btnShowSubSong.hidden=false;
+	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
 	else btnShowSubSong.hidden=true;
     
     
@@ -2950,6 +2951,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////
     // General
     ///////////////////////////////////////	
+    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_titleFilename.selectedSegmentIndex = 0;
     sc_StatsUpload.selectedSegmentIndex = 1;
 	sc_SpokenTitle.selectedSegmentIndex = 1;
@@ -3048,6 +3050,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     // General
     ///////////////////////////////////////	
     sc_titleFilename.selectedSegmentIndex = 0;
+    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_StatsUpload.selectedSegmentIndex = 1;
 	sc_SpokenTitle.selectedSegmentIndex = 1;
 	sc_bgPlay.selectedSegmentIndex = 2;
@@ -3151,6 +3154,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////
     // General
     ///////////////////////////////////////	
+    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_titleFilename.selectedSegmentIndex = 0;
     sc_StatsUpload.selectedSegmentIndex = 1;
 	sc_SpokenTitle.selectedSegmentIndex = 0;
@@ -3255,6 +3259,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////
     // General
     ///////////////////////////////////////	
+    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_titleFilename.selectedSegmentIndex = 0;
     sc_StatsUpload.selectedSegmentIndex = 1;
 	sc_SpokenTitle.selectedSegmentIndex = 0;
@@ -3387,7 +3392,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	if (not_expected_version) {
 		//do some stuff, like reset/upgrade DB, ...
 	}
-	
+    
     valNb=[prefs objectForKey:@"ViewFX"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mOglViewIsHidden=YES;
 	else mOglViewIsHidden = [valNb boolValue];
@@ -3477,7 +3482,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	else sc_PlayerViewOnPlay.selectedSegmentIndex = [valNb intValue];
 	
     valNb=[prefs objectForKey:@"DefaultLength"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sld_DefaultLength.value = SONG_DEFAULT_LENGTH;
+	if (valNb == nil) sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
 	else sld_DefaultLength.value = [valNb floatValue];	
     ///////////////////////////////////
     // UADE
@@ -3635,6 +3640,12 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // Internal stuff
     /////////////////////////
+    valNb=[prefs objectForKey:@"InfoFullscreen"];if (safe_mode) valNb=nil;
+	if (valNb == nil) infoIsFullscreen = 0;
+	else infoIsFullscreen = [valNb intValue];	
+    valNb=[prefs objectForKey:@"PlFullscreen"];if (safe_mode) valNb=nil;
+	if (valNb == nil) plIsFullscreen = 0;
+	else plIsFullscreen = [valNb intValue];
 	valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
 	if (valNb == nil) oglViewFullscreen = 0;
 	else oglViewFullscreen = [valNb intValue];
@@ -3890,6 +3901,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////
     // Internal stuff
     ///////////////////////////////////////
+    valNb=[[NSNumber alloc] initWithInt:infoIsFullscreen];
+	[prefs setObject:valNb forKey:@"InfoFullscreen"];[valNb autorelease];
+    valNb=[[NSNumber alloc] initWithInt:plIsFullscreen];
+	[prefs setObject:valNb forKey:@"PlFullscreen"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
 	[prefs setObject:valNb forKey:@"OGLFullscreen"];[valNb autorelease];
     
@@ -3940,8 +3955,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[prefs setObject:valNb forKey:@"ArchiveIndex"];[valNb autorelease];
     
 	
-	[prefs synchronize];
-	[valNb autorelease];
+	[prefs synchronize];	
 }
 
 
@@ -4070,29 +4084,29 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:)];
     
-    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[UILongPressGestureRecognizer alloc] 
+    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[[UILongPressGestureRecognizer alloc] 
                                                              initWithTarget:self 
-                                                             action:@selector(longPressPrevSubArc:)];
-    UILongPressGestureRecognizer *longPressPaNextSGesture = [[UILongPressGestureRecognizer alloc] 
+                                                             action:@selector(longPressPrevSubArc:)] autorelease];
+    UILongPressGestureRecognizer *longPressPaNextSGesture = [[[UILongPressGestureRecognizer alloc] 
                                                              initWithTarget:self 
-                                                             action:@selector(longPressNextSubArc:)];
-    UILongPressGestureRecognizer *longPressPlPrevSGesture = [[UILongPressGestureRecognizer alloc] 
+                                                             action:@selector(longPressNextSubArc:)] autorelease];
+    UILongPressGestureRecognizer *longPressPlPrevSGesture = [[[UILongPressGestureRecognizer alloc] 
                                                              initWithTarget:self 
-                                                             action:@selector(longPressPrevSubArc:)];
-    UILongPressGestureRecognizer *longPressPlNextSGesture = [[UILongPressGestureRecognizer alloc] 
+                                                             action:@selector(longPressPrevSubArc:)] autorelease];
+    UILongPressGestureRecognizer *longPressPlNextSGesture = [[[UILongPressGestureRecognizer alloc] 
                                                              initWithTarget:self 
-                                                             action:@selector(longPressNextSubArc:)];
+                                                             action:@selector(longPressNextSubArc:)] autorelease];
     
     
-    [[[pauseBarSub subviews] objectAtIndex:1] addGestureRecognizer:longPressPaPrevSGesture];
-    [[[pauseBarSub subviews] objectAtIndex:3] addGestureRecognizer:longPressPaNextSGesture];
-    [[[playBarSub subviews] objectAtIndex:1] addGestureRecognizer:longPressPlPrevSGesture];
-    [[[playBarSub subviews] objectAtIndex:3] addGestureRecognizer:longPressPlNextSGesture];
-    [longPressPaNextSGesture release];
-    [longPressPaPrevSGesture release];
-    [longPressPlNextSGesture release];
-    [longPressPlPrevSGesture release];
+    [[[pauseBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPaPrevSGesture];
+    [[[pauseBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPaNextSGesture];
+    [[[playBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPlPrevSGesture];
+    [[[playBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPlNextSGesture];
     
+/*    for (int i=0;i<[[pauseBarSub subviews] count];i++) {
+        UIView *v=[[pauseBarSub subviews] objectAtIndex:i];
+        NSLog(@"idx:%d - x:%f",i,v.frame.origin.x);
+    }*/        
     
     labelModuleName.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =
@@ -4312,8 +4326,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     mOglViewIsHidden=YES;
 	mRating=0;
 	
-	infoIsFullscreen=0;
-	plIsFullscreen=0;
 	infoZoom.hidden=NO;
 	plZoom.hidden=NO;
 	infoUnzoom.hidden=YES;
@@ -5507,7 +5519,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	// Set up the cell...
 	NSArray *filename_parts=[mPlaylist[indexPath.row].mPlaylistFilepath componentsSeparatedByString:@"/"];
-	topLabel.text = [NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-1]];
+	topLabel.text = mPlaylist[indexPath.row].mPlaylistFilename;//[NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-1]];
 	
 	if ([filename_parts count]>=3) {
 		if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-3] compare:@"Documents"]!=NSOrderedSame) {

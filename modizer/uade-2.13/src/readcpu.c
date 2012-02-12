@@ -7,6 +7,9 @@
  */
 
 #include "sysconfig.h"
+
+#ifdef C_68K_CORE
+
 #include "sysdeps.h"
 #include <ctype.h>
 
@@ -805,3 +808,4 @@ int get_no_mismatches (void)
 {
     return mismatch;
 }
+#endif

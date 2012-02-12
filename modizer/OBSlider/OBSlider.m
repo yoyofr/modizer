@@ -7,20 +7,6 @@
 
 #import "OBSlider.h"
 
-
-@interface OBSlider ()
-
-@property (atomic, assign, readwrite) float scrubbingSpeed;
-@property (atomic, assign) CGPoint beganTrackingLocation;
-
-- (NSUInteger) indexOfLowerScrubbingSpeed:(NSArray*)scrubbingSpeedPositions forOffset:(CGFloat)verticalOffset;
-- (NSArray *) defaultScrubbingSpeeds;
-- (NSArray *) defaultScrubbingSpeedChangePositions;
-
-@end
-
-
-
 @implementation OBSlider
 
 @synthesize scrubbingSpeed;
