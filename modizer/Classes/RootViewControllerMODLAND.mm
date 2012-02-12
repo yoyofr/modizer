@@ -781,9 +781,9 @@ static NSFileManager *mFileMngr;
 		int err;
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
-							 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
+							 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null \
-					 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id",authorID,authorID);
+					 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id AND m.id_author=a.id_author",authorID,authorID);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		db_nb_entries=0;
 		if (err==SQLITE_OK){
@@ -805,12 +805,12 @@ static NSFileManager *mFileMngr;
 			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
 								 WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
 								 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
-								 WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\" \
+								 WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author\
 								 ORDER BY 1  COLLATE NOCASE",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
 			else sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
 						 WHERE id_author=%d AND id_album is null \
 						 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
-						 WHERE m.id_author=%d AND m.id_album=a.id \
+						 WHERE m.id_author=%d AND m.id_album=a.id AND m.id_author=a.id_author\
 						 ORDER BY 1 COLLATE NOCASE",authorID,authorID);
 			
 			
@@ -917,11 +917,11 @@ static NSFileManager *mFileMngr;
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file \
 							 WHERE id_author=%d AND id_type=%d id_album is null AND filename like \"%%%s%%\" \
 							 UNION SELECT count(1),1 FROM mod_type_author_album m,mod_album a \
-							 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
+							 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\" AND m.id_author=a.id_author",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file \
 					 WHERE id_author=%d AND id_type=%d AND id_album is null \
 					 UNION SELECT count(1),1 FROM mod_type_author_album m,mod_album a \
-					 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id",authorID,filetypeID,authorID,filetypeID);
+					 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND m.id_author=a.id_author",authorID,filetypeID,authorID,filetypeID);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		db_nb_entries=0;
         
@@ -944,12 +944,12 @@ static NSFileManager *mFileMngr;
 			if (mSearch) sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
 								 WHERE id_author=%d AND id_type=%d AND id_album is null AND filename like \"%%%s%%\" \
 								 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
-								 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\" \
+								 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author\
 								 ORDER BY 1  COLLATE NOCASE",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
 			else sprintf(sqlStatement,"SELECT filename,filesize,id,0 FROM mod_file \
 						 WHERE id_author=%d AND id_type=%d AND id_album is null \
 						 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
-						 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id \
+						 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id  AND m.id_author=a.id_author\
 						 ORDER BY 1 COLLATE NOCASE",authorID,filetypeID,authorID,filetypeID);
             
             

@@ -9,6 +9,10 @@
 #include <time.h>
 
 #include "sysconfig.h"
+
+#ifdef C_68K_CORE
+
+
 #include "sysdeps.h"
 
 #include "options.h"
@@ -1450,3 +1454,4 @@ void m68k_dumpstate (uaecptr *nextpc)
     if (nextpc)
 	printf ("next PC: %08lx\n", *nextpc);
 }
+#endif

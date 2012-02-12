@@ -32,11 +32,19 @@ struct MEMFILE
 	long left;
 };
 
+struct DUMBFILE
+{
+	DUMBFILE_SYSTEM *dfs;
+	void *file;
+	long pos;
+};
 
+
+static DUMBFILE *mem_dumbfile;
 
 static int dumb_memfile_skip(void *f, long n)
 {
-	MEMFILE *m = f;
+	MEMFILE *m = (MEMFILE *)(mem_dumbfile->file);
 	if (n > m->left) return -1;
 	m->ptr += n;
 	m->left -= n;
@@ -47,7 +55,7 @@ static int dumb_memfile_skip(void *f, long n)
 
 static int dumb_memfile_getc(void *f)
 {
-	MEMFILE *m = f;
+	MEMFILE *m = (MEMFILE *)(mem_dumbfile->file);
 	if (m->left <= 0) return -1;
 	m->left--;
 	return *(const unsigned char *)m->ptr++;
@@ -57,7 +65,7 @@ static int dumb_memfile_getc(void *f)
 
 static long dumb_memfile_getnc(char *ptr, long n, void *f)
 {
-	MEMFILE *m = f;
+	MEMFILE *m = (MEMFILE *)(mem_dumbfile->file);
 	if (n > m->left) n = m->left;
 	memcpy(ptr, m->ptr, n);
 	m->ptr += n;
@@ -72,16 +80,24 @@ static void dumb_memfile_close(void *f)
 	free(f);
 }
 
+static void *dumb_memfile_open(const char *filename)
+{
+	return mem_dumbfile;
+}
 
 
 static const DUMBFILE_SYSTEM memfile_dfs = {
-	NULL,
+	&dumb_memfile_open,
 	&dumb_memfile_skip,
 	&dumb_memfile_getc,
 	&dumb_memfile_getnc,
 	&dumb_memfile_close
 };
 
+void dumb_register_memfiles(void)
+{
+	register_dumbfile_system(&memfile_dfs);
+}
 
 
 DUMBFILE *dumbfile_open_memory(const char *data, long size)
@@ -91,6 +107,7 @@ DUMBFILE *dumbfile_open_memory(const char *data, long size)
 
 	m->ptr = data;
 	m->left = size;
-
-	return dumbfile_open_ex(m, &memfile_dfs);
+    
+    mem_dumbfile=dumbfile_open_ex(m, &memfile_dfs);
+	return mem_dumbfile;
 }

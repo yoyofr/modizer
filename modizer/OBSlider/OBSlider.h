@@ -5,22 +5,27 @@
 //  Copyright 2011 Ole Begemann. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
 
-@interface OBSlider : UISlider
-{
-    float scrubbingSpeed;
+@interface OBSlider : UISlider {
     NSArray *scrubbingSpeeds;
-    NSArray *scrubbingSpeedChangePositions;
-    
-    CGPoint beganTrackingLocation;
-	
+    NSArray *scrubbingSpeedChangePositions;    
+    CGPoint beganTrackingLocation;	
+    float scrubbingSpeed;
     float realPositionValue;
 }
 
-@property (atomic, assign, readonly) float scrubbingSpeed;
-@property (atomic, retain) NSArray *scrubbingSpeeds;
-@property (atomic, retain) NSArray *scrubbingSpeedChangePositions;
+- (NSUInteger) indexOfLowerScrubbingSpeed:(NSArray*)scrubbingSpeedPositions forOffset:(CGFloat)verticalOffset;
+- (NSArray *) defaultScrubbingSpeeds;
+- (NSArray *) defaultScrubbingSpeedChangePositions;
+
+@property (nonatomic, retain) NSArray *scrubbingSpeeds;
+@property (nonatomic, retain) NSArray *scrubbingSpeedChangePositions;
+//@property (nonatomic, assign, readonly) float scrubbingSpeed;
+@property (nonatomic, assign) float scrubbingSpeed;
+@property (nonatomic, assign) CGPoint beganTrackingLocation;
+
 
 @end

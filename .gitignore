@@ -3,4 +3,6 @@
 # Xcode userdata
 *xcuserdata*
 # vim swap file
-*.*.swp
+.*.swp
+#Resources
+modizer/Resources/DB/databaseMAIN.modizerdb

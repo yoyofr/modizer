@@ -1,3 +1,16 @@
+1.6(wip)
+---
+[Improvements]
+- Web browser: changed keyboard layout to standard keyboard (easier to do search request).
+- Player screen: playlist now displays file name for archive entries instead of "archivename.7z@31".
+- DUMB: optimized file loading & memory usage.
+- Player screen: info & playlist fullscreen state now saved & restored.
+[BugFixes]
+- Issue fixed with archive management & display in player screen.
+- Fixed crash when modizer is running in background (double free issue).
+- Fixed long press on '<' & '>' (used to change archive entry when current entry has also sub song).
+- Fixed wrong save/restore of default playback length.
+
 1.5
 ---
 [Improvements]

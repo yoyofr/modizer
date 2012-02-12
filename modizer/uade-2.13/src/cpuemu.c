@@ -1,4 +1,7 @@
 #include "sysconfig.h"
+
+#ifdef C_68K_CORE
+
 #include "sysdeps.h"
 #include "options.h"
 #include "memory.h"
@@ -80294,4 +80297,7 @@ fill_prefetch_0 ();
 return 10;
 }
 #endif
+
+#endif
+
 

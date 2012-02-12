@@ -1463,6 +1463,7 @@ static NSFileManager *mFileMngr;
             
             [self listLocalFiles];						
             [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            [tableView reloadData];
         }
         
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {

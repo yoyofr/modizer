@@ -3,6 +3,8 @@
 #define _H_SYSCONFIG
 /* ENDOF MODIF PMO */
 
+#define C_68K_CORE 1
+
 /* src/sysconfig.h.  Generated automatically by configure.  */
 /* src/sysconfig.h.in.  Generated automatically from configure.in by autoheader.  */
 

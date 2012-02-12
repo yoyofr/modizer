@@ -1,4 +1,7 @@
 #include "sysconfig.h"
+
+#ifdef C_68K_CORE
+
 #include "sysdeps.h"
 #include "options.h"
 #include "memory.h"
@@ -8419,3 +8422,5 @@ struct cputbl op_smalltbl_4[] = {
 { op_e7f8_4, 0, 59384 }, /* ROLW */
 { op_e7f9_4, 0, 59385 }, /* ROLW */
 { 0, 0, 0 }};
+
+#endif

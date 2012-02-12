@@ -45,6 +45,8 @@ static char mod_name[256];
 static char mod_filename[512];
 static char archive_filename[512];
 
+static int mSingleFileType;
+
 static char song_md5[33];
 
 char mplayer_error_msg[1024];
@@ -826,7 +828,7 @@ void propertyListenerCallback (void                   *inUserData,              
 		//        
         //DUMB
         dumb_MastVol=0.5f;
-        dumb_register_stdfiles();
+        dumb_register_memfiles();
         duh=NULL; duh_player=NULL;
         //
         
@@ -2728,7 +2730,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			idx=0;
 			while ( !fex_done( fex ) ) {
                 
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)]]) {                                     
+                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:0]) {
                     
                     fex_stat(fex);
                     arc_size=fex_size(fex);
@@ -2763,10 +2765,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         
                         NSString *tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
                         
-                        
-                        mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
-                        strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
-                        idx++;                    	
+                        if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                            mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
+                            strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
+                            idx++;                    	
+                        }
                         if (fex_next( fex )) {
                             NSLog(@"Error during fex scanning");
                             break;
@@ -2808,7 +2811,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			idx=0;
 			while ( !fex_done( fex ) ) {
                 
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)]]) {
+                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
                     if (index==idx) {
                         fex_stat(fex);
                         arc_size=fex_size(fex);
@@ -2880,7 +2883,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			mdz_IsArchive=1;
 			mdz_ArchiveFilesCnt=0;
 			while ( !fex_done( fex ) ) {
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)]]) {                    
+                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
                     mdz_ArchiveFilesCnt++;
                     //NSLog(@"file : %s",fex_name(fex));
                 }                
@@ -3129,7 +3132,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	return;
 }
 
--(int) isAcceptedFile:(NSString*)_filePath {
+-(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file {
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@"."];
 	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
@@ -3140,10 +3143,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
 	NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF_EXT componentsSeparatedByString:@","];
-	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK_EXT componentsSeparatedByString:@","];
+	NSArray *filetype_extSEXYPSF=(no_aux_file?[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SEXYPSF_EXT componentsSeparatedByString:@","]);
+	NSArray *filetype_extAOSDK=(no_aux_file?[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_AOSDK_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","];
+	NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
 	
@@ -3156,6 +3159,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
     
+    mSingleFileType=1; //used to identify file which relies or not on another file (sample, psflib, ...)
 	
 	if (!found)
 		for (int i=0;i<[filetype_extASAP count];i++) {
@@ -3173,9 +3177,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=8;break;}
 		}
 	if (!found)
-		for (int i=0;i<[filetype_extMDX count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
+		for (int i=0;i<[filetype_extMDX count];i++) { //PDX might be required
+			if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                mSingleFileType=0;
+                found=11;break;
+            }
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                mSingleFileType=0;
+                found=11;break;
+            }
 		}
     if (!found)
 		for (int i=0;i<[filetype_extPMD count];i++) {
@@ -3200,18 +3210,66 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSEXYPSF count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=5;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=5;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_SEXYPSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=5;break;
+            }
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_SEXYPSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=5;break;
+            }
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extAOSDK count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=4;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=4;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=4;break;
+            }
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=4;break;
+            }
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extGSF count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {found=12;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {found=12;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=12;break;
+            }
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=12;break;
+            }
 		}
     //tmp hack => redirect to timidity
 	if (!found)
@@ -3221,8 +3279,25 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extUADE count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
+                //check if require second file
+                NSArray *singlefile=[SUPPORTED_FILETYPE_UADE_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                
+                found=6;break;
+            }
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
+                //check if require second file
+                NSArray *singlefile=[SUPPORTED_FILETYPE_UADE_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;i<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=6;break;
+            }
 		}
 	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_MODPLUG))
 		for (int i=0;i<[filetype_extMODPLUG count];i++) {
@@ -3339,10 +3414,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     
                     
                     if (found==1) { //FEX
-/*                        if (singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
+                        if (singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
                             mdz_ArchiveFilesCnt=1;
                             [self fex_extractSingleFileToPath :[filePath UTF8String] path:[tmpArchivePath UTF8String] file_index:archiveIndex];
-                        } else*/ {
+                        } else {
                             
                             [self fex_extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String]];
                         }
@@ -3356,7 +3431,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
                     
-                    //NSLog(@"%@",_filePath);
+                    NSLog(@"%@",_filePath);
                 } else return -1;
 			} else { //LHA
                 int argc;
@@ -3544,6 +3619,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
         }
 	
+//    NSLog(@"file : %@\nfound:%d",filePath,found);
 	
 	if (found==1) {  //GME
 		long sample_rate = (mSlowDevice?PLAYBACK_FREQ/2:PLAYBACK_FREQ); /* number of samples per second */
@@ -4777,44 +4853,59 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         //Pattern display/modplug
 		rewind(f);
 		mp_data=(char*)malloc(mp_datasize);
-		fread(mp_data,mp_datasize,sizeof(char),f);
+		fread(mp_data,mp_datasize,1,f);
         //
 		fclose(f);
         
         mod_subsongs=1;
 		mod_minsub=1;
 		mod_maxsub=1;
-		mod_currentsub=1;		
-        
+		mod_currentsub=1;
+		
         /* Load file */
-        duh = load_duh([filePath UTF8String]);
+        dumbfile_open_memory(mp_data,mp_datasize);
+        duh = dumb_load_it([filePath UTF8String]);
         if (!duh) {
-            duh = dumb_load_it([filePath UTF8String]);
+            dumbfile_open_memory(mp_data,mp_datasize);
+            duh = load_duh([filePath UTF8String]);
             if (!duh) {
+                dumbfile_open_memory(mp_data,mp_datasize);
                 duh = dumb_load_xm([filePath UTF8String]);
                 if (!duh) {
+                    dumbfile_open_memory(mp_data,mp_datasize);
                     duh = dumb_load_s3m([filePath UTF8String]);
                     if (!duh) {
+                        dumbfile_open_memory(mp_data,mp_datasize);
                         duh = dumb_load_mod([filePath UTF8String],0);
                         if (!duh) {
+                            dumbfile_open_memory(mp_data,mp_datasize);
                             duh = dumb_load_stm([filePath UTF8String]);
                             if (!duh) {
+                                dumbfile_open_memory(mp_data,mp_datasize);
                                 duh = dumb_load_ptm([filePath UTF8String]);
                                 if (!duh) {
+                                    dumbfile_open_memory(mp_data,mp_datasize);
                                     duh = dumb_load_669([filePath UTF8String]);
                                     if (!duh) {
+                                        dumbfile_open_memory(mp_data,mp_datasize);
                                         duh = dumb_load_mtm([filePath UTF8String]);
                                         if (!duh) {
+                                            dumbfile_open_memory(mp_data,mp_datasize);
                                             duh = dumb_load_riff([filePath UTF8String]);
                                             if (!duh) {
+                                                dumbfile_open_memory(mp_data,mp_datasize);
                                                 duh = dumb_load_asy([filePath UTF8String]);
                                                 if (!duh) {
+                                                    dumbfile_open_memory(mp_data,mp_datasize);
                                                     duh = dumb_load_amf([filePath UTF8String]);
                                                     if (!duh) {
+                                                        dumbfile_open_memory(mp_data,mp_datasize);
                                                         duh = dumb_load_okt([filePath UTF8String]);
                                                         if (!duh) {
+                                                            dumbfile_open_memory(mp_data,mp_datasize);
                                                             duh = dumb_load_psm([filePath UTF8String],0);
                                                             if (!duh) {
+                                                                dumbfile_open_memory(mp_data,mp_datasize);
                                                                 duh = dumb_load_old_psm([filePath UTF8String]);
                                                                 if (!duh) {
                                                                     return 1;

@@ -4,7 +4,7 @@ CREATE TABLE mod_author (id integer primary key autoincrement, author text, num_
 
 CREATE TABLE mod_type (id integer primary key autoincrement, filetype text, num_files integer);
 
-CREATE TABLE mod_album (id integer primary key autoincrement,id_author integer, album text, num_files integer);
+CREATE TABLE mod_album (id integer primary key autoincrement,id_author integer,author text, album text, num_files integer);
 
 CREATE TABLE mod_type_author (id_type integer,id_author integer,num_files integer);
 
@@ -54,11 +54,11 @@ INSERT INTO mod_type (filetype,num_files)
 	FROM import_7comp
 	GROUP BY filetype;
 
-INSERT INTO mod_album (album,num_files)
-	SELECT album,count(1) 
+INSERT INTO mod_album (album,author,num_files)
+	SELECT album,author,count(1) 
 	FROM import_7comp
 	WHERE album is not null
-	GROUP BY album;
+	GROUP BY album,author;
 
 CREATE INDEX idx_mod_authorAuthor on mod_author (author);
 CREATE INDEX idx_mod_authorId on mod_author (id);
@@ -68,6 +68,13 @@ CREATE INDEX idx_mod_typeId on mod_type (id);
 
 CREATE INDEX idx_mod_albumAlbum on mod_album (album);
 CREATE INDEX idx_mod_albumId on mod_album (id);
+
+UPDATE mod_album
+SET id_author=(SELECT a.id 
+	FROM mod_author a
+	WHERE a.author=mod_album.author)
+;
+
 
 INSERT INTO mod_file (id_type,id_author,id_album,filename,filesize,fullpath)
 	SELECT t.id,au.id,al.id,i.filename,i.filesize,i.fullpath
@@ -178,7 +185,7 @@ CREATE INDEX idx_stil_fullpath on stil (fullpath);
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)
-VALUES (1,5);
+VALUES (1,6);
 
 
 
