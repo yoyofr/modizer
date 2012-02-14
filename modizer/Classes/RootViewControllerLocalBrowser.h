@@ -21,6 +21,7 @@
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
+    NSFileManager *mFileMngr;
 	
 	
 	UIView *waitingView;
@@ -75,6 +76,8 @@
 @property (nonatomic, retain) NSArray *list;
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
+
+@property (nonatomic, retain) NSFileManager *mFileMngr;
 
 -(IBAction)validatePlaylistName;
 -(IBAction)cancelPlaylistName;

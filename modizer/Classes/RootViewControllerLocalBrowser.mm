@@ -23,8 +23,6 @@ extern pthread_mutex_t db_mutex;
 static int local_flag;
 static volatile int mPopupAnimation=0;
 
-static NSFileManager *mFileMngr;
-
 #import "RootViewControllerLocalBrowser.h"
 #import "AppDelegate_Phone.h"
 #import "DetailViewControllerIphone.h"
@@ -33,6 +31,7 @@ static NSFileManager *mFileMngr;
 
 @implementation RootViewControllerLocalBrowser
 
+@synthesize mFileMngr;
 @synthesize detailViewController;
 @synthesize tabView,sBar;
 @synthesize list;
@@ -1287,7 +1286,7 @@ static NSFileManager *mFileMngr;
         int switch_view_subdir=( (browse_depth>=SHOW_SUDIR_MIN_LEVEL));
         if (switch_view_subdir&&(indexPath.section==1)){
             cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
-            bottomLabel.text=[NSString stringWithFormat:@"%@ %d files",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
+            bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                            22,
@@ -1583,6 +1582,7 @@ static NSFileManager *mFileMngr;
                 
                 //cur_local_entries[section][indexPath.row].rating=-1;
                 
+                if (section<0) pos=-1;
                 [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                 else [[super tableView] reloadData];				

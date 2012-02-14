@@ -31,7 +31,6 @@ static int local_flag;
 static volatile int mUpdateToNewDB;
 static volatile int mPopupAnimation=0;
 
-static NSFileManager *mFileMngr;
 
 #import "AppDelegate_Phone.h"
 
@@ -39,6 +38,7 @@ static NSFileManager *mFileMngr;
 #import "RootViewControllerLocalBrowser.h"
 #import "RootViewControllerMODLAND.h"
 #import "RootViewControllerHVSC.h"
+#import "RootViewControllerPlaylist.h"
 
 
 #import "DetailViewControllerIphone.h"
@@ -48,8 +48,6 @@ static NSFileManager *mFileMngr;
 
 volatile int mDatabaseCreationInProgress;
 volatile int db_checked=0;
-
-UIAlertView *alertPlFull;
 
 @implementation RootViewControllerIphone
 
@@ -65,6 +63,7 @@ UIAlertView *alertPlFull;
 @synthesize childController;
 @synthesize playerButton;
 @synthesize mSearchText;
+@synthesize mFileMngr;
 
 #pragma mark -
 #pragma mark View lifecycle
@@ -223,8 +222,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-	if (alertView==alertPlFull) {
-	} else if (alertView==alertAlreadyAvail) {
+    if (alertView==alertAlreadyAvail) {
 		if (buttonIndex==1) {//force new download
 			[self checkCreate:[FTPlocalPath stringByDeletingLastPathComponent]];
 			mCurrentWinAskedDownload=1;
@@ -5721,7 +5719,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         }			
                 
                 //cur_local_entries[section][indexPath.row].rating=-1;
-                
+                if (section<0) pos=-1;
                 [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                 else [[super tableView] reloadData];				
@@ -5864,51 +5862,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     if (browse_depth==0) {
     } else {
-        if (browse_mode==BROWSE_PLAYLIST_MODE) {//playlist
-            int section=indexPath.section-1;
-            if (browse_depth>1) {
-                if (show_playlist) {
-                } else { //browsing for playlist, add selected file to playlist
-                    if (indexPath.section==1) {
-                        //add all
-                        for (int i=0;i<27;i++) 
-                            for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                                if (cur_local_entries[i][j].type&3) {
-                                    playlist->nb_entries++;
-                                    
-                                    playlist->label[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[i][j].label];
-                                    playlist->fullpath[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[i][j].fullpath];
-                                    
-                                    playlist->ratings[playlist->nb_entries-1]=cur_local_entries[i][j].rating;
-                                    playlist->playcounts[playlist->nb_entries-1]=cur_local_entries[i][j].playcount;   
-                                    //TODO : optimization is possible => to do only 1 insert into DB
-                                    [self addToPlaylistDB:playlist->playlist_id label:playlist->label[playlist->nb_entries-1] fullPath:playlist->fullpath[playlist->nb_entries-1] ];
-                                }	
-                        [[super tableView] reloadData];
-                        
-                    } else {
-                        if (playlist->nb_entries<MAX_PL_ENTRIES) {
-                            playlist->nb_entries++;
-                            playlist->label[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[section][indexPath.row].label];
-                            playlist->fullpath[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[section][indexPath.row].fullpath];
-                            
-                            playlist->ratings[playlist->nb_entries-1]=cur_local_entries[section][indexPath.row].rating;
-                            playlist->playcounts[playlist->nb_entries-1]=cur_local_entries[section][indexPath.row].playcount;
-                            
-                            [self addToPlaylistDB:playlist->playlist_id label:playlist->label[playlist->nb_entries-1] fullPath:playlist->fullpath[playlist->nb_entries-1] ];
-                            [[super tableView] reloadData];
-                        } else {
-                            alertPlFull=[[[UIAlertView alloc] initWithTitle:@"Warning" 
-                                                                    message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
-                            if (alertPlFull) [alertPlFull show];
-                        }
-                    }                    
-                }
-                
-            }
-            
-            
-        } else if (browse_mode==BROWSE_LOCAL_MODE||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) {//local  browser & favorites
+        if (browse_mode==BROWSE_LOCAL_MODE||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) {//local  browser & favorites
             int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));//&&(browse_mode==BROWSE_LOCAL_MODE)?1:0);
             int section=indexPath.section-1-switch_view_subdir;
             if (indexPath.section==1) {
@@ -6138,7 +6092,21 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             [self.navigationController pushViewController:childController animated:YES];	
             [keys release];keys=nil;
             [list release];list=nil;
-        } else {
+        }  else if (indexPath.row==BROWSE_PLAYLIST_MODE) {
+            if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+            else {			// Don't cache childviews
+            }
+            //set new title
+            childController.title = cellValue;
+            // Set new directory
+            ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
+            ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
+            ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
+            // And push the window
+            [self.navigationController pushViewController:childController animated:YES];	
+            [keys release];keys=nil;
+            [list release];list=nil;
+        }else {
             if (childController == nil) childController = [[RootViewControllerIphone alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
             else {			// Don't cache childviews
             }
@@ -6158,142 +6126,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             [list release];list=nil;
         }
     } else {
-        if (browse_mode==BROWSE_PLAYLIST_MODE) {//playlist
-            if (browse_depth==1) {
-                NSDictionary *dictionary = [keys objectAtIndex:indexPath.section];
-                NSArray *array = [dictionary objectForKey:@"entries"];
-                cellValue = [array objectAtIndex:indexPath.row];
-                
-                [self freePlaylist];
-                playlist=(t_playlist*)malloc(sizeof(t_playlist));
-                memset(playlist,0,sizeof(t_playlist));
-                
-                if (indexPath.row==0) { //new playlist
-                    newPlaylist=1;
-                    mValidatePlName=0;
-                    [self presentModalViewController:textInputView animated:YES];
-                }
-                if ((indexPath.row==1)&&(detailViewController.mPlaylist_size)) { //save current list
-                    newPlaylist=2;
-                    mValidatePlName=0;
-                    [self presentModalViewController:textInputView animated:YES];
-                }
-                if (indexPath.row>=2) { //show a playlist
-                    if (childController == nil) childController = [[RootViewControllerIphone alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-                    //set new title
-                    childController.title = cellValue;
-                    ((RootViewControllerIphone*)childController)->show_playlist=1;
-                    //get list id
-                    [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-2)] intoPlaylist:playlist];
-                    
-                    // Set new directory
-                    ((RootViewControllerIphone*)childController)->browse_depth = browse_depth+1;
-                    ((RootViewControllerIphone*)childController)->browse_mode = BROWSE_PLAYLIST_MODE;
-                    ((RootViewControllerIphone*)childController)->detailViewController=detailViewController;
-                    ((RootViewControllerIphone*)childController)->downloadViewController=downloadViewController;
-                    ((RootViewControllerIphone*)childController)->playlist=playlist;
-                    
-                    ((RootViewControllerIphone*)childController)->textInputView=textInputView;
-                    ((RootViewControllerIphone*)childController)->inputText=inputText;
-                    ((RootViewControllerIphone*)childController)->playerButton=playerButton;
-                    
-                    [keys release];keys=nil;
-                    [list release];list=nil;
-                    mFreePlaylist=1;
-                    
-                    // And push the window
-                    [self.navigationController pushViewController:childController animated:YES];	
-                }
-                
-            } else {
-                if (show_playlist) {
-                    if (indexPath.row>=2) {//start playlist and position it at selected entry
-                        int pos=0;
-                        //						self.navigationController.navigationBar.hidden = YES;
-                        if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                        else [tableView reloadData];
-                        
-                        NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                        NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                        for (int j=0;j<playlist->nb_entries;j++) {
-                            [array_label addObject:playlist->label[j]];
-                            [array_path addObject:playlist->fullpath[j]];
-                            if (j<(indexPath.row-2)) pos++;
-                        }
-                        [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:playlist->ratings playcounts:playlist->playcounts];
-                    } else if (indexPath.row==0 ){ //add new entry to current playlist
-                        if (childController == nil) childController = [[RootViewControllerIphone alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-                        else {			// Don't cache childviews
-                        }
-                        //set new title
-                        childController.title = playlist->playlist_name;
-                        // Set new directory
-                        newPlaylist=0;
-                        ((RootViewControllerIphone*)childController)->browse_depth = 2;
-                        ((RootViewControllerIphone*)childController)->browse_mode = BROWSE_PLAYLIST_MODE;
-                        ((RootViewControllerIphone*)childController)->detailViewController=detailViewController;
-                        ((RootViewControllerIphone*)childController)->downloadViewController=downloadViewController;
-                        ((RootViewControllerIphone*)childController)->playlist=playlist;
-                        ((RootViewControllerIphone*)childController)->show_playlist=0;
-                        ((RootViewControllerIphone*)childController)->textInputView=textInputView;
-                        ((RootViewControllerIphone*)childController)->inputText=inputText;
-                        ((RootViewControllerIphone*)childController)->playerButton=playerButton;
-                        // And push the window
-                        [self.navigationController pushViewController:childController animated:YES];	
-                    } else if (indexPath.row==1 ){ //rename current playlist
-                        inputText.text=playlist->playlist_name;
-                        mRenamePlaylist=1;
-                        mValidatePlName=0;
-                        [self presentModalViewController:textInputView animated:YES];
-                    }
-                } else { //browsing for playlist
-                    if (indexPath.section==1) {
-                        mShowSubdir^=1;
-                        shouldFillKeys=1;
-                        [self fillKeys];
-                        [[super tableView] reloadData];
-                    } else {
-                        int section=indexPath.section-2;
-                        cellValue=cur_local_entries[section][indexPath.row].label;
-                        
-                        if (cur_local_entries[section][indexPath.row].type==0) { //Directory selected : change current directory
-                            NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
-                            [newPath retain];        
-                            if (childController == nil) childController = [[RootViewControllerIphone alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-                            else {// Don't cache childviews
-                            }
-                            //set new title
-                            childController.title = cellValue;
-                            // Set new depth & new directory
-                            ((RootViewControllerIphone*)childController)->currentPath = newPath;				
-                            ((RootViewControllerIphone*)childController)->browse_depth = browse_depth+1;
-                            ((RootViewControllerIphone*)childController)->browse_mode = browse_mode;
-                            ((RootViewControllerIphone*)childController)->detailViewController=detailViewController;
-                            ((RootViewControllerIphone*)childController)->downloadViewController=downloadViewController;
-                            ((RootViewControllerIphone*)childController)->playlist=playlist;
-                            ((RootViewControllerIphone*)childController)->playerButton=playerButton;
-                            // And push the window
-                            [self.navigationController pushViewController:childController animated:YES];
-                            
-                            //				[childController autorelease];
-                        } else {  //File selected : add to playlist
-                            if (playlist->nb_entries<MAX_PL_ENTRIES) {
-                                playlist->nb_entries++;
-                                playlist->label[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[section][indexPath.row].label];
-                                playlist->fullpath[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[section][indexPath.row].fullpath];
-                                
-                                [self addToPlaylistDB:playlist->playlist_id label:playlist->label[playlist->nb_entries-1] fullPath:playlist->fullpath[playlist->nb_entries-1] ];
-                                [[super tableView] reloadData];
-                            } else {
-                                alertPlFull=[[[UIAlertView alloc] initWithTitle:@"Warning" message:@"Playlist is full. Delete some entries to add more." delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
-                                if (alertPlFull) [alertPlFull show];
-                            }
-                            
-                        }
-                    }
-                }
-            }
-        } else if ((browse_mode==BROWSE_LOCAL_MODE)||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) {//local  browser & favorites
+        if ((browse_mode==BROWSE_LOCAL_MODE)||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) {//local  browser & favorites
             int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));//&&(browse_mode==BROWSE_LOCAL_MODE)?1:0);
             int section=indexPath.section-1-switch_view_subdir;
             if ((indexPath.section==1)&&switch_view_subdir) {

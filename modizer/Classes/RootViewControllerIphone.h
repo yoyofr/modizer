@@ -50,6 +50,9 @@
 	
 	IBOutlet UIBarButtonItem *playerButton;
     
+    NSFileManager *mFileMngr;
+
+    
     NSMutableArray *list;
     NSMutableArray *keys;
 	NSMutableArray *indexTitles,*indexTitlesDownload;
@@ -122,6 +125,8 @@
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;
 }
+
+@property (nonatomic, retain) NSFileManager *mFileMngr;
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;

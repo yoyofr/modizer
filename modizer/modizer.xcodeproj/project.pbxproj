@@ -161,6 +161,7 @@
 		333157301207462000815317 /* unixsupport.c in Sources */ = {isa = PBXBuildFile; fileRef = 3331572F1207462000815317 /* unixsupport.c */; };
 		3331573A1207699700815317 /* hvl_replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 333157381207699700815317 /* hvl_replay.cpp */; };
 		3335B7CE122E30BB00E06F60 /* playlist_del.png in Resources */ = {isa = PBXBuildFile; fileRef = 3335B7CD122E30BB00E06F60 /* playlist_del.png */; };
+		334C998D14EAB1ED0003CF9B /* RootViewControllerPlaylist.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EE145939850038C673 /* RootViewControllerPlaylist.mm */; };
 		33525D7D1222567600E6E517 /* DBHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33525D7C1222567600E6E517 /* DBHelper.mm */; };
 		3353314A142CADAB009FCEE1 /* fix_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 33533148142CADAB009FCEE1 /* fix_fft.c */; };
 		33554E1414C326EE00018161 /* btnpause.png in Resources */ = {isa = PBXBuildFile; fileRef = 33554E1214C326EE00018161 /* btnpause.png */; };
@@ -2605,11 +2606,11 @@
 				336BF213144FF4BE0086700A /* RootViewControllerLocalBrowser.h */,
 				336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */,
 				336BF2181451E96F0086700A /* RootViewControllerMODLAND.h */,
+				336BF2191451E96F0086700A /* RootViewControllerMODLAND.mm */,
 				33EDF0EB145939850038C673 /* RootViewControllerHVSC.h */,
 				33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */,
 				33EDF0ED145939850038C673 /* RootViewControllerPlaylist.h */,
 				33EDF0EE145939850038C673 /* RootViewControllerPlaylist.mm */,
-				336BF2191451E96F0086700A /* RootViewControllerMODLAND.mm */,
 			);
 			name = RootViewControllers;
 			sourceTree = "<group>";
@@ -5316,6 +5317,7 @@
 				50819A3314B3E0700062FA86 /* table.cpp in Sources */,
 				50819A3414B3E0700062FA86 /* util.cpp in Sources */,
 				33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */,
+				334C998D14EAB1ED0003CF9B /* RootViewControllerPlaylist.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
