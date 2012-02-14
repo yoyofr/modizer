@@ -21,16 +21,15 @@
 	
 	
 	UIView *waitingView;
+    
+    NSFileManager *mFileMngr;
 	
-    IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet UITableView *tabView;
 
 	IBOutlet UISearchBar *sBar;
 	IBOutlet UIViewController *textInputView; 
 	IBOutlet UITextField *inputText;
 	
-	IBOutlet UIBarButtonItem *playerButton;
-    
     NSMutableArray *list;
     NSMutableArray *keys;
 	NSMutableArray *indexTitles,*indexTitlesDownload;
@@ -75,6 +74,7 @@
 
 }
 
+@property (nonatomic, retain) NSFileManager *mFileMngr;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *textInputView,*childController;
 @property (nonatomic, retain) IBOutlet UITextField *inputText;

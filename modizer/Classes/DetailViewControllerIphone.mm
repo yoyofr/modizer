@@ -1410,17 +1410,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)play_prevEntry {
 	if (mShuffle) {
-		int i;
+		/*int i;
 		int minval;
 		minval=mPlaylist[0].mPlaylistCount;
 		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
-		
+		*/
 		mPlaylist_pos=arc4random()%(mPlaylist_size);
-		i=0;
+		/*i=0;
 		while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
 			i++;
 			mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
-		}
+		}*/
 		[self play_curEntry];
 	} else {
 		if (mPlaylist_pos>0) mPlaylist_pos--;
@@ -1431,17 +1431,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)play_nextEntry {
 	if (mShuffle) {
-		int i;
+		/*int i;
 		int minval;
 		minval=mPlaylist[0].mPlaylistCount;
-		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
+		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;*/
 		
 		mPlaylist_pos=arc4random()%(mPlaylist_size);		
-		i=0;
+		/*i=0;
 		while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
 			i++;
 			mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
-		}
+		}*/
 		[self play_curEntry];
 	} else if (mPlaylist_pos<mPlaylist_size-1) {
 		mPlaylist_pos++;
@@ -5530,6 +5530,16 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 			bottomLabel.text = [NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-2]];
 		} else bottomLabel.text = @"";
 	}
+    
+    
+    NSArray *filename_IsArc=[mPlaylist[indexPath.row].mPlaylistFilepath componentsSeparatedByString:@"@"];
+    NSArray *filename_IsSub=[mPlaylist[indexPath.row].mPlaylistFilepath componentsSeparatedByString:@"?"];
+    if ([filename_IsArc count]>1) {//this is an archive entry
+        bottomLabel.text=[bottomLabel.text stringByAppendingFormat:@"/%@",[filename_parts objectAtIndex:[filename_parts count]-1]];
+    } else if ([filename_IsSub count]>1) {//this is a subsong entry
+        bottomLabel.text=[bottomLabel.text stringByAppendingFormat:@"/%@",[filename_parts objectAtIndex:[filename_parts count]-1]];
+    }
+    
 	cell.accessoryType = UITableViewCellAccessoryNone;
     
     //TODO

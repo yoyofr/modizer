@@ -27,6 +27,8 @@
 
 	IBOutlet UISearchBar *sBar;
 	
+    NSFileManager *mFileMngr;
+    
     NSMutableArray *list;
     NSMutableArray *keys;
 	NSMutableArray *indexTitles,*indexTitlesDownload;
@@ -71,6 +73,8 @@
     IBOutlet DownloadViewController *downloadViewController;
 
 }
+
+@property (nonatomic, retain) NSFileManager *mFileMngr;
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;

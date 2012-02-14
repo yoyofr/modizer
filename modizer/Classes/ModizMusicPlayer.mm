@@ -3431,7 +3431,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
                     
-                    NSLog(@"%@",_filePath);
+                    //NSLog(@"%@",_filePath);
                 } else return -1;
 			} else { //LHA
                 int argc;

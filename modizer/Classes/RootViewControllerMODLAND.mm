@@ -20,8 +20,6 @@ extern pthread_mutex_t db_mutex;
 static int local_flag;
 static volatile int mPopupAnimation=0;
 
-static NSFileManager *mFileMngr;
-
 #import "AppDelegate_Phone.h"
 #import "RootViewControllerMODLAND.h"
 #import "DetailViewControllerIphone.h"
@@ -30,6 +28,7 @@ static NSFileManager *mFileMngr;
 
 @implementation RootViewControllerMODLAND
 
+@synthesize mFileMngr;
 @synthesize detailViewController;
 @synthesize downloadViewController;
 @synthesize tabView,sBar;
