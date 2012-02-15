@@ -2032,11 +2032,11 @@ UIAlertView *alertPlFull;
 
 -(IBAction)cancelPlaylistName{
     mValidatePlName=0;
-    [self dismissModalViewControllerAnimated:YES];
+    //[self dismissModalViewControllerAnimated:YES];
 }
 -(IBAction)validatePlaylistName{
     mValidatePlName=1;
-    [self dismissModalViewControllerAnimated:YES];
+    //[self dismissModalViewControllerAnimated:YES];
 }
 - (BOOL)textFieldShouldReturn:(UITextField *)theTextField {
     [theTextField resignFirstResponder];
@@ -2253,6 +2253,7 @@ UIAlertView *alertPlFull;
         if ((indexPath.row==1)&&(detailViewController.mPlaylist_size)) { //save current list
             newPlaylist=2;
             mValidatePlName=0;
+            
             [self presentModalViewController:textInputView animated:YES];
         }
         if (indexPath.row>=2) { //show a playlist

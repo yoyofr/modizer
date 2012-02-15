@@ -2929,6 +2929,23 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		oglViewFullscreen=0;
 		[self oglViewSwitchFS];
 	}
+    
+    
+    if (infoIsFullscreen) {
+        infoZoom.hidden=YES;
+        infoUnzoom.hidden=NO;
+    } else {
+        infoZoom.hidden=NO;
+        infoUnzoom.hidden=YES;
+    }
+    if (plIsFullscreen) {
+        plZoom.hidden=YES;
+        plUnzoom.hidden=NO;
+    } else {
+        plZoom.hidden=NO;
+        plUnzoom.hidden=YES;
+    }
+    
 	mLoopMode--;
 	[self changeLoopMode];
     [mplayer setLoopInf:mplayer.mLoopMode^1];
@@ -5726,7 +5743,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView setAnimationDelay:0];				
 	[UIView setAnimationDuration:0.5];
 	frame=infoMsgView.frame;
-	frame.origin.y=self.view.frame.size.height-124;
+	frame.origin.y=self.view.frame.size.height-144;
 	infoMsgView.frame=frame;
 	[UIView commitAnimations];
 }
@@ -5734,7 +5751,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	CGRect frame;
 	[UIView beginAnimations:@"hidePopup" context:nil];
     [UIView setAnimationDelegate:self];	
-	[UIView setAnimationDelay:1.5];				
+	[UIView setAnimationDelay:2.5];				
 	[UIView setAnimationDuration:1.0];	
 	frame=infoMsgView.frame;
 	frame.origin.y=self.view.frame.size.height;

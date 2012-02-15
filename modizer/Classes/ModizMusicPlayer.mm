@@ -1457,7 +1457,7 @@ void sexyd_update(unsigned char* pSound,long lBytes) {
 	char *argv[5];
 	char *argv_buffer;
 	
-	if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)])	[[NSThread currentThread] setThreadPriority:0.9f];
+	if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)])	[[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
 	
 	argc=5;
 	argv_buffer=(char*)malloc(argc*32);
@@ -1917,7 +1917,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(void) generateSoundThread {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)]) [[NSThread currentThread] setThreadPriority:0.9f];
+	if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)]) [[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
     
     
 	while (1) {
@@ -3415,7 +3415,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     
                     
                     if (found==1) { //FEX
-                        if (singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
+                        if (mSingleFileType&&singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
                             mdz_ArchiveFilesCnt=1;
                             [self fex_extractSingleFileToPath :[filePath UTF8String] path:[tmpArchivePath UTF8String] file_index:archiveIndex];
                         } else {
