@@ -14,7 +14,7 @@
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerPlaylist : UITableViewController <UISearchBarDelegate> {
+@interface RootViewControllerPlaylist : UITableViewController <UISearchBarDelegate,UITextFieldDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
@@ -26,9 +26,7 @@
 	
     IBOutlet UITableView *tabView;
 
-	IBOutlet UISearchBar *sBar;
-	IBOutlet UIViewController *textInputView; 
-	IBOutlet UITextField *inputText;
+	IBOutlet UISearchBar *sBar;	
 	
     NSMutableArray *list;
     NSMutableArray *keys;
@@ -70,8 +68,9 @@
 @public    
     int browse_depth;
     IBOutlet DetailViewControllerIphone *detailViewController;	
-	IBOutlet UIBarButtonItem *playerButton;    	
-
+	IBOutlet UIBarButtonItem *playerButton; 
+   	IBOutlet UIViewController *textInputView; 
+    IBOutlet UITextField *inputText;    
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;

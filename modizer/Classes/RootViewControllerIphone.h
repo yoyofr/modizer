@@ -31,7 +31,7 @@
 @class WebBrowser;
 
 
-@interface RootViewControllerIphone : UITableViewController <UISearchBarDelegate> {
+@interface RootViewControllerIphone : UITableViewController <UISearchBarDelegate,UITextInputDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;

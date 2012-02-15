@@ -5572,16 +5572,17 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 -(IBAction)cancelPlaylistName{
-    mValidatePlName=0;
+    if (childController) [childController cancelPlaylistName];   
     [self dismissModalViewControllerAnimated:YES];
 }
 -(IBAction)validatePlaylistName{
-    mValidatePlName=1;
+    if (childController) [childController validatePlaylistName];   
     [self dismissModalViewControllerAnimated:YES];
 }
+
 - (BOOL)textFieldShouldReturn:(UITextField *)theTextField {
     [theTextField resignFirstResponder];
-    [self validatePlaylistName];
+    if (childController) [childController validatePlaylistName];
     return YES;
 }
 
@@ -6102,6 +6103,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
+            ((RootViewControllerPlaylist*)childController)->textInputView=textInputView;
+            ((RootViewControllerPlaylist*)childController)->inputText=inputText;
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];	
             [keys release];keys=nil;
