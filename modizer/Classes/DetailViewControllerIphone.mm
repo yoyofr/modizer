@@ -109,20 +109,21 @@ static 	UIImage *covers_default; // album covers images
 #define max4(a,b,c,d) max2(max2(a,b),max2(c,d))
 #define max8(a,b,c,d,e,f,g,h) max2(max4(a,b,c,d),max4(e,f,g,h))
 
+static int display_length_mode=0;
 
 @implementation DetailViewControllerIphone
 
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
-@synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow;
+@synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime;
 @synthesize sld_DefaultLength,labelDefaultLength;
 
 @synthesize mDeviceType;
 @synthesize cover_view,gifAnimation;
 //@synthesize locManager;
-@synthesize sc_allowPopup,infoMsgView,infoMsgLbl,sc_titleFilename;
+@synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl,sc_titleFilename;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
 @synthesize detailItem, detailDescriptionLabel;
-@synthesize labelModuleName, labelTime, labelModuleLength, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
+@synthesize labelModuleName,labelModuleLength, labelTime, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
 @synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,btnLoopInf;
 @synthesize repeatingTimer;
 @synthesize sliderProgressModule;
@@ -646,8 +647,11 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 	sliderProgressModuleEdit=1;
 	if ([mplayer getSongLength]>0) slider_time=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));	
 	
-	labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", (slider_time/1000)/60,(slider_time/1000)%60];
-	if ([mplayer getSongLength]>0) labelModuleLength.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-slider_time)/1000)/60,(([mplayer getSongLength]-slider_time)/1000)%60];
+    if (display_length_mode&&([mplayer getSongLength]>0)) {
+        labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-slider_time)/1000)/60,(([mplayer getSongLength]-slider_time)/1000)%60];        
+    } else {
+        labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", (slider_time/1000)/60,(slider_time/1000)%60];
+    }
 	return;
 }
 
@@ -656,14 +660,17 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 	if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));	
 	[mplayer Seek:curTime];
 	
-	labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-	if ([mplayer getSongLength]>0) labelModuleLength.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
 	
+	if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
+	else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
 	sliderProgressModuleChanged=0;
 	sliderProgressModuleEdit=0;
 	return;
 }
 
+-(IBAction) changeTimeDisplay {
+    display_length_mode^=1;
+}
 
 //define the targetmethod
 -(void) updateInfos: (NSTimer *) theTimer {
@@ -747,9 +754,13 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 		[self updateBarPos];
 		
 		if ([mplayer getSongLength]<0) {
-			labelModuleLength.text=@"--:--";
+            if (display_length_mode) display_length_mode=0;
 			sliderProgressModule.enabled=FALSE;
-		} else sliderProgressModule.enabled=TRUE;
+            labelModuleLength.text=@"--:--";
+		} else {
+            sliderProgressModule.enabled=TRUE;
+            labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+        }
 	}
 	
 	if (([mplayer getSongLength]>0)&&(itime>[mplayer getSongLength])) // if gone too far, limit
@@ -764,7 +775,7 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
             lblTimeFCflow.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
         }
 		if ([mplayer getSongLength]>0) {
-			labelModuleLength.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-itime)/1000)/60,(([mplayer getSongLength]-itime)/1000)%60];
+			if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-itime)/1000)/60,(([mplayer getSongLength]-itime)/1000)%60];
 			sliderProgressModule.value=(float)(itime)/(float)([mplayer getSongLength]);
 		}
 		if ((mMoveStartChanLeft)&&(startChan>0)) startChan--;
@@ -1864,11 +1875,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
 	if ([mplayer getSongLength]>0) {
-		labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+		if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
 		sliderProgressModule.enabled=YES;
+        labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
 	} else {
-		labelModuleLength.text=@"--:--";
+		if (display_length_mode) display_length_mode=0;
 		sliderProgressModule.enabled=FALSE;
+        labelModuleLength.text=@"--:--";
 	}
 	//Update rating info for playlist view
 	mRating=0;
@@ -1941,7 +1954,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (void)titleTap:(UITapGestureRecognizer *)sender {
 //    NSLog(@"%@",labelModuleName.text);
-    [self openPopup:labelModuleName.text];
+    [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
 }
 
 -(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName {	
@@ -2114,11 +2127,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
 	if ([mplayer getSongLength]>0) {
-		labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+		if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
 		sliderProgressModule.enabled=YES;
+        labelModuleLength.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
 	} else {
-		labelModuleLength.text=@"--:--";
+		if (display_length_mode) display_length_mode=0;
 		sliderProgressModule.enabled=FALSE;
+        labelModuleLength.text=@"--:--";
 	}
 	//Update rating info for playlist view
 	mRating=0;
@@ -2313,7 +2328,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0,32,32);
             btnShowArcList.frame = CGRectMake(mDevice_ww-36-36,0,32,32);
 			
-			infoButton.frame = CGRectMake(mDevice_ww-40,0,40,40);
+			infoButton.frame = CGRectMake(mDevice_ww-44,4,40,40);
 			
 			mainRating1.frame = CGRectMake(130,3,24,24);
 			mainRating2.frame = CGRectMake(130+24,3,24,24);
@@ -2328,8 +2343,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 			
 			playlistPos.frame = CGRectMake(mDevice_ww/2-90,0,180,20);
-			labelModuleLength.frame=CGRectMake(mDevice_ww-47,24,45,20);
-			labelTime.frame=CGRectMake(2,24,45,20);
+			labelModuleLength.frame=CGRectMake(2,0,45,20);
+			labelTime.frame=CGRectMake(2,24,45,20);            
+            btnChangeTime.frame=CGRectMake(2,24,45,20);            
 			sliderProgressModule.frame = CGRectMake(48,23,mDevice_ww-48*2,23);
 		}
 	} else{            
@@ -2474,13 +2490,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 btnShowSubSong.frame = CGRectMake(124+7,0,32,32);
                 btnShowArcList.frame = CGRectMake(124+7,32,32,32);
-                infoButton.frame = CGRectMake(mDevice_hh-200+6,14,18,19);				
+                infoButton.frame = CGRectMake(mDevice_hh-200-10,1,38,38);				
                 
                 playlistPos.frame = CGRectMake((mDevice_hh-200)/2-90,0,180,20);
                 
-                labelTime.frame=CGRectMake(2,17,45,20);
-                labelModuleLength.frame=CGRectMake(mDevice_hh-200-47,17,45,20);
-                sliderProgressModule.frame = CGRectMake(48,16,mDevice_hh-200-48*2,23);
+                labelModuleLength.frame=CGRectMake(2,0,45,20);
+                labelTime.frame=CGRectMake(2,20,45,20);
+                btnChangeTime.frame=CGRectMake(2,17,45,20);
+                
+                sliderProgressModule.frame = CGRectMake(48,16,mDevice_hh-200-60,23);
             }
         }
 	}
@@ -4355,7 +4373,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	mRestart_sub=0;
 	
 	[sliderProgressModule.layer setCornerRadius:8.0];
-	[labelModuleLength.layer setCornerRadius:8.0];
+	[labelSeeking.layer setCornerRadius:8.0];
 	[labelTime.layer setCornerRadius:8.0];
 	[commandViewU.layer setCornerRadius:8.0];
 	
@@ -4687,14 +4705,14 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 
 - (void)viewDidAppear:(BOOL)animated {
 	mHasFocus=1;
-	[UIView beginAnimations:nil context:nil];
+	[UIView beginAnimations:@"player_appear1" context:nil];
 	[UIView setAnimationDelay:0.3];
 	[UIView setAnimationDuration:0.70];
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
 	[UIView commitAnimations];
 	
-	[UIView beginAnimations:nil context:nil];
+	[UIView beginAnimations:@"player_appear2" context:nil];
 	[UIView setAnimationDelay:0.5];
 	[UIView setAnimationDuration:0.70];
 	[UIView setAnimationDelegate:self];
@@ -4702,7 +4720,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView commitAnimations];
     
 	if (btnShowSubSong.hidden==false) {
-		[UIView beginAnimations:nil context:nil];
+		[UIView beginAnimations:@"player_appear3" context:nil];
 		[UIView setAnimationDelay:0.75];
 		[UIView setAnimationDuration:0.70];
 		[UIView setAnimationDelegate:self];
@@ -4710,7 +4728,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		[UIView commitAnimations];
 	}
     if (btnShowArcList.hidden==false) {
-		[UIView beginAnimations:nil context:nil];
+		[UIView beginAnimations:@"player_appear4" context:nil];
 		[UIView setAnimationDelay:0.75];
 		[UIView setAnimationDuration:0.70];
 		[UIView setAnimationDelegate:self];
@@ -5692,12 +5710,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	mPopupAnimation=0;
 }
 
--(void) openPopup:(NSString *)msg {
+-(void) openPopup:(NSString *)msg secmsg:(NSString*)secmsg{
 	CGRect frame;
 	if (mPopupAnimation) return;
     
 	mPopupAnimation=1;	
     infoMsgLbl.text=[NSString stringWithString:msg];
+    infoSecMsgLbl.text=[NSString stringWithString:secmsg];
 	frame=infoMsgView.frame;
 	frame.origin.y=self.view.frame.size.height;
 	infoMsgView.frame=frame;
