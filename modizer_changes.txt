@@ -6,7 +6,10 @@
 - DUMB: optimized file loading & memory usage.
 - Player screen: info & playlist fullscreen state now saved & restored.
 - Playlist: add subsongs/archives management.
+- Timidity: user's custom timidity.cfg & sound font supported.
+- DSF: output can be switch between 22Khz & 44Khz. Output gain increased.
 [BugFixes]
+- Dumb: wrong format reported in info screen for IT files.
 - Issue fixed with archive management & display in player screen.
 - Fixed crash when modizer is running in background (double free issue).
 - Fixed long press on '<' & '>' (used to change archive entry when current entry has also sub song).

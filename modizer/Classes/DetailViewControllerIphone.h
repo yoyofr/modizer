@@ -126,7 +126,7 @@ class CGLString;
 	
 	IBOutlet UISegmentedControl *sc_checkBeforeRedownload,*sc_AfterDownload,*sc_EnqueueMode,*sc_DefaultAction,*segcont_randFx,*sc_allowPopup,*sc_titleFilename;
 	IBOutlet UISegmentedControl *segcont_spectrum,*segcont_shownote,*segcont_mpSampling,*segcont_forceMono,*sc_bgPlay,*sc_showDebug;
-	IBOutlet UISegmentedControl *segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR,*segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio;
+	IBOutlet UISegmentedControl *segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR,*segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
 	IBOutlet UISegmentedControl *segcont_oscillo;
     //,*segcont_resumeLaunch
 	IBOutlet UISegmentedControl *sc_UADE_Led,*sc_UADE_Norm,*sc_UADE_PostFX,*sc_UADE_Pan,*sc_UADE_Head,*sc_UADE_Gain,*sc_FXDetail,*sc_Panning;
@@ -330,7 +330,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 
-@property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_randFx,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio;
+@property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_randFx,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_spectrum,*segcont_shownote,*segcont_forceMono,*sc_checkBeforeRedownload,*sc_AfterDownload,*sc_EnqueueMode;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_mpSampling,*segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_oscillo,*sc_DefaultAction,*sc_bgPlay,*sc_showDebug;
@@ -354,6 +354,7 @@ class CGLString;
 -(IBAction) optTIM_Polyphony;
 -(IBAction) optFX_Alpha;
 
+-(IBAction) optAOSDK_DSF22KHZ;
 -(IBAction) optAOSDK_DSFDSP;
 -(IBAction) optAOSDK_DSFEmuRatio;
 -(IBAction) optAOSDK_SSFDSP;

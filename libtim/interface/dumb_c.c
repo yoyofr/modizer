@@ -67,7 +67,7 @@ ControlMode ctl=
 {
     "dumb interface", 'd',
     "dumb",
-    1,0,0,
+    VERB_VERBOSE,0,0,
     0,
     ctl_open,
     ctl_close,

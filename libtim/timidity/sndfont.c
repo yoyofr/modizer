@@ -262,7 +262,7 @@ void add_soundfont(char *sf_file,
 		   int amp)
 {
     SFInsts *sf;
-
+    
     if((sf = find_soundfont(sf_file)) == NULL)
     {
         sf = new_soundfont(sf_file);

@@ -87,6 +87,7 @@ MBlockList tmpbuffer;
 char *output_text_code = NULL;
 int open_file_noise_mode = OF_NORMAL;
 
+#undef DEFAULT_PATH
 #ifdef DEFAULT_PATH
     /* The paths in this list will be tried whenever we're reading a file */
     static PathList defaultpathlist={DEFAULT_PATH,0};
@@ -794,8 +795,8 @@ void add_to_pathlist(char *s)
 {
     PathList *cur, *prev, *plp;
     //MODIZER
-    pathlist->path=s;
-    return;
+    //pathlist->path=s;
+    //return;
 
     /* Check duplicated path in the pathlist. */
     plp = prev = NULL;

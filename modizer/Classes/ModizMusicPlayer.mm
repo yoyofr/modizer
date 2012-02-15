@@ -1435,6 +1435,9 @@ void sexyd_update(unsigned char* pSound,long lBytes) {
     char *argv[1];
     argv[0]=tim_filepath;    
     
+    //timidity
+    tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+    tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
     
     //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
     tim_main(1, argv);
@@ -1916,8 +1919,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)]) [[NSThread currentThread] setThreadPriority:0.9f];
     
-    //timidity
-    tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
     
 	while (1) {
 		[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
@@ -5616,7 +5617,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	AOSDK_setInterpolation(interpol);
 }
 
-
+-(void) optAOSDK_22KHZ:(int)value{
+    aosdk_dsf_22khz=value;
+}
 -(void) optAOSDK_DSFDSP:(int)value{
     aosdk_dsfdsp=value;
 }
