@@ -2524,15 +2524,15 @@ static int read_user_config_file(void)
     {
 	ctl->cmsg(CMSG_INFO, VERB_NOISY,
 		  "Warning: HOME environment is not defined.");
-	return 0;
+	return -1;
     }
-    sprintf(path, "%s" PATH_STRING ".timidity.cfg", home);
+    sprintf(path, "%s" PATH_STRING "Documents/timidity.cfg", home);
 
     if((opencheck = open(path, 0)) < 0)
     {
 	ctl->cmsg(CMSG_INFO, VERB_NOISY, "%s: %s",
 		  path, strerror(errno));
-	return 0;
+	return -2;
     }
 
     close(opencheck);
@@ -5298,18 +5298,23 @@ MAIN_INTERFACE void timidity_start_initialize(void)
 MAIN_INTERFACE int timidity_pre_load_configuration(void)
 {
     /* UNIX */
-    if(!read_config_file(CONFIG_FILE, 0))
-		got_a_configuration = 1;
-
     /* Try read configuration file which is in the
      * $HOME (or %HOME% for DOS) directory.
      * Please setup each user preference in $HOME/.timidity.cfg
      * (or %HOME%/timidity.cfg for DOS)
      */
 
-    if(read_user_config_file())
-	ctl->cmsg(CMSG_INFO, VERB_NOISY,
+    if(read_user_config_file()) {
+        ctl->cmsg(CMSG_INFO, VERB_NOISY,
 		  "Warning: Can't read ~/.timidity.cfg correctly");
+    } else {
+        got_a_configuration = 1;
+    }
+    
+    if (got_a_configuration==0) {
+    if(!read_config_file(CONFIG_FILE, 0))
+     got_a_configuration = 1;
+    }
     return 0;
 }
 
@@ -5666,7 +5671,7 @@ extern PlayMode ios_play_mode;
 extern volatile int mSlowDevice;
     
 int tim_init(char *path) {    
-    
+//    printf("initpath:%s\n",path);
     add_to_pathlist(path);
     
     return 0;

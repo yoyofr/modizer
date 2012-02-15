@@ -207,6 +207,7 @@ extern "C" {
 -(void) optSEXYPSF:(int)reverb interpol:(int)interpol;
 -(void) optAOSDK:(int)reverb interpol:(int)interpol;
 -(void) optADPLUG:(int)opltype;
+-(void) optAOSDK_22KHZ:(int)value;
 -(void) optAOSDK_DSFDSP:(int)value;
 -(void) optAOSDK_DSFEmuRatio:(int)value;
 -(void) optAOSDK_SSFDSP:(int)value;

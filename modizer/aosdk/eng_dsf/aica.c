@@ -1354,8 +1354,8 @@ static void AICA_DoMasterSamples(struct _AICA *AICA, int nsamples)
             }
             
         }
-        *bufl++ = ICLIP16(smpl>>3);
-        *bufr++ = ICLIP16(smpr>>3);
+        *bufl++ = ICLIP16(smpl>>2);
+        *bufr++ = ICLIP16(smpr>>2);
          
 		AICA_TimersAddTicks(AICA, 1);
 		CheckPendingIRQ(AICA);
@@ -1418,11 +1418,11 @@ static void AICA_DoMasterSamples22khz(struct _AICA *AICA, int nsamples)
             
         }
 #if defined(TARGET_OS_IPHONE) && !TARGET_IPHONE_SIMULATOR
-        __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufl++) : "r"(smpl>>3));
-        __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufr++) : "r"(smpr>>3));
+        __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufl++) : "r"(smpl>>2));
+        __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufr++) : "r"(smpr>>2));
 #else
-        *bufl++ = ICLIP16(smpl>>3);
-        *bufr++ = ICLIP16(smpr>>3);
+        *bufl++ = ICLIP16(smpl>>2);
+        *bufr++ = ICLIP16(smpr>>2);
 #endif
         
 		AICA_TimersAddTicks(AICA, 2);

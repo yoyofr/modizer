@@ -141,7 +141,7 @@ static 	UIImage *covers_default; // album covers images
 @synthesize segcont_oscillo,segcont_forceMono,sc_checkBeforeRedownload,sc_bgPlay,sc_StatsUpload,sc_SpokenTitle,sc_showDebug;
 //segcont_resumeLaunch
 @synthesize segcont_spectrum,segcont_shownote,segcont_mpSampling;
-@synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,segcont_fx1,segcont_fx2,segcont_fx3,segcont_fx4,segcont_fx5,segcont_FxBeat,sc_FXDetail,sc_cflow,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio;
+@synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,segcont_fx1,segcont_fx2,segcont_fx3,segcont_fx4,segcont_fx5,segcont_FxBeat,sc_FXDetail,sc_cflow,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
 @synthesize sc_SEXYPSF_Reverb,sc_SEXYPSF_Interpol;
 @synthesize sc_AOSDK_Reverb,sc_AOSDK_Interpol;
 @synthesize sc_ADPLUG_opltype;
@@ -331,7 +331,9 @@ static 	UIImage *covers_default; // album covers images
     [mplayer optDUMB_Resampling:sc_DUMBResampling.selectedSegmentIndex];
 }
 
-
+-(IBAction) optAOSDK_DSF22KHZ {
+    [mplayer optAOSDK_22KHZ:sc_AOSDKDSF22KHZ.selectedSegmentIndex];
+}
 -(IBAction) optAOSDK_DSFDSP {
     [mplayer optAOSDK_DSFDSP:sc_AOSDKDSFDSP.selectedSegmentIndex];
 }
@@ -2937,6 +2939,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     
     [self optAOSDK_DSFEmuRatio];
     [self optAOSDK_DSFDSP];
+    [self optAOSDK_DSF22KHZ];
     [self optAOSDK_SSFEmuRatio];
     [self optAOSDK_SSFDSP];
     
@@ -3006,6 +3009,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sc_AOSDK_Reverb.selectedSegmentIndex = 1;
 	sc_AOSDK_Interpol.selectedSegmentIndex = 2;
 	sc_AOSDKDSFDSP.selectedSegmentIndex = 0;
+    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
 	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 2;
 	sc_AOSDKSSFDSP.selectedSegmentIndex = 0;
 	sc_AOSDKSSFEmuRatio.selectedSegmentIndex = 2;
@@ -3105,6 +3109,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////////
 	sc_AOSDK_Reverb.selectedSegmentIndex = 1;
 	sc_AOSDK_Interpol.selectedSegmentIndex = 2;
+    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 0;
 	sc_AOSDKDSFDSP.selectedSegmentIndex = 1;
 	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 0;
 	sc_AOSDKSSFDSP.selectedSegmentIndex = 1;
@@ -3210,6 +3215,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////////
 	sc_AOSDK_Reverb.selectedSegmentIndex = 1;
 	sc_AOSDK_Interpol.selectedSegmentIndex = 1;
+    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
 	sc_AOSDKDSFDSP.selectedSegmentIndex = 0;
 	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 2;
 	sc_AOSDKSSFDSP.selectedSegmentIndex = 0;
@@ -3315,6 +3321,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////////
 	sc_AOSDK_Reverb.selectedSegmentIndex = 0;
 	sc_AOSDK_Interpol.selectedSegmentIndex = 0;
+    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
 	sc_AOSDKDSFDSP.selectedSegmentIndex = 0;
 	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 3;
 	sc_AOSDKSSFDSP.selectedSegmentIndex = 0;
@@ -3538,6 +3545,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[prefs objectForKey:@"AOSDKReverb"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_AOSDK_Reverb.selectedSegmentIndex = 1;
 	else sc_AOSDK_Reverb.selectedSegmentIndex = [valNb intValue];
+	valNb=[prefs objectForKey:@"AOSDKDSF22KHZ"];if (safe_mode) valNb=nil;
+	if (valNb == nil) sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
+	else sc_AOSDKDSF22KHZ.selectedSegmentIndex = [valNb intValue];
 	valNb=[prefs objectForKey:@"AOSDKInterp"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_AOSDK_Interpol.selectedSegmentIndex = 2;
 	else sc_AOSDK_Interpol.selectedSegmentIndex = [valNb intValue];
@@ -3829,6 +3839,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[[NSNumber alloc] initWithInt:sc_AOSDK_Interpol.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"AOSDKInterp"];[valNb autorelease];
     
+    valNb=[[NSNumber alloc] initWithInt:sc_AOSDKDSF22KHZ.selectedSegmentIndex];
+	[prefs setObject:valNb forKey:@"AOSDKDSF22KHZ"];[valNb autorelease];
     valNb=[[NSNumber alloc] initWithInt:sc_AOSDKDSFDSP.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"AOSDKDSFDSP"];[valNb autorelease];
     valNb=[[NSNumber alloc] initWithInt:sc_AOSDKDSFEmuRatio.selectedSegmentIndex];
