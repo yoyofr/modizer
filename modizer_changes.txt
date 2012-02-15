@@ -8,6 +8,7 @@
 - Playlist: add subsongs/archives management.
 - Timidity: user's custom timidity.cfg & sound font supported.
 - DSF: output can be switch between 22Khz & 44Khz. Output gain increased.
+- Player screen: small changes to improve access to info button & elapse/remaining time.
 [BugFixes]
 - Dumb: wrong format reported in info screen for IT files.
 - Issue fixed with archive management & display in player screen.

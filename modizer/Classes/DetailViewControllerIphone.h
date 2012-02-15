@@ -98,12 +98,12 @@ class CGLString;
 	IBOutlet UITextField *inputText;
 	
 	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
-	IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList;
+	IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList,*btnChangeTime;
 
 	
 	IBOutlet UIButton *btnSortPlAZ,*btnSortPlZA,*btnPlShuffle,*btnPlClear,*btnPlEdit,*btnPlOk;
-	IBOutlet UILabel *labelTime;
-	IBOutlet UILabel *labelModuleLength,*labelSeeking;
+	IBOutlet UILabel *labelTime,*labelModuleLength;
+	IBOutlet UILabel *labelSeeking;
 	IBOutlet UILabel *labelModuleSize,*labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
 	IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 	IBOutlet UIButton *infoButton,*backInfo,*backPlaylist,*infoZoom,*infoUnzoom,*plZoom,*plUnzoom;
@@ -118,7 +118,7 @@ class CGLString;
 	IBOutlet UITableView *playlistTabView;
 	IBOutlet UIView *playlistView,*detailView,*commandViewU,*mainView,*infoView;
 	IBOutlet UIView *infoMsgView;
-	IBOutlet UILabel *infoMsgLbl;
+	IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
 	
 	IBOutlet UIButton *oglButton;
 
@@ -299,9 +299,9 @@ class CGLString;
 
 //@property (retain) CLLocationManager *locManager;
 @property (nonatomic, retain) IBOutlet UIView *infoMsgView;
-@property (nonatomic, retain) IBOutlet UILabel *infoMsgLbl;
+@property (nonatomic, retain) IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_allowPopup,*sc_titleFilename;
-@property (nonatomic, retain) IBOutlet UIButton *btnSortPlAZ,*btnSortPlZA,*btnPlShuffle,*btnPlClear,*btnPlEdit,*btnPlOk;
+@property (nonatomic, retain) IBOutlet UIButton *btnSortPlAZ,*btnSortPlZA,*btnPlShuffle,*btnPlClear,*btnPlEdit,*btnPlOk,*btnChangeTime;
 @property (nonatomic, retain) IBOutlet UITableView *playlistTabView;
 @property (nonatomic, retain) IBOutlet UIView *playlistView,*mainView,*infoView;
 @property (nonatomic, retain) IBOutlet UIButton *rating1,*rating1off,*rating2,*rating2off,*rating3,*rating3off,*rating4,*rating4off,*rating5,*rating5off;
@@ -319,8 +319,8 @@ class CGLString;
 
 @property (nonatomic, retain) IBOutlet RRSGlowLabel *labelModuleName;
 @property (nonatomic, retain) IBOutlet UILabel *labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
-@property (nonatomic, retain) IBOutlet UILabel *labelTime;
-@property (nonatomic, retain) IBOutlet UILabel *labelModuleLength,*labelSeeking,*labelDefaultLength;
+@property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
+@property (nonatomic, retain) IBOutlet UILabel *labelSeeking,*labelDefaultLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
 @property (nonatomic, retain) IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
 @property (nonatomic, retain) IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList;
@@ -351,6 +351,8 @@ class CGLString;
 
 @property (nonatomic, retain) IBOutlet UIImageView *cover_view,*gifAnimation;
 
+-(IBAction) changeTimeDisplay;
+
 -(IBAction) optTIM_Polyphony;
 -(IBAction) optFX_Alpha;
 
@@ -376,7 +378,7 @@ class CGLString;
 
 -(void) pushedRatingCommon:(short int)playcount;
 -(void) hidePopup;
--(void) openPopup:(NSString *)msg;
+-(void) openPopup:(NSString *)msg secmsg:(NSString *)secmsg;
 -(void) closePopup;
 -(BOOL) play_loadArchiveModule;
 
