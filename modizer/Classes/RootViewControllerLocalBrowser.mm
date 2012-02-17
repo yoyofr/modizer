@@ -2004,12 +2004,12 @@ static volatile int mPopupAnimation=0;
     
     
     if (indexTitles) {
-        indexTitles=nil;
         [indexTitles release];
+        indexTitles=nil;        
     }
     if (indexTitlesSpace) {
-        indexTitlesSpace=nil;
         [indexTitlesSpace release];
+        indexTitlesSpace=nil;        
     }
     
     if (mFileMngr) {

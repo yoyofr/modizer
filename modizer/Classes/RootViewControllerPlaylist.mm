@@ -2495,8 +2495,15 @@ UIAlertView *alertPlFull;
         free(search_local_entries_data);
     }
         
-    if (indexTitles) [indexTitles release];
-    if (indexTitlesDownload) [indexTitlesDownload release];
+    if (indexTitles) {
+        [indexTitles release];
+        indexTitles=nil;
+    }
+    if (indexTitlesDownload) {
+        [indexTitlesDownload release];
+        indexTitlesDownload=nil;
+    }
+
     
     if (mFileMngr) {
         [mFileMngr release];

@@ -2170,12 +2170,15 @@ static volatile int mPopupAnimation=0;
         free(search_dbHVSC_entries_data);
     }
     
-    for (int i=0;i<search_dbHVSC_nb_entries;i++) {
-        
+    if (indexTitles) {
+        [indexTitles release];
+        indexTitles=nil;
     }
-    
-    if (indexTitles) [indexTitles release];
-    if (indexTitlesDownload) [indexTitlesDownload release];
+    if (indexTitlesDownload) {
+        [indexTitlesDownload release];
+        indexTitlesDownload=nil;
+    }
+
     
     if (mFileMngr) {
         [mFileMngr release];
