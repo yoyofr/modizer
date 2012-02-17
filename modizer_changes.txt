@@ -10,6 +10,8 @@
 - DSF: output can be switch between 22Khz & 44Khz. Output gain increased.
 - Player screen: small changes to improve access to info button & elapse/remaining time.
 [BugFixes]
+- Fixed background playback issue.
+- Global: fixed some memory leaks.
 - Dumb: wrong format reported in info screen for IT files.
 - Issue fixed with archive management & display in player screen.
 - Fixed crash when modizer is running in background (double free issue).
