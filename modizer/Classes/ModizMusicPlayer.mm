@@ -993,6 +993,7 @@ void propertyListenerCallback (void                   *inUserData,              
     UInt32 err;
     UInt32 i;
 	
+    AudioQueueStop( mAudioQueue, TRUE );
     /*
      * Enqueue all the allocated buffers before starting the playback.
      * The audio callback will be called as soon as one buffer becomes
@@ -1029,6 +1030,15 @@ void propertyListenerCallback (void                   *inUserData,              
 	
     return 1;
 }
+-(BOOL) iPhoneDrv_LittlePlayStart {
+    UInt32 err;
+
+    bGlobalAudioPause=2;
+    err = AudioQueueStart( mAudioQueue, NULL );
+	
+    return 1;
+}
+
 -(void) iPhoneDrv_PlayWaitStop {
 	int counter=0;
     mQueueIsBeingStopped = TRUE;
@@ -3346,6 +3356,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     
     mplayer_error_msg[0]=0;
 	mSingleSubMode=singleSubMode;
+    
+    [self iPhoneDrv_LittlePlayStart];
 	
 	if (archiveMode==0) {
 		extension = [_filePath pathExtension];

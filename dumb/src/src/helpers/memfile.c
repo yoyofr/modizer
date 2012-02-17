@@ -77,7 +77,9 @@ static long dumb_memfile_getnc(char *ptr, long n, void *f)
 
 static void dumb_memfile_close(void *f)
 {
-	free(f);
+    MEMFILE *m = (MEMFILE *)(mem_dumbfile->file);
+	free(m);
+    free(mem_dumbfile);
 }
 
 static void *dumb_memfile_open(const char *filename)

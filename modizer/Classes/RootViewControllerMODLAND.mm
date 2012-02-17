@@ -2707,8 +2707,20 @@ static volatile int mPopupAnimation=0;
         free(search_db_entries_data);
     }
         
-    if (indexTitles) [indexTitles release];
-    if (indexTitlesDownload) [indexTitlesDownload release];
+    if (indexTitles) {
+        [indexTitles release];
+        indexTitles=nil;
+    }
+    if (indexTitlesDownload) {
+        [indexTitlesDownload release];
+        indexTitlesDownload=nil;
+    }
+    
+    if (mFileMngr) {
+        [mFileMngr release];
+        mFileMngr=nil;
+    }
+
     
     [super dealloc];
 }
