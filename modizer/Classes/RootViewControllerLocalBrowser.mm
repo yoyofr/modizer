@@ -14,6 +14,9 @@
 #include <sys/sysctl.h>
 
 #include "gme.h"
+//SID2
+#import "SidTune.h"
+
 
 #include "unzip.h"
 
@@ -117,7 +120,7 @@ static volatile int mPopupAnimation=0;
 	
 	local_nb_entries=0;
 	search_local_nb_entries=0;
-		
+    
 	mSearchText=nil;
 	mCurrentWinAskedDownload=0;
 	mClickedPrimAction=0;
@@ -363,6 +366,10 @@ static volatile int mPopupAnimation=0;
 	NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
 	NSArray *filetype_extGME_MULTISONGSFILE=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
 	NSMutableArray *gme_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]];
+    NSArray *filetype_extSID_MULTISONGSFILE=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+	NSMutableArray *sid_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extSID_MULTISONGSFILE count]];
+    
+    NSMutableArray *all_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]+[filetype_extSID_MULTISONGSFILE count]];
 	
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -432,6 +439,10 @@ static volatile int mPopupAnimation=0;
     
     [archivetype_ext addObjectsFromArray:filetype_extARCHIVEFILE];
     [gme_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];
+    [sid_multisongstype_ext addObjectsFromArray:filetype_extSID_MULTISONGSFILE];
+    
+    [all_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];
+    [all_multisongstype_ext addObjectsFromArray:filetype_extSID_MULTISONGSFILE];
 	
 	if (local_nb_entries) {
 		for (int i=0;i<local_nb_entries;i++) {		
@@ -455,18 +466,162 @@ static volatile int mPopupAnimation=0;
             NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
             if ([archivetype_ext indexOfObject:extension]!=NSNotFound) browseType=1;
             //check if Multisongs file
-            else if ([gme_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=2;            
+            else if ([gme_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=2;
+            else if ([sid_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=3;
         }
     }
     
-    if (browseType==2) { //GME Multisongs
+    if (browseType==3) {//SID        
+        SidTune *mSidTune=new SidTune([cpath UTF8String],0,true);
+        
+        if ((mSidTune==NULL)||(mSidTune->cache.get()==0)) {
+            NSLog(@"SID SidTune init error");
+            if (mSidTune) {delete mSidTune;mSidTune=NULL;}
+        } else {
+            SidTuneInfo sidtune_info;
+            sidtune_info=mSidTune->getInfo();
+            
+            for (int i=0;i<sidtune_info.songs;i++){
+                SidTuneInfo s_info;                 
+                file=nil;
+                mSidTune->selectSong(i);
+                s_info=mSidTune->getInfo();
+                
+                if (s_info.infoString[0][0]) {
+                    file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                } else {
+                    file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                }
+                int filtered=0;
+                if ((mSearch)&&([mSearchText length]>0)) {
+                    filtered=1;
+                    NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                    if (r.location != NSNotFound) {
+                        /*if(r.location== 0)*/ filtered=0;
+                    }
+                }
+                if (!filtered) {
+                    
+                    const char *str=[file UTF8String];
+                    int index=0;
+                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                    local_entries_count[index]++;
+                    local_nb_entries++;
+                }
+            }  
+            if (local_nb_entries) {
+                //2nd initialize array to receive entries
+                local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
+                if (!local_entries_data) {
+                    //Not enough memory            
+                    //try to allocate less entries
+                    local_nb_entries_limit=LIMITED_LIST_SIZE;
+                    if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
+                    local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries_limit*sizeof(t_local_browse_entry));
+                    if (local_entries_data==NULL) {
+                        //show alert : cannot list
+                        UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                        [memAlert show];
+                    } else {
+                        //show alert : limited list
+                        UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                        [memAlert show];
+                        local_nb_entries=local_nb_entries_limit;
+                    }
+                } else local_nb_entries_limit=0;
+                if (local_entries_data) {
+                    local_entries_index=0;
+                    for (int i=0;i<27;i++) 
+                        if (local_entries_count[i]) {
+                            if (local_entries_index+local_entries_count[i]>local_nb_entries) {
+                                local_entries_count[i]=local_nb_entries-local_entries_index;
+                                local_entries[i]=&(local_entries_data[local_entries_index]);
+                                local_entries_index+=local_entries_count[i];
+                                local_entries_count[i]=0;
+                                for (int j=i+1;j<27;j++) local_entries_count[i]=0;
+                            } else {
+                                local_entries[i]=&(local_entries_data[local_entries_index]);
+                                local_entries_index+=local_entries_count[i];                        
+                                local_entries_count[i]=0;
+                            }
+                        }
+                    
+                    for (int i=0;i<sidtune_info.songs;i++){
+                        SidTuneInfo s_info;                 
+                        file=nil;
+                        mSidTune->selectSong(i);
+                        s_info=mSidTune->getInfo();
+                        
+                        if (s_info.infoString[0][0]) {
+                            file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                        } else {
+                            file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                        }
+                        
+                        int filtered=0;
+                        if ((mSearch)&&([mSearchText length]>0)) {
+                            filtered=1;
+                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            if (r.location != NSNotFound) {
+                                /*if(r.location== 0)*/ filtered=0;
+                            }
+                        }
+                        if (!filtered) {
+                            
+                            const char *str;
+                            char tmp_str[1024];//,*tmp_convstr;
+                            str=[file UTF8String];
+                            int index=0;
+                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                            local_entries[index][local_entries_count[index]].type=1;
+                            local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithString:[file lastPathComponent]];                                
+                            local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
+                            
+                            local_entries[index][local_entries_count[index]].rating=0;
+                            local_entries[index][local_entries_count[index]].playcount=0;
+                            local_entries[index][local_entries_count[index]].song_length=0;
+                            local_entries[index][local_entries_count[index]].songs=1;//0;
+                            local_entries[index][local_entries_count[index]].channels_nb=0;
+                            
+                            sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+                            if (err==SQLITE_OK){
+                                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                                    signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                    if (rating<0) rating=0;
+                                    if (rating>5) rating=5;
+                                    local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                    local_entries[index][local_entries_count[index]].rating=rating;							
+                                    local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
+                                    local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
+                                    //local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
+                                }
+                                sqlite3_finalize(stmt);
+                            } else NSLog(@"ErrSQL : %d",err);
+                            
+                            local_entries_count[index]++;
+                            
+                            if (local_nb_entries_limit) {
+                                local_nb_entries_limit--;
+                                if (!local_nb_entries_limit) shouldStop=1;
+                            }
+                            
+                        }
+                    }                            
+                }
+            }
+            if (mSidTune) {delete mSidTune;mSidTune=NULL;}
+        }
+    } else if (browseType==2) { //GME Multisongs
         // Open music file in new emulator
         Music_Emu* gme_emu;
         
-		gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
-		if (gme_err) {
-			NSLog(@"gme_open_file error: %s",gme_err);
-		} else {
+        gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
+        if (gme_err) {
+            NSLog(@"gme_open_file error: %s",gme_err);
+        } else {
             gme_info_t *gme_info;
             for (int i=0;i<gme_track_count( gme_emu );i++) {
                 if (gme_track_info( gme_emu, &gme_info, i )==0) {
@@ -486,14 +641,14 @@ static volatile int mPopupAnimation=0;
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
                         if (r.location != NSNotFound) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
                     if (!filtered) {
                         
-                        const char *str=[[file lastPathComponent] UTF8String];
+                        const char *str=[file UTF8String];
                         int index=0;
                         if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                         if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
@@ -505,7 +660,7 @@ static volatile int mPopupAnimation=0;
             }
             gme_delete(gme_emu);
         }
-		if (local_nb_entries) {
+        if (local_nb_entries) {
             //2nd initialize array to receive entries
             local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
             if (!local_entries_data) {
@@ -566,7 +721,7 @@ static volatile int mPopupAnimation=0;
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
                                 if (r.location != NSNotFound) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
@@ -575,7 +730,7 @@ static volatile int mPopupAnimation=0;
                                 
                                 const char *str;
                                 char tmp_str[1024];//,*tmp_convstr;
-                                str=[[file lastPathComponent] UTF8String];
+                                str=[file UTF8String];
                                 int index=0;
                                 if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                                 if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
@@ -801,8 +956,8 @@ static volatile int mPopupAnimation=0;
             
         } 
     } else {
-//        clock_t start_time,end_time;
-//        start_time=clock();	
+        //        clock_t start_time,end_time;
+        //        start_time=clock();	
         NSError *error;
         NSRange rdir;
         NSArray *dirContent;//
@@ -872,9 +1027,9 @@ static volatile int mPopupAnimation=0;
                 }
             }
         }
-//        end_time=clock();	
-//        NSLog(@"detail1 : %d",end_time-start_time);
-//        start_time=end_time;
+        //        end_time=clock();	
+        //        NSLog(@"detail1 : %d",end_time-start_time);
+        //        start_time=end_time;
         
         
         if (local_nb_entries) {
@@ -914,14 +1069,14 @@ static volatile int mPopupAnimation=0;
                         }
                     }
                 
-//                end_time=clock();	
-//                NSLog(@"detail2 : %d",end_time-start_time);
-//                start_time=end_time;
+                //                end_time=clock();	
+                //                NSLog(@"detail2 : %d",end_time-start_time);
+                //                start_time=end_time;
                 // Second check count for each section
                 for (file in dirContent) {
                     if (shouldStop) break;
                     //rdir.location=NSNotFound;
-                   // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
+                    // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
                     [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
                     if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
@@ -995,8 +1150,8 @@ static volatile int mPopupAnimation=0;
                                     if ([archivetype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
                                     else if ([archivetype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
                                     //check if Multisongs file
-                                    else if ([gme_multisongstype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
-                                    else if ([gme_multisongstype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
+                                    else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
+                                    else if ([all_multisongstype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
                                     if (toto) {
                                         local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithCString:tmp_str encoding:NSUTF8StringEncoding]; 
                                         //	free(tmp_convstr);
@@ -1013,17 +1168,17 @@ static volatile int mPopupAnimation=0;
                                     sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s/%s\"",[[file lastPathComponent] UTF8String],[currentPath UTF8String],[file UTF8String]);
                                     err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                     if (err==SQLITE_OK){
-                                      while (sqlite3_step(stmt) == SQLITE_ROW) {
-                                    signed char rating=(signed char)sqlite3_column_int(stmt, 1);
-                                    if (rating<0) rating=0;
-                                    if (rating>5) rating=5;
-                                    local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
-                                    local_entries[index][local_entries_count[index]].rating=rating;							
-                                    local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
-                                    local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
-                                    local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
-                                     }
-                                     sqlite3_finalize(stmt);
+                                        while (sqlite3_step(stmt) == SQLITE_ROW) {
+                                            signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                            if (rating<0) rating=0;
+                                            if (rating>5) rating=5;
+                                            local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                            local_entries[index][local_entries_count[index]].rating=rating;							
+                                            local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
+                                            local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
+                                            local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
+                                        }
+                                        sqlite3_finalize(stmt);
                                     } else NSLog(@"ErrSQL : %d",err);
                                     
                                     local_entries_count[index]++;
@@ -1037,8 +1192,8 @@ static volatile int mPopupAnimation=0;
                         }
                     }
                 }                
-//                end_time=clock();	
-//                NSLog(@"detail1 : %d",end_time-start_time);
+                //                end_time=clock();	
+                //                NSLog(@"detail1 : %d",end_time-start_time);
             }
         }
     }
@@ -1067,16 +1222,16 @@ static volatile int mPopupAnimation=0;
     } 
     
     //Reset rating if applicable (ensure updated value)
-        if (local_nb_entries) {
-            for (int i=0;i<local_nb_entries;i++) {
-                    local_entries_data[i].rating=-1;
-            }            
-        }
-        if (search_local_nb_entries) {
-            for (int i=0;i<search_local_nb_entries;i++) {
-                search_local_entries_data[i].rating=-1;
-            }            
-        }
+    if (local_nb_entries) {
+        for (int i=0;i<local_nb_entries;i++) {
+            local_entries_data[i].rating=-1;
+        }            
+    }
+    if (search_local_nb_entries) {
+        for (int i=0;i<search_local_nb_entries;i++) {
+            search_local_entries_data[i].rating=-1;
+        }            
+    }
     /////////////
     if (detailViewController.mShouldHaveFocus) {
         detailViewController.mShouldHaveFocus=0;
@@ -1100,7 +1255,7 @@ static volatile int mPopupAnimation=0;
 
 - (void)viewDidAppear:(BOOL)animated {        
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-
+    
     [super viewDidAppear:animated];		
 }
 
@@ -1135,14 +1290,14 @@ static volatile int mPopupAnimation=0;
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (browse_depth==0) return nil;
     if (mSearch) return nil;	
-        int switch_view_subdir=(browse_depth>=1?1:0);		
-        
-        if (section==0) return nil;
-        if ((section==1)&&switch_view_subdir) return @"";
-        if ((search_local?search_local_entries_count[section-1-switch_view_subdir]:local_entries_count[section-1-switch_view_subdir])) {
-            if (switch_view_subdir) return [indexTitlesSpace objectAtIndex:section];	
-            return [indexTitles objectAtIndex:section];
-        } else return nil;
+    int switch_view_subdir=(browse_depth>=1?1:0);		
+    
+    if (section==0) return nil;
+    if ((section==1)&&switch_view_subdir) return @"";
+    if ((search_local?search_local_entries_count[section-1-switch_view_subdir]:local_entries_count[section-1-switch_view_subdir])) {
+        if (switch_view_subdir) return [indexTitlesSpace objectAtIndex:section];	
+        return [indexTitles objectAtIndex:section];
+    } else return nil;
     if (browse_depth>=2) return [indexTitles objectAtIndex:section];
     return nil;
 }
@@ -1283,153 +1438,153 @@ static volatile int mPopupAnimation=0;
     cell.accessoryType = UITableViewCellAccessoryNone;
     
     // Set up the cell...
-        int switch_view_subdir=( (browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-        if (switch_view_subdir&&(indexPath.section==1)){
-            cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
-            bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
+    int switch_view_subdir=( (browse_depth>=SHOW_SUDIR_MIN_LEVEL));
+    if (switch_view_subdir&&(indexPath.section==1)){
+        cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
+        bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
+        
+        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+                                       22,
+                                       tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                       18);
+        
+        topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.9f alpha:1.0];			
+        
+        topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+                                   0,
+                                   tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                   22);
+        
+        
+        
+        [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
+        [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
+        [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+        
+        [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
+        [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
+        [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+        
+        int icon_posx=tableView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE;
+        icon_posx-=32;
+        actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+        actionView.enabled=YES;
+        actionView.hidden=NO;
+        secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+        secActionView.enabled=YES;
+        secActionView.hidden=NO;
+        
+    } else {
+        int section=indexPath.section-1-switch_view_subdir;
+        cellValue=cur_local_entries[section][indexPath.row].label;
+        
+        
+        if (cur_local_entries[section][indexPath.row].type==0) { //directory
+            topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;				
+            topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+                                       0,
+                                       tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-32,
+                                       ROW_HEIGHT);
             
-            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
-                                           22,
-                                           tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
-                                           18);
+        } else  { //file
+            int actionicon_offsetx=0;
+            //archive file ?
+            if ((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3)) {
+                actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE;
+                //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;                    
+                
+                secActionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                
+                [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
+                [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
+                [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                [secActionView addTarget: self action: @selector(accessoryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                
+                secActionView.enabled=YES;
+                secActionView.hidden=NO;
+                
+            }
             
-            topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.9f alpha:1.0];			
+            
+            topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
-                                       tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
                                        22);
             
+            actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
             
-            
-            [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
-            [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
-            [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-            
-            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
-            [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
-            [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-            
-            int icon_posx=tableView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE;
-            icon_posx-=32;
-            actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+                [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
+                [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
+                [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            } else {
+                [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
+                [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
+                [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+            }
             actionView.enabled=YES;
             actionView.hidden=NO;
-            secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-            secActionView.enabled=YES;
-            secActionView.hidden=NO;
-            
-        } else {
-            int section=indexPath.section-1-switch_view_subdir;
-            cellValue=cur_local_entries[section][indexPath.row].label;
             
             
-            if (cur_local_entries[section][indexPath.row].type==0) { //directory
-                topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
-                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;				
-                topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
-                                           0,
-                                           tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-32,
-                                           ROW_HEIGHT);
-                
-            } else  { //file
-                int actionicon_offsetx=0;
-                //archive file ?
-                if ((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3)) {
-                    actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE;
-                    //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;                    
-                    
-                    secActionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-                    
-                    [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
-                    [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
-                    [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
-                    [secActionView addTarget: self action: @selector(accessoryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-                    
-                    secActionView.enabled=YES;
-                    secActionView.hidden=NO;
-                    
-                }
-                
-                
-                topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
-                
-                topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
-                                           0,
-                                           tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
-                                           22);
-                
-                actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-                
-                if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
-                    [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
-                    [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
-                    [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
-                    [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-                } else {
-                    [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
-                    [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
-                    [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
-                    [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-                }
-                actionView.enabled=YES;
-                actionView.hidden=NO;
-                
-                
-                if (cur_local_entries[section][indexPath.row].rating==-1) {
-                    [self getFileStatsDB:cur_local_entries[section][indexPath.row].label
-                                fullpath:cur_local_entries[section][indexPath.row].fullpath
-                               playcount:&cur_local_entries[section][indexPath.row].playcount
-                                  rating:&cur_local_entries[section][indexPath.row].rating
-                             song_length:&cur_local_entries[section][indexPath.row].song_length									 
-                                   songs:&cur_local_entries[section][indexPath.row].songs
-                             channels_nb:&cur_local_entries[section][indexPath.row].channels_nb];
-                }
-                if (cur_local_entries[section][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_local_entries[section][indexPath.row].rating]];
-                
-                NSString *bottomStr;
-                int isMonoSong=cur_local_entries[section][indexPath.row].songs==1;
-                if (isMonoSong) {
-                    if (cur_local_entries[section][indexPath.row].song_length>0)
-                        bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_local_entries[section][indexPath.row].song_length/1000/60,(cur_local_entries[section][indexPath.row].song_length/1000)%60];
-                    else bottomStr=@"--:--";
-                } else bottomStr=@"--:--";
-                
-                if (isMonoSong) {
-                    if (cur_local_entries[section][indexPath.row].channels_nb)
-                        bottomStr=[NSString stringWithFormat:@"%@ / %02dch",bottomStr,cur_local_entries[section][indexPath.row].channels_nb];
-                    else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];
-                } else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];
-                
-                if (isMonoSong) {
-                    if (cur_local_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@ / 1 song",bottomStr];
-                    else bottomStr=[NSString stringWithFormat:@"%@ / - song",bottomStr];
-                } else {
-                    if (cur_local_entries[section][indexPath.row].songs>0)
-                        bottomStr=[NSString stringWithFormat:@"%@ / %d songs",bottomStr,cur_local_entries[section][indexPath.row].songs];
-                    else
-                        bottomStr=[NSString stringWithFormat:@"%@ / %d files",bottomStr,-cur_local_entries[section][indexPath.row].songs];
-                }                								
-                
-                
-                bottomStr=[NSString stringWithFormat:@"%@ / Pl:%d",bottomStr,cur_local_entries[section][indexPath.row].playcount];
-                
-                
-                /*if (!cur_local_entries[section][indexPath.row].playcount) 
-                 bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played0time]; 
-                 else if (cur_local_entries[section][indexPath.row].playcount==1) 
-                 bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played1time];
-                 else bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,[NSString stringWithFormat:playedXtimes,cur_local_entries[section][indexPath.row].playcount]];*/
-                
-                bottomLabel.text=bottomStr;
-                
-                bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
-                                               22,
-                                               tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
-                                               18);
-                
+            if (cur_local_entries[section][indexPath.row].rating==-1) {
+                [self getFileStatsDB:cur_local_entries[section][indexPath.row].label
+                            fullpath:cur_local_entries[section][indexPath.row].fullpath
+                           playcount:&cur_local_entries[section][indexPath.row].playcount
+                              rating:&cur_local_entries[section][indexPath.row].rating
+                         song_length:&cur_local_entries[section][indexPath.row].song_length									 
+                               songs:&cur_local_entries[section][indexPath.row].songs
+                         channels_nb:&cur_local_entries[section][indexPath.row].channels_nb];
             }
+            if (cur_local_entries[section][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_local_entries[section][indexPath.row].rating]];
+            
+            NSString *bottomStr;
+            int isMonoSong=cur_local_entries[section][indexPath.row].songs==1;
+            if (isMonoSong) {
+                if (cur_local_entries[section][indexPath.row].song_length>0)
+                    bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_local_entries[section][indexPath.row].song_length/1000/60,(cur_local_entries[section][indexPath.row].song_length/1000)%60];
+                else bottomStr=@"--:--";
+            } else bottomStr=@"--:--";
+            
+            if (isMonoSong) {
+                if (cur_local_entries[section][indexPath.row].channels_nb)
+                    bottomStr=[NSString stringWithFormat:@"%@ / %02dch",bottomStr,cur_local_entries[section][indexPath.row].channels_nb];
+                else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];
+            } else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];
+            
+            if (isMonoSong) {
+                if (cur_local_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@ / 1 song",bottomStr];
+                else bottomStr=[NSString stringWithFormat:@"%@ / - song",bottomStr];
+            } else {
+                if (cur_local_entries[section][indexPath.row].songs>0)
+                    bottomStr=[NSString stringWithFormat:@"%@ / %d songs",bottomStr,cur_local_entries[section][indexPath.row].songs];
+                else
+                    bottomStr=[NSString stringWithFormat:@"%@ / %d files",bottomStr,-cur_local_entries[section][indexPath.row].songs];
+            }                								
+            
+            
+            bottomStr=[NSString stringWithFormat:@"%@ / Pl:%d",bottomStr,cur_local_entries[section][indexPath.row].playcount];
+            
+            
+            /*if (!cur_local_entries[section][indexPath.row].playcount) 
+             bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played0time]; 
+             else if (cur_local_entries[section][indexPath.row].playcount==1) 
+             bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played1time];
+             else bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,[NSString stringWithFormat:playedXtimes,cur_local_entries[section][indexPath.row].playcount]];*/
+            
+            bottomLabel.text=bottomStr;
+            
+            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+                                           22,
+                                           tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
+                                           18);
+            
         }
+    }
     
     topLabel.text = cellValue;
     
@@ -1470,12 +1625,12 @@ static volatile int mPopupAnimation=0;
     }
 }
 /*- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {    
-    return proposedDestinationIndexPath;
-}*/
+ return proposedDestinationIndexPath;
+ }*/
 // Override to support rearranging the table view.
 /*- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-   
-}*/
+ 
+ }*/
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.    
@@ -1548,41 +1703,88 @@ static volatile int mPopupAnimation=0;
     if (browse_depth==0) {
         
     } else {         
-            int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-            int section=indexPath.section-1-switch_view_subdir;
+        int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
+        int section=indexPath.section-1-switch_view_subdir;
+        
+        if (indexPath.section==1) {
+            // launch Play of current list
+            int pos=0;
+            int total_entries=0;
+            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+            for (int i=0;i<27;i++) 
+                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                    if (cur_local_entries[i][j].type&3) {
+                        total_entries++;
+                        [array_label addObject:cur_local_entries[i][j].label];
+                        [array_path addObject:cur_local_entries[i][j].fullpath];
+                        if (i<section) pos++;
+                        else if (i==(section))
+                            if (j<indexPath.row) pos++;
+                    }
             
-            if (indexPath.section==1) {
-                // launch Play of current list
+            signed char *tmp_ratings;
+            short int *tmp_playcounts;
+            tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
+            tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
+            total_entries=0;
+            for (int i=0;i<27;i++) 
+                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                    if (cur_local_entries[i][j].type&3) {
+                        tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
+                        tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
+                    }			
+            
+            //cur_local_entries[section][indexPath.row].rating=-1;
+            
+            if (section<0) pos=-1;
+            [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
+            if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+            else [[super tableView] reloadData];				
+            
+            free(tmp_ratings);
+            free(tmp_playcounts);
+            
+            
+        } else {            
+            if (cur_local_entries[section][indexPath.row].type&3) {//File selected
+                // launch Play of current dir
                 int pos=0;
                 int total_entries=0;
                 NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
                 NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                for (int i=0;i<27;i++) 
-                    for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                        if (cur_local_entries[i][j].type&3) {
-                            total_entries++;
-                            [array_label addObject:cur_local_entries[i][j].label];
-                            [array_path addObject:cur_local_entries[i][j].fullpath];
-                            if (i<section) pos++;
-                            else if (i==(section))
-                                if (j<indexPath.row) pos++;
-                        }
+                /*for (int i=0;i<27;i++) 
+                 for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                 if (cur_local_entries[i][j].type==1) {
+                 total_entries++;
+                 [array_label addObject:cur_local_entries[i][j].label];
+                 [array_path addObject:cur_local_entries[i][j].fullpath];
+                 if (i<section) pos++;
+                 else if (i==(section))
+                 if (j<indexPath.row) pos++;
+                 }*/
+                [array_label addObject:cur_local_entries[section][indexPath.row].label];
+                [array_path addObject:cur_local_entries[section][indexPath.row].fullpath];
+                total_entries=1;
                 
                 signed char *tmp_ratings;
                 short int *tmp_playcounts;
                 tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
                 tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-                total_entries=0;
-                for (int i=0;i<27;i++) 
-                    for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                        if (cur_local_entries[i][j].type&3) {
-                            tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                            tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                        }			
+                /*total_entries=0;
+                 for (int i=0;i<27;i++) 
+                 for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                 if (cur_local_entries[i][j].type==1) {
+                 tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
+                 tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
+                 }			
+                 */
+                tmp_ratings[0]=cur_local_entries[section][indexPath.row].rating;
+                tmp_playcounts[0]=cur_local_entries[section][indexPath.row].playcount;
                 
-                //cur_local_entries[section][indexPath.row].rating=-1;
                 
-                if (section<0) pos=-1;
+                
+                cur_local_entries[section][indexPath.row].rating=-1;
                 [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                 else [[super tableView] reloadData];				
@@ -1590,56 +1792,9 @@ static volatile int mPopupAnimation=0;
                 free(tmp_ratings);
                 free(tmp_playcounts);
                 
-                
-            } else {            
-                if (cur_local_entries[section][indexPath.row].type&3) {//File selected
-                    // launch Play of current dir
-                    int pos=0;
-                    int total_entries=0;
-                    NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                    NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                    /*for (int i=0;i<27;i++) 
-                     for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                     if (cur_local_entries[i][j].type==1) {
-                     total_entries++;
-                     [array_label addObject:cur_local_entries[i][j].label];
-                     [array_path addObject:cur_local_entries[i][j].fullpath];
-                     if (i<section) pos++;
-                     else if (i==(section))
-                     if (j<indexPath.row) pos++;
-                     }*/
-                    [array_label addObject:cur_local_entries[section][indexPath.row].label];
-                    [array_path addObject:cur_local_entries[section][indexPath.row].fullpath];
-                    total_entries=1;
-                    
-                    signed char *tmp_ratings;
-                    short int *tmp_playcounts;
-                    tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-                    tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-                    /*total_entries=0;
-                     for (int i=0;i<27;i++) 
-                     for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                     if (cur_local_entries[i][j].type==1) {
-                     tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                     tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                     }			
-                     */
-                    tmp_ratings[0]=cur_local_entries[section][indexPath.row].rating;
-                    tmp_playcounts[0]=cur_local_entries[section][indexPath.row].playcount;
-                    
-                    
-                    
-                    cur_local_entries[section][indexPath.row].rating=-1;
-                    [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
-                    if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                    else [[super tableView] reloadData];				
-                    
-                    free(tmp_ratings);
-                    free(tmp_playcounts);
-                    
-                }
             }
-        } 
+        }
+    } 
     
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     
@@ -1657,54 +1812,54 @@ static volatile int mPopupAnimation=0;
     if (browse_depth==0) {
     } else {
         //local  browser & favorites
-            int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-            int section=indexPath.section-1-switch_view_subdir;
-            if (indexPath.section==1) {
-                // launch Play of current dir
-                int pos=0;
-                int total_entries=0;
-                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                for (int i=0;i<27;i++) 
-                    for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                        if (cur_local_entries[i][j].type&3) {
-                            total_entries++;
-                            [array_label addObject:cur_local_entries[i][j].label];
-                            [array_path addObject:cur_local_entries[i][j].fullpath];
-                            if (i<section) pos++;
-                            else if (i==(section))
-                                if (j<indexPath.row) pos++;
-                        }
-                
-                signed char *tmp_ratings;
-                short int *tmp_playcounts;
-                tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-                tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-                total_entries=0;
-                for (int i=0;i<27;i++) 
-                    for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                        if (cur_local_entries[i][j].type&3) {
-                            tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                            tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                        }			
-                
-                if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
+        int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
+        int section=indexPath.section-1-switch_view_subdir;
+        if (indexPath.section==1) {
+            // launch Play of current dir
+            int pos=0;
+            int total_entries=0;
+            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+            for (int i=0;i<27;i++) 
+                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                    if (cur_local_entries[i][j].type&3) {
+                        total_entries++;
+                        [array_label addObject:cur_local_entries[i][j].label];
+                        [array_path addObject:cur_local_entries[i][j].fullpath];
+                        if (i<section) pos++;
+                        else if (i==(section))
+                            if (j<indexPath.row) pos++;
+                    }
+            
+            signed char *tmp_ratings;
+            short int *tmp_playcounts;
+            tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
+            tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
+            total_entries=0;
+            for (int i=0;i<27;i++) 
+                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                    if (cur_local_entries[i][j].type&3) {
+                        tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
+                        tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
+                    }			
+            
+            if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
+                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                else [[super tableView] reloadData];
+            }
+            
+            free(tmp_ratings);
+            free(tmp_playcounts);                                
+            
+        } else {            
+            if (cur_local_entries[section][indexPath.row].type&3) {//File selected
+                cur_local_entries[section][indexPath.row].rating=-1;
+                if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:1]) {
                     if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                     else [[super tableView] reloadData];
                 }
-                
-                free(tmp_ratings);
-                free(tmp_playcounts);                                
-                
-            } else {            
-                if (cur_local_entries[section][indexPath.row].type&3) {//File selected
-                    cur_local_entries[section][indexPath.row].rating=-1;
-                    if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:1]) {
-                        if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                        else [[super tableView] reloadData];
-                    }
-                }
             }
+        }
     }
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
 }
@@ -1761,160 +1916,160 @@ static volatile int mPopupAnimation=0;
         cellValue = [array objectAtIndex:indexPath.row];
         
         
-            if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-            else {			// Don't cache childviews
-            }
-            //set new title
-            childController.title = cellValue;
-            // Set new directory
-            ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-            ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
-            // And push the window
-            [self.navigationController pushViewController:childController animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
+        if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+        else {			// Don't cache childviews
+        }
+        //set new title
+        childController.title = cellValue;
+        // Set new directory
+        ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
+        ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
+        ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
+        // And push the window
+        [self.navigationController pushViewController:childController animated:YES];	
+        [keys release];keys=nil;
+        [list release];list=nil;
         
     } else {
-            int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-            int section=indexPath.section-1-switch_view_subdir;
-            if ((indexPath.section==1)&&switch_view_subdir) {
-                int donothing=0;
-                if (mSearch) {
-                    if (mSearchText==nil) donothing=1;
-                }
-                if (!donothing) {
-                    mShowSubdir^=1;
-                    shouldFillKeys=1;
-                    
-                    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-                    
-                    int old_mSearch=mSearch;
-                    NSString *old_mSearchText=mSearchText;
-                    mSearch=0;
-                    mSearchText=nil;
-                    [self fillKeys];   //1st load eveything
-                    mSearch=old_mSearch;
-                    mSearchText=old_mSearchText;
-                    if (mSearch) {
-                        shouldFillKeys=1;
-                        [self fillKeys];   //2nd filter for drawing
-                    }
-                    [[super tableView] reloadData];
-                    
-                    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-                }
-            } else {
-                cellValue=cur_local_entries[section][indexPath.row].label;
+        int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
+        int section=indexPath.section-1-switch_view_subdir;
+        if ((indexPath.section==1)&&switch_view_subdir) {
+            int donothing=0;
+            if (mSearch) {
+                if (mSearchText==nil) donothing=1;
+            }
+            if (!donothing) {
+                mShowSubdir^=1;
+                shouldFillKeys=1;
                 
-                if (cur_local_entries[section][indexPath.row].type==0) { //Directory selected : change current directory
+                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                
+                int old_mSearch=mSearch;
+                NSString *old_mSearchText=mSearchText;
+                mSearch=0;
+                mSearchText=nil;
+                [self fillKeys];   //1st load eveything
+                mSearch=old_mSearch;
+                mSearchText=old_mSearchText;
+                if (mSearch) {
+                    shouldFillKeys=1;
+                    [self fillKeys];   //2nd filter for drawing
+                }
+                [[super tableView] reloadData];
+                
+                [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            }
+        } else {
+            cellValue=cur_local_entries[section][indexPath.row].label;
+            
+            if (cur_local_entries[section][indexPath.row].type==0) { //Directory selected : change current directory
+                
+                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                
+                NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
+                [newPath retain];        
+                if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+                else {// Don't cache childviews
+                }
+                //set new title
+                childController.title = cellValue;
+                // Set new depth & new directory
+                ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;				
+                ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
+                ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
+                ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
+                // And push the window
+                [self.navigationController pushViewController:childController animated:YES];		
+                
+                
+                [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+                //				[childController autorelease];
+            } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
+                
+                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                
+                NSString *newPath;
+                //                    NSLog(@"currentPath:%@\ncellValue:%@\nfullpath:%@",currentPath,cellValue,cur_local_entries[section][indexPath.row].fullpath);
+                if (mShowSubdir) newPath=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
+                else newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
+                [newPath retain];        
+                if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+                else {// Don't cache childviews
+                }
+                //set new title
+                childController.title = cellValue;
+                // Set new depth & new directory
+                ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;				
+                ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
+                ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
+                ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
+                // And push the window
+                [self.navigationController pushViewController:childController animated:YES];		
+                
+                
+                [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+                //				[childController autorelease];
+            } else {  //File selected
+                
+                if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+                    // launch Play of current dir
+                    int pos=0;
+                    int total_entries=0;
+                    NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                    NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                    /*for (int i=0;i<27;i++) 
+                     for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                     if (cur_local_entries[i][j].type==1) {
+                     total_entries++;
+                     [array_label addObject:cur_local_entries[i][j].label];
+                     [array_path addObject:cur_local_entries[i][j].fullpath];
+                     if (i<section) pos++;
+                     else if (i==(section))
+                     if (j<indexPath.row) pos++;
+                     }
+                     */
+                    total_entries=1;
+                    [array_label addObject:cur_local_entries[section][indexPath.row].label];
+                    [array_path addObject:cur_local_entries[section][indexPath.row].fullpath];
                     
-                    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
                     
-                    NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
-                    [newPath retain];        
-                    if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-                    else {// Don't cache childviews
-                    }
-                    //set new title
-                    childController.title = cellValue;
-                    // Set new depth & new directory
-                    ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;				
-                    ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
-                    ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-                    ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
-                    // And push the window
-                    [self.navigationController pushViewController:childController animated:YES];		
+                    signed char *tmp_ratings;
+                    short int *tmp_playcounts;
+                    tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
+                    tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
+                    total_entries=0;
+                    /*for (int i=0;i<27;i++) 
+                     for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+                     if (cur_local_entries[i][j].type==1) {
+                     tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
+                     tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
+                     }			
+                     
+                     */
+                    tmp_ratings[0]=cur_local_entries[section][indexPath.row].rating;
+                    tmp_playcounts[0]=cur_local_entries[section][indexPath.row].playcount;
                     
+                    [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
                     
-                    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-                    //				[childController autorelease];
-                } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
+                    free(tmp_ratings);
+                    free(tmp_playcounts);
                     
-                    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-                    
-                    NSString *newPath;
-//                    NSLog(@"currentPath:%@\ncellValue:%@\nfullpath:%@",currentPath,cellValue,cur_local_entries[section][indexPath.row].fullpath);
-                    if (mShowSubdir) newPath=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
-                    else newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
-                    [newPath retain];        
-                    if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-                    else {// Don't cache childviews
-                    }
-                    //set new title
-                    childController.title = cellValue;
-                    // Set new depth & new directory
-                    ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;				
-                    ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
-                    ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-                    ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
-                    // And push the window
-                    [self.navigationController pushViewController:childController animated:YES];		
+                    cur_local_entries[section][indexPath.row].rating=-1;
+                    if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                    else [tableView reloadData];
                     
                     
-                    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-                    //				[childController autorelease];
-                } else {  //File selected
                     
-                    if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
-                        // launch Play of current dir
-                        int pos=0;
-                        int total_entries=0;
-                        NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                        NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                        /*for (int i=0;i<27;i++) 
-                         for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                         if (cur_local_entries[i][j].type==1) {
-                         total_entries++;
-                         [array_label addObject:cur_local_entries[i][j].label];
-                         [array_path addObject:cur_local_entries[i][j].fullpath];
-                         if (i<section) pos++;
-                         else if (i==(section))
-                         if (j<indexPath.row) pos++;
-                         }
-                         */
-                        total_entries=1;
-                        [array_label addObject:cur_local_entries[section][indexPath.row].label];
-                        [array_path addObject:cur_local_entries[section][indexPath.row].fullpath];
-                        
-                        
-                        signed char *tmp_ratings;
-                        short int *tmp_playcounts;
-                        tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-                        tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-                        total_entries=0;
-                        /*for (int i=0;i<27;i++) 
-                         for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                         if (cur_local_entries[i][j].type==1) {
-                         tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                         tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                         }			
-                         
-                         */
-                        tmp_ratings[0]=cur_local_entries[section][indexPath.row].rating;
-                        tmp_playcounts[0]=cur_local_entries[section][indexPath.row].playcount;
-                        
-                        [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
-                        
-                        free(tmp_ratings);
-                        free(tmp_playcounts);
-                        
-                        cur_local_entries[section][indexPath.row].rating=-1;
+                } else {
+                    if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:0]) {
                         if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                         else [tableView reloadData];
-                        
-                        
-                        
-                    } else {
-                        if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:0]) {
-                            if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                            else [tableView reloadData];
-                        }
                     }
-                    
-                    
-                }	
-            }
+                }
+                
+                
+            }	
+        }
         
     }
     mAccessoryButton=0;

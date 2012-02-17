@@ -15,6 +15,7 @@
 #include <sys/sysctl.h>
 
 #include "gme.h"
+#include "SidTune.h"
 
 #include "unzip.h"
 
@@ -727,6 +728,10 @@ UIAlertView *alertPlFull;
 	NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
 	NSArray *filetype_extGME_MULTISONGSFILE=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
 	NSMutableArray *gme_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]];
+    NSArray *filetype_extSID_MULTISONGSFILE=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+	NSMutableArray *sid_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extSID_MULTISONGSFILE count]];
+    
+    NSMutableArray *all_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]+[filetype_extSID_MULTISONGSFILE count]];
 	
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -796,6 +801,10 @@ UIAlertView *alertPlFull;
     
     [archivetype_ext addObjectsFromArray:filetype_extARCHIVEFILE];
     [gme_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];
+    [sid_multisongstype_ext addObjectsFromArray:filetype_extSID_MULTISONGSFILE];
+    
+    [all_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];
+    [all_multisongstype_ext addObjectsFromArray:filetype_extSID_MULTISONGSFILE];
 	
 	if (local_nb_entries) {
 		for (int i=0;i<local_nb_entries;i++) {		
@@ -819,18 +828,162 @@ UIAlertView *alertPlFull;
             NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
             if ([archivetype_ext indexOfObject:extension]!=NSNotFound) browseType=1;
             //check if Multisongs file
-            else if ([gme_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=2;            
+            else if ([gme_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=2;
+            else if ([sid_multisongstype_ext indexOfObject:extension]!=NSNotFound) browseType=3;
         }
     }
     
-    if (browseType==2) { //GME Multisongs
+    if (browseType==3) {//SID        
+        SidTune *mSidTune=new SidTune([cpath UTF8String],0,true);
+        
+        if ((mSidTune==NULL)||(mSidTune->cache.get()==0)) {
+            NSLog(@"SID SidTune init error");
+            if (mSidTune) {delete mSidTune;mSidTune=NULL;}
+        } else {
+            SidTuneInfo sidtune_info;
+            sidtune_info=mSidTune->getInfo();
+            
+            for (int i=0;i<sidtune_info.songs;i++){
+                SidTuneInfo s_info;                 
+                file=nil;
+                mSidTune->selectSong(i);
+                s_info=mSidTune->getInfo();
+                
+                if (s_info.infoString[0][0]) {
+                    file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                } else {
+                    file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                }
+                int filtered=0;
+                if ((mSearch)&&([mSearchText length]>0)) {
+                    filtered=1;
+                    NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                    if (r.location != NSNotFound) {
+                        /*if(r.location== 0)*/ filtered=0;
+                    }
+                }
+                if (!filtered) {
+                    
+                    const char *str=[file UTF8String];
+                    int index=0;
+                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                    local_entries_count[index]++;
+                    local_nb_entries++;
+                }
+            }  
+            if (local_nb_entries) {
+                //2nd initialize array to receive entries
+                local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
+                if (!local_entries_data) {
+                    //Not enough memory            
+                    //try to allocate less entries
+                    local_nb_entries_limit=LIMITED_LIST_SIZE;
+                    if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
+                    local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries_limit*sizeof(t_local_browse_entry));
+                    if (local_entries_data==NULL) {
+                        //show alert : cannot list
+                        UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                        [memAlert show];
+                    } else {
+                        //show alert : limited list
+                        UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                        [memAlert show];
+                        local_nb_entries=local_nb_entries_limit;
+                    }
+                } else local_nb_entries_limit=0;
+                if (local_entries_data) {
+                    local_entries_index=0;
+                    for (int i=0;i<27;i++) 
+                        if (local_entries_count[i]) {
+                            if (local_entries_index+local_entries_count[i]>local_nb_entries) {
+                                local_entries_count[i]=local_nb_entries-local_entries_index;
+                                local_entries[i]=&(local_entries_data[local_entries_index]);
+                                local_entries_index+=local_entries_count[i];
+                                local_entries_count[i]=0;
+                                for (int j=i+1;j<27;j++) local_entries_count[i]=0;
+                            } else {
+                                local_entries[i]=&(local_entries_data[local_entries_index]);
+                                local_entries_index+=local_entries_count[i];                        
+                                local_entries_count[i]=0;
+                            }
+                        }
+                    
+                    for (int i=0;i<sidtune_info.songs;i++){
+                        SidTuneInfo s_info;                 
+                        file=nil;
+                        mSidTune->selectSong(i);
+                        s_info=mSidTune->getInfo();
+                        
+                        if (s_info.infoString[0][0]) {
+                            file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                        } else {
+                            file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                        }
+                        
+                        int filtered=0;
+                        if ((mSearch)&&([mSearchText length]>0)) {
+                            filtered=1;
+                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            if (r.location != NSNotFound) {
+                                /*if(r.location== 0)*/ filtered=0;
+                            }
+                        }
+                        if (!filtered) {
+                            
+                            const char *str;
+                            char tmp_str[1024];//,*tmp_convstr;
+                            str=[file UTF8String];
+                            int index=0;
+                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                            local_entries[index][local_entries_count[index]].type=1;
+                            local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithString:[file lastPathComponent]];                                
+                            local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
+                            
+                            local_entries[index][local_entries_count[index]].rating=0;
+                            local_entries[index][local_entries_count[index]].playcount=0;
+                            local_entries[index][local_entries_count[index]].song_length=0;
+                            local_entries[index][local_entries_count[index]].songs=1;//0;
+                            local_entries[index][local_entries_count[index]].channels_nb=0;
+                            
+                            sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[file lastPathComponent] UTF8String],[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+                            if (err==SQLITE_OK){
+                                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                                    signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                    if (rating<0) rating=0;
+                                    if (rating>5) rating=5;
+                                    local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                    local_entries[index][local_entries_count[index]].rating=rating;							
+                                    local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
+                                    local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
+                                    //local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
+                                }
+                                sqlite3_finalize(stmt);
+                            } else NSLog(@"ErrSQL : %d",err);
+                            
+                            local_entries_count[index]++;
+                            
+                            if (local_nb_entries_limit) {
+                                local_nb_entries_limit--;
+                                if (!local_nb_entries_limit) shouldStop=1;
+                            }
+                            
+                        }
+                    }                            
+                }
+            }
+            if (mSidTune) {delete mSidTune;mSidTune=NULL;}
+        }
+    } else if (browseType==2) { //GME Multisongs
         // Open music file in new emulator
         Music_Emu* gme_emu;
         
-		gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
-		if (gme_err) {
-			NSLog(@"gme_open_file error: %s",gme_err);
-		} else {
+        gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
+        if (gme_err) {
+            NSLog(@"gme_open_file error: %s",gme_err);
+        } else {
             gme_info_t *gme_info;
             for (int i=0;i<gme_track_count( gme_emu );i++) {
                 if (gme_track_info( gme_emu, &gme_info, i )==0) {
@@ -850,14 +1003,14 @@ UIAlertView *alertPlFull;
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
                         filtered=1;
-                        NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
                         if (r.location != NSNotFound) {
                             /*if(r.location== 0)*/ filtered=0;
                         }
                     }
                     if (!filtered) {
                         
-                        const char *str=[[file lastPathComponent] UTF8String];
+                        const char *str=[file UTF8String];
                         int index=0;
                         if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                         if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
@@ -869,7 +1022,7 @@ UIAlertView *alertPlFull;
             }
             gme_delete(gme_emu);
         }
-		if (local_nb_entries) {
+        if (local_nb_entries) {
             //2nd initialize array to receive entries
             local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
             if (!local_entries_data) {
@@ -930,7 +1083,7 @@ UIAlertView *alertPlFull;
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
                                 filtered=1;
-                                NSRange r = [[file lastPathComponent] rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
                                 if (r.location != NSNotFound) {
                                     /*if(r.location== 0)*/ filtered=0;
                                 }
@@ -939,7 +1092,7 @@ UIAlertView *alertPlFull;
                                 
                                 const char *str;
                                 char tmp_str[1024];//,*tmp_convstr;
-                                str=[[file lastPathComponent] UTF8String];
+                                str=[file UTF8String];
                                 int index=0;
                                 if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                                 if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
@@ -1170,13 +1323,15 @@ UIAlertView *alertPlFull;
         NSError *error;
         NSRange rdir;
         NSArray *dirContent;//
+        BOOL isDir;
         if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
         else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
         for (file in dirContent) {
             //check if dir
-            rdir.location=NSNotFound;
-            rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-            if (rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
+            //rdir.location=NSNotFound;
+            //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
+            [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
                     if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
@@ -1282,9 +1437,10 @@ UIAlertView *alertPlFull;
                 // Second check count for each section
                 for (file in dirContent) {
                     if (shouldStop) break;
-                    rdir.location=NSNotFound;
-                    rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-                    if (rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
+                    //rdir.location=NSNotFound;
+                    // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
+                    [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+                    if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
                             if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
@@ -1356,8 +1512,8 @@ UIAlertView *alertPlFull;
                                     if ([archivetype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
                                     else if ([archivetype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
                                     //check if Multisongs file
-                                    else if ([gme_multisongstype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
-                                    else if ([gme_multisongstype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
+                                    else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
+                                    else if ([all_multisongstype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
                                     if (toto) {
                                         local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithCString:tmp_str encoding:NSUTF8StringEncoding]; 
                                         //	free(tmp_convstr);
@@ -2348,7 +2504,7 @@ UIAlertView *alertPlFull;
                     [self.navigationController pushViewController:childController animated:YES];
                     
                     //				[childController autorelease];
-                } if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
+                } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
                     
                     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
                     
