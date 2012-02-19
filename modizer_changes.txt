@@ -1,10 +1,10 @@
-1.6(wip)
+1.6
 ---
 [Improvements]
 - Web browser: changed keyboard layout to standard keyboard (easier to do search request).
 - Player screen: playlist now displays file name for archive entries instead of "archivename.7z@31".
 - DUMB: optimized file loading & memory usage.
-- Player screen: info & playlist fullscreen state now saved & restored.
+- Player screen: info & playlist fullscreen states now saved & restored.
 - Playlist: add subsongs/archives management.
 - Timidity: user's custom timidity.cfg & sound font supported.
 - DSF: output can be switch between 22Khz & 44Khz. Output gain increased.
