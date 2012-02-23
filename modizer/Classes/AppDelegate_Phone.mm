@@ -14,6 +14,7 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
+#include <sys/xattr.h>
 
 static BOOL backgroundSupported;
 
@@ -30,6 +31,20 @@ pthread_mutex_t play_mutex;
 @implementation AppDelegate_Phone
 
 @synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone;
+
+
+- (BOOL)addSkipBackupAttributeToItemAtURL
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];    
+    const char* filePath = [documentsDirectory UTF8String];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
 
 -(int) isSlowDevice {
 	return mSlowDevice;
@@ -162,6 +177,8 @@ pthread_mutex_t play_mutex;
 	[modizerWin addSubview:[tabBarController view]];
 	[modizerWin makeKeyAndVisible];
 	[rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];   //Should be handled another way, for example on first DB access
+    
+    
 		
 	if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
 		[detailViewControlleriPhone enterBackground];

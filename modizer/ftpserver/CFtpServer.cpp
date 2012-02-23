@@ -27,6 +27,18 @@
 
 #include "CFtpServer.h"
 #include "CFtpServerGlobal.h"
+#include <sys/xattr.h>
+
+bool addSkipBackupAttributeToItemAtPath(char* filePath)  {
+//    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
+
 
 /**
  * Portable function that sleeps for at least the specified interval.
@@ -2184,6 +2196,8 @@ bool CFtpServer::CClientEntry::SafeWrite( int hFile, char *pBuffer, int nLen )
  			}
 		}
 		close( hFile );
+        
+        addSkipBackupAttributeToItemAtPath(pTransfer->szPath);
 	}
 
 endofstore:

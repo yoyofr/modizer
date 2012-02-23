@@ -15,6 +15,7 @@ extern pthread_mutex_t db_mutex;
 
 #include <ifaddrs.h>
 #include <arpa/inet.h>
+#include <sys/xattr.h>
 
 static NSString *currentPlayFilepath=nil;
 
@@ -34,15 +35,15 @@ static NSString *currentPlayFilepath=nil;
 #pragma mark -
 #pragma mark Initialization
 /*
-- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
-	[textField resignFirstResponder];
-	return NO;
-}
-
-- (void)textFieldDidEndEditing:(UITextField *)textField {
-	[textField resignFirstResponder];
-
-}*/
+ - (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
+ [textField resignFirstResponder];
+ return NO;
+ }
+ 
+ - (void)textFieldDidEndEditing:(UITextField *)textField {
+ [textField resignFirstResponder];
+ 
+ }*/
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 	[textField resignFirstResponder];
@@ -50,6 +51,40 @@ static NSString *currentPlayFilepath=nil;
 }
 
 -(IBAction) FTPanonChanged {
+}
+
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
+{
+    //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    //  NSString *documentsDirectory = [paths objectAtIndex:0];    
+    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
+
+-(void) updateFilesDoNotBackupAttributes {
+    NSError *error;
+    NSArray *dirContent;
+    int result;
+    //BOOL isDir;
+    NSFileManager *mFileMngr = [[NSFileManager alloc] init];
+    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"];
+    NSString *file;
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+    for (file in dirContent) {
+        //NSLog(@"%@",file);
+//        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
+        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
+    }
+    [mFileMngr release];
 }
 
 
@@ -90,7 +125,7 @@ static NSString *currentPlayFilepath=nil;
 
 -(IBAction) FTPswitchChanged {
 	if (sc_FTPswitch.selectedSegmentIndex) {
-//		NSLog(@"reach status : %d",[[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]);
+        //		NSLog(@"reach status : %d",[[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]);
 		if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==kReachableViaWiFi) {
 			if (!bServerRunning) { // Start the FTP Server
 				if ([self startFTPServer]) {
@@ -99,16 +134,16 @@ static NSString *currentPlayFilepath=nil;
 					
 					NSString *ip = [self getIPAddress];//@"";
 					/*NSString *tmpStr;
-					for (int i=0;i<[[currentHost addresses] count];i++) {
-						tmpStr=[[currentHost addresses] objectAtIndex:i];
-						if (!strchr([tmpStr UTF8String],':')) {
-							if (!strstr([tmpStr UTF8String],"127.0.0.1")) {
-								ip = [NSString stringWithFormat:@"%@",tmpStr ];
-								NSLog(@"found : %@",ip); //assumption : last address will be WIFI one
-								//break;
-							}
-						}
-					}*/					
+                     for (int i=0;i<[[currentHost addresses] count];i++) {
+                     tmpStr=[[currentHost addresses] objectAtIndex:i];
+                     if (!strchr([tmpStr UTF8String],':')) {
+                     if (!strstr([tmpStr UTF8String],"127.0.0.1")) {
+                     ip = [NSString stringWithFormat:@"%@",tmpStr ];
+                     NSLog(@"found : %@",ip); //assumption : last address will be WIFI one
+                     //break;
+                     }
+                     }
+                     }*/					
 					NSString *msg = [NSString stringWithFormat:@"Listening on %@\nPort : %@", ip,ftpPort.text];
 					lbl_FTPstatus.text = msg;					
 				} else {
@@ -143,13 +178,13 @@ static NSString *currentPlayFilepath=nil;
 
 
 /*
-- (id)initWithStyle:(UITableViewStyle)style {
-    // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-    if ((self = [super initWithStyle:style])) {
-    }
-    return self;
-}
-*/
+ - (id)initWithStyle:(UITableViewStyle)style {
+ // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
+ if ((self = [super initWithStyle:style])) {
+ }
+ return self;
+ }
+ */
 
 -(bool)startFTPServer {
 	int ftpport=0;
@@ -172,8 +207,8 @@ static NSString *currentPlayFilepath=nil;
     // Create anonymous user
 	if (sc_FTPanonymous.selectedSegmentIndex) {
 		pAnonymousUser = ftpserver->AddUser("anonymous", 
-										NULL, 
-										[[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
+                                            NULL, 
+                                            [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
 	}
 	
 	
@@ -199,9 +234,9 @@ static NSString *currentPlayFilepath=nil;
 	clock_t start_time,end_time;	
 	start_time=clock();	
     
-//	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-//	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-
+    //	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    //	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    
 	[scrollSettingsView addSubview:cSettingsViewGENPLAYER];
 	[scrollSettingsView addSubview:cSettingsViewGENDISPLAY];
 	[scrollSettingsView addSubview:cSettingsViewDOWNLOAD];	
@@ -211,7 +246,7 @@ static NSString *currentPlayFilepath=nil;
 	[scrollSettingsView addSubview:cSettingsViewADPLUG];
 	[scrollSettingsView addSubview:cSettingsViewSEXYPSF];
 	[scrollSettingsView addSubview:cSettingsViewAOSDK];
-//	[scrollSettingsView addSubview:cSettingsViewGME];
+    //	[scrollSettingsView addSubview:cSettingsViewGME];
 	[scrollSettingsView addSubview:cSettingsViewFTP];
 	[scrollSettingsView addSubview:cSettingsViewSID];
     [scrollSettingsView addSubview:cSettingsViewTIM];
@@ -225,22 +260,22 @@ static NSString *currentPlayFilepath=nil;
 	cSettingsViewADPLUG.hidden=YES;
 	cSettingsViewSEXYPSF.hidden=YES;
 	cSettingsViewAOSDK.hidden=YES;
-//	cSettingsViewGME.hidden=YES;
+    //	cSettingsViewGME.hidden=YES;
 	cSettingsViewSID.hidden=YES;
     cSettingsViewTIM.hidden=YES;
 	
 	self.tableView.rowHeight = 32;
 	self.tableView.sectionHeaderHeight = 30;
-//	self.tableView.backgroundColor=[UIColor clearColor];
+    //	self.tableView.backgroundColor=[UIColor clearColor];
 	
 	dbop_choice=0;
 	
 	ftpserver = NULL;
 	bServerRunning=0;
 	lbl_FTPstatus.text = @"Server is stopped.";
-
+    
     [super viewDidLoad];
-
+    
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 	
@@ -252,25 +287,25 @@ static NSString *currentPlayFilepath=nil;
 
 
 /*
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-}
-*/
+ - (void)viewWillAppear:(BOOL)animated {
+ [super viewWillAppear:animated];
+ }
+ */
 /*
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-}
-*/
+ - (void)viewDidAppear:(BOOL)animated {
+ [super viewDidAppear:animated];
+ }
+ */
 /*
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-}
-*/
+ - (void)viewWillDisappear:(BOOL)animated {
+ [super viewWillDisappear:animated];
+ }
+ */
 /*
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-}
-*/
+ - (void)viewDidDisappear:(BOOL)animated {
+ [super viewDidDisappear:animated];
+ }
+ */
 
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -292,7 +327,7 @@ static NSString *currentPlayFilepath=nil;
     if (section==0) return 4;
 	if (section==1) return 8;
 	if (section==2) return 4;
-	if (section==3) return 3;
+	if (section==3) return 4;
     if (section==4) return 4;
 	return 0;
 }
@@ -326,7 +361,7 @@ static NSString *currentPlayFilepath=nil;
 		if (indexPath.row==0) cell.textLabel.text=@"MODPLUG";
         if (indexPath.row==1) cell.textLabel.text=@"DUMB";
 		if (indexPath.row==2) cell.textLabel.text=@"SID";
-//		if (indexPath.row==3) cell.textLabel.text=@"GME";
+        //		if (indexPath.row==3) cell.textLabel.text=@"GME";
 		if (indexPath.row==3) cell.textLabel.text=@"UADE";
 		if (indexPath.row==4) cell.textLabel.text=@"SexyPSF";
 		if (indexPath.row==5) cell.textLabel.text=@"AOSDK";
@@ -343,6 +378,7 @@ static NSString *currentPlayFilepath=nil;
         if (indexPath.row==0) cell.textLabel.text=NSLocalizedString(@"Settings_RecreateSamples",@"");
 		if (indexPath.row==1) cell.textLabel.text=NSLocalizedString(@"Settings_FormatDownloads",@"");
 		if (indexPath.row==2) cell.textLabel.text=NSLocalizedString(@"Settings_RemCovers",@"");
+        if (indexPath.row==3) cell.textLabel.text=NSLocalizedString(@"Settings_UpdateFilesBackupFlag",@"");
 	}
     if (indexPath.section==4) {
         if (indexPath.row==0) cell.textLabel.text=NSLocalizedString(@"Settings_SettingsDefault",@"");
@@ -358,43 +394,43 @@ static NSString *currentPlayFilepath=nil;
 
 
 /*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
+ // Override to support conditional editing of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+ // Return NO if you do not want the specified item to be editable.
+ return YES;
+ }
+ */
 
 
 /*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
+ // Override to support editing the table view.
+ - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+ 
+ if (editingStyle == UITableViewCellEditingStyleDelete) {
+ // Delete the row from the data source
+ [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:YES];
+ }   
+ else if (editingStyle == UITableViewCellEditingStyleInsert) {
+ // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+ }   
+ }
+ */
 
 
 /*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-}
-*/
+ // Override to support rearranging the table view.
+ - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+ }
+ */
 
 
 /*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
+ // Override to support conditional rearranging of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+ // Return NO if you do not want the item to be re-orderable.
+ return YES;
+ }
+ */
 
 -(bool) resetRatingsDB {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
@@ -436,7 +472,7 @@ static NSString *currentPlayFilepath=nil;
 	int err;	
 	BOOL success;
 	NSFileManager *fileManager = [[NSFileManager alloc] init];
-
+    
 	pthread_mutex_lock(&db_mutex);
 	
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -519,12 +555,13 @@ static NSString *currentPlayFilepath=nil;
 			NSError *err;
             NSFileManager *mFileMngr=[[NSFileManager alloc] init];
 			[mFileMngr 
-			   removeItemAtPath:[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads/"]]
-			   error:&err];
+             removeItemAtPath:[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads/"]]
+             error:&err];
 			[mFileMngr 
-			   createDirectoryAtPath:[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads/"]]
-			   withIntermediateDirectories:TRUE attributes:nil 
-			   error:&err];	
+             createDirectoryAtPath:[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads/"]]
+             withIntermediateDirectories:TRUE attributes:nil 
+             error:&err];	
+            [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads/"]];
             [mFileMngr release];
 		} else if (dbop_choice==7) {
             NSError *err;
@@ -537,8 +574,12 @@ static NSString *currentPlayFilepath=nil;
             [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
             [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
             [mFileMngr release];
-
-		} else if (dbop_choice==10) { //load default settings
+            
+		} else if (dbop_choice==8) {
+            [detailViewControllerIphone performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self updateFilesDoNotBackupAttributes];  
+            [detailViewControllerIphone performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        } else if (dbop_choice==10) { //load default settings
             [detailViewControllerIphone loadDefaultSettings];
         } else if (dbop_choice==11) { //load default settings
             [detailViewControllerIphone loadHighSettings];
@@ -553,65 +594,65 @@ static NSString *currentPlayFilepath=nil;
 #pragma mark -
 #pragma mark Table view delegate
 /*
-- (UIView*) tableView: (UITableView*) tableView
-viewForHeaderInSection: (NSInteger) section
-{
-	UIView *customView = [[[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 32)] autorelease];
-	UILabel *sectionLabel=[[UILabel alloc] initWithFrame:CGRectMake(0,4,tableView.bounds.size.width, 24)];
-	sectionLabel.font=[UIFont boldSystemFontOfSize:20];
-	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) { //hack for ipad
-		customView.backgroundColor = [UIColor colorWithRed: 0.0 green: 0.0 blue: 0.0 alpha: 1.0];
-	
-		CAGradientLayer *gradient = [CAGradientLayer layer];
-		gradient.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 4);
-		gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 0.9 green: 0.9 blue: 0.9 alpha: 1.00] CGColor],
-					   (id)[[UIColor colorWithRed: 0.4 green: 0.4 blue: 0.4 alpha: 1.00] CGColor], nil];
-		[customView.layer insertSublayer:gradient atIndex:0];
-	
-		CAGradientLayer *gradient2 = [CAGradientLayer layer];
-		gradient2.frame = CGRectMake(0.0, 28, tableView.bounds.size.width, 4);
-		gradient2.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 0.4 green: 0.4 blue: 0.4 alpha: 1.00] CGColor],
-					   (id)[[UIColor colorWithRed: 0.9 green: 0.9 blue: 0.9 alpha: 1.00] CGColor], nil];
-		[customView.layer insertSublayer:gradient2 atIndex:0];
-		sectionLabel.backgroundColor=[UIColor colorWithRed: 0.0 green: 0.0 blue: 0.0 alpha: 1.0];
-	} else {
-		customView.backgroundColor = [UIColor clearColor];
-		sectionLabel.backgroundColor=[UIColor clearColor];
-	}
-	
-	
-
-	switch (section) {
-		case 0:
-			sectionLabel.text=@"General";
-			sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
-
-			break;
-		case 1:
-			sectionLabel.text=@"Playback Libraries";
-			sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
-
-			break;
-		case 2:
-			sectionLabel.text=@"Database";
-			sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
-
-			break;
-		case 3:
-			sectionLabel.text=@"Local files";
-			sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
-			
-			break;
-	}
-	
-	[customView addSubview: sectionLabel];	
-
-	
-	
-	
-	return customView;
-}
-*/
+ - (UIView*) tableView: (UITableView*) tableView
+ viewForHeaderInSection: (NSInteger) section
+ {
+ UIView *customView = [[[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 32)] autorelease];
+ UILabel *sectionLabel=[[UILabel alloc] initWithFrame:CGRectMake(0,4,tableView.bounds.size.width, 24)];
+ sectionLabel.font=[UIFont boldSystemFontOfSize:20];
+ if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) { //hack for ipad
+ customView.backgroundColor = [UIColor colorWithRed: 0.0 green: 0.0 blue: 0.0 alpha: 1.0];
+ 
+ CAGradientLayer *gradient = [CAGradientLayer layer];
+ gradient.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 4);
+ gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 0.9 green: 0.9 blue: 0.9 alpha: 1.00] CGColor],
+ (id)[[UIColor colorWithRed: 0.4 green: 0.4 blue: 0.4 alpha: 1.00] CGColor], nil];
+ [customView.layer insertSublayer:gradient atIndex:0];
+ 
+ CAGradientLayer *gradient2 = [CAGradientLayer layer];
+ gradient2.frame = CGRectMake(0.0, 28, tableView.bounds.size.width, 4);
+ gradient2.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 0.4 green: 0.4 blue: 0.4 alpha: 1.00] CGColor],
+ (id)[[UIColor colorWithRed: 0.9 green: 0.9 blue: 0.9 alpha: 1.00] CGColor], nil];
+ [customView.layer insertSublayer:gradient2 atIndex:0];
+ sectionLabel.backgroundColor=[UIColor colorWithRed: 0.0 green: 0.0 blue: 0.0 alpha: 1.0];
+ } else {
+ customView.backgroundColor = [UIColor clearColor];
+ sectionLabel.backgroundColor=[UIColor clearColor];
+ }
+ 
+ 
+ 
+ switch (section) {
+ case 0:
+ sectionLabel.text=@"General";
+ sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
+ 
+ break;
+ case 1:
+ sectionLabel.text=@"Playback Libraries";
+ sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
+ 
+ break;
+ case 2:
+ sectionLabel.text=@"Database";
+ sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
+ 
+ break;
+ case 3:
+ sectionLabel.text=@"Local files";
+ sectionLabel.textColor = [UIColor colorWithRed:0.8f green:0.8f blue:0.8f alpha:1.0f];
+ 
+ break;
+ }
+ 
+ [customView addSubview: sectionLabel];	
+ 
+ 
+ 
+ 
+ return customView;
+ }
+ */
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
@@ -632,7 +673,7 @@ viewForHeaderInSection: (NSInteger) section
 	cSettingsViewADPLUG.hidden=YES;
 	cSettingsViewSEXYPSF.hidden=YES;
 	cSettingsViewAOSDK.hidden=YES;
-//	cSettingsViewGME.hidden=YES;
+    //	cSettingsViewGME.hidden=YES;
 	cSettingsViewSID.hidden=YES;
     cSettingsViewTIM.hidden=YES;
 	if (indexPath.section==0) {
@@ -661,38 +702,38 @@ viewForHeaderInSection: (NSInteger) section
 			cSettingsViewMODPLUG.hidden=NO;
 			scrollSettingsView.contentSize = cSettingsViewMODPLUG.bounds.size;			
 		} else
-        if (indexPath.row==1) {
-			cSettingsViewDUMB.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewMODPLUG.bounds.size;			
-		} else
-		if (indexPath.row==2) {
-			cSettingsViewSID.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewSID.bounds.size;
-		} else
-/*		if (indexPath.row==3) {
-			cSettingsViewGME.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewGME.bounds.size;
-		} else	*/
-		if (indexPath.row==3) {
-			cSettingsViewUADE.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewUADE.bounds.size;
-		} else
-		if (indexPath.row==4) {
-			cSettingsViewSEXYPSF.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewSEXYPSF.bounds.size;
-		} else
-		if (indexPath.row==5) {
-			cSettingsViewAOSDK.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewAOSDK.bounds.size;
-		} else
-        if (indexPath.row==6) {
-			cSettingsViewADPLUG.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewADPLUG.bounds.size;
-		} else
-        if (indexPath.row==7) {
-			cSettingsViewTIM.hidden=NO;
-			scrollSettingsView.contentSize = cSettingsViewTIM.bounds.size;
-		}
+            if (indexPath.row==1) {
+                cSettingsViewDUMB.hidden=NO;
+                scrollSettingsView.contentSize = cSettingsViewMODPLUG.bounds.size;			
+            } else
+                if (indexPath.row==2) {
+                    cSettingsViewSID.hidden=NO;
+                    scrollSettingsView.contentSize = cSettingsViewSID.bounds.size;
+                } else
+                /*		if (indexPath.row==3) {
+                 cSettingsViewGME.hidden=NO;
+                 scrollSettingsView.contentSize = cSettingsViewGME.bounds.size;
+                 } else	*/
+                    if (indexPath.row==3) {
+                        cSettingsViewUADE.hidden=NO;
+                        scrollSettingsView.contentSize = cSettingsViewUADE.bounds.size;
+                    } else
+                        if (indexPath.row==4) {
+                            cSettingsViewSEXYPSF.hidden=NO;
+                            scrollSettingsView.contentSize = cSettingsViewSEXYPSF.bounds.size;
+                        } else
+                            if (indexPath.row==5) {
+                                cSettingsViewAOSDK.hidden=NO;
+                                scrollSettingsView.contentSize = cSettingsViewAOSDK.bounds.size;
+                            } else
+                                if (indexPath.row==6) {
+                                    cSettingsViewADPLUG.hidden=NO;
+                                    scrollSettingsView.contentSize = cSettingsViewADPLUG.bounds.size;
+                                } else
+                                    if (indexPath.row==7) {
+                                        cSettingsViewTIM.hidden=NO;
+                                        scrollSettingsView.contentSize = cSettingsViewTIM.bounds.size;
+                                    }
 		[scrollSettingsView scrollRectToVisible:CGRectMake(0,0,10,10) animated:NO];
 		[self.navigationController pushViewController:settingsView animated:(detailViewControllerIphone.mSlowDevice?NO:YES)];
 		[scrollSettingsView flashScrollIndicators];
@@ -731,7 +772,10 @@ viewForHeaderInSection: (NSInteger) section
                 dbop_choice=7;
                 msgAlert=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Confirm_RemCurCovers",@""),[currentPlayFilepath lastPathComponent] ] delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"Yes",@""),nil] autorelease];
             }
-		}
+		} else if (indexPath.row==3) {        
+            dbop_choice=8;
+            msgAlert=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Confirm_CheckFiles",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"Yes",@""),nil] autorelease];    
+        }
 		[msgAlert show];
 	}
     if (indexPath.section==4) {
@@ -753,7 +797,7 @@ viewForHeaderInSection: (NSInteger) section
 		}
 		[msgAlert show];
 	}
-
+    
 }
 
 
