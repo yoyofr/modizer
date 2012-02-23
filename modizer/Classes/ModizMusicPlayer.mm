@@ -9,6 +9,7 @@
 
 #include <pthread.h>
 #include <sqlite3.h>
+#include <sys/xattr.h>
 
 #include "fex.h"
 
@@ -737,6 +738,20 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize mAudioQueue;
 @synthesize mBuffers;
 @synthesize mQueueIsBeingStopped;
+
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
+{
+    //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    //  NSString *documentsDirectory = [paths objectAtIndex:0];    
+    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
+
 
 //*****************************************
 //Internal playback functions
@@ -2753,6 +2768,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     
                     //1st create path if not existing yet
                     [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
+                    [self addSkipBackupAttributeToItemAtPath:extractPathFile];
+                    
                     //2nd extract file
                     f=fopen([extractFilename fileSystemRepresentation],"wb");
                     if (!f) {
@@ -2833,6 +2850,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         
                         //1st create path if not existing yet
                         [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
+                        [self addSkipBackupAttributeToItemAtPath:extractPathFile];
                         //2nd extract file
                         f=fopen([extractFilename fileSystemRepresentation],"wb");
                         if (!f) {
@@ -3424,7 +3442,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     
                     //extract to tmp dir
                     [mFileMngr createDirectoryAtPath:tmpArchivePath withIntermediateDirectories:TRUE attributes:nil error:&err];
-                    
+                    [self addSkipBackupAttributeToItemAtPath:tmpArchivePath];
                     
                     if (found==1) { //FEX
                         if (mSingleFileType&&singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
@@ -3470,6 +3488,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				
 				//extract to tmp dir
                 [mFileMngr createDirectoryAtPath:tmpArchivePath withIntermediateDirectories:TRUE attributes:nil error:&err];
+                [self addSkipBackupAttributeToItemAtPath:tmpArchivePath];
                 
                 //NSLog(@"opening %@",tmpArchivePath);
                 

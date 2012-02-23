@@ -17,7 +17,6 @@
 
 
 @interface SettingsViewController : UITableViewController <UITextFieldDelegate> {
-	
 	//Player
 	int mPlayer_ResumeOnLaunch;  // off, on
 	int mPlayer_EnqueueMode;    // first, after current, last

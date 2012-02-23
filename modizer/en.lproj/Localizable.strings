@@ -128,6 +128,7 @@
 "Settings_RecreateSamples"="Recreate 'Samples' folder";
 "Settings_FormatDownloads"="Format 'Downloads' folder";
 "Settings_RemCovers"="Remove covers";
+"Settings_UpdateFilesBackupFlag"="Check Filesystem";
 
 "Confirm_DBClean"="Launch database cleaning (can take a while)?";
 "Confirm_Reset_PlCnt"="Are you sure you want to reset all the play counter?";
@@ -135,6 +136,7 @@
 "Confirm_ResetDB"="Are you sure you want to reset the whole database? Playlists, ratings, counters will be deleted.";
 "Confirm_RecreateSamples"="Do you want to recreate 'Samples' folder.";
 "Confirm_FormatDownloads"="Do you want to remove ALL files from Local Browsing/Web folder.";
+"Confirm_CheckFiles"="Do you want to perform local filesystem check ?";
 
 "Image detected"="Image detected";
 "Choose_SaveCover"="Save image as cover for %@?";

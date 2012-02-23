@@ -14,8 +14,8 @@
 #define DEFAULT_WAIT_TIME_MS  0.001   //in s
 #define DEFAULT_WAIT_TIME_UADE_MS  0.001   //in s
 
-#define STATISTICS_URL @"http://localhost:8080"
-//#define STATISTICS_URL @"https://modizerdb.appspot.com"
+//#define STATISTICS_URL @"http://localhost:8080"
+#define STATISTICS_URL @"https://modizerdb.appspot.com"
 #define USERGUIDE_URL @"UserGuide"
 #define WORLDCHARTS_DEFAULTLIST @"ListALL"
 

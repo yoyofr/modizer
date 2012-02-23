@@ -87,6 +87,7 @@ char *GetFileWithBase(char *f, char *newfile, const char *pathDir)
 		return NULL;
 	}
 	for(i = 0; i < fcount; i++)  {
+        //printf("compare: %s / %s\n",filelist[i]->d_name,newfile);
 		if (!strcasecmp(filelist[i]->d_name,newfile)) {
 			found=1;
 			strcpy(newfile,filelist[i]->d_name);
@@ -670,7 +671,9 @@ static PSFINFO *LoadPSF(char *path, int level, int type,const char *pathDir) // 
 						/* Load file name "value" from the directory specified in
 						   the full path(directory + file name) "path"
 						*/
+                        //printf("yo %s\nya %s\nyu%s\n",path,value,pathDir);
 						tmpfn=GetFileWithBase(path,value,pathDir);
+                        //printf("ru: %s\n",tmpfn);
 						if(!(tmpi=LoadPSF(tmpfn,level+1,0,pathDir))) {
 							//free(key);
 							//free(value);

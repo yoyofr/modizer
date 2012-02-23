@@ -11,6 +11,8 @@
 
 #import "DownloadViewController.h"
 #import <CFNetwork/CFNetwork.h>
+#include <sys/xattr.h>
+
 
 int lCancelURL;
 extern pthread_mutex_t download_mutex;
@@ -26,6 +28,17 @@ static NSFileManager *mFileMngr;
 
 @synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,downloadTabView,downloadPrgView,detailViewController,barItem,rootViewController;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
+
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString* )path
+{
+    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
 
 -(IBAction) goPlayer {
 	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
@@ -227,6 +240,8 @@ static NSFileManager *mFileMngr;
 		[mFileMngr moveItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] 
 												toPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] error:&err];
 		
+        [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath]];
+        
 		if (mIsMODLAND[0]==0) [self checkIfShouldAddFile:[NSHomeDirectory() stringByAppendingPathComponent: mCurrentFilePath] fileName:mCurrentFilename ];
 		else {  //MODLAND
 			if ([self isAllowedFile:mCurrentFilename]) {
@@ -768,6 +783,7 @@ static NSFileManager *mFileMngr;
 	[mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
 	[fileData writeToFile:localPath atomically:NO];
 	
+    [self addSkipBackupAttributeToItemAtPath:localPath];
 	
 	[self checkIfShouldAddFile:localPath fileName:fileName];
 	//Remove file if it is not part of accepted one
@@ -866,6 +882,8 @@ static NSFileManager *mFileMngr;
     self.fileStream = [NSOutputStream outputStreamToFileAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] append:NO];
     assert(self.fileStream != nil);
     [self.fileStream open];
+    
+    [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME]];
 	
     // Open a FTP stream for the file to download
     self.networkStream = (NSInputStream *) ftpStream;

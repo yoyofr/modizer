@@ -131,6 +131,7 @@
 "Settings_RecreateSamples"="Recréer le dossier 'Samples'";
 "Settings_FormatDownloads"="Formater le dossier 'Downloads'";
 "Settings_RemCovers"="Supprimer jaquettes";
+"Settings_UpdateFilesBackupFlag"="Verifier fichiers";
 
 "Confirm_DBClean"="Lancer le nettoyage de la base (potentiellement long) ?";
 "Confirm_Reset_PlCnt"="Voulez vous reinitialiser les compteurs de lecture ?";
@@ -138,6 +139,7 @@
 "Confirm_ResetDB"="Voulez vous reinitialiser toute la base de donées ? Les playlists, notes et compteurs de lecture seront effacés.";
 "Confirm_RecreateSamples"="Voulez vous recréer le dossier 'Samples' ?";
 "Confirm_FormatDownloads"="Voulez vous formater le dossier 'Downloads' ?";
+"Confirm_CheckFiles"="Voulez vous effectuer la maintenance des fichiers locaux ?";
 
 "Image detected"="Image détectée";
 "Choose_SaveCover"="Enregistrer comme jaquette pour %@ ?";

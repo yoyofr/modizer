@@ -965,6 +965,7 @@ static volatile int mPopupAnimation=0;
         if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
         else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
         for (file in dirContent) {
+            //NSLog(@"%@",file);
             //check if dir
             //rdir.location=NSNotFound;
             //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
@@ -1606,15 +1607,16 @@ static volatile int mPopupAnimation=0;
             NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
             NSError *err;
             
+            if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
+                NSLog(@"Issue %d while removing: %@",err.code,fullpath);
+            }
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
                 [self deleteStatsDirDB:fullpath];
             }
             if (cur_local_entries[section][indexPath.row].type&3) { //File
                 [self deleteStatsFileDB:fullpath];
             }
-            
-            [mFileMngr removeItemAtPath:fullpath error:&err];
-            
+                                    
             [self listLocalFiles];						
             [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             [tableView reloadData];
@@ -1638,7 +1640,19 @@ static volatile int mPopupAnimation=0;
 }
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    if (browse_depth>=1) return YES;
+    if (browse_depth>=1) {
+        t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+        NSFileManager *myMngr=[[NSFileManager alloc] init];
+        int switch_view_subdir=(browse_depth>=SHOW_SUDIR_MIN_LEVEL?1:0);
+        int section=indexPath.section-1-switch_view_subdir;
+        if (section>=0) {
+            NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
+            BOOL res;
+            res=[myMngr isDeletableFileAtPath:fullpath];
+            [myMngr release];
+            return res;
+        }
+    }
     return NO;
 }
 

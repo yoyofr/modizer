@@ -16,6 +16,7 @@
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/xattr.h>
 
 #include "gme.h"
 
@@ -68,6 +69,20 @@ volatile int db_checked=0;
 #pragma mark -
 #pragma mark View lifecycle
 
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
+{
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  //  NSString *documentsDirectory = [paths objectAtIndex:0];    
+    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
+
+
 -(void) getDBVersion:(int*)major minor:(int*)minor {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -112,9 +127,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	
 	if (mUpdateToNewDB) {
 		[fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
+        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
 	}
 	
 	[fileManager copyItemAtPath:defaultDBPath toPath:pathToDB error:&error];
+    [self addSkipBackupAttributeToItemAtPath:pathToDB];
 	
 	
 	if (mUpdateToNewDB) {
@@ -255,6 +272,27 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	}
 }
 
+
+-(void) updateFilesDoNotBackupAttributes {
+    NSError *error;
+    NSArray *dirContent;
+    int result;
+    //BOOL isDir;
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"];
+    NSString *file;
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    dirContent=[fileManager subpathsOfDirectoryAtPath:cpath error:&error];
+    for (file in dirContent) {
+        //NSLog(@"%@",file);
+        //        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
+        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
+    }
+    [fileManager release];
+}
 // Creates a writable copy of the bundled default database in the application Documents directory.
 - (void)createSamplesFromPackage:(BOOL)forceCreate {
     BOOL success;
@@ -270,8 +308,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         [fileManager release];
         return;
     }
-    [fileManager removeItemAtPath:samplesDocPath error:&error];
+    [fileManager removeItemAtPath:samplesDocPath error:&error];            
     [fileManager copyItemAtPath:samplesPkgPath toPath:samplesDocPath error:&error];
+    //update 'Do Not Backup' flag for directory & content (not sure it is required for the latest,...)
+    [self addSkipBackupAttributeToItemAtPath:samplesDocPath];        
+    [self updateFilesDoNotBackupAttributes];
+    
     [fileManager release];
 }
 
