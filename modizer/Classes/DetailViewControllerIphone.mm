@@ -721,12 +721,6 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 			
 			if (btnShowSubSong.hidden==true) {
 				btnShowSubSong.hidden=false;
-				[UIView beginAnimations:nil context:nil];
-				[UIView setAnimationDelay:0.0];
-				[UIView setAnimationDuration:0.70];
-//				[UIView setAnimationDelegate:self];
-				[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowSubSong cache:YES];
-				[UIView commitAnimations];
 			}
 			
 			
@@ -1073,37 +1067,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	btnSortPlAZ.hidden=NO;
 	btnSortPlZA.hidden=YES;
 	
-	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mPlWasView cache:YES];
-	mPlWasView.hidden=YES;
-	[UIView commitAnimations];
-	
-	if (plIsFullscreen) {
-		mainView.hidden=YES;
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
-		[UIView commitAnimations];
-	}
-	
 	self.playlistView.hidden=NO;
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.playlistView cache:YES];
-	[UIView commitAnimations];	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.backPlaylist cache:YES];
-	[UIView commitAnimations];		
+
 	
 	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
 	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
@@ -1136,63 +1101,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
 	[myindex autorelease];
 	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.playlistView cache:YES];
-	self.playlistView.hidden=YES;
-	[UIView commitAnimations];
+    self.playlistView.hidden=YES;
 	
 	if (!mPlWasViewHidden) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mPlWasView cache:YES];	
 		mPlWasView.hidden=NO;
 		if (plIsFullscreen) {
-			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];	
 			mainView.hidden=NO;
 		}
-		[UIView commitAnimations];
 	} else if (plIsFullscreen) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];	
 		mainView.hidden=NO;
-		[UIView commitAnimations];
 	}
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.infoButton cache:YES];
-	[UIView commitAnimations];	
-	
-	if (btnShowSubSong.hidden==false) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowSubSong cache:YES];
-		[UIView commitAnimations];
-	}
-    if (btnShowArcList.hidden==false) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowArcList cache:YES];
-		[UIView commitAnimations];
-	}
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:1.00];	
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-	[UIView commitAnimations];
 }
 
 - (IBAction)infoFullscreen {
@@ -1237,85 +1155,29 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mInWasView=m_oglView;
 		mInWasViewHidden=m_oglView.hidden;
 	}
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mInWasView cache:YES];
-	mInWasView.hidden=YES;
-	[UIView commitAnimations];
-	if (infoIsFullscreen) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];
-		mainView.hidden=YES;
-		[UIView commitAnimations];
-	}
-	
-	infoView.hidden=NO;
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:infoView cache:YES];
-	[UIView commitAnimations];
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:backInfo cache:YES];
-	[UIView commitAnimations];		
-	
+    mInWasView.hidden=YES;
+    if (infoIsFullscreen) { mainView.hidden=YES; }
+    infoView.hidden=NO;
 }
 
 - (IBAction)hideInfo {
 	if ((mPlWasView==infoView)&&(mInWasView==playlistView)) mInWasView=m_oglView;	//avoid cycling between view
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:infoView cache:YES];
 	infoView.hidden=YES;
-	[UIView commitAnimations];
-	
+    
 	if (mInWasView==m_oglView) {  //if ogl view was selected, check if it should be hidden
 		
         if (mOglViewIsHidden) mInWasViewHidden=YES;
 		else mInWasViewHidden=NO;
 	}
 	if (!mInWasViewHidden) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mInWasView cache:YES];	
 		mInWasView.hidden=NO;
 		if (infoIsFullscreen) {
-			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];	
 			mainView.hidden=NO;
 		}
 		[UIView commitAnimations];
 	} else if (infoIsFullscreen) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];	
 		mainView.hidden=NO;
-		[UIView commitAnimations];
 	}
-	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:infoButton cache:YES];
-	[UIView commitAnimations];	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:1.00];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-	[UIView commitAnimations];
 }
 
 
@@ -4722,36 +4584,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 
 - (void)viewDidAppear:(BOOL)animated {
 	mHasFocus=1;
-	[UIView beginAnimations:@"player_appear1" context:nil];
-	[UIView setAnimationDelay:0.3];
-	[UIView setAnimationDuration:0.70];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-	[UIView commitAnimations];
-	
-	[UIView beginAnimations:@"player_appear2" context:nil];
-	[UIView setAnimationDelay:0.5];
-	[UIView setAnimationDuration:0.70];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.infoButton cache:YES];
-	[UIView commitAnimations];
-    
-	if (btnShowSubSong.hidden==false) {
-		[UIView beginAnimations:@"player_appear3" context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowSubSong cache:YES];
-		[UIView commitAnimations];
-	}
-    if (btnShowArcList.hidden==false) {
-		[UIView beginAnimations:@"player_appear4" context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowArcList cache:YES];
-		[UIView commitAnimations];
-	}
     
     if (sc_cflow.selectedSegmentIndex) {
         if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
