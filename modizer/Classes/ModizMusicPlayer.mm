@@ -3635,16 +3635,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 		}
-	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_MODPLUG))
-		for (int i=0;i<[filetype_extMODPLUG count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-		}
 	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_DUMB))
         for (int i=0;i<[filetype_extDUMB count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
         }
+	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_MODPLUG))
+		for (int i=0;i<[filetype_extMODPLUG count];i++) {
+			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+		}
     if (!found)
         for (int i=0;i<[filetype_extHVL count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
@@ -3805,11 +3805,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			//let try the other lib below...
 			delete opl;
 			mPlayType=0;
-			for (int i=0;i<[filetype_extMODPLUG count];i++) { //TRy modplug if applicable
-				if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-				if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+			for (int i=0;i<[filetype_extDUMB count];i++) { //Try Dumb if applicable
+				if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
+				if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
 			}
-			for (int i=0;i<[filetype_extUADE count];i++) { //TRy modplug if applicable
+			for (int i=0;i<[filetype_extUADE count];i++) { //Try UADE if applicable
 				if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 				if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 			}
