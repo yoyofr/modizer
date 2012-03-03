@@ -5526,7 +5526,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	if (mPlayType==3) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
 	if (mPlayType==4) return [NSString stringWithFormat:@"%s",ao_types[ao_type].name];
 	if (mPlayType==5) return @"PSF";
-	if (mPlayType==6) return @"UADE";
+	if (mPlayType==6) return [NSString stringWithFormat:@"%s",UADEstate.ep->playername];
 	if (mPlayType==7) return (hvl_song->ht_ModType?@"HVL":@"AHX");
 	if (mPlayType==8) return @"SID";
 	if (mPlayType==9) return @"YM";
