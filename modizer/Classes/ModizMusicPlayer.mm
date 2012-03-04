@@ -3635,16 +3635,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 		}
-	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_MODPLUG))
-		for (int i=0;i<[filetype_extMODPLUG count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-		}
 	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_DUMB))
         for (int i=0;i<[filetype_extDUMB count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
         }
+	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_MODPLUG))
+		for (int i=0;i<[filetype_extMODPLUG count];i++) {
+			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+		}
     if (!found)
         for (int i=0;i<[filetype_extHVL count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
@@ -3805,11 +3805,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			//let try the other lib below...
 			delete opl;
 			mPlayType=0;
-			for (int i=0;i<[filetype_extMODPLUG count];i++) { //TRy modplug if applicable
-				if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-				if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+			for (int i=0;i<[filetype_extDUMB count];i++) { //Try Dumb if applicable
+				if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
+				if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
 			}
-			for (int i=0;i<[filetype_extUADE count];i++) { //TRy modplug if applicable
+			for (int i=0;i<[filetype_extUADE count];i++) { //Try UADE if applicable
 				if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 				if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
 			}
@@ -4893,71 +4893,33 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		mod_minsub=1;
 		mod_maxsub=1;
 		mod_currentsub=1;
-		
+
         /* Load file */
-        dumbfile_open_memory(mp_data,mp_datasize);
-        duh = dumb_load_it([filePath UTF8String]);
-        if (!duh) {
+        typedef void (*func)(void);
+        typedef DUH *(*dumb1)(const char *);
+        typedef DUH *(*dumb2)(const char *, int);
+        func dumbFormats[15] = {
+        (func)&dumb_load_it, (func)&load_duh,
+        (func)&dumb_load_xm, (func)&dumb_load_s3m,
+        (func)&dumb_load_mod, (func)&dumb_load_stm,
+        (func)&dumb_load_ptm, (func)&dumb_load_669,
+        (func)&dumb_load_mtm, (func)&dumb_load_riff,
+        (func)&dumb_load_asy, (func)&dumb_load_amf,
+        (func)&dumb_load_okt, (func)&dumb_load_psm,
+        (func)&dumb_load_old_psm };
+
+        int i;
+        for(i = 0; i < 15; i++) {
             dumbfile_open_memory(mp_data,mp_datasize);
-            duh = load_duh([filePath UTF8String]);
-            if (!duh) {
-                dumbfile_open_memory(mp_data,mp_datasize);
-                duh = dumb_load_xm([filePath UTF8String]);
-                if (!duh) {
-                    dumbfile_open_memory(mp_data,mp_datasize);
-                    duh = dumb_load_s3m([filePath UTF8String]);
-                    if (!duh) {
-                        dumbfile_open_memory(mp_data,mp_datasize);
-                        duh = dumb_load_mod([filePath UTF8String],0);
-                        if (!duh) {
-                            dumbfile_open_memory(mp_data,mp_datasize);
-                            duh = dumb_load_stm([filePath UTF8String]);
-                            if (!duh) {
-                                dumbfile_open_memory(mp_data,mp_datasize);
-                                duh = dumb_load_ptm([filePath UTF8String]);
-                                if (!duh) {
-                                    dumbfile_open_memory(mp_data,mp_datasize);
-                                    duh = dumb_load_669([filePath UTF8String]);
-                                    if (!duh) {
-                                        dumbfile_open_memory(mp_data,mp_datasize);
-                                        duh = dumb_load_mtm([filePath UTF8String]);
-                                        if (!duh) {
-                                            dumbfile_open_memory(mp_data,mp_datasize);
-                                            duh = dumb_load_riff([filePath UTF8String]);
-                                            if (!duh) {
-                                                dumbfile_open_memory(mp_data,mp_datasize);
-                                                duh = dumb_load_asy([filePath UTF8String]);
-                                                if (!duh) {
-                                                    dumbfile_open_memory(mp_data,mp_datasize);
-                                                    duh = dumb_load_amf([filePath UTF8String]);
-                                                    if (!duh) {
-                                                        dumbfile_open_memory(mp_data,mp_datasize);
-                                                        duh = dumb_load_okt([filePath UTF8String]);
-                                                        if (!duh) {
-                                                            dumbfile_open_memory(mp_data,mp_datasize);
-                                                            duh = dumb_load_psm([filePath UTF8String],0);
-                                                            if (!duh) {
-                                                                dumbfile_open_memory(mp_data,mp_datasize);
-                                                                duh = dumb_load_old_psm([filePath UTF8String]);
-                                                                if (!duh) {
-                                                                    return 1;
-                                                                }
-                                                            } else {//got psm
-                                                                //mod_subsongs=dumb_get_psm_subsong_count(f);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }                                                                                        
-                        }                                                            
-                    }
-                }
+            if(i==4||i==12) {
+                duh = ((dumb2)dumbFormats[i])([filePath UTF8String],0);
+            } else {
+                duh = ((dumb1)dumbFormats[i])([filePath UTF8String]);
             }
+            if(duh) {break;}
         }
+        if(!duh) {return 1;}
+
         iModuleLength = (int)((LONG_LONG)duh_get_length(duh) * 1000 >> 16);
         const char *mod_title = duh_get_tag(duh, "TITLE");
         if (mod_title && mod_title[0]) {
@@ -5564,7 +5526,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	if (mPlayType==3) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
 	if (mPlayType==4) return [NSString stringWithFormat:@"%s",ao_types[ao_type].name];
 	if (mPlayType==5) return @"PSF";
-	if (mPlayType==6) return @"UADE";
+	if (mPlayType==6) return [NSString stringWithFormat:@"%s",UADEstate.ep->playername];
 	if (mPlayType==7) return (hvl_song->ht_ModType?@"HVL":@"AHX");
 	if (mPlayType==8) return @"SID";
 	if (mPlayType==9) return @"YM";
