@@ -184,7 +184,7 @@ int32 dsf_gen(int16 *buffer, uint32 samples)
 #endif
             stereo[0] = &output[opos];
             stereo[1] = &output2[opos];
-            AICA_Update(NULL, NULL, stereo, 1*cycle_ratio);
+            AICA_Update(NULL, NULL, stereo, cycle_ratio);
             opos+=cycle_ratio;
         }
         
@@ -224,9 +224,9 @@ int32 dsf_gen(int16 *buffer, uint32 samples)
         for (i = 0; i < samples; i+=(cycle_ratio<<1))
         {
 #if DK_CORE
-            ARM7_Execute((33000000 / 60 / 4) / 735 *cycle_ratio);
+            ARM7_Execute((33000000 / 60 / 4) / 735 *cycle_ratio*2);
 #else
-            arm7_execute((33000000 / 60 / 4) / 735 *cycle_ratio);
+            arm7_execute((33000000 / 60 / 4) / 735 *cycle_ratio*2);
 #endif
             stereo[0] = &output[opos];
             stereo[1] = &output2[opos];

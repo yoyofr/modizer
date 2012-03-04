@@ -612,9 +612,42 @@ int ao_get_lib(char *filename, uint8 **buffer, uint64 *length) {
 			found=1;
 			strcpy(filename,filelist[i]->d_name);
 		}
-		free(filelist[i]);
+	//	free(filelist[i]);
 	}
-	free(filelist);
+	//free(filelist);
+    
+    if (found==0) {
+        char tmpname1[64];
+        char tmpname2[64];
+        int k=0;
+        for (int j=0;j<strlen(filename);j++) {
+            if ( ((filename[j]>='a')&&(filename[j]<='z'))||
+                ((filename[j]>='A')&&(filename[j]<='Z'))||
+                ((filename[j]>='0')&&(filename[j]<='9')) ) tmpname1[k++]=filename[j];
+            if (k==63) break;
+        }
+        tmpname1[k]=0;
+        for(i = 0; i < fcount; i++)  {
+            k=0;
+            for (int j=0;j<strlen(filelist[i]->d_name);j++) {
+                if ( ((filelist[i]->d_name[j]>='a')&&(filelist[i]->d_name[j]<='z'))||
+                    ((filelist[i]->d_name[j]>='A')&&(filelist[i]->d_name[j]<='Z'))||
+                    ((filelist[i]->d_name[j]>='0')&&(filelist[i]->d_name[j]<='9')) ) tmpname2[k++]=filelist[i]->d_name[j];
+                if (k==63) break;
+            }
+            tmpname2[k]=0;
+            if (!strcasecmp(tmpname2,tmpname1)) {
+                found=1;
+                strcpy(filename,filelist[i]->d_name);
+                break;
+            }
+        }
+    }
+    
+    for (i=0;i<fcount;i++) {
+        free(filelist[i]);
+    }
+    free(filelist);
 	
 	auxfile = fopen([[NSString stringWithFormat:@"%s/%s",pathdir,filename] UTF8String] , "rb");
 	if (!auxfile) {
