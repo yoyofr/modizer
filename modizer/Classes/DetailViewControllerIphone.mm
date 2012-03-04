@@ -1098,13 +1098,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.playlistView cache:YES];
 	[UIView commitAnimations];	
 	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.backPlaylist cache:YES];
-	[UIView commitAnimations];		
-	
 	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
 	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
 	[myindex autorelease];
@@ -1163,12 +1156,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mainView.hidden=NO;
 		[UIView commitAnimations];
 	}
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.infoButton cache:YES];
-	[UIView commitAnimations];	
 	
 	if (btnShowSubSong.hidden==false) {
 		[UIView beginAnimations:nil context:nil];
@@ -1259,13 +1246,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:infoView cache:YES];
 	[UIView commitAnimations];
 	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:backInfo cache:YES];
-	[UIView commitAnimations];		
-	
 }
 
 - (IBAction)hideInfo {
@@ -1301,14 +1281,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mainView.hidden=NO;
 		[UIView commitAnimations];
 	}
-	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:0.70];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:infoButton cache:YES];
-	[UIView commitAnimations];	
+
 	
 	[UIView beginAnimations:nil context:nil];
 	[UIView setAnimationDelay:1.00];
@@ -4728,13 +4701,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
 	[UIView commitAnimations];
-	
-	[UIView beginAnimations:@"player_appear2" context:nil];
-	[UIView setAnimationDelay:0.5];
-	[UIView setAnimationDuration:0.70];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.infoButton cache:YES];
-	[UIView commitAnimations];
+
     
 	if (btnShowSubSong.hidden==false) {
 		[UIView beginAnimations:@"player_appear3" context:nil];
