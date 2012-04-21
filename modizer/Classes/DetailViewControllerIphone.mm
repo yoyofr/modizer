@@ -721,12 +721,6 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 			
 			if (btnShowSubSong.hidden==true) {
 				btnShowSubSong.hidden=false;
-				[UIView beginAnimations:nil context:nil];
-				[UIView setAnimationDelay:0.0];
-				[UIView setAnimationDuration:0.70];
-//				[UIView setAnimationDelegate:self];
-				[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowSubSong cache:YES];
-				[UIView commitAnimations];
 			}
 			
 			
@@ -1154,23 +1148,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 //		[UIView setAnimationDelegate:self];
 		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];	
 		mainView.hidden=NO;
-		[UIView commitAnimations];
-	}
-	
-	if (btnShowSubSong.hidden==false) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowSubSong cache:YES];
-		[UIView commitAnimations];
-	}
-    if (btnShowArcList.hidden==false) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowArcList cache:YES];
 		[UIView commitAnimations];
 	}
 	
@@ -4701,24 +4678,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
 	[UIView commitAnimations];
-
-    
-	if (btnShowSubSong.hidden==false) {
-		[UIView beginAnimations:@"player_appear3" context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowSubSong cache:YES];
-		[UIView commitAnimations];
-	}
-    if (btnShowArcList.hidden==false) {
-		[UIView beginAnimations:@"player_appear4" context:nil];
-		[UIView setAnimationDelay:0.75];
-		[UIView setAnimationDuration:0.70];
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.btnShowArcList cache:YES];
-		[UIView commitAnimations];
-	}
     
     if (sc_cflow.selectedSegmentIndex) {
         if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
