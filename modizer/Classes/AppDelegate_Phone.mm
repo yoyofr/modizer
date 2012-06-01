@@ -243,6 +243,10 @@ pthread_mutex_t play_mutex;
 	//	[modizerWin becomeFirstResponder];
 	//	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 	}
+
+    // Ensure that settings are saved if closed by OS after resigning active
+    [detailViewControlleriPhone saveSettings];
+	[detailViewControlleriPhone updateFlagOnExit];
 }
 
 // iOS 4 background support
