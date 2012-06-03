@@ -3740,7 +3740,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			gme_set_effects( gme_emu, &gme_fx);
 			
 			/**/
-			gme_ignore_silence(gme_emu,0);
+			int ignore_silence = strcmp(gmetype,"PC Engine") ? 1 : 0;
+			gme_ignore_silence(gme_emu,ignore_silence);
 			
 			track=0;
 			mod_subsongs=gme_track_count( gme_emu );
