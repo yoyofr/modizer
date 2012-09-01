@@ -12,3 +12,7 @@ modizer/Resources/DB/databaseMAIN.modizerdb
 *.xcscheme
 
 *.xcscheme
+
+modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/UserInterfaceState.xcuserstate
+
+modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
