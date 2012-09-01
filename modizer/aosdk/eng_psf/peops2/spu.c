@@ -554,7 +554,7 @@ static void *MAINThread(int samp2run)
                  lastch=ch; 
 //                 lastns=ns;	// changemeback
 
-                 return;
+                 return NULL;
                 }
               }
 
