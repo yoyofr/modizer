@@ -6,3 +6,7 @@
 .*.swp
 #Resources
 modizer/Resources/DB/databaseMAIN.modizerdb
+
+*.xcuserstate
+
+*.xcscheme
