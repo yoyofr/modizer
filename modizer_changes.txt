@@ -1,6 +1,7 @@
 1.7
 ---
 TODO: deactivate idleTimer when ftp server used (avoid losing wifi conenction).
+TODO: add back/forw buttons in coverflow view
 
 1.6
 ---
