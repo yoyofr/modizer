@@ -2006,6 +2006,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     gifAnimation=nil;
     
     cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
+    
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
     if (cover_img==nil) {
         cover_img=[UIImage imageWithContentsOfFile:pathFileImgGIF];
@@ -2031,6 +2032,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     if (cover_img) {
+        
+        if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
+        
         cover_view.image=cover_img;
         cover_view.hidden=FALSE;        
     } else cover_view.hidden=TRUE;
@@ -2268,29 +2272,30 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			if (plIsFullscreen) playlistView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
 			else playlistView.frame = CGRectMake(0, 82, mDevice_ww, mDevice_hh-234);
 			
-			commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
-            buttonLoopTitleSel.frame = CGRectMake(10,0,32,32);
-            buttonLoopList.frame = CGRectMake(10,0,32,32);
-            buttonLoopListSel.frame = CGRectMake(10,0,32,32);
-            buttonShuffle.frame = CGRectMake(50,0,32,32);
-            buttonShuffleSel.frame = CGRectMake(50,0,32,32);
-            btnLoopInf.frame = CGRectMake(88,-12,35,57);
-            btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0,32,32);
-            btnShowArcList.frame = CGRectMake(mDevice_ww-36-36,0,32,32);
+			//commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
+            commandViewU.frame = CGRectMake(0, 0, mDevice_ww, 32+48);
+            
+            buttonLoopTitleSel.frame = CGRectMake(10,0+48,32,32);
+            buttonLoopList.frame = CGRectMake(10,0+48,32,32);
+            buttonLoopListSel.frame = CGRectMake(10,0+48,32,32);
+            buttonShuffle.frame = CGRectMake(50,0+48,32,32);
+            buttonShuffleSel.frame = CGRectMake(50,0+48,32,32);
+            btnLoopInf.frame = CGRectMake(88,-12+48,35,57);
+            btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0+48,32,32);
+            btnShowArcList.frame = CGRectMake(mDevice_ww-36-36,0+48,32,32);
+			
+			mainRating1.frame = CGRectMake(130,3+48,24,24);
+			mainRating2.frame = CGRectMake(130+24,3+48,24,24);
+			mainRating3.frame = CGRectMake(130+24*2,3+48,24,24);
+			mainRating4.frame = CGRectMake(130+24*3,3+48,24,24);
+			mainRating5.frame = CGRectMake(130+24*4,3+48,24,24);
+			mainRating1off.frame = CGRectMake(130,3+48,24,24);
+			mainRating2off.frame = CGRectMake(130+24,3+48,24,24);
+			mainRating3off.frame = CGRectMake(130+24*2,3+48,24,24);
+			mainRating4off.frame = CGRectMake(130+24*3,3+48,24,24);
+			mainRating5off.frame = CGRectMake(130+24*4,3+48,24,24);
 			
 			infoButton.frame = CGRectMake(mDevice_ww-44,4,40,40);
-			
-			mainRating1.frame = CGRectMake(130,3,24,24);
-			mainRating2.frame = CGRectMake(130+24,3,24,24);
-			mainRating3.frame = CGRectMake(130+24*2,3,24,24);
-			mainRating4.frame = CGRectMake(130+24*3,3,24,24);
-			mainRating5.frame = CGRectMake(130+24*4,3,24,24);
-			mainRating1off.frame = CGRectMake(130,3,24,24);
-			mainRating2off.frame = CGRectMake(130+24,3,24,24);
-			mainRating3off.frame = CGRectMake(130+24*2,3,24,24);
-			mainRating4off.frame = CGRectMake(130+24*3,3,24,24);
-			mainRating5off.frame = CGRectMake(130+24*4,3,24,24);
-			
 			
 			playlistPos.frame = CGRectMake(mDevice_ww/2-90,0,180,20);
 			labelModuleLength.frame=CGRectMake(2,0,45,20);
@@ -2406,7 +2411,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30+82);
                 oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
-                volWin.frame= CGRectMake(200, 41, mDevice_hh-375, 44);
+                volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
                 volumeView.frame = volWin.bounds;
 //                volumeView.frame = CGRectMake(10, 0, mDevice_hh-375-10, 44);
   //              volumeView.center = CGPointMake((mDevice_hh-375)/2,32);
@@ -2418,28 +2423,34 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (plIsFullscreen) playlistView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 else playlistView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
-                commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
-				buttonLoopTitleSel.frame = CGRectMake(2,0,40,32);
-				buttonLoopList.frame = CGRectMake(2,0,40,32);
-				buttonLoopListSel.frame = CGRectMake(2,0,40,32);
-				buttonShuffle.frame = CGRectMake(42,0,40,32);
-				buttonShuffleSel.frame = CGRectMake(42,0,40,32);
-				btnLoopInf.frame = CGRectMake(80,-12,35,57);
+                int xofs=mDevice_hh-72-40-31-20-4;
+                int yofs=8;
+                //commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
+                commandViewU.frame = CGRectMake(0, 0, mDevice_hh, 32+44+8);
                 
-                mainRating1.frame = CGRectMake(6,36,24,24);
-                mainRating2.frame = CGRectMake(6+24,36,24,24);
-                mainRating3.frame = CGRectMake(6+24*2,36,24,24);
-                mainRating4.frame = CGRectMake(6+24*3,36,24,24);
-                mainRating5.frame = CGRectMake(6+24*4,36,24,24);
-                mainRating1off.frame = CGRectMake(6,36,24,24);
-                mainRating2off.frame = CGRectMake(6+24,36,24,24);
-                mainRating3off.frame = CGRectMake(6+24*2,36,24,24);
-                mainRating4off.frame = CGRectMake(6+24*3,36,24,24);
-                mainRating5off.frame = CGRectMake(6+24*4,36,24,24);
+				buttonLoopTitleSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
+				buttonLoopList.frame = CGRectMake(xofs+2,yofs+0,40,32);
+				buttonLoopListSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
+				buttonShuffle.frame = CGRectMake(xofs+42,yofs+0,40,32);
+				buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
+				btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
+                
+                mainRating1.frame = CGRectMake(xofs+6,yofs+36,24,24);
+                mainRating2.frame = CGRectMake(xofs+6+24,yofs+36,24,24);
+                mainRating3.frame = CGRectMake(xofs+6+24*2,yofs+36,24,24);
+                mainRating4.frame = CGRectMake(xofs+6+24*3,yofs+36,24,24);
+                mainRating5.frame = CGRectMake(xofs+6+24*4,yofs+36,24,24);
+                mainRating1off.frame = CGRectMake(xofs+6,yofs+36,24,24);
+                mainRating2off.frame = CGRectMake(xofs+6+24,yofs+36,24,24);
+                mainRating3off.frame = CGRectMake(xofs+6+24*2,yofs+36,24,24);
+                mainRating4off.frame = CGRectMake(xofs+6+24*3,yofs+36,24,24);
+                mainRating5off.frame = CGRectMake(xofs+6+24*4,yofs+36,24,24);
                 
                 
-                btnShowSubSong.frame = CGRectMake(124+7,0,32,32);
-                btnShowArcList.frame = CGRectMake(124+7,32,32,32);
+                btnShowSubSong.frame = CGRectMake(xofs+124+7,yofs+0,32,32);
+                btnShowArcList.frame = CGRectMake(xofs+124+7,yofs+32,32,32);
+                
+                
                 infoButton.frame = CGRectMake(mDevice_hh-200-10,1,38,38);				
                 
                 playlistPos.frame = CGRectMake((mDevice_hh-200)/2-90,0,180,20);
@@ -4076,12 +4087,12 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     m_displayLink=nil;
     
     gifAnimation=nil;
-    cover_view.contentMode=UIViewContentModeScaleAspectFill;
+    cover_view.contentMode=UIViewContentModeScaleAspectFill;//UIViewContentModeScaleAspectFit;
     
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:)];
     
-    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[[UILongPressGestureRecognizer alloc] 
+    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[[UILongPressGestureRecognizer alloc]
                                                              initWithTarget:self 
                                                              action:@selector(longPressPrevSubArc:)] autorelease];
     UILongPressGestureRecognizer *longPressPaNextSGesture = [[[UILongPressGestureRecognizer alloc] 
@@ -4135,6 +4146,11 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		mDeviceType=1; //ipad
 		mDevice_hh=1024;
 		mDevice_ww=768;
+        UIScreen* mainscr = [UIScreen mainScreen];
+        if (mainscr.currentMode.size.width>1024) {  //new ipad
+            mDeviceType=2;
+            mScaleFactor=2;
+        }
 	}
 	else {
 		
@@ -4145,9 +4161,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		if ([mainscr respondsToSelector:@selector(currentMode)]) {
 			if (mainscr.currentMode.size.width>480) {  //iphone 4
 				mDeviceType=2;
-				mScaleFactor=(float)mainscr.currentMode.size.width/480.0f;
-				// mDevice_ww = mainscr.currentMode.size.width;
-				// mDevice_hh = mainscr.currentMode.size.height;
+				mScaleFactor=2;
 			}
 		}
 		
@@ -4342,7 +4356,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[sliderProgressModule.layer setCornerRadius:8.0];
 	[labelSeeking.layer setCornerRadius:8.0];
 	[labelTime.layer setCornerRadius:8.0];
-	[commandViewU.layer setCornerRadius:8.0];
+	//[commandViewU.layer setCornerRadius:8.0];
 	
 	textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:(mDeviceType==1?18:12)];
 	
@@ -4730,11 +4744,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     if (coverflow.hidden==FALSE) return;
 	
 	if (!mFont) {
-		NSString *fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas8" ofType: @"fnt"];	
+        NSString *fontPath;
+        if (mScaleFactor==1) fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas8" ofType: @"fnt"];
+        else fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas16" ofType: @"fnt"];
 		mFont = new CFont([fontPath cStringUsingEncoding:1]);
 	}
-	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFont);
-//	if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFont);
+	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFont,mScaleFactor);
+//	if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFont,mScaleFactor);
 	
 	
 	//get ogl view dimension
@@ -5076,7 +5092,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             mHeader=nil;
             if (sc_showDebug.selectedSegmentIndex) {
                 sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(sld_TIMPoly.value));
-                mHeader= new CGLString(str_data, mFont);
+                mHeader= new CGLString(str_data, mFont,mScaleFactor);
                 glPushMatrix();
                 glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
                 //glScalef(1.58f, 1.58f, 1.58f);
@@ -5248,7 +5264,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                                     break;
                             }
                             str_data[k]=0;
-                            mText[l++] = new CGLString(str_data, mFont);
+                            mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
                             
                         } else {
                             mText[l++] = NULL;
@@ -5276,7 +5292,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                             str_data[0]=dec2hex[((i-numRows)>>4)&0xF];
                             str_data[1]=dec2hex[(i-numRows)&0xF];
                         }
-                        mTextLine[l]= new CGLString(str_data, mFont);
+                        mTextLine[l]= new CGLString(str_data, mFont,mScaleFactor);
                         glPushMatrix();
                         glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
                         mTextLine[l]->Render(1+(l&1));
@@ -5313,7 +5329,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                  str_data[1]='0'+(j/10)%10;
                  str_data[2]='0'+(j%10);
                  }*/
-                mHeader= new CGLString(str_data, mFont);
+                mHeader= new CGLString(str_data, mFont,mScaleFactor);
                 glPushMatrix();
                 glTranslatef(5.0f+(movePx%size_chan), hh-12, 0.0f);
                 //glScalef(1.58f, 1.58f, 1.58f);
@@ -5797,7 +5813,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 int csize=coverflowView.coverSize.width;
                 if (w>csize) {
                     int new_h=h*csize/w;
-                    cover.image = [img scaleToSize:CGSizeMake(csize,new_h)];
+                    cover.image = [img scaleToSize:CGSizeMake(csize*mScaleFactor,new_h*mScaleFactor)];
                 } else {
                     cover.image = img;
                 }
@@ -5805,7 +5821,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 int csize=coverflowView.coverSize.width;
                 if (h>csize) {
                     int new_w=w*csize/h;
-                    cover.image = [img scaleToSize:CGSizeMake(new_w,csize)];
+                    cover.image = [img scaleToSize:CGSizeMake(new_w*mScaleFactor,csize*mScaleFactor)];
                 } else {
                     cover.image = img;
                 }
@@ -5817,6 +5833,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             cover.image = [UIImage imageNamed:@"default_art.png"];//covers[0];
             
         }
+    
+    if (mScaleFactor!=1) cover.image = [[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
 	return cover;
 }
 

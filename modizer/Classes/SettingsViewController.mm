@@ -145,7 +145,10 @@ static NSString *currentPlayFilepath=nil;
                      }
                      }*/					
 					NSString *msg = [NSString stringWithFormat:@"Listening on %@\nPort : %@", ip,ftpPort.text];
-					lbl_FTPstatus.text = msg;					
+					lbl_FTPstatus.text = msg;
+
+                    // Disable idle timer to avoid wifi connection lost
+                    [UIApplication sharedApplication].idleTimerDisabled=YES;
 				} else {
 					bServerRunning = false;
 					UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
@@ -168,6 +171,11 @@ static NSString *currentPlayFilepath=nil;
 			ftpserver->DeleteUser(pUser);
 			bServerRunning = false;
 			lbl_FTPstatus.text = @"Server is stopped.";
+            
+            // Restart idle timer if battery mode is on (unplugged device)
+            if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged)
+                [UIApplication sharedApplication].idleTimerDisabled=YES;
+            else [UIApplication sharedApplication].idleTimerDisabled=NO;
 		}
 	}
 	
