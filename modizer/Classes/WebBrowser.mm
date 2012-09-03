@@ -26,7 +26,7 @@ static NSString *lastURL=nil;
 
 @implementation WebBrowser
 
-@synthesize webView,activityIndicator,backButton,forwardButton,downloadViewController,addressTestField;
+@synthesize webView,activityIndicator,backButton,forwardButton,downloadViewController,addressTestField,view;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
 
@@ -133,6 +133,29 @@ static NSString *lastURL=nil;
 	return NO;
 }
 
+-(CGSize) sizeInOrientation:(UIInterfaceOrientation)orientation
+{
+    CGSize size = [UIScreen mainScreen].bounds.size;
+    UIApplication *application = [UIApplication sharedApplication];
+    if (UIInterfaceOrientationIsLandscape(orientation))
+    {
+        size = CGSizeMake(size.height, size.width);
+    }
+    if (application.statusBarHidden == NO)
+    {
+        size.height -= MIN(application.statusBarFrame.size.width, application.statusBarFrame.size.height);
+    }
+    return size;
+}
+
+
+-(CGSize) currentSize
+{
+    return [self sizeInOrientation:[UIApplication sharedApplication].statusBarOrientation];
+}
+
+
+
 - (void)loadWorldCharts {
     if ((currentMode==WCHARTS_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
@@ -142,12 +165,16 @@ static NSString *lastURL=nil;
     currentMode=WCHARTS_MODE;
     loadStatus=TO_LOAD;
     
-	UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
+/*	UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
 	//barBtn.enabled=NO;
 	barBtn=[toolBar.items objectAtIndex:1];
 	barBtn.enabled=NO;
 	//barBtn=[toolBar.items objectAtIndex:2];
 	//barBtn.enabled=NO;
+ */
+    toolBar.hidden=TRUE;
+    CGSize cursize=[self currentSize];
+    webView.frame=CGRectMake(0,0,cursize.width,view.frame.size.height);
 	[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 }
 
@@ -160,6 +187,10 @@ static NSString *lastURL=nil;
     currentMode=GUIDE_MODE;
     loadStatus=TO_LOAD;
     
+    toolBar.hidden=FALSE;
+    CGSize cursize=[self currentSize];
+    webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
+    
     UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
 	//barBtn.enabled=NO;
 	barBtn=[toolBar.items objectAtIndex:1];
@@ -170,6 +201,10 @@ static NSString *lastURL=nil;
 }
 
 -(void)loadLastURL {
+    toolBar.hidden=FALSE;
+    CGSize cursize=[self currentSize];
+    webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
+    
 	UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
 	//barBtn.enabled=YES;
 	barBtn=[toolBar.items objectAtIndex:1];
@@ -190,6 +225,10 @@ static NSString *lastURL=nil;
 }
 
 - (void)loadHome {
+    toolBar.hidden=FALSE;
+    CGSize cursize=[self currentSize];
+    webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
+    
     currentMode=WEB_MODE;
 	NSString *html = @"<html><head><title>Modizer Web Browser</title></head>\
 	<meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" />\
@@ -581,6 +620,25 @@ int found_img;
 		(navigationType==UIWebViewNavigationTypeBackForward)) {
 		addressTestField.text=[[request URL] absoluteString];
 		if ([addressTestField.text caseInsensitiveCompare:@"about:blank"]==NSOrderedSame) addressTestField.text=@"";
+        
+        NSRange rModizerdb;
+        rModizerdb.location=NSNotFound;
+        rModizerdb=[addressTestField.text rangeOfString:@"modizerdb.appspot.com" options:NSCaseInsensitiveSearch];
+        if (rModizerdb.location!=NSNotFound) {
+            if (toolBar.hidden==FALSE) {
+                toolBar.hidden=TRUE;
+                CGSize cursize=[self currentSize];
+                webView.frame=CGRectMake(0,0,cursize.width,view.frame.size.height);
+            }
+        } else {
+            if (toolBar.hidden) {
+                toolBar.hidden=FALSE;
+                CGSize cursize=[self currentSize];
+                webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
+            }
+        }
+        
+        
 	}
 	return YES;
 }
@@ -600,7 +658,7 @@ int found_img;
             //addressTestField.text=urlString;
         } else if (currentMode==GUIDE_MODE) {
             loadStatus=LOADED;
-            NSString *urlString=[NSString stringWithFormat:@"%@/%@",STATISTICS_URL,USERGUIDE_URL];
+            NSString *urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,USERGUIDE_URL,(detailViewController.mDeviceType==1?"iPad":"iPhone")];
             [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
             //addressTestField.text=urlString;        
         } else if (currentMode==WEB_MODE) {

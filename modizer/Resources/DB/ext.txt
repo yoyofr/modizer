@@ -337,6 +337,7 @@ sb
 sc
 sc68
 SCI
+003
 scn
 scr
 sct

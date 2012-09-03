@@ -16,7 +16,7 @@ struct colorData {
 class CGLString
 {
 public:
-	CGLString(const char *text, const CFont *font);
+	CGLString(const char *text, const CFont *font,float mScaleFactor);
 	~CGLString();
 	
 	void Render(int msg_type);
@@ -24,6 +24,7 @@ public:
 private:
 	
 	const CFont *mFont;
+    float scaleFactor;
 	GLfloat *mVertices;
 	GLfloat *mUVs;
 	GLshort *mIndices;

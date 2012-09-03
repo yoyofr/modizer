@@ -17,6 +17,7 @@
 
 @interface WebBrowser : UIViewController <UIWebViewDelegate,UITextFieldDelegate> {
 	IBOutlet UIWebView *webView;
+    IBOutlet UIView *view;
 	IBOutlet UIToolbar *toolBar;
 	IBOutlet UIActivityIndicatorView *activityIndicator;
 	IBOutlet UIBarButtonItem *backButton,*forwardButton;
@@ -33,7 +34,7 @@
 	
 }
 
-@property (nonatomic,retain) IBOutlet UIView *infoDownloadView;
+@property (nonatomic,retain) IBOutlet UIView *infoDownloadView,*view;
 @property (nonatomic,retain) IBOutlet UILabel *infoDownloadLbl;
 @property (nonatomic,retain) IBOutlet UIWebView *webView;
 @property (nonatomic,retain) IBOutlet UIToolbar *toolBar;

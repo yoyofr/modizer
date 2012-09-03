@@ -68,6 +68,24 @@
     return self;
 }
 
+void RetinaAwareUIGraphicsBeginImageContext(CGSize size) {
+    static CGFloat scale = -1.0;
+    if (scale<0.0) {
+        UIScreen *screen = [UIScreen mainScreen];
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.0) {
+            scale = [screen scale];
+        }
+        else {
+            scale = 0.0;    // mean use old api
+        }
+    }
+    if (scale>0.0) {
+        UIGraphicsBeginImageContextWithOptions(size, NO, scale);
+    } else {
+        UIGraphicsBeginImageContext(size);
+    }
+}
+
 
 - (void) setImage:(UIImage *)img{
 	
@@ -86,7 +104,8 @@
 	imageView.frame = CGRectMake(0, y, w, h);
     
     CGRect imageRrect = CGRectMake(0, y, w, h);
-    UIGraphicsBeginImageContext( imageRrect.size ); 
+    RetinaAwareUIGraphicsBeginImageContext ( imageRrect.size );
+//    UIGraphicsBeginImageContext(imageRrect.size);
     [image drawInRect:CGRectMake(1,1,w-2,h-2)];
     imageView.image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();

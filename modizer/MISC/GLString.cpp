@@ -14,7 +14,7 @@
 #include "GLString.h"
 #include "Font.h"
 
-CGLString::CGLString(const char *text, const CFont *font) :
+CGLString::CGLString(const char *text, const CFont *font,float mScaleFactor) :
 	mText(NULL),
 	mFont(font),
 	mVertices(NULL),
@@ -23,6 +23,8 @@ CGLString::CGLString(const char *text, const CFont *font) :
 	mColors(NULL)
 {
 	mText = strdup(text);
+    
+    scaleFactor=mScaleFactor;
 	
 	// We figure out the number of texured quads we'll be rendering later
 	// (the number of characters minus any spaces)
@@ -147,7 +149,7 @@ void CGLString::BuildString(int msg_type)
 		if (mText[i] == ' ')
 		{
 			// Simple hack to generate spaces, could be handled better though...
-			baseX += mFont->mCharacterData['i'].screenWidth;
+			baseX += mFont->mCharacterData['i'].screenWidth/scaleFactor;
 		}
 		else
 		{
@@ -157,18 +159,18 @@ void CGLString::BuildString(int msg_type)
             x = baseX;
             y = baseY;
             
-			x += data.xOffset;
-			y -= data.yOffset;
+			x += data.xOffset/scaleFactor;
+			y -= data.yOffset/scaleFactor;
 			
 			mVertices[vertIndex + 0] = x;
-			mVertices[vertIndex + 1] = y - data.byteHeight;
+			mVertices[vertIndex + 1] = y - data.byteHeight/scaleFactor;
 			mVertices[vertIndex + 2] = x;
 			mVertices[vertIndex + 3] = y;
 			
-			x += data.byteWidth;
+			x += data.byteWidth/scaleFactor;
 			
 			mVertices[vertIndex + 4] = x;
-			mVertices[vertIndex + 5] = y - data.byteHeight;
+			mVertices[vertIndex + 5] = y - data.byteHeight/scaleFactor;
 			mVertices[vertIndex + 6] = x;
 			mVertices[vertIndex + 7] = y;
 			
@@ -176,7 +178,7 @@ void CGLString::BuildString(int msg_type)
 			
 			vertIndex += 8;
             
-            baseX += data.screenWidth;
+            baseX += data.screenWidth/scaleFactor;
 		}
 	}
 	
