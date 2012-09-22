@@ -4159,10 +4159,15 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		mDevice_ww=320;
 		UIScreen* mainscr = [UIScreen mainScreen];
 		if ([mainscr respondsToSelector:@selector(currentMode)]) {
-			if (mainscr.currentMode.size.width>480) {  //iphone 4
+            if (mainscr.scale >= 2) {  //iphone 4
 				mDeviceType=2;
 				mScaleFactor=2;
 			}
+            if(mainscr.bounds.size.height>=568) {
+                mDevice_hh=568; //iPhone 5
+                //iPhone Simulator doesn't send screen rotations in 4-inch mode, so here is a hack to fix UI elements there:
+                [self shouldAutorotateToInterfaceOrientation:UIInterfaceOrientationPortrait];
+            }
 		}
 		
 	}
