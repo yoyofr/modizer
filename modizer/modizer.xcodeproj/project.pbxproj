@@ -331,6 +331,7 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
+		9EE3ABCD160D4F3700081164 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9EE3ABCC160D4F3700081164 /* Default-568h@2x.png */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
 		CC03F2CE12160E9500F2AC65 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CC12160E9500F2AC65 /* button.png */; };
 		CC03F2DB12160FE000F2AC65 /* buttonB-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */; };
@@ -1462,6 +1463,7 @@
 		50819A2414B3E06F0062FA86 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		9EE3ABCC160D4F3700081164 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -2436,8 +2438,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				3314C185132C222D007F171B /* Default-Landscape~ipad.png */,
-				3314C183132C221B007F171B /* Default-Portrait~ipad.png */,
 				CC9B194812FF0C1E00985967 /* Splashscreens */,
 				CC9B194112FF0BD700985967 /* Archives */,
 				CC9B194012FF0BCA00985967 /* Utils */,
@@ -4126,6 +4126,9 @@
 		CC9B194812FF0C1E00985967 /* Splashscreens */ = {
 			isa = PBXGroup;
 			children = (
+				3314C185132C222D007F171B /* Default-Landscape~ipad.png */,
+				3314C183132C221B007F171B /* Default-Portrait~ipad.png */,
+				9EE3ABCC160D4F3700081164 /* Default-568h@2x.png */,
 				CC1E5F19120155FC000A8A4E /* Default-Landscape.png */,
 				CC1E5F1A120155FC000A8A4E /* Default-Portrait.png */,
 				CCB21EB41246C50400A30F62 /* Default@2x.png */,
@@ -5033,6 +5036,7 @@
 				3358147914EC0F27003D7B5B /* pinfo.png in Resources */,
 				3358147A14EC0F27003D7B5B /* pinfo@2x.png in Resources */,
 				3389C97815F2AAA9000B28BB /* consolas16.fnt in Resources */,
+				9EE3ABCD160D4F3700081164 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
