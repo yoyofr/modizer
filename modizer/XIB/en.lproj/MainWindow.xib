@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <archive type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="7.10">
 	<data>
-		<int key="IBDocument.SystemTarget">1280</int>
-		<string key="IBDocument.SystemVersion">11D50b</string>
-		<string key="IBDocument.InterfaceBuilderVersion">2177</string>
-		<string key="IBDocument.AppKitVersion">1138.32</string>
-		<string key="IBDocument.HIToolboxVersion">568.00</string>
+		<int key="IBDocument.SystemTarget">1536</int>
+		<string key="IBDocument.SystemVersion">12C60</string>
+		<string key="IBDocument.InterfaceBuilderVersion">2844</string>
+		<string key="IBDocument.AppKitVersion">1187.34</string>
+		<string key="IBDocument.HIToolboxVersion">625.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-			<string key="NS.object.0">1173</string>
+			<string key="NS.object.0">1930</string>
 		</object>
 		<object class="NSArray" key="IBDocument.IntegratedClassDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<string>IBUITableView</string>
-			<string>IBUILabel</string>
-			<string>IBUITextView</string>
-			<string>IBUIView</string>
-			<string>IBUIScrollView</string>
-			<string>IBUIPickerView</string>
-			<string>IBUICustomObject</string>
 			<string>IBProxyObject</string>
-			<string>IBUINavigationController</string>
-			<string>IBUISegmentedControl</string>
-			<string>IBUIProgressView</string>
-			<string>IBUIWebView</string>
-			<string>IBUINavigationItem</string>
-			<string>IBUITextField</string>
-			<string>IBUIToolbar</string>
-			<string>IBUITabBarController</string>
-			<string>IBUIButton</string>
-			<string>IBUIWindow</string>
-			<string>IBUITabBar</string>
-			<string>IBUISearchBar</string>
 			<string>IBUIActivityIndicatorView</string>
-			<string>IBUISlider</string>
-			<string>IBUIViewController</string>
 			<string>IBUIBarButtonItem</string>
+			<string>IBUIButton</string>
+			<string>IBUICustomObject</string>
 			<string>IBUIImageView</string>
+			<string>IBUILabel</string>
 			<string>IBUINavigationBar</string>
+			<string>IBUINavigationController</string>
+			<string>IBUINavigationItem</string>
+			<string>IBUIPickerView</string>
+			<string>IBUIProgressView</string>
+			<string>IBUIScrollView</string>
+			<string>IBUISearchBar</string>
+			<string>IBUISegmentedControl</string>
+			<string>IBUISlider</string>
+			<string>IBUITabBar</string>
+			<string>IBUITabBarController</string>
 			<string>IBUITabBarItem</string>
+			<string>IBUITableView</string>
+			<string>IBUITextField</string>
+			<string>IBUITextView</string>
+			<string>IBUIToolbar</string>
+			<string>IBUIView</string>
+			<string>IBUIViewController</string>
+			<string>IBUIWebView</string>
+			<string>IBUIWindow</string>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -74,6 +74,7 @@
 						<object class="NSColor" key="IBUIBackgroundColor" id="702969809">
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MCAwIDAAA</bytes>
+							<string key="IBUIColorCocoaTouchKeyPath">darkTextColor</string>
 						</object>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -378,8 +379,9 @@
 				<bool key="IBUIHorizontal">NO</bool>
 			</object>
 			<object class="IBUIViewController" id="840753872">
+				<string key="IBUITitle">web browser</string>
 				<object class="IBUIView" key="IBUIView" id="679875388">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">274</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -484,7 +486,7 @@
 						<object class="IBUIActivityIndicatorView" id="969711200">
 							<reference key="NSNextResponder" ref="679875388"/>
 							<int key="NSvFlags">-2147483356</int>
-							<string key="NSFrame">{{0, 44}, {37, 37}}</string>
+							<string key="NSFrame">{{247, 12}, {20, 20}}</string>
 							<reference key="NSSuperview" ref="679875388"/>
 							<reference key="NSNextKeyView" ref="851704534"/>
 							<object class="NSColor" key="IBUIBackgroundColor" id="883063613">
@@ -493,7 +495,7 @@
 							</object>
 							<bool key="IBUIOpaque">NO</bool>
 							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-							<int key="IBUIStyle">0</int>
+							<int key="IBUIStyle">2</int>
 						</object>
 						<object class="IBUIView" id="851704534">
 							<reference key="NSNextResponder" ref="679875388"/>
@@ -522,6 +524,7 @@
 									<int key="IBUILineBreakMode">1</int>
 									<reference key="IBUIFontDescription" ref="133154163"/>
 									<reference key="IBUIFont" ref="1130"/>
+									<double key="preferredMaxLayoutWidth">300</double>
 								</object>
 							</object>
 							<string key="NSFrame">{{0, 351}, {320, 60}}</string>
@@ -536,12 +539,14 @@
 						</object>
 					</object>
 					<string key="NSFrame">{{0, 64}, {320, 411}}</string>
+					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="971190455"/>
 					<object class="NSColor" key="IBUIBackgroundColor">
 						<int key="NSColorSpace">3</int>
 						<bytes key="NSWhite">MQA</bytes>
 						<reference key="NSCustomColorSpace" ref="149166547"/>
 					</object>
+					<bool key="IBUIClipsSubviews">YES</bool>
 					<bool key="IBUIMultipleTouchEnabled">YES</bool>
 					<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 				</object>
@@ -573,13 +578,13 @@
 				</object>
 				<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 				<bool key="IBUIHorizontal">NO</bool>
-				<object class="IBUINavigationController" key="IBUISelectedViewController" id="164087915">
-					<string key="IBUITitle">Settings</string>
-					<object class="IBUITabBarItem" key="IBUITabBarItem" id="875429644">
-						<string key="IBUITitle">Settings</string>
+				<object class="IBUINavigationController" key="IBUISelectedViewController" id="708240472">
+					<string key="IBUITitle">About</string>
+					<object class="IBUITabBarItem" key="IBUITabBarItem" id="1026034716">
+						<string key="IBUITitle">About</string>
 						<object class="NSCustomResource" key="IBUIImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">spanner32.png</string>
+							<string key="NSResourceName">smile32.png</string>
 						</object>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 					</object>
@@ -591,7 +596,7 @@
 					</object>
 					<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 					<bool key="IBUIHorizontal">NO</bool>
-					<object class="IBUINavigationBar" key="IBUINavigationBar" id="628852731">
+					<object class="IBUINavigationBar" key="IBUINavigationBar" id="1066894091">
 						<nil key="NSNextResponder"/>
 						<int key="NSvFlags">256</int>
 						<string key="NSFrameSize">{320, 44}</string>
@@ -603,38 +608,145 @@
 					</object>
 					<object class="NSMutableArray" key="IBUIViewControllers">
 						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="IBUIViewController" id="559970368">
-							<object class="IBUITableView" key="IBUIView" id="109810799">
-								<nil key="NSNextResponder"/>
+						<object class="IBUIViewController" id="700171428">
+							<object class="IBUIView" key="IBUIView" id="627834515">
+								<reference key="NSNextResponder"/>
 								<int key="NSvFlags">274</int>
-								<string key="NSFrame">{{0, 20}, {320, 369}}</string>
-								<reference key="IBUIBackgroundColor" ref="110839098"/>
-								<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+								<object class="NSMutableArray" key="NSSubviews">
+									<bool key="EncodedWithXMLCoder">YES</bool>
+									<object class="IBUIImageView" id="748621900">
+										<reference key="NSNextResponder" ref="627834515"/>
+										<int key="NSvFlags">256</int>
+										<string key="NSFrame">{{28, 0}, {264, 80}}</string>
+										<reference key="NSSuperview" ref="627834515"/>
+										<reference key="NSNextKeyView" ref="411458996"/>
+										<bool key="IBUIUserInteractionEnabled">NO</bool>
+										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+										<object class="NSCustomResource" key="IBUIImage">
+											<string key="NSClassName">NSImage</string>
+											<string key="NSResourceName">modizer_logo.png</string>
+										</object>
+									</object>
+									<object class="IBUITextView" id="411458996">
+										<reference key="NSNextResponder" ref="627834515"/>
+										<int key="NSvFlags">274</int>
+										<string key="NSFrame">{{0, 80}, {320, 331}}</string>
+										<reference key="NSSuperview" ref="627834515"/>
+										<object class="NSColor" key="IBUIBackgroundColor">
+											<int key="NSColorSpace">1</int>
+											<bytes key="NSRGB">MCAwIDAgMC41AA</bytes>
+										</object>
+										<bool key="IBUIClipsSubviews">YES</bool>
+										<bool key="IBUIMultipleTouchEnabled">YES</bool>
+										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+										<bool key="IBUIEditable">NO</bool>
+										<object class="NSMutableString" key="IBUIText">
+											<bytes key="NS.bytes">djEuNyDCqSBZb2hhbm4gTWFnbmllbiAvIFlveW9GUgoKV2ViOiBodHRwOi8veW95b2ZyLmJsb2dzcG90
+LmNvbS9wL21vZGl6ZXIuaHRtbApGb3J1bTogaHR0cDovL21vZGl6ZXIuOTg4NzI3Lm4zLm5hYmJsZS5j
+b20vCkNvbnRhY3Q6IG1haWx0bzovL3ltYWduaWVuQGdtYWlsLmNvbQoKR0ZYIGJ5IFN0ZXZlIE1pZWxl
+OiBodHRwOi8vYXJ0aXN0ZXZlLmNvbQoKUG1kbWluaSBzdXBwb3J0IHRoYW5rcyB0byBNaXN0eSBEZSBN
+ZW8uCgpGb3JtYXRzIGN1cnJlbnRseSBhY2NlcHRlZDoKLSBQbWRtaW5pOiBNLCBNMiwgTVoKLSBTaWRw
+bGF5Mi9yZXNpZCwgU2lkcGxheTE6IFNJRCAoQzY0KQotIEFub3RoZXIgU2xpZ2h0IEF0YXJpIFBsYXll
+cihBU0FQKTogU0FQLCBDTUMsIENNMywgQ01SLCBDTVMsIERNQywgRExULCBNUFQsIE1QRCwgUk1ULCBU
+TUMsIFRNOCwgVE0yCi0gUGxheUdTRjogR1NGLCBNSU5JR1NGCi0gU1QtU291bmQ6IFlNIChBdGFyaSBT
+VCwgQW1zdHJhZCBDUEMpCi0gU0M2ODogU0M2OCwgU05ESCAoQXRhcmkgU1QsIEFtaWdhKQotIEhpdmVs
+eSB0cmFja2VyOiBBSFgsIEhWTAotIE1keHBsYXk6IE1EWCAoU2hhcnAgWDY4MDAwKQotIERVTUIgKEtv
+ZGU1NCB2ZXJzaW9uKTogTU9ELE1EWixGVCxTM00sUzNaLFNUTSxTVFosSVQsSVRaLFhNLFhNWixQVE0s
+UFRaLE1UTSxNVFosNjY5LFBTTSxVTVgsQU0sSjJCLERTTSxBTUYsT0tULE9LVEEKLSBMaWJNb2RwbHVn
+OiBGVCwgTU9ELCBTM00sIFhNLCBNRUQsIE1NRDAsIE1NRDEsIE1NRDIsIE1NRDMsIE1NRDQsIE1NREMs
+IE1UTSwgSVQsIDY2OSwgVUxULCBTVE0sIEZBUiwgV0FWLCBBTUYsIEFNUywgRFNNLCBNREwsIE9LVCwg
+TUlELCBETUYsIFBUTSwgREJNLCBNVDIsIEFNRjAsIFBTTSwgSjJCLCBBQkMsIFBBVCwgVU1YCi0gQmxh
+cmdnJ3MgR2FtZSBNdXNpYyBFbXUgKEdNRSk6IEFZLCBHQlMsIEdZTSwgSEVTLCBLU1MsIE5TRiwgTlNG
+RSwgU0FQLCBTUEMsIFZHTSwgVkdaIChObnRlbmRvLCBTZWdhLCBOZWMsIC4uLikKLSBBZHBsdWc6IEEy
+TSwgQURMLCBBTUQsIEFTM00sIEJBTSwgQk1GLCBDRkYsIENNRiwgRDAwLCBERk0sIERNMCwgRE1PLCBE
+UjAsIERSTywgRFRNLCBIU0MsIEhTUCwgSU1GLCBLU00sIExBQSwgTERTLCBNLCBNQUQsIE1JRCwgTUtK
+LCBNU0MsIE1USywgUkFELCBSQVcsIFJJWCwgUk9MLCBTM00sIFNBMiwgU0FULCBTQ0ksIFNORywgWEFE
+LCBYTVMsIFhTTSAoQWRsaWIgbXVzaWMpCi0gU2V4eVBTRjogUFNGLCBNSU5JUFNGIChTb255IFBTMSkK
+LSBBdWRpb092ZXJsb2FkIFNESyAoQU9TREspOiBQU0YyLCBNSU5JUFNGMiwgU1BVLCBNSU5JU1BVIChT
+b255IFBTMSwgUFMyKSwgRFNGLCBNSU5JRFNGIChTZWdhIERyZWFtY2FzdCksIFFTRiwgTUlOSVFTRiAo
+Q2FwY29tIFEgU291bmQpLCBTU0YsIE1JTklTU0YgKFNlZ2EgU2F0dXJuKQotIFVBREU6IEFTVCwgQUhY
+LCBUSFgsIEFEUENNLCBBTUMsIEFCSywgQUFNLCBBTFAsIEFPTiwgQU9ONCwgQU9OOCwgQURTQywgTU9E
+X0FEU0M0LCBCU1MsIEJELCBCRFMsIFVEUywgS1JJUywgQ0lOLCBDT1JFLCBDVVMsIENVU1QsIENVU1RP
+TSwgQ00sIFJLLCBSS0IsIERaLCBNS0lJTywgREwsIERMX0RFTEksIERMTiwgREgsIERXLCBEV09MRCwg
+RExNMiwgRE0yLCBETE0xLCBETTEsIERTUiwgREIsIERJR0ksIERTQywgRFNTLCBETlMsIEVNUywgRU1T
+VjYsIEVYLCBGQzEzLCBGQzMsIEZDLCBGQzE0LCBGQzQsIEZSRUQsIEdSQVksIEJGQywgQlNJLCBGQy1C
+U0ksIEZQLCBGVywgR0xVRSwgR00sIEVBLCBNRywgSEQsIEhJUEMsIFNPQywgRU1PRCwgUUMsIElNUywg
+RFVNLCBJUywgSVMyMCwgSkFNLCBKQywgSk1GLCBKQ0IsIEpDQk8sIEpQTiwgSlBORCwgSlAsIEpULCBN
+T05fT0xELCBKTywgSElQLCBNQ01ELCBTT0csIEhJUDcsIFM3RywgSFNULCBLSCwgUE9XVCwgUFQsIExN
+RSwgTU9OLCBNRlAsIEhOLCBNVFAyLCBUSE4sIE1DLCBNQ1IsIE1DTywgTUsyLCBNS0lJLCBBVlAsIE1X
+LCBNQVgsIE1DTURfT1JHLCBNRUQsIE1NRDAsIE1NRDEsIE1NRDIsIE1TTywgTUlESSwgTUQsIE1NREMs
+IERNVSwgTVVHLCBETVUyLCBNVUcyLCBNQSwgTU00LCBNTTgsIE1NUywgTlRQLCBUV08sIE9DVEFNRUQs
+IE9LVCwgT05FLCBEQVQsIFBTLCBTTkssIFBWUCwgUEFQLCBQU0EsIE1PRF9ET0MsIE1PRDE1LCBNT0Qx
+NV9NU1QsIE1PRF9OVEssIE1PRF9OVEsxLCBNT0RfTlRLMiwgTU9EX05US0FNUCwgTU9EX0ZMVDQsIE1P
+RCwgTU9EX0NPTVAsICFQTSEsIDQwQSwgNDBCLCA0MUEsIDUwQSwgNjBBLCA2MUEsIEFDMSwgQUMxRCwg
+QVZBTCwgQ0hBTiwgQ1AsIENQTFgsIENSQiwgREksIEVVLCBGQy1NLCBGQ00sIEZULCBGVVosIEZVWlos
+IEdNQywgR1YsIEhNQywgSFJULCBIUlQhLCBJQ0UsIElUMSwgS0VGLCBLRUY3LCBLUlMsIEtTTSwgTEFY
+LCBNRVhYTVAsIE1QUk8sIE5QLCBOUDEsIE5QMiwgTk9JU0VQQUNLRVIyLCBOUDMsIE5PSVNFUEFDS0VS
+MywgTlIsIE5SVSwgTlRQSywgUDEwLCBQMjEsIFAzMCwgUDQwQSwgUDQwQiwgUDQxQSwgUDRYLCBQNTBB
+LCBQNUEsIFA1WCwgUDYwLCBQNjBBLCBQNjEsIFA2MUEsIFA2WCwgUEhBLCBQSU4sIFBNLCBQTTAsIFBN
+MDEsIFBNMSwgUE0xMEMsIFBNMThBLCBQTTIsIFBNMjAsIFBNNCwgUE00MCwgUE1aLCBQT0xLLCBQUDEw
+LCBQUDIwLCBQUDIxLCBQUDMwLCBQUEssIFBSMSwgUFIyLCBQUk9NLCBQUlUsIFBSVTEsIFBSVTIsIFBS
+VU4sIFBSVU4xLCBQUlVOMiwgUFdSLCBQWUcsIFBZR00sIFBZR01ZLCBTS1QsIFNLWVQsIFNOVCwgU05U
+ISwgU1QyLCBTVDI2LCBTVDMwLCBTVEFSLCBTVFBLLCBUUCwgVFAxLCBUUDIsIFRQMywgVU4yLCBVTklD
+LCBVTklDMiwgV04sIFhBTiwgWEFOTiwgWkVOLCBQVU1BLCBSSlAsIFNORywgUklGRiwgUkgsIFJITywg
+U0EtUCwgU0NVTU0sIFMtQywgU0NOLCBTQ1IsIFNJRDEsIFNNTiwgU0lEMiwgTU9LLCBTQSwgU09OSUMs
+IFNBX09MRCwgU01VUywgU05YLCBUSU5ZLCBTUEwsIFNDLCBTQ1QsIFBTRiwgU0ZYLCBTRlgxMywgVFcs
+IFNNLCBTTTEsIFNNMiwgU00zLCBTTVBSTywgQlAsIFNORE1PTiwgQlAzLCBTSlMsIEpELCBET0RBLCBT
+QVMsIFNTLCBTQiwgSlBPLCBKUE9MRCwgU1VOLCBTWU4sIFNEUiwgT1NQLCBTVCwgU1lOTU9ELCBURk1Y
+MS41LCBURkhEMS41LCBURk1YN1YsIFRGSEQ3ViwgTURBVCwgVEZNWFBSTywgVEZIRFBSTywgVEZNWCwg
+TURTVCwgVEhNLCBURiwgVE1FLCBTRywgRFAsIFRSQywgVFJPLCBUUk9OSUMsIE1PRDE1X1VTVCwgVlNT
+LCBXQiwgTUwsIE1PRDE1X1NULUlWLCBBR0ksIFRQVSwgUVBBLCBTUVQsIFFUUwooQW1pZ2EpCi0gVGlt
+aWRpdHk6IE1JRCAodXNpbmcgTWVybGluX2dvbGQgU0YyIHNvdW5kZm9udCkKCk1vZGl6ZXIgYWxzbyB1
+c2VzIGZvbGxvd2luZyBzb2Z0d2FyZToKLSBtaW5pemlwCi0gbGhhCi0gUkFSICh1bnJhcikKLSBpUGhv
+bmVGRlQKLSBBU0lIVFRQUmVxdWVzdAotIEZFWCAoRmlsZUV4dHJhY3RvcikgbGliCi0gVGFwa3VsaWJy
+YXJ5Ci0gQW5pbWF0ZWRHSUYgYnkgU3Rpam4gU3BpamtlcgoKRGlzY2xhaW1lcjoKSW50ZXJuZXQgYWNj
+ZXNzZXMgdG8gdGhlIE1vZGxhbmQgJiBIVlNDIGxpYnJhcmllcyBhcmUgcHJvdmlkZWQgYXMgYW4gYXMt
+aXMgc2VydmljZSwgZ3VhcmFudGVlIGZvciBhdmFpbGFiaWxpdHkgYW5kL29yIGZ1bmN0aW9uYWxpdHkg
+aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
+										</object>
+										<reference key="IBUITextColor" ref="110839098"/>
+										<object class="IBUITextInputTraits" key="IBUITextInputTraits">
+											<int key="IBUIAutocapitalizationType">2</int>
+											<int key="IBUIAutocorrectionType">1</int>
+											<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+										</object>
+										<int key="IBUIDataDetectorTypes">2</int>
+										<object class="IBUIFontDescription" key="IBUIFontDescription" id="235754935">
+											<string key="name">Helvetica</string>
+											<string key="family">Helvetica</string>
+											<int key="traits">0</int>
+											<double key="pointSize">17</double>
+										</object>
+										<object class="NSFont" key="IBUIFont" id="848435686">
+											<string key="NSName">Helvetica</string>
+											<double key="NSSize">17</double>
+											<int key="NSfFlags">16</int>
+										</object>
+									</object>
+								</object>
+								<string key="NSFrame">{{0, 20}, {320, 411}}</string>
+								<reference key="NSSuperview"/>
+								<reference key="NSNextKeyView" ref="748621900"/>
+								<reference key="IBUIBackgroundColor" ref="702969809"/>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-								<bool key="IBUIAlwaysBounceVertical">YES</bool>
-								<int key="IBUISeparatorStyle">1</int>
-								<int key="IBUISectionIndexMinimumDisplayRowCount">0</int>
-								<bool key="IBUIShowsSelectionImmediatelyOnTouchBegin">YES</bool>
-								<float key="IBUIRowHeight">44</float>
-								<float key="IBUISectionHeaderHeight">22</float>
-								<float key="IBUISectionFooterHeight">22</float>
 							</object>
 							<reference key="IBUIToolbarItems" ref="0"/>
-							<object class="IBUINavigationItem" key="IBUINavigationItem" id="742544684">
-								<string key="IBUITitle">Settings</string>
-								<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="999451231">
-									<object class="NSCustomResource" key="IBUIImage" id="646415922">
+							<object class="IBUINavigationItem" key="IBUINavigationItem" id="304590981">
+								<string key="IBUITitle">About</string>
+								<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="459462577">
+									<object class="NSCustomResource" key="IBUIImage" id="694323384">
 										<string key="NSClassName">NSImage</string>
 										<string key="NSResourceName">arrow_right.png</string>
 									</object>
 									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 									<int key="IBUIStyle">1</int>
-									<reference key="IBUINavigationItem" ref="742544684"/>
+									<reference key="IBUINavigationItem" ref="304590981"/>
 								</object>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 							</object>
-							<reference key="IBUIParentViewController" ref="164087915"/>
+							<reference key="IBUIParentViewController" ref="708240472"/>
 							<object class="IBUISimulatedToolbarMetrics" key="IBUISimulatedBottomBarMetrics"/>
+							<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics"/>
 							<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
 								<int key="IBUIInterfaceOrientation">1</int>
 								<int key="interfaceOrientation">1</int>
@@ -688,7 +800,7 @@
 								<object class="IBUINavigationItem" key="IBUINavigationItem" id="770324535">
 									<string key="IBUITitle">Browse</string>
 									<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="433837071">
-										<reference key="IBUIImage" ref="646415922"/>
+										<reference key="IBUIImage" ref="694323384"/>
 										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 										<int key="IBUIStyle">1</int>
 										<reference key="IBUINavigationItem" ref="770324535"/>
@@ -742,7 +854,7 @@
 										<object class="IBUITableView" id="152050058">
 											<reference key="NSNextResponder" ref="331393949"/>
 											<int key="NSvFlags">274</int>
-											<string key="NSFrame">{{0, 44}, {320, 323}}</string>
+											<string key="NSFrame">{{0, 44}, {320, 367}}</string>
 											<reference key="NSSuperview" ref="331393949"/>
 											<object class="NSColor" key="IBUIBackgroundColor" id="207982143">
 												<int key="NSColorSpace">3</int>
@@ -834,7 +946,7 @@
 													<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 												</object>
 											</object>
-											<string key="NSFrameSize">{320, 367}</string>
+											<string key="NSFrameSize">{320, 411}</string>
 											<reference key="NSSuperview" ref="331393949"/>
 											<object class="NSColor" key="IBUIBackgroundColor">
 												<int key="NSColorSpace">2</int>
@@ -843,7 +955,7 @@
 											<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 										</object>
 									</object>
-									<string key="NSFrame">{{0, 64}, {320, 367}}</string>
+									<string key="NSFrame">{{0, 64}, {320, 411}}</string>
 									<reference key="IBUIBackgroundColor" ref="207982143"/>
 									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								</object>
@@ -851,7 +963,7 @@
 								<object class="IBUINavigationItem" key="IBUINavigationItem" id="230718700">
 									<string key="IBUITitle">Search</string>
 									<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="314789882">
-										<reference key="IBUIImage" ref="646415922"/>
+										<reference key="IBUIImage" ref="694323384"/>
 										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 										<int key="IBUIStyle">1</int>
 										<reference key="IBUINavigationItem" ref="230718700"/>
@@ -868,7 +980,74 @@
 							</object>
 						</object>
 					</object>
-					<reference ref="164087915"/>
+					<object class="IBUINavigationController" id="164087915">
+						<string key="IBUITitle">Settings</string>
+						<object class="IBUITabBarItem" key="IBUITabBarItem" id="875429644">
+							<string key="IBUITitle">Settings</string>
+							<object class="NSCustomResource" key="IBUIImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">spanner32.png</string>
+							</object>
+							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+						</object>
+						<reference key="IBUIToolbarItems" ref="0"/>
+						<reference key="IBUIParentViewController" ref="66685802"/>
+						<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
+							<int key="IBUIInterfaceOrientation">1</int>
+							<int key="interfaceOrientation">1</int>
+						</object>
+						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+						<bool key="IBUIHorizontal">NO</bool>
+						<object class="IBUINavigationBar" key="IBUINavigationBar" id="628852731">
+							<nil key="NSNextResponder"/>
+							<int key="NSvFlags">256</int>
+							<string key="NSFrameSize">{320, 44}</string>
+							<bool key="IBUIOpaque">NO</bool>
+							<bool key="IBUIClipsSubviews">YES</bool>
+							<bool key="IBUIMultipleTouchEnabled">YES</bool>
+							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+							<int key="IBUIBarStyle">1</int>
+						</object>
+						<object class="NSMutableArray" key="IBUIViewControllers">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBUIViewController" id="559970368">
+								<object class="IBUITableView" key="IBUIView" id="109810799">
+									<nil key="NSNextResponder"/>
+									<int key="NSvFlags">274</int>
+									<string key="NSFrame">{{0, 20}, {320, 411}}</string>
+									<reference key="IBUIBackgroundColor" ref="110839098"/>
+									<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
+									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+									<bool key="IBUIAlwaysBounceVertical">YES</bool>
+									<int key="IBUISeparatorStyle">1</int>
+									<int key="IBUISectionIndexMinimumDisplayRowCount">0</int>
+									<bool key="IBUIShowsSelectionImmediatelyOnTouchBegin">YES</bool>
+									<float key="IBUIRowHeight">44</float>
+									<float key="IBUISectionHeaderHeight">22</float>
+									<float key="IBUISectionFooterHeight">22</float>
+								</object>
+								<reference key="IBUIToolbarItems" ref="0"/>
+								<object class="IBUINavigationItem" key="IBUINavigationItem" id="742544684">
+									<string key="IBUITitle">Settings</string>
+									<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="999451231">
+										<reference key="IBUIImage" ref="694323384"/>
+										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+										<int key="IBUIStyle">1</int>
+										<reference key="IBUINavigationItem" ref="742544684"/>
+									</object>
+									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+								</object>
+								<reference key="IBUIParentViewController" ref="164087915"/>
+								<object class="IBUISimulatedToolbarMetrics" key="IBUISimulatedBottomBarMetrics"/>
+								<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
+									<int key="IBUIInterfaceOrientation">1</int>
+									<int key="interfaceOrientation">1</int>
+								</object>
+								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+								<bool key="IBUIHorizontal">NO</bool>
+							</object>
+						</object>
+					</object>
 					<object class="IBUINavigationController" id="332464199">
 						<string key="IBUITitle">Downloads</string>
 						<object class="IBUITabBarItem" key="IBUITabBarItem" id="807767033">
@@ -922,6 +1101,7 @@
 											<int key="IBUILineBreakMode">5</int>
 											<reference key="IBUIFontDescription" ref="492949858"/>
 											<reference key="IBUIFont" ref="324817928"/>
+											<double key="preferredMaxLayoutWidth">270</double>
 										</object>
 										<object class="IBUILabel" id="546121815">
 											<reference key="NSNextResponder" ref="158327003"/>
@@ -982,7 +1162,7 @@
 										<object class="IBUITableView" id="292085031">
 											<reference key="NSNextResponder" ref="158327003"/>
 											<int key="NSvFlags">274</int>
-											<string key="NSFrame">{{0, 74}, {320, 295}}</string>
+											<string key="NSFrame">{{0, 74}, {320, 337}}</string>
 											<reference key="NSSuperview" ref="158327003"/>
 											<reference key="IBUIBackgroundColor" ref="110839098"/>
 											<bool key="IBUIClipsSubviews">YES</bool>
@@ -1066,7 +1246,7 @@
 											<reference key="IBUIFont" ref="405977819"/>
 										</object>
 									</object>
-									<string key="NSFrame">{{0, 20}, {320, 369}}</string>
+									<string key="NSFrame">{{0, 20}, {320, 411}}</string>
 									<reference key="NSNextKeyView" ref="464785863"/>
 									<reference key="IBUIBackgroundColor" ref="883063613"/>
 									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -1075,7 +1255,7 @@
 								<object class="IBUINavigationItem" key="IBUINavigationItem" id="356809026">
 									<string key="IBUITitle">Downloads</string>
 									<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="1009201617">
-										<reference key="IBUIImage" ref="646415922"/>
+										<reference key="IBUIImage" ref="694323384"/>
 										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 										<int key="IBUIStyle">1</int>
 										<reference key="IBUINavigationItem" ref="356809026"/>
@@ -1092,185 +1272,13 @@
 							</object>
 						</object>
 					</object>
-					<object class="IBUINavigationController" id="708240472">
-						<string key="IBUITitle">About</string>
-						<object class="IBUITabBarItem" key="IBUITabBarItem" id="1026034716">
-							<string key="IBUITitle">About</string>
-							<object class="NSCustomResource" key="IBUIImage">
-								<string key="NSClassName">NSImage</string>
-								<string key="NSResourceName">smile32.png</string>
-							</object>
-							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-						</object>
-						<reference key="IBUIToolbarItems" ref="0"/>
-						<reference key="IBUIParentViewController" ref="66685802"/>
-						<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
-							<int key="IBUIInterfaceOrientation">1</int>
-							<int key="interfaceOrientation">1</int>
-						</object>
-						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-						<bool key="IBUIHorizontal">NO</bool>
-						<object class="IBUINavigationBar" key="IBUINavigationBar" id="1066894091">
-							<nil key="NSNextResponder"/>
-							<int key="NSvFlags">256</int>
-							<string key="NSFrameSize">{320, 44}</string>
-							<bool key="IBUIOpaque">NO</bool>
-							<bool key="IBUIClipsSubviews">YES</bool>
-							<bool key="IBUIMultipleTouchEnabled">YES</bool>
-							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-							<int key="IBUIBarStyle">1</int>
-						</object>
-						<object class="NSMutableArray" key="IBUIViewControllers">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBUIViewController" id="700171428">
-								<object class="IBUIView" key="IBUIView" id="627834515">
-									<nil key="NSNextResponder"/>
-									<int key="NSvFlags">274</int>
-									<object class="NSMutableArray" key="NSSubviews">
-										<bool key="EncodedWithXMLCoder">YES</bool>
-										<object class="IBUIImageView" id="748621900">
-											<reference key="NSNextResponder" ref="627834515"/>
-											<int key="NSvFlags">256</int>
-											<string key="NSFrame">{{28, 0}, {264, 80}}</string>
-											<reference key="NSSuperview" ref="627834515"/>
-											<reference key="NSNextKeyView" ref="411458996"/>
-											<bool key="IBUIUserInteractionEnabled">NO</bool>
-											<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-											<object class="NSCustomResource" key="IBUIImage">
-												<string key="NSClassName">NSImage</string>
-												<string key="NSResourceName">modizer_logo.png</string>
-											</object>
-										</object>
-										<object class="IBUITextView" id="411458996">
-											<reference key="NSNextResponder" ref="627834515"/>
-											<int key="NSvFlags">274</int>
-											<string key="NSFrame">{{0, 80}, {320, 287}}</string>
-											<reference key="NSSuperview" ref="627834515"/>
-											<object class="NSColor" key="IBUIBackgroundColor">
-												<int key="NSColorSpace">1</int>
-												<bytes key="NSRGB">MCAwIDAgMC41AA</bytes>
-											</object>
-											<bool key="IBUIClipsSubviews">YES</bool>
-											<bool key="IBUIMultipleTouchEnabled">YES</bool>
-											<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-											<bool key="IBUIEditable">NO</bool>
-											<object class="NSMutableString" key="IBUIText">
-												<bytes key="NS.bytes">djEuNiDCqSBZb2hhbm4gTWFnbmllbiAvIFlveW9GUgoKV2ViOiBodHRwOi8veW95b2ZyLmJsb2dzcG90
-LmNvbS9wL21vZGl6ZXIuaHRtbApGb3J1bTogaHR0cDovL21vZGl6ZXIuOTg4NzI3Lm4zLm5hYmJsZS5j
-b20vCkNvbnRhY3Q6IG1haWx0bzovL3ltYWduaWVuQGdtYWlsLmNvbQoKR0ZYIGJ5IFN0ZXZlIE1pZWxl
-OiBodHRwOi8vYXJ0aXN0ZXZlLmNvbQoKUG1kbWluaSBzdXBwb3J0IHRoYW5rcyB0byBNaXN0eSBEZSBN
-ZW8uCgpGb3JtYXRzIGN1cnJlbnRseSBhY2NlcHRlZDoKLSBQbWRtaW5pOiBNLCBNMiwgTVoKLSBTaWRw
-bGF5Mi9yZXNpZCwgU2lkcGxheTE6IFNJRCAoQzY0KQotIEFub3RoZXIgU2xpZ2h0IEF0YXJpIFBsYXll
-cihBU0FQKTogU0FQLCBDTUMsIENNMywgQ01SLCBDTVMsIERNQywgRExULCBNUFQsIE1QRCwgUk1ULCBU
-TUMsIFRNOCwgVE0yCi0gUGxheUdTRjogR1NGLCBNSU5JR1NGCi0gU1QtU291bmQ6IFlNIChBdGFyaSBT
-VCwgQW1zdHJhZCBDUEMpCi0gU0M2ODogU0M2OCwgU05ESCAoQXRhcmkgU1QsIEFtaWdhKQotIEhpdmVs
-eSB0cmFja2VyOiBBSFgsIEhWTAotIE1keHBsYXk6IE1EWCAoU2hhcnAgWDY4MDAwKQotIERVTUIgKEtv
-ZGU1NCB2ZXJzaW9uKTogTU9ELE1EWixGVCxTM00sUzNaLFNUTSxTVFosSVQsSVRaLFhNLFhNWixQVE0s
-UFRaLE1UTSxNVFosNjY5LFBTTSxVTVgsQU0sSjJCLERTTSxBTUYsT0tULE9LVEEKLSBMaWJNb2RwbHVn
-OiBGVCwgTU9ELCBTM00sIFhNLCBNRUQsIE1NRDAsIE1NRDEsIE1NRDIsIE1NRDMsIE1NRDQsIE1NREMs
-IE1UTSwgSVQsIDY2OSwgVUxULCBTVE0sIEZBUiwgV0FWLCBBTUYsIEFNUywgRFNNLCBNREwsIE9LVCwg
-TUlELCBETUYsIFBUTSwgREJNLCBNVDIsIEFNRjAsIFBTTSwgSjJCLCBBQkMsIFBBVCwgVU1YCi0gQmxh
-cmdnJ3MgR2FtZSBNdXNpYyBFbXUgKEdNRSk6IEFZLCBHQlMsIEdZTSwgSEVTLCBLU1MsIE5TRiwgTlNG
-RSwgU0FQLCBTUEMsIFZHTSwgVkdaIChObnRlbmRvLCBTZWdhLCBOZWMsIC4uLikKLSBBZHBsdWc6IEEy
-TSwgQURMLCBBTUQsIEFTM00sIEJBTSwgQk1GLCBDRkYsIENNRiwgRDAwLCBERk0sIERNMCwgRE1PLCBE
-UjAsIERSTywgRFRNLCBIU0MsIEhTUCwgSU1GLCBLU00sIExBQSwgTERTLCBNLCBNQUQsIE1JRCwgTUtK
-LCBNU0MsIE1USywgUkFELCBSQVcsIFJJWCwgUk9MLCBTM00sIFNBMiwgU0FULCBTQ0ksIFNORywgWEFE
-LCBYTVMsIFhTTSAoQWRsaWIgbXVzaWMpCi0gU2V4eVBTRjogUFNGLCBNSU5JUFNGIChTb255IFBTMSkK
-LSBBdWRpb092ZXJsb2FkIFNESyAoQU9TREspOiBQU0YyLCBNSU5JUFNGMiwgU1BVLCBNSU5JU1BVIChT
-b255IFBTMSwgUFMyKSwgRFNGLCBNSU5JRFNGIChTZWdhIERyZWFtY2FzdCksIFFTRiwgTUlOSVFTRiAo
-Q2FwY29tIFEgU291bmQpLCBTU0YsIE1JTklTU0YgKFNlZ2EgU2F0dXJuKQotIFVBREU6IEFTVCwgQUhY
-LCBUSFgsIEFEUENNLCBBTUMsIEFCSywgQUFNLCBBTFAsIEFPTiwgQU9ONCwgQU9OOCwgQURTQywgTU9E
-X0FEU0M0LCBCU1MsIEJELCBCRFMsIFVEUywgS1JJUywgQ0lOLCBDT1JFLCBDVVMsIENVU1QsIENVU1RP
-TSwgQ00sIFJLLCBSS0IsIERaLCBNS0lJTywgREwsIERMX0RFTEksIERMTiwgREgsIERXLCBEV09MRCwg
-RExNMiwgRE0yLCBETE0xLCBETTEsIERTUiwgREIsIERJR0ksIERTQywgRFNTLCBETlMsIEVNUywgRU1T
-VjYsIEVYLCBGQzEzLCBGQzMsIEZDLCBGQzE0LCBGQzQsIEZSRUQsIEdSQVksIEJGQywgQlNJLCBGQy1C
-U0ksIEZQLCBGVywgR0xVRSwgR00sIEVBLCBNRywgSEQsIEhJUEMsIFNPQywgRU1PRCwgUUMsIElNUywg
-RFVNLCBJUywgSVMyMCwgSkFNLCBKQywgSk1GLCBKQ0IsIEpDQk8sIEpQTiwgSlBORCwgSlAsIEpULCBN
-T05fT0xELCBKTywgSElQLCBNQ01ELCBTT0csIEhJUDcsIFM3RywgSFNULCBLSCwgUE9XVCwgUFQsIExN
-RSwgTU9OLCBNRlAsIEhOLCBNVFAyLCBUSE4sIE1DLCBNQ1IsIE1DTywgTUsyLCBNS0lJLCBBVlAsIE1X
-LCBNQVgsIE1DTURfT1JHLCBNRUQsIE1NRDAsIE1NRDEsIE1NRDIsIE1TTywgTUlESSwgTUQsIE1NREMs
-IERNVSwgTVVHLCBETVUyLCBNVUcyLCBNQSwgTU00LCBNTTgsIE1NUywgTlRQLCBUV08sIE9DVEFNRUQs
-IE9LVCwgT05FLCBEQVQsIFBTLCBTTkssIFBWUCwgUEFQLCBQU0EsIE1PRF9ET0MsIE1PRDE1LCBNT0Qx
-NV9NU1QsIE1PRF9OVEssIE1PRF9OVEsxLCBNT0RfTlRLMiwgTU9EX05US0FNUCwgTU9EX0ZMVDQsIE1P
-RCwgTU9EX0NPTVAsICFQTSEsIDQwQSwgNDBCLCA0MUEsIDUwQSwgNjBBLCA2MUEsIEFDMSwgQUMxRCwg
-QVZBTCwgQ0hBTiwgQ1AsIENQTFgsIENSQiwgREksIEVVLCBGQy1NLCBGQ00sIEZULCBGVVosIEZVWlos
-IEdNQywgR1YsIEhNQywgSFJULCBIUlQhLCBJQ0UsIElUMSwgS0VGLCBLRUY3LCBLUlMsIEtTTSwgTEFY
-LCBNRVhYTVAsIE1QUk8sIE5QLCBOUDEsIE5QMiwgTk9JU0VQQUNLRVIyLCBOUDMsIE5PSVNFUEFDS0VS
-MywgTlIsIE5SVSwgTlRQSywgUDEwLCBQMjEsIFAzMCwgUDQwQSwgUDQwQiwgUDQxQSwgUDRYLCBQNTBB
-LCBQNUEsIFA1WCwgUDYwLCBQNjBBLCBQNjEsIFA2MUEsIFA2WCwgUEhBLCBQSU4sIFBNLCBQTTAsIFBN
-MDEsIFBNMSwgUE0xMEMsIFBNMThBLCBQTTIsIFBNMjAsIFBNNCwgUE00MCwgUE1aLCBQT0xLLCBQUDEw
-LCBQUDIwLCBQUDIxLCBQUDMwLCBQUEssIFBSMSwgUFIyLCBQUk9NLCBQUlUsIFBSVTEsIFBSVTIsIFBS
-VU4sIFBSVU4xLCBQUlVOMiwgUFdSLCBQWUcsIFBZR00sIFBZR01ZLCBTS1QsIFNLWVQsIFNOVCwgU05U
-ISwgU1QyLCBTVDI2LCBTVDMwLCBTVEFSLCBTVFBLLCBUUCwgVFAxLCBUUDIsIFRQMywgVU4yLCBVTklD
-LCBVTklDMiwgV04sIFhBTiwgWEFOTiwgWkVOLCBQVU1BLCBSSlAsIFNORywgUklGRiwgUkgsIFJITywg
-U0EtUCwgU0NVTU0sIFMtQywgU0NOLCBTQ1IsIFNJRDEsIFNNTiwgU0lEMiwgTU9LLCBTQSwgU09OSUMs
-IFNBX09MRCwgU01VUywgU05YLCBUSU5ZLCBTUEwsIFNDLCBTQ1QsIFBTRiwgU0ZYLCBTRlgxMywgVFcs
-IFNNLCBTTTEsIFNNMiwgU00zLCBTTVBSTywgQlAsIFNORE1PTiwgQlAzLCBTSlMsIEpELCBET0RBLCBT
-QVMsIFNTLCBTQiwgSlBPLCBKUE9MRCwgU1VOLCBTWU4sIFNEUiwgT1NQLCBTVCwgU1lOTU9ELCBURk1Y
-MS41LCBURkhEMS41LCBURk1YN1YsIFRGSEQ3ViwgTURBVCwgVEZNWFBSTywgVEZIRFBSTywgVEZNWCwg
-TURTVCwgVEhNLCBURiwgVE1FLCBTRywgRFAsIFRSQywgVFJPLCBUUk9OSUMsIE1PRDE1X1VTVCwgVlNT
-LCBXQiwgTUwsIE1PRDE1X1NULUlWLCBBR0ksIFRQVSwgUVBBLCBTUVQsIFFUUwooQW1pZ2EpCi0gVGlt
-aWRpdHk6IE1JRCAodXNpbmcgTWVybGluX2dvbGQgU0YyIHNvdW5kZm9udCkKCk1vZGl6ZXIgYWxzbyB1
-c2VzIGZvbGxvd2luZyBzb2Z0d2FyZToKLSBtaW5pemlwCi0gbGhhCi0gUkFSICh1bnJhcikKLSBpUGhv
-bmVGRlQKLSBBU0lIVFRQUmVxdWVzdAotIEZFWCAoRmlsZUV4dHJhY3RvcikgbGliCi0gVGFwa3VsaWJy
-YXJ5Ci0gQW5pbWF0ZWRHSUYgYnkgU3Rpam4gU3BpamtlcgoKRGlzY2xhaW1lcjoKSW50ZXJuZXQgYWNj
-ZXNzZXMgdG8gdGhlIE1vZGxhbmQgJiBIVlNDIGxpYnJhcmllcyBhcmUgcHJvdmlkZWQgYXMgYW4gYXMt
-aXMgc2VydmljZSwgZ3VhcmFudGVlIGZvciBhdmFpbGFiaWxpdHkgYW5kL29yIGZ1bmN0aW9uYWxpdHkg
-aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
-											</object>
-											<reference key="IBUITextColor" ref="110839098"/>
-											<object class="IBUITextInputTraits" key="IBUITextInputTraits">
-												<int key="IBUIAutocapitalizationType">2</int>
-												<int key="IBUIAutocorrectionType">1</int>
-												<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-											</object>
-											<int key="IBUIDataDetectorTypes">2</int>
-											<object class="IBUIFontDescription" key="IBUIFontDescription" id="235754935">
-												<string key="name">Helvetica</string>
-												<string key="family">Helvetica</string>
-												<int key="traits">0</int>
-												<double key="pointSize">17</double>
-											</object>
-											<object class="NSFont" key="IBUIFont" id="848435686">
-												<string key="NSName">Helvetica</string>
-												<double key="NSSize">17</double>
-												<int key="NSfFlags">16</int>
-											</object>
-										</object>
-									</object>
-									<string key="NSFrame">{{0, 20}, {320, 367}}</string>
-									<reference key="NSNextKeyView" ref="748621900"/>
-									<reference key="IBUIBackgroundColor" ref="702969809"/>
-									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-								</object>
-								<reference key="IBUIToolbarItems" ref="0"/>
-								<object class="IBUINavigationItem" key="IBUINavigationItem" id="304590981">
-									<string key="IBUITitle">About</string>
-									<object class="IBUIBarButtonItem" key="IBUIRightBarButtonItem" id="459462577">
-										<reference key="IBUIImage" ref="646415922"/>
-										<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-										<int key="IBUIStyle">1</int>
-										<reference key="IBUINavigationItem" ref="304590981"/>
-									</object>
-									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-								</object>
-								<reference key="IBUIParentViewController" ref="708240472"/>
-								<object class="IBUISimulatedToolbarMetrics" key="IBUISimulatedBottomBarMetrics"/>
-								<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics"/>
-								<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
-									<int key="IBUIInterfaceOrientation">1</int>
-									<int key="interfaceOrientation">1</int>
-								</object>
-								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-								<bool key="IBUIHorizontal">NO</bool>
-							</object>
-						</object>
-					</object>
+					<reference ref="708240472"/>
 				</object>
 				<object class="IBUITabBar" key="IBUITabBar" id="334982523">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">266</int>
-					<string key="NSFrame">{{0, 389}, {320, 49}}</string>
+					<string key="NSFrame">{{0, 431}, {320, 49}}</string>
+					<reference key="NSSuperview"/>
 					<reference key="IBUIBackgroundColor" ref="883063613"/>
 					<bool key="IBUIClipsSubviews">YES</bool>
 					<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -1299,37 +1307,6 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 									<int key="IBUIContentMode">2</int>
 									<bool key="IBUIUserInteractionEnabled">NO</bool>
 									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-								</object>
-								<object class="IBUIButton" id="658894962">
-									<reference key="NSNextResponder" ref="185751127"/>
-									<int key="NSvFlags">292</int>
-									<string key="NSFrame">{{286, 2}, {18, 19}}</string>
-									<reference key="NSSuperview" ref="185751127"/>
-									<reference key="NSNextKeyView" ref="495023509"/>
-									<object class="NSColor" key="IBUIBackgroundColor">
-										<int key="NSColorSpace">3</int>
-										<bytes key="NSWhite">MCAwLjUAA</bytes>
-									</object>
-									<bool key="IBUIOpaque">NO</bool>
-									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
-									<int key="IBUIContentHorizontalAlignment">0</int>
-									<int key="IBUIContentVerticalAlignment">0</int>
-									<string key="IBUITitleShadowOffset">{2, 2}</string>
-									<reference key="IBUIHighlightedTitleColor" ref="110839098"/>
-									<object class="NSColor" key="IBUINormalTitleColor">
-										<int key="NSColorSpace">1</int>
-										<bytes key="NSRGB">MC4xOTYwNzg0MzE0IDAuMzA5ODAzOTIxNiAwLjUyMTU2ODYyNzUAA</bytes>
-									</object>
-									<reference key="IBUINormalTitleShadowColor" ref="730017830"/>
-									<object class="NSCustomResource" key="IBUIHighlightedImage" id="799978495">
-										<string key="NSClassName">NSImage</string>
-										<string key="NSResourceName">pinfo.png</string>
-									</object>
-									<reference key="IBUIDisabledImage" ref="799978495"/>
-									<reference key="IBUISelectedImage" ref="799978495"/>
-									<reference key="IBUINormalImage" ref="799978495"/>
-									<reference key="IBUIFontDescription" ref="885169396"/>
-									<reference key="IBUIFont" ref="405977819"/>
 								</object>
 								<object class="IBUILabel" id="1016496141">
 									<reference key="NSNextResponder" ref="185751127"/>
@@ -1526,7 +1503,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 										</object>
 										<object class="IBUIButton" id="413331884">
 											<reference key="NSNextResponder" ref="417057476"/>
-											<int key="NSvFlags">292</int>
+											<int key="NSvFlags">-2147483356</int>
 											<string key="NSFrame">{{284, 0}, {32, 32}}</string>
 											<reference key="NSSuperview" ref="417057476"/>
 											<reference key="NSNextKeyView" ref="549369700"/>
@@ -1557,7 +1534,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 										</object>
 										<object class="IBUIButton" id="785093576">
 											<reference key="NSNextResponder" ref="417057476"/>
-											<int key="NSvFlags">292</int>
+											<int key="NSvFlags">-2147483356</int>
 											<string key="NSFrame">{{250, 0}, {32, 32}}</string>
 											<reference key="NSSuperview" ref="417057476"/>
 											<reference key="NSNextKeyView" ref="413331884"/>
@@ -1815,11 +1792,42 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 									<reference key="NSNextKeyView" ref="493092537"/>
 									<object class="NSColor" key="IBUIBackgroundColor">
 										<int key="NSColorSpace">3</int>
-										<bytes key="NSWhite">MCAwLjQAA</bytes>
+										<bytes key="NSWhite">MCAwLjUAA</bytes>
 										<reference key="NSCustomColorSpace" ref="149166547"/>
 									</object>
 									<bool key="IBUIClipsSubviews">YES</bool>
 									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+								</object>
+								<object class="IBUIButton" id="658894962">
+									<reference key="NSNextResponder" ref="185751127"/>
+									<int key="NSvFlags">292</int>
+									<string key="NSFrame">{{286, 2}, {18, 19}}</string>
+									<reference key="NSSuperview" ref="185751127"/>
+									<reference key="NSNextKeyView" ref="495023509"/>
+									<object class="NSColor" key="IBUIBackgroundColor">
+										<int key="NSColorSpace">3</int>
+										<bytes key="NSWhite">MCAwLjUAA</bytes>
+									</object>
+									<bool key="IBUIOpaque">NO</bool>
+									<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
+									<int key="IBUIContentHorizontalAlignment">0</int>
+									<int key="IBUIContentVerticalAlignment">0</int>
+									<string key="IBUITitleShadowOffset">{2, 2}</string>
+									<reference key="IBUIHighlightedTitleColor" ref="110839098"/>
+									<object class="NSColor" key="IBUINormalTitleColor">
+										<int key="NSColorSpace">1</int>
+										<bytes key="NSRGB">MC4xOTYwNzg0MzE0IDAuMzA5ODAzOTIxNiAwLjUyMTU2ODYyNzUAA</bytes>
+									</object>
+									<reference key="IBUINormalTitleShadowColor" ref="730017830"/>
+									<object class="NSCustomResource" key="IBUIHighlightedImage" id="799978495">
+										<string key="NSClassName">NSImage</string>
+										<string key="NSResourceName">pinfo.png</string>
+									</object>
+									<reference key="IBUIDisabledImage" ref="799978495"/>
+									<reference key="IBUISelectedImage" ref="799978495"/>
+									<reference key="IBUINormalImage" ref="799978495"/>
+									<reference key="IBUIFontDescription" ref="885169396"/>
+									<reference key="IBUIFont" ref="405977819"/>
 								</object>
 								<object class="IBUIView" id="148484080">
 									<reference key="NSNextResponder" ref="185751127"/>
@@ -2237,7 +2245,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 								</object>
 								<object class="IBUILabel" id="973236794">
 									<reference key="NSNextResponder" ref="185751127"/>
-									<int key="NSvFlags">290</int>
+									<int key="NSvFlags">-2147483358</int>
 									<string key="NSFrame">{{4, 0}, {100, 20}}</string>
 									<reference key="NSSuperview" ref="185751127"/>
 									<reference key="NSNextKeyView" ref="1016496141"/>
@@ -3181,6 +3189,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 									<int key="IBUILineBreakMode">1</int>
 									<reference key="IBUIFontDescription" ref="357867052"/>
 									<reference key="IBUIFont" ref="405977819"/>
+									<double key="preferredMaxLayoutWidth">300</double>
 								</object>
 								<object class="IBUILabel" id="158755182">
 									<reference key="NSNextResponder" ref="568253084"/>
@@ -3205,6 +3214,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 									<int key="IBUILineBreakMode">1</int>
 									<reference key="IBUIFontDescription" ref="235754935"/>
 									<reference key="IBUIFont" ref="848435686"/>
+									<double key="preferredMaxLayoutWidth">300</double>
 								</object>
 							</object>
 							<string key="NSFrame">{{0, 178}, {320, 140}}</string>
@@ -3355,7 +3365,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 				<bool key="IBUIHorizontal">NO</bool>
 			</object>
 			<object class="IBUIView" id="112596880">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">294</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -5608,6 +5618,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 								<int key="IBUILineBreakMode">0</int>
 								<reference key="IBUIFontDescription" ref="433829896"/>
 								<reference key="IBUIFont" ref="293148035"/>
+								<double key="preferredMaxLayoutWidth">304</double>
 							</object>
 							<object class="IBUITextField" id="202079256">
 								<reference key="NSNextResponder" ref="1027889652"/>
@@ -8412,6 +8423,7 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 					</object>
 				</object>
 				<string key="NSFrameSize">{320, 440}</string>
+				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="591328274"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">1</int>
@@ -11823,10 +11835,11 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="1011249480"/>
 							<reference ref="971190455"/>
-							<reference ref="969711200"/>
 							<reference ref="851704534"/>
+							<reference ref="969711200"/>
 						</object>
 						<reference key="parent" ref="840753872"/>
+						<string key="objectName">WB View</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">447</int>
@@ -13409,10 +13422,10 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 							<reference ref="148484080"/>
 							<reference ref="549369700"/>
 							<reference ref="173052557"/>
-							<reference ref="658894962"/>
 							<reference ref="892753880"/>
 							<reference ref="934147561"/>
 							<reference ref="973236794"/>
+							<reference ref="658894962"/>
 							<reference ref="662098585"/>
 						</object>
 						<reference key="parent" ref="666948160"/>
@@ -15249,6 +15262,6 @@ aXMgbm90IGdpdmVuLiBVc2UgdGhpcyBhcHBsaWNhdGlvbiBhdCB5b3VyIG93biByaXNrLg</bytes>
 				<string>{32, 32}</string>
 			</object>
 		</object>
-		<string key="IBCocoaTouchPluginVersion">1173</string>
+		<string key="IBCocoaTouchPluginVersion">1930</string>
 	</data>
 </archive>

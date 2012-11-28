@@ -4136,15 +4136,24 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [super viewDidDisappear:animated];
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
+/*- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
     [[super tableView] reloadData];
+}*/
+
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+//    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+- (BOOL)shouldAutorotate {
+    return TRUE;
 }
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+/*- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     [[super tableView] reloadData];
     return YES;
-}
+}*/
 
 -(int) isLocalEntryInPlaylist:(NSString*)filepath {
     int nb_occur=0;

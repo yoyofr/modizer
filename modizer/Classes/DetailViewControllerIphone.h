@@ -57,7 +57,7 @@ class CGLString;
     //CoverFlow
     TKCoverflowView *coverflow; 
     UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
-    UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow;
+    UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
 	BOOL collapsed;
     //
 	
@@ -189,7 +189,7 @@ class CGLString;
 //Cover flow
 @property (retain,nonatomic) TKCoverflowView *coverflow; 
 @property (retain,nonatomic) UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
-@property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow;
+@property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
 //@property (retain,nonatomic) OouraFFT *myFFTl,*myFFTr;
 //
 
@@ -393,7 +393,6 @@ class CGLString;
 -(void) loadHighSettings;
 -(void) loadMedSettings;
 -(void) loadLowSettings;
-+(natural_t) get_free_memory;
 
 -(void)showWaiting;
 

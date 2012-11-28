@@ -11,7 +11,7 @@
 
 
 
-#define MIDIFX_OFS 10
+#define MIDIFX_OFS 32
 
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
 #define NOTES_DISPLAY_LEFTMARGIN 30
@@ -79,8 +79,8 @@ static double located_lat=999,located_lon=999;
 int mDevice_hh,mDevice_ww;
 static int mShouldHaveFocusAfterBackground,mShouldUpdateInfos,mLoadIssueMessage;
 static int mRandomFXCpt,mRandomFXCptRev;
-static int infoIsFullscreen=0;
-static int plIsFullscreen=0;
+static int infoIsFullscreen=1;
+static int plIsFullscreen=1;
 static UIAlertView *alertCrash;
 static MPVolumeView *volumeView;
 
@@ -114,7 +114,7 @@ static int display_length_mode=0;
 @implementation DetailViewControllerIphone
 
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
-@synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime;
+@synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime,btnNextCFlow,btnPrevCFlow,btnNextSubCFlow,btnPrevSubCFlow;
 @synthesize sld_DefaultLength,labelDefaultLength;
 
 @synthesize mDeviceType;
@@ -764,9 +764,9 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 		labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
         
         if ([mplayer getSongLength]>0) {
-            lblTimeFCflow.text=[NSString stringWithFormat:@"%.2d:%.2d - %.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
+            lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d - %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
         } else {
-            lblTimeFCflow.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+            lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
         }
 		if ([mplayer getSongLength]>0) {
 			if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-itime)/1000)/60,(([mplayer getSongLength]-itime)/1000)%60];
@@ -1373,17 +1373,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)play_prevEntry {
 	if (mShuffle) {
-		/*int i;
+		int i;
 		int minval;
 		minval=mPlaylist[0].mPlaylistCount;
 		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
-		*/
+		
 		mPlaylist_pos=arc4random()%(mPlaylist_size);
-		/*i=0;
+		i=0;
 		while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
 			i++;
 			mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
-		}*/
+		}
 		[self play_curEntry];
 	} else {
 		if (mPlaylist_pos>0) mPlaylist_pos--;
@@ -1394,17 +1394,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)play_nextEntry {
 	if (mShuffle) {
-		/*int i;
+		int i;
 		int minval;
 		minval=mPlaylist[0].mPlaylistCount;
-		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;*/
+		for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
 		
 		mPlaylist_pos=arc4random()%(mPlaylist_size);		
-		/*i=0;
+		i=0;
 		while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
 			i++;
 			mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
-		}*/
+		}
 		[self play_curEntry];
 	} else if (mPlaylist_pos<mPlaylist_size-1) {
 		mPlaylist_pos++;
@@ -1868,6 +1868,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (coverflow.hidden==NO) {
         btnPlayCFlow.hidden=YES;
         btnPauseCFlow.hidden=NO;
+        btnPrevCFlow.hidden=NO;
+        btnNextCFlow.hidden=NO;
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
+            btnPrevSubCFlow.hidden=NO;
+            btnNextSubCFlow.hidden=NO;
+        } else {
+            btnPrevSubCFlow.hidden=YES;
+            btnNextSubCFlow.hidden=YES;
+        }        
     }
     
 	//		[self openPopup:fileName];
@@ -2158,6 +2167,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (coverflow.hidden==NO) {
         btnPlayCFlow.hidden=YES;
         btnPauseCFlow.hidden=NO;
+        btnPrevCFlow.hidden=NO;
+        btnNextCFlow.hidden=NO;
+        
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
+            btnPrevSubCFlow.hidden=NO;
+            btnNextSubCFlow.hidden=NO;
+        } else {
+            btnPrevSubCFlow.hidden=YES;
+            btnNextSubCFlow.hidden=YES;
+        }
     }
 
 	if (sc_cflow.selectedSegmentIndex) {
@@ -2224,6 +2243,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
 }*/
 
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+    //    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+- (BOOL)shouldAutorotate {
+    //[self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
+    return TRUE;
+}
+
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	orientationHV=interfaceOrientation;
@@ -2245,6 +2274,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnPlayCFlow.alpha=0;
             btnPauseCFlow.alpha=0;
             btnBackCFlow.alpha=0;
+            btnPrevCFlow.alpha=0;
+            btnNextCFlow.alpha=0;
+            btnPrevSubCFlow.alpha=0;
+            btnNextSubCFlow.alpha=0;
             [UIView commitAnimations];
             [[self navigationController] setNavigationBarHidden:NO animated:NO];
         }
@@ -2330,6 +2363,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnPlayCFlow.alpha=0;
             btnPauseCFlow.alpha=0;
             btnBackCFlow.alpha=0;
+            btnPrevCFlow.alpha=0;
+            btnNextCFlow.alpha=0;
+            btnPrevSubCFlow.alpha=0;
+            btnNextSubCFlow.alpha=0;
             
             coverflow.hidden=FALSE;
             lblMainCoverflow.hidden=FALSE;
@@ -2337,9 +2374,19 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             lblCurrentSongCFlow.hidden=FALSE;
             lblTimeFCflow.hidden=FALSE;
             btnBackCFlow.hidden=FALSE;
+            btnPrevCFlow.hidden=NO;
+            btnNextCFlow.hidden=NO;
             
             if (mPaused||(![mplayer isPlaying])) btnPlayCFlow.hidden=FALSE;
             else btnPauseCFlow.hidden=FALSE;
+            
+            if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) {
+                btnPrevSubCFlow.hidden=NO;
+                btnNextSubCFlow.hidden=NO;
+            } else {
+                btnPrevSubCFlow.hidden=YES;
+                btnNextSubCFlow.hidden=YES;
+            }
             
             [[self navigationController] setNavigationBarHidden:YES animated:NO];
             
@@ -2355,28 +2402,45 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnPlayCFlow.alpha=1.0;
             btnPauseCFlow.alpha=1.0;
             btnBackCFlow.alpha=1.0;
+            btnPrevCFlow.alpha=1.0;
+            btnNextCFlow.alpha=1.0;
+            btnPrevSubCFlow.alpha=1.0;
+            btnNextSubCFlow.alpha=1.0;
             
             [UIView commitAnimations];
             
             
             
             if (mDeviceType==1) {
-                lblMainCoverflow.frame=CGRectMake(0,mDevice_ww-40-64,mDevice_hh,40);
-                lblSecCoverflow.frame=CGRectMake(40,mDevice_ww-40-24,mDevice_hh-80,24);
+                lblMainCoverflow.frame=CGRectMake(0,mDevice_ww-40-64-64,mDevice_hh,40);
+                lblSecCoverflow.frame=CGRectMake(40,mDevice_ww-40-24-64,mDevice_hh-80,24);
                 
                 lblCurrentSongCFlow.frame=CGRectMake(0,0,mDevice_hh*2/3,24);
                 lblTimeFCflow.frame=CGRectMake(mDevice_hh*2/3,0,mDevice_hh/3,24);
-                btnPlayCFlow.frame=CGRectMake(8,mDevice_ww-40-32,32,32);
-                btnPauseCFlow.frame=CGRectMake(8,mDevice_ww-40-32,32,32);
+                
+                btnPrevCFlow.frame=CGRectMake((mDevice_hh-32)/2-160,mDevice_ww-22-32-16,32,32);
+                btnPrevSubCFlow.frame=CGRectMake((mDevice_hh-32)/2-80,mDevice_ww-22-32-2-16,32,32);
+                btnPlayCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-32-16,32,32);
+                btnPauseCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-32-16,32,32);
+                btnNextSubCFlow.frame=CGRectMake((mDevice_hh-32)/2+80,mDevice_ww-22-32-2-16,32,32);
+                btnNextCFlow.frame=CGRectMake((mDevice_hh-32)/2+160,mDevice_ww-22-32-16,32,32);
+                
+                
                 btnBackCFlow.frame=CGRectMake(8,32,32,32);
             } else {
-                lblMainCoverflow.frame=CGRectMake(0,mDevice_ww-40-32,mDevice_hh,20);
-                lblSecCoverflow.frame=CGRectMake(40,mDevice_ww-40-12,mDevice_hh-80,12);
+                lblMainCoverflow.frame=CGRectMake(0,mDevice_ww-40-32-12,mDevice_hh,20);
+                lblSecCoverflow.frame=CGRectMake(40,mDevice_ww-40-12-12,mDevice_hh-80,12);
                 
                 lblCurrentSongCFlow.frame=CGRectMake(0,0,mDevice_hh*2/3,12);
                 lblTimeFCflow.frame=CGRectMake(mDevice_hh*2/3,0,mDevice_hh/3,12);
-                btnPlayCFlow.frame=CGRectMake(4,mDevice_ww-32-32,32,32);
-                btnPauseCFlow.frame=CGRectMake(4,mDevice_ww-32-32,32,32);
+                
+                btnPrevCFlow.frame=CGRectMake((mDevice_hh-32)/2-160,mDevice_ww-22-24,16,16);
+                btnPrevSubCFlow.frame=CGRectMake((mDevice_hh-32)/2-80,mDevice_ww-22-24-2,16,16);
+                btnPlayCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-24,16,16);
+                btnPauseCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-24,16,16);
+                btnNextSubCFlow.frame=CGRectMake((mDevice_hh-32)/2+80,mDevice_ww-22-24-2,16,16);
+                btnNextCFlow.frame=CGRectMake((mDevice_hh-32)/2+160,mDevice_ww-22-24,16,16);
+                
                 btnBackCFlow.frame=CGRectMake(4,16,32,32);
             }
             
@@ -3647,10 +3711,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     // Internal stuff
     /////////////////////////
     valNb=[prefs objectForKey:@"InfoFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) infoIsFullscreen = 0;
+	if (valNb == nil) infoIsFullscreen = 1;
 	else infoIsFullscreen = [valNb intValue];	
     valNb=[prefs objectForKey:@"PlFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) plIsFullscreen = 0;
+	if (valNb == nil) plIsFullscreen = 1;
 	else plIsFullscreen = [valNb intValue];
 	valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
 	if (valNb == nil) oglViewFullscreen = 0;
@@ -4123,7 +4187,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	mPlaylist=(t_plPlaylist_entry*)malloc(MAX_PL_ENTRIES*sizeof(t_plPlaylist_entry));
     
-	self.navigationItem.title=@"Modizer";
+	self.navigationItem.title=@"No file selected";
 	//	self.navigationItem.backBarButtonItem.title=@"dd";
 	
     /*	self.navigationItem.rightBarButtonItem=[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"playlist.png"]
@@ -4163,6 +4227,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 				mDeviceType=2;
 				mScaleFactor=2;
 			}
+            if(mainscr.bounds.size.height>=568) {
+                mDevice_hh=568; //iPhone 5
+            }
 		}
 		
 	}
@@ -4222,27 +4289,57 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     btnPlayCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
     btnPauseCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
     btnBackCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
+    btnPrevCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
+    btnNextCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
+    btnPrevSubCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
+    btnNextSubCFlow=[UIButton buttonWithType:UIButtonTypeCustom];
     
-    [btnPlayCFlow setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    btnPlayCFlow.backgroundColor = [UIColor colorWithRed:0.22 green:0.18 blue:0.22 alpha:1.0];
-    btnPlayCFlow.layer.borderColor = [UIColor blackColor].CGColor;
-    btnPlayCFlow.layer.borderWidth = 0.5f;
-    btnPlayCFlow.layer.cornerRadius = 14.0f;
+    [btnPlayCFlow setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
+    [btnPauseCFlow setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
+    [btnPrevCFlow setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
+    //[btnPrevSubCFlow setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
+    [btnNextCFlow setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
+    //[btnNextSubCFlow setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
     
-    [btnPauseCFlow setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    btnPauseCFlow.backgroundColor = [UIColor colorWithRed:0.2 green:0.15 blue:0.2 alpha:1.0];
-    btnPauseCFlow.layer.borderColor = [UIColor blackColor].CGColor;
-    btnPauseCFlow.layer.borderWidth = 0.5f;
-    btnPauseCFlow.layer.cornerRadius = 14.0f;
+//    btnNextCFlow.backgroundColor = [UIColor colorWithRed:0.22 green:0.18 blue:0.22 alpha:1.0];
+//    btnNextCFlow.layer.borderColor = [UIColor blackColor].CGColor;
+//    btnNextCFlow.layer.borderWidth = 0.5f;
+//    btnNextCFlow.layer.cornerRadius = 14.0f;
     
-    [btnPlayCFlow setImage:[UIImage imageNamed:@"btnplay.png"] forState:UIControlStateNormal];
-    [btnPlayCFlow setImage:[UIImage imageNamed:@"btnplay.png"] forState:UIControlStateHighlighted];    
+    [btnPlayCFlow setImage:[UIImage imageNamed:@"video_play.png"] forState:UIControlStateNormal];
+    [btnPlayCFlow setImage:[UIImage imageNamed:@"video_play_h.png"] forState:UIControlStateHighlighted];
     [btnPlayCFlow addTarget: self action: @selector(playPushed:) forControlEvents: UIControlEventTouchUpInside];
-    [btnPauseCFlow setImage:[UIImage imageNamed:@"btnpause.png"] forState:UIControlStateNormal];
-    [btnPauseCFlow setImage:[UIImage imageNamed:@"btnpause.png"] forState:UIControlStateHighlighted];    
+    
+    [btnPauseCFlow setImage:[UIImage imageNamed:@"video_pause.png"] forState:UIControlStateNormal];
+    [btnPauseCFlow setImage:[UIImage imageNamed:@"video_pause_h.png"] forState:UIControlStateHighlighted];
     [btnPauseCFlow addTarget: self action: @selector(pausePushed:) forControlEvents: UIControlEventTouchUpInside];
-    [btnBackCFlow setImage:[UIImage imageNamed:@"btnback.png"] forState:UIControlStateNormal];
-    [btnBackCFlow setImage:[UIImage imageNamed:@"btnback.png"] forState:UIControlStateHighlighted];    
+    
+    [btnPrevCFlow setImage:[UIImage imageNamed:@"video_previous.png"] forState:UIControlStateNormal];
+    [btnPrevCFlow setImage:[UIImage imageNamed:@"video_previous_h.png"] forState:UIControlStateHighlighted];
+    [btnPrevCFlow addTarget: self action: @selector(playPrev) forControlEvents: UIControlEventTouchUpInside];
+    
+    //[btnPrevSubCFlow setImage:[UIImage imageNamed:@"video_prevsub.png"] forState:UIControlStateNormal];
+    //[btnPrevSubCFlow setImage:[UIImage imageNamed:@"video_prevsub_h.png"] forState:UIControlStateHighlighted];
+    [btnPrevSubCFlow.titleLabel setFont:[UIFont boldSystemFontOfSize:(mDeviceType==1?32:20)]];
+    [btnPrevSubCFlow setTitle:@"<" forState:UIControlStateNormal];
+    [btnPrevSubCFlow setTitleColor:[UIColor colorWithRed:0.72f green:0.72f blue:0.72f alpha:1.0f] forState:UIControlStateNormal];
+    [btnPrevSubCFlow setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+    [btnPrevSubCFlow addTarget: self action: @selector(playPrevSub) forControlEvents: UIControlEventTouchUpInside];
+    
+    [btnNextCFlow setImage:[UIImage imageNamed:@"video_next.png"] forState:UIControlStateNormal];
+    [btnNextCFlow setImage:[UIImage imageNamed:@"video_next_h.png"] forState:UIControlStateHighlighted];
+    [btnNextCFlow addTarget: self action: @selector(playNext) forControlEvents: UIControlEventTouchUpInside];
+    
+    //[btnNextSubCFlow setImage:[UIImage imageNamed:@"video_nextsub.png"] forState:UIControlStateNormal];
+    //[btnNextSubCFlow setImage:[UIImage imageNamed:@"video_nextsub_h.png"] forState:UIControlStateHighlighted];
+    [btnNextSubCFlow.titleLabel setFont:[UIFont boldSystemFontOfSize:(mDeviceType==1?32:20)]];
+    [btnNextSubCFlow setTitle:@">" forState:UIControlStateNormal];
+    [btnNextSubCFlow setTitleColor:[UIColor colorWithRed:0.72f green:0.72f blue:0.72f alpha:1.0f] forState:UIControlStateNormal];
+    [btnNextSubCFlow setTitleColor:[UIColor whiteColor] forState:UIControlStateHighlighted];
+    [btnNextSubCFlow addTarget: self action: @selector(playNextSub) forControlEvents: UIControlEventTouchUpInside];
+    
+    [btnBackCFlow setImage:[UIImage imageNamed:@"arrow_left.png"] forState:UIControlStateNormal];
+    [btnBackCFlow setImage:[UIImage imageNamed:@"arrow_left_h.png"] forState:UIControlStateHighlighted];
     [btnBackCFlow addTarget: self action: @selector(backPushed:) forControlEvents: UIControlEventTouchUpInside];
     
     lblMainCoverflow.hidden=TRUE;
@@ -4252,7 +4349,18 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     btnPlayCFlow.hidden=TRUE;
     btnPauseCFlow.hidden=TRUE;
     btnBackCFlow.hidden=TRUE;
+    btnPrevCFlow.hidden=TRUE;
+    btnPrevSubCFlow.hidden=TRUE;
+    btnNextCFlow.hidden=TRUE;
+    btnNextSubCFlow.hidden=TRUE;
     
+   /* btnPlayCFlow.imageEdgeInsets=UIEdgeInsetsMake(16,8,0,8);
+    btnPauseCFlow.imageEdgeInsets=UIEdgeInsetsMake(16,8,0,8);
+    btnPrevCFlow.imageEdgeInsets=UIEdgeInsetsMake(16,8,0,8);
+    btnNextCFlow.imageEdgeInsets=UIEdgeInsetsMake(16,8,0,8);
+    btnPrevSubCFlow.titleEdgeInsets=UIEdgeInsetsMake(16,8,0,8);
+    btnNextSubCFlow.titleEdgeInsets =UIEdgeInsetsMake(16,8,0,8);
+    */
     lblMainCoverflow.font=[UIFont boldSystemFontOfSize:(mDeviceType==1?32:16)];
     lblSecCoverflow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
     lblCurrentSongCFlow.font=[UIFont systemFontOfSize:(mDeviceType==1?20:10)];
@@ -4285,9 +4393,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     [self.view addSubview:lblSecCoverflow];
     [self.view addSubview:lblCurrentSongCFlow];
     [self.view addSubview:lblTimeFCflow];
+    [self.view addSubview:btnPrevCFlow];
+    [self.view addSubview:btnPrevSubCFlow];
     [self.view addSubview:btnPlayCFlow];
     [self.view addSubview:btnPauseCFlow];
-    [self.view addSubview:btnBackCFlow];
+    [self.view addSubview:btnNextCFlow];
+    [self.view addSubview:btnNextSubCFlow];
+    [self.view addSubview:btnBackCFlow];    
     
     // Get location
 	/*self.locManager = [[[CLLocationManager alloc] init] autorelease];
@@ -4362,7 +4474,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	playlistTabView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	playlistTabView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    playlistTabView.rowHeight = (mDeviceType==1?34:24);
+    playlistTabView.rowHeight = (mDeviceType==1?48:32);
     playlistTabView.backgroundColor = [UIColor clearColor];
 	playlistView.hidden=YES;
 
@@ -5086,7 +5198,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         if ((mplayer.mPlayType==15)&&(segcont_shownote.selectedSegmentIndex>2)) { //Timidity
             int playerpos=[mplayer getCurrentPlayedBufferIdx];
             playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,60/(3-sc_FXDetail.selectedSegmentIndex));
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,256/(3-sc_FXDetail.selectedSegmentIndex));
             
             if (mHeader) delete mHeader;
             mHeader=nil;
@@ -5126,7 +5238,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     memset(&(tim_notes_cpy[playerpos][mplayer.numChannels]),0,(256-mplayer.numChannels)*4);
                 }
                 
-                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,60/(3-sc_FXDetail.selectedSegmentIndex));
+                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,256/(3-sc_FXDetail.selectedSegmentIndex));
                 
             } else {
                 linestodraw=(hh-NOTES_DISPLAY_TOPMARGIN+11)/12; //+11 => draw even if halfed for last line
@@ -5477,7 +5589,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		topLabel.backgroundColor = [UIColor clearColor];
 		topLabel.textColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
 		topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
-		topLabel.font = [UIFont boldSystemFontOfSize:(mDeviceType==1?16:12)];
+		topLabel.font = [UIFont boldSystemFontOfSize:(mDeviceType==1?30:18)];
 		
 		//
 		// Create the label for the top row of text
@@ -5491,19 +5603,19 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		bottomLabel.backgroundColor = [UIColor clearColor];
 		bottomLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.8 alpha:1.0];
 		bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.8 blue:0.8 alpha:1.0];
-		bottomLabel.font = [UIFont systemFontOfSize:(mDeviceType==1?12:9)];
+		bottomLabel.font = [UIFont systemFontOfSize:(mDeviceType==1?14:10)];
     } else {
 		topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
 		bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
 	}
-	bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
-								   (mDeviceType==1?18:14),
-								   tableView.bounds.size.width - 1.0 * cell.indentationWidth-50,
-								   (mDeviceType==1?14:10));
 	topLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
 								0,
 								tableView.bounds.size.width - 1.0 * cell.indentationWidth-50,
-								(mDeviceType==1?18:14));
+								(mDeviceType==1?32:20));
+	bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+								   (mDeviceType==1?32:20),
+								   tableView.bounds.size.width - 1.0 * cell.indentationWidth-50,
+								   (mDeviceType==1?16:12));
 	
 	
 	// Set up the cell...
@@ -5789,8 +5901,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             NSString *filePath,*coverFilePath;
             filePath=mPlaylist[index].mPlaylistFilepath;
             
-            
-            
             if (mPlaylist[index].cover_flag&1) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
             else if (mPlaylist[index].cover_flag&2) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
             else if (mPlaylist[index].cover_flag&4) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
@@ -5799,7 +5909,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             else if (mPlaylist[index].cover_flag&32) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
             
 //            NSLog(@"got %d %@",mPlaylist[index].cover_flag,coverFilePath);
-            
             UIImage *img=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
             
             if (img==nil) { //file not available anymore
