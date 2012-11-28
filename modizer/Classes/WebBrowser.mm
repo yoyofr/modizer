@@ -8,7 +8,7 @@
 
 #define EMPTY_PAGE @"<html><head><title>Modizer Web Browser</title>\
 <meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" /></head>\
-<body style='background-color:#000;color:#fff;'><div align=\"CENTER\">Loading...</div></body></html>"
+<body style='background-color:#eee;color:#111;'><div align=\"CENTER\">Loading...</div></body></html>"
 
 #import "WebBrowser.h"
 
@@ -26,7 +26,7 @@ static NSString *lastURL=nil;
 
 @implementation WebBrowser
 
-@synthesize webView,activityIndicator,backButton,forwardButton,downloadViewController,addressTestField,view;
+@synthesize webView,activityIndicator,backButton,forwardButton,downloadViewController,addressTestField;//,view;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
 
@@ -135,7 +135,7 @@ static NSString *lastURL=nil;
 
 -(CGSize) sizeInOrientation:(UIInterfaceOrientation)orientation
 {
-    CGSize size = [UIScreen mainScreen].bounds.size;
+    CGSize size = [[UIScreen mainScreen] bounds].size;
     UIApplication *application = [UIApplication sharedApplication];
     if (UIInterfaceOrientationIsLandscape(orientation))
     {
@@ -174,7 +174,7 @@ static NSString *lastURL=nil;
  */
     toolBar.hidden=TRUE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,0,cursize.width,view.frame.size.height);
+    webView.frame=CGRectMake(0,0,cursize.width,self.view.frame.size.height);
 	[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 }
 
@@ -189,7 +189,7 @@ static NSString *lastURL=nil;
     
     toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
+    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
     
     UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
 	//barBtn.enabled=NO;
@@ -203,7 +203,7 @@ static NSString *lastURL=nil;
 -(void)loadLastURL {
     toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
+    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
     
 	UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
 	//barBtn.enabled=YES;
@@ -227,8 +227,7 @@ static NSString *lastURL=nil;
 - (void)loadHome {
     toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
-    
+    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
     currentMode=WEB_MODE;
 	NSString *html = @"<html><head><title>Modizer Web Browser</title></head>\
 	<meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" />\
@@ -628,13 +627,13 @@ int found_img;
             if (toolBar.hidden==FALSE) {
                 toolBar.hidden=TRUE;
                 CGSize cursize=[self currentSize];
-                webView.frame=CGRectMake(0,0,cursize.width,view.frame.size.height);
+                webView.frame=CGRectMake(0,0,cursize.width,self.view.frame.size.height);
             }
         } else {
             if (toolBar.hidden) {
                 toolBar.hidden=FALSE;
                 CGSize cursize=[self currentSize];
-                webView.frame=CGRectMake(0,44,cursize.width,view.frame.size.height-44);
+                webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
             }
         }
         
@@ -766,6 +765,15 @@ int found_img;
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	return YES;
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+    //    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+- (BOOL)shouldAutorotate{
+    return TRUE;
 }
 
 - (void)didReceiveMemoryWarning {

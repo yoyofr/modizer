@@ -6,7 +6,6 @@
  *  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
  *
  */
-#define MIDIFX_OFS 10
 
 #include "RenderUtils.h"
 
@@ -1760,7 +1759,8 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
     glPopMatrix();
 }
 
-#define MIDIFX_LEN 60
+#define MIDIFX_OFS 32
+#define MIDIFX_LEN 256
 int data_midifx_len=MIDIFX_LEN;
 unsigned char data_midifx_note[MIDIFX_LEN][256];
 unsigned char data_midifx_ch[MIDIFX_LEN][256];
@@ -1825,11 +1825,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_
 	glEnableClientState(GL_COLOR_ARRAY);
     
     if (horiz_vert==0) {//Horiz
-        band_width=ww/data_midifx_len;
+        band_width=(ww+ww/2)/data_midifx_len;
         ofs_band=(ww-band_width*data_midifx_len)>>1;
         line_width=hh/note_display_range;
     } else { //vert
-        band_width=hh/data_midifx_len;
+        band_width=(hh+hh/2)/data_midifx_len;
         ofs_band=(hh-band_width*data_midifx_len)>>1;
         line_width=ww/note_display_range;
     }
@@ -1840,7 +1840,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
     
-    for (int j=0;j<data_midifx_len;j++) {
+    for (int j=data_midifx_len-1;j>=0;j--) {
         if (j!=data_midifx_len-1-MIDIFX_OFS) glLineWidth(line_width);
         else glLineWidth(line_width+2);
         index=0;

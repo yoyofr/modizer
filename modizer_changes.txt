@@ -1,7 +1,11 @@
 1.7
 ---
-TODO: deactivate idleTimer when ftp server used (avoid losing wifi conenction).
-TODO: add back/forw buttons in coverflow view
+- deactivate idleTimer when ftp server used (avoid losing wifi conenction).
+- added playback control buttons in coverflow view
+- updated modland & hvsc collections to last version
+- improved retina support
+- bugfixes
+
 
 1.6
 ---

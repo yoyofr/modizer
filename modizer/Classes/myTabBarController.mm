@@ -15,6 +15,16 @@
 @synthesize webBrowser;
 @synthesize rootViewControllerIphone;
 
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+    //    return UIInterfaceOrientationMaskAllButUpsideDown;
+}
+
+- (BOOL)shouldAutorotate {
+    [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
+    return TRUE;
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	
 	[detailViewControlleriPhone shouldAutorotateToInterfaceOrientation:interfaceOrientation];
@@ -25,7 +35,6 @@
 	
 	return YES;
 }
-
 
 /*- (void)viewDidLoad {
 	[super viewDidLoad];
