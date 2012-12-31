@@ -1323,7 +1323,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	NSString *fileName;
 	NSString *filePath;
 	mIsPlaying=FALSE;
-	
+    
 	if (!mPlaylist_size) return FALSE;
 	
 	if (mPlaylist_pos>mPlaylist_size-1) mPlaylist_pos=0;
@@ -1338,8 +1338,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		[myindex autorelease];
 	}
 	
-    
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];    
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     
 	if ([self play_module:filePath fname:fileName]==FALSE) {
 		[self remove_from_playlist:mPlaylist_pos];
@@ -1366,7 +1365,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		return FALSE;
 	}
     
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];    
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     
 	return TRUE;
 }
@@ -1472,7 +1471,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
 	
 	[playlistTabView reloadData];
-	
 	[self play_curEntry];
 }
 
@@ -1482,7 +1480,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	mRestart_sub=0;
     mRestart_arc=0;
 	mPlayingPosRestart=0;
-	
+    
 	if ([array count]>=MAX_PL_ENTRIES) {
 		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
 		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
@@ -1525,8 +1523,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
         }
     }
+    
     [playlistTabView reloadData];
-	
 	[self play_curEntry];
 }
 
@@ -1901,12 +1899,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.33 target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //3 times/second
 	
     if (sc_cflow.selectedSegmentIndex) {
-        if (coverflow.currentIndex!=mPlaylist_pos) {
-            coverflow_pos=mPlaylist_pos;
-            [coverflow setCurrentIndex:mPlaylist_pos];
-            //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
-        }
+        if (coverflow.hidden==FALSE) {
+            if (coverflow.numberOfCovers!=mPlaylist_size) [coverflow setNumberOfCovers:mPlaylist_size];
+            if (coverflow.currentIndex!=mPlaylist_pos) {
+                coverflow_pos=mPlaylist_pos;
+                [coverflow setCurrentIndex:mPlaylist_pos];
+                //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
+            }
+        } else coverflow_needredraw=1;
     }
+
     
 	return TRUE;
 }
@@ -1921,7 +1923,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	int retcode;
     NSString *filePathTmp;
 	
-	mSendStatTimer=0;    
+	mSendStatTimer=0;
     shouldRestart=0;
     
     if (!filePath) return FALSE;
@@ -1998,6 +2000,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		else mLoadIssueMessage=1;
 		return FALSE;
 	}
+    
     //fix issue with modplug settings reset after load
     [self settingsChanged:nil];
     
@@ -2048,7 +2051,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         cover_view.hidden=FALSE;        
     } else cover_view.hidden=TRUE;
     
-    //[self checkAvailableCovers:mPlaylist_pos];        
+    //[self checkAvailableCovers:mPlaylist_pos];
     mPlaylist[mPlaylist_pos].cover_flag=-1;
     
 	pvSubSongSel.hidden=true;
@@ -2087,7 +2090,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [labelModuleName setNeedsDisplay];
     self.navigationItem.titleView=labelModuleName;
     
-    
 	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
 	if ([mplayer getSongLength]>0) {
 		if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getSongLength]/1000)/60,([mplayer getSongLength]/1000)%60];
@@ -2115,7 +2117,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	//Is OGLView visible ?
 	[self checkGLViewCanDisplay];
-	
+    
 	//Restart management
 	if (mRestart) {
 		mRestart=0;
@@ -2159,6 +2161,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         //		if (sc_SpokenTitle.selectedSegmentIndex==1) [fliteTTS speakText:[mplayer getModName]];
 		
 	}
+    
 	mRestart_sub=0;
     mRestart_arc=0;
 	//set volume (if applicable)
@@ -2180,13 +2183,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
 
 	if (sc_cflow.selectedSegmentIndex) {
-        if (coverflow.currentIndex!=mPlaylist_pos) {
-            coverflow_pos=mPlaylist_pos;
-            [coverflow setCurrentIndex:mPlaylist_pos];
-            //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
-        }
+        if (coverflow.hidden==FALSE) {
+            if (coverflow.numberOfCovers!=mPlaylist_size) [coverflow setNumberOfCovers:mPlaylist_size];
+            if (coverflow.currentIndex!=mPlaylist_pos) {
+                coverflow_pos=mPlaylist_pos;
+                [coverflow setCurrentIndex:mPlaylist_pos];
+                //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
+            }
+        } else coverflow_needredraw=1;
     }
-	
+    
 	labelTime.text=@"00:00";
 	if (mplayer.numChannels) {
 		if (mplayer.numChannels==1) labelNumChannels.text=[NSString stringWithFormat:@"1 channel"];
@@ -2295,7 +2301,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-234+82);
 			oglButton.frame = CGRectMake(0, 82, mDevice_ww, mDevice_hh-234);
 			volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
-			volumeView.frame = volWin.bounds;
+			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
+                                          volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
 //			volumeView.center = CGPointMake((mDevice_ww)/2,32);
 //			[volumeView sizeToFit];
 			
@@ -2476,7 +2483,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
                 volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
-                volumeView.frame = volWin.bounds;
+                volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
+                                              volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
 //                volumeView.frame = CGRectMake(10, 0, mDevice_hh-375-10, 44);
   //              volumeView.center = CGPointMake((mDevice_hh-375)/2,32);
     //            [volumeView sizeToFit];
@@ -4455,7 +4463,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	plUnzoom.hidden=YES;
 	
 	volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
-	volumeView = [[[MPVolumeView alloc] initWithFrame:volWin.bounds] autorelease];
+	volumeView = [[[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/] autorelease];
 //	volumeView.center = CGPointMake(mDevice_ww/2,32);
 //  [volumeView setShowsRouteButton:YES];
 //	[volumeView sizeToFit];
@@ -4804,6 +4812,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
 	[UIView commitAnimations];
+    
+    [playlistTabView reloadData];
     
     if (sc_cflow.selectedSegmentIndex) {
         if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
@@ -5943,7 +5953,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             
         }
     
-    if (mScaleFactor!=1) cover.image = [[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
+    if (mScaleFactor!=1) cover.image = [[[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp] autorelease];
 	return cover;
 }
 

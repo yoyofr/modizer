@@ -1334,7 +1334,7 @@ UIAlertView *alertPlFull;
             if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                    if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
+                    if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
                         //do not display dir if subdir mode is on
                         int filtered=mShowSubdir;
                         if (!filtered) {
@@ -1443,7 +1443,7 @@ UIAlertView *alertPlFull;
                     if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                            if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
+                            if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
                                 //do not display dir if subdir mode is on
                                 int filtered=mShowSubdir;
                                 if (!filtered) {

@@ -973,7 +973,7 @@ static volatile int mPopupAnimation=0;
             if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                    if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
+                    if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
                         //do not display dir if subdir mode is on
                         int filtered=mShowSubdir;
                         if (!filtered) {
@@ -1082,7 +1082,7 @@ static volatile int mPopupAnimation=0;
                     if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                            if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
+                            if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
                                 //do not display dir if subdir mode is on
                                 int filtered=mShowSubdir;
                                 if (!filtered) {
@@ -1609,7 +1609,9 @@ static volatile int mPopupAnimation=0;
             
             if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
                 NSLog(@"Issue %d while removing: %@",err.code,fullpath);
-            }
+                UIAlertView *removeAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                [removeAlert show];
+            } else {
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
                 [self deleteStatsDirDB:fullpath];
             }
@@ -1620,6 +1622,7 @@ static volatile int mPopupAnimation=0;
             [self listLocalFiles];						
             [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             [tableView reloadData];
+            }
         }
         
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
@@ -1642,12 +1645,12 @@ static volatile int mPopupAnimation=0;
     // Return NO if you do not want the item to be re-orderable.
     if (browse_depth>=1) {
         t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-        NSFileManager *myMngr=[[NSFileManager alloc] init];
         int switch_view_subdir=(browse_depth>=SHOW_SUDIR_MIN_LEVEL?1:0);
         int section=indexPath.section-1-switch_view_subdir;
         if (section>=0) {
             NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
             BOOL res;
+            NSFileManager *myMngr=[[NSFileManager alloc] init];
             res=[myMngr isDeletableFileAtPath:fullpath];
             [myMngr release];
             return res;

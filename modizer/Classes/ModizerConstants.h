@@ -61,8 +61,8 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MAJOR_STR "1"
-#define VERSION_MINOR 6
-#define VERSION_MINOR_STR "6"
+#define VERSION_MINOR 7
+#define VERSION_MINOR_STR "7"
 
 
 #define MAX_PL_ENTRIES 4096
@@ -82,7 +82,7 @@
 
 #define MODLAND_FTPHOST1 @"ftp.amigascne.org/mirrors/ftp.modland.com/"
 #define MODLAND_FTPHOST2 @"ftp://hangar18.exotica.org.uk/modland/"
-#define MODLA ND_FTPHOST3 @"ftp://modland.ziphoid.com/"
+#define MODLAND_FTPHOST3 @"ftp://modland.ziphoid.com/"
 
 //#define HVSC_FTPHOST @"dl.xs4all.nl/pub/mirror/HVSC/C64Music/"
 #define HVSC_FTPHOST @"hangar18.exotica.org.uk/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"

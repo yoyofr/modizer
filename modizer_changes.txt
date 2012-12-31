@@ -1,11 +1,12 @@
 1.7
 ---
-- deactivate idleTimer when ftp server used (avoid losing wifi conenction).
-- added playback control buttons in coverflow view
-- updated modland & hvsc collections to last version
+- multiple bugfixes & better stability
+- iphone 5 resolution support
 - improved retina support
-- bugfixes
-
+- most popular file types are now registered to modizer (mod, xm, it, rsn, vgz, spc, ...)
+- added playback control buttons in coverflow view
+- updated modland to latest version (2012/06/03)
+- updated hvsc to latest version (#58)
 
 1.6
 ---
