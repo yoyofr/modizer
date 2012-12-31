@@ -445,6 +445,34 @@ static NSFileManager *mFileMngr;
 					mFTPDownloadQueueDepth++;
 					
 				}
+                //2/SCI => if .sci the .003 patch file should be downloaded as well
+                r.location=NSNotFound;
+				r = [fileName rangeOfString:@".sci" options:NSCaseInsensitiveSearch];
+				if (r.location != NSNotFound) {
+					char *tmp_str_ptr;
+					char tmp_str[1024];
+                    NSString *newPath,*newName;
+                    
+//                    NSLog(@"FILENAME: %@",filePath);
+//                    NSLog(@"FILENAME: %@",[filePath stringByDeletingLastPathComponent]);
+                    
+                    newPath=[NSString stringWithFormat:@"%@/%@patch.003",[filePath stringByDeletingLastPathComponent],[fileName substringToIndex:3]];
+					mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:newPath];
+					
+                    newPath=[NSString stringWithFormat:@"%@/%@patch.003",[ftpPath stringByDeletingLastPathComponent],[fileName substringToIndex:3]];
+					mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:newPath];
+					
+					mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+					
+					mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%@patch.003",[fileName substringToIndex:3]];
+					
+					mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+					mFileSize[mFTPDownloadQueueDepth]=-1;
+					mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+					
+					mFTPDownloadQueueDepth++;
+					
+				}
 			}
 			
 			mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:filePath];

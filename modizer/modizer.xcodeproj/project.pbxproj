@@ -181,6 +181,7 @@
 		33554E1B14C3299F00018161 /* btnplay@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33554E1814C3299E00018161 /* btnplay@2x.png */; };
 		3358147914EC0F27003D7B5B /* pinfo.png in Resources */ = {isa = PBXBuildFile; fileRef = 3358147714EC0F27003D7B5B /* pinfo.png */; };
 		3358147A14EC0F27003D7B5B /* pinfo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3358147814EC0F27003D7B5B /* pinfo@2x.png */; };
+		33697803166BA6DF00F12CC3 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33697802166BA6DF00F12CC3 /* Default-568h@2x.png */; };
 		336BF215144FF4BE0086700A /* RootViewControllerLocalBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */; };
 		336BF21A1451E96F0086700A /* RootViewControllerMODLAND.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF2191451E96F0086700A /* RootViewControllerMODLAND.mm */; };
 		336D450515FB3A8B00F0DC00 /* video_next_h.png in Resources */ = {isa = PBXBuildFile; fileRef = 336D450315FB3A8B00F0DC00 /* video_next_h.png */; };
@@ -327,6 +328,12 @@
 		33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BB80CE14D4679B00EA4B32 /* OBSlider.m */; };
 		33C658B1139437FE00265A1D /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		33C658B21394381F00265A1D /* merlin_gold.sf2 in Copy Files-Timidity */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
+		33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722CF1691F26C001D77A5 /* 05-shuffle-green@2x.png */; };
+		33C722D21691F274001D77A5 /* 05-shuffle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D11691F274001D77A5 /* 05-shuffle@2x.png */; };
+		33C722D41691F877001D77A5 /* 03-loopback.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D31691F877001D77A5 /* 03-loopback.png */; };
+		33C722D81691F882001D77A5 /* 02-redo-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D51691F882001D77A5 /* 02-redo-green@2x.png */; };
+		33C722D91691F882001D77A5 /* 03-loopback-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D61691F882001D77A5 /* 03-loopback-green@2x.png */; };
+		33C722DA1691F882001D77A5 /* 03-loopback@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D71691F882001D77A5 /* 03-loopback@2x.png */; };
 		33C7397E13A2137A0012221C /* default_art.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C7397D13A2137A0012221C /* default_art.png */; };
 		33CAECAE13E93D7100088A37 /* arc_details.png in Resources */ = {isa = PBXBuildFile; fileRef = 33CAECAC13E93D7100088A37 /* arc_details.png */; };
 		33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33CAECAD13E93D7100088A37 /* arc_details@2x.png */; };
@@ -463,7 +470,6 @@
 		CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */; };
 		CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */; };
 		CC1E5C961200B3B8000A8A4E /* 03-loopback-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */; };
-		CC1E5C971200B3B8000A8A4E /* 03-loopback.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A301200B3B8000A8A4E /* 03-loopback.png */; };
 		CC1E5C981200B3B8000A8A4E /* 05-shuffle-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A311200B3B8000A8A4E /* 05-shuffle-green.png */; };
 		CC1E5C991200B3B8000A8A4E /* 05-shuffle.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A321200B3B8000A8A4E /* 05-shuffle.png */; };
 		CC1E5CA41200B3B8000A8A4E /* arrow_right.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1E5A3D1200B3B8000A8A4E /* arrow_right.png */; };
@@ -1307,6 +1313,7 @@
 		33554E1814C3299E00018161 /* btnplay@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "btnplay@2x.png"; sourceTree = "<group>"; };
 		3358147714EC0F27003D7B5B /* pinfo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pinfo.png; sourceTree = "<group>"; };
 		3358147814EC0F27003D7B5B /* pinfo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pinfo@2x.png"; sourceTree = "<group>"; };
+		33697802166BA6DF00F12CC3 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		336BF213144FF4BE0086700A /* RootViewControllerLocalBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerLocalBrowser.h; sourceTree = "<group>"; };
 		336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerLocalBrowser.mm; sourceTree = "<group>"; };
 		336BF217145152990086700A /* RootViewControllerStruct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerStruct.h; sourceTree = "<group>"; };
@@ -1345,6 +1352,7 @@
 		3370BC28124A858C00691400 /* revmodel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = revmodel.cpp; sourceTree = "<group>"; };
 		3370BC29124A858C00691400 /* revmodel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = revmodel.hpp; sourceTree = "<group>"; };
 		3370BC2A124A858C00691400 /* tuning.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tuning.h; sourceTree = "<group>"; };
+		3371987E1692053C00163CA3 /* modizer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = modizer.entitlements; sourceTree = "<group>"; };
 		337D3ED4137B094F00270218 /* adplug.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = adplug.db; sourceTree = "<group>"; };
 		337FA728124288FA00DDD352 /* AboutViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutViewController.h; sourceTree = "<group>"; };
 		337FA729124288FA00DDD352 /* AboutViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AboutViewController.mm; sourceTree = "<group>"; };
@@ -1451,6 +1459,12 @@
 		33BB80CE14D4679B00EA4B32 /* OBSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OBSlider.m; sourceTree = "<group>"; };
 		33C294C313ACA1A3006A3BC0 /* dumb.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = dumb.xcodeproj; path = ../dumb/dumb.xcodeproj; sourceTree = "<group>"; };
 		33C658B0139437FE00265A1D /* merlin_gold.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = merlin_gold.sf2; sourceTree = "<group>"; };
+		33C722CF1691F26C001D77A5 /* 05-shuffle-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffle-green@2x.png"; sourceTree = "<group>"; };
+		33C722D11691F274001D77A5 /* 05-shuffle@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffle@2x.png"; sourceTree = "<group>"; };
+		33C722D31691F877001D77A5 /* 03-loopback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback.png"; sourceTree = "<group>"; };
+		33C722D51691F882001D77A5 /* 02-redo-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo-green@2x.png"; sourceTree = "<group>"; };
+		33C722D61691F882001D77A5 /* 03-loopback-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback-green@2x.png"; sourceTree = "<group>"; };
+		33C722D71691F882001D77A5 /* 03-loopback@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback@2x.png"; sourceTree = "<group>"; };
 		33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TapkuLibrary.xcodeproj; path = tapkulib/TapkuLibrary.xcodeproj; sourceTree = "<group>"; };
 		33C7397C13A13EDD0012221C /* TapkuLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TapkuLibrary.h; path = tapkulib/TapkuLibrary/TapkuLibrary.h; sourceTree = "<group>"; };
 		33C7397D13A2137A0012221C /* default_art.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = default_art.png; sourceTree = "<group>"; };
@@ -1807,7 +1821,6 @@
 		CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo-green.png"; sourceTree = "<group>"; };
 		CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo.png"; sourceTree = "<group>"; };
 		CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback-green.png"; sourceTree = "<group>"; };
-		CC1E5A301200B3B8000A8A4E /* 03-loopback.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback.png"; sourceTree = "<group>"; };
 		CC1E5A311200B3B8000A8A4E /* 05-shuffle-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffle-green.png"; sourceTree = "<group>"; };
 		CC1E5A321200B3B8000A8A4E /* 05-shuffle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffle.png"; sourceTree = "<group>"; };
 		CC1E5A3D1200B3B8000A8A4E /* arrow_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_right.png; sourceTree = "<group>"; };
@@ -2476,6 +2489,8 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				3371987E1692053C00163CA3 /* modizer.entitlements */,
+				33697802166BA6DF00F12CC3 /* Default-568h@2x.png */,
 				3314C185132C222D007F171B /* Default-Landscape~ipad.png */,
 				3314C183132C221B007F171B /* Default-Portrait~ipad.png */,
 				CC9B194812FF0C1E00985967 /* Splashscreens */,
@@ -3638,10 +3653,15 @@
 				CC4D69B212472B5C0074E94B /* info@2x.png */,
 				CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */,
 				CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */,
+				33C722D51691F882001D77A5 /* 02-redo-green@2x.png */,
+				33C722D31691F877001D77A5 /* 03-loopback.png */,
+				33C722D71691F882001D77A5 /* 03-loopback@2x.png */,
 				CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */,
-				CC1E5A301200B3B8000A8A4E /* 03-loopback.png */,
+				33C722D61691F882001D77A5 /* 03-loopback-green@2x.png */,
 				CC1E5A311200B3B8000A8A4E /* 05-shuffle-green.png */,
+				33C722CF1691F26C001D77A5 /* 05-shuffle-green@2x.png */,
 				CC1E5A321200B3B8000A8A4E /* 05-shuffle.png */,
+				33C722D11691F274001D77A5 /* 05-shuffle@2x.png */,
 				CC1E5A3D1200B3B8000A8A4E /* arrow_right.png */,
 				CCB21EBA1246C68E00A30F62 /* arrow_right@2x.png */,
 				CC1E5A3E1200B3B8000A8A4E /* boxdownload32.png */,
@@ -4757,7 +4777,6 @@
 				CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */,
 				CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */,
 				CC1E5C961200B3B8000A8A4E /* 03-loopback-green.png in Resources */,
-				CC1E5C971200B3B8000A8A4E /* 03-loopback.png in Resources */,
 				CC1E5C981200B3B8000A8A4E /* 05-shuffle-green.png in Resources */,
 				CC1E5C991200B3B8000A8A4E /* 05-shuffle.png in Resources */,
 				CC1E5CA41200B3B8000A8A4E /* arrow_right.png in Resources */,
@@ -5113,6 +5132,13 @@
 				336D451615FC9DF200F0DC00 /* arrow_left_h@2x.png in Resources */,
 				336D451915FC9E1400F0DC00 /* video_previous_h.png in Resources */,
 				336D451A15FC9E1400F0DC00 /* video_previous_h@2x.png in Resources */,
+				33697803166BA6DF00F12CC3 /* Default-568h@2x.png in Resources */,
+				33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */,
+				33C722D21691F274001D77A5 /* 05-shuffle@2x.png in Resources */,
+				33C722D41691F877001D77A5 /* 03-loopback.png in Resources */,
+				33C722D81691F882001D77A5 /* 02-redo-green@2x.png in Resources */,
+				33C722D91691F882001D77A5 /* 03-loopback-green@2x.png in Resources */,
+				33C722DA1691F882001D77A5 /* 03-loopback@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5500,14 +5526,14 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",
@@ -5544,7 +5570,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",
@@ -5586,7 +5612,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
@@ -5614,7 +5640,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
@@ -5643,7 +5669,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
@@ -5660,7 +5686,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = "~/Desktop/Dev/iphone/modizerWS/modizer/Entitlements.plist";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;
@@ -5671,7 +5696,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",
@@ -5714,7 +5739,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
@@ -5731,7 +5756,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_ENTITLEMENTS = "~/Desktop/Dev/iphone/modizerWS/modizer/Entitlements.plist";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;
@@ -5742,7 +5766,7 @@
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",

@@ -7,8 +7,8 @@
 //
 
 //#define GET_NB_ENTRIES 1
-#define NB_MODLAND_ENTRIES 297759
-#define NB_HVSC_ENTRIES 41250
+#define NB_MODLAND_ENTRIES 319724
+#define NB_HVSC_ENTRIES 43116
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define ROW_HEIGHT 40
 
@@ -3514,7 +3514,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             if (rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                    if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
+                    if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
                         //do not display dir if subdir mode is on
                         int filtered=mShowSubdir;
                         if (!filtered) {
@@ -3622,7 +3622,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     if (rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name                    
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                            if ([file compare:@"tmpArchive"]!=NSOrderedSame) {
+                            if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
                                 //do not display dir if subdir mode is on
                                 int filtered=mShowSubdir;
                                 if (!filtered) {

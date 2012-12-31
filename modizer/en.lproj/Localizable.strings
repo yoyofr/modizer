@@ -158,3 +158,5 @@
 "Browser not enough mem. Limited."="Too much entries, cannot allocate memory. List is incomplete.";
 
 "Default length %d:%.2d"="Default length %d:%.2d";
+
+"Issue %d while trying to delete entry.\n%@"="Issue %d while trying to delete entry.\n%@";

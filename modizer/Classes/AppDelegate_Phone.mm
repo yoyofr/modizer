@@ -203,16 +203,86 @@ pthread_mutex_t play_mutex;
         name:UIPasteboardRemovedNotification
         object:[UIPasteboard generalPasteboard]];*/
 	//
+    
+    
+    NSURL *url = (NSURL *)[launchOptions valueForKey:UIApplicationLaunchOptionsURLKey];
+    if ([url isFileURL]) {
+        NSString *filepath;
+        filepath=[url path];
+        NSRange r;
+        r=[filepath rangeOfString:@"Documents/"];
+        if (r.location!=NSNotFound) {
+            NSString *shortfilepath=[filepath substringFromIndex:r.location];
+            //if (detailViewControlleriPhone.sc_DefaultAction.selectedSegmentIndex==0)
+            //[detailViewControlleriPhone add_to_playlist:shortfilepath fileName:[shortfilepath lastPathComponent]  forcenoplay:0];
+            
+            int pos=0;
+            int total_entries=0;
+            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+            [array_label addObject:[shortfilepath lastPathComponent]];
+            [array_path addObject:shortfilepath];
+            total_entries=1;
+            
+            signed char *tmp_ratings;
+            short int *tmp_playcounts;
+            tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
+            tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
+            tmp_ratings[0]=-1;
+            tmp_playcounts[0]=0;
+            
+            [detailViewControlleriPhone play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
+            
+            free(tmp_ratings);
+            free(tmp_playcounts);
+        }
+    }
+
+    
 	if (detailViewControlleriPhone.mPlaylist_size) {		
 		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
+        
 	}
 #endif
 	
 	return YES;
 }
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    if ([url isFileURL]) {
+        NSString *filepath;
+        filepath=[url path];
+        NSRange r;
+        r=[filepath rangeOfString:@"Documents/"];
+        if (r.location!=NSNotFound) {
+            NSString *shortfilepath=[filepath substringFromIndex:r.location];
+            //if (detailViewControlleriPhone.sc_DefaultAction.selectedSegmentIndex==0)
+            //[detailViewControlleriPhone add_to_playlist:shortfilepath fileName:[shortfilepath lastPathComponent]  forcenoplay:0];
+            
+            int pos=0;
+            int total_entries=0;
+            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+            [array_label addObject:[shortfilepath lastPathComponent]];
+            [array_path addObject:shortfilepath];
+            total_entries=1;
+            
+            signed char *tmp_ratings;
+            short int *tmp_playcounts;
+            tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
+            tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
+            tmp_ratings[0]=-1;
+            tmp_playcounts[0]=0;
+            
+            [detailViewControlleriPhone play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];            
+            
+            free(tmp_ratings);
+            free(tmp_playcounts);
+        }
+    }
+}
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-	[detailViewControlleriPhone saveSettings];	
+	[detailViewControlleriPhone saveSettings];
 	[detailViewControlleriPhone updateFlagOnExit];
 }
 

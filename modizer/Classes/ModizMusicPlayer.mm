@@ -61,6 +61,7 @@ static int mSingleSubMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int mdz_defaultMODPLAYER;
 static char **mdz_ArchiveFilesList;
+static char **mdz_ArchiveFilesListAlias;
 
 static NSFileManager *mFileMngr;
 
@@ -725,18 +726,51 @@ void propertyListenerCallback (void                   *inUserData,              
 	if (inPropertyID==kAudioSessionProperty_AudioRouteChange ) {
 		ModizMusicPlayer *mplayer = (ModizMusicPlayer *) inUserData; // 6
 		if ([mplayer isPlaying]) {
+            UInt32 routeSize = sizeof (CFStringRef);
+            CFStringRef route;
+
 			CFDictionaryRef routeChangeDictionary = (CFDictionaryRef)inPropertyValue;        // 8
-			//CFStringRef 
 			NSString *oldroute = (NSString*)CFDictionaryGetValue (
 																  routeChangeDictionary,
 																  CFSTR (kAudioSession_AudioRouteChangeKey_OldRoute)
 																  );
-			//NSLog(@"Audio route changed : %@",oldroute);
-			if ([oldroute compare:@"Headphone"]==NSOrderedSame) {  // 9				
-				[mplayer Pause:YES];
-			}
-		}
-	}
+			/* Known values of route:
+             * "Headset"
+             * "Headphone"
+             * "Speaker"
+             * "SpeakerAndMicrophone"
+             * "HeadphonesAndMicrophone"
+             * "HeadsetInOut"
+             * "ReceiverAndMicrophone"
+             * "Lineout"
+             */
+            
+            
+            OSStatus error = AudioSessionGetProperty (kAudioSessionProperty_AudioRoute,
+                                                      &routeSize,
+                                                      &route);
+            if (!error && (route != NULL)) {
+                NSString *new_route = (NSString*)route;
+            NSRange r;
+            int pause_audio=1;
+            r=[new_route rangeOfString:@"Head"];
+            if (r.location!=NSNotFound) pause_audio=0;
+            r.location=NSNotFound;
+            r=[new_route rangeOfString:@"Line"];
+            if (r.location!=NSNotFound) pause_audio=0;
+                
+            if (pause_audio) {  //New route is not headphone or lineout                
+                if (([oldroute rangeOfString:@"Head"].location==NSNotFound) && ([oldroute rangeOfString:@"Line"].location==NSNotFound)) {
+                    //old route was neither headphone or lineout
+                    //do not pause audio
+                    pause_audio=0;
+                }
+                if (pause_audio) [mplayer Pause:YES];
+            }
+        
+            }
+        }
+    }
 }
 
 @implementation ModizMusicPlayer
@@ -868,6 +902,7 @@ void propertyListenerCallback (void                   *inUserData,              
         mPanningValue=64; //75%
 		
 		mdz_ArchiveFilesList=NULL;
+        mdz_ArchiveFilesListAlias=NULL;
 		mdz_ArchiveFilesCnt=0;
 		mdz_IsArchive=0;
 		mdz_currentArchiveIndex=0;        
@@ -2785,7 +2820,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		if (fex_open_type( &fex, archivePath, type )) {
 			NSLog(@"cannot fex open : %s / type : %d",archivePath,type);
 		} else{
-			mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free 
+			mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
+            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
 			idx=0;
 			while ( !fex_done( fex ) ) {
                 
@@ -2829,6 +2865,39 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
                             mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
+                            
+                            NSRange r;
+                            r.location=NSNotFound;
+                            r = [tmp_filename rangeOfString:@".spc" options:NSCaseInsensitiveSearch];
+                            if (r.location != NSNotFound) {
+                                //if spc file, replace name by song name read in the file
+                                //NSLog(@"found an spc: %@",tmp_filename);
+                                archive_data=(char*)malloc(128);
+                                f=fopen([extractFilename fileSystemRepresentation],"rb");
+                                fread(archive_data,1,128,f);
+                                fclose(f);
+                                
+//                                if (archive_data[0x23]==0x26) {
+                                    mdz_ArchiveFilesListAlias[idx]=(char*)malloc(32+1+4);
+                                    memcpy(mdz_ArchiveFilesListAlias[idx]+4,archive_data+0x2E,32);
+                                    mdz_ArchiveFilesListAlias[idx][32+4]=0;
+                                mdz_ArchiveFilesListAlias[idx][0]=idx/100+'0';
+                                mdz_ArchiveFilesListAlias[idx][1]=((idx/10)%10)+'0';
+                                mdz_ArchiveFilesListAlias[idx][2]=((idx/1)%10)+'0';
+                                mdz_ArchiveFilesListAlias[idx][3]='-';
+/*                                } else {
+                                mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
+                                strcpy(mdz_ArchiveFilesListAlias[idx],[tmp_filename fileSystemRepresentation]);
+                                }*/
+//                                NSLog(@"name: %s",mdz_ArchiveFilesListAlias[idx]);
+                                free(archive_data);
+                            } else {
+                                mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([[tmp_filename lastPathComponent] UTF8String])+1);
+                                strcpy(mdz_ArchiveFilesListAlias[idx],[[tmp_filename lastPathComponent] UTF8String]);
+//                                NSLog(@"name def: %s",mdz_ArchiveFilesListAlias[idx]);
+                            }
+                            
+                            
                             idx++;                    	
                         }
                         if (fex_next( fex )) {
@@ -2868,7 +2937,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		if (fex_open_type( &fex, archivePath, type )) {
 			NSLog(@"cannot fex open : %s / type : %d",archivePath,type);
 		} else{
-			mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free 
+			mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
+            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
 			idx=0;
 			while ( !fex_done( fex ) ) {
                 
@@ -2908,6 +2978,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             
                             mdz_ArchiveFilesList[0]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[0],[tmp_filename fileSystemRepresentation]);
+                            mdz_ArchiveFilesListAlias[0]=(char*)malloc(strlen([[tmp_filename lastPathComponent] UTF8String])+1);
+                            strcpy(mdz_ArchiveFilesListAlias[0],[[tmp_filename lastPathComponent] UTF8String]);
                             break;
                         }
                     } else idx++;                    	
@@ -2960,6 +3032,37 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	} else {
 		//NSLog( @"Skipping unsupported archive: %s\n", path );
 	}
+}
+
+-(NSString*) fex_getfilename:(const char *)path index:(int)idx {
+	fex_type_t type;
+	fex_t* fex;
+	/* Determine file's type */
+	if (fex_identify_file( &type, path )) {
+		NSLog(@"fex cannot determine type of %s",path);
+	}
+	/* Only open files that fex can handle */
+	if ( type != NULL ) {
+		if (fex_open_type( &fex, path, type )) {
+			NSLog(@"cannot fex open : %s / type : %d",path,type);
+		} else{
+			while ( !fex_done( fex ) ) {
+                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                    if (!idx) return [NSString stringWithFormat:@"%s",fex_name(fex)];
+                    idx--;
+                }
+				if (fex_next( fex )) {
+					NSLog(@"Error during fex scanning");
+					break;
+				}
+			}
+			fex_close( fex );
+		}
+		fex = NULL;
+	} else {
+		//NSLog( @"Skipping unsupported archive: %s\n", path );
+	}
+    return nil;
 }
 //*****************************************
 //File loading & general functions
@@ -3162,7 +3265,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         mdz_ArchiveFilesCnt=local_nb_entries;        
         mdz_currentArchiveIndex=0;
         mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
-        
+        mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
         
 		// Second check count for each section
 		dirEnum = [mFileMngr enumeratorAtPath:pathToScan];
@@ -3185,6 +3288,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				if (found)  {
                     mdz_ArchiveFilesList[mdz_currentArchiveIndex]=(char*)malloc([file length]+1);
                     strcpy(mdz_ArchiveFilesList[mdz_currentArchiveIndex],[file UTF8String]);
+                    
+                    mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex]=(char*)malloc([file length]+1);
+                    strcpy(mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex],[file UTF8String]);
+                    
                     mdz_currentArchiveIndex++;
 				}
 			}
@@ -3221,6 +3328,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
     
+//    NSLog(@"check: %@",_filePath);
     mSingleFileType=1; //used to identify file which relies or not on another file (sample, psflib, ...)
 	
 	if (!found)
@@ -3275,8 +3383,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
                 NSArray *singlefile=[SUPPORTED_FILETYPE_SEXYPSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
-                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
                 found=5;break;
@@ -3284,7 +3392,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
                 NSArray *singlefile=[SUPPORTED_FILETYPE_SEXYPSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
+                for (int j=0;j<[singlefile count];j++)
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
@@ -3296,8 +3404,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
                 NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
-                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
                 found=4;break;
@@ -3305,7 +3413,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
                 NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
+                for (int j=0;j<[singlefile count];j++)
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
@@ -3317,8 +3425,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
                 NSArray *singlefile=[SUPPORTED_FILETYPE_GSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
-                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
                 found=12;break;
@@ -3326,7 +3434,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
                 NSArray *singlefile=[SUPPORTED_FILETYPE_GSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
+                for (int j=0;j<[singlefile count];j++)
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
@@ -3344,8 +3452,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
                 //check if require second file
                 NSArray *singlefile=[SUPPORTED_FILETYPE_UADE_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
-                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
                 
@@ -3354,7 +3462,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
                 //check if require second file
                 NSArray *singlefile=[SUPPORTED_FILETYPE_UADE_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;i<[singlefile count];j++)
+                for (int j=0;j<[singlefile count];j++)
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
@@ -3377,6 +3485,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
         }
     }
+    
+//    NSLog(@"found: %d / single: %d",found,mSingleFileType);
+    
     return found;
 }
 
@@ -3438,6 +3549,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesList[i]);
 			free(mdz_ArchiveFilesList);
 			mdz_ArchiveFilesList=NULL;
+            for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesListAlias[i]);
+			free(mdz_ArchiveFilesListAlias);
+			mdz_ArchiveFilesListAlias=NULL;
 			mdz_ArchiveFilesCnt=0;
 		}
 		
@@ -3456,7 +3570,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             strcpy(archive_filename,mod_filename);
             
 			if (found==1) { //FEX
-                [self fex_scanarchive:[filePath UTF8String]];                
+                [self fex_scanarchive:[filePath UTF8String]];
                 if (mdz_ArchiveFilesCnt) {
                     FILE *f;
                     f = fopen([filePath UTF8String], "rb");
@@ -3470,7 +3584,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     
                     //remove tmp dir
                     NSError *err;
-                    NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/Documents/tmpArchive",NSHomeDirectory()];
+                    NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
                     [mFileMngr removeItemAtPath:tmpArchivePath error:&err];
                     
                     //extract to tmp dir
@@ -3478,6 +3592,14 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     [self addSkipBackupAttributeToItemAtPath:tmpArchivePath];
                     
                     if (found==1) { //FEX
+                        
+                        //update singlefiletype flag
+                        //[self isAcceptedFile:[NSString stringWithFormat:@"Documents/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex] no_aux_file:1];
+                        if (singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)){
+                            NSString *tmpstr=[self fex_getfilename:[filePath UTF8String] index:archiveIndex];
+                            //NSLog(@"yo:%@",tmpstr);
+                        }
+                        
                         if (mSingleFileType&&singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
                             mdz_ArchiveFilesCnt=1;
                             [self fex_extractSingleFileToPath :[filePath UTF8String] path:[tmpArchivePath UTF8String] file_index:archiveIndex];
@@ -3489,7 +3611,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     }
                     mdz_currentArchiveIndex=0;
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
-                    _filePath=[NSString stringWithFormat:@"Documents/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+                    _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
                     extension = [_filePath pathExtension];
                     file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
                     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
@@ -3516,7 +3638,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				
 				//remove tmp dir
 				NSError *err;
-				NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/Documents/tmpArchive",NSHomeDirectory()];
+				NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
 				[mFileMngr removeItemAtPath:tmpArchivePath error:&err];
 				
 				//extract to tmp dir
@@ -3555,7 +3677,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 if (mdz_ArchiveFilesCnt) {
                     mdz_IsArchive=1;
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
-                    _filePath=[NSString stringWithFormat:@"Documents/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+                    _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
                     extension = [_filePath pathExtension];
                     file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
                     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
@@ -3583,7 +3705,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         
         if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
 		
-        _filePath=[NSString stringWithFormat:@"Documents/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+        _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
         extension = [_filePath pathExtension];
         file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
         filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];		    
@@ -3593,7 +3715,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     if (archiveIndex&&mdz_IsArchive) {
         if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
 		
-        _filePath=[NSString stringWithFormat:@"Documents/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+        _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
         extension = [_filePath pathExtension];
         file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
         filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];		    
@@ -5804,7 +5926,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(NSString*) getArcEntryTitle:(int)arc_index {
 	if ((arc_index>=0)&&(arc_index<mdz_ArchiveFilesCnt)) {
-		return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesList[arc_index]];
+//		return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesList[arc_index]];
+        return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
 	} else return @"";
 	
 }

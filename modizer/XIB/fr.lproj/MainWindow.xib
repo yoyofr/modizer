@@ -3188,7 +3188,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</bytes>
 									<float key="IBUIMinimumFontSize">16</float>
 									<int key="IBUINumberOfLines">4</int>
 									<int key="IBUITextAlignment">1</int>
-									<int key="IBUILineBreakMode">1</int>
+									<int key="IBUILineBreakMode">0</int>
 									<reference key="IBUIFontDescription" ref="357867052"/>
 									<reference key="IBUIFont" ref="405977819"/>
 									<double key="preferredMaxLayoutWidth">300</double>
@@ -3336,6 +3336,7 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</bytes>
 							<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 							<int key="IBUIContentHorizontalAlignment">0</int>
 							<int key="IBUIContentVerticalAlignment">0</int>
+							<int key="IBUILineBreakMode">0</int>
 							<reference key="IBUIHighlightedTitleColor" ref="110839098"/>
 							<object class="NSColor" key="IBUINormalTitleColor">
 								<int key="NSColorSpace">1</int>
@@ -15236,9 +15237,9 @@ VXNlIHRoaXMgYXBwbGljYXRpb24gYXQgeW91ciBvd24gcmlzay4</bytes>
 			</object>
 			<object class="NSArray" key="dict.values">
 				<bool key="EncodedWithXMLCoder">YES</bool>
-				<string>{30, 26}</string>
-				<string>{32, 22}</string>
-				<string>{32, 22}</string>
+				<string>{32, 32}</string>
+				<string>{32, 32}</string>
+				<string>{32, 32}</string>
 				<string>{28, 20}</string>
 				<string>{28, 20}</string>
 				<string>{320, 480}</string>

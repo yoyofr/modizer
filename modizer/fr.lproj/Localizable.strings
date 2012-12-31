@@ -161,3 +161,5 @@
 "Browser not enough mem. Limited."="Trop d'entrées, ne peut allouer assez de mémoire. Liste tronquée.";
 
 "Default length %d:%.2d"="Durée par défaut %d:%.2d";
+
+"Issue %d while trying to delete entry.\n%@"="Erreur %d lors de la tentative de suppression.\n%@";

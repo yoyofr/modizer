@@ -299,7 +299,7 @@ int found_img;
 	}
     if (do_save) {
         [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
-        NSLog(@"yo %@ / %@ / %d",cover_url_string,filename,cover_expectedContentLength);
+        //NSLog(@"yo %@ / %@ / %d",cover_url_string,filename,cover_expectedContentLength);
         [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];        
     }
     [cover_url_string autorelease];
@@ -706,8 +706,8 @@ int found_img;
     if ([tagName compare:@"IMG" options:NSCaseInsensitiveSearch]==NSOrderedSame) {
         found_img=0;
         
-        NSLog(@"tagName %@",tagName);
-        NSLog(@"urlToSave %@",urlToSave);
+        //NSLog(@"tagName %@",tagName);
+        //NSLog(@"urlToSave %@",urlToSave);
         
         if ([[urlToSave pathExtension] compare:@"jpg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
         if ([[urlToSave pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg

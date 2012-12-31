@@ -7,7 +7,344 @@
 	<key>CFBundleDisplayName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleDocumentTypes</key>
-	<array/>
+	<array>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>MOD file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.mod</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mod</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>XM file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.xm</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>xm</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>IT file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.it</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>it</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>S3M file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.s3m</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>s3m</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>SPC file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.spc</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>spc</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>PSF file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.psf</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>psf</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>SPU file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.spu</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>spu</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>PSF2 file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.psf2</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>psf2</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>NSF file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.nsf</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>nsf</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>NSFE file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.nsfe</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>nsfe</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>GSF file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.gsf</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>gsf</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>SSF file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.ssf</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>ssf</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>DSF file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.dsf</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>dsf</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>VGM file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.vgm</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>vgm</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>VGZ file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.vgz</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>vgz</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>MID file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.mid</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mid</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>MIDI file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.midi</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>midi</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>RSN file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.rsn</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>rsn</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>ZIP file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.zip</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>zip</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>7Z file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.7z</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>7z</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>GZ file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.gz</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>gz</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>RAR file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.rar</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>rar</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>LZH file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.lzh</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>lzh</string>
+			</array>
+		</dict>
+        <dict>
+			<key>CFBundleTypeName</key>
+			<string>LHA file</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.lha</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>lha</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFiles</key>
@@ -19,6 +356,8 @@
 		<string>Icon-Small.png</string>
 		<string>Icon-Small@2x.png</string>
 	</array>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>com.yoyofr.modizer</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -28,13 +367,13 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.6</string>
+	<string>1.7</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array/>
 	<key>CFBundleVersion</key>
-	<string>1.6</string>
+	<string>1.7</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -66,7 +405,368 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UTExportedTypeDeclarations</key>
-	<array/>
+	<array>
+		<dict>
+			<key>UTTypeDescription</key>
+			<string>MOD file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.mod</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>mod</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>XM file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.xm</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>xm</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>IT file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.it</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>it</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>S3M file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.s3m</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>s3m</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>SPC file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.spc</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>spc</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>PSF file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.psf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>psf</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>SPU file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.spu</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>spu</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>PSF2 file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.psf2</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>psf2</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>NSF file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.nsf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>nsf</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>NSFE file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.nsfe</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>nsfe</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>GSF file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.gsf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>gsf</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>SSF file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.ssf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>ssf</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>DSF file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.dsf</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>dsf</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>VGM file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.vgm</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>vgm</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>VGZ file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.vgz</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>vgz</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>MID file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.mid</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>mid</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>MIDI file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.midi</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>midi</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>RSN file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.rsn</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>rsn</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>ZIP file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.zip</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>zip</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>7Z file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.7z</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>7z</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>GZ file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.gz</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>gz</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>RAR file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.rar</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>rar</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>LHA file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.lha</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>lha</string>
+			</dict>
+		</dict>
+        <dict>
+			<key>UTTypeDescription</key>
+			<string>LZH file</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string></string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.lzh</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>lzh</string>
+			</dict>
+		</dict>
+	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array/>
 </dict>
