@@ -1,6 +1,6 @@
 // Core SPC emulation: CPU, timers, SMP registers, memory
 
-// snes_spc 0.9.0. http://www.slack.net/~ant/
+// snes_spc $vers. http://www.slack.net/~ant/
 
 #include "Snes_Spc.h"
 
@@ -25,13 +25,14 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 #define IF_0_THEN_256( n ) ((uint8_t) ((n) - 1) + 1)
 
 // Note: SPC_MORE_ACCURACY exists mainly so I can run my validation tests, which
-// do crazy echo buffer accesses. 
+// do crazy echo buffer accesses.
 #ifndef SPC_MORE_ACCURACY
 	#define SPC_MORE_ACCURACY 0
 #endif
 
 
 //// Timers
+
 #if SPC_DISABLE_TEMPO
 	#define TIMER_DIV( t, n ) ((n) >> t->prescaler)
 	#define TIMER_MUL( t, n ) ((n) << t->prescaler)
@@ -170,7 +171,16 @@ inline void Snes_Spc::dsp_write( int data, rel_time_t time )
 	#endif
 	
 	if ( REGS [r_dspaddr] <= 0x7F )
-		dsp.write( REGS [r_dspaddr], data );
+	{
+		if ( REGS [r_dspaddr] != Spc_Dsp::r_flg )
+			dsp.write( REGS [r_dspaddr], data );
+		else
+		{
+			int prev = dsp.read( Spc_Dsp::r_flg );
+			dsp.write( Spc_Dsp::r_flg, data );
+			if ( ( data & 0x20 ) == ( ( data ^ prev ) & 0x20 ) ) clear_echo();
+		}
+	}
 	else if ( !SPC_MORE_ACCURACY )
 		dprintf( "SPC wrote to DSP register > $7F\n" );
 }

@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.6-pre. http://www.slack.net/~ant/
+// Game_Music_Emu $vers. http://www.slack.net/~ant/
 
 #include "Music_Emu.h"
 
@@ -290,8 +290,8 @@ gme_err_t gme_track_info( Music_Emu const* me, gme_info_t** out, int track )
 	if ( info->play_length <= 0 )
 	{
 		info->play_length = info->intro_length + 2 * info->loop_length; // intro + 2 loops
-		//if ( info->play_length <= 0 )
-		//	info->play_length = 150 * 1000; // 2.5 minutes
+		if ( info->play_length <= 0 )
+			info->play_length = 150 * 1000; // 2.5 minutes
 	}
 	
 	*out = info;
@@ -310,7 +310,7 @@ void      gme_set_user_cleanup(Music_Emu* gme, gme_user_cleanup_t func ){ gme->s
 
 gme_err_t gme_start_track    ( Music_Emu* gme, int index )              { return gme->start_track( index ); }
 gme_err_t gme_play           ( Music_Emu* gme, int n, short p [] )      { return gme->play( n, p ); }
-void      gme_set_fade       ( Music_Emu* gme, int start_msec, int fade_length )         { gme->set_fade( start_msec,fade_length ); }
+void      gme_set_fade       ( Music_Emu* gme, int start_msec )         { gme->set_fade( start_msec ); }
 gme_bool  gme_track_ended    ( Music_Emu const* gme )                   { return gme->track_ended(); }
 int       gme_tell           ( Music_Emu const* gme )                   { return gme->tell(); }
 gme_err_t gme_seek           ( Music_Emu* gme, int msec )               { return gme->seek( msec ); }

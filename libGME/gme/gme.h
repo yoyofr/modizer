@@ -1,6 +1,6 @@
 /* Loads and plays video game music files into sample buffer */
 
-/* Game_Music_Emu 0.6-pre */
+/* Game_Music_Emu $vers */
 #ifndef GME_H
 #define GME_H
 
@@ -44,7 +44,7 @@ void gme_delete( gme_t* );
 
 /* Sets time to start fading track out. Once fade ends track_ended() returns true.
 Fade time can be changed while track is playing. */
-void gme_set_fade( gme_t*, int start_msec, int fade_length );
+void gme_set_fade( gme_t*, int start_msec );
 
 /* True if a track has reached its end */
 gme_bool gme_track_ended( const gme_t* );

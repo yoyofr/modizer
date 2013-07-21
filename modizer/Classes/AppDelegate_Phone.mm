@@ -50,74 +50,6 @@ pthread_mutex_t play_mutex;
 	return mSlowDevice;
 }
 
--(void)generateSupportExtList{
-	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
-	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
-	NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
-	NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
-	NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
-	NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-	NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
-	NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
-	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
-	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
-	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
-	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
-			
-	for (int i=0;i<[filetype_extMDX count];i++) {
-		printf("%s\n",[[filetype_extMDX objectAtIndex:i] UTF8String]);
-	}
-	for (int i=0;i<[filetype_extSID count];i++) {
-		printf("%s\n",[[filetype_extSID objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extSTSOUND count];i++) {
-		printf("%s\n",[[filetype_extSTSOUND objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extSC68 count];i++) {
-		printf("%s\n",[[filetype_extSC68 objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extARCHIVE count];i++) {
-		printf("%s\n",[[filetype_extARCHIVE objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extUADE count];i++) {
-		printf("%s\n",[[filetype_extUADE objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extMODPLUG count];i++) {
-		printf("%s\n",[[filetype_extMODPLUG objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extGME count];i++) {
-		printf("%s\n",[[filetype_extGME objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extADPLUG count];i++) {
-		printf("%s\n",[[filetype_extADPLUG objectAtIndex:i] UTF8String]);
-	}
-	for (int i=0;i<[filetype_extSEXYPSF count];i++) {
-		printf("%s\n",[[filetype_extSEXYPSF objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extAOSDK count];i++) {
-		printf("%s\n",[[filetype_extAOSDK objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extHVL count];i++) {
-		printf("%s\n",[[filetype_extHVL objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extSEXYPSF count];i++) {
-		printf("%s\n",[[filetype_extSEXYPSF objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extAOSDK count];i++) {
-		printf("%s\n",[[filetype_extAOSDK objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extHVL count];i++) {
-		printf("%s\n",[[filetype_extHVL objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extGSF count];i++) {
-		printf("%s\n",[[filetype_extGSF objectAtIndex:i] UTF8String] );
-	}
-	for (int i=0;i<[filetype_extASAP count];i++) {
-		printf("%s\n",[[filetype_extASAP objectAtIndex:i] UTF8String] );
-	}
-}
 
 /*NSUInteger pasteboardChangeCount_;
 
@@ -147,10 +79,6 @@ pthread_mutex_t play_mutex;
 	if ([device respondsToSelector:@selector(isMultitaskingSupported)])
 		backgroundSupported = device.multitaskingSupported;
 	
-#ifdef GEN_EXT_LIST	
-	[self generateSupportExtList];
-	return NO;
-#else
 	if (pthread_mutex_init(&uade_mutex,NULL)) {
 		printf("cannot create uade mutex");
 		return NO;
@@ -243,7 +171,6 @@ pthread_mutex_t play_mutex;
 		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
         
 	}
-#endif
 	
 	return YES;
 }

@@ -22,7 +22,7 @@
 
 #include "mdx.h"
 #include "pcm8.h"
-#include "ym2151.h"
+#include "mdx_ym2151.h"
 
 extern void mdx_update(unsigned char *data,int len,int end_reached);
 

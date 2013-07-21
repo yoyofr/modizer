@@ -171,6 +171,7 @@
 		333DA8FF15F48D5E0095494B /* video_play@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 333DA8F315F48D5E0095494B /* video_play@2x.png */; };
 		333DA90015F48D5E0095494B /* video_previous.png in Resources */ = {isa = PBXBuildFile; fileRef = 333DA8F415F48D5E0095494B /* video_previous.png */; };
 		333DA90115F48D5E0095494B /* video_previous@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 333DA8F515F48D5E0095494B /* video_previous@2x.png */; };
+		333DC09716CAD92800720CA2 /* mdx_ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = 333DC09616CAD92800720CA2 /* mdx_ym2151.c */; };
 		334C998D14EAB1ED0003CF9B /* RootViewControllerPlaylist.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EE145939850038C673 /* RootViewControllerPlaylist.mm */; };
 		33525D7D1222567600E6E517 /* DBHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33525D7C1222567600E6E517 /* DBHelper.mm */; };
 		3353314A142CADAB009FCEE1 /* fix_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = 33533148142CADAB009FCEE1 /* fix_fft.c */; };
@@ -200,7 +201,6 @@
 		3370BC13124A853F00691400 /* pdxfile.c in Sources */ = {isa = PBXBuildFile; fileRef = 3370BBF1124A853F00691400 /* pdxfile.c */; };
 		3370BC14124A853F00691400 /* sin_tab.dat in Resources */ = {isa = PBXBuildFile; fileRef = 3370BBF2124A853F00691400 /* sin_tab.dat */; };
 		3370BC15124A853F00691400 /* tl_tab.dat in Resources */ = {isa = PBXBuildFile; fileRef = 3370BBF3124A853F00691400 /* tl_tab.dat */; };
-		3370BC17124A853F00691400 /* ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = 3370BBF6124A853F00691400 /* ym2151.c */; };
 		3370BC2F124A858C00691400 /* allpass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3370BC1F124A858C00691400 /* allpass.cpp */; };
 		3370BC30124A858C00691400 /* comb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3370BC21124A858C00691400 /* comb.cpp */; };
 		3370BC31124A858C00691400 /* freeverb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3370BC24124A858C00691400 /* freeverb.cpp */; };
@@ -314,8 +314,8 @@
 		33952DD7139F54D5000B7839 /* aica.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57B81200B3B7000A8A4E /* aica.c */; };
 		33952DD8139F559C000B7839 /* arm7.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57BD1200B3B7000A8A4E /* arm7.c */; };
 		3396B6DD13297F8E001792E0 /* timidity.cfg in Copy Files-Timidity */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
+		3397DC90179C792400607236 /* liblibgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33CA194414079ADC00CBEF9B /* liblibgme.a */; };
 		33A9678C140E4789007F22F5 /* char.bin in Resources */ = {isa = PBXBuildFile; fileRef = 33A96692140E4788007F22F5 /* char.bin */; };
-		33B4EA4314B373420060F9B1 /* liblibgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33CA194414079ADC00CBEF9B /* liblibgme.a */; };
 		33B4EA4514B374C00060F9B1 /* liblibgsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33A961D91407F195007F22F5 /* liblibgsf.a */; };
 		33B4EA4614B374C00060F9B1 /* liblibsidplay1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33236916125F8B790032223C /* liblibsidplay1.a */; };
 		33B4EA4714B374C00060F9B1 /* libsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33A96584140E1284007F22F5 /* libsidplayfp.a */; };
@@ -1303,6 +1303,7 @@
 		333DA8F315F48D5E0095494B /* video_play@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "video_play@2x.png"; sourceTree = "<group>"; };
 		333DA8F415F48D5E0095494B /* video_previous.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = video_previous.png; sourceTree = "<group>"; };
 		333DA8F515F48D5E0095494B /* video_previous@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "video_previous@2x.png"; sourceTree = "<group>"; };
+		333DC09616CAD92800720CA2 /* mdx_ym2151.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mdx_ym2151.c; sourceTree = "<group>"; };
 		33525D7B1222567600E6E517 /* DBHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBHelper.h; sourceTree = "<group>"; };
 		33525D7C1222567600E6E517 /* DBHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DBHelper.mm; sourceTree = "<group>"; };
 		33533148142CADAB009FCEE1 /* fix_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fix_fft.c; sourceTree = "<group>"; };
@@ -1341,8 +1342,7 @@
 		3370BBF1124A853F00691400 /* pdxfile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pdxfile.c; sourceTree = "<group>"; };
 		3370BBF2124A853F00691400 /* sin_tab.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sin_tab.dat; sourceTree = "<group>"; };
 		3370BBF3124A853F00691400 /* tl_tab.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tl_tab.dat; sourceTree = "<group>"; };
-		3370BBF6124A853F00691400 /* ym2151.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ym2151.c; sourceTree = "<group>"; };
-		3370BBF7124A853F00691400 /* ym2151.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ym2151.h; sourceTree = "<group>"; };
+		3370BBF7124A853F00691400 /* mdx_ym2151.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdx_ym2151.h; sourceTree = "<group>"; };
 		3370BC1F124A858C00691400 /* allpass.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = allpass.cpp; sourceTree = "<group>"; };
 		3370BC20124A858C00691400 /* allpass.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = allpass.hpp; sourceTree = "<group>"; };
 		3370BC21124A858C00691400 /* comb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = comb.cpp; sourceTree = "<group>"; };
@@ -2450,6 +2450,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3397DC90179C792400607236 /* liblibgme.a in Frameworks */,
 				33F60A8C14D1D719009ABA8F /* libdumb.a in Frameworks */,
 				33F60A8B14D1D711009ABA8F /* libTapkuLibrary.a in Frameworks */,
 				33F60A8A14D1D709009ABA8F /* liblibFileExtractor.a in Frameworks */,
@@ -2458,7 +2459,6 @@
 				33B4EA4514B374C00060F9B1 /* liblibgsf.a in Frameworks */,
 				33B4EA4614B374C00060F9B1 /* liblibsidplay1.a in Frameworks */,
 				33B4EA4714B374C00060F9B1 /* libsidplayfp.a in Frameworks */,
-				33B4EA4314B373420060F9B1 /* liblibgme.a in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
@@ -2691,8 +2691,8 @@
 				3370BBF1124A853F00691400 /* pdxfile.c */,
 				3370BBF2124A853F00691400 /* sin_tab.dat */,
 				3370BBF3124A853F00691400 /* tl_tab.dat */,
-				3370BBF6124A853F00691400 /* ym2151.c */,
-				3370BBF7124A853F00691400 /* ym2151.h */,
+				333DC09616CAD92800720CA2 /* mdx_ym2151.c */,
+				3370BBF7124A853F00691400 /* mdx_ym2151.h */,
 			);
 			name = mdxplay;
 			path = X68000/mdxplay;
@@ -5360,7 +5360,6 @@
 				3370BC0E124A853F00691400 /* mdxfile.c in Sources */,
 				3370BC10124A853F00691400 /* mdxmml_ym2151.c in Sources */,
 				3370BC13124A853F00691400 /* pdxfile.c in Sources */,
-				3370BC17124A853F00691400 /* ym2151.c in Sources */,
 				3370BC2F124A858C00691400 /* allpass.cpp in Sources */,
 				3370BC30124A858C00691400 /* comb.cpp in Sources */,
 				3370BC31124A858C00691400 /* freeverb.cpp in Sources */,
@@ -5436,6 +5435,7 @@
 				50819A3414B3E0700062FA86 /* util.cpp in Sources */,
 				33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */,
 				334C998D14EAB1ED0003CF9B /* RootViewControllerPlaylist.mm in Sources */,
+				333DC09716CAD92800720CA2 /* mdx_ym2151.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

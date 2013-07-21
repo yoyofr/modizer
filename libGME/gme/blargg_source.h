@@ -3,7 +3,7 @@ lines. Sets up helpful macros and services used in my source code. Since this
 is only "active" in my source code, I don't have to worry about polluting the
 global namespace with unprefixed names. */
 
-// Game_Music_Emu 0.6-pre
+// $package
 #ifndef BLARGG_SOURCE_H
 #define BLARGG_SOURCE_H
 
@@ -44,6 +44,10 @@ static inline void blargg_dprintf_( const char [], ... ) { }
 #undef  dprintf
 #define dprintf (1) ? (void) 0 : blargg_dprintf_
 #else
+#ifndef _WIN32
+#undef  dprintf
+#define dprintf (1) ? (void) 0 : blargg_dprintf_
+#else
 #include <windows.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -56,6 +60,7 @@ static inline void blargg_dprintf_( const char * fmt, ... )
 	va_end(vl);
 	OutputDebugStringA( error );
 }
+#endif
 #undef  dprintf
 #define dprintf blargg_dprintf_
 #endif

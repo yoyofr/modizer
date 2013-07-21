@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.6-pre. http://www.slack.net/~ant/
+// Game_Music_Emu $vers. http://www.slack.net/~ant/
 
 #include "Hes_Apu.h"
 
@@ -65,8 +65,8 @@ void Hes_Apu::set_output( int i, Blip_Buffer* center, Blip_Buffer* left, Blip_Bu
 	
 	Osc& o = oscs [i];
 	o.outputs [0] = center;
-	o.outputs [1] = right;
-	o.outputs [2] = left;
+	o.outputs [1] = left;
+	o.outputs [2] = right;
 	balance_changed( o );
 }
 
@@ -114,9 +114,9 @@ void Hes_Apu::run_osc( Blip_Synth_Fast& syn, Osc& o, blip_time_t end_time )
 		blip_time_t time = o.last_time + o.noise_delay;
 		if ( time < end_time )
 		{
-			int period = (~o.noise & 0x1F) * 128;
+            int period = (~o.noise & 0x1F) * 128;
 			if ( !period )
-				period = 64;
+                period = 64;
 			
 			if ( noise && out0 )
 			{
@@ -168,9 +168,9 @@ void Hes_Apu::run_osc( Blip_Synth_Fast& syn, Osc& o, blip_time_t end_time )
 	if ( time < end_time )
 	{
 		int phase = (o.phase + 1) & 0x1F; // pre-advance for optimal inner loop
-		int period = o.period * 2;
+        int period = o.period * 2;
 		
-		if ( period >= 14 && out0 && !((o.control & 0x40) | noise) )
+        if ( period >= 14 && out0 && !((o.control & 0x40) | noise) )
 		{
 			do
 			{

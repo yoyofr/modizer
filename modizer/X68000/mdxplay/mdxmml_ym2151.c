@@ -260,7 +260,7 @@ int mdx_parse_mml_ym2151( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
 	
   ym2151_all_note_off();
   pcm8_close();
-  ym2151_shutdown();
+  mdx_ym2151_shutdown();
 
   return 0;
 }
@@ -384,7 +384,7 @@ void
 mdx_parse_mml_ym2151_async_finalize(void* self) {
   ym2151_all_note_off();
   pcm8_close();
-  ym2151_shutdown();
+  mdx_ym2151_shutdown();
 }
 
 int mdx_parse_mml_ym2151_async(void* in_self)

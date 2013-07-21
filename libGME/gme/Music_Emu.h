@@ -1,11 +1,12 @@
 // Common interface to game music file emulators
 
-// Game_Music_Emu 0.6-pre
+// Game_Music_Emu $vers
 #ifndef MUSIC_EMU_H
 #define MUSIC_EMU_H
 
 #include "Gme_File.h"
 #include "Track_Filter.h"
+#include "blargg_errors.h"
 class Multi_Buffer;
 
 struct gme_t : public Gme_File, private Track_Filter::callbacks_t {
@@ -40,6 +41,12 @@ public:
 	// Info for currently playing track
 	Gme_File::track_info;
 	blargg_err_t track_info( track_info_t* out ) const;
+
+	struct Hash_Function
+	{
+		virtual void hash_( byte const* data, size_t size ) BLARGG_PURE( ; )
+	};
+	virtual blargg_err_t hash_( Hash_Function& ) const BLARGG_PURE( ; )
 	
 // Track status/control
 
@@ -58,7 +65,7 @@ public:
 	// Sets start time and length of track fade out. Once fade ends track_ended() returns
 	// true. Fade time must be set after track has been started, and can be changed
 	// at any time.
-	void set_fade( int start_msec, int length_msec = 1000 );
+	void set_fade( int start_msec, int length_msec = 8000 );
 	
 	// Disables automatic end-of-track detection and skipping of silence at beginning
 	void ignore_silence( bool disable = true );
@@ -237,5 +244,9 @@ inline blargg_err_t Music_Emu::start_track_( int )  { return blargg_ok; }
 inline blargg_err_t Music_Emu::set_sample_rate_( int ) { return blargg_ok; }
 
 inline blargg_err_t Music_Emu::play_( int, sample_t [] ) { return blargg_ok; }
+
+inline blargg_err_t Music_Emu::hash_( Hash_Function& ) const { return BLARGG_ERR( BLARGG_ERR_CALLER, "no hashing function defined" ); }
+
+inline void Music_Emu::Hash_Function::hash_( byte const*, size_t ) { }
 
 #endif

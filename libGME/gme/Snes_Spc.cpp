@@ -1,6 +1,6 @@
 // SPC emulation support: init, sample buffering, reset, SPC loading
 
-// snes_spc 0.9.0. http://www.slack.net/~ant/
+// snes_spc $vers. http://www.slack.net/~ant/
 
 #include "Snes_Spc.h"
 
@@ -32,7 +32,7 @@ blargg_err_t Snes_Spc::init()
 	memset( &m, 0, sizeof m );
 	dsp.init( RAM );
 	
-    m.tempo = tempo_unit;
+	m.tempo = tempo_unit;
 	
 	// Most SPC music doesn't need ROM, and almost all the rest only rely
 	// on these two bytes
@@ -246,13 +246,14 @@ blargg_err_t Snes_Spc::load_spc( void const* data, long size )
 
 void Snes_Spc::clear_echo()
 {
-	if ( !(dsp.read( Spc_Dsp::r_flg ) & 0x20) )
+	if ( !m.echo_cleared && !(dsp.read( Spc_Dsp::r_flg ) & 0x20) )
 	{
 		int addr = 0x100 * dsp.read( Spc_Dsp::r_esa );
 		int end  = addr + 0x800 * (dsp.read( Spc_Dsp::r_edl ) & 0x0F);
 		if ( end > 0x10000 )
 			end = 0x10000;
 		memset( &RAM [addr], 0xFF, end - addr );
+		m.echo_cleared = true;
 	}
 }
 

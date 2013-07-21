@@ -1,6 +1,6 @@
 // Super Nintendo SPC music file emulator
 
-// Game_Music_Emu 0.6-pre
+// Game_Music_Emu $vers
 #ifndef SPC_EMU_H
 #define SPC_EMU_H
 
@@ -28,6 +28,8 @@ public:
 	// Enables gaussian, cubic or sinc interpolation
 	void interpolation_level( int level = 0 )   { apu.interpolation_level( level ); }
 
+	const Snes_Spc * get_apu() const;
+	
 	// SPC file header
 	struct header_t
 	{
@@ -54,6 +56,8 @@ public:
 	
 	// Header for currently loaded file
 	header_t const& header() const                  { return *(header_t const*) file_begin(); }
+
+	blargg_err_t hash_( Hash_Function& ) const;
 	
 	static gme_type_t static_type()                 { return gme_spc_type; }
 	
@@ -74,12 +78,14 @@ protected:
 
 private:
 	Spc_Emu_Resampler resampler;
-	SPC_Filter filter;
+	Spc_Filter filter;
 	Snes_Spc apu;
 	
 	byte const* trailer_() const;
 	int trailer_size_() const;
 	blargg_err_t play_and_filter( int count, sample_t out [] );
 };
+
+inline const Snes_Spc * Spc_Emu::get_apu() const { return &apu; }
 
 #endif

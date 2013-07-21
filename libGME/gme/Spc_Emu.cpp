@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.6-pre. http://www.slack.net/~ant/
+// Game_Music_Emu $vers. http://www.slack.net/~ant/
 
 #include "Spc_Emu.h"
 
@@ -241,6 +241,22 @@ static void get_spc_info( Spc_Emu::header_t const& h, byte const xid6 [], int xi
 		get_spc_xid6( xid6, xid6_size, out );
 }
 
+static void hash_spc_file( Spc_Emu::header_t const& h, byte const* data, int data_size, Music_Emu::Hash_Function& out )
+{
+	out.hash_( &h.format, sizeof(h.format) );
+	out.hash_( &h.version, sizeof(h.version) );
+	out.hash_( &h.pc[0], sizeof(h.pc) );
+	out.hash_( &h.a, sizeof(h.a) );
+	out.hash_( &h.x, sizeof(h.x) );
+	out.hash_( &h.y, sizeof(h.y) );
+	out.hash_( &h.psw, sizeof(h.psw) );
+	out.hash_( &h.sp, sizeof(h.sp) );
+	out.hash_( &h.unused[0], sizeof(h.unused) );
+	out.hash_( &h.emulator, sizeof(h.emulator) );
+	out.hash_( &h.unused2[0], sizeof(h.unused2) );
+	out.hash_( data, data_size );
+}
+
 blargg_err_t Spc_Emu::track_info_( track_info_t* out, int ) const
 {
 	get_spc_info( header(), trailer_(), trailer_size_(), out );
@@ -257,6 +273,7 @@ static blargg_err_t check_spc_header( void const* header )
 struct Spc_File : Gme_Info_
 {
 	Spc_Emu::header_t header;
+	blargg_vector<byte> data;
 	blargg_vector<byte> xid6;
 	
 	Spc_File() { set_type( gme_spc_type ); }
@@ -269,11 +286,12 @@ struct Spc_File : Gme_Info_
 		RETURN_ERR( in.read( &header, header.size ) );
 		RETURN_ERR( check_spc_header( header.tag ) );
 		int const xid6_offset = 0x10200;
+		RETURN_ERR( data.resize( blargg_min( xid6_offset - header.size, file_size - header.size ) ) );
+		RETURN_ERR( in.read( data.begin(), data.end() - data.begin() ) );
 		int xid6_size = file_size - xid6_offset;
 		if ( xid6_size > 0 )
 		{
 			RETURN_ERR( xid6.resize( xid6_size ) );
-			RETURN_ERR( in.skip( xid6_offset - header.size ) );
 			RETURN_ERR( in.read( xid6.begin(), xid6.size() ) );
 		}
 		return blargg_ok;
@@ -282,6 +300,12 @@ struct Spc_File : Gme_Info_
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		get_spc_info( header, xid6.begin(), xid6.size(), out );
+		return blargg_ok;
+	}
+
+	blargg_err_t hash_( Hash_Function& out ) const
+	{
+		hash_spc_file( header, data.begin(), data.end() - data.begin(), out );
 		return blargg_ok;
 	}
 };
@@ -338,7 +362,7 @@ blargg_err_t Spc_Emu::start_track_( int track )
 	resampler.clear();
 	filter.clear();
 	RETURN_ERR( apu.load_spc( file_begin(), file_size() ) );
-	filter.set_gain( (int) (gain() * SPC_Filter::gain_unit) );
+	filter.set_gain( (int) (gain() * Spc_Filter::gain_unit) );
 	apu.clear_echo();
 	return blargg_ok;
 }
@@ -389,5 +413,11 @@ blargg_err_t Spc_Emu::play_( int count, sample_t out [] )
 		}
 	}
 	check( remain == 0 );
+	return blargg_ok;
+}
+
+blargg_err_t Spc_Emu::hash_( Hash_Function& out ) const
+{
+    hash_spc_file( header(), file_begin() + header_t::size, blargg_min( (size_t) ( 0x10200 - header_t::size ), (size_t) ( file_end() - file_begin() - header_t::size ) ), out );
 	return blargg_ok;
 }

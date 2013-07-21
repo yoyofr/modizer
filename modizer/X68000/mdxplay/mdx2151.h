@@ -12,7 +12,7 @@
 
 extern int ym2151_open( void );
 extern int ym2151_reg_init( MDX_DATA * );
-extern void ym2151_shutdown(void);
+extern void mdx_ym2151_shutdown(void);
 
 extern void ym2151_all_note_off( void );
 extern void ym2151_note_on( int, int );

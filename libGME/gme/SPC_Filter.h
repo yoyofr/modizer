@@ -1,12 +1,12 @@
 // Simple low-pass and high-pass filter to better match sound output of a SNES
 
-// snes_spc 0.9.0
+// snes_spc $vers
 #ifndef SPC_FILTER_H
 #define SPC_FILTER_H
 
 #include "blargg_common.h"
 
-struct SPC_Filter {
+struct Spc_Filter {
 public:
 	
 	// Filters count samples of stereo sound in place. Count must be a multiple of 2.
@@ -33,7 +33,7 @@ public:
 	void set_bass( int bass );
 	
 public:
-	SPC_Filter();
+	Spc_Filter();
 	BLARGG_DISABLE_NOTHROW
 private:
 	enum { gain_bits = 8 };
@@ -44,10 +44,10 @@ private:
 	chan_t ch [2];
 };
 
-inline void SPC_Filter::enable( bool b )  { enabled = b; }
+inline void Spc_Filter::enable( bool b )  { enabled = b; }
 
-inline void SPC_Filter::set_gain( int g ) { gain = g; }
+inline void Spc_Filter::set_gain( int g ) { gain = g; }
 
-inline void SPC_Filter::set_bass( int b ) { bass = b; }
+inline void Spc_Filter::set_bass( int b ) { bass = b; }
 
 #endif

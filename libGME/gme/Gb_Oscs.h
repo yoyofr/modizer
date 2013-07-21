@@ -1,6 +1,6 @@
 // Private oscillators used by Gb_Apu
 
-// Gb_Snd_Emu 0.1.4
+// Gb_Snd_Emu $vers
 #ifndef GB_OSCS_H
 #define GB_OSCS_H
 
