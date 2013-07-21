@@ -1,6 +1,6 @@
 // Library configuration. Modify this file as necessary.
 
-// Game_Music_Emu 0.6-pre
+// $package
 #ifndef BLARGG_CONFIG_H
 #define BLARGG_CONFIG_H
 
@@ -30,13 +30,13 @@
 */
 
 // Enable platform-specific optimizations.
-#define BLARGG_NONPORTABLE 0
+//#define BLARGG_NONPORTABLE 1
 
 // Use faster sample rate convertor for SPC music.
-#define GME_SPC_FAST_RESAMPLER 1
+//#define GME_SPC_FAST_RESAMPLER 1
 
 // Use faster sample rate convertor for VGM and GYM music.
-#define GME_VGM_FAST_RESAMPLER 1
+//#define GME_VGM_FAST_RESAMPLER 1
 
 // Use faster, significantly lower quality sound synthesis for classic emulators.
 //#define BLIP_BUFFER_FAST 1

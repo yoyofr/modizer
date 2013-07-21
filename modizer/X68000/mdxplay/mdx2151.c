@@ -18,7 +18,7 @@
 #include "version.h"
 #include "mdx.h"
 #include "mdx2151.h"
-#include "ym2151.h"
+#include "mdx_ym2151.h"
 #include "pcm8.h"
 
 /* ------------------------------------------------------------------ */
@@ -270,7 +270,7 @@ ym2151_reg_init( MDX_DATA *mdx )
 }
 
 void
-ym2151_shutdown(void)
+mdx_ym2151_shutdown(void)
 {
   __GETSELF;
 

@@ -34,6 +34,7 @@ int mod_message_updated;
 
 /* file types */
 static char gmetype[64];
+
 static uint32 ao_type;
 volatile int mSlowDevice;
 static volatile int moveToPrevSubSong,moveToNextSubSong,mod_wantedcurrentsub,mChangeOfSong,mNewModuleLength,moveToSubSong,moveToSubSongIndex;
@@ -2199,9 +2200,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 								mod_message_updated=2;
 								
 								if (iModuleLength>0) {
-									if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
-									else gme_set_fade( gme_emu, iModuleLength/2,iModuleLength/2 ); 
-								} else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut ); 
+									if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut/*,optGMEFadeOut*/ ); //Fade 1s before end
+									else gme_set_fade( gme_emu, iModuleLength/2/*,iModuleLength/2*/ );
+								} else gme_set_fade( gme_emu, 1<<30/*,optGMEFadeOut*/ );
 								if (moveToNextSubSong==2) {
 									//[self iPhoneDrv_PlayWaitStop];
 									//[self iPhoneDrv_PlayStart];
@@ -2288,9 +2289,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             mod_message_updated=2;
                             
                             if (iModuleLength>0) {
-                                if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
-                                else gme_set_fade( gme_emu, iModuleLength/2, iModuleLength/2 ); 
-                            } else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut ); 
+                                if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut/*,optGMEFadeOut*/ ); //Fade 1s before end
+                                else gme_set_fade( gme_emu, iModuleLength/2/*, iModuleLength/2*/ );
+                            } else gme_set_fade( gme_emu, 1<<30/*,optGMEFadeOut*/ );
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
@@ -2379,9 +2380,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 								mod_message_updated=2;
 								
 								if (iModuleLength>0) {
-									if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
-									else gme_set_fade( gme_emu, iModuleLength/2,optGMEFadeOut ); //Fade 1s before end
-								} else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut ); 
+									if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut/*,optGMEFadeOut*/ ); //Fade 1s before end
+									else gme_set_fade( gme_emu, iModuleLength/2/*,optGMEFadeOut*/ ); //Fade 1s before end
+								} else gme_set_fade( gme_emu, 1<<30/*,optGMEFadeOut*/ );
 								[self iPhoneDrv_PlayStop];
 								[self iPhoneDrv_PlayStart];
 								iCurrentTime=0;
@@ -2477,9 +2478,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 									//mod_message_updated=2;
 									
 									if (mNewModuleLength>0) {
-										if (mNewModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, mNewModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
-										else gme_set_fade( gme_emu, mNewModuleLength/2, mNewModuleLength/2 ); //Fade 1s before end
-									} else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut ); 
+										if (mNewModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, mNewModuleLength-optGMEFadeOut/*,optGMEFadeOut*/ ); //Fade 1s before end
+										else gme_set_fade( gme_emu, mNewModuleLength/2/*, mNewModuleLength/2*/ ); //Fade 1s before end
+									} else gme_set_fade( gme_emu, 1<<30/*,optGMEFadeOut*/ );
 									if (mSlowDevice) {
 										gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
 										/*for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
@@ -3863,7 +3864,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			
 			/**/
 			int ignore_silence = strcmp(gmetype,"PC Engine") ? 1 : 0;
-			gme_ignore_silence(gme_emu,ignore_silence);
+//TODO: make it an option
+			gme_ignore_silence(gme_emu,0);//ignore_silence);
 			
 			track=0;
 			mod_subsongs=gme_track_count( gme_emu );
@@ -3918,7 +3920,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			
 			//Loop
 			if (mLoopMode==1) iModuleLength=-1;
-			if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
+			if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut/*,optGMEFadeOut*/ ); //Fade 1s before end
             //            else gme_set_fade( gme_emu, 1<<30);
 			
 			iCurrentTime=0;
@@ -5328,7 +5330,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	
 	switch (mPlayType) {
 		case 1:  //GME
-            
 			if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
 				
 				gme_start_track(gme_emu,subsong);
@@ -5357,8 +5358,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				}
 				//Loop
 				if (mLoopMode==1) iModuleLength=-1;
-				if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut ,optGMEFadeOut); //Fade 1s before end
-				else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut);
+				if (iModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut /*,optGMEFadeOut*/); //Fade 1s before end
+				else gme_set_fade( gme_emu, 1<<30/*,optGMEFadeOut*/);
 				mod_message_updated=2;
 			}
 			gme_seek(gme_emu,startPos);
@@ -5484,7 +5485,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	if (mPlayType==1) {
 		gme_delete( gme_emu );
 	}
-	if (mPlayType==2) { 
+	if (mPlayType==2) {
 		if (mp_file) {
 			ModPlug_Unload(mp_file);
 		}

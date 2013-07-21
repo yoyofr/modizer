@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.6-pre. http://www.slack.net/~ant/
+// Game_Music_Emu $vers. http://www.slack.net/~ant/
 
 #include "Music_Emu.h"
 
@@ -43,7 +43,7 @@ Music_Emu::gme_t()
 	
 	// defaults
 	tfilter = track_filter.setup();
-	set_max_initial_silence( 2 );
+	set_max_initial_silence( 15 );
 	set_silence_lookahead( 3 );
 	ignore_silence( false );
 	

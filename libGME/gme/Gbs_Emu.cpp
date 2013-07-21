@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.6-pre. http://www.slack.net/~ant/
+// Game_Music_Emu $vers. http://www.slack.net/~ant/
 
 #include "Gbs_Emu.h"
 
@@ -50,6 +50,20 @@ static void copy_gbs_fields( Gbs_Emu::header_t const& h, track_info_t* out )
 	GME_COPY_FIELD( h, out, copyright );
 }
 
+static void hash_gbs_file( Gbs_Emu::header_t const& h, byte const* data, int data_size, Music_Emu::Hash_Function& out )
+{
+	out.hash_( &h.vers, sizeof(h.vers) );
+	out.hash_( &h.track_count, sizeof(h.track_count) );
+	out.hash_( &h.first_track, sizeof(h.first_track) );
+	out.hash_( &h.load_addr[0], sizeof(h.load_addr) );
+	out.hash_( &h.init_addr[0], sizeof(h.init_addr) );
+	out.hash_( &h.play_addr[0], sizeof(h.play_addr) );
+	out.hash_( &h.stack_ptr[0], sizeof(h.stack_ptr) );
+	out.hash_( &h.timer_modulo, sizeof(h.timer_modulo) );
+	out.hash_( &h.timer_mode, sizeof(h.timer_mode) );
+	out.hash_( data, data_size );
+}
+
 blargg_err_t Gbs_Emu::track_info_( track_info_t* out, int ) const
 {
 	copy_gbs_fields( header(), out );
@@ -58,18 +72,16 @@ blargg_err_t Gbs_Emu::track_info_( track_info_t* out, int ) const
 
 struct Gbs_File : Gme_Info_
 {
-	Gbs_Emu::header_t h;
+	Gbs_Emu::header_t const* h;
 	
 	Gbs_File() { set_type( gme_gbs_type ); }
 	
-	blargg_err_t load_( Data_Reader& in )
+	blargg_err_t load_mem_( byte const begin [], int size )
 	{
-		blargg_err_t err = in.read( &h, h.size );
-		if ( err )
-			return (blargg_is_err_type( err, blargg_err_file_eof ) ? blargg_err_file_type : err);
-		
-		set_track_count( h.track_count );
-		if ( !h.valid_tag() )
+		h = ( Gbs_Emu::header_t * ) begin;
+
+		set_track_count( h->track_count );
+		if ( !h->valid_tag() )
 			return blargg_err_file_type;
 		
 		return blargg_ok;
@@ -77,7 +89,13 @@ struct Gbs_File : Gme_Info_
 	
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
-		copy_gbs_fields( h, out );
+		copy_gbs_fields( Gbs_Emu::header_t( *h ), out );
+		return blargg_ok;
+	}
+
+	blargg_err_t hash_( Hash_Function& out ) const
+	{
+		hash_gbs_file( *h, file_begin() + h->size, file_end() - file_begin() - h->size, out );
 		return blargg_ok;
 	}
 };
@@ -140,4 +158,10 @@ blargg_err_t Gbs_Emu::start_track_( int track )
 blargg_err_t Gbs_Emu::run_clocks( blip_time_t& duration, int )
 {
 	return core_.end_frame( duration );
+}
+
+blargg_err_t Gbs_Emu::hash_( Hash_Function& out ) const
+{
+	hash_gbs_file( header(), core_.rom_().begin(), core_.rom_().file_size(), out );
+	return blargg_ok;
 }

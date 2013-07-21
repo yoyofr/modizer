@@ -1,12 +1,11 @@
 // SNES SPC-700 APU emulator
 
-// snes_spc 0.9.0
+// snes_spc $vers
 #ifndef SNES_SPC_H
 #define SNES_SPC_H
 
 #include "Spc_Dsp.h"
 #include "blargg_endian.h"
-#include "stdio.h"
 
 struct Snes_Spc {
 public:
@@ -87,6 +86,9 @@ public:
 	// Skips count samples. Several times faster than play() when using fast DSP.
 	blargg_err_t skip( int count );
 
+	// blah
+	const Spc_Dsp * get_dsp() const;
+	
 // State save/load (only available with accurate DSP)
 
 #if !SPC_NO_COPY_STATE_FUNCS
@@ -167,6 +169,7 @@ private:
 		rel_time_t  dsp_time;
 		time_t      spc_time;
 		bool        echo_accessed;
+		bool        echo_cleared;
 		
 		int         tempo;
 		int         skipped_kon;
@@ -283,7 +286,9 @@ inline void Snes_Spc::mute_voices( int mask ) { dsp.mute_voices( mask ); }
 	
 inline void Snes_Spc::disable_surround( bool disable ) { dsp.disable_surround( disable ); }
 
-inline void Snes_Spc::interpolation_level( int level ) { /*dsp.interpolation_level( level );*/ }
+inline void Snes_Spc::interpolation_level( int level ) { dsp.interpolation_level( level ); }
+
+inline const Spc_Dsp * Snes_Spc::get_dsp() const { return &dsp; };
 
 #if !SPC_NO_COPY_STATE_FUNCS
 inline bool Snes_Spc::check_kon() { return dsp.check_kon(); }

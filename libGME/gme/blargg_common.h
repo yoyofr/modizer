@@ -1,10 +1,11 @@
 // Sets up common environment for Shay Green's libraries.
 // To change configuration options, modify blargg_config.h, not this file.
 
-// Game_Music_Emu 0.6-pre
+// $package
 #ifndef BLARGG_COMMON_H
 #define BLARGG_COMMON_H
 
+//IOS_BUILD_PATCH
 #define NDEBUG 1
 
 #include <stdlib.h>
@@ -126,8 +127,9 @@ global scope already. */
 		typedef unsigned short   uint16_t;
 		typedef int               int32_t;
 		typedef unsigned int     uint32_t;
-		typedef signed long long  int64_t;
-		typedef unsigned long long uint64_t;
+//IOS_BUILD_PATCH
+        typedef long long           int64_t;
+        typedef unsigned long long uint64_t;
 
 //		typedef __int64           int64_t;
 //		typedef unsigned __int64 uint64_t;

@@ -1,6 +1,6 @@
-// snes_spc 0.9.0. http://www.slack.net/~ant/
+// snes_spc $vers. http://www.slack.net/~ant/
 
-#include "SPC_Filter.h"
+#include "Spc_Filter.h"
 
 /* Copyright (C) 2007 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -15,9 +15,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-void SPC_Filter::clear() { memset( ch, 0, sizeof ch ); }
+void Spc_Filter::clear() { memset( ch, 0, sizeof ch ); }
 
-SPC_Filter::SPC_Filter()
+Spc_Filter::Spc_Filter()
 {
 	enabled = true;
 	gain    = gain_unit;
@@ -25,7 +25,7 @@ SPC_Filter::SPC_Filter()
 	clear();
 }
 
-void SPC_Filter::run( short io [], int count )
+void Spc_Filter::run( short io [], int count )
 {
 	require( (count & 1) == 0 ); // must be even
 	

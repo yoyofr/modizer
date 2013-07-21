@@ -203,6 +203,7 @@ _load_pdx_data(char* name, long* out_length)
   char *path_name = NULL;
   char *node_name = NULL;
   char *p = NULL;
+    char *save_p;
   char *p2 = NULL;
   DIR  *pdx_path = NULL;
   struct dirent *dent = NULL;
@@ -224,6 +225,12 @@ _load_pdx_data(char* name, long* out_length)
     goto error_end;
   }
   *(p+1) = '\0';
+    
+    //patch: replace special chars by '_'
+    for (int ii=0;node_name[ii];ii++) {
+        if (node_name[ii]=='-') node_name[ii]='_';
+    }
+    
   
   pdx_path = opendir( path_name );
   if ( !pdx_path ) {
@@ -236,9 +243,20 @@ _load_pdx_data(char* name, long* out_length)
     if ( p == NULL ) p = dent->d_name;
     else p++;
 
+    //patch: replace special chars by '_'
+      save_p=p;
+      p=strdup(p);
+      for (int ii=0;p[ii];ii++) {
+          if (p[ii]=='-') p[ii]='_';
+      }
+      
+      
     if ( strcasecmp( p, node_name ) == 0 ) {
+        free(p);
+        p=save_p;
       i=1; break;
     }
+      free(p);
   }
   if ( i == 0 ) {
     goto error_end;
@@ -251,7 +269,6 @@ _load_pdx_data(char* name, long* out_length)
   }
   memset(p2, 0, len);
   snprintf( p2, len, "%s%s", path_name, p );
-
   fp = fopen( p2, "r" );
   if (!fp) {
     goto error_end;

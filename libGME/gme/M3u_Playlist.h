@@ -1,6 +1,6 @@
 // M3U playlist file parser, with support for subtrack information
 
-// Game_Music_Emu 0.6-pre
+// Game_Music_Emu $vers
 #ifndef M3U_PLAYLIST_H
 #define M3U_PLAYLIST_H
 
@@ -22,10 +22,14 @@ public:
 	struct info_t
 	{
 		const char* title;
+		const char* artist;
+		const char* date;
 		const char* composer;
+		const char* sequencer;
 		const char* engineer;
 		const char* ripping;
 		const char* tagging;
+		const char* copyright;
 	};
 	info_t const& info() const { return info_; }
 	
@@ -61,11 +65,15 @@ private:
 
 inline void M3u_Playlist::clear_()
 {
-	info_.title    = "";
-	info_.composer = "";
-	info_.engineer = "";
-	info_.ripping  = "";
-	info_.tagging  = "";
+	info_.title     = "";
+	info_.artist    = "";
+	info_.date      = "";
+	info_.composer  = "";
+	info_.sequencer = "";
+	info_.engineer  = "";
+	info_.ripping   = "";
+	info_.tagging   = "";
+	info_.copyright = "";
 	entries.clear();
 	data.clear();
 }
