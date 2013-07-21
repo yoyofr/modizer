@@ -3040,13 +3040,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     segcont_fx5.selectedSegmentIndex = 0;
 	segcont_FxBeat.selectedSegmentIndex = 0;
 	segcont_randFx.selectedSegmentIndex = 0;
-	sc_FXDetail.selectedSegmentIndex = 0;
+	sc_FXDetail.selectedSegmentIndex = 1;//Med
 	segcont_forceMono.selectedSegmentIndex = 0;
 	sc_checkBeforeRedownload.selectedSegmentIndex = 0;
 	sc_AfterDownload.selectedSegmentIndex = 1;
 	sc_EnqueueMode.selectedSegmentIndex = 2;
 	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_defaultMODplayer.selectedSegmentIndex = 0;
+	sc_defaultMODplayer.selectedSegmentIndex = 1;//DUMB
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
 	
     ///////////////////////////////////
@@ -3254,7 +3254,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sc_AfterDownload.selectedSegmentIndex = 1;
 	sc_EnqueueMode.selectedSegmentIndex = 2;
 	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_defaultMODplayer.selectedSegmentIndex = 0;
+	sc_defaultMODplayer.selectedSegmentIndex = 1;
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 1;
     ///////////////////////////////////
     // UADE
@@ -3550,7 +3550,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	if (valNb == nil) sc_DefaultAction.selectedSegmentIndex = 0;
 	else sc_DefaultAction.selectedSegmentIndex = [valNb intValue];
 	valNb=[prefs objectForKey:@"DefaultMODplayer"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_defaultMODplayer.selectedSegmentIndex = 0;
+	if (valNb == nil) sc_defaultMODplayer.selectedSegmentIndex = 1;//DUMB
 	else sc_defaultMODplayer.selectedSegmentIndex = [valNb intValue];
 	valNb=[prefs objectForKey:@"PlayerViewOnPlay"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
@@ -4482,7 +4482,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	playlistTabView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	playlistTabView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    playlistTabView.rowHeight = (mDeviceType==1?48:32);
+    playlistTabView.rowHeight = (mDeviceType==1?48:38);
     playlistTabView.backgroundColor = [UIColor clearColor];
 	playlistView.hidden=YES;
 
@@ -5600,6 +5600,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		topLabel.textColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
 		topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
 		topLabel.font = [UIFont boldSystemFontOfSize:(mDeviceType==1?30:18)];
+        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
 		
 		//
 		// Create the label for the top row of text
@@ -5613,7 +5614,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		bottomLabel.backgroundColor = [UIColor clearColor];
 		bottomLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.8 alpha:1.0];
 		bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.8 blue:0.8 alpha:1.0];
-		bottomLabel.font = [UIFont systemFontOfSize:(mDeviceType==1?14:10)];
+		bottomLabel.font = [UIFont systemFontOfSize:(mDeviceType==1?14:12)];
+        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
     } else {
 		topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
 		bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
@@ -5621,11 +5623,11 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	topLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
 								0,
 								tableView.bounds.size.width - 1.0 * cell.indentationWidth-50,
-								(mDeviceType==1?32:20));
+								(mDeviceType==1?32:22));
 	bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
-								   (mDeviceType==1?32:20),
+								   (mDeviceType==1?32:22),
 								   tableView.bounds.size.width - 1.0 * cell.indentationWidth-50,
-								   (mDeviceType==1?16:12));
+								   (mDeviceType==1?16:14));
 	
 	
 	// Set up the cell...

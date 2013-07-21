@@ -8,7 +8,11 @@
 
 extern "C" { typedef void (*dsp_copy_func_t)( unsigned char** io, void* state, size_t ); }
 
+class Sfm_Emu;
+
 class Spc_Dsp {
+    friend class Sfm_Emu;
+
 public:
 	typedef BOOST::uint8_t uint8_t;
 	
@@ -123,10 +127,10 @@ public:
 
 	// kill me now
 	const voice_t * get_voice( int ch ) const;
-	const int get_max_level( int v, int ch ) const;
+	int get_max_level( int v, int ch ) const;
 private:
 	enum { brr_block_size = 9 };
-	
+
 	struct state_t
 	{
 		uint8_t regs [register_count];
@@ -295,7 +299,7 @@ inline const Spc_Dsp::voice_t * Spc_Dsp::get_voice( int ch ) const
 	return &m.voices[ ch ];
 }
 
-inline const int Spc_Dsp::get_max_level( int v, int ch ) const
+inline int Spc_Dsp::get_max_level( int v, int ch ) const
 {
 	assert( (unsigned) v < voice_count );
 	assert( (unsigned) ch < 2 );

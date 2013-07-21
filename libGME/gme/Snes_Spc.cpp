@@ -31,6 +31,8 @@ blargg_err_t Snes_Spc::init()
 {
 	memset( &m, 0, sizeof m );
 	dsp.init( RAM );
+
+    set_sfm_queue( 0, 0 );
 	
 	m.tempo = tempo_unit;
 	
@@ -83,24 +85,18 @@ void Snes_Spc::init_rom( uint8_t const in [rom_size] )
 void Snes_Spc::set_tempo( int t )
 {
 	m.tempo = t;
-	int const timer2_shift = 4; // 64 kHz
+    int const timer2_shift = 4; // 64 kHz
 	int const other_shift  = 3; //  8 kHz
 	
-	#if SPC_DISABLE_TEMPO
-		m.timers [2].prescaler = timer2_shift;
-		m.timers [1].prescaler = timer2_shift + other_shift;
-		m.timers [0].prescaler = timer2_shift + other_shift;
-	#else
-		if ( !t )
-			t = 1;
-		int const timer2_rate  = 1 << timer2_shift;
-		int rate = (timer2_rate * tempo_unit + (t >> 1)) / t;
-		if ( rate < timer2_rate / 4 )
-			rate = timer2_rate / 4; // max 4x tempo
-		m.timers [2].prescaler = rate;
-		m.timers [1].prescaler = rate << other_shift;
-		m.timers [0].prescaler = rate << other_shift;
-	#endif
+    if ( !t )
+        t = 1;
+    int const timer2_rate  = 1 << timer2_shift;
+    int rate = (timer2_rate * tempo_unit + (t >> 1)) / t;
+    if ( rate < timer2_rate / 4 )
+        rate = timer2_rate / 4; // max 4x tempo
+    m.timers [2].prescaler = rate;
+    m.timers [1].prescaler = rate << other_shift;
+    m.timers [0].prescaler = rate << other_shift;
 }
 
 // Timer registers have been loaded. Applies these to the timers. Does not
@@ -244,8 +240,9 @@ blargg_err_t Snes_Spc::load_spc( void const* data, long size )
 	return blargg_ok;
 }
 
-void Snes_Spc::clear_echo()
+void Snes_Spc::clear_echo(bool force)
 {
+    if (force) m.echo_cleared=false;
 	if ( !m.echo_cleared && !(dsp.read( Spc_Dsp::r_flg ) & 0x20) )
 	{
 		int addr = 0x100 * dsp.read( Spc_Dsp::r_esa );

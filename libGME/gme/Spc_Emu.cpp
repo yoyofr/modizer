@@ -363,7 +363,7 @@ blargg_err_t Spc_Emu::start_track_( int track )
 	filter.clear();
 	RETURN_ERR( apu.load_spc( file_begin(), file_size() ) );
 	filter.set_gain( (int) (gain() * Spc_Filter::gain_unit) );
-	apu.clear_echo();
+	apu.clear_echo(true);
 	return blargg_ok;
 }
 

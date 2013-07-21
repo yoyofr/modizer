@@ -7,6 +7,8 @@
 
 //IOS_BUILD_PATCH
 #define NDEBUG 1
+#define HAVE_STDINT_H 1
+#define HAVE_ZLIB_H 1
 
 #include <stdlib.h>
 #include <assert.h>

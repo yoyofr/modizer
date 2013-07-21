@@ -3844,20 +3844,20 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			
 			gme_equalizer( gme_emu, &gme_eq );
 			if (mSlowDevice) {
-				gme_eq.treble = 0; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp	
-				gme_eq.bass   = 20;  // 1 = full bass, 90 = average, 16000 = almost no bass
+				gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+				gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
 				gme_fx.enabled=0;
 				gme_fx.echo = 0.0f;
 				gme_fx.surround = 0.0f;
 				gme_fx.stereo = 0.0f;
 				
 			} else {
-				gme_eq.treble = 0; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp	
-				gme_eq.bass   = 20;  // 1 = full bass, 90 = average, 16000 = almost no bass
+				gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+				gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
 				gme_fx.enabled=0;
 				gme_fx.echo = 0.0f;
 				gme_fx.surround = 0.0f;
-				gme_fx.stereo = 0.8f;				
+				gme_fx.stereo = 0.8f;
 			}
 			gme_set_equalizer( gme_emu, &gme_eq );
 			gme_set_effects( gme_emu, &gme_fx);
