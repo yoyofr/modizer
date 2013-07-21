@@ -7,7 +7,11 @@
 #include "Spc_Dsp.h"
 #include "blargg_endian.h"
 
+class Sfm_Emu;
+
 struct Snes_Spc {
+    friend class Sfm_Emu;
+
 public:
 	typedef BOOST::uint8_t uint8_t;
 	
@@ -77,7 +81,7 @@ public:
 	blargg_err_t load_spc( void const* in, long size );
 	
 	// Clears echo region. Useful after loading an SPC as many have garbage in echo.
-	void clear_echo();
+	void clear_echo(bool force=false);
 
 	// Plays for count samples and write samples to out. Discards samples if out
 	// is NULL. Count must be a multiple of 2 since output is stereo.
@@ -87,7 +91,10 @@ public:
 	blargg_err_t skip( int count );
 
 	// blah
-	const Spc_Dsp * get_dsp() const;
+    Spc_Dsp * get_dsp();
+
+    // SFM Queue
+    void set_sfm_queue(const uint8_t* queue, const uint8_t* queue_end);
 	
 // State save/load (only available with accurate DSP)
 
@@ -144,7 +151,7 @@ public:
 		int enabled;
 		int counter;
 	};
-	enum { reg_count = 0x10 };
+    enum { reg_count = 0x10 };
 	enum { timer_count = 3 };
 	enum { extra_size = Spc_Dsp::extra_size };
 	
@@ -161,7 +168,7 @@ private:
 	struct state_t
 	{
 		Timer timers [timer_count];
-		
+
 		uint8_t smp_regs [2] [reg_count];
 		
 		regs_t cpu_regs;
@@ -185,6 +192,9 @@ private:
 		int         rom_enabled;
 		uint8_t     rom    [rom_size];
 		uint8_t     hi_ram [rom_size];
+
+        uint8_t const* sfm_queue;
+        uint8_t const* sfm_queue_end;
 		
 		unsigned char cycle_table [256];
 		
@@ -288,7 +298,9 @@ inline void Snes_Spc::disable_surround( bool disable ) { dsp.disable_surround( d
 
 inline void Snes_Spc::interpolation_level( int level ) { dsp.interpolation_level( level ); }
 
-inline const Spc_Dsp * Snes_Spc::get_dsp() const { return &dsp; };
+inline Spc_Dsp * Snes_Spc::get_dsp() { return &dsp; }
+
+inline void Snes_Spc::set_sfm_queue(const uint8_t *queue, const uint8_t *queue_end) { m.sfm_queue = queue; m.sfm_queue_end = queue_end; }
 
 #if !SPC_NO_COPY_STATE_FUNCS
 inline bool Snes_Spc::check_kon() { return dsp.check_kon(); }

@@ -249,6 +249,11 @@
 		333DC09416CA2D5F00720CA2 /* Data_Reader.h in Headers */ = {isa = PBXBuildFile; fileRef = 333DC09316CA2D5600720CA2 /* Data_Reader.h */; };
 		333DC18216CC224E00720CA2 /* ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = 333DBF8316CA2B4B00720CA2 /* ym2151.c */; };
 		333DC18316CC225200720CA2 /* ym2413.c in Sources */ = {isa = PBXBuildFile; fileRef = 333DBF8916CA2B4B00720CA2 /* ym2413.c */; };
+		3397DC9B179C8BA600607236 /* Spc_Sfm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3397DC94179C83B300607236 /* Spc_Sfm.cpp */; };
+		3397DC9C179C8BAA00607236 /* Spc_Sfm.h in Headers */ = {isa = PBXBuildFile; fileRef = 3397DC95179C83B400607236 /* Spc_Sfm.h */; };
+		3397DC9D179C8BAE00607236 /* Bml_Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3397DC91179C83B100607236 /* Bml_Parser.cpp */; };
+		3397DC9E179C8BAE00607236 /* Bml_Parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 3397DC92179C83B200607236 /* Bml_Parser.h */; };
+		3397DC9F179C8BAE00607236 /* mathdefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 3397DC93179C83B200607236 /* mathdefs.h */; };
 		AA747D9F0F9514B9006C5449 /* libgme_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* libgme_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -498,6 +503,11 @@
 		333DBF9E16CA2B4B00720CA2 /* Z80_Cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Z80_Cpu.cpp; sourceTree = "<group>"; };
 		333DBF9F16CA2B4B00720CA2 /* Z80_Cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Z80_Cpu.h; sourceTree = "<group>"; };
 		333DC09316CA2D5600720CA2 /* Data_Reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Data_Reader.h; sourceTree = "<group>"; };
+		3397DC91179C83B100607236 /* Bml_Parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bml_Parser.cpp; sourceTree = "<group>"; };
+		3397DC92179C83B200607236 /* Bml_Parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bml_Parser.h; sourceTree = "<group>"; };
+		3397DC93179C83B200607236 /* mathdefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathdefs.h; sourceTree = "<group>"; };
+		3397DC94179C83B300607236 /* Spc_Sfm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Spc_Sfm.cpp; sourceTree = "<group>"; };
+		3397DC95179C83B400607236 /* Spc_Sfm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Spc_Sfm.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* libgme_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libgme_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* liblibgme.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibgme.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -692,6 +702,11 @@
 				333DBF2C16CA2B4B00720CA2 /* Nsf_Cpu.cpp */,
 				333DBF2D16CA2B4B00720CA2 /* Nsf_Emu.cpp */,
 				333DBF2E16CA2B4B00720CA2 /* Nsf_Emu.h */,
+				3397DC91179C83B100607236 /* Bml_Parser.cpp */,
+				3397DC92179C83B200607236 /* Bml_Parser.h */,
+				3397DC93179C83B200607236 /* mathdefs.h */,
+				3397DC94179C83B300607236 /* Spc_Sfm.cpp */,
+				3397DC95179C83B400607236 /* Spc_Sfm.h */,
 				333DBF2F16CA2B4B00720CA2 /* Nsf_Impl.cpp */,
 				333DBF3016CA2B4B00720CA2 /* Nsf_Impl.h */,
 				333DBF3116CA2B4B00720CA2 /* Nsfe_Emu.cpp */,
@@ -946,6 +961,9 @@
 				333DC09016CA2B4B00720CA2 /* Z80_Cpu_run.h in Headers */,
 				333DC09216CA2B4B00720CA2 /* Z80_Cpu.h in Headers */,
 				333DC09416CA2D5F00720CA2 /* Data_Reader.h in Headers */,
+				3397DC9C179C8BAA00607236 /* Spc_Sfm.h in Headers */,
+				3397DC9E179C8BAE00607236 /* Bml_Parser.h in Headers */,
+				3397DC9F179C8BAE00607236 /* mathdefs.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1113,6 +1131,8 @@
 				333DC09116CA2B4B00720CA2 /* Z80_Cpu.cpp in Sources */,
 				333DC18216CC224E00720CA2 /* ym2151.c in Sources */,
 				333DC18316CC225200720CA2 /* ym2413.c in Sources */,
+				3397DC9B179C8BA600607236 /* Spc_Sfm.cpp in Sources */,
+				3397DC9D179C8BAE00607236 /* Bml_Parser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
