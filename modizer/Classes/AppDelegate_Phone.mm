@@ -116,23 +116,8 @@ pthread_mutex_t play_mutex;
 	}	
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryLevelDidChangeNotification" object:[UIDevice currentDevice]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryStateDidChangeNotification" object:[UIDevice currentDevice]];
-    
-    
+        
 
-    // Pasteboard notif
-/*    [[NSNotificationCenter defaultCenter]
-        addObserver:self
-        selector:@selector(pasteboardChangedNotification:)
-        name:UIPasteboardChangedNotification
-        object:[UIPasteboard generalPasteboard]];
-    [[NSNotificationCenter defaultCenter]
-        addObserver:self
-        selector:@selector(pasteboardChangedNotification:)
-        name:UIPasteboardRemovedNotification
-        object:[UIPasteboard generalPasteboard]];*/
-	//
-    
-    
     NSURL *url = (NSURL *)[launchOptions valueForKey:UIApplicationLaunchOptionsURLKey];
     if ([url isFileURL]) {
         NSString *filepath;

@@ -5,15 +5,15 @@
 #include "Snes_Spc.h"
 
 /* Copyright (C) 2004-2007 Shay Green. This module is free software; you
-can redistribute it and/or modify it under the terms of the GNU Lesser
-General Public License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version. This
-module is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-details. You should have received a copy of the GNU Lesser General Public
-License along with this module; if not, write to the Free Software Foundation,
-Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
+ can redistribute it and/or modify it under the terms of the GNU Lesser
+ General Public License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version. This
+ module is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details. You should have received a copy of the GNU Lesser General Public
+ License along with this module; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
@@ -31,7 +31,7 @@ blargg_err_t Snes_Spc::init()
 {
 	memset( &m, 0, sizeof m );
 	dsp.init( RAM );
-
+    
     set_sfm_queue( 0, 0 );
 	
 	m.tempo = tempo_unit;
@@ -69,9 +69,9 @@ blargg_err_t Snes_Spc::init()
 		m.cycle_table [i * 2 + 1] = n & 0x0F;
 	}
 	
-	#if SPC_LESS_ACCURATE
-		memcpy( reg_times, reg_times_, sizeof reg_times );
-	#endif
+#if SPC_LESS_ACCURATE
+    memcpy( reg_times, reg_times_, sizeof reg_times );
+#endif
 	
 	reset();
 	return blargg_ok;
@@ -154,9 +154,9 @@ void Snes_Spc::reset_time_regs()
 	m.echo_accessed = 0;
 	m.spc_time      = 0;
 	m.dsp_time      = 0;
-	#if SPC_LESS_ACCURATE
-		m.dsp_time = clocks_per_sample + 1;
-	#endif
+#if SPC_LESS_ACCURATE
+    m.dsp_time = clocks_per_sample + 1;
+#endif
 	
 	for ( int i = 0; i < timer_count; i++ )
 	{
@@ -204,7 +204,7 @@ void Snes_Spc::reset()
 }
 
 char const Snes_Spc::signature [signature_size + 1] =
-		"SNES-SPC700 Sound File Data v0.30\x1A\x1A";
+"SNES-SPC700 Sound File Data v0.30\x1A\x1A";
 
 blargg_err_t Snes_Spc::load_spc( void const* data, long size )
 {
@@ -242,8 +242,7 @@ blargg_err_t Snes_Spc::load_spc( void const* data, long size )
 
 void Snes_Spc::clear_echo(bool force)
 {
-    if (force) m.echo_cleared=false;
-	if ( !m.echo_cleared && !(dsp.read( Spc_Dsp::r_flg ) & 0x20) )
+	if ( ( force || !m.echo_cleared ) && !(dsp.read( Spc_Dsp::r_flg ) & 0x20) )
 	{
 		int addr = 0x100 * dsp.read( Spc_Dsp::r_esa );
 		int end  = addr + 0x800 * (dsp.read( Spc_Dsp::r_edl ) & 0x0F);
@@ -346,7 +345,7 @@ blargg_err_t Snes_Spc::play( int count, sample_t out [] )
 
 blargg_err_t Snes_Spc::skip( int count )
 {
-	#if SPC_LESS_ACCURATE
+#if SPC_LESS_ACCURATE
 	if ( count > 2 * sample_rate * 2 )
 	{
 		set_output( NULL, 0 );
@@ -370,7 +369,7 @@ blargg_err_t Snes_Spc::skip( int count )
 		dsp.write( Spc_Dsp::r_kon , m.skipped_kon );
 		clear_echo();
 	}
-	#endif
+#endif
 	
 	return play( count, NULL );
 }

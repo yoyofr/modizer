@@ -5,15 +5,15 @@
 #include "blargg_endian.h"
 
 /* Copyright (C) 2004-2009 Shay Green. This module is free software; you
-can redistribute it and/or modify it under the terms of the GNU Lesser
-General Public License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version. This
-module is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-details. You should have received a copy of the GNU Lesser General Public
-License along with this module; if not, write to the Free Software Foundation,
-Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
+ can redistribute it and/or modify it under the terms of the GNU Lesser
+ General Public License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version. This
+ module is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details. You should have received a copy of the GNU Lesser General Public
+ License along with this module; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
@@ -45,7 +45,7 @@ static void get_spc_xid6( byte const begin [], int size, track_info_t* out )
 		return;
 	}
 	int info_size = get_le32( begin + 4 );
-	byte const* in = begin + 8; 
+	byte const* in = begin + 8;
 	if ( end - in > info_size )
 	{
 		dprintf( "SPC: Extra data after xid6\n" );
@@ -85,25 +85,25 @@ static void get_spc_xid6( byte const begin [], int size, track_info_t* out )
 			case 0x11: disc = data;          break;
 			case 0x12: track = data;         break;
 			case 0x14: year = data;          break;
-			
-			//case 0x30: // intro length
-			// Many SPCs have intro length set wrong for looped tracks, making it useless
-			/*
-			case 0x30:
-				check( len == 4 );
-				if ( len >= 4 )
-				{
-					out->intro_length = get_le32( in ) / 64;
-					if ( out->length > 0 )
-					{
-						int loop = out->length - out->intro_length;
-						if ( loop >= 2000 )
-							out->loop_length = loop;
-					}
-				}
-				break;
-			*/
-			
+                
+                //case 0x30: // intro length
+                // Many SPCs have intro length set wrong for looped tracks, making it useless
+                /*
+                 case 0x30:
+                 check( len == 4 );
+                 if ( len >= 4 )
+                 {
+                 out->intro_length = get_le32( in ) / 64;
+                 if ( out->length > 0 )
+                 {
+                 int loop = out->length - out->intro_length;
+                 if ( loop >= 2000 )
+                 out->loop_length = loop;
+                 }
+                 }
+                 break;
+                 */
+                
 			case 0x33:
 				check( len == 4 );
 				if ( len >= 4 )
@@ -111,15 +111,15 @@ static void get_spc_xid6( byte const begin [], int size, track_info_t* out )
 					out->fade_length = get_le32( in ) / 64;
 				}
 				break;
-			
+                
 			case 0x13:
 				copyright_len = min( len, (int) sizeof copyright - year_len );
 				memcpy( &copyright [year_len], in, copyright_len );
 				break;
-			
+                
 			default:
 				if ( id < 0x01 || (id > 0x07 && id < 0x10) ||
-						(id > 0x14 && id < 0x30) || id > 0x36 )
+                    (id > 0x14 && id < 0x30) || id > 0x36 )
 					dprintf( "SPC: Unknown xid6 block: %X\n", (int) id );
 				break;
 		}
@@ -166,7 +166,7 @@ static void get_spc_xid6( byte const begin [], int size, track_info_t* out )
 		out->disc [0] = disc + '0';
 		out->disc [1] = 0;
 	}
-
+    
 	if ( track > 255 && track < ( ( 100 << 8 ) - 1 ) )
 	{
 		char* p = &copyright [3];
@@ -180,12 +180,12 @@ static void get_spc_xid6( byte const begin [], int size, track_info_t* out )
 		}
 		memcpy( out->track, p, &copyright [4] - p );
 	}
-
+    
 	check( in == end );
 }
 
 static void get_spc_info( Spc_Emu::header_t const& h, byte const xid6 [], int xid6_size,
-		track_info_t* out )
+                         track_info_t* out )
 {
 	// decode length (can be in text or binary format, sometimes ambiguous ugh)
 	int len_secs = 0;
@@ -228,7 +228,7 @@ static void get_spc_info( Spc_Emu::header_t const& h, byte const xid6 [], int xi
 		fade_msec = get_le32( h.fade_msec );
 	if ( fade_msec < 0x7FFF )
 		out->fade_length = fade_msec;
-
+    
 	int offset = (h.author [0] < ' ' || unsigned (h.author [0] - '0') <= 9);
 	Gme_File::copy_field_( out->author, &h.author [offset], sizeof h.author - offset );
 	
@@ -302,7 +302,7 @@ struct Spc_File : Gme_Info_
 		get_spc_info( header, xid6.begin(), xid6.size(), out );
 		return blargg_ok;
 	}
-
+    
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_spc_file( header, data.begin(), data.end() - data.begin(), out );
@@ -363,7 +363,7 @@ blargg_err_t Spc_Emu::start_track_( int track )
 	filter.clear();
 	RETURN_ERR( apu.load_spc( file_begin(), file_size() ) );
 	filter.set_gain( (int) (gain() * Spc_Filter::gain_unit) );
-	apu.clear_echo(true);
+	apu.clear_echo( true );
 	return blargg_ok;
 }
 
