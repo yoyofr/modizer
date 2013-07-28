@@ -13,6 +13,7 @@
 @class ModizerWin;
 @class RootViewControllerIphone;
 @class DetailViewControllerIphone;
+@class RootViewControllerPlaylist;
 
 @interface AppDelegate_Phone : NSObject <UIApplicationDelegate> {
 	IBOutlet ModizerWin *modizerWin;
@@ -21,6 +22,7 @@
 	
 	IBOutlet RootViewControllerIphone *rootViewControlleriPhone;
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
+    IBOutlet RootViewControllerPlaylist *playlistVC;
 	
 	UIBackgroundTaskIdentifier bgTask;
 	int mSlowDevice;
@@ -29,6 +31,7 @@
 //@property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet ModizerWin *modizerWin;
 @property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewControlleriPhone;
+@property (nonatomic, retain) IBOutlet RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 @property (nonatomic, retain) IBOutlet UITabBarController *tabBarController;
 

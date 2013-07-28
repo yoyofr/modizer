@@ -7,10 +7,13 @@
 //
 
 //#define GEN_EXT_LIST
-#import "ModizerWin.h"
 #import "AppDelegate_Phone.h"
+
+#import "ModizerWin.h"
 #import "RootViewControllerIphone.h"
 #import "DetailViewControllerIphone.h"
+#import "RootViewControllerPlaylist.h"
+
 
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
@@ -30,7 +33,7 @@ pthread_mutex_t play_mutex;
 
 @implementation AppDelegate_Phone
 
-@synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone;
+@synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC;
 
 
 - (BOOL)addSkipBackupAttributeToItemAtURL
@@ -107,7 +110,12 @@ pthread_mutex_t play_mutex;
 	[modizerWin makeKeyAndVisible];
 	[rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];   //Should be handled another way, for example on first DB access
     
-    
+    //***********************
+    //init tab
+    //***********************
+    //playlistS
+    playlistVC->browse_depth=1;
+    playlistVC->detailViewController=detailViewControlleriPhone;
 		
 	if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
 		[detailViewControlleriPhone enterBackground];

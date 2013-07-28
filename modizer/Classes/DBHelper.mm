@@ -91,6 +91,8 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 }
 
 
+
+
 void DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *playcount,signed char *rating,int *song_length,char *channels_nb,int *songs) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -113,7 +115,11 @@ void DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pl
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
 				if (playcount) *playcount=(short int)sqlite3_column_int(stmt, 0);
-				if (rating) *rating=(signed char)sqlite3_column_int(stmt, 1);
+				if (rating) {
+                    *rating=(signed char)sqlite3_column_int(stmt, 1);
+                    if (*rating<0) *rating=0;
+					if (*rating>5) *rating=5;
+                }
 				if (song_length) *song_length=(int)sqlite3_column_int(stmt, 2);
 				if (channels_nb) *channels_nb=(char)sqlite3_column_int(stmt, 3);
 				if (songs) *songs=(int)sqlite3_column_int(stmt, 4);
@@ -151,7 +157,11 @@ void DBHelper::getFilesStatsDBmod(NSMutableArray *names,NSMutableArray *fullpath
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					if (playcountArray) playcountArray[i]=(short int)sqlite3_column_int(stmt, 0);
-					if (ratingArray) ratingArray[i]=(signed char)sqlite3_column_int(stmt, 1);
+					if (ratingArray) {
+                        ratingArray[i]=(signed char)sqlite3_column_int(stmt, 1);
+                        if (ratingArray[i]<0) ratingArray[i]=0;
+                        if (ratingArray[i]>5) ratingArray[i]=5;
+                    }
 					if (song_lengthA) song_lengthA[i]=(int)sqlite3_column_int(stmt, 2);
 					if (channels_nbA) channels_nbA[i]=(char)sqlite3_column_int(stmt, 3);
 					if (songsA) songsA[i]=(int)sqlite3_column_int(stmt, 4);
@@ -168,6 +178,46 @@ void DBHelper::getFilesStatsDBmod(NSMutableArray *names,NSMutableArray *fullpath
 	
 	pthread_mutex_unlock(&db_mutex);
 }
+
+int DBHelper::deleteStatsFileDB(NSString *fullpath) {
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	sqlite3 *db;
+	int err,ret;
+	pthread_mutex_lock(&db_mutex);
+	ret=1;
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		
+		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+		if (err==SQLITE_OK){
+		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
+		
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return ret;
+}
+int DBHelper::deleteStatsDirDB(NSString *fullpath) {
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	sqlite3 *db;
+	int err,ret;
+	pthread_mutex_lock(&db_mutex);
+	ret=1;
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		
+		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
+		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+		if (err==SQLITE_OK){
+		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
+		
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return ret;
+}
+
 
 void DBHelper::getFilesStatsDBmod(t_plPlaylist_entry *playlist,int nb_entries) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
@@ -369,4 +419,6 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	
 	pthread_mutex_unlock(&db_mutex);
 }
+
+
 

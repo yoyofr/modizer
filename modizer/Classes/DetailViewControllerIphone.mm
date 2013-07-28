@@ -86,9 +86,6 @@ static MPVolumeView *volumeView;
 
 static int txtMenuHandle[16];
 
-static int mValidatePlName=0;
-static int mSavePlaylist=0;
-
 static volatile int mPopupAnimation=0;
 
 //static UIAlertView *alertCannotPlay;
@@ -164,7 +161,7 @@ static int display_length_mode=0;
 
 @synthesize infoZoom,infoUnzoom,plZoom,plUnzoom;
 @synthesize mPlWasView,mInWasView;
-@synthesize inputText,textInputView,rootViewControllerIphone,mSlowDevice;
+@synthesize rootViewControllerIphone,mSlowDevice;
 
 -(IBAction)showSubSongSelector {
 	if (pvSubSongSel.hidden) {
@@ -4775,17 +4772,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         }
         [self willAnimateRotationToInterfaceOrientation:UIInterfaceOrientationPortrait duration:0];        
     }
-    
-	if (mSavePlaylist) {
-		mSavePlaylist=0;
-		if (mValidatePlName) {
-			mValidatePlName=0;
-            
-			[rootViewControllerIphone addListToPlaylistDB:[rootViewControllerIphone initNewPlaylistDB:self.inputText.text]
-                                                  entries:mPlaylist nb_entries:mPlaylist_size ];
-		}
-	}
-	
+    	
 }
 
 
@@ -5754,26 +5741,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	mPlaylist_pos=indexPath.row;
 	[self play_curEntry];
     
-}
-
--(IBAction)savePlaylist {
-	mSavePlaylist=1;
-	[self presentModalViewController:textInputView animated:YES];
-}
-
-- (BOOL)textFieldShouldReturn:(UITextField *)theTextField {
-	[theTextField resignFirstResponder];
-	[self validatePlaylistName];
-	return YES;
-}
-
--(IBAction)validatePlaylistName {
-	mValidatePlName=1;
-	[self dismissModalViewControllerAnimated:YES];
-}
--(IBAction)cancelPlaylistName {
-	mValidatePlName=0;
-	[self dismissModalViewControllerAnimated:YES];
 }
 
 

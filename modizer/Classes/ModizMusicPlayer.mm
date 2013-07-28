@@ -1099,7 +1099,7 @@ void propertyListenerCallback (void                   *inUserData,              
         tim_voicenb[i]=tim_voicenb_cpy[i]=0;
 	}
     
-	sampleVolume=256;
+	sampleVolume=0;
     for (i=0; i<SOUND_BUFFER_NB; i++) {
 		memset(mBuffers[i]->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
 		mBuffers[i]->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -1152,7 +1152,7 @@ void propertyListenerCallback (void                   *inUserData,              
 -(BOOL) iPhoneDrv_FillAudioBuffer:(AudioQueueBufferRef) mBuffer {       
 	int skip_queue=0;
 	mBuffer->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
-	if (bGlobalAudioPause) {
+	if (bGlobalAudioPause==2) {
 		memset(mBuffer->mAudioData, 0, SOUND_BUFFER_SIZE_SAMPLE*2*2);
 		if (bGlobalAudioPause==2) skip_queue=1;//return 0;  //End of song
     } else {
@@ -1209,10 +1209,12 @@ void propertyListenerCallback (void                   *inUserData,              
 						int val=((short int *)mBuffer->mAudioData)[i*2+1]=((buffer_ana[buffer_ana_play_ofs][i*2]+buffer_ana[buffer_ana_play_ofs][i*2+1])/2)*sampleVolume/256;
 						((short int *)mBuffer->mAudioData)[i*2]=val;
 						((short int *)mBuffer->mAudioData)[i*2+1]=val;
+                        if (sampleVolume<256) sampleVolume++;
 					}
 				} else for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
 					((short int *)mBuffer->mAudioData)[i*2]=buffer_ana[buffer_ana_play_ofs][i*2]*sampleVolume/256;
 					((short int *)mBuffer->mAudioData)[i*2+1]=buffer_ana[buffer_ana_play_ofs][i*2+1]*sampleVolume/256;
+                    if (sampleVolume<256) sampleVolume++;
 				}
 			}
 			else {
@@ -1225,10 +1227,6 @@ void propertyListenerCallback (void                   *inUserData,              
 				} else memcpy((char*)mBuffer->mAudioData,buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
 			}
 			memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
-			
-			
-			if (sampleVolume<256) sampleVolume+=32;
-			
 			
 			if (buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
 				//iCurrentTime=0;
@@ -5605,9 +5603,13 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     
 }
 -(void) Pause:(BOOL) paused {
-	bGlobalAudioPause=(paused?1:0);
-	if (paused) AudioQueuePause(mAudioQueue);// [self iPhoneDrv_PlayStop];
+    bGlobalAudioPause=(paused?1:0);
+	//if (paused) [self iPhoneDrv_PlayStop];
+	//else [self iPhoneDrv_PlayStart];
+    if (paused) AudioQueuePause(mAudioQueue);// [self iPhoneDrv_PlayStop];
 	else AudioQueueStart(mAudioQueue,NULL);//[self iPhoneDrv_PlayStart];
+	
+	
 	mod_message_updated=1;
 }
 //*****************************************

@@ -79,8 +79,6 @@
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 
--(IBAction)validatePlaylistName;
--(IBAction)cancelPlaylistName;
 -(IBAction)goPlayer;
 
 - (void)freePlaylist;

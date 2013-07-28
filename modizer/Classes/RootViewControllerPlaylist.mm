@@ -34,18 +34,16 @@ static volatile int mPopupAnimation=0;
 #import "WebBrowser.h"
 #import "QuartzCore/CAAnimation.h"
 
-UIAlertView *alertPlFull;
+UIAlertView *alertPlFull,*alertChooseName;
 
 @implementation RootViewControllerPlaylist
 
 @synthesize mFileMngr;
 @synthesize detailViewController;
 @synthesize tabView,sBar;
-@synthesize textInputView;
 @synthesize list;
 @synthesize keys;
 @synthesize currentPath;
-@synthesize inputText;
 @synthesize childController;
 @synthesize playerButton;
 @synthesize mSearchText;
@@ -55,7 +53,82 @@ UIAlertView *alertPlFull;
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 	if (alertView==alertPlFull) {
-	}
+	} else if (alertView==alertChooseName) {
+        UITextField *plname = [alertView textFieldAtIndex:0];
+        if (newPlaylist) {
+                if (buttonIndex==1) {  //Create a new playlist
+                    
+                    if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+
+                    ((RootViewControllerPlaylist*)childController)->show_playlist=1;
+                    
+                    
+                    if (newPlaylist==1) {  //new blank playlist
+                        if (playlist->playlist_id) [playlist->playlist_id release];
+                        if (playlist->playlist_name) [playlist->playlist_name release];
+                        playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
+                        playlist->playlist_id=[self initNewPlaylistDB:playlist->playlist_name];
+                        self.navigationItem.title=playlist->playlist_name;
+                        
+                    //    ((RootViewControllerPlaylist*)childController)->show_playlist=0;
+                    }
+                    if (newPlaylist==2) {  //new playlist from current played list
+                        if (playlist->playlist_id) [playlist->playlist_id release];
+                        if (playlist->playlist_name) [playlist->playlist_name release];
+                        playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
+                        playlist->playlist_id=[self initNewPlaylistDB:playlist->playlist_name];
+                        t_plPlaylist_entry *pl_entries=(t_plPlaylist_entry*)(detailViewController.mPlaylist);
+                        playlist->nb_entries=0;
+                        for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+                            playlist->nb_entries++;
+                            playlist->label[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",pl_entries[i].mPlaylistFilename];
+                            playlist->fullpath[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",pl_entries[i].mPlaylistFilepath];
+                        }
+                        [self addListToPlaylistDB];                        
+                    }
+                    //set new title
+                    childController.title = playlist->playlist_name;
+                    
+                    // Set new directory
+                    ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
+                    ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
+                    ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+                    
+                    ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
+                    [keys release];keys=nil;
+                    [list release];list=nil;
+                    mFreePlaylist=1;
+                    
+                    
+                    newPlaylist=0;
+                    // And push the window
+                    [self.navigationController pushViewController:childController animated:YES];
+                    mFreePlaylist=1;
+                } else {  //cancel => no playlist created
+                    [self freePlaylist];
+                    mFreePlaylist=0;
+                }
+            }
+            
+            if (mRenamePlaylist && (buttonIndex==1)) {
+                mRenamePlaylist=0;
+                if (playlist->playlist_name) [playlist->playlist_name release];
+                playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
+                [self updatePlaylistNameDB:playlist->playlist_id playlist_name:playlist->playlist_name];
+                self.navigationItem.title=[NSString stringWithFormat:@"%@ (%d)",playlist->playlist_name,playlist->nb_entries];
+            }
+            
+        }
+}
+
+- (BOOL)alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView
+{
+    NSString *inputText = [[alertView textFieldAtIndex:0] text];
+    if( [inputText length] >= 1 ) {
+        return YES;
+    } else {
+        return NO;
+    }
 }
 
 - (NSString *)machine {
@@ -87,6 +160,17 @@ UIAlertView *alertPlFull;
 -(void)hideWaiting{
 	waitingView.hidden=TRUE;
 }
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+
 
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
@@ -128,7 +212,7 @@ UIAlertView *alertPlFull;
     //	self.tableView.backgroundColor = [UIColor blackColor];
 	
 	shouldFillKeys=1;
-	mSearch=0;
+	mSearch=0;        
 	
 	search_local=0;
     local_nb_entries=0;
@@ -562,78 +646,7 @@ UIAlertView *alertPlFull;
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
 }
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating{
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;	
-	
-	if (playcount) *playcount=0;
-	if (rating) *rating=0;
-	
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		
-		
-		//Get playlist name
-		sprintf(sqlStatement,"SELECT play_count,rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				if (playcount) *playcount=(short int)sqlite3_column_int(stmt, 0);
-				if (rating) {
-					*rating=(signed char)sqlite3_column_int(stmt, 1);
-					if (*rating<0) *rating=0;
-					if (*rating>5) *rating=5;
-				}
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-}
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating song_length:(int*)song_length songs:(int*)songs channels_nb:(char*)channels_nb {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;	
-	
-	if (playcount) *playcount=0;
-	if (rating) *rating=0;
-	if (song_length) *song_length=0;
-	if (songs) *songs=0;
-	if (channels_nb) *channels_nb=0;
-	
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		
-		
-		//Get playlist name
-		sprintf(sqlStatement,"SELECT play_count,rating,length,songs,channels FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				if (playcount) *playcount=(short int)sqlite3_column_int(stmt, 0);
-				if (rating) {
-					*rating=(signed char)sqlite3_column_int(stmt, 1);
-					if (*rating<0) *rating=0;
-					if (*rating>5) *rating=5;
-				}
-				if (song_length) *song_length=(int)sqlite3_column_int(stmt, 2);				
-				if (songs) *songs=(int)sqlite3_column_int(stmt, 3);
-				if (channels_nb) *channels_nb=(char)sqlite3_column_int(stmt, 4);
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-}
+
 -(int) deletePlaylistDB:(NSString*)id_playlist {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -659,46 +672,6 @@ UIAlertView *alertPlFull;
 	return ret;
 }
 
--(int) deleteStatsFileDB:(NSString*)fullpath {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err,ret;	
-	pthread_mutex_lock(&db_mutex);
-	ret=1;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
-		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return ret;
-}
--(int) deleteStatsDirDB:(NSString*)fullpath {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err,ret;	
-	pthread_mutex_lock(&db_mutex);
-	ret=1;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
-		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return ret;
-}
-
-//extern "C" char *mdx_make_sjis_to_syscharset(char* str);
 
 -(void)listLocalFiles {
 	NSString *file,*cpath;
@@ -1602,70 +1575,6 @@ UIAlertView *alertPlFull;
     }
     /////////////
     
-    if (newPlaylist) {//get name from modal view
-        if (mValidatePlName) {
-            mValidatePlName=0;
-            
-            if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-            
-            if (newPlaylist==1) {  //new blank playlist
-                if (playlist->playlist_id) [playlist->playlist_id release];
-                if (playlist->playlist_name) [playlist->playlist_name release];
-                playlist->playlist_name=[[NSString alloc] initWithString:self.inputText.text];
-                playlist->playlist_id=[self initNewPlaylistDB:playlist->playlist_name];
-                self.navigationItem.title=playlist->playlist_name;
-                
-                ((RootViewControllerPlaylist*)childController)->show_playlist=0;
-            }
-            if (newPlaylist==2) {  //new playlist from current played list
-                if (playlist->playlist_id) [playlist->playlist_id release];
-                if (playlist->playlist_name) [playlist->playlist_name release];
-                playlist->playlist_name=[[NSString alloc] initWithString:self.inputText.text];
-                playlist->playlist_id=[self initNewPlaylistDB:playlist->playlist_name];
-                t_plPlaylist_entry *pl_entries=(t_plPlaylist_entry*)(detailViewController.mPlaylist);
-                playlist->nb_entries=0;
-                for (int i=0;i<detailViewController.mPlaylist_size;i++) {
-                    playlist->nb_entries++;
-                    playlist->label[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",pl_entries[i].mPlaylistFilename];
-                    playlist->fullpath[playlist->nb_entries-1]=[[NSString alloc] initWithFormat:@"%@",pl_entries[i].mPlaylistFilepath];
-                }
-                [self addListToPlaylistDB];
-                
-                ((RootViewControllerPlaylist*)childController)->show_playlist=1;
-            }
-            //set new title
-            childController.title = playlist->playlist_name;
-            
-            // Set new directory
-            ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
-            ((RootViewControllerPlaylist*)childController)->playlist=playlist;
-            
-            ((RootViewControllerPlaylist*)childController)->textInputView=textInputView;
-            ((RootViewControllerPlaylist*)childController)->inputText=inputText;
-            ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
-            [keys release];keys=nil;
-            [list release];list=nil;
-            mFreePlaylist=1;
-            
-            
-            newPlaylist=0;		
-            // And push the window
-            [self.navigationController pushViewController:childController animated:YES];
-            mFreePlaylist=1;
-        } else {  //cancel => no playlist created
-            [self freePlaylist];
-            mFreePlaylist=0;
-        }
-    }
-    
-    if (mValidatePlName&&mRenamePlaylist) {
-        mRenamePlaylist=0;
-        if (playlist->playlist_name) [playlist->playlist_name release];
-        playlist->playlist_name=[[NSString alloc] initWithString:self.inputText.text];
-        [self updatePlaylistNameDB:playlist->playlist_id playlist_name:playlist->playlist_name];
-        self.navigationItem.title=[NSString stringWithFormat:@"%@ (%d)",playlist->playlist_name,playlist->nb_entries];
-    }
     if (show_playlist) self.navigationItem.title=[NSString stringWithFormat:@"%@ (%d)",playlist->playlist_name,playlist->nb_entries];
     
     if (detailViewController.mShouldHaveFocus) {
@@ -1734,8 +1643,6 @@ UIAlertView *alertPlFull;
     if (mSearch) return nil;	
     if (show_playlist) return nil;
     if ((browse_depth>=2)&&(show_playlist==0)) {
-        if (browse_depth<=1) return nil;
-        if (show_playlist) return nil;
         if (section==0) return nil;
         if (section==1) return @"";
         if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) return [indexTitlesDownload objectAtIndex:section];
@@ -2011,10 +1918,11 @@ UIAlertView *alertPlFull;
                     
                     
                     if (cur_local_entries[indexPath.section-2][indexPath.row].rating==-1) {
-                        [self getFileStatsDB:cur_local_entries[indexPath.section-2][indexPath.row].label
-                                    fullpath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath
-                                   playcount:&cur_local_entries[indexPath.section-2][indexPath.row].playcount
-                                      rating:&cur_local_entries[indexPath.section-2][indexPath.row].rating];
+                        DBHelper::getFileStatsDBmod(
+                                                    cur_local_entries[indexPath.section-2][indexPath.row].label,
+                                                    cur_local_entries[indexPath.section-2][indexPath.row].fullpath,
+                                                    &cur_local_entries[indexPath.section-2][indexPath.row].playcount,
+                                                    &cur_local_entries[indexPath.section-2][indexPath.row].rating);
                     }
                     if (cur_local_entries[indexPath.section-2][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_local_entries[indexPath.section-2][indexPath.row].rating]];
                     if (!cur_local_entries[indexPath.section-2][indexPath.row].playcount) tmp_str = [NSString stringWithString:played0time]; 
@@ -2187,20 +2095,6 @@ UIAlertView *alertPlFull;
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
-}
-
--(IBAction)cancelPlaylistName{
-    mValidatePlName=0;
-    //[self dismissModalViewControllerAnimated:YES];
-}
--(IBAction)validatePlaylistName{
-    mValidatePlName=1;
-    //[self dismissModalViewControllerAnimated:YES];
-}
-- (BOOL)textFieldShouldReturn:(UITextField *)theTextField {
-    [theTextField resignFirstResponder];
-    [self validatePlaylistName];
-    return YES;
 }
 
 -(IBAction)goPlayer {
@@ -2407,13 +2301,18 @@ UIAlertView *alertPlFull;
         if (indexPath.row==0) { //new playlist
             newPlaylist=1;
             mValidatePlName=0;
-            [self presentModalViewController:textInputView animated:YES];
+            
+            alertChooseName=[[[UIAlertView alloc] initWithTitle:@"Playlist name" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
+            [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
+            [alertChooseName show];
+            
         }
         if ((indexPath.row==1)&&(detailViewController.mPlaylist_size)) { //save current list
             newPlaylist=2;
             mValidatePlName=0;
             
-            [self presentModalViewController:textInputView animated:YES];
+            alertChooseName=[[[UIAlertView alloc] initWithTitle:@"Playlist name" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];[alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
+            [alertChooseName show];
         }
         if (indexPath.row>=2) { //show a playlist
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
@@ -2428,8 +2327,6 @@ UIAlertView *alertPlFull;
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             
-            ((RootViewControllerPlaylist*)childController)->textInputView=textInputView;
-            ((RootViewControllerPlaylist*)childController)->inputText=inputText;
             ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
             
             [keys release];keys=nil;
@@ -2468,16 +2365,17 @@ UIAlertView *alertPlFull;
                 ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                 ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                 ((RootViewControllerPlaylist*)childController)->show_playlist=0;
-                ((RootViewControllerPlaylist*)childController)->textInputView=textInputView;
-                ((RootViewControllerPlaylist*)childController)->inputText=inputText;
                 ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];	
             } else if (indexPath.row==1 ){ //rename current playlist
-                inputText.text=playlist->playlist_name;
                 mRenamePlaylist=1;
                 mValidatePlName=0;
-                [self presentModalViewController:textInputView animated:YES];
+                alertChooseName=[[[UIAlertView alloc] initWithTitle:@"Playlist name" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
+                [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
+                UITextField *tf=[alertChooseName textFieldAtIndex:0];
+                tf.text=playlist->playlist_name;
+                [alertChooseName show];
             }
         } else { //browsing for playlist
             if (indexPath.section==1) {
