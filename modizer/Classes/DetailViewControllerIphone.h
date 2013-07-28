@@ -94,9 +94,6 @@ class CGLString;
 	
 	IBOutlet RootViewControllerIphone *rootViewControllerIphone;
 	
-	IBOutlet UIViewController *textInputView;
-	IBOutlet UITextField *inputText;
-	
 	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
 	IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList,*btnChangeTime;
 
@@ -345,8 +342,6 @@ class CGLString;
 
 @property (nonatomic, retain) IBOutlet UILabel *labelTimPolyphony,*labelDUMBMastVol,*lblPanningValue;
 
-@property (nonatomic, retain) IBOutlet UIViewController *textInputView;
-@property (nonatomic, retain) IBOutlet UITextField *inputText;
 @property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewControllerIphone;
 
 @property (nonatomic, retain) IBOutlet UIImageView *cover_view,*gifAnimation;
@@ -371,8 +366,6 @@ class CGLString;
 -(IBAction) optDUMBMastVol;
 -(IBAction) optDUMBResampling;
 
--(IBAction)validatePlaylistName;
--(IBAction)cancelPlaylistName;
 
 - (void)titleTap:(UITapGestureRecognizer *)sender;
 

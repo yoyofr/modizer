@@ -31,7 +31,7 @@
 @class WebBrowser;
 
 
-@interface RootViewControllerIphone : UITableViewController <UISearchBarDelegate,UITextInputDelegate> {
+@interface RootViewControllerIphone : UITableViewController <UISearchBarDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
@@ -45,8 +45,6 @@
     IBOutlet UITableView *tabView;
 
 	IBOutlet UISearchBar *sBar;
-	IBOutlet UIViewController *textInputView; 
-	IBOutlet UITextField *inputText;
 	
 	IBOutlet UIBarButtonItem *playerButton;
     
@@ -131,8 +129,7 @@
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet WebBrowser *webBrowser;
-@property (nonatomic, retain) IBOutlet UIViewController *textInputView,*childController;
-@property (nonatomic, retain) IBOutlet UITextField *inputText;
+@property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
 @property (nonatomic, retain) IBOutlet UITableView *tabView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
@@ -141,8 +138,6 @@
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 
--(IBAction)validatePlaylistName;
--(IBAction)cancelPlaylistName;
 -(IBAction)goPlayer;
 
 - (void)freePlaylist;

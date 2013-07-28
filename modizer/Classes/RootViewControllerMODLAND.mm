@@ -1336,118 +1336,6 @@ static volatile int mPopupAnimation=0;
 	return fileName;
 }
 
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating{
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;	
-	
-	if (playcount) *playcount=0;
-	if (rating) *rating=0;
-	
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		
-		
-		//Get playlist name
-		sprintf(sqlStatement,"SELECT play_count,rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				if (playcount) *playcount=(short int)sqlite3_column_int(stmt, 0);
-				if (rating) {
-					*rating=(signed char)sqlite3_column_int(stmt, 1);
-					if (*rating<0) *rating=0;
-					if (*rating>5) *rating=5;
-				}
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-}
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating song_length:(int*)song_length songs:(int*)songs channels_nb:(char*)channels_nb {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;	
-	
-	if (playcount) *playcount=0;
-	if (rating) *rating=0;
-	if (song_length) *song_length=0;
-	if (songs) *songs=0;
-	if (channels_nb) *channels_nb=0;
-	
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		
-		
-		//Get playlist name
-		sprintf(sqlStatement,"SELECT play_count,rating,length,songs,channels FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				if (playcount) *playcount=(short int)sqlite3_column_int(stmt, 0);
-				if (rating) {
-					*rating=(signed char)sqlite3_column_int(stmt, 1);
-					if (*rating<0) *rating=0;
-					if (*rating>5) *rating=5;
-				}
-				if (song_length) *song_length=(int)sqlite3_column_int(stmt, 2);				
-				if (songs) *songs=(int)sqlite3_column_int(stmt, 3);
-				if (channels_nb) *channels_nb=(char)sqlite3_column_int(stmt, 4);
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-}
-
--(int) deleteStatsFileDB:(NSString*)fullpath {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err,ret;	
-	pthread_mutex_lock(&db_mutex);
-	ret=1;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
-		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return ret;
-}
--(int) deleteStatsDirDB:(NSString*)fullpath {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err,ret;	
-	pthread_mutex_lock(&db_mutex);
-	ret=1;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
-		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
-		
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return ret;
-}
-
 -(void) viewWillAppear:(BOOL)animated {
     if (keys) {
         [keys release]; 
@@ -2057,14 +1945,16 @@ static volatile int mPopupAnimation=0;
                     
                     if (cur_db_entries[section][indexPath.row].downloaded==1) {
                         if (cur_db_entries[section][indexPath.row].rating==-1) {
-                            [self getFileStatsDB:cur_db_entries[section][indexPath.row].label
-                                        fullpath:[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,
-                                                  [self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]]
-                                       playcount:&cur_db_entries[section][indexPath.row].playcount
-                                          rating:&cur_db_entries[section][indexPath.row].rating
-                                     song_length:&cur_db_entries[section][indexPath.row].song_length									 
-                                           songs:&cur_db_entries[section][indexPath.row].songs
-                                     channels_nb:&cur_db_entries[section][indexPath.row].channels_nb];
+                            DBHelper::getFileStatsDBmod(
+                                                        cur_db_entries[section][indexPath.row].label,
+                                                        [NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,
+                                                         [self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]],
+                                                        &cur_db_entries[section][indexPath.row].playcount,
+                                                        &cur_db_entries[section][indexPath.row].rating,
+                                                        &cur_db_entries[section][indexPath.row].song_length,
+                                                        &cur_db_entries[section][indexPath.row].channels_nb,
+                                                        &cur_db_entries[section][indexPath.row].songs);
+                            
                         }
                         if (cur_db_entries[section][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_db_entries[section][indexPath.row].rating]];
                         
@@ -2172,8 +2062,7 @@ static volatile int mPopupAnimation=0;
             //delete file
             NSString *localpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]]];
             NSError *err;
-            //			NSLog(@"%@",localpath);
-            [self deleteStatsFileDB:localpath];
+            DBHelper::deleteStatsFileDB(localpath);
             cur_db_entries[section][indexPath.row].downloaded=0;
             //delete local file
             [mFileMngr removeItemAtPath:localpath error:&err];
