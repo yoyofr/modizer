@@ -31,36 +31,36 @@
 #include "Multi_Buffer.h"
 #include "Chip_Resampler.h"
 
-	template<class Emu>
-	class Chip_Emu : public Emu {
-		int last_time;
-		short* out;
-		enum { disabled_time = -1 };
-	public:
-		Chip_Emu()                      { last_time = disabled_time; out = NULL; }
-		void enable( bool b = true )    { last_time = b ? 0 : disabled_time; }
-		bool enabled() const            { return last_time != disabled_time; }
-		void begin_frame( short* buf )  { out = buf; last_time = 0; }
-		
-		int run_until( int time )
-		{
-			int count = time - last_time;
-			if ( count > 0 )
-			{
-				if ( last_time < 0 )
-					return false;
-				last_time = time;
-				short* p = out;
-				out += count * Emu::out_chan_count;
-				Emu::run( count, p );
-			}
-			return true;
-		}
-	};
+template<class Emu>
+class Chip_Emu : public Emu {
+    int last_time;
+    short* out;
+    enum { disabled_time = -1 };
+public:
+    Chip_Emu()                      { last_time = disabled_time; out = NULL; }
+    void enable( bool b = true )    { last_time = b ? 0 : disabled_time; }
+    bool enabled() const            { return last_time != disabled_time; }
+    void begin_frame( short* buf )  { out = buf; last_time = 0; }
+    
+    int run_until( int time )
+    {
+        int count = time - last_time;
+        if ( count > 0 )
+        {
+            if ( last_time < 0 )
+                return false;
+            last_time = time;
+            short* p = out;
+            out += count * Emu::out_chan_count;
+            Emu::run( count, p );
+        }
+        return true;
+    }
+};
 
 class Vgm_Core : public Gme_Loader {
 public:
-
+    
 	// VGM file header
 	struct header_t
 	{
@@ -159,7 +159,7 @@ public:
 	// Adjusts music tempo, where 1.0 is normal. Can be changed while playing.
 	// Loading a file resets tempo to 1.0.
 	void set_tempo( double );
-
+    
 	void set_sample_rate( int r ) { sample_rate = r; }
 	
 	// Starts track
@@ -177,7 +177,7 @@ public:
 	
     // 0 for PSG and YM2612 DAC, 1 for AY, 2 for HuC6280
     Stereo_Buffer stereo_buf[3];
-
+    
     // PCM sound is always generated here
     Blip_Buffer * blip_buf[2];
 	
@@ -198,7 +198,7 @@ public:
 	Chip_Resampler_Emu<Ym2413_Emu> ym2413[2];
 	Chip_Resampler_Emu<Ym2151_Emu> ym2151[2];
 	Chip_Resampler_Emu<Ym2203_Emu> ym2203[2];
-
+    
 	// PCM sound chips
 	Chip_Resampler_Emu<C140_Emu> c140;
 	Chip_Resampler_Emu<SegaPcm_Emu> segapcm;
@@ -212,33 +212,35 @@ public:
 	Chip_Resampler_Emu<K054539_Emu> k054539;
 	Chip_Resampler_Emu<Ymz280b_Emu> ymz280b; int ymz280b_hz;
     Chip_Resampler_Emu<Qsound_Apu> qsound[2];
-
+    
 	// DAC control
 	typedef struct daccontrol_data
 	{
 		bool Enable;
 		byte Bank;
 	} DACCTRL_DATA;
-
+    
 	byte DacCtrlUsed;
 	byte DacCtrlUsg[0xFF];
 	DACCTRL_DATA DacCtrl[0xFF];
 	byte DacCtrlMap[0xFF];
 	int DacCtrlTime[0xFF];
 	void ** dac_control;
-
+    
 	void dac_control_grow(byte chip_id);
-
+    
+	int dac_control_recursion;
+    
 	int run_dac_control( int time );
-
+    
 public:
 	void chip_reg_write(unsigned Sample, byte ChipType, byte ChipID, byte Port, byte Offset, byte Data);
-
-// Implementation
+    
+    // Implementation
 public:
 	Vgm_Core();
 	~Vgm_Core();
-
+    
 protected:
 	virtual blargg_err_t load_mem_( byte const [], int );
 	
@@ -250,22 +252,22 @@ private:
 	int sample_rate;
 	int vgm_rate;   // rate of log, 44100 normally, adjusted by tempo
 	double fm_rate; // FM samples per second
-
+    
 	header_t _header;
 	
 	// VGM to FM time
-	int fm_time_factor;     
+	int fm_time_factor;
 	int fm_time_offset;
 	fm_time_t to_fm_time( vgm_time_t ) const;
-
+    
 	// VGM to PSG time
 	int blip_time_factor;
 	blip_time_t to_psg_time( vgm_time_t ) const;
-
+    
 	int blip_ay_time_factor;
 	int ay_time_offset;
 	blip_time_t to_ay_time( vgm_time_t ) const;
-
+    
     int blip_huc6280_time_factor;
     int huc6280_time_offset;
     blip_time_t to_huc6280_time( vgm_time_t ) const;
@@ -293,7 +295,7 @@ private:
 		unsigned DataPos;
 		unsigned BnkPos;
 	} VGM_PCM_BANK;
-
+    
 	typedef struct pcmbank_table
 	{
 		byte ComprType;
@@ -303,15 +305,15 @@ private:
 		unsigned EntryCount;
 		void* Entries;
 	} PCMBANK_TBL;
-
+    
 	VGM_PCM_BANK PCMBank[PCM_BANK_COUNT];
 	PCMBANK_TBL PCMTbl;
-
+    
 	void ReadPCMTable(unsigned DataSize, const byte* Data);
 	void AddPCMData(byte Type, unsigned DataSize, const byte* Data);
 	bool DecompressDataBlk(VGM_PCM_DATA* Bank, unsigned DataSize, const byte* Data);
 	const byte* GetPointerFromPCMBank(byte Type, unsigned DataPos);
-
+    
 	byte const* pcm_pos;    // current position in PCM data
 	int dac_amp[2];
 	int dac_disabled[2];       // -1 if disabled

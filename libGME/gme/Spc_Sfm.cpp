@@ -7,15 +7,15 @@
 #include <stdio.h>
 
 /* Copyright (C) 2004-2013 Shay Green. This module is free software; you
-can redistribute it and/or modify it under the terms of the GNU Lesser
-General Public License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version. This
-module is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
-details. You should have received a copy of the GNU Lesser General Public
-License along with this module; if not, write to the Free Software Foundation,
-Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
+ can redistribute it and/or modify it under the terms of the GNU Lesser
+ General Public License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version. This
+ module is distributed in the hope that it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details. You should have received a copy of the GNU Lesser General Public
+ License along with this module; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
@@ -56,9 +56,9 @@ struct Sfm_File : Gme_Info_
 {
     blargg_vector<byte> data;
     Bml_Parser metadata;
-
+    
     Sfm_File() { set_type( gme_sfm_type ); }
-
+    
     blargg_err_t load_( Data_Reader& in )
     {
         int file_size = in.remain();
@@ -74,7 +74,7 @@ struct Sfm_File : Gme_Info_
         data[ 8 + metadata_size ] = temp;
         return blargg_ok;
     }
-
+    
     blargg_err_t track_info_( track_info_t* out, int ) const
     {
         const char * title = metadata.enumValue("information:title");
@@ -83,7 +83,7 @@ struct Sfm_File : Gme_Info_
         out->song[255] = '\0';
         return blargg_ok;
     }
-
+    
     blargg_err_t hash_( Hash_Function& out ) const
     {
         hash_sfm_file( data.begin(), data.end() - data.begin(), out );
@@ -120,12 +120,12 @@ blargg_err_t Sfm_Emu::load_mem_( byte const in [], int size )
     set_voice_count( Spc_Dsp::voice_count );
     if ( size < Sfm_Emu::sfm_min_file_size )
         return blargg_err_file_type;
-
+    
     static const char* const names [Spc_Dsp::voice_count] = {
         "DSP 1", "DSP 2", "DSP 3", "DSP 4", "DSP 5", "DSP 6", "DSP 7", "DSP 8"
     };
     set_voice_names( names );
-
+    
     return check_sfm_header( in );
 }
 
@@ -167,26 +167,26 @@ blargg_err_t Sfm_Emu::start_track_( int track )
     memcpy(temp, ptr + 8, metadata_size);
     metadata.parseDocument(temp);
     delete [] temp;
-
+    
     apu.init_rom( ipl_rom );
-
+    
     apu.reset();
-
+    
     memcpy( apu.m.ram.ram, ptr + 8 + metadata_size, 65536 );
-
+    
     memcpy( apu.dsp.m.regs, ptr + 8 + metadata_size + 65536, 128 );
-
+    
     apu.set_sfm_queue( ptr + 8 + metadata_size + 65536 + 128, ptr + file_size() );
-
+    
     byte regs[Snes_Spc::reg_count] = {0};
-
+    
     char * end;
     const char * value;
-
+    
     regs[Snes_Spc::r_test] = META_ENUM_INT("smp:test");
     regs[Snes_Spc::r_control] |= META_ENUM_INT("smp:iplrom") ? 0x80 : 0;
     regs[Snes_Spc::r_dspaddr] = META_ENUM_INT("smp:dspaddr");
-
+    
     value = metadata.enumValue("smp:ram");
     if (value)
     {
@@ -197,7 +197,7 @@ blargg_err_t Sfm_Emu::start_track_( int track )
             regs[Snes_Spc::r_f9] = strtoul(value, &end, 10);
         }
     }
-
+    
     char temp_path[256];
     for (int i = 0; i < 3; ++i)
     {
@@ -230,11 +230,11 @@ blargg_err_t Sfm_Emu::start_track_( int track )
             }
         }
     }
-
+    
     apu.load_regs( regs );
     apu.m.rom_enabled = 0;
     apu.regs_loaded();
-
+    
     for (int i = 0; i < 3; ++i)
     {
         sprintf(temp_path, "smp:timer[%u]:", i);
@@ -256,9 +256,9 @@ blargg_err_t Sfm_Emu::start_track_( int track )
             }
         }
     }
-
+    
     apu.dsp.m.echo_hist_pos = &apu.dsp.m.echo_hist[META_ENUM_INT("dsp:echohistaddr")];
-
+    
     value = metadata.enumValue("dsp:echohistdata");
     if (value)
     {
@@ -274,7 +274,7 @@ blargg_err_t Sfm_Emu::start_track_( int track )
             ++value;
         }
     }
-
+    
     apu.dsp.m.phase = META_ENUM_INT("dsp:sample");
     apu.dsp.m.kon = META_ENUM_INT("dsp:kon");
     apu.dsp.m.noise = META_ENUM_INT("dsp:noise");
@@ -302,26 +302,26 @@ blargg_err_t Sfm_Emu::start_track_( int track )
     apu.dsp.m.t_output = META_ENUM_INT("dsp:output");
     apu.dsp.m.t_looped = META_ENUM_INT("dsp:looped");
     apu.dsp.m.t_echo_ptr = META_ENUM_INT("dsp:echoaddr");
-
-
+    
+    
 #define META_ENUM_LEVELS(n, o) \
-    value = metadata.enumValue(n); \
-    if (value) \
-    { \
-        (o)[0] = strtoul(value, &end, 10); \
-        if (*end) \
-        { \
-            value = end + 1; \
-            (o)[1] = strtoul(value, &end, 10); \
-        } \
-    }
-
+value = metadata.enumValue(n); \
+if (value) \
+{ \
+(o)[0] = strtoul(value, &end, 10); \
+if (*end) \
+{ \
+value = end + 1; \
+(o)[1] = strtoul(value, &end, 10); \
+} \
+}
+    
     META_ENUM_LEVELS("dsp:mainout", apu.dsp.m.t_main_out);
     META_ENUM_LEVELS("dsp:echoout", apu.dsp.m.t_echo_out);
     META_ENUM_LEVELS("dsp:echoin", apu.dsp.m.t_echo_in);
-
+    
 #undef META_ENUM_LEVELS
-
+    
     for (int i = 0; i < 8; ++i)
     {
         sprintf(temp_path, "dsp:voice[%u]:", i);
@@ -365,9 +365,9 @@ blargg_err_t Sfm_Emu::start_track_( int track )
         strcpy(temp_path + length, "envcache");
         voice.hidden_env = META_ENUM_INT(temp_path);
     }
-
+    
     filter.set_gain( (int) (gain() * Spc_Filter::gain_unit) );
-    apu.clear_echo(true);
+    apu.clear_echo( true );
     return blargg_ok;
 }
 
@@ -387,15 +387,15 @@ blargg_err_t Sfm_Emu::skip_( int count )
         count = (int) (count * resampler.rate()) & ~1;
         count -= resampler.skip_input( count );
     }
-
+    
     // TODO: shouldn't skip be adjusted for the 64 samples read afterwards?
-
+    
     if ( count > 0 )
     {
         RETURN_ERR( apu.skip( count ) );
         filter.clear();
     }
-
+    
     // eliminate pop due to resampler
     const int resampler_latency = 64;
     sample_t buf [resampler_latency];
@@ -406,7 +406,7 @@ blargg_err_t Sfm_Emu::play_( int count, sample_t out [] )
 {
     if ( sample_rate() == native_sample_rate )
         return play_and_filter( count, out );
-
+    
     int remain = count;
     while ( remain > 0 )
     {
@@ -427,4 +427,3 @@ blargg_err_t Sfm_Emu::hash_( Hash_Function& out ) const
     hash_sfm_file( file_begin(), file_size(), out );
     return blargg_ok;
 }
-

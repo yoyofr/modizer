@@ -764,7 +764,7 @@ void RenderUtils::calcNormal(GLfloat v[3][3], GLfloat out[3]) {
     ReduceToUnit(out);          /* Normalize The Vectors */
 }
 
-#define SPECTRUM_DEPTH 12
+#define SPECTRUM_DEPTH 16
 #define SPECTRUM_ZSIZE 32
 #define SPECTRUM_Y 12.0f
 #define SPECTR_XSIZE_FACTOR 0.95f

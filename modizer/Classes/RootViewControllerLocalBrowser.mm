@@ -779,18 +779,23 @@ static volatile int mPopupAnimation=0;
             }	
         }
     } else if (browseType==1) { //FEX Archive (zip,7z,rar,rsn)
-        fex_type_t type;
+        fex_type_t ftype;
         fex_t* fex;
         const char *path=[cpath UTF8String];
         /* Determine file's type */
-        if (fex_identify_file( &type, path)) {
+        if (fex_identify_file( &ftype, path)) {
             NSLog(@"fex cannot determine type of %s",path);
         }
         /* Only open files that fex can handle */
-        if ( type != NULL ) {
-            if (fex_open_type( &fex, path, type )) {
-                NSLog(@"cannot fex open : %s / type : %d",path,type);
+        if ( ftype != NULL ) {
+            if (fex_open_type( &fex, path, ftype )) {
+                NSLog(@"cannot fex open : %s",path);
             } else {
+                int is_rsn=0;
+                NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
+                if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
+                
+
                 while ( !fex_done( fex ) ) {
                     file=[NSString stringWithFormat:@"%s",fex_name(fex)]; 
                     NSString *extension = [[file pathExtension] uppercaseString];
@@ -868,8 +873,8 @@ static volatile int mPopupAnimation=0;
                             local_entries_count[i]=0;
                         }
                     }
-                if (fex_open_type( &fex, path, type )) {
-                    NSLog(@"cannot fex open : %s / type : %d",path,type);
+                if (fex_open_type( &fex, path, ftype )) {
+                    NSLog(@"cannot fex open : %s",path);
                 } else {
                     int arc_counter=0;
                     while ( !fex_done( fex ) ) {

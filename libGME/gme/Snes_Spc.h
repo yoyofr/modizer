@@ -11,7 +11,7 @@ class Sfm_Emu;
 
 struct Snes_Spc {
     friend class Sfm_Emu;
-
+    
 public:
 	typedef BOOST::uint8_t uint8_t;
 	
@@ -21,28 +21,28 @@ public:
 	// Sample pairs generated per second
 	enum { sample_rate = 32000 };
 	
-// Emulator use
+    // Emulator use
 	
 	// Sets IPL ROM data. Library does not include ROM data. Most SPC music files
 	// don't need ROM, but a full emulator must provide this.
 	enum { rom_size = 0x40 };
 	void init_rom( uint8_t const rom [rom_size] );
-
+    
 	// Sets destination for output samples
 	typedef short sample_t;
 	void set_output( sample_t* out, int out_size );
-
+    
 	// Number of samples written to output since last set
 	int sample_count() const;
-
+    
 	// Resets SPC to power-on state. This resets your output buffer, so you must
 	// call set_output() after this.
 	void reset();
-
+    
 	// Emulates pressing reset switch on SNES. This resets your output buffer, so
 	// you must call set_output() after this.
 	void soft_reset();
-
+    
 	// 1024000 SPC clocks per second, sample pair every 32 clocks
 	typedef int time_t;
 	enum { clock_rate = 1024000 };
@@ -52,11 +52,11 @@ public:
 	enum { port_count = 4 };
 	int  read_port ( time_t, int port );
 	void write_port( time_t, int port, int data );
-
+    
 	// Runs SPC to end_time and starts a new time frame at 0
 	void end_frame( time_t end_time );
 	
-// Sound control
+    // Sound control
 	
 	// Mutes voices corresponding to non-zero bits in mask (issues repeated KOFF events).
 	// Reduces emulation accuracy.
@@ -65,39 +65,39 @@ public:
 	
 	// If true, prevents channels and global volumes from being phase-negated.
 	void disable_surround( bool disable = true );
-
+    
 	// If true, enables cubic interpolation
 	void interpolation_level( int level = 0 );
 	
 	// Sets tempo, where tempo_unit = normal, tempo_unit / 2 = half speed, etc.
 	enum { tempo_unit = 0x100 };
 	void set_tempo( int );
-
-// SPC music files
-
+    
+    // SPC music files
+    
 	// Loads SPC data into emulator
 	enum { spc_min_file_size = 0x10180 };
 	enum { spc_file_size     = 0x10200 };
 	blargg_err_t load_spc( void const* in, long size );
 	
 	// Clears echo region. Useful after loading an SPC as many have garbage in echo.
-	void clear_echo(bool force=false);
-
+	void clear_echo(bool force = false);
+    
 	// Plays for count samples and write samples to out. Discards samples if out
 	// is NULL. Count must be a multiple of 2 since output is stereo.
 	blargg_err_t play( int count, sample_t out [] );
 	
 	// Skips count samples. Several times faster than play() when using fast DSP.
 	blargg_err_t skip( int count );
-
+    
 	// blah
     Spc_Dsp * get_dsp();
-
+    
     // SFM Queue
     void set_sfm_queue(const uint8_t* queue, const uint8_t* queue_end);
 	
-// State save/load (only available with accurate DSP)
-
+    // State save/load (only available with accurate DSP)
+    
 #if !SPC_NO_COPY_STATE_FUNCS
 	// Saves/loads state
 	enum { state_size = 67 * 1024 }; // maximum space needed when saving
@@ -106,16 +106,16 @@ public:
 	
 	// Writes minimal header to spc_out
 	static void init_header( void* spc_out );
-
+    
 	// Saves emulator state as SPC file data. Writes spc_file_size bytes to spc_out.
 	// Does not set up SPC header; use init_header() for that.
 	void save_spc( void* spc_out );
-
+    
 	// Returns true if new key-on events occurred since last check. Useful for
 	// trimming silence while saving an SPC.
 	bool check_kon();
 #endif
-
+    
 public:
 	// TODO: document
 	struct regs_t
@@ -160,15 +160,15 @@ public:
 private:
 	Spc_Dsp dsp;
 	
-	#if SPC_LESS_ACCURATE
-		static signed char const reg_times_ [256];
-		signed char reg_times [256];
-	#endif
+#if SPC_LESS_ACCURATE
+    static signed char const reg_times_ [256];
+    signed char reg_times [256];
+#endif
 	
 	struct state_t
 	{
 		Timer timers [timer_count];
-
+        
 		uint8_t smp_regs [2] [reg_count];
 		
 		regs_t cpu_regs;
@@ -192,7 +192,7 @@ private:
 		int         rom_enabled;
 		uint8_t     rom    [rom_size];
 		uint8_t     hi_ram [rom_size];
-
+        
         uint8_t const* sfm_queue;
         uint8_t const* sfm_queue_end;
 		
@@ -270,7 +270,7 @@ private:
 		uint8_t unused [0x40];
 		uint8_t ipl_rom [0x40];
 	};
-
+    
 	static char const signature [signature_size + 1];
 	
 	void save_regs( uint8_t out [reg_count] );
@@ -293,7 +293,7 @@ inline void Snes_Spc::write_port( time_t t, int port, int data )
 }
 
 inline void Snes_Spc::mute_voices( int mask ) { dsp.mute_voices( mask ); }
-	
+
 inline void Snes_Spc::disable_surround( bool disable ) { dsp.disable_surround( disable ); }
 
 inline void Snes_Spc::interpolation_level( int level ) { dsp.interpolation_level( level ); }

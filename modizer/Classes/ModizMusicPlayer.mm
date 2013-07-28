@@ -3311,7 +3311,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
 	NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
     NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
-	NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
+	NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=(no_aux_file?[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SEXYPSF_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extAOSDK=(no_aux_file?[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_AOSDK_EXT componentsSeparatedByString:@","]);
@@ -3339,8 +3339,24 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extGME count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GME_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=1;break;
+            }
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GME_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=1;break;
+            }
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSID count];i++) {
@@ -3833,10 +3849,17 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			NSLog(@"gme_open_file error: %s",err);
 			return -1;
 		} else {
-			
 			/* Register cleanup function and confirmation string as data */
 			gme_set_user_data( gme_emu, my_data );
 			gme_set_user_cleanup( gme_emu, my_cleanup );
+            
+            //is a m3u available ?
+            NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[filePath stringByDeletingPathExtension]];
+            err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            if (err) {
+                NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[filePath stringByDeletingPathExtension]];
+                err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            }
 			
 			/* Adjust equalizer for crisp, bassy sound */
 			gme_equalizer_t gme_eq;
