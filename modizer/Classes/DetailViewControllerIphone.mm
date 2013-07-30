@@ -11,7 +11,7 @@
 
 
 
-#define MIDIFX_OFS 32
+#define MIDIFX_OFS 7
 
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
 #define NOTES_DISPLAY_LEFTMARGIN 30
@@ -85,6 +85,7 @@ static UIAlertView *alertCrash;
 static MPVolumeView *volumeView;
 
 static int txtMenuHandle[16];
+int texturePiano;
 
 static volatile int mPopupAnimation=0;
 
@@ -497,7 +498,7 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
     
-    tim_midifx_note_range=88; //88notes on a Piano
+    tim_midifx_note_range=128; //128notes max
     tim_midifx_note_offset=0;
     
     [mplayer optTIM_Chorus:(int)(sc_TIMchorus.selectedSegmentIndex)];
@@ -2538,7 +2539,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
-    tim_midifx_note_range=88; //88notes on a Piano
+    tim_midifx_note_range=128; //128notes max
     tim_midifx_note_offset=0;
 	
 	return YES;
@@ -4571,6 +4572,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     txtMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10.png"]);
     txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11.png"]);
     txtMenuHandle[14]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
+    texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
 		
 	end_time=clock();	
 #ifdef LOAD_PROFILE	
@@ -4916,8 +4918,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             }
             if (tim_midifx_note_range>128) tim_midifx_note_range=128; //note is a 8bit, so 256 is a max
             
-            if (tim_midifx_note_range<88) {
-                tim_midifx_note_offset=((88-tim_midifx_note_range)>>1)*note_fx_linewidth;
+            if (tim_midifx_note_range<128) {
+                tim_midifx_note_offset=((128-tim_midifx_note_range)>>1)*note_fx_linewidth;
             }
             
             if (tim_midifx_note_range<128) {
@@ -5195,7 +5197,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         if ((mplayer.mPlayType==15)&&(segcont_shownote.selectedSegmentIndex>2)) { //Timidity
             int playerpos=[mplayer getCurrentPlayedBufferIdx];
             playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,256/(3-sc_FXDetail.selectedSegmentIndex));
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,32);
             
             if (mHeader) delete mHeader;
             mHeader=nil;
@@ -5209,7 +5211,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 glPopMatrix();
             }            
         } else if (mplayer.mPatternDataAvail) { //Modplug
-            if (segcont_shownote.selectedSegmentIndex>2) {
+            if (1) /*(segcont_shownote.selectedSegmentIndex>2)*/ {
                 int playerpos=[mplayer getCurrentPlayedBufferIdx];
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
                 
@@ -5225,17 +5227,19 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 if (currentNotes) {
                     idx=currentRow*mplayer.numChannels;
                     for (j=0;j<mplayer.numChannels;j++,idx++)  {
-                        cnote=currentNotes[idx].Note;
+                        if (currentNotes[idx].Note) {
+                        cnote=(currentNotes[idx].Note-13)&127;
                         cinst=(currentNotes[idx].Instrument)&0x1F;
                         cvol=(currentNotes[idx].Volume)&0xFF;
                         if (!cvol) cvol=63;
                         
                         tim_notes_cpy[playerpos][j]=cnote|(cinst<<8)|(cvol<<16)|((1<<1)<<24); //VOICE_ON : 1<<1
+                        }
                     }
                     memset(&(tim_notes_cpy[playerpos][mplayer.numChannels]),0,(256-mplayer.numChannels)*4);
                 }
                 
-                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,256/(3-sc_FXDetail.selectedSegmentIndex));
+                if (segcont_shownote.selectedSegmentIndex>2) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,32);
                 
             } else {
                 linestodraw=(hh-NOTES_DISPLAY_TOPMARGIN+11)/12; //+11 => draw even if halfed for last line
@@ -5481,6 +5485,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         } else if (segcont_fx5.selectedSegmentIndex) {
             RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,segcont_fx5.selectedSegmentIndex,mDeviceType==1,nb_spectrum_bands);
         }
+        
+        int playerpos=[mplayer getCurrentPlayedBufferIdx];
+        playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
+        RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,32);
 	}
 	
 	if (viewTapHelpInfo) {
