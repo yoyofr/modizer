@@ -44,8 +44,9 @@
 @property (nonatomic,retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
 
-
+-(IBAction) goPlayer;
 -(IBAction) goBack:(id)sender;
+-(IBAction) goForward:(id)sender;
 -(IBAction) newBookmark:(id)sender;
 -(IBAction) goAbout:(id)sender;
 -(IBAction) newUrlEntered:(id)sender;

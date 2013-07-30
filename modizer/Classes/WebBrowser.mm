@@ -30,12 +30,22 @@ static NSString *lastURL=nil;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
 
+-(IBAction) goPlayer {
+	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+}
+
+
 -(IBAction) goBack:(id)sender {
 	if ([webView canGoBack]) [webView goBack];
 	else {
         [self goAbout:sender];
     }
 }
+
+-(IBAction) goForward:(id)sender {
+	if ([webView canGoForward]) [webView goForward];
+}
+
 
 -(IBAction) newBookmark:(id)sender {
 	if ([addressTestField.text length]) {
@@ -174,7 +184,7 @@ static NSString *lastURL=nil;
  */
     toolBar.hidden=TRUE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,0,cursize.width,self.view.frame.size.height);
+    webView.frame=CGRectMake(0,0,cursize.width,self.view.frame.size.height-44);
 	[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 }
 
@@ -203,7 +213,7 @@ static NSString *lastURL=nil;
 -(void)loadLastURL {
     toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
+    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
     
 	UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
 	//barBtn.enabled=YES;
@@ -213,21 +223,26 @@ static NSString *lastURL=nil;
 	//barBtn.enabled=YES;
 	loadStatus=TO_LOAD;
     currentMode=WEB_MODE;
+    
+    if (![webView canGoBack]) {
+        [self loadHome];
+        return;
+    }
 	
 	if (lastURL) {
         addressTestField.text=[NSString stringWithString:lastURL];
         [lastURL autorelease];
-    }
-	if ([addressTestField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
-	else {		
-		[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
-	}
+    } else [self loadHome];
+//	if ([addressTestField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
+//	else {
+//		[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
+//	}
 }
 
 - (void)loadHome {
     toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
+    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
     currentMode=WEB_MODE;
 	NSString *html = @"<html><head><title>Modizer Web Browser</title></head>\
 	<meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" />\
@@ -633,7 +648,7 @@ int found_img;
             if (toolBar.hidden) {
                 toolBar.hidden=FALSE;
                 CGSize cursize=[self currentSize];
-                webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
+                webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
             }
         }
         
