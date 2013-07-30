@@ -44,6 +44,7 @@ void DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uint ww,uint hh,
 void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level);
 	
 void DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_vert,int note_display_range, int note_display_offset,int fx_len);
+void DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int horiz_vert,int note_display_range, int note_display_offset,int fx_len);
 }
 
 #endif

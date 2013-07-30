@@ -8,6 +8,29 @@
 
 #import <UIKit/UIKit.h>
 
-@interface OnlineViewController : UITableViewController
+#import "ModizerConstants.h"
+#import "DownloadViewController.h"
+#import "RootViewControllerMODLAND.h"
+#import "RootViewControllerHVSC.h"
+#import "WebBrowser.h"
+
+@interface OnlineViewController : UITableViewController {
+
+    IBOutlet DownloadViewController *downloadViewController;
+    IBOutlet WebBrowser *webBrowser;
+    IBOutlet DetailViewControllerIphone *detailViewController;
+    IBOutlet UIBarButtonItem *playerButton;
+    
+    UIViewController *collectionViewController;
+}
+
+@property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
+@property (nonatomic, retain) IBOutlet WebBrowser *webBrowser;
+@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
+@property (nonatomic, retain) UIViewController *collectionViewController;
+
+
+-(IBAction) goPlayer;
 
 @end
