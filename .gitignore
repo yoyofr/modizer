@@ -66,3 +66,5 @@ modizer/Resources/DB/hvsc7.txt
 modizer/Resources/DB/hvsc6.txt
 
 modizer/Resources/DB/hvsc8.txt
+
+*.xcbkptlist
