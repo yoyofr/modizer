@@ -5197,7 +5197,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         if ((mplayer.mPlayType==15)&&(segcont_shownote.selectedSegmentIndex>2)) { //Timidity
             int playerpos=[mplayer getCurrentPlayedBufferIdx];
             playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,32);
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,64);
             
             if (mHeader) delete mHeader;
             mHeader=nil;
@@ -5239,7 +5239,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     memset(&(tim_notes_cpy[playerpos][mplayer.numChannels]),0,(256-mplayer.numChannels)*4);
                 }
                 
-                if (segcont_shownote.selectedSegmentIndex>2) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,32);
+                if (segcont_shownote.selectedSegmentIndex>2) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,64);
                 
             } else {
                 linestodraw=(hh-NOTES_DISPLAY_TOPMARGIN+11)/12; //+11 => draw even if halfed for last line

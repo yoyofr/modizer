@@ -114,7 +114,7 @@ pthread_mutex_t play_mutex;
     //init tab
     //***********************
     //playlistS
-    playlistVC->browse_depth=1;
+    playlistVC->browse_depth=0;
     playlistVC->detailViewController=detailViewControlleriPhone;
 		
 	if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {

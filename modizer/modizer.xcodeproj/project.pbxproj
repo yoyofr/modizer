@@ -215,6 +215,7 @@
 		337FA72A124288FA00DDD352 /* AboutViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 337FA729124288FA00DDD352 /* AboutViewController.mm */; };
 		337FA7D8124346F500DDD352 /* checkbox_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 337FA7D6124346F500DDD352 /* checkbox_single.png */; };
 		337FA7D9124346F500DDD352 /* checkbox_unchecked.png in Resources */ = {isa = PBXBuildFile; fileRef = 337FA7D7124346F500DDD352 /* checkbox_unchecked.png */; };
+		337FF18717A9D18900CE0A28 /* PlaylistViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */; };
 		33863E931240102600ECBA04 /* aenigmatica.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3C123DEFCC00D8EE6D /* aenigmatica.bin */; };
 		33863E941240102600ECBA04 /* alteredbeast.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3D123DEFCC00D8EE6D /* alteredbeast.bin */; };
 		33863E951240102600ECBA04 /* armalyte.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3E123DEFCC00D8EE6D /* armalyte.bin */; };
@@ -1367,6 +1368,7 @@
 		337FA729124288FA00DDD352 /* AboutViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AboutViewController.mm; sourceTree = "<group>"; };
 		337FA7D6124346F500DDD352 /* checkbox_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_single.png; sourceTree = "<group>"; };
 		337FA7D7124346F500DDD352 /* checkbox_unchecked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_unchecked.png; sourceTree = "<group>"; };
+		337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PlaylistViewController.xib; sourceTree = "<group>"; };
 		33888AA112231EEA0030C82E /* 1237346308.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 1237346308.jpg; sourceTree = "<group>"; };
 		3388C3BA13842E9100DA8F05 /* playlist_del_all.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist_del_all.png; sourceTree = "<group>"; };
 		3388C3BB13842E9100DA8F05 /* playlist_del_all@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "playlist_del_all@2x.png"; sourceTree = "<group>"; };
@@ -3558,10 +3560,11 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				3396B55613297F8C001792E0 /* timidity */,
+				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
 				CC88D0F81270AEBE0004EBBE /* RootViewController.xib */,
 				CC88D0F51270AEB60004EBBE /* MainWindow.xib */,
 				CC998C391270451C001D5050 /* Localizable.strings */,
+				3396B55613297F8C001792E0 /* timidity */,
 				CCB21D9C124690E000A30F62 /* Samples2 */,
 				CC9F0E39123DEFCC00D8EE6D /* sc68 */,
 				33888A7C122318C60030C82E /* backgrounds */,
@@ -5156,6 +5159,7 @@
 				330F36CD17A69A7B00EEC84A /* bb_home.png in Resources */,
 				330F36CE17A69A7B00EEC84A /* bb_home@2x.png in Resources */,
 				330F36D917A8792500EEC84A /* text_wood.png in Resources */,
+				337FF18717A9D18900CE0A28 /* PlaylistViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

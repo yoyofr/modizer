@@ -1760,13 +1760,21 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
 }
 
 #define MIDIFX_OFS 7
-#define MIDIFX_LEN 32
+#define MIDIFX_LEN 64
 int data_midifx_len=MIDIFX_LEN;
 unsigned char data_midifx_note[MIDIFX_LEN][256];
 unsigned char data_midifx_ch[MIDIFX_LEN][256];
 unsigned char data_midifx_vol[MIDIFX_LEN][256];
 unsigned char data_midifx_st[MIDIFX_LEN][256];
 int data_midifx_first=1;
+
+int data_pianofx_len=MIDIFX_LEN;
+unsigned char data_pianofx_note[MIDIFX_LEN][256];
+unsigned char data_pianofx_ch[MIDIFX_LEN][256];
+unsigned char data_pianofx_vol[MIDIFX_LEN][256];
+unsigned char data_pianofx_st[MIDIFX_LEN][256];
+int data_pianofx_first=1;
+
 
 
 #define VOICE_FREE	(1<<0)
@@ -1790,19 +1798,17 @@ extern int texturePiano;
 
 void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int horiz_vert,int note_display_range, int note_display_offset,int fx_len) {
     int index;
-    int band_width,ofs_band;
-    int line_width;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
-    static int test_key;
+    static int piano_fxcpt;
     static int first_call=1;
     
     if (first_call) {
         memset(piano_key_state,0,128);
         first_call=0;
-        test_key=arc4random()&0xFFF;
+        piano_fxcpt=arc4random()&0xFFF;
     }
-    test_key++;
+    piano_fxcpt++;
     
     GLfloat yf,yn,ynBL,z;
     GLfloat cr,cg,cb;
@@ -1819,66 +1825,61 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int horiz
 	
     glTranslatef(0.0, 0.0, -75.0);      /* Translate 50 Units Into The Screen */
     
-    glRotatef(10.0f*(0.8f*sin((float)test_key*3.14159f/769)+
-                    0.5f*sin((float)test_key*3.14159f/229)+
-                    0.3f*sin((float)test_key*3.14159f/311)), 0, 1, 0);
+    glRotatef(10.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/769)+
+                    0.5f*sin((float)piano_fxcpt*3.14159f/229)+
+                    0.3f*sin((float)piano_fxcpt*3.14159f/311)), 0, 1, 0);
     
-    glRotatef(20+10.0f*(0.4f*sin((float)test_key*3.14159f/191)+
-                              0.7f*sin((float)test_key*3.14159f/911)+
-                              0.3f*sin((float)test_key*3.14159f/409)), 1, 0, 0);
+    glRotatef(20+10.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
+                              0.7f*sin((float)piano_fxcpt*3.14159f/911)+
+                              0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
 //    glRotatef(30, 1, 0, 0);
     
 	
-    if (fx_len!=data_midifx_len) {
-        data_midifx_len=fx_len;
-        data_midifx_first=1;
+    if (fx_len!=data_pianofx_len) {
+        data_pianofx_len=fx_len;
+        data_pianofx_first=1;
     }
     
     note_display_range=128;
     note_display_offset=0;
     
     //if first launch, clear buffers
-    if (data_midifx_first) {
-        data_midifx_first=0;
-        for (int i=0;i<data_midifx_len;i++) {
-            memset(data_midifx_note[i],0,256);
+    if (data_pianofx_first) {
+        data_pianofx_first=0;
+        for (int i=0;i<data_pianofx_len;i++) {
+            memset(data_pianofx_note[i],0,256);
         }
     }
     //update old ones
-    for (int j=0;j<data_midifx_len-1;j++) {
-        memcpy(data_midifx_note[j],data_midifx_note[j+1],256);
-        memcpy(data_midifx_ch[j],data_midifx_ch[j+1],256);
-        memcpy(data_midifx_vol[j],data_midifx_vol[j+1],256);
-        memcpy(data_midifx_st[j],data_midifx_st[j+1],256);
+    for (int j=0;j<data_pianofx_len-1;j++) {
+        memcpy(data_pianofx_note[j],data_pianofx_note[j+1],256);
+        memcpy(data_pianofx_ch[j],data_pianofx_ch[j+1],256);
+        memcpy(data_pianofx_vol[j],data_pianofx_vol[j+1],256);
+        memcpy(data_pianofx_st[j],data_pianofx_st[j+1],256);
     }
     //add new one
     for (int i=0;i<256;i++) {
         int note=data[i];
-        data_midifx_note[data_midifx_len-1][i]=note&0xFF;
-        data_midifx_ch[data_midifx_len-1][i]=(note>>8)&0xFF;
-        data_midifx_st[data_midifx_len-1][i]=(note>>24)&0xFF;
-        data_midifx_vol[data_midifx_len-1][i]=(note>>16)&0xFF;
+        data_pianofx_note[data_pianofx_len-1][i]=note&0xFF;
+        data_pianofx_ch[data_pianofx_len-1][i]=(note>>8)&0xFF;
+        data_pianofx_st[data_pianofx_len-1][i]=(note>>24)&0xFF;
+        data_pianofx_vol[data_pianofx_len-1][i]=(note>>16)&0xFF;
         
     }
     
 	
-    band_width=(hh+hh/2)/data_midifx_len;
-    ofs_band=(hh-band_width*data_midifx_len)>>1;
-    line_width=ww/note_display_range;
-	
-    int j=data_midifx_len-1-MIDIFX_OFS;
+    int j=data_pianofx_len-1-MIDIFX_OFS;
     //glLineWidth(line_width+2);
     index=0;
     for (int i=0; i<256; i++) {
-        if (data_midifx_note[j][i]) {
-            int ch=data_midifx_ch[j][i];
-            int vol=data_midifx_vol[j][i];
-            int st=data_midifx_st[j][i];
-            //int pos=(data_midifx_note[j][i])*line_width-note_display_offset;
+        if (data_pianofx_note[j][i]) {
+            int ch=data_pianofx_ch[j][i];
+            int vol=data_pianofx_vol[j][i];
+            int st=data_pianofx_st[j][i];
             
             if (vol&&(st&VOICE_ON)) {
                 //note pressed
-                piano_key_state[(data_midifx_note[j][i])&127]=8;
+                piano_key_state[(data_pianofx_note[j][i])&127]=8;
             }
         }
     }
@@ -2084,7 +2085,7 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
     
     yf=-5;
     yn=-5;
-    z=-0;
+    z=-0-key_length*2;
     
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	
@@ -2092,8 +2093,8 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
     
     //draw background
     cr=220.0f/256;
-    cg=80.0f/256;
-    cb=180.0f/256;
+    cg=220.0f/256;
+    cb=220.0f/256;
     
 #define PIANO3D_INITTXT \
     texcoords[0][0]=vertices[0][0]/8; texcoords[0][1]=vertices[0][1]/8; \
@@ -2299,21 +2300,23 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
     
     int piano_ofs=0;
     int k=0;
-
+    z=0;
     vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     
     for (int i=0;i<48;i++,piano_ofs++) {
         PIANO3D_DRAWKEY
     }
 
-    yf=yf+5;
+    z=z-key_length;
+    yf=yf+key_height*3;
     key_leftpos+=28.0f;
     k=48;
     for (int i=0;i<48;i++,piano_ofs++) {
         PIANO3D_DRAWKEY
     }
 
-    yf=yf+5;
+    z=z-key_length;
+    yf=yf+key_height*3;
     key_leftpos+=28.0f-(28-19)/2;
     k=96;
     for (int i=0;i<32;i++,piano_ofs++) {
@@ -2335,7 +2338,8 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_
 	LineVertex *ptsB;
 	int cr,cg,cb,ca;
     int index;
-    int band_width,ofs_band;
+    //int band_width,ofs_band;
+    float band_width;
     int line_width;
     
     if (fx_len!=data_midifx_len) {
@@ -2374,12 +2378,12 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_
 	glEnableClientState(GL_COLOR_ARRAY);
     
     if (horiz_vert==0) {//Horiz
-        band_width=(ww+ww/2)/data_midifx_len;
-        ofs_band=(ww-band_width*data_midifx_len)>>1;
+        band_width=(float)(ww+0*ww/4)/data_midifx_len;
+//        ofs_band=(ww-band_width*data_midifx_len)>>1;
         line_width=hh/note_display_range;
     } else { //vert
-        band_width=(hh+hh/2)/data_midifx_len;
-        ofs_band=(hh-band_width*data_midifx_len)>>1;
+        band_width=(float)(hh+0*hh/4)/data_midifx_len;
+//        ofs_band=(hh-band_width*data_midifx_len)>>1;
         line_width=ww/note_display_range;
     }
     
@@ -2425,13 +2429,13 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_
                     ca=255;
                     if (horiz_vert==0) { //horiz
                         if ((pos>=0)&&(pos<hh)) {
-                            ptsB[index++] = LineVertex(j*band_width+ofs_band, pos,cr,cg,cb,ca);
-                            ptsB[index++] = LineVertex(j*band_width+band_width+ofs_band, pos,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(j*band_width/*+ofs_band*/, pos,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(j*band_width+band_width/*+ofs_band*/, pos,cr,cg,cb,ca);
                         }
                     } else {
                         if ((pos>=0)&&(pos<ww)) {
-                            ptsB[index++] = LineVertex(pos,j*band_width+ofs_band,cr,cg,cb,ca);
-                            ptsB[index++] = LineVertex(pos,j*band_width+band_width+ofs_band,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(pos,j*band_width/*+ofs_band*/,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(pos,j*band_width+band_width/*+ofs_band*/,cr,cg,cb,ca);
                         }
                     }
                 }
@@ -2450,26 +2454,26 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_
     cg=100;
     cb=200;
     if (horiz_vert==0) {
-        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width>>1)+ofs_band, 0,cr,cg,cb,120);
-        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width>>1)+ofs_band, hh, cr,cg,cb,120);
+        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/, 0,cr,cg,cb,120);
+        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/, hh, cr,cg,cb,120);
     } else {
-        ptsB[0] = LineVertex( 0,(data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width>>1)+ofs_band,cr,cg,cb,120);
-        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width>>1)+ofs_band,  cr,cg,cb,120);
+        ptsB[0] = LineVertex( 0,(data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/,cr,cg,cb,120);
+        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/,  cr,cg,cb,120);
         
     }
 	glLineWidth(band_width);
 	glDrawArrays(GL_LINES, 0, 2);
     
     if (horiz_vert==0) {
-        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+ofs_band, 0,cr,cg,cb,40);
-        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+ofs_band, hh, cr,cg,cb,40);
-        ptsB[2] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width+ofs_band, 0,cr,cg,cb,160);
-        ptsB[3] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width+ofs_band, hh, cr,cg,cb,160);
+        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/, 0,cr,cg,cb,40);
+        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/, hh, cr,cg,cb,40);
+        ptsB[2] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/, 0,cr,cg,cb,160);
+        ptsB[3] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/, hh, cr,cg,cb,160);
     } else {
-        ptsB[0] = LineVertex(0,(data_midifx_len-MIDIFX_OFS-1)*band_width+ofs_band,cr,cg,cb,40);
-        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width+ofs_band,  cr,cg,cb,40);
-        ptsB[2] = LineVertex(0,(data_midifx_len-MIDIFX_OFS)*band_width+ofs_band,cr,cg,cb,160);
-        ptsB[3] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS)*band_width+ofs_band, cr,cg,cb,160);
+        ptsB[0] = LineVertex(0,(data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/,cr,cg,cb,40);
+        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/,  cr,cg,cb,40);
+        ptsB[2] = LineVertex(0,(data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/,cr,cg,cb,160);
+        ptsB[3] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/, cr,cg,cb,160);
         
     }
 	glLineWidth(2.0f);

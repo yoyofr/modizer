@@ -20,6 +20,7 @@
     IBOutlet WebBrowser *webBrowser;
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet UIBarButtonItem *playerButton;
+    IBOutlet UITableView *tableView;
     
     UIViewController *collectionViewController;
 }
@@ -28,6 +29,7 @@
 @property (nonatomic, retain) IBOutlet WebBrowser *webBrowser;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) UIViewController *collectionViewController;
 
 

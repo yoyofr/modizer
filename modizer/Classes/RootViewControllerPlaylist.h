@@ -14,7 +14,7 @@
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerPlaylist : UITableViewController <UISearchBarDelegate> {
+@interface RootViewControllerPlaylist : UIViewController <UISearchBarDelegate,UIActionSheetDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
@@ -24,7 +24,7 @@
     
     NSFileManager *mFileMngr;
 	
-    IBOutlet UITableView *tabView;
+    IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;	
 	
@@ -75,7 +75,7 @@
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
-@property (nonatomic, retain) IBOutlet UITableView *tabView;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
 @property (nonatomic, retain) NSArray *list;
