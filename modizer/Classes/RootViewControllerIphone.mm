@@ -55,7 +55,7 @@ volatile int db_checked=0;
 @synthesize detailViewController;
 @synthesize downloadViewController;
 @synthesize webBrowser;
-@synthesize tabView,sBar;
+@synthesize tableView,sBar;
 @synthesize list;
 @synthesize keys;
 @synthesize currentPath;

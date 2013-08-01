@@ -1,5 +1,6 @@
 // snes_spc 0.9.0. http://www.slack.net/~ant/
 
+#include "stdio.h"
 #include "Spc_Dsp.h"
 
 #include "blargg_endian.h"
@@ -863,7 +864,10 @@ inline void Spc_Dsp::voice_output( voice_t const* v, int ch )
 		m.t_echo_out [ch] += amp;
 		CLAMP16( m.t_echo_out [ch] );
 	}
+
+    
 }
+
 VOICE_CLOCK( V4 )
 {
 	// Decode BRR

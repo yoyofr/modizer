@@ -37,7 +37,7 @@ static volatile int mPopupAnimation=0;
 
 @synthesize mFileMngr;
 @synthesize detailViewController;
-@synthesize tabView,sBar;
+@synthesize sBar;
 @synthesize list;
 @synthesize keys;
 @synthesize currentPath;

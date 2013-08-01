@@ -42,7 +42,7 @@
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet DownloadViewController *downloadViewController;
     IBOutlet WebBrowser *webBrowser;
-    IBOutlet UITableView *tabView;
+    IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;
 	
@@ -130,7 +130,7 @@
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet WebBrowser *webBrowser;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
-@property (nonatomic, retain) IBOutlet UITableView *tabView;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 @property (nonatomic, retain) UIViewController *childController;
 

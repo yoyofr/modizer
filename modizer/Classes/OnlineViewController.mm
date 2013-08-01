@@ -14,6 +14,7 @@
 
 @implementation OnlineViewController
 
+@synthesize tableView;
 @synthesize downloadViewController,webBrowser,collectionViewController,detailViewController,playerButton;
 
 

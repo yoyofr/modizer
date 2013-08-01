@@ -26,8 +26,6 @@
 	
 	UIView *waitingView;
 	
-    IBOutlet UITableView *tabView;
-
 	IBOutlet UISearchBar *sBar;
     
     NSMutableArray *list;
@@ -70,7 +68,6 @@
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
-@property (nonatomic, retain) IBOutlet UITableView *tabView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
 @property (nonatomic, retain) NSArray *list;
