@@ -12,6 +12,9 @@
 #import "RootViewControllerStruct.h"
 #import "fex.h"
 
+
+
+
 @class DetailViewControllerIphone;
 
 @interface RootViewControllerPlaylist : UIViewController <UISearchBarDelegate,UIActionSheetDelegate> {
@@ -24,7 +27,6 @@
     
     NSFileManager *mFileMngr;
 	
-    IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;	
 	
@@ -48,9 +50,7 @@
 	
 	int search_local;
 	
-	t_playlist *playlist;
-	int mFreePlaylist;
-	int show_playlist;
+	
 	int mRenamePlaylist;
 	
 	int mSlowDevice;
@@ -65,7 +65,12 @@
 	UIAlertView *alertAlreadyAvail;
 
 	int mClickedPrimAction;
-@public    
+@public
+    IBOutlet UITableView *tableView;
+
+    t_playlist *playlist;
+	int mFreePlaylist;
+    int show_playlist;
     int browse_depth;
     IBOutlet DetailViewControllerIphone *detailViewController;	
 	IBOutlet UIBarButtonItem *playerButton; 

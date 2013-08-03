@@ -51,7 +51,20 @@ void AdPlug_LogWrite(const char *fmt, ...)
 
 #else
 
+//#include <stdio.h>
+//#include <stdarg.h>
+
+
 void AdPlug_LogFile(char *filename) { }
 void AdPlug_LogWrite(char *fmt, ...) { }
+/*    va_list argptr;
+    
+    va_start(argptr, fmt);
+    
+    vprintf(fmt, argptr);
+    
+    va_end(argptr);
+}*/
+//#define AdPlug_LogWrite printf
 
 #endif

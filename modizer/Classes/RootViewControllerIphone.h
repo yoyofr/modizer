@@ -9,11 +9,8 @@
 #define SHOW_SUDIR_MIN_LEVEL 1
 
 #define MENU_ROOTLEVEL 0
-#define MENU_BROWSE_PLAYLIST_ROOTLEVEL 1
 #define MENU_COLLECTIONS_ROOTLEVEL 0
 #define MENU_BROWSER_LOCAL_ROOTLEVEL 1
-#define MENU_BROWSER_PLAYLIST_ROOTLEVEL 2
-#define MENU_PLAYLIST_ROOTLEVEL 1
 #define MENU_COLLECTION_MODLAND_ROOTLEVEL 1
 #define MENU_COLLECTIONS_MODLAND_FAF_1 2
 #define MENU_COLLECTIONS_MODLAND_FAF_2 3
@@ -73,11 +70,6 @@
 	
 	int search_local;
 	
-	t_playlist *playlist;
-	int mFreePlaylist;
-	int show_playlist;
-	int mRenamePlaylist;
-	
 	t_dbHVSC_browse_entry *dbHVSC_entries_data;
 	int dbHVSC_entries_count[27];
 	t_dbHVSC_browse_entry *dbHVSC_entries[27];
@@ -106,7 +98,7 @@
 
 	NSString *currentPath;
 	int browse_depth;
-	int browse_mode; //0:playlist, 1:local, 2:modland
+	int browse_mode; //1:local, 2:modland
 	int modland_browse_mode;
 	int mSearch;
 	NSString *mSearchText;
@@ -141,7 +133,6 @@
 
 -(IBAction)goPlayer;
 
-- (void)freePlaylist;
 -(void) refreshMODLANDView;
 -(int) deleteStatsDirDB:(NSString*)fullpath;
 -(int) deleteStatsFileDB:(NSString*)fullpath;
@@ -150,8 +141,6 @@
 
 -(NSString*) getCompletePath:(int)id_mod;
 - (void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
-
--(bool) removeFromPlaylistDB:(NSString*)id_playlist fullPath:(NSString*)fullpath;
 
 -(void) fillKeysWithDB_fileType:(int)authorID;
 -(void) fillKeysWithDB_fileType;
@@ -163,7 +152,6 @@
 -(void) fillKeysWithDB_filename:(int)filetypeID fileAuthorID:(int)authorID fileAlbumID:(int)albumID;
 -(void) loadFavoritesList;
 -(void) loadMostPlayedList;
--(void) loadPlayListsListFromDB:(NSMutableArray*)entries list_id:(NSMutableArray*)list_id;
 
 -(void) fillKeysWithHVSCDB_Dir1;
 -(void) fillKeysWithHVSCDB_Dir2:(NSString*)dir1;
@@ -172,12 +160,8 @@
 -(void) fillKeysWithHVSCDB_Dir5:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4;
 -(void) fillKeysWithHVSCDB_AllDirs:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4 dir5:(NSString*)dir5;
 
--(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath;
--(bool) addListToPlaylistDB;
--(NSString *) initNewPlaylistDB:(NSString *)listName;
 -(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating;
 
--(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries;
 
 - (void)createSamplesFromPackage:(BOOL)forceCreate;
 -(NSString*) getCompleteLocalPath:(int)id_mod;

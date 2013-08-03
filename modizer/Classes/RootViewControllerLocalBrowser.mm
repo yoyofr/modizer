@@ -112,7 +112,7 @@ static volatile int mPopupAnimation=0;
 	//self.tableView.pagingEnabled;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.tableView.sectionHeaderHeight = 18;
-	self.tableView.rowHeight = 50;
+	self.tableView.rowHeight = 40;
 	
 	shouldFillKeys=1;
 	mSearch=0;
@@ -1259,7 +1259,53 @@ static volatile int mPopupAnimation=0;
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        
+        cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
+        [cell setBackgroundColor:[UIColor clearColor]];
+        CAGradientLayer *gradient = [CAGradientLayer layer];
+        gradient.frame = cell.bounds;
+        gradient.colors = [NSArray arrayWithObjects:
+                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:245.0/255.0 green:245.0/255.0 blue:245.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           nil];
+        gradient.locations = [NSArray arrayWithObjects:
+                              (id)[NSNumber numberWithFloat:0.00f],
+                              (id)[NSNumber numberWithFloat:0.03f],
+                              (id)[NSNumber numberWithFloat:0.03f],
+                              (id)[NSNumber numberWithFloat:0.97f],
+                              (id)[NSNumber numberWithFloat:0.97f],
+                              (id)[NSNumber numberWithFloat:1.00f],
+                              nil];
+        [cell setBackgroundView:[[UIView alloc] init]];
+        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
+        
+        CAGradientLayer *selgrad = [CAGradientLayer layer];
+        selgrad.frame = cell.bounds;
+        selgrad.colors = [NSArray arrayWithObjects:
+                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*240.0/255.0 green:0.99f*240.0/255.0 blue:0.9f*240.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*245.0/255.0 green:0.99f*245.0/255.0 blue:0.9f*245.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
+                          
+                          nil];
+        selgrad.locations = [NSArray arrayWithObjects:
+                             (id)[NSNumber numberWithFloat:0.00f],
+                             (id)[NSNumber numberWithFloat:0.03f],
+                             (id)[NSNumber numberWithFloat:0.03f],
+                             (id)[NSNumber numberWithFloat:0.97f],
+                             (id)[NSNumber numberWithFloat:0.97f],
+                             (id)[NSNumber numberWithFloat:1.00f],
+                             nil];
+        
+        [cell setSelectedBackgroundView:[[UIView alloc] init]];
+        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
         //
         // Create the label for the top row of text
         //
@@ -1273,7 +1319,7 @@ static volatile int mPopupAnimation=0;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
-        topLabel.font = [UIFont boldSystemFontOfSize:20];
+        topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
         
@@ -1621,87 +1667,46 @@ static volatile int mPopupAnimation=0;
             // launch Play of current list
             int pos=0;
             int total_entries=0;
-            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-            for (int i=0;i<27;i++) 
-                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+            
+            t_playlist pl;
+            pl.nb_entries=0;
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++) {
                     if (cur_local_entries[i][j].type&3) {
-                        total_entries++;
-                        [array_label addObject:cur_local_entries[i][j].label];
-                        [array_path addObject:cur_local_entries[i][j].fullpath];
+                        
+                        pl.entries[pl.nb_entries].label=cur_local_entries[i][j].label;
+                        pl.entries[pl.nb_entries].fullpath=cur_local_entries[i][j].fullpath;
+                        pl.entries[pl.nb_entries].ratings=cur_local_entries[i][j].rating;
+                        pl.entries[pl.nb_entries].playcounts=cur_local_entries[i][j].playcount;
+                        pl.nb_entries++;
+                        
                         if (i<section) pos++;
-                        else if (i==(section))
-                            if (j<indexPath.row) pos++;
+                        else if ((i==(section))&&(j<indexPath.row)) pos++;
                     }
+                }
+            }
+            if (section<0) {
+                pos=-1;
+            }
+            [detailViewController play_listmodules:&pl start_index:pos];
             
-            signed char *tmp_ratings;
-            short int *tmp_playcounts;
-            tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-            tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-            total_entries=0;
-            for (int i=0;i<27;i++) 
-                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                    if (cur_local_entries[i][j].type&3) {
-                        tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                        tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                    }			
-            
-            //cur_local_entries[section][indexPath.row].rating=-1;
-            
-            if (section<0) pos=-1;
-            [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
             if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-            else [[super tableView] reloadData];				
-            
-            free(tmp_ratings);
-            free(tmp_playcounts);
-            
-            
-        } else {            
+            else [[super tableView] reloadData];
+        } else {
             if (cur_local_entries[section][indexPath.row].type&3) {//File selected
-                // launch Play of current dir
-                int pos=0;
-                int total_entries=0;
-                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                /*for (int i=0;i<27;i++) 
-                 for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                 if (cur_local_entries[i][j].type==1) {
-                 total_entries++;
-                 [array_label addObject:cur_local_entries[i][j].label];
-                 [array_path addObject:cur_local_entries[i][j].fullpath];
-                 if (i<section) pos++;
-                 else if (i==(section))
-                 if (j<indexPath.row) pos++;
-                 }*/
-                [array_label addObject:cur_local_entries[section][indexPath.row].label];
-                [array_path addObject:cur_local_entries[section][indexPath.row].fullpath];
-                total_entries=1;
-                
-                signed char *tmp_ratings;
-                short int *tmp_playcounts;
-                tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-                tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-                /*total_entries=0;
-                 for (int i=0;i<27;i++) 
-                 for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                 if (cur_local_entries[i][j].type==1) {
-                 tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                 tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                 }			
-                 */
-                tmp_ratings[0]=cur_local_entries[section][indexPath.row].rating;
-                tmp_playcounts[0]=cur_local_entries[section][indexPath.row].playcount;
-                
-                
+                // launch Play
+                t_playlist pl;
+                pl.nb_entries=1;
+                pl.entries[0].label=cur_local_entries[section][indexPath.row].label;
+                pl.entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
+                pl.entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
+                pl.entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
+                [detailViewController play_listmodules:&pl start_index:0];
                 
                 cur_local_entries[section][indexPath.row].rating=-1;
-                [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
+                [detailViewController play_listmodules:&pl start_index:0];
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                 else [[super tableView] reloadData];				
-                
-                free(tmp_ratings);
-                free(tmp_playcounts);
                 
             }
         }
@@ -1923,47 +1928,14 @@ static volatile int mPopupAnimation=0;
             } else {  //File selected
                 
                 if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
-                    // launch Play of current dir
-                    int pos=0;
-                    int total_entries=0;
-                    NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                    NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                    /*for (int i=0;i<27;i++) 
-                     for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                     if (cur_local_entries[i][j].type==1) {
-                     total_entries++;
-                     [array_label addObject:cur_local_entries[i][j].label];
-                     [array_path addObject:cur_local_entries[i][j].fullpath];
-                     if (i<section) pos++;
-                     else if (i==(section))
-                     if (j<indexPath.row) pos++;
-                     }
-                     */
-                    total_entries=1;
-                    [array_label addObject:cur_local_entries[section][indexPath.row].label];
-                    [array_path addObject:cur_local_entries[section][indexPath.row].fullpath];
-                    
-                    
-                    signed char *tmp_ratings;
-                    short int *tmp_playcounts;
-                    tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-                    tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-                    total_entries=0;
-                    /*for (int i=0;i<27;i++) 
-                     for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                     if (cur_local_entries[i][j].type==1) {
-                     tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                     tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                     }			
-                     
-                     */
-                    tmp_ratings[0]=cur_local_entries[section][indexPath.row].rating;
-                    tmp_playcounts[0]=cur_local_entries[section][indexPath.row].playcount;
-                    
-                    [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
-                    
-                    free(tmp_ratings);
-                    free(tmp_playcounts);
+                    // launch Play
+                    t_playlist pl;
+                    pl.nb_entries=1;
+                    pl.entries[0].label=cur_local_entries[section][indexPath.row].label;
+                    pl.entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
+                    pl.entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
+                    pl.entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
+                    [detailViewController play_listmodules:&pl start_index:0];
                     
                     cur_local_entries[section][indexPath.row].rating=-1;
                     if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];

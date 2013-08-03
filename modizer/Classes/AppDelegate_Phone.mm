@@ -134,28 +134,14 @@ pthread_mutex_t play_mutex;
         r=[filepath rangeOfString:@"Documents/"];
         if (r.location!=NSNotFound) {
             NSString *shortfilepath=[filepath substringFromIndex:r.location];
-            //if (detailViewControlleriPhone.sc_DefaultAction.selectedSegmentIndex==0)
-            //[detailViewControlleriPhone add_to_playlist:shortfilepath fileName:[shortfilepath lastPathComponent]  forcenoplay:0];
             
-            int pos=0;
-            int total_entries=0;
-            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-            [array_label addObject:[shortfilepath lastPathComponent]];
-            [array_path addObject:shortfilepath];
-            total_entries=1;
-            
-            signed char *tmp_ratings;
-            short int *tmp_playcounts;
-            tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-            tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-            tmp_ratings[0]=-1;
-            tmp_playcounts[0]=0;
-            
-            [detailViewControlleriPhone play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
-            
-            free(tmp_ratings);
-            free(tmp_playcounts);
+            t_playlist pl;
+            pl.nb_entries=1;
+            pl.entries[0].label=[shortfilepath lastPathComponent];
+            pl.entries[0].fullpath=shortfilepath;
+            pl.entries[0].ratings=-1;
+            pl.entries[0].playcounts=0;
+            [detailViewControlleriPhone play_listmodules:&pl start_index:0];
         }
     }
 
@@ -175,28 +161,15 @@ pthread_mutex_t play_mutex;
         r=[filepath rangeOfString:@"Documents/"];
         if (r.location!=NSNotFound) {
             NSString *shortfilepath=[filepath substringFromIndex:r.location];
-            //if (detailViewControlleriPhone.sc_DefaultAction.selectedSegmentIndex==0)
-            //[detailViewControlleriPhone add_to_playlist:shortfilepath fileName:[shortfilepath lastPathComponent]  forcenoplay:0];
+
+            t_playlist pl;
+            pl.nb_entries=1;
+            pl.entries[0].label=[shortfilepath lastPathComponent];
+            pl.entries[0].fullpath=shortfilepath;
+            pl.entries[0].ratings=-1;
+            pl.entries[0].playcounts=0;
+            [detailViewControlleriPhone play_listmodules:&pl start_index:0];
             
-            int pos=0;
-            int total_entries=0;
-            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-            [array_label addObject:[shortfilepath lastPathComponent]];
-            [array_path addObject:shortfilepath];
-            total_entries=1;
-            
-            signed char *tmp_ratings;
-            short int *tmp_playcounts;
-            tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-            tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
-            tmp_ratings[0]=-1;
-            tmp_playcounts[0]=0;
-            
-            [detailViewControlleriPhone play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];            
-            
-            free(tmp_ratings);
-            free(tmp_playcounts);
         }
     }
 }

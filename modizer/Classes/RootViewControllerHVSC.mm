@@ -141,7 +141,7 @@ static volatile int mPopupAnimation=0;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.tableView.sectionHeaderHeight = 18;
 	//self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-	self.tableView.rowHeight = 50;
+	self.tableView.rowHeight = 40;
     //self.tableView.backgroundColor = [UIColor clearColor];
 //	self.tableView.backgroundColor = [UIColor blackColor];
 	
@@ -1384,7 +1384,53 @@ static volatile int mPopupAnimation=0;
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        
+        cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
+        [cell setBackgroundColor:[UIColor clearColor]];
+        CAGradientLayer *gradient = [CAGradientLayer layer];
+        gradient.frame = cell.bounds;
+        gradient.colors = [NSArray arrayWithObjects:
+                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:245.0/255.0 green:245.0/255.0 blue:245.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           nil];
+        gradient.locations = [NSArray arrayWithObjects:
+                              (id)[NSNumber numberWithFloat:0.00f],
+                              (id)[NSNumber numberWithFloat:0.03f],
+                              (id)[NSNumber numberWithFloat:0.03f],
+                              (id)[NSNumber numberWithFloat:0.97f],
+                              (id)[NSNumber numberWithFloat:0.97f],
+                              (id)[NSNumber numberWithFloat:1.00f],
+                              nil];
+        [cell setBackgroundView:[[UIView alloc] init]];
+        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
+        
+        CAGradientLayer *selgrad = [CAGradientLayer layer];
+        selgrad.frame = cell.bounds;
+        selgrad.colors = [NSArray arrayWithObjects:
+                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*240.0/255.0 green:0.99f*240.0/255.0 blue:0.9f*240.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*245.0/255.0 green:0.99f*245.0/255.0 blue:0.9f*245.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
+                          
+                          nil];
+        selgrad.locations = [NSArray arrayWithObjects:
+                             (id)[NSNumber numberWithFloat:0.00f],
+                             (id)[NSNumber numberWithFloat:0.03f],
+                             (id)[NSNumber numberWithFloat:0.03f],
+                             (id)[NSNumber numberWithFloat:0.97f],
+                             (id)[NSNumber numberWithFloat:0.97f],
+                             (id)[NSNumber numberWithFloat:1.00f],
+                             nil];
+        
+        [cell setSelectedBackgroundView:[[UIView alloc] init]];
+        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
         //
         // Create the label for the top row of text
         //
@@ -1398,7 +1444,7 @@ static volatile int mPopupAnimation=0;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
-        topLabel.font = [UIFont boldSystemFontOfSize:20];
+        topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
         

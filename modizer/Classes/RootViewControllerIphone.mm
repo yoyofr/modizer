@@ -432,8 +432,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	//self.tableView.pagingEnabled;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.tableView.sectionHeaderHeight = 18;
-	//self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-	self.tableView.rowHeight = 50;
+	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+	self.tableView.rowHeight = 40;
     //self.tableView.backgroundColor = [UIColor clearColor];
 //	self.tableView.backgroundColor = [UIColor blackColor];
 	
@@ -457,12 +457,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	db_hasFiles=0;
 	
 	mSearchText=nil;
-	mRenamePlaylist=0;
 	mCurrentWinAskedDownload=0;
 	mClickedPrimAction=0;
 	list=nil;
 	keys=nil;
-	mFreePlaylist=0;
 	
 	if (browse_depth==MENU_COLLECTIONS_ROOTLEVEL) {
 		mFiletypeID=mAuthorID=mAlbumID=-1;
@@ -1037,7 +1035,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (browse_depth==0) return nil;
     if (mSearch) return nil;	
-    if (show_playlist) return nil;
     if ((browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)||(browse_mode==BROWSE_WEB_MODE)||(browse_mode==BROWSE_WORLDCHARTS_MODE)||(browse_mode==BROWSE_USERGUIDE_MODE)) return nil;
     if (browse_depth>=2) return [indexTitles objectAtIndex:section];
     return nil;
@@ -1099,7 +1096,53 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        
+        cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
+        [cell setBackgroundColor:[UIColor clearColor]];
+        CAGradientLayer *gradient = [CAGradientLayer layer];
+        gradient.frame = cell.bounds;
+        gradient.colors = [NSArray arrayWithObjects:
+                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:245.0/255.0 green:245.0/255.0 blue:245.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           nil];
+        gradient.locations = [NSArray arrayWithObjects:
+                              (id)[NSNumber numberWithFloat:0.00f],
+                              (id)[NSNumber numberWithFloat:0.03f],
+                              (id)[NSNumber numberWithFloat:0.03f],
+                              (id)[NSNumber numberWithFloat:0.97f],
+                              (id)[NSNumber numberWithFloat:0.97f],
+                              (id)[NSNumber numberWithFloat:1.00f],
+                              nil];
+        [cell setBackgroundView:[[UIView alloc] init]];
+        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
+        
+        CAGradientLayer *selgrad = [CAGradientLayer layer];
+        selgrad.frame = cell.bounds;
+        selgrad.colors = [NSArray arrayWithObjects:
+                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*240.0/255.0 green:0.99f*240.0/255.0 blue:0.9f*240.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*245.0/255.0 green:0.99f*245.0/255.0 blue:0.9f*245.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
+                          
+                          nil];
+        selgrad.locations = [NSArray arrayWithObjects:
+                             (id)[NSNumber numberWithFloat:0.00f],
+                             (id)[NSNumber numberWithFloat:0.03f],
+                             (id)[NSNumber numberWithFloat:0.03f],
+                             (id)[NSNumber numberWithFloat:0.97f],
+                             (id)[NSNumber numberWithFloat:0.97f],
+                             (id)[NSNumber numberWithFloat:1.00f],
+                             nil];
+        
+        [cell setSelectedBackgroundView:[[UIView alloc] init]];
+        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
         //
         // Create the label for the top row of text
         //
@@ -1113,7 +1156,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
-        topLabel.font = [UIFont boldSystemFontOfSize:20];
+        topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
         
@@ -1152,7 +1195,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         secActionView.tag = SECACT_IMAGE_TAG;
         
         cell.accessoryView=nil;
-        cell.selectionStyle=UITableViewCellSelectionStyleGray;
+//        cell.selectionStyle=UITableViewCellSelectionStyleGray;
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
@@ -1192,9 +1235,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         } else if (indexPath.row==BROWSE_HVSC_MODE) {
             //topLabel.textColor=[UIColor colorWithRed:0.5f green:0.2f blue:0.6f alpha:1.0f];			
             bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Browser_HVSC_SubKey",@""),mNbHVSCFileEntries];
-        } else if (indexPath.row==BROWSE_PLAYLIST_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.2f green:0.1f blue:0.7f alpha:1.0f];
-            bottomLabel.text=NSLocalizedString(@"Browser_Playlists_SubKey",@"");
         } else if (indexPath.row==BROWSE_RATED_MODE) {
             //topLabel.textColor=[UIColor colorWithRed:0.5f green:0.2f blue:0.6f alpha:1.0f];
             bottomLabel.text=NSLocalizedString(@"Browser_Favorites_SubKey",@"");
@@ -1391,20 +1431,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         // Delete the row from the data source
         
         //delete entry
-        
-        if (show_playlist&&(indexPath.row>=2)) { //delete playlist entry			
-            [playlist->label[indexPath.row-2] release];
-            [playlist->fullpath[indexPath.row-2] release];
-            for (int i=indexPath.row-1;i<playlist->nb_entries;i++) {
-                playlist->label[i-1]=playlist->label[i];
-                playlist->fullpath[i-1]=playlist->fullpath[i];
-                playlist->ratings[i-1]=playlist->ratings[i];
-                playlist->playcounts[i-1]=playlist->playcounts[i];
-            }
-            playlist->nb_entries--;
-            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            [self replacePlaylistDBwithCurrent];
-        }
         if (browse_mode==BROWSE_RATED_MODE) {
             short int playcount;
             signed char rating;
@@ -1789,21 +1815,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             [self.navigationController pushViewController:childController animated:YES];	
             [keys release];keys=nil;
             [list release];list=nil;
-        }  else if (indexPath.row==BROWSE_PLAYLIST_MODE) {
-            if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-            else {			// Don't cache childviews
-            }
-            //set new title
-            childController.title = cellValue;
-            // Set new directory
-            ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
-            ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
-            // And push the window
-            [self.navigationController pushViewController:childController animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        }else {
+        }  else {
             if (childController == nil) childController = [[RootViewControllerIphone alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
             else {			// Don't cache childviews
             }
@@ -2023,24 +2035,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     // Relinquish ownership of anything that can be recreated in viewDidLoad or on demand.
     // For example: self.myOutlet = nil;;
 }
-- (void)freePlaylist {
-    if (playlist) {
-        for (int i=0;i<playlist->nb_entries;i++) {
-            [playlist->label[i] release];
-            [playlist->fullpath[i] release];
-        }
-        if (playlist->playlist_name) {
-            [playlist->playlist_name release];
-            playlist->playlist_name=nil;
-        }
-        if (playlist->playlist_id) {
-            [playlist->playlist_id release];
-            playlist->playlist_id=nil;
-        }
-        free(playlist);
-        playlist=NULL;
-    }
-}
 - (void)dealloc {
     [waitingView removeFromSuperview];
     [waitingView release];
@@ -2050,7 +2044,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         [mSearchText release];
         mSearchText=nil;
     }
-    if (mFreePlaylist) [self freePlaylist];
     if (keys) {
         [keys release];
         keys=nil;

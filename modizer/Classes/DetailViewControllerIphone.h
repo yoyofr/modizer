@@ -51,7 +51,7 @@ struct Resources;
 class CFont;
 class CGLString;
 
-@interface DetailViewControllerIphone : UIViewController <UITableViewDelegate,UIPickerViewDataSource, UIPickerViewDelegate,  UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UIPickerViewDataSource, UIPickerViewDelegate,  UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
     
     //CoverFlow
@@ -112,8 +112,7 @@ class CGLString;
 
 	IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning;
 	IBOutlet UITextView *textMessage;
-	IBOutlet UITableView *playlistTabView;
-	IBOutlet UIView *playlistView,*detailView,*commandViewU,*mainView,*infoView;
+	IBOutlet UIView *detailView,*commandViewU,*mainView,*infoView;
 	IBOutlet UIView *infoMsgView;
 	IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
 	
@@ -166,6 +165,7 @@ class CGLString;
 	
 	
 	BOOL mShuffle;
+    int mShouldUpdateInfos;
 	int mLoopMode;
 	int mMoveStartChanLeft;
 	int mMoveStartChanRight;
@@ -187,8 +187,8 @@ class CGLString;
 @property (retain,nonatomic) TKCoverflowView *coverflow; 
 @property (retain,nonatomic) UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
 @property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
-//@property (retain,nonatomic) OouraFFT *myFFTl,*myFFTr;
-//
+@property (atomic) BOOL mShuffle;
+@property (atomic) int mShouldUpdateInfos;
 
 -(IBAction)optGENTitleFilename;
 
@@ -211,7 +211,6 @@ class CGLString;
 -(void) longPressPrevSubArc:(UIGestureRecognizer *)gestureRecognizer;
 
 - (IBAction)showPlaylist;
-- (IBAction)hidePlaylist;
 
 - (IBAction)showInfo;
 - (IBAction)hideInfo;
@@ -241,7 +240,7 @@ class CGLString;
 -(void)play_restart;
 
 -(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths ratings:(signed char*)ratings playcounts:(short int*)playcounts;
--(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths;
+-(void)play_listmodules:(t_playlist*)pl start_index:(int)index;
 -(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName;
 
 -(void) updateInfos: (NSTimer *) theTimer;
@@ -275,12 +274,6 @@ class CGLString;
 -(IBAction) optGLOB_Panning;
 -(IBAction) optGLOB_PanningValue;
 
--(IBAction) plSortAZ;
--(IBAction) plSortZA;
--(IBAction) plShuffle;
--(IBAction) plClear;
--(IBAction) plEdit;
--(IBAction) plDone;
 
 -(IBAction) oglButtonPushed;
 
@@ -299,8 +292,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_allowPopup,*sc_titleFilename;
 @property (nonatomic, retain) IBOutlet UIButton *btnSortPlAZ,*btnSortPlZA,*btnPlShuffle,*btnPlClear,*btnPlEdit,*btnPlOk,*btnChangeTime;
-@property (nonatomic, retain) IBOutlet UITableView *playlistTabView;
-@property (nonatomic, retain) IBOutlet UIView *playlistView,*mainView,*infoView;
+@property (nonatomic, retain) IBOutlet UIView *mainView,*infoView;
 @property (nonatomic, retain) IBOutlet UIButton *rating1,*rating1off,*rating2,*rating2off,*rating3,*rating3off,*rating4,*rating4off,*rating5,*rating5off;
 @property (nonatomic, retain) IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
 @property (nonatomic, retain) IBOutlet UIButton *infoButton,*backInfo,*backPlaylist,*infoZoom,*infoUnzoom,*plZoom,*plUnzoom;
