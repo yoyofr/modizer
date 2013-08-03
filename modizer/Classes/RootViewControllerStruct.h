@@ -20,16 +20,22 @@ typedef struct {
 } t_local_browse_entry;
 
 typedef struct {
-	NSString *label[MAX_PL_ENTRIES];
-	NSString *fullpath[MAX_PL_ENTRIES];
-	int nb_entries;
+	NSString *label;
+	NSString *fullpath;
+	int song_length;
+	int songs;
+	short int playcounts;
+	signed char ratings;
+	char channels_nb;
+} t_playlist_entry;
+
+
+typedef struct {
 	NSString *playlist_name,*playlist_id;
-	int song_length[MAX_PL_ENTRIES];
-	int songs[MAX_PL_ENTRIES];
-	short int playcounts[MAX_PL_ENTRIES];
-	signed char ratings[MAX_PL_ENTRIES];	
-	char channels_nb[MAX_PL_ENTRIES];
+	int nb_entries;
+	t_playlist_entry entries[MAX_PL_ENTRIES];
 } t_playlist;
+
 
 typedef struct {
 	NSString *label;

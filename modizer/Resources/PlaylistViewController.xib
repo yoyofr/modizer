@@ -46,7 +46,6 @@
 								<string key="NSFrameSize">{320, 44}</string>
 								<reference key="NSSuperview" ref="798868647"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<int key="IBUIContentMode">3</int>
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
@@ -61,8 +60,8 @@
 						<reference key="NSWindow"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<object class="NSColor" key="IBUIBackgroundColor">
-							<int key="NSColorSpace">3</int>
-							<bytes key="NSWhite">MQA</bytes>
+							<int key="NSColorSpace">1</int>
+							<bytes key="NSRGB">MC45NDk5NzYwODQyIDAuOTQ5OTc2MDg0MiAwLjk0OTk3NjA4NDIAA</bytes>
 						</object>
 						<object class="IBUIScreenMetrics" key="IBUISimulatedDestinationMetrics">
 							<string key="IBUISimulatedSizeMetricsClass">IBUIScreenMetrics</string>
@@ -83,7 +82,10 @@
 						</object>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 						<bool key="IBUIAlwaysBounceVertical">YES</bool>
-						<int key="IBUISeparatorStyle">1</int>
+						<object class="NSColor" key="IBUISeparatorColor">
+							<int key="NSColorSpace">3</int>
+							<bytes key="NSWhite">MCAwAA</bytes>
+						</object>
 						<int key="IBUISectionIndexMinimumDisplayRowCount">0</int>
 						<bool key="IBUIShowsSelectionImmediatelyOnTouchBegin">YES</bool>
 						<float key="IBUIRowHeight">44</float>
@@ -246,10 +248,10 @@
 						<string key="ADPLUG_OptChanged">id</string>
 						<string key="AOSDK_OptChanged">id</string>
 						<string key="SEXYPSF_OptChanged">id</string>
+						<string key="backPushed:">id</string>
 						<string key="changeLoopMode">id</string>
 						<string key="changeTimeDisplay">id</string>
 						<string key="hideInfo">id</string>
-						<string key="hidePlaylist">id</string>
 						<string key="infoFullscreen">id</string>
 						<string key="infoNormal">id</string>
 						<string key="oglButtonPushed">id</string>
@@ -278,14 +280,8 @@
 						<string key="optUADE_PanValue">id</string>
 						<string key="optUADE_PostFX">id</string>
 						<string key="pausePushed:">id</string>
-						<string key="plClear">id</string>
-						<string key="plDone">id</string>
-						<string key="plEdit">id</string>
 						<string key="plFullscreen">id</string>
 						<string key="plNormal">id</string>
-						<string key="plShuffle">id</string>
-						<string key="plSortAZ">id</string>
-						<string key="plSortZA">id</string>
 						<string key="playNext">id</string>
 						<string key="playNextSub">id</string>
 						<string key="playPrev">id</string>
@@ -322,6 +318,10 @@
 							<string key="name">SEXYPSF_OptChanged</string>
 							<string key="candidateClassName">id</string>
 						</object>
+						<object class="IBActionInfo" key="backPushed:">
+							<string key="name">backPushed:</string>
+							<string key="candidateClassName">id</string>
+						</object>
 						<object class="IBActionInfo" key="changeLoopMode">
 							<string key="name">changeLoopMode</string>
 							<string key="candidateClassName">id</string>
@@ -332,10 +332,6 @@
 						</object>
 						<object class="IBActionInfo" key="hideInfo">
 							<string key="name">hideInfo</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="hidePlaylist">
-							<string key="name">hidePlaylist</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="infoFullscreen">
@@ -450,36 +446,12 @@
 							<string key="name">pausePushed:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="plClear">
-							<string key="name">plClear</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="plDone">
-							<string key="name">plDone</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="plEdit">
-							<string key="name">plEdit</string>
-							<string key="candidateClassName">id</string>
-						</object>
 						<object class="IBActionInfo" key="plFullscreen">
 							<string key="name">plFullscreen</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="plNormal">
 							<string key="name">plNormal</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="plShuffle">
-							<string key="name">plShuffle</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="plSortAZ">
-							<string key="name">plSortAZ</string>
-							<string key="candidateClassName">id</string>
-						</object>
-						<object class="IBActionInfo" key="plSortZA">
-							<string key="name">plSortZA</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="playNext">
@@ -637,8 +609,6 @@
 						<string key="playBar">UIToolbar</string>
 						<string key="playBarSub">UIToolbar</string>
 						<string key="playlistPos">UILabel</string>
-						<string key="playlistTabView">UITableView</string>
-						<string key="playlistView">UIView</string>
 						<string key="pvArcLabel">UILabel</string>
 						<string key="pvArcSel">UIPickerView</string>
 						<string key="pvArcValidate">UIButton</string>
@@ -985,14 +955,6 @@
 						<object class="IBToOneOutletInfo" key="playlistPos">
 							<string key="name">playlistPos</string>
 							<string key="candidateClassName">UILabel</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="playlistTabView">
-							<string key="name">playlistTabView</string>
-							<string key="candidateClassName">UITableView</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="playlistView">
-							<string key="name">playlistView</string>
-							<string key="candidateClassName">UIView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="pvArcLabel">
 							<string key="name">pvArcLabel</string>

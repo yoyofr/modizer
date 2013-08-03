@@ -40,6 +40,7 @@
 
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerIphone.h"
+#import "RootViewControllerPlaylist.h"
 #import <MediaPlayer/MediaPlayer.h>
 
 #import "modplug.h"
@@ -77,7 +78,7 @@ static volatile int mSendStatTimer;
 static NSDate *locationLastUpdate=nil;
 static double located_lat=999,located_lon=999;
 int mDevice_hh,mDevice_ww;
-static int mShouldHaveFocusAfterBackground,mShouldUpdateInfos,mLoadIssueMessage;
+static int mShouldHaveFocusAfterBackground,mLoadIssueMessage;
 static int mRandomFXCpt,mRandomFXCptRev;
 static int infoIsFullscreen=1;
 static int plIsFullscreen=1;
@@ -112,6 +113,7 @@ static int display_length_mode=0;
 @implementation DetailViewControllerIphone
 
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
+@synthesize mShuffle,mShouldUpdateInfos;
 @synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime,btnNextCFlow,btnPrevCFlow,btnNextSubCFlow,btnPrevSubCFlow;
 @synthesize sld_DefaultLength,labelDefaultLength;
 
@@ -125,7 +127,7 @@ static int display_length_mode=0;
 @synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,btnLoopInf;
 @synthesize repeatingTimer;
 @synthesize sliderProgressModule;
-@synthesize playlistView,playlistTabView,detailView,commandViewU,volWin,playlistPos;
+@synthesize detailView,commandViewU,volWin,playlistPos;
 @synthesize surDepSld,surDelSld,revDepSld,revDelSld,bassAmoSld,bassRanSld,mastVolSld,mpPanningSld,sldFxAlpha;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
 @synthesize mainView,infoView;
@@ -391,9 +393,6 @@ static int display_length_mode=0;
 	}
 	mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
 	[self showRating:mRating];
-	[playlistTabView reloadData];
-	NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];	
 }
 
 
@@ -535,7 +534,7 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
     if (mOglViewIsHidden) {
 		m_oglView.hidden=YES;
 	} else {
-		if ((infoView.hidden==YES)&&(playlistView.hidden==YES)) {
+		if ((infoView.hidden==YES)) {
 			if (m_oglView.hidden) {
 				viewTapHelpInfo=0;//255;
 				viewTapHelpShow=0;//1; //display info panel upon activation
@@ -939,223 +938,58 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	return 1; //NSOrderedDescending
 }
 
--(IBAction) plSortAZ {
-	btnSortPlAZ.hidden=YES;
-	btnSortPlZA.hidden=NO;
-    coverflow_needredraw=1;
-    
-	NSString *curEntryPath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;	
-	qsort(mPlaylist,mPlaylist_size,sizeof(t_plPlaylist_entry),qsort_ComparePlEntries);
-	mPlaylist_pos=0;
-	while (mPlaylist[mPlaylist_pos].mPlaylistFilepath!=curEntryPath) {
-		mPlaylist_pos++;
-		if (mPlaylist_pos>=mPlaylist_size) {mPlaylist_pos=0; break;}
-	}
-	
-	[playlistTabView reloadData];
-    
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
-	mShouldUpdateInfos=1;
-}
-
-
--(IBAction) plSortZA {
-	btnSortPlAZ.hidden=NO;
-	btnSortPlZA.hidden=YES;
-    coverflow_needredraw=1;
-	
-	NSString *curEntryPath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
-	qsort(mPlaylist,mPlaylist_size,sizeof(t_plPlaylist_entry),qsort_ComparePlEntriesRev);
-	mPlaylist_pos=0;
-	while (mPlaylist[mPlaylist_pos].mPlaylistFilepath!=curEntryPath) {
-		mPlaylist_pos++;
-		if (mPlaylist_pos>=mPlaylist_size) {mPlaylist_pos=0; break;}
-	}
-	[playlistTabView reloadData];
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
-	mShouldUpdateInfos=1;
-}
-
--(IBAction) plShuffle {
-	int fromr,tor;
-	t_plPlaylist_entry tmp;
-	if (mPlaylist_size<2) return;
-    coverflow_needredraw=1;
-	for (int i=0;i<mPlaylist_size*2;i++) {
-		fromr=arc4random()%(mPlaylist_size);
-		do {
-			tor=arc4random()%(mPlaylist_size);
-		} while (tor==fromr);
-		
-		tmp=mPlaylist[fromr];
-		mPlaylist[fromr]=mPlaylist[tor];
-		mPlaylist[tor]=tmp;
-		
-		
-		if (mPlaylist_pos==fromr) mPlaylist_pos=tor;
-		else if (mPlaylist_pos==tor) mPlaylist_pos=fromr;
-	}
-	[playlistTabView reloadData];
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
-	mShouldUpdateInfos=1;
-}
-
--(IBAction) plClear {
-    coverflow_needredraw=1;
-	if (mPlaylist_size) { //ensure playlist is not empty
-		for (int i=mPlaylist_size-1;i>=0;i--) if (i!=mPlaylist_pos) {
-			[mPlaylist[i].mPlaylistFilename autorelease];
-			[mPlaylist[i].mPlaylistFilepath autorelease];
-		}
-		mPlaylist[0]=mPlaylist[mPlaylist_pos];
-		
-		mPlaylist_size=1;
-		mPlaylist_pos=0;
-		
-		mShouldUpdateInfos=1;
-	}
-	[playlistTabView reloadData];
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
-	
-}
-
--(IBAction) plEdit {
-	[playlistTabView setEditing:YES];
-	btnPlEdit.hidden=YES;
-	btnPlOk.hidden=NO;
-    coverflow_needredraw=1;
-}
-
--(IBAction) plDone {
-	[playlistTabView setEditing:NO];
-	btnPlEdit.hidden=NO;
-	btnPlOk.hidden=YES;
-	
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
-	
-}
 
 - (IBAction)showPlaylist {
-	if (!mPlaylist_size) return;
-	if (playlistView.hidden==NO) {
-		[self hidePlaylist];
-		return;
-	}
-	
-	if (infoView.hidden==NO) {
-		mPlWasView=infoView;
-		mPlWasViewHidden=infoView.hidden;
-	} else {
-		mPlWasView=m_oglView;
-		mPlWasViewHidden=m_oglView.hidden;
-	}
     
-	btnPlOk.hidden=YES;
-	btnPlEdit.hidden=NO;
-	btnSortPlAZ.hidden=NO;
-	btnSortPlZA.hidden=YES;
-	
-	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mPlWasView cache:YES];
-	mPlWasView.hidden=YES;
-	[UIView commitAnimations];
-	
-	if (plIsFullscreen) {
-		mainView.hidden=YES;
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
-		[UIView commitAnimations];
-	}
-	
-	self.playlistView.hidden=NO;
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.playlistView cache:YES];
-	[UIView commitAnimations];	
-	
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
-	
+    t_playlist* playlist=(t_playlist*)malloc(sizeof(t_playlist));
+    memset(playlist,0,sizeof(t_playlist));
+    
+    if (mPlaylist_size) { //display current queue
+        for (int i=0;i<mPlaylist_size;i++) {
+            playlist->entries[i].label=[[NSString alloc] initWithString:mPlaylist[i].mPlaylistFilename];
+            playlist->entries[i].fullpath=[[NSString alloc ] initWithString:mPlaylist[i].mPlaylistFilepath];
+            
+            if (mPlaylist[i].mPlaylistRating==-1) {
+                DBHelper::getFileStatsDBmod(mPlaylist[i].mPlaylistFilename,
+                                            mPlaylist[i].mPlaylistFilepath,
+                                            NULL,
+                                            &(mPlaylist[i].mPlaylistRating),
+                                            NULL,
+                                            NULL);
+            }
+            if (mPlaylist[i].mPlaylistRating<0) mPlaylist[i].mPlaylistRating=0;
+            if (mPlaylist[i].mPlaylistRating>5) mPlaylist[i].mPlaylistRating=5;
+            
+            playlist->entries[i].ratings=mPlaylist[i].mPlaylistRating;
+            playlist->entries[i].playcounts=mPlaylist[i].mPlaylistCount;
+        }
+        playlist->nb_entries=mPlaylist_size;
+        playlist->playlist_name=[[NSString alloc] initWithFormat:@"Now playing",playlist->nb_entries];
+        playlist->playlist_id=nil;
+        
+        RootViewControllerPlaylist *childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        //set new title
+        childController.title = playlist->playlist_name;
+        ((RootViewControllerPlaylist*)childController)->show_playlist=1;
+        
+        // Set new directory
+        ((RootViewControllerPlaylist*)childController)->browse_depth = 1;
+        ((RootViewControllerPlaylist*)childController)->detailViewController=self;
+        ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+        ((RootViewControllerPlaylist*)childController)->mFreePlaylist=1;
+        
+        //((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
+        
+        // And push the window
+        [self.navigationController pushViewController:childController animated:YES];
+        
+        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        [((RootViewControllerPlaylist*)childController)->tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+2] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+
+    }
     
 }
 
-- (IBAction)hidePlaylist {
-	if ((mPlWasView==infoView)&&(mInWasView==playlistView)) mPlWasView=m_oglView;	//avoid cycling between view
-	
-	if (mPlWasView==m_oglView) {  //if ogl view was selected, check if it should be hidden
-		
-		/*if ((segcont_fx1.selectedSegmentIndex)||
-			(segcont_fx2.selectedSegmentIndex)||
-			(segcont_fx3.selectedSegmentIndex)||
-			(segcont_FxBeat.selectedSegmentIndex)||
-			(segcont_spectrum.selectedSegmentIndex)||
-			(segcont_oscillo.selectedSegmentIndex)||
-			((segcont_shownote.selectedSegmentIndex)&&([mplayer isPlayingTrackedMusic])) ) {
-			mPlWasViewHidden=NO;
-		} else mPlWasViewHidden=YES;*/
-        if (mOglViewIsHidden) mPlWasViewHidden=YES;
-		else mPlWasViewHidden=NO;
-	}
-	
-	if (btnPlEdit.hidden) [self plDone];
-	
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
-	
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.playlistView cache:YES];
-	self.playlistView.hidden=YES;
-	[UIView commitAnimations];
-	
-	if (!mPlWasViewHidden) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mPlWasView cache:YES];	
-		mPlWasView.hidden=NO;
-		if (plIsFullscreen) {
-			[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];	
-			mainView.hidden=NO;
-		}
-		[UIView commitAnimations];
-	} else if (plIsFullscreen) {
-		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
-//		[UIView setAnimationDelegate:self];
-		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];	
-		mainView.hidden=NO;
-		[UIView commitAnimations];
-	}
-	
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDelay:1.00];	
-	[UIView setAnimationDuration:0.70];
-//	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-	[UIView commitAnimations];
-}
 
 - (IBAction)infoFullscreen {
 	infoIsFullscreen=1;
@@ -1192,13 +1026,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     textMessage.text=[NSString stringWithFormat:@"%@",[mplayer getModMessage]];
     
     
-	if (playlistView.hidden==NO) {
-		mInWasView=playlistView;
-		mInWasViewHidden=playlistView.hidden;
-	} else {
 		mInWasView=m_oglView;
 		mInWasViewHidden=m_oglView.hidden;
-	}
 	[UIView beginAnimations:nil context:nil];
 	[UIView setAnimationDuration:0.70];
 //	[UIView setAnimationDelegate:self];
@@ -1224,7 +1053,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 - (IBAction)hideInfo {
-	if ((mPlWasView==infoView)&&(mInWasView==playlistView)) mInWasView=m_oglView;	//avoid cycling between view
 	[UIView beginAnimations:nil context:nil];
 	[UIView setAnimationDuration:0.70];
 //	[UIView setAnimationDelegate:self];
@@ -1330,11 +1158,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
 	mPlaylist[mPlaylist_pos].mPlaylistCount++;
 	
-	if (self.playlistView.hidden==FALSE) {
-		NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+/*		NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
 		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-		[myindex autorelease];
-	}
+		[myindex autorelease];*/
 	
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     
@@ -1468,18 +1294,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
 	
-	[playlistTabView reloadData];
 	[self play_curEntry];
 }
 
--(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths ratings:(signed char*)ratings playcounts:(short int*)playcounts {
+-(void)play_listmodules:(t_playlist*)pl start_index:(int)index {
 	int limitPl=0;
 	mRestart=0;
 	mRestart_sub=0;
     mRestart_arc=0;
 	mPlayingPosRestart=0;
     
-	if ([array count]>=MAX_PL_ENTRIES) {
+	if (pl->nb_entries>=MAX_PL_ENTRIES) {
 		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
 		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
 		[alert show];
@@ -1494,12 +1319,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		}
 	}
 	
-	mPlaylist_size=(limitPl?MAX_PL_ENTRIES:[array count]);	
+	mPlaylist_size=(limitPl?MAX_PL_ENTRIES:pl->nb_entries);
 	for (int i=0;i<mPlaylist_size;i++) {
-		mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[array objectAtIndex:i]];
-		mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[arrayFilepaths objectAtIndex:i]];
+		mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:pl->entries[i].label];
+		mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:pl->entries[i].fullpath];
 		
-		mPlaylist[i].mPlaylistRating=ratings[i];
+		mPlaylist[i].mPlaylistRating=pl->entries[i].ratings;
 		mPlaylist[i].mPlaylistCount=0;
 //        [self checkAvailableCovers:i];
         mPlaylist[i].cover_flag=-1;
@@ -1522,7 +1347,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     
-    [playlistTabView reloadData];
 	[self play_curEntry];
 }
 
@@ -1603,7 +1427,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		//DBHelper::getFilesStatsDBmod(&(mPlaylist[added_pos]),add_entries_nb);
 		
 		
-		[playlistTabView reloadData];
 		mShouldUpdateInfos=1;
 	} else { //create a new playlist with downloaded song
 		for (int i=0;i<add_entries_nb;i++) {
@@ -1618,7 +1441,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		//DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);
 		mPlaylist_pos=0;
 		added_pos=0;
-		[playlistTabView reloadData];
 		[self play_curEntry];
 		playLaunched=1;
 	}
@@ -1629,8 +1451,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	}
 	
 	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-	[myindex autorelease];
+/*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+	[myindex autorelease];*/
 	return playLaunched;
 }
 
@@ -1686,7 +1508,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		DBHelper::getFileStatsDBmod(mPlaylist[added_pos].mPlaylistFilename,mPlaylist[added_pos].mPlaylistFilepath,&playcount,&rating);
 		mPlaylist[added_pos].mPlaylistRating=rating;
         
-		[playlistTabView reloadData];
 		mShouldUpdateInfos=1;
 	} else { //create a new playlist with downloaded song
 		mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
@@ -1702,7 +1523,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		
 		mPlaylist_pos=0;
 		
-		[playlistTabView reloadData];
 		[self play_curEntry];
 		playLaunched=1;
 	}
@@ -1713,7 +1533,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	}
 	
 	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+/*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
 	[myindex autorelease];
 	return playLaunched;
 }
@@ -1732,15 +1552,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mPlaylist_size--;
 		if ((index<mPlaylist_pos)||(mPlaylist_pos==mPlaylist_size)) mPlaylist_pos--;
 		
-		[playlistTabView reloadData];
 		//playlistPos.text=[NSString stringWithFormat:@"%d on %d",mPlaylist_pos,mPlaylist_size];
 		mShouldUpdateInfos=1;
 	}
 	
 	if (mPlaylist_size) {
 		NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-		[myindex autorelease];
+/*		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+		[myindex autorelease];*/
 	}
 }
 
@@ -1818,6 +1637,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	labelModuleName.glowAmount = 15.0;
 	[labelModuleName setNeedsDisplay];
 	self.navigationItem.titleView=labelModuleName;
+    self.navigationItem.title=labelModuleName.text;
 	
 	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
 	if ([mplayer getSongLength]>0) {
@@ -2087,6 +1907,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     labelModuleName.glowAmount = 15.0;
     [labelModuleName setNeedsDisplay];
     self.navigationItem.titleView=labelModuleName;
+    self.navigationItem.title=labelModuleName.text;
     
 	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
 	if ([mplayer getSongLength]>0) {
@@ -2307,8 +2128,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 			if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
 			else infoView.frame = CGRectMake(0, 82, mDevice_ww, mDevice_hh-234);
-			if (plIsFullscreen) playlistView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			else playlistView.frame = CGRectMake(0, 82, mDevice_ww, mDevice_hh-234);
 			
 			//commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
             commandViewU.frame = CGRectMake(0, 0, mDevice_ww, 32+48);
@@ -2490,8 +2309,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 if (infoIsFullscreen) infoView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 else infoView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
-                if (plIsFullscreen) playlistView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
-                else playlistView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
                 int xofs=mDevice_hh-72-40-31-20-4;
                 int yofs=8;
@@ -4196,11 +4013,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	self.navigationItem.title=@"No file selected";
 	//	self.navigationItem.backBarButtonItem.title=@"dd";
 	
-    /*	self.navigationItem.rightBarButtonItem=[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"playlist.png"]
-     style:UIBarButtonItemStylePlain 
-     target:self
-     action:@selector(showPlaylist)] autorelease];
-     */
 	[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"playlist.png"]
 																				 style:UIBarButtonItemStylePlain 
 																				target:self
@@ -4478,11 +4290,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:(mDeviceType==1?18:12)];
 	
-	playlistTabView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	playlistTabView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    playlistTabView.rowHeight = (mDeviceType==1?48:38);
-    playlistTabView.backgroundColor = [UIColor clearColor];
-	playlistView.hidden=YES;
 
 /////////////////////////////////////    
 // Waiting view
@@ -4730,9 +4537,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                                     NULL);
 		[self showRating:mPlaylist[mPlaylist_pos].mPlaylistRating];
         //update playlist
-		[playlistTabView reloadData];
-		NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:FALSE scrollPosition:UITableViewScrollPositionMiddle];
+/*		NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:FALSE scrollPosition:UITableViewScrollPositionMiddle];*/
 	}
     
     if (shouldRestart) {
@@ -4801,8 +4607,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
 	[UIView commitAnimations];
-    
-    [playlistTabView reloadData];
     
     if (sc_cflow.selectedSegmentIndex) {
         if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
@@ -5552,203 +5356,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     [super didReceiveMemoryWarning];
     
     // Release any cached data, images, etc that aren't in use.
-}
-
-
-
-/*
- - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
- return @"Playlist";
- }*/
-
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 1;
-}
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-	return mPlaylist_size;
-}
-
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"Cell";
-	const NSInteger TOP_LABEL_TAG = 1001;
-	const NSInteger BOTTOM_LABEL_TAG = 1002;
-	UILabel *topLabel;
-	UILabel *bottomLabel;
-	
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-		//
-		// Create the label for the top row of text
-		//
-		topLabel = [[[UILabel alloc] init] autorelease];
-		[cell.contentView addSubview:topLabel];
-		
-		//
-		// Configure the properties for the text that are the same on every row
-		//
-		topLabel.tag = TOP_LABEL_TAG;
-		topLabel.backgroundColor = [UIColor clearColor];
-		topLabel.textColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
-		topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
-		topLabel.font = [UIFont boldSystemFontOfSize:(mDeviceType==1?30:18)];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
-		
-		//
-		// Create the label for the top row of text
-		//
-		bottomLabel = [[[UILabel alloc] init] autorelease];
-		[cell.contentView addSubview:bottomLabel];
-		//
-		// Configure the properties for the text that are the same on every row
-		//
-		bottomLabel.tag = BOTTOM_LABEL_TAG;
-		bottomLabel.backgroundColor = [UIColor clearColor];
-		bottomLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.8 alpha:1.0];
-		bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.8 blue:0.8 alpha:1.0];
-		bottomLabel.font = [UIFont systemFontOfSize:(mDeviceType==1?14:12)];
-        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
-    } else {
-		topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
-		bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
-	}
-	topLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
-								0,
-								tableView.bounds.size.width - 1.0 * cell.indentationWidth-50,
-								(mDeviceType==1?32:22));
-	bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
-								   (mDeviceType==1?32:22),
-								   tableView.bounds.size.width - 1.0 * cell.indentationWidth-50,
-								   (mDeviceType==1?16:14));
-	
-	
-	// Set up the cell...
-	NSArray *filename_parts=[mPlaylist[indexPath.row].mPlaylistFilepath componentsSeparatedByString:@"/"];
-	topLabel.text = mPlaylist[indexPath.row].mPlaylistFilename;//[NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-1]];
-	
-	if ([filename_parts count]>=3) {
-		if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-3] compare:@"Documents"]!=NSOrderedSame) {
-			bottomLabel.text = [NSString stringWithFormat:@"%@/%@",[filename_parts objectAtIndex:[filename_parts count]-3],[filename_parts objectAtIndex:[filename_parts count]-2]];
-		} else bottomLabel.text = [NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-2]];
-	} else if ([filename_parts count]>=2) {
-		if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-2] compare:@"Documents"]!=NSOrderedSame) {
-			bottomLabel.text = [NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-2]];
-		} else bottomLabel.text = @"";
-	}
-    
-    
-    NSArray *filename_IsArc=[mPlaylist[indexPath.row].mPlaylistFilepath componentsSeparatedByString:@"@"];
-    NSArray *filename_IsSub=[mPlaylist[indexPath.row].mPlaylistFilepath componentsSeparatedByString:@"?"];
-    if ([filename_IsArc count]>1) {//this is an archive entry
-        bottomLabel.text=[bottomLabel.text stringByAppendingFormat:@"/%@",[filename_parts objectAtIndex:[filename_parts count]-1]];
-    } else if ([filename_IsSub count]>1) {//this is a subsong entry
-        bottomLabel.text=[bottomLabel.text stringByAppendingFormat:@"/%@",[filename_parts objectAtIndex:[filename_parts count]-1]];
-    }
-    
-	cell.accessoryType = UITableViewCellAccessoryNone;
-    
-    //TODO
-    //WARNING: might lead to some desync issue if rating is reseted in browser or setting screen
-    //To check => reset ratign to -1 on viewwillappear ?
-    if (mPlaylist[indexPath.row].mPlaylistRating==-1) { 
-        DBHelper::getFileStatsDBmod(mPlaylist[indexPath.row].mPlaylistFilename,
-                                mPlaylist[indexPath.row].mPlaylistFilepath,
-                                NULL,
-                                &(mPlaylist[indexPath.row].mPlaylistRating),
-                                NULL,
-                                NULL);
-    }
-    
-	if (mPlaylist[indexPath.row].mPlaylistRating>0) {
-		int rating;
-        
-        
-		rating=mPlaylist[indexPath.row].mPlaylistRating;
-        //		NSLog(@"%@ %d",mPlaylist[indexPath.row].mPlaylistFilepath,rating);
-		if (rating<0) rating=0;
-		if (rating>5) rating=5;
-		UIImage *accessoryImage = [UIImage imageNamed:ratingImg[rating]];
-		UIImageView *accImageView = [[[UIImageView alloc] initWithImage:accessoryImage] autorelease];
-		[accImageView setFrame:CGRectMake(0, 0, 50.0, 9.0)];
-		cell.accessoryView = accImageView;
-	} else cell.accessoryView=nil;
-    
-	return cell;
-}
-
-
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-		//delete entry
-		if (mPlaylist_size) { //ensure playlist is not empty
-			[mPlaylist[indexPath.row].mPlaylistFilename autorelease];
-			[mPlaylist[indexPath.row].mPlaylistFilepath autorelease];
-			if (mPlaylist_size>1) {
-				for (int i=indexPath.row;i<mPlaylist_size-1;i++) {
-					mPlaylist[i]=mPlaylist[i+1];
-				}
-				if (indexPath.row<mPlaylist_pos) mPlaylist_pos--;				
-				mPlaylist_size--;
-			} else {
-				mPlaylist_size=mPlaylist_pos=0;
-			}
-			//playlistPos.text=[NSString stringWithFormat:@"%d on %d",mPlaylist_pos+1,mPlaylist_size];
-			mShouldUpdateInfos=1;
-		}
-		[tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }
-}
-
-
-
-/*- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
- }
- */
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-	t_plPlaylist_entry tmpF;
-	tmpF=mPlaylist[fromIndexPath.row];
-	if (toIndexPath.row<fromIndexPath.row) {
-		for (int i=fromIndexPath.row;i>toIndexPath.row;i--) {
-			mPlaylist[i]=mPlaylist[i-1];
-		}
-		mPlaylist[toIndexPath.row]=tmpF;
-	} else {
-		for (int i=fromIndexPath.row;i<toIndexPath.row;i++) {
-			mPlaylist[i]=mPlaylist[i+1];
-		}
-		mPlaylist[toIndexPath.row]=tmpF;
-	}
-	if ((fromIndexPath.row>mPlaylist_pos)&&(toIndexPath.row<=mPlaylist_pos)) mPlaylist_pos++;
-	if ((fromIndexPath.row<mPlaylist_pos)&&(toIndexPath.row>=mPlaylist_pos)) mPlaylist_pos--;
-}
-
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (indexPath.row==mPlaylist_pos) return NO;
-	return YES;
-}
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    //	if (indexPath.row==mPlaylist_pos) return NO;
-    //Allow edit (delete in this case) only if more than 1 file
-    if (mPlaylist_size>1) return YES;
-    else return NO;
-}
-
-
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	mPlaylist_pos=indexPath.row;
-	[self play_curEntry];
-    
 }
 
 
