@@ -12,12 +12,12 @@
 #import "AppDelegate_Phone.h"
 #import "DetailViewControllerIphone.h"
 #import "DownloadViewController.h"
-#import "RootViewControllerIphone.h"
+#import "RootViewControllerLocalBrowser.h"
 
 
 @class DetailViewControllerIphone;
 @class DownloadViewController;
-@class RootViewControllerIphone;
+@class RootViewControllerLocalBrowser;
 
 typedef struct {
 	NSString *label;
@@ -58,7 +58,7 @@ typedef struct {
 @interface SearchViewController : UIViewController <UITableViewDelegate,UISearchBarDelegate>  {
 	IBOutlet DetailViewControllerIphone *detailViewController;
 	IBOutlet DownloadViewController *downloadViewController;
-	IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 	IBOutlet UITableView *searchResultTabView;
 	IBOutlet UISearchBar *sBar;
 	IBOutlet UIView *searchPrgView;
@@ -93,7 +93,7 @@ typedef struct {
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
-@property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 @property (nonatomic, retain) IBOutlet UITableView *searchResultTabView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 @property (nonatomic, retain) IBOutlet UIView *searchPrgView;

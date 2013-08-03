@@ -11,7 +11,7 @@
 #import "ModizerConstants.h"
 
 @class ModizerWin;
-@class RootViewControllerIphone;
+@class RootViewControllerLocalBrowser;
 @class DetailViewControllerIphone;
 @class RootViewControllerPlaylist;
 
@@ -20,7 +20,7 @@
 //    IBOutlet UIWindow *window;
 	IBOutlet UITabBarController *tabBarController;
 	
-	IBOutlet RootViewControllerIphone *rootViewControlleriPhone;
+	IBOutlet RootViewControllerLocalBrowser *rootViewControlleriPhone;
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
     IBOutlet RootViewControllerPlaylist *playlistVC;
 	
@@ -30,7 +30,7 @@
 
 //@property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet ModizerWin *modizerWin;
-@property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewControlleriPhone;
+@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControlleriPhone;
 @property (nonatomic, retain) IBOutlet RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 @property (nonatomic, retain) IBOutlet UITabBarController *tabBarController;

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
-#import "RootViewControllerIphone.h"
+#import "RootViewControllerLocalBrowser.h"
 #import "SearchViewController.h"
 #import "ASIHTTPRequest.h"
 
@@ -19,12 +19,12 @@
 
 @class DownloadViewController;
 @class DetailViewControllerIphone;
-@class RootViewControllerIphone;
+@class RootViewControllerLocalBrowser;
 @class SearchViewController;
 
 @interface DownloadViewController : UIViewController <UITableViewDelegate,NSStreamDelegate> {
 	IBOutlet DetailViewControllerIphone *detailViewController;
-	IBOutlet RootViewControllerIphone *rootViewController;
+	IBOutlet RootViewControllerLocalBrowser *rootViewController;
 	IBOutlet SearchViewController *searchViewController;
 	IBOutlet UITableView *downloadTabView;
 	IBOutlet UIButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
@@ -78,7 +78,7 @@
 -(int) isAllowedFile:(NSString*)file;
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
-@property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewController;
+@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewController;
 @property (nonatomic, retain) IBOutlet SearchViewController *searchViewController;
 @property (nonatomic, retain) IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 @property (nonatomic, retain) IBOutlet UIProgressView *downloadPrgView;

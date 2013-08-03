@@ -6,9 +6,6 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-//#define GET_NB_ENTRIES 1
-#define NB_MODLAND_ENTRIES 319724
-#define NB_HVSC_ENTRIES 43116
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define ROW_HEIGHT 40
 
@@ -25,9 +22,6 @@
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
-static int didGoToWorldCharts=0;
-static int didGoToUserGuide=0;
-//static int shouldFillKeys;
 static int local_flag;
 static volatile int mUpdateToNewDB;
 static volatile int mPopupAnimation=0;
@@ -37,14 +31,8 @@ static volatile int mPopupAnimation=0;
 
 #import "RootViewControllerIphone.h"
 #import "RootViewControllerLocalBrowser.h"
-#import "RootViewControllerMODLAND.h"
-#import "RootViewControllerHVSC.h"
-#import "RootViewControllerPlaylist.h"
-
-
 #import "DetailViewControllerIphone.h"
-#import "DownloadViewController.h"
-#import "WebBrowser.h"
+
 #import "QuartzCore/CAAnimation.h"
 
 volatile int mDatabaseCreationInProgress;
@@ -253,7 +241,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 			} else {
 				if ([detailViewController add_to_playlist:FTPlocalPath fileName:FTPfilename forcenoplay:1]) {
 					if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-					else [[super tableView] reloadData];
+					else [tableView reloadData];
 				}
 			}
 		}
@@ -429,56 +417,23 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	/* Init popup view*/
 	/**/
 	
-	//self.tableView.pagingEnabled;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.tableView.sectionHeaderHeight = 18;
 	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 	self.tableView.rowHeight = 40;
-    //self.tableView.backgroundColor = [UIColor clearColor];
-//	self.tableView.backgroundColor = [UIColor blackColor];
 	
 	shouldFillKeys=1;
 	mSearch=0;
 	
-	search_db=0;  //reset to ensure search_db is not used by default
 	search_local=0;
-	search_dbHVSC=0;  //reset to ensure search_dbHVSC is not used by default
-	
-	db_nb_entries=0;
-	search_db_nb_entries=0;
-	dbHVSC_nb_entries=0;
-	search_dbHVSC_nb_entries=0;
 	local_nb_entries=0;
 	search_local_nb_entries=0;
-	
-	search_dbHVSC_hasFiles=0;
-	dbHVSC_hasFiles=0;
-	search_db_hasFiles=0;
-	db_hasFiles=0;
 	
 	mSearchText=nil;
 	mCurrentWinAskedDownload=0;
 	mClickedPrimAction=0;
 	list=nil;
 	keys=nil;
-	
-	if (browse_depth==MENU_COLLECTIONS_ROOTLEVEL) {
-		mFiletypeID=mAuthorID=mAlbumID=-1;
-#ifdef GET_NB_ENTRIES
-		mNbMODLANDFileEntries=DBHelper::getNbMODLANDFilesEntries();
-		mNbHVSCFileEntries=DBHelper::getNbHVSCFilesEntries();
-#else
-		mNbMODLANDFileEntries=NB_MODLAND_ENTRIES;
-		mNbHVSCFileEntries=NB_HVSC_ENTRIES;
-#endif
-	}
-	
-	if (browse_mode==BROWSE_RATED_MODE) {//favorites
-		self.navigationItem.rightBarButtonItem = playerButton; //self.editButtonItem;
-	}
-	if (browse_mode==BROWSE_MOSTPLAYED_MODE) {//most played
-		self.navigationItem.rightBarButtonItem = playerButton; //self.editButtonItem;
-	}
 	
 	indexTitles = [[NSMutableArray alloc] init];
 	[indexTitles addObject:@"{search}"];
@@ -566,32 +521,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 -(void) fillKeys {
-	
-	if (browse_depth==MENU_ROOTLEVEL) {
-		keys = [[NSMutableArray alloc] init];
-		list = [[NSMutableArray alloc] init];
-		NSMutableArray *modeLabel_entries = [[[NSMutableArray alloc] init] autorelease];
-		//Order has to reflet the constant defined in ModizerConstant
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_LocalBrowsing_MainKey", @"")];  //NSLocalizedString(@"WelcomeKey", @"")
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_MODLAND_MainKey", @"")];
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_HVSC_MainKey", @"")];
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_Playlists_MainKey", @"")];
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_Favorites_MainKey", @"")];
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_Most_played_MainKey", @"")];
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_Web_MainKey", @"")];
-		[modeLabel_entries addObject:NSLocalizedString(@"Browser_WorldCharts_MainKey", @"")];
-        [modeLabel_entries addObject:NSLocalizedString(@"Browser_UserGuide_MainKey", @"")];
-		
-		NSDictionary *mode_entriesDict = [NSDictionary dictionaryWithObject:modeLabel_entries forKey:@"entries"];
-		[keys addObject:mode_entriesDict];
-	} else if (browse_mode==BROWSE_RATED_MODE) {//Top Rating
-		[self loadFavoritesList];
-	} else if (browse_mode==BROWSE_MOSTPLAYED_MODE) {//Top Most played
-		[self loadMostPlayedList];
-	} else if (browse_mode==BROWSE_WEB_MODE) {//Web browser
-	} else if (browse_mode==BROWSE_WORLDCHARTS_MODE) {//Web/World Charts
-	}  else if (browse_mode==BROWSE_USERGUIDE_MODE) {//Web/User Guide
-	}
 }
 
 -(NSString*) getCompletePath:(int)id_mod {
@@ -962,11 +891,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
             
             [self fillKeys];
-            [[super tableView] reloadData];
+            [tableView reloadData];
             [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
         } else {
             [self fillKeys];
-            [[super tableView] reloadData];
+            [tableView reloadData];
         }
     }
     
@@ -978,7 +907,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 -(void) refreshMODLANDView {
     /*	if (mCurrentWinAskedDownload) {
      [self fillKeys];
-     [[super tableView] reloadData];
+     [tableView reloadData];
      } else */
     if (childController) [(RootViewControllerIphone*)childController refreshMODLANDView];
 }
@@ -1011,7 +940,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 /*- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }*/
 
 - (NSUInteger)supportedInterfaceOrientations {
@@ -1025,7 +954,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 /*- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    [[super tableView] reloadData];
+    [tableView reloadData];
     return YES;
 }*/
 
@@ -1220,41 +1149,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     cell.accessoryType = UITableViewCellAccessoryNone;
     
     // Set up the cell...
-    if (browse_depth==0) {
-        NSDictionary *dictionary = [keys objectAtIndex:indexPath.section];
-        NSArray *array = [dictionary objectForKey:@"entries"];
-        cellValue = [array objectAtIndex:indexPath.row];
-        
-        //topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
-        if (indexPath.row==BROWSE_LOCAL_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.8f green:0.3f blue:0.3f alpha:1.0f];
-            bottomLabel.text=NSLocalizedString(@"Browser_LocalBrowsing_SubKey",@"");// @"Browse, play & delete local files.";
-        } else if (indexPath.row==BROWSE_MODLAND_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.7f green:0.2f blue:0.4f alpha:1.0f];
-            bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Browser_MODLAND_SubKey",@""),mNbMODLANDFileEntries];
-        } else if (indexPath.row==BROWSE_HVSC_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.5f green:0.2f blue:0.6f alpha:1.0f];			
-            bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Browser_HVSC_SubKey",@""),mNbHVSCFileEntries];
-        } else if (indexPath.row==BROWSE_RATED_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.5f green:0.2f blue:0.6f alpha:1.0f];
-            bottomLabel.text=NSLocalizedString(@"Browser_Favorites_SubKey",@"");
-        } else if (indexPath.row==BROWSE_MOSTPLAYED_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.6f green:0.3f blue:0.4f alpha:1.0f];			
-            bottomLabel.text=NSLocalizedString(@"Browser_Most_played_SubKey",@"");
-        } else if (indexPath.row==BROWSE_WEB_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.7f green:0.4f blue:0.3f alpha:1.0f];
-            bottomLabel.text=NSLocalizedString(@"Browser_Web_SubKey",@"");
-        } else if (indexPath.row==BROWSE_WORLDCHARTS_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.7f green:0.4f blue:0.3f alpha:1.0f];
-            bottomLabel.text=NSLocalizedString(@"Browser_WorldCharts_SubKey",@"");
-        } else if (indexPath.row==BROWSE_USERGUIDE_MODE) {
-            //topLabel.textColor=[UIColor colorWithRed:0.7f green:0.4f blue:0.3f alpha:1.0f];
-            bottomLabel.text=NSLocalizedString(@"Browser_UserGuide_SubKey",@"");
-        }
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;//UITableViewCellAccessoryDisclosureIndicator;
-    }  else if ((browse_mode==BROWSE_LOCAL_MODE)||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) { //local browser & favorites 
-        int switch_view_subdir=( (browse_depth>=SHOW_SUDIR_MIN_LEVEL));//&&(browse_mode==BROWSE_LOCAL_MODE)?1:0);
-        if (switch_view_subdir&&(indexPath.section==1)){
+        if (indexPath.section==1){
             cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
             bottomLabel.text=[NSString stringWithFormat:@"%@ %d files",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
             
@@ -1290,7 +1185,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             secActionView.hidden=NO;
             
         } else {
-            int section=indexPath.section-1-switch_view_subdir;
+            int section=indexPath.section-2;
             cellValue=cur_local_entries[section][indexPath.row].label;
             
             
@@ -1416,7 +1311,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 }
             }
         }
-    }
     
     topLabel.text = cellValue;
     
@@ -1493,7 +1387,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar {
     //[self fillKeys];
-    //[[super tableView] reloadData];
+    //[tableView reloadData];
     //mSearch=0;
     sBar.showsCancelButton = NO;
 }
@@ -1503,7 +1397,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     mSearchText=[[NSString alloc] initWithString:searchText];
     shouldFillKeys=1;
     [self fillKeys];
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     if (mSearchText) [mSearchText release];
@@ -1513,7 +1407,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
     
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
@@ -1528,10 +1422,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 #pragma mark -
 #pragma mark Table view delegate
 - (void) primaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
     
@@ -1540,8 +1434,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         
     } else {
         if (browse_mode==BROWSE_LOCAL_MODE||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) {//local  browser & favorites
-            int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));//&&(browse_mode==BROWSE_LOCAL_MODE)?1:0);
-            int section=indexPath.section-1-switch_view_subdir;
+            int section=indexPath.section-2;
             
             if (indexPath.section==1) {
                 // launch Play of current list
@@ -1576,7 +1469,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 if (section<0) pos=-1;
                 [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                else [[super tableView] reloadData];				
+                else [tableView reloadData];
                 
                 free(tmp_ratings);
                 free(tmp_playcounts);
@@ -1623,7 +1516,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     cur_local_entries[section][indexPath.row].rating=-1;
                     [detailViewController play_listmodules:array_label start_index:pos path:array_path ratings:tmp_ratings playcounts:tmp_playcounts];
                     if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                    else [[super tableView] reloadData];				
+                    else [tableView reloadData];
                     
                     free(tmp_ratings);
                     free(tmp_playcounts);
@@ -1638,10 +1531,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
 }
 - (void) secondaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
     
@@ -1649,8 +1542,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     if (browse_depth==0) {
     } else {
         if (browse_mode==BROWSE_LOCAL_MODE||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) {//local  browser & favorites
-            int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));//&&(browse_mode==BROWSE_LOCAL_MODE)?1:0);
-            int section=indexPath.section-1-switch_view_subdir;
+            int section=indexPath.section-2;
             if (indexPath.section==1) {
                 // launch Play of current dir
                 int pos=0;
@@ -1682,7 +1574,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 
                 if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
                     if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                    else [[super tableView] reloadData];
+                    else [tableView reloadData];
                 }
                 
                 free(tmp_ratings);
@@ -1693,7 +1585,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     cur_local_entries[section][indexPath.row].rating=-1;
                     if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:1]) {
                         if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                        else [[super tableView] reloadData];
+                        else [tableView reloadData];
                     }
                 }
             }
@@ -1704,11 +1596,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 
 - (void) accessoryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;
-    [self tableView:[super tableView] didSelectRowAtIndexPath:indexPath];
+    [self tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
 
@@ -1724,12 +1616,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         shouldFillKeys=1;
         [self fillKeys];   //2nd filter for drawing
     }
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 -(void) fillKeysWithPopup {
     [self fillKeys];
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 
@@ -1739,104 +1631,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     NSString *cellValue;
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    if (browse_depth==0) {
-        NSDictionary *dictionary = [keys objectAtIndex:indexPath.section];
-        NSArray *array = [dictionary objectForKey:@"entries"];
-        cellValue = [array objectAtIndex:indexPath.row];
-        
-        if (indexPath.row==BROWSE_WEB_MODE) { 
-            webBrowser.navigationItem.rightBarButtonItem=playerButton;
-            if (didGoToWorldCharts) {
-                didGoToWorldCharts=0;
-                [webBrowser loadLastURL];
-            }
-            if (didGoToUserGuide) {
-                didGoToUserGuide=0;
-                [webBrowser loadLastURL];
-            }
-            [self.navigationController pushViewController:webBrowser animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        } else if (indexPath.row==BROWSE_WORLDCHARTS_MODE) { 
-            webBrowser.navigationItem.rightBarButtonItem=playerButton;
-            didGoToWorldCharts=1;
-            [webBrowser loadWorldCharts];
-            [self.navigationController pushViewController:webBrowser animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        } else if (indexPath.row==BROWSE_USERGUIDE_MODE) { 
-            webBrowser.navigationItem.rightBarButtonItem=playerButton;
-            didGoToUserGuide=1;
-            [webBrowser loadUserGuide];
-            [self.navigationController pushViewController:webBrowser animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        } else if (indexPath.row==BROWSE_LOCAL_MODE) {
-            if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-            else {			// Don't cache childviews
-            }
-            //set new title
-            childController.title = cellValue;
-            // Set new directory
-            ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-            ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
-            // And push the window
-            [self.navigationController pushViewController:childController animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        } else if (indexPath.row==BROWSE_MODLAND_MODE) {
-            if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-            else {			// Don't cache childviews
-            }
-            //set new title
-            childController.title = cellValue;
-            // Set new directory
-            ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
-            ((RootViewControllerMODLAND*)childController)->playerButton=playerButton;
-            ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
-            // And push the window
-            [self.navigationController pushViewController:childController animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        } else if (indexPath.row==BROWSE_HVSC_MODE) {
-            if (childController == nil) childController = [[RootViewControllerHVSC alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-            else {			// Don't cache childviews
-            }
-            //set new title
-            childController.title = cellValue;
-            // Set new directory
-            ((RootViewControllerHVSC*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerHVSC*)childController)->detailViewController=detailViewController;
-            ((RootViewControllerHVSC*)childController)->playerButton=playerButton;
-            ((RootViewControllerHVSC*)childController)->downloadViewController=downloadViewController;
-            // And push the window
-            [self.navigationController pushViewController:childController animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        }  else {
-            if (childController == nil) childController = [[RootViewControllerIphone alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-            else {			// Don't cache childviews
-            }
-            //set new title
-            childController.title = cellValue;
-            // Set new directory
-            ((RootViewControllerIphone*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerIphone*)childController)->browse_mode = indexPath.row;
-            ((RootViewControllerIphone*)childController)->detailViewController=detailViewController;
-            ((RootViewControllerIphone*)childController)->downloadViewController=downloadViewController;
-            ((RootViewControllerIphone*)childController)->playerButton=playerButton;
-            // And push the window
-            [self.navigationController pushViewController:childController animated:YES];	
-            [keys release];keys=nil;
-            [list release];list=nil;
-        }
-    } else {
-        if ((browse_mode==BROWSE_LOCAL_MODE)||(browse_mode==BROWSE_RATED_MODE)||(browse_mode==BROWSE_MOSTPLAYED_MODE)) {//local  browser & favorites
-            int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));//&&(browse_mode==BROWSE_LOCAL_MODE)?1:0);
-            int section=indexPath.section-1-switch_view_subdir;
-            if ((indexPath.section==1)&&switch_view_subdir) {
+            int section=indexPath.section-2;
+            if (indexPath.section==1) {
                 int donothing=0;
                 if (mSearch) {
                     if (mSearchText==nil) donothing=1;
@@ -1858,7 +1654,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         shouldFillKeys=1;
                         [self fillKeys];   //2nd filter for drawing
                     }
-                    [[super tableView] reloadData];
+                    [tableView reloadData];
                     
                     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
                 }
@@ -1977,8 +1773,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     
                 }	
             }
-        }
-    }
     mAccessoryButton=0;
 }
 

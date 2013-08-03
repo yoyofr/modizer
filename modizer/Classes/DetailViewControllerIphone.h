@@ -28,7 +28,7 @@
 #import "ModizMusicPlayer.h"
 
 #import "AppDelegate_Phone.h"
-#import "RootViewControllerIphone.h"
+#import "RootViewControllerLocalBrowser.h"
 
 //#import "OouraFFT.h"
 
@@ -45,7 +45,7 @@ struct Resources;
 @class OGLView;
 @class EAGLContext;
 @class CADisplayLink;
-@class RootViewControllerIphone;
+@class RootViewControllerLocalBrowser;
 //@class FliteTTS;
 
 class CFont;
@@ -92,7 +92,7 @@ class CGLString;
 	UIViewController *mParentViewController;
 	IBOutlet RRSGlowLabel *labelModuleName;
 	
-	IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 	
 	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
 	IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList,*btnChangeTime;
@@ -334,7 +334,7 @@ class CGLString;
 
 @property (nonatomic, retain) IBOutlet UILabel *labelTimPolyphony,*labelDUMBMastVol,*lblPanningValue;
 
-@property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 
 @property (nonatomic, retain) IBOutlet UIImageView *cover_view,*gifAnimation;
 

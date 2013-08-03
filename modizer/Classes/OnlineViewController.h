@@ -22,6 +22,9 @@
     IBOutlet UIBarButtonItem *playerButton;
     IBOutlet UITableView *tableView;
     
+    int mNbMODLANDFileEntries,mNbHVSCFileEntries;
+	
+    
     UIViewController *collectionViewController;
 }
 
@@ -31,6 +34,7 @@
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) UIViewController *collectionViewController;
+@property (nonatomic) int mNbMODLANDFileEntries,mNbHVSCFileEntries;
 
 
 -(IBAction) goPlayer;

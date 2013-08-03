@@ -6,15 +6,6 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-#define SHOW_SUDIR_MIN_LEVEL 1
-
-#define MENU_ROOTLEVEL 0
-#define MENU_COLLECTIONS_ROOTLEVEL 0
-#define MENU_BROWSER_LOCAL_ROOTLEVEL 1
-#define MENU_COLLECTION_MODLAND_ROOTLEVEL 1
-#define MENU_COLLECTIONS_MODLAND_FAF_1 2
-#define MENU_COLLECTIONS_MODLAND_FAF_2 3
-
 #import <UIKit/UIKit.h>
 #import <sqlite3.h>
 #import "DBHelper.h"
@@ -97,8 +88,6 @@
 	int search_db_nb_entries,search_db_hasFiles;
 
 	NSString *currentPath;
-	int browse_depth;
-	int browse_mode; //1:local, 2:modland
 	int modland_browse_mode;
 	int mSearch;
 	NSString *mSearchText;
@@ -114,6 +103,10 @@
 	
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;
+@public
+    int browse_depth;
+	int browse_mode; //1:local, 2:modland
+	
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;

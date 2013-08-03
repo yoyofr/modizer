@@ -10,7 +10,7 @@
 #import "AppDelegate_Phone.h"
 
 #import "ModizerWin.h"
-#import "RootViewControllerIphone.h"
+#import "RootViewControllerLocalBrowser.h"
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
 
@@ -116,8 +116,8 @@ pthread_mutex_t play_mutex;
     //playlistS
     playlistVC->browse_depth=0;
     playlistVC->detailViewController=detailViewControlleriPhone;
-		
-	if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
+    
+    if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
 		[detailViewControlleriPhone enterBackground];
 		[modizerWin becomeFirstResponder];
 		[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];

@@ -10,23 +10,23 @@
 #import "DetailViewControllerIphone.h"
 //#import "AboutViewController.h"
 #import "webBrowser.h"
-#import "RootViewControllerIphone.h"
+#import "RootViewControllerLocalBrowser.h"
 
 
 @class DetailViewControllerIphone;
-@class RootViewControllerIphone;
+@class RootViewControllerLocalBrowser;
 //@class AboutViewController;
 
 @interface myTabBarController : UITabBarController <UITabBarDelegate> {
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 	//IBOutlet AboutViewController *aboutViewController;
 	IBOutlet WebBrowser *webBrowser;
-	IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 }
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 //@property (nonatomic, retain) IBOutlet AboutViewController *aboutViewController;
 @property (nonatomic, retain) IBOutlet WebBrowser *webBrowser;
-@property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 
 @end

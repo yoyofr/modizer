@@ -17,7 +17,7 @@
 @class DetailViewControllerIphone;
 
 
-@interface RootViewControllerLocalBrowser : UITableViewController <UISearchBarDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
@@ -27,6 +27,7 @@
 	UIView *waitingView;
 	
 	IBOutlet UISearchBar *sBar;
+    IBOutlet UITableView *tableView;
     
     NSMutableArray *list;
     NSMutableArray *keys;
@@ -67,6 +68,7 @@
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
