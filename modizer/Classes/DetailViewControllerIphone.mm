@@ -39,7 +39,7 @@
 #import "UIImageResize.h"
 
 #import "DetailViewControllerIphone.h"
-#import "RootViewControllerIphone.h"
+#import "RootViewControllerLocalBrowser.h"
 #import "RootViewControllerPlaylist.h"
 #import <MediaPlayer/MediaPlayer.h>
 
@@ -948,18 +948,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         for (int i=0;i<mPlaylist_size;i++) {
             playlist->entries[i].label=[[NSString alloc] initWithString:mPlaylist[i].mPlaylistFilename];
             playlist->entries[i].fullpath=[[NSString alloc ] initWithString:mPlaylist[i].mPlaylistFilepath];
-            
-            if (mPlaylist[i].mPlaylistRating==-1) {
-                DBHelper::getFileStatsDBmod(mPlaylist[i].mPlaylistFilename,
-                                            mPlaylist[i].mPlaylistFilepath,
-                                            NULL,
-                                            &(mPlaylist[i].mPlaylistRating),
-                                            NULL,
-                                            NULL);
-            }
-            if (mPlaylist[i].mPlaylistRating<0) mPlaylist[i].mPlaylistRating=0;
-            if (mPlaylist[i].mPlaylistRating>5) mPlaylist[i].mPlaylistRating=5;
-            
+                        
             playlist->entries[i].ratings=mPlaylist[i].mPlaylistRating;
             playlist->entries[i].playcounts=mPlaylist[i].mPlaylistCount;
         }

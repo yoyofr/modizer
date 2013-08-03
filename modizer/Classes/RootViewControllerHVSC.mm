@@ -162,7 +162,7 @@ static volatile int mPopupAnimation=0;
 	list=nil;
 	keys=nil;
 	
-	if (browse_depth==MENU_COLLECTIONS_ROOTLEVEL) {
+	if (browse_depth==0) {
 #ifdef GET_NB_ENTRIES
 		mNbHVSCFileEntries=DBHelper::getNbHVSCFilesEntries();
 #else

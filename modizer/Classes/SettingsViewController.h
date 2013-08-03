@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
-#import "RootViewControllerIphone.h"
+#import "RootViewControllerLocalBrowser.h"
 
 #import "CFtpServer.h"
 
@@ -36,7 +36,7 @@
 	//AOSDK
 	
 	IBOutlet DetailViewControllerIphone *detailViewControllerIphone;
-	IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 	
 	IBOutlet UIScrollView *scrollSettingsView;
 	IBOutlet UIViewController *settingsView;
@@ -58,7 +58,7 @@
 }
 @property (nonatomic, retain) IBOutlet UIViewController *settingsView;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControllerIphone;
-@property (nonatomic, retain) IBOutlet RootViewControllerIphone *rootViewControllerIphone;
+@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollSettingsView;
 @property (nonatomic, retain) IBOutlet UIView *cSettingsViewMODPLUG,*cSettingsViewDUMB,*cSettingsViewFTP,*cSettingsViewUADE,*cSettingsViewGME;
 @property (nonatomic, retain) IBOutlet UIView *cSettingsViewADPLUG,*cSettingsViewSEXYPSF,*cSettingsViewAOSDK;

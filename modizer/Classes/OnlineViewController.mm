@@ -6,6 +6,11 @@
 //
 //
 
+//#define GET_NB_ENTRIES 1
+#define NB_MODLAND_ENTRIES 319724
+#define NB_HVSC_ENTRIES 43116
+
+
 #import "OnlineViewController.h"
 
 @interface OnlineViewController ()
@@ -16,6 +21,7 @@
 
 @synthesize tableView;
 @synthesize downloadViewController,webBrowser,collectionViewController,detailViewController,playerButton;
+@synthesize mNbMODLANDFileEntries,mNbHVSCFileEntries;
 
 
 - (id)initWithStyle:(UITableViewStyle)style
@@ -32,6 +38,15 @@
     [super viewDidLoad];
     
     self.tableView.rowHeight = 40;
+    
+#ifdef GET_NB_ENTRIES
+    mNbMODLANDFileEntries=DBHelper::getNbMODLANDFilesEntries();
+    mNbHVSCFileEntries=DBHelper::getNbHVSCFilesEntries();
+#else
+    mNbMODLANDFileEntries=NB_MODLAND_ENTRIES;
+    mNbHVSCFileEntries=NB_HVSC_ENTRIES;
+#endif
+
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -182,12 +197,16 @@
     // Configure the cell...
     switch (indexPath.row) {
         case 0:topLabel.text=@"MODLAND collection";
+            bottomLabel.text=[NSString stringWithFormat:@"%d entries",mNbMODLANDFileEntries];
             break;
         case 1:topLabel.text=@"HVSC collection";
+            bottomLabel.text=[NSString stringWithFormat:@"%d entries",mNbHVSCFileEntries];
             break;
         case 2:topLabel.text=@"Modizer World Charts";
+            bottomLabel.text=NSLocalizedString(@"Browser_WorldCharts_SubKey",@"");
             break;
         case 3:topLabel.text=@"Internet";
+            bottomLabel.text=NSLocalizedString(@"Browser_Web_SubKey",@"");
             break;
         case 4:topLabel.text=@"Downloads";
             break;

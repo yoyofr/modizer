@@ -569,7 +569,6 @@
 		CC1E624112041177000A8A4E /* ModizMusicPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */; };
 		CC1E624212041177000A8A4E /* myNavViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622B12041177000A8A4E /* myNavViewController.mm */; };
 		CC1E624312041177000A8A4E /* myTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622D12041177000A8A4E /* myTabBarController.mm */; };
-		CC1E624512041177000A8A4E /* RootViewControllerIphone.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623112041177000A8A4E /* RootViewControllerIphone.mm */; };
 		CC1E624712041177000A8A4E /* RRSGlowLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623412041177000A8A4E /* RRSGlowLabel.m */; };
 		CC1E624812041177000A8A4E /* SearchViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623612041177000A8A4E /* SearchViewController.mm */; };
 		CC1E624912041177000A8A4E /* SettingsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623812041177000A8A4E /* SettingsViewController.mm */; };
@@ -5305,7 +5304,6 @@
 				CC1E624112041177000A8A4E /* ModizMusicPlayer.mm in Sources */,
 				CC1E624212041177000A8A4E /* myNavViewController.mm in Sources */,
 				CC1E624312041177000A8A4E /* myTabBarController.mm in Sources */,
-				CC1E624512041177000A8A4E /* RootViewControllerIphone.mm in Sources */,
 				CC1E624712041177000A8A4E /* RRSGlowLabel.m in Sources */,
 				CC1E624812041177000A8A4E /* SearchViewController.mm in Sources */,
 				CC1E624912041177000A8A4E /* SettingsViewController.mm in Sources */,

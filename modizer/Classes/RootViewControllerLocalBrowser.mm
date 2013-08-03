@@ -7,7 +7,6 @@
 //
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
-#define ROW_HEIGHT 40
 #define LIMITED_LIST_SIZE 1024
 
 #include <sys/types.h>
@@ -36,7 +35,7 @@ static volatile int mPopupAnimation=0;
 @implementation RootViewControllerLocalBrowser
 
 @synthesize mFileMngr;
-@synthesize detailViewController;
+@synthesize detailViewController,tableView;
 @synthesize sBar;
 @synthesize list;
 @synthesize keys;
@@ -45,10 +44,300 @@ static volatile int mPopupAnimation=0;
 @synthesize playerButton;
 @synthesize mSearchText;
 
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sys/xattr.h>
+
+static volatile int mUpdateToNewDB;
+static volatile int mDatabaseCreationInProgress;
+static volatile int db_checked=0;
+
+
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
+{
+    //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    //  NSString *documentsDirectory = [paths objectAtIndex:0];
+    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
+
+
+-(void) getDBVersion:(int*)major minor:(int*)minor {
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	sqlite3 *db;
+	pthread_mutex_lock(&db_mutex);
+	
+	*major=0;
+	*minor=0;
+	
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		sprintf(sqlStatement,"SELECT major,minor FROM version");
+		
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				*major=sqlite3_column_int(stmt, 0);
+				*minor=sqlite3_column_int(stmt, 1);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		sqlite3_close(db);
+	}
+	
+	pthread_mutex_unlock(&db_mutex);
+}
+
+void mymkdir(char *filePath);
+int do_extract_currentfile(unzFile uf,char *pathToExtract,NSString *pathBase);
+int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
+
+-(void)recreateDB {
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	NSString *defaultDBPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_USER];
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	NSString *pathToOldDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_TMP];
+	NSError *error;
+    NSFileManager *fileManager=[[NSFileManager alloc] init];
+	
+	pthread_mutex_lock(&db_mutex);
+	
+	if (mUpdateToNewDB) {
+		[fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
+        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
+	}
+	
+	[fileManager copyItemAtPath:defaultDBPath toPath:pathToDB error:&error];
+    [self addSkipBackupAttributeToItemAtPath:pathToDB];
+	
+	
+	if (mUpdateToNewDB) {
+		sqlite3 *db,*dbold;
+		
+		if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+			if (sqlite3_open([pathToOldDB UTF8String], &dbold) == SQLITE_OK){
+				char sqlStatementR[1024];
+				char sqlStatementR2[1024];
+				char sqlStatementW[1024];
+				sqlite3_stmt *stmt,*stmt2;
+				int err;
+				
+				//Migrate DB user data : song length, ratings, playlists, ...
+				sprintf(sqlStatementR,"SELECT name,fullpath,play_count,rating FROM user_stats");
+				err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
+				if (err==SQLITE_OK){
+					while (sqlite3_step(stmt) == SQLITE_ROW) {
+						
+						sprintf(sqlStatementW,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",
+								(char*)sqlite3_column_text(stmt, 0),
+								(char*)sqlite3_column_text(stmt, 1),
+								sqlite3_column_int(stmt, 2),
+								sqlite3_column_int(stmt, 3));
+						err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+						if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+					}
+					sqlite3_finalize(stmt);
+				} else NSLog(@"ErrSQL : %d",err);
+				
+				/*sprintf(sqlStatementR,"SELECT id_md5,track_nb,song_length FROM songlength");
+				 err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
+				 if (err==SQLITE_OK){
+				 while (sqlite3_step(stmt) == SQLITE_ROW) {
+				 
+				 sprintf(sqlStatementW,"INSERT INTO songlength (id_md5,track_nb,song_length) SELECT \"%s\",%d,%d",
+				 (char*)sqlite3_column_text(stmt, 0),
+				 sqlite3_column_int(stmt, 1),
+				 sqlite3_column_int(stmt, 2));
+				 err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+				 if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+				 }
+				 sqlite3_finalize(stmt);
+				 } else NSLog(@"ErrSQL : %d",err);*/
+				
+				
+				sprintf(sqlStatementR,"SELECT id,name,num_files FROM playlists");
+				err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
+				if (err==SQLITE_OK){
+					while (sqlite3_step(stmt) == SQLITE_ROW) {
+						int id_playlist;
+						//CREATE NEW PL
+						sprintf(sqlStatementW,"INSERT INTO playlists (name,num_files) SELECT \"%s\",%d",
+								(char*)sqlite3_column_text(stmt, 1),
+								sqlite3_column_int(stmt, 2));
+						err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+						if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+						
+						//GET NEW PL ID
+						id_playlist=sqlite3_last_insert_rowid(db);
+						
+						//RECOPY PL ENTRIES
+						sprintf(sqlStatementR2,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",sqlite3_column_int(stmt, 0));
+						err=sqlite3_prepare_v2(dbold, sqlStatementR2, -1, &stmt2, NULL);
+						if (err==SQLITE_OK){
+							while (sqlite3_step(stmt2) == SQLITE_ROW) {
+								
+								sprintf(sqlStatementW,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
+										id_playlist,
+										(char*)sqlite3_column_text(stmt2, 0),
+										(char*)sqlite3_column_text(stmt2, 1));
+								err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+								if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+							}
+							sqlite3_finalize(stmt2);
+						} else NSLog(@"ErrSQL : %d",err);
+						
+					}
+					sqlite3_finalize(stmt);
+				} else NSLog(@"ErrSQL : %d",err);
+				
+				
+				
+				sqlite3_close(dbold);
+				
+				//remove old DB
+				[fileManager removeItemAtPath:pathToOldDB error:&error];
+			}
+			sqlite3_close(db);
+		};
+	}
+	
+	/*	rar_main(argc,argv);
+	 free(argv_buffer);
+	 free(argv);*/
+	pthread_mutex_unlock(&db_mutex);
+	//	[self recreateDBIndexes];
+	
+	//[unrarPath release];
+	db_checked=1;
+	mDatabaseCreationInProgress=0;
+	[pool release];
+    [fileManager release];
+}
+
+-(void) updateFilesDoNotBackupAttributes {
+    NSError *error;
+    NSArray *dirContent;
+    int result;
+    //BOOL isDir;
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"];
+    NSString *file;
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    dirContent=[fileManager subpathsOfDirectoryAtPath:cpath error:&error];
+    for (file in dirContent) {
+        //NSLog(@"%@",file);
+        //        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
+        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
+    }
+    [fileManager release];
+}
+// Creates a writable copy of the bundled default database in the application Documents directory.
+- (void)createSamplesFromPackage:(BOOL)forceCreate {
+    BOOL success;
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSError *error;
+	
+	NSString *samplesDocPath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"]];
+	NSString *samplesPkgPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Samples2"];
+	
+	
+    success = [fileManager fileExistsAtPath:samplesDocPath];
+    if (success&&(forceCreate==FALSE)) {
+        [fileManager release];
+        return;
+    }
+    [fileManager removeItemAtPath:samplesDocPath error:&error];
+    [fileManager copyItemAtPath:samplesPkgPath toPath:samplesDocPath error:&error];
+    //update 'Do Not Backup' flag for directory & content (not sure it is required for the latest,...)
+    [self addSkipBackupAttributeToItemAtPath:samplesDocPath];
+    [self updateFilesDoNotBackupAttributes];
+    
+    [fileManager release];
+}
+
+// Creates a writable copy of the bundled default database in the application Documents directory.
+- (void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet {
+    // First, test for existence.
+    BOOL success;
+	BOOL wrongversion=FALSE;
+	int maj,min;
+	mUpdateToNewDB=0;
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
+    NSError *error;
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *writableDBPath = [documentsDirectory stringByAppendingPathComponent:DATABASENAME_USER];
+    success = [fileManager fileExistsAtPath:writableDBPath];
+    if (success&&!forceInit) {
+		maj=min=0;
+		[self getDBVersion:&maj minor:&min];
+		if ((maj==VERSION_MAJOR)&&(min==VERSION_MINOR)) {
+			db_checked=1;
+            [fileManager release];
+			return;
+		} else {
+			mUpdateToNewDB=1;
+			wrongversion=TRUE;
+		}
+	}
+    // The writable database does not exist, so copy the default to the appropriate location.
+	if (success&&(!wrongversion)) {//remove existing file
+		success = [fileManager removeItemAtPath:writableDBPath error:&error];
+	}
+	
+    mDatabaseCreationInProgress=1;
+	
+    if (mUpdateToNewDB) [self createSamplesFromPackage:TRUE];  //If upgrade to new version, recreate Samples dir
+    else [self createSamplesFromPackage:FALSE];
+	
+	if (quiet) [self recreateDB];
+	else {
+		UIAlertView *alert1;
+		if (forceInit) alert1 = [[[UIAlertView alloc] initWithTitle:@"Info"
+                                                            message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"") delegate:self cancelButtonTitle:@"Recreate DB" otherButtonTitles:nil] autorelease];
+		else {
+			if (wrongversion) {
+				alert1 = [[[UIAlertView alloc] initWithTitle:@"Info" message:
+						   [NSString stringWithFormat:NSLocalizedString(@"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil] autorelease];
+			}
+			else  alert1 = [[[UIAlertView alloc] initWithTitle:@"Info"
+                                                       message:NSLocalizedString(@"No database found. Will create a new one. Please validate & wait...",@"") delegate:self cancelButtonTitle:@"Create DB" otherButtonTitles:nil] autorelease];
+		}
+		[alert1 show];
+	}
+    [fileManager release];
+}
+
+
 #pragma mark -
 #pragma mark View lifecycle
 
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (mDatabaseCreationInProgress) {
+        [self recreateDB];
+        UIAlertView *alert2 = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Database created.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [alert2 show];
+    }
 }
 
 - (NSString *)machine {
@@ -65,7 +354,7 @@ static volatile int mPopupAnimation=0;
 	sysctlbyname("hw.machine", name, &size, NULL, 0);
 	
 	// Place name into a string
-	NSString *machine = [[[NSString alloc] initWithCString:name] autorelease];
+	NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
 	
 	// Done with this
 	free(name);
@@ -80,6 +369,7 @@ static volatile int mPopupAnimation=0;
 -(void)hideWaiting{
 	waitingView.hidden=TRUE;
 }
+
 
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
@@ -127,8 +417,10 @@ static volatile int mPopupAnimation=0;
 	mClickedPrimAction=0;
 	list=nil;
 	keys=nil;
+    
+    
 	
-	if (browse_depth==1) { //Local mode
+	if (browse_depth==0) { //Local mode
 		currentPath = @"Documents";
 		[currentPath retain];
 	}
@@ -1135,16 +1427,11 @@ static volatile int mPopupAnimation=0;
     if (detailViewController.mShouldHaveFocus) {
         detailViewController.mShouldHaveFocus=0;
         [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
-    } else {				
-        if (shouldFillKeys&&(browse_depth>0)) {
+    } else {
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
             [self fillKeys];
-            [[super tableView] reloadData];
+            [tableView reloadData];
             [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-        } else {
-            [self fillKeys];
-            [[super tableView] reloadData];
-        }
     }
     [super viewWillAppear:animated];	
     
@@ -1174,12 +1461,12 @@ static volatile int mPopupAnimation=0;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    [[super tableView] reloadData];
+    [tableView reloadData];
     return YES;
 }
 
@@ -1187,45 +1474,28 @@ static volatile int mPopupAnimation=0;
 #pragma mark Table view data source
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if (browse_depth==0) return nil;
-    if (mSearch) return nil;	
-    int switch_view_subdir=(browse_depth>=1?1:0);		
+    if (mSearch) return nil;
     
     if (section==0) return nil;
-    if ((section==1)&&switch_view_subdir) return @"";
-    if ((search_local?search_local_entries_count[section-1-switch_view_subdir]:local_entries_count[section-1-switch_view_subdir])) {
-        if (switch_view_subdir) return [indexTitlesSpace objectAtIndex:section];	
-        return [indexTitles objectAtIndex:section];
+    if (section==1) return @"";
+    if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) {
+        return [indexTitlesSpace objectAtIndex:section];
     } else return nil;
-    if (browse_depth>=2) return [indexTitles objectAtIndex:section];
+    if (browse_depth>=1) return [indexTitles objectAtIndex:section];
     return nil;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     local_flag=0;
-    
-    if (browse_depth==0) return [keys count];
-    int switch_view_subdir=(browse_depth>=SHOW_SUDIR_MIN_LEVEL?1:0);
-    if (switch_view_subdir) return 28+1;
-    return 28;
+    return 28+1;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (browse_depth>=1) {//local browser
-        int switch_view_subdir=(browse_depth>=SHOW_SUDIR_MIN_LEVEL?1:0);
         if (section==0) return 0;
-        if ((section==1)&&switch_view_subdir) return 1;
-        return (search_local?search_local_entries_count[section-1-switch_view_subdir]:local_entries_count[section-1-switch_view_subdir]);
-    } else {
-        NSDictionary *dictionary = [keys objectAtIndex:section];
-        NSArray *array = [dictionary objectForKey:@"entries"];
-        return [array count];
-    }
+        if (section==1) return 1;
+        return (search_local?search_local_entries_count[section-2]:local_entries_count[section-2]);
 }
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
-    if (browse_depth==0) return nil;
-    if (mSearch) return nil;	
-    int switch_view_subdir=(browse_depth>=SHOW_SUDIR_MIN_LEVEL?1:0);
-    if (switch_view_subdir) return indexTitlesSpace;
-    return indexTitles;    
+    if (mSearch) return nil;
+    return indexTitlesSpace;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
@@ -1383,8 +1653,7 @@ static volatile int mPopupAnimation=0;
     cell.accessoryType = UITableViewCellAccessoryNone;
     
     // Set up the cell...
-    int switch_view_subdir=( (browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-    if (switch_view_subdir&&(indexPath.section==1)){
+    if (indexPath.section==1){
         cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
         bottomLabel.text=[NSString stringWithFormat:@"%@ %d entries",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
         
@@ -1420,7 +1689,7 @@ static volatile int mPopupAnimation=0;
         secActionView.hidden=NO;
         
     } else {
-        int section=indexPath.section-1-switch_view_subdir;
+        int section=indexPath.section-2;
         cellValue=cur_local_entries[section][indexPath.row].label;
         
         
@@ -1430,7 +1699,7 @@ static volatile int mPopupAnimation=0;
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
                                        tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-32,
-                                       ROW_HEIGHT);
+                                       40);
             
         } else  { //file
             int actionicon_offsetx=0;
@@ -1546,9 +1815,7 @@ static volatile int mPopupAnimation=0;
         
         //delete entry
         
-        if (browse_depth>=1) {  //Local browse mode ?
-            int switch_view_subdir=(browse_depth>=SHOW_SUDIR_MIN_LEVEL?1:0);
-            int section=indexPath.section-1-switch_view_subdir;
+            int section=indexPath.section-2;
             NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
             NSError *err;
             
@@ -1567,8 +1834,7 @@ static volatile int mPopupAnimation=0;
             [self listLocalFiles];						
             [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             [tableView reloadData];
-            }
-        }
+            }        
         
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -1588,10 +1854,8 @@ static volatile int mPopupAnimation=0;
 }
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    if (browse_depth>=1) {
         t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-        int switch_view_subdir=(browse_depth>=SHOW_SUDIR_MIN_LEVEL?1:0);
-        int section=indexPath.section-1-switch_view_subdir;
+        int section=indexPath.section-2;
         if (section>=0) {
             NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
             BOOL res;
@@ -1600,7 +1864,6 @@ static volatile int mPopupAnimation=0;
             [myMngr release];
             return res;
         }
-    }
     return NO;
 }
 
@@ -1615,7 +1878,7 @@ static volatile int mPopupAnimation=0;
 }
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar {
     //[self fillKeys];
-    //[[super tableView] reloadData];
+    //[tableView reloadData];
     //mSearch=0;
     sBar.showsCancelButton = NO;
 }
@@ -1625,7 +1888,7 @@ static volatile int mPopupAnimation=0;
     mSearchText=[[NSString alloc] initWithString:searchText];
     shouldFillKeys=1;
     [self fillKeys];
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     if (mSearchText) [mSearchText release];
@@ -1635,7 +1898,7 @@ static volatile int mPopupAnimation=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
     
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
@@ -1649,19 +1912,15 @@ static volatile int mPopupAnimation=0;
 #pragma mark -
 #pragma mark Table view delegate
 - (void) primaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
     
     
-    if (browse_depth==0) {
-        
-    } else {         
-        int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-        int section=indexPath.section-1-switch_view_subdir;
+        int section=indexPath.section-2;
         
         if (indexPath.section==1) {
             // launch Play of current list
@@ -1691,7 +1950,7 @@ static volatile int mPopupAnimation=0;
             [detailViewController play_listmodules:&pl start_index:pos];
             
             if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-            else [[super tableView] reloadData];
+            else [tableView reloadData];
         } else {
             if (cur_local_entries[section][indexPath.row].type&3) {//File selected
                 // launch Play
@@ -1706,30 +1965,26 @@ static volatile int mPopupAnimation=0;
                 cur_local_entries[section][indexPath.row].rating=-1;
                 [detailViewController play_listmodules:&pl start_index:0];
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                else [[super tableView] reloadData];				
+                else [tableView reloadData];
                 
             }
-        }
-    } 
+        }     
     
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     
     
 }
 - (void) secondaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
     
     
-    if (browse_depth==0) {
-    } else {
         //local  browser & favorites
-        int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-        int section=indexPath.section-1-switch_view_subdir;
+        int section=indexPath.section-2;
         if (indexPath.section==1) {
             // launch Play of current dir
             int pos=0;
@@ -1761,7 +2016,7 @@ static volatile int mPopupAnimation=0;
             
             if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                else [[super tableView] reloadData];
+                else [tableView reloadData];
             }
             
             free(tmp_ratings);
@@ -1772,21 +2027,20 @@ static volatile int mPopupAnimation=0;
                 cur_local_entries[section][indexPath.row].rating=-1;
                 if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:1]) {
                     if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                    else [[super tableView] reloadData];
+                    else [tableView reloadData];
                 }
             }
         }
-    }
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
 }
 
 
 - (void) accessoryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;
-    [self tableView:[super tableView] didSelectRowAtIndexPath:indexPath];
+    [self tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
 
@@ -1802,12 +2056,12 @@ static volatile int mPopupAnimation=0;
         shouldFillKeys=1;
         [self fillKeys];   //2nd filter for drawing
     }
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 -(void) fillKeysWithPopup {
     [self fillKeys];
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 
@@ -1817,39 +2071,8 @@ static volatile int mPopupAnimation=0;
     NSString *cellValue;
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    //HACK to avoid BUG in iOS => if searchbar is not visible (scrolled), it will disappear when going back from child
-    /*if (mSearch) {
-     int i;
-     for (i=0;i<=indexPath.section;i++)
-     if ([tableView numberOfRowsInSection:i]) break;
-     NSIndexPath *myindex=[NSIndexPath indexPathForRow:0 inSection:i];
-     [tableView selectRowAtIndexPath:myindex animated:FALSE scrollPosition:UITableViewScrollPositionMiddle];
-     }*/
-    
-    if (browse_depth==0) {
-        NSDictionary *dictionary = [keys objectAtIndex:indexPath.section];
-        NSArray *array = [dictionary objectForKey:@"entries"];
-        cellValue = [array objectAtIndex:indexPath.row];
-        
-        
-        if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
-        else {			// Don't cache childviews
-        }
-        //set new title
-        childController.title = cellValue;
-        // Set new directory
-        ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
-        ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-        ((RootViewControllerLocalBrowser*)childController)->playerButton=playerButton;
-        // And push the window
-        [self.navigationController pushViewController:childController animated:YES];	
-        [keys release];keys=nil;
-        [list release];list=nil;
-        
-    } else {
-        int switch_view_subdir=((browse_depth>=SHOW_SUDIR_MIN_LEVEL));
-        int section=indexPath.section-1-switch_view_subdir;
-        if ((indexPath.section==1)&&switch_view_subdir) {
+        int section=indexPath.section-2;
+        if (indexPath.section==1) {
             int donothing=0;
             if (mSearch) {
                 if (mSearchText==nil) donothing=1;
@@ -1871,7 +2094,7 @@ static volatile int mPopupAnimation=0;
                     shouldFillKeys=1;
                     [self fillKeys];   //2nd filter for drawing
                 }
-                [[super tableView] reloadData];
+                [tableView reloadData];
                 
                 [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
             }
@@ -1954,7 +2177,6 @@ static volatile int mPopupAnimation=0;
             }	
         }
         
-    }
     mAccessoryButton=0;
 }
 

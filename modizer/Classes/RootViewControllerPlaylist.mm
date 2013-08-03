@@ -1977,6 +1977,23 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 cellValue=playlist->entries[indexPath.row-2].label;
                 cell.accessoryType = UITableViewCellAccessoryNone;
                 topLabel.textColor=[UIColor colorWithRed:0.2f green:0.2f blue:0.2f alpha:1.0f];
+                
+                
+                if (playlist->entries[indexPath.row-2].ratings==-1) {
+                    DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-2].label,
+                                                playlist->entries[indexPath.row-2].fullpath,
+                                                NULL,
+                                                &(playlist->entries[indexPath.row-2].ratings),
+                                                NULL,
+                                                NULL);
+                    if (playlist->playlist_id==nil) {//current queue
+                        detailViewController.mPlaylist[indexPath.row-2].mPlaylistRating=playlist->entries[indexPath.row-2].ratings;
+                    }
+                }
+
+                
+                
+                
                 bottomImageView.image=[UIImage imageNamed:ratingImg[playlist->entries[indexPath.row-2].ratings]];
                 NSArray *filename_parts=[playlist->entries[indexPath.row-2].fullpath componentsSeparatedByString:@"/"];
                 
@@ -2574,9 +2591,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     [actionSheet addButtonWithTitle:cancelTitle];
                     [actionSheet setDestructiveButtonIndex:5];
                     [actionSheet setCancelButtonIndex:6];
-//                    if (self.navigationController.toolbar) [actionSheet showFromToolbar:self.navigationController.toolbar];
-//                    else
-                        [actionSheet showInView:self.view];
+                    
+                    if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
+                    else[ actionSheet showFromToolbar:self.navigationController.toolbar];
                 } else { //"now playing" playlist -> does not exist in DB
                     NSString *actionSheetTitle = @""; //Action Sheet Title
                     NSString *other1 = @"Save";
@@ -2593,8 +2610,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                                   otherButtonTitles:other1, other2, other3, other4, other5, nil];
                     [actionSheet addButtonWithTitle:cancelTitle];
                     [actionSheet setCancelButtonIndex:5];
-                    if (self.navigationController.toolbarHidden) [actionSheet showInView:self.view];
-                    else[ actionSheet showFromToolbar:self.navigationController.toolbar];
+                    if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
+                    else [actionSheet showFromToolbar:self.navigationController.toolbar];
                 }
                 
                 
@@ -2610,8 +2627,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             if (indexPath.section==1) {
                 mShowSubdir^=1;
                 shouldFillKeys=1;
+                
+                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                
                 [self fillKeys];
                 [tableView reloadData];
+                
+                [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
             } else {
                 int section=indexPath.section-2;
                 cellValue=cur_local_entries[section][indexPath.row].label;
