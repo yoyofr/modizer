@@ -48,10 +48,12 @@
 -(IBAction) goBack:(id)sender;
 -(IBAction) goForward:(id)sender;
 -(IBAction) newBookmark:(id)sender;
+-(IBAction) goBookmarks;
 -(IBAction) goAbout:(id)sender;
 -(IBAction) newUrlEntered:(id)sender;
 -(IBAction) stopLoading:(id)sender;
 
+-(void)goToURL:(NSString*)address;
 -(void)loadWorldCharts;
 -(void)loadUserGuide;
 -(void)loadLastURL;

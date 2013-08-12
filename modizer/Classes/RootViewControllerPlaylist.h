@@ -37,6 +37,8 @@
 	int mShowSubdir,shouldFillKeys;
     
     int mAccessoryButton;
+    
+    
 
 	t_local_browse_entry *local_entries_data;
 	int local_entries_count[27];
@@ -72,20 +74,22 @@
 	int mFreePlaylist;
     int show_playlist;
     int browse_depth;
+    int integrated_playlist;
+    int mDetailPlayerMode;
     IBOutlet DetailViewControllerIphone *detailViewController;	
-	IBOutlet UIBarButtonItem *playerButton; 
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
 @property (nonatomic, retain) NSArray *list;
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
+
+@property int mDetailPlayerMode;
 
 -(IBAction)goPlayer;
 

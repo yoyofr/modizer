@@ -36,6 +36,7 @@ bd
 BDS
 bfc
 BMF
+bnk
 bp
 bp3
 bsi
@@ -195,6 +196,7 @@ SSFLIB
 DSF
 QSF
 SSF
+m3u
 mk2
 mkii
 mkiio

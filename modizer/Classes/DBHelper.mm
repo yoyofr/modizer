@@ -339,6 +339,33 @@ int DBHelper::getNbHVSCFilesEntries() {
 	pthread_mutex_unlock(&db_mutex);
 	return ret_int;
 }
+int DBHelper::getNbASMAFilesEntries() {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int err;
+	int ret_int=0;
+	
+	pthread_mutex_lock(&db_mutex);
+	
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		
+		sprintf(sqlStatement,"SELECT count(1) FROM asma_file");
+		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+		if (err==SQLITE_OK){
+			while (sqlite3_step(stmt) == SQLITE_ROW) {
+				ret_int=sqlite3_column_int(stmt, 0);
+			}
+			sqlite3_finalize(stmt);
+		} else NSLog(@"ErrSQL : %d",err);
+		
+	};
+	sqlite3_close(db);
+	
+	pthread_mutex_unlock(&db_mutex);
+	return ret_int;
+}
 int DBHelper::getNbMODLANDFilesEntries() {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;

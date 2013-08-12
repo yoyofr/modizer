@@ -1,0 +1,2 @@
+# stub for old updaters
+Release 59

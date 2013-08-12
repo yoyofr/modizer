@@ -11,6 +11,7 @@
 #import "RootViewControllerLocalBrowser.h"
 #import "SearchViewController.h"
 #import "ASIHTTPRequest.h"
+#import "BButton.h"
 
 #define MAX_DOWNLOAD_QUEUE 256
 
@@ -27,7 +28,7 @@
 	IBOutlet RootViewControllerLocalBrowser *rootViewController;
 	IBOutlet SearchViewController *searchViewController;
 	IBOutlet UITableView *downloadTabView;
-	IBOutlet UIButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
+	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
 	
 	ASIHTTPRequest *mASIrequest;
 
@@ -40,15 +41,14 @@
 	int mFTPDownloaded[MAX_DOWNLOAD_QUEUE];
 	unsigned char mIsMODLAND[MAX_DOWNLOAD_QUEUE];
     unsigned char mStatus[MAX_DOWNLOAD_QUEUE];
-	int mFTPDownloadQueueDepth;
+	
 	volatile int mFTPAskCancel;
 	
 	NSString *mURL[MAX_DOWNLOAD_QUEUE];
 	NSString *mURLFilename[MAX_DOWNLOAD_QUEUE];
 	int mURLFilesize[MAX_DOWNLOAD_QUEUE];
     unsigned char mURLIsImage[MAX_DOWNLOAD_QUEUE];
-    unsigned char mCurrentURLIsImage;
-	int mURLDownloadQueueDepth;	
+    unsigned char mCurrentURLIsImage;	
 	
 	NSString *mCurrentFilePath,*mCurrentFilename,*mCurrentFTPpath,*mCurrentURLFilename;
 	int mCurrentFileSize,mCurrentUsePrimaryAction;
@@ -58,6 +58,9 @@
 	IBOutlet UIProgressView *downloadPrgView;
 	
 	IBOutlet UITabBarItem *barItem;
+@public
+    int mFTPDownloadQueueDepth;
+    int mURLDownloadQueueDepth;
 }
 
 /****************/
@@ -84,10 +87,12 @@
 @property (nonatomic, retain) IBOutlet UIProgressView *downloadPrgView;
 @property (nonatomic, retain) IBOutlet UITabBarItem *barItem;
 @property (nonatomic, retain) IBOutlet UITableView *downloadTabView;
-@property (nonatomic, retain) IBOutlet UIButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
+@property (nonatomic, retain) IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
 
 @property (nonatomic, retain) NSInputStream *networkStream;
 @property (nonatomic, retain) NSOutputStream *fileStream;
+
+@property int mFTPDownloadQueueDepth,mURLDownloadQueueDepth;
 
 -(IBAction) goPlayer;
 -(IBAction)cancelCurrent;

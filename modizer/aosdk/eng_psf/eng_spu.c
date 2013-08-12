@@ -40,6 +40,7 @@
 #include "cpuintrf.h"
 #include "psx.h"
 
+
 extern int SPUinit(void);
 extern int SPUopen(void);
 extern int SPUclose(void);
@@ -49,6 +50,9 @@ static uint8 *start_of_file, *song_ptr;
 static uint32 cur_tick, cur_event, num_events, next_tick, end_tick;
 static int old_fmt;
 static char name[128], song[128], company[128];
+
+void setlength(signed int stop, signed int fade);
+
 
 int32 spu_start(uint8 *buffer, uint32 length, int32 loop_infinite,int32 defaultlength)
 {

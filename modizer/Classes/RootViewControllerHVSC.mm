@@ -1,12 +1,13 @@
 //
-//  RootViewController.m
+//  RootViewControllerHVSC.mm
 //  modizer1
 //
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-#define NB_HVSC_ENTRIES 40400
+#define GET_NB_ENTRIES 1
+#define NB_HVSC_ENTRIES 43856
 
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
@@ -39,12 +40,11 @@ static volatile int mPopupAnimation=0;
 @synthesize mFileMngr;
 @synthesize detailViewController;
 @synthesize downloadViewController;
-@synthesize tabView,sBar;
+@synthesize tableView,sBar;
 @synthesize list;
 @synthesize keys;
 @synthesize currentPath;
 @synthesize childController;
-@synthesize playerButton;
 @synthesize mSearchText;
 
 #pragma mark -
@@ -67,7 +67,7 @@ static volatile int mPopupAnimation=0;
 			} else {
 				if ([detailViewController add_to_playlist:FTPlocalPath fileName:FTPfilename forcenoplay:1]) {
 					if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-					else [[super tableView] reloadData];
+					else [tableView reloadData];
 				}
 			}
 		}
@@ -170,7 +170,12 @@ static volatile int mPopupAnimation=0;
 #endif
 	}
 	
-	self.navigationItem.rightBarButtonItem = playerButton; //self.editButtonItem;
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+    btn.adjustsImageWhenHighlighted = YES;
+    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    self.navigationItem.rightBarButtonItem = item;
 	
 	indexTitles = [[NSMutableArray alloc] init];
 	[indexTitles addObject:@"{search}"];
@@ -233,21 +238,17 @@ static volatile int mPopupAnimation=0;
 	[indexTitlesDownload addObject:@"Y"];
 	[indexTitlesDownload addObject:@"Z"];
 	
-	UIWindow *window=[[UIApplication sharedApplication] keyWindow];		
-	
-	waitingView = [[UIView alloc] initWithFrame:CGRectMake(window.bounds.size.width/2-40,window.bounds.size.height/2-40,80,80)];
+    waitingView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2-40,self.view.bounds.size.height/2-40,80,80)];
 	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
 	waitingView.opaque=TRUE;
 	waitingView.hidden=TRUE;
 	waitingView.layer.cornerRadius=20;
-	
 	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
 	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
 	[waitingView addSubview:indView];
-	[indView startAnimating];		
+	[indView startAnimating];
 	[indView autorelease];
-	
-	[window addSubview:waitingView];
+	[self.view addSubview:waitingView];
 	
 	[super viewDidLoad];
 	
@@ -1226,26 +1227,22 @@ static volatile int mPopupAnimation=0;
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
             
             [self fillKeys];
-            [[super tableView] reloadData];
+            [tableView reloadData];
             [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
         } else {
             [self fillKeys];
-            [[super tableView] reloadData];
+            [tableView reloadData];
         }
     }
     [super viewWillAppear:animated];	
     
 }
 -(void) refreshMODLANDView {
-    /*	if (mCurrentWinAskedDownload) {
-     [self fillKeys];
-     [[super tableView] reloadData];
-     } else */
     if (childController) [(RootViewControllerHVSC*)childController refreshMODLANDView];
     else {
         shouldFillKeys=1;
         [self fillKeys];
-        [[super tableView] reloadData];
+        [tableView reloadData];
     }
 }
 
@@ -1277,12 +1274,12 @@ static volatile int mPopupAnimation=0;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    [[super tableView] reloadData];
+    [tableView reloadData];
     return YES;
 }
 
@@ -1393,10 +1390,10 @@ static volatile int mPopupAnimation=0;
         gradient.colors = [NSArray arrayWithObjects:
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:245.0/255.0 green:245.0/255.0 blue:245.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
                            nil];
         gradient.locations = [NSArray arrayWithObjects:
                               (id)[NSNumber numberWithFloat:0.00f],
@@ -1411,14 +1408,14 @@ static volatile int mPopupAnimation=0;
         
         CAGradientLayer *selgrad = [CAGradientLayer layer];
         selgrad.frame = cell.bounds;
+        float rev_col_adj=1.2f;
         selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*240.0/255.0 green:0.99f*240.0/255.0 blue:0.9f*240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*245.0/255.0 green:0.99f*245.0/255.0 blue:0.9f*245.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
                           nil];
         selgrad.locations = [NSArray arrayWithObjects:
                              (id)[NSNumber numberWithFloat:0.00f],
@@ -1436,14 +1433,13 @@ static volatile int mPopupAnimation=0;
         //
         topLabel = [[[UILabel alloc] init] autorelease];
         [cell.contentView addSubview:topLabel];
-        
         //
         // Configure the properties for the text that are the same on every row
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
@@ -1458,13 +1454,12 @@ static volatile int mPopupAnimation=0;
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.textColor = [UIColor colorWithRed:0.25 green:0.20 blue:0.20 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.75 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
         bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         bottomLabel.opaque=TRUE;
-        
         
         bottomImageView = [[[UIImageView alloc] initWithImage:nil]  autorelease];
         bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
@@ -1494,6 +1489,13 @@ static volatile int mPopupAnimation=0;
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     
+    topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+    topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+    bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+    bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    
+
+    
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
                                tableView.bounds.size.width -1.0 * cell.indentationWidth- 32,
@@ -1522,7 +1524,7 @@ static volatile int mPopupAnimation=0;
         section-=download_all;
         if (download_all&&(indexPath.section==1)) {
             cellValue=NSLocalizedString(@"GetAllEntries_MainKey","");;
-            topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.8f alpha:1.0];
+            topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             bottomLabel.text=NSLocalizedString(@"GetAllEntries_SubKey","");
         } else {
             cellValue=cur_db_entries[section][indexPath.row].label;
@@ -1544,8 +1546,7 @@ static volatile int mPopupAnimation=0;
             } else colFactor=0;
             
             if (cur_db_entries[section][indexPath.row].id_md5) { //FILE
-                if (colFactor) topLabel.textColor=[UIColor colorWithRed:0 green:0 blue:0 alpha:1.0];
-                else topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0];
+                if (colFactor==0) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0];
                 topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                            0,
                                            tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE,
@@ -1621,10 +1622,9 @@ static volatile int mPopupAnimation=0;
                                            22);
                 topLabel.textColor=[UIColor colorWithRed:0.3f green:0.3f blue:0.8f alpha:1.0f];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            }		
+            }
         }
     }
-    
     topLabel.text = cellValue;
     
     return cell;
@@ -1690,7 +1690,7 @@ static volatile int mPopupAnimation=0;
 }
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar {
     //[self fillKeys];
-    //[[super tableView] reloadData];
+    //[tableView reloadData];
     //mSearch=0;
     sBar.showsCancelButton = NO;
 }
@@ -1700,7 +1700,7 @@ static volatile int mPopupAnimation=0;
     mSearchText=[[NSString alloc] initWithString:searchText];
     shouldFillKeys=1;
     [self fillKeys];
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     if (mSearchText) [mSearchText release];
@@ -1710,7 +1710,7 @@ static volatile int mPopupAnimation=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
     
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
@@ -1725,9 +1725,9 @@ static volatile int mPopupAnimation=0;
 #pragma mark -
 #pragma mark Table view delegate
 - (void) primaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
     
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
     
@@ -1760,7 +1760,7 @@ static volatile int mPopupAnimation=0;
                     cur_db_entries[section][indexPath.row].rating=-1;
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path ratings:&(cur_db_entries[section][indexPath.row].rating) playcounts:&(cur_db_entries[section][indexPath.row].playcount)];
                     if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                    else [[super tableView] reloadData];
+                    else [tableView reloadData];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
@@ -1775,9 +1775,9 @@ static volatile int mPopupAnimation=0;
     
 }
 - (void) secondaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
     
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
     
@@ -1810,7 +1810,7 @@ static volatile int mPopupAnimation=0;
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                     cur_db_entries[section][indexPath.row].rating=-1;
                     if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                    else [[super tableView] reloadData];					
+                    else [tableView reloadData];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
@@ -1823,11 +1823,11 @@ static volatile int mPopupAnimation=0;
 
 
 - (void) accessoryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [[super tableView] indexPathForRowAtPoint:[[[sender superview] superview] center]];
-    [[super tableView] selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;
-    [self tableView:[super tableView] didSelectRowAtIndexPath:indexPath];
+    [self tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
 
@@ -1843,12 +1843,12 @@ static volatile int mPopupAnimation=0;
         shouldFillKeys=1;
         [self fillKeys];   //2nd filter for drawing
     }
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 -(void) fillKeysWithPopup {
     [self fillKeys];
-    [[super tableView] reloadData];
+    [tableView reloadData];
 }
 
 
@@ -1968,14 +1968,13 @@ static volatile int mPopupAnimation=0;
                         mDir5=cur_db_entries[section][indexPath.row].dir5;
                     }
                     
-                    if (childController == nil) childController = [[RootViewControllerHVSC alloc]  initWithNibName:@"RootViewController" bundle:[NSBundle mainBundle]];
+                    if (childController == nil) childController = [[RootViewControllerHVSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     else {// Don't cache childviews
                     }
                     
                     childController.title = cur_db_entries[section][indexPath.row].label;
                     // Set new depth
                     ((RootViewControllerHVSC*)childController)->browse_depth = browse_depth+1;
-                    ((RootViewControllerHVSC*)childController)->playerButton=playerButton;
                     ((RootViewControllerHVSC*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerHVSC*)childController)->downloadViewController=downloadViewController;
                     

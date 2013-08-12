@@ -11,6 +11,8 @@
 #import "HardwareClock.h"
 #import "RRSGlowLabel.h"
 
+#import "BButton.h"
+
 //#import "FliteTTS.h"
 
 #import <AVFoundation/AVFoundation.h>
@@ -50,6 +52,14 @@ struct Resources;
 
 class CFont;
 class CGLString;
+
+typedef struct {
+    
+} t_settings_general;
+
+typedef struct {
+    
+} t_settings_plugin;
 
 @interface DetailViewControllerIphone : UIViewController <UIPickerViewDataSource, UIPickerViewDelegate,  UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
@@ -95,10 +105,10 @@ class CGLString;
 	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 	
 	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
-	IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList,*btnChangeTime;
+	IBOutlet UIButton *pvSubSongValidate,*pvArcValidate,*btnChangeTime;
+    IBOutlet BButton *btnShowArcList,*btnShowSubSong;
 
 	
-	IBOutlet UIButton *btnSortPlAZ,*btnSortPlZA,*btnPlShuffle,*btnPlClear,*btnPlEdit,*btnPlOk;
 	IBOutlet UILabel *labelTime,*labelModuleLength;
 	IBOutlet UILabel *labelSeeking;
 	IBOutlet UILabel *labelModuleSize,*labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
@@ -187,8 +197,8 @@ class CGLString;
 @property (retain,nonatomic) TKCoverflowView *coverflow; 
 @property (retain,nonatomic) UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
 @property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
-@property (atomic) BOOL mShuffle;
-@property (atomic) int mShouldUpdateInfos;
+@property BOOL mShuffle;
+@property int mShouldUpdateInfos;
 
 -(IBAction)optGENTitleFilename;
 
@@ -291,7 +301,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UIView *infoMsgView;
 @property (nonatomic, retain) IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_allowPopup,*sc_titleFilename;
-@property (nonatomic, retain) IBOutlet UIButton *btnSortPlAZ,*btnSortPlZA,*btnPlShuffle,*btnPlClear,*btnPlEdit,*btnPlOk,*btnChangeTime;
+@property (nonatomic, retain) IBOutlet UIButton *btnChangeTime;
 @property (nonatomic, retain) IBOutlet UIView *mainView,*infoView;
 @property (nonatomic, retain) IBOutlet UIButton *rating1,*rating1off,*rating2,*rating2off,*rating3,*rating3off,*rating4,*rating4off,*rating5,*rating5off;
 @property (nonatomic, retain) IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
@@ -312,7 +322,8 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking,*labelDefaultLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
 @property (nonatomic, retain) IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
-@property (nonatomic, retain) IBOutlet UIButton *pvSubSongValidate,*btnShowSubSong,*pvArcValidate,*btnShowArcList;
+@property (nonatomic, retain) IBOutlet UIButton *pvSubSongValidate,*pvArcValidate;
+@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
 @property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule,*sld_TIMPoly,*sld_DefaultLength;

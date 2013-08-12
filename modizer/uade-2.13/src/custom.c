@@ -1305,7 +1305,6 @@ static void init_eventtab (void)
 
 void customreset (void)
 {
-    int i;
 #ifdef HAVE_GETTIMEOFDAY
     struct timeval tv;
 #endif

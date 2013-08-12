@@ -211,9 +211,9 @@ extern "C" {
 }
 
 //ASAP
-static byte ASAP_module[ASAP_MODULE_MAX];
+static unsigned char *ASAP_module;
 static int ASAP_module_len;
-static ASAP_State asap;
+static struct ASAP asap;
 
 
 extern "C" { 
@@ -2722,10 +2722,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						if (code==API68_MIX_ERROR) nbBytes=0;
 					}
 					if (mPlayType==13) { //ASAP
-						if (asap.module_info.channels==2) {
-							nbBytes= ASAP_Generate(&asap, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, ASAP_FORMAT_S16_LE);						
+						if (asap.moduleInfo.channels==2) {
+							nbBytes= ASAP_Generate(&asap, (unsigned char *)buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, ASAPSampleFormat_S16_L_E);
 						} else {
-							nbBytes= ASAP_Generate(&asap, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2, ASAP_FORMAT_S16_LE);
+							nbBytes= ASAP_Generate(&asap, (unsigned char *)buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2, ASAPSampleFormat_S16_L_E);
 							short int *buff=(short int*)(buffer_ana[buffer_ana_gen_ofs]);
 							for (int i=nbBytes*2-1;i>0;i--) {
 								buff[i]=buff[i>>1];
@@ -3165,7 +3165,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			} else NSLog(@"ErrSQL : %d",err);
 		} else realPath+=5;
 		if (realPath) {
-			
 			sprintf(sqlStatement,"SELECT stil_info FROM stil WHERE fullpath=\"%s\"",realPath);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
@@ -3185,6 +3184,54 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	
 	pthread_mutex_unlock(&db_mutex);
 }
+
+-(void) getStilAsmaInfo:(char*)fullPath {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int err;
+	
+	strcpy(stil_info,"");
+	pthread_mutex_lock(&db_mutex);
+	
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		char tmppath[256];
+		sqlite3_stmt *stmt;
+		char *realPath=strstr(fullPath,"/ASMA");
+		
+		if (!realPath) {
+			//try to find realPath with md5
+			sprintf(sqlStatement,"SELECT filepath FROM asma_path WHERE id_md5=\"%s\"",song_md5);
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					strcpy(tmppath,(const char*)sqlite3_column_text(stmt, 0));
+					realPath=tmppath;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		} else realPath+=5;
+		if (realPath) {
+			sprintf(sqlStatement,"SELECT stil_info FROM stil_asma WHERE fullpath=\"%s\"",realPath);
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			if (err==SQLITE_OK){
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
+					strcpy(stil_info,(const char*)sqlite3_column_text(stmt, 0));
+					while (realPath=strstr(stil_info,"\\n")) {
+						*realPath='\n';
+						realPath++;
+						memmove(realPath,realPath+1,strlen(realPath));
+					}
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+		}
+	};
+	sqlite3_close(db);
+	
+	pthread_mutex_unlock(&db_mutex);
+}
+
 
 -(void) scanForPlayableFile:(NSString*)pathToScan {
 	NSString *file;
@@ -4111,6 +4158,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		fseek(f,0L,SEEK_END);
 		ASAP_module_len=ftell(f);
         mp_datasize=ASAP_module_len;
+        ASAP_module=(unsigned char*)malloc(ASAP_module_len);
 		fseek(f,0,SEEK_SET);
 		fread(ASAP_module, 1, ASAP_module_len, f);
 		fclose(f);
@@ -4120,22 +4168,31 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			mPlayType=0;
 			return -2;
 		}
-		song = asap.module_info.default_song;
-		duration = asap.module_info.durations[song];
+        
+        md5_from_buffer(song_md5,33,(char*)ASAP_module,ASAP_module_len);
+        song_md5[32]=0;
+        
+		song = asap.moduleInfo.defaultSong;
+		duration = asap.moduleInfo.durations[song];
 		ASAP_PlaySong(&asap, song, duration);
         
-		sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap.module_info.author,asap.module_info.name,asap.module_info.songs,asap.module_info.channels);		
+		sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap.moduleInfo.author,asap.moduleInfo.title,asap.moduleInfo.songs,asap.moduleInfo.channels);
 		
 		iModuleLength=duration;
 		iCurrentTime=0;
-		numChannels=asap.module_info.channels;
+		numChannels=asap.moduleInfo.channels;
 		mod_minsub=0;
-		mod_maxsub=asap.module_info.songs-1;
-		mod_subsongs=asap.module_info.songs;
+		mod_maxsub=asap.moduleInfo.songs-1;
+		mod_subsongs=asap.moduleInfo.songs;
 		
 		sprintf(mod_name,"");
-		if (asap.module_info.name[0]) sprintf(mod_name," %s",asap.module_info.name);		
+		if (asap.moduleInfo.title[0]) sprintf(mod_name," %s",asap.moduleInfo.title);
 		if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        
+        stil_info[0]=0;
+        [self getStilAsmaInfo:(char*)[filePath UTF8String]];
+        
+        sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
 		
 		//Loop
 		if (mLoopMode==1) iModuleLength=-1;
@@ -4501,6 +4558,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				mSid1EmuEngine->setVoiceVolume(2, 255-150, 150, 256);
 				mSid1EmuEngine->setVoiceVolume(4, 255-150, 150, 256);
 				
+                stil_info[0]=0;
     			[self getStilInfo:(char*)[filePath UTF8String]];
 				
 				sprintf(mod_message,"");
@@ -4622,6 +4680,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 					iCurrentTime=0;
 					numChannels=mSidEmuEngine->info().channels;
 					
+                    stil_info[0]=0;
 					[self getStilInfo:(char*)[filePath UTF8String]];
 					
 					sprintf(mod_message,"");
@@ -5578,7 +5637,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		GSFClose();
 	}
 	if (mPlayType==13) { //ASAP
-		
+        free(ASAP_module);
 	}
     if (mPlayType==14) {
         if (mPatternDataAvail) {

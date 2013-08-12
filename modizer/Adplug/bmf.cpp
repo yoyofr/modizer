@@ -237,7 +237,7 @@ void CxadbmfPlayer::xadplayer_rewind(int subsong)
 void CxadbmfPlayer::xadplayer_update()
 {
   for(int i=0;i<9;i++)
-    if (bmf.channel[i].stream_position != 0xFFFF)
+      if (bmf.channel[i].stream_position != 0xFFFF) {
     if (bmf.channel[i].delay)
       bmf.channel[i].delay--;
 	else
@@ -363,7 +363,7 @@ void CxadbmfPlayer::xadplayer_update()
       } // if (pos != 0xFFFF)
 
 	} // if (!bmf.channel[i].delay)
-
+      }
   // is module loop ?
   if (!bmf.active_streams)
   {

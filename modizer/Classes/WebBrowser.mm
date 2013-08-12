@@ -11,6 +11,7 @@
 <body style='background-color:#eee;color:#111;'><div align=\"CENTER\">Loading...</div></body></html>"
 
 #import "WebBrowser.h"
+#import "WB_BookmarksViewController.h"
 
 #define WEB_MODE 0
 #define WCHARTS_MODE 1
@@ -23,12 +24,36 @@ static int currentMode=0;
 static int loadStatus=0;
 static volatile int mPopupAnimation=0;
 static NSString *lastURL=nil;
+static WB_BookmarksViewController *bookmarksVC;
 
 @implementation WebBrowser
+
+static NSString *suggestedFilename;
+static long long expectedContentLength;
+int cover_expectedContentLength;
+NSString *cover_url_string,*cover_currentPlayFilepath;
+int found_img;
+
+static UIAlertView *alertChooseName;
+
 
 @synthesize webView,activityIndicator,backButton,forwardButton,downloadViewController,addressTestField;//,view;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
+
+-(IBAction) goBookmarks {
+    bookmarksVC = [[[WB_BookmarksViewController alloc]  initWithNibName:@"BookmarksViewController" bundle:[NSBundle mainBundle]] autorelease];
+    //set new title
+    bookmarksVC.title = NSLocalizedString(@"Bookmarks",@"");
+    bookmarksVC->detailViewController = detailViewController;
+    bookmarksVC.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    bookmarksVC->webBrowser=self;
+    // Set new directory
+    // And push the window
+    [self.navigationController pushViewController:bookmarksVC animated:YES];
+//    [self presentViewController:bookmarksVC animated:YES completion:nil];
+    
+}
 
 -(IBAction) goPlayer {
 	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
@@ -49,13 +74,14 @@ static NSString *lastURL=nil;
 
 -(IBAction) newBookmark:(id)sender {
 	if ([addressTestField.text length]) {
-		custom_URL[custom_url_count]=[[NSString alloc] initWithString:addressTestField.text];
-		custom_URL_name[custom_url_count]=[[NSString alloc] initWithString:addressTestField.text];
-		custom_url_count++;
-		[self saveBookmarks];
-		
-		
-		[self openPopup:@"Bookmark updated"];
+        NSString *tmpStr;
+        if ([addressTestField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTestField.text substringToIndex:24-3]];
+        else tmpStr=[NSString stringWithString:addressTestField.text];
+        alertChooseName=[[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr] message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
+        [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
+        UITextField *tf=[alertChooseName textFieldAtIndex:0];
+        tf.text=addressTestField.text;
+        [alertChooseName show];
 	}
 }
 
@@ -175,16 +201,9 @@ static NSString *lastURL=nil;
     currentMode=WCHARTS_MODE;
     loadStatus=TO_LOAD;
     
-/*	UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
-	//barBtn.enabled=NO;
-	barBtn=[toolBar.items objectAtIndex:1];
-	barBtn.enabled=NO;
-	//barBtn=[toolBar.items objectAtIndex:2];
-	//barBtn.enabled=NO;
- */
-    toolBar.hidden=TRUE;
+    //toolBar.hidden=TRUE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,0,cursize.width,self.view.frame.size.height-44);
+//    webView.frame=CGRectMake(0,0,cursize.width,self.view.frame.size.height-44);
 	[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 }
 
@@ -197,99 +216,87 @@ static NSString *lastURL=nil;
     currentMode=GUIDE_MODE;
     loadStatus=TO_LOAD;
     
-    toolBar.hidden=FALSE;
+//    toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
+//    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
     
-    UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
-	//barBtn.enabled=NO;
-	barBtn=[toolBar.items objectAtIndex:1];
-	barBtn.enabled=NO;
-	//barBtn=[toolBar.items objectAtIndex:2];
-	//barBtn.enabled=NO;
 	[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 }
 
 -(void)loadLastURL {
-    toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
+//    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
     
-	UIBarButtonItem *barBtn=[toolBar.items objectAtIndex:0];
-	//barBtn.enabled=YES;
-	barBtn=[toolBar.items objectAtIndex:1];
-	barBtn.enabled=YES;
-	//barBtn=[toolBar.items objectAtIndex:2];
-	//barBtn.enabled=YES;
 	loadStatus=TO_LOAD;
     currentMode=WEB_MODE;
     
     if (![webView canGoBack]) {
         [self loadHome];
+        loadStatus=LOADED;
         return;
     }
 	
 	if (lastURL) {
         addressTestField.text=[NSString stringWithString:lastURL];
         [lastURL autorelease];
-    } else [self loadHome];
+    } else {[self loadHome];loadStatus=LOADED;}
 //	if ([addressTestField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
 //	else {
 //		[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 //	}
 }
 
-- (void)loadHome {
-    toolBar.hidden=FALSE;
-    CGSize cursize=[self currentSize];
-    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
+-(void)goToURL:(NSString*)address {
+    loadStatus=TO_LOAD;
     currentMode=WEB_MODE;
-	NSString *html = @"<html><head><title>Modizer Web Browser</title></head>\
-	<meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" />\
-	<body><div><b><font size=+1>Modizer v" VERSION_MAJOR_STR "." VERSION_MINOR_STR "</font></b><br><font size=-1><i>by Yohann Magnien / YoyoFR</i></font>\
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
-	<a href=""http://yoyofr.blogspot.com/p/modizer.html"" style=""color:#404020;"">website</a><hr>";
-	
-	if (custom_url_count) {
-		html=[NSString stringWithFormat:@"%@%@",html,@"<p><b>Bookmarks</b><br>"];	
-		for (int i=0;i<custom_url_count;i++) {
-			html=[NSString stringWithFormat:@"%@<a href='modizer://delete_bookmark%d'><font color=#E00000>del</font></a>&nbsp<a href='%@'>%@</a><br>",html,i,custom_URL[i],custom_URL_name[i]];
-		}
-	} else {
-		html=[NSString stringWithFormat:@"%@<p><b>No bookmark.</b><br></p>",html];
-	}
-	html=[NSString stringWithFormat:@"%@%@",html,@"<p><b>Modules</b> style music (Amiga, PC, demos...)<br>\
-          <a href='http://www.exotica.org.uk/'>http://www.exotica.org.uk</a><br>\
-          <a href='http://amp.dascene.net/'>http://amp.dascene.net</a><br>\
-          <a href='http://modarchive.org/'>http://modarchive.org</a><br>\
-          <a href='http://www.amigascne.org'>http://www.amigascne.org</a><br>\
-          <a href='http://chiptunes.org/'>http://chiptunes.org</a><br>\
-          <a href='http://chiptunes.back2roots.org/'>http://chiptunes.back2roots.org</a><br>\
-          <a href='http://2a03.free.fr/'>http://2a03.free.fr</a><br>\
-          <a href='http://chipcovers.free.fr/'>http://chipcovers.free.fr</a><br>\
-          <a href='http://www.mirsoft.info/gamemods-archive.php'>http://www.mirsoft.info/gamemods-archive.php</a><br>\
-          <a href='http://www.scene.org/dir.php?dir=/music/'>http://www.scene.org/dir.php?dir=/music</a><br></p>\
-          <p><b>Midi</b> music (classical, pop, games,...)<br>\
-          <a href='http://www.lvbeethoven.com/Midi/index.html'>http://www.lvbeethoven.com/Midi/index.html</a><br>\
-          <a href='http://www.midishrine.com/'>http://www.midishrine.com</a><br>\
-          <a href='http://www.vgmusic.com/'>http://www.vgmusic.com</a><br>\
-          <a href='http://www.aganazzar.com/midi.html'>http://www.aganazzar.com/midi.html</a><br>\
-          <a href='http://www.mirsoft.info/gamemids-archive.php'>http://www.mirsoft.info/gamemids-archive.php</a><br></p>\
-          </div></body></html>"];  
-	[webView loadHTMLString:html baseURL:nil];  
-    //	addressTestField.text=@"";
+    addressTestField.text=address;
+    
+    [self textFieldShouldReturn:addressTestField];
 }
 
-static NSString *suggestedFilename;
-static long long expectedContentLength;
-int cover_expectedContentLength;
-NSString *cover_url_string,*cover_currentPlayFilepath;
-int found_img;
+- (void)loadHome {
+    CGSize cursize=[self currentSize];
+//    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
+    //#F627AA
+    // v" VERSION_MAJOR_STR "." VERSION_MINOR_STR "
+    currentMode=WEB_MODE;
+
+    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle]
+                                                                              pathForResource:@"browser_home" ofType:@"html"]isDirectory:NO]]];
+    
+//	[webView loadHTMLString:html baseURL:nil];
+    addressTestField.text=@"";
+}
+
+
+- (BOOL)alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView {
+    if (alertView==alertChooseName) {
+        NSString *inputText = [[alertView textFieldAtIndex:0] text];
+        if( [inputText length] >= 1 ) {
+            return YES;
+        } else {
+            return NO;
+        }
+    } else return YES;
+}
+
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     int do_save=0;
     NSString *filename;
     NSError *err;
+    
+    if (alertView==alertChooseName) {
+        if (buttonIndex==1) {
+        UITextField *name = [alertView textFieldAtIndex:0];
+        custom_URL[custom_url_count]=[[NSString alloc] initWithString:addressTestField.text];
+		custom_URL_name[custom_url_count]=[[NSString alloc] initWithString:name.text];
+		custom_url_count++;
+		[self saveBookmarks];
+		[self openPopup:@"Bookmark updated"];
+        } else return;
+
+    } else {
     if (detailViewController.mPlaylist_size==0) return;
     
 	if (buttonIndex==1) { //save as folder cover
@@ -318,9 +325,10 @@ int found_img;
         [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];        
     }
     [cover_url_string autorelease];
+    }
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {      
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	NSRange r;	
 	NSString *MIME = response.MIMEType;
 	NSString *appDirectory = [[NSBundle mainBundle] bundlePath];
@@ -638,27 +646,33 @@ int found_img;
         NSRange rModizerdb;
         rModizerdb.location=NSNotFound;
         rModizerdb=[addressTestField.text rangeOfString:@"modizerdb.appspot.com" options:NSCaseInsensitiveSearch];
-        if (rModizerdb.location!=NSNotFound) {
-            if (toolBar.hidden==FALSE) {
-                toolBar.hidden=TRUE;
-                CGSize cursize=[self currentSize];
-                webView.frame=CGRectMake(0,0,cursize.width,self.view.frame.size.height);
-            }
-        } else {
-            if (toolBar.hidden) {
-                toolBar.hidden=FALSE;
-                CGSize cursize=[self currentSize];
-                webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44*2);
-            }
-        }
-        
-        
 	}
+    
+    
 	return YES;
 }
 
 - (void)webViewDidStartLoad:(UIWebView*)webV {
 	[activityIndicator startAnimating];
+    
+    
+    UIBarButtonItem *barBtn;
+    for (int i=0;i<[toolBar.items count];i++) {
+        barBtn=[toolBar.items objectAtIndex:i];
+        switch (barBtn.tag) {
+            case 1: //back
+                if ([webView canGoBack]) {
+                    barBtn.enabled=YES;
+                } else barBtn.enabled=NO;
+                break;
+            case 2: //forward
+                if ([webView canGoForward]) {
+                    barBtn.enabled=YES;
+                } else barBtn.enabled=NO;
+                break;
+        }
+    }
+
 }
 
 - (void)webViewDidFinishLoad:(UIWebView*)webV {
@@ -669,12 +683,12 @@ int found_img;
             loadStatus=LOADED;
             NSString *urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,WORLDCHARTS_DEFAULTLIST,(detailViewController.mDeviceType==1?"iPad":"iPhone")];
             [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
-            //addressTestField.text=urlString;
+            addressTestField.text=urlString;
         } else if (currentMode==GUIDE_MODE) {
             loadStatus=LOADED;
             NSString *urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,USERGUIDE_URL,(detailViewController.mDeviceType==1?"iPad":"iPhone")];
             [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
-            //addressTestField.text=urlString;        
+            addressTestField.text=urlString;
         } else if (currentMode==WEB_MODE) {
             loadStatus=LOADED;
             
@@ -695,9 +709,9 @@ int found_img;
 					addressTestField.text=[NSString stringWithFormat:@"http://%@",addressTestField.text];
 				}
 			}
+            lastURL=[NSString stringWithString:addressTestField.text];
 			[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
 		}
-        
     }
 }
 
@@ -746,18 +760,27 @@ int found_img;
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
-	start_time=clock();	
+	start_time=clock();
+    
+    bookmarksVC=nil;
     
     UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
     doubleTap.numberOfTouchesRequired = 2;
     [self.webView addGestureRecognizer:doubleTap];
     
 	self.hidesBottomBarWhenPushed = YES;
+    
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+    btn.adjustsImageWhenHighlighted = YES;
+    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    self.navigationItem.rightBarButtonItem = item;
+
 	
-	webView.scalesPageToFit = YES; 
-	webView.autoresizesSubviews = YES; 
-	webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | 
-							  UIViewAutoresizingFlexibleWidth); 
+	webView.scalesPageToFit = YES;
+	webView.autoresizesSubviews = YES;
+	webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
 	
 	[[infoDownloadView layer] setCornerRadius:5.0];	
 	[[infoDownloadView layer] setBorderWidth:2.0];
@@ -765,7 +788,7 @@ int found_img;
 	infoDownloadView.hidden=YES;
 	
 	custom_url_count=0;
-	[self loadBookmarks];
+	
 	[self loadHome];
     [super viewDidLoad];
 	
@@ -775,10 +798,15 @@ int found_img;
 #endif
 }
 
-/*- (void)viewWillAppear:(BOOL)animated {
- }*/
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self loadBookmarks];
+    bookmarksVC=nil;
+}
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    if (bookmarksVC) [bookmarksVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
 	return YES;
 }
 

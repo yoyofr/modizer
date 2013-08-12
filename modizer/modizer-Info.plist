@@ -22,7 +22,7 @@
 				<string>mod</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>XM file</string>
 			<key>LSHandlerRank</key>
@@ -36,7 +36,7 @@
 				<string>xm</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>IT file</string>
 			<key>LSHandlerRank</key>
@@ -50,7 +50,7 @@
 				<string>it</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>S3M file</string>
 			<key>LSHandlerRank</key>
@@ -64,7 +64,7 @@
 				<string>s3m</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>SPC file</string>
 			<key>LSHandlerRank</key>
@@ -78,7 +78,7 @@
 				<string>spc</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>PSF file</string>
 			<key>LSHandlerRank</key>
@@ -92,7 +92,7 @@
 				<string>psf</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>SPU file</string>
 			<key>LSHandlerRank</key>
@@ -106,7 +106,7 @@
 				<string>spu</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>PSF2 file</string>
 			<key>LSHandlerRank</key>
@@ -120,7 +120,7 @@
 				<string>psf2</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>NSF file</string>
 			<key>LSHandlerRank</key>
@@ -134,7 +134,7 @@
 				<string>nsf</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>NSFE file</string>
 			<key>LSHandlerRank</key>
@@ -148,7 +148,7 @@
 				<string>nsfe</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>GSF file</string>
 			<key>LSHandlerRank</key>
@@ -162,7 +162,7 @@
 				<string>gsf</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>SSF file</string>
 			<key>LSHandlerRank</key>
@@ -176,7 +176,7 @@
 				<string>ssf</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>DSF file</string>
 			<key>LSHandlerRank</key>
@@ -190,7 +190,7 @@
 				<string>dsf</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>VGM file</string>
 			<key>LSHandlerRank</key>
@@ -204,7 +204,7 @@
 				<string>vgm</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>VGZ file</string>
 			<key>LSHandlerRank</key>
@@ -218,7 +218,7 @@
 				<string>vgz</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>MID file</string>
 			<key>LSHandlerRank</key>
@@ -232,7 +232,7 @@
 				<string>mid</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>MIDI file</string>
 			<key>LSHandlerRank</key>
@@ -246,7 +246,7 @@
 				<string>midi</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>RSN file</string>
 			<key>LSHandlerRank</key>
@@ -260,7 +260,7 @@
 				<string>rsn</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>ZIP file</string>
 			<key>LSHandlerRank</key>
@@ -274,7 +274,7 @@
 				<string>zip</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>7Z file</string>
 			<key>LSHandlerRank</key>
@@ -288,7 +288,7 @@
 				<string>7z</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>GZ file</string>
 			<key>LSHandlerRank</key>
@@ -302,7 +302,7 @@
 				<string>gz</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>RAR file</string>
 			<key>LSHandlerRank</key>
@@ -316,7 +316,7 @@
 				<string>rar</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>LZH file</string>
 			<key>LSHandlerRank</key>
@@ -330,7 +330,7 @@
 				<string>lzh</string>
 			</array>
 		</dict>
-        <dict>
+		<dict>
 			<key>CFBundleTypeName</key>
 			<string>LHA file</string>
 			<key>LSHandlerRank</key>
@@ -376,6 +376,10 @@
 	<string>1.7</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>UpheavalPro.ttf</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMainNibFile</key>
@@ -421,7 +425,7 @@
 				<string>mod</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>XM file</string>
 			<key>UTTypeConformsTo</key>
@@ -436,7 +440,7 @@
 				<string>xm</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>IT file</string>
 			<key>UTTypeConformsTo</key>
@@ -451,7 +455,7 @@
 				<string>it</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>S3M file</string>
 			<key>UTTypeConformsTo</key>
@@ -466,7 +470,7 @@
 				<string>s3m</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>SPC file</string>
 			<key>UTTypeConformsTo</key>
@@ -481,7 +485,7 @@
 				<string>spc</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>PSF file</string>
 			<key>UTTypeConformsTo</key>
@@ -496,7 +500,7 @@
 				<string>psf</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>SPU file</string>
 			<key>UTTypeConformsTo</key>
@@ -511,7 +515,7 @@
 				<string>spu</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>PSF2 file</string>
 			<key>UTTypeConformsTo</key>
@@ -526,7 +530,7 @@
 				<string>psf2</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>NSF file</string>
 			<key>UTTypeConformsTo</key>
@@ -541,7 +545,7 @@
 				<string>nsf</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>NSFE file</string>
 			<key>UTTypeConformsTo</key>
@@ -556,7 +560,7 @@
 				<string>nsfe</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>GSF file</string>
 			<key>UTTypeConformsTo</key>
@@ -571,7 +575,7 @@
 				<string>gsf</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>SSF file</string>
 			<key>UTTypeConformsTo</key>
@@ -586,7 +590,7 @@
 				<string>ssf</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>DSF file</string>
 			<key>UTTypeConformsTo</key>
@@ -601,7 +605,7 @@
 				<string>dsf</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>VGM file</string>
 			<key>UTTypeConformsTo</key>
@@ -616,7 +620,7 @@
 				<string>vgm</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>VGZ file</string>
 			<key>UTTypeConformsTo</key>
@@ -631,7 +635,7 @@
 				<string>vgz</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>MID file</string>
 			<key>UTTypeConformsTo</key>
@@ -646,7 +650,7 @@
 				<string>mid</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>MIDI file</string>
 			<key>UTTypeConformsTo</key>
@@ -661,7 +665,7 @@
 				<string>midi</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>RSN file</string>
 			<key>UTTypeConformsTo</key>
@@ -676,7 +680,7 @@
 				<string>rsn</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>ZIP file</string>
 			<key>UTTypeConformsTo</key>
@@ -691,7 +695,7 @@
 				<string>zip</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>7Z file</string>
 			<key>UTTypeConformsTo</key>
@@ -706,7 +710,7 @@
 				<string>7z</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>GZ file</string>
 			<key>UTTypeConformsTo</key>
@@ -721,7 +725,7 @@
 				<string>gz</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>RAR file</string>
 			<key>UTTypeConformsTo</key>
@@ -736,7 +740,7 @@
 				<string>rar</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>LHA file</string>
 			<key>UTTypeConformsTo</key>
@@ -751,7 +755,7 @@
 				<string>lha</string>
 			</dict>
 		</dict>
-        <dict>
+		<dict>
 			<key>UTTypeDescription</key>
 			<string>LZH file</string>
 			<key>UTTypeConformsTo</key>

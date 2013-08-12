@@ -64,14 +64,15 @@ const binio::Flags binio::detect_system_flags()
   float fl = 6.5;
   Byte	*dat = (Byte *)&fl;
 
-  if(sizeof(float) == 4 && sizeof(double) == 8)
+    if(sizeof(float) == 4 && sizeof(double) == 8) {
     if(f & BigEndian) {
       if(dat[0] == 0x40 && dat[1] == 0xD0 && !dat[2] && !dat[3])
-	f |= FloatIEEE;
-    } else
+        f |= FloatIEEE;
+    } else {
       if(dat[3] == 0x40 && dat[2] == 0xD0 && !dat[1] && !dat[0])
       f |= FloatIEEE;
-
+    }
+    }
   return f;
 }
 

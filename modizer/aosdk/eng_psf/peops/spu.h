@@ -35,3 +35,4 @@ void SPUreadDMAMem(u32 usPSXMem,int iSize);
 void SPUwriteDMAMem(u32 usPSXMem,int iSize);
 u16 SPUreadRegister(u32 reg);
 
+void setlength(s32 stop, s32 fade);

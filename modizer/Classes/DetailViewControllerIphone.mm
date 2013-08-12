@@ -80,8 +80,7 @@ static double located_lat=999,located_lon=999;
 int mDevice_hh,mDevice_ww;
 static int mShouldHaveFocusAfterBackground,mLoadIssueMessage;
 static int mRandomFXCpt,mRandomFXCptRev;
-static int infoIsFullscreen=1;
-static int plIsFullscreen=1;
+static int infoIsFullscreen=0;
 static UIAlertView *alertCrash;
 static MPVolumeView *volumeView;
 
@@ -159,8 +158,6 @@ static int display_length_mode=0;
 @synthesize sld_UADEpan,sld_UADEgain;
 @synthesize sc_TIMreverb,sc_TIMfilter,sc_TIMresample,sc_TIMchorus;
 @synthesize sldPanning,sc_Panning,lblPanningValue;
-
-@synthesize btnSortPlAZ,btnSortPlZA,btnPlShuffle,btnPlClear,btnPlEdit,btnPlOk;
 
 @synthesize infoZoom,infoUnzoom,plZoom,plUnzoom;
 @synthesize mPlWasView,mInWasView;
@@ -350,6 +347,7 @@ static int display_length_mode=0;
 
 
 -(IBAction) optTIM_Polyphony {
+    if (sld_TIMPoly.value==0) sld_TIMPoly.value=128;
     [mplayer optTIM_Poly:(int)(sld_TIMPoly.value)];
     labelTimPolyphony.text=[NSString stringWithFormat:@"%d voices",(int)(sld_TIMPoly.value)];
 }
@@ -506,7 +504,7 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
     [mplayer optTIM_LPFilter:(int)(sc_TIMfilter.selectedSegmentIndex)];
 	
 	
-	mpsettings->mReverbDepth=(int)(revDepSld.value*100.0f);	
+	mpsettings->mReverbDepth=(int)(revDepSld.value*100.0f);
 	mpsettings->mReverbDelay=(int)(revDelSld.value*160.0f+40.0f);
 	mpsettings->mBassAmount=(int)(bassAmoSld.value*100.0f);	
 	mpsettings->mBassRange=(int)(bassRanSld.value*80.0f+20.0f);	
@@ -950,7 +948,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             playlist->entries[i].fullpath=[[NSString alloc ] initWithString:mPlaylist[i].mPlaylistFilepath];
                         
             playlist->entries[i].ratings=mPlaylist[i].mPlaylistRating;
-            playlist->entries[i].playcounts=mPlaylist[i].mPlaylistCount;
+            playlist->entries[i].playcounts=-1;
         }
         playlist->nb_entries=mPlaylist_size;
         playlist->playlist_name=[[NSString alloc] initWithFormat:@"Now playing",playlist->nb_entries];
@@ -966,6 +964,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         ((RootViewControllerPlaylist*)childController)->detailViewController=self;
         ((RootViewControllerPlaylist*)childController)->playlist=playlist;
         ((RootViewControllerPlaylist*)childController)->mFreePlaylist=1;
+        ((RootViewControllerPlaylist*)childController)->mDetailPlayerMode=1;
         
         //((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
         
@@ -990,19 +989,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	infoIsFullscreen=0;
 	infoZoom.hidden=NO;
 	infoUnzoom.hidden=YES;
-	mainView.hidden=NO;
-	[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-}
-- (IBAction)plFullscreen {
-	plIsFullscreen=1;
-	plZoom.hidden=YES;
-	plUnzoom.hidden=NO;
-	[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-}
-- (IBAction)plNormal {
-	plIsFullscreen=0;
-	plZoom.hidden=NO;
-	plUnzoom.hidden=YES;
 	mainView.hidden=NO;
 	[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 }
@@ -2104,10 +2090,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		} else {
 			//self.navigationController.navigationBar.hidden = NO;
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-234+4);
-            cover_view.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-234+82);
-            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-234+82);
-			oglButton.frame = CGRectMake(0, 82, mDevice_ww, mDevice_hh-234);
+			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
+            cover_view.frame = CGRectMake(0, 80-80, mDevice_ww, mDevice_hh-230+80);
+            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 80-80, mDevice_ww, mDevice_hh-230+80);
+			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
 			volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
 			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
                                           volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
@@ -2116,7 +2102,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 			
 			if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			else infoView.frame = CGRectMake(0, 82, mDevice_ww, mDevice_hh-234);
+			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
 			
 			//commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
             commandViewU.frame = CGRectMake(0, 0, mDevice_ww, 32+48);
@@ -2775,13 +2761,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         infoZoom.hidden=NO;
         infoUnzoom.hidden=YES;
     }
-    if (plIsFullscreen) {
-        plZoom.hidden=YES;
-        plUnzoom.hidden=NO;
-    } else {
-        plZoom.hidden=NO;
-        plUnzoom.hidden=YES;
-    }
     
 	mLoopMode--;
 	[self changeLoopMode];
@@ -2852,7 +2831,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sc_DefaultAction.selectedSegmentIndex = 0;
 	sc_defaultMODplayer.selectedSegmentIndex = 1;//DUMB
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
-	
+	    
     ///////////////////////////////////
     // UADE
     ///////////////////////////////////////
@@ -3523,11 +3502,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     // Internal stuff
     /////////////////////////
     valNb=[prefs objectForKey:@"InfoFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) infoIsFullscreen = 1;
+	if (valNb == nil) infoIsFullscreen = 0;
 	else infoIsFullscreen = [valNb intValue];	
-    valNb=[prefs objectForKey:@"PlFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) plIsFullscreen = 1;
-	else plIsFullscreen = [valNb intValue];
 	valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
 	if (valNb == nil) oglViewFullscreen = 0;
 	else oglViewFullscreen = [valNb intValue];
@@ -3787,8 +3763,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////////
     valNb=[[NSNumber alloc] initWithInt:infoIsFullscreen];
 	[prefs setObject:valNb forKey:@"InfoFullscreen"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:plIsFullscreen];
-	[prefs setObject:valNb forKey:@"PlFullscreen"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
 	[prefs setObject:valNb forKey:@"OGLFullscreen"];[valNb autorelease];
     
@@ -3957,7 +3931,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
-	start_time=clock();	
+	start_time=clock();
+    
+    [btnShowArcList setType:BButtonTypeGray];
+    [btnShowSubSong setType:BButtonTypeGray];
     
     shouldRestart=1;
     m_displayLink=nil;
@@ -4002,7 +3979,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	self.navigationItem.title=@"No file selected";
 	//	self.navigationItem.backBarButtonItem.title=@"dd";
 	
-	[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"playlist.png"]
+	[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bb_list_white.png"]
 																				 style:UIBarButtonItemStylePlain 
 																				target:self
 																				action:@selector(showPlaylist)] autorelease] 
