@@ -306,11 +306,12 @@ void Ca2mLoader::updatefreq(unsigned short a,unsigned short b)
 	do {
 		freq[dad[a]] = freq[a] + freq[b];
 		a = dad[a];
-		if(a != ROOT)
+		if(a != ROOT) {
 			if(leftc[dad[a]] == a)
 				b = rghtc[dad[a]];
 			else
 				b = leftc[dad[a]];
+        }
 	} while(a != ROOT);
 
 	if(freq[ROOT] == MAXFREQ)

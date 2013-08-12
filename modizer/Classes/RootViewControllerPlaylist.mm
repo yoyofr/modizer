@@ -38,14 +38,13 @@ UIAlertView *alertPlFull,*alertChooseName;
 
 @implementation RootViewControllerPlaylist
 
-@synthesize mFileMngr;
+@synthesize mFileMngr,mDetailPlayerMode;
 @synthesize detailViewController;
 @synthesize tableView,sBar;
 @synthesize list;
 @synthesize keys;
 @synthesize currentPath;
 @synthesize childController;
-@synthesize playerButton;
 @synthesize mSearchText;
 
 #pragma mark -
@@ -55,7 +54,15 @@ UIAlertView *alertPlFull,*alertChooseName;
     [super setEditing:editing animated:animated];
     [tableView setEditing:editing animated:animated];
     if (editing==FALSE) {
-        self.navigationItem.rightBarButtonItem=playerButton;
+        if (mDetailPlayerMode) self.navigationItem.rightBarButtonItem = nil;
+        else {
+        UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+        [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+        btn.adjustsImageWhenHighlighted = YES;
+        [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+        self.navigationItem.rightBarButtonItem = item;
+        }
     }
     [tableView reloadData];
 }
@@ -160,7 +167,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                     
-                    ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
                     [keys release];keys=nil;
                     [list release];list=nil;
                     mFreePlaylist=1;
@@ -308,7 +314,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		currentPath = @"Documents";
 		[currentPath retain];
 	}
-    self.navigationItem.rightBarButtonItem = playerButton;
+    
+    if (mDetailPlayerMode) self.navigationItem.rightBarButtonItem = nil;
+    else {
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+    btn.adjustsImageWhenHighlighted = YES;
+    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    self.navigationItem.rightBarButtonItem = item;
+    }
     if (show_playlist) {
         sBar.frame=CGRectMake(0,0,0,0);
         sBar.hidden=TRUE;
@@ -377,21 +392,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	[indexTitlesDownload addObject:@"Y"];
 	[indexTitlesDownload addObject:@"Z"];
 	
-	UIWindow *window=[[UIApplication sharedApplication] keyWindow];
-	
-	waitingView = [[UIView alloc] initWithFrame:CGRectMake(window.bounds.size.width/2-40,window.bounds.size.height/2-40,80,80)];
+    waitingView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2-40,self.view.bounds.size.height/2-40,80,80)];
 	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
 	waitingView.opaque=TRUE;
 	waitingView.hidden=TRUE;
 	waitingView.layer.cornerRadius=20;
-	
 	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
 	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
 	[waitingView addSubview:indView];
 	[indView startAnimating];
 	[indView autorelease];
-	
-	[window addSubview:waitingView];
+	[self.view addSubview:waitingView];
 	
 	[super viewDidLoad];
 	
@@ -411,13 +422,21 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         [mode_entries_details addObject:NSLocalizedString(@"Create a new playlist.",@"")];
         
         if (detailViewController.mPlaylist_size) {
-            [mode_entries addObject:NSLocalizedString(@"Now playing",@"")];
+            [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
             [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),detailViewController.mPlaylist_size]];
         }
         else {
-            [mode_entries addObject:NSLocalizedString(@"Now playing",@"")];
+            [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
             [mode_entries_details addObject:NSLocalizedString(@"No entry",@"")];
         }
+        
+        [mode_entries addObject:NSLocalizedString(@"Most played...",@"")];
+        [mode_entries_details addObject:NSLocalizedString(@"Most played files",@"")];
+        
+        [mode_entries addObject:NSLocalizedString(@"Favorites...",@"")];
+        [mode_entries_details addObject:NSLocalizedString(@"Rated files",@"")];
+        
+        
         [self loadPlayListsListFromDB:mode_entries list_id:list entries_details:mode_entries_details];
         NSDictionary *mode_entriesDict = [NSDictionary dictionaryWithObjectsAndKeys:mode_entries,@"entries",mode_entries_details,@"entries_details", nil];
         //NSDictionary *mode_entries_detailsDict = [NSDictionary dictionaryWithObject:mode_entries_details forKey:@"entries_details"];
@@ -1634,6 +1653,70 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     return;
 }
 
+-(void) loadFavoritesList{
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+            sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE rating>0 ORDER BY rating DESC,name");
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                    playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
+                    
+                    playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);
+                    playlist->entries[playlist->nb_entries].song_length=(int)sqlite3_column_int(stmt,4);
+                    playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
+                    playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
+                    playlist->nb_entries++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+}
+
+-(void) loadMostPlayedList{
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    playlist->nb_entries=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+            sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    playlist->entries[playlist->nb_entries].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    playlist->entries[playlist->nb_entries].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                    playlist->entries[playlist->nb_entries].ratings=(signed char)sqlite3_column_int(stmt,2);
+
+                    playlist->entries[playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt,3);
+                    playlist->entries[playlist->nb_entries].song_length=(int)sqlite3_column_int(stmt,4);
+                    playlist->entries[playlist->nb_entries].channels_nb=(char)sqlite3_column_int(stmt,5);
+                    playlist->entries[playlist->nb_entries].songs=(int)sqlite3_column_int(stmt,6);
+                    playlist->nb_entries++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+}
+
+
 -(void) refreshMODLANDView {
 }
 
@@ -1792,9 +1875,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-    NSString *playedXtimes=NSLocalizedString(@"Played %d times.",@"");
-    NSString *played1time=NSLocalizedString(@"Played once.",@"");
-    NSString *played0time=NSLocalizedString(@"Never played.",@"");
     BOOL isEditing=[tableView isEditing];
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -1810,10 +1890,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         gradient.colors = [NSArray arrayWithObjects:
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:245.0/255.0 green:245.0/255.0 blue:245.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
                            nil];
         gradient.locations = [NSArray arrayWithObjects:
                               (id)[NSNumber numberWithFloat:0.00f],
@@ -1828,14 +1908,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         CAGradientLayer *selgrad = [CAGradientLayer layer];
         selgrad.frame = cell.bounds;
+        float rev_col_adj=1.2f;
         selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*240.0/255.0 green:0.99f*240.0/255.0 blue:0.9f*240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*245.0/255.0 green:0.99f*245.0/255.0 blue:0.9f*245.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
                           nil];
         selgrad.locations = [NSArray arrayWithObjects:
                              (id)[NSNumber numberWithFloat:0.00f],
@@ -1848,21 +1928,18 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         [cell setSelectedBackgroundView:[[UIView alloc] init]];
         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-
-        
         //
         // Create the label for the top row of text
         //
         topLabel = [[[UILabel alloc] init] autorelease];
-        [cell.contentView addSubview:topLabel];
-        
+        [cell.contentView addSubview:topLabel];        
         //
         // Configure the properties for the text that are the same on every row
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.2f green:0.2f blue:0.2f alpha:1.0f];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
@@ -1877,7 +1954,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.textColor = [UIColor colorWithRed:0.25 green:0.20 blue:0.20 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
@@ -1913,6 +1990,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     
+    topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+    topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+    bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+    bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    
     
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
@@ -1936,14 +2018,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         NSArray *array_details = [dictionary objectForKey:@"entries_details"];
         cellValue = [array objectAtIndex:indexPath.row];
         
-        if (indexPath.row<2) {
+        if (indexPath.row==0) { //Add playlist
+            topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-            topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+            bottomLabel.text=[array_details objectAtIndex:indexPath.row];
             
+        } else if (indexPath.row==1) {
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             bottomLabel.text=[array_details objectAtIndex:indexPath.row];
             
         } else {
-            topLabel.textColor=[UIColor colorWithRed:0.2f green:0.2f blue:0.2f alpha:1.0f];
             actionView.enabled=YES;
             actionView.hidden=NO;
             actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-34,0,34,34);
@@ -1966,48 +2050,46 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 cellValue=NSLocalizedString(@"Add/Remove files...",@"");
                 bottomLabel.text = NSLocalizedString(@"Add or remove entries from browser.",@"");
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+                topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             }
             else if (indexPath.row==1) {  //playlist/rename
                 cellValue=NSLocalizedString(@"More actions...",@"");
                 bottomLabel.text = NSLocalizedString(@"",@"");
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+                topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             } else {  //playlist entries
                 cellValue=playlist->entries[indexPath.row-2].label;
                 cell.accessoryType = UITableViewCellAccessoryNone;
-                topLabel.textColor=[UIColor colorWithRed:0.2f green:0.2f blue:0.2f alpha:1.0f];
-                
-                
-                if (playlist->entries[indexPath.row-2].ratings==-1) {
+                                
+                if ((playlist->entries[indexPath.row-2].ratings==-1)||(playlist->entries[indexPath.row-2].playcounts==-1)) {
                     DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-2].label,
                                                 playlist->entries[indexPath.row-2].fullpath,
-                                                NULL,
+                                                &(playlist->entries[indexPath.row-2].playcounts),
                                                 &(playlist->entries[indexPath.row-2].ratings),
-                                                NULL,
-                                                NULL);
+                                                &(playlist->entries[indexPath.row-2].song_length),
+                                                &(playlist->entries[indexPath.row-2].channels_nb),
+                                                &(playlist->entries[indexPath.row-2].songs));
                     if (playlist->playlist_id==nil) {//current queue
                         detailViewController.mPlaylist[indexPath.row-2].mPlaylistRating=playlist->entries[indexPath.row-2].ratings;
                     }
                 }
 
-                
-                
-                
                 bottomImageView.image=[UIImage imageNamed:ratingImg[playlist->entries[indexPath.row-2].ratings]];
                 NSArray *filename_parts=[playlist->entries[indexPath.row-2].fullpath componentsSeparatedByString:@"/"];
                 
+                NSString *tmp_str;
                 
                 if ([filename_parts count]>=3) {
                     if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-3] compare:@"Documents"]!=NSOrderedSame) {
-                        bottomLabel.text = [NSString stringWithFormat:@"%@/%@",[filename_parts objectAtIndex:[filename_parts count]-3],[filename_parts objectAtIndex:[filename_parts count]-2]];
-                    } else bottomLabel.text = [NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-2]];
+                        tmp_str = [NSString stringWithFormat:@"%@/%@ / ",[filename_parts objectAtIndex:[filename_parts count]-3],[filename_parts objectAtIndex:[filename_parts count]-2]];
+                    } else tmp_str = [NSString stringWithFormat:@"%@ / ",[filename_parts objectAtIndex:[filename_parts count]-2]];
                 } else if ([filename_parts count]>=2) {
                     if ([(NSString*)[filename_parts objectAtIndex:[filename_parts count]-2] compare:@"Documents"]!=NSOrderedSame) {
-                        bottomLabel.text = [NSString stringWithFormat:@"%@",[filename_parts objectAtIndex:[filename_parts count]-2]];
-                    } else bottomLabel.text = @"";
+                        tmp_str = [NSString stringWithFormat:@"%@ / ",[filename_parts objectAtIndex:[filename_parts count]-2]];
+                    } else tmp_str = @"";
                 }
                 
+                bottomLabel.text=[tmp_str stringByAppendingFormat:@"Pl:%d",playlist->entries[indexPath.row-2].playcounts];
                 
                 
                 bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
@@ -2099,9 +2181,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].rating);
                     }
                     if (cur_local_entries[indexPath.section-2][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_local_entries[indexPath.section-2][indexPath.row].rating]];
-                    if (!cur_local_entries[indexPath.section-2][indexPath.row].playcount) tmp_str = [NSString stringWithString:played0time];
-                    else if (cur_local_entries[indexPath.section-2][indexPath.row].playcount==1) tmp_str = [NSString stringWithString:played1time];
-                    else tmp_str = [NSString stringWithFormat:playedXtimes,cur_local_entries[indexPath.section-2][indexPath.row].playcount];
+                    tmp_str = [NSString stringWithFormat:@"Pl:%d",cur_local_entries[indexPath.section-2][indexPath.row].playcount];
                     
                     bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
                                                    22,
@@ -2121,14 +2201,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         else bottomLabel.text=[NSString stringWithFormat:@"Added %d times. %@",nb_occur,tmp_str];
                         topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.4f alpha:1.0f];
                     } else {
-                        topLabel.textColor=[UIColor colorWithRed:0.1f green:0.1f blue:0.1f alpha:1.0f];
                         bottomLabel.text=[NSString stringWithFormat:@"Not in playlist. %@",tmp_str];
                     }
                 }
             }
         }
     }
-    
     topLabel.text = cellValue;
     
     return cell;
@@ -2140,10 +2218,28 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
-        
-        //delete entry
-        
         if (show_playlist&&(indexPath.row>=2)) { //delete playlist entry
+            if (integrated_playlist==1) { //most played: reset playcount
+                short int playcount;
+                signed char rating;
+                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-2].label,
+                                            playlist->entries[indexPath.row-2].fullpath,
+                                            &playcount,&rating);
+                playcount=0;
+                DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-2].label,
+                                               playlist->entries[indexPath.row-2].fullpath,
+                                               playcount,rating);
+            } else if (integrated_playlist==2) {  //favorites: reset rating
+                short int playcount;
+                signed char rating;
+                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-2].label,
+                                            playlist->entries[indexPath.row-2].fullpath,
+                                            &playcount,&rating);
+                rating=0;
+                DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-2].label,
+                                               playlist->entries[indexPath.row-2].fullpath,
+                                               playcount,rating);
+            }
             [playlist->entries[indexPath.row-2].label release];
             [playlist->entries[indexPath.row-2].fullpath release];
             for (int i=indexPath.row-1;i<playlist->nb_entries;i++) {
@@ -2156,7 +2252,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             [self replacePlaylistDBwithCurrent];
         }
-        if ((browse_depth==0)&&(indexPath.row>=2)) {  //delete a playlist
+        if ((browse_depth==0)&&(indexPath.row>=4)) {  //delete a playlist
             if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-2]]) {
                 
                 [keys release];keys=nil;
@@ -2238,13 +2334,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    if (show_playlist&&(indexPath.row>=2)) return YES;
+    if (show_playlist&&(indexPath.row>=2)&&(integrated_playlist==0)) return YES;
     return NO;
 }
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
     if (show_playlist&&(indexPath.row>=2)) return YES;
-    if ((browse_depth==0)&&(indexPath.row>=2)) return YES;
+    if ((browse_depth==0)&&(indexPath.row>=4)) return YES;
     return NO;
 }
 
@@ -2306,7 +2402,18 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             [self freePlaylist];
             playlist=(t_playlist*)malloc(sizeof(t_playlist));
             memset(playlist,0,sizeof(t_playlist));
-            [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-2)] intoPlaylist:playlist];
+            
+            
+            if (indexPath.row==2) {
+                [self loadMostPlayedList];
+                playlist->playlist_name=[[NSString alloc] initWithFormat:@"Most played"];
+                playlist->playlist_id=nil;
+            } else if (indexPath.row==3) {
+                [self loadFavoritesList];
+                playlist->playlist_name=[[NSString alloc] initWithFormat:@"Favorites"];
+                playlist->playlist_id=nil;
+            } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-2)] intoPlaylist:playlist];
+            
             if (playlist->nb_entries) {
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                 else [tableView reloadData];
@@ -2488,21 +2595,18 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
                 playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
                 
-                if (detailViewController.mPlaylist[i].mPlaylistRating==-1) {
+//                if ((playlist->entries[i].playcounts==-1)||(playlist->entries[i].ratings==-1))
                     DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
                                                 detailViewController.mPlaylist[i].mPlaylistFilepath,
-                                                NULL,
+                                                &(playlist->entries[i].playcounts),
                                                 &(detailViewController.mPlaylist[i].mPlaylistRating),
-                                                NULL,
-                                                NULL);
-                }
-                if (detailViewController.mPlaylist[i].mPlaylistRating<0) detailViewController.mPlaylist[i].mPlaylistRating=0;
-                if (detailViewController.mPlaylist[i].mPlaylistRating>5) detailViewController.mPlaylist[i].mPlaylistRating=5;
+                                                &(playlist->entries[i].song_length),
+                                                &(playlist->entries[i].channels_nb),
+                                                &(playlist->entries[i].songs));                
                 playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
-                playlist->entries[i].playcounts=detailViewController.mPlaylist[i].mPlaylistCount;
             }
             playlist->nb_entries=detailViewController.mPlaylist_size;
-            playlist->playlist_name=[[NSString alloc] initWithFormat:@"Now playing",playlist->nb_entries];
+            playlist->playlist_name=[[NSString alloc] initWithFormat:@"Now playing"];
             playlist->playlist_id=nil;
             
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -2515,7 +2619,28 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             
-            ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
+            [keys release];keys=nil;
+            [list release];list=nil;
+            mFreePlaylist=1;
+            
+            // And push the window
+            [self.navigationController pushViewController:childController animated:YES];
+        }
+        if (indexPath.row==2) { //most played
+            [self loadMostPlayedList];
+            playlist->playlist_name=[[NSString alloc] initWithFormat:@"Most played"];
+            playlist->playlist_id=nil;
+            
+            if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+            //set new title
+            childController.title = playlist->playlist_name;
+            ((RootViewControllerPlaylist*)childController)->show_playlist=1;
+            
+            // Set new directory
+            ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
+            ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
+            ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+            ((RootViewControllerPlaylist*)childController)->integrated_playlist=1;
             
             [keys release];keys=nil;
             [list release];list=nil;
@@ -2524,7 +2649,31 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
         }
-        if (indexPath.row>=2) {
+        if (indexPath.row==3) { //favorites
+            [self loadFavoritesList];
+            playlist->playlist_name=[[NSString alloc] initWithFormat:@"Most played"];
+            playlist->playlist_id=nil;
+            
+            if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+            //set new title
+            childController.title = playlist->playlist_name;
+            ((RootViewControllerPlaylist*)childController)->show_playlist=1;
+            
+            // Set new directory
+            ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
+            ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
+            ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+            ((RootViewControllerPlaylist*)childController)->integrated_playlist=2;
+            
+            
+            [keys release];keys=nil;
+            [list release];list=nil;
+            mFreePlaylist=1;
+            
+            // And push the window
+            [self.navigationController pushViewController:childController animated:YES];
+        }
+        if (indexPath.row>=4) {
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
             //set new title
             childController.title = cellValue;
@@ -2536,8 +2685,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
-            
-            ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
             
             [keys release];keys=nil;
             [list release];list=nil;
@@ -2568,7 +2715,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                 ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                 ((RootViewControllerPlaylist*)childController)->show_playlist=0;
-                ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];
             } else if (indexPath.row==1 ){ //playlist actions
@@ -2594,7 +2740,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                     if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
                     else[ actionSheet showFromToolbar:self.navigationController.toolbar];
-                } else { //"now playing" playlist -> does not exist in DB
+                } else { //"now playing", "most played", "favorites" playlists -> does not exist in DB
+                    UIActionSheet *actionSheet;
+                    if (integrated_playlist==0) {
                     NSString *actionSheetTitle = @""; //Action Sheet Title
                     NSString *other1 = @"Save";
                     NSString *other2 = @"Edit";
@@ -2602,7 +2750,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     NSString *other4 = @"Sort A->Z";
                     NSString *other5 = @"Sort Z->A";
                     NSString *cancelTitle = @"Cancel";
-                    UIActionSheet *actionSheet = [[UIActionSheet alloc]
+                    actionSheet = [[UIActionSheet alloc]
                                                   initWithTitle:actionSheetTitle
                                                   delegate:self
                                                   cancelButtonTitle:nil
@@ -2610,6 +2758,22 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                                   otherButtonTitles:other1, other2, other3, other4, other5, nil];
                     [actionSheet addButtonWithTitle:cancelTitle];
                     [actionSheet setCancelButtonIndex:5];
+                    } else if ((integrated_playlist==1)||(integrated_playlist==2)) {
+                        NSString *actionSheetTitle = @""; //Action Sheet Title
+                        NSString *other1 = @"Save";
+                        NSString *other2 = @"Edit";
+                        NSString *other3 = @"Shuffle & Play";
+                        NSString *cancelTitle = @"Cancel";
+                        actionSheet = [[UIActionSheet alloc]
+                                                      initWithTitle:actionSheetTitle
+                                                      delegate:self
+                                                      cancelButtonTitle:nil
+                                                      destructiveButtonTitle:nil
+                                                      otherButtonTitles:other1, other2, other3, nil];
+                        [actionSheet addButtonWithTitle:cancelTitle];
+                        [actionSheet setCancelButtonIndex:3];
+                        
+                    }
                     if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
                     else [actionSheet showFromToolbar:self.navigationController.toolbar];
                 }
@@ -2651,7 +2815,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
-                    ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
                     
@@ -2674,7 +2837,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     ((RootViewControllerPlaylist*)childController)->currentPath = newPath;
                     ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
-                    ((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
@@ -2700,7 +2862,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     mAccessoryButton=0;
-}
+    }
 
 
 /* POPUP functions */

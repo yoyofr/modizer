@@ -14,12 +14,8 @@
 @interface myNavViewController : UIViewController {
 	IBOutlet DetailViewControllerIphone *detailView;
 	
-	IBOutlet UIBarButtonItem *playerButton;
 }
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailView;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
-
--(IBAction) goPlayer;
 
 @end

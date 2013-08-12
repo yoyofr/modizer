@@ -9,13 +9,17 @@
 
 //#define LOAD_PROFILE
 
+#define ACTION_COLOR_RED ((float)(0xD5)/255.0)
+#define ACTION_COLOR_GREEN ((float)(0x4A)/255.0)
+#define ACTION_COLOR_BLUE ((float)(0xCA)/255.0)
+
 #define MODIZER_COMPIL 1
 
 #define DEFAULT_WAIT_TIME_MS  0.001   //in s
 #define DEFAULT_WAIT_TIME_UADE_MS  0.001   //in s
 
-//#define STATISTICS_URL @"http://localhost:8080"
-#define STATISTICS_URL @"https://modizerdb.appspot.com"
+#define STATISTICS_URL @"http://localhost:8081"
+//#define STATISTICS_URL @"https://modizerdb.appspot.com"
 #define USERGUIDE_URL @"UserGuide"
 #define WORLDCHARTS_DEFAULTLIST @"ListALL"
 
@@ -73,6 +77,7 @@
 
 #define MODLAND_BASEDIR @"MODLAND"
 #define HVSC_BASEDIR @"HVSC"
+#define ASMA_BASEDIR @"ASMA"
 
 #define DATABASENAME_MAIN @"databaseMAIN.modizerdb"
 #define DATABASENAME_USER @"database.modizerdb"
@@ -86,6 +91,7 @@
 
 //#define HVSC_FTPHOST @"dl.xs4all.nl/pub/mirror/HVSC/C64Music/"
 #define HVSC_FTPHOST @"hangar18.exotica.org.uk/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"
+#define ASMA_FTPHOST @"hangar18.exotica.org.uk/exotica/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
 
 #define SUPPORTED_FILETYPE_MDX @"MDX"
 

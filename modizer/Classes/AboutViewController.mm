@@ -39,6 +39,13 @@
 - (void)viewDidLoad {
 	textView.font=[UIFont systemFontOfSize:14];
     [super viewDidLoad];
+    
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+    btn.adjustsImageWhenHighlighted = YES;
+    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    self.navigationItem.rightBarButtonItem = item;
 }
 
 

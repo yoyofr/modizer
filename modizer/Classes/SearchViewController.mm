@@ -34,7 +34,14 @@ static NSFileManager *mFileMngr;
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
-	start_time=clock();	
+	start_time=clock();
+    
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+    btn.adjustsImageWhenHighlighted = YES;
+    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    self.navigationItem.rightBarButtonItem = item;
 
     mFileMngr=[[NSFileManager alloc] init];
 	
@@ -1205,10 +1212,10 @@ static NSFileManager *mFileMngr;
         gradient.colors = [NSArray arrayWithObjects:
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:245.0/255.0 green:245.0/255.0 blue:245.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
                            nil];
         gradient.locations = [NSArray arrayWithObjects:
                               (id)[NSNumber numberWithFloat:0.00f],
@@ -1223,14 +1230,14 @@ static NSFileManager *mFileMngr;
         
         CAGradientLayer *selgrad = [CAGradientLayer layer];
         selgrad.frame = cell.bounds;
+        float rev_col_adj=1.2f;
         selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*240.0/255.0 green:0.99f*240.0/255.0 blue:0.9f*240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*245.0/255.0 green:0.99f*245.0/255.0 blue:0.9f*245.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
                           nil];
         selgrad.locations = [NSArray arrayWithObjects:
                              (id)[NSNumber numberWithFloat:0.00f],
@@ -1243,40 +1250,38 @@ static NSFileManager *mFileMngr;
         
         [cell setSelectedBackgroundView:[[UIView alloc] init]];
         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
+        //
+        // Create the label for the top row of text
+        //
+        topLabel = [[[UILabel alloc] init] autorelease];
+        [cell.contentView addSubview:topLabel];
+        //
+        // Configure the properties for the text that are the same on every row
+        //
+        topLabel.tag = TOP_LABEL_TAG;
+        topLabel.backgroundColor = [UIColor clearColor];
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.font = [UIFont boldSystemFontOfSize:18];
+        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.opaque=TRUE;
         
-		//
-		// Create the label for the top row of text
-		//
-		topLabel = [[[UILabel alloc] init]
-					autorelease];
-		[cell.contentView addSubview:topLabel];
-		
-		//
-		// Configure the properties for the text that are the same on every row
-		//
-		topLabel.tag = TOP_LABEL_TAG;
-		topLabel.backgroundColor = [UIColor clearColor];
-		topLabel.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
-		topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
-		topLabel.font = [UIFont boldSystemFontOfSize:18];
-		topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
-		
-		//
-		// Create the label for the top row of text
-		//
-		bottomLabel = [[[UILabel alloc] init]
-					   autorelease];
-		[cell.contentView addSubview:bottomLabel];
-		//
-		// Configure the properties for the text that are the same on every row
-		//
-		bottomLabel.tag = BOTTOM_LABEL_TAG;
-		bottomLabel.backgroundColor = [UIColor clearColor];
-		bottomLabel.textColor = [UIColor colorWithRed:0.25 green:0.20 blue:0.20 alpha:1.0];
-		bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.8 blue:0.7 alpha:1.0];
-		bottomLabel.font = [UIFont systemFontOfSize:12];
-		bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
-		
+        //
+        // Create the label for the top row of text
+        //
+        bottomLabel = [[[UILabel alloc] init] autorelease];
+        [cell.contentView addSubview:bottomLabel];
+        //
+        // Configure the properties for the text that are the same on every row
+        //
+        bottomLabel.tag = BOTTOM_LABEL_TAG;
+        bottomLabel.backgroundColor = [UIColor clearColor];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.font = [UIFont systemFontOfSize:12];
+        //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
+        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        bottomLabel.opaque=TRUE;
 
 		actionView = [UIButton buttonWithType: UIButtonTypeCustom];		
 		[cell.contentView addSubview:actionView];
@@ -1317,26 +1322,29 @@ static NSFileManager *mFileMngr;
 								tableView.bounds.size.width - cell.indentationWidth*1.0-40,
 								22);
 
+    topLabel.textColor=[UIColor colorWithRed:0.1f green:0.1f blue:0.1f alpha:1.0f];
+    topLabel.highlightedTextColor=[UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+    bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+    bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+
+    
 	// Set up the cell...
 	if (indexPath.section==0) {
 		topLabel.text=playlist_entries[indexPath.row].filename;
-		topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
 		bottomLabel.text = [NSString stringWithFormat:@"%@", playlist_entries[indexPath.row].playlist_name];
-		bottomLabel.textColor = [UIColor colorWithRed:0.25 green:0.20 blue:0.20 alpha:1.0];
-	}	
+	}
 	if (indexPath.section==1) {
 		topLabel.text=local_entries[indexPath.row].label;
-		topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
 		bottomLabel.text = [NSString stringWithFormat:@"%@", local_entries[indexPath.row].fullpath];
-		bottomLabel.textColor = [UIColor colorWithRed:0.25 green:0.20 blue:0.20 alpha:1.0];
-			}	
+			}
 	if (indexPath.section==2) {
 		topLabel.text=[NSString stringWithFormat:@"%@/%dKB",db_entries[indexPath.row].label,db_entries[indexPath.row].filesize/1024];
 		if (db_entries[indexPath.row].downloaded==-1) {
 			db_entries[indexPath.row].downloaded=[self checkIsDownloadedMod:db_entries[indexPath.row].id_mod];
 		}
-		if (db_entries[indexPath.row].downloaded) topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
-		else topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
+		if (db_entries[indexPath.row].downloaded==0) {
+            topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
+        }
 		bottomLabel.text = db_entries[indexPath.row].fullpath;						
 	}	
 	if (indexPath.section==3) {
@@ -1354,11 +1362,12 @@ static NSFileManager *mFileMngr;
 			if (success) dbHVSC_entries[indexPath.row].downloaded=1;
 			else dbHVSC_entries[indexPath.row].downloaded=0;
 		}
-		if (dbHVSC_entries[indexPath.row].downloaded) topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f];
-		else topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
-		bottomLabel.text = dbHVSC_entries[indexPath.row].fullpath;						
-	}	
-
+		if (dbHVSC_entries[indexPath.row].downloaded==0) {
+            topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
+        }
+		bottomLabel.text = dbHVSC_entries[indexPath.row].fullpath;
+	}
+    
 	return cell;
 }
 

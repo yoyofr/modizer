@@ -10,11 +10,7 @@
 #import "DetailViewControllerIphone.h"
 
 @implementation myNavViewController
-@synthesize detailView,playerButton;
-
--(IBAction) goPlayer {
-	[self.navigationController pushViewController:detailView animated:YES];
-}
+@synthesize detailView;
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
@@ -35,9 +31,6 @@
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-	if (playerButton) {
-		self.navigationItem.rightBarButtonItem = playerButton;
-	}
     [super viewDidLoad];
 }
 

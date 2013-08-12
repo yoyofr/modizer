@@ -16,14 +16,14 @@
 @class DownloadViewController;
 
 
-@interface RootViewControllerHVSC : UITableViewController <UISearchBarDelegate> {
+@interface RootViewControllerHVSC : UIViewController <UISearchBarDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
 	
 	
 	UIView *waitingView;
-    IBOutlet UITableView *tabView;
+    IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;
 	
@@ -69,7 +69,6 @@
 @public    
     int browse_depth;
     IBOutlet DetailViewControllerIphone *detailViewController;	
-	IBOutlet UIBarButtonItem *playerButton;    	
     IBOutlet DownloadViewController *downloadViewController;
 
 }
@@ -79,8 +78,7 @@
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
-@property (nonatomic, retain) IBOutlet UITableView *tabView;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
 @property (nonatomic, retain) NSArray *list;

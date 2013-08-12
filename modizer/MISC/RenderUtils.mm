@@ -1829,7 +1829,7 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int horiz
                     0.5f*sin((float)piano_fxcpt*3.14159f/229)+
                     0.3f*sin((float)piano_fxcpt*3.14159f/311)), 0, 1, 0);
     
-    glRotatef(20+10.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
+    glRotatef(30+15.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
                               0.7f*sin((float)piano_fxcpt*3.14159f/911)+
                               0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
 //    glRotatef(30, 1, 0, 0);

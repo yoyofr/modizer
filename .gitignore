@@ -70,3 +70,5 @@ modizer/Resources/DB/hvsc8.txt
 *.xcbkptlist
 
 modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcdebugger/Breakpoints.xcbkptlist
+
+modizer/Resources/DB/databaseMAIN.modizerdb.old

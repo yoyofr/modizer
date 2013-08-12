@@ -122,14 +122,16 @@ DROP TABLE import_7comp;
 
 CREATE TABLE songlength (id_md5 text,track_nb int,song_length int);
 CREATE TABLE hvsc_path (id_md5 text,filepath text);
+CREATE TABLE asma_path (id_md5 text,filepath text);
 
 .separator ';'
 .import "./hvsc_songl.txt" songlength
 .import "./hvsc_pathmd5.txt" hvsc_path
+.import "./asma_pathmd5.txt" asma_path
 
 CREATE INDEX idx_songlengthMD5 on songlength (id_md5);
 CREATE INDEX idx_hvsc_pathMD5 on hvsc_path (id_md5);
-
+CREATE INDEX idx_asma_pathMD5 on asma_path (id_md5);
 
 UPDATE mod_file
 SET localpath=( SELECT a.author||"/"||t.filetype||"/"||l.album||"/"||mod_file.filename
@@ -178,10 +180,52 @@ CREATE INDEX idx_hvsc_fileMD5 on hvsc_file (id_md5);
 CREATE INDEX idx_hvsc_fileFullpath on hvsc_file (fullpath);
 CREATE INDEX idx_hvsc_fileDirs on hvsc_file (dir1,dir2,dir3,dir4,dir5);
 
+CREATE TABLE import_3asma (id_md5 text,dir1 text,filename text);
+CREATE TABLE import_4asma (id_md5 text,dir1 text,dir2 text,filename text);
+CREATE TABLE import_5asma (id_md5 text,dir1 text,dir2 text,dir3 text,filename text);
+CREATE TABLE import_6asma (id_md5 text,dir1 text,dir2 text,dir3 text,dir4 text,filename text);
+
+.separator '/'
+
+.import "./asma3.txt" import_3asma
+.import "./asma4.txt" import_4asma
+.import "./asma5.txt" import_5asma
+.import "./asma6.txt" import_6asma
+
+CREATE TABLE asma_file (id_md5,dir1 text,dir2 text,dir3 text,dir4 text,filename text,fullpath text);
+
+INSERT INTO asma_file (id_md5,dir1,filename,fullpath)
+SELECT id_md5,dir1,filename,'/'||dir1||'/'||filename FROM import_3asma;
+
+INSERT INTO asma_file (id_md5,dir1,dir2,filename,fullpath)
+SELECT id_md5,dir1,dir2,filename,'/'||dir1||'/'||dir2||'/'||filename FROM import_4asma;
+
+INSERT INTO asma_file (id_md5,dir1,dir2,dir3,filename,fullpath)
+SELECT id_md5,dir1,dir2,dir3,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||filename FROM import_5asma;
+
+INSERT INTO asma_file (id_md5,dir1,dir2,dir3,dir4,filename,fullpath)
+SELECT id_md5,dir1,dir2,dir3,dir4,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||filename FROM import_6asma;
+
+DROP TABLE import_3asma;
+DROP TABLE import_4asma;
+DROP TABLE import_5asma;
+DROP TABLE import_6asma;
+
+CREATE INDEX idx_asma_fileMD5 on asma_file (id_md5);
+CREATE INDEX idx_asma_fileFullpath on asma_file (fullpath);
+CREATE INDEX idx_asma_fileDirs on asma_file (dir1,dir2,dir3,dir4);
+
+
 CREATE TABLE stil (fullpath text,stil_info text);
 .separator ";;"
 .import "./stilconverted" stil 
 CREATE INDEX idx_stil_fullpath on stil (fullpath);
+
+CREATE TABLE stil_asma (fullpath text,stil_info text);
+.separator ";;"
+.import "./stilconverted_asma" stil_asma
+CREATE INDEX idx_stilasma_fullpath on stil_asma (fullpath);
+
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)

@@ -28,6 +28,7 @@ static NSFileManager *mFileMngr;
 
 @synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,downloadTabView,downloadPrgView,detailViewController,barItem,rootViewController;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
+@synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth;
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString* )path
 {
@@ -75,7 +76,7 @@ static NSFileManager *mFileMngr;
     } 
     mURLDownloadQueueDepth=mGetURLInProgress;
             
-	barItem.badgeValue=0;
+	barItem.badgeValue=nil;
 	
 	[downloadTabView reloadData];
 	pthread_mutex_unlock(&download_mutex);
@@ -132,8 +133,19 @@ static NSFileManager *mFileMngr;
 	start_time=clock();	
     
     mFileMngr=[[NSFileManager alloc] init];
+    
+    
+    [btnCancel setType:BButtonTypeGray];
+    [btnClear setType:BButtonTypeGray];
+    [btnSuspend setType:BButtonTypeGray];
+    [btnResume setType:BButtonTypeGray];
+
+    [btnCancel setShouldShowDisabled:YES];
+    [btnClear setShouldShowDisabled:YES];
 	
-	btnCancel.hidden=YES;
+	btnCancel.enabled=NO;
+    btnClear.enabled=NO;
+    
     btnResume.hidden=YES;
     mSuspended=0;
 	mConnectionIssue=0;
@@ -163,6 +175,15 @@ static NSFileManager *mFileMngr;
 		mIsMODLAND[i]=0;
         mStatus[i]=0;
 	}
+    
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
+    btn.adjustsImageWhenHighlighted = YES;
+    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    self.navigationItem.rightBarButtonItem = item;
+    
+    
     [super viewDidLoad];
 	end_time=clock();	
 #ifdef LOAD_PROFILE	
@@ -260,8 +281,8 @@ static NSFileManager *mFileMngr;
 			}
 		}
 		
-		[rootViewController refreshMODLANDView];
-		[searchViewController refreshMODLANDView];
+		//[rootViewController refreshMODLANDView];
+		//[searchViewController refreshMODLANDView];
 		
     } else if (mFTPAskCancel==0) {
 		if (mConnectionIssue==0) {
@@ -542,7 +563,8 @@ static NSFileManager *mFileMngr;
 -(void)checkNextQueuedItem {
 	
 	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) {		
-		btnCancel.hidden=NO;
+		btnCancel.enabled=YES;
+        btnClear.enabled=YES;
 		barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
 		if (mFTPDownloadQueueDepth&& (!mGetFTPInProgress)&& (!mGetURLInProgress)) [self startReceiveCurrentFTPEntry];
 		else if (mURLDownloadQueueDepth&& (!mGetFTPInProgress)&& (!mGetURLInProgress)) [self startReceiveCurrentURLEntry];
@@ -551,7 +573,8 @@ static NSFileManager *mFileMngr;
 		downloadLabelName.text=NSLocalizedString(@"No download in progress",@"");
 		downloadLabelSize.text=@"";
 		downloadPrgView.progress=0.0f;
-		btnCancel.hidden=YES;
+		btnCancel.enabled=NO;
+        btnClear.enabled=NO;
 	}
 	[downloadTabView reloadData];
 	
@@ -1001,7 +1024,8 @@ static NSFileManager *mFileMngr;
 		
 	} 
 	
-	barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
+	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
+    else barItem.badgeValue=nil;
 	
 	[downloadTabView reloadData];
 	pthread_mutex_unlock(&download_mutex);
@@ -1028,10 +1052,10 @@ static NSFileManager *mFileMngr;
         gradient.colors = [NSArray arrayWithObjects:
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:245.0/255.0 green:245.0/255.0 blue:245.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
                            (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:220.0/255.0 green:220.0/255.0 blue:220.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
                            nil];
         gradient.locations = [NSArray arrayWithObjects:
                               (id)[NSNumber numberWithFloat:0.00f],
@@ -1046,14 +1070,14 @@ static NSFileManager *mFileMngr;
         
         CAGradientLayer *selgrad = [CAGradientLayer layer];
         selgrad.frame = cell.bounds;
+        float rev_col_adj=1.2f;
         selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*220.0/255.0 green:0.99f*220.0/255.0 blue:0.9f*220.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*240.0/255.0 green:0.99f*240.0/255.0 blue:0.9f*240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*245.0/255.0 green:0.99f*245.0/255.0 blue:0.9f*245.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:0.9f*255.0/255.0 green:0.99f*255.0/255.0 blue:0.9f*255.0/255.0 alpha:1] CGColor],
-                          
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
                           nil];
         selgrad.locations = [NSArray arrayWithObjects:
                              (id)[NSNumber numberWithFloat:0.00f],
@@ -1071,15 +1095,14 @@ static NSFileManager *mFileMngr;
         //
         topLabel = [[[UILabel alloc] init] autorelease];
         [cell.contentView addSubview:topLabel];
-        
         //
         // Configure the properties for the text that are the same on every row
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:0.9 alpha:1.0];
-        topLabel.font = [UIFont boldSystemFontOfSize:20];
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
         
@@ -1093,13 +1116,12 @@ static NSFileManager *mFileMngr;
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.textColor = [UIColor colorWithRed:0.25 green:0.20 blue:0.20 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.75 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
         bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         bottomLabel.opaque=TRUE;
-        
         
 		lCancelButton                = [UIButton buttonWithType: UIButtonTypeCustom];
 		lCancelButton.frame = CGRectMake(tableView.bounds.size.width-2-24,2,24,24);
