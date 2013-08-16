@@ -118,7 +118,6 @@
 -(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries;
 
 -(NSString*) getCompleteLocalPath:(int)id_mod;
--(void)hideAllWaitingPopup;
 
 
 @end

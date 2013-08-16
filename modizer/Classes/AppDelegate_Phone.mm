@@ -13,6 +13,7 @@
 #import "RootViewControllerLocalBrowser.h"
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
+#import "SettingsGenViewController.h"
 
 
 #import <AVFoundation/AVFoundation.h>
@@ -111,11 +112,12 @@ pthread_mutex_t play_mutex;
 	[rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];   //Should be handled another way, for example on first DB access
     
     //***********************
-    //init tab
+    //init stuff
     //***********************
-    //playlistS
-    playlistVC->browse_depth=0;
-    playlistVC->detailViewController=detailViewControlleriPhone;
+    //settings
+    [SettingsGenViewController loadSettings];
+//    playlistVC->browse_depth=0;
+//    playlistVC->detailViewController=detailViewControlleriPhone;
     
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
 		[detailViewControlleriPhone enterBackground];

@@ -108,7 +108,5 @@
 -(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating;
 
 -(NSString*) getCompleteLocalPath:(int)id_mod;
--(void)hideAllWaitingPopup;
-
 
 @end

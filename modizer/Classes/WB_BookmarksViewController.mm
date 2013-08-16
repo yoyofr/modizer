@@ -117,7 +117,7 @@
      [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
      btn.adjustsImageWhenHighlighted = YES;
      [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
      self.navigationItem.rightBarButtonItem = item;*/
     
     //    UIBarButtonItem *btnBar=[toolBar.items objectAtIndex:0];

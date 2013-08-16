@@ -39,7 +39,7 @@
 #import "UIImageResize.h"
 
 #import "DetailViewControllerIphone.h"
-#import "RootViewControllerLocalBrowser.h"
+//#import "RootViewControllerLocalBrowser.h"
 #import "RootViewControllerPlaylist.h"
 #import <MediaPlayer/MediaPlayer.h>
 
@@ -59,6 +59,9 @@ extern "C" {
 int fix_fftr(short int f[], int m, int inverse);
 int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
 }
+
+#import "SettingsGenViewController.h"
+extern t_settings settings[MAX_SETTINGS];
 
 extern int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
@@ -121,7 +124,6 @@ static int display_length_mode=0;
 //@synthesize locManager;
 @synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl,sc_titleFilename;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
-@synthesize detailItem, detailDescriptionLabel;
 @synthesize labelModuleName,labelModuleLength, labelTime, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
 @synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,btnLoopInf;
 @synthesize repeatingTimer;
@@ -130,15 +132,12 @@ static int display_length_mode=0;
 @synthesize surDepSld,surDelSld,revDepSld,revDelSld,bassAmoSld,bassRanSld,mastVolSld,mpPanningSld,sldFxAlpha;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
 @synthesize mainView,infoView;
-@synthesize rating1,rating1off,rating2,rating2off,rating3,rating3off,rating4,rating4off,rating5,rating5off;
 @synthesize mainRating1,mainRating1off,mainRating2,mainRating2off,mainRating3,mainRating3off,mainRating4,mainRating4off,mainRating5,mainRating5off;
 @synthesize mShouldHaveFocus,mHasFocus,mScaleFactor;
-@synthesize mParentViewController;
-@synthesize infoButton,backInfo,backPlaylist;
+@synthesize infoButton,backInfo;
 @synthesize mPlaylist_pos,mPlaylist_size;
-//,mPlaylistFilenames,mPlaylistFilepaths;
 
-@synthesize segcont_oscillo,segcont_forceMono,sc_checkBeforeRedownload,sc_bgPlay,sc_StatsUpload,sc_SpokenTitle,sc_showDebug;
+@synthesize segcont_oscillo,segcont_forceMono,sc_checkBeforeRedownload,sc_bgPlay,sc_StatsUpload,sc_showDebug;
 //segcont_resumeLaunch
 @synthesize segcont_spectrum,segcont_shownote,segcont_mpSampling;
 @synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,segcont_fx1,segcont_fx2,segcont_fx3,segcont_fx4,segcont_fx5,segcont_FxBeat,sc_FXDetail,sc_cflow,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
@@ -153,15 +152,16 @@ static int display_length_mode=0;
 @synthesize pvArcSel,pvArcLabel,pvArcValidate,btnShowArcList;
 
 
-@synthesize sc_AfterDownload,sc_EnqueueMode,sc_DefaultAction,segcont_randFx,sc_defaultMODplayer,sc_PlayerViewOnPlay;
+@synthesize sc_AfterDownload,sc_EnqueueMode,sc_DefaultAction,segcont_randFx,sc_PlayerViewOnPlay;
 @synthesize sc_UADE_Led,sc_UADE_Norm,sc_UADE_PostFX,sc_UADE_Pan,sc_UADE_Head,sc_UADE_Gain,sc_SID_Optim,sc_SID_LibVersion,sc_SID_Filter;
 @synthesize sld_UADEpan,sld_UADEgain;
 @synthesize sc_TIMreverb,sc_TIMfilter,sc_TIMresample,sc_TIMchorus;
 @synthesize sldPanning,sc_Panning,lblPanningValue;
 
-@synthesize infoZoom,infoUnzoom,plZoom,plUnzoom;
-@synthesize mPlWasView,mInWasView;
-@synthesize rootViewControllerIphone,mSlowDevice;
+@synthesize infoZoom,infoUnzoom;
+@synthesize mInWasView;
+@synthesize mSlowDevice;
+//@synthesize rootViewControllerIphone;
 
 -(IBAction)showSubSongSelector {
 	if (pvSubSongSel.hidden) {
@@ -353,26 +353,19 @@ static int display_length_mode=0;
 }
 
 - (void)showRating:(int)rating {
-	rating1.hidden=TRUE;rating2.hidden=TRUE;rating3.hidden=TRUE;rating4.hidden=TRUE;rating5.hidden=TRUE;
-	rating1off.hidden=FALSE;rating2off.hidden=FALSE;rating3off.hidden=FALSE;rating4off.hidden=FALSE;rating5off.hidden=FALSE;
 	mainRating1.hidden=TRUE;mainRating2.hidden=TRUE;mainRating3.hidden=TRUE;mainRating4.hidden=TRUE;mainRating5.hidden=TRUE;
 	mainRating1off.hidden=FALSE;mainRating2off.hidden=FALSE;mainRating3off.hidden=FALSE;mainRating4off.hidden=FALSE;mainRating5off.hidden=FALSE;
 	
 	switch (rating) {
 		case 5:
-			rating5.hidden=FALSE;rating5off.hidden=TRUE;
 			mainRating5.hidden=FALSE;mainRating5off.hidden=TRUE;
 		case 4:
-			rating4.hidden=FALSE;rating4off.hidden=TRUE;
 			mainRating4.hidden=FALSE;mainRating4off.hidden=TRUE;
 		case 3:
-			rating3.hidden=FALSE;rating3off.hidden=TRUE;
 			mainRating3.hidden=FALSE;mainRating3off.hidden=TRUE;
 		case 2:
-			rating2.hidden=FALSE;rating2off.hidden=TRUE;
 			mainRating2.hidden=FALSE;mainRating2off.hidden=TRUE;
 		case 1:
-			rating1.hidden=FALSE;rating1off.hidden=TRUE;
 			mainRating1.hidden=FALSE;mainRating1off.hidden=TRUE;
 		case 0:
 			break;
@@ -965,8 +958,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         ((RootViewControllerPlaylist*)childController)->playlist=playlist;
         ((RootViewControllerPlaylist*)childController)->mFreePlaylist=1;
         ((RootViewControllerPlaylist*)childController)->mDetailPlayerMode=1;
-        
-        //((RootViewControllerPlaylist*)childController)->playerButton=playerButton;
         
         // And push the window
         [self.navigationController pushViewController:childController animated:YES];
@@ -1567,7 +1558,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     
 	// load module
-	if (retcode=[mplayer LoadModule:filePath defaultMODPLAYER:sc_defaultMODplayer.selectedSegmentIndex slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry]) {
+	if (retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry]) {
 		//error while loading
 		NSLog(@"Issue in LoadModule(archive) %@",filePath);
 		if (retcode==-99) mLoadIssueMessage=0;
@@ -1669,9 +1660,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnNextSubCFlow.hidden=YES;
         }        
     }
-    
-	//		[self openPopup:fileName];
-    //    if (sc_SpokenTitle.selectedSegmentIndex==1) [fliteTTS speakText:[mplayer getModName]];
     
 	//set volume (if applicable)
 	[mplayer setModPlugMasterVol:mastVolSld.value];
@@ -1783,7 +1771,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mRestart_sub=sub_index;
     }
     
-	if (retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:sc_defaultMODplayer.selectedSegmentIndex slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry]) {
+	if (retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry]) {
 		//error while loading
 		NSLog(@"Issue in LoadModule %@",filePathTmp);
 		mRestart=0;
@@ -1950,10 +1938,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		} else sliderProgressModule.value=0;
 		mIsPlaying=YES;
 		mPaused=0;	
-		
-        //		[self openPopup:fileName];
-        //		if (sc_SpokenTitle.selectedSegmentIndex==1) [fliteTTS speakText:[mplayer getModName]];
-		
+				
 	}
     
 	mRestart_sub=0;
@@ -2004,31 +1989,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	return TRUE;
 }
 
-
-
-#pragma mark -
-#pragma mark Managing the detail item
-
-/*
- When setting the detail item, update the view and dismiss the popover controller if it's showing.
- */
-/*
- - (void)setDetailItem:(id)newDetailItem {
- if (detailItem != newDetailItem) {
- [detailItem release];
- detailItem = [newDetailItem retain];
- 
- // Update the view.
- [self configureView];
- }
- }
- 
- 
- - (void)configureView {
- // Update the user interface for the detail item.
- detailDescriptionLabel.text = [detailItem description];   
- }
- */
 
 
 #pragma mark -
@@ -2808,7 +2768,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_titleFilename.selectedSegmentIndex = 0;
     sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_SpokenTitle.selectedSegmentIndex = 1;
 	sc_bgPlay.selectedSegmentIndex = 1;
 	sc_showDebug.selectedSegmentIndex = 0;
 	sc_cflow.selectedSegmentIndex = 1;
@@ -2829,7 +2788,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sc_AfterDownload.selectedSegmentIndex = 1;
 	sc_EnqueueMode.selectedSegmentIndex = 2;
 	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_defaultMODplayer.selectedSegmentIndex = 1;//DUMB
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
 	    
     ///////////////////////////////////
@@ -2907,7 +2865,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     sc_titleFilename.selectedSegmentIndex = 0;
     sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_SpokenTitle.selectedSegmentIndex = 1;
 	sc_bgPlay.selectedSegmentIndex = 2;
 	sc_showDebug.selectedSegmentIndex = 0;
 	sc_cflow.selectedSegmentIndex = 1;
@@ -2931,7 +2888,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sc_AfterDownload.selectedSegmentIndex = 1;
 	sc_EnqueueMode.selectedSegmentIndex = 2;
 	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_defaultMODplayer.selectedSegmentIndex = 1;
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 1;
     ///////////////////////////////////
     // UADE
@@ -3013,7 +2969,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_titleFilename.selectedSegmentIndex = 0;
     sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_SpokenTitle.selectedSegmentIndex = 0;
 	sc_bgPlay.selectedSegmentIndex = 1;
 	sc_showDebug.selectedSegmentIndex = 0;
 	sc_cflow.selectedSegmentIndex = 1;
@@ -3037,7 +2992,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sc_AfterDownload.selectedSegmentIndex = 1;
 	sc_EnqueueMode.selectedSegmentIndex = 2;
 	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_defaultMODplayer.selectedSegmentIndex = 1;
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 1;
     ///////////////////////////////////
     // UADE
@@ -3119,7 +3073,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
     sc_titleFilename.selectedSegmentIndex = 0;
     sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_SpokenTitle.selectedSegmentIndex = 0;
 	sc_bgPlay.selectedSegmentIndex = 0;
 	sc_showDebug.selectedSegmentIndex = 0;
 	sc_cflow.selectedSegmentIndex = 1;
@@ -3143,7 +3096,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sc_AfterDownload.selectedSegmentIndex = 1;
 	sc_EnqueueMode.selectedSegmentIndex = 2;
 	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_defaultMODplayer.selectedSegmentIndex = 0;
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
     ///////////////////////////////////
     // UADE
@@ -3224,6 +3176,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
 	int not_expected_version;
+    
+    //YOYOYO
+    return;
 	
     ///////////////////////////////////
     // General
@@ -3257,9 +3212,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[prefs objectForKey:@"StatsUpload"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_StatsUpload.selectedSegmentIndex = 1;
 	else sc_StatsUpload.selectedSegmentIndex = [valNb intValue];		
-    valNb=[prefs objectForKey:@"SpokenTitle"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_SpokenTitle.selectedSegmentIndex = 1;
-	else sc_SpokenTitle.selectedSegmentIndex = [valNb intValue];		
 	valNb=[prefs objectForKey:@"BGPlayback"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_bgPlay.selectedSegmentIndex = 1;
 	else sc_bgPlay.selectedSegmentIndex = [valNb intValue];    
@@ -3332,9 +3284,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[prefs objectForKey:@"DefaultAction"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_DefaultAction.selectedSegmentIndex = 0;
 	else sc_DefaultAction.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"DefaultMODplayer"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_defaultMODplayer.selectedSegmentIndex = 1;//DUMB
-	else sc_defaultMODplayer.selectedSegmentIndex = [valNb intValue];
 	valNb=[prefs objectForKey:@"PlayerViewOnPlay"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
 	else sc_PlayerViewOnPlay.selectedSegmentIndex = [valNb intValue];
@@ -3567,6 +3516,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 -(void)saveSettings{
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
+    
+    return;
 	
     ///////////////////////////////////
     // General
@@ -3579,8 +3530,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	valNb=[[NSNumber alloc] initWithInt:sc_StatsUpload.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"StatsUpload"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_SpokenTitle.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"SpokenTitle"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:sc_bgPlay.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"BGPlayback"];[valNb autorelease];
     valNb=[[NSNumber alloc] initWithInt:sc_titleFilename.selectedSegmentIndex];
@@ -3632,8 +3581,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[prefs setObject:valNb forKey:@"EnqueueMode"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:sc_DefaultAction.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"DefaultAction"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_defaultMODplayer.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"DefaultMODplayer"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:sc_PlayerViewOnPlay.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"PlayerViewOnPlay"];[valNb autorelease];
     
@@ -4234,9 +4181,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	mRating=0;
 	
 	infoZoom.hidden=NO;
-	plZoom.hidden=NO;
 	infoUnzoom.hidden=YES;
-	plUnzoom.hidden=YES;
 	
 	volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
 	volumeView = [[[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/] autorelease];
@@ -4378,13 +4323,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	NSLog(@"detail6 : %d",end_time-start_time);
 #endif	
 	
-    //	fliteTTS=[[FliteTTS alloc] init];
-	
-    //low level audio stuff
-    
-    //	textMessage.layer.cornerRadius=10;
-	
-    //FFT	
+    //FFT
     for (int i=0;i<SPECTRUM_BANDS;i++)
         for (int j=0;j<8;j++) {
             real_spectrumSumL[i][j]=real_spectrumSumR[i][j]=0;
@@ -4453,9 +4392,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[mplayer Stop];
 	[mplayer release];
     
-    [detailItem release];
-    [detailDescriptionLabel release];
-	
 	for (int i=0;i<mPlaylist_size;i++) {
 		[mPlaylist[i].mPlaylistFilename autorelease];
 		[mPlaylist[i].mPlaylistFilepath autorelease];
@@ -4586,7 +4522,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             coverflow.currentIndex=mPlaylist_pos;
         }
     }
-    [rootViewControllerIphone hideAllWaitingPopup];
     [super viewDidAppear:animated];
 }
 /*
@@ -5204,14 +5139,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                         break;
                 }
                 
-                /*		if (DEBUG_SHOW_FPS){
-                 j=0;
-                 for (i=0; i<m_dtHistory.GetCount(); i++) j+=(int)(1.0f/m_dtHistory[i]);
-                 j=j/i;
-                 str_data[0]='0'+(j/100)%10;
-                 str_data[1]='0'+(j/10)%10;
-                 str_data[2]='0'+(j%10);
-                 }*/
                 mHeader= new CGLString(str_data, mFont,mScaleFactor);
                 glPushMatrix();
                 glTranslatef(5.0f+(movePx%size_chan), hh-12, 0.0f);

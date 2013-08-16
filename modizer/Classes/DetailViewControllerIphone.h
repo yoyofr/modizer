@@ -13,8 +13,6 @@
 
 #import "BButton.h"
 
-//#import "FliteTTS.h"
-
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 //#import <CoreLocation/CoreLocation.h>
@@ -48,35 +46,42 @@ struct Resources;
 @class EAGLContext;
 @class CADisplayLink;
 @class RootViewControllerLocalBrowser;
-//@class FliteTTS;
 
 class CFont;
 class CGLString;
 
-typedef struct {
-    
-} t_settings_general;
-
-typedef struct {
-    
-} t_settings_plugin;
-
 @interface DetailViewControllerIphone : UIViewController <UIPickerViewDataSource, UIPickerViewDelegate,  UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
+    
+    
+    
+    //Options
+    IBOutlet OBSlider *sld_TIMPoly,*sld_DefaultLength;
+	IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning;
+    
+	IBOutlet UISegmentedControl *sc_checkBeforeRedownload,*sc_AfterDownload,*sc_EnqueueMode,*sc_DefaultAction,*segcont_randFx,*sc_allowPopup,*sc_titleFilename;
+	IBOutlet UISegmentedControl *segcont_spectrum,*segcont_shownote,*segcont_mpSampling,*segcont_forceMono,*sc_bgPlay,*sc_showDebug;
+	IBOutlet UISegmentedControl *segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR,*segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
+	IBOutlet UISegmentedControl *segcont_oscillo;
+    //,*segcont_resumeLaunch
+	IBOutlet UISegmentedControl *sc_UADE_Led,*sc_UADE_Norm,*sc_UADE_PostFX,*sc_UADE_Pan,*sc_UADE_Head,*sc_UADE_Gain,*sc_FXDetail,*sc_Panning;
+	IBOutlet UISegmentedControl *sc_defaultMODplayer,*sc_PlayerViewOnPlay,*sc_StatsUpload;
+	IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
+	IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
+   	IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
+    IBOutlet UISegmentedControl *sc_TIMreverb,*sc_TIMfilter,*sc_TIMresample,*sc_TIMchorus,*sc_DUMBResampling;
+	IBOutlet UILabel *labelTimPolyphony,*labelDUMBMastVol,*lblPanningValue,*labelDefaultLength;
+	IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
+	///////////////////////
+    
     
     //CoverFlow
     TKCoverflowView *coverflow; 
     UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
     UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
-	BOOL collapsed;
     //
 	
-    id detailItem;
-    UILabel *detailDescriptionLabel;
-	
 	UIView *waitingView;
-	
-//	FliteTTS *fliteTTS;
 	
 	ModizMusicPlayer *mplayer;
 	
@@ -91,19 +96,18 @@ typedef struct {
 	st::HardwareClock m_clock;
 	CADisplayLink* m_displayLink;
 	
-	UIView *mPlWasView,*mInWasView;
-	BOOL mPlWasViewHidden,mInWasViewHidden;
+	UIView *mInWasView;
+	BOOL mInWasViewHidden;
 
 
-	
-	st::QueueStorage< float, 200 > m_dtHistory;
-	
-	
-	UIViewController *mParentViewController;
 	IBOutlet RRSGlowLabel *labelModuleName;
-	
+
+	/*
+    //Link to LocalBrowser viewcontroller
 	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
+     */
 	
+    //Subsongs and Archive entries picker
 	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
 	IBOutlet UIButton *pvSubSongValidate,*pvArcValidate,*btnChangeTime;
     IBOutlet BButton *btnShowArcList,*btnShowSubSong;
@@ -113,40 +117,28 @@ typedef struct {
 	IBOutlet UILabel *labelSeeking;
 	IBOutlet UILabel *labelModuleSize,*labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
 	IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
-	IBOutlet UIButton *infoButton,*backInfo,*backPlaylist,*infoZoom,*infoUnzoom,*plZoom,*plUnzoom;
-	IBOutlet UIButton *rating1,*rating1off,*rating2,*rating2off,*rating3,*rating3off,*rating4,*rating4off,*rating5,*rating5off;
+	IBOutlet UIButton *infoButton,*backInfo,*infoZoom,*infoUnzoom;
 	IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
 	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;	
     
-    IBOutlet OBSlider *sliderProgressModule,*sld_TIMPoly,*sld_DefaultLength;
-
-	IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha,*sldDUMBMastVol,*sldPanning;
+    IBOutlet OBSlider *sliderProgressModule;
+    
 	IBOutlet UITextView *textMessage;
-	IBOutlet UIView *detailView,*commandViewU,*mainView,*infoView;
 	IBOutlet UIView *infoMsgView;
 	IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
+	IBOutlet UIView *detailView,*commandViewU,*mainView,*infoView;
+    
+    
 	
 	IBOutlet UIButton *oglButton;
 
 	IBOutlet UIView *volWin;
-	
-	IBOutlet UISegmentedControl *sc_checkBeforeRedownload,*sc_AfterDownload,*sc_EnqueueMode,*sc_DefaultAction,*segcont_randFx,*sc_allowPopup,*sc_titleFilename;
-	IBOutlet UISegmentedControl *segcont_spectrum,*segcont_shownote,*segcont_mpSampling,*segcont_forceMono,*sc_bgPlay,*sc_showDebug;
-	IBOutlet UISegmentedControl *segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR,*segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
-	IBOutlet UISegmentedControl *segcont_oscillo;
-    //,*segcont_resumeLaunch
-	IBOutlet UISegmentedControl *sc_UADE_Led,*sc_UADE_Norm,*sc_UADE_PostFX,*sc_UADE_Pan,*sc_UADE_Head,*sc_UADE_Gain,*sc_FXDetail,*sc_Panning;
-	IBOutlet UISegmentedControl *sc_defaultMODplayer,*sc_PlayerViewOnPlay,*sc_StatsUpload,*sc_SpokenTitle;
-	IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
-	IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
-   	IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
-    IBOutlet UISegmentedControl *sc_TIMreverb,*sc_TIMfilter,*sc_TIMresample,*sc_TIMchorus,*sc_DUMBResampling;
-	IBOutlet UILabel *labelTimPolyphony,*labelDUMBMastVol,*lblPanningValue,*labelDefaultLength;
-
-	IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
     
     IBOutlet UIImageView *cover_view,*gifAnimation;
+
 	
+    
+    
 	int sliderProgressModuleEdit;
 	int sliderProgressModuleChanged;
 	int 	module_waiting;
@@ -293,9 +285,8 @@ typedef struct {
 @property float mScaleFactor;
 @property (nonatomic, retain) ModizMusicPlayer *mplayer;
 //@property (nonatomic,retain) NSMutableArray *mPlaylistFilenames,*mPlaylistFilepaths;
-@property (nonatomic,retain) UIView *mPlWasView,*mInWasView;
+@property (nonatomic,retain) UIView *mInWasView;
 
-@property (nonatomic,retain) UIViewController *mParentViewController;
 
 //@property (retain) CLLocationManager *locManager;
 @property (nonatomic, retain) IBOutlet UIView *infoMsgView;
@@ -303,17 +294,14 @@ typedef struct {
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_allowPopup,*sc_titleFilename;
 @property (nonatomic, retain) IBOutlet UIButton *btnChangeTime;
 @property (nonatomic, retain) IBOutlet UIView *mainView,*infoView;
-@property (nonatomic, retain) IBOutlet UIButton *rating1,*rating1off,*rating2,*rating2off,*rating3,*rating3off,*rating4,*rating4off,*rating5,*rating5off;
 @property (nonatomic, retain) IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
-@property (nonatomic, retain) IBOutlet UIButton *infoButton,*backInfo,*backPlaylist,*infoZoom,*infoUnzoom,*plZoom,*plUnzoom;
+@property (nonatomic, retain) IBOutlet UIButton *infoButton,*backInfo,*infoZoom,*infoUnzoom;
 @property (nonatomic, retain) IBOutlet UIButton *oglButton;
 
 @property (nonatomic, retain) IBOutlet UIPickerView *pvSubSongSel,*pvArcSel;
 
 @property (nonatomic, retain) NSTimer *repeatingTimer;
 
-@property (nonatomic, retain) id detailItem;
-@property (nonatomic, retain) IBOutlet UILabel *detailDescriptionLabel;
 @property (nonatomic, retain) IBOutlet UIView *detailView,*commandViewU,*volWin;
 
 @property (nonatomic, retain) IBOutlet RRSGlowLabel *labelModuleName;
@@ -339,7 +327,7 @@ typedef struct {
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_defaultMODplayer,*sc_PlayerViewOnPlay,*sc_StatsUpload,*sc_SpokenTitle;
+@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_defaultMODplayer,*sc_PlayerViewOnPlay,*sc_StatsUpload;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_TIMreverb,*sc_TIMfilter,*sc_TIMresample,*sc_TIMchorus,*sc_DUMBResampling;
 @property (nonatomic, retain) IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
 

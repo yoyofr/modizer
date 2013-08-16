@@ -428,7 +428,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
     
 	
@@ -1445,13 +1445,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (void)viewDidAppear:(BOOL)animated {
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     [super viewDidAppear:animated];		
-}
-
--(void)hideAllWaitingPopup {
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-    if (childController) {
-        [childController hideAllWaitingPopup];
-    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

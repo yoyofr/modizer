@@ -71,6 +71,10 @@ static UIAlertView *alertChooseName;
 	if ([webView canGoForward]) [webView goForward];
 }
 
+-(IBAction) refresh:(id)sender {
+    [webView reload];
+}
+
 
 -(IBAction) newBookmark:(id)sender {
 	if ([addressTestField.text length]) {
@@ -124,7 +128,7 @@ static UIAlertView *alertChooseName;
 	
 }
 
--(IBAction) goAbout:(id)sender {
+-(IBAction) goHome:(id)sender {
     loadStatus=0;
     switch (currentMode) {
         case WCHARTS_MODE:[self loadWorldCharts];break;
@@ -140,7 +144,17 @@ static UIAlertView *alertChooseName;
 
 -(IBAction) stopLoading:(id)sender {
 	[webView stopLoading];
-	[activityIndicator stopAnimating];
+	//[activityIndicator stopAnimating];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+    
+    //update addressfield indicator
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
+    addressTestField.rightView = button;
+    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
@@ -653,9 +667,18 @@ static UIAlertView *alertChooseName;
 }
 
 - (void)webViewDidStartLoad:(UIWebView*)webV {
-	[activityIndicator startAnimating];
+//	[activityIndicator startAnimating];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     
+    //update addressfield indicator
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    [button setImage:[UIImage imageNamed:@"bb_stop.png"] forState:UIControlStateNormal];
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    [button addTarget:self action:@selector(stopLoading:) forControlEvents:UIControlEventTouchUpInside];
+    addressTestField.rightView = button;
+    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
     
+    //update back/forward buttons
     UIBarButtonItem *barBtn;
     for (int i=0;i<[toolBar.items count];i++) {
         barBtn=[toolBar.items objectAtIndex:i];
@@ -676,7 +699,17 @@ static UIAlertView *alertChooseName;
 }
 
 - (void)webViewDidFinishLoad:(UIWebView*)webV {
-	[activityIndicator stopAnimating];
+    
+    //update addressfield indicator
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
+    addressTestField.rightView = button;
+    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    
+//	[activityIndicator stopAnimating];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 	if (loadStatus==TO_LOAD) {
         
         if (currentMode==WCHARTS_MODE) {
@@ -762,6 +795,8 @@ static UIAlertView *alertChooseName;
 	clock_t start_time,end_time;	
 	start_time=clock();
     
+    
+    
     bookmarksVC=nil;
     
     UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
@@ -774,15 +809,22 @@ static UIAlertView *alertChooseName;
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
 
 	
 	webView.scalesPageToFit = YES;
 	webView.autoresizesSubviews = YES;
 	webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+    
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
+    button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+    [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
+    addressTestField.rightView = button;
+    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
 	
-	[[infoDownloadView layer] setCornerRadius:5.0];	
+	[[infoDownloadView layer] setCornerRadius:5.0];
 	[[infoDownloadView layer] setBorderWidth:2.0];
 	[[infoDownloadView layer] setBorderColor:[[UIColor colorWithRed: 0.95f green: 0.95f blue: 0.95f alpha: 1.0f] CGColor]];   //Adding Border color.
 	infoDownloadView.hidden=YES;
