@@ -49,9 +49,10 @@
 -(IBAction) goForward:(id)sender;
 -(IBAction) newBookmark:(id)sender;
 -(IBAction) goBookmarks;
--(IBAction) goAbout:(id)sender;
+-(IBAction) goHome:(id)sender;
 -(IBAction) newUrlEntered:(id)sender;
 -(IBAction) stopLoading:(id)sender;
+-(IBAction) refresh:(id)sender;
 
 -(void)goToURL:(NSString*)address;
 -(void)loadWorldCharts;

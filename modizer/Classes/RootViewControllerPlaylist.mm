@@ -60,7 +60,7 @@ UIAlertView *alertPlFull,*alertChooseName;
         [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
         btn.adjustsImageWhenHighlighted = YES;
         [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+        UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
         self.navigationItem.rightBarButtonItem = item;
         }
     }
@@ -251,6 +251,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        browse_depth=0;
     }
     return self;
 }
@@ -321,7 +322,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
     }
     if (show_playlist) {
@@ -1773,13 +1774,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     
     [super viewDidAppear:animated];
-}
-
--(void)hideAllWaitingPopup {
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-    if (childController) {
-        [childController hideAllWaitingPopup];
-    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

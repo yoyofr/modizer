@@ -120,7 +120,5 @@
 
 - (void)createSamplesFromPackage:(BOOL)forceCreate;
 -(NSString*) getCompleteLocalPath:(int)id_mod;
--(void)hideAllWaitingPopup;
-
 
 @end

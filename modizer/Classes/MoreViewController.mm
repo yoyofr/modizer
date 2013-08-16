@@ -40,7 +40,7 @@
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
 
     // Uncomment the following line to preserve selection between presentations.
@@ -68,7 +68,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 3;
+    return 2;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -195,11 +195,7 @@
             bottomLabel.text=NSLocalizedString(@"Some general information",@"");
             break;
         case 1:
-            topLabel.text=NSLocalizedString(@"Global Settings",@"");
-            bottomLabel.text=NSLocalizedString(@"",@"");
-            break;
-        case 2:
-            topLabel.text=NSLocalizedString(@"Plugins Settings",@"");
+            topLabel.text=NSLocalizedString(@"Settings",@"");
             bottomLabel.text=NSLocalizedString(@"",@"");
             break;
     }
@@ -257,16 +253,10 @@
             // And push the window
             [self.navigationController pushViewController:aboutVC animated:YES];
             break;
-        case 1://General Settings
-            settingsVC=[[[SettingsGenViewController alloc] initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
+        case 1://Settings
+            settingsVC=[[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]] autorelease];
             settingsVC->detailViewController=detailViewController;
             settingsVC.title=NSLocalizedString(@"General Settings",@"");
-            [self.navigationController pushViewController:settingsVC animated:YES];
-            break;
-        case 2://Plugins Settings
-            settingsVC=[[[SettingsGenViewController alloc] initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
-            settingsVC->detailViewController=detailViewController;
-            settingsVC.title=NSLocalizedString(@"Plugins Settings",@"");
             [self.navigationController pushViewController:settingsVC animated:YES];
             break;
     }
