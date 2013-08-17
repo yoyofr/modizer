@@ -30,6 +30,8 @@ static volatile int mPopupAnimation=0;
 #import "AppDelegate_Phone.h"
 #import "DetailViewControllerIphone.h"
 #import "QuartzCore/CAAnimation.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 
 
 @implementation RootViewControllerLocalBrowser
@@ -1721,7 +1723,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             
             actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
             
-            if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+            if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                 [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
                 [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
                 [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
@@ -2139,7 +2141,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             //				[childController autorelease];
         } else {  //File selected
             
-            if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+            if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                 // launch Play
                 t_playlist pl;
                 pl.nb_entries=1;

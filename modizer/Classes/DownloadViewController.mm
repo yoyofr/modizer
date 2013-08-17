@@ -10,6 +10,8 @@
 #define TMP_FILE_NAME @"Documents/tmp.tmpfile"
 
 #import "DownloadViewController.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 #import <CFNetwork/CFNetwork.h>
 #include <sys/xattr.h>
 
@@ -581,7 +583,7 @@ static NSFileManager *mFileMngr;
 }
 
 -(void) addDownloadedURLtoPlayer:(NSString*)_filename filepath:(NSString*)_filepath forcenoplay:(int)fnp {
-	switch (detailViewController.sc_AfterDownload.selectedSegmentIndex) {
+	switch ((int)(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value)) {
 		case 0://do nothing
 			break;
 		case 1://Enqueue
@@ -742,7 +744,7 @@ static NSFileManager *mFileMngr;
 								message:[NSString stringWithString:NSLocalizedString(@"Could not add files. Please check manually with file browser (Local Browsing/Downloads).",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
 		[alert show];
 	} else {
-		switch (detailViewController.sc_AfterDownload.selectedSegmentIndex) {
+		switch ((int)(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value)) {
 			case 0://do nothing
 				break;
 			case 1://Enqueue

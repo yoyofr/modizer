@@ -14,7 +14,7 @@
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
 #import "SettingsGenViewController.h"
-
+extern volatile t_settings settings[MAX_SETTINGS];
 
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
@@ -220,8 +220,8 @@ pthread_mutex_t play_mutex;
 	
 	[detailViewControlleriPhone saveSettings];
 	//if (backgroundSupported==NO) return;
-	if (( (detailViewControlleriPhone.mPaused)&&(detailViewControlleriPhone.sc_bgPlay.selectedSegmentIndex==1) )||
-		  (detailViewControlleriPhone.sc_bgPlay.selectedSegmentIndex==0) ) {
+	if (( (detailViewControlleriPhone.mPaused)&&(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==1) )||
+		  (settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==0) ) {
 		//exit app if not playing anything
         [detailViewControlleriPhone updateFlagOnExit];
 		exit(0);

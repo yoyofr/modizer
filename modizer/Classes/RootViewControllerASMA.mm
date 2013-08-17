@@ -33,6 +33,8 @@ static volatile int mPopupAnimation=0;
 #import "DetailViewControllerIphone.h"
 #import "DownloadViewController.h"
 #import "WebBrowser.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 #import "QuartzCore/CAAnimation.h"
 
 @implementation RootViewControllerASMA
@@ -51,31 +53,6 @@ static volatile int mPopupAnimation=0;
 #pragma mark View lifecycle
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-	if (alertView==alertAlreadyAvail) {
-		if (buttonIndex==1) {//force new download
-			[self checkCreate:[FTPlocalPath stringByDeletingLastPathComponent]];
-			mCurrentWinAskedDownload=1;
-			[downloadViewController addFTPToDownloadList:FTPlocalPath ftpURL:FTPftpPath  ftpHost:MODLAND_FTPHOST filesize:FTPfilesize filename:FTPfilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-		} else {
-			if (mClickedPrimAction==1) {
-				NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-				NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-				[array_label addObject:FTPfilename];
-				[array_path addObject:FTPlocalPath];
-				[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-				//[self goPlayer];
-			} else {
-				if ([detailViewController add_to_playlist:FTPlocalPath fileName:FTPfilename forcenoplay:1]) {
-					if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-					else [tableView reloadData];
-				}
-			}
-		}
-		[FTPfilename autorelease];
-		[FTPlocalPath autorelease];
-		[FTPftpPath autorelease];
-		[FTPfilePath autorelease];
-	}
 }
 
 - (NSString *)machine {
@@ -1301,7 +1278,8 @@ static volatile int mPopupAnimation=0;
                      tableView.bounds.size.width -1.0 * cell.indentationWidth-32-34-34-60,
                      18);*/
                 }
-                if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+                
+                if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                     [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
                     [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
                     [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
@@ -1582,7 +1560,7 @@ static volatile int mPopupAnimation=0;
                 int first=0; //1;  Do not play even first file => TODO : add a setting for this
                 int existing;
                 int tooMuch=0;
-                if (detailViewController.sc_DefaultAction.selectedSegmentIndex==2) first=0;//enqueue only
+                if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2) first=0;//enqueue only
                 
                 int *cur_db_entries_count=(search_dbASMA?search_dbASMA_entries_count:dbASMA_entries_count);
                 
@@ -1607,7 +1585,7 @@ static volatile int mPopupAnimation=0;
                                 sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[i][j].label];
                                 ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[i][j].fullpath];				
                                 localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[i][j].fullpath];
-                                mClickedPrimAction=(detailViewController.sc_DefaultAction.selectedSegmentIndex==0);
+                                mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
                                 
                                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                                 mCurrentWinAskedDownload=1;
@@ -1635,7 +1613,7 @@ static volatile int mPopupAnimation=0;
                     NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].label];
                     NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].fullpath];				
                     NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
-                    mClickedPrimAction=(detailViewController.sc_DefaultAction.selectedSegmentIndex==0);
+                    mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
                     
                     if (cur_db_entries[section][indexPath.row].downloaded==1) {
                         if (mClickedPrimAction) {
@@ -1648,7 +1626,7 @@ static volatile int mPopupAnimation=0;
                             if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                             else [tableView reloadData];
                         } else {
-                            if ([detailViewController add_to_playlist:localPath fileName:sidFilename forcenoplay:(detailViewController.sc_DefaultAction.selectedSegmentIndex==1)]) {
+                            if ([detailViewController add_to_playlist:localPath fileName:sidFilename forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                                 cur_db_entries[section][indexPath.row].rating=-1;
                                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                                 else [tableView reloadData];

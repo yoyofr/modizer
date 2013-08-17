@@ -2392,7 +2392,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     
     if (browse_depth==0) {
-        if (indexPath.row>=2) { //start selected playlist
+        if (indexPath.row>=4) { //start selected playlist
             [self freePlaylist];
             playlist=(t_playlist*)malloc(sizeof(t_playlist));
             memset(playlist,0,sizeof(t_playlist));
@@ -2406,7 +2406,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [self loadFavoritesList];
                 playlist->playlist_name=[[NSString alloc] initWithFormat:@"Favorites"];
                 playlist->playlist_id=nil;
-            } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-2)] intoPlaylist:playlist];
+            } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-4)] intoPlaylist:playlist];
             
             if (playlist->nb_entries) {
                 if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
@@ -2673,7 +2673,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             childController.title = cellValue;
             ((RootViewControllerPlaylist*)childController)->show_playlist=1;
             //get list id
-            [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-2)] intoPlaylist:playlist];
+            [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-4)] intoPlaylist:playlist];
             
             // Set new directory
             ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;

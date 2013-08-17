@@ -61,7 +61,7 @@ int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
 }
 
 #import "SettingsGenViewController.h"
-extern t_settings settings[MAX_SETTINGS];
+extern volatile t_settings settings[MAX_SETTINGS];
 
 extern int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
@@ -117,12 +117,11 @@ static int display_length_mode=0;
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
 @synthesize mShuffle,mShouldUpdateInfos;
 @synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime,btnNextCFlow,btnPrevCFlow,btnNextSubCFlow,btnPrevSubCFlow;
-@synthesize sld_DefaultLength,labelDefaultLength;
 
 @synthesize mDeviceType;
 @synthesize cover_view,gifAnimation;
 //@synthesize locManager;
-@synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl,sc_titleFilename;
+@synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
 @synthesize labelModuleName,labelModuleLength, labelTime, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
 @synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,btnLoopInf;
@@ -137,26 +136,22 @@ static int display_length_mode=0;
 @synthesize infoButton,backInfo;
 @synthesize mPlaylist_pos,mPlaylist_size;
 
-@synthesize segcont_oscillo,segcont_forceMono,sc_checkBeforeRedownload,sc_bgPlay,sc_StatsUpload,sc_showDebug;
+@synthesize segcont_oscillo,sc_showDebug;
 //segcont_resumeLaunch
 @synthesize segcont_spectrum,segcont_shownote,segcont_mpSampling;
 @synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,segcont_fx1,segcont_fx2,segcont_fx3,segcont_fx4,segcont_fx5,segcont_FxBeat,sc_FXDetail,sc_cflow,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
 @synthesize sc_SEXYPSF_Reverb,sc_SEXYPSF_Interpol;
 @synthesize sc_AOSDK_Reverb,sc_AOSDK_Interpol;
 @synthesize sc_ADPLUG_opltype;
-@synthesize labelTimPolyphony,sld_TIMPoly;
 @synthesize oglButton;
-@synthesize sldDUMBMastVol,labelDUMBMastVol,sc_DUMBResampling;
 
 @synthesize pvSubSongSel,pvSubSongLabel,pvSubSongValidate,btnShowSubSong;
 @synthesize pvArcSel,pvArcLabel,pvArcValidate,btnShowArcList;
 
 
-@synthesize sc_AfterDownload,sc_EnqueueMode,sc_DefaultAction,segcont_randFx,sc_PlayerViewOnPlay;
+@synthesize segcont_randFx,sc_PlayerViewOnPlay;
 @synthesize sc_UADE_Led,sc_UADE_Norm,sc_UADE_PostFX,sc_UADE_Pan,sc_UADE_Head,sc_UADE_Gain,sc_SID_Optim,sc_SID_LibVersion,sc_SID_Filter;
 @synthesize sld_UADEpan,sld_UADEgain;
-@synthesize sc_TIMreverb,sc_TIMfilter,sc_TIMresample,sc_TIMchorus;
-@synthesize sldPanning,sc_Panning,lblPanningValue;
 
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
@@ -204,16 +199,6 @@ static int display_length_mode=0;
 		pvArcValidate.hidden=true;
 	}
 }
-
--(IBAction)optGENTitleFilename {
-    if (mPlaylist_pos>=mPlaylist_size) return;
-    NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;    
-    if (sc_titleFilename.selectedSegmentIndex) labelModuleName.text=[NSString stringWithString:fileName];
-    else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
-    
-    lblCurrentSongCFlow.text=labelModuleName.text;
-}
-
 
 -(IBAction)pushedLoopInf {
 	if (mplayer.mLoopMode==0) {
@@ -300,34 +285,12 @@ static int display_length_mode=0;
 	[mplayer optUADE_GainValue:sld_UADEgain.value];
 }
 
--(IBAction) optGEN_DefaultLength {
-	[mplayer optGEN_DefaultLength:sld_DefaultLength.value];
-	labelDefaultLength.text=[NSString stringWithFormat:NSLocalizedString(@"Default length %d:%.2d", @""),(int)(sld_DefaultLength.value)/60,(int)(sld_DefaultLength.value)%60];
-}
-
-
 -(IBAction) optFX_Alpha {
 //    m_oglView.alpha=;
     if (sldFxAlpha.value==1.0f) m_oglView.layer.opaque = YES;
     else m_oglView.layer.opaque = NO;
 }
 
--(IBAction) optGLOB_Panning {
-    [mplayer optGLOB_Panning:sc_Panning.selectedSegmentIndex];
-}
-
--(IBAction) optGLOB_PanningValue {
-    [mplayer optGLOB_PanningValue:sldPanning.value];
-    lblPanningValue.text=[NSString stringWithFormat:@"Panning value: %.2f",sldPanning.value];
-}
-
--(IBAction) optDUMBMastVol {
-    [mplayer optDUMB_MastVol:sldDUMBMastVol.value];
-    labelDUMBMastVol.text=[NSString stringWithFormat:@"%.2f",sldDUMBMastVol.value];
-}
--(IBAction) optDUMBResampling {
-    [mplayer optDUMB_Resampling:sc_DUMBResampling.selectedSegmentIndex];
-}
 
 -(IBAction) optAOSDK_DSF22KHZ {
     [mplayer optAOSDK_22KHZ:sc_AOSDKDSF22KHZ.selectedSegmentIndex];
@@ -347,9 +310,7 @@ static int display_length_mode=0;
 
 
 -(IBAction) optTIM_Polyphony {
-    if (sld_TIMPoly.value==0) sld_TIMPoly.value=128;
-    [mplayer optTIM_Poly:(int)(sld_TIMPoly.value)];
-    labelTimPolyphony.text=[NSString stringWithFormat:@"%d voices",(int)(sld_TIMPoly.value)];
+    
 }
 
 - (void)showRating:(int)rating {
@@ -378,7 +339,7 @@ static int display_length_mode=0;
         DBHelper::updateFileStatsDBmod(mPlaylist[mPlaylist_pos].mPlaylistFilename,mPlaylist[mPlaylist_pos].mPlaylistFilepath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,(mOnlyCurrentEntry==0?([mplayer isArchive]?-[mplayer getArcEntriesCnt]:mplayer.mod_subsongs):-1) );
     }
 	else DBHelper::updateFileStatsDBmod(mPlaylist[mPlaylist_pos].mPlaylistFilename,mPlaylist[mPlaylist_pos].mPlaylistFilepath,playcount,mRating);
-	if (sc_StatsUpload.selectedSegmentIndex) {
+	if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
 		mSendStatTimer=0;
 		[GoogleAppHelper SendStatistics:mPlaylist[mPlaylist_pos].mPlaylistFilename path:mPlaylist[mPlaylist_pos].mPlaylistFilepath rating:mRating playcount:playcount country:located_country city:located_city longitude:located_lon latitude:located_lat];	
 	}
@@ -431,6 +392,35 @@ static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D'
 static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 
 - (IBAction)settingsChanged:(id)sender {
+    //GLOBAL
+    [mplayer optGLOB_Panning:settings[GLOB_Panning].detail.mdz_boolswitch.switch_value];
+    [mplayer optGLOB_PanningValue:settings[GLOB_PanningValue].detail.mdz_slider.slider_value];
+    switch (settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value) {
+		case 1:mplayer.optForceMono=1;break;
+		case 0:mplayer.optForceMono=0;break;
+	}
+ 	[mplayer optGEN_DefaultLength:settings[GLOB_DefaultLength].detail.mdz_slider.slider_value];
+    
+    if (mPlaylist_pos<mPlaylist_size) {
+        NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
+        if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
+        else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+        lblCurrentSongCFlow.text=labelModuleName.text;
+    }
+    
+    //DUMB
+    [mplayer optDUMB_Resampling:settings[DUMB_Resampling].detail.mdz_switch.switch_value];
+    [mplayer optDUMB_MastVol:settings[DUMB_MasterVolume].detail.mdz_slider.slider_value];
+    
+    //TIMIDITY
+    [mplayer optTIM_Poly:settings[TIM_Polyphony].detail.mdz_slider.slider_value];
+    [mplayer optTIM_Chorus:(int)(settings[TIM_Chorus].detail.mdz_boolswitch.switch_value)];
+    [mplayer optTIM_Reverb:(int)(settings[TIM_Reverb].detail.mdz_boolswitch.switch_value)];
+    [mplayer optTIM_Resample:(int)(settings[TIM_Resample].detail.mdz_switch.switch_value)];
+    [mplayer optTIM_LPFilter:(int)(settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value)];
+	
+    
+/////////
 	ModPlug_Settings *mpsettings;
 	
 	mpsettings=[mplayer getMPSettings];
@@ -456,10 +446,6 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 	}
 	
     
-	switch ( segcont_forceMono.selectedSegmentIndex) {
-		case 1:mplayer.optForceMono=1;break;
-		case 0:mplayer.optForceMono=0;break;
-	}
 	if (segcont_fx2.selectedSegmentIndex&&segcont_fx3.selectedSegmentIndex) {
 		if (sender==segcont_fx2) segcont_fx3.selectedSegmentIndex=0;
 		else segcont_fx2.selectedSegmentIndex=0;
@@ -491,11 +477,6 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
     tim_midifx_note_range=128; //128notes max
     tim_midifx_note_offset=0;
     
-    [mplayer optTIM_Chorus:(int)(sc_TIMchorus.selectedSegmentIndex)];
-    [mplayer optTIM_Reverb:(int)(sc_TIMreverb.selectedSegmentIndex)];
-    [mplayer optTIM_Resample:(int)(sc_TIMresample.selectedSegmentIndex)];
-    [mplayer optTIM_LPFilter:(int)(sc_TIMfilter.selectedSegmentIndex)];
-	
 	
 	mpsettings->mReverbDepth=(int)(revDepSld.value*100.0f);
 	mpsettings->mReverbDelay=(int)(revDelSld.value*160.0f+40.0f);
@@ -685,7 +666,7 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
         }
 		if (mpl_upd>=2) {			
 			if (mpl_upd==2) {
-                if (sc_titleFilename.selectedSegmentIndex==0) {
+                if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value==0) {
                     labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
                     lblCurrentSongCFlow.text=labelModuleName.text;
                 }
@@ -1347,7 +1328,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	}
 	
 	if (mPlaylist_size) { //already in a playlist : append to it
-		if (sc_EnqueueMode.selectedSegmentIndex==0) {
+		if (settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==0) {
             
 			for (int i=mPlaylist_size-1;i>=0;i--) {
 				mPlaylist[i+add_entries_nb]=mPlaylist[i];
@@ -1361,7 +1342,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			}
 			added_pos=0;
 			mPlaylist_pos+=add_entries_nb;
-		} else if ((sc_EnqueueMode.selectedSegmentIndex==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
+		} else if ((settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
 			
 			for (int i=mPlaylist_size-1;i>mPlaylist_pos;i--) {
 				mPlaylist[i+add_entries_nb]=mPlaylist[i];
@@ -1410,7 +1391,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		[self play_curEntry];
 		playLaunched=1;
 	}
-	if ((playLaunched==0)&&(!forcenoplay)&&(sc_DefaultAction.selectedSegmentIndex==2)) {//Enqueue & play
+	if ((playLaunched==0)&&(!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
 		mPlaylist_pos=added_pos;
 		[self play_curEntry];
 		playLaunched=1;
@@ -1437,7 +1418,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         coverflow_needredraw=1;
     
 	if (mPlaylist_size) { //already in a playlist : append to it
-		if (sc_EnqueueMode.selectedSegmentIndex==0) {
+		if (settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==0) {
 			for (int i=mPlaylist_size-1;i>=0;i--) {
 				mPlaylist[i+1]=mPlaylist[i];
 			}
@@ -1449,7 +1430,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			added_pos=0;
 			mPlaylist_pos++;
 			
-		} else if ((sc_EnqueueMode.selectedSegmentIndex==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
+		} else if ((settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value==1)&&(mPlaylist_pos<mPlaylist_size-1)) { //after current
 			for (int i=mPlaylist_size-1;i>mPlaylist_pos;i--) {
 				mPlaylist[i+1]=mPlaylist[i];
 			}
@@ -1492,7 +1473,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		[self play_curEntry];
 		playLaunched=1;
 	}
-	if ((!forcenoplay)&&(sc_DefaultAction.selectedSegmentIndex==2)) {//Enqueue & play
+	if ((!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
 		mPlaylist_pos=added_pos;
 		[self play_curEntry];
 		playLaunched=1;
@@ -1594,7 +1575,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	//Update song info if required
 	labelModuleName.hidden=NO;
-    if (sc_titleFilename.selectedSegmentIndex) labelModuleName.text=[NSString stringWithString:fileName];
+    if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
     else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
     lblCurrentSongCFlow.text=labelModuleName.text;
 	labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
@@ -1626,7 +1607,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		
 		
 		//UPDATE Google Application
-		if (sc_StatsUpload.selectedSegmentIndex) mSendStatTimer=15;//Wait 15 updateInfos call => 15*0.33 => 15seconds
+		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=15;//Wait 15 updateInfos call => 15*0.33 => 15seconds
 		
 	}
 	[self showRating:mRating];
@@ -1861,7 +1842,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	//Update song info if required
     labelModuleName.hidden=NO;
-    if (sc_titleFilename.selectedSegmentIndex) labelModuleName.text=[NSString stringWithString:fileName];
+    if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
     else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
 	lblCurrentSongCFlow.text=labelModuleName.text;
     labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
@@ -1892,7 +1873,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,(mOnlyCurrentEntry==0?([mplayer isArchive]?-[mplayer getArcEntriesCnt]:mplayer.mod_subsongs):-1));
 		
 		//UPDATE Google Application
-		if (sc_StatsUpload.selectedSegmentIndex) mSendStatTimer=15;//Wait 15 updateInfos call => 15*0.33 => 15seconds
+		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=15;//Wait 15 updateInfos call => 15*0.33 => 15seconds
 		
 	}
 	[self showRating:mRating];
@@ -2713,7 +2694,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		[self oglViewSwitchFS];
 	}
     
-    
     if (infoIsFullscreen) {
         infoZoom.hidden=YES;
         infoUnzoom.hidden=NO;
@@ -2738,24 +2718,17 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[self optUADE_Gain];
 	[self optUADE_PanValue];
 	[self optUADE_GainValue];
-    [self optGEN_DefaultLength];
-    [self optTIM_Polyphony];
+    
     [self optFX_Alpha];
 	[self optSID_Optim];
 	[self optSID_LibVersion];
     [self optSID_Filter];
-    
-    [self optDUMBMastVol];
-    [self optDUMBResampling];
     
     [self optAOSDK_DSFEmuRatio];
     [self optAOSDK_DSFDSP];
     [self optAOSDK_DSF22KHZ];
     [self optAOSDK_SSFEmuRatio];
     [self optAOSDK_SSFDSP];
-    
-    [self optGLOB_Panning];
-    [self optGLOB_PanningValue];
     
     [self settingsChanged:nil];
 
@@ -2765,10 +2738,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////
     // General
     ///////////////////////////////////////	
-    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
-    sc_titleFilename.selectedSegmentIndex = 0;
-    sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_bgPlay.selectedSegmentIndex = 1;
 	sc_showDebug.selectedSegmentIndex = 0;
 	sc_cflow.selectedSegmentIndex = 1;
 	sldFxAlpha.value = (mSlowDevice?1.0f:0.5f);
@@ -2783,11 +2752,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	segcont_FxBeat.selectedSegmentIndex = 0;
 	segcont_randFx.selectedSegmentIndex = 0;
 	sc_FXDetail.selectedSegmentIndex = 1;//Med
-	segcont_forceMono.selectedSegmentIndex = 0;
-	sc_checkBeforeRedownload.selectedSegmentIndex = 0;
-	sc_AfterDownload.selectedSegmentIndex = 1;
-	sc_EnqueueMode.selectedSegmentIndex = 2;
-	sc_DefaultAction.selectedSegmentIndex = 0;
+	
 	sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
 	    
     ///////////////////////////////////
@@ -2833,11 +2798,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // TIMIDITY
     ///////////////////////////////////////    
-	sc_TIMchorus.selectedSegmentIndex = (mSlowDevice? 0:1);
-	sc_TIMreverb.selectedSegmentIndex = (mSlowDevice? 0:1);
-	sc_TIMfilter.selectedSegmentIndex = (mSlowDevice? 0:1);
-	sc_TIMresample.selectedSegmentIndex = (mSlowDevice? 0:1);
-	sld_TIMPoly.value = (mSlowDevice? 64:128);
 	
     ////////////////////////////////////
     // MODPLUG
@@ -2858,332 +2818,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     
     [self updateAllSettingsAfterChange];
 }
--(void) loadHighSettings {
-    ///////////////////////////////////
-    // General
-    ///////////////////////////////////////	
-    sc_titleFilename.selectedSegmentIndex = 0;
-    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
-    sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_bgPlay.selectedSegmentIndex = 2;
-	sc_showDebug.selectedSegmentIndex = 0;
-	sc_cflow.selectedSegmentIndex = 1;
-	sldFxAlpha.value = 0.5f;
-    sc_Panning.selectedSegmentIndex=0;
-	sldPanning.value = 0.7f;
-	
-//	segcont_resumeLaunch.selectedSegmentIndex = 0;
-	segcont_oscillo.selectedSegmentIndex = 2;
-	segcont_spectrum.selectedSegmentIndex = 1;
-	segcont_fx1.selectedSegmentIndex = 0;
-	segcont_fx2.selectedSegmentIndex = 0;
-	segcont_fx3.selectedSegmentIndex = 0;
-    segcont_fx4.selectedSegmentIndex=0;
-    segcont_fx5.selectedSegmentIndex = 0;
-	segcont_FxBeat.selectedSegmentIndex = 0;
-	segcont_randFx.selectedSegmentIndex = 0;
-	sc_FXDetail.selectedSegmentIndex = 2;
-	segcont_forceMono.selectedSegmentIndex = 0;
-	sc_checkBeforeRedownload.selectedSegmentIndex = 0;
-	sc_AfterDownload.selectedSegmentIndex = 1;
-	sc_EnqueueMode.selectedSegmentIndex = 2;
-	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_PlayerViewOnPlay.selectedSegmentIndex = 1;
-    ///////////////////////////////////
-    // UADE
-    ///////////////////////////////////////
-	sc_UADE_Led.selectedSegmentIndex = 0;
-	sc_UADE_Norm.selectedSegmentIndex = 0;
-	sc_UADE_PostFX.selectedSegmentIndex = 1;
-	sc_UADE_Head.selectedSegmentIndex = 0;
-	sc_UADE_Pan.selectedSegmentIndex = 1;
-	sc_UADE_Gain.selectedSegmentIndex = 0;
-	sld_UADEpan.value = 0.7f;
-	sld_UADEgain.value = 0.5f;
-    ////////////////////////////////////
-    // SID
-    ///////////////////////////////////////
-	sc_SID_Optim.selectedSegmentIndex = 1;
-	sc_SID_LibVersion.selectedSegmentIndex = 1;
-    sc_SID_Filter.selectedSegmentIndex = 1;
-    ////////////////////////////////////
-    // SexyPSF
-    ///////////////////////////////////////
-	sc_SEXYPSF_Reverb.selectedSegmentIndex = 2;
-	sc_SEXYPSF_Interpol.selectedSegmentIndex = 2;
-    ////////////////////////////////////
-    // AOSDK
-    ///////////////////////////////////////
-	sc_AOSDK_Reverb.selectedSegmentIndex = 1;
-	sc_AOSDK_Interpol.selectedSegmentIndex = 2;
-    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 0;
-	sc_AOSDKDSFDSP.selectedSegmentIndex = 1;
-	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 0;
-	sc_AOSDKSSFDSP.selectedSegmentIndex = 1;
-	sc_AOSDKSSFEmuRatio.selectedSegmentIndex = 0;
-    ////////////////////////////////////
-    // ADPLUG
-    ///////////////////////////////////////
-	sc_ADPLUG_opltype.selectedSegmentIndex = 1;
-    ////////////////////////////////////
-    // GME
-    ///////////////////////////////////////
-    ////////////////////////////////////
-    // DUMB
-    ///////////////////////////////////////    
-    sc_DUMBResampling.selectedSegmentIndex = 2;
-	sldDUMBMastVol.value = 0.5f;
-
-    ////////////////////////////////////
-    // TIMIDITY
-    ///////////////////////////////////////    
-	sc_TIMchorus.selectedSegmentIndex = 1;
-	sc_TIMreverb.selectedSegmentIndex = 1;
-	sc_TIMfilter.selectedSegmentIndex = 1;
-	sc_TIMresample.selectedSegmentIndex = 3;
-	sld_TIMPoly.value = 256;
-	
-    ////////////////////////////////////
-    // MODPLUG
-    ///////////////////////////////////////
-	segcont_shownote.selectedSegmentIndex = 1;
-	mastVolSld.value = 0.5f;
-	segcont_mpSampling.selectedSegmentIndex = 2;
-	segcont_mpMB.selectedSegmentIndex = 0;
-	bassAmoSld.value = 0.7f;
-	bassRanSld.value = 0.3f;
-	segcont_mpSUR.selectedSegmentIndex = 0;
-	surDepSld.value = 0.9f;
-	surDelSld.value = 0.8f;
-	segcont_mpReverb.selectedSegmentIndex = 0;
-	revDepSld.value = 0.8f;
-	revDelSld.value = 0.7f;
-	mpPanningSld.value = 0.5f;
-    
-    [self updateAllSettingsAfterChange];    
-}
--(void) loadMedSettings {
-    ///////////////////////////////////
-    // General
-    ///////////////////////////////////////	
-    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
-    sc_titleFilename.selectedSegmentIndex = 0;
-    sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_bgPlay.selectedSegmentIndex = 1;
-	sc_showDebug.selectedSegmentIndex = 0;
-	sc_cflow.selectedSegmentIndex = 1;
-	sldFxAlpha.value = 0.5f;
-    sc_Panning.selectedSegmentIndex=0;
-	sldPanning.value = 0.7f;
-	
-//	segcont_resumeLaunch.selectedSegmentIndex = 0;
-	segcont_oscillo.selectedSegmentIndex = 0;
-	segcont_spectrum.selectedSegmentIndex = 0;
-	segcont_fx1.selectedSegmentIndex = 0;
-	segcont_fx2.selectedSegmentIndex = 0;
-	segcont_fx3.selectedSegmentIndex = 0;
-    segcont_fx4.selectedSegmentIndex=0;
-    segcont_fx5.selectedSegmentIndex = 0;
-	segcont_FxBeat.selectedSegmentIndex = 0;
-	segcont_randFx.selectedSegmentIndex = 0;
-	sc_FXDetail.selectedSegmentIndex = 1;
-	segcont_forceMono.selectedSegmentIndex = 0;
-	sc_checkBeforeRedownload.selectedSegmentIndex = 0;
-	sc_AfterDownload.selectedSegmentIndex = 1;
-	sc_EnqueueMode.selectedSegmentIndex = 2;
-	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_PlayerViewOnPlay.selectedSegmentIndex = 1;
-    ///////////////////////////////////
-    // UADE
-    ///////////////////////////////////////
-	sc_UADE_Led.selectedSegmentIndex = 0;
-	sc_UADE_Norm.selectedSegmentIndex = 0;
-	sc_UADE_PostFX.selectedSegmentIndex = 1;
-	sc_UADE_Head.selectedSegmentIndex = 0;
-	sc_UADE_Pan.selectedSegmentIndex = 1;
-	sc_UADE_Gain.selectedSegmentIndex = 0;
-	sld_UADEpan.value = 0.7f;
-	sld_UADEgain.value = 0.5f;
-    ////////////////////////////////////
-    // SID
-    ///////////////////////////////////////
-	sc_SID_Optim.selectedSegmentIndex = 1;
-	sc_SID_LibVersion.selectedSegmentIndex = 1;
-    sc_SID_Filter.selectedSegmentIndex = 1;
-    ////////////////////////////////////
-    // SexyPSF
-    ///////////////////////////////////////
-	sc_SEXYPSF_Reverb.selectedSegmentIndex = 2;
-	sc_SEXYPSF_Interpol.selectedSegmentIndex = 2;
-    ////////////////////////////////////
-    // AOSDK
-    ///////////////////////////////////////
-	sc_AOSDK_Reverb.selectedSegmentIndex = 1;
-	sc_AOSDK_Interpol.selectedSegmentIndex = 1;
-    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
-	sc_AOSDKDSFDSP.selectedSegmentIndex = 0;
-	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 2;
-	sc_AOSDKSSFDSP.selectedSegmentIndex = 0;
-	sc_AOSDKSSFEmuRatio.selectedSegmentIndex = 2;
-    ////////////////////////////////////
-    // ADPLUG
-    ///////////////////////////////////////
-	sc_ADPLUG_opltype.selectedSegmentIndex = 1;
-    ////////////////////////////////////
-    // GME
-    ///////////////////////////////////////
-    ////////////////////////////////////
-    // DUMB
-    ///////////////////////////////////////    
-    sc_DUMBResampling.selectedSegmentIndex = 1;
-	sldDUMBMastVol.value = 0.5f;
-
-    ////////////////////////////////////
-    // TIMIDITY
-    ///////////////////////////////////////    
-	sc_TIMchorus.selectedSegmentIndex = 1;
-	sc_TIMreverb.selectedSegmentIndex = 1;
-	sc_TIMfilter.selectedSegmentIndex = 1;
-	sc_TIMresample.selectedSegmentIndex = 3;
-	sld_TIMPoly.value = 128;
-	
-    ////////////////////////////////////
-    // MODPLUG
-    ///////////////////////////////////////
-	segcont_shownote.selectedSegmentIndex = 1;
-	mastVolSld.value = 0.5f;
-	segcont_mpSampling.selectedSegmentIndex = 0;
-	segcont_mpMB.selectedSegmentIndex = 0;
-	bassAmoSld.value = 0.7f;
-	bassRanSld.value = 0.3f;
-	segcont_mpSUR.selectedSegmentIndex = 0;
-	surDepSld.value = 0.9f;
-	surDelSld.value = 0.8f;
-	segcont_mpReverb.selectedSegmentIndex = 0;
-	revDepSld.value = 0.8f;
-	revDelSld.value = 0.7f;
-	mpPanningSld.value = 0.5f;
-    
-    [self updateAllSettingsAfterChange];        
-}
--(void) loadLowSettings {
-    ///////////////////////////////////
-    // General
-    ///////////////////////////////////////	
-    sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
-    sc_titleFilename.selectedSegmentIndex = 0;
-    sc_StatsUpload.selectedSegmentIndex = 1;
-	sc_bgPlay.selectedSegmentIndex = 0;
-	sc_showDebug.selectedSegmentIndex = 0;
-	sc_cflow.selectedSegmentIndex = 1;
-	sldFxAlpha.value = 1.0f;
-	sc_Panning.selectedSegmentIndex=0;
-	sldPanning.value = 0.7f;
-	
-//	segcont_resumeLaunch.selectedSegmentIndex = 0;
-	segcont_oscillo.selectedSegmentIndex = 0;
-	segcont_spectrum.selectedSegmentIndex = 0;
-	segcont_fx1.selectedSegmentIndex = 0;
-	segcont_fx2.selectedSegmentIndex = 0;
-	segcont_fx3.selectedSegmentIndex = 0;
-    segcont_fx4.selectedSegmentIndex=0;
-    segcont_fx5.selectedSegmentIndex = 0;
-	segcont_FxBeat.selectedSegmentIndex = 0;
-	segcont_randFx.selectedSegmentIndex = 0;
-	sc_FXDetail.selectedSegmentIndex = 0;
-	segcont_forceMono.selectedSegmentIndex = 0;
-	sc_checkBeforeRedownload.selectedSegmentIndex = 0;
-	sc_AfterDownload.selectedSegmentIndex = 1;
-	sc_EnqueueMode.selectedSegmentIndex = 2;
-	sc_DefaultAction.selectedSegmentIndex = 0;
-	sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
-    ///////////////////////////////////
-    // UADE
-    ///////////////////////////////////////
-	sc_UADE_Led.selectedSegmentIndex = 0;
-	sc_UADE_Norm.selectedSegmentIndex = 0;
-	sc_UADE_PostFX.selectedSegmentIndex = 0;
-	sc_UADE_Head.selectedSegmentIndex = 0;
-	sc_UADE_Pan.selectedSegmentIndex = 0;
-	sc_UADE_Gain.selectedSegmentIndex = 0;
-	sld_UADEpan.value = 0.7f;
-	sld_UADEgain.value = 0.5f;
-    ////////////////////////////////////
-    // SID
-    ///////////////////////////////////////
-	sc_SID_Optim.selectedSegmentIndex = 2;
-	sc_SID_LibVersion.selectedSegmentIndex = 0;
-    sc_SID_Filter.selectedSegmentIndex = 0;
-    ////////////////////////////////////
-    // SexyPSF
-    ///////////////////////////////////////
-	sc_SEXYPSF_Reverb.selectedSegmentIndex = 0;
-	sc_SEXYPSF_Interpol.selectedSegmentIndex = 0;
-    ////////////////////////////////////
-    // AOSDK
-    ///////////////////////////////////////
-	sc_AOSDK_Reverb.selectedSegmentIndex = 0;
-	sc_AOSDK_Interpol.selectedSegmentIndex = 0;
-    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
-	sc_AOSDKDSFDSP.selectedSegmentIndex = 0;
-	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 3;
-	sc_AOSDKSSFDSP.selectedSegmentIndex = 0;
-	sc_AOSDKSSFEmuRatio.selectedSegmentIndex = 3;
-    ////////////////////////////////////
-    // ADPLUG
-    ///////////////////////////////////////
-	sc_ADPLUG_opltype.selectedSegmentIndex = 0;
-    ////////////////////////////////////
-    // GME
-    ///////////////////////////////////////
-    ////////////////////////////////////
-    // DUMB
-    ///////////////////////////////////////    
-    sc_DUMBResampling.selectedSegmentIndex = 0;
-	sldDUMBMastVol.value = 0.5f;
-	
-    ////////////////////////////////////
-    // TIMIDITY
-    ///////////////////////////////////////    
-	sc_TIMchorus.selectedSegmentIndex = 0;
-	sc_TIMreverb.selectedSegmentIndex = 0;
-	sc_TIMfilter.selectedSegmentIndex = 0;
-	sc_TIMresample.selectedSegmentIndex = 0;
-	sld_TIMPoly.value = 64;
-	
-    ////////////////////////////////////
-    // MODPLUG
-    ///////////////////////////////////////
-	segcont_shownote.selectedSegmentIndex = 0;
-	mastVolSld.value = 0.5f;
-	segcont_mpSampling.selectedSegmentIndex = 3;
-	segcont_mpMB.selectedSegmentIndex = 0;
-	bassAmoSld.value = 0.7f;
-	bassRanSld.value = 0.3f;
-	segcont_mpSUR.selectedSegmentIndex = 0;
-	surDepSld.value = 0.9f;
-	surDelSld.value = 0.8f;
-	segcont_mpReverb.selectedSegmentIndex = 0;
-	revDepSld.value = 0.8f;
-	revDelSld.value = 0.7f;
-	mpPanningSld.value = 0.5f;
-    
-    [self updateAllSettingsAfterChange];    
-}
-
 
 -(void)loadSettings:(int)safe_mode{
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
 	int not_expected_version;
     
-    //YOYOYO
-    return;
-	
-    ///////////////////////////////////
-    // General
-    ///////////////////////////////////////	
-	not_expected_version=0;
+    not_expected_version=0;
 	valNb=[prefs objectForKey:@"VERSION_MAJOR"];if (safe_mode) valNb=nil;
 	if (valNb == nil) {
 		//should not happen on released version
@@ -3209,16 +2850,78 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     valNb=[prefs objectForKey:@"ViewFX"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mOglViewIsHidden=YES;
 	else mOglViewIsHidden = [valNb boolValue];
-	valNb=[prefs objectForKey:@"StatsUpload"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_StatsUpload.selectedSegmentIndex = 1;
-	else sc_StatsUpload.selectedSegmentIndex = [valNb intValue];		
-	valNb=[prefs objectForKey:@"BGPlayback"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_bgPlay.selectedSegmentIndex = 1;
-	else sc_bgPlay.selectedSegmentIndex = [valNb intValue];    
-    valNb=[prefs objectForKey:@"TitleFilename"];if (safe_mode) valNb=nil;
-    if (valNb == nil) sc_titleFilename.selectedSegmentIndex = 0;
-	else sc_titleFilename.selectedSegmentIndex = [valNb intValue];
     
+    
+    ////////////////////////////////////
+    // Internal stuff
+    /////////////////////////
+    valNb=[prefs objectForKey:@"InfoFullscreen"];if (safe_mode) valNb=nil;
+	if (valNb == nil) infoIsFullscreen = 0;
+	else infoIsFullscreen = [valNb intValue];
+	valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
+	if (valNb == nil) oglViewFullscreen = 0;
+	else oglViewFullscreen = [valNb intValue];
+	valNb=[prefs objectForKey:@"LoopMode"];if (safe_mode) valNb=nil;
+	if (valNb == nil) mLoopMode = 0;
+	else mLoopMode = [valNb intValue];
+    valNb=[prefs objectForKey:@"LoopModeInf"];if (safe_mode) valNb=nil;
+	if (valNb == nil) [mplayer setLoopInf:0];
+	else [mplayer setLoopInf:([valNb intValue]?1:0)];
+    valNb=[prefs objectForKey:@"Shuffle"];if (safe_mode) valNb=nil;
+	if (valNb == nil) mShuffle = 0;
+	else mShuffle = [valNb intValue];
+	valNb=[prefs objectForKey:@"IsPlaying"];if (safe_mode) valNb=nil;
+	if (valNb == nil) mIsPlaying=FALSE;
+	else mIsPlaying= [valNb boolValue];
+	
+	valNb=[prefs objectForKey:@"PlayingPos"];if (safe_mode) valNb=nil;
+	if (valNb == nil) mPlayingPosRestart=0;
+	else mPlayingPosRestart= [valNb intValue];
+    
+	valNb=[prefs objectForKey:@"PlaylistSize"];if (safe_mode) valNb=nil;
+	if (valNb == nil) mPlaylist_size=0;
+	else mPlaylist_size= [valNb intValue];
+	valNb=[prefs objectForKey:@"PlaylistPos"];if (safe_mode) valNb=nil;
+	if (valNb == nil) mPlaylist_pos=0;
+	else mPlaylist_pos= [valNb intValue];
+	
+	if (mPlaylist_size) {
+		NSMutableArray *fileNames,*filePaths;
+		
+		fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
+		filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
+		
+		if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {
+			for (int i=0;i<mPlaylist_size;i++) {
+				mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
+				mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
+			}
+		}
+	}
+    
+	valNb=[prefs objectForKey:@"Subsongs"];if (safe_mode) valNb=nil;
+	if (valNb != nil) {
+		if ([valNb intValue]>1) {
+			valNb=[prefs objectForKey:@"Cur_subsong"];if (safe_mode) valNb=nil;
+			if (valNb != nil) mRestart_sub=[valNb intValue];
+		}
+	}
+    
+    valNb=[prefs objectForKey:@"ArchiveCnt"];if (safe_mode) valNb=nil;
+	if (valNb != nil) {
+		if ([valNb intValue]>0) {
+			valNb=[prefs objectForKey:@"ArchiveIndex"];if (safe_mode) valNb=nil;
+			if (valNb != nil) mRestart_arc=[valNb intValue];
+		}
+	}
+    
+    [self updateAllSettingsAfterChange];
+    return;
+	
+    ///////////////////////////////////
+    // General
+    ///////////////////////////////////////
+	
     valNb=[prefs objectForKey:@"ShowDebugInfos"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_showDebug.selectedSegmentIndex = 0;
 	else sc_showDebug.selectedSegmentIndex = [valNb intValue];
@@ -3229,13 +2932,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	if (valNb == nil) sldFxAlpha.value = (mSlowDevice?1.0f:0.5f);
 	else sldFxAlpha.value = [valNb floatValue];	
     
-    valNb=[prefs objectForKey:@"GLOBPanning"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_Panning.selectedSegmentIndex=0;
-	else sc_Panning.selectedSegmentIndex = [valNb intValue];	
-    valNb=[prefs objectForKey:@"GLOBPanningValue"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sldPanning.value = 0.7f;
-	else sldPanning.value = [valNb floatValue];	
-	
 //	valNb=[prefs objectForKey:@"ResumeOnLaunch"];if (safe_mode) valNb=nil;
 //	if (valNb == nil) segcont_resumeLaunch.selectedSegmentIndex = 0;
 //	else segcont_resumeLaunch.selectedSegmentIndex = [valNb intValue];
@@ -3269,28 +2965,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[prefs objectForKey:@"FXDetail"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_FXDetail.selectedSegmentIndex = 0;
 	else sc_FXDetail.selectedSegmentIndex = [valNb intValue];	
-	valNb=[prefs objectForKey:@"ForceMono"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_forceMono.selectedSegmentIndex = 0;
-	else segcont_forceMono.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"AllowRedownload"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_checkBeforeRedownload.selectedSegmentIndex = 0;
-	else sc_checkBeforeRedownload.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"AfterDownload"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AfterDownload.selectedSegmentIndex = 1;
-	else sc_AfterDownload.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"EnqueueMode"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_EnqueueMode.selectedSegmentIndex = 2;
-	else sc_EnqueueMode.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"DefaultAction"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_DefaultAction.selectedSegmentIndex = 0;
-	else sc_DefaultAction.selectedSegmentIndex = [valNb intValue];
 	valNb=[prefs objectForKey:@"PlayerViewOnPlay"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
 	else sc_PlayerViewOnPlay.selectedSegmentIndex = [valNb intValue];
 	
-    valNb=[prefs objectForKey:@"DefaultLength"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sld_DefaultLength.value = SONG_DEFAULT_LENGTH/1000;
-	else sld_DefaultLength.value = [valNb floatValue];	
     ///////////////////////////////////
     // UADE
     ///////////////////////////////////////
@@ -3376,31 +3054,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // DUMB
     ///////////////////////////////////////    
-    valNb=[prefs objectForKey:@"DUMBResampling"];if (safe_mode) valNb=nil;
-    if (valNb == nil) sc_DUMBResampling.selectedSegmentIndex = (mSlowDevice? 0:2);
-	else sc_DUMBResampling.selectedSegmentIndex = [valNb intValue];    
-	valNb=[prefs objectForKey:@"DUMBMastVol"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sldDUMBMastVol.value = 0.5f;
-	else sldDUMBMastVol.value = [valNb floatValue];
     
     ////////////////////////////////////
     // TIMIDITY
     ///////////////////////////////////////    
-    valNb=[prefs objectForKey:@"TIMChorus"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_TIMchorus.selectedSegmentIndex = (mSlowDevice? 0:1);
-	else sc_TIMchorus.selectedSegmentIndex = [valNb intValue];    
-	valNb=[prefs objectForKey:@"TIMReverb"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_TIMreverb.selectedSegmentIndex = (mSlowDevice? 0:1);
-	else sc_TIMreverb.selectedSegmentIndex = [valNb intValue];    
-	valNb=[prefs objectForKey:@"TIMFilter"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_TIMfilter.selectedSegmentIndex = (mSlowDevice? 0:1);
-	else sc_TIMfilter.selectedSegmentIndex = [valNb intValue];    
-	valNb=[prefs objectForKey:@"TIMResample"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_TIMresample.selectedSegmentIndex = (mSlowDevice? 0:1);
-	else sc_TIMresample.selectedSegmentIndex = [valNb intValue];    
-	valNb=[prefs objectForKey:@"TIMPoly"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sld_TIMPoly.value = (mSlowDevice? 64:128);
-	else sld_TIMPoly.value = [valNb intValue];
 	
     ////////////////////////////////////
     // MODPLUG
@@ -3447,75 +3104,77 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	else mpPanningSld.value = [valNb floatValue];
 	
 	
-    ////////////////////////////////////
-    // Internal stuff
-    /////////////////////////
-    valNb=[prefs objectForKey:@"InfoFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) infoIsFullscreen = 0;
-	else infoIsFullscreen = [valNb intValue];	
-	valNb=[prefs objectForKey:@"OGLFullscreen"];if (safe_mode) valNb=nil;
-	if (valNb == nil) oglViewFullscreen = 0;
-	else oglViewFullscreen = [valNb intValue];
-	valNb=[prefs objectForKey:@"LoopMode"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mLoopMode = 0;
-	else mLoopMode = [valNb intValue];	
-    valNb=[prefs objectForKey:@"LoopModeInf"];if (safe_mode) valNb=nil;
-	if (valNb == nil) [mplayer setLoopInf:0];
-	else [mplayer setLoopInf:([valNb intValue]?1:0)];
-    valNb=[prefs objectForKey:@"Shuffle"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mShuffle = 0;
-	else mShuffle = [valNb intValue];
-	valNb=[prefs objectForKey:@"IsPlaying"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mIsPlaying=FALSE;
-	else mIsPlaying= [valNb boolValue];
-	
-	valNb=[prefs objectForKey:@"PlayingPos"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mPlayingPosRestart=0;
-	else mPlayingPosRestart= [valNb intValue];
     
-	valNb=[prefs objectForKey:@"PlaylistSize"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mPlaylist_size=0;
-	else mPlaylist_size= [valNb intValue];
-	valNb=[prefs objectForKey:@"PlaylistPos"];if (safe_mode) valNb=nil;
-	if (valNb == nil) mPlaylist_pos=0;
-	else mPlaylist_pos= [valNb intValue];
-	
-	if (mPlaylist_size) {
-		NSMutableArray *fileNames,*filePaths;
-		
-		fileNames=[prefs objectForKey:@"PlaylistEntries_Names"];if (safe_mode) fileNames=nil;
-		filePaths=[prefs objectForKey:@"PlaylistEntries_Paths"];if (safe_mode) filePaths=nil;
-		
-		if (filePaths&&fileNames&&(mPlaylist_size==[filePaths count])&&(mPlaylist_size==[fileNames count])) {		
-			for (int i=0;i<mPlaylist_size;i++) {
-				mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
-				mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
-			}
-		}
-	}	
-    
-	valNb=[prefs objectForKey:@"Subsongs"];if (safe_mode) valNb=nil;
-	if (valNb != nil) {
-		if ([valNb intValue]>1) {
-			valNb=[prefs objectForKey:@"Cur_subsong"];if (safe_mode) valNb=nil;
-			if (valNb != nil) mRestart_sub=[valNb intValue];
-		}
-	}
-    
-    valNb=[prefs objectForKey:@"ArchiveCnt"];if (safe_mode) valNb=nil;
-	if (valNb != nil) {
-		if ([valNb intValue]>0) {
-			valNb=[prefs objectForKey:@"ArchiveIndex"];if (safe_mode) valNb=nil;
-			if (valNb != nil) mRestart_arc=[valNb intValue];
-		}
-	}
-    
-    [self updateAllSettingsAfterChange];
 }
 
 -(void)saveSettings{
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
+    
+    valNb=[[NSNumber alloc] initWithInt:VERSION_MAJOR];
+	[prefs setObject:valNb forKey:@"VERSION_MAJOR"];[valNb autorelease];
+	valNb=[[NSNumber alloc] initWithInt:VERSION_MINOR];
+	[prefs setObject:valNb forKey:@"VERSION_MINOR"];[valNb autorelease];
+    
+    ///////////////////////////////////
+    // Internal stuff
+    ///////////////////////////////////////
+    valNb=[[NSNumber alloc] initWithInt:(int)mOglViewIsHidden];
+	[prefs setObject:valNb forKey:@"ViewFX"];[valNb autorelease];
+	
+    valNb=[[NSNumber alloc] initWithInt:infoIsFullscreen];
+	[prefs setObject:valNb forKey:@"InfoFullscreen"];[valNb autorelease];
+	valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
+	[prefs setObject:valNb forKey:@"OGLFullscreen"];[valNb autorelease];
+    
+	
+	valNb=[[NSNumber alloc] initWithInt:mLoopMode];
+	[prefs setObject:valNb forKey:@"LoopMode"];[valNb autorelease];
+	valNb=[[NSNumber alloc] initWithInt:mplayer.mLoopMode];
+	[prefs setObject:valNb forKey:@"LoopModeInf"];[valNb autorelease];
+	valNb=[[NSNumber alloc] initWithInt:mShuffle];
+	[prefs setObject:valNb forKey:@"Shuffle"];[valNb autorelease];
+    
+	
+	valNb=[[NSNumber alloc] initWithBool:mIsPlaying];
+	[prefs setObject:valNb forKey:@"IsPlaying"];[valNb autorelease];
+	
+	valNb=[[NSNumber alloc] initWithInt:mPlaylist_size];
+	[prefs setObject:valNb forKey:@"PlaylistSize"];[valNb autorelease];
+	
+	valNb=[[NSNumber alloc] initWithInt:mPlaylist_pos];
+	[prefs setObject:valNb forKey:@"PlaylistPos"];[valNb autorelease];
+	
+	valNb=[[NSNumber alloc] initWithInt:[mplayer getCurrentTime]];
+	[prefs setObject:valNb forKey:@"PlayingPos"];[valNb autorelease];
+    
+	if (mPlaylist_size) {
+		
+		NSMutableArray *fileNames,*filePaths;
+		fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+		filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
+		for (int i=0;i<mPlaylist_size;i++) {
+			[fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
+			[filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
+		}
+		
+		[prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
+		[prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
+	}
+	
+    
+	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_subsongs];
+	[prefs setObject:valNb forKey:@"Subsongs"];[valNb autorelease];
+	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_currentsub];
+	[prefs setObject:valNb forKey:@"Cur_subsong"];[valNb autorelease];
+    
+    valNb=[[NSNumber alloc] initWithInt:[mplayer getArcEntriesCnt]];
+	[prefs setObject:valNb forKey:@"ArchiveCnt"];[valNb autorelease];
+	valNb=[[NSNumber alloc] initWithInt:[mplayer getArcIndex]];
+	[prefs setObject:valNb forKey:@"ArchiveIndex"];[valNb autorelease];
+    
+	
+	[prefs synchronize];
     
     return;
 	
@@ -3525,16 +3184,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 //	valNb=[[NSNumber alloc] initWithInt:0];
 //	[prefs setObject:valNb forKey:@"ModizerRunning"];[valNb autorelease];
 	
-    valNb=[[NSNumber alloc] initWithInt:(int)mOglViewIsHidden];
-	[prefs setObject:valNb forKey:@"ViewFX"];[valNb autorelease];
-	
-	valNb=[[NSNumber alloc] initWithInt:sc_StatsUpload.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"StatsUpload"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_bgPlay.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"BGPlayback"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_titleFilename.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"TitleFilename"];[valNb autorelease];
-    
     
     valNb=[[NSNumber alloc] initWithInt:sc_showDebug.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"ShowDebugInfos"];[valNb autorelease];    
@@ -3542,12 +3191,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[prefs setObject:valNb forKey:@"Coverflow"];[valNb autorelease];    
     valNb=[[NSNumber alloc] initWithFloat:sldFxAlpha.value];
 	[prefs setObject:valNb forKey:@"FXAlpha"];[valNb autorelease];
-    
-    valNb=[[NSNumber alloc] initWithInt:sc_Panning.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"GLOBPanning"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithFloat:sldPanning.value];
-	[prefs setObject:valNb forKey:@"GLOBPanningValue"];[valNb autorelease];
-    
     
 	valNb=[[NSNumber alloc] initWithInt:segcont_oscillo.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"Oscillo"];[valNb autorelease];	
@@ -3569,28 +3212,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[prefs setObject:valNb forKey:@"2DSpectrum"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:sc_FXDetail.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"FXDetail"];[valNb autorelease];
-//	valNb=[[NSNumber alloc] initWithInt:segcont_resumeLaunch.selectedSegmentIndex];
-//	[prefs setObject:valNb forKey:@"ResumeOnLaunch"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:segcont_forceMono.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"ForceMono"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_checkBeforeRedownload.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AllowRedownload"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_AfterDownload.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AfterDownload"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_EnqueueMode.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"EnqueueMode"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_DefaultAction.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"DefaultAction"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:sc_PlayerViewOnPlay.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"PlayerViewOnPlay"];[valNb autorelease];
     
-	valNb=[[NSNumber alloc] initWithInt:VERSION_MAJOR];
-	[prefs setObject:valNb forKey:@"VERSION_MAJOR"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:VERSION_MINOR];
-	[prefs setObject:valNb forKey:@"VERSION_MINOR"];[valNb autorelease];
-    
-    valNb=[[NSNumber alloc] initWithFloat:sld_DefaultLength.value];
-	[prefs setObject:valNb forKey:@"DefaultLength"];[valNb autorelease];
+	
     ///////////////////////////////////
     // UADE
     ///////////////////////////////////////
@@ -3656,25 +3281,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // DUMB
     ///////////////////////////////////////    
-    valNb=[[NSNumber alloc] initWithInt:sc_DUMBResampling.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"DUMBResampling"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithFloat:sldDUMBMastVol.value];
-	[prefs setObject:valNb forKey:@"DUMBMastVol"];[valNb autorelease];
     
     ////////////////////////////////////
     // TIMIDITY
     ///////////////////////////////////////    
-    
-    valNb=[[NSNumber alloc] initWithInt:sc_TIMchorus.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"TIMChorus"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_TIMreverb.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"TIMReverb"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_TIMfilter.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"TIMFilter"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_TIMresample.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"TIMResample"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:(int)(sld_TIMPoly.value)];
-	[prefs setObject:valNb forKey:@"TIMPoly"];[valNb autorelease];
 	
     ///////////////////////////////////
     // MODPLUG
@@ -3705,62 +3315,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[prefs setObject:valNb forKey:@"REVDelay"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithFloat:mpPanningSld.value];
 	[prefs setObject:valNb forKey:@"MPPanning"];[valNb autorelease];
-    ///////////////////////////////////
-    // Internal stuff
-    ///////////////////////////////////////
-    valNb=[[NSNumber alloc] initWithInt:infoIsFullscreen];
-	[prefs setObject:valNb forKey:@"InfoFullscreen"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
-	[prefs setObject:valNb forKey:@"OGLFullscreen"];[valNb autorelease];
     
-	
-	valNb=[[NSNumber alloc] initWithInt:mLoopMode];
-	[prefs setObject:valNb forKey:@"LoopMode"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:mplayer.mLoopMode];
-	[prefs setObject:valNb forKey:@"LoopModeInf"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:mShuffle];
-	[prefs setObject:valNb forKey:@"Shuffle"];[valNb autorelease];
-    
-	
-	valNb=[[NSNumber alloc] initWithBool:mIsPlaying];
-	[prefs setObject:valNb forKey:@"IsPlaying"];[valNb autorelease];
-	
-	valNb=[[NSNumber alloc] initWithInt:mPlaylist_size];
-	[prefs setObject:valNb forKey:@"PlaylistSize"];[valNb autorelease];
-	
-	valNb=[[NSNumber alloc] initWithInt:mPlaylist_pos];
-	[prefs setObject:valNb forKey:@"PlaylistPos"];[valNb autorelease];
-	
-	valNb=[[NSNumber alloc] initWithInt:[mplayer getCurrentTime]];
-	[prefs setObject:valNb forKey:@"PlayingPos"];[valNb autorelease];
-    
-	if (mPlaylist_size) {
-		
-		NSMutableArray *fileNames,*filePaths;
-		fileNames=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-		filePaths=[NSMutableArray arrayWithCapacity:mPlaylist_size];
-		for (int i=0;i<mPlaylist_size;i++) {
-			[fileNames insertObject:mPlaylist[i].mPlaylistFilename atIndex:i];
-			[filePaths insertObject:mPlaylist[i].mPlaylistFilepath atIndex:i];
-		}
-		
-		[prefs setObject:fileNames forKey:@"PlaylistEntries_Names"];
-		[prefs setObject:filePaths forKey:@"PlaylistEntries_Paths"];
-	}	
-	
-    
-	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_subsongs];
-	[prefs setObject:valNb forKey:@"Subsongs"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_currentsub];
-	[prefs setObject:valNb forKey:@"Cur_subsong"];[valNb autorelease];
-    
-    valNb=[[NSNumber alloc] initWithInt:[mplayer getArcEntriesCnt]];
-	[prefs setObject:valNb forKey:@"ArchiveCnt"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:[mplayer getArcIndex]];
-	[prefs setObject:valNb forKey:@"ArchiveIndex"];[valNb autorelease];
-    
-	
-	[prefs synchronize];	
 }
 
 
@@ -4907,7 +4462,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             if (mHeader) delete mHeader;
             mHeader=nil;
             if (sc_showDebug.selectedSegmentIndex) {
-                sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(sld_TIMPoly.value));
+                sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
                 mHeader= new CGLString(str_data, mFont,mScaleFactor);
                 glPushMatrix();
                 glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
