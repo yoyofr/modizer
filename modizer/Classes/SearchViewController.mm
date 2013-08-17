@@ -11,6 +11,8 @@ extern pthread_mutex_t db_mutex;
 
 #import "SearchViewController.h"
 #import <QuartzCore/CAGradientLayer.h>
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 
 #define MAX_SEARCH_RESULT 512   //per section
 
@@ -1287,7 +1289,7 @@ static NSFileManager *mFileMngr;
 		[cell.contentView addSubview:actionView];
 		actionView.tag = ACT_IMAGE_TAG;
 		
-		if (detailViewController.sc_DefaultAction.selectedSegmentIndex>=1) {
+		if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value>=1) {
 			[actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
 		} else {
 			[actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
@@ -1303,7 +1305,7 @@ static NSFileManager *mFileMngr;
 	cell.tag=indexPath.row;
 	cell.selectionStyle= UITableViewCellSelectionStyleGray;
 
-	if (detailViewController.sc_DefaultAction.selectedSegmentIndex>=1) {
+	if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value>=1) {
 		[actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
 		[actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
 	} else {
@@ -1376,7 +1378,7 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (detailViewController.sc_DefaultAction.selectedSegmentIndex>=1) [self doSecAction:indexPath];
+	if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value>=1) [self doSecAction:indexPath];
 	else [self doPrimAction:indexPath];
 }
 

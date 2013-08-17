@@ -64,8 +64,6 @@
 	
 	UIViewController *childController;
 	
-	UIAlertView *alertAlreadyAvail;
-
 	int mClickedPrimAction;
 @public
     IBOutlet UITableView *tableView;

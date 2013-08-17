@@ -13,6 +13,7 @@
 enum MDZ_SETTINGS_TYPE {
     MDZ_FAMILY=1,
     MDZ_SWITCH,
+    MDZ_BOOLSWITCH,
     MDZ_SLIDER_CONTINUOUS,
     MDZ_SLIDER_DISCRETE,
     MDZ_TEXTBOX
@@ -45,7 +46,6 @@ enum MDZ_SETTINGS {
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,
     GLOB_AfterDownloadAction,
-    GLOB_CheckBeforeRedownload,
     
     GLOB_DefaultMODPlayer,
     
@@ -123,6 +123,12 @@ enum MDZ_SETTINGS {
 };
 
 typedef struct {
+    //boolswitch
+    unsigned char switch_value;
+} t_setting_boolswitch;
+
+
+typedef struct {
     //switch
     unsigned char switch_value;
     unsigned char switch_value_nb;
@@ -153,6 +159,7 @@ typedef struct {
     union {
         t_setting_slider mdz_slider;
         t_setting_switch mdz_switch;
+        t_setting_boolswitch mdz_boolswitch;
         t_setting_textbox mdz_textbox;
     } detail;
 } t_settings;

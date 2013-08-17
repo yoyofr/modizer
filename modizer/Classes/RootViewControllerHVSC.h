@@ -59,8 +59,6 @@
 	
 	UIViewController *childController;
 	
-	UIAlertView *alertAlreadyAvail;
-
 	NSString *FTPlocalPath,*FTPftpPath,*FTPfilename,*FTPfilePath;
 	int FTPfilesize;
 	

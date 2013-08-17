@@ -12,6 +12,9 @@
 
 #import "WebBrowser.h"
 #import "WB_BookmarksViewController.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
+
 
 #define WEB_MODE 0
 #define WCHARTS_MODE 1
@@ -435,18 +438,18 @@ static UIAlertView *alertChooseName;
 					BOOL success;
 					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 					if (success) {//already existing : start play/enqueue
-						if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {						
+						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
 							NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
 							NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
 							[array_label addObject:[localPath lastPathComponent]];
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(detailViewController.sc_DefaultAction.selectedSegmentIndex==1)];
+						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
 						//[self goPlayer];
 					} else { //start download
 						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((detailViewController.sc_DefaultAction.selectedSegmentIndex==0)?1:0)];
+															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 					}
                     [fileManager release];
 				} else if (isHVSC==1) {  //HVSC DOWNLOAD
@@ -459,25 +462,25 @@ static UIAlertView *alertChooseName;
 					BOOL success;
 					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 					if (success) {//already existing : start play/enqueue
-						if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {						
+						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
 							NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
 							NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
 							[array_label addObject:[localPath lastPathComponent]];
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(detailViewController.sc_DefaultAction.selectedSegmentIndex==1)];
+						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
 						//[self goPlayer];
 					} else { //start download
 						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((detailViewController.sc_DefaultAction.selectedSegmentIndex==0)?1:0)];
+															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 					}
                     [fileManager release];
 				} else { //STANDARD DOWNLOAD
 					localPath=[[NSString alloc] initWithFormat:@"Documents/Downloads/%@",suggestedFilename];
 					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-														filename:suggestedFilename isMODLAND:0 usePrimaryAction:((detailViewController.sc_DefaultAction.selectedSegmentIndex==0)?1:0)];
+														filename:suggestedFilename isMODLAND:0 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 				}
 				
 				
@@ -598,20 +601,20 @@ static UIAlertView *alertChooseName;
 				BOOL success;
 				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 				if (success) {//already existing : start play/enqueue
-					if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {						
+					if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
 						NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
 						NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
 						[array_label addObject:[localPath lastPathComponent]];
 						[array_path addObject:localPath];
 						[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-					} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(detailViewController.sc_DefaultAction.selectedSegmentIndex==1)]; 
+					} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
 					//[self goPlayer];
 				} else { //start download
 					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
 					
 					
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
-														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((detailViewController.sc_DefaultAction.selectedSegmentIndex==0)?1:0)];
+														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 				}
                 [fileManager release];
 				return NO;
@@ -625,20 +628,20 @@ static UIAlertView *alertChooseName;
 				BOOL success;
 				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 				if (success) {//already existing : start play/enqueue
-					if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+					if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
 						NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
 						NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
 						[array_label addObject:[localPath lastPathComponent]];
 						[array_path addObject:localPath];
 						[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-					} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(detailViewController.sc_DefaultAction.selectedSegmentIndex==1)];
+					} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
 					//[self goPlayer];
 				} else { //start download
 					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
 					
 					
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
-														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((detailViewController.sc_DefaultAction.selectedSegmentIndex==0)?1:0)];
+														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 				}
                 [fileManager release];
 				return NO;

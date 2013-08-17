@@ -29,6 +29,9 @@ static volatile int mPopupAnimation=0;
 #import "DetailViewControllerIphone.h"
 #import "DownloadViewController.h"
 #import "QuartzCore/CAAnimation.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
+
 
 @implementation RootViewControllerMODLAND
 
@@ -77,31 +80,6 @@ static volatile int mPopupAnimation=0;
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (alertView==alertAlreadyAvail) {
-		if (buttonIndex==1) {//force new download
-			[self checkCreate:[FTPlocalPath stringByDeletingLastPathComponent]];
-			mCurrentWinAskedDownload=1;
-			[downloadViewController addFTPToDownloadList:FTPlocalPath ftpURL:FTPftpPath  ftpHost:MODLAND_FTPHOST filesize:FTPfilesize filename:FTPfilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-		} else {
-			if (mClickedPrimAction==1) {
-				NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-				NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-				[array_label addObject:FTPfilename];
-				[array_path addObject:FTPlocalPath];
-				[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-				//[self goPlayer];
-			} else {
-				if ([detailViewController add_to_playlist:FTPlocalPath fileName:FTPfilename forcenoplay:1]) {
-					if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-					else [tableView reloadData];
-				}
-			}
-		}
-		[FTPfilename autorelease];
-		[FTPlocalPath autorelease];
-		[FTPftpPath autorelease];
-		[FTPfilePath autorelease];
-	}
 }
 
 
@@ -2038,7 +2016,7 @@ static volatile int mPopupAnimation=0;
                     }
                     
                     
-                    if (detailViewController.sc_DefaultAction.selectedSegmentIndex==0) {
+                    if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                         [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
                         [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
                         [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
@@ -2445,7 +2423,7 @@ static volatile int mPopupAnimation=0;
                         int first=0; //1;  Do not play even first file => TODO : add a setting for this
                         int existing;
                         int tooMuch=0;
-                        if (detailViewController.sc_DefaultAction.selectedSegmentIndex==2) first=0;//enqueue only
+                        if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2) first=0;//enqueue only
                         
                         int *cur_db_entries_count=(search_db?search_db_entries_count:db_entries_count);
                         
@@ -2513,19 +2491,9 @@ static volatile int mPopupAnimation=0;
                             NSString *modFilename=[self getModFilename:cur_db_entries[section][indexPath.row].id_mod];
                             NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
                             NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]];
-                            mClickedPrimAction=(detailViewController.sc_DefaultAction.selectedSegmentIndex==0);
+                            mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
                             
                             if (cur_db_entries[section][indexPath.row].downloaded==1) {
-                                if (detailViewController.sc_checkBeforeRedownload.selectedSegmentIndex==1) {
-                                    FTPfilePath=[[NSString alloc] initWithString:filePath];
-                                    FTPlocalPath=[[NSString alloc] initWithString:localPath];
-                                    FTPftpPath=[[NSString alloc] initWithString:ftpPath];
-                                    FTPfilename=[[NSString alloc] initWithString:modFilename];
-                                    FTPfilesize=cur_db_entries[section][indexPath.row].filesize;
-                                    alertAlreadyAvail = [[[UIAlertView alloc] initWithTitle:@"Warning" 
-                                                                                    message:NSLocalizedString(@"File already available locally. Do you want to download it again?",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"Yes",@""),nil] autorelease];
-                                    [alertAlreadyAvail show];
-                                } else {
                                     if (mClickedPrimAction) {
                                         NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
                                         NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
@@ -2536,13 +2504,12 @@ static volatile int mPopupAnimation=0;
                                         if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                                         else [tableView reloadData];
                                     } else {
-                                        if ([detailViewController add_to_playlist:localPath fileName:modFilename forcenoplay:(detailViewController.sc_DefaultAction.selectedSegmentIndex==1)]) {
+                                        if ([detailViewController add_to_playlist:localPath fileName:modFilename forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                                             cur_db_entries[section][indexPath.row].rating=-1;
                                             if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
                                             else [tableView reloadData];
                                         }
-                                    }
-                                }
+                                    }                                
                             } else {
                                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                                 mCurrentWinAskedDownload=1;
