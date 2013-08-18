@@ -86,15 +86,9 @@
 -(IBAction)goPlayer;
 
 -(void) refreshMODLANDView;
--(int) deleteStatsDirDB:(NSString*)fullpath;
--(int) deleteStatsFileDB:(NSString*)fullpath;
-- (void)listLocalFiles;
 - (void)checkCreate:(NSString *)filePath;
 
 -(NSString*) getCompletePath:(int)id_mod;
-- (void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
-
--(bool) removeFromPlaylistDB:(NSString*)id_playlist fullPath:(NSString*)fullpath;
 
 -(void) fillKeysWithHVSCDB_Dir1;
 -(void) fillKeysWithHVSCDB_Dir2:(NSString*)dir1;
@@ -102,8 +96,6 @@
 -(void) fillKeysWithHVSCDB_Dir4:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3;
 -(void) fillKeysWithHVSCDB_Dir5:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4;
 -(void) fillKeysWithHVSCDB_AllDirs:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4 dir5:(NSString*)dir5;
-
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating;
 
 -(NSString*) getCompleteLocalPath:(int)id_mod;
 

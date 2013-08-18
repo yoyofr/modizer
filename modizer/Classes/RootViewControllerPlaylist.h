@@ -93,29 +93,21 @@
 
 - (void)freePlaylist;
 -(void) refreshMODLANDView;
--(int) deleteStatsDirDB:(NSString*)fullpath;
--(int) deleteStatsFileDB:(NSString*)fullpath;
 - (void)listLocalFiles;
 - (void)checkCreate:(NSString *)filePath;
 
--(NSString*) getCompletePath:(int)id_mod;
-- (void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
 
 -(bool) removeFromPlaylistDB:(NSString*)id_playlist fullPath:(NSString*)fullpath;
 
 -(void) loadFavoritesList;
 -(void) loadMostPlayedList;
--(void) loadPlayListsListFromDB:(NSMutableArray*)entries list_id:(NSMutableArray*)list_id;
 
 
 -(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath;
 -(bool) addListToPlaylistDB;
 -(NSString *) initNewPlaylistDB:(NSString *)listName;
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating;
 
 -(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries;
-
--(NSString*) getCompleteLocalPath:(int)id_mod;
 
 
 @end

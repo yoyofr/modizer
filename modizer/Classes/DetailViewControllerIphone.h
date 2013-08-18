@@ -60,11 +60,11 @@ class CGLString;
     
 	IBOutlet UISegmentedControl *segcont_randFx,*sc_allowPopup;
 	IBOutlet UISegmentedControl *segcont_spectrum,*segcont_shownote,*segcont_mpSampling,*sc_showDebug;
-	IBOutlet UISegmentedControl *segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR,*segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
+	IBOutlet UISegmentedControl *segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR,*segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_FxBeat,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
 	IBOutlet UISegmentedControl *segcont_oscillo;
     //,*segcont_resumeLaunch
 	IBOutlet UISegmentedControl *sc_UADE_Led,*sc_UADE_Norm,*sc_UADE_PostFX,*sc_UADE_Pan,*sc_UADE_Head,*sc_UADE_Gain,*sc_FXDetail;
-	IBOutlet UISegmentedControl *sc_defaultMODplayer,*sc_PlayerViewOnPlay;
+	IBOutlet UISegmentedControl *sc_defaultMODplayer;
 	IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
 	IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
    	IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
@@ -238,6 +238,8 @@ class CGLString;
 
 -(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths ratings:(signed char*)ratings playcounts:(short int*)playcounts;
 -(void)play_listmodules:(t_playlist*)pl start_index:(int)index;
+-(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths;
+
 -(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName;
 
 -(void) updateInfos: (NSTimer *) theTimer;
@@ -309,7 +311,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld,*sldFxAlpha;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 
-@property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_randFx,*segcont_FxBeat,*sc_cflow,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
+@property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_fx1,*segcont_fx2,*segcont_fx3,*segcont_fx4,*segcont_fx5,*segcont_randFx,*segcont_FxBeat,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_spectrum,*segcont_shownote;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_mpSampling,*segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_oscillo,*sc_showDebug;
@@ -318,7 +320,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_defaultMODplayer,*sc_PlayerViewOnPlay;
+@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_defaultMODplayer;
 @property (nonatomic, retain) IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
 
 

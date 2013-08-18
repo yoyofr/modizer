@@ -33,6 +33,8 @@ static volatile int mPopupAnimation=0;
 #import "DetailViewControllerIphone.h"
 #import "WebBrowser.h"
 #import "QuartzCore/CAAnimation.h"
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 
 UIAlertView *alertPlFull,*alertChooseName;
 
@@ -108,7 +110,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     } else if ([buttonTitle isEqualToString:@"Shuffle & Play"]) {
         if (playlist->nb_entries) {
             int pos=0;
-            if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
             else [tableView reloadData];
             
             pos=arc4random()%(playlist->nb_entries);
@@ -230,7 +232,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	sysctlbyname("hw.machine", name, &size, NULL, 0);
 	
 	// Place name into a string
-	NSString *machine = [[[NSString alloc] initWithCString:name] autorelease];
+	NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
 	
 	// Done with this
 	free(name);
@@ -461,7 +463,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				[entries addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1),sqlite3_column_int(stmt, 2)]];
+				[entries addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
 				[list_id addObject:[NSString stringWithFormat:@"%d",sqlite3_column_int(stmt, 0)]];
                 if (sqlite3_column_int(stmt, 2)==1) [details addObject:@"1 entry"];
                 else [details addObject:[NSString stringWithFormat:@"%d entries",sqlite3_column_int(stmt, 2)]];
@@ -531,7 +533,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		} else NSLog(@"ErrSQL : %d",err);
 		
 		//Get id
-		id_playlist=[[NSString alloc] initWithFormat:@"%d",sqlite3_last_insert_rowid(db) ];
+		id_playlist=[[NSString alloc] initWithFormat:@"%lld",sqlite3_last_insert_rowid(db) ];
 	};
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
@@ -784,8 +786,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)listLocalFiles {
 	NSString *file,*cpath;
-	NSDirectoryEnumerator *dirEnum,*dirEnum2;
-	NSDictionary *fileAttributes;
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
 	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
@@ -1017,7 +1017,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         if (!filtered) {
                             
                             const char *str;
-                            char tmp_str[1024];//,*tmp_convstr;
                             str=[file UTF8String];
                             int index=0;
                             if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -1176,7 +1175,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             if (!filtered) {
                                 
                                 const char *str;
-                                char tmp_str[1024];//,*tmp_convstr;
                                 str=[file UTF8String];
                                 int index=0;
                                 if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -1233,7 +1231,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         /* Only open files that fex can handle */
         if ( type != NULL ) {
             if (fex_open_type( &fex, path, type )) {
-                NSLog(@"cannot fex open : %s / type : %d",path,type);
+                NSLog(@"cannot fex open : %s",path);
             } else {
                 while ( !fex_done( fex ) ) {
                     file=[NSString stringWithFormat:@"%s",fex_name(fex)];
@@ -1313,7 +1311,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         }
                     }
                 if (fex_open_type( &fex, path, type )) {
-                    NSLog(@"cannot fex open : %s / type : %d",path,type);
+                    NSLog(@"cannot fex open : %s",path);
                 } else {
                     int arc_counter=0;
                     while ( !fex_done( fex ) ) {
@@ -1843,11 +1841,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     return nil;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+- (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
     if (mSearch) return -1;
     if (show_playlist) return -1;
     if (index == 0) {
-        [tableView setContentOffset:CGPointZero animated:NO];
+        [tabView setContentOffset:CGPointZero animated:NO];
         return NSNotFound;
     }
     return index;
@@ -1856,7 +1854,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
 
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
@@ -1869,14 +1867,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-    BOOL isEditing=[tableView isEditing];
+    BOOL isEditing=[tabView isEditing];
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
 //        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
         
-        cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
+        cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         
         [cell setBackgroundColor:[UIColor clearColor]];        
         CAGradientLayer *gradient = [CAGradientLayer layer];
@@ -1993,11 +1991,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
-                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-(isEditing?32:0),
+                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(isEditing?32:0),
                                22);
     bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                    22,
-                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-(isEditing?32:0),
+                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(isEditing?32:0),
                                    18);
     
     bottomLabel.text=@""; //default value
@@ -2024,7 +2022,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         } else {
             actionView.enabled=YES;
             actionView.hidden=NO;
-            actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-34,0,34,34);
+            actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-34,0,34,34);
             [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
             [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
             
@@ -2088,7 +2086,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 
                 bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
                                                22,
-                                               tableView.bounds.size.width -1.0 * cell.indentationWidth-32-60,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-60,
                                                18);
                 
             }
@@ -2104,12 +2102,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 
                 bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                                22,
-                                               tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                                18);
                 
                 topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                            0,
-                                           tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            22);
                 
                 
@@ -2122,10 +2120,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [actionView setImage:[UIImage imageNamed:@"playlist_del_all.png"] forState:UIControlStateHighlighted];
                 [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                 
-                actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 actionView.enabled=YES;
                 actionView.hidden=NO;
-                secActionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 secActionView.enabled=YES;
                 secActionView.hidden=NO;
                 
@@ -2137,7 +2135,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                                0,
-                                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
                                                34);
                     
                 } else  { //file
@@ -2151,7 +2149,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     if ((cur_local_entries[indexPath.section-2][indexPath.row].type==2)||(cur_local_entries[indexPath.section-2][indexPath.row].type==3)) {
                         actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE;
                         //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                        secActionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                        secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                         [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
                         [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
                         [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
@@ -2163,7 +2161,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                                0,
-                                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
                                                22);
                     
                     
@@ -2179,7 +2177,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                     bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
                                                    22,
-                                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
+                                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
                                                    18);
                     if ((nb_occur=[self isLocalEntryInPlaylist:cur_local_entries[indexPath.section-2][indexPath.row].fullpath])) {
                         
@@ -2187,7 +2185,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         [actionView setImage:[UIImage imageNamed:@"playlist_del.png"] forState:UIControlStateHighlighted];
                         [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                         [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-                        actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                        actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                         actionView.enabled=YES;
                         actionView.hidden=NO;
                         
@@ -2207,8 +2205,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 
 // Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
@@ -2243,7 +2240,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 playlist->entries[i-1].playcounts=playlist->entries[i].playcounts;
             }
             playlist->nb_entries--;
-            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             [self replacePlaylistDBwithCurrent];
         }
         if ((browse_depth==0)&&(indexPath.row>=4)) {  //delete a playlist
@@ -2252,7 +2249,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [keys release];keys=nil;
                 [list release];list=nil;
                 [self fillKeys];
-                [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
                 
                 
             }
@@ -2261,7 +2258,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }
 }
-- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
+- (NSIndexPath *)tableView:(UITableView *)tabView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
     
     if (show_playlist) {
         if (proposedDestinationIndexPath.row<2) {
@@ -2272,7 +2269,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     return proposedDestinationIndexPath;
 }
 // Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+- (void)tableView:(UITableView *)tabView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
     if (show_playlist&&(fromIndexPath.row&&toIndexPath.row>=2)) {
         signed char tmpR=playlist->entries[fromIndexPath.row-2].ratings;
         short int tmpC=playlist->entries[fromIndexPath.row-2].playcounts;
@@ -2326,12 +2323,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
 }
 // Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+- (BOOL)tableView:(UITableView *)tabView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
     if (show_playlist&&(indexPath.row>=2)&&(integrated_playlist==0)) return YES;
     return NO;
 }
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+- (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
     if (show_playlist&&(indexPath.row>=2)) return YES;
     if ((browse_depth==0)&&(indexPath.row>=4)) return YES;
@@ -2409,11 +2406,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-4)] intoPlaylist:playlist];
             
             if (playlist->nb_entries) {
-                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 else [tableView reloadData];
                 
                 [detailViewController play_listmodules:playlist start_index:0];
-                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) {
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) {
                     [keys release];keys=nil;
                     [list release];list=nil;
                 }
@@ -2559,7 +2556,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
     //First get the dictionary object
     NSString *cellValue;
@@ -2692,8 +2689,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (show_playlist) {
             if (indexPath.row>=2) {//start playlist and position it at selected entry
                 //						self.navigationController.navigationBar.hidden = YES;
-                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                else [tableView reloadData];
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                else [tabView reloadData];
                 
                 [detailViewController play_listmodules:playlist start_index:(indexPath.row-2)];
                 
@@ -2789,7 +2786,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
                 
                 [self fillKeys];
-                [tableView reloadData];
+                [tabView reloadData];
                 
                 [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
             } else {
@@ -2845,7 +2842,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         playlist->entries[playlist->nb_entries-1].fullpath=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[section][indexPath.row].fullpath];
                         
                         [self addToPlaylistDB:playlist->playlist_id label:playlist->entries[playlist->nb_entries-1].label fullPath:playlist->entries[playlist->nb_entries-1].fullpath];
-                        [tableView reloadData];
+                        [tabView reloadData];
                     } else {
                         alertPlFull=[[[UIAlertView alloc] initWithTitle:@"Warning" message:@"Playlist is full. Delete some entries to add more." delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
                         if (alertPlFull) [alertPlFull show];

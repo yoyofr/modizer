@@ -63,13 +63,11 @@
 @public    
     int browse_depth;
     IBOutlet DetailViewControllerIphone *detailViewController;	
-	IBOutlet UIBarButtonItem *playerButton;    	
 }
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *playerButton;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
 @property (nonatomic, retain) NSArray *list;
@@ -79,46 +77,9 @@
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 
 -(IBAction)goPlayer;
-
-- (void)freePlaylist;
 -(void) refreshMODLANDView;
--(int) deleteStatsDirDB:(NSString*)fullpath;
--(int) deleteStatsFileDB:(NSString*)fullpath;
-- (void)listLocalFiles;
-- (void)checkCreate:(NSString *)filePath;
-
--(NSString*) getCompletePath:(int)id_mod;
-- (void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
-
--(bool) removeFromPlaylistDB:(NSString*)id_playlist fullPath:(NSString*)fullpath;
-
--(void) fillKeysWithDB_fileType:(int)authorID;
--(void) fillKeysWithDB_fileType;
--(void) fillKeysWithDB_fileAuthor;
--(void) fillKeysWithDB_fileAuthor:(int)filetypeID;
--(void) fillKeysWithDB_albumORfilename:(int)authorID;
--(void) fillKeysWithDB_albumORfilename:(int)filetypeID fileAuthorID:(int)authorID;
--(void) fillKeysWithDB_filename:(int)authorID fileAlbumID:(int)albumID;
--(void) fillKeysWithDB_filename:(int)filetypeID fileAuthorID:(int)authorID fileAlbumID:(int)albumID;
--(void) loadFavoritesList;
--(void) loadMostPlayedList;
--(void) loadPlayListsListFromDB:(NSMutableArray*)entries list_id:(NSMutableArray*)list_id;
-
--(void) fillKeysWithHVSCDB_Dir1;
--(void) fillKeysWithHVSCDB_Dir2:(NSString*)dir1;
--(void) fillKeysWithHVSCDB_Dir3:(NSString*)dir1 dir2:(NSString*)dir2;
--(void) fillKeysWithHVSCDB_Dir4:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3;
--(void) fillKeysWithHVSCDB_Dir5:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4;
--(void) fillKeysWithHVSCDB_AllDirs:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4 dir5:(NSString*)dir5;
-
--(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath;
--(bool) addListToPlaylistDB;
--(NSString *) initNewPlaylistDB:(NSString *)listName;
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating;
-
--(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries;
-
-- (void)createSamplesFromPackage:(BOOL)forceCreate;
--(NSString*) getCompleteLocalPath:(int)id_mod;
+-(void)listLocalFiles;
+-(void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
+-(void)createSamplesFromPackage:(BOOL)forceCreate;
 
 @end

@@ -139,7 +139,7 @@ static int display_length_mode=0;
 @synthesize segcont_oscillo,sc_showDebug;
 //segcont_resumeLaunch
 @synthesize segcont_spectrum,segcont_shownote,segcont_mpSampling;
-@synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,segcont_fx1,segcont_fx2,segcont_fx3,segcont_fx4,segcont_fx5,segcont_FxBeat,sc_FXDetail,sc_cflow,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
+@synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,segcont_fx1,segcont_fx2,segcont_fx3,segcont_fx4,segcont_fx5,segcont_FxBeat,sc_FXDetail,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
 @synthesize sc_SEXYPSF_Reverb,sc_SEXYPSF_Interpol;
 @synthesize sc_AOSDK_Reverb,sc_AOSDK_Interpol;
 @synthesize sc_ADPLUG_opltype;
@@ -149,7 +149,7 @@ static int display_length_mode=0;
 @synthesize pvArcSel,pvArcLabel,pvArcValidate,btnShowArcList;
 
 
-@synthesize segcont_randFx,sc_PlayerViewOnPlay;
+@synthesize segcont_randFx;
 @synthesize sc_UADE_Led,sc_UADE_Norm,sc_UADE_PostFX,sc_UADE_Pan,sc_UADE_Head,sc_UADE_Gain,sc_SID_Optim,sc_SID_LibVersion,sc_SID_Filter;
 @synthesize sld_UADEpan,sld_UADEgain;
 
@@ -1660,7 +1660,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	//Activate timer for play infos
 	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.33 target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //3 times/second
 	
-    if (sc_cflow.selectedSegmentIndex) {
+    if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
         if (coverflow.hidden==FALSE) {
             if (coverflow.numberOfCovers!=mPlaylist_size) [coverflow setNumberOfCovers:mPlaylist_size];
             if (coverflow.currentIndex!=mPlaylist_pos) {
@@ -1942,7 +1942,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
 
-	if (sc_cflow.selectedSegmentIndex) {
+	if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
         if (coverflow.hidden==FALSE) {
             if (coverflow.numberOfCovers!=mPlaylist_size) [coverflow setNumberOfCovers:mPlaylist_size];
             if (coverflow.currentIndex!=mPlaylist_pos) {
@@ -2078,7 +2078,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		}
 	} else{            
                 waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
-        if ((mPlaylist_size>0)&&(sc_cflow.selectedSegmentIndex)) {
+        if ((mPlaylist_size>0)&&(settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value)) {
             
             //[coverflow setNumberOfCovers:mPlaylist_size];
             //coverflow.currentIndex=mPlaylist_pos;
@@ -2739,7 +2739,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     // General
     ///////////////////////////////////////	
 	sc_showDebug.selectedSegmentIndex = 0;
-	sc_cflow.selectedSegmentIndex = 1;
 	sldFxAlpha.value = (mSlowDevice?1.0f:0.5f);
 //	segcont_resumeLaunch.selectedSegmentIndex = 0;
 	segcont_oscillo.selectedSegmentIndex = 0;
@@ -2753,8 +2752,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	segcont_randFx.selectedSegmentIndex = 0;
 	sc_FXDetail.selectedSegmentIndex = 1;//Med
 	
-	sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
-	    
     ///////////////////////////////////
     // UADE
     ///////////////////////////////////////
@@ -2925,9 +2922,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     valNb=[prefs objectForKey:@"ShowDebugInfos"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_showDebug.selectedSegmentIndex = 0;
 	else sc_showDebug.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"Coverflow"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_cflow.selectedSegmentIndex = 1;
-	else sc_cflow.selectedSegmentIndex = [valNb intValue];
     valNb=[prefs objectForKey:@"FXAlpha"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sldFxAlpha.value = (mSlowDevice?1.0f:0.5f);
 	else sldFxAlpha.value = [valNb floatValue];	
@@ -2965,9 +2959,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[prefs objectForKey:@"FXDetail"];if (safe_mode) valNb=nil;
 	if (valNb == nil) sc_FXDetail.selectedSegmentIndex = 0;
 	else sc_FXDetail.selectedSegmentIndex = [valNb intValue];	
-	valNb=[prefs objectForKey:@"PlayerViewOnPlay"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_PlayerViewOnPlay.selectedSegmentIndex = 0;
-	else sc_PlayerViewOnPlay.selectedSegmentIndex = [valNb intValue];
 	
     ///////////////////////////////////
     // UADE
@@ -3187,8 +3178,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     
     valNb=[[NSNumber alloc] initWithInt:sc_showDebug.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"ShowDebugInfos"];[valNb autorelease];    
-    valNb=[[NSNumber alloc] initWithInt:sc_cflow.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"Coverflow"];[valNb autorelease];    
     valNb=[[NSNumber alloc] initWithFloat:sldFxAlpha.value];
 	[prefs setObject:valNb forKey:@"FXAlpha"];[valNb autorelease];
     
@@ -3211,10 +3200,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	valNb=[[NSNumber alloc] initWithInt:segcont_spectrum.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"2DSpectrum"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:sc_FXDetail.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"FXDetail"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_PlayerViewOnPlay.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"PlayerViewOnPlay"];[valNb autorelease];
-    
+	[prefs setObject:valNb forKey:@"FXDetail"];[valNb autorelease];    
 	
     ///////////////////////////////////
     // UADE
@@ -4065,7 +4051,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
 	[UIView commitAnimations];
     
-    if (sc_cflow.selectedSegmentIndex) {
+    if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
         if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
             coverflow_plsize=mPlaylist_size;
             coverflow_pos=mPlaylist_pos;    

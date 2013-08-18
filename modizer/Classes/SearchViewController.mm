@@ -1031,7 +1031,7 @@ static NSFileManager *mFileMngr;
 		}
 
 		[detailViewController play_listmodules:array_label start_index:pos path:array_path];
-		if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+		if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 	}
 	if (indexPath.section==1) {//local files
 		NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
@@ -1039,7 +1039,7 @@ static NSFileManager *mFileMngr;
 		[array_label addObject:local_entries[indexPath.row].label];
 		[array_path addObject:[NSString stringWithFormat:@"Documents/%@",local_entries[indexPath.row].fullpath]];
 		[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-		if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+		if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 	}
 	if (indexPath.section==2) {//MODLAND
 		NSString *filePath=db_entries[indexPath.row].fullpath;
@@ -1053,7 +1053,7 @@ static NSFileManager *mFileMngr;
 			[array_label addObject:db_entries[indexPath.row].label];
 			[array_path addObject:localPath];
 			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-			if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];			
+			if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 		} else {		//download
 			NSString *completePath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
 			NSError *err;
@@ -1073,7 +1073,7 @@ static NSFileManager *mFileMngr;
 			[array_label addObject:sidFilename];
 			[array_path addObject:localPath];
 			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-			if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+			if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 		} else {
 			NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],HVSC_BASEDIR,[dbHVSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
 			NSError *err;
@@ -1089,13 +1089,13 @@ static NSFileManager *mFileMngr;
 -(void) doSecAction:(NSIndexPath *)indexPath {
 	if (indexPath.section==0) {//playlist
 		if ([detailViewController add_to_playlist:playlist_entries[indexPath.row].fullpath fileName:playlist_entries[indexPath.row].filename forcenoplay:1]) {
-			if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+			if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 		}
 	}
 	
 	if (indexPath.section==1) {//local files
 		if ([detailViewController add_to_playlist:[NSString stringWithFormat:@"Documents/%@",local_entries[indexPath.row].fullpath] fileName:local_entries[indexPath.row].label forcenoplay:1]) {
-			if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+			if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 		}
 	}
 	if (indexPath.section==2) {//MODLAND
@@ -1106,7 +1106,7 @@ static NSFileManager *mFileMngr;
 		
 		if (db_entries[indexPath.row].downloaded==1) { //file already downloaded
 			if ([detailViewController add_to_playlist:localPath fileName:db_entries[indexPath.row].label forcenoplay:1]) {
-				if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+				if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 			}
 		} else {  //download
 			NSString *completePath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
@@ -1123,7 +1123,7 @@ static NSFileManager *mFileMngr;
 		
 		if (dbHVSC_entries[indexPath.row].downloaded==1) {
 			if ([detailViewController add_to_playlist:localPath fileName:dbHVSC_entries[indexPath.row].label forcenoplay:1]) {
-				if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+				if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
 			}
 		} else {
 			NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],HVSC_BASEDIR,[dbHVSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];

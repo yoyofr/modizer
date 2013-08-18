@@ -21,7 +21,8 @@ enum MDZ_SETTINGS_TYPE {
 
 enum MDZ_SETTINGS_FAMILY {
     MDZ_SETTINGS_ROOT=1,
-    MDZ_SETTINGS_GLOBAL,
+    MDZ_SETTINGS_GLOBAL_PLAYER,
+    MDZ_SETTINGS_GLOBAL_VISU,
     MDZ_SETTINGS_PLUGINS,
     MDZ_SETTINGS_MODPLUG,
     MDZ_SETTINGS_UADE,
@@ -34,23 +35,24 @@ enum MDZ_SETTINGS_FAMILY {
 };
 
 enum MDZ_SETTINGS {
-    MDZ_SETTINGS_FAMILY_GLOBAL=1,
+    MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER=1,
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,
-    GLOB_DefaultLength,
-    
+    GLOB_DefaultLength,    
     GLOB_TitleFilename,
     GLOB_StatsUpload,
     GLOB_BackgroundMode,
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,
     GLOB_AfterDownloadAction,
-    
     GLOB_DefaultMODPlayer,
     
     GLOB_CoverFlow,
     GLOB_PlayerViewOnPlay,
+    
+    MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
+    GLOB_FXLOD,
     GLOB_FXRandom,
     GLOB_FXAlpha,
     GLOB_FXSelected,
@@ -60,6 +62,7 @@ enum MDZ_SETTINGS {
     GLOB_FXOscillo,
     GLOB_FXSpectrum,
     GLOB_FXBeat,
+    
     
     MDZ_SETTINGS_FAMILY_PLUGINS,
     
@@ -138,7 +141,6 @@ typedef struct {
 typedef struct {
     //slider
     float slider_value;
-    unsigned char slider_is_continuous;
     unsigned int slider_value_nb;
     float slider_min_value;
     float slider_max_value;
