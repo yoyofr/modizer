@@ -527,8 +527,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 -(void)listLocalFiles {
 	NSString *file,*cpath;
-	NSDirectoryEnumerator *dirEnum,*dirEnum2;
-	NSDictionary *fileAttributes;
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
 	NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
 	NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
@@ -760,7 +758,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         if (!filtered) {
                             
                             const char *str;
-                            char tmp_str[1024];//,*tmp_convstr;
                             str=[file UTF8String];
                             int index=0;
                             if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -919,7 +916,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                             if (!filtered) {
                                 
                                 const char *str;
-                                char tmp_str[1024];//,*tmp_convstr;
                                 str=[file UTF8String];
                                 int index=0;
                                 if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -1494,16 +1490,16 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return indexTitlesSpace;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+- (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
     if (mSearch) return -1;
     if (index == 0) {
-        [tableView setContentOffset:CGPointZero animated:NO];
+        [tabView setContentOffset:CGPointZero animated:NO];
         return NSNotFound;
     }
     return index;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
@@ -1518,11 +1514,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
         
-        cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
+        cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         CAGradientLayer *gradient = [CAGradientLayer layer];
         gradient.frame = cell.bounds;
@@ -1636,11 +1632,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
-                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32,
+                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
                                22);
     bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                    22,
-                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32,
+                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32,
                                    18);
     bottomLabel.text=@""; //default value
     bottomImageView.image=nil;
@@ -1654,14 +1650,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         
         bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                        22,
-                                       tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                        18);
         
         topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
         
         topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                    0,
-                                   tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                   tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                    22);
         
         
@@ -1674,7 +1670,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
         [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
         
-        int icon_posx=tableView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE;
+        int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE;
         icon_posx-=32;
         actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
         actionView.enabled=YES;
@@ -1693,7 +1689,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;				
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
-                                       tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-32,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-32,
                                        40);
             
         } else  { //file
@@ -1703,7 +1699,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE;
                 //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;                    
                 
-                secActionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 
                 [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
                 [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
@@ -1718,10 +1714,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
-                                       tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
                                        22);
             
-            actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                 [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
@@ -1788,7 +1784,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
                                            22,
-                                           tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
                                            18);
             
         }
@@ -1799,7 +1795,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 // Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
@@ -1824,8 +1820,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             }
             
             [self listLocalFiles];						
-            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            [tableView reloadData];
+            [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            [tabView reloadData];
         }        
         
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
@@ -1916,7 +1912,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     if (indexPath.section==1) {
         // launch Play of current list
         int pos=0;
-        int total_entries=0;
         
         t_playlist pl;
         pl.nb_entries=0;
@@ -1937,7 +1932,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         }
         if (pl.nb_entries) {
             [detailViewController play_listmodules:&pl start_index:-1];
-            if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
             else [tableView reloadData];
         }
     } else {
@@ -1953,7 +1948,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             
             cur_local_entries[section][indexPath.row].rating=-1;
             [detailViewController play_listmodules:&pl start_index:0];
-            if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
             else [tableView reloadData];
             
         }
@@ -2006,7 +2001,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         
         if (total_entries) {
             if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
-                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 else [tableView reloadData];
             }
         }
@@ -2018,7 +2013,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         if (cur_local_entries[section][indexPath.row].type&3) {//File selected
             cur_local_entries[section][indexPath.row].rating=-1;
             if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:1]) {
-                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 else [tableView reloadData];
             }
         }
@@ -2057,7 +2052,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
     //First get the dictionary object
     NSString *cellValue;
@@ -2087,7 +2082,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 shouldFillKeys=1;
                 [self fillKeys];   //2nd filter for drawing
             }
-            [tableView reloadData];
+            [tabView reloadData];
             
             [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
         }
@@ -2152,15 +2147,15 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 [detailViewController play_listmodules:&pl start_index:0];
                 
                 cur_local_entries[section][indexPath.row].rating=-1;
-                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                else [tableView reloadData];
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                else [tabView reloadData];
                 
                 
                 
             } else {
                 if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:0]) {
-                    if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                    else [tableView reloadData];
+                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                    else [tabView reloadData];
                 }
             }
             

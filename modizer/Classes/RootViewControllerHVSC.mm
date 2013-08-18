@@ -69,7 +69,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	sysctlbyname("hw.machine", name, &size, NULL, 0);
 	
 	// Place name into a string
-	NSString *machine = [[[NSString alloc] initWithCString:name] autorelease];
+	NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
 	
 	// Done with this
 	free(name);
@@ -1321,16 +1321,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
         return indexTitles;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+- (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
     if (mSearch) return -1;
         if (index == 0) {
-            [tableView setContentOffset:CGPointZero animated:NO];
+            [tabView setContentOffset:CGPointZero animated:NO];
             return NSNotFound;
         }
         return index;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
@@ -1342,18 +1342,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
     UILabel *bottomLabel;
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
-    NSString *playedXtimes=NSLocalizedString(@"Played %d times.",@"");
-    NSString *played1time=NSLocalizedString(@"Played once.",@"");	
-    NSString *played0time=NSLocalizedString(@"Never played.",@"");	
     NSString *nbFiles=NSLocalizedString(@"%d files.",@"");	
     NSString *nb1File=NSLocalizedString(@"1 file.",@"");	
     
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
         
-        cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
+        cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         CAGradientLayer *gradient = [CAGradientLayer layer];
         gradient.frame = cell.bounds;
@@ -1468,11 +1465,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
-                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32,
+                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
                                22);
     bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                    22,
-                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32,
+                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32,
                                    18);
     bottomLabel.text=@""; //default value
     bottomImageView.image=nil;
@@ -1519,7 +1516,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 if (colFactor==0) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0];
                 topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                            0,
-                                           tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            22);
                 if (cur_db_entries[section][indexPath.row].downloaded==1) {
                     if (cur_db_entries[section][indexPath.row].rating==-1) {
@@ -1556,13 +1553,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     
                     bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
                                                    22,
-                                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                                    18);
                 } else {
                     /*bottomLabel.text=[NSString stringWithFormat:@"%dKB",cur_db_entries[indexPath.section-1][indexPath.row].filesize/1024];
                      bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
                      22,
-                     tableView.bounds.size.width -1.0 * cell.indentationWidth-32-34-34-60,
+                     tabView.bounds.size.width -1.0 * cell.indentationWidth-32-34-34-60,
                      18);*/
                 }
                 if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
@@ -1576,19 +1573,19 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                     [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                 }
-                actionView.frame = CGRectMake(tableView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 actionView.enabled=YES;
                 actionView.hidden=NO;
                 
             } else { // DIR
                 bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                                22,
-                                               tableView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                                18);
                 bottomLabel.text=[NSString stringWithFormat:(cur_db_entries[section][indexPath.row].filesize>1?nbFiles:nb1File),cur_db_entries[section][indexPath.row].filesize];
                 topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                            0,
-                                           tableView.bounds.size.width -1.0 * cell.indentationWidth- 32,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
                                            22);
                 topLabel.textColor=[UIColor colorWithRed:0.3f green:0.3f blue:0.8f alpha:1.0f];
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -1601,7 +1598,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 // Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
@@ -1627,14 +1624,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
             //delete local file
             [mFileMngr removeItemAtPath:fullpath error:&err];
             //ask for a reload/redraw
-            [tableView reloadData];
+            [tabView reloadData];
         
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
     }
 }
 
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+- (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
         t_dbHVSC_browse_entry **cur_db_entries=(search_dbHVSC?search_dbHVSC_entries:dbHVSC_entries);
         int section =indexPath.section-1;
@@ -1729,7 +1726,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     [array_path addObject:localPath];
                     cur_db_entries[section][indexPath.row].rating=-1;
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path ratings:&(cur_db_entries[section][indexPath.row].rating) playcounts:&(cur_db_entries[section][indexPath.row].playcount)];
-                    if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                     else [tableView reloadData];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
@@ -1779,7 +1776,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     [array_path addObject:localPath];
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                     cur_db_entries[section][indexPath.row].rating=-1;
-                    if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
+                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                     else [tableView reloadData];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
@@ -1822,10 +1819,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
     //First get the dictionary object
-    NSString *cellValue;
     
     if (browse_depth==0) {        
     } else {
@@ -1911,13 +1907,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             [array_path addObject:localPath];
                             cur_db_entries[section][indexPath.row].rating=-1;
                             [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                            if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                            else [tableView reloadData];
+                            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                            else [tabView reloadData];
                         } else {
                             if ([detailViewController add_to_playlist:localPath fileName:sidFilename forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                                 cur_db_entries[section][indexPath.row].rating=-1;
-                                if (detailViewController.sc_PlayerViewOnPlay.selectedSegmentIndex) [self goPlayer];
-                                else [tableView reloadData];
+                                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                                else [tabView reloadData];
                             }
                         }
                     } else {

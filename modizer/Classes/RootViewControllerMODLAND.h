@@ -11,9 +11,8 @@
 #import "DBHelper.h"
 #import "RootViewControllerStruct.h"
 #import "fex.h"
-
-@class DetailViewControllerIphone;
-@class DownloadViewController;
+#import "DetailViewControllerIphone.h"
+#import "DownloadViewController.h"
 
 
 @interface RootViewControllerMODLAND : UIViewController <UISearchBarDelegate> {
@@ -89,13 +88,9 @@
 -(IBAction)goPlayer;
 
 -(void) refreshMODLANDView;
--(int) deleteStatsDirDB:(NSString*)fullpath;
--(int) deleteStatsFileDB:(NSString*)fullpath;
--(void) listLocalFiles;
 -(void) checkCreate:(NSString *)filePath;
 
 -(NSString*) getCompletePath:(int)id_mod;
-
 
 -(void) fillKeysWithDB_fileType:(int)authorID;
 -(void) fillKeysWithDB_fileType;
@@ -105,8 +100,6 @@
 -(void) fillKeysWithDB_albumORfilename:(int)filetypeID fileAuthorID:(int)authorID;
 -(void) fillKeysWithDB_filename:(int)authorID fileAlbumID:(int)albumID;
 -(void) fillKeysWithDB_filename:(int)filetypeID fileAuthorID:(int)authorID fileAlbumID:(int)albumID;
-
--(void) getFileStatsDB:(NSString *)name fullpath:(NSString *)fullpath playcount:(short int*)playcount rating:(signed char*)rating;
 
 -(NSString*) getCompleteLocalPath:(int)id_mod;
 

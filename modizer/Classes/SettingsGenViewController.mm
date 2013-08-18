@@ -25,31 +25,47 @@ volatile t_settings settings[MAX_SETTINGS];
 + (void) loadSettings {
     memset((char*)settings,0,sizeof(settings));
     /////////////////////////////////////
-    //GLOBAL
+    //ROOT
     /////////////////////////////////////
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL].label="Global";
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL].family=MDZ_SETTINGS_ROOT;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL].sub_family=MDZ_SETTINGS_GLOBAL;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].label="Global";
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].family=MDZ_SETTINGS_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].sub_family=MDZ_SETTINGS_GLOBAL_PLAYER;
     
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].label="Visualizers";
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].family=MDZ_SETTINGS_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].sub_family=MDZ_SETTINGS_GLOBAL_VISU;
+    
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].label="Plugins";
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].family=MDZ_SETTINGS_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].sub_family=MDZ_SETTINGS_PLUGINS;
+
+    
+    /////////////////////////////////////
+    //GLOBAL Player
+    /////////////////////////////////////
     settings[GLOB_ForceMono].label="Force Mono";
     settings[GLOB_ForceMono].description=NULL;
-    settings[GLOB_ForceMono].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_ForceMono].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_ForceMono].sub_family=0;
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
     settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_Panning].label="Panning";
     settings[GLOB_Panning].description=NULL;
-    settings[GLOB_Panning].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_Panning].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_Panning].sub_family=0;
     settings[GLOB_Panning].type=MDZ_BOOLSWITCH;
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_PanningValue].label="Panning Value";
     settings[GLOB_PanningValue].description=NULL;
-    settings[GLOB_PanningValue].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_PanningValue].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_PanningValue].sub_family=0;
     settings[GLOB_PanningValue].type=MDZ_SLIDER_CONTINUOUS;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
@@ -59,7 +75,7 @@ volatile t_settings settings[MAX_SETTINGS];
     
     settings[GLOB_DefaultLength].label="Default Length";
     settings[GLOB_DefaultLength].description=NULL;
-    settings[GLOB_DefaultLength].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_DefaultLength].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
     settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
@@ -69,7 +85,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
     settings[GLOB_DefaultMODPlayer].label="Default mod player";
     settings[GLOB_DefaultMODPlayer].description=NULL;
-    settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=1;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
@@ -80,14 +96,14 @@ volatile t_settings settings[MAX_SETTINGS];
     
     settings[GLOB_TitleFilename].label="Filename as title";
     settings[GLOB_TitleFilename].description=NULL;
-    settings[GLOB_TitleFilename].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_TitleFilename].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_TitleFilename].sub_family=0;
     settings[GLOB_TitleFilename].type=MDZ_BOOLSWITCH;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_StatsUpload].label="Send statistics";
     settings[GLOB_StatsUpload].description=NULL;
-    settings[GLOB_StatsUpload].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_StatsUpload].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_StatsUpload].sub_family=0;
     settings[GLOB_StatsUpload].type=MDZ_BOOLSWITCH;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
@@ -95,7 +111,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
     settings[GLOB_BackgroundMode].label="Background mode";
     settings[GLOB_BackgroundMode].description=NULL;
-    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_BackgroundMode].sub_family=0;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
@@ -107,7 +123,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_EnqueueMode].type=MDZ_SWITCH;
     settings[GLOB_EnqueueMode].label="Enqueue mode";
     settings[GLOB_EnqueueMode].description=NULL;
-    settings[GLOB_EnqueueMode].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_EnqueueMode].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_EnqueueMode].sub_family=0;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb=3;
@@ -119,7 +135,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_PlayEnqueueAction].type=MDZ_SWITCH;
     settings[GLOB_PlayEnqueueAction].label="Default Action";
     settings[GLOB_PlayEnqueueAction].description=NULL;
-    settings[GLOB_PlayEnqueueAction].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_PlayEnqueueAction].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_PlayEnqueueAction].sub_family=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb=3;
@@ -131,7 +147,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_AfterDownloadAction].type=MDZ_SWITCH;
     settings[GLOB_AfterDownloadAction].label="Post download action";
     settings[GLOB_AfterDownloadAction].description=NULL;
-    settings[GLOB_AfterDownloadAction].family=MDZ_SETTINGS_GLOBAL;
+    settings[GLOB_AfterDownloadAction].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_AfterDownloadAction].sub_family=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb=3;
@@ -140,14 +156,45 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[1]="Enqueue";
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[2]="Play";
     
+    settings[GLOB_CoverFlow].label="Coverflow";
+    settings[GLOB_CoverFlow].description=NULL;
+    settings[GLOB_CoverFlow].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_CoverFlow].sub_family=0;
+    settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[GLOB_PlayerViewOnPlay].label="Player view on play";
+    settings[GLOB_PlayerViewOnPlay].description=NULL;
+    settings[GLOB_PlayerViewOnPlay].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_PlayerViewOnPlay].sub_family=0;
+    settings[GLOB_PlayerViewOnPlay].type=MDZ_BOOLSWITCH;
+    settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
+    
+    
+    /////////////////////////////////////
+    //Visualizers
+    /////////////////////////////////////
+    settings[GLOB_FXRandom].label="Random FX";
+    settings[GLOB_FXRandom].description=NULL;
+    settings[GLOB_FXRandom].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXRandom].sub_family=0;
+    settings[GLOB_FXRandom].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
+    /*
+     GLOB_FXAlpha,
+     GLOB_FXOscillo,
+     GLOB_FXSpectrum,
+     GLOB_FXBeat,
+     GLOB_FXMODPattern,
+     GLOB_FXMIDIPattern,
+     GLOB_FXPiano,
+     
+     GLOB_FXSelected,     
+    */
+    
     /////////////////////////////////////
     //PLUGINS
     /////////////////////////////////////
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].label="Plugins";
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].family=MDZ_SETTINGS_ROOT;
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].sub_family=MDZ_SETTINGS_PLUGINS;
     
     /////////////////////////////////////
     //DUMB
@@ -437,7 +484,7 @@ volatile t_settings settings[MAX_SETTINGS];
             cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
             break;
         case MDZ_BOOLSWITCH:
-            switchview = [[UISwitch alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,36)];
+            switchview = [[UISwitch alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,40)];
             [switchview addTarget:self action:@selector(boolswitchChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = switchview;
             [switchview release];
@@ -449,7 +496,7 @@ volatile t_settings settings[MAX_SETTINGS];
                 [tmpArray addObject:[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]];
             }
             segconview = [[UISegmentedControl alloc] initWithItems:tmpArray];
-            segconview.frame=CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,50);
+            segconview.frame=CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30);
 //            segconview.
             UIFont *font = [UIFont boldSystemFontOfSize:12.0f];
             NSDictionary *attributes = [NSDictionary dictionaryWithObject:font
@@ -465,7 +512,7 @@ volatile t_settings settings[MAX_SETTINGS];
         }
             break;
         case MDZ_SLIDER_CONTINUOUS:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,50)];
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30)];
             sliderview.integerMode=0;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
@@ -476,7 +523,7 @@ volatile t_settings settings[MAX_SETTINGS];
             [sliderview release];
             break;
         case MDZ_SLIDER_DISCRETE:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,50)];
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30)];
             sliderview.integerMode=1;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
