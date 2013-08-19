@@ -1151,47 +1151,10 @@ static NSFileManager *mFileMngr;
 
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-	if (indexPath.section==0) {//Playlist
-		return;
-	} else if (indexPath.section==1) {//LOCAL
-		return;
-	} else if (indexPath.section==2) {//MODLAND
-		if (db_entries[indexPath.row].downloaded==1) {
-			db_entries[indexPath.row].downloaded=0;
-			NSString *localpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:db_entries[indexPath.row].id_mod]]];
-			NSError *err;
-			[rootViewControllerIphone deleteStatsFileDB:localpath];
-			//delete local file
-			[mFileMngr removeItemAtPath:localpath error:&err];
-			//ask for a reload/redraw
-			[tableView reloadData];
-		}
-	} else if (indexPath.section==3) {//HVSC
-		if (dbHVSC_entries[indexPath.row].downloaded==1) {
-			dbHVSC_entries[indexPath.row].downloaded=0;
-			NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@%@",HVSC_BASEDIR,dbHVSC_entries[indexPath.row].fullpath]];
-			NSError *err;
-			[rootViewControllerIphone deleteStatsFileDB:fullpath];
-			//delete local file
-			[mFileMngr removeItemAtPath:fullpath error:&err];
-			//ask for a reload/redraw
-			[tableView reloadData];
-		}
-	}
+
 }	
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Return NO if you do not want the item to be re-orderable.
-	if (indexPath.section==0) {//Playlist
-		return NO;
-	} else if (indexPath.section==1) {//LOCAL
-		return NO;
-	} else if (indexPath.section==2) {//MODLAND
-		if (db_entries[indexPath.row].downloaded==1) return YES;
-		return NO;
-	} else if (indexPath.section==3) {//MODLAND
-		if (dbHVSC_entries[indexPath.row].downloaded==1) return YES;
-		return NO;
-	}
 	return NO;
 }
 
@@ -1206,7 +1169,7 @@ static NSFileManager *mFileMngr;
 
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
         
         [cell setBackgroundColor:[UIColor clearColor]];
         CAGradientLayer *gradient = [CAGradientLayer layer];

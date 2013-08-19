@@ -540,16 +540,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level) {
 	
 	glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
 	glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-    
-	
-	pts[0] = LineVertex(0, 0,		0,0,0,fade_level*3/4);
-	pts[1] = LineVertex(_ww, 0,		0,0,0,fade_level*3/4);
-	pts[2] = LineVertex(0, _hh,		0,0,0,fade_level*3/4);
-	pts[3] = LineVertex(_ww, _hh,	0,0,0,fade_level*3/4);
-	/* Render The Quad */
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-	
+    	
 	pts[0] = LineVertex(_ww*1/4-1, 0,		255,255,255,fade_level);
 	pts[1] = LineVertex(_ww*1/4-1, _hh,		55,55,155,fade_level);
 	pts[2] = LineVertex(_ww*2/4-1, 0,		55,55,155,fade_level);
@@ -1796,7 +1787,7 @@ static GLfloat texcoords[4][2]; /* Holds Float Info For 4 Sets Of Texture coordi
 
 extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int horiz_vert,int note_display_range, int note_display_offset,int fx_len) {
+void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int note_display_range, int note_display_offset,int fx_len) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;

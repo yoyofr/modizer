@@ -55,13 +55,17 @@ enum MDZ_SETTINGS {
     GLOB_FXLOD,
     GLOB_FXRandom,
     GLOB_FXAlpha,
-    GLOB_FXSelected,
     GLOB_FXMODPattern,
     GLOB_FXMIDIPattern,
     GLOB_FXPiano,
     GLOB_FXOscillo,
     GLOB_FXSpectrum,
     GLOB_FXBeat,
+    GLOB_FX1,
+    GLOB_FX2,
+    GLOB_FX3,
+    GLOB_FX4,
+    GLOB_FX5,
     
     
     MDZ_SETTINGS_FAMILY_PLUGINS,

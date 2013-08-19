@@ -28,19 +28,19 @@ volatile t_settings settings[MAX_SETTINGS];
     //ROOT
     /////////////////////////////////////
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].label="Global";
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].label=(char*)"Global";
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].family=MDZ_SETTINGS_ROOT;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].sub_family=MDZ_SETTINGS_GLOBAL_PLAYER;
     
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].label="Visualizers";
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].label=(char*)"Visualizers";
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].family=MDZ_SETTINGS_ROOT;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].sub_family=MDZ_SETTINGS_GLOBAL_VISU;
     
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].label="Plugins";
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].label=(char*)"Plugins";
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].family=MDZ_SETTINGS_ROOT;
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].sub_family=MDZ_SETTINGS_PLUGINS;
@@ -49,21 +49,21 @@ volatile t_settings settings[MAX_SETTINGS];
     /////////////////////////////////////
     //GLOBAL Player
     /////////////////////////////////////
-    settings[GLOB_ForceMono].label="Force Mono";
+    settings[GLOB_ForceMono].label=(char*)"Force Mono";
     settings[GLOB_ForceMono].description=NULL;
     settings[GLOB_ForceMono].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_ForceMono].sub_family=0;
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
     settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=1;
     
-    settings[GLOB_Panning].label="Panning";
+    settings[GLOB_Panning].label=(char*)"Panning";
     settings[GLOB_Panning].description=NULL;
     settings[GLOB_Panning].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_Panning].sub_family=0;
     settings[GLOB_Panning].type=MDZ_BOOLSWITCH;
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     
-    settings[GLOB_PanningValue].label="Panning Value";
+    settings[GLOB_PanningValue].label=(char*)"Panning Value";
     settings[GLOB_PanningValue].description=NULL;
     settings[GLOB_PanningValue].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_PanningValue].sub_family=0;
@@ -73,7 +73,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
 
     
-    settings[GLOB_DefaultLength].label="Default Length";
+    settings[GLOB_DefaultLength].label=(char*)"Default Length";
     settings[GLOB_DefaultLength].description=NULL;
     settings[GLOB_DefaultLength].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
@@ -83,25 +83,25 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=1200;
     
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultMODPlayer].label="Default mod player";
+    settings[GLOB_DefaultMODPlayer].label=(char*)"Default mod player";
     settings[GLOB_DefaultMODPlayer].description=NULL;
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=1;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]="MODPLUG";
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]="DUMB";
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]="UADE";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MODPLUG";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
     
-    settings[GLOB_TitleFilename].label="Filename as title";
+    settings[GLOB_TitleFilename].label=(char*)"Filename as title";
     settings[GLOB_TitleFilename].description=NULL;
     settings[GLOB_TitleFilename].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_TitleFilename].sub_family=0;
     settings[GLOB_TitleFilename].type=MDZ_BOOLSWITCH;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     
-    settings[GLOB_StatsUpload].label="Send statistics";
+    settings[GLOB_StatsUpload].label=(char*)"Send statistics";
     settings[GLOB_StatsUpload].description=NULL;
     settings[GLOB_StatsUpload].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_StatsUpload].sub_family=0;
@@ -109,61 +109,61 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
-    settings[GLOB_BackgroundMode].label="Background mode";
+    settings[GLOB_BackgroundMode].label=(char*)"Background mode";
     settings[GLOB_BackgroundMode].description=NULL;
     settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_BackgroundMode].sub_family=0;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]="Off";
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]="Play";
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]="Full";
+    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Play";
+    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]=(char*)"Full";
     
     settings[GLOB_EnqueueMode].type=MDZ_SWITCH;
-    settings[GLOB_EnqueueMode].label="Enqueue mode";
+    settings[GLOB_EnqueueMode].label=(char*)"Enqueue mode";
     settings[GLOB_EnqueueMode].description=NULL;
     settings[GLOB_EnqueueMode].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_EnqueueMode].sub_family=0;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[0]="First";
-    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[1]="Current";
-    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[2]="Last";
+    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[0]=(char*)"First";
+    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[1]=(char*)"Current";
+    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[2]=(char*)"Last";
     
     settings[GLOB_PlayEnqueueAction].type=MDZ_SWITCH;
-    settings[GLOB_PlayEnqueueAction].label="Default Action";
+    settings[GLOB_PlayEnqueueAction].label=(char*)"Default Action";
     settings[GLOB_PlayEnqueueAction].description=NULL;
     settings[GLOB_PlayEnqueueAction].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_PlayEnqueueAction].sub_family=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[0]="Play";
-    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[1]="Enqueue";
-    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[2]="Enq.&Play";
+    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[0]=(char*)"Play";
+    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[1]=(char*)"Enqueue";
+    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[2]=(char*)"Enq.&Play";
     
     settings[GLOB_AfterDownloadAction].type=MDZ_SWITCH;
-    settings[GLOB_AfterDownloadAction].label="Post download action";
+    settings[GLOB_AfterDownloadAction].label=(char*)"Post download action";
     settings[GLOB_AfterDownloadAction].description=NULL;
     settings[GLOB_AfterDownloadAction].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_AfterDownloadAction].sub_family=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[0]="Nothing";
-    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[1]="Enqueue";
-    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[2]="Play";
+    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[0]=(char*)"Nothing";
+    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[1]=(char*)"Enqueue";
+    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[2]=(char*)"Play";
     
-    settings[GLOB_CoverFlow].label="Coverflow";
+    settings[GLOB_CoverFlow].label=(char*)"Coverflow";
     settings[GLOB_CoverFlow].description=NULL;
     settings[GLOB_CoverFlow].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_CoverFlow].sub_family=0;
     settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
     settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
     
-    settings[GLOB_PlayerViewOnPlay].label="Player view on play";
+    settings[GLOB_PlayerViewOnPlay].label=(char*)"Player view on play";
     settings[GLOB_PlayerViewOnPlay].description=NULL;
     settings[GLOB_PlayerViewOnPlay].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_PlayerViewOnPlay].sub_family=0;
@@ -174,23 +174,150 @@ volatile t_settings settings[MAX_SETTINGS];
     /////////////////////////////////////
     //Visualizers
     /////////////////////////////////////
-    settings[GLOB_FXRandom].label="Random FX";
+    settings[GLOB_FXRandom].label=(char*)"Random FX";
     settings[GLOB_FXRandom].description=NULL;
     settings[GLOB_FXRandom].family=MDZ_SETTINGS_GLOBAL_VISU;
     settings[GLOB_FXRandom].sub_family=0;
     settings[GLOB_FXRandom].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
-    /*
-     GLOB_FXAlpha,
-     GLOB_FXOscillo,
-     GLOB_FXSpectrum,
-     GLOB_FXBeat,
-     GLOB_FXMODPattern,
-     GLOB_FXMIDIPattern,
-     GLOB_FXPiano,
-     
-     GLOB_FXSelected,     
-    */
+    
+    settings[GLOB_FXAlpha].label=(char*)"FX Transparency";
+    settings[GLOB_FXAlpha].description=NULL;
+    settings[GLOB_FXAlpha].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXAlpha].sub_family=0;
+    settings[GLOB_FXAlpha].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1;
+
+    settings[GLOB_FXBeat].label=(char*)"Beat FX";
+    settings[GLOB_FXBeat].description=NULL;
+    settings[GLOB_FXBeat].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXBeat].sub_family=0;
+    settings[GLOB_FXBeat].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GLOB_FXOscillo].type=MDZ_SWITCH;
+    settings[GLOB_FXOscillo].label=(char*)"Oscillo";
+    settings[GLOB_FXOscillo].description=NULL;
+    settings[GLOB_FXOscillo].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXOscillo].sub_family=0;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Split";
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Comb";
+    
+    settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
+    settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";
+    settings[GLOB_FXSpectrum].description=NULL;
+    settings[GLOB_FXSpectrum].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXSpectrum].sub_family=0;
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    
+    settings[GLOB_FXMODPattern].type=MDZ_SWITCH;
+    settings[GLOB_FXMODPattern].label=(char*)"MOD Pattern";
+    settings[GLOB_FXMODPattern].description=NULL;
+    settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern].sub_family=0;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    
+    settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
+    settings[GLOB_FXMIDIPattern].label=(char*)"Note display";
+    settings[GLOB_FXMIDIPattern].description=NULL;
+    settings[GLOB_FXMIDIPattern].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXMIDIPattern].sub_family=0;
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[1]=(char*)"Hori";
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[2]=(char*)"Vert";
+    
+    settings[GLOB_FXPiano].type=MDZ_SWITCH;
+    settings[GLOB_FXPiano].label=(char*)"Piano mode";
+    settings[GLOB_FXPiano].description=NULL;
+    settings[GLOB_FXPiano].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXPiano].sub_family=0;
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    
+    settings[GLOB_FX1].label=(char*)"FX1";
+    settings[GLOB_FX1].description=NULL;
+    settings[GLOB_FX1].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX1].sub_family=0;
+    settings[GLOB_FX1].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GLOB_FX2].type=MDZ_SWITCH;
+    settings[GLOB_FX2].label=(char*)"FX2";
+    settings[GLOB_FX2].description=NULL;
+    settings[GLOB_FX2].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX2].sub_family=0;
+    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX2].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FX2].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX2].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FX2].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FX2].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    
+    settings[GLOB_FX3].type=MDZ_SWITCH;
+    settings[GLOB_FX3].label=(char*)"FX3";
+    settings[GLOB_FX3].description=NULL;
+    settings[GLOB_FX3].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX3].sub_family=0;
+    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FX3].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX3].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FX3].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FX3].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    
+    settings[GLOB_FX4].label=(char*)"FX4";
+    settings[GLOB_FX4].description=NULL;
+    settings[GLOB_FX4].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX4].sub_family=0;
+    settings[GLOB_FX4].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GLOB_FX5].type=MDZ_SWITCH;
+    settings[GLOB_FX5].label=(char*)"FX5";
+    settings[GLOB_FX5].description=NULL;
+    settings[GLOB_FX5].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX5].sub_family=0;
+    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX5].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FX5].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX5].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FX5].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FX5].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    
+    settings[GLOB_FXLOD].type=MDZ_SWITCH;
+    settings[GLOB_FXLOD].label=(char*)"FX Level of details";
+    settings[GLOB_FXLOD].description=NULL;
+    settings[GLOB_FXLOD].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXLOD].sub_family=0;
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[0]=(char*)"Low";
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[1]=(char*)"Med";
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[2]=(char*)"High";
     
     /////////////////////////////////////
     //PLUGINS
@@ -200,12 +327,12 @@ volatile t_settings settings[MAX_SETTINGS];
     //DUMB
     /////////////////////////////////////
     settings[MDZ_SETTINGS_FAMILY_DUMB].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_DUMB].label="Dumb";
+    settings[MDZ_SETTINGS_FAMILY_DUMB].label=(char*)"Dumb";
     settings[MDZ_SETTINGS_FAMILY_DUMB].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_DUMB].family=MDZ_SETTINGS_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_DUMB].sub_family=MDZ_SETTINGS_DUMB;
     
-    settings[DUMB_MasterVolume].label="Master Volume";
+    settings[DUMB_MasterVolume].label=(char*)"Master Volume";
     settings[DUMB_MasterVolume].description=NULL;
     settings[DUMB_MasterVolume].family=MDZ_SETTINGS_DUMB;
     settings[DUMB_MasterVolume].sub_family=0;
@@ -215,16 +342,16 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[DUMB_MasterVolume].detail.mdz_slider.slider_max_value=1;
     
     settings[DUMB_Resampling].type=MDZ_SWITCH;
-    settings[DUMB_Resampling].label="Resampling";
+    settings[DUMB_Resampling].label=(char*)"Resampling";
     settings[DUMB_Resampling].description=NULL;
     settings[DUMB_Resampling].family=MDZ_SETTINGS_DUMB;
     settings[DUMB_Resampling].sub_family=0;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value=1;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb=3;
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[0]="Alias";
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[1]="Lin";
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[2]="Cubic";
+    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[0]=(char*)"Alias";
+    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
+    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[2]=(char*)"Cubic";
     
     /////////////////////////////////////
     //TIMIDITY

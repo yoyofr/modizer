@@ -80,9 +80,10 @@ pthread_mutex_t play_mutex;
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;
-	if ([device respondsToSelector:@selector(isMultitaskingSupported)])
-		backgroundSupported = device.multitaskingSupported;
+	if ([device respondsToSelector:@selector(isMultitaskingSupported)]) backgroundSupported = device.multitaskingSupported;
 	
+
+    
 	if (pthread_mutex_init(&uade_mutex,NULL)) {
 		printf("cannot create uade mutex");
 		return NO;
@@ -111,11 +112,6 @@ pthread_mutex_t play_mutex;
 	[modizerWin makeKeyAndVisible];
 	[rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];   //Should be handled another way, for example on first DB access
     
-    //***********************
-    //init stuff
-    //***********************
-    //settings
-    [SettingsGenViewController loadSettings];
 //    playlistVC->browse_depth=0;
 //    playlistVC->detailViewController=detailViewControlleriPhone;
     
