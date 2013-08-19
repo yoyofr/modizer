@@ -25,6 +25,7 @@
 #include "TextureUtils.h"
 #include "DBHelper.h"
 
+#define DEBUG_INFOS 0
 #define DEBUG_NO_SETTINGS 0
 
 #include "OGLView.h"
@@ -128,7 +129,7 @@ static int display_length_mode=0;
 @synthesize repeatingTimer;
 @synthesize sliderProgressModule;
 @synthesize detailView,commandViewU,volWin,playlistPos;
-@synthesize surDepSld,surDelSld,revDepSld,revDelSld,bassAmoSld,bassRanSld,mastVolSld,mpPanningSld,sldFxAlpha;
+@synthesize surDepSld,surDelSld,revDepSld,revDelSld,bassAmoSld,bassRanSld,mastVolSld,mpPanningSld;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
 @synthesize mainView,infoView;
 @synthesize mainRating1,mainRating1off,mainRating2,mainRating2off,mainRating3,mainRating3off,mainRating4,mainRating4off,mainRating5,mainRating5off;
@@ -136,10 +137,8 @@ static int display_length_mode=0;
 @synthesize infoButton,backInfo;
 @synthesize mPlaylist_pos,mPlaylist_size;
 
-@synthesize segcont_oscillo,sc_showDebug;
-//segcont_resumeLaunch
-@synthesize segcont_spectrum,segcont_shownote,segcont_mpSampling;
-@synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,segcont_fx1,segcont_fx2,segcont_fx3,segcont_fx4,segcont_fx5,segcont_FxBeat,sc_FXDetail,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
+@synthesize segcont_mpSampling;
+@synthesize segcont_mpMB,segcont_mpReverb,segcont_mpSUR,sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
 @synthesize sc_SEXYPSF_Reverb,sc_SEXYPSF_Interpol;
 @synthesize sc_AOSDK_Reverb,sc_AOSDK_Interpol;
 @synthesize sc_ADPLUG_opltype;
@@ -149,7 +148,6 @@ static int display_length_mode=0;
 @synthesize pvArcSel,pvArcLabel,pvArcValidate,btnShowArcList;
 
 
-@synthesize segcont_randFx;
 @synthesize sc_UADE_Led,sc_UADE_Norm,sc_UADE_PostFX,sc_UADE_Pan,sc_UADE_Head,sc_UADE_Gain,sc_SID_Optim,sc_SID_LibVersion,sc_SID_Filter;
 @synthesize sld_UADEpan,sld_UADEgain;
 
@@ -213,7 +211,9 @@ static int display_length_mode=0;
 }
 
 -(IBAction) oglButtonPushed {
-    if (mOglViewIsHidden) mOglViewIsHidden=NO;
+    if (mOglViewIsHidden) {
+        mOglViewIsHidden=NO;
+    }
     else mOglViewIsHidden=YES;
     [self checkGLViewCanDisplay];
 }
@@ -287,8 +287,6 @@ static int display_length_mode=0;
 
 -(IBAction) optFX_Alpha {
 //    m_oglView.alpha=;
-    if (sldFxAlpha.value==1.0f) m_oglView.layer.opaque = YES;
-    else m_oglView.layer.opaque = NO;
 }
 
 
@@ -408,6 +406,11 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
         lblCurrentSongCFlow.text=labelModuleName.text;
     }
     
+    //VISU
+    if (settings[GLOB_FXAlpha].detail.mdz_slider.slider_value==1.0f) m_oglView.layer.opaque = YES;
+    else m_oglView.layer.opaque = NO;
+
+    
     //DUMB
     [mplayer optDUMB_Resampling:settings[DUMB_Resampling].detail.mdz_switch.switch_value];
     [mplayer optDUMB_MastVol:settings[DUMB_MasterVolume].detail.mdz_slider.slider_value];
@@ -446,30 +449,23 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 	}
 	
     
-	if (segcont_fx2.selectedSegmentIndex&&segcont_fx3.selectedSegmentIndex) {
-		if (sender==segcont_fx2) segcont_fx3.selectedSegmentIndex=0;
-		else segcont_fx2.selectedSegmentIndex=0;
-        segcont_fx4.selectedSegmentIndex=0;
-        segcont_fx5.selectedSegmentIndex=0;
+	if (settings[GLOB_FX2].detail.mdz_switch.switch_value&&settings[GLOB_FX3].detail.mdz_switch.switch_value) {
+		settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+        settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+        settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
 	}
-    if (segcont_fx4.selectedSegmentIndex) {
-        if (sender==segcont_fx4) {
-            //segcont_fx1.selectedSegmentIndex=0;
-            segcont_fx2.selectedSegmentIndex=0;
-            segcont_fx3.selectedSegmentIndex=0;
-            segcont_fx5.selectedSegmentIndex=0;
-        }
+    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
+            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
     }
-	if (segcont_fx5.selectedSegmentIndex) {
-        if (sender==segcont_fx5) {
-            //segcont_fx1.selectedSegmentIndex=0;
-            segcont_fx2.selectedSegmentIndex=0;
-            segcont_fx3.selectedSegmentIndex=0;
-            segcont_fx4.selectedSegmentIndex=0;
-        }
+	if (settings[GLOB_FX5].detail.mdz_switch.switch_value) {
+            settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+        settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
     }
 	int size_chan=12*6;
-	if (segcont_shownote.selectedSegmentIndex==2) size_chan=6*6;
+	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
 	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
@@ -496,13 +492,6 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 }
 
 -(void) checkGLViewCanDisplay{
-	/*if ((segcont_fx1.selectedSegmentIndex==0)&&
-		(segcont_fx2.selectedSegmentIndex==0)&&
-		(segcont_fx3.selectedSegmentIndex==0)&&
-		(segcont_FxBeat.selectedSegmentIndex==0)&&
-		(segcont_spectrum.selectedSegmentIndex==0)&&
-		(segcont_oscillo.selectedSegmentIndex==0)&&
-		((segcont_shownote.selectedSegmentIndex==0)||([mplayer isPlayingTrackedMusic]==0)) ) {*/
     if (mOglViewIsHidden) {
 		m_oglView.hidden=YES;
 	} else {
@@ -781,7 +770,7 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
         //		NSLog(@"waiting : %d %d",mplayer.bGlobalAudioPause,[mplayer isEndReached]);
 	}
 	
-	if ( (mPaused==0)&&(mplayer.bGlobalAudioPause==0)&&(segcont_randFx.selectedSegmentIndex==1) ) {
+	if ( (mPaused==0)&&(mplayer.bGlobalAudioPause==0)&&(settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value) ) {
 		if (mRandomFXCpt) {
 			mRandomFXCpt--;
 			mRandomFXCptRev++;
@@ -795,88 +784,88 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 		if (mRandomFXCpt==0) {
 			mRandomFXCpt=MIN_RANDFX_TIME*5+arc4random()%(5*MAX_RANDFX_TIME); //Min is 10 seconds Max is 60seconds
 			mRandomFXCptRev=0;
-			segcont_spectrum.selectedSegmentIndex=0;
-			segcont_oscillo.selectedSegmentIndex=0;
-			segcont_fx1.selectedSegmentIndex=0;
-			segcont_fx2.selectedSegmentIndex=0;
-			segcont_fx3.selectedSegmentIndex=0;
-            segcont_fx4.selectedSegmentIndex=0;
-            segcont_fx5.selectedSegmentIndex=0;
-			segcont_FxBeat.selectedSegmentIndex=0;
+			settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+			settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+			settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
+			settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+			settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+            settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+            settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+			settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
 			switch (arc4random()%19) {
 				case 0:
-					segcont_spectrum.selectedSegmentIndex=(arc4random()&1)+1;
+					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
 					break;
 				case 1:
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
 					break;
 				case 2:
-					segcont_FxBeat.selectedSegmentIndex=1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
 					break;
 				case 3:
-					segcont_fx1.selectedSegmentIndex=1;
+					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
 					break;
 				case 4:
-					segcont_fx2.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
 				case 5:
-					segcont_fx3.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
 				case 6:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
 					break;
 				case 7:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_spectrum.selectedSegmentIndex=(arc4random()&1)+1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
 					break;
 				case 8:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_fx1.selectedSegmentIndex=1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
 					break;
 				case 9:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_fx2.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
 				case 10:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_fx3.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
 				case 11:
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_spectrum.selectedSegmentIndex=(arc4random()&1)+1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
 					break;
 				case 12:
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_fx2.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
 				case 13:
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_fx3.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
 				case 14:
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_fx1.selectedSegmentIndex=1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
 					break;
 				case 15:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_spectrum.selectedSegmentIndex=(arc4random()&1)+1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(arc4random()&1)+1;
 					break;
 				case 16:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_fx1.selectedSegmentIndex=1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
 					break;
 				case 17:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_fx2.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
 				case 18:
-					segcont_FxBeat.selectedSegmentIndex=1;
-					segcont_oscillo.selectedSegmentIndex=(arc4random()&1)+1;
-					segcont_fx3.selectedSegmentIndex=(arc4random()%3)+1;
+					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
+					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
+					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
 					break;
                     
 			}
@@ -925,7 +914,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             playlist->entries[i].playcounts=-1;
         }
         playlist->nb_entries=mPlaylist_size;
-        playlist->playlist_name=[[NSString alloc] initWithFormat:@"Now playing",playlist->nb_entries];
+        playlist->playlist_name=[[NSString alloc] initWithString:@"Now playing"];
         playlist->playlist_id=nil;
         
         RootViewControllerPlaylist *childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -1216,8 +1205,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[array objectAtIndex:i]];
 		mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[arrayFilepaths objectAtIndex:i]];
 		
-		short int playcount=0;
-		signed char rating=0;
 		//DBHelper::getFileStatsDBmod(mPlaylist[i].mPlaylistFilename,mPlaylist[i].mPlaylistFilepath,&playcount,&rating);
 		mPlaylist[i].mPlaylistRating=-1;//rating;
 		mPlaylist[i].mPlaylistCount=0;
@@ -1397,8 +1384,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		playLaunched=1;
 	}
 	
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-/*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+/*	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
 	[myindex autorelease];*/
 	return playLaunched;
 }
@@ -1504,8 +1491,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	}
 	
 	if (mPlaylist_size) {
-		NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-/*		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+/*		NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+		[self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
 		[myindex autorelease];*/
 	}
 }
@@ -1539,7 +1526,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     
 	// load module
-	if (retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry]) {
+	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
 		//error while loading
 		NSLog(@"Issue in LoadModule(archive) %@",filePath);
 		if (retcode==-99) mLoadIssueMessage=0;
@@ -1752,7 +1739,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mRestart_sub=sub_index;
     }
     
-	if (retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry]) {
+	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry])) {
 		//error while loading
 		NSLog(@"Issue in LoadModule %@",filePathTmp);
 		mRestart=0;
@@ -2268,7 +2255,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	}
 	[self updateBarPos];
 	int size_chan=12*6;
-	if (segcont_shownote.selectedSegmentIndex==2) size_chan=6*6;
+	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
 	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
@@ -2738,19 +2725,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////
     // General
     ///////////////////////////////////////	
-	sc_showDebug.selectedSegmentIndex = 0;
-	sldFxAlpha.value = (mSlowDevice?1.0f:0.5f);
-//	segcont_resumeLaunch.selectedSegmentIndex = 0;
-	segcont_oscillo.selectedSegmentIndex = 0;
-	segcont_spectrum.selectedSegmentIndex = 0;
-	segcont_fx1.selectedSegmentIndex = 0;
-	segcont_fx2.selectedSegmentIndex = 0;
-	segcont_fx3.selectedSegmentIndex = 0;
-    segcont_fx4.selectedSegmentIndex = 0;
-    segcont_fx5.selectedSegmentIndex = 0;
-	segcont_FxBeat.selectedSegmentIndex = 0;
-	segcont_randFx.selectedSegmentIndex = 0;
-	sc_FXDetail.selectedSegmentIndex = 1;//Med
 	
     ///////////////////////////////////
     // UADE
@@ -2799,7 +2773,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // MODPLUG
     ///////////////////////////////////////
-	segcont_shownote.selectedSegmentIndex = 0;
 	mastVolSld.value = 0.5f;
 	segcont_mpSampling.selectedSegmentIndex = 0;
 	segcont_mpMB.selectedSegmentIndex = 0;
@@ -2919,47 +2892,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     // General
     ///////////////////////////////////////
 	
-    valNb=[prefs objectForKey:@"ShowDebugInfos"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_showDebug.selectedSegmentIndex = 0;
-	else sc_showDebug.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"FXAlpha"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sldFxAlpha.value = (mSlowDevice?1.0f:0.5f);
-	else sldFxAlpha.value = [valNb floatValue];	
-    
-//	valNb=[prefs objectForKey:@"ResumeOnLaunch"];if (safe_mode) valNb=nil;
-//	if (valNb == nil) segcont_resumeLaunch.selectedSegmentIndex = 0;
-//	else segcont_resumeLaunch.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"Oscillo"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_oscillo.selectedSegmentIndex = 0;
-	else segcont_oscillo.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"2DSpectrum"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_spectrum.selectedSegmentIndex = 0;
-	else segcont_spectrum.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"3DFX1"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_fx1.selectedSegmentIndex = 0;
-	else segcont_fx1.selectedSegmentIndex = [valNb intValue];	
-	valNb=[prefs objectForKey:@"3DFX2"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_fx2.selectedSegmentIndex = 0;
-	else segcont_fx2.selectedSegmentIndex = [valNb intValue];	
-	valNb=[prefs objectForKey:@"3DFX3"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_fx3.selectedSegmentIndex = 0;
-	else segcont_fx3.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"FX4"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_fx4.selectedSegmentIndex = 0;
-	else segcont_fx4.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"FX5"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_fx5.selectedSegmentIndex = 0;
-	else segcont_fx5.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"FXBEAT"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_FxBeat.selectedSegmentIndex = 0;
-	else segcont_FxBeat.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"RandomFX"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_randFx.selectedSegmentIndex = 0;
-	else segcont_randFx.selectedSegmentIndex = [valNb intValue];	
-	valNb=[prefs objectForKey:@"FXDetail"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_FXDetail.selectedSegmentIndex = 0;
-	else sc_FXDetail.selectedSegmentIndex = [valNb intValue];	
-	
     ///////////////////////////////////
     // UADE
     ///////////////////////////////////////
@@ -3053,9 +2985,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // MODPLUG
     ///////////////////////////////////////
-	valNb=[prefs objectForKey:@"ShowNotes"];if (safe_mode) valNb=nil;
-	if (valNb == nil) segcont_shownote.selectedSegmentIndex = 0;
-	else segcont_shownote.selectedSegmentIndex = [valNb intValue];
 	valNb=[prefs objectForKey:@"MasterVol"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mastVolSld.value = 0.5f;
 	else mastVolSld.value = [valNb floatValue];
@@ -3172,35 +3101,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////
     // General
     ///////////////////////////////////////
-//	valNb=[[NSNumber alloc] initWithInt:0];
-//	[prefs setObject:valNb forKey:@"ModizerRunning"];[valNb autorelease];
-	
-    
-    valNb=[[NSNumber alloc] initWithInt:sc_showDebug.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"ShowDebugInfos"];[valNb autorelease];    
-    valNb=[[NSNumber alloc] initWithFloat:sldFxAlpha.value];
-	[prefs setObject:valNb forKey:@"FXAlpha"];[valNb autorelease];
-    
-	valNb=[[NSNumber alloc] initWithInt:segcont_oscillo.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"Oscillo"];[valNb autorelease];	
-	valNb=[[NSNumber alloc] initWithInt:segcont_fx1.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"3DFX1"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:segcont_fx2.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"3DFX2"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:segcont_fx3.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"3DFX3"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:segcont_fx4.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"FX4"];[valNb autorelease];	
-    valNb=[[NSNumber alloc] initWithInt:segcont_fx5.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"FX5"];[valNb autorelease];	
-	valNb=[[NSNumber alloc] initWithInt:segcont_FxBeat.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"FXBEAT"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:segcont_randFx.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"RandomFX"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:segcont_spectrum.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"2DSpectrum"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_FXDetail.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"FXDetail"];[valNb autorelease];    
 	
     ///////////////////////////////////
     // UADE
@@ -3277,8 +3177,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ///////////////////////////////////////
  	valNb=[[NSNumber alloc] initWithFloat:mastVolSld.value];
 	[prefs setObject:valNb forKey:@"MasterVol"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:segcont_shownote.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"ShowNotes"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:segcont_mpSampling.selectedSegmentIndex];
 	[prefs setObject:valNb forKey:@"Resampling"];[valNb autorelease];
 	valNb=[[NSNumber alloc] initWithInt:segcont_mpMB.selectedSegmentIndex];
@@ -3320,7 +3218,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	sysctlbyname("hw.machine", name, &size, NULL, 0);
 	
 	// Place name into a string
-	NSString *machine = [[[NSString alloc] initWithCString:name] autorelease];
+	NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
 	
 	// Done with this
 	free(name);
@@ -3881,7 +3779,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	
 	int size_chan=12*6;
-	if (segcont_shownote.selectedSegmentIndex==2) size_chan=6*6;
+	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
 	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
 	mMoveStartChanLeft=mMoveStartChanRight=0;
 	
@@ -4088,12 +3986,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	int nb_spectrum_bands;
 	uint hasdrawnotes;
 	char str_data[200];
-	unsigned int numRows,numRowsP,numRowsN,cnote,cinst,ceff,cparam,cvol,endChan;
+	unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
+    int numRows,numRowsP,numRowsN;
 	int i,j,k,l,note_avail,idx,startRow;
 	int linestodraw,midline;
 	ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
 	int size_chan=12*6;
-	if (segcont_shownote.selectedSegmentIndex==2) size_chan=6*6;
+	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
     
 	
 	if (self.mainView.hidden) return;
@@ -4114,10 +4013,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	ww=m_oglView.frame.size.width;
 	hh=m_oglView.frame.size.height;
     
-    //force midifx if in pattern mode & midi being played
-    if ((mplayer.mPlayType==15)&&(segcont_shownote.selectedSegmentIndex)&&(segcont_shownote.selectedSegmentIndex<3)) segcont_shownote.selectedSegmentIndex=3;
-	
-	if (m_oglView->m_touchcount==1) { 
+	if (m_oglView->m_touchcount==1) {
         touch_cpt++;
 		movePx+=m_oglView->currentMove.x;
         movePy+=m_oglView->currentMove.y;
@@ -4126,7 +4022,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         m_oglView->previousTouchLocation.y=m_oglView->previousTouchLocation.y+m_oglView->currentMove.y;
 		m_oglView->currentMove.x=0;
         m_oglView->currentMove.y=0;
-        if ((mplayer.mPatternDataAvail)&&(segcont_shownote.selectedSegmentIndex<3)) {//pattern display
+        if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
             if (visibleChan<mplayer.numChannels) {
                 if (movePx>0) movePx=0;
                 if (movePx<-(mplayer.numChannels-visibleChan)*size_chan) movePx=-(mplayer.numChannels-visibleChan)*size_chan;
@@ -4134,12 +4030,12 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 
             } else movePx=0;
             
-        } else if (((mplayer.mPatternDataAvail)||(mplayer.mPlayType==15))&&(segcont_shownote.selectedSegmentIndex>2)) {
+        }/* else*/
+        if (((mplayer.mPatternDataAvail)||(mplayer.mPlayType==15))&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
             int moveRPx,moveRPy;
             int note_fx_linewidth;
-            
-            
-            if (segcont_shownote.selectedSegmentIndex==4) {
+                        
+            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) {
                 moveRPx=movePy;
                 moveRPy=-movePx;
                 note_fx_linewidth=ww/tim_midifx_note_range;
@@ -4176,7 +4072,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             } else tim_midifx_note_offset=0;
             moveRPy=tim_midifx_note_offset;
             
-            if (segcont_shownote.selectedSegmentIndex==4) {
+            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) {
                 movePx=-moveRPy;
                 movePy=moveRPx;
                 note_fx_linewidth=ww/tim_midifx_note_range;
@@ -4210,85 +4106,83 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             int touched_coord=(touched_cellX<<4)|(touched_cellY);
             
             if (touched_coord==0x00) {
-				int val=segcont_fx1.selectedSegmentIndex;
+				int val=settings[GLOB_FX1].detail.mdz_boolswitch.switch_value;
 				val++;
 				if (val>=2) val=0;
-				segcont_fx1.selectedSegmentIndex=val;
+				settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=val;
 			} else if (touched_coord==0x10) {
-				int val=segcont_fx2.selectedSegmentIndex;
+				int val=settings[GLOB_FX2].detail.mdz_switch.switch_value;
 				val++;
 				if (val>=4) val=0;
-				segcont_fx2.selectedSegmentIndex=val;
-                segcont_fx3.selectedSegmentIndex=0;
-                segcont_fx4.selectedSegmentIndex=0;
-                segcont_fx5.selectedSegmentIndex=0;
+				settings[GLOB_FX2].detail.mdz_switch.switch_value=val;
+                settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
 			} else if (touched_coord==0x20) {
-				int val=segcont_fx3.selectedSegmentIndex;
+				int val=settings[GLOB_FX3].detail.mdz_switch.switch_value;
 				val++;
 				if (val>=4) val=0;
-				segcont_fx3.selectedSegmentIndex=val;
-                segcont_fx2.selectedSegmentIndex=0;
-                segcont_fx4.selectedSegmentIndex=0;
-                segcont_fx5.selectedSegmentIndex=0;
+				settings[GLOB_FX3].detail.mdz_switch.switch_value=val;
+                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
 			} else if (touched_coord==0x30) {
-				int val=segcont_spectrum.selectedSegmentIndex;
+				int val=settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value;
 				val++;
 				if (val>=3) val=0;
-				segcont_spectrum.selectedSegmentIndex=val;
+				settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=val;
 			} else if (touched_coord==0x01) {
-				int val=segcont_oscillo.selectedSegmentIndex;
+				int val=settings[GLOB_FXOscillo].detail.mdz_switch.switch_value;
 				val++;
 				if (val>=3) val=0;
-				segcont_oscillo.selectedSegmentIndex=val;
+				settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=val;
 			} else if (touched_coord==0x11) {
-				int val=segcont_FxBeat.selectedSegmentIndex;
+				int val=settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value;
 				val++;
 				if (val>=2) val=0;
-				segcont_FxBeat.selectedSegmentIndex=val;
+				settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=val;
 			} else if (touched_coord==0x21) {
-				int val=segcont_shownote.selectedSegmentIndex;
-                if (val>=3) val=0; //if bar mode was active, reset
+				int val=settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value;
 				val++;
 				if (val>=3) val=0;
-				segcont_shownote.selectedSegmentIndex=val;
+				settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=val;
                 
                 size_chan=12*6;
-                if (segcont_shownote.selectedSegmentIndex==2) size_chan=6*6;
+                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
                 visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
                 if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                 if (startChan<0) startChan=0;
                 
                 
 			} else if (touched_coord==0x31) {
-                int val=segcont_shownote.selectedSegmentIndex;
-                if (val<3) val=3-1; //if note mode was active, reset
+                int val=settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value;
 				val++;
-				if (val>=5) val=0;
-				segcont_shownote.selectedSegmentIndex=val;
+				if (val>=3) val=0;
+				settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=val;
 			} else if (touched_coord==0x02) {
-				int val=segcont_fx4.selectedSegmentIndex;
+				int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
 				val++;
 				if (val>=2) val=0;
-				segcont_fx4.selectedSegmentIndex=val;
-                segcont_fx2.selectedSegmentIndex=0;
-                segcont_fx3.selectedSegmentIndex=0;
-                segcont_fx5.selectedSegmentIndex=0;
+				settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=val;
+                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
 			} else if (touched_coord==0x12) {
-				int val=segcont_fx5.selectedSegmentIndex;
+				int val=settings[GLOB_FX5].detail.mdz_switch.switch_value;
 				if (val!=1) val=1;
                 else val=0;
-				segcont_fx5.selectedSegmentIndex=val;
-                segcont_fx2.selectedSegmentIndex=0;
-                segcont_fx3.selectedSegmentIndex=0;
-                segcont_fx4.selectedSegmentIndex=0;
+				settings[GLOB_FX5].detail.mdz_switch.switch_value=val;
+                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
 			} else if (touched_coord==0x22) {
-				int val=segcont_fx5.selectedSegmentIndex;
+				int val=settings[GLOB_FX5].detail.mdz_switch.switch_value;
 				if (val!=2) val=2;
                 else val=0;
-				segcont_fx5.selectedSegmentIndex=val;
-                segcont_fx2.selectedSegmentIndex=0;
-                segcont_fx3.selectedSegmentIndex=0;
-                segcont_fx4.selectedSegmentIndex=0;
+				settings[GLOB_FX5].detail.mdz_switch.switch_value=val;
+                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
 			} else if (touched_coord==0x23) {
                 mOglViewIsHidden=YES;
 			}
@@ -4316,13 +4210,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	hasdrawnotes=0;
 	
 	//update spectrum data
-	if ( ((segcont_fx1.selectedSegmentIndex)||
-		  (segcont_fx2.selectedSegmentIndex)||
-		  (segcont_fx3.selectedSegmentIndex)||
-          (segcont_fx4.selectedSegmentIndex)||
-          (segcont_fx5.selectedSegmentIndex)||
-		  (segcont_FxBeat.selectedSegmentIndex)||
-		  (segcont_spectrum.selectedSegmentIndex)) /*&& (mplayer.bGlobalAudioPause==0)*/ ) {
+	if ( ((settings[GLOB_FX1].detail.mdz_boolswitch.switch_value)||
+		  (settings[GLOB_FX2].detail.mdz_switch.switch_value)||
+		  (settings[GLOB_FX3].detail.mdz_switch.switch_value)||
+          (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
+          (settings[GLOB_FX5].detail.mdz_switch.switch_value)||
+		  (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)||
+		  (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) /*&& (mplayer.bGlobalAudioPause==0)*/ ) {
 		//compute new spectrum data
 		if ([mplayer isPlaying]){
             //FFT: build audio buffer
@@ -4356,8 +4250,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 real_spectrumIL[i]=(int)((int)real_spectrumL[i]*(int)real_spectrumL[i]+(int)img_spectrumL[i]*(int)img_spectrumL[i]);
                 real_spectrumIR[i]=(int)((int)real_spectrumR[i]*(int)real_spectrumR[i]+(int)img_spectrumR[i]*(int)img_spectrumR[i]);
             }
-            //oreal_spectrumL[0]=oreal_spectrumL[1];
-            //oreal_spectrumR[0]=oreal_spectrumR[1];
             
             // COMPUTE FINAL FFT & BEAT DETECTION
             int newSpecL,newSpecR,sumL,sumR;
@@ -4392,8 +4284,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		}
 	}
 	
-    int detail_lvl=sc_FXDetail.selectedSegmentIndex;
-    if (segcont_fx4.selectedSegmentIndex) detail_lvl=0; //force low for fx4
+    int detail_lvl=settings[GLOB_FXLOD].detail.mdz_switch.switch_value;
+    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) detail_lvl=0; //force low for fx4
     
 	switch (detail_lvl) {
 		case 2:
@@ -4425,29 +4317,31 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	}
 	
 	angle+=(float)4.0f;	
-	if (segcont_fx1.selectedSegmentIndex) {
+	if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) {
 		/* Update Angle Based On The Clock */
         
-		fxRadialBlur(0,ww,hh,real_spectrumL,real_spectrumR,nb_spectrum_bands,sldFxAlpha.value);
+		fxRadialBlur(0,ww,hh,real_spectrumL,real_spectrumR,nb_spectrum_bands,settings[GLOB_FXAlpha].detail.mdz_slider.slider_value);
 	} else {
-		glClearColor(0.0f, 0.0f, 0.0f, sldFxAlpha.value);
+		glClearColor(0.0f, 0.0f, 0.0f, settings[GLOB_FXAlpha].detail.mdz_slider.slider_value);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	}
     
 	RenderUtils::SetUpOrtho(0,ww,hh);
     
-	if (([mplayer isPlaying])&&(segcont_shownote.selectedSegmentIndex)) {
+	if (([mplayer isPlaying])&&
+        ((settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)||
+          (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) ) {
         
-		int display_note_mode=segcont_shownote.selectedSegmentIndex-1;
+		int display_note_mode=settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1;
 		
-        if ((mplayer.mPlayType==15)&&(segcont_shownote.selectedSegmentIndex>2)) { //Timidity
+        if ((mplayer.mPlayType==15)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
             int playerpos=[mplayer getCurrentPlayedBufferIdx];
             playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,64);
+            RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
             
             if (mHeader) delete mHeader;
             mHeader=nil;
-            if (sc_showDebug.selectedSegmentIndex) {
+            if (DEBUG_INFOS) {
                 sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
                 mHeader= new CGLString(str_data, mFont,mScaleFactor);
                 glPushMatrix();
@@ -4457,7 +4351,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 glPopMatrix();
             }            
         } else if (mplayer.mPatternDataAvail) { //Modplug
-            if (1) /*(segcont_shownote.selectedSegmentIndex>2)*/ {
+            if ((settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)||(settings[GLOB_FXPiano].detail.mdz_switch.switch_value)) {
                 int playerpos=[mplayer getCurrentPlayedBufferIdx];
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
                 
@@ -4467,7 +4361,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 currentPattern=pat[playerpos];
                 currentRow=row[playerpos];
                 
-                currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,&numRows);
+                currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
                 idx=startRow*mplayer.numChannels+startChan;
                 
                 if (currentNotes) {
@@ -4485,9 +4379,11 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     memset(&(tim_notes_cpy[playerpos][mplayer.numChannels]),0,(256-mplayer.numChannels)*4);
                 }
                 
-                if (segcont_shownote.selectedSegmentIndex>2) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,64);
+                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
                 
-            } else {
+            }
+            
+            if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
                 linestodraw=(hh-NOTES_DISPLAY_TOPMARGIN+11)/12; //+11 => draw even if halfed for last line
                 midline=linestodraw>>1;
                 
@@ -4523,10 +4419,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 
                 
                 
-                currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,&numRows);
-                if (currentPattern>0) prevNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern-1,&numRowsP);
+                currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
+                if (currentPattern>0) prevNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern-1,(unsigned int*)(&numRowsP));
                 else prevNotes=nil;
-                if (currentPattern<mplayer.numPatterns-1) nextNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern+1,&numRowsN);
+                if (currentPattern<mplayer.numPatterns-1) nextNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern+1,(unsigned int*)(&numRowsN));
                 else nextNotes=nil;
                 idx=startRow*mplayer.numChannels+startChan;
                 
@@ -4702,36 +4598,52 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		short int *curBuffer=snd_buffer[cur_pos];
 		
 		pos_fx=0;
-		if ((segcont_spectrum.selectedSegmentIndex)&&(segcont_oscillo.selectedSegmentIndex)) pos_fx=1;
-		if ((segcont_FxBeat.selectedSegmentIndex)&&(segcont_oscillo.selectedSegmentIndex)) pos_fx=1;
-		if ((segcont_FxBeat.selectedSegmentIndex)&&(segcont_spectrum.selectedSegmentIndex)) pos_fx=1;
+		if ((settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
+		if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
+		if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) pos_fx=1;
 		if (hasdrawnotes) pos_fx=1;
-		if (segcont_fx1.selectedSegmentIndex) pos_fx=1;
+		if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) pos_fx=1;
 		
-		if (segcont_spectrum.selectedSegmentIndex) RenderUtils::DrawSpectrum(real_spectrumL,real_spectrumR,ww,hh,hasdrawnotes,segcont_spectrum.selectedSegmentIndex-1,pos_fx,mDeviceType==1,nb_spectrum_bands);
-		if (segcont_FxBeat.selectedSegmentIndex) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,mDeviceType==1,nb_spectrum_bands);
-		if (segcont_oscillo.selectedSegmentIndex) RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,segcont_oscillo.selectedSegmentIndex,pos_fx,mDeviceType==1);
+		if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum(real_spectrumL,real_spectrumR,ww,hh,hasdrawnotes,settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value-1,pos_fx,mDeviceType==1,nb_spectrum_bands);
+		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,mDeviceType==1,nb_spectrum_bands);
+		if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx,mDeviceType==1);
 	}
     
 	if ([mplayer isPlaying]){
-		if (segcont_fx2.selectedSegmentIndex) {
-            RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,segcont_fx2.selectedSegmentIndex,mDeviceType==1,nb_spectrum_bands);
-        } else if (segcont_fx3.selectedSegmentIndex) {
-            RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,segcont_fx3.selectedSegmentIndex,mDeviceType==1,nb_spectrum_bands);
-        } else if (segcont_fx4.selectedSegmentIndex) {
-            renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(sldFxAlpha.value*255));
-        } else if (segcont_fx5.selectedSegmentIndex) {
-            RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,segcont_fx5.selectedSegmentIndex,mDeviceType==1,nb_spectrum_bands);
+		if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
+            RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,mDeviceType==1,nb_spectrum_bands);
+        } else if (settings[GLOB_FX3].detail.mdz_switch.switch_value) {
+            RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,mDeviceType==1,nb_spectrum_bands);
+        } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
+            renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(settings[GLOB_FXAlpha].detail.mdz_slider.slider_value*255));
+        } else if (settings[GLOB_FX5].detail.mdz_switch.switch_value) {
+            RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX5].detail.mdz_switch.switch_value,mDeviceType==1,nb_spectrum_bands);
         }
         
-        int playerpos=[mplayer getCurrentPlayedBufferIdx];
-        playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-        RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,segcont_shownote.selectedSegmentIndex-3,tim_midifx_note_range,tim_midifx_note_offset,32);
+        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
+            int playerpos=[mplayer getCurrentPlayedBufferIdx];
+            playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
+            RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,tim_midifx_note_range,tim_midifx_note_offset,32);
+        }
 	}
-	
+    if (viewTapHelpShow) {
+		if (viewTapHelpInfo<255) {
+            viewTapHelpInfo+=32;
+/*			viewTapHelpInfo+=(255-viewTapHelpInfo)/3;*/
+			if (viewTapHelpInfo>255) viewTapHelpInfo=255;
+		}
+	} else {
+		if (viewTapHelpInfo>0) {
+            viewTapHelpInfo-=32;
+/*			viewTapHelpInfo-=(255+32-viewTapHelpInfo)/3;*/
+			if (viewTapHelpInfo<0) viewTapHelpInfo=0;
+		}
+	}
+
 	if (viewTapHelpInfo) {
+        NSLog(@"viewTapHelpInfo %d",viewTapHelpInfo);
 		RenderUtils::SetUpOrtho(0,ww,hh);
-		RenderUtils::DrawFXTouchGrid(ww,hh,viewTapHelpInfo);
+		RenderUtils::DrawFXTouchGrid(ww,hh, viewTapHelpInfo);
         
 		infoMenuShowImages(ww,hh,viewTapHelpInfo);
         
@@ -4742,30 +4654,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 			glPopMatrix();
 		}
 	}
-	if (viewTapHelpShow) {
-		if (viewTapHelpInfo<255) {
-			viewTapHelpInfo+=(255-viewTapHelpInfo)/3;
-			if (viewTapHelpInfo>250) viewTapHelpInfo=255;
-		}
-	} else {
-		if (viewTapHelpInfo>0) {
-			viewTapHelpInfo-=(255+32-viewTapHelpInfo)/3;
-			if (viewTapHelpInfo<0) viewTapHelpInfo=0;
-		}
-	}
-	
-/*    if (sc_showDebug.selectedSegmentIndex) {
-        sprintf(str_data,"free mem: %dMB",[DetailViewControllerIphone get_free_memory]/1024/1024);
-        CGLString *minfo= new CGLString(str_data, mFont);
-        glPushMatrix();
-        glTranslatef(0, 5.0f, 0.0f);
-        //glScalef(1.58f, 1.58f, 1.58f);
-        minfo->Render(0);
-        glPopMatrix();
-        delete minfo;
-        minfo=nil;        
-    }*/
-	
 	
     [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
 }

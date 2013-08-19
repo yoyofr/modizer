@@ -855,7 +855,7 @@
 		CCCE9CFA123D807A007D9462 /* unice68_native.c in Sources */ = {isa = PBXBuildFile; fileRef = CCCE9CB3123D807A007D9462 /* unice68_native.c */; };
 		CCD00F7F1209EA92002A1D61 /* cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD00F7E1209EA92002A1D61 /* cancel.png */; };
 		CCD00F811209EAF5002A1D61 /* mini_cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD00F801209EAF5002A1D61 /* mini_cancel.png */; };
-		CCD4631E123CB8F600D063FE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CCD4631D123CB8F600D063FE /* main.m */; };
+		CCD4631E123CB8F600D063FE /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCD4631D123CB8F600D063FE /* main.mm */; };
 		CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791701219FC6B0063D0E7 /* unzoom.png */; };
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
 		CCDCFFBC121FD47300B89B19 /* MIMETYPES.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCDCFFB1121FD3A400B89B19 /* MIMETYPES.plist */; };
@@ -2495,7 +2495,7 @@
 		CCCE9CB3123D807A007D9462 /* unice68_native.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unice68_native.c; sourceTree = "<group>"; };
 		CCD00F7E1209EA92002A1D61 /* cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cancel.png; sourceTree = "<group>"; };
 		CCD00F801209EAF5002A1D61 /* mini_cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mini_cancel.png; sourceTree = "<group>"; };
-		CCD4631D123CB8F600D063FE /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CCD4631D123CB8F600D063FE /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		CCD791701219FC6B0063D0E7 /* unzoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unzoom.png; sourceTree = "<group>"; };
 		CCD791711219FC6B0063D0E7 /* zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoom.png; sourceTree = "<group>"; };
 		CCDCFFB1121FD3A400B89B19 /* MIMETYPES.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = MIMETYPES.plist; sourceTree = "<group>"; };
@@ -2555,7 +2555,7 @@
 				CC9B193312FF0B9800985967 /* SndPlayers */,
 				32CA4F630368D1EE00C91783 /* modizer_Prefix.pch */,
 				CC1E58BA1200B3B7000A8A4E /* Classes */,
-				CCD4631D123CB8F600D063FE /* main.m */,
+				CCD4631D123CB8F600D063FE /* main.mm */,
 				CC88D1131270AF200004EBBE /* modizer-Info.plist */,
 				CC1E5A161200B3B8000A8A4E /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
@@ -5414,7 +5414,7 @@
 				CCBF101B1221788200E8DE4E /* YmMusic.cpp in Sources */,
 				CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */,
 				33525D7D1222567600E6E517 /* DBHelper.mm in Sources */,
-				CCD4631E123CB8F600D063FE /* main.m in Sources */,
+				CCD4631E123CB8F600D063FE /* main.mm in Sources */,
 				CCCE9CB4123D807A007D9462 /* api68.c in Sources */,
 				CCCE9CB5123D807A007D9462 /* conf68.c in Sources */,
 				CCCE9CB6123D807A007D9462 /* mixer68.c in Sources */,
@@ -5644,12 +5644,11 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",
-					"\"$(SRCROOT)/playgsf/libresample-0.1.3\"",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
@@ -5681,12 +5680,11 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",
-					"\"$(SRCROOT)/playgsf/libresample-0.1.3\"",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
@@ -5807,12 +5805,11 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",
-					"\"$(SRCROOT)/playgsf/libresample-0.1.3\"",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
@@ -5877,12 +5874,11 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/../libflite/build/Release-iphoneos\"",
-					"\"$(SRCROOT)/playgsf/libresample-0.1.3\"",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",

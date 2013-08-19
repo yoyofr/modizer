@@ -304,7 +304,8 @@ if (cb>255) cb=255;if (cb<0) cb=0;
     texcoords=(GLfloat*)malloc(sizeof(GLfloat)*4*2);
     indexV=indexC=0;
     
-    
+//	glEnable(GL_BLEND);
+//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_TEXTURE_2D);    
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -319,6 +320,8 @@ if (cb>255) cb=255;if (cb<0) cb=0;
     glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
     glVertexPointer(2, GL_FLOAT, 0, vertices);
     
+    glColor4f(1.0f, 1.0f, 1.0f, alpha*1.0f/255.0f);
+    
     vertices[indexV++]=0;vertices[indexV++]=0;
     vertices[indexV++]=1;vertices[indexV++]=0;
     vertices[indexV++]=0;vertices[indexV++]=1;
@@ -331,9 +334,11 @@ if (cb>255) cb=255;if (cb<0) cb=0;
     
     glDrawArrays(GL_TRIANGLE_STRIP,0,indexV/2);
     
-    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisable(GL_TEXTURE_2D);
+//    glDisable(GL_BLEND);
+    
     free(vertices);
     free(texcoords);
     
@@ -474,7 +479,6 @@ void renderFluid(int width,int height,unsigned char *beatL,unsigned char *beatR,
 //        u[i]=(u[i]*254)>>8;
 //        v[i]=(v[i]*254)>>8;
     }
-    
     
     //render
     glMatrixMode ( GL_PROJECTION );

@@ -1437,7 +1437,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     [array_label addObject:sidFilename];
                     [array_path addObject:localPath];
                     cur_db_entries[section][indexPath.row].rating=-1;
-                    [detailViewController play_listmodules:array_label start_index:0 path:array_path ratings:&(cur_db_entries[section][indexPath.row].rating) playcounts:&(cur_db_entries[section][indexPath.row].playcount)];
+                    [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                     if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                     else [tableView reloadData];
                 } else {

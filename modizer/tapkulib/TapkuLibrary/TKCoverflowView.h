@@ -76,6 +76,9 @@
 - (TKCoverflowCoverView*) coverAtIndex:(int)index; // returns nil if cover is outside active range
 - (int) indexOfFrontCoverView; // deprecated
 - (void) bringCoverAtIndexToFront:(int)index animated:(BOOL)animated;
+
+- (void) setNumberOfCovers:(int)cov pos:(int)_pos;
+
 @property (nonatomic, assign) NSInteger currentIndex;
 
 
