@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "ModizerConstants.h"
 #import "DetailViewControllerIphone.h"
+#import "TPKeyboardAvoidingTableView.h"
 
 enum MDZ_SETTINGS_TYPE {
     MDZ_FAMILY=1,
@@ -23,6 +24,7 @@ enum MDZ_SETTINGS_FAMILY {
     MDZ_SETTINGS_ROOT=1,
     MDZ_SETTINGS_GLOBAL_PLAYER,
     MDZ_SETTINGS_GLOBAL_VISU,
+    MDZ_SETTINGS_GLOBAL_FTP,
     MDZ_SETTINGS_PLUGINS,
     MDZ_SETTINGS_MODPLUG,
     MDZ_SETTINGS_UADE,
@@ -67,6 +69,12 @@ enum MDZ_SETTINGS {
     GLOB_FX4,
     GLOB_FX5,
     
+    MDZ_SETTINGS_FAMILY_GLOBAL_FTP,
+    FTP_ONOFF,
+    FTP_ANONYMOUS,
+    FTP_USER,
+    FTP_PASSWORD,
+    FTP_PORT,    
     
     MDZ_SETTINGS_FAMILY_PLUGINS,
     
@@ -172,8 +180,8 @@ typedef struct {
 
 
 
-@interface SettingsGenViewController : UIViewController {
-    IBOutlet UITableView *tableView;
+@interface SettingsGenViewController : UIViewController <UITextFieldDelegate> {
+    IBOutlet TPKeyboardAvoidingTableView *tableView;
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];
 @public
@@ -181,7 +189,7 @@ typedef struct {
     char current_family;
 }
 
-@property (nonatomic,retain) IBOutlet UITableView *tableView;
+@property (nonatomic,retain) IBOutlet TPKeyboardAvoidingTableView *tableView;
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
 
 + (void) loadSettings;

@@ -44,7 +44,14 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].family=MDZ_SETTINGS_ROOT;
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].sub_family=MDZ_SETTINGS_PLUGINS;
-
+    
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].label=(char*)"FTP";
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].family=MDZ_SETTINGS_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].sub_family=MDZ_SETTINGS_GLOBAL_FTP;
+    
+    
     
     /////////////////////////////////////
     //GLOBAL Player
@@ -71,7 +78,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
-
+    
     
     settings[GLOB_DefaultLength].label=(char*)"Default Length";
     settings[GLOB_DefaultLength].description=NULL;
@@ -89,7 +96,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MODPLUG";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
@@ -115,7 +122,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_BackgroundMode].sub_family=0;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Play";
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]=(char*)"Full";
@@ -127,7 +134,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_EnqueueMode].sub_family=0;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[0]=(char*)"First";
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[1]=(char*)"Current";
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels[2]=(char*)"Last";
@@ -139,7 +146,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_PlayEnqueueAction].sub_family=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[0]=(char*)"Play";
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[1]=(char*)"Enqueue";
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels[2]=(char*)"Enq.&Play";
@@ -151,7 +158,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_AfterDownloadAction].sub_family=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[0]=(char*)"Nothing";
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[1]=(char*)"Enqueue";
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[2]=(char*)"Play";
@@ -170,6 +177,48 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_PlayerViewOnPlay].type=MDZ_BOOLSWITCH;
     settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
     
+    /////////////////////////////////////
+    //GLOBAL FTP
+    /////////////////////////////////////
+    settings[FTP_ONOFF].type=MDZ_SWITCH;
+    settings[FTP_ONOFF].label=(char*)"FTP Server";
+    settings[FTP_ONOFF].description=NULL;
+    settings[FTP_ONOFF].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_ONOFF].sub_family=0;
+    settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+    settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb=2;
+    settings[FTP_ONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[FTP_ONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Stop";
+    settings[FTP_ONOFF].detail.mdz_switch.switch_labels[1]=(char*)"Run";
+    
+    settings[FTP_ANONYMOUS].label=(char*)"Authorize anonymous";
+    settings[FTP_ANONYMOUS].description=NULL;
+    settings[FTP_ANONYMOUS].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_ANONYMOUS].sub_family=1;
+    settings[FTP_ANONYMOUS].type=MDZ_BOOLSWITCH;
+    settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[FTP_USER].label=(char*)"User";
+    settings[FTP_USER].description=NULL;
+    settings[FTP_USER].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_USER].sub_family=0;
+    settings[FTP_USER].type=MDZ_TEXTBOX;
+    settings[FTP_USER].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    
+    settings[FTP_PASSWORD].label=(char*)"Password";
+    settings[FTP_PASSWORD].description=NULL;
+    settings[FTP_PASSWORD].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_PASSWORD].sub_family=0;
+    settings[FTP_PASSWORD].type=MDZ_TEXTBOX;
+    settings[FTP_PASSWORD].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    
+    settings[FTP_PORT].label=(char*)"Port";
+    settings[FTP_PORT].description=NULL;
+    settings[FTP_PORT].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_PORT].sub_family=0;
+    settings[FTP_PORT].type=MDZ_TEXTBOX;
+    settings[FTP_PORT].detail.mdz_textbox.text=(char*)malloc(strlen("21")+1);
+    strcpy(settings[FTP_PORT].detail.mdz_textbox.text,"21");
     
     /////////////////////////////////////
     //Visualizers
@@ -189,7 +238,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1;
-
+    
     settings[GLOB_FXBeat].label=(char*)"Beat FX";
     settings[GLOB_FXBeat].description=NULL;
     settings[GLOB_FXBeat].family=MDZ_SETTINGS_GLOBAL_VISU;
@@ -204,7 +253,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FXOscillo].sub_family=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Split";
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Comb";
@@ -216,7 +265,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FXSpectrum].sub_family=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
@@ -228,7 +277,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FXMODPattern].sub_family=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
@@ -240,7 +289,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FXMIDIPattern].sub_family=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[1]=(char*)"Hori";
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[2]=(char*)"Vert";
@@ -252,7 +301,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FXPiano].sub_family=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[2]=(char*)"2";
@@ -271,7 +320,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FX2].sub_family=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FX2].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX2].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX2].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX2].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FX2].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FX2].detail.mdz_switch.switch_labels[2]=(char*)"2";
@@ -283,7 +332,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FX3].sub_family=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FX3].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX3].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX3].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FX3].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FX3].detail.mdz_switch.switch_labels[2]=(char*)"2";
@@ -302,7 +351,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FX5].sub_family=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FX5].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX5].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX5].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX5].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FX5].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FX5].detail.mdz_switch.switch_labels[2]=(char*)"2";
@@ -314,7 +363,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_FXLOD].sub_family=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_FXLOD].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXLOD].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[0]=(char*)"Low";
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[1]=(char*)"Med";
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[2]=(char*)"High";
@@ -348,7 +397,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[MODPLUG_Sampling].sub_family=0;
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=2;
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb=4;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Near";
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Spli";
@@ -464,10 +513,12 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[DUMB_Resampling].sub_family=0;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value=1;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb=3;
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[DUMB_Resampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels[0]=(char*)"Alias";
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels[2]=(char*)"Cubic";
+    
+    
     
     /////////////////////////////////////
     //TIMIDITY
@@ -507,7 +558,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[TIM_LPFilter].family=MDZ_SETTINGS_TIMIDITY;
     settings[TIM_LPFilter].sub_family=0;
     settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value=1;
-
+    
     settings[TIM_Resample].type=MDZ_SWITCH;
     settings[TIM_Resample].label=(char*)"Resampling";
     settings[TIM_Resample].description=NULL;
@@ -515,16 +566,16 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[TIM_Resample].sub_family=0;
     settings[TIM_Resample].detail.mdz_switch.switch_value=1;
     settings[TIM_Resample].detail.mdz_switch.switch_value_nb=5;
-    settings[TIM_Resample].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[TIM_Resample].detail.mdz_switch.switch_labels=(char**)malloc(settings[TIM_Resample].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[TIM_Resample].detail.mdz_switch.switch_labels[0]=(char*)"None";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[1]=(char*)"Line";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[2]=(char*)"Spli";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[3]=(char*)"Gaus";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[4]=(char*)"Newt";
-
+    
     /////////////////////////////////////
     //GME
-    /////////////////////////////////////    
+    /////////////////////////////////////
     
     /////////////////////////////////////
     //SID
@@ -549,7 +600,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[SID_Optim].sub_family=0;
     settings[SID_Optim].detail.mdz_switch.switch_value=1;
     settings[SID_Optim].detail.mdz_switch.switch_value_nb=3;
-    settings[SID_Optim].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_Optim].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_Optim].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[SID_Optim].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[SID_Optim].detail.mdz_switch.switch_labels[1]=(char*)"Std";
     settings[SID_Optim].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
@@ -561,14 +612,15 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[SID_LibVersion].sub_family=0;
     settings[SID_LibVersion].detail.mdz_switch.switch_value=1;
     settings[SID_LibVersion].detail.mdz_switch.switch_value_nb=2;
-    settings[SID_LibVersion].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_LibVersion].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_LibVersion].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[SID_LibVersion].detail.mdz_switch.switch_labels[0]=(char*)"SIDPLAY1";
     settings[SID_LibVersion].detail.mdz_switch.switch_labels[1]=(char*)"SIDPLAY2";
+    
+    
     
     /////////////////////////////////////
     //UADE
     /////////////////////////////////////
-    
     settings[MDZ_SETTINGS_FAMILY_UADE].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_UADE].label=(char*)"UADE";
     settings[MDZ_SETTINGS_FAMILY_UADE].description=NULL;
@@ -596,14 +648,14 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[UADE_Led].family=MDZ_SETTINGS_UADE;
     settings[UADE_Led].sub_family=0;
     settings[UADE_Led].detail.mdz_boolswitch.switch_value=0;
-
+    
     settings[UADE_Norm].type=MDZ_BOOLSWITCH;
     settings[UADE_Norm].label=(char*)"Normalization";
     settings[UADE_Norm].description=NULL;
     settings[UADE_Norm].family=MDZ_SETTINGS_UADE;
     settings[UADE_Norm].sub_family=0;
     settings[UADE_Norm].detail.mdz_boolswitch.switch_value=0;
-
+    
     settings[UADE_Gain].type=MDZ_BOOLSWITCH;
     settings[UADE_Gain].label=(char*)"Gain";
     settings[UADE_Gain].description=NULL;
@@ -626,7 +678,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[UADE_Pan].family=MDZ_SETTINGS_UADE;
     settings[UADE_Pan].sub_family=0;
     settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
-
+    
     settings[UADE_PanValue].label=(char*)"Panning Value";
     settings[UADE_PanValue].description=NULL;
     settings[UADE_PanValue].family=MDZ_SETTINGS_UADE;
@@ -636,18 +688,140 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[UADE_PanValue].detail.mdz_slider.slider_min_value=0;
     settings[UADE_PanValue].detail.mdz_slider.slider_max_value=1;
     
-    
     /////////////////////////////////////
     //SEXYPSF
     /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].label=(char*)"SexyPSF";
+    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].family=MDZ_SETTINGS_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].sub_family=MDZ_SETTINGS_SEXYPSF;
+    
+    settings[SEXYPSF_Interpolation].type=MDZ_SWITCH;
+    settings[SEXYPSF_Interpolation].label=(char*)"Interpolation";
+    settings[SEXYPSF_Interpolation].description=NULL;
+    settings[SEXYPSF_Interpolation].family=MDZ_SETTINGS_SEXYPSF;
+    settings[SEXYPSF_Interpolation].sub_family=0;
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value=1;
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value_nb=4;
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Gau";
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[3]=(char*)"Cub";
+    
+    settings[SEXYPSF_Reverb].type=MDZ_SWITCH;
+    settings[SEXYPSF_Reverb].label=(char*)"Interpolation";
+    settings[SEXYPSF_Reverb].description=NULL;
+    settings[SEXYPSF_Reverb].family=MDZ_SETTINGS_SEXYPSF;
+    settings[SEXYPSF_Reverb].sub_family=0;
+    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value=1;
+    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value_nb=3;
+    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels=(char**)malloc(settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels[1]=(char*)"Fake";
+    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels[2]=(char*)"Real";
     
     /////////////////////////////////////
     //AOSDK
     /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_AOSDK].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_AOSDK].label=(char*)"AOSDK";
+    settings[MDZ_SETTINGS_FAMILY_AOSDK].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_AOSDK].family=MDZ_SETTINGS_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_AOSDK].sub_family=MDZ_SETTINGS_AOSDK;
+    
+    settings[AOSDK_Interpolation].type=MDZ_SWITCH;
+    settings[AOSDK_Interpolation].label=(char*)"Interpolation";
+    settings[AOSDK_Interpolation].description=NULL;
+    settings[AOSDK_Interpolation].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_Interpolation].sub_family=0;
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_value_nb=4;
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Gau";
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[3]=(char*)"Cub";
+    
+    settings[AOSDK_Reverb].type=MDZ_BOOLSWITCH;
+    settings[AOSDK_Reverb].label=(char*)"Reverb";
+    settings[AOSDK_Reverb].description=NULL;
+    settings[AOSDK_Reverb].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_Reverb].sub_family=0;
+    settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[AOSDK_DSF22KHZ].type=MDZ_SWITCH;
+    settings[AOSDK_DSF22KHZ].label=(char*)"Output";
+    settings[AOSDK_DSF22KHZ].description=NULL;
+    settings[AOSDK_DSF22KHZ].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_DSF22KHZ].sub_family=0;
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=1;
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb=2;
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[0]=(char*)"22Khz";
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[1]=(char*)"44Khz";
+    
+    settings[AOSDK_DSFDSP].type=MDZ_BOOLSWITCH;
+    settings[AOSDK_DSFDSP].label=(char*)"DSF DSP";
+    settings[AOSDK_DSFDSP].description=NULL;
+    settings[AOSDK_DSFDSP].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_DSFDSP].sub_family=0;
+    settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[AOSDK_DSFEmuRatio].type=MDZ_SWITCH;
+    settings[AOSDK_DSFEmuRatio].label=(char*)"DSF Emu Ratio";
+    settings[AOSDK_DSFEmuRatio].description=NULL;
+    settings[AOSDK_DSFEmuRatio].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_DSFEmuRatio].sub_family=0;
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[0]=(char*)"1";
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[1]=(char*)"5";
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[2]=(char*)"15";
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[3]=(char*)"30";
+    
+    settings[AOSDK_SSFDSP].type=MDZ_BOOLSWITCH;
+    settings[AOSDK_SSFDSP].label=(char*)"SSF DSP";
+    settings[AOSDK_SSFDSP].description=NULL;
+    settings[AOSDK_SSFDSP].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_SSFDSP].sub_family=0;
+    settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[AOSDK_SSFEmuRatio].type=MDZ_SWITCH;
+    settings[AOSDK_SSFEmuRatio].label=(char*)"SSF Emu Ratio";
+    settings[AOSDK_SSFEmuRatio].description=NULL;
+    settings[AOSDK_SSFEmuRatio].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_SSFEmuRatio].sub_family=0;
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[0]=(char*)"1";
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[1]=(char*)"5";
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[2]=(char*)"15";
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[3]=(char*)"30";
     
     /////////////////////////////////////
     //ADPLUG
     /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_ADPLUG].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_ADPLUG].label=(char*)"ADPLUG";
+    settings[MDZ_SETTINGS_FAMILY_ADPLUG].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_ADPLUG].family=MDZ_SETTINGS_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_ADPLUG].sub_family=MDZ_SETTINGS_ADPLUG;
+    
+    settings[ADPLUG_OplType].type=MDZ_SWITCH;
+    settings[ADPLUG_OplType].label=(char*)"OPL Type";
+    settings[ADPLUG_OplType].description=NULL;
+    settings[ADPLUG_OplType].family=MDZ_SETTINGS_ADPLUG;
+    settings[ADPLUG_OplType].sub_family=0;
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_value=1;
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb=3;
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[0]=(char*)"Std";
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[1]=(char*)"Adl";
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[2]=(char*)"Tat";
     
 }
 
@@ -672,9 +846,9 @@ volatile t_settings settings[MAX_SETTINGS];
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
-
+    
     //TODO: a faire dans le delegate
-//    if (current_family==MDZ_SETTINGS_ROOT) [self loadSettings];
+    //    if (current_family==MDZ_SETTINGS_ROOT) [self loadSettings];
     
     //Build current mapping
     cur_settings_nb=0;
@@ -684,12 +858,12 @@ volatile t_settings settings[MAX_SETTINGS];
             
         }
     }
-
     
-
+    
+    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
- 
+    
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
@@ -739,15 +913,28 @@ volatile t_settings settings[MAX_SETTINGS];
     if (settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value !=[(UISegmentedControl*)sender selectedSegmentIndex]) refresh=1;
     settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value=[(UISegmentedControl*)sender selectedSegmentIndex];
     
-    if (refresh) [tableView reloadData];    
+    if (refresh) [tableView reloadData];
 }
 - (void)sliderChanged:(id)sender {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[sender superview] center]];
     
     settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((MNEValueTrackingSlider*)sender).value;
-//    if (OPTION(video_fskip)==10) [((MNEValueTrackingSlider*)sender) setValue:10 sValue:@"AUTO"];
-//    [tableView reloadData];
+    //    if (OPTION(video_fskip)==10) [((MNEValueTrackingSlider*)sender) setValue:10 sValue:@"AUTO"];
+    //    [tableView reloadData];
 }
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
+        free(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text);
+    }
+    if ([textField.text length]) {
+        settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=(char*)malloc(strlen([textField.text UTF8String]+1));
+        strcpy(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,[textField.text UTF8String]);
+    }
+    [textField resignFirstResponder];
+    return YES;
+}
+
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -759,6 +946,7 @@ volatile t_settings settings[MAX_SETTINGS];
     
     UISwitch *switchview;
     UISegmentedControl *segconview;
+    UITextField *txtfield;
     NSMutableArray *tmpArray;
     MNEValueTrackingSlider *sliderview;
     
@@ -793,14 +981,13 @@ volatile t_settings settings[MAX_SETTINGS];
         
         CAGradientLayer *selgrad = [CAGradientLayer layer];
         selgrad.frame = cell.bounds;
-        float rev_col_adj=1.2f;
         selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:255.0/255.0*0.9 green:255.0/255.0*0.9 blue:255.0/255.0*0.9 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:255.0/255.0*0.9 green:255.0/255.0*0.9 blue:255.0/255.0*0.9 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:235.0/255.0*0.9 green:235.0/255.0*0.9 blue:235.0/255.0*0.9 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:240.0/255.0*0.9 green:240.0/255.0*0.9 blue:240.0/255.0*0.9 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:200.0/255.0*0.9 green:200.0/255.0*0.9 blue:200.0/255.0*0.9 alpha:1] CGColor],
+                          (id)[[UIColor colorWithRed:200.0/255.0*0.9 green:200.0/255.0*0.9 blue:200.0/255.0*0.9 alpha:1] CGColor],
                           nil];
         selgrad.locations = [NSArray arrayWithObjects:
                              (id)[NSNumber numberWithFloat:0.00f],
@@ -813,7 +1000,7 @@ volatile t_settings settings[MAX_SETTINGS];
         
         [cell setSelectedBackgroundView:[[UIView alloc] init]];
         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
- 
+        
         //
         // Create the label for the top row of text
         //
@@ -825,7 +1012,7 @@ volatile t_settings settings[MAX_SETTINGS];
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:14];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
@@ -837,7 +1024,7 @@ volatile t_settings settings[MAX_SETTINGS];
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
     }
     topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-    topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+    topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     
     topLabel.frame= CGRectMake(4,
                                0,
@@ -867,14 +1054,14 @@ volatile t_settings settings[MAX_SETTINGS];
             }
             segconview = [[UISegmentedControl alloc] initWithItems:tmpArray];
             segconview.frame=CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30);
-//            segconview.
+            //            segconview.
             UIFont *font = [UIFont boldSystemFontOfSize:12.0f];
             NSDictionary *attributes = [NSDictionary dictionaryWithObject:font
                                                                    forKey:UITextAttributeFont];
             [segconview setTitleTextAttributes:attributes
-                                            forState:UIControlStateNormal];
+                                      forState:UIControlStateNormal];
             
-//            segconview.segmentedControlStyle = UISegmentedControlStyleBar;
+            //            segconview.segmentedControlStyle = UISegmentedControlStyleBar;
             [segconview addTarget:self action:@selector(segconChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = segconview;
             [segconview release];
@@ -904,6 +1091,22 @@ volatile t_settings settings[MAX_SETTINGS];
             [sliderview release];
             break;
         case MDZ_TEXTBOX:
+            txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30)];
+            
+            txtfield.borderStyle = UITextBorderStyleRoundedRect;
+            txtfield.font = [UIFont systemFontOfSize:15];
+            txtfield.autocorrectionType = UITextAutocorrectionTypeNo;
+            txtfield.keyboardType = UIKeyboardTypeASCIICapable;
+            txtfield.returnKeyType = UIReturnKeyDone;
+            txtfield.clearButtonMode = UITextFieldViewModeWhileEditing;
+            txtfield.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+            txtfield.delegate = self;
+            txtfield.tag=indexPath.section;
+            
+            if (settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text) txtfield.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
+            else txtfield.text=@"";
+            cell.accessoryView = txtfield;
+            [txtfield release];
             break;
     }
     
@@ -911,43 +1114,43 @@ volatile t_settings settings[MAX_SETTINGS];
 }
 
 /*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
+ // Override to support conditional editing of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ // Return NO if you do not want the specified item to be editable.
+ return YES;
+ }
+ */
 
 /*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
+ // Override to support editing the table view.
+ - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ if (editingStyle == UITableViewCellEditingStyleDelete) {
+ // Delete the row from the data source
+ [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+ }
+ else if (editingStyle == UITableViewCellEditingStyleInsert) {
+ // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+ }
+ }
+ */
 
 /*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
+ // Override to support rearranging the table view.
+ - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+ {
+ }
+ */
 
 /*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
+ // Override to support conditional rearranging of the table view.
+ - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+ {
+ // Return NO if you do not want the item to be re-orderable.
+ return YES;
+ }
+ */
 
 #pragma mark - Table view delegate
 

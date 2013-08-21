@@ -125,7 +125,7 @@
 
 - (void)_positionAndUpdatePopupView {
     CGRect _thumbRect = self.thumbRect;
-    CGRect popupRect = CGRectOffset(_thumbRect, -40, -floorf(_thumbRect.size.height * 0.8));
+    CGRect popupRect = CGRectOffset(_thumbRect, -40, 5-floorf(_thumbRect.size.height * 0.8));
     valuePopupView.frame = CGRectInset(popupRect, -20, 2);
     if (integerMode) valuePopupView.value = (NSInteger)self.value;
     else valuePopupView.value = self.value;
