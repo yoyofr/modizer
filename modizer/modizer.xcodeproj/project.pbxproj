@@ -41,6 +41,7 @@
 		33114D1413430A8700C7CC19 /* getopt_long.c in Sources */ = {isa = PBXBuildFile; fileRef = 33114D1213430A8600C7CC19 /* getopt_long.c */; };
 		3314C184132C221B007F171B /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3314C183132C221B007F171B /* Default-Portrait~ipad.png */; };
 		3314C186132C222D007F171B /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 3314C185132C222D007F171B /* Default-Landscape~ipad.png */; };
+		3317854117C56EAC00929E8F /* TPKeyboardAvoidingTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3317854017C56EAC00929E8F /* TPKeyboardAvoidingTableView.m */; };
 		331EB1B413A6BCB800703140 /* 1942.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18513A6BCB800703140 /* 1942.jpg */; };
 		331EB1B513A6BCB800703140 /* 1942.mod in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18613A6BCB800703140 /* 1942.mod */; };
 		331EB1B613A6BCB800703140 /* albeniz_asturia.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18713A6BCB800703140 /* albeniz_asturia.jpg */; };
@@ -1229,6 +1230,8 @@
 		33114D1313430A8600C7CC19 /* getopt_long.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = getopt_long.h; sourceTree = "<group>"; };
 		3314C183132C221B007F171B /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
 		3314C185132C222D007F171B /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		3317853F17C56EAC00929E8F /* TPKeyboardAvoidingTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TPKeyboardAvoidingTableView.h; sourceTree = "<group>"; };
+		3317854017C56EAC00929E8F /* TPKeyboardAvoidingTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TPKeyboardAvoidingTableView.m; sourceTree = "<group>"; };
 		331EB18513A6BCB800703140 /* 1942.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 1942.jpg; path = Resources/Samples2/1942.jpg; sourceTree = SOURCE_ROOT; };
 		331EB18613A6BCB800703140 /* 1942.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = 1942.mod; path = Resources/Samples2/1942.mod; sourceTree = SOURCE_ROOT; };
 		331EB18713A6BCB800703140 /* albeniz_asturia.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = albeniz_asturia.jpg; path = Resources/Samples2/albeniz_asturia.jpg; sourceTree = SOURCE_ROOT; };
@@ -3594,6 +3597,8 @@
 		CC1E5A021200B3B8000A8A4E /* MISC */ = {
 			isa = PBXGroup;
 			children = (
+				3317853F17C56EAC00929E8F /* TPKeyboardAvoidingTableView.h */,
+				3317854017C56EAC00929E8F /* TPKeyboardAvoidingTableView.m */,
 				33F6A94017B9A36A002369E7 /* MNEValueTrackingSlider.h */,
 				33F6A94117B9A36A002369E7 /* MNEValueTrackingSlider.m */,
 				331EB22613A6C45000703140 /* AnimatedGif.h */,
@@ -5590,6 +5595,7 @@
 				3399D61617B5A5C6009E2AE9 /* asap.c in Sources */,
 				33FDFF6717B6E99A00B61B65 /* SettingsGenViewController.mm in Sources */,
 				33F6A94217B9A36A002369E7 /* MNEValueTrackingSlider.m in Sources */,
+				3317854117C56EAC00929E8F /* TPKeyboardAvoidingTableView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
