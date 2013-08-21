@@ -40,7 +40,6 @@
 #import "UIImageResize.h"
 
 #import "DetailViewControllerIphone.h"
-//#import "RootViewControllerLocalBrowser.h"
 #import "RootViewControllerPlaylist.h"
 #import <MediaPlayer/MediaPlayer.h>
 
@@ -139,10 +138,6 @@ static int display_length_mode=0;
 @synthesize infoButton,backInfo;
 @synthesize mPlaylist_pos,mPlaylist_size;
 
-@synthesize sc_AOSDKDSFDSP,sc_AOSDKDSFEmuRatio,sc_AOSDKSSFDSP,sc_AOSDKSSFEmuRatio,sc_AOSDKDSF22KHZ;
-@synthesize sc_SEXYPSF_Reverb,sc_SEXYPSF_Interpol;
-@synthesize sc_AOSDK_Reverb,sc_AOSDK_Interpol;
-@synthesize sc_ADPLUG_opltype;
 @synthesize oglButton;
 
 @synthesize pvSubSongSel,pvSubSongLabel,pvSubSongValidate,btnShowSubSong;
@@ -151,7 +146,6 @@ static int display_length_mode=0;
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
 @synthesize mSlowDevice;
-//@synthesize rootViewControllerIphone;
 
 -(IBAction)showSubSongSelector {
 	if (pvSubSongSel.hidden) {
@@ -214,36 +208,6 @@ static int display_length_mode=0;
     else mOglViewIsHidden=YES;
     [self checkGLViewCanDisplay];
 }
-
--(IBAction)ADPLUG_OptChanged {
-	[mplayer optADPLUG:sc_ADPLUG_opltype.selectedSegmentIndex];
-}
-
-
--(IBAction)AOSDK_OptChanged {
-	[mplayer optAOSDK:sc_AOSDK_Reverb.selectedSegmentIndex interpol:sc_AOSDK_Interpol.selectedSegmentIndex];
-}
--(IBAction)SEXYPSF_OptChanged {
-	[mplayer optSEXYPSF:sc_SEXYPSF_Reverb.selectedSegmentIndex interpol:sc_SEXYPSF_Interpol.selectedSegmentIndex];
-}
-
-
--(IBAction) optAOSDK_DSF22KHZ {
-    [mplayer optAOSDK_22KHZ:sc_AOSDKDSF22KHZ.selectedSegmentIndex];
-}
--(IBAction) optAOSDK_DSFDSP {
-    [mplayer optAOSDK_DSFDSP:sc_AOSDKDSFDSP.selectedSegmentIndex];
-}
--(IBAction) optAOSDK_DSFEmuRatio {
-    [mplayer optAOSDK_DSFEmuRatio:sc_AOSDKDSFEmuRatio.selectedSegmentIndex];
-}
--(IBAction) optAOSDK_SSFDSP {
-    [mplayer optAOSDK_SSFDSP:sc_AOSDKSSFDSP.selectedSegmentIndex];   
-}
--(IBAction) optAOSDK_SSFEmuRatio {
-    [mplayer optAOSDK_SSFEmuRatio:sc_AOSDKSSFEmuRatio.selectedSegmentIndex];
-}
-
 
 -(IBAction) optTIM_Polyphony {
     
@@ -352,6 +316,25 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
     if (settings[GLOB_FXAlpha].detail.mdz_slider.slider_value==1.0f) m_oglView.layer.opaque = YES;
     else m_oglView.layer.opaque = NO;
     
+    /////////////////////
+    //ADPLUG
+    /////////////////////
+    [mplayer optADPLUG:settings[ADPLUG_OplType].detail.mdz_switch.switch_value];
+    
+    /////////////////////
+    //AOSDK
+    /////////////////////
+    [mplayer optAOSDK:settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value interpol:settings[AOSDK_Interpolation].detail.mdz_switch.switch_value];
+    [mplayer optAOSDK_22KHZ:settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value];
+    [mplayer optAOSDK_DSFDSP:settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value];
+    [mplayer optAOSDK_DSFEmuRatio:settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value];
+    [mplayer optAOSDK_SSFDSP:settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value];
+    [mplayer optAOSDK_SSFEmuRatio:settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value];
+    
+    /////////////////////
+    //SEXYPSF
+    /////////////////////
+    [mplayer optSEXYPSF:settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value interpol:settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value];
     
     /////////////////////
     //UADE
@@ -2742,12 +2725,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	//update settings according toi what was loaded
     
-    [self optAOSDK_DSFEmuRatio];
-    [self optAOSDK_DSFDSP];
-    [self optAOSDK_DSF22KHZ];
-    [self optAOSDK_SSFEmuRatio];
-    [self optAOSDK_SSFDSP];
-    
     [self settingsChanged:nil];
 
 }
@@ -2766,22 +2743,12 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // SexyPSF
     ///////////////////////////////////////
-	sc_SEXYPSF_Reverb.selectedSegmentIndex = 2;
-	sc_SEXYPSF_Interpol.selectedSegmentIndex = 2;
-    ////////////////////////////////////
+	////////////////////////////////////
     // AOSDK
     ///////////////////////////////////////
-	sc_AOSDK_Reverb.selectedSegmentIndex = 1;
-	sc_AOSDK_Interpol.selectedSegmentIndex = 2;
-	sc_AOSDKDSFDSP.selectedSegmentIndex = 0;
-    sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
-	sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 2;
-	sc_AOSDKSSFDSP.selectedSegmentIndex = 0;
-	sc_AOSDKSSFEmuRatio.selectedSegmentIndex = 2;
     ////////////////////////////////////
     // ADPLUG
     ///////////////////////////////////////
-	sc_ADPLUG_opltype.selectedSegmentIndex = 1;
     ////////////////////////////////////
     // GME
     ///////////////////////////////////////
@@ -2909,42 +2876,12 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // SexyPSF
     ///////////////////////////////////////
-	valNb=[prefs objectForKey:@"SexyPSFReverb"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_SEXYPSF_Reverb.selectedSegmentIndex = 2;
-	else sc_SEXYPSF_Reverb.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"SexyPSFInterp"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_SEXYPSF_Interpol.selectedSegmentIndex = 2;
-	else sc_SEXYPSF_Interpol.selectedSegmentIndex = [valNb intValue];
     ////////////////////////////////////
     // AOSDK
     ///////////////////////////////////////
-	valNb=[prefs objectForKey:@"AOSDKReverb"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AOSDK_Reverb.selectedSegmentIndex = 1;
-	else sc_AOSDK_Reverb.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"AOSDKDSF22KHZ"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AOSDKDSF22KHZ.selectedSegmentIndex = 1;
-	else sc_AOSDKDSF22KHZ.selectedSegmentIndex = [valNb intValue];
-	valNb=[prefs objectForKey:@"AOSDKInterp"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AOSDK_Interpol.selectedSegmentIndex = 2;
-	else sc_AOSDK_Interpol.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"AOSDKDSFDSP"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AOSDKDSFDSP.selectedSegmentIndex = 0;
-	else sc_AOSDKDSFDSP.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"AOSDKDSFEmuRatio"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AOSDKDSFEmuRatio.selectedSegmentIndex = 2;
-	else sc_AOSDKDSFEmuRatio.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"AOSDKSSFDSP"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AOSDKSSFDSP.selectedSegmentIndex = 0;
-	else sc_AOSDKSSFDSP.selectedSegmentIndex = [valNb intValue];
-    valNb=[prefs objectForKey:@"AOSDKSSFEmuRatio"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_AOSDKSSFEmuRatio.selectedSegmentIndex = 2;
-	else sc_AOSDKSSFEmuRatio.selectedSegmentIndex = [valNb intValue];
     ////////////////////////////////////
     // ADPLUG
     ///////////////////////////////////////
-	valNb=[prefs objectForKey:@"ADPLUGopltype"];if (safe_mode) valNb=nil;
-	if (valNb == nil) sc_ADPLUG_opltype.selectedSegmentIndex = 1;
-	else sc_ADPLUG_opltype.selectedSegmentIndex = [valNb intValue];        
     ////////////////////////////////////
     // GME
     ///////////////////////////////////////
@@ -3046,34 +2983,12 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     ////////////////////////////////////
     // SexyPSF
     ///////////////////////////////////////
-	valNb=[[NSNumber alloc] initWithInt:sc_SEXYPSF_Reverb.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"SexyPSFReverb"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_SEXYPSF_Interpol.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"SexyPSFInterp"];[valNb autorelease];
     ////////////////////////////////////
     // AOSDK
     ///////////////////////////////////////
-	valNb=[[NSNumber alloc] initWithInt:sc_AOSDK_Reverb.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AOSDKReverb"];[valNb autorelease];
-	valNb=[[NSNumber alloc] initWithInt:sc_AOSDK_Interpol.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AOSDKInterp"];[valNb autorelease];
-    
-    valNb=[[NSNumber alloc] initWithInt:sc_AOSDKDSF22KHZ.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AOSDKDSF22KHZ"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_AOSDKDSFDSP.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AOSDKDSFDSP"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_AOSDKDSFEmuRatio.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AOSDKDSFEmuRatio"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_AOSDKSSFDSP.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AOSDKSSFDSP"];[valNb autorelease];
-    valNb=[[NSNumber alloc] initWithInt:sc_AOSDKSSFEmuRatio.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"AOSDKSSFEmuRatio"];[valNb autorelease];
-    
     ////////////////////////////////////
     // ADPLUG
     ///////////////////////////////////////
-    valNb=[[NSNumber alloc] initWithInt:sc_ADPLUG_opltype.selectedSegmentIndex];
-	[prefs setObject:valNb forKey:@"ADPLUGopltype"];[valNb autorelease];
     ///////////////////////////////////
     // GME
     ///////////////////////////////////////
@@ -3616,43 +3531,43 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9.png"]);
     txtMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10a.png"]);
     txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11.png"]);
-    txtMenuHandle[14]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
+    txtMenuHandle[13]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
     texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
     memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
     
-	txtSubMenuHandle[0]=0;//txtMenuHandle[14];
+	txtSubMenuHandle[0]=0;
     txtSubMenuHandle[1]=txtMenuHandle[1];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
 	txtSubMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b.png"]);
 	txtSubMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c.png"]);
     
     
-    txtSubMenuHandle[4]=0;//txtMenuHandle[14];
+    txtSubMenuHandle[4]=0;
 	txtSubMenuHandle[5]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
 	txtSubMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b.png"]);
 	txtSubMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c.png"]);
     
     
-    txtSubMenuHandle[8]=0;//txtMenuHandle[14];
+    txtSubMenuHandle[8]=0;
 	txtSubMenuHandle[9]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
     txtSubMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b.png"]);
     
     
-    txtSubMenuHandle[11]=0;//txtMenuHandle[14];
+    txtSubMenuHandle[11]=0;
     txtSubMenuHandle[12]=txtMenuHandle[4];//TextureUtils::Create([UIImage imageNamed:@"txtMenu5a.png"]);
     txtSubMenuHandle[13]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b.png"]);
     
     
-    txtSubMenuHandle[14]=0;//txtMenuHandle[14];
+    txtSubMenuHandle[14]=0;
     txtSubMenuHandle[15]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
     txtSubMenuHandle[16]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b.png"]);
     
     
-    txtSubMenuHandle[17]=0;//txtMenuHandle[14];
+    txtSubMenuHandle[17]=0;
     txtSubMenuHandle[18]=txtMenuHandle[7];//TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
     txtSubMenuHandle[19]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b.png"]);
     
-	txtSubMenuHandle[20]=0;//txtMenuHandle[14];
+	txtSubMenuHandle[20]=0;
     txtSubMenuHandle[21]=txtMenuHandle[9];//TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
     txtSubMenuHandle[22]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b.png"]);
     
@@ -4083,8 +3998,20 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 val++;
 				if (val>=2) val=0;
 				settings[GLOB_FXPiano].detail.mdz_switch.switch_value=val;
-			} else if (touched_coord==0x23) {
+			} else if (touched_coord==0x13) {
                 shouldhide=1;
+			} else if (touched_coord==0x23) {
+                settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
+                settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;;
+                settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
 			}
 
 		} else if (viewTapHelpShow==2) { //sub menu
@@ -4674,7 +4601,14 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		RenderUtils::SetUpOrtho(0,ww,hh);
 		RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,settings[GLOB_FXAlpha].detail.mdz_slider.slider_value*255);
         
-		if (viewTapHelpShow==1) infoMenuShowImages(ww,hh,fadelev);
+		if (viewTapHelpShow==1) {
+            infoMenuShowImages(ww,hh,fadelev);
+            
+            glPushMatrix();
+			glTranslatef((ww*2/4)+ww/8-(strlen(viewTapInfoStr[0]->mText)/2)*6,hh/8, 0.0f);
+			viewTapInfoStr[1]->Render(128+(fadelev/2));
+			glPopMatrix();
+        }
         if (viewTapHelpShow==2) {
             infoSubMenuShowImages(ww,hh,viewTapHelpShow_SubStart,viewTapHelpShow_SubNb,fadelev);
             glPushMatrix();

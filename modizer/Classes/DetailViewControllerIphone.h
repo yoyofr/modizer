@@ -28,7 +28,7 @@
 #import "ModizMusicPlayer.h"
 
 #import "AppDelegate_Phone.h"
-#import "RootViewControllerLocalBrowser.h"
+#import "RootViewControllerPlaylist.h"
 
 //#import "OouraFFT.h"
 
@@ -45,7 +45,6 @@ struct Resources;
 @class OGLView;
 @class EAGLContext;
 @class CADisplayLink;
-@class RootViewControllerLocalBrowser;
 
 class CFont;
 class CGLString;
@@ -57,10 +56,6 @@ class CGLString;
     
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;
-	IBOutlet UISegmentedControl *sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
-    //,*segcont_resumeLaunch
-	IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
-	IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol;
    	IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
 	///////////////////////
     
@@ -92,11 +87,6 @@ class CGLString;
 
 	IBOutlet RRSGlowLabel *labelModuleName;
 
-	/*
-    //Link to LocalBrowser viewcontroller
-	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
-     */
-	
     //Subsongs and Archive entries picker
 	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
 	IBOutlet UIButton *pvSubSongValidate,*pvArcValidate,*btnChangeTime;
@@ -124,7 +114,8 @@ class CGLString;
 
 	IBOutlet UIView *volWin;
     
-    IBOutlet UIImageView *cover_view,*gifAnimation;
+    IBOutlet UIImageView *cover_view;
+    UIImageView *gifAnimation;
 
 	
     
@@ -285,15 +276,11 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
 
 
-@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
-
-@property (nonatomic, retain) IBOutlet UIImageView *cover_view,*gifAnimation;
+@property (nonatomic, retain) IBOutlet UIImageView *cover_view;
+@property (nonatomic, retain) UIImageView *gifAnimation;
 
 -(IBAction) changeTimeDisplay;
 
