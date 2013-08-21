@@ -3170,7 +3170,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					strcpy(stil_info,(const char*)sqlite3_column_text(stmt, 0));
-					while (realPath=strstr(stil_info,"\\n")) {
+					while ((realPath=strstr(stil_info,"\\n"))) {
 						*realPath='\n';
 						realPath++;
 						memmove(realPath,realPath+1,strlen(realPath));
@@ -3217,7 +3217,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					strcpy(stil_info,(const char*)sqlite3_column_text(stmt, 0));
-					while (realPath=strstr(stil_info,"\\n")) {
+					while ((realPath=strstr(stil_info,"\\n"))) {
 						*realPath='\n';
 						realPath++;
 						memmove(realPath,realPath+1,strlen(realPath));
@@ -5973,7 +5973,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	mLoopMode=val;
 }
 -(void) setModPlugMasterVol:(float) mstVol {
-	if (mPlayType==2) ModPlug_SetMasterVolume(mp_file,(int )(mstVol*512));
+	if ((mPlayType==2)&&(mp_file)) ModPlug_SetMasterVolume(mp_file,(int )(mstVol*512));
 }
 -(void) Seek:(int) seek_time {
 	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)

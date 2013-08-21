@@ -87,7 +87,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_DefaultMODPlayer].description=NULL;
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=1;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MODPLUG";
@@ -324,6 +324,122 @@ volatile t_settings settings[MAX_SETTINGS];
     /////////////////////////////////////
     
     /////////////////////////////////////
+    //MODPLUG
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].label=(char*)"Modplug";
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].family=MDZ_SETTINGS_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].sub_family=MDZ_SETTINGS_MODPLUG;
+    
+    settings[MODPLUG_MasterVolume].label=(char*)"Master Volume";
+    settings[MODPLUG_MasterVolume].description=NULL;
+    settings[MODPLUG_MasterVolume].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_MasterVolume].sub_family=0;
+    settings[MODPLUG_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value=0.5;
+    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_max_value=1;
+    
+    settings[MODPLUG_Sampling].type=MDZ_SWITCH;
+    settings[MODPLUG_Sampling].label=(char*)"Resampling";
+    settings[MODPLUG_Sampling].description=NULL;
+    settings[MODPLUG_Sampling].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Sampling].sub_family=0;
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=2;
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb=4;
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Near";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Spli";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[3]=(char*)"FIR";
+    
+    settings[MODPLUG_Megabass].type=MDZ_BOOLSWITCH;
+    settings[MODPLUG_Megabass].label=(char*)"Megabass";
+    settings[MODPLUG_Megabass].description=NULL;
+    settings[MODPLUG_Megabass].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Megabass].sub_family=0;
+    settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[MODPLUG_BassAmount].label=(char*)"Megabass Strength";
+    settings[MODPLUG_BassAmount].description=NULL;
+    settings[MODPLUG_BassAmount].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_BassAmount].sub_family=0;
+    settings[MODPLUG_BassAmount].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value=0.7;
+    settings[MODPLUG_BassAmount].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_BassAmount].detail.mdz_slider.slider_max_value=1;
+    
+    settings[MODPLUG_BassRange].label=(char*)"Megabass Range";
+    settings[MODPLUG_BassRange].description=NULL;
+    settings[MODPLUG_BassRange].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_BassRange].sub_family=0;
+    settings[MODPLUG_BassRange].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_BassRange].detail.mdz_slider.slider_value=0.3;
+    settings[MODPLUG_BassRange].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_BassRange].detail.mdz_slider.slider_max_value=1;
+    
+    settings[MODPLUG_Surround].type=MDZ_BOOLSWITCH;
+    settings[MODPLUG_Surround].label=(char*)"Surround";
+    settings[MODPLUG_Surround].description=NULL;
+    settings[MODPLUG_Surround].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Surround].sub_family=0;
+    settings[MODPLUG_Surround].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[MODPLUG_SurroundDepth].label=(char*)"Surround Depth";
+    settings[MODPLUG_SurroundDepth].description=NULL;
+    settings[MODPLUG_SurroundDepth].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_SurroundDepth].sub_family=0;
+    settings[MODPLUG_SurroundDepth].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_value=0.9;
+    settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_max_value=1;
+    
+    settings[MODPLUG_SurroundDelay].label=(char*)"Surround Delay";
+    settings[MODPLUG_SurroundDelay].description=NULL;
+    settings[MODPLUG_SurroundDelay].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_SurroundDelay].sub_family=0;
+    settings[MODPLUG_SurroundDelay].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value=0.8;
+    settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_max_value=1;
+    
+    settings[MODPLUG_Reverb].type=MDZ_BOOLSWITCH;
+    settings[MODPLUG_Reverb].label=(char*)"Reverb";
+    settings[MODPLUG_Reverb].description=NULL;
+    settings[MODPLUG_Reverb].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Reverb].sub_family=0;
+    settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[MODPLUG_ReverbDepth].label=(char*)"Reverb Depth";
+    settings[MODPLUG_ReverbDepth].description=NULL;
+    settings[MODPLUG_ReverbDepth].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_ReverbDepth].sub_family=0;
+    settings[MODPLUG_ReverbDepth].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_value=0.8;
+    settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_max_value=1;
+    
+    settings[MODPLUG_ReverbDelay].label=(char*)"Reverb Delay";
+    settings[MODPLUG_ReverbDelay].description=NULL;
+    settings[MODPLUG_ReverbDelay].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_ReverbDelay].sub_family=0;
+    settings[MODPLUG_ReverbDelay].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;
+    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_max_value=1;
+    
+    settings[MODPLUG_StereoSeparation].label=(char*)"Panning";
+    settings[MODPLUG_StereoSeparation].description=NULL;
+    settings[MODPLUG_StereoSeparation].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_StereoSeparation].sub_family=0;
+    settings[MODPLUG_StereoSeparation].type=MDZ_SLIDER_CONTINUOUS;
+    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value=0.5;
+    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_min_value=0;
+    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_max_value=1;
+    
+    
+    /////////////////////////////////////
     //DUMB
     /////////////////////////////////////
     settings[MDZ_SETTINGS_FAMILY_DUMB].type=MDZ_FAMILY;
@@ -357,12 +473,12 @@ volatile t_settings settings[MAX_SETTINGS];
     //TIMIDITY
     /////////////////////////////////////
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_TIMIDITY].label="Timidity";
+    settings[MDZ_SETTINGS_FAMILY_TIMIDITY].label=(char*)"Timidity";
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].family=MDZ_SETTINGS_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].sub_family=MDZ_SETTINGS_TIMIDITY;
     
-    settings[TIM_Polyphony].label="Midi polyphony";
+    settings[TIM_Polyphony].label=(char*)"Midi polyphony";
     settings[TIM_Polyphony].description=NULL;
     settings[TIM_Polyphony].family=MDZ_SETTINGS_TIMIDITY;
     settings[TIM_Polyphony].sub_family=0;
@@ -372,40 +488,167 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[TIM_Polyphony].detail.mdz_slider.slider_max_value=256;
     
     settings[TIM_Chorus].type=MDZ_BOOLSWITCH;
-    settings[TIM_Chorus].label="Chorus";
+    settings[TIM_Chorus].label=(char*)"Chorus";
     settings[TIM_Chorus].description=NULL;
     settings[TIM_Chorus].family=MDZ_SETTINGS_TIMIDITY;
     settings[TIM_Chorus].sub_family=0;
     settings[TIM_Chorus].detail.mdz_boolswitch.switch_value=1;
     
     settings[TIM_Reverb].type=MDZ_BOOLSWITCH;
-    settings[TIM_Reverb].label="Reverb";
+    settings[TIM_Reverb].label=(char*)"Reverb";
     settings[TIM_Reverb].description=NULL;
     settings[TIM_Reverb].family=MDZ_SETTINGS_TIMIDITY;
     settings[TIM_Reverb].sub_family=0;
     settings[TIM_Reverb].detail.mdz_boolswitch.switch_value=1;
     
     settings[TIM_LPFilter].type=MDZ_BOOLSWITCH;
-    settings[TIM_LPFilter].label="LPFilter";
+    settings[TIM_LPFilter].label=(char*)"LPFilter";
     settings[TIM_LPFilter].description=NULL;
     settings[TIM_LPFilter].family=MDZ_SETTINGS_TIMIDITY;
     settings[TIM_LPFilter].sub_family=0;
     settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value=1;
 
     settings[TIM_Resample].type=MDZ_SWITCH;
-    settings[TIM_Resample].label="Resampling";
+    settings[TIM_Resample].label=(char*)"Resampling";
     settings[TIM_Resample].description=NULL;
     settings[TIM_Resample].family=MDZ_SETTINGS_TIMIDITY;
     settings[TIM_Resample].sub_family=0;
     settings[TIM_Resample].detail.mdz_switch.switch_value=1;
     settings[TIM_Resample].detail.mdz_switch.switch_value_nb=5;
     settings[TIM_Resample].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[TIM_Resample].detail.mdz_switch.switch_labels[0]="None";
-    settings[TIM_Resample].detail.mdz_switch.switch_labels[1]="Line";
-    settings[TIM_Resample].detail.mdz_switch.switch_labels[2]="Spli";
-    settings[TIM_Resample].detail.mdz_switch.switch_labels[3]="Gaus";
-    settings[TIM_Resample].detail.mdz_switch.switch_labels[4]="Newt";
+    settings[TIM_Resample].detail.mdz_switch.switch_labels[0]=(char*)"None";
+    settings[TIM_Resample].detail.mdz_switch.switch_labels[1]=(char*)"Line";
+    settings[TIM_Resample].detail.mdz_switch.switch_labels[2]=(char*)"Spli";
+    settings[TIM_Resample].detail.mdz_switch.switch_labels[3]=(char*)"Gaus";
+    settings[TIM_Resample].detail.mdz_switch.switch_labels[4]=(char*)"Newt";
 
+    /////////////////////////////////////
+    //GME
+    /////////////////////////////////////    
+    
+    /////////////////////////////////////
+    //SID
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_SID].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_SID].label=(char*)"SID";
+    settings[MDZ_SETTINGS_FAMILY_SID].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_SID].family=MDZ_SETTINGS_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_SID].sub_family=MDZ_SETTINGS_SID;
+    
+    settings[SID_Filter].type=MDZ_BOOLSWITCH;
+    settings[SID_Filter].label=(char*)"Filter";
+    settings[SID_Filter].description=NULL;
+    settings[SID_Filter].family=MDZ_SETTINGS_SID;
+    settings[SID_Filter].sub_family=0;
+    settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[SID_Optim].type=MDZ_SWITCH;
+    settings[SID_Optim].label=(char*)"Optim";
+    settings[SID_Optim].description=NULL;
+    settings[SID_Optim].family=MDZ_SETTINGS_SID;
+    settings[SID_Optim].sub_family=0;
+    settings[SID_Optim].detail.mdz_switch.switch_value=1;
+    settings[SID_Optim].detail.mdz_switch.switch_value_nb=3;
+    settings[SID_Optim].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_Optim].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[SID_Optim].detail.mdz_switch.switch_labels[1]=(char*)"Std";
+    settings[SID_Optim].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
+    
+    settings[SID_LibVersion].type=MDZ_SWITCH;
+    settings[SID_LibVersion].label=(char*)"Library version";
+    settings[SID_LibVersion].description=NULL;
+    settings[SID_LibVersion].family=MDZ_SETTINGS_SID;
+    settings[SID_LibVersion].sub_family=0;
+    settings[SID_LibVersion].detail.mdz_switch.switch_value=1;
+    settings[SID_LibVersion].detail.mdz_switch.switch_value_nb=2;
+    settings[SID_LibVersion].detail.mdz_switch.switch_labels=(char**)malloc(settings[0].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_LibVersion].detail.mdz_switch.switch_labels[0]=(char*)"SIDPLAY1";
+    settings[SID_LibVersion].detail.mdz_switch.switch_labels[1]=(char*)"SIDPLAY2";
+    
+    /////////////////////////////////////
+    //UADE
+    /////////////////////////////////////
+    
+    settings[MDZ_SETTINGS_FAMILY_UADE].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_UADE].label=(char*)"UADE";
+    settings[MDZ_SETTINGS_FAMILY_UADE].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_UADE].family=MDZ_SETTINGS_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_UADE].sub_family=MDZ_SETTINGS_UADE;
+    
+    settings[UADE_Head].type=MDZ_BOOLSWITCH;
+    settings[UADE_Head].label=(char*)"Headphones";
+    settings[UADE_Head].description=NULL;
+    settings[UADE_Head].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Head].sub_family=0;
+    settings[UADE_Head].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[UADE_PostFX].type=MDZ_BOOLSWITCH;
+    settings[UADE_PostFX].label=(char*)"Post FX";
+    settings[UADE_PostFX].description=NULL;
+    settings[UADE_PostFX].family=MDZ_SETTINGS_UADE;
+    settings[UADE_PostFX].sub_family=0;
+    settings[UADE_PostFX].detail.mdz_boolswitch.switch_value=1;
+    
+    
+    settings[UADE_Led].type=MDZ_BOOLSWITCH;
+    settings[UADE_Led].label=(char*)"LED";
+    settings[UADE_Led].description=NULL;
+    settings[UADE_Led].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Led].sub_family=0;
+    settings[UADE_Led].detail.mdz_boolswitch.switch_value=0;
+
+    settings[UADE_Norm].type=MDZ_BOOLSWITCH;
+    settings[UADE_Norm].label=(char*)"Normalization";
+    settings[UADE_Norm].description=NULL;
+    settings[UADE_Norm].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Norm].sub_family=0;
+    settings[UADE_Norm].detail.mdz_boolswitch.switch_value=0;
+
+    settings[UADE_Gain].type=MDZ_BOOLSWITCH;
+    settings[UADE_Gain].label=(char*)"Gain";
+    settings[UADE_Gain].description=NULL;
+    settings[UADE_Gain].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Gain].sub_family=0;
+    settings[UADE_Gain].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[UADE_GainValue].label=(char*)"Gain Value";
+    settings[UADE_GainValue].description=NULL;
+    settings[UADE_GainValue].family=MDZ_SETTINGS_UADE;
+    settings[UADE_GainValue].sub_family=0;
+    settings[UADE_GainValue].type=MDZ_SLIDER_CONTINUOUS;
+    settings[UADE_GainValue].detail.mdz_slider.slider_value=0.5;
+    settings[UADE_GainValue].detail.mdz_slider.slider_min_value=0;
+    settings[UADE_GainValue].detail.mdz_slider.slider_max_value=1;
+    
+    settings[UADE_Pan].type=MDZ_BOOLSWITCH;
+    settings[UADE_Pan].label=(char*)"Panning";
+    settings[UADE_Pan].description=NULL;
+    settings[UADE_Pan].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Pan].sub_family=0;
+    settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
+
+    settings[UADE_PanValue].label=(char*)"Panning Value";
+    settings[UADE_PanValue].description=NULL;
+    settings[UADE_PanValue].family=MDZ_SETTINGS_UADE;
+    settings[UADE_PanValue].sub_family=0;
+    settings[UADE_PanValue].type=MDZ_SLIDER_CONTINUOUS;
+    settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
+    settings[UADE_PanValue].detail.mdz_slider.slider_min_value=0;
+    settings[UADE_PanValue].detail.mdz_slider.slider_max_value=1;
+    
+    
+    /////////////////////////////////////
+    //SEXYPSF
+    /////////////////////////////////////
+    
+    /////////////////////////////////////
+    //AOSDK
+    /////////////////////////////////////
+    
+    /////////////////////////////////////
+    //ADPLUG
+    /////////////////////////////////////
+    
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil

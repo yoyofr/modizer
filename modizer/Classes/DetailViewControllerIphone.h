@@ -56,17 +56,12 @@ class CGLString;
     
     
     //Options
-	IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld;
-    
 	IBOutlet UISegmentedControl *sc_allowPopup;
-	IBOutlet UISegmentedControl *segcont_mpSampling;
-	IBOutlet UISegmentedControl *segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR,*sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
+	IBOutlet UISegmentedControl *sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
     //,*segcont_resumeLaunch
-	IBOutlet UISegmentedControl *sc_UADE_Led,*sc_UADE_Norm,*sc_UADE_PostFX,*sc_UADE_Pan,*sc_UADE_Head,*sc_UADE_Gain;
 	IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
-	IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
+	IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol;
    	IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
-	IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
 	///////////////////////
     
     
@@ -212,9 +207,6 @@ class CGLString;
 - (IBAction)infoFullscreen;
 - (IBAction)infoNormal;
 
--(IBAction)AOSDK_OptChanged;
--(IBAction)SEXYPSF_OptChanged;
--(IBAction)ADPLUG_OptChanged;
 
 - (void)showRating:(int)rating;
 -(void) checkGLViewCanDisplay;
@@ -252,17 +244,6 @@ class CGLString;
 - (IBAction)pausePushed:(id)sender;
 - (IBAction)settingsChanged:(id)sender;
 
--(IBAction) optUADE_Led;
--(IBAction) optUADE_Norm;
--(IBAction) optUADE_PostFX;
--(IBAction) optUADE_Pan;
--(IBAction) optUADE_Head;
--(IBAction) optUADE_Gain;
--(IBAction) optUADE_PanValue;
--(IBAction) optUADE_GainValue;
--(IBAction) optSID_Optim;
--(IBAction) optSID_LibVersion;
--(IBAction) optSID_Filter;
 
 -(IBAction) oglButtonPushed;
 
@@ -302,17 +283,12 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
 @property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule;
-@property (nonatomic, retain) IBOutlet UISlider *surDepSld,*surDelSld,*revDepSld,*revDelSld,*bassAmoSld,*bassRanSld,*mastVolSld,*mpPanningSld;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_AOSDKDSFDSP,*sc_AOSDKDSFEmuRatio,*sc_AOSDKSSFDSP,*sc_AOSDKSSFEmuRatio,*sc_AOSDKDSF22KHZ;
-@property (nonatomic, retain) IBOutlet UISegmentedControl *segcont_mpSampling,*segcont_mpMB,*segcont_mpReverb,*segcont_mpSUR;
-//,*segcont_resumeLaunch
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_UADE_Led,*sc_UADE_Norm,*sc_UADE_PostFX,*sc_UADE_Pan,*sc_UADE_Head,*sc_UADE_Gain;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_SEXYPSF_Reverb,*sc_SEXYPSF_Interpol;
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol,*sc_SID_Optim,*sc_SID_LibVersion,*sc_SID_Filter;
+@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_AOSDK_Reverb,*sc_AOSDK_Interpol;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
-@property (nonatomic, retain) IBOutlet UISlider *sld_UADEpan,*sld_UADEgain;
 
 
 @property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
@@ -320,13 +296,6 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UIImageView *cover_view,*gifAnimation;
 
 -(IBAction) changeTimeDisplay;
-
--(IBAction) optAOSDK_DSF22KHZ;
--(IBAction) optAOSDK_DSFDSP;
--(IBAction) optAOSDK_DSFEmuRatio;
--(IBAction) optAOSDK_SSFDSP;
--(IBAction) optAOSDK_SSFEmuRatio;
-
 
 -(IBAction)showSubSongSelector;
 -(IBAction)playSelectedSubSong;

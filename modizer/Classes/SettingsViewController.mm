@@ -245,7 +245,7 @@ static NSString *currentPlayFilepath=nil;
     //	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     //	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
-	[scrollSettingsView addSubview:cSettingsViewGENPLAYER];
+/*	[scrollSettingsView addSubview:cSettingsViewGENPLAYER];
 	[scrollSettingsView addSubview:cSettingsViewGENDISPLAY];
 	[scrollSettingsView addSubview:cSettingsViewDOWNLOAD];	
 	[scrollSettingsView addSubview:cSettingsViewUADE];
@@ -280,7 +280,7 @@ static NSString *currentPlayFilepath=nil;
 	
 	ftpserver = NULL;
 	bServerRunning=0;
-	lbl_FTPstatus.text = @"Server is stopped.";
+	lbl_FTPstatus.text = @"Server is stopped.";*/
     
     [super viewDidLoad];
     
