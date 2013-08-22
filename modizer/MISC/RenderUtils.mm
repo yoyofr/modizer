@@ -530,7 +530,7 @@ void RenderUtils::DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uin
 	free(ptsB);
 }
 
-void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level) {
+void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt) {
 	LineVertex pts[24];
 	//set the opengl state
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -548,8 +548,8 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
 	pts[1] = LineVertex(_ww, 0,		0,0,0,fade_lev);
 	pts[2] = LineVertex(0, _hh,		0,0,0,fade_lev);
 	pts[3] = LineVertex(_ww, _hh,	0,0,0,fade_lev);
-	/* Render The Quad */
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
     
     
 	pts[0] = LineVertex(_ww*1/4-1, 0,		255,255,255,fade_level);
@@ -595,14 +595,42 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
 	pts[9] = LineVertex(_ww,	_hh*2/4, 	55,55,155,fade_level/2);
 	pts[10] = LineVertex(0,	_hh*3/4, 	255,255,255,fade_level/2);
 	pts[11] = LineVertex(_ww,	_hh*3/4, 	55,55,155,fade_level/2);
-	
-	
-	
-	
 	glLineWidth(2.0f);
 	glDrawArrays(GL_LINES, 0, 12);
+    
+    int factA,factB;
+    factA=230;
+    factB=16;
+    int colbgAR=factA+factB*(0.3*sin(cpt*7*3.1459/1024)+1.2*sin(cpt*17*8*3.1459/1024)+0.7*sin(cpt*31*8*3.1459/1024));
+    int colbgAG=factA+factB*(0.3*sin(cpt*5*3.1459/1024)+1.2*sin(cpt*11*8*3.1459/1024)-0.7*sin(cpt*27*8*3.1459/1024));
+    int colbgAB=factA+factB*(1.2*sin(cpt*7*3.1459/1024)-0.5*sin(cpt*13*8*3.1459/1024)+1.5*sin(cpt*57*8*3.1459/1024));
+    cpt+=16;
+    int colbgBR=factA+factB*(0.3*sin(cpt*7*3.1459/1024)+1.2*sin(cpt*17*8*3.1459/1024)+0.7*sin(cpt*31*8*3.1459/1024));
+    int colbgBG=factA+factB*(0.3*sin(cpt*5*3.1459/1024)+1.2*sin(cpt*11*8*3.1459/1024)-0.7*sin(cpt*27*8*3.1459/1024));
+    int colbgBB=factA+factB*(1.2*sin(cpt*7*3.1459/1024)-0.5*sin(cpt*13*8*3.1459/1024)+1.5*sin(cpt*57*8*3.1459/1024));
+    
+    if (colbgAR<0) colbgAR=0; if (colbgAR>255) colbgAR=255;
+    if (colbgAG<0) colbgAG=0; if (colbgAG>255) colbgAG=255;
+    if (colbgAB<0) colbgAB=0; if (colbgAB>255) colbgAB=255;
+    if (colbgBR<0) colbgBR=0; if (colbgBR>255) colbgBR=255;
+    if (colbgBG<0) colbgBG=0; if (colbgBG>255) colbgBG=255;
+    if (colbgBB<0) colbgBB=0; if (colbgBB>255) colbgBB=255;
+    glLineWidth(2.0f);
+    fade_lev=255;
+	glDisable(GL_BLEND);    
+    for (int y=0;y<4;y++)
+        for (int x=0;x<4;x++) {
+            if (active_idx&(1<<((3-y)*4+x))) {
+                pts[0] = LineVertex(x*_ww/4+3, y*_hh/4+3,		colbgAR,colbgAG,colbgAB,fade_lev);
+                pts[1] = LineVertex((x+1)*_ww/4-3, y*_hh/4+3,		colbgBR,colbgBG,colbgBB,fade_lev);
+                pts[2] = LineVertex((x+1)*_ww/4-3, (y+1)*_hh/4-3,	colbgAR,colbgAG,colbgAB,fade_lev);
+                pts[3] = LineVertex(x*_ww/4+3, (y+1)*_hh/4-3,		colbgBR,colbgBG,colbgBB,fade_lev);
+                glDrawArrays(GL_LINE_LOOP, 0, 4);
+            }
+        }
+
 	
-	glDisable(GL_BLEND);
+
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }

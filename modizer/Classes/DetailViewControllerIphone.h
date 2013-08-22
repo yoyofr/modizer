@@ -15,8 +15,6 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
-//#import <CoreLocation/CoreLocation.h>
-//#import <MapKit/MapKit.h>
 
 #import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
@@ -30,7 +28,7 @@
 #import "AppDelegate_Phone.h"
 #import "RootViewControllerPlaylist.h"
 
-//#import "OouraFFT.h"
+#import "SettingsGenViewController.h"
 
 #import "GoogleAppHelper.h"
 
@@ -233,8 +231,8 @@ class CGLString;
 - (IBAction)sliderProgressModuleValueChanged:(id)sender;
 - (IBAction)playPushed:(id)sender;
 - (IBAction)pausePushed:(id)sender;
-- (IBAction)settingsChanged:(id)sender;
 
+- (void) settingsChanged:(int)scope;
 
 -(IBAction) oglButtonPushed;
 
@@ -304,8 +302,6 @@ class CGLString;
 - (void) checkAvailableCovers:(int)index;
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
-
--(void) loadDefaultSettings;
 
 -(void)showWaiting;
 
