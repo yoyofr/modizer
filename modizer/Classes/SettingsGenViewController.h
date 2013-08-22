@@ -38,6 +38,7 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_TIMIDITY
 };
 
+/*
 enum MDZ_SETTINGS_FAMILY {
     MDZ_SETTINGS_ROOT=1,
     MDZ_SETTINGS_GLOBAL_PLAYER,
@@ -53,9 +54,11 @@ enum MDZ_SETTINGS_FAMILY {
     MDZ_SETTINGS_AOSDK,
     MDZ_SETTINGS_ADPLUG
 };
+ */
 
 enum MDZ_SETTINGS {
-    MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER=1,
+    MDZ_SETTINGS_FAMILY_ROOT=1,
+    MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER,
     GLOB_DefaultMODPlayer,
     GLOB_ForceMono,
     GLOB_Panning,
@@ -226,5 +229,6 @@ typedef struct {
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
 
 + (void) loadSettings;
++ (void) restoreSettings;
 
 @end

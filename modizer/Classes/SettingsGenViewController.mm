@@ -34,15 +34,181 @@ void optFTPSwitchChanged(id param) {
     [param FTPswitchChanged];
 }
 
-
+//GLOBAL
 -(void) optGLOBALChanged {
     [detailViewController settingsChanged:(int)SETTINGS_GLOBAL];
 }
 void optGLOBALChangedC(id param) {
     [param optGLOBALChanged];
 }
+//VISU
+-(void) optVISUChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_VISU];
+}
+void optVISUChangedC(id param) {
+    [param optVISUChanged];
+}
+//ADPLUG
+-(void) optADPLUGChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_ADPLUG];
+}
+void optADPLUGChangedC(id param) {
+    [param optADPLUGChanged];
+}
+//AOSDK
+-(void) optAOSDKChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_AOSDK];
+}
+void optAOSDKChangedC(id param) {
+    [param optAOSDKChanged];
+}
+//DUMB
+-(void) optDUMBChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_DUMB];
+}
+void optDUMBChangedC(id param) {
+    [param optDUMBChanged];
+}
+//GME
+-(void) optGMEChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_GME];
+}
+void optGMEChangedC(id param) {
+    [param optGMEChanged];
+}
+//MODPLUG
+-(void) optMODPLUGChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_MODPLUG];
+}
+void optMODPLUGChangedC(id param) {
+    [param optMODPLUGChanged];
+}
+//SEXYPSF
+-(void) optSEXYPSFChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_SEXYPSF];
+}
+void optSEXYPSFChangedC(id param) {
+    [param optSEXYPSFChanged];
+}
+//SID
+-(void) optSIDChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_SID];
+}
+void optSIDChangedC(id param) {
+    [param optSIDChanged];
+}
+//TIMIDITY
+-(void) optTIMIDITYChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_TIMIDITY];
+}
+void optTIMIDITYChangedC(id param) {
+    [param optTIMIDITYChanged];
+}
+//UADE
+-(void) optUADEChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_UADE];
+}
+void optUADEChangedC(id param) {
+    [param optUADEChanged];
+}
 
 #pragma mark - Load/Init default settings
+
++ (void) restoreSettings {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	NSNumber *valNb;
+    NSString *str;
+
+	for (int i=0;i<MAX_SETTINGS;i++)
+        if (settings[i].label) {
+        
+            str=[NSString stringWithFormat:@"%s",settings[i].label];
+            int j=settings[i].family;
+            while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
+                str=[NSString stringWithFormat:@"%@/%s",str,settings[j].label];
+                j=settings[j].family;
+            }
+            
+            switch (settings[i].type) {
+                case MDZ_BOOLSWITCH:
+                    valNb=[prefs objectForKey:str];
+                    if (valNb!=nil) settings[i].detail.mdz_boolswitch.switch_value=[valNb intValue];
+                    break;
+                case MDZ_SWITCH:
+                    valNb=[prefs objectForKey:str];
+                    if (valNb!=nil) settings[i].detail.mdz_switch.switch_value=[valNb intValue];
+                    break;
+                case MDZ_SLIDER_DISCRETE:
+                    valNb=[prefs objectForKey:str];
+                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    break;
+                case MDZ_SLIDER_CONTINUOUS:
+                    valNb=[prefs objectForKey:str];
+                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    break;
+                case MDZ_TEXTBOX:
+                    str=[prefs objectForKey:str];
+                    if (str!=nil) {
+                        if (settings[i].detail.mdz_textbox.text) free(settings[i].detail.mdz_textbox.text);
+                        settings[i].detail.mdz_textbox.text=(char*)malloc(strlen([str UTF8String])+1);
+                        strcpy(settings[i].detail.mdz_textbox.text,[str UTF8String]);
+                    }
+                    break;
+                    //
+                case MDZ_MSGBOX:
+                    break;
+                case MDZ_FAMILY:
+                    break;
+            }
+        }
+}
+
++ (void) backupSettings {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+	NSNumber *valNb;
+    NSString *str;
+    
+	for (int i=0;i<MAX_SETTINGS;i++)
+        if (settings[i].label) {
+            
+            str=[NSString stringWithFormat:@"%s",settings[i].label];
+            int j=settings[i].family;
+            while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
+                str=[NSString stringWithFormat:@"%@/%s",str,settings[j].label];
+                j=settings[j].family;
+            }
+            
+            switch (settings[i].type) {
+                case MDZ_BOOLSWITCH:
+                    valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_boolswitch.switch_value];
+                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    break;
+                case MDZ_SWITCH:
+                    valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_switch.switch_value];
+                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    break;
+                case MDZ_SLIDER_DISCRETE:
+                    valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
+                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    break;
+                case MDZ_SLIDER_CONTINUOUS:
+                    valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
+                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    break;
+                case MDZ_TEXTBOX:
+                    if (settings[i].detail.mdz_textbox.text) [prefs setObject:[NSString stringWithFormat:@"%s",settings[i].detail.mdz_textbox.text] forKey:str];
+                    else [prefs setObject:@"" forKey:str];
+                    break;
+                    //
+                case MDZ_MSGBOX:
+                    break;
+                case MDZ_FAMILY:
+                    break;
+            }
+        }
+    [prefs synchronize];
+}
+
 
 + (void) loadSettings {
     memset((char*)settings,0,sizeof(settings));
@@ -52,26 +218,26 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].label=(char*)"Global";
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].family=MDZ_SETTINGS_ROOT;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].sub_family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].family=MDZ_SETTINGS_FAMILY_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].label=(char*)"Visualizers";
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].family=MDZ_SETTINGS_ROOT;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].sub_family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].family=MDZ_SETTINGS_FAMILY_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_VISU].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].label=(char*)"Plugins";
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].family=MDZ_SETTINGS_ROOT;
-    settings[MDZ_SETTINGS_FAMILY_PLUGINS].sub_family=MDZ_SETTINGS_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].family=MDZ_SETTINGS_FAMILY_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_PLUGINS].sub_family=MDZ_SETTINGS_FAMILY_PLUGINS;
     
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].label=(char*)"FTP";
     settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].family=MDZ_SETTINGS_ROOT;
-    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].sub_family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].family=MDZ_SETTINGS_FAMILY_ROOT;
+    settings[MDZ_SETTINGS_FAMILY_GLOBAL_FTP].sub_family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     
     
     
@@ -80,7 +246,7 @@ void optGLOBALChangedC(id param) {
     /////////////////////////////////////
     settings[GLOB_ForceMono].label=(char*)"Force Mono";
     settings[GLOB_ForceMono].description=NULL;
-    settings[GLOB_ForceMono].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_ForceMono].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_ForceMono].sub_family=0;
     settings[GLOB_ForceMono].callback=&optGLOBALChangedC;
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
@@ -88,15 +254,17 @@ void optGLOBALChangedC(id param) {
     
     settings[GLOB_Panning].label=(char*)"Panning";
     settings[GLOB_Panning].description=NULL;
-    settings[GLOB_Panning].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_Panning].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_Panning].sub_family=0;
+    settings[GLOB_Panning].callback=&optGLOBALChangedC;
     settings[GLOB_Panning].type=MDZ_BOOLSWITCH;
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_PanningValue].label=(char*)"Panning Value";
     settings[GLOB_PanningValue].description=NULL;
-    settings[GLOB_PanningValue].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_PanningValue].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_PanningValue].sub_family=0;
+    settings[GLOB_PanningValue].callback=&optGLOBALChangedC;
     settings[GLOB_PanningValue].type=MDZ_SLIDER_CONTINUOUS;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_min_value=0;
@@ -105,8 +273,9 @@ void optGLOBALChangedC(id param) {
     
     settings[GLOB_DefaultLength].label=(char*)"Default Length";
     settings[GLOB_DefaultLength].description=NULL;
-    settings[GLOB_DefaultLength].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_DefaultLength].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
+    settings[GLOB_DefaultLength].callback=&optGLOBALChangedC;
     settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
@@ -115,8 +284,9 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
     settings[GLOB_DefaultMODPlayer].label=(char*)"Default mod player";
     settings[GLOB_DefaultMODPlayer].description=NULL;
-    settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
+    settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -126,23 +296,26 @@ void optGLOBALChangedC(id param) {
     
     settings[GLOB_TitleFilename].label=(char*)"Filename as title";
     settings[GLOB_TitleFilename].description=NULL;
-    settings[GLOB_TitleFilename].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_TitleFilename].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_TitleFilename].sub_family=0;
+    settings[GLOB_TitleFilename].callback=&optGLOBALChangedC;
     settings[GLOB_TitleFilename].type=MDZ_BOOLSWITCH;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_StatsUpload].label=(char*)"Send statistics";
     settings[GLOB_StatsUpload].description=NULL;
-    settings[GLOB_StatsUpload].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_StatsUpload].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_StatsUpload].sub_family=0;
+    settings[GLOB_StatsUpload].callback=&optGLOBALChangedC;
     settings[GLOB_StatsUpload].type=MDZ_BOOLSWITCH;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
     settings[GLOB_BackgroundMode].label=(char*)"Background mode";
     settings[GLOB_BackgroundMode].description=NULL;
-    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_BackgroundMode].sub_family=0;
+    settings[GLOB_BackgroundMode].callback=&optGLOBALChangedC;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -153,8 +326,9 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_EnqueueMode].type=MDZ_SWITCH;
     settings[GLOB_EnqueueMode].label=(char*)"Enqueue mode";
     settings[GLOB_EnqueueMode].description=NULL;
-    settings[GLOB_EnqueueMode].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_EnqueueMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_EnqueueMode].sub_family=0;
+    settings[GLOB_EnqueueMode].callback=&optGLOBALChangedC;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -165,8 +339,9 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_PlayEnqueueAction].type=MDZ_SWITCH;
     settings[GLOB_PlayEnqueueAction].label=(char*)"Default Action";
     settings[GLOB_PlayEnqueueAction].description=NULL;
-    settings[GLOB_PlayEnqueueAction].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_PlayEnqueueAction].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_PlayEnqueueAction].sub_family=0;
+    settings[GLOB_PlayEnqueueAction].callback=&optGLOBALChangedC;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -177,8 +352,9 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_AfterDownloadAction].type=MDZ_SWITCH;
     settings[GLOB_AfterDownloadAction].label=(char*)"Post download action";
     settings[GLOB_AfterDownloadAction].description=NULL;
-    settings[GLOB_AfterDownloadAction].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_AfterDownloadAction].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_AfterDownloadAction].sub_family=0;
+    settings[GLOB_AfterDownloadAction].callback=&optGLOBALChangedC;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -188,15 +364,17 @@ void optGLOBALChangedC(id param) {
     
     settings[GLOB_CoverFlow].label=(char*)"Coverflow";
     settings[GLOB_CoverFlow].description=NULL;
-    settings[GLOB_CoverFlow].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_CoverFlow].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_CoverFlow].sub_family=0;
+    settings[GLOB_CoverFlow].callback=&optGLOBALChangedC;
     settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
     settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_PlayerViewOnPlay].label=(char*)"Player view on play";
     settings[GLOB_PlayerViewOnPlay].description=NULL;
-    settings[GLOB_PlayerViewOnPlay].family=MDZ_SETTINGS_GLOBAL_PLAYER;
+    settings[GLOB_PlayerViewOnPlay].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_PlayerViewOnPlay].sub_family=0;
+    settings[GLOB_PlayerViewOnPlay].callback=&optGLOBALChangedC;
     settings[GLOB_PlayerViewOnPlay].type=MDZ_BOOLSWITCH;
     settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
     
@@ -205,8 +383,8 @@ void optGLOBALChangedC(id param) {
     /////////////////////////////////////
     settings[FTP_STATUS].label=(char*)"Server status";
     settings[FTP_STATUS].description=NULL;
-    settings[FTP_STATUS].family=MDZ_SETTINGS_GLOBAL_FTP;
-    settings[FTP_STATUS].sub_family=1;
+    settings[FTP_STATUS].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
+    settings[FTP_STATUS].sub_family=0;
     settings[FTP_STATUS].type=MDZ_MSGBOX;
     settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen("Inactive")+1);
     strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,"Inactive");
@@ -215,7 +393,7 @@ void optGLOBALChangedC(id param) {
     settings[FTP_ONOFF].type=MDZ_SWITCH;
     settings[FTP_ONOFF].label=(char*)"FTP Server";
     settings[FTP_ONOFF].description=NULL;
-    settings[FTP_ONOFF].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_ONOFF].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     settings[FTP_ONOFF].callback=&optFTPSwitchChanged;
     settings[FTP_ONOFF].sub_family=0;
     settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
@@ -226,28 +404,28 @@ void optGLOBALChangedC(id param) {
     
     settings[FTP_ANONYMOUS].label=(char*)"Authorize anonymous";
     settings[FTP_ANONYMOUS].description=NULL;
-    settings[FTP_ANONYMOUS].family=MDZ_SETTINGS_GLOBAL_FTP;
-    settings[FTP_ANONYMOUS].sub_family=1;
+    settings[FTP_ANONYMOUS].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
+    settings[FTP_ANONYMOUS].sub_family=0;
     settings[FTP_ANONYMOUS].type=MDZ_BOOLSWITCH;
     settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value=1;
     
     settings[FTP_USER].label=(char*)"User";
     settings[FTP_USER].description=NULL;
-    settings[FTP_USER].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_USER].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     settings[FTP_USER].sub_family=0;
     settings[FTP_USER].type=MDZ_TEXTBOX;
     settings[FTP_USER].detail.mdz_textbox.text=NULL;//(char*)"modizer";
     
     settings[FTP_PASSWORD].label=(char*)"Password";
     settings[FTP_PASSWORD].description=NULL;
-    settings[FTP_PASSWORD].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_PASSWORD].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     settings[FTP_PASSWORD].sub_family=0;
     settings[FTP_PASSWORD].type=MDZ_TEXTBOX;
     settings[FTP_PASSWORD].detail.mdz_textbox.text=NULL;//(char*)"modizer";
     
     settings[FTP_PORT].label=(char*)"Port";
     settings[FTP_PORT].description=NULL;
-    settings[FTP_PORT].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_PORT].family=MDZ_SETTINGS_FAMILY_GLOBAL_FTP;
     settings[FTP_PORT].sub_family=0;
     settings[FTP_PORT].type=MDZ_TEXTBOX;
     settings[FTP_PORT].detail.mdz_textbox.text=(char*)malloc(strlen("21")+1);
@@ -258,14 +436,15 @@ void optGLOBALChangedC(id param) {
     /////////////////////////////////////
     settings[GLOB_FXRandom].label=(char*)"Random FX";
     settings[GLOB_FXRandom].description=NULL;
-    settings[GLOB_FXRandom].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXRandom].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXRandom].sub_family=0;
+    settings[GLOB_FXRandom].callback=&optVISUChangedC;
     settings[GLOB_FXRandom].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_FXAlpha].label=(char*)"FX Transparency";
     settings[GLOB_FXAlpha].description=NULL;
-    settings[GLOB_FXAlpha].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXAlpha].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXAlpha].sub_family=0;
     settings[GLOB_FXAlpha].type=MDZ_SLIDER_CONTINUOUS;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
@@ -274,7 +453,7 @@ void optGLOBALChangedC(id param) {
     
     settings[GLOB_FXBeat].label=(char*)"Beat FX";
     settings[GLOB_FXBeat].description=NULL;
-    settings[GLOB_FXBeat].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXBeat].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXBeat].sub_family=0;
     settings[GLOB_FXBeat].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
@@ -282,7 +461,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FXOscillo].type=MDZ_SWITCH;
     settings[GLOB_FXOscillo].label=(char*)"Oscillo";
     settings[GLOB_FXOscillo].description=NULL;
-    settings[GLOB_FXOscillo].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXOscillo].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXOscillo].sub_family=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=3;
@@ -294,7 +473,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";
     settings[GLOB_FXSpectrum].description=NULL;
-    settings[GLOB_FXSpectrum].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXSpectrum].sub_family=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb=3;
@@ -306,7 +485,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FXMODPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern].label=(char*)"MOD Pattern";
     settings[GLOB_FXMODPattern].description=NULL;
-    settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern].sub_family=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=3;
@@ -318,7 +497,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIPattern].label=(char*)"Note display";
     settings[GLOB_FXMIDIPattern].description=NULL;
-    settings[GLOB_FXMIDIPattern].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXMIDIPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMIDIPattern].sub_family=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb=3;
@@ -330,7 +509,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FXPiano].type=MDZ_SWITCH;
     settings[GLOB_FXPiano].label=(char*)"Piano mode";
     settings[GLOB_FXPiano].description=NULL;
-    settings[GLOB_FXPiano].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXPiano].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPiano].sub_family=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb=3;
@@ -341,7 +520,7 @@ void optGLOBALChangedC(id param) {
     
     settings[GLOB_FX1].label=(char*)"FX1";
     settings[GLOB_FX1].description=NULL;
-    settings[GLOB_FX1].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX1].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX1].sub_family=0;
     settings[GLOB_FX1].type=MDZ_BOOLSWITCH;
     settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
@@ -349,7 +528,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FX2].type=MDZ_SWITCH;
     settings[GLOB_FX2].label=(char*)"FX2";
     settings[GLOB_FX2].description=NULL;
-    settings[GLOB_FX2].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX2].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX2].sub_family=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value_nb=3;
@@ -361,7 +540,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FX3].type=MDZ_SWITCH;
     settings[GLOB_FX3].label=(char*)"FX3";
     settings[GLOB_FX3].description=NULL;
-    settings[GLOB_FX3].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX3].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX3].sub_family=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value_nb=3;
@@ -372,7 +551,7 @@ void optGLOBALChangedC(id param) {
     
     settings[GLOB_FX4].label=(char*)"FX4";
     settings[GLOB_FX4].description=NULL;
-    settings[GLOB_FX4].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX4].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX4].sub_family=0;
     settings[GLOB_FX4].type=MDZ_BOOLSWITCH;
     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
@@ -380,7 +559,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FX5].type=MDZ_SWITCH;
     settings[GLOB_FX5].label=(char*)"FX5";
     settings[GLOB_FX5].description=NULL;
-    settings[GLOB_FX5].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FX5].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX5].sub_family=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value_nb=3;
@@ -392,7 +571,7 @@ void optGLOBALChangedC(id param) {
     settings[GLOB_FXLOD].type=MDZ_SWITCH;
     settings[GLOB_FXLOD].label=(char*)"FX Level of details";
     settings[GLOB_FXLOD].description=NULL;
-    settings[GLOB_FXLOD].family=MDZ_SETTINGS_GLOBAL_VISU;
+    settings[GLOB_FXLOD].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXLOD].sub_family=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_value_nb=3;
@@ -411,13 +590,14 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_MODPLUG].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_MODPLUG].label=(char*)"Modplug";
     settings[MDZ_SETTINGS_FAMILY_MODPLUG].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].sub_family=MDZ_SETTINGS_MODPLUG;
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_MODPLUG].sub_family=MDZ_SETTINGS_FAMILY_MODPLUG;
     
     settings[MODPLUG_MasterVolume].label=(char*)"Master Volume";
     settings[MODPLUG_MasterVolume].description=NULL;
-    settings[MODPLUG_MasterVolume].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_MasterVolume].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_MasterVolume].sub_family=0;
+    settings[MODPLUG_MasterVolume].callback=&optMODPLUGChangedC;
     settings[MODPLUG_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value=0.5;
     settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_min_value=0;
@@ -426,8 +606,9 @@ void optGLOBALChangedC(id param) {
     settings[MODPLUG_Sampling].type=MDZ_SWITCH;
     settings[MODPLUG_Sampling].label=(char*)"Resampling";
     settings[MODPLUG_Sampling].description=NULL;
-    settings[MODPLUG_Sampling].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Sampling].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_Sampling].sub_family=0;
+    settings[MODPLUG_Sampling].callback=&optMODPLUGChangedC;
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=2;
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb=4;
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -439,14 +620,16 @@ void optGLOBALChangedC(id param) {
     settings[MODPLUG_Megabass].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Megabass].label=(char*)"Megabass";
     settings[MODPLUG_Megabass].description=NULL;
-    settings[MODPLUG_Megabass].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Megabass].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_Megabass].sub_family=0;
+    settings[MODPLUG_Megabass].callback=&optMODPLUGChangedC;
     settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
     
     settings[MODPLUG_BassAmount].label=(char*)"Megabass Strength";
     settings[MODPLUG_BassAmount].description=NULL;
-    settings[MODPLUG_BassAmount].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_BassAmount].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_BassAmount].sub_family=0;
+    settings[MODPLUG_BassAmount].callback=&optMODPLUGChangedC;
     settings[MODPLUG_BassAmount].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value=0.7;
     settings[MODPLUG_BassAmount].detail.mdz_slider.slider_min_value=0;
@@ -454,8 +637,9 @@ void optGLOBALChangedC(id param) {
     
     settings[MODPLUG_BassRange].label=(char*)"Megabass Range";
     settings[MODPLUG_BassRange].description=NULL;
-    settings[MODPLUG_BassRange].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_BassRange].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_BassRange].sub_family=0;
+    settings[MODPLUG_BassRange].callback=&optMODPLUGChangedC;
     settings[MODPLUG_BassRange].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_BassRange].detail.mdz_slider.slider_value=0.3;
     settings[MODPLUG_BassRange].detail.mdz_slider.slider_min_value=0;
@@ -464,14 +648,16 @@ void optGLOBALChangedC(id param) {
     settings[MODPLUG_Surround].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Surround].label=(char*)"Surround";
     settings[MODPLUG_Surround].description=NULL;
-    settings[MODPLUG_Surround].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Surround].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_Surround].sub_family=0;
+    settings[MODPLUG_Surround].callback=&optMODPLUGChangedC;
     settings[MODPLUG_Surround].detail.mdz_boolswitch.switch_value=0;
     
     settings[MODPLUG_SurroundDepth].label=(char*)"Surround Depth";
     settings[MODPLUG_SurroundDepth].description=NULL;
-    settings[MODPLUG_SurroundDepth].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_SurroundDepth].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_SurroundDepth].sub_family=0;
+    settings[MODPLUG_SurroundDepth].callback=&optMODPLUGChangedC;
     settings[MODPLUG_SurroundDepth].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_value=0.9;
     settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_min_value=0;
@@ -479,8 +665,9 @@ void optGLOBALChangedC(id param) {
     
     settings[MODPLUG_SurroundDelay].label=(char*)"Surround Delay";
     settings[MODPLUG_SurroundDelay].description=NULL;
-    settings[MODPLUG_SurroundDelay].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_SurroundDelay].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_SurroundDelay].sub_family=0;
+    settings[MODPLUG_SurroundDelay].callback=&optMODPLUGChangedC;
     settings[MODPLUG_SurroundDelay].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value=0.8;
     settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_min_value=0;
@@ -489,14 +676,16 @@ void optGLOBALChangedC(id param) {
     settings[MODPLUG_Reverb].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Reverb].label=(char*)"Reverb";
     settings[MODPLUG_Reverb].description=NULL;
-    settings[MODPLUG_Reverb].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_Reverb].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_Reverb].sub_family=0;
+    settings[MODPLUG_Reverb].callback=&optMODPLUGChangedC;
     settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value=0;
     
     settings[MODPLUG_ReverbDepth].label=(char*)"Reverb Depth";
     settings[MODPLUG_ReverbDepth].description=NULL;
-    settings[MODPLUG_ReverbDepth].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_ReverbDepth].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_ReverbDepth].sub_family=0;
+    settings[MODPLUG_ReverbDepth].callback=&optMODPLUGChangedC;
     settings[MODPLUG_ReverbDepth].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_value=0.8;
     settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_min_value=0;
@@ -504,8 +693,9 @@ void optGLOBALChangedC(id param) {
     
     settings[MODPLUG_ReverbDelay].label=(char*)"Reverb Delay";
     settings[MODPLUG_ReverbDelay].description=NULL;
-    settings[MODPLUG_ReverbDelay].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_ReverbDelay].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_ReverbDelay].sub_family=0;
+    settings[MODPLUG_ReverbDelay].callback=&optMODPLUGChangedC;
     settings[MODPLUG_ReverbDelay].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;
     settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_min_value=0;
@@ -513,8 +703,9 @@ void optGLOBALChangedC(id param) {
     
     settings[MODPLUG_StereoSeparation].label=(char*)"Panning";
     settings[MODPLUG_StereoSeparation].description=NULL;
-    settings[MODPLUG_StereoSeparation].family=MDZ_SETTINGS_MODPLUG;
+    settings[MODPLUG_StereoSeparation].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_StereoSeparation].sub_family=0;
+    settings[MODPLUG_StereoSeparation].callback=&optMODPLUGChangedC;
     settings[MODPLUG_StereoSeparation].type=MDZ_SLIDER_CONTINUOUS;
     settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value=0.5;
     settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_min_value=0;
@@ -527,13 +718,14 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_DUMB].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_DUMB].label=(char*)"Dumb";
     settings[MDZ_SETTINGS_FAMILY_DUMB].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_DUMB].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_DUMB].sub_family=MDZ_SETTINGS_DUMB;
+    settings[MDZ_SETTINGS_FAMILY_DUMB].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_DUMB].sub_family=MDZ_SETTINGS_FAMILY_DUMB;
     
     settings[DUMB_MasterVolume].label=(char*)"Master Volume";
     settings[DUMB_MasterVolume].description=NULL;
-    settings[DUMB_MasterVolume].family=MDZ_SETTINGS_DUMB;
+    settings[DUMB_MasterVolume].family=MDZ_SETTINGS_FAMILY_DUMB;
     settings[DUMB_MasterVolume].sub_family=0;
+    settings[DUMB_MasterVolume].callback=&optDUMBChangedC;
     settings[DUMB_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
     settings[DUMB_MasterVolume].detail.mdz_slider.slider_value=0.5;
     settings[DUMB_MasterVolume].detail.mdz_slider.slider_min_value=0;
@@ -542,8 +734,9 @@ void optGLOBALChangedC(id param) {
     settings[DUMB_Resampling].type=MDZ_SWITCH;
     settings[DUMB_Resampling].label=(char*)"Resampling";
     settings[DUMB_Resampling].description=NULL;
-    settings[DUMB_Resampling].family=MDZ_SETTINGS_DUMB;
+    settings[DUMB_Resampling].family=MDZ_SETTINGS_FAMILY_DUMB;
     settings[DUMB_Resampling].sub_family=0;
+    settings[DUMB_Resampling].callback=&optDUMBChangedC;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value=1;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb=3;
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -559,13 +752,14 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].label=(char*)"Timidity";
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_TIMIDITY].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_TIMIDITY].sub_family=MDZ_SETTINGS_TIMIDITY;
+    settings[MDZ_SETTINGS_FAMILY_TIMIDITY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_TIMIDITY].sub_family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     
     settings[TIM_Polyphony].label=(char*)"Midi polyphony";
     settings[TIM_Polyphony].description=NULL;
-    settings[TIM_Polyphony].family=MDZ_SETTINGS_TIMIDITY;
+    settings[TIM_Polyphony].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     settings[TIM_Polyphony].sub_family=0;
+    settings[TIM_Polyphony].callback=&optTIMIDITYChangedC;
     settings[TIM_Polyphony].type=MDZ_SLIDER_DISCRETE;
     settings[TIM_Polyphony].detail.mdz_slider.slider_value=128;
     settings[TIM_Polyphony].detail.mdz_slider.slider_min_value=64;
@@ -574,29 +768,33 @@ void optGLOBALChangedC(id param) {
     settings[TIM_Chorus].type=MDZ_BOOLSWITCH;
     settings[TIM_Chorus].label=(char*)"Chorus";
     settings[TIM_Chorus].description=NULL;
-    settings[TIM_Chorus].family=MDZ_SETTINGS_TIMIDITY;
+    settings[TIM_Chorus].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     settings[TIM_Chorus].sub_family=0;
+    settings[TIM_Chorus].callback=&optTIMIDITYChangedC;
     settings[TIM_Chorus].detail.mdz_boolswitch.switch_value=1;
     
     settings[TIM_Reverb].type=MDZ_BOOLSWITCH;
     settings[TIM_Reverb].label=(char*)"Reverb";
     settings[TIM_Reverb].description=NULL;
-    settings[TIM_Reverb].family=MDZ_SETTINGS_TIMIDITY;
+    settings[TIM_Reverb].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     settings[TIM_Reverb].sub_family=0;
+    settings[TIM_Reverb].callback=&optTIMIDITYChangedC;
     settings[TIM_Reverb].detail.mdz_boolswitch.switch_value=1;
     
     settings[TIM_LPFilter].type=MDZ_BOOLSWITCH;
     settings[TIM_LPFilter].label=(char*)"LPFilter";
     settings[TIM_LPFilter].description=NULL;
-    settings[TIM_LPFilter].family=MDZ_SETTINGS_TIMIDITY;
+    settings[TIM_LPFilter].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     settings[TIM_LPFilter].sub_family=0;
+    settings[TIM_LPFilter].callback=&optTIMIDITYChangedC;
     settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value=1;
     
     settings[TIM_Resample].type=MDZ_SWITCH;
     settings[TIM_Resample].label=(char*)"Resampling";
     settings[TIM_Resample].description=NULL;
-    settings[TIM_Resample].family=MDZ_SETTINGS_TIMIDITY;
+    settings[TIM_Resample].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     settings[TIM_Resample].sub_family=0;
+    settings[TIM_Resample].callback=&optTIMIDITYChangedC;
     settings[TIM_Resample].detail.mdz_switch.switch_value=1;
     settings[TIM_Resample].detail.mdz_switch.switch_value_nb=5;
     settings[TIM_Resample].detail.mdz_switch.switch_labels=(char**)malloc(settings[TIM_Resample].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -616,21 +814,23 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_SID].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_SID].label=(char*)"SID";
     settings[MDZ_SETTINGS_FAMILY_SID].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_SID].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_SID].sub_family=MDZ_SETTINGS_SID;
+    settings[MDZ_SETTINGS_FAMILY_SID].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_SID].sub_family=MDZ_SETTINGS_FAMILY_SID;
     
     settings[SID_Filter].type=MDZ_BOOLSWITCH;
     settings[SID_Filter].label=(char*)"Filter";
     settings[SID_Filter].description=NULL;
-    settings[SID_Filter].family=MDZ_SETTINGS_SID;
+    settings[SID_Filter].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_Filter].sub_family=0;
+    settings[SID_Filter].callback=&optSIDChangedC;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
     
     settings[SID_Optim].type=MDZ_SWITCH;
     settings[SID_Optim].label=(char*)"Optim";
     settings[SID_Optim].description=NULL;
-    settings[SID_Optim].family=MDZ_SETTINGS_SID;
+    settings[SID_Optim].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_Optim].sub_family=0;
+    settings[SID_Optim].callback=&optSIDChangedC;
     settings[SID_Optim].detail.mdz_switch.switch_value=1;
     settings[SID_Optim].detail.mdz_switch.switch_value_nb=3;
     settings[SID_Optim].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_Optim].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -641,8 +841,9 @@ void optGLOBALChangedC(id param) {
     settings[SID_LibVersion].type=MDZ_SWITCH;
     settings[SID_LibVersion].label=(char*)"Library version";
     settings[SID_LibVersion].description=NULL;
-    settings[SID_LibVersion].family=MDZ_SETTINGS_SID;
+    settings[SID_LibVersion].family=MDZ_SETTINGS_FAMILY_SID;
     settings[SID_LibVersion].sub_family=0;
+    settings[SID_LibVersion].callback=&optSIDChangedC;
     settings[SID_LibVersion].detail.mdz_switch.switch_value=1;
     settings[SID_LibVersion].detail.mdz_switch.switch_value_nb=2;
     settings[SID_LibVersion].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_LibVersion].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -657,49 +858,55 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_UADE].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_UADE].label=(char*)"UADE";
     settings[MDZ_SETTINGS_FAMILY_UADE].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_UADE].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_UADE].sub_family=MDZ_SETTINGS_UADE;
+    settings[MDZ_SETTINGS_FAMILY_UADE].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_UADE].sub_family=MDZ_SETTINGS_FAMILY_UADE;
     
     settings[UADE_Head].type=MDZ_BOOLSWITCH;
     settings[UADE_Head].label=(char*)"Headphones";
     settings[UADE_Head].description=NULL;
-    settings[UADE_Head].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Head].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_Head].sub_family=0;
+    settings[UADE_Head].callback=&optUADEChangedC;
     settings[UADE_Head].detail.mdz_boolswitch.switch_value=0;
     
     settings[UADE_PostFX].type=MDZ_BOOLSWITCH;
     settings[UADE_PostFX].label=(char*)"Post FX";
     settings[UADE_PostFX].description=NULL;
-    settings[UADE_PostFX].family=MDZ_SETTINGS_UADE;
+    settings[UADE_PostFX].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_PostFX].sub_family=0;
+    settings[UADE_PostFX].callback=&optUADEChangedC;
     settings[UADE_PostFX].detail.mdz_boolswitch.switch_value=1;
     
     
     settings[UADE_Led].type=MDZ_BOOLSWITCH;
     settings[UADE_Led].label=(char*)"LED";
     settings[UADE_Led].description=NULL;
-    settings[UADE_Led].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Led].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_Led].sub_family=0;
+    settings[UADE_Led].callback=&optUADEChangedC;
     settings[UADE_Led].detail.mdz_boolswitch.switch_value=0;
     
     settings[UADE_Norm].type=MDZ_BOOLSWITCH;
     settings[UADE_Norm].label=(char*)"Normalization";
     settings[UADE_Norm].description=NULL;
-    settings[UADE_Norm].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Norm].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_Norm].sub_family=0;
+    settings[UADE_Norm].callback=&optUADEChangedC;
     settings[UADE_Norm].detail.mdz_boolswitch.switch_value=0;
     
     settings[UADE_Gain].type=MDZ_BOOLSWITCH;
     settings[UADE_Gain].label=(char*)"Gain";
     settings[UADE_Gain].description=NULL;
-    settings[UADE_Gain].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Gain].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_Gain].sub_family=0;
+    settings[UADE_Gain].callback=&optUADEChangedC;
     settings[UADE_Gain].detail.mdz_boolswitch.switch_value=0;
     
     settings[UADE_GainValue].label=(char*)"Gain Value";
     settings[UADE_GainValue].description=NULL;
-    settings[UADE_GainValue].family=MDZ_SETTINGS_UADE;
+    settings[UADE_GainValue].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_GainValue].sub_family=0;
+    settings[UADE_GainValue].callback=&optUADEChangedC;
     settings[UADE_GainValue].type=MDZ_SLIDER_CONTINUOUS;
     settings[UADE_GainValue].detail.mdz_slider.slider_value=0.5;
     settings[UADE_GainValue].detail.mdz_slider.slider_min_value=0;
@@ -708,14 +915,16 @@ void optGLOBALChangedC(id param) {
     settings[UADE_Pan].type=MDZ_BOOLSWITCH;
     settings[UADE_Pan].label=(char*)"Panning";
     settings[UADE_Pan].description=NULL;
-    settings[UADE_Pan].family=MDZ_SETTINGS_UADE;
+    settings[UADE_Pan].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_Pan].sub_family=0;
+    settings[UADE_Pan].callback=&optUADEChangedC;
     settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
     
     settings[UADE_PanValue].label=(char*)"Panning Value";
     settings[UADE_PanValue].description=NULL;
-    settings[UADE_PanValue].family=MDZ_SETTINGS_UADE;
+    settings[UADE_PanValue].family=MDZ_SETTINGS_FAMILY_UADE;
     settings[UADE_PanValue].sub_family=0;
+    settings[UADE_PanValue].callback=&optUADEChangedC;
     settings[UADE_PanValue].type=MDZ_SLIDER_CONTINUOUS;
     settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
     settings[UADE_PanValue].detail.mdz_slider.slider_min_value=0;
@@ -727,14 +936,15 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_SEXYPSF].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_SEXYPSF].label=(char*)"SexyPSF";
     settings[MDZ_SETTINGS_FAMILY_SEXYPSF].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].sub_family=MDZ_SETTINGS_SEXYPSF;
+    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].sub_family=MDZ_SETTINGS_FAMILY_SEXYPSF;
     
     settings[SEXYPSF_Interpolation].type=MDZ_SWITCH;
     settings[SEXYPSF_Interpolation].label=(char*)"Interpolation";
     settings[SEXYPSF_Interpolation].description=NULL;
-    settings[SEXYPSF_Interpolation].family=MDZ_SETTINGS_SEXYPSF;
+    settings[SEXYPSF_Interpolation].family=MDZ_SETTINGS_FAMILY_SEXYPSF;
     settings[SEXYPSF_Interpolation].sub_family=0;
+    settings[SEXYPSF_Interpolation].callback=&optSEXYPSFChangedC;
     settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value=1;
     settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value_nb=4;
     settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -746,8 +956,9 @@ void optGLOBALChangedC(id param) {
     settings[SEXYPSF_Reverb].type=MDZ_SWITCH;
     settings[SEXYPSF_Reverb].label=(char*)"Interpolation";
     settings[SEXYPSF_Reverb].description=NULL;
-    settings[SEXYPSF_Reverb].family=MDZ_SETTINGS_SEXYPSF;
+    settings[SEXYPSF_Reverb].family=MDZ_SETTINGS_FAMILY_SEXYPSF;
     settings[SEXYPSF_Reverb].sub_family=0;
+    settings[SEXYPSF_Reverb].callback=&optSEXYPSFChangedC;
     settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value=1;
     settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value_nb=3;
     settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels=(char**)malloc(settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -761,14 +972,15 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_AOSDK].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_AOSDK].label=(char*)"AOSDK";
     settings[MDZ_SETTINGS_FAMILY_AOSDK].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_AOSDK].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_AOSDK].sub_family=MDZ_SETTINGS_AOSDK;
+    settings[MDZ_SETTINGS_FAMILY_AOSDK].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_AOSDK].sub_family=MDZ_SETTINGS_FAMILY_AOSDK;
     
     settings[AOSDK_Interpolation].type=MDZ_SWITCH;
     settings[AOSDK_Interpolation].label=(char*)"Interpolation";
     settings[AOSDK_Interpolation].description=NULL;
-    settings[AOSDK_Interpolation].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_Interpolation].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_Interpolation].sub_family=0;
+    settings[AOSDK_Interpolation].callback=&optAOSDKChangedC;
     settings[AOSDK_Interpolation].detail.mdz_switch.switch_value=2;
     settings[AOSDK_Interpolation].detail.mdz_switch.switch_value_nb=4;
     settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -780,15 +992,17 @@ void optGLOBALChangedC(id param) {
     settings[AOSDK_Reverb].type=MDZ_BOOLSWITCH;
     settings[AOSDK_Reverb].label=(char*)"Reverb";
     settings[AOSDK_Reverb].description=NULL;
-    settings[AOSDK_Reverb].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_Reverb].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_Reverb].sub_family=0;
+    settings[AOSDK_Reverb].callback=&optAOSDKChangedC;
     settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value=1;
     
     settings[AOSDK_DSF22KHZ].type=MDZ_SWITCH;
     settings[AOSDK_DSF22KHZ].label=(char*)"Output";
     settings[AOSDK_DSF22KHZ].description=NULL;
-    settings[AOSDK_DSF22KHZ].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_DSF22KHZ].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_DSF22KHZ].sub_family=0;
+    settings[AOSDK_DSF22KHZ].callback=&optAOSDKChangedC;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=1;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb=2;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -798,15 +1012,17 @@ void optGLOBALChangedC(id param) {
     settings[AOSDK_DSFDSP].type=MDZ_BOOLSWITCH;
     settings[AOSDK_DSFDSP].label=(char*)"DSF DSP";
     settings[AOSDK_DSFDSP].description=NULL;
-    settings[AOSDK_DSFDSP].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_DSFDSP].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_DSFDSP].sub_family=0;
+    settings[AOSDK_DSFDSP].callback=&optAOSDKChangedC;
     settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value=1;
     
     settings[AOSDK_DSFEmuRatio].type=MDZ_SWITCH;
     settings[AOSDK_DSFEmuRatio].label=(char*)"DSF Emu Ratio";
     settings[AOSDK_DSFEmuRatio].description=NULL;
-    settings[AOSDK_DSFEmuRatio].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_DSFEmuRatio].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_DSFEmuRatio].sub_family=0;
+    settings[AOSDK_DSFEmuRatio].callback=&optAOSDKChangedC;
     settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=2;
     settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
     settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -818,15 +1034,17 @@ void optGLOBALChangedC(id param) {
     settings[AOSDK_SSFDSP].type=MDZ_BOOLSWITCH;
     settings[AOSDK_SSFDSP].label=(char*)"SSF DSP";
     settings[AOSDK_SSFDSP].description=NULL;
-    settings[AOSDK_SSFDSP].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_SSFDSP].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_SSFDSP].sub_family=0;
+    settings[AOSDK_SSFDSP].callback=&optAOSDKChangedC;
     settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value=1;
     
     settings[AOSDK_SSFEmuRatio].type=MDZ_SWITCH;
     settings[AOSDK_SSFEmuRatio].label=(char*)"SSF Emu Ratio";
     settings[AOSDK_SSFEmuRatio].description=NULL;
-    settings[AOSDK_SSFEmuRatio].family=MDZ_SETTINGS_AOSDK;
+    settings[AOSDK_SSFEmuRatio].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_SSFEmuRatio].sub_family=0;
+    settings[AOSDK_SSFEmuRatio].callback=&optAOSDKChangedC;
     settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=2;
     settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
     settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -841,14 +1059,15 @@ void optGLOBALChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_ADPLUG].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_ADPLUG].label=(char*)"ADPLUG";
     settings[MDZ_SETTINGS_FAMILY_ADPLUG].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_ADPLUG].family=MDZ_SETTINGS_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_ADPLUG].sub_family=MDZ_SETTINGS_ADPLUG;
+    settings[MDZ_SETTINGS_FAMILY_ADPLUG].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_ADPLUG].sub_family=MDZ_SETTINGS_FAMILY_ADPLUG;
     
     settings[ADPLUG_OplType].type=MDZ_SWITCH;
     settings[ADPLUG_OplType].label=(char*)"OPL Type";
     settings[ADPLUG_OplType].description=NULL;
-    settings[ADPLUG_OplType].family=MDZ_SETTINGS_ADPLUG;
+    settings[ADPLUG_OplType].family=MDZ_SETTINGS_FAMILY_ADPLUG;
     settings[ADPLUG_OplType].sub_family=0;
+    settings[ADPLUG_OplType].callback=&optADPLUGChangedC;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value=1;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb=3;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -863,7 +1082,7 @@ void optGLOBALChangedC(id param) {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        current_family=MDZ_SETTINGS_ROOT;
+        current_family=MDZ_SETTINGS_FAMILY_ROOT;
     }
     return self;
 }
@@ -881,7 +1100,7 @@ void optGLOBALChangedC(id param) {
     self.navigationItem.rightBarButtonItem = item;
     
     //TODO: a faire dans le delegate
-    //    if (current_family==MDZ_SETTINGS_ROOT) [self loadSettings];
+    //    if (current_family==MDZ_SETTINGS_FAMILY_ROOT) [self loadSettings];
     
     //Build current mapping
     cur_settings_nb=0;

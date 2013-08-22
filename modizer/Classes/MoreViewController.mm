@@ -68,7 +68,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 2;
+    return 3;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -204,7 +204,11 @@
             break;
         case 1:
             topLabel.text=NSLocalizedString(@"Settings",@"");
-            bottomLabel.text=NSLocalizedString(@"",@"");
+            bottomLabel.text=NSLocalizedString(@"Global, Visu, FTP & Plugins",@"");
+            break;
+        case 2:
+            topLabel.text=NSLocalizedString(@"Maintenance",@"");
+            bottomLabel.text=NSLocalizedString(@"Clean Database, Reset ratings, ...",@"");
             break;
     }
     

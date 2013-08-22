@@ -1274,7 +1274,7 @@ static NSFileManager *mFileMngr;
 	bottomLabel.text=@""; //default value
 	cell.accessoryType=UITableViewCellAccessoryNone;
 	cell.tag=indexPath.row;
-	cell.selectionStyle= UITableViewCellSelectionStyleGray;
+	//cell.selectionStyle= UITableViewCellSelectionStyleGray;
 
 	if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value>=1) {
 		[actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];

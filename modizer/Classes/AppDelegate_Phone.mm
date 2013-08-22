@@ -173,6 +173,7 @@ pthread_mutex_t play_mutex;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+    [SettingsGenViewController backupSettings];
 	[detailViewControlleriPhone saveSettings];
 	[detailViewControlleriPhone updateFlagOnExit];
 }
@@ -207,13 +208,14 @@ pthread_mutex_t play_mutex;
 	}
 
     // Ensure that settings are saved if closed by OS after resigning active
+    [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
 	[detailViewControlleriPhone updateFlagOnExit];
 }
 
 // iOS 4 background support
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-	
+	[SettingsGenViewController backupSettings];
 	[detailViewControlleriPhone saveSettings];
 	//if (backgroundSupported==NO) return;
 	if (( (detailViewControlleriPhone.mPaused)&&(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==1) )||
@@ -275,6 +277,7 @@ pthread_mutex_t play_mutex;
 	// remember to clean up anything outside of this view's scope, such as
 	// data cached in the class instance and other global data.
 	NSLog(@"received a memory warning...");
+    [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
 	//[super didReceiveMemoryWarning];
 }

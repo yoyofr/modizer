@@ -1623,7 +1623,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         secActionView.tag = SECACT_IMAGE_TAG;
         
         cell.accessoryView=nil;
-        cell.selectionStyle=UITableViewCellSelectionStyleGray;
+//        cell.selectionStyle=UITableViewCellSelectionStyleGray;
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
