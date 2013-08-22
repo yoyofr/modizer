@@ -41,7 +41,7 @@ void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint 
 
 void DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uint ww,uint hh,uint bg,uint _pos,int deviceType,int nb_spectrum_bands);
 
-void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level);
+void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt);
 	
 void DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_vert,int note_display_range, int note_display_offset,int fx_len);
 void DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int note_display_range, int note_display_offset,int fx_len);

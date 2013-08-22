@@ -11,13 +11,31 @@
 #import "DetailViewControllerIphone.h"
 #import "TPKeyboardAvoidingTableView.h"
 
+#import "CFtpServer.h"
+
 enum MDZ_SETTINGS_TYPE {
     MDZ_FAMILY=1,
     MDZ_SWITCH,
     MDZ_BOOLSWITCH,
     MDZ_SLIDER_CONTINUOUS,
     MDZ_SLIDER_DISCRETE,
-    MDZ_TEXTBOX
+    MDZ_TEXTBOX,
+    MDZ_MSGBOX
+};
+
+enum MDZ_SETTINGS_SCOPE {
+    SETTINGS_ALL=0,
+    SETTINGS_GLOBAL,
+    SETTINGS_VISU,
+    SETTINGS_ADPLUG,
+    SETTINGS_AOSDK,
+    SETTINGS_DUMB,
+    SETTINGS_GME,
+    SETTINGS_MODPLUG,
+    SETTINGS_SEXYPSF,
+    SETTINGS_SID,
+    SETTINGS_UADE,
+    SETTINGS_TIMIDITY
 };
 
 enum MDZ_SETTINGS_FAMILY {
@@ -38,6 +56,7 @@ enum MDZ_SETTINGS_FAMILY {
 
 enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER=1,
+    GLOB_DefaultMODPlayer,
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,
@@ -47,8 +66,7 @@ enum MDZ_SETTINGS {
     GLOB_BackgroundMode,
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,
-    GLOB_AfterDownloadAction,
-    GLOB_DefaultMODPlayer,
+    GLOB_AfterDownloadAction,    
     
     GLOB_CoverFlow,
     GLOB_PlayerViewOnPlay,
@@ -70,11 +88,12 @@ enum MDZ_SETTINGS {
     GLOB_FX5,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_FTP,
+    FTP_STATUS,
     FTP_ONOFF,
     FTP_ANONYMOUS,
     FTP_USER,
     FTP_PASSWORD,
-    FTP_PORT,    
+    FTP_PORT,
     
     MDZ_SETTINGS_FAMILY_PLUGINS,
     
@@ -164,17 +183,25 @@ typedef struct {
 } t_setting_textbox;
 
 typedef struct {
+    //textbox
+    char *text;
+} t_setting_msgbox;
+
+
+typedef struct {
 //common fields
     MDZ_SETTINGS_TYPE type;
     char *label;
     char *description;
     char family;
     char sub_family;
+    void (*callback)(id);
     union {
         t_setting_slider mdz_slider;
         t_setting_switch mdz_switch;
         t_setting_boolswitch mdz_boolswitch;
         t_setting_textbox mdz_textbox;
+        t_setting_msgbox mdz_msgbox;
     } detail;
 } t_settings;
 
@@ -184,6 +211,12 @@ typedef struct {
     IBOutlet TPKeyboardAvoidingTableView *tableView;
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];
+    
+    //FTP
+    CFtpServer *ftpserver;
+    CFtpServer::CUserEntry *pAnonymousUser;
+    CFtpServer::CUserEntry *pUser;
+    bool bServerRunning;
 @public
     IBOutlet DetailViewControllerIphone *detailViewController;
     char current_family;

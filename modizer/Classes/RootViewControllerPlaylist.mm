@@ -1877,7 +1877,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         
         [cell setBackgroundColor:[UIColor clearColor]];        
-        CAGradientLayer *gradient = [CAGradientLayer layer];
+        
+        /*CAGradientLayer *gradient = [CAGradientLayer layer];
         gradient.frame = cell.bounds;
         gradient.colors = [NSArray arrayWithObjects:
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
@@ -1920,6 +1921,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         [cell setSelectedBackgroundView:[[UIView alloc] init]];
         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
+         */
+        UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        imageView.contentMode = UIViewContentModeScaleToFill;
+        cell.backgroundView = imageView;
+        [imageView release];
+        
         //
         // Create the label for the top row of text
         //

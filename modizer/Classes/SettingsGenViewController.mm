@@ -9,6 +9,12 @@
 #import "SettingsGenViewController.h"
 #import "MNEValueTrackingSlider.h"
 
+#import "Reachability.h"
+#include <ifaddrs.h>
+#include <arpa/inet.h>
+#include <sys/xattr.h>
+
+
 @interface SettingsGenViewController ()
 @end
 
@@ -21,6 +27,22 @@ volatile t_settings settings[MAX_SETTINGS];
 -(IBAction) goPlayer {
 	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
 }
+
+#pragma mark - Callback methods
+
+void optFTPSwitchChanged(id param) {
+    [param FTPswitchChanged];
+}
+
+
+-(void) optGLOBALChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_GLOBAL];
+}
+void optGLOBALChangedC(id param) {
+    [param optGLOBALChanged];
+}
+
+#pragma mark - Load/Init default settings
 
 + (void) loadSettings {
     memset((char*)settings,0,sizeof(settings));
@@ -60,6 +82,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_ForceMono].description=NULL;
     settings[GLOB_ForceMono].family=MDZ_SETTINGS_GLOBAL_PLAYER;
     settings[GLOB_ForceMono].sub_family=0;
+    settings[GLOB_ForceMono].callback=&optGLOBALChangedC;
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
     settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=1;
     
@@ -97,7 +120,7 @@ volatile t_settings settings[MAX_SETTINGS];
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MODPLUG";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MDPLG";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
     
@@ -180,23 +203,33 @@ volatile t_settings settings[MAX_SETTINGS];
     /////////////////////////////////////
     //GLOBAL FTP
     /////////////////////////////////////
+    settings[FTP_STATUS].label=(char*)"Server status";
+    settings[FTP_STATUS].description=NULL;
+    settings[FTP_STATUS].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_STATUS].sub_family=1;
+    settings[FTP_STATUS].type=MDZ_MSGBOX;
+    settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen("Inactive")+1);
+    strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,"Inactive");
+    
+    
     settings[FTP_ONOFF].type=MDZ_SWITCH;
     settings[FTP_ONOFF].label=(char*)"FTP Server";
     settings[FTP_ONOFF].description=NULL;
     settings[FTP_ONOFF].family=MDZ_SETTINGS_GLOBAL_FTP;
+    settings[FTP_ONOFF].callback=&optFTPSwitchChanged;
     settings[FTP_ONOFF].sub_family=0;
     settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
     settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb=2;
     settings[FTP_ONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[FTP_ONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[FTP_ONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Stop";
-    settings[FTP_ONOFF].detail.mdz_switch.switch_labels[1]=(char*)"Run";
+    settings[FTP_ONOFF].detail.mdz_switch.switch_labels[1]=(char*)"Run";    
     
     settings[FTP_ANONYMOUS].label=(char*)"Authorize anonymous";
     settings[FTP_ANONYMOUS].description=NULL;
     settings[FTP_ANONYMOUS].family=MDZ_SETTINGS_GLOBAL_FTP;
     settings[FTP_ANONYMOUS].sub_family=1;
     settings[FTP_ANONYMOUS].type=MDZ_BOOLSWITCH;
-    settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value=0;
+    settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value=1;
     
     settings[FTP_USER].label=(char*)"User";
     settings[FTP_USER].description=NULL;
@@ -904,6 +937,9 @@ volatile t_settings settings[MAX_SETTINGS];
     if (settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value != sw.on) refresh=1;
     settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value=sw.on;
     
+    if (settings[cur_settings_idx[indexPath.section]].callback) {
+        settings[cur_settings_idx[indexPath.section]].callback(self);
+    }    
     if (refresh) [tableView reloadData];
 }
 - (void)segconChanged:(id)sender {
@@ -913,12 +949,19 @@ volatile t_settings settings[MAX_SETTINGS];
     if (settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value !=[(UISegmentedControl*)sender selectedSegmentIndex]) refresh=1;
     settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value=[(UISegmentedControl*)sender selectedSegmentIndex];
     
+    if (settings[cur_settings_idx[indexPath.section]].callback) {
+        settings[cur_settings_idx[indexPath.section]].callback(self);
+    }    
     if (refresh) [tableView reloadData];
 }
 - (void)sliderChanged:(id)sender {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[sender superview] center]];
     
     settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((MNEValueTrackingSlider*)sender).value;
+    
+    if (settings[cur_settings_idx[indexPath.section]].callback) {
+        settings[cur_settings_idx[indexPath.section]].callback(self);
+    }    
     //    if (OPTION(video_fskip)==10) [((MNEValueTrackingSlider*)sender) setValue:10 sValue:@"AUTO"];
     //    [tableView reloadData];
 }
@@ -937,12 +980,13 @@ volatile t_settings settings[MAX_SETTINGS];
 
 
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
     UILabel *topLabel;
+    UITextField *msgLabel;
     
     UISwitch *switchview;
     UISegmentedControl *segconview;
@@ -951,14 +995,15 @@ volatile t_settings settings[MAX_SETTINGS];
     MNEValueTrackingSlider *sliderview;
     
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
         
-        cell.frame=CGRectMake(0,0,tableView.frame.size.width,50);
+        cell.frame=CGRectMake(0,0,tabView.frame.size.width,50);
         
         [cell setBackgroundColor:[UIColor clearColor]];
-        CAGradientLayer *gradient = [CAGradientLayer layer];
+        
+        /*CAGradientLayer *gradient = [CAGradientLayer layer];
         gradient.frame = cell.bounds;
         gradient.colors = [NSArray arrayWithObjects:
                            (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
@@ -1000,6 +1045,14 @@ volatile t_settings settings[MAX_SETTINGS];
         
         [cell setSelectedBackgroundView:[[UIView alloc] init]];
         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
+        */
+        
+        UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        imageView.contentMode = UIViewContentModeScaleToFill;
+        cell.backgroundView = imageView;
+        [imageView release];
+        
         
         //
         // Create the label for the top row of text
@@ -1028,7 +1081,7 @@ volatile t_settings settings[MAX_SETTINGS];
     
     topLabel.frame= CGRectMake(4,
                                0,
-                               tableView.bounds.size.width*4/10,
+                               tabView.bounds.size.width*4/10,
                                50);
     
     
@@ -1041,7 +1094,7 @@ volatile t_settings settings[MAX_SETTINGS];
             cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
             break;
         case MDZ_BOOLSWITCH:
-            switchview = [[UISwitch alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,40)];
+            switchview = [[UISwitch alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,40)];
             [switchview addTarget:self action:@selector(boolswitchChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = switchview;
             [switchview release];
@@ -1053,7 +1106,7 @@ volatile t_settings settings[MAX_SETTINGS];
                 [tmpArray addObject:[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]];
             }
             segconview = [[UISegmentedControl alloc] initWithItems:tmpArray];
-            segconview.frame=CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30);
+            segconview.frame=CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30);
             //            segconview.
             UIFont *font = [UIFont boldSystemFontOfSize:12.0f];
             NSDictionary *attributes = [NSDictionary dictionaryWithObject:font
@@ -1069,7 +1122,7 @@ volatile t_settings settings[MAX_SETTINGS];
         }
             break;
         case MDZ_SLIDER_CONTINUOUS:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30)];
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.integerMode=0;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
@@ -1080,7 +1133,7 @@ volatile t_settings settings[MAX_SETTINGS];
             [sliderview release];
             break;
         case MDZ_SLIDER_DISCRETE:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30)];
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.integerMode=1;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
@@ -1091,7 +1144,7 @@ volatile t_settings settings[MAX_SETTINGS];
             [sliderview release];
             break;
         case MDZ_TEXTBOX:
-            txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width*5.5f/10,30)];
+            txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             
             txtfield.borderStyle = UITextBorderStyleRoundedRect;
             txtfield.font = [UIFont systemFontOfSize:15];
@@ -1108,6 +1161,31 @@ volatile t_settings settings[MAX_SETTINGS];
             cell.accessoryView = txtfield;
             [txtfield release];
             break;
+        case MDZ_MSGBOX:
+            msgLabel = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            msgLabel.tag=indexPath.section;
+            
+            //msgLabel.backgroundColor = [UIColor clearColor];
+//            msgLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+            
+            msgLabel.borderStyle = UITextBorderStyleRoundedRect;
+            msgLabel.font = [UIFont systemFontOfSize:12];
+            msgLabel.autocorrectionType = UITextAutocorrectionTypeNo;
+            msgLabel.keyboardType = UIKeyboardTypeASCIICapable;
+            msgLabel.returnKeyType = UIReturnKeyDone;
+            msgLabel.clearButtonMode = UITextFieldViewModeWhileEditing;
+            msgLabel.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+            msgLabel.delegate = self;
+            msgLabel.enabled=FALSE;
+            msgLabel.tag=indexPath.section;
+
+            
+            
+            if (settings[cur_settings_idx[indexPath.section]].detail.mdz_msgbox.text) msgLabel.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
+            else msgLabel.text=@"";
+            cell.accessoryView = msgLabel;
+            [msgLabel release];
+            break;
     }
     
     return cell;
@@ -1115,7 +1193,7 @@ volatile t_settings settings[MAX_SETTINGS];
 
 /*
  // Override to support conditional editing of the table view.
- - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
+ - (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath
  {
  // Return NO if you do not want the specified item to be editable.
  return YES;
@@ -1124,11 +1202,11 @@ volatile t_settings settings[MAX_SETTINGS];
 
 /*
  // Override to support editing the table view.
- - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+ - (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
  {
  if (editingStyle == UITableViewCellEditingStyleDelete) {
  // Delete the row from the data source
- [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+ [tabView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
  }
  else if (editingStyle == UITableViewCellEditingStyleInsert) {
  // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -1138,14 +1216,14 @@ volatile t_settings settings[MAX_SETTINGS];
 
 /*
  // Override to support rearranging the table view.
- - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
+ - (void)tableView:(UITableView *)tabView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
  {
  }
  */
 
 /*
  // Override to support conditional rearranging of the table view.
- - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
+ - (BOOL)tableView:(UITableView *)tabView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
  {
  // Return NO if you do not want the item to be re-orderable.
  return YES;
@@ -1154,7 +1232,7 @@ volatile t_settings settings[MAX_SETTINGS];
 
 #pragma mark - Table view delegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     SettingsGenViewController *settingsVC;
     
     if (settings[cur_settings_idx[indexPath.section]].type==MDZ_FAMILY) {
@@ -1165,5 +1243,172 @@ volatile t_settings settings[MAX_SETTINGS];
         [self.navigationController pushViewController:settingsVC animated:YES];
     }
 }
+
+#pragma mark - FTP and usefull methods
+- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
+{
+    //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    //  NSString *documentsDirectory = [paths objectAtIndex:0];
+    const char* filePath = [path fileSystemRepresentation];
+    
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
+    return result == 0;
+}
+-(void) updateFilesDoNotBackupAttributes {
+    NSError *error;
+    NSArray *dirContent;
+    int result;
+    //BOOL isDir;
+    NSFileManager *mFileMngr = [[NSFileManager alloc] init];
+    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"];
+    NSString *file;
+    const char* attrName = "com.apple.MobileBackup";
+    u_int8_t attrValue = 1;
+    
+    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+    for (file in dirContent) {
+        //NSLog(@"%@",file);
+        //        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
+        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
+    }
+    [mFileMngr release];
+}
+
+
+- (NSString *)getIPAddress {
+	NSString *address = @"error";
+	struct ifaddrs *interfaces = NULL;
+	struct ifaddrs *temp_addr = NULL;
+	int success = 0;
+	
+	// retrieve the current interfaces - returns 0 on success
+	success = getifaddrs(&interfaces);
+	if (success == 0)
+	{
+		// Loop through linked list of interfaces
+		temp_addr = interfaces;
+		while(temp_addr != NULL)
+		{
+			if(temp_addr->ifa_addr->sa_family == AF_INET)
+			{
+				// Check if interface is en0 which is the wifi connection on the iPhone
+				if([[NSString stringWithUTF8String:temp_addr->ifa_name] isEqualToString:@"en0"])
+				{
+					// Get NSString from C String
+					address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
+				}
+			}
+			
+			temp_addr = temp_addr->ifa_next;
+		}
+	}
+	
+	// Free memory
+	freeifaddrs(interfaces);
+	
+	return address;
+}
+
+-(bool)startFTPServer {
+	int ftpport=0;
+	sscanf(settings[FTP_PORT].detail.mdz_textbox.text,"%d",&ftpport);
+	if (ftpport==0) return FALSE;
+	
+    if (!ftpserver) ftpserver = new CFtpServer();
+    bServerRunning = false;
+    
+    ftpserver->SetMaxPasswordTries( 3 );
+	ftpserver->SetNoLoginTimeout( 45 ); // seconds
+	ftpserver->SetNoTransferTimeout( 90 ); // seconds
+	ftpserver->SetDataPortRange( 1024, 4096 ); // data TCP-Port range = [100-999]
+	ftpserver->SetCheckPassDelay( 0 ); // milliseconds. Bruteforcing protection.
+	
+	pUser = ftpserver->AddUser(settings[FTP_USER].detail.mdz_textbox.text,
+							   settings[FTP_PASSWORD].detail.mdz_textbox.text,
+							   [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
+	
+    // Create anonymous user
+	if (settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value) {
+		pAnonymousUser = ftpserver->AddUser("anonymous",
+                                            NULL,
+                                            [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
+	}
+	
+	
+    if( pUser ) {
+		pUser->SetMaxNumberOfClient( 0 ); // Unlimited
+		pUser->SetPrivileges( CFtpServer::READFILE | CFtpServer::WRITEFILE |
+							 CFtpServer::LIST | CFtpServer::DELETEFILE | CFtpServer::CREATEDIR |
+							 CFtpServer::DELETEDIR );
+    }
+	if( pAnonymousUser ) pAnonymousUser->SetPrivileges( CFtpServer::READFILE | CFtpServer::WRITEFILE |
+													   CFtpServer::LIST | CFtpServer::DELETEFILE | CFtpServer::CREATEDIR |
+													   CFtpServer::DELETEDIR );
+    if (!ftpserver->StartListening( INADDR_ANY, ftpport )) return false;
+    if (!ftpserver->StartAccepting()) return false;
+    
+    return true;
+}
+
+-(void) FTPswitchChanged {
+	if (settings[FTP_ONOFF].detail.mdz_switch.switch_value) {
+		if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==kReachableViaWiFi) {
+			if (!bServerRunning) { // Start the FTP Server
+				if ([self startFTPServer]) {
+					bServerRunning = true;
+					
+					NSString *ip = [self getIPAddress];
+                    
+					NSString *msg = [NSString stringWithFormat:@"Running on %@", ip];
+                    if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
+                        free(settings[FTP_STATUS].detail.mdz_msgbox.text);
+                    }
+                    settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen([msg UTF8String])+1);
+                    strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,[msg UTF8String]);
+                    
+                    // Disable idle timer to avoid wifi connection lost
+                    [UIApplication sharedApplication].idleTimerDisabled=YES;
+				} else {
+					bServerRunning = false;
+					UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
+					[alert show];
+					settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+				}
+			}
+			
+		} else {
+			UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Warning" message:@"FTP server can only run on a WIFI connection." delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+			[alert show];
+			settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+		}
+	} else {
+		if (bServerRunning) { // Stop FTP server
+			// Stop the server
+			ftpserver->StopListening();
+			// Delete users
+			ftpserver->DeleteUser(pAnonymousUser);
+			ftpserver->DeleteUser(pUser);
+			bServerRunning = false;
+            if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
+                free(settings[FTP_STATUS].detail.mdz_msgbox.text);
+            }
+            settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen("Inactive")+1);
+            strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,"Inactive");
+            
+            
+            // Restart idle timer if battery mode is on (unplugged device)
+            if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged)
+                [UIApplication sharedApplication].idleTimerDisabled=YES;
+            else [UIApplication sharedApplication].idleTimerDisabled=NO;
+		}
+	}
+	[tableView reloadData];
+}
+
+
 
 @end
