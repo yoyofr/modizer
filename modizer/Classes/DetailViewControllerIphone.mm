@@ -2176,12 +2176,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             
             if (oglViewFullscreen) {
-                //self.navigationController.navigationBar.hidden = YES;
-                mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
-                m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww-20-30);  //ipad
+                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+                [self.navigationController setNavigationBarHidden:YES animated:YES];
+                
+                mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
+                m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
                 
             } else {
-                //self.navigationController.navigationBar.hidden = NO;
+                [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+                [self.navigationController setNavigationBarHidden:NO animated:YES];
+                
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 cover_view.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30+82);
@@ -2920,42 +2924,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     
 	
 	[prefs synchronize];
-    
-    return;
-	
-    ///////////////////////////////////
-    // General
-    ///////////////////////////////////////
-	
-    ///////////////////////////////////
-    // UADE
-    ///////////////////////////////////////
-    ///////////////////////////////////
-    // SID
-    ///////////////////////////////////////
-    ////////////////////////////////////
-    // SexyPSF
-    ///////////////////////////////////////
-    ////////////////////////////////////
-    // AOSDK
-    ///////////////////////////////////////
-    ////////////////////////////////////
-    // ADPLUG
-    ///////////////////////////////////////
-    ///////////////////////////////////
-    // GME
-    ///////////////////////////////////////
-    ////////////////////////////////////
-    // DUMB
-    ///////////////////////////////////////
-    
-    ////////////////////////////////////
-    // TIMIDITY
-    ///////////////////////////////////////
-	
-    ///////////////////////////////////
-    // MODPLUG
-    ///////////////////////////////////////
 }
 
 
@@ -3024,12 +2992,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",basePath];
         pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",basePath];
         pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",basePath];
-        if ([fileMngr isReadableFileAtPath:pathFileImgJPG]) mPlaylist[i].cover_flag=1;
-        else if ([fileMngr isReadableFileAtPath:pathFileImgPNG]) mPlaylist[i].cover_flag=2;
-        else if ([fileMngr isReadableFileAtPath:pathFileImgGIF]) mPlaylist[i].cover_flag=4;
-        else if ([fileMngr isReadableFileAtPath:pathFolderImgJPG]) mPlaylist[i].cover_flag=8;
-        else if ([fileMngr isReadableFileAtPath:pathFolderImgPNG]) mPlaylist[i].cover_flag=16;
-        else if ([fileMngr isReadableFileAtPath:pathFolderImgGIF]) mPlaylist[i].cover_flag=32;
+        //isReadableFileAtPath
+        if ([fileMngr fileExistsAtPath:pathFileImgJPG]) mPlaylist[i].cover_flag=1;
+        else if ([fileMngr fileExistsAtPath:pathFileImgPNG]) mPlaylist[i].cover_flag=2;
+        else if ([fileMngr fileExistsAtPath:pathFileImgGIF]) mPlaylist[i].cover_flag=4;
+        else if ([fileMngr fileExistsAtPath:pathFolderImgJPG]) mPlaylist[i].cover_flag=8;
+        else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[i].cover_flag=16;
+        else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[i].cover_flag=32;
 	}
     [fileMngr release];
 }
@@ -3038,7 +3007,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF,*filePath,*basePath;
     NSFileManager *fileMngr=[[NSFileManager alloc] init];
     
-    NSLog(@"look for %d",index);
+//    NSLog(@"look for %d",index);
     
     mPlaylist[index].cover_flag=0; //used for cover flag
     filePath=mPlaylist[index].mPlaylistFilepath;
@@ -3050,12 +3019,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",basePath];
     pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",basePath];
     pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",basePath];
-    if ([fileMngr isReadableFileAtPath:pathFileImgJPG]) mPlaylist[index].cover_flag=1;
-    else if ([fileMngr isReadableFileAtPath:pathFileImgPNG]) mPlaylist[index].cover_flag=2;
-    else if ([fileMngr isReadableFileAtPath:pathFileImgGIF]) mPlaylist[index].cover_flag=4;
-    else if ([fileMngr isReadableFileAtPath:pathFolderImgJPG]) mPlaylist[index].cover_flag=8;
-    else if ([fileMngr isReadableFileAtPath:pathFolderImgPNG]) mPlaylist[index].cover_flag=16;
-    else if ([fileMngr isReadableFileAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=32;
+    //isReadableFileAtPath
+    if ([fileMngr fileExistsAtPath:pathFileImgJPG]) mPlaylist[index].cover_flag=1;
+    else if ([fileMngr fileExistsAtPath:pathFileImgPNG]) mPlaylist[index].cover_flag=2;
+    else if ([fileMngr fileExistsAtPath:pathFileImgGIF]) mPlaylist[index].cover_flag=4;
+    else if ([fileMngr fileExistsAtPath:pathFolderImgJPG]) mPlaylist[index].cover_flag=8;
+    else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[index].cover_flag=16;
+    else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=32;
     [fileMngr release];
 }
 
@@ -3745,7 +3715,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[UIView commitAnimations];*/
     
     if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
-        if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
+/*        if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
             coverflow_plsize=mPlaylist_size;
             coverflow_pos=mPlaylist_pos;
             coverflow_needredraw=0;
@@ -3754,7 +3724,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         if (coverflow_pos!=mPlaylist_pos) {
             coverflow_pos=mPlaylist_pos;
             coverflow.currentIndex=mPlaylist_pos;
-        }
+        }*/
     }
     [super viewDidAppear:animated];
 }
@@ -4788,7 +4758,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		cover = [[[TKCoverflowCoverView alloc] initWithFrame:rect] autorelease]; // 224
 		cover.baseline = coverflow.coverSize.height;//224;
 	}
-    NSLog(@"ask for cov index %d",index);    
+//    NSLog(@"ask for cov index %d",index);
     if (mPlaylist[index].cover_flag==-1) [self checkAvailableCovers:index];
     if (mPlaylist[index].cover_flag>0) { //A cover should be available
         NSString *filePath,*coverFilePath;

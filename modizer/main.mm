@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     //***********************
     //settings
     [SettingsGenViewController loadSettings];
-
+    [SettingsGenViewController restoreSettings];
     
     int retVal = UIApplicationMain(argc, argv, nil, nil);
     [pool release];
