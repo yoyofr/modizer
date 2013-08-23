@@ -100,6 +100,7 @@ static int alertCannotPlay_displayed;
 static uint touch_cpt=0;
 static int viewTapHelpInfo=0;
 static int viewTapHelpShow=0;
+static int viewTapHelpShowMode=0;
 static int viewTapHelpShow_SubStart=0;
 static int viewTapHelpShow_SubNb=0;
 
@@ -202,11 +203,31 @@ static int display_length_mode=0;
 	}
 }
 
+-(int) computeActiveFX {
+    int active_idx=0;
+    if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) active_idx|=1<<0;
+    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<1;
+    if (settings[GLOB_FX3].detail.mdz_switch.switch_value) active_idx|=1<<2;
+    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<3;
+    
+    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<4;
+    if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
+    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
+    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<7;
+    
+    if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
+    if (settings[GLOB_FX5].detail.mdz_switch.switch_value) active_idx|=1<<9;
+    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) active_idx|=1<<10;
+    return active_idx;
+}
+
 -(IBAction) oglButtonPushed {
     if (mOglViewIsHidden) {
         mOglViewIsHidden=NO;
     }
-    else mOglViewIsHidden=YES;
+    else {
+        mOglViewIsHidden=YES;
+    }
     [self checkGLViewCanDisplay];
 }
 
@@ -476,7 +497,8 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
 		if ((infoView.hidden==YES)) {
 			if (m_oglView.hidden) {
 				viewTapHelpInfo=0;//255;
-				viewTapHelpShow=0;//1; //display info panel upon activation
+                if ([self computeActiveFX]==0) {viewTapHelpShow=1;viewTapHelpShowMode=1;}
+                else viewTapHelpShow=0;
 			}
 			m_oglView.hidden=NO;
 		}
@@ -1516,7 +1538,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //fix issue with modplug settings reset after load
     [self settingsChanged:(int)SETTINGS_ALL];
     
-    
+    [self checkForCover:filePath];
 	
 	pvSubSongSel.hidden=true;
 	pvSubSongLabel.hidden=true;
@@ -1647,6 +1669,55 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
 }
 
+-(void) checkForCover:(NSString *)filePath {
+    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF;
+    pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
+    pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
+    pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+    pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
+    pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
+    pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
+    
+    UIImage *cover_img=nil;
+    //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
+    if (gifAnimation) [gifAnimation removeFromSuperview];
+    gifAnimation=nil;
+    
+    cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
+    
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
+    if (cover_img==nil) {
+        cover_img=[UIImage imageWithContentsOfFile:pathFileImgGIF];
+        if (cover_img) {
+            NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
+            gifAnimation = [AnimatedGif getAnimationForGifAtUrl: firstUrl];
+            
+            gifAnimation.frame=CGRectMake(cover_view.frame.origin.x, cover_view.frame.origin.y,                                          cover_view.frame.size.width,cover_view.frame.size.height);
+            [cover_view addSubview:gifAnimation];
+        }
+    }
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPG];
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgPNG];
+    if (cover_img==nil) {
+        cover_img=[UIImage imageWithContentsOfFile:pathFolderImgGIF];
+        if (cover_img) {
+            NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
+            gifAnimation= [AnimatedGif getAnimationForGifAtUrl: firstUrl];
+            
+            gifAnimation.frame=CGRectMake(0, 0, mDevice_ww, mDevice_hh-234+82);
+            [gifAnimation layoutSubviews];
+            [cover_view addSubview:gifAnimation];
+        }
+    }
+    if (cover_img) {
+        
+        if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
+        
+        cover_view.image=cover_img;
+        cover_view.hidden=FALSE;
+    } else cover_view.hidden=TRUE;
+}
+
 -(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName {
 	short int playcount=0;
 	int retcode;
@@ -1736,52 +1807,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //fix issue with modplug settings reset after load
     [self settingsChanged:(int)SETTINGS_ALL];
     
-    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF;
-    pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePathTmp stringByDeletingLastPathComponent]];
-    pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePathTmp stringByDeletingLastPathComponent]];
-    pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePathTmp stringByDeletingLastPathComponent]];
-    pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePathTmp stringByDeletingPathExtension]];
-    pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePathTmp stringByDeletingPathExtension]];
-    pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePathTmp stringByDeletingPathExtension]];
-    
-    UIImage *cover_img=nil;
-    //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
-    if (gifAnimation) [gifAnimation removeFromSuperview];
-    gifAnimation=nil;
-    
-    cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
-    
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
-    if (cover_img==nil) {
-        cover_img=[UIImage imageWithContentsOfFile:pathFileImgGIF];
-        if (cover_img) {
-            NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
-            gifAnimation = [AnimatedGif getAnimationForGifAtUrl: firstUrl];
-            
-            gifAnimation.frame=CGRectMake(cover_view.frame.origin.x, cover_view.frame.origin.y,                                          cover_view.frame.size.width,cover_view.frame.size.height);
-            [cover_view addSubview:gifAnimation];
-        }
-    }
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgPNG];
-    if (cover_img==nil) {
-        cover_img=[UIImage imageWithContentsOfFile:pathFolderImgGIF];
-        if (cover_img) {
-            NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
-            gifAnimation= [AnimatedGif getAnimationForGifAtUrl: firstUrl];
-            
-            gifAnimation.frame=CGRectMake(0, 0, mDevice_ww, mDevice_hh-234+82);
-            [gifAnimation layoutSubviews];
-            [cover_view addSubview:gifAnimation];
-        }
-    }
-    if (cover_img) {
-        
-        if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
-        
-        cover_view.image=cover_img;
-        cover_view.hidden=FALSE;
-    } else cover_view.hidden=TRUE;
+    [self checkForCover:filePathTmp];
     
     //[self checkAvailableCovers:mPlaylist_pos];
     mPlaylist[mPlaylist_pos].cover_flag=-1;
@@ -3046,8 +3072,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	clock_t start_time,end_time;
 	start_time=clock();
     
-    [btnShowArcList setType:BButtonTypeGray];
-    [btnShowSubSong setType:BButtonTypeGray];
+    [super viewDidLoad];
+    
+    [btnShowArcList setType:BButtonTypeInverse];
+    [btnShowSubSong setType:BButtonTypeInverse];
+    
+    [infoButton setType:BButtonTypeInverse];
+    [infoButton addAwesomeIcon:FAIconInfoSign beforeTitle:YES font_size:30];
     
     shouldRestart=1;
     m_displayLink=nil;
@@ -3313,8 +3344,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
      [self.locManager startUpdatingLocation];
      }*/
 	
+//    [[infoButton layer] setCornerRadius:10.0];
 	/* Popup stuff */
-    [[infoButton layer] setCornerRadius:10.0];
 	[[infoMsgView layer] setCornerRadius:5.0];
 	[[infoMsgView layer] setBorderWidth:2.0];
 	[[infoMsgView layer] setBorderColor:[[UIColor colorWithRed: 0.95f green: 0.95f blue: 0.95f alpha: 1.0f] CGColor]];   //Adding Border color.
@@ -3329,7 +3360,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	ratingImg[4] = @"rating4.png";
 	ratingImg[5] = @"rating5.png";
 	
-	for (int i=0;i<2;i++) viewTapInfoStr[i]=NULL;
+	for (int i=0;i<3;i++) viewTapInfoStr[i]=NULL;
 	
 	mShouldHaveFocus=0;
     
@@ -3455,7 +3486,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9.png"]);
     txtMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10a.png"]);
     txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11.png"]);
-    txtMenuHandle[13]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
+    txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
     texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
     memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
@@ -3570,7 +3601,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     
 	
 	
-	[super viewDidLoad];
+//	[super viewDidLoad];
 	end_time=clock();
 #ifdef LOAD_PROFILE
 	NSLog(@"detail : %d",end_time-start_time);
@@ -3645,6 +3676,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         //update playlist
         /*		NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
          [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:FALSE scrollPosition:UITableViewScrollPositionMiddle];*/
+        
+        [self checkForCover:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
 	}
     
     if (shouldRestart) {
@@ -3694,7 +3727,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     if (m_displayLink) [m_displayLink invalidate];
 	self.navigationController.navigationBar.hidden = NO;
 	
-	for (int i=0;i<2;i++) if (viewTapInfoStr[i]) {
+	for (int i=0;i<3;i++) if (viewTapInfoStr[i]) {
 		delete viewTapInfoStr[i];
 		viewTapInfoStr[i]=NULL;
 	}
@@ -3707,25 +3740,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 
 - (void)viewDidAppear:(BOOL)animated {
 	mHasFocus=1;
-/*	[UIView beginAnimations:@"player_appear1" context:nil];
-	[UIView setAnimationDelay:0.3];
-	[UIView setAnimationDuration:0.70];
-	[UIView setAnimationDelegate:self];
-	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-	[UIView commitAnimations];*/
-    
-    if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
-/*        if (coverflow_needredraw||(coverflow_plsize!=mPlaylist_size)) {
-            coverflow_plsize=mPlaylist_size;
-            coverflow_pos=mPlaylist_pos;
-            coverflow_needredraw=0;
-            [coverflow setNumberOfCovers:mPlaylist_size pos:coverflow_pos];
-        }
-        if (coverflow_pos!=mPlaylist_pos) {
-            coverflow_pos=mPlaylist_pos;
-            coverflow.currentIndex=mPlaylist_pos;
-        }*/
-    }
     [super viewDidAppear:animated];
 }
 /*
@@ -3777,8 +3791,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         else fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas16" ofType: @"fnt"];
 		mFont = new CFont([fontPath cStringUsingEncoding:1]);
 	}
-	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit", mFont,mScaleFactor);
+	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit Menu", mFont,mScaleFactor);
 	if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFont,mScaleFactor);
+    if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("All Off", mFont,mScaleFactor);
 	
 	
 	//get ogl view dimension
@@ -3807,7 +3822,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             int moveRPx,moveRPy;
             int note_fx_linewidth;
             
-            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) {
+            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
                 moveRPx=movePy;
                 moveRPy=-movePx;
                 note_fx_linewidth=ww/tim_midifx_note_range;
@@ -3844,7 +3859,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             } else tim_midifx_note_offset=0;
             moveRPy=tim_midifx_note_offset;
             
-            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) {
+            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
                 movePx=-moveRPy;
                 movePy=moveRPx;
                 note_fx_linewidth=ww/tim_midifx_note_range;
@@ -3871,6 +3886,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		
 		if (viewTapHelpShow==1) {  //Main Menu
 			viewTapHelpShow=0;
+            viewTapHelpShowMode=1;
 			int tlx=m_oglView->previousTouchLocation.x;
 			int tly=m_oglView->previousTouchLocation.y;
             int touched_cellX=tlx*4/ww;
@@ -3884,18 +3900,22 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 				settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=val;
 			} else if (touched_coord==0x10) {
                 viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=0;
                 viewTapHelpShow_SubNb=4;
 			} else if (touched_coord==0x20) {
                 viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=4;
                 viewTapHelpShow_SubNb=4;
 			} else if (touched_coord==0x30) {
                 viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=8;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x01) {
 				viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=11;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x11) {
@@ -3905,10 +3925,12 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 				settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=val;
 			} else if (touched_coord==0x21) {
 				viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=14;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x31) {
                 viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=17;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x02) {
@@ -3921,6 +3943,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
 			} else if (touched_coord==0x12) {
 				viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=20;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x22) {
@@ -3928,7 +3951,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 val++;
 				if (val>=2) val=0;
 				settings[GLOB_FXPiano].detail.mdz_switch.switch_value=val;
-			} else if (touched_coord==0x13) {
+			} else if (touched_coord==0x03) {
                 shouldhide=1;
 			} else if (touched_coord==0x23) {
                 settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
@@ -3946,6 +3969,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             
 		} else if (viewTapHelpShow==2) { //sub menu
             viewTapHelpShow=0;
+            viewTapHelpShowMode=2;
 			int tlx=m_oglView->previousTouchLocation.x;
 			int tly=m_oglView->previousTouchLocation.y;
             int touched_cellX=tlx*4/ww;
@@ -4065,7 +4089,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                         break;
                 }
             }
-        } else viewTapHelpShow=1;
+        } else {viewTapHelpShow=1;viewTapHelpShowMode=1;}
 	}
     
     if (mOglViewIsHidden) {
@@ -4537,31 +4561,18 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		RenderUtils::SetUpOrtho(0,ww,hh);
         int active_idx=0;
         
-		if (viewTapHelpShow==1) {
-            if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) active_idx|=1<<0;
-			if (settings[GLOB_FX2].detail.mdz_switch.switch_value) active_idx|=1<<1;
-			if (settings[GLOB_FX3].detail.mdz_switch.switch_value) active_idx|=1<<2;
-            if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<3;
-            
-			if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) active_idx|=1<<4;
-            if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
-            if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
-            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<7;
-            
-			if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
-            if (settings[GLOB_FX5].detail.mdz_switch.switch_value) active_idx|=1<<9;
-			if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) active_idx|=1<<10;
-			
+		if (viewTapHelpShowMode==1) {
+            active_idx=[self computeActiveFX];
             
             RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt);
             infoMenuShowImages(ww,hh,fadelev);
             
             glPushMatrix();
-			glTranslatef((ww*2/4)+ww/8-(strlen(viewTapInfoStr[0]->mText)/2)*6,hh/8, 0.0f);
-			viewTapInfoStr[1]->Render(128+(fadelev/2));
+			glTranslatef((ww*2/4)+ww/8-(strlen(viewTapInfoStr[2]->mText)/2)*6,hh/8, 0.0f);
+			viewTapInfoStr[2]->Render(128+(fadelev/2));
 			glPopMatrix();
         }
-        if (viewTapHelpShow==2) {
+        if (viewTapHelpShowMode==2) {
             
             switch (viewTapHelpShow_SubStart) {
                 case 0: //FX2
@@ -4803,10 +4814,11 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     } else {  //No cover available, take default one
         //            NSLog(@"using default");
         cover.image = [UIImage imageNamed:@"default_art.png"];//covers[0];
-        
+     
     }
     
     if (mScaleFactor!=1) cover.image = [[[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp] autorelease];
+     
 	return cover;
 }
 
@@ -4835,6 +4847,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	mPlaylist_pos=index;
 	[self play_curEntry];
 }
+
+#pragma mark -
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
     if ([animationID compare:@"closePopup"]==NSOrderedSame) [self closePopup];

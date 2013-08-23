@@ -214,6 +214,27 @@
     self.color = [BButton colorForButtonType:type];
 }
 
+- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size
+{
+    NSString *iconString = [NSString stringFromAwesomeIcon:icon];
+    self.titleLabel.font = [UIFont fontWithName:@"FontAwesome"
+                                           size:font_size];
+    
+    NSString *title = [NSString stringWithFormat:@"%@", iconString];
+    
+    if (self.titleLabel.text==nil) {
+        
+    } else if(![self.titleLabel.text isEmpty]) {
+        if(before)
+            title = [title stringByAppendingFormat:@" %@", self.titleLabel.text];
+        else
+            title = [NSString stringWithFormat:@"%@  %@", self.titleLabel.text, iconString];
+    }
+    
+    [self setTitle:title forState:UIControlStateNormal];
+}
+
+
 - (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before
 {
     NSString *iconString = [NSString stringFromAwesomeIcon:icon];
@@ -222,7 +243,9 @@
     
     NSString *title = [NSString stringWithFormat:@"%@", iconString];
     
-    if(![self.titleLabel.text isEmpty]) {
+    if (self.titleLabel.text==nil) {
+        
+    } else if(![self.titleLabel.text isEmpty]) {
         if(before)
             title = [title stringByAppendingFormat:@" %@", self.titleLabel.text];
         else

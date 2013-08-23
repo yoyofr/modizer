@@ -34,7 +34,7 @@
 "Browser_UserGuide_MainKey"="User Guide";
 "Browser_UserGuide_SubKey"="Manual, FAQ, tips.";
 
-"GetAllEntries_MainKey"="Get all entries";
+"GetAllEntries_MainKey"="Get all missing entries";
 "GetAllEntries_SubKey"="Limited to 256 first missing entries.";
 
 "DisplayDir_MainKey"="List/Directory";

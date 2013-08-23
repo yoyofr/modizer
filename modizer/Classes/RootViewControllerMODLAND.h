@@ -87,7 +87,7 @@
 
 -(IBAction)goPlayer;
 
--(void) refreshMODLANDView;
+-(void) refreshViewAfterDownload;
 -(void) checkCreate:(NSString *)filePath;
 
 -(NSString*) getCompletePath:(int)id_mod;

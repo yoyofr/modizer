@@ -38,6 +38,8 @@
 {
     [super viewDidLoad];
     
+    collectionViewController=nil;
+    
     self.tableView.rowHeight = 40;
     
 #ifdef GET_NB_ENTRIES
@@ -71,6 +73,7 @@
 
 -(void) viewWillAppear:(BOOL)animated {
     [self.tableView reloadData];
+    collectionViewController=nil;
 }
 
 - (void)didReceiveMemoryWarning
@@ -387,6 +390,11 @@
             }
             break;
     }
+}
+
+-(void) refreshViewAfterDownload {
+    [tableView reloadData];
+    if (collectionViewController) [collectionViewController refreshViewAfterDownload];
 }
 
 @end

@@ -15,7 +15,7 @@
 
 @implementation MoreViewController
 
-@synthesize detailViewController,tableView,aboutVC;
+@synthesize detailViewController,tableView,aboutVC,rootVC;
 
 -(IBAction) goPlayer {
     [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
@@ -259,6 +259,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     SettingsGenViewController *settingsVC;
+    SettingsMaintenanceViewController *mntVC;
     switch (indexPath.row) {
         case 0://About
             //AboutViewController *aboutVC = [[[AboutViewController alloc]  initWithNibName:@"AboutViewController" bundle:[NSBundle mainBundle]] autorelease];
@@ -270,6 +271,13 @@
             settingsVC->detailViewController=detailViewController;
             settingsVC.title=NSLocalizedString(@"General Settings",@"");
             [self.navigationController pushViewController:settingsVC animated:YES];
+            break;
+        case 2://Maintenance
+            mntVC=[[[SettingsMaintenanceViewController alloc] initWithNibName:@"MaintenanceViewController" bundle:[NSBundle mainBundle]] autorelease];
+            mntVC->detailViewController=detailViewController;
+            mntVC->rootVC=rootVC;
+            mntVC.title=NSLocalizedString(@"Maintenance",@"");
+            [self.navigationController pushViewController:mntVC animated:YES];
             break;
     }
 }

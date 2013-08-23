@@ -9,7 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerLocalBrowser.h"
-#import "SearchViewController.h"
 #import "ASIHTTPRequest.h"
 #import "BButton.h"
 
@@ -18,14 +17,14 @@
 #define STATUS_STOPPED 0
 #define STATUS_DOWNLOADING 1
 
-@class DownloadViewController;
-@class DetailViewControllerIphone;
-@class RootViewControllerLocalBrowser;
+@class OnlineViewController;
 @class SearchViewController;
+
 
 @interface DownloadViewController : UIViewController <UITableViewDelegate,NSStreamDelegate> {
 	IBOutlet DetailViewControllerIphone *detailViewController;
 	IBOutlet RootViewControllerLocalBrowser *rootViewController;
+    IBOutlet OnlineViewController *onlineVC;
 	IBOutlet SearchViewController *searchViewController;
 	IBOutlet UITableView *downloadTabView;
 	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
@@ -83,6 +82,7 @@
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewController;
 @property (nonatomic, retain) IBOutlet SearchViewController *searchViewController;
+@property (nonatomic, retain) IBOutlet OnlineViewController *onlineVC;
 @property (nonatomic, retain) IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 @property (nonatomic, retain) IBOutlet UIProgressView *downloadPrgView;
 @property (nonatomic, retain) IBOutlet UITabBarItem *barItem;

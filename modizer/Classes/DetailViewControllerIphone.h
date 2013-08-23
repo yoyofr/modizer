@@ -95,7 +95,8 @@ class CGLString;
 	IBOutlet UILabel *labelSeeking;
 	IBOutlet UILabel *labelModuleSize,*labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
 	IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
-	IBOutlet UIButton *infoButton,*backInfo,*infoZoom,*infoUnzoom;
+	IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
+    IBOutlet BButton *infoButton;
 	IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
 	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;	
     
@@ -252,7 +253,8 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UIButton *btnChangeTime;
 @property (nonatomic, retain) IBOutlet UIView *mainView,*infoView;
 @property (nonatomic, retain) IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
-@property (nonatomic, retain) IBOutlet UIButton *infoButton,*backInfo,*infoZoom,*infoUnzoom;
+@property (nonatomic, retain) IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
+@property (nonatomic, retain) IBOutlet BButton *infoButton;
 @property (nonatomic, retain) IBOutlet UIButton *oglButton;
 
 @property (nonatomic, retain) IBOutlet UIPickerView *pvSubSongSel,*pvArcSel;

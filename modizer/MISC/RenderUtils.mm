@@ -1909,15 +1909,15 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int note_
             
             if (vol&&(st&VOICE_ON)) {
                 //note pressed
-                piano_key_state[(data_pianofx_note[j][i])&127]=8;
+                piano_key_state[(data_pianofx_note[j][i])&127]=4;
             }
         }
     }
     
 #define PIANO3D_DRAWKEY \
 if (piano_key_state[i+k]) { \
-    yn=yf-key_height*4/5*piano_key_state[i+k]/8; \
-    ynBL=yf-key_heightBL*3/5*piano_key_state[i+k]/8; \
+    yn=yf-key_height*4/5*piano_key_state[i+k]/4; \
+    ynBL=yf-key_heightBL*3/5*piano_key_state[i+k]/4; \
     piano_key_state[i+k]--; \
 } else { \
     yn=ynBL=yf; \
@@ -1925,9 +1925,9 @@ if (piano_key_state[i+k]) { \
 if (piano_ofs==12) piano_ofs=0; \
 if (piano_key[piano_ofs]==0) { /*white key*/ \
     if (piano_key_state[i+k]) { \
-cr=(0.6f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
-cg=(0.6f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
-cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
+cr=(0.6f*piano_key_state[i+k]+1.0f*(4-piano_key_state[i+k]))/4; \
+cg=(0.6f*piano_key_state[i+k]+1.0f*(4-piano_key_state[i+k]))/4; \
+cb=(1.0f*piano_key_state[i+k]+1.0f*(4-piano_key_state[i+k]))/4; \
     } else cr=cg=cb=1.0f; \
         /*Key / Up Face*/ \
         vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
@@ -2007,9 +2007,9 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
         white_idx++; \
 } else { /*black key*/ \
     if (piano_key_state[i+k]) { \
-        cr=(1.0f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
-        cg=(0.8f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
-        cb=(0.8f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
+        cr=(1.0f*piano_key_state[i+k]+0.4f*(4-piano_key_state[i+k]))/4; \
+        cg=(0.8f*piano_key_state[i+k]+0.4f*(4-piano_key_state[i+k]))/4; \
+        cb=(0.8f*piano_key_state[i+k]+0.4f*(4-piano_key_state[i+k]))/4; \
     } else cr=cg=cb=0.2f; \
         /*TOP*/ \
         vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
@@ -2091,9 +2091,7 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
 //    glEnable(GL_BLEND);
 //    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     //glDisable(GL_DEPTH_TEST);
-    
-    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
-	
+        	
     /* Begin Drawing Quads, setup vertex array pointer */
     glVertexPointer(3, GL_FLOAT, 0, vertices);
 	glColorPointer(4, GL_FLOAT, 0, vertColor);
@@ -2102,7 +2100,7 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
     /* Enable Vertex Pointer */
     glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
 
     
     //draw piano
@@ -2118,8 +2116,11 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
     z=-0-key_length*2;
     
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	
-    glBindTexture(GL_TEXTURE_2D, texturePiano);
+
+/*  
+ glEnable(GL_TEXTURE_2D);            
+ glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+ glBindTexture(GL_TEXTURE_2D, texturePiano);
     
     //draw background
     cr=220.0f/256;
@@ -2132,9 +2133,8 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
 	texcoords[2][0]=vertices[2][0]/8; texcoords[2][1]=vertices[2][1]/8; \
     texcoords[3][0]=vertices[3][0]/8; texcoords[3][1]=vertices[3][1]/8;
     
-    
-    //FRONT
     key_leftpos=19.0f/2;
+    //FRONT    
     vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
     vertices[0][0]=(float)(white_idx-key_leftpos-2);
     vertices[0][1]=yf+6;
@@ -2325,8 +2325,8 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     
     glDisable(GL_TEXTURE_2D);
-
-    
+*/
+    key_leftpos=28.0f/2;
     
     int piano_ofs=0;
     int k=0;
@@ -2340,6 +2340,7 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
     z=z-key_length;
     yf=yf+key_height*3;
     key_leftpos+=28.0f;
+    
     k=48;
     for (int i=0;i<48;i++,piano_ofs++) {
         PIANO3D_DRAWKEY

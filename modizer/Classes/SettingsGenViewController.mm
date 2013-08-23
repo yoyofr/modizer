@@ -209,6 +209,143 @@ void optUADEChangedC(id param) {
     [prefs synchronize];
 }
 
++ (void) applyDefaultSettings {
+    /////////////////////////////////////
+    //GLOBAL Player
+    /////////////////////////////////////
+    settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=1;
+    settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=2;
+    settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
+    settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
+    settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
+    
+    /////////////////////////////////////
+    //GLOBAL FTP
+    /////////////////////////////////////
+    if (settings[FTP_STATUS].detail.mdz_msgbox.text) free(settings[FTP_STATUS].detail.mdz_msgbox.text);
+    settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen("Inactive")+1);
+    strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,"Inactive");
+    
+    settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+    settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value=1;
+    
+    if (settings[FTP_USER].detail.mdz_textbox.text) free(settings[FTP_USER].detail.mdz_textbox.text);
+    settings[FTP_USER].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    
+    if (settings[FTP_PASSWORD].detail.mdz_textbox.text) free(settings[FTP_PASSWORD].detail.mdz_textbox.text);
+    settings[FTP_PASSWORD].detail.mdz_textbox.text=NULL;//(char*)"modizer";
+    
+    if (settings[FTP_PORT].detail.mdz_textbox.text) free(settings[FTP_PORT].detail.mdz_textbox.text);
+    settings[FTP_PORT].detail.mdz_textbox.text=(char*)malloc(strlen("21")+1);
+    strcpy(settings[FTP_PORT].detail.mdz_textbox.text,"21");
+    
+    /////////////////////////////////////
+    //Visualizers
+    /////////////////////////////////////
+    settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
+    settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
+    
+    /////////////////////////////////////
+    //PLUGINS
+    /////////////////////////////////////
+    
+    /////////////////////////////////////
+    //MODPLUG
+    /////////////////////////////////////
+    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value=0.5;
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=2;
+    settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
+    settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value=0.7;
+    settings[MODPLUG_BassRange].detail.mdz_slider.slider_value=0.3;
+    settings[MODPLUG_Surround].detail.mdz_boolswitch.switch_value=0;
+    settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_value=0.9;
+    settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value=0.8;
+    settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value=0;
+    settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_value=0.8;
+    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;
+    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value=0.5;
+    
+    /////////////////////////////////////
+    //DUMB
+    /////////////////////////////////////
+    settings[DUMB_MasterVolume].detail.mdz_slider.slider_value=0.5;
+    settings[DUMB_Resampling].detail.mdz_switch.switch_value=1;
+    
+    /////////////////////////////////////
+    //TIMIDITY
+    /////////////////////////////////////
+    settings[TIM_Polyphony].detail.mdz_slider.slider_value=128;
+    settings[TIM_Chorus].detail.mdz_boolswitch.switch_value=1;
+    settings[TIM_Reverb].detail.mdz_boolswitch.switch_value=1;
+    settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value=1;
+    settings[TIM_Resample].detail.mdz_switch.switch_value=1;
+    
+    /////////////////////////////////////
+    //GME
+    /////////////////////////////////////
+    
+    /////////////////////////////////////
+    //SID
+    /////////////////////////////////////
+    settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
+    settings[SID_Optim].detail.mdz_switch.switch_value=1;
+    settings[SID_LibVersion].detail.mdz_switch.switch_value=1;
+    
+    /////////////////////////////////////
+    //UADE
+    /////////////////////////////////////
+    settings[UADE_Head].detail.mdz_boolswitch.switch_value=0;
+    settings[UADE_PostFX].detail.mdz_boolswitch.switch_value=1;
+    settings[UADE_Led].detail.mdz_boolswitch.switch_value=0;
+    settings[UADE_Norm].detail.mdz_boolswitch.switch_value=0;
+    settings[UADE_Gain].detail.mdz_boolswitch.switch_value=0;
+    settings[UADE_GainValue].detail.mdz_slider.slider_value=0.5;
+    settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
+    settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
+    
+    /////////////////////////////////////
+    //SEXYPSF
+    /////////////////////////////////////
+    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value=1;
+    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value=1;
+    
+    /////////////////////////////////////
+    //AOSDK
+    /////////////////////////////////////
+    settings[AOSDK_Interpolation].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value=1;
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=1;
+    settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value=1;
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value=1;
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=2;
+    
+    /////////////////////////////////////
+    //ADPLUG
+    /////////////////////////////////////
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_value=1;
+    
+}
 
 + (void) loadSettings {
     memset((char*)settings,0,sizeof(settings));
@@ -368,7 +505,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_CoverFlow].sub_family=0;
     settings[GLOB_CoverFlow].callback=&optGLOBALChangedC;
     settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_PlayerViewOnPlay].label=(char*)"Player view on play";
     settings[GLOB_PlayerViewOnPlay].description=NULL;
