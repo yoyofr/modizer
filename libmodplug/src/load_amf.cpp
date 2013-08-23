@@ -266,7 +266,7 @@ BOOL CSoundFile::ReadAMF(LPCBYTE lpStream, const DWORD dwMemLength)
 	if ((pfh->szAMF[0] != 'A') || (pfh->szAMF[1] != 'M') || (pfh->szAMF[2] != 'F')
 	 || (pfh->version < 10) || (pfh->version > 14) || (!bswapLE16(pfh->numtracks))
 	 || (!pfh->numorders) || (pfh->numorders > MAX_PATTERNS)
-	 || (!pfh->numsamples) || (pfh->numsamples > MAX_SAMPLES)
+	 || (!pfh->numsamples) || (pfh->numsamples >= MAX_SAMPLES)
 	 || (pfh->numchannels < 4) || (pfh->numchannels > 32))
 		return FALSE;
 	memcpy(m_szNames[0], pfh->title, 32);

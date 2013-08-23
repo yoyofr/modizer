@@ -492,7 +492,8 @@ static void pat_read_waveheader(MMSTREAM *mmpat, WaveHeader *hw, int layer)
 		}
 	}
 	_mm_read_UBYTES((BYTE *)hw, sizeof(WaveHeader), mmpat);
-	strncpy(hw->reserved, hl.reserved, 36);
+	strncpy(hw->reserved, hl.reserved, 32);
+    hw->reserved[31] = 0;
 	if( hw->start_loop >= hw->wave_size ) {
 		hw->start_loop = 0;
 		hw->end_loop = 0;
@@ -551,6 +552,7 @@ static void pat_get_waveheader(MMFILE *mmpat, WaveHeader *hw, int layer)
 static int pat_readpat_attr(int pat, WaveHeader *hw, int layer)
 {
 	char fname[128];
+    unsigned long fsize;
 	MMSTREAM *mmpat;
 	pat_build_path(fname, pat);
 	mmpat = _mm_fopen(fname, "r");
@@ -558,6 +560,8 @@ static int pat_readpat_attr(int pat, WaveHeader *hw, int layer)
 		return 0;
 	pat_read_waveheader(mmpat, hw, layer);
 	_mm_fclose(mmpat);
+    if (hw->wave_size > fsize)
+		return 0;
 	return 1;
 }
 
@@ -1252,7 +1256,8 @@ static void PATsample(CSoundFile *cs, MODINSTRUMENT *q, int smp, int gm)
 #else
 	s[31] = '\0';
 	memset(cs->m_szNames[smp], 0, 32);
-	strcpy(cs->m_szNames[smp], s);
+	//strcpy(cs->m_szNames[smp], s);
+    strncpy(cs->m_szNames[smp], s, 32-1);
 	q->nGlobalVol = 64;
 	q->nPan       = 128;
 	q->uFlags     = CHN_16BIT;
@@ -1443,8 +1448,11 @@ BOOL CSoundFile::ReadPAT(const BYTE *lpStream, DWORD dwMemLength)
 	}
 #else
 	m_nType         = MOD_TYPE_PAT;
-	m_nInstruments  = h->samples + 1; // we know better but use each sample in the pat...
-	m_nSamples      = h->samples + 1; // xmms modplug does not use slot zero
+	//m_nInstruments  = h->samples + 1; // we know better but use each sample in the pat...
+	//m_nSamples      = h->samples + 1; // xmms modplug does not use slot zero
+    m_nInstruments  = h->samples >= MAX_INSTRUMENTS-1 ? MAX_INSTRUMENTS-1 : h->samples + 1; // we know better but use each sample in the pat...
+    m_nSamples      = h->samples >= MAX_SAMPLES-1 ? MAX_SAMPLES-1 : h->samples + 1; // xmms modplug does not use slot zero
+
 	m_nDefaultSpeed = 6;
 	m_nChannels     = h->samples;
 	numpat          = t;

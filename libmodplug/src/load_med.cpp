@@ -684,7 +684,8 @@ BOOL CSoundFile::ReadMed(const BYTE *lpStream, DWORD dwMemLength)
 	if (pmex)
 	{
 		// Channel Split
-		if ((m_nChannels == 4) && (pmsh->flags & 0x40))
+		//if ((m_nChannels == 4) && (pmsh->flags & 0x40))
+        if ((m_nChannels == 4) && (pmsh->flags & MMD_FLAG_8CHANNEL))
 		{
 			for (UINT i8ch=0; i8ch<4; i8ch++)
 			{

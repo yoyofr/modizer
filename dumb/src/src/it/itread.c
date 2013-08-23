@@ -23,28 +23,14 @@
 #include "dumb.h"
 #include "internal/it.h"
 
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
 
 
 #define INVESTIGATE_OLD_INSTRUMENTS
 
-#define min(a,b) (a<b?a:b)
 extern int it_max_channels;
-
-static int it_seek(DUMBFILE *f, long offset)
-{
-	long pos = dumbfile_pos(f);
-
-	if (pos > offset)
-		return -1;
-
-	if (pos < offset)
-		if (dumbfile_skip(f, offset - pos))
-			return -1;
-
-	return 0;
-}
-
-
 
 typedef unsigned char byte;
 typedef unsigned short word;
@@ -123,7 +109,7 @@ static int readbits(int bitwidth, readblock_crap * crap)
 /** WARNING - do we even need to pass `right`? */
 /** WARNING - why bother memsetting at all? The whole array is written... */
 // if we do memset, dumb_silence() would be neater...
-static int decompress8(DUMBFILE *f, signed char *data, int len, int it215)
+static int decompress8(DUMBFILE *f, signed char *data, int len, int it215, int stereo)
 {
 	int blocklen, blockpos;
 	byte bitwidth;
@@ -133,7 +119,8 @@ static int decompress8(DUMBFILE *f, signed char *data, int len, int it215)
 
 	memset(&crap, 0, sizeof(crap));
 
-	memset(data, 0, len * sizeof(*data));
+	for (blocklen = 0, blockpos = 0; blocklen < len; blocklen++, blockpos += 1 + stereo)
+		data[ blockpos ] = 0;
 
 	while (len > 0) {
 		//Read a block of compressed data:
@@ -199,6 +186,7 @@ static int decompress8(DUMBFILE *f, signed char *data, int len, int it215)
 			 * code. Yay, better compression :D
 			 */
 			*data++ = it215 ? d2 : d1;
+			data += stereo;
 			len--;
 			blockpos++;
 		}
@@ -209,7 +197,7 @@ static int decompress8(DUMBFILE *f, signed char *data, int len, int it215)
 
 
 
-static int decompress16(DUMBFILE *f, short *data, int len, int it215)
+static int decompress16(DUMBFILE *f, short *data, int len, int it215, int stereo)
 {
 	int blocklen, blockpos;
 	byte bitwidth;
@@ -219,7 +207,8 @@ static int decompress16(DUMBFILE *f, short *data, int len, int it215)
 
 	memset(&crap, 0, sizeof(crap));
 
-	memset(data, 0, len * sizeof(*data));
+	for ( blocklen = 0, blockpos = 0; blocklen < len; blocklen++, blockpos += 1 + stereo )
+		data[ blockpos ] = 0;
 
 	while (len > 0) {
 		//Read a block of compressed data:
@@ -284,6 +273,7 @@ static int decompress16(DUMBFILE *f, short *data, int len, int it215)
 			 * code. Yay, better compression :D
 			 */
 			*data++ = it215 ? d2 : d1;
+			data += stereo;
 			len--;
 			blockpos++;
 		}
@@ -333,7 +323,7 @@ static int it_read_old_instrument(IT_INSTRUMENT *instrument, DUMBFILE *f)
 	// XXX
 	dumbfile_skip(f, 4);
 
-	dumbfile_getnc(instrument->filename, 13, f);
+    dumbfile_getnc((char *)instrument->filename, 13, f);
 	instrument->filename[13] = 0;
 
 	instrument->volume_envelope.flags = dumbfile_getc(f);
@@ -362,7 +352,7 @@ static int it_read_old_instrument(IT_INSTRUMENT *instrument, DUMBFILE *f)
 	 */
 	dumbfile_skip(f, 4);
 
-	dumbfile_getnc(instrument->name, 26, f);
+    dumbfile_getnc((char *)instrument->name, 26, f);
 	instrument->name[26] = 0;
 
 	/* Skip unused bytes following the Instrument Name. */
@@ -448,7 +438,7 @@ static int it_read_instrument(IT_INSTRUMENT *instrument, DUMBFILE *f, int maxlen
 
 	dumbfile_skip(f, 4);
 
-	dumbfile_getnc(instrument->filename, 13, f);
+    dumbfile_getnc((char *)instrument->filename, 13, f);
 	instrument->filename[13] = 0;
 
 	instrument->new_note_action = dumbfile_getc(f);
@@ -467,7 +457,7 @@ static int it_read_instrument(IT_INSTRUMENT *instrument, DUMBFILE *f, int maxlen
 	 */
 	dumbfile_skip(f, 4);
 
-	dumbfile_getnc(instrument->name, 26, f);
+    dumbfile_getnc((char *)instrument->name, 26, f);
 	instrument->name[26] = 0;
 
 	instrument->filter_cutoff = dumbfile_getc(f);
@@ -551,14 +541,14 @@ static int it_read_sample_header(IT_SAMPLE *sample, unsigned char *convert, long
 		}
 	}
 
-	dumbfile_getnc(sample->filename, 13, f);
+    dumbfile_getnc((char *)sample->filename, 13, f);
 	sample->filename[13] = 0;
 
 	sample->global_volume = dumbfile_getc(f);
 	sample->flags = dumbfile_getc(f);
 	sample->default_volume = dumbfile_getc(f);
 
-	dumbfile_getnc(sample->name, 26, f);
+    dumbfile_getnc((char *)sample->name, 26, f);
 	sample->name[26] = 0;
 
 	*convert = dumbfile_getc(f);
@@ -628,8 +618,8 @@ long _dumb_it_read_sample_data_adpcm4(IT_SAMPLE *sample, DUMBFILE *f)
 	long n, len, delta;
 	signed char * ptr, * end;
 	signed char compression_table[16];
-	if (dumbfile_getnc(compression_table, 16, f) != 16)
-		return -1;
+    if (dumbfile_getnc((char *)compression_table, 16, f) != 16)
+        return -1;
 	ptr = (signed char *) sample->data;
 	delta = 0;
 
@@ -649,7 +639,7 @@ long _dumb_it_read_sample_data_adpcm4(IT_SAMPLE *sample, DUMBFILE *f)
 }
 
 
-static long it_read_sample_data(int cmwt, IT_SAMPLE *sample, unsigned char convert, DUMBFILE *f)
+static long it_read_sample_data(IT_SAMPLE *sample, unsigned char convert, DUMBFILE *f)
 {
 	long n;
 
@@ -666,31 +656,53 @@ static long it_read_sample_data(int cmwt, IT_SAMPLE *sample, unsigned char conve
 	} else if (sample->flags & 8) {
 		/* If the sample is packed, then we must unpack it. */
 
-		/** WARNING - unresolved business here... test with ModPlug? */
+		/* Behavior as defined by greasemonkey's munch.py and observed by XMPlay and OpenMPT */
 
-		if (sample->flags & IT_SAMPLE_STEREO)
-			//exit(37); // TODO: if this ever happens, maybe sample->length should be doubled below?
-			return -1;
-
-/*
-//#ifndef STEREO_SAMPLES_COUNT_AS_TWO
-		ASSERT(!(sample->flags & IT_SAMPLE_STEREO));
-//#endif
-*/
-		if (sample->flags & IT_SAMPLE_16BIT)
-			decompress16(f, sample->data, datasize, ((cmwt >= 0x215) && (convert & 4)));
-		else
-			decompress8(f, sample->data, datasize, ((cmwt >= 0x215) && (convert & 4)));
+		if (sample->flags & IT_SAMPLE_STEREO) {
+			if (sample->flags & IT_SAMPLE_16BIT) {
+				decompress16(f, (short *) sample->data, datasize >> 1, convert & 4, 1);
+				decompress16(f, (short *) sample->data + 1, datasize >> 1, convert & 4, 1);
+			} else {
+				decompress8(f, (signed char *) sample->data, datasize >> 1, convert & 4, 1);
+				decompress8(f, (signed char *) sample->data + 1, datasize >> 1, convert & 4, 1);
+			}
+		} else {
+			if (sample->flags & IT_SAMPLE_16BIT)
+				decompress16(f, (short *) sample->data, datasize, convert & 4, 0);
+			else
+				decompress8(f, (signed char *) sample->data, datasize, convert & 4, 0);
+		}
  	} else if (sample->flags & IT_SAMPLE_16BIT) {
- 		if (convert & 2)
+		if (sample->flags & IT_SAMPLE_STEREO) {
+			if (convert & 2) {
+				for (n = 0; n < datasize; n += 2)
+					((short *)sample->data)[n] = dumbfile_mgetw(f);
+				for (n = 1; n < datasize; n += 2)
+					((short *)sample->data)[n] = dumbfile_mgetw(f);
+			} else {
+				for (n = 0; n < datasize; n += 2)
+					((short *)sample->data)[n] = dumbfile_igetw(f);
+				for (n = 1; n < datasize; n += 2)
+					((short *)sample->data)[n] = dumbfile_igetw(f);
+			}
+		} else {
+ 			if (convert & 2)
+				for (n = 0; n < datasize; n++)
+					((short *)sample->data)[n] = dumbfile_mgetw(f);
+			else
+				for (n = 0; n < datasize; n++)
+					((short *)sample->data)[n] = dumbfile_igetw(f);
+		}
+ 	} else {
+		if (sample->flags & IT_SAMPLE_STEREO) {
+			for (n = 0; n < datasize; n += 2)
+				((signed char *)sample->data)[n] = dumbfile_getc(f);
+			for (n = 1; n < datasize; n += 2)
+				((signed char *)sample->data)[n] = dumbfile_getc(f);
+		} else
 			for (n = 0; n < datasize; n++)
-				((short *)sample->data)[n] = dumbfile_mgetw(f);
- 		else
-			for (n = 0; n < datasize; n++)
-				((short *)sample->data)[n] = dumbfile_igetw(f);
- 	} else
-		for (n = 0; n < datasize; n++)
-			((signed char *)sample->data)[n] = dumbfile_getc(f);
+				((signed char *)sample->data)[n] = dumbfile_getc(f);
+	}
 
 	if (dumbfile_error(f))
 		return -1;
@@ -765,7 +777,7 @@ static int it_read_pattern(IT_PATTERN *pattern, DUMBFILE *f, unsigned char *buff
 		return -1;
 
 	/* Read in the pattern data. */
-	dumbfile_getnc(buffer, buflen, f);
+    dumbfile_getnc((char *)buffer, buflen, f);
 
 	if (dumbfile_error(f))
 		return -1;
@@ -782,6 +794,7 @@ static int it_read_pattern(IT_PATTERN *pattern, DUMBFILE *f, unsigned char *buff
 
 		channel = (b - 1) & 63;
         if (channel>it_max_channels) it_max_channels=channel;
+
 
 		if (b & 128)
 			cmask[channel] = mask = buffer[bufpos++];
@@ -938,12 +951,16 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
     it_max_channels=0;
 
 	if (dumbfile_mgetl(f) != IT_SIGNATURE)
+    {
 		return NULL;
+    }
 
 	sigdata = malloc(sizeof(*sigdata));
 
 	if (!sigdata)
+    {
 		return NULL;
+    }
 
 	sigdata->song_message = NULL;
 	sigdata->order = NULL;
@@ -953,7 +970,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 	sigdata->midi = NULL;
 	sigdata->checkpoint = NULL;
 
-	dumbfile_getnc(sigdata->name, 26, f);
+    dumbfile_getnc((char *)sigdata->name, 26, f);
 	sigdata->name[26] = 0;
 
 	/* Skip pattern row highlight info. */
@@ -986,8 +1003,8 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 	/* Skip Reserved. */
 	dumbfile_skip(f, 4);
 
-	dumbfile_getnc(sigdata->channel_pan, DUMB_IT_N_CHANNELS, f);
-	dumbfile_getnc(sigdata->channel_volume, DUMB_IT_N_CHANNELS, f);
+    dumbfile_getnc((char *)sigdata->channel_pan, DUMB_IT_N_CHANNELS, f);
+    dumbfile_getnc((char *)sigdata->channel_volume, DUMB_IT_N_CHANNELS, f);
 
 	// XXX sample count
 	if (dumbfile_error(f) || sigdata->n_orders <= 0 || sigdata->n_instruments > 256 || sigdata->n_samples > 4000 || sigdata->n_patterns > 256) {
@@ -1029,7 +1046,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 			sigdata->pattern[n].entry = NULL;
 	}
 
-	dumbfile_getnc(sigdata->order, sigdata->n_orders, f);
+    dumbfile_getnc((char *)sigdata->order, sigdata->n_orders, f);
 	sigdata->restart_position = 0;
 
 	component = malloc(769 * sizeof(*component));
@@ -1119,7 +1136,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 		for (i = 0; i < 16; i++) {
 			unsigned char len = 0;
 			int j, leftdigit = -1;
-			if (dumbfile_getnc(mididata, 32, f) < 32) {
+            if (dumbfile_getnc((char *)mididata, 32, f) < 32) {
 				free(component);
 				_dumb_it_unload_sigdata(sigdata);
 				return NULL;
@@ -1151,7 +1168,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 		for (i = 0; i < 128; i++) {
 			unsigned char len = 0;
 			int j, leftdigit = -1;
-			dumbfile_getnc(mididata, 32, f);
+            dumbfile_getnc((char *)mididata, 32, f);
 			for (j = 0; j < 32; j++) {
 				if (leftdigit >= 0) {
 					if (mididata[j] == 0) {
@@ -1177,7 +1194,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 
 	sigdata->flags &= IT_REAL_FLAGS;
 
-	qsort(component, n_components, sizeof(IT_COMPONENT), &it_component_compare);
+    qsort(component, n_components, sizeof(IT_COMPONENT), &it_component_compare);
 
 	buffer = malloc(65536);
 	if (!buffer) {
@@ -1211,7 +1228,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 			continue;
 		}
 
-		if (it_seek(f, component[n].offset)) {
+        if (dumbfile_seek(f, component[n].offset, DFS_SEEK_SET)) {
 			free(buffer);
 			free(component);
 			_dumb_it_unload_sigdata(sigdata);
@@ -1226,7 +1243,7 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 				}
 				sigdata->song_message = malloc(message_length + 1);
 				if (sigdata->song_message) {
-					if (dumbfile_getnc(sigdata->song_message, message_length, f) < message_length) {
+                    if (dumbfile_getnc((char *)sigdata->song_message, message_length, f) < message_length) {
 						free(buffer);
 						free(component);
 						_dumb_it_unload_sigdata(sigdata);
@@ -1290,14 +1307,14 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 		m = component[n].sampfirst;
 
 		while (m >= 0) {
-			if (it_seek(f, component[m].offset)) {
+            if (dumbfile_seek(f, component[m].offset, DFS_SEEK_SET)) {
 				free(buffer);
 				free(component);
 				_dumb_it_unload_sigdata(sigdata);
 				return NULL;
 			}
 
-			if (it_read_sample_data(cmwt, &sigdata->sample[component[m].n], sample_convert[component[m].n], f)) {
+			if (it_read_sample_data(&sigdata->sample[component[m].n], sample_convert[component[m].n], f)) {
 				free(buffer);
 				free(component);
 				_dumb_it_unload_sigdata(sigdata);
@@ -1306,9 +1323,67 @@ static sigdata_t *it_load_sigdata(DUMBFILE *f)
 
 			m = component[m].sampnext;
 		}
-	}
+    }
 
-	free(buffer);
+    for ( n = 0; n < 10; n++ )
+    {
+        if ( dumbfile_getc( f ) == 'X' )
+        {
+            if ( dumbfile_getc( f ) == 'T' )
+            {
+                if ( dumbfile_getc( f ) == 'P' )
+                {
+                    if ( dumbfile_getc( f ) == 'M' )
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if ( !dumbfile_error( f ) && n < 10 )
+    {
+        unsigned int mptx_id = dumbfile_igetl( f );
+        while ( !dumbfile_error( f ) && mptx_id != DUMB_ID('M','P','T','S') )
+        {
+            unsigned int size = dumbfile_igetw( f );
+            switch (mptx_id)
+            {
+            /* TODO: Add instrument extension readers */
+
+            default:
+                dumbfile_skip(f, size * sigdata->n_instruments);
+                break;
+            }
+
+            mptx_id = dumbfile_igetl( f );
+        }
+
+        mptx_id = dumbfile_igetl( f );
+        while ( !dumbfile_error(f) && dumbfile_pos(f) < dumbfile_get_size(f) )
+        {
+            unsigned int size = dumbfile_igetw( f );
+            switch (mptx_id)
+            {
+            /* TODO: Add more song extension readers */
+
+            case DUMB_ID('D','T','.','.'):
+                if ( size == 2 )
+                    sigdata->tempo = dumbfile_igetw( f );
+                else if ( size == 4 )
+                    sigdata->tempo = dumbfile_igetl( f );
+                break;
+
+            default:
+                dumbfile_skip(f, size);
+                break;
+            }
+            mptx_id = dumbfile_igetl( f );
+        }
+    }
+
+    free(buffer);
 	free(component);
 
 	_dumb_it_fix_invalid_orders(sigdata);
@@ -1332,10 +1407,9 @@ DUH *dumb_read_it_quick(DUMBFILE *f)
 	{
 		const char *tag[2][2];
 		tag[0][0] = "TITLE";
-		tag[0][1] = ((DUMB_IT_SIGDATA *)sigdata)->name;
-        tag[1][0] = "FORMAT";
+        tag[0][1] = (const char *)(((DUMB_IT_SIGDATA *)sigdata)->name);
+		tag[1][0] = "FORMAT";
 		tag[1][1] = "IT";
-		
-		return make_duh(-1, 2, (const char *const (*)[2])tag, 1, &descptr, &sigdata);                
+		return make_duh(-1, 2, (const char *const (*)[2])tag, 1, &descptr, &sigdata);
 	}
 }
