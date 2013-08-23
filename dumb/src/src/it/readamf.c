@@ -171,10 +171,10 @@ static int it_amf_read_sample_header( IT_SAMPLE *sample, DUMBFILE *f, int * offs
 
 	exists = dumbfile_getc( f );
 
-	dumbfile_getnc( sample->name, 32, f );
+    dumbfile_getnc( (char *) sample->name, 32, f );
 	sample->name[32] = 0;
 
-	dumbfile_getnc( sample->filename, 13, f );
+    dumbfile_getnc( (char *) sample->filename, 13, f );
 	sample->filename[13] = 0;
 
 	*offset = dumbfile_igetl( f );
@@ -272,7 +272,7 @@ static DUMB_IT_SIGDATA *it_amf_load_sigdata(DUMBFILE *f, int * version)
 		return NULL;
 	}
 
-	dumbfile_getnc( sigdata->name, 32, f );
+    dumbfile_getnc( (char *) sigdata->name, 32, f );
 	sigdata->name[ 32 ] = 0;
 	sigdata->n_samples = dumbfile_getc( f );
 	sigdata->n_orders = dumbfile_getc( f );
@@ -390,7 +390,7 @@ static DUMB_IT_SIGDATA *it_amf_load_sigdata(DUMBFILE *f, int * version)
 		goto error_ott;
 	}
 
-	if ( dumbfile_getnc( ( char * ) trackmap, ntracks * sizeof( unsigned short ), f ) != ntracks * sizeof( unsigned short ) ) {
+	if ( dumbfile_getnc( ( char * ) trackmap, ntracks * sizeof( unsigned short ), f ) != (long)(ntracks * sizeof( unsigned short )) ) {
 		goto error_tm;
 	}
 
@@ -415,7 +415,7 @@ static DUMB_IT_SIGDATA *it_amf_load_sigdata(DUMBFILE *f, int * version)
 		track[ i ][ 0 ] = tracksize & 255;
 		track[ i ][ 1 ] = ( tracksize >> 8 ) & 255;
 		track[ i ][ 2 ] = ( tracksize >> 16 ) & 255;
-		if ( dumbfile_getnc( track[ i ] + 3, tracksize * 3, f ) != tracksize * 3 ) {
+        if ( dumbfile_getnc( (char *) track[ i ] + 3, tracksize * 3, f ) != tracksize * 3 ) {
 			goto error_all;
 		}
 	}
@@ -510,7 +510,7 @@ DUH *dumb_read_amf_quick(DUMBFILE *f)
 		const char *tag[2][2];
 		char ver_string[14];
 		tag[0][0] = "TITLE";
-		tag[0][1] = ((DUMB_IT_SIGDATA *)sigdata)->name;
+        tag[0][1] = (const char *)(((DUMB_IT_SIGDATA *)sigdata)->name);
 		tag[1][0] = "FORMAT";
 		memcpy( ver_string, "DSMI AMF v", 10 );
 		ver_string[10] = '0' + version / 10;

@@ -34,7 +34,7 @@ typedef struct MMCMPBLOCK
 	WORD sub_blk;
 	WORD flags;
 	WORD tt_entries;
-	WORD num_bits;
+	USHORT num_bits;
 } MMCMPBLOCK, *LPMMCMPBLOCK;
 
 typedef struct MMCMPSUBBLOCK
@@ -145,7 +145,10 @@ BOOL MMCMP_Unpack(LPCBYTE *ppMemFile, LPDWORD pdwMemLength)
 		{
 			for (UINT i=0; i<pblk->sub_blk; i++)
 			{
-				if ((psubblk->unpk_pos > dwFileSize) || (psubblk->unpk_pos + psubblk->unpk_size > dwFileSize)) break;
+//				if ((psubblk->unpk_pos > dwFileSize) || (psubblk->unpk_pos + psubblk->unpk_size > dwFileSize)) break;
+                if ((psubblk->unpk_pos >= dwFileSize) ||
+                    (psubblk->unpk_size >= dwFileSize) ||
+                    (psubblk->unpk_size > dwFileSize - psubblk->unpk_pos)) break;
 #ifdef MMCMP_LOG
 				Log("  Unpacked sub-block %d: offset %d, size=%d\n", i, psubblk->unpk_pos, psubblk->unpk_size);
 #endif
@@ -155,7 +158,8 @@ BOOL MMCMP_Unpack(LPCBYTE *ppMemFile, LPDWORD pdwMemLength)
 			}
 		} else
 		// Data is 16-bit packed
-		if (pblk->flags & MMCMP_16BIT)
+//		if (pblk->flags & MMCMP_16BIT)
+        if (pblk->flags & MMCMP_16BIT && pblk->num_bits < 16)
 		{
 			MMCMPBITBUFFER bb;
 			LPWORD pDest = (LPWORD)(pBuffer + psubblk->unpk_pos);
@@ -223,7 +227,8 @@ BOOL MMCMP_Unpack(LPCBYTE *ppMemFile, LPDWORD pdwMemLength)
 					pDest = (LPWORD)(pBuffer + psubblk[subblk].unpk_pos);
 				}
 			}
-		} else
+		//} else
+        } else if (pblk->num_bits < 8)
 		// Data is 8-bit packed
 		{
 			MMCMPBITBUFFER bb;
@@ -283,8 +288,10 @@ BOOL MMCMP_Unpack(LPCBYTE *ppMemFile, LPDWORD pdwMemLength)
 					pDest = pBuffer + psubblk[subblk].unpk_pos;
 				}
 			}
-		}
+    } else {
+        return FALSE;
 	}
+    }
 	*ppMemFile = pBuffer;
 	*pdwMemLength = dwFileSize;
 	return TRUE;

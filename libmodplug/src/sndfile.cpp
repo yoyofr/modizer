@@ -817,11 +817,16 @@ UINT CSoundFile::GetSaveFormats() const
 {
 	UINT n = 0;
 	if ((!m_nSamples) || (!m_nChannels) || (m_nType == MOD_TYPE_NONE)) return 0;
-	switch(m_nType)
+	/*switch(m_nType)
 	{
 	case MOD_TYPE_MOD:	n = MOD_TYPE_MOD;
 	case MOD_TYPE_S3M:	n = MOD_TYPE_S3M;
-	}
+	}*/
+    if (m_nType & MOD_TYPE_MOD)
+        n |= MOD_TYPE_MOD;
+    if (m_nType & MOD_TYPE_S3M)
+        n |= MOD_TYPE_S3M;
+    // Can always save to XM & IT
 	n |= MOD_TYPE_XM | MOD_TYPE_IT;
 	if (!m_nInstruments)
 	{
@@ -836,7 +841,9 @@ UINT CSoundFile::GetSampleName(UINT nSample,LPSTR s) const
 //--------------------------------------------------------
 {
         char sztmp[40] = "";      // changed from CHAR
-	memcpy(sztmp, m_szNames[nSample],32);
+	//memcpy(sztmp, m_szNames[nSample],32);
+    if (nSample < MAX_SAMPLES)
+        memcpy(sztmp, m_szNames[nSample], 32);
 	sztmp[31] = 0;
 	if (s) strcpy(s, sztmp);
 	return strlen(sztmp);

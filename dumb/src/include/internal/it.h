@@ -33,6 +33,7 @@
 #include <stddef.h>
 
 #include "barray.h"
+#include "tarray.h"
 
 
 /** TO DO: THINK ABOUT THE FOLLOWING:
@@ -54,7 +55,7 @@ sigdata->flags & IT_COMPATIBLE_GXX
  * handle ambiguities in the format specification. The correct code in each
  * case will be determined most likely by experimentation.
  */
-#define STEREO_SAMPLES_COUNT_AS_TWO
+//#define STEREO_SAMPLES_COUNT_AS_TWO
 #define INVALID_ORDERS_END_SONG
 #define INVALID_NOTES_CAUSE_NOTE_CUT
 #define SUSTAIN_LOOP_OVERRIDES_NORMAL_LOOP
@@ -209,7 +210,7 @@ struct IT_INSTRUMENT
 struct IT_SAMPLE
 {
 	unsigned char name[35];
-	unsigned char filename[14];
+	unsigned char filename[15];
 	unsigned char flags;
 	unsigned char global_volume;
 	unsigned char default_volume;
@@ -412,6 +413,10 @@ struct IT_PATTERN
 
 #define IT_WAS_AN_OKT     2048
 
+#define IT_WAS_AN_STM     4096
+
+#define IT_WAS_PROCESSED  8192 /* Will be set the first time a sigdata passes through a sigrenderer */
+
 #define IT_ORDER_END  255
 #define IT_ORDER_SKIP 254
 
@@ -465,6 +470,7 @@ struct IT_PLAYING_ENVELOPE
 #define IT_PLAYING_SUSTAINOFF 2
 #define IT_PLAYING_FADING     4
 #define IT_PLAYING_DEAD       8
+#define IT_PLAYING_REVERSE    16
 
 struct IT_PLAYING
 {
@@ -597,7 +603,9 @@ struct IT_CHANNEL
 
 	unsigned char new_note_action;
 
-	unsigned int arpeggio;
+	unsigned char const* arpeggio_table;
+	signed char arpeggio_offsets[3];
+
 	int arpeggio_shift;
 	unsigned char retrig;
 	unsigned char xm_retrig;
@@ -717,6 +725,21 @@ struct DUMB_IT_SIGRENDERER
 #ifdef BIT_ARRAY_BULLSHIT
 	/* bit array, which rows are played, only checked by pattern break or loop commands */
 	void * played;
+
+	/*
+	   Loop indicator for internal processes, may also be useful for external processes 
+	   0 - Not looped
+	   1 - Looped
+	  -1 - Continued past loop
+	 */
+	int looped;
+
+	/*
+	   Kept until looped
+	*/
+	LONG_LONG time_played;
+
+	void * row_timekeeper;
 #endif
 
 	long gvz_time;
@@ -894,5 +917,7 @@ int _dumb_it_fix_invalid_orders(DUMB_IT_SIGDATA *sigdata);
 void _dumb_it_ptm_convert_effect(int effect, int value, IT_ENTRY *entry);
 
 long _dumb_it_read_sample_data_adpcm4(IT_SAMPLE *sample, DUMBFILE *f);
+
+void _dumb_it_interleave_stereo_sample(IT_SAMPLE *sample);
 
 #endif /* INTERNAL_IT_H */

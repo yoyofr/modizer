@@ -42,7 +42,7 @@
 
 #define DUMB_VERSION_STR "0.9.3"
 
-#define DUMB_NAME "DUMB v"DUMB_VERSION_STR
+#define DUMB_NAME "DUMB v" DUMB_VERSION_STR
 
 #define DUMB_YEAR  2005
 #define DUMB_MONTH 8
@@ -54,13 +54,13 @@
 #define DUMB_DAY_STR1   "7"
 
 #if DUMB_MONTH < 10
-#define DUMB_MONTH_STR2 "0"DUMB_MONTH_STR1
+#define DUMB_MONTH_STR2 "0" DUMB_MONTH_STR1
 #else
 #define DUMB_MONTH_STR2 DUMB_MONTH_STR1
 #endif
 
 #if DUMB_DAY < 10
-#define DUMB_DAY_STR2 "0"DUMB_DAY_STR1
+#define DUMB_DAY_STR2 "0" DUMB_DAY_STR1
 #else
 #define DUMB_DAY_STR2 DUMB_DAY_STR1
 #endif
@@ -72,7 +72,7 @@
  */
 #define DUMB_DATE (DUMB_YEAR*10000 + DUMB_MONTH*100 + DUMB_DAY)
 
-#define DUMB_DATE_STR DUMB_DAY_STR1"."DUMB_MONTH_STR1"."DUMB_YEAR_STR4
+#define DUMB_DATE_STR DUMB_DAY_STR1 "." DUMB_MONTH_STR1 "." DUMB_YEAR_STR4
 
 
 #undef MIN
@@ -160,6 +160,8 @@ typedef struct DUMBFILE_SYSTEM
 	int (*getc)(void *f);
 	long (*getnc)(char *ptr, long n, void *f);
 	void (*close)(void *f);
+    int (*seek)(void *f, long n);
+    long (*get_size)(void *f);
 }
 DUMBFILE_SYSTEM;
 
@@ -168,10 +170,18 @@ typedef struct DUMBFILE DUMBFILE;
 void register_dumbfile_system(const DUMBFILE_SYSTEM *dfs);
 
 DUMBFILE *dumbfile_open(const char *filename);
-DUMBFILE *dumbfile_open_ex(void *file, DUMBFILE_SYSTEM *dfs);
+DUMBFILE *dumbfile_open_ex(void *file, const DUMBFILE_SYSTEM *dfs);
 
 long dumbfile_pos(DUMBFILE *f);
 int dumbfile_skip(DUMBFILE *f, long n);
+
+#define DFS_SEEK_SET 0
+#define DFS_SEEK_CUR 1
+#define DFS_SEEK_END 2
+
+int dumbfile_seek(DUMBFILE *f, long n, int origin);
+
+long dumbfile_get_size(DUMBFILE *f);
 
 int dumbfile_getc(DUMBFILE *f);
 
@@ -218,7 +228,6 @@ DUH *read_duh(DUMBFILE *f);
 long duh_get_length(DUH *duh);
 
 const char *duh_get_tag(DUH *duh, const char *key);
-
 
 /* Signal Rendering Functions */
 
@@ -382,11 +391,13 @@ void dumb_it_set_global_volume_zero_callback(DUMB_IT_SIGRENDERER *sigrenderer, i
 int dumb_it_callback_terminate(void *data);
 int dumb_it_callback_midi_block(void *data, int channel, unsigned char midi_byte);
 
+/* dumb_*_mod*: restrict_ |= 1-Don't read 15 sample files / 2-Use old pattern counting method */
+
 DUH *dumb_load_it(const char *filename);
 DUH *dumb_load_xm(const char *filename);
 DUH *dumb_load_s3m(const char *filename);
 DUH *dumb_load_stm(const char *filename);
-DUH *dumb_load_mod(const char *filename, int _drestrict);
+DUH *dumb_load_mod(const char *filename, int restrict_);
 DUH *dumb_load_ptm(const char *filename);
 DUH *dumb_load_669(const char *filename);
 DUH *dumb_load_psm(const char *filename, int subsong);
@@ -401,7 +412,7 @@ DUH *dumb_read_it(DUMBFILE *f);
 DUH *dumb_read_xm(DUMBFILE *f);
 DUH *dumb_read_s3m(DUMBFILE *f);
 DUH *dumb_read_stm(DUMBFILE *f);
-DUH *dumb_read_mod(DUMBFILE *f, int _drestrict);
+DUH *dumb_read_mod(DUMBFILE *f, int restrict_);
 DUH *dumb_read_ptm(DUMBFILE *f);
 DUH *dumb_read_669(DUMBFILE *f);
 DUH *dumb_read_psm(DUMBFILE *f, int subsong);
@@ -416,7 +427,7 @@ DUH *dumb_load_it_quick(const char *filename);
 DUH *dumb_load_xm_quick(const char *filename);
 DUH *dumb_load_s3m_quick(const char *filename);
 DUH *dumb_load_stm_quick(const char *filename);
-DUH *dumb_load_mod_quick(const char *filename, int _drestrict);
+DUH *dumb_load_mod_quick(const char *filename, int restrict_);
 DUH *dumb_load_ptm_quick(const char *filename);
 DUH *dumb_load_669_quick(const char *filename);
 DUH *dumb_load_psm_quick(const char *filename, int subsong);
@@ -431,7 +442,7 @@ DUH *dumb_read_it_quick(DUMBFILE *f);
 DUH *dumb_read_xm_quick(DUMBFILE *f);
 DUH *dumb_read_s3m_quick(DUMBFILE *f);
 DUH *dumb_read_stm_quick(DUMBFILE *f);
-DUH *dumb_read_mod_quick(DUMBFILE *f, int _drestrict);
+DUH *dumb_read_mod_quick(DUMBFILE *f, int restrict_);
 DUH *dumb_read_ptm_quick(DUMBFILE *f);
 DUH *dumb_read_669_quick(DUMBFILE *f);
 DUH *dumb_read_psm_quick(DUMBFILE *f, int subsong);
@@ -441,6 +452,12 @@ DUH *dumb_read_riff_quick(DUMBFILE *f);
 DUH *dumb_read_asy_quick(DUMBFILE *f);
 DUH *dumb_read_amf_quick(DUMBFILE *f);
 DUH *dumb_read_okt_quick(DUMBFILE *f);
+
+DUH *dumb_read_any_quick(DUMBFILE *f, int restrict_, int subsong);
+DUH *dumb_read_any(DUMBFILE *f, int restrict_, int subsong);
+
+DUH *dumb_load_any_quick(const char *filename, int restrict_, int subsong);
+DUH *dumb_load_any(const char *filename, int restrict_, int subsong);
 
 long dumb_it_build_checkpoints(DUMB_IT_SIGDATA *sigdata, int startorder);
 void dumb_it_do_initial_runthrough(DUH *duh);
@@ -570,6 +587,10 @@ typedef void (*DUH_SIGRENDERER_GET_CURRENT_SAMPLE)(
 	sample_t *samples
 );
 
+typedef long (*DUH_SIGRENDERER_GET_POSITION)(
+	sigrenderer_t *sigrenderer
+);
+
 typedef void (*DUH_END_SIGRENDERER)(sigrenderer_t *sigrenderer);
 
 typedef void (*DUH_UNLOAD_SIGDATA)(sigdata_t *sigdata);
@@ -585,12 +606,15 @@ typedef struct DUH_SIGTYPE_DESC
 	DUH_SIGRENDERER_SET_SIGPARAM       sigrenderer_set_sigparam;
 	DUH_SIGRENDERER_GENERATE_SAMPLES   sigrenderer_generate_samples;
 	DUH_SIGRENDERER_GET_CURRENT_SAMPLE sigrenderer_get_current_sample;
+	DUH_SIGRENDERER_GET_POSITION       sigrenderer_get_position;
 	DUH_END_SIGRENDERER                end_sigrenderer;
 	DUH_UNLOAD_SIGDATA                 unload_sigdata;
 }
 DUH_SIGTYPE_DESC;
 
 void dumb_register_sigtype(DUH_SIGTYPE_DESC *desc);
+
+int duh_add_signal(DUH *duh, DUH_SIGTYPE_DESC *desc, sigdata_t *sigdata);
 
 
 // Decide where to put these functions; new heading?
@@ -647,7 +671,8 @@ void dumb_destroy_click_remover_array(int n, DUMB_CLICK_REMOVER **cr);
 #define DUMB_RQ_ALIASING 0
 #define DUMB_RQ_LINEAR   1
 #define DUMB_RQ_CUBIC    2
-#define DUMB_RQ_N_LEVELS 3
+#define DUMB_RQ_FIR      3
+#define DUMB_RQ_N_LEVELS 4
 extern int dumb_resampling_quality;
 
 typedef struct DUMB_RESAMPLER DUMB_RESAMPLER;
@@ -657,6 +682,7 @@ typedef struct DUMB_VOLUME_RAMP_INFO DUMB_VOLUME_RAMP_INFO;
 typedef void (*DUMB_RESAMPLE_PICKUP)(DUMB_RESAMPLER *resampler, void *data);
 
 #include "internal/blip_buf.h"
+#include "internal/lanczos_resampler.h"
 
 struct DUMB_RESAMPLER
 {
@@ -678,6 +704,8 @@ struct DUMB_RESAMPLER
 	int last_clock;
 	int last_amp[2];
 	blip_t* blip_buffer[2];
+    double fir_resampler_ratio;
+    void* fir_resampler[2];
 };
 
 struct DUMB_VOLUME_RAMP_INFO

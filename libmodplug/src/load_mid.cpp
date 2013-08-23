@@ -1450,10 +1450,14 @@ BOOL CSoundFile::ReadMID(const BYTE *lpStream, DWORD dwMemLength)
 	else
 		h->divider = h->resolution;
 	h->divider <<= 2; // ticks per quartnote ==> ticks per note
+    if (!h->divider) h->divider = 1;
 	h->tempo = 122;
 	m_nDefaultTempo = 0;
 	h->tracktime = 0;
 	h->speed = 6;
+    if (h->miditracks == 0) {
+        return FALSE;
+    }
 	p = (BYTE *)getenv(ENV_MMMID_SPEED);
 	if( p && isdigit(*p) && p[0] != '0' && p[1] == '\0' ) {
 		// transform speed
@@ -1783,7 +1787,10 @@ BOOL CSoundFile::ReadMID(const BYTE *lpStream, DWORD dwMemLength)
 		mid_adjust_for_optimal_tempo(h, maxtempo);
 	}
 	if( maxtempo > 0 ) m_nDefaultTempo = (255 * m_nDefaultTempo) / maxtempo;
+    
 	numpats = 1 + (modticks(h, h->tracktime) / h->speed / 64 );
+    if (numpats > MAX_PATTERNS) numpats = MAX_PATTERNS;
+    
 	if( h->verbose ) printf("Generating %d patterns with speed %d\n", numpats, h->speed);
 #ifdef NEWMIKMOD
 	if( !of->songname ) of->songname = DupStr(of->allochandle, "Untitled", 8);
@@ -1836,6 +1843,8 @@ BOOL CSoundFile::ReadMID(const BYTE *lpStream, DWORD dwMemLength)
 	m_dwSongFlags   = SONG_LINEARSLIDES;
 	m_nMinPeriod    = 28 << 2;
 	m_nMaxPeriod    = 1712 << 3;
+    if (m_nChannels == 0)
+        return FALSE;
 	// orderlist
 	for(t=0; t < numpats; t++)
 		Order[t] = t;

@@ -143,7 +143,15 @@ int duh_sigrenderer_get_n_channels(DUH_SIGRENDERER *sigrenderer)
 
 long duh_sigrenderer_get_position(DUH_SIGRENDERER *sigrenderer)
 {
-	return sigrenderer ? sigrenderer->pos : -1;
+	DUH_SIGRENDERER_GET_POSITION proc;
+
+	if (!sigrenderer) return -1;
+
+	proc = sigrenderer->desc->sigrenderer_get_position;
+	if (proc)
+		return (*proc)(sigrenderer->sigrenderer);
+	else
+		return sigrenderer->pos;
 }
 
 

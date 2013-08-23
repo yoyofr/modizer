@@ -1779,7 +1779,7 @@ static int abc_extract_tempo(const char *p, int invoice)
 
 static void	abc_set_parts(char **d, char *p)
 {
-	int i,j,k,m,n;
+	int i,j,k,m,n,size;
 	char *q;
 #ifdef NEWMIKMOD
 	static MM_ALLOC *h;
@@ -1815,10 +1815,13 @@ static void	abc_set_parts(char **d, char *p)
 			i += n-1;
 		}
 	}
-	q = (char *)_mm_calloc(h, j+1, sizeof(char));	// enough storage for the worst case
+	//q = (char *)_mm_calloc(h, j+1, sizeof(char));	// enough storage for the worst case
+    size = (j + 1) > 0 ? j+1 : j;
+    q = (char *)_mm_calloc(h, size, sizeof(char));  // enough storage for the worst case
 	// now copy bytes from p to *d, taking parens and digits in account
 	j = 0;
-	for( i=0; p[i] && p[i] != '%'; i++ ) {
+	//for( i=0; p[i] && p[i] != '%'; i++ ) {
+    for( i=0; p[i] && p[i] != '%' && j < size; i++ ) {
 		if( isdigit(p[i]) || isupper(p[i]) || p[i] == '(' || p[i] == ')' ) {
 			if( p[i] == ')' ) {
 				for( n=j; n > 0 && q[n-1] != '('; n-- )	;	// find open paren in q
@@ -3159,27 +3162,38 @@ static void abc_MIDI_chordname(const char *p)
 static int abc_MIDI_drum(const char *p, ABCHANDLE *h)
 {
 	char *q;
-	int i,n,m;
+	int i,n,m, len;
 	while( isspace(*p) ) p++;
 	if( !strncmp(p,"on",2) && (isspace(p[2]) || p[2] == '\0') ) return 2;
 	if( !strncmp(p,"off",3) && (isspace(p[3]) || p[3] == '\0') ) return 1;
-	n = 0;
+	n = 0; len = 0;
 	for( q = h->drum; *p && !isspace(*p); p++ ) {
 		if( !strchr("dz0123456789",*p) ) break;
-		*q++ = *p;
-		if( !isdigit(*p) ) {
-			if( !isdigit(p[1]) ) *q++ = '1';
+		//*q++ = *p;
+		//if( !isdigit(*p) ) {
+		//	if( !isdigit(p[1]) ) *q++ = '1';
+        *q++ = *p; len++;
+        if( !isdigit(*p) && len < sizeof(h->drum)-1 ) {
+            if( !isdigit(p[1]) ) { *q++ = '1'; len ++; }
 			n++; // count the silences too....
 		}
+        if (len >= sizeof(h->drum)-1) {
+            // consume the rest of the input
+            // definitely enough "drum last state" stored.
+            while ( *p && !isspace(*p) ) p++;
+            break;
+        }
 	}
 	*q = '\0';
 	q = h->drumins;
 	for( i = 0; i<n; i++ ) {
 		if( h->drum[i*2] == 'd' ) {
-			while( isspace(*p) ) p++;
+			//while( isspace(*p) ) p++;
+            while( *p && isspace(*p) ) p++;
 			if( !isdigit(*p) ) {
 				m = 0;
-				while( !isspace(*p) ) p++;
+				//while( !isspace(*p) ) p++;
+                while( *p && !isspace(*p) ) p++;
 			}
 			else
 				p += abc_getnumber(p,&m);
@@ -3190,10 +3204,12 @@ static int abc_MIDI_drum(const char *p, ABCHANDLE *h)
 	q = h->drumvol;
 	for( i = 0; i<n; i++ ) {
 		if( h->drum[i*2] == 'd' ) {
-			while( isspace(*p) ) p++;
+			//while( isspace(*p) ) p++;
+            while( *p && isspace(*p) ) p++;
 			if( !isdigit(*p) ) {
 				m = 0;
-				while( !isspace(*p) ) p++;
+				//while( !isspace(*p) ) p++;
+                while( *p && !isspace(*p) ) p++;
 			}
 			else
 				p += abc_getnumber(p,&m);
@@ -3208,13 +3224,22 @@ static int abc_MIDI_drum(const char *p, ABCHANDLE *h)
 static int abc_MIDI_gchord(const char *p, ABCHANDLE *h)
 {
 	char *q;
+    int len = 0;
 	while( isspace(*p) ) p++;
 	if( !strncmp(p,"on",2) && (isspace(p[2]) || p[2] == '\0') ) return 2;
 	if( !strncmp(p,"off",3) && (isspace(p[3]) || p[3] == '\0') ) return 1;
 	for( q = h->gchord; *p && !isspace(*p); p++ ) {
 		if( !strchr("fbcz0123456789ghijGHIJ",*p) ) break;
-		*q++ = *p;
-		if( !isdigit(*p) && !isdigit(p[1]) ) *q++ = '1';
+		//*q++ = *p;
+		//if( !isdigit(*p) && !isdigit(p[1]) ) *q++ = '1';
+        *q++ = *p; len++;
+        if( !isdigit(*p) && len < sizeof(h->gchord)-1 && !isdigit(p[1]) ) { *q++ = '1'; len ++; }
+        if (len >= sizeof(h->gchord)-1) {
+            // consume the rest of the input
+            // definitely enough "drum last state" stored.
+            while ( *p && !isspace(*p) ) p++;
+            break;
+        }
 	}
 	*q = '\0';
 	return 0;

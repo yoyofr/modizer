@@ -322,8 +322,8 @@ unsigned get_chunk_count(IFF_CHUNKED *mod, unsigned type)
 static DUMB_IT_SIGDATA *it_okt_load_sigdata(DUMBFILE *f)
 {
 	DUMB_IT_SIGDATA *sigdata;
-	unsigned n_channels;
-	unsigned i, j, k, l;
+    int n_channels;
+    int i, j, k, l;
 	IFF_CHUNKED *mod;
 	const IFF_CHUNK *chunk;
 
@@ -431,7 +431,7 @@ static DUMB_IT_SIGDATA *it_okt_load_sigdata(DUMBFILE *f)
 	}
 
 	chunk = get_chunk_by_type(mod, DUMB_ID('P','A','T','T'), 0);
-	if (!chunk || chunk->size < sigdata->n_orders) {
+    if (!chunk || chunk->size < (unsigned)sigdata->n_orders) {
 		_dumb_it_unload_sigdata(sigdata);
 		free_okt(mod);
 		return NULL;
@@ -486,7 +486,7 @@ static DUMB_IT_SIGDATA *it_okt_load_sigdata(DUMBFILE *f)
 
 	/* And finally, the sample data */
 	k = get_chunk_count(mod, DUMB_ID('S','B','O','D'));
-	for (i = 0, j = 0; i < sigdata->n_samples, j < k; i++) {
+	for (i = 0, j = 0; i < sigdata->n_samples && j < k; i++) {
 		if (sigdata->sample[i].flags & IT_SAMPLE_EXISTS) {
 			chunk = get_chunk_by_type(mod, DUMB_ID('S','B','O','D'), j);
 			if (it_okt_read_sample_data(&sigdata->sample[i], (const char *)chunk->data, chunk->size)) {
@@ -503,7 +503,7 @@ static DUMB_IT_SIGDATA *it_okt_load_sigdata(DUMBFILE *f)
 
 	chunk = get_chunk_by_type(mod, DUMB_ID('C','M','O','D'), 0);
 
-	for (i = 0, j = 0; i < n_channels, j < 4; j++) {
+	for (i = 0, j = 0; i < n_channels && j < 4; j++) {
 		k = (chunk->data[j * 2] << 8) | chunk->data[j * 2 + 1];
 		l = (j == 1 || j == 2) ? 48 : 16;
 		if (k == 0) {
@@ -544,7 +544,7 @@ DUH *dumb_read_okt_quick(DUMBFILE *f)
 
 	DUH_SIGTYPE_DESC *descptr = &_dumb_sigtype_it;
 
-	sigdata = it_okt_load_sigdata(f);
+    sigdata = it_okt_load_sigdata(f);
 
 	if (!sigdata)
 		return NULL;

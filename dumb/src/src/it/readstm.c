@@ -20,35 +20,23 @@
 // IT_STEREO... :o
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "dumb.h"
 #include "internal/it.h"
 
-#ifndef LONG_MAX
-#define LONG_MAX 0x7FFFFFFF
+#ifdef _MSC_VER
+	#define strnicmp _strnicmp
+#else
+	#if defined(unix) || defined(__unix__) || defined(__unix)
+		#include <strings.h>
+	#endif
+	#define strnicmp strncasecmp
 #endif
-
-#define min(a,b) (a<b?a:b)
-
-/** WARNING: this is duplicated in itread.c */
-static int it_seek(DUMBFILE *f, long offset)
-{
-	long pos = dumbfile_pos(f);
-
-	if (pos > offset) {
-		return -1;
-	}
-
-	if (pos < offset)
-		if (dumbfile_skip(f, offset - pos))
-			return -1;
-
-	return 0;
-}
 
 static int it_stm_read_sample_header( IT_SAMPLE *sample, DUMBFILE *f, unsigned short *offset )
 {
-	dumbfile_getnc( sample->filename, 12, f );
+    dumbfile_getnc( (char *) sample->filename, 12, f );
 	sample->filename[12] = 0;
 
 	memcpy( sample->name, sample->filename, 13 );
@@ -98,7 +86,7 @@ static int it_stm_read_sample_header( IT_SAMPLE *sample, DUMBFILE *f, unsigned s
 	return dumbfile_error(f);
 }
 
-static int it_stm_read_sample_data( IT_SAMPLE *sample, void *data_block, long offset )
+static int it_stm_read_sample_data( IT_SAMPLE *sample, DUMBFILE * f )
 {
 	if ( ! sample->length ) return 0;
 
@@ -106,9 +94,9 @@ static int it_stm_read_sample_data( IT_SAMPLE *sample, void *data_block, long of
 	if (!sample->data)
 		return -1;
 
-	memcpy( sample->data, (unsigned char*)data_block + offset, sample->length );	
+    dumbfile_getnc( sample->data, sample->length, f );
 
-	return 0;
+    return dumbfile_error( f );
 }
 
 static int it_stm_read_pattern( IT_PATTERN *pattern, DUMBFILE *f, unsigned char *buffer )
@@ -120,7 +108,7 @@ static int it_stm_read_pattern( IT_PATTERN *pattern, DUMBFILE *f, unsigned char 
 
 	pattern->n_rows = 64;
 
-	if ( dumbfile_getnc( buffer, 64 * 4 * 4, f ) != 64 * 4 * 4 )
+    if ( dumbfile_getnc( (char *) buffer, 64 * 4 * 4, f ) != 64 * 4 * 4 )
 		return -1;
 
 	pattern->n_entries = 64;
@@ -160,9 +148,9 @@ static int it_stm_read_pattern( IT_PATTERN *pattern, DUMBFILE *f, unsigned char 
 					entry->mask |= IT_ENTRY_VOLPAN;
 				entry->mask |= IT_ENTRY_EFFECT;
 				switch ( entry->effect ) {
-					case IT_SET_SPEED:
-						entry->effectvalue >>= 4;
-						break;
+                    case IT_SET_SPEED:
+                    /* taken care of in the renderer */
+                        break;
 
 					case IT_BREAK_TO_ROW:
 						entry->effectvalue -= (entry->effectvalue >> 4) * 6;
@@ -207,17 +195,13 @@ static DUMB_IT_SIGDATA *it_stm_load_sigdata(DUMBFILE *f, int * version)
 
 	unsigned short sample_offset[ 31 ];
 
-	void *data_block;
-
-	int n;
-
-	long o, p, q;
+    int n;
 
 	sigdata = malloc(sizeof(*sigdata));
 	if (!sigdata) return NULL;
 
 	/* Skip song name. */
-	dumbfile_getnc(sigdata->name, 20, f);
+    dumbfile_getnc((char *)sigdata->name, 20, f);
 	sigdata->name[20] = 0;
 
 	dumbfile_getnc(tracker_name, 8, f);
@@ -232,9 +216,9 @@ static DUMB_IT_SIGDATA *it_stm_load_sigdata(DUMBFILE *f, int * version)
 		free( sigdata );
 		return NULL;
 	}
-	if ( strncasecmp( tracker_name, "!Scream!", 8 ) &&
-		strncasecmp( tracker_name, "BMOD2STM", 8 ) &&
-		strncasecmp( tracker_name, "WUZAMOD!", 8 ) )
+	if ( strnicmp( tracker_name, "!Scream!", 8 ) &&
+		strnicmp( tracker_name, "BMOD2STM", 8 ) &&
+		strnicmp( tracker_name, "WUZAMOD!", 8 ) )
 	{
 		free( sigdata );
 		return NULL;
@@ -254,16 +238,17 @@ static DUMB_IT_SIGDATA *it_stm_load_sigdata(DUMBFILE *f, int * version)
 	sigdata->n_samples = 31;
 	sigdata->n_pchannels = 4;
 
-	sigdata->tempo = 125;
-	sigdata->mixing_volume = 48;
+    sigdata->tempo = 125;
+    sigdata->mixing_volume = 48;
 	sigdata->pan_separation = 128;
 
 	/** WARNING: which ones? */
-	sigdata->flags = IT_OLD_EFFECTS | IT_COMPATIBLE_GXX | IT_WAS_AN_S3M | IT_STEREO;
+    sigdata->flags = IT_OLD_EFFECTS | IT_COMPATIBLE_GXX | IT_WAS_AN_S3M | IT_WAS_AN_STM | IT_STEREO;
 
-	sigdata->speed = dumbfile_getc(f) >> 4;
-	if ( sigdata->speed < 1 ) sigdata->speed = 1;
-	sigdata->n_patterns = dumbfile_getc(f);
+    n = dumbfile_getc(f);
+    if ( n < 32 ) n = 32;
+    sigdata->speed = n;
+    sigdata->n_patterns = dumbfile_getc(f);
 	sigdata->global_volume = dumbfile_getc(f) << 1;
 	if ( sigdata->global_volume > 128 ) sigdata->global_volume = 128;
 	
@@ -312,7 +297,7 @@ static DUMB_IT_SIGDATA *it_stm_load_sigdata(DUMBFILE *f, int * version)
 	}
 
 	/* Orders, byte each, length = sigdata->n_orders (should be even) */
-	dumbfile_getnc( sigdata->order, *version >= 0x200 ? 128 : 64, f );
+    dumbfile_getnc( (char *) sigdata->order, *version >= 0x200 ? 128 : 64, f );
 	if (*version < 0x200) memset( sigdata->order + 64, 0xFF, 64 );
 	sigdata->restart_position = 0;
 
@@ -345,60 +330,21 @@ static DUMB_IT_SIGDATA *it_stm_load_sigdata(DUMBFILE *f, int * version)
 		free( buffer );
 	}
 
-	o = LONG_MAX;
-	p = 0;
-
-	for ( n = 0; n < sigdata->n_samples; ++n ) {
-		if ((sigdata->sample[ n ].flags & IT_SAMPLE_EXISTS) && sample_offset[ n ]) {
-			q = ((long)sample_offset[ n ]) * 16;
-			if (q < o) {
-				o = q;
-			}
-			if (q + sigdata->sample[ n ].length > p) {
-				p = q + sigdata->sample[ n ].length;
-			}
-		}
-		else {
-			sigdata->sample[ n ].flags = 0;
-			sigdata->sample[ n ].length = 0;
-		}
-	}
-
-	data_block = malloc( p - o );
-	if ( !data_block ) {
-		_dumb_it_unload_sigdata( sigdata );
-		return NULL;
-	}
-
-	for ( n = 0, q = o / 16; n < sigdata->n_samples; ++n ) {
-		if ( sample_offset[ n ] ) {
-			sample_offset[ n ] -= q;
-		}
-	}
-
-	q = o - dumbfile_pos( f );
-	p -= o;
-	o = 0;
-	if ( q >= 0 ) dumbfile_skip( f, q );
-	else {
-		o = -q;
-		memset ( data_block, 0, o );
-	}
-	if ( dumbfile_getnc( (char*)data_block + o, p - o, f ) != p - o ) {
-		free( data_block );
-		_dumb_it_unload_sigdata( sigdata );
-		return NULL;
-	}
-
-	for ( n = 0; n < sigdata->n_samples; ++n ) {
-		if ( it_stm_read_sample_data( &sigdata->sample[ n ], data_block, ((long)sample_offset[ n ]) * 16 ) ) {
-			free( data_block );
-			_dumb_it_unload_sigdata( sigdata );
-			return NULL;
-		}
-	}
-
-	free( data_block );
+    for ( n = 0; n < sigdata->n_samples; ++n ) {
+        if ( sample_offset[ n ] )
+        {
+            if ( dumbfile_seek( f, sample_offset[ n ] * 16, DFS_SEEK_SET ) ||
+                 it_stm_read_sample_data( &sigdata->sample[ n ], f ) ) {
+                _dumb_it_unload_sigdata( sigdata );
+                return NULL;
+            }
+        }
+        else
+        {
+            sigdata->sample[ n ].flags = 0;
+            sigdata->sample[ n ].length = 0;
+        }
+    }
 
 	_dumb_it_fix_invalid_orders(sigdata);
 
@@ -421,7 +367,7 @@ DUH *dumb_read_stm_quick(DUMBFILE *f)
 		char version[16];
 		const char *tag[2][2];
 		tag[0][0] = "TITLE";
-		tag[0][1] = ((DUMB_IT_SIGDATA *)sigdata)->name;
+        tag[0][1] = (const char *)(((DUMB_IT_SIGDATA *)sigdata)->name);
 		tag[1][0] = "FORMAT";
 		version[0] = 'S';
 		version[1] = 'T';

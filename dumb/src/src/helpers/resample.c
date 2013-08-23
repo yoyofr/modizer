@@ -71,9 +71,10 @@
  *
  *  0 - DUMB_RQ_ALIASING - fastest
  *  1 - DUMB_RQ_LINEAR
- *  2 - DUMB_RQ_CUBIC    - nicest
+ *  2 - DUMB_RQ_CUBIC
+ *  3 - DUMB_RQ_FIR      - nicest
  *
- * Values outside the range 0-2 will behave the same as the nearest
+ * Values outside the range 0-3 will behave the same as the nearest
  * value within the range.
  */
 int dumb_resampling_quality = DUMB_RQ_CUBIC;
@@ -167,6 +168,8 @@ static short cubicA0[1025], cubicA1[1025];
 		cubicA0[t] = -(int)(  t*t*t >> 17) + (int)(  t*t >> 6) - (int)(t << 3);
 		cubicA1[t] =  (int)(3*t*t*t >> 17) - (int)(5*t*t >> 7)                 + (int)(1 << 14);
 	}
+
+    lanczos_init();
 }
 
 
@@ -185,6 +188,7 @@ static short cubicA0[1025], cubicA1[1025];
 #define SRCTYPE sample_t
 #define SRCBITS 24
 #define ALIAS(x) (x >> 8)
+#define FIR(x) (x >> 8)
 #define LINEAR(x0, x1) (x0 + MULSC(x1 - x0, subpos))
 /*
 #define SET_CUBIC_COEFFICIENTS(x0, x1, x2, x3) { \
@@ -221,6 +225,7 @@ static short cubicA0[1025], cubicA1[1025];
 #define SRCTYPE short
 #define SRCBITS 16
 #define ALIAS(x) (x)
+#define FIR(x) (x)
 #define LINEAR(x0, x1) ((x0 << 8) + MULSC16(x1 - x0, subpos))
 /*
 #define SET_CUBIC_COEFFICIENTS(x0, x1, x2, x3) { \
@@ -243,6 +248,7 @@ static short cubicA0[1025], cubicA1[1025];
 #define SRCTYPE signed char
 #define SRCBITS 8
 #define ALIAS(x) (x << 8)
+#define FIR(x) (x << 8)
 #define LINEAR(x0, x1) ((x0 << 16) + (x1 - x0) * subpos)
 /*
 #define SET_CUBIC_COEFFICIENTS(x0, x1, x2, x3) { \
