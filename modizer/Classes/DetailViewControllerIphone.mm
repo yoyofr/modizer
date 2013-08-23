@@ -3580,9 +3580,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	mMoveStartChanLeft=mMoveStartChanRight=0;
 	
 	if ([self checkFlagOnStartup]) {
-		alertCrash = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning" ,@"")
+/*		alertCrash = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning" ,@"")
                                                  message:NSLocalizedString(@"First launch or issue encountered last time Modizer was running. Apply default settings ?",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"Yes",@""),nil] autorelease];
-		if (alertCrash) [alertCrash show];
+		if (alertCrash) [alertCrash show];*/
 		[self loadSettings:1];
 		mShouldUpdateInfos=1;
 	} else [self loadSettings:0];
