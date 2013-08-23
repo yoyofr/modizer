@@ -1214,8 +1214,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [super viewWillAppear:animated];	
     
 }
--(void) refreshMODLANDView {
-    if (childController) [(RootViewControllerHVSC*)childController refreshMODLANDView];
+
+-(void) refreshViewAfterDownload {
+    if (childController) [(RootViewControllerHVSC*)childController refreshViewAfterDownload];
     else {
         shouldFillKeys=1;
         [self fillKeys];

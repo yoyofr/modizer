@@ -102,7 +102,7 @@ typedef struct {
 
 -(IBAction)goPlayer;
 
--(void) refreshMODLANDView;
+-(void) refreshViewAfterDownload;
 -(void) doPrimAction:(NSIndexPath *)indexPath;
 -(void) doSecAction:(NSIndexPath *)indexPath;
 

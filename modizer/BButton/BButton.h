@@ -73,5 +73,6 @@ typedef enum {
 #pragma mark - BButton
 - (void)setType:(BButtonType)type;
 - (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before;
+- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size;
 
 @end

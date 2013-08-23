@@ -230,5 +230,6 @@ typedef struct {
 
 + (void) loadSettings;
 + (void) restoreSettings;
++ (void) applyDefaultSettings;
 
 @end

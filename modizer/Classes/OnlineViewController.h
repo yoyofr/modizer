@@ -9,11 +9,11 @@
 #import <UIKit/UIKit.h>
 
 #import "ModizerConstants.h"
-#import "DownloadViewController.h"
+#import "WebBrowser.h"
 #import "RootViewControllerMODLAND.h"
 #import "RootViewControllerHVSC.h"
 #import "RootViewControllerASMA.h"
-#import "WebBrowser.h"
+#import "DownloadViewController.h"
 
 @interface OnlineViewController : UITableViewController {
 
@@ -37,5 +37,6 @@
 
 
 -(IBAction) goPlayer;
+-(void) refreshViewAfterDownload;
 
 @end

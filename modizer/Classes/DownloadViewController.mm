@@ -11,6 +11,7 @@
 
 #import "DownloadViewController.h"
 #import "SettingsGenViewController.h"
+#import "OnlineViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 #import <CFNetwork/CFNetwork.h>
 #include <sys/xattr.h>
@@ -21,14 +22,11 @@ extern pthread_mutex_t download_mutex;
 static volatile int mGetURLInProgress;
 static volatile int mGetFTPInProgress,mConnectionIssue,mSuspended;
 
-static volatile int mArchiveType;
-static volatile char strFilename[256];
-
 static NSFileManager *mFileMngr;
 
 @implementation DownloadViewController
 
-@synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,downloadTabView,downloadPrgView,detailViewController,barItem,rootViewController;
+@synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,downloadTabView,downloadPrgView,detailViewController,barItem,rootViewController,onlineVC;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
 @synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth;
 
@@ -282,9 +280,9 @@ static NSFileManager *mFileMngr;
 			}
 			}
 		}
-		
-		//[rootViewController refreshMODLANDView];
-		//[searchViewController refreshMODLANDView];
+		//refresh view which potentially list the file as not downloaded
+		[onlineVC refreshViewAfterDownload];
+		[searchViewController refreshViewAfterDownload];
 		
     } else if (mFTPAskCancel==0) {
 		if (mConnectionIssue==0) {

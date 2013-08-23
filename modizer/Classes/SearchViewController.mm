@@ -960,7 +960,7 @@ static NSFileManager *mFileMngr;
 	return 0;
 }
 
--(void) refreshMODLANDView {
+-(void) refreshViewAfterDownload {
 	NSFileManager *fileManager = mFileMngr;
 	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
 	NSString *documentsDirectory = [paths objectAtIndex:0];

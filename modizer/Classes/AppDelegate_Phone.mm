@@ -107,10 +107,12 @@ pthread_mutex_t play_mutex;
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];    
     [self batteryChanged:nil];
     
+    [rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];  
+    
     modizerWin.rootViewController=tabBarController;
 	[modizerWin addSubview:[tabBarController view]];
 	[modizerWin makeKeyAndVisible];
-	[rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];   //Should be handled another way, for example on first DB access
+	
     
 //    playlistVC->browse_depth=0;
 //    playlistVC->detailViewController=detailViewControlleriPhone;

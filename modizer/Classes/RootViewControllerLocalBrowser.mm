@@ -270,7 +270,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 // Creates a writable copy of the bundled default database in the application Documents directory.
 - (void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet {
     // First, test for existence.
-    BOOL success;
+    BOOL success=FALSE;
 	BOOL wrongversion=FALSE;
 	int maj,min;
 	mUpdateToNewDB=0;
@@ -279,8 +279,9 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
     NSString *writableDBPath = [documentsDirectory stringByAppendingPathComponent:DATABASENAME_USER];
+    
     success = [fileManager fileExistsAtPath:writableDBPath];
-    if (success&&!forceInit) {
+    if (success && (!forceInit)) {
 		maj=min=0;
 		[self getDBVersion:&maj minor:&min];
 		if ((maj==VERSION_MAJOR)&&(min==VERSION_MINOR)) {
@@ -293,10 +294,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 		}
 	}
     // The writable database does not exist, so copy the default to the appropriate location.
-	if (success&&(!wrongversion)) {//remove existing file
+    
+	if (forceInit||(success&&(!wrongversion))) {//remove existing file
 		success = [fileManager removeItemAtPath:writableDBPath error:&error];
 	}
-	
+	[fileManager release];
+    
     mDatabaseCreationInProgress=1;
 	
     if (mUpdateToNewDB) [self createSamplesFromPackage:TRUE];  //If upgrade to new version, recreate Samples dir
@@ -311,13 +314,16 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 			if (wrongversion) {
 				alert1 = [[[UIAlertView alloc] initWithTitle:@"Info" message:
 						   [NSString stringWithFormat:NSLocalizedString(@"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil] autorelease];
+                [alert1 show];
 			}
-			else  alert1 = [[[UIAlertView alloc] initWithTitle:@"Info"
-                                                       message:NSLocalizedString(@"No database found. Will create a new one. Please validate & wait...",@"") delegate:self cancelButtonTitle:@"Create DB" otherButtonTitles:nil] autorelease];
+			else  {
+                //USer database missing, create it
+                [self recreateDB];
+            }
 		}
-		[alert1 show];
+		
 	}
-    [fileManager release];
+    
 }
 
 
