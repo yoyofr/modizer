@@ -3078,7 +3078,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     [btnShowSubSong setType:BButtonTypeInverse];
     
     [infoButton setType:BButtonTypeInverse];
-    [infoButton addAwesomeIcon:FAIconInfoSign beforeTitle:YES font_size:28];
+    [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
     
     shouldRestart=1;
     m_displayLink=nil;
