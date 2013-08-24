@@ -2098,8 +2098,6 @@
 		CC1E623412041177000A8A4E /* RRSGlowLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RRSGlowLabel.m; path = ../Classes/RRSGlowLabel.m; sourceTree = "<group>"; };
 		CC1E623512041177000A8A4E /* SearchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchViewController.h; sourceTree = "<group>"; };
 		CC1E623612041177000A8A4E /* SearchViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SearchViewController.mm; sourceTree = "<group>"; };
-		CC1E623712041177000A8A4E /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
-		CC1E623812041177000A8A4E /* SettingsViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SettingsViewController.mm; sourceTree = "<group>"; };
 		CC1E623912041177000A8A4E /* WebBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebBrowser.h; sourceTree = "<group>"; };
 		CC1E623A12041177000A8A4E /* WebBrowser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WebBrowser.mm; sourceTree = "<group>"; };
 		CC1E6261120423DF000A8A4E /* eagleplayer.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = eagleplayer.conf; sourceTree = "<group>"; };
@@ -3559,10 +3557,6 @@
 				CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */,
 				CC1E621E12041177000A8A4E /* AppDelegate_Phone.h */,
 				CC1E621F12041177000A8A4E /* AppDelegate_Phone.mm */,
-				33FDFF6517B6E99A00B61B65 /* SettingsGenViewController.h */,
-				33FDFF6617B6E99A00B61B65 /* SettingsGenViewController.mm */,
-				33AB276917B3D48F00C12189 /* MoreViewController.h */,
-				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E622012041177000A8A4E /* DetailViewControllerIphone.h */,
 				CC1E622112041177000A8A4E /* DetailViewControllerIphone.mm */,
 				CC1E622212041177000A8A4E /* DownloadViewController.h */,
@@ -3574,10 +3568,12 @@
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
 				336BF216144FF4CA0086700A /* RootViewControllers */,
+				33AB276917B3D48F00C12189 /* MoreViewController.h */,
+				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E623512041177000A8A4E /* SearchViewController.h */,
 				CC1E623612041177000A8A4E /* SearchViewController.mm */,
-				CC1E623712041177000A8A4E /* SettingsViewController.h */,
-				CC1E623812041177000A8A4E /* SettingsViewController.mm */,
+				33FDFF6517B6E99A00B61B65 /* SettingsGenViewController.h */,
+				33FDFF6617B6E99A00B61B65 /* SettingsGenViewController.mm */,
 				33B7AD0A17C74AE600C1E404 /* SettingsMaintenanceViewController.h */,
 				33B7AD0B17C74AE700C1E404 /* SettingsMaintenanceViewController.mm */,
 				CC1E623912041177000A8A4E /* WebBrowser.h */,

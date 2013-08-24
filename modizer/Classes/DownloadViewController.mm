@@ -1039,7 +1039,7 @@ static NSFileManager *mFileMngr;
     UILabel *topLabel;
     UILabel *bottomLabel;
     
-	UIButton *lCancelButton;
+	BButton *lCancelButton;
 	
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
@@ -1131,11 +1131,15 @@ static NSFileManager *mFileMngr;
         bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         bottomLabel.opaque=TRUE;
         
-		lCancelButton                = [UIButton buttonWithType: UIButtonTypeCustom];
+		/*lCancelButton                = [UIButton buttonWithType: UIButtonTypeCustom];
 		lCancelButton.frame = CGRectMake(tableView.bounds.size.width-2-24,2,24,24);
 		cell.accessoryView=lCancelButton;
 		[lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
-		[lCancelButton setImage:[UIImage imageNamed:@"mini_cancel.png"] forState:UIControlStateNormal];
+		[lCancelButton setImage:[UIImage imageNamed:@"mini_cancel.png"] forState:UIControlStateNormal];*/
+        lCancelButton = [[[BButton alloc] initWithFrame:CGRectMake(tableView.bounds.size.width-2-32,4,32,32) type:BButtonTypeDanger] autorelease];
+        [lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
+		cell.accessoryView=lCancelButton;
+        [lCancelButton addAwesomeIcon:0x057 beforeTitle:YES font_size:20];
 		
 	} else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];

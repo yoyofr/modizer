@@ -62,17 +62,17 @@ typedef enum {
 
 #pragma mark - Initialization
 - (id)initWithFrame:(CGRect)frame type:(BButtonType)type;
-- (id)initWithFrame:(CGRect)frame type:(BButtonType)type icon:(FAIcon)icon fontSize:(CGFloat)fontSize;
+- (id)initWithFrame:(CGRect)frame type:(BButtonType)type icon:(int)icon fontSize:(CGFloat)fontSize;
 
 - (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor;
-- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor icon:(FAIcon)icon fontSize:(CGFloat)fontSize;
+- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor icon:(int)icon fontSize:(CGFloat)fontSize;
 
-+ (BButton *)awesomeButtonWithOnlyIcon:(FAIcon)icon type:(BButtonType)type;
-+ (BButton *)awesomeButtonWithOnlyIcon:(FAIcon)icon color:(UIColor *)color;
++ (BButton *)awesomeButtonWithOnlyIcon:(int)icon type:(BButtonType)type;
++ (BButton *)awesomeButtonWithOnlyIcon:(int)icon color:(UIColor *)color;
 
 #pragma mark - BButton
 - (void)setType:(BButtonType)type;
-- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before;
-- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size;
+- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before;
+- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size;
 
 @end

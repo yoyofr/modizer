@@ -71,7 +71,7 @@
     return [self initWithFrame:frame color:[BButton colorForButtonType:type]];
 }
 
-- (id)initWithFrame:(CGRect)frame type:(BButtonType)type icon:(FAIcon)icon fontSize:(CGFloat)fontSize
+- (id)initWithFrame:(CGRect)frame type:(BButtonType)type icon:(int)icon fontSize:(CGFloat)fontSize
 {
     return [self initWithFrame:frame
                          color:[BButton colorForButtonType:type]
@@ -88,7 +88,7 @@
     return self;
 }
 
-- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor icon:(FAIcon)icon fontSize:(CGFloat)fontSize
+- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor icon:(int)icon fontSize:(CGFloat)fontSize
 {
     self = [self initWithFrame:frame color:aColor];
     if(self) {
@@ -126,13 +126,13 @@
     return self;
 }
 
-+ (BButton *)awesomeButtonWithOnlyIcon:(FAIcon)icon type:(BButtonType)type
++ (BButton *)awesomeButtonWithOnlyIcon:(int)icon type:(BButtonType)type
 {
     return [BButton awesomeButtonWithOnlyIcon:icon
                                         color:[BButton colorForButtonType:type]];
 }
 
-+ (BButton *)awesomeButtonWithOnlyIcon:(FAIcon)icon color:(UIColor *)color
++ (BButton *)awesomeButtonWithOnlyIcon:(int)icon color:(UIColor *)color
 {
     return [[BButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 40.0f, 40.0f)
                                     color:color
@@ -214,7 +214,7 @@
     self.color = [BButton colorForButtonType:type];
 }
 
-- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size
+- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size
 {
     NSString *iconString = [NSString stringFromAwesomeIcon:icon];
     self.titleLabel.font = [UIFont fontWithName:@"FontAwesome"
@@ -235,7 +235,7 @@
 }
 
 
-- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before
+- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before
 {
     NSString *iconString = [NSString stringFromAwesomeIcon:icon];
     self.titleLabel.font = [UIFont fontWithName:@"FontAwesome"

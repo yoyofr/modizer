@@ -249,7 +249,7 @@ typedef enum {
 
 @interface NSString (FontAwesome)
 
-+ (NSString *)stringFromAwesomeIcon:(FAIcon)icon;
++ (NSString *)stringFromAwesomeIcon:(int)icon;
 - (NSString *)trimWhitespace;
 - (BOOL)isEmpty;
 
