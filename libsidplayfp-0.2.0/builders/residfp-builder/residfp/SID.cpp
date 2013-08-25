@@ -200,7 +200,9 @@ void SID::setChipModel(const ChipModel model) {
 	} else if (model == MOS8580) {
 		filter = filter8580;
 	} else {
-		throw SIDError("Don't know how to handle chip type " + model);
+        char msg[64];
+        sprintf(msg,"Don't know how to handle chip type %d",(int)model);
+		throw SIDError(msg);
 	}
 
 	/* calculate waveform-related tables, feed them to the generator */
@@ -294,7 +296,10 @@ void SID::setSamplingParameters(const float clockFrequency, const SamplingMethod
 		resampler = new TwoPassSincResampler(clockFrequency, samplingFrequency, highestAccurateFrequency);
 		break;
 	default:
-		throw SIDError("Unknown samplingmethod: " + method);
+            char msg[64];
+            sprintf(msg,"Unknown samplingmethod: %d",(int)method);
+            throw SIDError(msg);
+		throw SIDError(msg);
 	}
 }
 

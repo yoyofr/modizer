@@ -371,7 +371,7 @@ BOOL CSoundFile::ReadAMF(LPCBYTE lpStream, const DWORD dwMemLength)
 	}
 	// Store tracks positions
 	BYTE **pTrackData = new BYTE*[realtrackcnt];
-	memset(pTrackData, 0, sizeof(pTrackData));
+	memset((char*)pTrackData, 0, sizeof(pTrackData));
 	for (UINT iTrack=0; iTrack<realtrackcnt; iTrack++) if (dwMemPos + 3 <= dwMemLength)
 	{
 		UINT nTrkSize = bswapLE16(*(USHORT *)(lpStream+dwMemPos));
