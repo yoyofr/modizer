@@ -2,32 +2,4 @@
 <Bucket
    type = "1"
    version = "1.0">
-   <FileBreakpoints>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         isPathRelative = "1"
-         filePath = "Adplug/database.cpp"
-         timestampString = "318690171.437425"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "296"
-         endingLineNumber = "296"
-         landmarkName = "CAdPlugDatabase::CRecord::user_write(std::ostream &amp;out)"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         isPathRelative = "0"
-         filePath = "/Users/yoyofr/Desktop/Dev/iphone/libmodplug/src/load_amf.cpp"
-         timestampString = "318695053.671604"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "24"
-         endingLineNumber = "24">
-      </FileBreakpoint>
-   </FileBreakpoints>
 </Bucket>
