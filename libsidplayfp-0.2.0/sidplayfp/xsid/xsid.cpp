@@ -276,7 +276,7 @@ void channel::sampleClock ()
                 active = false;
 #ifdef XSID_DEBUG
             printf ("XSID [%s]: Sample Stop (%lu Cycles, %lu Outputs)\n",
-                    m_name, cycles, outputs);
+                    m_name, (unsigned long)cycles, (unsigned long)outputs);
             if (status != 0xfd)
                 printf ("XSID [%s]: Starting Delayed Sequence\n", m_name);
 #endif
@@ -385,7 +385,7 @@ void channel::galwayClock ()
             active = false;
 #ifdef XSID_DEBUG
         printf ("XSID [%s]: Galway Stop (%lu Cycles, %lu Outputs)\n",
-                m_name, cycles, outputs);
+                m_name, (unsigned long)cycles, (unsigned long)outputs);
         if (status != 0xfd)
             printf ("XSID [%s]: Starting Delayed Sequence\n", m_name);
 #endif

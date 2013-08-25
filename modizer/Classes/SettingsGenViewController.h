@@ -136,6 +136,15 @@ enum MDZ_SETTINGS {
         SID_LibVersion,
         SID_Filter,
     
+        MDZ_SETTINGS_FAMILY_GME,
+        GME_FADEOUT,
+        GME_EQ_BASS,
+        GME_EQ_TREBLE,
+        GME_FX_ONOFF,
+        GME_FX_SURROUND,
+        GME_FX_ECHO,
+        GME_FX_PANNING,
+    
         MDZ_SETTINGS_FAMILY_DUMB,
         DUMB_MasterVolume,
         DUMB_Resampling,

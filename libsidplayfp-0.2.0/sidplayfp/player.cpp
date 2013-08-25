@@ -686,7 +686,7 @@ uint8_t Player::readMemByte_io (uint_least16_t addr)
     uint_least16_t tempAddr = (addr & 0xfc1f);
 
     // Not SID ?
-    if ((( tempAddr & 0xff00 ) != 0xd400 ) && (addr < 0xde00) || (addr > 0xdfff))
+    if (((( tempAddr & 0xff00 ) != 0xd400 ) && (addr < 0xde00)) || (addr > 0xdfff))
     {
         if (m_info.environment == sid2_envR)
         {
@@ -820,7 +820,7 @@ void Player::writeMemByte_playsid (uint_least16_t addr, uint8_t data)
     uint_least16_t tempAddr = (addr & 0xfc1f);
 
     // Not SID ?
-    if ((( tempAddr & 0xff00 ) != 0xd400 ) && (addr < 0xde00) || (addr > 0xdfff))
+    if (((( tempAddr & 0xff00 ) != 0xd400 ) && (addr < 0xde00)) || (addr > 0xdfff))
     {
         if (m_info.environment == sid2_envR)
         {
