@@ -499,7 +499,7 @@ error:
 }
 
 /////////////////////////////////////////////////////////////////////////////
-
+int	 truncate(const char *, off_t);
 int psftag_writetofile(void *psftag, const char *path) {
   struct PSFTAG *t = (struct PSFTAG*)psftag;
   FILE *f = NULL;

@@ -576,6 +576,7 @@ struct GSF_FILE {
 static int copy_int(unsigned int *dst, unsigned char *src)
 {
 	*dst = src[0] | (src[1]<<8) | (src[2]<<16) | (src[3]<<24);
+    return 0;
 }
 
 static int fread_int(unsigned int *dst, FILE *f)
@@ -699,7 +700,7 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 				fclose(f);
 				free(compbuf);
 #ifdef LINUX
-			  printf("3: Malloc failed %d\n", decompsize);
+			  printf("3: Malloc failed %ld\n", decompsize);
 #endif
 				return gsffile;
 			}
@@ -728,7 +729,7 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 				free(compbuf);
 #ifdef LINUX
 				perror("malloc");
-			  printf("4: Malloc failed %d\n", decompsize);
+			  printf("4: Malloc failed %ld\n", decompsize);
 #endif
 				return gsffile;
 			}
@@ -791,7 +792,7 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 
 bool utildecompGSF(const char * file)
 {
-	unsigned int decompsize=12;
+//	unsigned int decompsize=12;
 	unsigned int offset;
 	unsigned int size;
 	char filename[260];
