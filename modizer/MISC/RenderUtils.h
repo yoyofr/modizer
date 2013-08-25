@@ -45,6 +45,7 @@ void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_i
 	
 void DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_vert,int note_display_range, int note_display_offset,int fx_len);
 void DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int note_display_range, int note_display_offset,int fx_len);
+void DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int deviceType,int note_display_range, int note_display_offset,int fx_len);
 }
 
 #endif
