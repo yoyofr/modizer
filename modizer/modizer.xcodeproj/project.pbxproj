@@ -397,7 +397,7 @@
 		33E46B1B17C2B77600F70A14 /* txtMenu9.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0617C2B77600F70A14 /* txtMenu9.png */; };
 		33E46B2117C350B200F70A14 /* txtMenu10a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B1F17C350B200F70A14 /* txtMenu10a.png */; };
 		33E46B2217C350B200F70A14 /* txtMenu10b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B2017C350B200F70A14 /* txtMenu10b.png */; };
-		33E46B2417C350C800F70A14 /* txtMenu11.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B2317C350C800F70A14 /* txtMenu11.png */; };
+		33E46B2417C350C800F70A14 /* txtMenu11a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B2317C350C800F70A14 /* txtMenu11a.png */; };
 		33E46B2517C504B100F70A14 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC88D0F51270AEB60004EBBE /* MainWindow.xib */; };
 		33EDF0EF145939850038C673 /* RootViewControllerHVSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */; };
 		33F60A8814D1D6F5009ABA8F /* liblibmodplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 330FB723137DEF63001EC7A2 /* liblibmodplug.a */; };
@@ -422,6 +422,7 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
+		CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03925117CAC8ED00062381 /* txtMenu11b.png */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
 		CC03F2CE12160E9500F2AC65 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CC12160E9500F2AC65 /* button.png */; };
 		CC03F2DB12160FE000F2AC65 /* buttonB-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */; };
@@ -1589,7 +1590,7 @@
 		33E46B0617C2B77600F70A14 /* txtMenu9.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu9.png; sourceTree = "<group>"; };
 		33E46B1F17C350B200F70A14 /* txtMenu10a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu10a.png; sourceTree = "<group>"; };
 		33E46B2017C350B200F70A14 /* txtMenu10b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu10b.png; sourceTree = "<group>"; };
-		33E46B2317C350C800F70A14 /* txtMenu11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11.png; sourceTree = "<group>"; };
+		33E46B2317C350C800F70A14 /* txtMenu11a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11a.png; sourceTree = "<group>"; };
 		33EDF0EB145939850038C673 /* RootViewControllerHVSC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerHVSC.h; sourceTree = "<group>"; };
 		33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerHVSC.mm; sourceTree = "<group>"; };
 		33EDF0ED145939850038C673 /* RootViewControllerPlaylist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerPlaylist.h; sourceTree = "<group>"; };
@@ -1637,6 +1638,7 @@
 		50819A2414B3E06F0062FA86 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		CC03925117CAC8ED00062381 /* txtMenu11b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11b.png; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -3774,7 +3776,8 @@
 				33E46B0617C2B77600F70A14 /* txtMenu9.png */,
 				33E46B1F17C350B200F70A14 /* txtMenu10a.png */,
 				33E46B2017C350B200F70A14 /* txtMenu10b.png */,
-				33E46B2317C350C800F70A14 /* txtMenu11.png */,
+				33E46B2317C350C800F70A14 /* txtMenu11a.png */,
+				CC03925117CAC8ED00062381 /* txtMenu11b.png */,
 				CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */,
 				CC03F2D612160FE000F2AC65 /* buttonB.png */,
 				CC03F2D712160FE000F2AC65 /* buttonR-highlight.png */,
@@ -4775,6 +4778,9 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "modizer" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
@@ -5307,13 +5313,14 @@
 				33E46B1B17C2B77600F70A14 /* txtMenu9.png in Resources */,
 				33E46B2117C350B200F70A14 /* txtMenu10a.png in Resources */,
 				33E46B2217C350B200F70A14 /* txtMenu10b.png in Resources */,
-				33E46B2417C350C800F70A14 /* txtMenu11.png in Resources */,
+				33E46B2417C350C800F70A14 /* txtMenu11a.png in Resources */,
 				33E46B2517C504B100F70A14 /* MainWindow.xib in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,
 				3317854A17C6255200929E8F /* tabview_gradient40@2x.png in Resources */,
 				3317854B17C6255200929E8F /* tabview_gradient50.png in Resources */,
 				3317854C17C6255200929E8F /* tabview_gradient50@2x.png in Resources */,
 				33B7AD0F17C75A8B00C1E404 /* MaintenanceViewController.xib in Resources */,
+				CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5778,13 +5785,13 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5805,7 +5812,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
-				GCC_THUMB_SUPPORT = YES;
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -5813,7 +5820,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
@@ -5835,6 +5841,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -5842,7 +5849,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PREBINDING = NO;
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
 				SDKROOT = iphoneos;
@@ -5904,6 +5910,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
+				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -5911,7 +5918,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
