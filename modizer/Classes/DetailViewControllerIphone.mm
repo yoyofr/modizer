@@ -10,9 +10,6 @@
 #import <mach/mach_host.h>
 
 
-
-#define MIDIFX_OFS 7
-
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
 #define NOTES_DISPLAY_LEFTMARGIN 30
 #define NOTES_DISPLAY_TOPMARGIN 30
@@ -439,6 +436,18 @@ static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_DUMB)) {
         [mplayer optDUMB_Resampling:settings[DUMB_Resampling].detail.mdz_switch.switch_value];
         [mplayer optDUMB_MastVol:settings[DUMB_MasterVolume].detail.mdz_slider.slider_value];
+    }
+    
+    /////////////////////
+    //GME
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {
+        [mplayer optGME_Fade:settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000];
+        [mplayer optGME_EQ:settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value bass:settings[GME_EQ_BASS].detail.mdz_slider.slider_value];
+        [mplayer optGME_FX:settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value
+                  surround:settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value
+                      echo:settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value
+                    stereo:settings[GME_FX_PANNING].detail.mdz_slider.slider_value];
     }
     
     /////////////////////
@@ -2834,21 +2843,21 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     valNb=[prefs objectForKey:@"Shuffle"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mShuffle = 0;
 	else mShuffle = [valNb intValue];
+    
+    
+    
 	valNb=[prefs objectForKey:@"IsPlaying"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mIsPlaying=FALSE;
 	else mIsPlaying= [valNb boolValue];
-	
 	valNb=[prefs objectForKey:@"PlayingPos"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mPlayingPosRestart=0;
 	else mPlayingPosRestart= [valNb intValue];
-    
 	valNb=[prefs objectForKey:@"PlaylistSize"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mPlaylist_size=0;
 	else mPlaylist_size= [valNb intValue];
 	valNb=[prefs objectForKey:@"PlaylistPos"];if (safe_mode) valNb=nil;
 	if (valNb == nil) mPlaylist_pos=0;
 	else mPlaylist_pos= [valNb intValue];
-	
 	if (mPlaylist_size) {
 		NSMutableArray *fileNames,*filePaths;
 		
@@ -2861,8 +2870,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 				mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
 			}
 		}
-	}
-    
+	}    
 	valNb=[prefs objectForKey:@"Subsongs"];if (safe_mode) valNb=nil;
 	if (valNb != nil) {
 		if ([valNb intValue]>1) {
@@ -3076,6 +3084,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     
     [btnShowArcList setType:BButtonTypeInverse];
     [btnShowSubSong setType:BButtonTypeInverse];
+    [btnShowArcList addAwesomeIcon:0x187 beforeTitle:YES font_size:20];
+    [btnShowSubSong addAwesomeIcon:0x16c beforeTitle:YES font_size:20];
     
     [infoButton setType:BButtonTypeInverse];
     [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
@@ -3123,11 +3133,18 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	self.navigationItem.title=@"No file selected";
 	//	self.navigationItem.backBarButtonItem.title=@"dd";
 	
-	[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bb_list_white.png"]
+    UIBarButtonItem *bbitem=[[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)] autorelease];
+    [bbitem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:@"FontAwesome" size:22.0], UITextAttributeFont,nil] forState:UIControlStateNormal];
+    unichar tmpChar=0xF0CA;
+    [bbitem setTitle:[NSString stringWithCharacters:&tmpChar length:1]];
+    [self.navigationItem setRightBarButtonItem:bbitem animated:YES];
+    [bbitem setTitlePositionAdjustment:UIOffsetMake(0,1.5) forBarMetrics:UIBarMetricsDefault];
+	/*[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bb_list_white.png"]
 																				 style:UIBarButtonItemStylePlain
 																				target:self
 																				action:@selector(showPlaylist)] autorelease]
 									  animated:YES];
+     */
     mRandomFXCpt=0;
 	mRandomFXCptRev=0;
 	mHasFocus=0;
@@ -3485,7 +3502,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9.png"]);
     txtMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10a.png"]);
-    txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11.png"]);
+    txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a.png"]);
     txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
     texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
@@ -3525,6 +3542,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	txtSubMenuHandle[20]=0;
     txtSubMenuHandle[21]=txtMenuHandle[9];//TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
     txtSubMenuHandle[22]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b.png"]);
+    
+    txtSubMenuHandle[23]=0;
+    txtSubMenuHandle[24]=txtMenuHandle[10];//TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
+    txtSubMenuHandle[25]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b.png"]);
     
 	
 	end_time=clock();
@@ -3947,10 +3968,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 viewTapHelpShow_SubStart=20;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x22) {
-				int val=settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
-                val++;
-				if (val>=2) val=0;
-				settings[GLOB_FXPiano].detail.mdz_switch.switch_value=val;
+                viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
+                viewTapHelpShow_SubStart=23;
+                viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x03) {
                 shouldhide=1;
 			} else if (touched_coord==0x23) {
@@ -3998,6 +4019,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     case 20: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
+                    case 23: //Piano
+                        settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                        break;
                 }
 			} else if (touched_coord==0x10) {
                 switch (viewTapHelpShow_SubStart) {
@@ -4035,6 +4059,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         break;
+                    case 23: //Piano
+                        settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
+                        break;
                 }
             } else if (touched_coord==0x20) {
                 switch (viewTapHelpShow_SubStart) {
@@ -4071,6 +4098,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                        break;
+                    case 23: //Piano
+                        settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
                         break;
                 }
             } else if (touched_coord==0x30) {
@@ -4526,7 +4556,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
             int playerpos=[mplayer getCurrentPlayedBufferIdx];
             playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-            RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,tim_midifx_note_range,tim_midifx_note_offset,32);
+            if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==1) RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2);
+            if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==2) RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2);
         }
 	}
     if (viewTapHelpShow) {
@@ -4595,6 +4626,9 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     break;
                 case 20: //3D Sphere/Torus
                     active_idx=1<<settings[GLOB_FX5].detail.mdz_switch.switch_value;
+                    break;
+                case 23: //Piano
+                    active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
                     break;
             }
             if (active_idx==1) active_idx=0;

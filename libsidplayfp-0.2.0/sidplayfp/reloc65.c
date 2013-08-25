@@ -25,6 +25,7 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 
 #define	BUF	(9*2+8)		/* 16 bit header */
 

@@ -33,6 +33,7 @@
 
 #import <Foundation/Foundation.h>
 
+/*
 typedef enum {
     FAIconGlass = 0,
     FAIconMusic,
@@ -245,7 +246,7 @@ typedef enum {
     FAIconPaste,
     FAIconUserMd
 } FAIcon;
-
+*/
 
 @interface NSString (FontAwesome)
 

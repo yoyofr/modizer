@@ -220,6 +220,9 @@ extern "C" {
 -(void) optGLOB_Panning:(int)onoff;
 -(void) optGLOB_PanningValue:(float)value;
 
+-(void) optGME_Fade:(int)fade;
+-(void) optGME_EQ:(double)treble bass:(double)bass;
+-(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo;
 
 -(void) setLoopInf:(int)val;
 

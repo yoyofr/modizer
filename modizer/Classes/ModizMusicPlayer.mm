@@ -96,6 +96,9 @@ static sidTune *mSid1Tune;
 
 //GME
 static gme_info_t* gme_info;
+static gme_equalizer_t gme_eq;
+static gme_effects_t gme_fx;
+
 //AOSDK
 static struct { 
 	uint32 sig; 
@@ -927,6 +930,23 @@ void propertyListenerCallback (void                   *inUserData,              
 		//
 		//GME specific
 		optGMEFadeOut=1000;
+        if (mSlowDevice) {
+            gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+            gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
+            gme_fx.enabled=0;
+            gme_fx.echo = 0.0f;
+            gme_fx.surround = 0.0f;
+            gme_fx.stereo = 0.0f;
+            
+        } else {
+            gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+            gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
+            gme_fx.enabled=0;
+            gme_fx.echo = 0.0f;
+            gme_fx.surround = 0.0f;
+            gme_fx.stereo = 0.8f;
+        }
+
         //
         // ADPLUG specific
         mADPLUGopltype=0;
@@ -3907,26 +3927,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             }
 			
 			/* Adjust equalizer for crisp, bassy sound */
-			gme_equalizer_t gme_eq;
-			gme_effects_t gme_fx;
 			
 			gme_equalizer( gme_emu, &gme_eq );
-			if (mSlowDevice) {
-				gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
-				gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
-				gme_fx.enabled=0;
-				gme_fx.echo = 0.0f;
-				gme_fx.surround = 0.0f;
-				gme_fx.stereo = 0.0f;
-				
-			} else {
-				gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
-				gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
-				gme_fx.enabled=0;
-				gme_fx.echo = 0.0f;
-				gme_fx.surround = 0.0f;
-				gme_fx.stereo = 0.8f;
-			}
 			gme_set_equalizer( gme_emu, &gme_eq );
 			gme_set_effects( gme_emu, &gme_fx);
 			
@@ -5818,15 +5820,24 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 //*****************************************
 // Playback options
 
+///////////////////////////
+// SIDPLAY
+///////////////////////////
 -(void) optSIDFilter:(int)onoff {
     mSIDFilterON=onoff;
 }
 
+///////////////////////////
+//SEXYPSF
+///////////////////////////
 -(void) optSEXYPSF:(int)reverb interpol:(int)interpol {
 	sexyPSF_setReverb(reverb);
 	sexyPSF_setInterpolation(interpol);
 }
 
+///////////////////////////
+//GLOBAL
+///////////////////////////
 -(void) optGLOB_Panning:(int)onoff {
     mPanning=onoff;
 }
@@ -5834,18 +5845,26 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     mPanningValue=(int)(value*128.0f);    
 }
 
+///////////////////////////
+//DUMB
+///////////////////////////
 -(void) optDUMB_MastVol:(float)value{
     if (value<0) value=0;
     if (value>1) value=1;
     dumb_MastVol=value;
+    if (duh_player) {
+        duh_player->volume = dumb_MastVol;
+    }
 }
 -(void) optDUMB_Resampling:(int)value{
-    if (value>2) value=2;
+    if (value>3) value=3;
     if (value<0) value=0;
     dumb_resampling_quality=value;
 }
 
-
+///////////////////////////
+//AOSDK
+///////////////////////////
 -(void) optAOSDK:(int)reverb interpol:(int)interpol {
 	AOSDK_setReverb(reverb);
 	AOSDK_setInterpolation(interpol);
@@ -5880,14 +5899,23 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     }
 }
 
+///////////////////////////
+// ADPLUG
+///////////////////////////
 -(void) optADPLUG:(int)opltype {
     mADPLUGopltype=opltype;
 }
 
+///////////////////////////
+// GENERIC
+///////////////////////////
 -(void) optGEN_DefaultLength:(float_t)val {
 	optGENDefaultLength=(int)(val*1000);
 }
 
+///////////////////////////
+// TIMIDITY
+///////////////////////////
 -(void) optTIM_Poly:(int)val {
 	tim_max_voices = val;
 }
@@ -5920,7 +5948,31 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     set_current_resampler(tim_resampler);
 }
 
+///////////////////////////
+// GME
+///////////////////////////
+-(void) optGME_Fade:(int)fade {
+    optGMEFadeOut=fade;
+}
 
+-(void) optGME_EQ:(double)treble bass:(double)bass {
+    gme_eq.treble = treble;//-14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+    //bass
+    //          def:80;  1 = full bass, 90 = average, 16000 = almost no bass
+    //log10 ->  def:1,9;  0 - 4,2
+    gme_eq.bass   = pow(10,4.2-bass);
+}
+
+-(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo {
+    gme_fx.enabled=enabled;/* If 0, no effects are added */
+    gme_fx.surround = surround; /* If 1, some channels are put in "back", using phase inversion */
+    gme_fx.echo = echo;/* Amount of echo, where 0.0 = none, 1.0 = lots */
+    gme_fx.stereo = stereo;/* Separation, where 0.0 = mono, 1.0 = hard left and right */
+}
+
+///////////////////////////
+//UADE
+///////////////////////////
 -(void) optUADE_Led:(int)isOn {
 	if (isOn!=mUADE_OptLED)	{
 		mUADE_OptChange=1;
@@ -5960,6 +6012,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	mUADE_OptPANValue=val;
 	uade_effect_pan_set_amount(&(UADEstate.effects), val);
 }
+
+///////////////////////////
+//MODPLUG
+///////////////////////////
 -(ModPlug_Settings*) getMPSettings {
 	if (mPlayType==2) ModPlug_GetSettings(&mp_settings);
 	return &mp_settings;
@@ -5969,11 +6025,13 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		ModPlug_SetSettings(&mp_settings);
 	}
 }
--(void) setLoopInf:(int)val {
-	mLoopMode=val;
-}
 -(void) setModPlugMasterVol:(float) mstVol {
 	if ((mPlayType==2)&&(mp_file)) ModPlug_SetMasterVolume(mp_file,(int )(mstVol*512));
+}
+
+///////////////////////////
+-(void) setLoopInf:(int)val {
+	mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
 	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)
