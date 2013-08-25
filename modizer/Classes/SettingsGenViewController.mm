@@ -213,7 +213,7 @@ void optUADEChangedC(id param) {
     /////////////////////////////////////
     //GLOBAL Player
     /////////////////////////////////////
-    settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
@@ -303,6 +303,13 @@ void optUADEChangedC(id param) {
     /////////////////////////////////////
     //GME
     /////////////////////////////////////
+    settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
+    settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
+    settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value=-14;
+    settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value=0;
+    settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value=0;
+    settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value=0;
+    settings[GME_FX_PANNING].detail.mdz_slider.slider_value=0;
     
     /////////////////////////////////////
     //SID
@@ -387,7 +394,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_ForceMono].sub_family=0;
     settings[GLOB_ForceMono].callback=&optGLOBALChangedC;
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
-    settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_Panning].label=(char*)"Panning";
     settings[GLOB_Panning].description=NULL;
@@ -875,11 +882,86 @@ void optUADEChangedC(id param) {
     settings[DUMB_Resampling].sub_family=0;
     settings[DUMB_Resampling].callback=&optDUMBChangedC;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value=1;
-    settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb=3;
+    settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb=4;
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels[0]=(char*)"Alias";
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels[2]=(char*)"Cubic";
+    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[3]=(char*)"FIR";
+    
+    /////////////////////////////////////
+    //GME
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_GME].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GME].label=(char*)"GME";
+    settings[MDZ_SETTINGS_FAMILY_GME].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GME].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_GME].sub_family=MDZ_SETTINGS_FAMILY_GME;
+    
+    settings[GME_FADEOUT].label=(char*)"Fade out";
+    settings[GME_FADEOUT].description=NULL;
+    settings[GME_FADEOUT].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_FADEOUT].sub_family=0;
+    settings[GME_FADEOUT].callback=&optGMEChangedC;
+    settings[GME_FADEOUT].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
+    settings[GME_FADEOUT].detail.mdz_slider.slider_min_value=0;
+    settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=5;
+    
+    settings[GME_EQ_BASS].label=(char*)"Bass";
+    settings[GME_EQ_BASS].description=NULL;
+    settings[GME_EQ_BASS].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_EQ_BASS].sub_family=0;
+    settings[GME_EQ_BASS].callback=&optGMEChangedC;
+    settings[GME_EQ_BASS].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
+    settings[GME_EQ_BASS].detail.mdz_slider.slider_min_value=0;
+    settings[GME_EQ_BASS].detail.mdz_slider.slider_max_value=4.2;
+    
+    settings[GME_EQ_TREBLE].label=(char*)"Treble";
+    settings[GME_EQ_TREBLE].description=NULL;
+    settings[GME_EQ_TREBLE].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_EQ_TREBLE].sub_family=0;
+    settings[GME_EQ_TREBLE].callback=&optGMEChangedC;
+    settings[GME_EQ_TREBLE].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value=-14;
+    settings[GME_EQ_TREBLE].detail.mdz_slider.slider_min_value=-50;
+    settings[GME_EQ_TREBLE].detail.mdz_slider.slider_max_value=5;
+    
+    settings[GME_FX_ONOFF].type=MDZ_BOOLSWITCH;
+    settings[GME_FX_ONOFF].label=(char*)"Post FX";
+    settings[GME_FX_ONOFF].description=NULL;
+    settings[GME_FX_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_FX_ONOFF].sub_family=0;
+    settings[GME_FX_ONOFF].callback=&optGMEChangedC;
+    settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GME_FX_SURROUND].type=MDZ_BOOLSWITCH;
+    settings[GME_FX_SURROUND].label=(char*)"Surround";
+    settings[GME_FX_SURROUND].description=NULL;
+    settings[GME_FX_SURROUND].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_FX_SURROUND].sub_family=0;
+    settings[GME_FX_SURROUND].callback=&optGMEChangedC;
+    settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GME_FX_ECHO].type=MDZ_BOOLSWITCH;
+    settings[GME_FX_ECHO].label=(char*)"Echo";
+    settings[GME_FX_ECHO].description=NULL;
+    settings[GME_FX_ECHO].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_FX_ECHO].sub_family=0;
+    settings[GME_FX_ECHO].callback=&optGMEChangedC;
+    settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GME_FX_PANNING].label=(char*)"Panning";
+    settings[GME_FX_PANNING].description=NULL;
+    settings[GME_FX_PANNING].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_FX_PANNING].sub_family=0;
+    settings[GME_FX_PANNING].callback=&optGMEChangedC;
+    settings[GME_FX_PANNING].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_FX_PANNING].detail.mdz_slider.slider_value=0.5;
+    settings[GME_FX_PANNING].detail.mdz_slider.slider_min_value=0;
+    settings[GME_FX_PANNING].detail.mdz_slider.slider_max_value=1;
+    
     
     
     
