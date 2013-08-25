@@ -11,7 +11,8 @@
 
 // Same as printf when debugging, otherwise 0
 #ifndef debug_printf
-	#define debug_printf 1 ? (void)0 : (void)
+//	#define debug_printf 1 ? (void)0 : (void)
+	#define debug_printf(...)
 #endif
 
 // If expr != unrar_ok, returns its value
