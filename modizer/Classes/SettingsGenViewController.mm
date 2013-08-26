@@ -431,7 +431,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=1;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MDPLG";
@@ -883,7 +883,7 @@ void optUADEChangedC(id param) {
     settings[DUMB_Resampling].family=MDZ_SETTINGS_FAMILY_DUMB;
     settings[DUMB_Resampling].sub_family=0;
     settings[DUMB_Resampling].callback=&optDUMBChangedC;
-    settings[DUMB_Resampling].detail.mdz_switch.switch_value=1;
+    settings[DUMB_Resampling].detail.mdz_switch.switch_value=2;
     settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb=4;
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[DUMB_Resampling].detail.mdz_switch.switch_labels[0]=(char*)"Alias";

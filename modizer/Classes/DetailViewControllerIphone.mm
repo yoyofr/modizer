@@ -2722,7 +2722,7 @@ void infoSubMenuShowImages(int window_width,int window_height,int start_index,in
 }
 
 
-void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spectrumDataR,int numval,float alphaval) {
+void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spectrumDataR,int numval,float alphaval) {
 	/* Set The Clear Color To Black */
     glClearColor(0.0f, 0.0f, 0.0f, alphaval);
     /* Clear Screen And Depth Buffer */
@@ -2732,7 +2732,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	
 	switch (fxtype) {
 		case 0:
-			ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
+			//ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
 			break;
             /*case 1:
              DrawBlur1(0.95f,0.009f, _ww, _hh);
@@ -3899,7 +3899,9 @@ static int mOglView2Taps=0;
 	ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
 	int size_chan=12*6;
     int shouldhide=0;
+    int playerpos=[mplayer getCurrentPlayedBufferIdx];
     static float piano_posx=0;
+    static float piano_posy=0;
     static float piano_posz=0;
     static float piano_rotx=0;
     static float piano_roty=0;
@@ -4387,7 +4389,7 @@ static int mOglView2Taps=0;
 	if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) {
 		/* Update Angle Based On The Clock */
         
-		fxRadialBlur(0,ww,hh,real_spectrumL,real_spectrumR,nb_spectrum_bands,fxalpha);
+		fxRadial(0,ww,hh,real_spectrumL,real_spectrumR,nb_spectrum_bands,fxalpha);
 	} else {
 		glClearColor(0.0f, 0.0f, 0.0f, fxalpha);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -4403,7 +4405,6 @@ static int mOglView2Taps=0;
             int display_note_mode=settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1;
             
             if ((mplayer.mPlayType==15)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
-                int playerpos=[mplayer getCurrentPlayedBufferIdx];
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
                 RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
                 
@@ -4420,7 +4421,6 @@ static int mOglView2Taps=0;
                 }
             } else if (mplayer.mPatternDataAvail) { //Modplug
                 if ((settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)||(settings[GLOB_FXPiano].detail.mdz_switch.switch_value)) {
-                    int playerpos=[mplayer getCurrentPlayedBufferIdx];
                     playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
                     
                     int *pat,*row;
@@ -4431,6 +4431,8 @@ static int mOglView2Taps=0;
                     
                     currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
                     idx=startRow*mplayer.numChannels+startChan;
+                    
+                    for (int i=0;i<mplayer.numChannels;i++) tim_notes_cpy[playerpos][i]=0;
                     
                     if (currentNotes) {
                         idx=currentRow*mplayer.numChannels;
@@ -4444,7 +4446,6 @@ static int mOglView2Taps=0;
                                 tim_notes_cpy[playerpos][j]=cnote|(cinst<<8)|(cvol<<16)|((1<<1)<<24); //VOICE_ON : 1<<1
                             }
                         }
-                        memset(&(tim_notes_cpy[playerpos][mplayer.numChannels]),0,(256-mplayer.numChannels)*4);
                     }
                     
                     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
@@ -4691,13 +4692,20 @@ static int mOglView2Taps=0;
             playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
             switch (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
                 case 1:
-                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0);
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0,0);
                     break;
                 case 2:
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0,0);
                     break;
                 case 3:
-                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posz,piano_rotx,piano_roty);
+                    if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
+                    if (movePinchScaleFXPiano>9.0/4) movePinchScaleFXPiano=9.0/4;
+                    piano_rotx=movePyFXPiano;
+                    piano_roty=movePxFXPiano;
+                    piano_posx=movePx2FXPiano*0.05;
+                    piano_posy=movePy2FXPiano*0.05;
+                    piano_posz=movePinchScaleFXPiano*100*4;
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty);
                     break;
                 case 4:
                     if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
@@ -4705,8 +4713,9 @@ static int mOglView2Taps=0;
                     piano_rotx=movePyFXPiano;
                     piano_roty=movePxFXPiano;
                     piano_posx=movePx2FXPiano*0.05;
+                    piano_posy=movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posz,piano_rotx,piano_roty);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty);
                     break;
             }
         }
