@@ -656,11 +656,13 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXPiano].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPiano].sub_family=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPiano].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[3]=(char*)"3";
+    settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[4]=(char*)"4";
     
     settings[GLOB_FX1].label=(char*)"FX1";
     settings[GLOB_FX1].description=NULL;

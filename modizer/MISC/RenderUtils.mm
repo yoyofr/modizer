@@ -50,7 +50,7 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
     
 }
 
-void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos,int deviceType) {
+void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos) {
 	LineVertex *pts,*ptsB;
 	int mulfactor;
 	int dval,valL,valR,ovalL,ovalR,ospl,ospr,spl,spr,colR1,colL1,colR2,colL2,ypos;
@@ -248,7 +248,7 @@ static int spectrumPeakValueL_index[SPECTRUM_BANDS];
 static int spectrumPeakValueR_index[SPECTRUM_BANDS];
 
 
-void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int deviceType,int nb_spectrum_bands) {
+void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands) {
 	LineVertex *pts,*ptsB,*ptsC;
 	float x,y;
     int spl,spr,mulfactor,cr,cg,cb;
@@ -420,7 +420,7 @@ static int beatValueL_index[SPECTRUM_BANDS];
 static int beatValueR_index[SPECTRUM_BANDS];
 
 
-void RenderUtils::DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uint ww,uint hh,uint bg,uint _pos,int deviceType,int nb_spectrum_bands) {
+void RenderUtils::DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uint ww,uint hh,uint bg,uint _pos,int nb_spectrum_bands) {
 	LineVertex *ptsB;
 	float pr,pl,cr,cg,cb;
 	int band_width,ypos;
@@ -822,7 +822,7 @@ float specularLight[2][4] = {
 float position[] = { 0, 1, 8, 1 };
 
 
-void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int deviceType,int nb_spectrum_bands) {
+void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
 	GLfloat y,z,z2,spL,spR;
     GLfloat cr,cg,cb,tr,tb,tg;
     
@@ -1089,7 +1089,7 @@ static GLfloat sphVert[(SPECTRUM_BANDS/2)*(SPECTRUM_BANDS/2)*4*5][3];  /* Holds 
 static GLfloat sphNorm[(SPECTRUM_BANDS/2)*(SPECTRUM_BANDS/2)*5][3];  /* Holds Float Info For 4 Sets Of Vertices */
 
 
-void RenderUtils::DrawSpectrum3DSphere(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int deviceType,int nb_spectrum_bands) {
+void RenderUtils::DrawSpectrum3DSphere(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
 	GLfloat x1,y1,z1,x2,y2,z2,x3,y3,z3,x4,y4,z4,spL,spR,ra1,rb1,ra2,rb2,r0;
     GLfloat xn,yn,zn,v1x,v1y,v1z,v2x,v2y,v2z,nn;
     int idxNorm,idxVert;
@@ -1592,7 +1592,7 @@ void RenderUtils::DrawSpectrum3DSphere(short int *spectrumDataL,short int *spect
 }
 
 
-void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int deviceType,int nb_spectrum_bands) {
+void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
 	GLfloat x1,x2,x3,x4,y1,y2,y3,y4,z1,z2,spL,spR;
     GLfloat cr,cg,cb,tr,tg,tb;
 	//////////////////////////////
@@ -1825,7 +1825,7 @@ static GLfloat texcoords[4][2]; /* Holds Float Info For 4 Sets Of Texture coordi
 
 extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int note_display_range, int note_display_offset,int fx_len) {
+void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posz,float rotx,float roty) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -1869,8 +1869,6 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int deviceType,int note_
         data_pianofx_first=1;
     }
     
-    note_display_range=128;
-    note_display_offset=0;
     
     //if first launch, clear buffers
     if (data_pianofx_first) {
@@ -2116,215 +2114,6 @@ cb=(1.0f*piano_key_state[i+k]+1.0f*(4-piano_key_state[i+k]))/4; \
     
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-/*  
- glEnable(GL_TEXTURE_2D);            
- glEnableClientState(GL_TEXTURE_COORD_ARRAY);
- glBindTexture(GL_TEXTURE_2D, texturePiano);
-    
-    //draw background
-    cr=220.0f/256;
-    cg=220.0f/256;
-    cb=220.0f/256;
-    
-#define PIANO3D_INITTXT \
-    texcoords[0][0]=vertices[0][0]/8; texcoords[0][1]=vertices[0][1]/8; \
-	texcoords[1][0]=vertices[1][0]/8; texcoords[1][1]=vertices[1][1]/8; \
-	texcoords[2][0]=vertices[2][0]/8; texcoords[2][1]=vertices[2][1]/8; \
-    texcoords[3][0]=vertices[3][0]/8; texcoords[3][1]=vertices[3][1]/8;
-    
-    key_leftpos=19.0f/2;
-    //FRONT    
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx-key_leftpos-2);
-    vertices[0][1]=yf+6;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx-key_leftpos-2);
-    vertices[1][1]=yf+13;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx+key_leftpos+2);
-    vertices[2][1]=yf+6;
-    vertices[2][2]=z-key_length;
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-    vertices[3][0]=(float)(white_idx+key_leftpos+2);
-    vertices[3][1]=yf+13;
-    vertices[3][2]=z-key_length;
-    PIANO3D_INITTXT
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    key_leftpos=28.0f/2;
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx-key_leftpos-2);
-    vertices[0][1]=yf-2;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx-key_leftpos-2);
-    vertices[1][1]=yf+6;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx+key_leftpos+2);
-    vertices[2][1]=yf-2;
-    vertices[2][2]=z-key_length;
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-    vertices[3][0]=(float)(white_idx+key_leftpos+2);
-    vertices[3][1]=yf+6;
-    vertices[3][2]=z-key_length;
-    PIANO3D_INITTXT
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    //FRONT LEFT
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx-28.0f/2-2);
-    vertices[0][1]=yf+6;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx-19.0f/2-2);
-    vertices[1][1]=yf+13;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx-19.0f/2-2);
-    vertices[2][1]=yf+6;
-    vertices[2][2]=z-key_length;
-    PIANO3D_INITTXT
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-    //FRONT RIGHT
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx+28.0f/2+2);
-    vertices[0][1]=yf+6;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx+19.0f/2+2);
-    vertices[1][1]=yf+13;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx+19.0f/2+2);
-    vertices[2][1]=yf+6;
-    vertices[2][2]=z-key_length;
-    PIANO3D_INITTXT
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
-    
-    texcoords[0][0]=0.0f; texcoords[0][1]=0.0f;
-	texcoords[1][0]=0.0f; texcoords[1][1]=1.0f;
-	texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
-    //left bottom
-    cr*=0.5f;cg*=0.5f;cb*=0.5f;
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx-28.0f/2-2);
-    vertices[0][1]=yf-2;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx-28.0f/2-2);
-    vertices[1][1]=yf+6;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx-28.0f/2-2);
-    vertices[2][1]=yf-2;
-    vertices[2][2]=z-key_length-8;
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-    vertices[3][0]=(float)(white_idx-28.0f/2-2);
-    vertices[3][1]=yf+6;
-    vertices[3][2]=z-key_length-8;
-    texcoords[0][0]=vertices[0][1]/8.0f; texcoords[0][1]=vertices[0][2]/8.0f;
-	texcoords[1][0]=vertices[1][1]/8.0f; texcoords[1][1]=vertices[1][2]/8.0f;
-	texcoords[2][0]=vertices[2][1]/8.0f; texcoords[2][1]=vertices[2][2]/8.0f;
-    texcoords[3][0]=vertices[3][1]/8.0f; texcoords[3][1]=vertices[3][2]/8.0f;
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    //right bottom
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx+28.0f/2+2);
-    vertices[0][1]=yf-2;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx+28.0f/2+2);
-    vertices[1][1]=yf+6;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx+28.0f/2+2);
-    vertices[2][1]=yf-2;
-    vertices[2][2]=z-key_length-8;
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-    vertices[3][0]=(float)(white_idx+28.0f/2+2);
-    vertices[3][1]=yf+6;
-    vertices[3][2]=z-key_length-8;
-    texcoords[0][0]=vertices[0][1]/8.0f; texcoords[0][1]=vertices[0][2]/8.0f;
-	texcoords[1][0]=vertices[1][1]/8.0f; texcoords[1][1]=vertices[1][2]/8.0f;
-	texcoords[2][0]=vertices[2][1]/8.0f; texcoords[2][1]=vertices[2][2]/8.0f;
-    texcoords[3][0]=vertices[3][1]/8.0f; texcoords[3][1]=vertices[3][2]/8.0f;
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-    //left top
-    cr*=0.7f/0.5f;cg*=0.7f/0.5f;cb*=0.7f/0.5f;
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx-28.0f/2-2);
-    vertices[0][1]=yf+6;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx-19.0f/2-2);
-    vertices[1][1]=yf+13;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx-28.0f/2-2);
-    vertices[2][1]=yf+6;
-    vertices[2][2]=z-key_length-8;
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-    vertices[3][0]=(float)(white_idx-19.0f/2-2);
-    vertices[3][1]=yf+13;
-    vertices[3][2]=z-key_length-8;
-    texcoords[0][0]=vertices[0][1]/8.0f; texcoords[0][1]=vertices[0][2]/8.0f;
-	texcoords[1][0]=vertices[1][1]/8.0f; texcoords[1][1]=vertices[1][2]/8.0f;
-	texcoords[2][0]=vertices[2][1]/8.0f; texcoords[2][1]=vertices[2][2]/8.0f;
-    texcoords[3][0]=vertices[3][1]/8.0f; texcoords[3][1]=vertices[3][2]/8.0f;
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    //right top
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx+28.0f/2+2);
-    vertices[0][1]=yf+6;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx+19.0f/2+2);
-    vertices[1][1]=yf+13;
-    vertices[1][2]=z-key_length;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx+28.0f/2+2);
-    vertices[2][1]=yf+6;
-    vertices[2][2]=z-key_length-8;
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-    vertices[3][0]=(float)(white_idx+19.0f/2+2);
-    vertices[3][1]=yf+13;
-    vertices[3][2]=z-key_length-8;
-    texcoords[0][0]=vertices[0][1]/8.0f; texcoords[0][1]=vertices[0][2]/8.0f;
-	texcoords[1][0]=vertices[1][1]/8.0f; texcoords[1][1]=vertices[1][2]/8.0f;
-	texcoords[2][0]=vertices[2][1]/8.0f; texcoords[2][1]=vertices[2][2]/8.0f;
-    texcoords[3][0]=vertices[3][1]/8.0f; texcoords[3][1]=vertices[3][2]/8.0f;
-    
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    //top
-    cr*=1.9f/0.7f;cg*=1.9f/0.7f;cb*=1.9f/0.7f;
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-    vertices[0][0]=(float)(white_idx-19.0f/2-2);
-    vertices[0][1]=yf+13;
-    vertices[0][2]=z-key_length;
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-    vertices[1][0]=(float)(white_idx-19.0f/2-2);
-    vertices[1][1]=yf+13;
-    vertices[1][2]=z-key_length-8;
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-    vertices[2][0]=(float)(white_idx+19.0f/2+2);
-    vertices[2][1]=yf+13;
-    vertices[2][2]=z-key_length;
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-    vertices[3][0]=(float)(white_idx+19.0f/2+2);
-    vertices[3][1]=yf+13;
-    vertices[3][2]=z-key_length-8;
-    texcoords[0][0]=vertices[0][0]/8.0f; texcoords[0][1]=vertices[0][2]/8.0f;
-	texcoords[1][0]=vertices[1][0]/8.0f; texcoords[1][1]=vertices[1][2]/8.0f;
-	texcoords[2][0]=vertices[2][0]/8.0f; texcoords[2][1]=vertices[2][2]/8.0f;
-    texcoords[3][0]=vertices[3][0]/8.0f; texcoords[3][1]=vertices[3][2]/8.0f;
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    
-    glDisable(GL_TEXTURE_2D);
-*/
     key_leftpos=28.0f/2;
     
     int piano_ofs=0;
@@ -2369,7 +2158,7 @@ static float piano_note_posx[128];
 static float piano_note_posy[128];
 static float piano_note_posz[128];
 
-void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int deviceType,int note_display_range, int note_display_offset,int fx_len) {
+void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posz,float rotx,float roty) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -2407,10 +2196,11 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int deviceT
 	
     
     //interval to draw
+    if (automove) {
     int nb_white_key=(note_max-note_min+5)*7/12+4;
     z=nb_white_key/75.0f*100*16;
     if (z<100*2) z=100*2;
-    ztrans_tgt=-z-30;
+    ztrans_tgt=-z-50;
     
     if (ztrans>ztrans_tgt) {
         ztrans=ztrans+(ztrans_tgt-ztrans)*ztransSpeed_tgt;
@@ -2436,27 +2226,21 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int deviceT
     if (abs(xtrans-xtrans_tgt)<0.1) {
         xtransSpeed_tgt=0;
     }
-
-//    printf("note min:%d max:%d - to draw:%d target: x:%f z:%f - current: x:%f z:%f\n",note_min,note_max,(note_max-note_min)*7/12+4,xtrans_tgt,ztrans_tgt,xtrans,ztrans);
-    
-
-    glTranslatef(-xtrans, 0.0, ztrans-10*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
+    glTranslatef(-xtrans, 0.0, ztrans-5*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
                                        0.5f*sin((float)piano_fxcpt*3.14159f/289)-
                                        0.7f*sin((float)piano_fxcpt*3.14159f/361)));
-    
-    
-    
-    
-    glRotatef(5.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/769)+
+    glRotatef(2.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/769)+
                      0.5f*sin((float)piano_fxcpt*3.14159f/229)+
                      0.3f*sin((float)piano_fxcpt*3.14159f/311)), 0, 1, 0);
- 
-    
-    glRotatef(30+15.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
+    glRotatef(30+10.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
                         0.7f*sin((float)piano_fxcpt*3.14159f/911)+
                         0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
+    } else {
+        glTranslatef(posx,0,posz-100*15);
+        glRotatef(30+rotx, 1, 0, 0);
+        glRotatef(roty, 0, 1, 0);
+    }
     
-    //glRotatef(30, 1, 0, 0);
     
 	
     if (fx_len!=data_pianofx_len) {
@@ -2464,8 +2248,6 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int deviceT
         data_pianofx_first=1;
     }
     
-    note_display_range=128;
-    note_display_offset=0;
     
     //if first launch, clear buffers
     if (data_pianofx_first) {
@@ -2645,7 +2427,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int deviceT
             vertices[2][0]=(float)(white_idx-key_leftpos+0.10f); 
             vertices[2][1]=yn-key_height; 
             vertices[2][2]=z;  
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; 
+            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
             vertices[3][0]=(float)(white_idx-key_leftpos+0.10f); 
             vertices[3][1]=yn; 
             vertices[3][2]=z;  
@@ -2880,7 +2662,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int deviceT
     
 }
 
-void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int deviceType,int horiz_vert,int note_display_range, int note_display_offset,int fx_len) {
+void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len) {
 	LineVertex *ptsB;
 	int cr,cg,cb,ca;
     int index;
