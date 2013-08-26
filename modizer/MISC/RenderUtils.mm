@@ -1825,7 +1825,7 @@ static GLfloat texcoords[4][2]; /* Holds Float Info For 4 Sets Of Texture coordi
 
 extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posz,float rotx,float roty) {
+void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -1845,23 +1845,29 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
 	//////////////////////////////
 	glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-	const float aspectRatio = (float)ww/(float)hh;
-	const float _hw = 0.2f;
+    const float aspectRatio = (float)ww/(float)hh;
+	const float _hw = 52.0/2/16;//0.2f;
 	const float _hh = _hw/aspectRatio;
-	glFrustumf(-_hw, _hw, -_hh, _hh, 1.0f, 600.0f+120.0f);
+	glFrustumf(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
 	
     glPushMatrix();                     /* Push The Modelview Matrix */
-	
-    glTranslatef(0.0, 0.0, -75.0);      /* Translate 50 Units Into The Screen */
     
-    glRotatef(10.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/769)+
+    if (automove) {
+        glTranslatef(0.0, 0.0, -100.0*11);      /* Translate 50 Units Into The Screen */
+    
+        glRotatef(5.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/769)+
                     0.5f*sin((float)piano_fxcpt*3.14159f/229)+
                     0.3f*sin((float)piano_fxcpt*3.14159f/311)), 0, 1, 0);
     
-    glRotatef(30+15.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
+        glRotatef(30+15.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
                               0.7f*sin((float)piano_fxcpt*3.14159f/911)+
                               0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
-//    glRotatef(30, 1, 0, 0);
+    } else {
+        glTranslatef(posx,posy,posz-100*12);
+        glRotatef(30+rotx, 1, 0, 0);
+        glRotatef(roty, 0, 1, 0);
+    }
+	
     
 	
     if (fx_len!=data_pianofx_len) {
@@ -2158,7 +2164,7 @@ static float piano_note_posx[128];
 static float piano_note_posy[128];
 static float piano_note_posz[128];
 
-void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posz,float rotx,float roty) {
+void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -2236,7 +2242,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                         0.7f*sin((float)piano_fxcpt*3.14159f/911)+
                         0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
     } else {
-        glTranslatef(posx,0,posz-100*15);
+        glTranslatef(posx,posy,posz-100*15);
         glRotatef(30+rotx, 1, 0, 0);
         glRotatef(roty, 0, 1, 0);
     }
