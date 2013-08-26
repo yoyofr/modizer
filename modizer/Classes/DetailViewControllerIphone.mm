@@ -94,7 +94,6 @@ static volatile int mPopupAnimation=0;
 //static UIAlertView *alertCannotPlay;
 static int alertCannotPlay_displayed;
 
-static uint touch_cpt=0;
 static int viewTapHelpInfo=0;
 static int viewTapHelpShow=0;
 static int viewTapHelpShowMode=0;
@@ -105,7 +104,6 @@ static NSString *located_country=nil,*located_city=nil;
 
 static 	UIImage *covers_default; // album covers images
 
-//#define TOUCH_CPT_INIT 5  //20 is 1s  (20frames)
 #define TOUCH_KEPT_THRESHOLD 10
 
 #define max2(a,b) (a>b?a:b)
@@ -308,7 +306,11 @@ static int display_length_mode=0;
 static char note2charA[12]={'C','C','D','D','E','F','F','G','G','A','A','B'};
 static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-static int currentPattern,currentRow,startChan,visibleChan,movePx,movePy;
+static int currentPattern,currentRow,startChan,visibleChan;
+static float oglTapX,oglTapY,movePx,movePy,movePxMOD,movePyMOD,movePxMID,movePyMID,movePxOld,movePyOld;
+static float movePxFXPiano,movePyFXPiano,movePx2FXPiano,movePy2FXPiano,movePinchScaleFXPiano;
+static float movePx2,movePy2,movePx2Old,movePy2Old;
+static float movePinchScale,movePinchScaleOld;
 
 
 
@@ -1567,7 +1569,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	alertCannotPlay_displayed=0;
 	//Visiulization stuff
 	startChan=0;
-    movePx=movePy=0;
+    movePx=movePy=movePxOld=movePyOld=0;
+    movePx2=movePy2=movePx2Old=movePy2Old=0;
+    movePinchScale=movePinchScaleOld=0;
 	sliderProgressModuleEdit=0;
 	sliderProgressModuleChanged=0;
 	
@@ -1841,7 +1845,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	alertCannotPlay_displayed=0;
 	//Visiulization stuff
 	startChan=0;
-	movePx=movePy=0;
+	movePx=movePy=movePxOld=movePyOld=0;
+    movePx2=movePy2=movePx2Old=movePy2Old=0;
+    movePinchScale=movePinchScaleOld=0;
 	sliderProgressModuleEdit=0;
 	sliderProgressModuleChanged=0;
     
@@ -2029,14 +2035,21 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
         
 		if (oglViewFullscreen) {
-            [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+            if (mHasFocus) {
+                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+            }
             [self.navigationController setNavigationBarHidden:YES animated:YES];
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
 			m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_ww, mDevice_hh);
+            if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
 			
 		} else {
+            if (mHasFocus) {
             [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+            }
             [self.navigationController setNavigationBarHidden:NO animated:YES];
+            
+            if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
             
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
 			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
@@ -2211,15 +2224,22 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             
             if (oglViewFullscreen) {
+                if (mHasFocus) {
                 [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+                }
                 [self.navigationController setNavigationBarHidden:YES animated:YES];
                 
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
                 m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
+                if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
                 
             } else {
-                [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+                if (mHasFocus) {
+                    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+                }
                 [self.navigationController setNavigationBarHidden:NO animated:YES];
+                
+                if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
                 
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
@@ -3467,6 +3487,46 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	[EAGLContext setCurrentContext:m_oglContext];
 	[m_oglView initialize:m_oglContext scaleFactor:mScaleFactor];
     
+    
+    // Create gesture recognizer
+    UITapGestureRecognizer *glViewOneFingerOneTap = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)] autorelease];
+    // Set required taps and number of touches
+    [glViewOneFingerOneTap setNumberOfTapsRequired:1];
+    [glViewOneFingerOneTap setNumberOfTouchesRequired:1];
+    // Add the gesture to the view
+    [m_oglView addGestureRecognizer:glViewOneFingerOneTap];
+    
+    // Create gesture recognizer
+    UITapGestureRecognizer *glViewOneFingerTwoTaps = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerTwoTaps)] autorelease];
+    // Set required taps and number of touches
+    [glViewOneFingerTwoTaps setNumberOfTapsRequired:2];
+    [glViewOneFingerTwoTaps setNumberOfTouchesRequired:1];
+    // Add the gesture to the view
+    [m_oglView addGestureRecognizer:glViewOneFingerTwoTaps];
+    
+    // Create gesture recognizer
+    UIPanGestureRecognizer *glViewPanGesture = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPanGesture:)] autorelease];
+    // Set required taps and number of touches
+    [glViewPanGesture setMinimumNumberOfTouches:1];
+    [glViewPanGesture setMaximumNumberOfTouches:1];
+    // Add the gesture to the view
+    [m_oglView addGestureRecognizer:glViewPanGesture];
+
+    // Create gesture recognizer
+    UIPanGestureRecognizer *glViewPan2Gesture = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPan2Gesture:)] autorelease];
+    // Set required taps and number of touches
+    [glViewPan2Gesture setMinimumNumberOfTouches:2];
+    [glViewPan2Gesture setMaximumNumberOfTouches:2];
+    // Add the gesture to the view
+    [m_oglView addGestureRecognizer:glViewPan2Gesture];
+    
+    // Create gesture recognizer
+    UIPinchGestureRecognizer *glViewPinchGesture = [[[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPinchGesture:)] autorelease];
+    // Add the gesture to the view
+    [m_oglView addGestureRecognizer:glViewPinchGesture];
+
+    //[glViewOneFingerOneTap requireGestureRecognizerToFail : glViewOneFingerTwoTaps];
+    
     //FLUID
     if (mDevice_ww==320) initFluid(40,40);
     else initFluid(64,64);
@@ -3536,16 +3596,18 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
     
     
     txtSubMenuHandle[17]=0;
-    txtSubMenuHandle[18]=txtMenuHandle[7];//TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
+    txtSubMenuHandle[18]=txtMenuHandle[7];
     txtSubMenuHandle[19]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b.png"]);
     
 	txtSubMenuHandle[20]=0;
-    txtSubMenuHandle[21]=txtMenuHandle[9];//TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
+    txtSubMenuHandle[21]=txtMenuHandle[9];
     txtSubMenuHandle[22]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b.png"]);
     
     txtSubMenuHandle[23]=0;
-    txtSubMenuHandle[24]=txtMenuHandle[10];//TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
+    txtSubMenuHandle[24]=txtMenuHandle[10];
     txtSubMenuHandle[25]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b.png"]);
+    txtSubMenuHandle[26]=txtSubMenuHandle[24];
+    txtSubMenuHandle[27]=txtSubMenuHandle[25];
     
 	
 	end_time=clock();
@@ -3781,6 +3843,49 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
  return mem_free;
  }*/
 
+static int mOglView1Tap=0;
+static int mOglView2Taps=0;
+-(void) glViewOneFingerTwoTaps {
+    mOglView2Taps=1;
+    mOglView1Tap=0;
+}
+
+-(void) glViewOneFingerOneTap:(UITapGestureRecognizer *)gestureRecognizer {
+    mOglView1Tap=8;
+    CGPoint pt=[gestureRecognizer locationInView:m_oglView];
+    oglTapX=pt.x;
+    oglTapY=pt.y;
+}
+
+-(void) glViewPanGesture:(UIPanGestureRecognizer *)gestureRecognizer {
+    CGPoint pt=[gestureRecognizer translationInView:m_oglView];
+    movePx=pt.x;
+    movePy=pt.y;
+    if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
+        movePxOld=movePx;
+        movePyOld=movePy;
+    }
+}
+
+-(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {
+    CGPoint pt=[gestureRecognizer translationInView:m_oglView];
+    movePx2=pt.x;
+    movePy2=pt.y;
+    if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
+        movePx2Old=movePx2;
+        movePy2Old=movePy2;
+    }
+}
+
+-(void) glViewPinchGesture:(UIPinchGestureRecognizer *)gestureRecognizer {
+    CGFloat scale=gestureRecognizer.scale;
+    movePinchScale=scale;
+    if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
+        movePinchScaleOld=movePinchScale;
+    }
+}
+
+
 - (void)doFrame {
     static int framecpt=0;
 	uint ww,hh;
@@ -3794,6 +3899,10 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
 	int size_chan=12*6;
     int shouldhide=0;
+    static float piano_posx=0;
+    static float piano_posz=0;
+    static float piano_rotx=0;
+    static float piano_roty=0;
     float fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
 	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
     
@@ -3821,95 +3930,106 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	ww=m_oglView.frame.size.width;
 	hh=m_oglView.frame.size.height;
     
-	if (m_oglView->m_touchcount==1) {
-        touch_cpt++;
-		movePx+=m_oglView->currentMove.x;
-        movePy+=m_oglView->currentMove.y;
+    if (mOglView1Tap) mOglView1Tap--;
+    
+    movePxMOD+=movePx-movePxOld;
+    movePyMOD+=movePy-movePyOld;
+    movePxMID+=movePx-movePxOld;
+    movePyMID+=movePy-movePyOld;
+    
+    movePxFXPiano+=movePx-movePxOld;
+    movePyFXPiano+=movePy-movePyOld;
+    movePx2FXPiano+=movePx2-movePx2Old;
+    movePy2FXPiano+=movePy2-movePy2Old;
+    
+    movePinchScaleFXPiano+=movePinchScale-movePinchScaleOld;
+    
+    movePxOld=movePx;
+    movePyOld=movePy;
+    movePx2Old=movePx2;
+    movePy2Old=movePy2;
+    movePinchScaleOld=movePinchScale;
+    
+    
+    if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
+        if (visibleChan<mplayer.numChannels) {
+            if (movePxMOD>0) movePxMOD=0;
+            if (movePxMOD<-(mplayer.numChannels-visibleChan)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan)*size_chan;
+            startChan=-movePxMOD/size_chan;
+            
+        } else movePxMOD=0;
         
-		m_oglView->previousTouchLocation.x=m_oglView->previousTouchLocation.x+m_oglView->currentMove.x;
-        m_oglView->previousTouchLocation.y=m_oglView->previousTouchLocation.y+m_oglView->currentMove.y;
-		m_oglView->currentMove.x=0;
-        m_oglView->currentMove.y=0;
-        if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
-            if (visibleChan<mplayer.numChannels) {
-                if (movePx>0) movePx=0;
-                if (movePx<-(mplayer.numChannels-visibleChan)*size_chan) movePx=-(mplayer.numChannels-visibleChan)*size_chan;
-                startChan=-movePx/size_chan;
-                
-            } else movePx=0;
-            
-        }/* else*/
-        if (((mplayer.mPatternDataAvail)||(mplayer.mPlayType==15))&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
-            int moveRPx,moveRPy;
-            int note_fx_linewidth;
-            
-            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-                moveRPx=movePy;
-                moveRPy=-movePx;
-                note_fx_linewidth=ww/tim_midifx_note_range;
-            } else {
-                moveRPx=movePx;
-                moveRPy=movePy;
-                note_fx_linewidth=hh/tim_midifx_note_range;
-            }
-            if (touch_cpt==1) moveRPx=0; //hack to reset zoom on touch start
-            
-            if (moveRPx>32) {
-                tim_midifx_note_range+=12;
-                moveRPx=0;
-            }
-            if (moveRPx<-32) {
-                tim_midifx_note_range-=12;
-                moveRPx=0;
-            }
-            
-            if  (tim_midifx_note_range<12*4) {//min is 4 Octaves
-                tim_midifx_note_range=12*4;
-            }
-            if (tim_midifx_note_range>128) tim_midifx_note_range=128; //note is a 8bit, so 256 is a max
-            
-            if (tim_midifx_note_range<128) {
-                tim_midifx_note_offset=((128-tim_midifx_note_range)>>1)*note_fx_linewidth;
-            }
-            
-            if (tim_midifx_note_range<128) {
-                int maxofs=(128-tim_midifx_note_range)*note_fx_linewidth;
-                tim_midifx_note_offset=moveRPy;
-                if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
-                if (tim_midifx_note_offset>maxofs) tim_midifx_note_offset=maxofs;
-            } else tim_midifx_note_offset=0;
-            moveRPy=tim_midifx_note_offset;
-            
-            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-                movePx=-moveRPy;
-                movePy=moveRPx;
-                note_fx_linewidth=ww/tim_midifx_note_range;
-            } else {
-                movePx=moveRPx;
-                movePy=moveRPy;
-                note_fx_linewidth=hh/tim_midifx_note_range;
-            }
+    }
+    
+    
+    if (((mplayer.mPatternDataAvail)||(mplayer.mPlayType==15))&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
+        int moveRPx,moveRPy;
+        int note_fx_linewidth;
+        
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+            moveRPx=movePyMID;
+            moveRPy=-movePxMID;
+            note_fx_linewidth=ww/tim_midifx_note_range;
+        } else {
+            moveRPx=movePxMID;
+            moveRPy=movePyMID;
+            note_fx_linewidth=hh/tim_midifx_note_range;
         }
-	} else {
-		touch_cpt=0;
-		if ((m_oglView->m_touchcount==2)&&(m_oglView->m_poptrigger==FALSE)) { //2 fingers : fullscreen switch
-			m_oglView->m_poptrigger=TRUE;
+        //            if (touch_cpt==1) moveRPx=0; //hack to reset zoom on touch start
+        
+        if (moveRPx>32) {
+            tim_midifx_note_range+=12;
+            moveRPx=0;
+        }
+        if (moveRPx<-32) {
+            tim_midifx_note_range-=12;
+            moveRPx=0;
+        }
+        
+        if  (tim_midifx_note_range<12*4) {//min is 4 Octaves
+            tim_midifx_note_range=12*4;
+        }
+        if (tim_midifx_note_range>128) tim_midifx_note_range=128; //note is a 8bit, so 256 is a max
+        
+        if (tim_midifx_note_range<128) {
+            tim_midifx_note_offset=((128-tim_midifx_note_range)>>1)*note_fx_linewidth;
+        }
+        
+        if (tim_midifx_note_range<128) {
+            int maxofs=(128-tim_midifx_note_range)*note_fx_linewidth;
+            tim_midifx_note_offset=moveRPy;
+            if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
+            if (tim_midifx_note_offset>maxofs) tim_midifx_note_offset=maxofs;
+        } else tim_midifx_note_offset=0;
+        moveRPy=tim_midifx_note_offset;
+        
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+            movePxMID=-moveRPy;
+            movePyMID=moveRPx;
+            note_fx_linewidth=ww/tim_midifx_note_range;
+        } else {
+            movePxMID=moveRPx;
+            movePyMID=moveRPy;
+            note_fx_linewidth=hh/tim_midifx_note_range;
+        }
+    }
+		if (mOglView2Taps) { //double tap: fullscreen switch
+            mOglView2Taps=0;
 			oglViewFullscreen^=1;
 			oglViewFullscreenChanged=1;
 			[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 		}
-	}
+
     
 	//check for click
-	if (m_oglView->m_1clicked) {
-		m_oglView->m_1clicked=FALSE;
-		m_oglView->m_poptrigger=TRUE;
+	if (mOglView1Tap==1) {
+		mOglView1Tap=0;
 		
 		if (viewTapHelpShow==1) {  //Main Menu
 			viewTapHelpShow=0;
             viewTapHelpShowMode=1;
-			int tlx=m_oglView->previousTouchLocation.x;
-			int tly=m_oglView->previousTouchLocation.y;
+			int tlx=oglTapX;
+			int tly=oglTapY;
             int touched_cellX=tlx*4/ww;
             int touched_cellY=tly*4/hh;
             int touched_coord=(touched_cellX<<4)|(touched_cellY);
@@ -3971,7 +4091,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=23;
-                viewTapHelpShow_SubNb=3;
+                viewTapHelpShow_SubNb=5;
 			} else if (touched_coord==0x03) {
                 shouldhide=1;
 			} else if (touched_coord==0x23) {
@@ -3991,8 +4111,8 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		} else if (viewTapHelpShow==2) { //sub menu
             viewTapHelpShow=0;
             viewTapHelpShowMode=2;
-			int tlx=m_oglView->previousTouchLocation.x;
-			int tly=m_oglView->previousTouchLocation.y;
+			int tlx=oglTapX;
+			int tly=oglTapY;
             int touched_cellX=tlx*4/ww;
             int touched_cellY=tly*4/hh;
             int touched_coord=(touched_cellX<<4)|(touched_cellY);
@@ -4012,9 +4132,11 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                         break;
                     case 14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+                        movePxMOD=movePyMOD=0;
                         break;
                     case 17: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
+                        movePxMID=movePyMID=0;
                         break;
                     case 20: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
@@ -4046,12 +4168,14 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     case 14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=1;
                         size_chan=12*6;
+                        movePxMOD=movePyMOD=0;
                         visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
                     case 17: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
+                        movePxMID=movePyMID=0;
                         break;
                     case 20: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=1;
@@ -4086,12 +4210,14 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     case 14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=2;
                         size_chan=6*6;
+                        movePxMOD=movePyMOD=0;
                         visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
                     case 17: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
+                        movePxMID=movePyMID=0;
                         break;
                     case 20: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=2;
@@ -4116,6 +4242,15 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+                        break;
+                    case 23: //Piano
+                        settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
+                        break;
+                }
+            } else if (touched_coord==0x01) {
+                switch (viewTapHelpShow_SubStart) {
+                    case 23: //Piano
+                        settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
                         break;
                 }
             }
@@ -4270,7 +4405,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
             if ((mplayer.mPlayType==15)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
                 int playerpos=[mplayer getCurrentPlayedBufferIdx];
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
+                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
                 
                 if (mHeader) delete mHeader;
                 mHeader=nil;
@@ -4312,7 +4447,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                         memset(&(tim_notes_cpy[playerpos][mplayer.numChannels]),0,(256-mplayer.numChannels)*4);
                     }
                     
-                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
+                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
                     
                 }
                 
@@ -4359,7 +4494,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                     else nextNotes=nil;
                     idx=startRow*mplayer.numChannels+startChan;
                     
-                    RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,(movePx%size_chan));
+                    RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan));
                     
                     if (currentNotes) {
                         hasdrawnotes=1;
@@ -4464,7 +4599,7 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                             i=l+startRow;
                             if (mText[l]) {
                                 glPushMatrix();
-                                glTranslatef(NOTES_DISPLAY_LEFTMARGIN+(movePx%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
+                                glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
                                 
                                 if ((i<0)||(i>=numRows)) mText[l]->Render(4+display_note_mode*2);
                                 else mText[l]->Render(3+display_note_mode*2);
@@ -4507,15 +4642,13 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
                             }
                             str_data[(endChan-1-startChan)*6+7]=0;
                             break;
-                    }
-                    
+                    }                    
                     mHeader= new CGLString(str_data, mFont,mScaleFactor);
                     glPushMatrix();
-                    glTranslatef(5.0f+(movePx%size_chan), hh-12, 0.0f);
+                    glTranslatef(5.0f+((int)(movePxMOD)%size_chan), hh-12, 0.0f);
                     //glScalef(1.58f, 1.58f, 1.58f);
                     mHeader->Render(0);
-                    glPopMatrix();
-                    
+                    glPopMatrix();                    
                     
                     RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode);
                 }
@@ -4537,27 +4670,45 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 		if (hasdrawnotes) pos_fx=1;
 		if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) pos_fx=1;
 		
-		if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum(real_spectrumL,real_spectrumR,ww,hh,hasdrawnotes,settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value-1,pos_fx,mDeviceType==1,nb_spectrum_bands);
-		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,mDeviceType==1,nb_spectrum_bands);
-		if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx,mDeviceType==1);
+		if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum(real_spectrumL,real_spectrumR,ww,hh,hasdrawnotes,settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value-1,pos_fx,nb_spectrum_bands);
+		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
+		if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
 	}
     
 	if ([mplayer isPlaying]){
 		if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,mDeviceType==1,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX3].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,mDeviceType==1,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(fxalpha*255));
         } else if (settings[GLOB_FX5].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX5].detail.mdz_switch.switch_value,mDeviceType==1,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX5].detail.mdz_switch.switch_value,nb_spectrum_bands);
         }
         
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
             int playerpos=[mplayer getCurrentPlayedBufferIdx];
             playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-            if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==1) RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2);
-            if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==2) RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,mDeviceType==1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2);
+            switch (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
+                case 1:
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0);
+                    break;
+                case 2:
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0);
+                    break;
+                case 3:
+                    RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posz,piano_rotx,piano_roty);
+                    break;
+                case 4:
+                    if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
+                    if (movePinchScaleFXPiano>14.0/4) movePinchScaleFXPiano=14.0/4;
+                    piano_rotx=movePyFXPiano;
+                    piano_roty=movePxFXPiano;
+                    piano_posx=movePx2FXPiano*0.05;
+                    piano_posz=movePinchScaleFXPiano*100*4;
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posz,piano_rotx,piano_roty);
+                    break;
+            }
         }
 	}
     if (viewTapHelpShow) {
@@ -4578,7 +4729,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
         shouldhide=0;
         mOglViewIsHidden=YES;
         viewTapHelpInfo=0;
-        m_oglView->m_poptrigger=TRUE;
         if (oglViewFullscreen) {
             oglViewFullscreen=0;
             oglViewFullscreenChanged=1;
@@ -4648,7 +4798,6 @@ void fxRadialBlur(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int 
 	}
 	
     [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
-    
 }
 
 
