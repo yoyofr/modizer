@@ -217,7 +217,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=1;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=2;
@@ -264,6 +264,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
+    settings[GLOB_FXMSAA].detail.mdz_switch.switch_value=1;
     
     /////////////////////////////////////
     //PLUGINS
@@ -431,7 +432,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=1;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MDPLG";
@@ -726,6 +727,14 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[1]=(char*)"Med";
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[2]=(char*)"High";
     
+    settings[GLOB_FXMSAA].label=(char*)"MSAA";
+    settings[GLOB_FXMSAA].description=NULL;
+    settings[GLOB_FXMSAA].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMSAA].sub_family=0;
+    settings[GLOB_FXMSAA].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value=1;
+    
+    
     /////////////////////////////////////
     //PLUGINS
     /////////////////////////////////////
@@ -873,7 +882,7 @@ void optUADEChangedC(id param) {
     settings[DUMB_MasterVolume].sub_family=0;
     settings[DUMB_MasterVolume].callback=&optDUMBChangedC;
     settings[DUMB_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
-    settings[DUMB_MasterVolume].detail.mdz_slider.slider_value=0.5;
+    settings[DUMB_MasterVolume].detail.mdz_slider.slider_value=1.0;
     settings[DUMB_MasterVolume].detail.mdz_slider.slider_min_value=0;
     settings[DUMB_MasterVolume].detail.mdz_slider.slider_max_value=1;
     

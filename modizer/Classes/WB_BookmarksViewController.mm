@@ -18,7 +18,7 @@
 
 @implementation WB_BookmarksViewController
 
-@synthesize sBar,tableView,detailViewController,toolBar,webBrowser;
+@synthesize tableView,detailViewController,toolBar,webBrowser;
 
 -(IBAction) goPlayer {
 	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];

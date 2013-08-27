@@ -2732,7 +2732,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	
 	switch (fxtype) {
 		case 0:
-			//ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
+			ProcessSpectrum(_ww,_hh,spectrumDataL,spectrumDataR,numval);
 			break;
             /*case 1:
              DrawBlur1(0.95f,0.009f, _ww, _hh);
@@ -3102,13 +3102,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     [super viewDidLoad];
     
-    [btnShowArcList setType:BButtonTypeInverse];
-    [btnShowSubSong setType:BButtonTypeInverse];
-    [btnShowArcList addAwesomeIcon:0x187 beforeTitle:YES font_size:20];
-    [btnShowSubSong addAwesomeIcon:0x16c beforeTitle:YES font_size:20];
-    
-    [infoButton setType:BButtonTypeInverse];
-    [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
     
     shouldRestart=1;
     m_displayLink=nil;
@@ -3530,6 +3523,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //FLUID
     if (mDevice_ww==320) initFluid(40,40);
     else initFluid(64,64);
+    
+    //BButton
+    [btnShowArcList setType:BButtonTypeInverse];
+    [btnShowSubSong setType:BButtonTypeInverse];
+    [btnShowArcList addAwesomeIcon:0x187 beforeTitle:YES font_size:20];
+    [btnShowSubSong addAwesomeIcon:0x16c beforeTitle:YES font_size:20];
+    
+    [infoButton setType:BButtonTypeInverse];
+    [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
+    
 	
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -3562,7 +3565,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a.png"]);
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9.png"]);
     txtMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10a.png"]);
-    txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a.png"]);
+    txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11d.png"]);
     txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
     texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
@@ -3604,10 +3607,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[22]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b.png"]);
     
     txtSubMenuHandle[23]=0;
-    txtSubMenuHandle[24]=txtMenuHandle[10];
+    txtSubMenuHandle[24]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a.png"]);
     txtSubMenuHandle[25]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b.png"]);
-    txtSubMenuHandle[26]=txtSubMenuHandle[24];
-    txtSubMenuHandle[27]=txtSubMenuHandle[25];
+    txtSubMenuHandle[26]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c.png"]);
+    txtSubMenuHandle[27]=txtMenuHandle[10];
     
 	
 	end_time=clock();
@@ -4703,7 +4706,7 @@ static int mOglView2Taps=0;
                     piano_rotx=movePyFXPiano;
                     piano_roty=movePxFXPiano;
                     piano_posx=movePx2FXPiano*0.05;
-                    piano_posy=movePy2FXPiano*0.05;
+                    piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
                     RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty);
                     break;
@@ -4713,7 +4716,7 @@ static int mOglView2Taps=0;
                     piano_rotx=movePyFXPiano;
                     piano_roty=movePxFXPiano;
                     piano_posx=movePx2FXPiano*0.05;
-                    piano_posy=movePy2FXPiano*0.05;
+                    piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
                     RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty);
                     break;
@@ -4806,7 +4809,12 @@ static int mOglView2Taps=0;
 		glPopMatrix();
 	}
 	
-    [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
+//    [m_oglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
+    
+    // Apple (and the khronos group) encourages you to discard depth
+    // render buffer contents whenever is possible
+    
+    FrameBufferUtils::SwapBuffer(m_oglView->m_frameBuffer,m_oglContext);
 }
 
 

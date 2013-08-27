@@ -1,88 +1,99 @@
 #include "FrameBuffer.h"
 #include "GlErrors.h"
 
+#import <QuartzCore/QuartzCore.h>
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/ES1/glext.h>
 
+#import "SettingsGenViewController.h"
+extern volatile t_settings settings[MAX_SETTINGS];
 
-void FrameBufferUtils::Create(FrameBuffer& buffer, int width, int height)
-{
-	buffer.m_width = width;
-	buffer.m_height = height;
-	
-	glGenFramebuffersOES(1, &buffer.m_frameBufferHandle);
-    glGenRenderbuffersOES(1, &buffer.m_colorBufferHandle);
-	glGenRenderbuffersOES(1, &buffer.m_depthBufferHandle);
-	CHECK_GL_ERRORS();
-	
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.m_colorBufferHandle);
-    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_RGB5_A1_OES, buffer.m_width, buffer.m_height);
-	CHECK_GL_ERRORS();
-	
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.m_depthBufferHandle);
-    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, buffer.m_width, buffer.m_height);
-	CHECK_GL_ERRORS();
-	
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.m_colorBufferHandle);
-	
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.m_frameBufferHandle);
-    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, buffer.m_colorBufferHandle);  
-	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, buffer.m_depthBufferHandle);
-	CHECK_GL_ERRORS();
-}
-
+static int msaa=1;
 
 void FrameBufferUtils::Create(FrameBuffer& buffer, EAGLContext* oglContext, id<EAGLDrawable> drawable)
 {
-	glGenFramebuffersOES(1, &buffer.m_frameBufferHandle);
-    glGenRenderbuffersOES(1, &buffer.m_colorBufferHandle);
-	glGenRenderbuffersOES(1, &buffer.m_depthBufferHandle);
-	CHECK_GL_ERRORS();
-	
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.m_colorBufferHandle);
+    //Create our viewFrame and render Buffers.
+    glGenFramebuffersOES(1, &buffer.viewFramebuffer);
+    glGenRenderbuffersOES(1, &buffer.viewRenderbuffer);
+    
+    //Bind the buffers.
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.viewFramebuffer);
+    glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.viewRenderbuffer);
     [oglContext renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:drawable];
+    
+    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, buffer.viewRenderbuffer);
+    
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &buffer.m_width);
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &buffer.m_height);
-	CHECK_GL_ERRORS();
-	//NSLog(@"Bind: %d %d %d", drawable, backingWidth, backingHeight);
-	assert(buffer.m_width > 0 && buffer.m_height > 0);
-	
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.m_depthBufferHandle);
-    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, buffer.m_width, buffer.m_height);
-	CHECK_GL_ERRORS();
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.m_colorBufferHandle);
-	
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.m_frameBufferHandle);
-    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, buffer.m_colorBufferHandle);  
-	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, buffer.m_depthBufferHandle);
-	CHECK_GL_ERRORS();
-	
-    if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES) 
-	{
-		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
-		assert(0);
-    }	
+    
+    glGenRenderbuffersOES(1, &buffer.depthBuffer);
+    glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.depthBuffer);
+    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, buffer.m_width ,buffer.m_height);
+    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, buffer.depthBuffer);
+    
+    buffer.msaaFramebuffer=0;
+        //Generate our MSAA Frame and Render buffers
+        glGenFramebuffersOES(1, &buffer.msaaFramebuffer);
+        glGenRenderbuffersOES(1, &buffer.msaaRenderBuffer);
+    
+        //Bind our MSAA buffers
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.msaaFramebuffer);
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.msaaRenderBuffer);
+    
+        // Generate the msaaDepthBuffer.
+        // 4 will be the number of pixels that the MSAA buffer will use in order to make one pixel on the render buffer.
+        glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER_OES, 4, GL_RGB5_A1_OES, buffer.m_width,buffer.m_height);
+        glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, buffer.msaaRenderBuffer);
+        glGenRenderbuffersOES(1, &buffer.msaaDepthBuffer);
+    
+        //Bind the msaa depth buffer.
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.msaaDepthBuffer);
+        glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER_OES, 4, GL_DEPTH_COMPONENT16_OES, buffer.m_width ,buffer.m_height);
+        glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, buffer.msaaDepthBuffer);
+    
 }
 
 
 void FrameBufferUtils::Destroy(FrameBuffer& buffer)
 {
-	glDeleteFramebuffersOES(1, &buffer.m_frameBufferHandle);
-	glDeleteRenderbuffersOES(1, &buffer.m_colorBufferHandle);
-	glDeleteRenderbuffersOES(1, &buffer.m_depthBufferHandle);
+	glDeleteFramebuffersOES(1, &buffer.viewFramebuffer);
+	glDeleteRenderbuffersOES(1, &buffer.viewRenderbuffer);
+    glDeleteRenderbuffersOES(1, &buffer.depthBuffer);
+    if (buffer.msaaFramebuffer) {
+        glDeleteFramebuffersOES(1, &buffer.msaaFramebuffer);
+        glDeleteRenderbuffersOES(1, &buffer.msaaRenderBuffer);
+        glDeleteRenderbuffersOES(1, &buffer.msaaDepthBuffer);
+    }
 }
 
 
 void FrameBufferUtils::Set(const FrameBuffer& buffer)
 {
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.m_frameBufferHandle);	
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.m_colorBufferHandle);
-	CHECK_GL_ERRORS();
-	
+    if ((settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value)&&(buffer.msaaFramebuffer)) {
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.msaaFramebuffer);
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.msaaRenderBuffer);
+	} else {
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.viewFramebuffer);
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.viewRenderbuffer);
+    }
+    CHECK_GL_ERRORS();
     glViewport(0, 0, buffer.m_width, buffer.m_height);	
 }
 
-
+void FrameBufferUtils::SwapBuffer(const FrameBuffer& buffer,EAGLContext *eaglContext) {
+    if ((settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value)&&(buffer.msaaFramebuffer)) {
+        GLenum attachments[] = {GL_DEPTH_ATTACHMENT_OES};
+        glDiscardFramebufferEXT(GL_READ_FRAMEBUFFER_APPLE, 1, attachments);
+        //Bind both MSAA and View FrameBuffers.
+        glBindFramebufferOES(GL_READ_FRAMEBUFFER_APPLE, buffer.msaaFramebuffer);
+        glBindFramebufferOES(GL_DRAW_FRAMEBUFFER_APPLE, buffer.viewFramebuffer);
+        // Call a resolve to combine both buffers
+        glResolveMultisampleFramebufferAPPLE();
+        // Present final image to screen
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.viewRenderbuffer);
+    }
+    [eaglContext presentRenderbuffer:GL_RENDERBUFFER_OES];
+}
 
 UIImage* FrameBufferUtils::CreateImageFromFramebuffer(int width, int height)
 {
