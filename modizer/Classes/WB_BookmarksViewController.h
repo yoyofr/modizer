@@ -14,7 +14,6 @@
 #define MAX_BUILTIN_URL 64
 
 @interface WB_BookmarksViewController : UIViewController {
-    IBOutlet UISearchBar *sBar;
     IBOutlet UITableView *tableView;
     IBOutlet UIToolbar *toolBar;
     int builtin_url_count;
@@ -30,7 +29,6 @@
     DetailViewControllerIphone *detailViewController;
     WebBrowser *webBrowser;
 }
-@property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIToolbar *toolBar;

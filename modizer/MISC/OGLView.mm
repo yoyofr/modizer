@@ -61,7 +61,6 @@
 	FrameBufferUtils::Set(m_frameBuffer);
 }
 
-
 - (bool)popTouch
 {
 	const bool touched = m_touched;
