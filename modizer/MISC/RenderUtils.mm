@@ -1031,6 +1031,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     static int frameCpt=0;
     
     if (frameCpt==0) {
+        frameCpt=arc4random()&32767;
         memset(barSpectrumDataL,0,sizeof(float)*SPECTRUM_BANDS);
         memset(barSpectrumDataR,0,sizeof(float)*SPECTRUM_BANDS);
     }
@@ -1079,16 +1080,18 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
 	
     frameCpt++;
     
-    glRotatef(30.0f*(0.4f*sin((float)frameCpt*3.14159f/12691)+
-                      0.7f*sin((float)frameCpt*3.14159f/13113)-
-                      0.9f*sin((float)frameCpt*3.14159f/17409)),1,0,0);
+    glRotatef(20+10.0f*(0.8f*sin((float)frameCpt*3.14159f/2691)+
+                      0.7f*sin((float)frameCpt*3.14159f/3113)-
+                      0.3f*sin((float)frameCpt*3.14159f/7409)),1,0,0);
  
-    glRotatef(-90+30.0f*(0.8f*sin((float)frameCpt*3.14159f/13891)+
-                      0.2f*sin((float)frameCpt*3.14159f/14211)+
-                      0.4f*sin((float)frameCpt*3.14159f/15213)),0,0,1);
+    glRotatef(20.0f*(0.8f*sin((float)frameCpt*3.14159f/891)-
+                      0.2f*sin((float)frameCpt*3.14159f/211)-
+                      0.4f*sin((float)frameCpt*3.14159f/5213)),0,0,1);
     
     
-	glRotatef(frameCpt, 0, 1, 0);
+	glRotatef(360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
+                     0.7f*sin((float)frameCpt*3.14159f/1211)-
+                     0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
         
 	
     
@@ -1098,11 +1101,122 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     cgt=0;
     cbt=0;
     
-		for (int i=0; i<nb_spectrum_bands; i++) {
+    float ang=0;
+    x=-0.5;y=0;z=0;
+    for (int i=0; i<nb_spectrum_bands; i++) {
+        /////////////////
+        //LEFT
+        spL=barSpectrumDataL[i];
+        
+        if (i<nb_spectrum_bands*2/3) {
+            cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+        } else {
+            cbt=0;
+        }
+        if (i>nb_spectrum_bands/3) {
+            cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+        } else {
+            cgt=0;
+        }
+        crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+        crt*=0.5+(spL/1);
+        if (crt>1) crt=1;
+        cgt*=0.5+(spL/1);
+        if (cgt>1) cgt=1;
+        cbt*=0.5+(spL/1);
+        if (cbt>1) cbt=1;
+        
+        sx=1;
+        sy=1;
+        sz=(spL+0.1f);
+        x=0-sx/2;
+        y=4+ang/10;
+        z=-4-ang/10-spL/4;
+        
+        //y=(i-nb_spectrum_bands/2)*sy*1.2;
+        //z=1+spL/4;
+
+        glTranslatef(0,0,15);
+        glRotatef(ang+270,1,0,0);
+        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+        glRotatef(-(ang+270),1,0,0);
+        glTranslatef(0,0,-15);
+        
+        glRotatef(180,0,1,0);
+        
+        glTranslatef(0,0,15);
+        glRotatef(ang+270,1,0,0);
+        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+        glRotatef(-(ang+270),1,0,0);
+        glTranslatef(0,0,-15);
+        
+        
+        glRotatef(180,0,1,0);
+        
+
+        
+        /////////////////
+        //RIGHT
+        spR=barSpectrumDataR[i];
+        /////////////////
+        if (i<nb_spectrum_bands*2/3) {
+            cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+        } else {
+            cbt=0;
+        }
+        if (i>nb_spectrum_bands/3) {
+            cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+        } else {
+            cgt=0;
+        }
+        crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+        crt*=0.5+(spR/1);
+        if (crt>1) crt=1;
+        cgt*=0.5+(spR/1);
+        if (cgt>1) cgt=1;
+        cbt*=0.5+(spR/1);
+        if (cbt>1) cbt=1;
+        
+        sx=1;
+        sy=1;
+        sz=(spR+0.1f);
+        x=0-sx/2;
+        y=4+ang/10;
+        z=-4-ang/10-spR/4;
+        
+        //y=(i-nb_spectrum_bands/2)*sy*1.2;
+        //z=1+spL/4;
+        
+        glRotatef(90,0,1,0);
+        
+        glTranslatef(0,0,15);
+        glRotatef(ang+270,1,0,0);
+        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+        glRotatef(-(ang+270),1,0,0);
+        glTranslatef(0,0,-15);
+        
+        glRotatef(180,0,1,0);
+        
+        glTranslatef(0,0,15);
+        glRotatef(ang+270,1,0,0);
+        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+        glRotatef(-(ang+270),1,0,0);
+        glTranslatef(0,0,-15);
+        
+        
+        glRotatef(180+90,0,1,0);
+        
+        if (ang<90) ang+=(90.0/(float)nb_spectrum_bands)*1.1;
+        if (ang>90) ang=90;
+
+        
+    }
+    
+/*		for (int i=0; i<nb_spectrum_bands; i++) {
             /////////////////
             //LEFT
             spL=barSpectrumDataL[i];
-            
+ 
             if (i<nb_spectrum_bands*2/3) {
                 cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
             } else {
@@ -1168,6 +1282,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             glRotatef(180-90, 0, 1, 0);
 		}
+ */
+ 
+ 
 	/* Disable Vertex Pointer */
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
