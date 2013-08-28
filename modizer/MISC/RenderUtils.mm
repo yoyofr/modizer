@@ -270,12 +270,10 @@ void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR
 		}
 	}
 	
-	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
-	
 	if (_pos) {
 		ypos=hh-hh/3;
 		mulfactor=hh/4;
@@ -289,8 +287,6 @@ void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR
 	xshift=maxsp/10;
 	
 	if (bg) {
-		
-		
 		ptsB[0] = LineVertex(xshift+(ww/2+(nb_spectrum_bands*band_width))/2,  ypos-maxsp/2,		0,0,16,192);
 		ptsB[1] = LineVertex(xshift+(ww/2-(nb_spectrum_bands*band_width))/2-maxsp/4,  ypos-maxsp/2,		0,0,16,192);
 		ptsB[2] = LineVertex(xshift+(ww/2+(nb_spectrum_bands*band_width))/2,  ypos+maxsp,		0,0,16,192);
@@ -807,19 +803,385 @@ static GLfloat vertices[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
 static GLfloat normals[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
 static GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
 
-float ambientLight[2][4] = {
+float ambientLight[3][4] = {
     {0.1f, 0.1f, 0.2f, 1.0f},
-    {0.2f, 0.1f, 0.1f, 1.0f}
+    {0.2f, 0.1f, 0.1f, 1.0f},
+    {0.1f, 0.1f, 0.1f, 1.0f }
 };	// �wiat�o otoczenia
-float diffuseLight[2][4] = {
+float diffuseLight[3][4] = {
     {0.5f, 0.5f, 0.9f, 1.0f },
-    {0.9f, 0.5f, 0.5f, 1.0f }
+    {0.9f, 0.5f, 0.5f, 1.0f },
+    {1.0f, 1.0f, 1.0f, 1.0f }
 };	// �wiat�o rozproszone
-float specularLight[2][4] = {
+float specularLight[3][4] = {
+    {1.0f, 1.0f, 1.0f, 1.0f },
     {1.0f, 1.0f, 1.0f, 1.0f },
     {1.0f, 1.0f, 1.0f, 1.0f }
 };	// �wiat�o odbicia
-float position[] = { 0, 1, 8, 1 };
+float position[] = { 0, 0, 8, 1 };
+
+void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt) {
+    float cr,cg,cb;
+    //top    
+    cr=crt;cg=cgt;cb=cbt;
+    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+    vertices[0][0]=x;
+    vertices[0][1]=y;
+    vertices[0][2]=z+sz;
+    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+    vertices[1][0]=x+sx;
+    vertices[1][1]=y;
+    vertices[1][2]=z+sz;
+    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+    vertices[2][0]=x;
+    vertices[2][1]=y+sy;
+    vertices[2][2]=z+sz;
+    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+    vertices[3][0]=x+sx;
+    vertices[3][1]=y+sy;
+    vertices[3][2]=z+sz;
+    
+    normals[0][0]=0;
+    normals[0][1]=0;
+    normals[0][2]=1;
+    normals[1][0]=0;
+    normals[1][1]=0;
+    normals[1][2]=1;
+    normals[2][0]=0;
+    normals[2][1]=0;
+    normals[2][2]=1;
+    normals[3][0]=0;
+    normals[3][1]=0;
+    normals[3][2]=1;    
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //left
+    cr=crt/2;cg=cgt/2;cb=cbt/2;
+    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+    vertices[0][0]=x;
+    vertices[0][1]=y;
+    vertices[0][2]=z;
+    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+    vertices[1][0]=x;
+    vertices[1][1]=y+sy;
+    vertices[1][2]=z;
+    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+    vertices[2][0]=x;
+    vertices[2][1]=y;
+    vertices[2][2]=z+sz;
+    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+    vertices[3][0]=x;
+    vertices[3][1]=y+sy;
+    vertices[3][2]=z+sz;
+    
+    normals[0][0]=-1;
+    normals[0][1]=0;
+    normals[0][2]=0;
+    normals[1][0]=-1;
+    normals[1][1]=0;
+    normals[1][2]=0;
+    normals[2][0]=-1;
+    normals[2][1]=0;
+    normals[2][2]=0;
+    normals[3][0]=-1;
+    normals[3][1]=0;
+    normals[3][2]=0;
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //right
+    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+    vertices[0][0]=x+sx;
+    vertices[0][1]=y;
+    vertices[0][2]=z;
+    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+    vertices[1][0]=x+sx;
+    vertices[1][1]=y+sy;
+    vertices[1][2]=z;
+    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+    vertices[2][0]=x+sx;
+    vertices[2][1]=y;
+    vertices[2][2]=z+sz;
+    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+    vertices[3][0]=x+sx;
+    vertices[3][1]=y+sy;
+    vertices[3][2]=z+sz;
+    
+    normals[0][0]=1;
+    normals[0][1]=0;
+    normals[0][2]=0;
+    normals[1][0]=1;
+    normals[1][1]=0;
+    normals[1][2]=0;
+    normals[2][0]=1;
+    normals[2][1]=0;
+    normals[2][2]=0;
+    normals[3][0]=1;
+    normals[3][1]=0;
+    normals[3][2]=0;
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //up
+    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+    vertices[0][0]=x;
+    vertices[0][1]=y+sy;
+    vertices[0][2]=z;
+    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+    vertices[1][0]=x+sx;
+    vertices[1][1]=y+sy;
+    vertices[1][2]=z;
+    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+    vertices[2][0]=x;
+    vertices[2][1]=y+sy;
+    vertices[2][2]=z+sz;
+    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+    vertices[3][0]=x+sx;
+    vertices[3][1]=y+sy;
+    vertices[3][2]=z+sz;
+    
+    normals[0][0]=0;
+    normals[0][1]=1;
+    normals[0][2]=0;
+    normals[1][0]=0;
+    normals[1][1]=1;
+    normals[1][2]=0;
+    normals[2][0]=0;
+    normals[2][1]=1;
+    normals[2][2]=0;
+    normals[3][0]=0;
+    normals[3][1]=1;
+    normals[3][2]=0;
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //down
+    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+    vertices[0][0]=x;
+    vertices[0][1]=y;
+    vertices[0][2]=z;
+    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+    vertices[1][0]=x+sx;
+    vertices[1][1]=y;
+    vertices[1][2]=z;
+    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+    vertices[2][0]=x;
+    vertices[2][1]=y;
+    vertices[2][2]=z+sz;
+    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+    vertices[3][0]=x+sx;
+    vertices[3][1]=y;
+    vertices[3][2]=z+sz;
+    
+    normals[0][0]=0;
+    normals[0][1]=-1;
+    normals[0][2]=0;
+    normals[1][0]=0;
+    normals[1][1]=-1;
+    normals[1][2]=0;
+    normals[2][0]=0;
+    normals[2][1]=-1;
+    normals[2][2]=0;
+    normals[3][0]=0;
+    normals[3][1]=-1;
+    normals[3][2]=0;
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    //back
+    cr=crt/4;cg=cgt/4;cb=cbt/4;
+    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+    vertices[0][0]=x;
+    vertices[0][1]=y;
+    vertices[0][2]=z;
+    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+    vertices[1][0]=x+sx;
+    vertices[1][1]=y;
+    vertices[1][2]=z;
+    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+    vertices[2][0]=x;
+    vertices[2][1]=y+sy;
+    vertices[2][2]=z;
+    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+    vertices[3][0]=x+sx;
+    vertices[3][1]=y+sy;
+    vertices[3][2]=z;
+    
+    normals[0][0]=0;
+    normals[0][1]=0;
+    normals[0][2]=-1;
+    normals[1][0]=0;
+    normals[1][1]=0;
+    normals[1][2]=-1;
+    normals[2][0]=0;
+    normals[2][1]=0;
+    normals[2][2]=-1;
+    normals[3][0]=0;
+    normals[3][1]=0;
+    normals[3][2]=-1;
+
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+}
+
+float barSpectrumDataL[SPECTRUM_BANDS];
+float barSpectrumDataR[SPECTRUM_BANDS];
+
+void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
+	GLfloat spL,spR;
+    GLfloat cr,cg,cb,crt,cgt,cbt;
+    GLfloat x,y,z,sx,sy,sz;
+    static int frameCpt=0;
+    
+    if (frameCpt==0) {
+        memset(barSpectrumDataL,0,sizeof(float)*SPECTRUM_BANDS);
+        memset(barSpectrumDataR,0,sizeof(float)*SPECTRUM_BANDS);
+    }
+    for (int i=0;i<nb_spectrum_bands;i++) {
+        barSpectrumDataL[i]=barSpectrumDataL[i]*0.8;
+        barSpectrumDataR[i]=barSpectrumDataR[i]*0.8;
+        if (barSpectrumDataL[i]<(float)spectrumDataL[i]/512.0f) barSpectrumDataL[i]=(float)spectrumDataL[i]/512.0f;
+        if (barSpectrumDataR[i]<(float)spectrumDataR[i]/512.0f) barSpectrumDataR[i]=(float)spectrumDataR[i]/512.0f;
+    }
+    
+	//////////////////////////////
+	glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+	const float aspectRatio = (float)ww/(float)hh;
+	const float _hw = nb_spectrum_bands*1.2/2;//0.2f;
+	const float _hh = _hw/aspectRatio;
+	glFrustumf(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+	   
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glPushMatrix();                     /* Push The Modelview Matrix */
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable( GL_LIGHTING );
+    glEnable(GL_LIGHT0);
+    glLightfv(GL_LIGHT0, GL_POSITION, position );
+    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90);
+    
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight[2]);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight[2]);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight[2] );
+	
+    
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+    
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+	glColorPointer(4, GL_FLOAT, 0, vertColor);
+    glNormalPointer(GL_FLOAT, 0, normals);
+    
+	
+    glTranslatef(0.0, 0.0, -150.0+
+                 15*(0.8f*sin((float)frameCpt*3.14159f/991)+
+                  1.7f*sin((float)frameCpt*3.14159f/3065)-
+                     0.3f*sin((float)frameCpt*3.14159f/5009)));
+	
+    frameCpt++;
+    
+    glRotatef(30.0f*(0.4f*sin((float)frameCpt*3.14159f/12691)+
+                      0.7f*sin((float)frameCpt*3.14159f/13113)-
+                      0.9f*sin((float)frameCpt*3.14159f/17409)),1,0,0);
+ 
+    glRotatef(-90+30.0f*(0.8f*sin((float)frameCpt*3.14159f/13891)+
+                      0.2f*sin((float)frameCpt*3.14159f/14211)+
+                      0.4f*sin((float)frameCpt*3.14159f/15213)),0,0,1);
+    
+    
+	glRotatef(frameCpt, 0, 1, 0);
+        
+	
+    
+	
+	vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1;
+    crt=0;
+    cgt=0;
+    cbt=0;
+    
+		for (int i=0; i<nb_spectrum_bands; i++) {
+            /////////////////
+            //LEFT
+            spL=barSpectrumDataL[i];
+            
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+            } else {
+                cgt=0;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spL/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spL/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spL/1);
+            if (cbt>1) cbt=1;
+			
+            sx=1;
+            sy=1;
+            sz=spL/2+0.1f;
+            x=0-sx/2;
+            y=(i-nb_spectrum_bands/2)*sy*1.2;
+            z=1+spL/4;
+			
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(180, 0, 1, 0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            
+            /////////////////
+            //RIGHT
+            spR=barSpectrumDataR[i];
+            
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0.1;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3)+0.1;
+            } else {
+                cgt=0.1;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spR/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spR/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spR/1);
+            if (cbt>1) cbt=1;
+			
+            sx=1;
+            sy=1;
+            sz=spR/2+0.1f;
+            x=0-sx/2;
+            y=(i-nb_spectrum_bands/2)*sy*1.2;
+            z=1+spR/4;
+			
+            glRotatef(90, 0, 1, 0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(180, 0, 1, 0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            
+            glRotatef(180-90, 0, 1, 0);
+		}
+	/* Disable Vertex Pointer */
+    glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+    
+    glDisable(GL_LIGHT0);
+    glDisable( GL_LIGHTING );
+    glDisable(GL_COLOR_MATERIAL);
+
+	
+    //    glDisable(GL_BLEND);
+	
+    /* Pop The Matrix */
+    glPopMatrix();
+}
 
 
 void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
@@ -886,12 +1248,12 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
-			vertices[0][1]=y+0;   /* Set y Value Of First Vertex */
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][1]=y+0;
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
-			vertices[1][1]=y+0;   /* Set y Value Of Second Vertex */
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][1]=y+0;
+			vertices[1][2]=z+0.0f;
 			
 			
 			spL*=0.5f;
@@ -902,11 +1264,11 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y-spL;
-			vertices[2][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z+0.0f;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y-spL;
-			vertices[3][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z+0.0f;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
@@ -916,19 +1278,19 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
 			vertices[0][1]=y-spL;
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[1][1]=y-spL;
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z+0.0f;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y-spL;
-			vertices[2][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z2;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y-spL;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
@@ -938,38 +1300,38 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[0][1]=y+0;
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[1][1]=y-spL;
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z+0.0f;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y+0;
-			vertices[2][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z2;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y-spL;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[0][1]=y+0;
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[1][1]=y-spL;
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z+0.0f;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y+0;
-			vertices[2][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z2;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y-spL;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
@@ -985,12 +1347,12 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
-			vertices[0][1]=y+0;   /* Set y Value Of First Vertex */
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][1]=y+0;
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
-			vertices[1][1]=y+0;   /* Set y Value Of Second Vertex */
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][1]=y+0;
+			vertices[1][2]=z+0.0f;
 			
 			spR*=0.5f;
 			cr=tg;
@@ -1000,11 +1362,11 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y+spR;
-			vertices[2][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z+0.0f;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y+spR;
-			vertices[3][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z+0.0f;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
@@ -1014,19 +1376,19 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
 			vertices[0][1]=y+spR;
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[1][1]=y+spR;
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z+0.0f;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=(GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y+spR;
-			vertices[2][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z2;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y+spR;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
@@ -1036,38 +1398,38 @@ void RenderUtils::DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDat
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[0][1]=y+0;
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[1][1]=y+spR;
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z+0.0f;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y+0;
-			vertices[2][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z2;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE+SPECTR_XSIZE*SPECTR_XSIZE_FACTOR)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y+spR;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[0][1]=y+0;
-			vertices[0][2]=z+0.0f;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z+0.0f;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[1][1]=y+spR;
-			vertices[1][2]=z+0.0f;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z+0.0f;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[2][1]=y+0;
-			vertices[2][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z2;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=((GLfloat)(i-nb_spectrum_bands/2)*SPECTR_XSIZE)/(GLfloat)nb_spectrum_bands;
 			vertices[3][1]=y+spR;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
@@ -1658,22 +2020,22 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=x1;
 			vertices[0][1]=y1;
-			vertices[0][2]=z1;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z1;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=x3;
 			vertices[1][1]=y3;
-			vertices[1][2]=z1;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z1;
 			cr=tb;
 			cg=tr/3;
 			cb=tg;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=x2;
 			vertices[2][1]=y2;
-			vertices[2][2]=z1;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z1;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=x4;
 			vertices[3][1]=y4;
-			vertices[3][2]=z1;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z1;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			cr*=0.25f;
@@ -1682,20 +2044,20 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=x2;
 			vertices[0][1]=y2;
-			vertices[0][2]=z1;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z1;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=x2;
 			vertices[1][1]=y2;
-			vertices[1][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z2;
 			
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=x4;
 			vertices[2][1]=y4;
-			vertices[2][2]=z1;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z1;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=x4;
 			vertices[3][1]=y4;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
@@ -1735,22 +2097,22 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=x1;
 			vertices[0][1]=y1;
-			vertices[0][2]=z1;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z1;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=x3;
 			vertices[1][1]=y3;
-			vertices[1][2]=z1;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z1;
 			cr=tg;
 			cg=tb;
 			cb=tb/3;
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=x2;
 			vertices[2][1]=y2;
-			vertices[2][2]=z1;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z1;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=x4;
 			vertices[3][1]=y4;
-			vertices[3][2]=z1;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z1;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			cr*=0.25f;
@@ -1759,20 +2121,20 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
 			vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
 			vertices[0][0]=x2;
 			vertices[0][1]=y2;
-			vertices[0][2]=z1;   /* Set z Value Of First Vertex */
+			vertices[0][2]=z1;
 			vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
 			vertices[1][0]=x2;
 			vertices[1][1]=y2;
-			vertices[1][2]=z2;   /* Set z Value Of Second Vertex */
+			vertices[1][2]=z2;
 			
 			vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
 			vertices[2][0]=x4;
 			vertices[2][1]=y4;
-			vertices[2][2]=z1;   /* Set z Value Of Second Vertex */
+			vertices[2][2]=z1;
 			vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
 			vertices[3][0]=x4;
 			vertices[3][1]=y4;
-			vertices[3][2]=z2;   /* Set z Value Of First Vertex */
+			vertices[3][2]=z2;
 			/* Render The Quad */
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             
@@ -1939,7 +2301,7 @@ cr=crt;cg=cgt;cb=cbt;\
 vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
 vertices[0][0]=(float)(white_idx-key_leftpos+0.05f); \
 vertices[0][1]=yn+yadj; \
-vertices[0][2]=z+0.5f;  \
+vertices[0][2]=z+0.1f;  \
 vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
 vertices[1][0]=(float)(white_idx-key_leftpos+0.05f); \
 vertices[1][1]=yf+yadj; \
@@ -1947,7 +2309,7 @@ vertices[1][2]=z-key_length;  \
 vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
 vertices[2][0]=(float)(white_idx-key_leftpos+0.95f); \
 vertices[2][1]=yn+yadj; \
-vertices[2][2]=z+0.5f;  \
+vertices[2][2]=z+0.1f;  \
 vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
 vertices[3][0]=(float)(white_idx-key_leftpos+0.95f); \
 vertices[3][1]=yf+yadj; \
@@ -2287,13 +2649,15 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         if (abs(xtrans-xtrans_tgt)<0.1) {
             xtransSpeed_tgt=0;
         }
-        glTranslatef(-xtrans, 0.0, ztrans-5*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
+        glTranslatef(-xtrans+1*(0.9f*sin((float)piano_fxcpt*3.14159f/319)+
+                                0.5f*sin((float)piano_fxcpt*3.14159f/789)-
+                                0.7f*sin((float)piano_fxcpt*3.14159f/1061)), 0.0, ztrans-5*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
                                              0.5f*sin((float)piano_fxcpt*3.14159f/289)-
                                              0.7f*sin((float)piano_fxcpt*3.14159f/361)));
-        glRotatef(2.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/769)+
-                        0.5f*sin((float)piano_fxcpt*3.14159f/229)+
-                        0.3f*sin((float)piano_fxcpt*3.14159f/311)), 0, 1, 0);
-        glRotatef(30+10.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/191)+
+        glRotatef(4.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/173)+
+                        0.5f*sin((float)piano_fxcpt*3.14159f/1029)+
+                        0.3f*sin((float)piano_fxcpt*3.14159f/511)), 0, 1, 0);
+        glRotatef(30+15.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/91)+
                             0.7f*sin((float)piano_fxcpt*3.14159f/911)+
                             0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
     } else {
@@ -2423,7 +2787,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
             vertices[0][0]=(float)(white_idx-key_leftpos+0.05f);
             vertices[0][1]=yn+yadj;
-            vertices[0][2]=z+0.5f;
+            vertices[0][2]=z+0.1f;
             vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
             vertices[1][0]=(float)(white_idx-key_leftpos+0.05f);
             vertices[1][1]=yf+yadj;
@@ -2431,7 +2795,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
             vertices[2][0]=(float)(white_idx-key_leftpos+0.95f);
             vertices[2][1]=yn+yadj;
-            vertices[2][2]=z+0.5f;
+            vertices[2][2]=z+0.1f;
             vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
             vertices[3][0]=(float)(white_idx-key_leftpos+0.95f);
             vertices[3][1]=yf+yadj;

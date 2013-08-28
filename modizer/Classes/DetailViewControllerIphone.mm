@@ -9,6 +9,10 @@
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 
+#import "FFTAccelerate.h"
+static FFTAccelerate *fftAccel;
+static float *fft_frequency,*fft_time,*fft_frequencyAvg,*fft_freqAvgCount;
+
 
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
 #define NOTES_DISPLAY_LEFTMARGIN 30
@@ -52,10 +56,10 @@
 
 #import "AnimatedGif.h"
 
-extern "C" {
+/*extern "C" {
     int fix_fftr(short int f[], int m, int inverse);
     int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
-}
+}*/
 
 
 extern volatile t_settings settings[MAX_SETTINGS];
@@ -3649,6 +3653,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         for (int j=0;j<8;j++) {
             real_spectrumSumL[i][j]=real_spectrumSumR[i][j]=0;
         }
+    fftAccel = new FFTAccelerate(SOUND_BUFFER_SIZE_SAMPLE);
+    
+    fft_frequency = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
+    fft_frequencyAvg = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
+    fft_freqAvgCount = (float *)malloc(sizeof(float)*SPECTRUM_BANDS/2);
+    fft_time = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
+
     
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -3722,6 +3733,14 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     //Fluid
     closeFluid();
+    
+    //FFT
+    delete(fftAccel);
+    free(fft_frequency);
+    free(fft_frequencyAvg);
+    free(fft_freqAvgCount);
+    free(fft_time);
+
     
 	[super dealloc];
 }
@@ -4313,7 +4332,81 @@ static int mOglView2Taps=0;
                 memset(img_spectrumL,0,SPECTRUM_BANDS*2*2);
                 memset(img_spectrumR,0,SPECTRUM_BANDS*2*2);
             }
+            
+            
+            
             // COMPUTE FFT
+            
+    /////////////////////////////////////////            
+            //Number of Samples for input(time domain)/output(frequency domain)
+            int numSamples = SOUND_BUFFER_SIZE_SAMPLE;
+            int idx;
+            //Fill Input Array with Left channel
+            for (int i=0; i<numSamples; i++) {
+                fft_time[i]=(float)curBuffer[i*2];
+                fft_frequencyAvg[i]=0;
+            }
+            fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
+            memset(fft_freqAvgCount,0,sizeof(float)*SPECTRUM_BANDS/2);
+            
+            for (int i=0; i<numSamples/2; i++) {
+                idx=i*SPECTRUM_BANDS/numSamples;
+                if (idx<numSamples/2-1) {
+                    fft_frequencyAvg[idx]=fft_frequencyAvg[idx]+fft_frequency[idx+1];
+                    fft_freqAvgCount[idx]=fft_freqAvgCount[idx]+1;
+                }
+            }
+            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
+                float t=0.06*(fft_frequencyAvg[i]);
+                oreal_spectrumL[i]=t;
+            }
+            //Fill Input Array with Right channel
+            for (int i=0; i<numSamples; i++) {
+                fft_time[i]=(float)curBuffer[i*2+1];
+                fft_frequencyAvg[i]=0;
+            }
+            fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
+            memset(fft_freqAvgCount,0,sizeof(float)*SPECTRUM_BANDS/2);
+            for (int i=0; i<numSamples/2; i++) {
+                idx=i*SPECTRUM_BANDS/numSamples;
+                if (idx<numSamples/2-1) {
+                    fft_frequencyAvg[idx]=fft_frequencyAvg[idx]+fft_frequency[idx+1];
+                    fft_freqAvgCount[idx]=fft_freqAvgCount[idx]+1;
+                }
+            }
+            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
+                float t=0.03*(fft_frequencyAvg[i]);
+                oreal_spectrumR[i]=t;
+            }
+            
+            
+            // COMPUTE FINAL FFT & BEAT DETECTION
+            int newSpecL,newSpecR,sumL,sumR;
+            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
+                newSpecL=oreal_spectrumL[i];
+                newSpecR=oreal_spectrumR[i];
+                //SUM THE LAST 8 FFT & COMPUTE AVERAGE
+                sumL=newSpecL;
+                sumR=newSpecR;
+                for (int j=0;j<7;j++) {
+                    real_spectrumSumL[i][j]=real_spectrumSumL[i][j+1];
+                    sumL+=real_spectrumSumL[i][j];
+                    real_spectrumSumR[i][j]=real_spectrumSumR[i][j+1];
+                    sumR+=real_spectrumSumR[i][j];
+                }
+                real_spectrumSumL[i][7]=newSpecL;
+                real_spectrumSumR[i][7]=newSpecR;
+                sumL>>=3;sumR>>=3;
+                real_beatDetectedL[i]=0;
+                real_beatDetectedR[i]=0;
+                
+                //APPLY THRESHOLDS (MIN VALUE & FACTOR/AVERAGE)
+                if ((sumL>BEAT_THRESHOLD_MIN)&&(newSpecL>sumL*BEAT_THRESHOLD_FACTOR)) real_beatDetectedL[i]=1;
+                if ((sumR>BEAT_THRESHOLD_MIN)&&(newSpecR>sumR*BEAT_THRESHOLD_FACTOR)) real_beatDetectedR[i]=1;                
+            }            
+    /////////////////////////////////////////
+            
+            /*
             int scaleL=fix_fft(real_spectrumL,img_spectrumL, LOG2_SPECTRUM_BANDS+1, 0);
             int scaleR=fix_fft(real_spectrumR,img_spectrumR, LOG2_SPECTRUM_BANDS+1, 0);
             
@@ -4350,9 +4443,10 @@ static int mOglView2Taps=0;
                 //SMOOTH FOR SPECTRUM
                 if (newSpecL<((int)oreal_spectrumL[i]*13)>>4) newSpecL=((int)oreal_spectrumL[i]*13)>>4;
                 if (newSpecR<((int)oreal_spectrumR[i]*13)>>4) newSpecR=((int)oreal_spectrumR[i]*13)>>4;
-                oreal_spectrumL[i]=newSpecL;
+                //oreal_spectrumL[i]=newSpecL;
                 oreal_spectrumR[i]=newSpecR;
             }
+             */
 		}
 	}
 	
@@ -4681,7 +4775,7 @@ static int mOglView2Taps=0;
     
 	if ([mplayer isPlaying]){
 		if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX3].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
