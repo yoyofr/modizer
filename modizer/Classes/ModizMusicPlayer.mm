@@ -100,15 +100,15 @@ static gme_equalizer_t gme_eq;
 static gme_effects_t gme_fx;
 
 //AOSDK
-static struct { 
-	uint32 sig; 
-	const char *name; 
-	int32 (*start)(uint8 *, uint32, int32, int32); 
-	int32 (*gen)(int16 *, uint32); 
-	int32 (*stop)(void); 
-	int32 (*command)(int32, int32); 
-	uint32 rate; 
-	int32 (*fillinfo)(ao_display_info *); 
+static struct {
+	uint32 sig;
+	const char *name;
+	int32 (*start)(uint8 *, uint32, int32, int32);
+	int32 (*gen)(int16 *, uint32);
+	int32 (*stop)(void);
+	int32 (*command)(int32, int32);
+	uint32 rate;
+	int32 (*fillinfo)(ao_display_info *);
 } ao_types[] = {
 	//{ 0x50534601, "Sony PlayStation (.psf)", psf_start, psf_gen, psf_stop, psf_command, 60, psf_fill_info },
 	{ 0x53505500, "Sony PlayStation (.spu)", spu_start, spu_gen, spu_stop, spu_command, 60, spu_fill_info },
@@ -180,7 +180,7 @@ extern "C" {
     
     PlayMode ios_play_mode = {
         //  DEFAULT_RATE, PE_16BIT|PE_SIGNED, PF_PCM_STREAM|PF_CAN_TRACE,
-        44100, PE_16BIT|PE_SIGNED, PF_PCM_STREAM,        
+        44100, PE_16BIT|PE_SIGNED, PF_PCM_STREAM,
         -1,
         {0}, /* default: get all the buffer fragments you can */
         "iOS pcm device", 'd',
@@ -210,7 +210,7 @@ extern "C" {
         float volume;
     } DUH_PLAYER;
     DUH *duh;
-    DUH_PLAYER *duh_player;    
+    DUH_PLAYER *duh_player;
 }
 
 //ASAP
@@ -219,7 +219,7 @@ static int ASAP_module_len;
 static struct ASAP asap;
 
 
-extern "C" { 
+extern "C" {
     int gSpcSlowAPU=1;
 	//GSF
 	int defvolume=1000;
@@ -264,11 +264,11 @@ extern "C" int GSFsndSamplesPerSec;
 
 extern "C" void writeSound(void) {
 	int lBytes = (int)soundBufferLen;
-	unsigned char *pSound=(unsigned char*)soundFinalWave;	
+	unsigned char *pSound=(unsigned char*)soundFinalWave;
 	
 	if (g_playing==0) return;
 	
-	gsf_update(pSound,lBytes);	    
+	gsf_update(pSound,lBytes);
 	
 	
 	decode_pos_ms += (lBytes/(2*sndNumChannels) * 1000)/(float)GSFsndSamplesPerSec;
@@ -287,7 +287,7 @@ void gsf_loop() {
     //	printf("enter loop %d,%d\n",TrackLength,decode_pos_ms);
 	while (g_playing) {
 		int remaining = TrackLength - (int)decode_pos_ms;
-		if (remaining<0) { 
+		if (remaining<0) {
 			// this happens during silence period
 			remaining = 0;
 		}
@@ -347,12 +347,12 @@ extern "C" {
 	
 	
 	void uade_dummy_wait() {
-		[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS]; 
+		[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
 	}
 	
 	int uade_main (int argc, char **argv);
 	
-	struct uade_state UADEstate,UADEstatebase;	
+	struct uade_state UADEstate,UADEstatebase;
 	char UADEconfigname[PATH_MAX];
 	char UADEplayername[PATH_MAX];
 	char UADEscorename[PATH_MAX];
@@ -378,7 +378,7 @@ static volatile int mNeedSeek,mNeedSeekTime;
 static const char *pathdir;
 
 static int tim_open_output(void) {
-    return 0;   
+    return 0;
 } /* 0=success, 1=warning, -1=fatal error */
 
 static void tim_close_output(void) {
@@ -395,18 +395,18 @@ static int tim_output_data(char *buf, int32 nbytes) {
 		if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
 			g_playing=0;
 			return 0;
-		}        
+		}
 	}
     
     if ((tim_midilength!=-1) && (tim_midilength!=iModuleLength)) {
         iModuleLength=tim_midilength;
-        mod_message_updated=2;        
+        mod_message_updated=2;
     }
     
 	int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
 	if (nbytes<to_fill) {
 		if (!mSlowDevice) {
-			memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,nbytes);			
+			memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,nbytes);
 		} else {
 			signed int *dst=(signed int *)((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs);
 			signed int *src=(signed int *)buf;
@@ -414,7 +414,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
 				dst[i*2]=src[i];
 				dst[i*2+1]=src[i];
 			}
-		}	
+		}
 		
 		buffer_ana_subofs+=nbytes;
 		
@@ -617,7 +617,7 @@ int ao_get_lib(char *filename, uint8 **buffer, uint64 *length) {
 			found=1;
 			strcpy(filename,filelist[i]->d_name);
 		}
-	//	free(filelist[i]);
+        //	free(filelist[i]);
 	}
 	//free(filelist);
     
@@ -684,7 +684,7 @@ void iPhoneDrv_AudioCallback(void *data, AudioQueueRef mQueue, AudioQueueBufferR
 
 /************************************************/
 /* Handle phone calls interruptions             */
-/************************************************/ 
+/************************************************/
 void interruptionListenerCallback (void *inUserData,UInt32 interruptionState ) {
 	ModizMusicPlayer *mplayer=(ModizMusicPlayer*)inUserData;
 	if (interruptionState == kAudioSessionBeginInterruption) {
@@ -704,7 +704,7 @@ void interruptionListenerCallback (void *inUserData,UInt32 interruptionState ) {
             if (newRoute) {
                 if (CFStringCompare(newRoute,CFSTR("Headphone"),NULL)==kCFCompareEqualTo) {  //
                     mInterruptShoudlRestart=0;
-                }                
+                }
             }
             
 			if (mInterruptShoudlRestart) [mplayer Pause:NO];
@@ -732,7 +732,7 @@ void propertyListenerCallback (void                   *inUserData,              
 		if ([mplayer isPlaying]) {
             UInt32 routeSize = sizeof (CFStringRef);
             CFStringRef route;
-
+            
 			CFDictionaryRef routeChangeDictionary = (CFDictionaryRef)inPropertyValue;        // 8
 			NSString *oldroute = (NSString*)CFDictionaryGetValue (
 																  routeChangeDictionary,
@@ -755,23 +755,23 @@ void propertyListenerCallback (void                   *inUserData,              
                                                       &route);
             if (!error && (route != NULL)) {
                 NSString *new_route = (NSString*)route;
-            NSRange r;
-            int pause_audio=1;
-            r=[new_route rangeOfString:@"Head"];
-            if (r.location!=NSNotFound) pause_audio=0;
-            r.location=NSNotFound;
-            r=[new_route rangeOfString:@"Line"];
-            if (r.location!=NSNotFound) pause_audio=0;
+                NSRange r;
+                int pause_audio=1;
+                r=[new_route rangeOfString:@"Head"];
+                if (r.location!=NSNotFound) pause_audio=0;
+                r.location=NSNotFound;
+                r=[new_route rangeOfString:@"Line"];
+                if (r.location!=NSNotFound) pause_audio=0;
                 
-            if (pause_audio) {  //New route is not headphone or lineout                
-                if (([oldroute rangeOfString:@"Head"].location==NSNotFound) && ([oldroute rangeOfString:@"Line"].location==NSNotFound)) {
-                    //old route was neither headphone or lineout
-                    //do not pause audio
-                    pause_audio=0;
+                if (pause_audio) {  //New route is not headphone or lineout
+                    if (([oldroute rangeOfString:@"Head"].location==NSNotFound) && ([oldroute rangeOfString:@"Line"].location==NSNotFound)) {
+                        //old route was neither headphone or lineout
+                        //do not pause audio
+                        pause_audio=0;
+                    }
+                    if (pause_audio) [mplayer Pause:YES];
                 }
-                if (pause_audio) [mplayer Pause:YES];
-            }
-        
+                
             }
         }
     }
@@ -813,7 +813,7 @@ void propertyListenerCallback (void                   *inUserData,              
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
 {
     //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    //  NSString *documentsDirectory = [paths objectAtIndex:0];    
+    //  NSString *documentsDirectory = [paths objectAtIndex:0];
     const char* filePath = [path fileSystemRepresentation];
     
     const char* attrName = "com.apple.MobileBackup";
@@ -865,7 +865,7 @@ void propertyListenerCallback (void                   *inUserData,              
 								 &sessionCategory
 								 );
 		
-		//Check if still required or not 
+		//Check if still required or not
 		Float32 preferredBufferDuration = SOUND_BUFFER_SIZE_SAMPLE*1.0f/PLAYBACK_FREQ;                      // 1
 		AudioSessionSetProperty (                                     // 2
 								 kAudioSessionProperty_PreferredHardwareIOBufferDuration,
@@ -878,7 +878,7 @@ void propertyListenerCallback (void                   *inUserData,              
 										 propertyListenerCallback,                                      // 4
 										 self                                                       // 5
 										 );
-		AudioSessionSetActive (true);	
+		AudioSessionSetActive (true);
 		
 		
 		buffer_ana_flag=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
@@ -909,10 +909,10 @@ void propertyListenerCallback (void                   *inUserData,              
         mdz_ArchiveFilesListAlias=NULL;
 		mdz_ArchiveFilesCnt=0;
 		mdz_IsArchive=0;
-		mdz_currentArchiveIndex=0;        
+		mdz_currentArchiveIndex=0;
         //Timidity
         
-		//        
+		//
         //DUMB
         dumb_MastVol=0.5f;
         dumb_register_memfiles();
@@ -925,7 +925,7 @@ void propertyListenerCallback (void                   *inUserData,              
 		genRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		//genOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		playPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
-		playRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));		
+		playRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		//playOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		//
 		//GME specific
@@ -946,7 +946,7 @@ void propertyListenerCallback (void                   *inUserData,              
             gme_fx.surround = 0.0f;
             gme_fx.stereo = 0.8f;
         }
-
+        
         //
         // ADPLUG specific
         mADPLUGopltype=0;
@@ -1052,16 +1052,16 @@ void propertyListenerCallback (void                   *inUserData,              
     
     mDataFormat.mBytesPerFrame = (mDataFormat.mBitsPerChannel>>3) * mDataFormat.mChannelsPerFrame;
 	
-    mDataFormat.mFramesPerPacket = 1; 
+    mDataFormat.mFramesPerPacket = 1;
     mDataFormat.mBytesPerPacket = mDataFormat.mBytesPerFrame;
     
     /* Create an Audio Queue... */
-    err = AudioQueueNewOutput( &mDataFormat, 
-							  iPhoneDrv_AudioCallback, 
-							  self, 
+    err = AudioQueueNewOutput( &mDataFormat,
+							  iPhoneDrv_AudioCallback,
+							  self,
 							  NULL, //CFRunLoopGetCurrent(),
 							  kCFRunLoopCommonModes,
-							  0, 
+							  0,
 							  &mAudioQueue );
     
     /* ... and its associated buffers */
@@ -1127,7 +1127,7 @@ void propertyListenerCallback (void                   *inUserData,              
 		//		[self iPhoneDrv_FillAudioBuffer:mBuffers[i]];
 		
     }
-	bGlobalAudioPause=0;	
+	bGlobalAudioPause=0;
     /* Start the Audio Queue! */
 	//AudioQueuePrime( mAudioQueue, 0,NULL );
     err = AudioQueueStart( mAudioQueue, NULL );
@@ -1136,7 +1136,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 -(BOOL) iPhoneDrv_LittlePlayStart {
     UInt32 err;
-
+    
     bGlobalAudioPause=2;
     err = AudioQueueStart( mAudioQueue, NULL );
 	
@@ -1154,7 +1154,7 @@ void propertyListenerCallback (void                   *inUserData,              
 		counter++;
 		if (counter*DEFAULT_WAIT_TIME_MS>2) break;
 	}
-	AudioQueueReset( mAudioQueue );	
+	AudioQueueReset( mAudioQueue );
     mQueueIsBeingStopped = FALSE;
 }
 -(void) iPhoneDrv_PlayStop {
@@ -1162,14 +1162,14 @@ void propertyListenerCallback (void                   *inUserData,              
 	//	NSLog(@"stopping queue");
 	bGlobalAudioPause=2;
     AudioQueueStop( mAudioQueue, TRUE );
-	AudioQueueReset( mAudioQueue );	
+	AudioQueueReset( mAudioQueue );
     mQueueIsBeingStopped = FALSE;
 }
--(void) iPhoneDrv_Update:(AudioQueueBufferRef) mBuffer {   
+-(void) iPhoneDrv_Update:(AudioQueueBufferRef) mBuffer {
     /* the real processing takes place in FillAudioBuffer */
 	[self iPhoneDrv_FillAudioBuffer:mBuffer];
 }
--(BOOL) iPhoneDrv_FillAudioBuffer:(AudioQueueBufferRef) mBuffer {       
+-(BOOL) iPhoneDrv_FillAudioBuffer:(AudioQueueBufferRef) mBuffer {
 	int skip_queue=0;
 	mBuffer->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
 	if (bGlobalAudioPause==2) {
@@ -1356,7 +1356,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
 					return;
 				}
 			}
-			if (mSlowDevice) {				
+			if (mSlowDevice) {
 				signed int *dst=(signed int *)buffer_ana[buffer_ana_gen_ofs];
 				signed int *src=(signed int *)((char*)data+to_fill);
 				for (int i=len/8-1;i>=0;i--) {
@@ -1368,7 +1368,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
 		}
 	}
 }
-void gsf_update(unsigned char* pSound,int lBytes) {	
+void gsf_update(unsigned char* pSound,int lBytes) {
 	if (soundQuality==2) lBytes*=2; //22Khz
 	if (soundQuality==4) lBytes*=4; //11Khz
 	
@@ -1386,7 +1386,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
 	int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
 	if (lBytes<to_fill) {
 		if (soundQuality==1) {
-			memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,lBytes);			
+			memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,lBytes);
 		} else if (soundQuality==2) {
 			signed int *dst=(signed int *)((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs);
 			signed int *src=(signed int *)pSound;
@@ -1458,7 +1458,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
 					dst[i*2]=src[i];
 					dst[i*2+1]=src[i];
 				}
-			} else {			
+			} else {
 				signed int *dst=(signed int *)(char*)(buffer_ana[buffer_ana_gen_ofs]);
 				signed int *src=(signed int *)(((char*)pSound)+to_fill/4);
 				for (int i=0;i<lBytes/4/4;i++) {
@@ -1545,7 +1545,7 @@ void sexyd_update(unsigned char* pSound,long lBytes) {
     timThread_running=1;
     //    NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
     char *argv[1];
-    argv[0]=tim_filepath;    
+    argv[0]=tim_filepath;
     
     //timidity
     tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
@@ -1553,7 +1553,7 @@ void sexyd_update(unsigned char* pSound,long lBytes) {
     
     //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
     tim_main(1, argv);
-    //tim_close();    
+    //tim_close();
     //    [pool release];
     timThread_running=0;
 }
@@ -1588,7 +1588,7 @@ void sexyd_update(unsigned char* pSound,long lBytes) {
 	uadeThread_running=0;
 	//	printf("stop thread\n");
 }
-//invoked by secondary UADE thread, in charge of receiving sound data 
+//invoked by secondary UADE thread, in charge of receiving sound data
 int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	do {
 		while (buffer_ana_flag[buffer_ana_gen_ofs]) {
@@ -1628,7 +1628,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	
 	return 0;
 }
--(int) uade_playloop {	
+-(int) uade_playloop {
 	struct uade_state *state=&UADEstate;
 	uint16_t *sm;
 	int i;
@@ -1760,7 +1760,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				mod_wantedcurrentsub=-1;
 				if (us->cur_subsong>us->max_subsong) us->cur_subsong=us->max_subsong;
 				if (us->cur_subsong<us->min_subsong) us->cur_subsong=us->min_subsong;
-				mod_currentsub=us->cur_subsong;				
+				mod_currentsub=us->cur_subsong;
 				iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
 				//Loop
 				if (mLoopMode==1) iModuleLength=-1;
@@ -1770,7 +1770,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			}
 			
 			if (uade_song_end_trigger) {
-               // uade_song_end_trigger=0;
+                // uade_song_end_trigger=0;
 				next_song=1;
 				//				printf("now exiting\n");
 				if (uade_send_short_message(UADE_EXIT, ipc)) {
@@ -1810,7 +1810,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 					else {
 						if (uade_audio_play((char*)sampledata, playbytes,subsong_end)) uade_song_end_trigger=2;
 					}
-				}	
+				}
 				
 				/* FIX ME */
 				if (uc->timeout != -1 && uc->use_timeouts) {
@@ -1909,7 +1909,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 					//printf("UADE msg : %s\n",(const char*)(um->data));
 					break;
 					
-				case UADE_REPLY_PLAYERNAME:					
+				case UADE_REPLY_PLAYERNAME:
 					uade_check_fix_string(um, 128);
 					strcpy(playerName,(const char*)(um->data));
 					if (1 + us->max_subsong - us->min_subsong==1) {
@@ -1932,7 +1932,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						exit(-1);
 					}
 					tailbytes = ntohl(((uint32_t *) um->data)[0]);
-					if (!tailbytes) 
+					if (!tailbytes)
 						if (!what_was_left) what_was_left=2;
 					/* next ntohl() is only there for a principle. it is not useful */
 					if (ntohl(((uint32_t *) um->data)[1]) == 0) {
@@ -2037,7 +2037,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		if (bGlobalIsPlaying) {
 			bGlobalSoundGenInProgress=1;
 			if ( !bGlobalEndReached && mPlayType) {
-				int nbBytes=0;				
+				int nbBytes=0;
                 
                 if (mPlayType==15) { //Special case : Timidity
                     int counter=0;
@@ -2050,10 +2050,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						if (counter*DEFAULT_WAIT_TIME_MS>2) break;
 					}
 					AudioQueueStop( mAudioQueue, TRUE );
-					AudioQueueReset( mAudioQueue );	
+					AudioQueueReset( mAudioQueue );
 					mQueueIsBeingStopped = FALSE;
 					bGlobalEndReached=1;
-					bGlobalAudioPause=2;					
+					bGlobalAudioPause=2;
                 }
 				
 				if (mPlayType==12) {  //Special case : GSF
@@ -2067,10 +2067,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						if (counter*DEFAULT_WAIT_TIME_MS>2) break;
 					}
 					AudioQueueStop( mAudioQueue, TRUE );
-					AudioQueueReset( mAudioQueue );	
+					AudioQueueReset( mAudioQueue );
 					mQueueIsBeingStopped = FALSE;
 					bGlobalEndReached=1;
-					bGlobalAudioPause=2;					
+					bGlobalAudioPause=2;
 				} else if (mPlayType==5) {  //Special case : SexyPSF
 					int counter=0;
 					[NSThread sleepForTimeInterval:0.1];  //TODO : check why it crashes in "release" target without this...
@@ -2082,7 +2082,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						if (counter*DEFAULT_WAIT_TIME_MS>2) break;
 					}
 					AudioQueueStop( mAudioQueue, TRUE );
-					AudioQueueReset( mAudioQueue );	
+					AudioQueueReset( mAudioQueue );
 					mQueueIsBeingStopped = FALSE;
 					bGlobalEndReached=1;
 					bGlobalAudioPause=2;
@@ -2104,10 +2104,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						if (counter*DEFAULT_WAIT_TIME_MS>2) break;
 					}
 					AudioQueueStop( mAudioQueue, TRUE );
-					AudioQueueReset( mAudioQueue );	
+					AudioQueueReset( mAudioQueue );
 					mQueueIsBeingStopped = FALSE;
 					bGlobalEndReached=1;
-					bGlobalAudioPause=2;		
+					bGlobalAudioPause=2;
 					//[self iPhoneDrv_PlayWaitStop];
 					//AudioQueueStop( mAudioQueue, TRUE );
 				} else if (mPlayType==11) {  //Special case : MDX
@@ -2121,7 +2121,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						if (counter*DEFAULT_WAIT_TIME_MS>2) break;
 					}
 					AudioQueueStop( mAudioQueue, TRUE );
-					AudioQueueReset( mAudioQueue );	
+					AudioQueueReset( mAudioQueue );
 					mQueueIsBeingStopped = FALSE;
 					bGlobalAudioPause=2;
 					bGlobalEndReached=1;
@@ -2164,18 +2164,18 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 						if (mPlayType==13) { //ASAP
 							bGlobalSeekProgress=-1;
 							ASAP_Seek(&asap, mNeedSeekTime);
-						}   
+						}
                         if (mPlayType==14) {
                             bGlobalSeekProgress=-1;
                             duh_end_sigrenderer(duh_player->dr);
                             duh_player->dr = duh_start_sigrenderer(duh, 0, 2/*nb channels*/, ((long long)mNeedSeekTime<<16)/1000);
                             if (!duh_player->dr) {
                                 NSLog(@"big issue!!!!!!");
-                            } else {        
+                            } else {
                                 DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
                                 if (mLoopMode==1) dumb_it_set_loop_callback(itsr, &dumb_it_callback_loop, NULL);
                                 else dumb_it_set_loop_callback(itsr, &dumb_it_callback_terminate, NULL);
-                                dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);        
+                                dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);
                             }
                         }
                         if (mPlayType==16) { //PMDMini : not supported
@@ -2203,7 +2203,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                                             gme_track_count( gme_emu ),
                                             (gme_info->comment?gme_info->comment:" "));
 									
-									if (gme_info->song){                                          
+									if (gme_info->song){
 										if (gme_info->song[0]) sprintf(mod_name," %s/%s",(gme_info->game?gme_info->game:""),gme_info->song);
 									}
 									gme_free_info(gme_info);
@@ -2251,7 +2251,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 								if (mLoopMode) iModuleLength=-1;
 								mod_message_updated=1;
 							}
-							if (mPlayType==10) {//SC68		
+							if (mPlayType==10) {//SC68
 								api68_music_info_t info;
 								if (moveToNextSubSong==2) {
 									//[self iPhoneDrv_PlayWaitStop];
@@ -2340,7 +2340,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             if (mLoopMode) iModuleLength=-1;
                             mod_message_updated=1;
                         }
-                        if (mPlayType==10) {//SC68		
+                        if (mPlayType==10) {//SC68
                             api68_music_info_t info;
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
@@ -2421,7 +2421,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 								if (mLoopMode) iModuleLength=-1;
 								mod_message_updated=1;
 							}
-							if (mPlayType==10) {//SC68		
+							if (mPlayType==10) {//SC68
 								api68_music_info_t info;
 								[self iPhoneDrv_PlayStop];
 								[self iPhoneDrv_PlayStart];
@@ -2444,7 +2444,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 								gme_start_track(gme_emu,mod_currentsub);
 								
 								
-								if (mSlowDevice) {                                    
+								if (mSlowDevice) {
 									gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
 									/*									for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
 									 buffer_ana[buffer_ana_gen_ofs][i*4]=buffer_ana[buffer_ana_gen_ofs][i*4+2]=buffer_ana[buffer_ana_gen_ofs][i*2];
@@ -2570,7 +2570,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                          int tempo=ModPlug_GetCurrentTempo(mp_file);
                          int speed=ModPlug_GetCurrentSpeed(mp_file);
                          // compute length of current row
-                         genCurOffsetCnt++;							
+                         genCurOffsetCnt++;
                          genCurOffset=1000*genCurOffsetCnt*tempo/(3*25*speed);
                          }*/
                         //						genOffset[buffer_ana_gen_ofs]=genCurOffset;
@@ -2586,7 +2586,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         // current playtime
                         if (iCurrentTime>=iModuleLength) {
                             AudioQueueStop( mAudioQueue, TRUE );
-                            AudioQueueReset( mAudioQueue );	
+                            AudioQueueReset( mAudioQueue );
                             mQueueIsBeingStopped = FALSE;
                             bGlobalEndReached=1;
                             bGlobalAudioPause=2;
@@ -2652,8 +2652,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 								
 								hvl_sample_to_write=0;
 							}
-							if (!hvl_sample_to_write) { 
-								hvl_play_irq(hvl_song); 
+							if (!hvl_sample_to_write) {
+								hvl_play_irq(hvl_song);
 								if (hvl_song->ht_SongEndReached) {//end reached
 									nbBytes=0;
 								} else {
@@ -2849,7 +2849,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     fex_stat(fex);
                     arc_size=fex_size(fex);
                     extractFilename=[NSString stringWithFormat:@"%s/%s",extractPath,fex_name(fex)];
-                    extractPathFile=[extractFilename stringByDeletingLastPathComponent];			
+                    extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                     
                     //NSLog(@"file : %s, size : %dKo, output %@",fex_name(fex),arc_size/1024,extractFilename);
                     
@@ -2861,7 +2861,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     //2nd extract file
                     f=fopen([extractFilename fileSystemRepresentation],"wb");
                     if (!f) {
-                        NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);					
+                        NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
                     } else {
                         char *archive_data;
                         archive_data=(char*)malloc(32768); //32Ko buffer
@@ -2896,28 +2896,28 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                                 fread(archive_data,1,128,f);
                                 fclose(f);
                                 
-//                                if (archive_data[0x23]==0x26) {
-                                    mdz_ArchiveFilesListAlias[idx]=(char*)malloc(32+1+4);
-                                    memcpy(mdz_ArchiveFilesListAlias[idx]+4,archive_data+0x2E,32);
-                                    mdz_ArchiveFilesListAlias[idx][32+4]=0;
+                                //                                if (archive_data[0x23]==0x26) {
+                                mdz_ArchiveFilesListAlias[idx]=(char*)malloc(32+1+4);
+                                memcpy(mdz_ArchiveFilesListAlias[idx]+4,archive_data+0x2E,32);
+                                mdz_ArchiveFilesListAlias[idx][32+4]=0;
                                 mdz_ArchiveFilesListAlias[idx][0]=idx/100+'0';
                                 mdz_ArchiveFilesListAlias[idx][1]=((idx/10)%10)+'0';
                                 mdz_ArchiveFilesListAlias[idx][2]=((idx/1)%10)+'0';
                                 mdz_ArchiveFilesListAlias[idx][3]='-';
-/*                                } else {
-                                mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
-                                strcpy(mdz_ArchiveFilesListAlias[idx],[tmp_filename fileSystemRepresentation]);
-                                }*/
-//                                NSLog(@"name: %s",mdz_ArchiveFilesListAlias[idx]);
+                                /*                                } else {
+                                 mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
+                                 strcpy(mdz_ArchiveFilesListAlias[idx],[tmp_filename fileSystemRepresentation]);
+                                 }*/
+                                //                                NSLog(@"name: %s",mdz_ArchiveFilesListAlias[idx]);
                                 free(archive_data);
                             } else {
                                 mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([[tmp_filename lastPathComponent] UTF8String])+1);
                                 strcpy(mdz_ArchiveFilesListAlias[idx],[[tmp_filename lastPathComponent] UTF8String]);
-//                                NSLog(@"name def: %s",mdz_ArchiveFilesListAlias[idx]);
+                                //                                NSLog(@"name def: %s",mdz_ArchiveFilesListAlias[idx]);
                             }
                             
                             
-                            idx++;                    	
+                            idx++;
                         }
                         if (fex_next( fex )) {
                             NSLog(@"Error during fex scanning");
@@ -2966,7 +2966,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         fex_stat(fex);
                         arc_size=fex_size(fex);
                         extractFilename=[NSString stringWithFormat:@"%s/%s",extractPath,fex_name(fex)];
-                        extractPathFile=[extractFilename stringByDeletingLastPathComponent];		                    
+                        extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                         //NSLog(@"file : %s, size : %dKo, output %@",fex_name(fex),arc_size/1024,extractFilename);
                         
                         
@@ -2976,7 +2976,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         //2nd extract file
                         f=fopen([extractFilename fileSystemRepresentation],"wb");
                         if (!f) {
-                            NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);			
+                            NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
                         } else {
                             char *archive_data;
                             archive_data=(char*)malloc(32768); //32Ko buffer
@@ -2992,7 +2992,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                                 }
                             }
                             free(archive_data);
-                            fclose(f);                        
+                            fclose(f);
                             NSString *tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
                             
                             mdz_ArchiveFilesList[0]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
@@ -3001,11 +3001,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             strcpy(mdz_ArchiveFilesListAlias[0],[[tmp_filename lastPathComponent] UTF8String]);
                             break;
                         }
-                    } else idx++;                    	
+                    } else idx++;
                     if (fex_next( fex )) {
                         NSLog(@"Error during fex scanning");
                         break;
-                    }                
+                    }
                 } else {
                     if (fex_next( fex )) {
                         NSLog(@"Error during fex scanning");
@@ -3039,7 +3039,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
                     mdz_ArchiveFilesCnt++;
                     //NSLog(@"file : %s",fex_name(fex));
-                }                
+                }
 				if (fex_next( fex )) {
 					NSLog(@"Error during fex scanning");
 					break;
@@ -3088,7 +3088,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 -(int) getSongLengthfromMD5:(int)track_nb {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
-	int err;	
+	int err;
 	int songlength=-1;
 	
 	pthread_mutex_lock(&db_mutex);
@@ -3136,7 +3136,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
-	int err;	
+	int err;
 	
 	pthread_mutex_lock(&db_mutex);
 	
@@ -3161,7 +3161,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 -(void) getStilInfo:(char*)fullPath {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
-	int err;	
+	int err;
 	
 	strcpy(stil_info,"");
 	pthread_mutex_lock(&db_mutex);
@@ -3177,7 +3177,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			sprintf(sqlStatement,"SELECT filepath FROM hvsc_path WHERE id_md5=\"%s\"",song_md5);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
-				while (sqlite3_step(stmt) == SQLITE_ROW) {					
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					strcpy(tmppath,(const char*)sqlite3_column_text(stmt, 0));
 					realPath=tmppath;
 				}
@@ -3281,8 +3281,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
 								  [filetype_extASAP count]+[filetype_extWMIDI count]];
 	
-	int err;	
-	int local_nb_entries=0;	
+	int err;
+	int local_nb_entries=0;
 	
 	NSRange r;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
@@ -3315,7 +3315,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		if ([fileAttributes objectForKey:NSFileType]==NSFileTypeRegular) {
             //File : check if playable (looking at ext)
 			NSString *extension = [[file pathExtension] uppercaseString];
-			NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];			
+			NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
 			int found=0;
             
 			if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
@@ -3327,8 +3327,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		}
 	}
 	
-	if (local_nb_entries) {	
-        mdz_ArchiveFilesCnt=local_nb_entries;        
+	if (local_nb_entries) {
+        mdz_ArchiveFilesCnt=local_nb_entries;
         mdz_currentArchiveIndex=0;
         mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
         mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
@@ -3394,7 +3394,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
     
-//    NSLog(@"check: %@",_filePath);
+    //    NSLog(@"check: %@",_filePath);
     mSingleFileType=1; //used to identify file which relies or not on another file (sample, psflib, ...)
 	
 	if (!found)
@@ -3568,7 +3568,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         }
     }
     
-//    NSLog(@"found: %d / single: %d",found,mSingleFileType);
+    //    NSLog(@"found: %d / single: %d",found,mSingleFileType);
     
     return found;
 }
@@ -3639,11 +3639,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		
 		for (int i=0;i<[filetype_extARCHIVE count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=1;break;}						
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 		}
         for (int i=0;i<[filetype_extLHA_ARCHIVE count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}						
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extLHA_ARCHIVE objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
 		}
 		if (found) { //archived file
 			mdz_IsArchive=0;
@@ -3766,7 +3766,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
                 } else {
                     return -1;
-                }                
+                }
 				
 				//NSLog(@"%@",_filePath);
             }
@@ -3790,7 +3790,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
         extension = [_filePath pathExtension];
         file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
-        filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];		    
+        filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
 	}
     
@@ -3800,11 +3800,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
         extension = [_filePath pathExtension];
         file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
-        filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];		    
+        filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
     }
 	
-	found=0;	
+	found=0;
 	if (!found)
 		for (int i=0;i<[filetype_extASAP count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
@@ -3888,7 +3888,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
         }
 	
-//    NSLog(@"file : %@\nfound:%d",filePath,found);
+    //    NSLog(@"file : %@\nfound:%d",filePath,found);
 	
 	if (found==1) {  //GME
 		long sample_rate = (mSlowDevice?PLAYBACK_FREQ/2:PLAYBACK_FREQ); /* number of samples per second */
@@ -3909,6 +3909,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		fclose(f);
 		
 		// Open music file in new emulator
+        gme_emu=NULL;
 		err=gme_open_file( [filePath UTF8String], &gme_emu, sample_rate );
 		if (err) {
 			NSLog(@"gme_open_file error: %s",err);
@@ -3928,13 +3929,18 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			
 			/* Adjust equalizer for crisp, bassy sound */
 			
+            float treble,bass;
+            treble=gme_eq.treble;
+            bass=gme_eq.bass;
 			gme_equalizer( gme_emu, &gme_eq );
+            gme_eq.treble=treble;
+            gme_eq.bass=bass;
 			gme_set_equalizer( gme_emu, &gme_eq );
 			gme_set_effects( gme_emu, &gme_fx);
 			
 			/**/
 			int ignore_silence = strcmp(gmetype,"PC Engine") ? 1 : 0;
-//TODO: make it an option
+            //TODO: make it an option
 			gme_ignore_silence(gme_emu,0);//ignore_silence);
 			
 			track=0;
@@ -3960,8 +3966,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				
 				if (strcmp(gmetype,"NSF")==0) {//NSF
 					//check length in database
-					//iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];					
-				}                                
+					//iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+				}
 				
 				if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
                 
@@ -3994,7 +4000,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             //            else gme_set_fade( gme_emu, 1<<30);
 			
 			iCurrentTime=0;
-			numChannels=gme_voice_count( gme_emu );			
+			numChannels=gme_voice_count( gme_emu );
 			
 			mod_message_updated=2;
 			return 0;
@@ -4007,7 +4013,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			NSLog(@"ADplug Cannot open file %@",filePath);
 			mPlayType=0;
 			return -1;
-		}		
+		}
 		fseek(f,0L,SEEK_END);
 		mp_datasize=ftell(f);
 		fclose(f);
@@ -4060,7 +4066,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			 */
 			for (int i=0;i<adPlugPlayer->getinstruments();i++) {
 				sprintf(mod_message,"%s%s\n", mod_message, adPlugPlayer->getinstrument(i).c_str());
-			};	
+			};
 			
 			iCurrentTime=0;
 			iModuleLength=adPlugPlayer->songlength();
@@ -4072,7 +4078,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			
 			return 0;
 		}
-	} 
+	}
 	
 	if (found==5) {  //SexyPSF
 		mPlayType=5;
@@ -4105,7 +4111,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				NSLog(@"Error loading PSF");
 				mPlayType=0;
 				return -1;
-			}			
+			}
 		}
 		
 		iModuleLength=pi->length;
@@ -4119,7 +4125,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		iCurrentTime=0;
 		numChannels=24;
 		sprintf(mod_name,"");
-		if (pi->title) 
+		if (pi->title)
 			if (pi->title[0]) sprintf(mod_name," %s",pi->title);
 		
 		if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
@@ -4149,7 +4155,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         //			NSLog(@"Incompatible with ASAP: %@",filePath);
         //			mPlayType=0;
         //			return -1;
-        //		}		
+        //		}
 		
 		f = fopen([filePath UTF8String], "rb");
 		if (f == NULL) {
@@ -4165,7 +4171,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		fread(ASAP_module, 1, ASAP_module_len, f);
 		fclose(f);
 		
-		if (!ASAP_Load(&asap, [filePath UTF8String], ASAP_module, ASAP_module_len)) {			
+		if (!ASAP_Load(&asap, [filePath UTF8String], ASAP_module, ASAP_module_len)) {
 			NSLog(@"Cannot ASAP_Load file %@",filePath);
 			mPlayType=0;
 			return -2;
@@ -4214,7 +4220,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		soundQuality = 2;//1:44Khz, 2:22Khz, 4:11Khz
 		
 		DetectSilence=1;
-		silencelength=5;	
+		silencelength=5;
 		IgnoreTrackLength=0;
 		DefaultLength=optGENDefaultLength;
 		TrailingSilence=1000;
@@ -4271,7 +4277,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		 (pi->genre?pi->genre:""),
 		 (pi->psfby?pi->psfby:""),
 		 (pi->copyright?pi->copyright:""));
-		 */		
+		 */
 		
 		if (!psftag_getvar(tag, "title", title_str, sizeof(title_str)-1)) {
 			//BOLD(); printf("Title: "); NORMAL();
@@ -4348,7 +4354,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		iCurrentTime=0;
 		numChannels=sndNumChannels;
 		sprintf(mod_name,"");
-		if (title_str) 
+		if (title_str)
 			if (title_str[0]) sprintf(mod_name," %s",title_str);
 		
 		if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
@@ -4379,8 +4385,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		ao_buffer=(unsigned char*)malloc(mp_datasize);
 		fread(ao_buffer,mp_datasize,sizeof(char),f);
 		fclose(f);
-
-//		NSLog(@"%s, %d",[filePath UTF8String],mp_datasize);        
+        
+        //		NSLog(@"%s, %d",[filePath UTF8String],mp_datasize);
 		
 		NSString *fileDir=[filePath stringByDeletingLastPathComponent];
 		pathdir=[fileDir UTF8String];
@@ -4458,7 +4464,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			return -1;
 		}
 		fseek(f,0L,SEEK_END);
-		mp_datasize=ftell(f);		
+		mp_datasize=ftell(f);
 		fclose(f);
 		
 		if (mSidEngineType==1) {
@@ -4483,7 +4489,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				if (mSid1Tune) {delete mSid1Tune;mSid1Tune=NULL;}
 				mPlayType=0;
 				//try UADE	:sidmon1 or sidmon2
-				found=6;		
+				found=6;
 			} else {
 				struct sidTuneInfo sidtune_info;
 				mSid1Tune->getInfo(sidtune_info);
@@ -4499,7 +4505,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
 				memset(tmp_md5_data,0,tmp_md5_data_size);
 				int ofs_md5_data=0;
-				unsigned char tmp[2];		
+				unsigned char tmp[2];
 				memcpy(tmp_md5_data,mSid1Tune->cachePtr+mSid1Tune->fileOffset,sidtune_info.c64dataLen);
 				ofs_md5_data+=sidtune_info.c64dataLen;
 				// Include INIT and PLAY address.
@@ -4509,7 +4515,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				writeLEword(tmp,sidtune_info.playAddr);
 				memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
 				ofs_md5_data+=2;
-				// Include number of songs.		
+				// Include number of songs.
 				writeLEword(tmp,sidtune_info.songs);
 				memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
 				ofs_md5_data+=2;
@@ -4534,11 +4540,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				
 				md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
 				song_md5[32]=0;
-				free(tmp_md5_data);		
+				free(tmp_md5_data);
 				//NSLog(@"MD5: %s",song_md5);
 				
 				sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
-				mSid1Tune->getInfo(sidtune_info);		
+				mSid1Tune->getInfo(sidtune_info);
 				iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
 				if (iModuleLength<=0) iModuleLength=SID_DEFAULT_LENGTH;
 				
@@ -4584,7 +4590,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			cfg.sidEmulation  = mBuilder;
 			cfg.frequency= PLAYBACK_FREQ;
 			cfg.emulateStereo = false;
-			cfg.playback = sid2_stereo;            
+			cfg.playback = sid2_stereo;
 			cfg.sidSamples	  = true;
 			// setup resid
             if (mBuilder) mBuilder->create(mSidEmuEngine->info().maxsids);
@@ -4607,7 +4613,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				if (mSidTune) {delete mSidTune;mSidTune=NULL;}
 				mPlayType=0;
 				//try UADE	:sidmon1 or sidmon2
-				found=6;		
+				found=6;
 			} else {
 				SidTuneInfo sidtune_info;
 				sidtune_info=mSidTune->getInfo();
@@ -4623,7 +4629,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
 				memset(tmp_md5_data,0,tmp_md5_data_size);
 				int ofs_md5_data=0;
-				unsigned char tmp[2];		
+				unsigned char tmp[2];
 				memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info.c64dataLen);
 				ofs_md5_data+=sidtune_info.c64dataLen;
 				// Include INIT and PLAY address.
@@ -4633,7 +4639,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				writeLEword(tmp,sidtune_info.playAddr);
 				memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
 				ofs_md5_data+=2;
-				// Include number of songs.		
+				// Include number of songs.
 				writeLEword(tmp,sidtune_info.songs);
 				memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
 				ofs_md5_data+=2;
@@ -4716,7 +4722,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		md5_from_buffer(song_md5,33,tmp_md5_data,mp_datasize);
 		song_md5[32]=0;
 		free(tmp_md5_data);
-		fclose(f);	
+		fclose(f);
 		
 		uadeThread_running=0;
 		[NSThread detachNewThreadSelector:@selector(uadeThread) toTarget:self withObject:NULL];
@@ -4779,7 +4785,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		UADEstate.config.panning_enable=mUADE_OptPAN;
 		UADEstate.config.panning=mUADE_OptPANValue;
         UADEstate.config.no_ep_end=(mLoopMode==1?1:0);
-//        UADEstate.config.use_ntsc=1;
+        //        UADEstate.config.use_ntsc=1;
 		
 		uade_set_effects(&UADEstate);
 		
@@ -4826,7 +4832,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	if (found==2) {  //MODPLUG
 		const char *modName;
 		char *modMessage;
-		mPlayType=2;        
+		mPlayType=2;
 		
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
@@ -4852,7 +4858,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			free(mp_data); /* ? */
 			NSLog(@"ModPlug_load error");
 			mPlayType=0;
-		} else {			
+		} else {
 			iModuleLength=ModPlug_GetLength(mp_file);
 			iCurrentTime=0;
             mPatternDataAvail=1;
@@ -4873,7 +4879,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			numSamples=ModPlug_NumSamples(mp_file);
 			numInstr=ModPlug_NumInstruments(mp_file);
 			
-			modMessage=ModPlug_GetMessage(mp_file);			
+			modMessage=ModPlug_GetMessage(mp_file);
 			if (modMessage) sprintf(mod_message,"%s\n",modMessage);
 			else {
 				if ((numInstr==0)&&(numSamples==0)) sprintf(mod_message,"N/A\n");
@@ -4897,7 +4903,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			//Loop
 			if (mLoopMode==1) {
                 iModuleLength=-1;
-            }			
+            }
 			
 			return 0;
 		}
@@ -4942,7 +4948,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if (!hvl_InitSubsong( hvl_song,mod_currentsub )) {
 				NSLog(@"HVL issue in initsubsong %d",mod_currentsub);
 				hvl_FreeTune(hvl_song);
-				mPlayType=0;	
+				mPlayType=0;
 				return -2;
 			}
 			iModuleLength=hvl_GetPlayTime(hvl_song);
@@ -5110,7 +5116,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		}
 	}
     if (found==14) { //DUMB
-        mPlayType=14;                
+        mPlayType=14;
         it_max_channels=0;
         
         FILE *f=fopen([filePath UTF8String],"rb");
@@ -5133,21 +5139,21 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		mod_minsub=1;
 		mod_maxsub=1;
 		mod_currentsub=1;
-
+        
         /* Load file */
         typedef void (*func)(void);
         typedef DUH *(*dumb1)(const char *);
         typedef DUH *(*dumb2)(const char *, int);
         func dumbFormats[15] = {
-        (func)&dumb_load_it, (func)&load_duh,
-        (func)&dumb_load_xm, (func)&dumb_load_s3m,
-        (func)&dumb_load_mod, (func)&dumb_load_stm,
-        (func)&dumb_load_ptm, (func)&dumb_load_669,
-        (func)&dumb_load_mtm, (func)&dumb_load_riff,
-        (func)&dumb_load_asy, (func)&dumb_load_amf,
-        (func)&dumb_load_okt, (func)&dumb_load_psm,
-        (func)&dumb_load_old_psm };
-
+            (func)&dumb_load_it, (func)&load_duh,
+            (func)&dumb_load_xm, (func)&dumb_load_s3m,
+            (func)&dumb_load_mod, (func)&dumb_load_stm,
+            (func)&dumb_load_ptm, (func)&dumb_load_669,
+            (func)&dumb_load_mtm, (func)&dumb_load_riff,
+            (func)&dumb_load_asy, (func)&dumb_load_amf,
+            (func)&dumb_load_okt, (func)&dumb_load_psm,
+            (func)&dumb_load_old_psm };
+        
         int i;
         for(i = 0; i < 15; i++) {
             dumbfile_open_memory(mp_data,mp_datasize);
@@ -5159,16 +5165,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if(duh) {break;}
         }
         if(!duh) {return 1;}
-
+        
         iModuleLength = (int)((LONG_LONG)duh_get_length(duh) * 1000 >> 16);
         const char *mod_title = duh_get_tag(duh, "TITLE");
         if (mod_title && mod_title[0]) {
             int i=0;
             while (mod_title[i]==' ') i++;  //only spaces?
             if (mod_title[i]) sprintf(mod_name," %s",mod_title); //no
-            else sprintf(mod_name," %s",mod_filename); //yes       
+            else sprintf(mod_name," %s",mod_filename); //yes
         }
-        else sprintf(mod_name," %s",mod_filename);				        
+        else sprintf(mod_name," %s",mod_filename);
         
         //NSLog(@"mod names: %s / %s",mod_title,mod_filename);
         
@@ -5185,16 +5191,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         duh_player->n_channels = 2;
         duh_player->volume = dumb_MastVol;
         
-        duh_player->dr = duh_start_sigrenderer(duh, 0, 2/*nb channels*/, 0/*pos*/);        
+        duh_player->dr = duh_start_sigrenderer(duh, 0, 2/*nb channels*/, 0/*pos*/);
         if (!duh_player->dr) {
             free(duh_player);duh_player=NULL;
             unload_duh(duh); duh=NULL;
             return -3;
-        }        
+        }
         DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
         if (mLoopMode==1) dumb_it_set_loop_callback(itsr, &dumb_it_callback_loop, NULL);
         else dumb_it_set_loop_callback(itsr, &dumb_it_callback_terminate, NULL);
-        dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);        
+        dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);
         
         DUMB_IT_SIGDATA *itsd = duh_get_it_sigdata(duh);
         
@@ -5224,7 +5230,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		if (mp_file==NULL) {
 			free(mp_data);
 		} else {
-			mPatternDataAvail=1;			
+			mPatternDataAvail=1;
 			numPatterns=ModPlug_NumPatterns(mp_file);
         }
         
@@ -5235,7 +5241,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         max_voices = voices = tim_max_voices;  //polyphony : MOVE TO SETTINGS
         set_current_resampler(tim_resampler);
         opt_reverb_control=tim_reverb;
-        //set_current_resampler (RESAMPLE_LINEAR); //resample : MOVE TO SETTINGS 
+        //set_current_resampler (RESAMPLE_LINEAR); //resample : MOVE TO SETTINGS
         
         if (mSlowDevice) {
             ios_play_mode.rate=22050;
@@ -5255,7 +5261,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         mod_subsongs=1;
 		mod_minsub=1;
 		mod_maxsub=1;
-		mod_currentsub=1;		
+		mod_currentsub=1;
         //		if (iModuleLength<=0) iModuleLength=MDX_DEFAULT_LENGTH;
         iModuleLength=-1;
         tim_midilength=-1;
@@ -5265,7 +5271,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         
 		numChannels=2;
         
-		sprintf(mod_name," %s",mod_filename);				
+		sprintf(mod_name," %s",mod_filename);
 		sprintf(mod_message,"Midi Infos:");
         
 		//Loop
@@ -5300,8 +5306,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         if (!pmd_is_pmd((char*)[filePath UTF8String])) {
             // not PMD; try AdPlug instead
             for (int i=0;i<[filetype_extADPLUG count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
+                if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
+                if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
 			}
         } else {
             // doesn't actually play, just loads file into RAM & extracts data
@@ -5336,15 +5342,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if (mLoopMode==1) iModuleLength=-1;
             
             return 0;
-            }
         }
-        
+    }
+    
 	return 1;  //Could not find a lib to load module
 }
 //*****************************************
 //Playback commands
 -(void) selectPrevArcEntry {
-	if (mdz_IsArchive&&mdz_ArchiveFilesCnt) {		
+	if (mdz_IsArchive&&mdz_ArchiveFilesCnt) {
 		if (mdz_currentArchiveIndex) {
 			[self Stop];
 			mdz_currentArchiveIndex--;
@@ -5352,15 +5358,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	}
 }
 -(void) selectNextArcEntry {
-	if (mdz_IsArchive&&mdz_ArchiveFilesCnt) {		
+	if (mdz_IsArchive&&mdz_ArchiveFilesCnt) {
 		if (mdz_currentArchiveIndex<(mdz_ArchiveFilesCnt-1)) {
 			[self Stop];
 			mdz_currentArchiveIndex++;
 		}
-	}		
+	}
 }
 -(void) selectArcEntry:(int)arc_index{
-	if (mdz_IsArchive&&mdz_ArchiveFilesCnt) {		
+	if (mdz_IsArchive&&mdz_ArchiveFilesCnt) {
 		if ((arc_index>=0)&&(arc_index<mdz_ArchiveFilesCnt)) {
 			[self Stop];
 			mdz_currentArchiveIndex=arc_index;
@@ -5372,40 +5378,40 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	moveToPrevSubSong=1;
 }
 -(void) playNextSub{
-	if (mod_subsongs<=1) return;	
+	if (mod_subsongs<=1) return;
 	moveToNextSubSong=1;
 }
 -(void) playGoToSub:(int)sub_index{
-	if (mod_subsongs<=1) return;	
+	if (mod_subsongs<=1) return;
 	if ((sub_index<mod_minsub)||(sub_index>mod_maxsub)) return;
 	moveToSubSong=1;
 	moveToSubSongIndex=sub_index;
 }
 -(void) Play {
 	int counter=0;
-	pthread_mutex_lock(&play_mutex);	
+	pthread_mutex_lock(&play_mutex);
 	bGlobalSoundHasStarted=0;
 	iCurrentTime=0;
 	bGlobalAudioPause=0;
 	[self iPhoneDrv_PlayStart];
 	bGlobalEndReached=0;
 	mChangeOfSong=0;
-	bGlobalIsPlaying=1;	
+	bGlobalIsPlaying=1;
 	//Ensure play has been taken into account
 	//wait for sound generation thread to end
 	if (1/*mSlowDevice*/) {
 		while (bGlobalSoundHasStarted<SOUND_BUFFER_NB/2) {
-			[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS]; 
+			[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
 			counter++;
 			if (counter*DEFAULT_WAIT_TIME_UADE_MS>2) break;
 		}
 	}
-	pthread_mutex_unlock(&play_mutex);	
+	pthread_mutex_unlock(&play_mutex);
 }
 -(void) PlaySeek:(int)startPos subsong:(int)subsong {
     if (mPlayType!=15) { //hack for timidity : iModuleLength is unknown at this stage
         if (startPos>iModuleLength-SEEK_START_MARGIN_FROM_END) {
-            startPos=iModuleLength-SEEK_START_MARGIN_FROM_END;		
+            startPos=iModuleLength-SEEK_START_MARGIN_FROM_END;
         }
     }
 	if (startPos<0) startPos=0;
@@ -5558,7 +5564,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	
 	//wait for sound generation thread to end
 	while (bGlobalSoundGenInProgress) {
-		[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS]; 
+		[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
 		//NSLog(@"Wait for end of thread");
 	}
 	bGlobalSeekProgress=0;
@@ -5566,6 +5572,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	
 	if (mPlayType==1) {
 		gme_delete( gme_emu );
+        gme_emu=NULL;
 	}
 	if (mPlayType==2) {
 		if (mp_file) {
@@ -5675,7 +5682,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 //*****************************************
 //Playback infos
--(NSString*) getModMessage {	
+-(NSString*) getModMessage {
 	NSString *modMessage;
 	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
 	else {
@@ -5712,7 +5719,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     if (mPlayType==14) return @"DUMB";
     if (mPlayType==15) return @"Timidity";
     if (mPlayType==16) return @"PMDMini";
-	return @"";	
+	return @"";
 }
 -(NSString*) getSubTitle:(int)subsong {
     NSString *result;
@@ -5842,7 +5849,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     mPanning=onoff;
 }
 -(void) optGLOB_PanningValue:(float)value {
-    mPanningValue=(int)(value*128.0f);    
+    mPanningValue=(int)(value*128.0f);
 }
 
 ///////////////////////////
@@ -5882,12 +5889,12 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         case 0:aosdk_dsf_samplecycle_ratio=1;break;
         case 1:aosdk_dsf_samplecycle_ratio=5;break;
         case 2:aosdk_dsf_samplecycle_ratio=15;break;
-        case 3:aosdk_dsf_samplecycle_ratio=30;break;            
+        case 3:aosdk_dsf_samplecycle_ratio=30;break;
     }
 }
 
 -(void) optAOSDK_SSFDSP:(int)value{
-    aosdk_ssfdsp=value;    
+    aosdk_ssfdsp=value;
 }
 -(void) optAOSDK_SSFEmuRatio:(int)value{
     switch (value) {
@@ -5895,7 +5902,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         case 0:aosdk_ssf_samplecycle_ratio=1;break;
         case 1:aosdk_ssf_samplecycle_ratio=5;break;
         case 2:aosdk_ssf_samplecycle_ratio=15;break;
-        case 3:aosdk_ssf_samplecycle_ratio=30;break;            
+        case 3:aosdk_ssf_samplecycle_ratio=30;break;
     }
 }
 
@@ -5944,7 +5951,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         case 4:tim_resampler=RESAMPLE_NEWTON;
             break;
         default:tim_resampler=RESAMPLE_NONE;
-    }        
+    }
     set_current_resampler(tim_resampler);
 }
 
@@ -5956,18 +5963,25 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 
 -(void) optGME_EQ:(double)treble bass:(double)bass {
-    gme_eq.treble = treble;//-14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
-    //bass
-    //          def:80;  1 = full bass, 90 = average, 16000 = almost no bass
-    //log10 ->  def:1,9;  0 - 4,2
-    gme_eq.bass   = pow(10,4.2-bass);
+    if (gme_emu) {
+        gme_equalizer( gme_emu, &gme_eq );
+        gme_eq.treble = treble;//-14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+        //bass
+        //          def:80;  1 = full bass, 90 = average, 16000 = almost no bass
+        //log10 ->  def:1,9;  0 - 4,2
+        gme_eq.bass   = pow(10,4.2-bass);
+        gme_set_equalizer( gme_emu, &gme_eq );
+    }
 }
 
 -(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo {
-    gme_fx.enabled=enabled;/* If 0, no effects are added */
-    gme_fx.surround = surround; /* If 1, some channels are put in "back", using phase inversion */
-    gme_fx.echo = echo;/* Amount of echo, where 0.0 = none, 1.0 = lots */
-    gme_fx.stereo = stereo;/* Separation, where 0.0 = mono, 1.0 = hard left and right */
+    if (gme_emu) {
+        gme_fx.enabled=enabled;/* If 0, no effects are added */
+        gme_fx.surround = surround; /* If 1, some channels are put in "back", using phase inversion */
+        gme_fx.echo = echo;/* Amount of echo, where 0.0 = none, 1.0 = lots */
+        gme_fx.stereo = stereo;/* Separation, where 0.0 = mono, 1.0 = hard left and right */
+        gme_set_effects( gme_emu, &gme_fx);
+    }
 }
 
 ///////////////////////////
@@ -6069,7 +6083,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(NSString*) getArcEntryTitle:(int)arc_index {
 	if ((arc_index>=0)&&(arc_index<mdz_ArchiveFilesCnt)) {
-//		return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesList[arc_index]];
+        //		return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesList[arc_index]];
         return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
 	} else return @"";
 	

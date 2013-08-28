@@ -591,6 +591,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXAlpha].description=NULL;
     settings[GLOB_FXAlpha].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXAlpha].sub_family=0;
+    settings[GLOB_FXRandom].callback=&optVISUChangedC;
     settings[GLOB_FXAlpha].type=MDZ_SLIDER_CONTINUOUS;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0;
