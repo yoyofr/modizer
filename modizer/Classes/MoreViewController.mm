@@ -6,6 +6,8 @@
 //
 //
 
+extern BOOL is_ios7;
+
 #import "MoreViewController.h"
 #import "SettingsGenViewController.h"
 
@@ -15,7 +17,7 @@
 
 @implementation MoreViewController
 
-@synthesize detailViewController,tableView,aboutVC,rootVC;
+@synthesize detailViewController,tableView,aboutVC,rootVC,downloadViewController;
 
 -(IBAction) goPlayer {
     [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
@@ -50,6 +52,19 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    }
+    
+    [self.tableView reloadData];
+
+    [super viewWillAppear:animated];
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -68,7 +83,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 3;
+    return 4;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -210,6 +225,16 @@
             topLabel.text=NSLocalizedString(@"Maintenance",@"");
             bottomLabel.text=NSLocalizedString(@"Clean Database, Reset ratings, ...",@"");
             break;
+        case 3: //downloads
+        {
+            topLabel.text=NSLocalizedString(@"Downloads",@"");
+            int download_queue=downloadViewController.mFTPDownloadQueueDepth+downloadViewController.mURLDownloadQueueDepth;
+            if (download_queue==1) bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Download queue: %d file",@""),download_queue];
+            else if (download_queue>1) bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Download queue: %d files",@""),download_queue];
+            else bottomLabel.text=NSLocalizedString(@"No download in progress",@"");
+        }
+            break;
+            
     }
     
     return cell;
@@ -279,7 +304,16 @@
             mntVC.title=NSLocalizedString(@"Maintenance",@"");
             [self.navigationController pushViewController:mntVC animated:YES];
             break;
+        case 3://downloads
+            [self.navigationController pushViewController:downloadViewController animated:YES];
+            break;
+            
     }
 }
+
+-(void) refreshViewAfterDownload {
+    [tableView reloadData];
+}
+
 
 @end

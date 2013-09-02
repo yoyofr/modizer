@@ -6,6 +6,8 @@
 //
 //
 
+extern BOOL is_ios7;
+
 #import "SettingsGenViewController.h"
 #import "MNEValueTrackingSlider.h"
 
@@ -258,6 +260,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
@@ -665,6 +668,18 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[3]=(char*)"3";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    
+    settings[GLOB_FX3DSpectrum].type=MDZ_SWITCH;
+    settings[GLOB_FX3DSpectrum].label=(char*)"3D Spectrum";
+    settings[GLOB_FX3DSpectrum].description=NULL;
+    settings[GLOB_FX3DSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DSpectrum].sub_family=0;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[1]=(char*)"1";
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
     
     settings[GLOB_FX1].label=(char*)"FX1";
     settings[GLOB_FX1].description=NULL;
@@ -1351,6 +1366,18 @@ void optUADEChangedC(id param) {
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    }
+    
+    [super viewWillAppear:animated];
+}
+
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
@@ -1383,7 +1410,7 @@ void optUADEChangedC(id param) {
 - (void)boolswitchChanged:(id)sender {
     int refresh=0;
     UISwitch *sw=(UISwitch*)sender;
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[sender superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     if (settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value != sw.on) refresh=1;
     settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value=sw.on;
     
@@ -1395,7 +1422,7 @@ void optUADEChangedC(id param) {
 - (void)segconChanged:(id)sender {
     int refresh=0;
     
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[sender superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     if (settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value !=[(UISegmentedControl*)sender selectedSegmentIndex]) refresh=1;
     settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value=[(UISegmentedControl*)sender selectedSegmentIndex];
     
@@ -1405,7 +1432,7 @@ void optUADEChangedC(id param) {
     if (refresh) [tableView reloadData];
 }
 - (void)sliderChanged:(id)sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[sender superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     
     settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value=((MNEValueTrackingSlider*)sender).value;
     

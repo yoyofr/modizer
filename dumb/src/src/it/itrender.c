@@ -1731,22 +1731,12 @@ static void it_retrigger_note(DUMB_IT_SIGRENDERER *sigrenderer, IT_CHANNEL *chan
 	int i, envelopes_copied = 0;
 
 	if (channel->playing) {
-#ifdef INVALID_NOTES_CAUSE_NOTE_CUT
-		if (channel->note == IT_NOTE_OFF)
-			nna = NNA_NOTE_OFF;
-		else if (channel->note >= 120 || !channel->playing->instrument || (channel->playing->flags & IT_PLAYING_DEAD))
-			nna = NNA_NOTE_CUT;
-		else if (channel->new_note_action != 0xFF)
-		{
-			nna = channel->new_note_action;
-		}
-		else
-			nna = channel->playing->instrument->new_note_action;
-#else
 		if (channel->note == IT_NOTE_CUT)
 			nna = NNA_NOTE_CUT;
-		if (channel->note >= 120)
+		else if (channel->note == IT_NOTE_OFF)
 			nna = NNA_NOTE_OFF;
+		else if (channel->note > 120)
+			nna = NNA_NOTE_FADE;
 		else if (!channel->playing->instrument || (channel->playing->flags & IT_PLAYING_DEAD))
 			nna = NNA_NOTE_CUT;
 		else if (channel->new_note_action != 0xFF)
@@ -1755,7 +1745,6 @@ static void it_retrigger_note(DUMB_IT_SIGRENDERER *sigrenderer, IT_CHANNEL *chan
 		}
 		else
 			nna = channel->playing->instrument->new_note_action;
-#endif
 
 		if (!(channel->playing->flags & IT_PLAYING_SUSTAINOFF))
 		{
@@ -1785,7 +1774,7 @@ static void it_retrigger_note(DUMB_IT_SIGRENDERER *sigrenderer, IT_CHANNEL *chan
 
 	channel->new_note_action = 0xFF;
 
-	if (channel->sample == 0 || channel->note >= 120)
+	if (channel->sample == 0 || channel->note > 120)
 		return;
 
 	channel->destnote = IT_NOTE_OFF;
@@ -2510,15 +2499,8 @@ Yxy             This uses a table 4 times larger (hence 4 times slower) than
 				else
 					channel->channelvolume = 64;
 #endif
-				for (i = -1; i < DUMB_IT_N_NNA_CHANNELS; i++) {
-					if (i < 0) playing = channel->playing;
-					else {
-						playing = sigrenderer->playing[i];
-						if (!playing || playing->channel != channel) continue;
-					}
-					if (playing)
-						playing->channel_volume = channel->channelvolume;
-				}
+				if (channel->playing)
+					channel->playing->channel_volume = channel->channelvolume;
 				break;
 			case IT_CHANNEL_VOLUME_SLIDE:
 				{
@@ -2539,15 +2521,8 @@ Yxy             This uses a table 4 times larger (hence 4 times slower) than
 							if (channel->channelvolume > 64) channel->channelvolume = 0;
 						} else
 							break;
-						for (i = -1; i < DUMB_IT_N_NNA_CHANNELS; i++) {
-							if (i < 0) playing = channel->playing;
-							else {
-								playing = sigrenderer->playing[i];
-								if (!playing || playing->channel != channel) continue;
-							}
-							if (playing)
-								playing->channel_volume = channel->channelvolume;
-						}
+						if (channel->playing)
+							channel->playing->channel_volume = channel->channelvolume;
 					}
 				}
 				break;
@@ -3211,7 +3186,7 @@ static int process_it_note_data(DUMB_IT_SIGRENDERER *sigrenderer, IT_ENTRY *entr
 		if (entry->mask & IT_ENTRY_INSTRUMENT)
 			channel->instrument = entry->instrument;
 		instrument_to_sample(sigdata, channel);
-		if (channel->note < 120) {
+		if (channel->note <= 120) {
 			if ((sigdata->flags & IT_USE_INSTRUMENTS) && channel->sample == 0)
 				it_retrigger_note(sigrenderer, channel); /* Stop the note */ /*return 1;*/
 			if (entry->mask & IT_ENTRY_INSTRUMENT)
@@ -3256,7 +3231,7 @@ static int process_it_note_data(DUMB_IT_SIGRENDERER *sigrenderer, IT_ENTRY *entr
 				channel->lastEF = v;
 			}
 			if ((entry->mask & IT_ENTRY_NOTE) || ((sigdata->flags & IT_COMPATIBLE_GXX) && (entry->mask & IT_ENTRY_INSTRUMENT))) {
-				if (channel->note < 120) {
+				if (channel->note <= 120) {
 					if (channel->sample)
 						channel->destnote = channel->truenote;
 					else
@@ -3281,7 +3256,7 @@ static int process_it_note_data(DUMB_IT_SIGRENDERER *sigrenderer, IT_ENTRY *entr
 				channel->lastEF = v;
 			}
 			if ((entry->mask & IT_ENTRY_NOTE) || ((sigdata->flags & IT_COMPATIBLE_GXX) && (entry->mask & IT_ENTRY_INSTRUMENT))) {
-				if (channel->note < 120) {
+				if (channel->note <= 120) {
 					if (channel->sample)
 						channel->destnote = channel->truenote;
 					else
@@ -3296,7 +3271,7 @@ static int process_it_note_data(DUMB_IT_SIGRENDERER *sigrenderer, IT_ENTRY *entr
 	if ((entry->mask & IT_ENTRY_NOTE) ||
 		((entry->mask & IT_ENTRY_INSTRUMENT) && (!channel->playing || entry->instrument != channel->playing->instnum)))
 	{
-		if (channel->note < 120) {
+		if (channel->note <= 120) {
 			get_true_pan(sigdata, channel);
 			if ((entry->mask & IT_ENTRY_NOTE) || !(sigdata->flags & (IT_WAS_AN_S3M|IT_WAS_A_PTM)))
 				it_retrigger_note(sigrenderer, channel);
@@ -4189,6 +4164,10 @@ static void process_all_playing(DUMB_IT_SIGRENDERER *sigrenderer)
 					int tick = sigrenderer->tick - 1;
 					if ((sigrenderer->sigdata->flags & (IT_WAS_AN_XM|IT_WAS_A_MOD))!=IT_WAS_AN_XM)
 						tick = sigrenderer->speed - tick - 1;
+					else if (tick == sigrenderer->speed - 1)
+						tick = 0;
+					else
+						++tick;
 					playing->delta *= (float)pow(DUMB_SEMITONE_BASE, channel->arpeggio_offsets[channel->arpeggio_table[tick&31]]);
 				}
 			/*
@@ -4349,6 +4328,15 @@ static int process_tick(DUMB_IT_SIGRENDERER *sigrenderer)
 					{
 						sigrenderer->processorder = sigrenderer->restart_position - 1;
 					}
+
+#ifdef BIT_ARRAY_BULLSHIT
+					/* Fix play tracking and timekeeping for orders containing skip commands */
+					for (n = 0; n < 256; n++) {
+						bit_array_set(sigrenderer->played, sigrenderer->processorder * 256 + n);
+						timekeeping_array_push(sigrenderer->row_timekeeper, sigrenderer->processorder * 256 + n, sigrenderer->time_played);
+						timekeeping_array_bump(sigrenderer->row_timekeeper, sigrenderer->processorder * 256 + n);
+					}
+#endif
 				}
 
 				pattern = &sigdata->pattern[n];
@@ -5588,6 +5576,14 @@ static DUMB_IT_SIGRENDERER *init_sigrenderer(DUMB_IT_SIGDATA *sigdata, int n_cha
 	sigrenderer->processorder = startorder - 1;
 	sigrenderer->tick = 1;
 
+#ifdef BIT_ARRAY_BULLSHIT
+	sigrenderer->played = bit_array_create(sigdata->n_orders * 256);
+
+	sigrenderer->looped = 0;
+	sigrenderer->time_played = 0;
+	sigrenderer->row_timekeeper = timekeeping_array_create(sigdata->n_orders * 256);
+#endif
+
 	{
 		int order;
 		for (order = 0; order < sigdata->n_orders; order++) {
@@ -5599,6 +5595,15 @@ static DUMB_IT_SIGRENDERER *init_sigrenderer(DUMB_IT_SIGDATA *sigdata, int n_cha
 			if (n == IT_ORDER_END)
 #endif
 				break;
+
+#ifdef BIT_ARRAY_BULLSHIT
+			/* Fix for played order detection for songs which have skips at the start of the orders list */
+			for (n = 0; n < 256; n++) {
+				bit_array_set(sigrenderer->played, order * 256 + n);
+				timekeeping_array_push(sigrenderer->row_timekeeper, order * 256 + n, 0);
+				timekeeping_array_bump(sigrenderer->row_timekeeper, order * 256 + n);
+			}
+#endif
 		}
 		/* If we get here, there were no valid orders in the song. */
 		_dumb_it_end_sigrenderer(sigrenderer);
@@ -5608,14 +5613,6 @@ static DUMB_IT_SIGRENDERER *init_sigrenderer(DUMB_IT_SIGDATA *sigdata, int n_cha
 
 	sigrenderer->time_left = 0;
 	sigrenderer->sub_time_left = 0;
-
-#ifdef BIT_ARRAY_BULLSHIT
-	sigrenderer->played = bit_array_create(sigdata->n_orders * 256);
-
-	sigrenderer->looped = 0;
-	sigrenderer->time_played = 0;
-	sigrenderer->row_timekeeper = timekeeping_array_create(sigdata->n_orders * 256);
-#endif
 
 	sigrenderer->gvz_time = 0;
 	sigrenderer->gvz_sub_time = 0;

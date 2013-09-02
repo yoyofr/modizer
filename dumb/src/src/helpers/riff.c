@@ -8,13 +8,13 @@ struct riff * riff_parse( DUMBFILE * f, long offset, long size, unsigned proper 
 	unsigned stream_size;
 	struct riff * stream;
 
-	if ( size < 8 ) return 0;
+    if ( size < 8 ) return 0;
 
     if ( dumbfile_seek(f, offset, DFS_SEEK_SET) ) return 0;
     if ( dumbfile_mgetl(f) != DUMB_ID('R','I','F','F') ) return 0;
 
     stream_size = dumbfile_igetl(f);
-	if ( stream_size + 8 > size ) return 0;
+    if ( stream_size + 8 > size ) return 0;
 	if ( stream_size < 4 ) return 0;
 
     stream = (struct riff *) malloc( sizeof( struct riff ) );

@@ -9,6 +9,8 @@
 #import "myNavViewController.h"
 #import "DetailViewControllerIphone.h"
 
+extern BOOL is_ios7;
+
 @implementation myNavViewController
 @synthesize detailView;
 
@@ -32,6 +34,7 @@
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
 }
 
 - (NSUInteger)supportedInterfaceOrientations {

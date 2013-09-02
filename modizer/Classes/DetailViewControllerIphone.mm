@@ -6,6 +6,8 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+extern BOOL is_ios7;
+
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 
@@ -217,6 +219,7 @@ static int display_length_mode=0;
     if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
     if (settings[GLOB_FX5].detail.mdz_switch.switch_value) active_idx|=1<<9;
     if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) active_idx|=1<<10;
+    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<11;
     return active_idx;
 }
 
@@ -948,7 +951,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         [self.navigationController pushViewController:childController animated:YES];
         
         NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-        [((RootViewControllerPlaylist*)childController)->tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+2] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+        [((RootViewControllerPlaylist*)childController)->tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
         
     }
     
@@ -1108,11 +1111,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
 	filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
 	mPlaylist[mPlaylist_pos].mPlaylistCount++;
-	
-    /*		NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-     [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
-     [myindex autorelease];*/
-	
+    
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     
 	if ([self play_module:filePath fname:fileName]==FALSE) {
@@ -2099,7 +2098,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			labelModuleLength.frame=CGRectMake(2,0,45,20);
 			labelTime.frame=CGRectMake(2,24,45,20);
             btnChangeTime.frame=CGRectMake(2,24,45,20);
-			sliderProgressModule.frame = CGRectMake(48,23,mDevice_ww-48*2,23);
+			sliderProgressModule.frame = CGRectMake(48,23-(is_ios7?6:0),mDevice_ww-48*2,23);
 		}
 	} else{
         waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
@@ -2298,7 +2297,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 labelTime.frame=CGRectMake(2,20,45,20);
                 btnChangeTime.frame=CGRectMake(2,17,45,20);
                 
-                sliderProgressModule.frame = CGRectMake(48,16,mDevice_hh-200-60,23);
+                sliderProgressModule.frame = CGRectMake(48,16-(is_ios7?3:0),mDevice_hh-200-60,23);
             }
         }
 	}
@@ -3570,6 +3569,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9.png"]);
     txtMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10a.png"]);
     txtMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11d.png"]);
+    txtMenuHandle[11]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12a.png"]);
     txtMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu0.png"]);
     texturePiano=TextureUtils::Create([UIImage imageNamed:@"text_wood.png"]);
     
@@ -3616,7 +3616,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[26]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c.png"]);
     txtSubMenuHandle[27]=txtMenuHandle[10];
     
-	
+	txtSubMenuHandle[28]=0;
+    txtSubMenuHandle[29]=txtMenuHandle[11];
+    txtSubMenuHandle[30]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b.png"]);
+    
 	end_time=clock();
 #ifdef LOAD_PROFILE
 	NSLog(@"detail4 : %d",end_time-start_time);
@@ -3824,13 +3827,33 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         }
         [self willAnimateRotationToInterfaceOrientation:UIInterfaceOrientationPortrait duration:0];
     }
+    CATransition *transition=[CATransition animation];
+    transition.duration=0.2;
+    transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
+    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
     
 }
 
 
 - (void)viewWillDisappear:(BOOL)animated {
     if (m_displayLink) [m_displayLink invalidate];
-	self.navigationController.navigationBar.hidden = NO;
+    self.navigationController.navigationBar.hidden = NO;
+    
+    CATransition *transition=[CATransition animation];
+    transition.duration=0.2;
+    transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
+    [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
+    
+//    [[UIDevice currentDevice] systemVersion]
+    //if ios < 7, set bar in black
+    if (is_ios7) {
+        [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
+    } else {
+        [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+    }
+	
+    
 	
 	for (int i=0;i<3;i++) if (viewTapInfoStr[i]) {
 		delete viewTapInfoStr[i];
@@ -4116,6 +4139,11 @@ static int mOglView2Taps=0;
                 viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=23;
                 viewTapHelpShow_SubNb=5;
+			} else if (touched_coord==0x32) {
+                viewTapHelpShow=2;
+                viewTapHelpShowMode=2;
+                viewTapHelpShow_SubStart=28;
+                viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x03) {
                 shouldhide=1;
 			} else if (touched_coord==0x23) {
@@ -4130,6 +4158,7 @@ static int mOglView2Taps=0;
                 settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
                 settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
                 settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
 			}
             
 		} else if (viewTapHelpShow==2) { //sub menu
@@ -4167,6 +4196,9 @@ static int mOglView2Taps=0;
                         break;
                     case 23: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                        break;
+                    case 28: //Spectrum3D
+                        settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                         break;
                 }
 			} else if (touched_coord==0x10) {
@@ -4210,6 +4242,9 @@ static int mOglView2Taps=0;
                     case 23: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
                         break;
+                    case 28: //Spectrum3D
+                        settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
+                        break;
                 }
             } else if (touched_coord==0x20) {
                 switch (viewTapHelpShow_SubStart) {
@@ -4251,6 +4286,9 @@ static int mOglView2Taps=0;
                         break;
                     case 23: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
+                        break;
+                    case 28: //Spectrum3D
+                        settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
                         break;
                 }
             } else if (touched_coord==0x30) {
@@ -4307,7 +4345,8 @@ static int mOglView2Taps=0;
           (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value)||
           (settings[GLOB_FX5].detail.mdz_switch.switch_value)||
 		  (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)||
-		  (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) /*&& (mplayer.bGlobalAudioPause==0)*/ ) {
+		  (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)||
+          (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value))  ) {
 		//compute new spectrum data
 		if ([mplayer isPlaying]){
             //FFT: build audio buffer
@@ -4316,7 +4355,7 @@ static int mOglView2Taps=0;
 			snd_buffer=[mplayer buffer_ana_cpy];
 			cur_pos=[mplayer getCurrentPlayedBufferIdx];
 			short int *curBuffer=snd_buffer[cur_pos];
-			int k=0;
+/*			int k=0;
 			int j=256*SOUND_BUFFER_SIZE_SAMPLE/(SPECTRUM_BANDS*2);
             if (mplayer.bGlobalAudioPause==0) {
                 for (int i=0;i<SPECTRUM_BANDS*2;i++) {
@@ -4332,7 +4371,7 @@ static int mOglView2Taps=0;
                 memset(img_spectrumL,0,SPECTRUM_BANDS*2*2);
                 memset(img_spectrumR,0,SPECTRUM_BANDS*2*2);
             }
-            
+            */
             
             
             // COMPUTE FFT
@@ -4343,7 +4382,7 @@ static int mOglView2Taps=0;
             int idx;
             //Fill Input Array with Left channel
             for (int i=0; i<numSamples; i++) {
-                fft_time[i]=(float)curBuffer[i*2];
+                fft_time[i]=(float)curBuffer[i*2]/32768.0;;
                 fft_frequencyAvg[i]=0;
             }
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
@@ -4357,12 +4396,13 @@ static int mOglView2Taps=0;
                 }
             }
             for (int i=0;i<SPECTRUM_BANDS/2;i++) {
-                float t=0.06*(fft_frequencyAvg[i]);
-                oreal_spectrumL[i]=t;
+                float t=16.00*(fft_frequencyAvg[i])/fft_freqAvgCount[idx];
+                if (t>oreal_spectrumL[i]) oreal_spectrumL[i]=t;
+                else oreal_spectrumL[i]=oreal_spectrumL[i]*SPECTRUM_DECREASE_RATE;
             }
             //Fill Input Array with Right channel
             for (int i=0; i<numSamples; i++) {
-                fft_time[i]=(float)curBuffer[i*2+1];
+                fft_time[i]=(float)curBuffer[i*2+1]/32768.0;
                 fft_frequencyAvg[i]=0;
             }
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
@@ -4375,8 +4415,9 @@ static int mOglView2Taps=0;
                 }
             }
             for (int i=0;i<SPECTRUM_BANDS/2;i++) {
-                float t=0.03*(fft_frequencyAvg[i]);
-                oreal_spectrumR[i]=t;
+                float t=16.00*(fft_frequencyAvg[i])/fft_freqAvgCount[idx];
+                if (t>oreal_spectrumR[i]) oreal_spectrumR[i]=t;
+                else oreal_spectrumR[i]=oreal_spectrumR[i]*SPECTRUM_DECREASE_RATE;
             }
             
             
@@ -4405,48 +4446,6 @@ static int mOglView2Taps=0;
                 if ((sumR>BEAT_THRESHOLD_MIN)&&(newSpecR>sumR*BEAT_THRESHOLD_FACTOR)) real_beatDetectedR[i]=1;                
             }            
     /////////////////////////////////////////
-            
-            /*
-            int scaleL=fix_fft(real_spectrumL,img_spectrumL, LOG2_SPECTRUM_BANDS+1, 0);
-            int scaleR=fix_fft(real_spectrumR,img_spectrumR, LOG2_SPECTRUM_BANDS+1, 0);
-            
-            // COMPUTE MODULUS
-            for (int i=0;i<SPECTRUM_BANDS;i++) {
-                real_spectrumIL[i]=(int)((int)real_spectrumL[i]*(int)real_spectrumL[i]+(int)img_spectrumL[i]*(int)img_spectrumL[i]);
-                real_spectrumIR[i]=(int)((int)real_spectrumR[i]*(int)real_spectrumR[i]+(int)img_spectrumR[i]*(int)img_spectrumR[i]);
-            }
-            
-            // COMPUTE FINAL FFT & BEAT DETECTION
-            int newSpecL,newSpecR,sumL,sumR;
-            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
-                newSpecL=(((int)sqrt(max2(real_spectrumIL[i*2+0],real_spectrumIL[i*2+1])))<<scaleL);
-                newSpecR=(((int)sqrt(max2(real_spectrumIR[i*2+0],real_spectrumIR[i*2+1])))<<scaleR);
-                //SUM THE LAST 8 FFT & COMPUTE AVERAGE
-                sumL=newSpecL;
-                sumR=newSpecR;
-                for (int j=0;j<7;j++) {
-                    real_spectrumSumL[i][j]=real_spectrumSumL[i][j+1];
-                    sumL+=real_spectrumSumL[i][j];
-                    real_spectrumSumR[i][j]=real_spectrumSumR[i][j+1];
-                    sumR+=real_spectrumSumR[i][j];
-                }
-                real_spectrumSumL[i][7]=newSpecL;
-                real_spectrumSumR[i][7]=newSpecR;
-                sumL>>=3;sumR>>=3;
-                real_beatDetectedL[i]=0;
-                real_beatDetectedR[i]=0;
-                
-                //APPLY THRESHOLDS (MIN VALUE & FACTOR/AVERAGE)
-                if ((sumL>BEAT_THRESHOLD_MIN)&&(newSpecL>sumL*BEAT_THRESHOLD_FACTOR)) real_beatDetectedL[i]=1;
-                if ((sumR>BEAT_THRESHOLD_MIN)&&(newSpecR>sumR*BEAT_THRESHOLD_FACTOR)) real_beatDetectedR[i]=1;
-                
-                //SMOOTH FOR SPECTRUM
-                if (newSpecL<((int)oreal_spectrumL[i]*13)>>4) newSpecL=((int)oreal_spectrumL[i]*13)>>4;
-                if (newSpecR<((int)oreal_spectrumR[i]*13)>>4) newSpecR=((int)oreal_spectrumR[i]*13)>>4;
-                //oreal_spectrumL[i]=newSpecL;
-                oreal_spectrumR[i]=newSpecR;
-            }
-             */
 		}
 	}
 	
@@ -4775,13 +4774,17 @@ static int mOglView2Taps=0;
     
 	if ([mplayer isPlaying]){
 		if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX3].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(fxalpha*255));
         } else if (settings[GLOB_FX5].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX5].detail.mdz_switch.switch_value,nb_spectrum_bands);
+        }
+        
+        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
+            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
         }
         
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
@@ -4885,6 +4888,9 @@ static int mOglView2Taps=0;
                     break;
                 case 23: //Piano
                     active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
+                    break;
+                case 28:
+                    active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;
                     break;
             }
             if (active_idx==1) active_idx=0;

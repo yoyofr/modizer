@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerLocalBrowser.h"
+#import "MoreViewController.h"
 #import "ASIHTTPRequest.h"
 #import "BButton.h"
 
@@ -19,12 +20,13 @@
 
 @class OnlineViewController;
 @class SearchViewController;
-
+@class MoreViewController;
 
 @interface DownloadViewController : UIViewController <UITableViewDelegate,NSStreamDelegate> {
 	IBOutlet DetailViewControllerIphone *detailViewController;
 	IBOutlet RootViewControllerLocalBrowser *rootViewController;
     IBOutlet OnlineViewController *onlineVC;
+    IBOutlet MoreViewController *moreVC;
 	IBOutlet SearchViewController *searchViewController;
 	IBOutlet UITableView *downloadTabView;
 	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
@@ -83,6 +85,7 @@
 @property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewController;
 @property (nonatomic, retain) IBOutlet SearchViewController *searchViewController;
 @property (nonatomic, retain) IBOutlet OnlineViewController *onlineVC;
+@property (nonatomic, retain) IBOutlet MoreViewController *moreVC;
 @property (nonatomic, retain) IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 @property (nonatomic, retain) IBOutlet UIProgressView *downloadPrgView;
 @property (nonatomic, retain) IBOutlet UITabBarItem *barItem;

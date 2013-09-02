@@ -6,6 +6,17 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
+enum {
+    PLAYLIST_SEARCH=1,
+    LOCAL_SEARCH,
+    MODLAND_SEARCH,
+    HVSC_SEARCH,
+    ASMA_SEARCH
+};
+static int lastSelectedSearch;
+
+extern BOOL is_ios7;
+
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
@@ -38,6 +49,8 @@ static NSFileManager *mFileMngr;
 	clock_t start_time,end_time;	
 	start_time=clock();
     
+    lastSelectedSearch=0;
+    
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
@@ -49,6 +62,7 @@ static NSFileManager *mFileMngr;
 	
 	modland_searchOn=0;
 	HVSC_searchOn=0;
+    ASMA_searchOn=0;
 	playlist_searchOn=0;
 	local_searchOn=0;
 	
@@ -62,14 +76,15 @@ static NSFileManager *mFileMngr;
 	mSearch=0;
 	mSearchText=nil;
 	
-	dbHVSC_entries_count=db_entries_count=local_entries_count=playlist_entries_count=0;
+	dbASMA_entries_count=dbHVSC_entries_count=db_entries_count=local_entries_count=playlist_entries_count=0;
 	db_entries=NULL;
+    dbASMA_entries=NULL;
 	dbHVSC_entries=NULL;
 	local_entries=NULL;
 	playlist_entries=NULL;
-	tooMuchDB=tooMuchPL=tooMuchLO=tooMuchDBHVSC=0;
+	tooMuchDB=tooMuchPL=tooMuchLO=tooMuchDBASMA=tooMuchDBHVSC=0;
 	
-	HVSC_expanded=modland_expanded=local_expanded=playlist_expanded=0;
+	ASMA_expanded=HVSC_expanded=modland_expanded=local_expanded=playlist_expanded=0;
     [super viewDidLoad];
 	
 	end_time=clock();	
@@ -79,7 +94,14 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-	
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+        [self.sBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [self.sBar setBarStyle:UIBarStyleDefault];
+    }
+
 	
 	[searchResultTabView reloadData];
 	
@@ -130,6 +152,21 @@ static NSFileManager *mFileMngr;
 		free(dbHVSC_entries);
 		dbHVSC_entries=NULL;
 		dbHVSC_entries_count=0;
+	}
+    if (dbASMA_entries_count) {
+		for (int i=0;i<dbASMA_entries_count;i++) {
+			if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
+			if (dbASMA_entries[i].fullpath) [dbASMA_entries[i].fullpath release];
+			if (dbASMA_entries[i].id_md5) [dbASMA_entries[i].id_md5 release];
+			if (dbASMA_entries[i].dir1) [dbASMA_entries[i].dir1 release];
+			if (dbASMA_entries[i].dir2) [dbASMA_entries[i].dir2 release];
+			if (dbASMA_entries[i].dir3) [dbASMA_entries[i].dir3 release];
+			if (dbASMA_entries[i].dir4) [dbASMA_entries[i].dir4 release];
+			
+		}
+		free(dbASMA_entries);
+		dbASMA_entries=NULL;
+		dbASMA_entries_count=0;
 	}
 	if (db_entries_count) {
 		for (int j=0;j<db_entries_count;j++) {
@@ -213,7 +250,7 @@ static NSFileManager *mFileMngr;
 					playlist_entries[playlist_entries_idx].filename=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
 					playlist_entries[playlist_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 3)];
 					
-					mSearchProgressVal=0+25*playlist_entries_idx/playlist_entries_count;
+					mSearchProgressVal=0+20*playlist_entries_idx/playlist_entries_count;
 					
 					playlist_entries_idx++;
 					if (playlist_entries_idx==playlist_entries_count) break;
@@ -266,7 +303,7 @@ static NSFileManager *mFileMngr;
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
-			mSearchProgressVal=50;
+			mSearchProgressVal=40;
 			
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {	
@@ -315,6 +352,89 @@ static NSFileManager *mFileMngr;
 	return 0;
 }
 
+-(int) searchASMA {
+	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+	sqlite3 *db;
+	int db_entries_idx;
+	NSArray *mSearchTextArray=[mSearchText componentsSeparatedByString:@" "];
+	
+	if (dbASMA_entries_count) {
+		for (int i=0;i<dbASMA_entries_count;i++) {
+			if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
+			if (dbASMA_entries[i].fullpath) [dbASMA_entries[i].fullpath release];
+			if (dbASMA_entries[i].id_md5) [dbASMA_entries[i].id_md5 release];
+			if (dbASMA_entries[i].dir1) [dbASMA_entries[i].dir1 release];
+			if (dbASMA_entries[i].dir2) [dbASMA_entries[i].dir2 release];
+			if (dbASMA_entries[i].dir3) [dbASMA_entries[i].dir3 release];
+			if (dbASMA_entries[i].dir4) [dbASMA_entries[i].dir4 release];
+		}
+		free(dbASMA_entries);
+		dbASMA_entries=NULL;
+		dbASMA_entries_count=0;
+	}
+	pthread_mutex_lock(&db_mutex);
+	db_entries_idx=0;
+	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+		char sqlStatement[1024];
+		sqlite3_stmt *stmt;
+		int err;
+		
+		dbASMA_entries_count=MAX_SEARCH_RESULT;
+		if (dbASMA_entries_count) {
+			dbASMA_entries=(t_dbASMA_browse_entryS*)malloc(dbASMA_entries_count*sizeof(t_dbASMA_browse_entryS));
+			memset(dbASMA_entries,0,dbASMA_entries_count*sizeof(t_dbASMA_browse_entryS));
+			
+			sprintf(sqlStatement,"SELECT filename,id_md5,fullpath FROM asma_file \
+					WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
+			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
+			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+			
+			mSearchProgressVal=80;
+			
+			if (err==SQLITE_OK){
+				while (sqlite3_step(stmt) == SQLITE_ROW) {	
+					dbASMA_entries[db_entries_idx].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+					dbASMA_entries[db_entries_idx].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+					dbASMA_entries[db_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+					dbASMA_entries[db_entries_idx].downloaded=-1;
+					
+					db_entries_idx++;
+					if (db_entries_idx==dbASMA_entries_count) break;
+				}
+				sqlite3_finalize(stmt);
+			} else NSLog(@"ErrSQL : %d",err);
+			
+			if (db_entries_idx<dbASMA_entries_count) dbASMA_entries_count=db_entries_idx;
+			if (dbASMA_entries_count==0) {
+				free(dbASMA_entries);
+			}
+			if (dbASMA_entries_count==MAX_SEARCH_RESULT) {
+				sprintf(sqlStatement,"SELECT count(1) FROM asma_file \
+						WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
+				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+				if (err==SQLITE_OK){
+					int nb_row;
+					if (sqlite3_step(stmt) == SQLITE_ROW) {	
+						nb_row=sqlite3_column_int(stmt, 0);
+						if (nb_row>dbASMA_entries_count) tooMuchDBASMA=nb_row;
+					}
+					sqlite3_finalize(stmt);
+				} else NSLog(@"ErrSQL : %d",err);
+				
+			}
+			
+		} else {
+			dbASMA_entries=NULL;
+		}
+		
+	};
+	sqlite3_close(db);
+	pthread_mutex_unlock(&db_mutex);
+	return 0;
+}
+
 -(int) searchHVSC {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
@@ -354,10 +474,10 @@ static NSFileManager *mFileMngr;
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
-			mSearchProgressVal=75;
+			mSearchProgressVal=60;
 			
 			if (err==SQLITE_OK){
-				while (sqlite3_step(stmt) == SQLITE_ROW) {	
+				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					dbHVSC_entries[db_entries_idx].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					dbHVSC_entries[db_entries_idx].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
 					dbHVSC_entries[db_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
@@ -380,7 +500,7 @@ static NSFileManager *mFileMngr;
 				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 				if (err==SQLITE_OK){
 					int nb_row;
-					if (sqlite3_step(stmt) == SQLITE_ROW) {	
+					if (sqlite3_step(stmt) == SQLITE_ROW) {
 						nb_row=sqlite3_column_int(stmt, 0);
 						if (nb_row>dbHVSC_entries_count) tooMuchDBHVSC=nb_row;
 					}
@@ -398,6 +518,7 @@ static NSFileManager *mFileMngr;
 	pthread_mutex_unlock(&db_mutex);
 	return 0;
 }
+
 
 -(int) searchLocal {
 	NSString *file,*cpath;
@@ -471,7 +592,7 @@ static NSFileManager *mFileMngr;
 						local_entries[local_entries_idx].label=[[NSString alloc] initWithString:file];
 						if ([cpath length]==prefix_length-1) local_entries[local_entries_idx].fullpath=[[NSString alloc] initWithString:file];
 						else local_entries[local_entries_idx].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",[cpath substringFromIndex:prefix_length],file];
-						mSearchProgressVal=25+25*local_entries_idx/local_entries_count;					
+						mSearchProgressVal=20+20*local_entries_idx/local_entries_count;
 						//if (local_entries_idx==local_entries_count) break;
 					}					
 					local_entries_idx++;					
@@ -497,6 +618,8 @@ static NSFileManager *mFileMngr;
 	if (modland_searchOn&&(mSearchMode&4)) [self searchModland];
 	mSearchProgress=3;
 	if (HVSC_searchOn&&(mSearchMode&8)) [self searchHVSC];
+    mSearchProgress=4;
+	if (ASMA_searchOn&&(mSearchMode&8)) [self searchASMA];
 	searchPrgView.hidden=YES;
 	
 	[pool release];
@@ -512,7 +635,28 @@ static NSFileManager *mFileMngr;
 			if (playlist_searchOn) playlist_expanded=1;
 			if (local_searchOn) local_expanded=1;
 			if (HVSC_searchOn) HVSC_expanded=1;
-		}
+            if (ASMA_searchOn) ASMA_expanded=1;
+		} else {
+            if (ASMA_searchOn+HVSC_searchOn+modland_searchOn+playlist_searchOn+local_searchOn) {
+                switch (lastSelectedSearch) {
+                    case PLAYLIST_SEARCH:
+                        playlist_expanded=1;
+                        break;
+                    case LOCAL_SEARCH:
+                        local_expanded=1;
+                        break;
+                    case MODLAND_SEARCH:
+                        modland_expanded=1;
+                        break;
+                    case HVSC_SEARCH:
+                        HVSC_expanded=1;
+                        break;
+                    case ASMA_SEARCH:
+                        ASMA_expanded=1;
+                        break;
+                }
+            }
+        }
 		
 		[searchResultTabView reloadData];
 	} else {
@@ -520,6 +664,7 @@ static NSFileManager *mFileMngr;
 		if (mSearchProgress==1) searchLabel.text=NSLocalizedString(@"Searching Local files...",@"");
 		if (mSearchProgress==2) searchLabel.text=NSLocalizedString(@"Searching MODLAND...",@"");
 		if (mSearchProgress==3) searchLabel.text=NSLocalizedString(@"Searching HVSC...",@"");
+        if (mSearchProgress==4) searchLabel.text=NSLocalizedString(@"Searching ASMA...",@"");
 		prgView.progress=((float)mSearchProgressVal)/100.0f;
 	}
 }	
@@ -529,17 +674,17 @@ static NSFileManager *mFileMngr;
 		UIAlertView *alertSearchMinChar = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please enter at least 2 characters for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
 		[alertSearchMinChar show];
 
-	} if (!(modland_searchOn+playlist_searchOn+local_searchOn+HVSC_searchOn)) {
+	} if (!(modland_searchOn+playlist_searchOn+local_searchOn+HVSC_searchOn+ASMA_searchOn)) {
 		UIAlertView *alertSearchMinChar = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please activate at least 1 section for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
 		[alertSearchMinChar show];
 		
 	} else {
-		tooMuchDB=tooMuchDBHVSC=tooMuchPL=tooMuchLO=0;
+		tooMuchDB=tooMuchDBHVSC=tooMuchDBASMA=tooMuchPL=tooMuchLO=0;
 		searchPrgView.hidden=NO;
 		searchLabel.text=@"Searching...";
 		prgView.progress=0;
 		mSearchProgress=0;
-		modland_expanded=local_expanded=playlist_expanded=HVSC_expanded=0;
+		modland_expanded=local_expanded=playlist_expanded=HVSC_expanded=ASMA_expanded=0;
 		mSearchMode=search_mode;
 		[NSThread detachNewThreadSelector:@selector(searchThread) toTarget:self withObject:NULL];
 		[NSTimer scheduledTimerWithTimeInterval: 0.2 target:self selector:@selector(updateSearchInfos:) userInfo:nil repeats: YES];
@@ -618,9 +763,16 @@ static NSFileManager *mFileMngr;
 	[searchResultTabView reloadData];
 }
 
+- (void) headerASMATapped: (UIButton*) sender {
+	/* do what you want in response to section header tap */
+	ASMA_expanded^=1;
+	[searchResultTabView reloadData];
+}
+
 - (void) headerPlaylistTappedSearchOn: (UIButton*) sender {
 	playlist_searchOn^=1;
 	if (playlist_searchOn&&mSearchText) {
+        lastSelectedSearch=PLAYLIST_SEARCH;
 		if ([mSearchText length]>0) {
 			[sBar resignFirstResponder];
 			[self doSearch:1];
@@ -644,6 +796,7 @@ static NSFileManager *mFileMngr;
 - (void) headerLocalTappedSearchOn: (UIButton*) sender {
 	local_searchOn^=1;
 	if (local_searchOn&&mSearchText) {
+        lastSelectedSearch=LOCAL_SEARCH;
 		if ([mSearchText length]>0) {
 			[sBar resignFirstResponder];
 			[self doSearch:2];
@@ -667,6 +820,7 @@ static NSFileManager *mFileMngr;
 - (void) headerModlandTappedSearchOn: (UIButton*) sender {
 	modland_searchOn^=1;
 	if (modland_searchOn&&mSearchText) {
+        lastSelectedSearch=MODLAND_SEARCH;
 		if ([mSearchText length]>0) {
 			[sBar resignFirstResponder];
 			[self doSearch:4];
@@ -690,6 +844,7 @@ static NSFileManager *mFileMngr;
 - (void) headerHVSCTappedSearchOn: (UIButton*) sender {
 	HVSC_searchOn^=1;
 	if (HVSC_searchOn&&mSearchText) {
+        lastSelectedSearch=HVSC_SEARCH;
 		if ([mSearchText length]>0) {
 			[sBar resignFirstResponder];
 			[self doSearch:8];
@@ -713,6 +868,35 @@ static NSFileManager *mFileMngr;
 			dbHVSC_entries_count=0;
 		}
 		HVSC_expanded=0;
+	}
+	[searchResultTabView reloadData];
+}
+
+- (void) headerASMATappedSearchOn: (UIButton*) sender {
+	ASMA_searchOn^=1;
+	if (ASMA_searchOn&&mSearchText) {
+        lastSelectedSearch=ASMA_SEARCH;
+		if ([mSearchText length]>0) {
+			[sBar resignFirstResponder];
+			[self doSearch:8];
+		}
+	}
+	if (!ASMA_searchOn) {
+		if (dbASMA_entries_count) {
+			for (int i=0;i<dbASMA_entries_count;i++) {
+				if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
+				if (dbASMA_entries[i].fullpath) [dbASMA_entries[i].fullpath release];
+				if (dbASMA_entries[i].id_md5) [dbASMA_entries[i].id_md5 release];
+				if (dbASMA_entries[i].dir1) [dbASMA_entries[i].dir1 release];
+				if (dbASMA_entries[i].dir2) [dbASMA_entries[i].dir2 release];
+				if (dbASMA_entries[i].dir3) [dbASMA_entries[i].dir3 release];
+				if (dbASMA_entries[i].dir4) [dbASMA_entries[i].dir4 release];
+			}
+			free(dbASMA_entries);
+			dbASMA_entries=NULL;
+			dbASMA_entries_count=0;
+		}
+		ASMA_expanded=0;
 	}
 	[searchResultTabView reloadData];
 }
@@ -914,6 +1098,31 @@ static NSFileManager *mFileMngr;
 			}
 			[buttonLeft addTarget: self action: @selector(headerHVSCTappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];			
 			break;
+        case 4:
+			if (ASMA_searchOn&&dbASMA_entries_count) {
+                if (ASMA_expanded) [buttonRight setImage:[UIImage imageNamed:@"expanded.png"]  forState: UIControlStateNormal];
+                else [buttonRight setImage:[UIImage imageNamed:@"collapsed.png"]  forState: UIControlStateNormal];
+                [buttonRight addTarget: self action: @selector(headerASMATapped:) forControlEvents: UIControlEventTouchUpInside];
+			} else [buttonRight setImage:nil  forState: UIControlStateNormal];
+			if (dbASMA_entries_count) {
+				//[customView addSubview: buttonRight];
+				[buttonLabel addTarget: self action: @selector(headerASMATapped:) forControlEvents: UIControlEventTouchUpInside];
+			} else [buttonLabel addTarget: self action: @selector(headerASMATappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];
+			
+			if (ASMA_searchOn) {
+				[buttonLeft setImage:[UIImage imageNamed:@"checkbox_single.png"]  forState: UIControlStateNormal];
+				if (tooMuchDBASMA) {
+					[buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"ASMA (%d, limited to %d)",@""),tooMuchDBASMA,dbASMA_entries_count] forState:UIControlStateNormal];
+					buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
+				} else [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"ASMA (%d)",@""),dbASMA_entries_count] forState:UIControlStateNormal];
+				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+			} else {
+				[buttonLeft setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]  forState: UIControlStateNormal];
+				[buttonLabel setTitle:[NSString stringWithString:NSLocalizedString(@"ASMA/Search off",@"")] forState:UIControlStateNormal];
+				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+			}
+			[buttonLeft addTarget: self action: @selector(headerASMATappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];
+			break;
 	}
 	
 	[customView addSubview: buttonLeft];
@@ -940,7 +1149,7 @@ static NSFileManager *mFileMngr;
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
 	local_flag=0;
-	return 4;
+	return 5;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -956,6 +1165,9 @@ static NSFileManager *mFileMngr;
 	} else if (section==3) {	
 		if (HVSC_expanded==0) return 0;
 		return dbHVSC_entries_count;
+	} else if (section==4) {
+		if (ASMA_expanded==0) return 0;
+		return dbASMA_entries_count;
 	}
 	return 0;
 }
@@ -974,6 +1186,11 @@ static NSFileManager *mFileMngr;
 		if (dbHVSC_entries[i].downloaded==0) {
 			checkPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@%@",HVSC_BASEDIR,dbHVSC_entries[i].fullpath]];
 			if ([fileManager fileExistsAtPath:checkPath]) dbHVSC_entries[i].downloaded=1;
+		}
+    for (int i=0;i<dbASMA_entries_count;i++)
+		if (dbASMA_entries[i].downloaded==0) {
+			checkPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@%@",ASMA_BASEDIR,dbASMA_entries[i].fullpath]];
+			if ([fileManager fileExistsAtPath:checkPath]) dbASMA_entries[i].downloaded=1;
 		}
 	[searchResultTabView reloadData];
 }
@@ -1081,8 +1298,27 @@ static NSFileManager *mFileMngr;
 			
 			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
 		}
+	}
+    if (indexPath.section==4) {//ASMA
+		//File selected, start download is needed
+		NSString *sidFilename=[NSString stringWithFormat:@"%@",dbASMA_entries[indexPath.row].label];
+		NSString *ftpPath=[NSString stringWithFormat:@"%@",dbASMA_entries[indexPath.row].fullpath];
+		NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,dbASMA_entries[indexPath.row].fullpath];
 		
-		
+		if (dbASMA_entries[indexPath.row].downloaded==1) {
+			NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+			NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+			[array_label addObject:sidFilename];
+			[array_path addObject:localPath];
+			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
+			if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+		} else {
+			NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],ASMA_BASEDIR,[dbASMA_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+			NSError *err;
+			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
+			
+			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+		}
 	}
 }
 
@@ -1132,19 +1368,35 @@ static NSFileManager *mFileMngr;
 			
 			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
 		}
+	}
+    if (indexPath.section==4) {//ASMA
+		//File selected, start download is needed
+		NSString *sidFilename=[NSString stringWithFormat:@"%@",dbASMA_entries[indexPath.row].label];
+		NSString *ftpPath=[NSString stringWithFormat:@"%@",dbASMA_entries[indexPath.row].fullpath];
+		NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,dbASMA_entries[indexPath.row].fullpath];
 		
-		
+		if (dbASMA_entries[indexPath.row].downloaded==1) {
+			if ([detailViewController add_to_playlist:localPath fileName:dbASMA_entries[indexPath.row].label forcenoplay:1]) {
+				if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+			}
+		} else {
+			NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],ASMA_BASEDIR,[dbASMA_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+			NSError *err;
+			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
+			
+			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+		}
 	}
 }
 
 - (void) primaryActionTapped: (UIButton*) sender {
-	NSIndexPath *indexPath = [searchResultTabView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+	NSIndexPath *indexPath = [searchResultTabView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.searchResultTabView]];
 	[searchResultTabView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
 	[self doPrimAction:indexPath];
 }
 
 - (void) secondaryActionTapped: (UIButton*) sender {
-	NSIndexPath *indexPath = [searchResultTabView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+	NSIndexPath *indexPath = [searchResultTabView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.searchResultTabView]];
 	[searchResultTabView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
 	[self doSecAction:indexPath];
 }
@@ -1339,6 +1591,26 @@ static NSFileManager *mFileMngr;
             topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
         }
 		bottomLabel.text = dbHVSC_entries[indexPath.row].fullpath;
+	}
+    if (indexPath.section==4) {
+		topLabel.text=[NSString stringWithFormat:@"%@",dbASMA_entries[indexPath.row].label];
+		
+		if (dbASMA_entries[indexPath.row].downloaded==-1) {
+			NSFileManager *fileManager = mFileMngr;
+			BOOL success;
+			NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+			NSString *documentsDirectory = [paths objectAtIndex:0];
+			NSString *checkPath;
+			
+			checkPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@%@",ASMA_BASEDIR,dbASMA_entries[indexPath.row].fullpath]];
+			success = [fileManager fileExistsAtPath:checkPath];
+			if (success) dbASMA_entries[indexPath.row].downloaded=1;
+			else dbASMA_entries[indexPath.row].downloaded=0;
+		}
+		if (dbASMA_entries[indexPath.row].downloaded==0) {
+            topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
+        }
+		bottomLabel.text = dbASMA_entries[indexPath.row].fullpath;
 	}
     
 	return cell;

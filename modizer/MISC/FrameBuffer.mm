@@ -76,7 +76,7 @@ void FrameBufferUtils::Set(const FrameBuffer& buffer)
         glBindFramebufferOES(GL_FRAMEBUFFER_OES, buffer.viewFramebuffer);
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, buffer.viewRenderbuffer);
     }
-    CHECK_GL_ERRORS();
+//    CHECK_GL_ERRORS();
     glViewport(0, 0, buffer.m_width, buffer.m_height);	
 }
 

@@ -60,7 +60,7 @@ long dumb_resample(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, VOLU
 	done = 0;
 	dt = (int)(delta * 65536.0 + 0.5);
         if (dt == 0 || dt == (int)-0x80000000) return 0;
-	inv_dt = (int)(1.0 / delta * 65536.0 + 0.5);
+        inv_dt = (int)(1.0 / delta * 65536.0 + 0.5);
 	SET_VOLUME_VARIABLES;
 
 	if (VOLUMES_ARE_ZERO) dst = NULL;
@@ -70,7 +70,7 @@ long dumb_resample(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, VOLU
 	quality = resampler->quality;
 
 	while (done < dst_size) {
-		if (process_pickup(resampler)) {
+                if (process_pickup(resampler)) {
 			RETURN_VOLUME_VARIABLES;
 			return done;
 		}
@@ -204,13 +204,13 @@ long dumb_resample(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, VOLU
                                                     pos--;
                                                     x -= SRC_CHANNELS;
                                             }
-                                            if ( !lanczos_resampler_ready( resampler->fir_resampler[0] ) ) break;
+                                            if ( !lanczos_resampler_get_sample_count( resampler->fir_resampler[0] ) ) break;
                                             MIX_FIR;
                                             ADVANCE_FIR;
                                             --todo;
                                     }
                                     done -= todo;
-				}
+                                }
 				diff = diff - pos;
 				overshot = resampler->start - pos - 1;
 				if (diff >= 3) {
@@ -330,13 +330,13 @@ long dumb_resample(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, VOLU
                                                     pos++;
                                                     x += SRC_CHANNELS;
                                             }
-                                            if ( !lanczos_resampler_ready( resampler->fir_resampler[0] ) ) break;
+                                            if ( !lanczos_resampler_get_sample_count( resampler->fir_resampler[0] ) ) break;
                                             MIX_FIR;
                                             ADVANCE_FIR;
                                             --todo;
                                     }
                                     done -= todo;
-				}
+                                }
 				diff = pos - diff;
 				overshot = pos - resampler->end;
 				if (diff >= 3) {
@@ -405,7 +405,7 @@ void dumb_resample_get_current_sample(DUMB_RESAMPLER *resampler, VOLUME_PARAMETE
                 } else {
                         /* FIR resampling, backwards */
                         PEEK_FIR;
-		}
+                }
 	} else {
 		HEAVYASSERT(pos < resampler->end);
 		if (quality <= DUMB_RQ_ALIASING) {
@@ -420,7 +420,7 @@ void dumb_resample_get_current_sample(DUMB_RESAMPLER *resampler, VOLUME_PARAMETE
                 } else {
                         /* FIR resampling, forwards */
                         PEEK_FIR;
-		}
+                }
 	}
 }
 
