@@ -5106,6 +5106,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if (mdx->pdx_name) {
 				if (strlen(mdx->pdx_name) && (mdx->haspdx==0)) {
 					sprintf(mod_message,"%sMissing PDX file: %s\n",mod_message,mdx->pdx_name);
+                    NSString *alertMsg=[NSString stringWithFormat:NSLocalizedString(@"Missing PDX file: %s",@""),mdx->pdx_name];
+                    UIAlertView *alertMissingPDX = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                               message:alertMsg delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
+                    [alertMissingPDX show];
 				}
 			}
 			

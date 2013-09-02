@@ -81,6 +81,7 @@ enum MDZ_SETTINGS {
     GLOB_FXMODPattern,
     GLOB_FXMIDIPattern,
     GLOB_FXPiano,
+    GLOB_FX3DSpectrum,
     GLOB_FXOscillo,
     GLOB_FXSpectrum,
     GLOB_FXBeat,

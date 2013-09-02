@@ -31,6 +31,7 @@ pthread_mutex_t uade_mutex;
 pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
+BOOL is_ios7,is_retina;
 
 @implementation AppDelegate_Phone
 
@@ -73,6 +74,16 @@ pthread_mutex_t play_mutex;
     else [UIApplication sharedApplication].idleTimerDisabled=NO;
 }
 
+/*
+*  System Versioning Preprocessor Macros
+*/
+
+#define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
+#define SYSTEM_VERSION_GREATER_THAN(v)              ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
 	// Override point for customization after application launch
@@ -80,9 +91,21 @@ pthread_mutex_t play_mutex;
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;
-	if ([device respondsToSelector:@selector(isMultitaskingSupported)]) backgroundSupported = device.multitaskingSupported;
+	if ([device respondsToSelector:@selector(isMultitaskingSupported)]) backgroundSupported = device.
+        multitaskingSupported;
 	
+    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) {
+        is_ios7=FALSE;
+    } else is_ios7=TRUE;
 
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] == YES && [[UIScreen mainScreen] scale] == 2.00) {
+        // RETINA DISPLAY
+        is_retina=TRUE;
+    } else is_retina=FALSE;
+    
+    if (!is_ios7) {
+        [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleBlackOpaque];
+    }
     
 	if (pthread_mutex_init(&uade_mutex,NULL)) {
 		printf("cannot create uade mutex");
@@ -101,7 +124,7 @@ pthread_mutex_t play_mutex;
 		return NO;
 	}
 	//sqlite3_enable_shared_cache(1);
-	[[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleBlackOpaque];
+	
 
     //battery: if charging, disable idleTimer
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];    

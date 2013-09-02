@@ -28,7 +28,7 @@ static NSFileManager *mFileMngr;
 
 @synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,downloadTabView,downloadPrgView,detailViewController,barItem,rootViewController,onlineVC;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
-@synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth;
+@synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth,moreVC;
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString* )path
 {
@@ -283,6 +283,7 @@ static NSFileManager *mFileMngr;
 		//refresh view which potentially list the file as not downloaded
 		[onlineVC refreshViewAfterDownload];
 		[searchViewController refreshViewAfterDownload];
+        [moreVC refreshViewAfterDownload];
 		
     } else if (mFTPAskCancel==0) {
 		if (mConnectionIssue==0) {
@@ -854,7 +855,6 @@ static NSFileManager *mFileMngr;
 		alert = [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithString:NSLocalizedString(@"Cannot download from this URL.",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
 		[alert show];
 	}
-	
 	[self updateToNextURL];
 	mGetURLInProgress=0;
 	[self checkNextQueuedItem];
@@ -869,8 +869,6 @@ static NSFileManager *mFileMngr;
     NSError *err;
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]  withIntermediateDirectories:TRUE attributes:nil error:&err];
     
-    
-	
 	downloadLabelName.text=[[NSString stringWithFormat:NSLocalizedString(@"Downloading %@",@""),mURL[0]] stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
 	downloadLabelSize.text=[NSString stringWithFormat:@"%dKB",mURLFilesize[0]/1024];
 	
@@ -882,8 +880,6 @@ static NSFileManager *mFileMngr;
 	[mASIrequest setDownloadProgressDelegate:downloadPrgView];
 	[mASIrequest setDelegate:self];
 	[mASIrequest startAsynchronous];
-	
-	
 }
 
 - (void)startReceiveCurrentFTPEntry {
@@ -980,7 +976,7 @@ static NSFileManager *mFileMngr;
 
 - (void) cancelTapped: (UIButton*) sender {
 	pthread_mutex_lock(&download_mutex);
-	NSIndexPath *indexPath = [downloadTabView indexPathForRowAtPoint:[[sender superview] center]];
+	NSIndexPath *indexPath = [downloadTabView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.downloadTabView]];
 	int pos=indexPath.row;
 	if (indexPath.section==0) {//FTP
         if (mGetFTPInProgress) pos++;
@@ -1021,8 +1017,7 @@ static NSFileManager *mFileMngr;
 			mURLFilename[mURLDownloadQueueDepth-1]=nil;		
 			mURLDownloadQueueDepth--;
 		}
-		
-	} 
+	}
 	
 	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
     else barItem.badgeValue=nil;

@@ -9,6 +9,8 @@
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define LIMITED_LIST_SIZE 1024
 
+extern BOOL is_ios7;
+
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
@@ -376,7 +378,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 -(void)hideWaiting{
 	waitingView.hidden=TRUE;
 }
-
 
 - (void)viewDidLoad {
 	clock_t start_time,end_time;
@@ -1406,6 +1407,15 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 -(void) viewWillAppear:(BOOL)animated {
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+        [self.sBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [self.sBar setBarStyle:UIBarStyleDefault];
+    }
+
+    
     if (keys) {
         [keys release]; 
         keys=nil;
@@ -1916,7 +1926,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 #pragma mark -
 #pragma mark Table view delegate
 - (void) primaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
@@ -1975,7 +1985,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
 }
 - (void) secondaryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
@@ -2039,7 +2049,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 
 - (void) accessoryActionTapped: (UIButton*) sender {
-    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[[[sender superview] superview] center]];
+    NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;

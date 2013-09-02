@@ -6,6 +6,8 @@
 //
 //
 
+extern BOOL is_ios7;
+
 #define GET_NB_ENTRIES 1
 //#define NB_MODLAND_ENTRIES 319746
 //#define NB_HVSC_ENTRIES 43856
@@ -72,6 +74,13 @@
 }
 
 -(void) viewWillAppear:(BOOL)animated {
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    }
+    
+    
     [self.tableView reloadData];
     collectionViewController=nil;
 }
@@ -91,11 +100,9 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (section) {
-        case 0: //downloads
-            return nil;
-        case 1:
+        case 0:
             return NSLocalizedString(@"Collections", @"");
-        case 2:
+        case 1:
             return NSLocalizedString(@"Internet", @"");
         default:
             return nil;
@@ -105,18 +112,16 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 3;
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
     switch (section) {
-        case 0: //downloads
-            return 1;
-        case 1: //collections
+        case 0: //collections
             return 3;
-        case 2: //internet
+        case 1: //internet
             return 2;
         default:
             return 0;
@@ -138,50 +143,6 @@
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = cell.bounds;
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        [cell setBackgroundView:[[UIView alloc] init]];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = cell.bounds;
-        float rev_col_adj=1.2f;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        [cell setSelectedBackgroundView:[[UIView alloc] init]];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
         UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
@@ -242,16 +203,7 @@
     
     // Configure the cell...
     switch (indexPath.section) {
-        case 0: //downloads
-        {
-            topLabel.text=NSLocalizedString(@"Downloads",@"");
-            int download_queue=downloadViewController.mFTPDownloadQueueDepth+downloadViewController.mURLDownloadQueueDepth;
-            if (download_queue==1) bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Download queue: %d file",@""),download_queue];
-            else if (download_queue>1) bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Download queue: %d files",@""),download_queue];
-            else bottomLabel.text=NSLocalizedString(@"No download in progress",@"");
-        }
-            break;
-        case 1: //collections
+        case 0: //collections
         {
             switch (indexPath.row) {
                 case 0:topLabel.text=NSLocalizedString(@"MODLAND collection",@"");
@@ -266,7 +218,7 @@
             }
         }
             break;
-        case 2: //internet
+        case 1: //internet
         {
             switch (indexPath.row) {
                 case 0:topLabel.text=NSLocalizedString(@"Modizer World Charts",@"");
@@ -335,10 +287,7 @@
      [detailViewController release];
      */
     switch (indexPath.section) {
-        case 0://downloads
-            [self.navigationController pushViewController:downloadViewController animated:YES];
-            break;
-        case 1: {//collection
+        case 0: {//collection
             switch (indexPath.row) {
                 case 0: //MODLAND
                     collectionViewController = [[[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
@@ -376,7 +325,7 @@
             }
         }
             break;
-        case 2:{//internet
+        case 1:{//internet
                 switch (indexPath.row) {
                     case 0: //World Charts
                         [webBrowser loadWorldCharts];

@@ -38,7 +38,7 @@ void FFTAccelerate::doFFTReal(float samples[], float amp[], int numSamples)
     //Convert COMPLEX_SPLIT A result to float array to be returned
     amp[0] = A.realp[0]/(numSamples*2);
 	for(i=1;i<numSamples/2;i++)
-		amp[i]=sqrt(A.realp[i]*A.realp[i]+A.imagp[i]*A.imagp[i])/numSamples;    
+		amp[i]=sqrt(A.realp[i]*A.realp[i]+A.imagp[i]*A.imagp[i]);
 }
 
 //Constructor
@@ -52,7 +52,7 @@ FFTAccelerate::FFTAccelerate (int numSamples)
     window = (float *) malloc(numSamples * sizeof(float));
     in_real = (float *) malloc(numSamples * sizeof(float));
     memset(window, 0, numSamples * sizeof(float));
-    vDSP_hann_window(window, numSamples, vDSP_HANN_DENORM);
+    vDSP_hann_window(window, numSamples, vDSP_HANN_NORM);
 }
 
 

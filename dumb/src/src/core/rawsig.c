@@ -36,12 +36,12 @@ sigdata_t *duh_get_raw_sigdata(DUH *duh, int sig, long type)
 
 	if ( sig >= 0 )
 	{
-	if ((unsigned int)sig >= (unsigned int)duh->n_signals) return NULL;
+		if ((unsigned int)sig >= (unsigned int)duh->n_signals) return NULL;
 
-	signal = duh->signal[sig];
+		signal = duh->signal[sig];
 
-	if (signal && signal->desc->type == type)
-		return signal->sigdata;
+		if (signal && signal->desc->type == type)
+			return signal->sigdata;
 	}
 	else
 	{
