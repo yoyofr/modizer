@@ -82,10 +82,9 @@ static int hvl_sample_to_write,mHVLinit;
 static YMMUSIC *ymMusic;
 //SC68
 static api68_t *sc68;
-static int mSIDFilterON;
+
 //SID
-
-
+static int mSIDFilterON;
 static sidplay2 *mSidEmuEngine;
 static ReSIDBuilder *mBuilder;
 //static ReSIDfpBuilder *mBuilder;
@@ -914,7 +913,7 @@ void propertyListenerCallback (void                   *inUserData,              
         
 		//
         //DUMB
-        dumb_MastVol=0.5f;
+        dumb_MastVol=1.0f;
         dumb_register_memfiles();
         duh=NULL; duh_player=NULL;
         //
@@ -4477,6 +4476,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			cfg.volumeControl = SIDEMU_VOLCONTROL;
             if (mSIDFilterON) cfg.emulateFilter=TRUE;
             else cfg.emulateFilter=FALSE;
+
+            ////////////////////////
+            //TO TEST
+/*            cfg.mos8580=1; // 0
+            cfg.clockSpeed=SIDTUNE_CLOCK_PAL; // SIDTUNE_CLOCK_NTSC
+            cfg.forceSongSpeed=TRUE; // FALSE
+ */
+            //
+
+            
 			mSid1EmuEngine->setConfig(cfg);
 			
 			
@@ -4592,6 +4601,35 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			cfg.emulateStereo = false;
 			cfg.playback = sid2_stereo;
 			cfg.sidSamples	  = true;
+            
+            
+            //TO TEST
+            /*struct sid2_config_t
+             {
+             sid2_clock_t        clockDefault;  // Intended tune speed when unknown
+             bool                clockForced;
+             sid2_clock_t        clockSpeed;    // User requested emulation speed
+             sid2_env_t          environment;
+             bool                forceDualSids;
+             sid2_model_t        sidDefault;    // Intended sid model when unknown
+             sidbuilder         *sidEmulation;
+             sid2_model_t        sidModel;      // User requested sid model
+             bool                sidSamples;
+             uint_least32_t      leftVolume;
+             uint_least32_t      rightVolume;
+             uint_least32_t      sid2crcCount;  // Max sid writes to form crc
+             sampling_method_t   samplingMethod;
+             bool                fastSampling;  // Faster low-quality emulation
+             };
+             m_cfg.samplingMethod  = SID2_INTERPOLATE;//SID2_RESAMPLE_INTERPOLATE;
+             m_cfg.fastSampling    = 1;//false;
+
+*/
+            
+            
+            
+            
+            
 			// setup resid
             if (mBuilder) mBuilder->create(mSidEmuEngine->info().maxsids);
 			if (mSIDFilterON) mBuilder->filter(true);
@@ -5862,7 +5900,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 -(void) optDUMB_MastVol:(float)value{
     if (value<0) value=0;
     if (value>1) value=1;
-    dumb_MastVol=value;
+    dumb_MastVol=value*2;
     if (duh_player) {
         duh_player->volume = dumb_MastVol;
     }

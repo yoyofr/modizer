@@ -392,7 +392,7 @@ void RenderUtils::DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR
 			ptsC[i*8+7] = LineVertex(xshift+ww/2+(ww/2-(nb_spectrum_bands*band_width))/2+i*band_width+band_width-pr/4, ypos-pr/2,	255/3,255/3,255/3/3,255);
 		}
 	}
-			
+    
 	glLineWidth(band_width*(is_retina?2:1));
 	glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
 	glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
@@ -576,7 +576,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
 	pts[22] = LineVertex(0,	_hh*3/4+1, 	255,255,255,fade_level/4);
 	pts[23] = LineVertex(_ww,	_hh*3/4+1, 	55,55,155,fade_level/4);
 	
-	glLineWidth(1.0f);
+	glLineWidth(1.0f*(is_retina?2:1));
 	glDrawArrays(GL_LINES, 0, 24);
     
     
@@ -593,7 +593,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
 	pts[9] = LineVertex(_ww,	_hh*2/4, 	55,55,155,fade_level/2);
 	pts[10] = LineVertex(0,	_hh*3/4, 	255,255,255,fade_level/2);
 	pts[11] = LineVertex(_ww,	_hh*3/4, 	55,55,155,fade_level/2);
-	glLineWidth(2.0f);
+	glLineWidth(2.0f*(is_retina?2:1));
 	glDrawArrays(GL_LINES, 0, 12);
     
     int factA,factB;
@@ -613,7 +613,7 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     if (colbgBR<0) colbgBR=0; if (colbgBR>255) colbgBR=255;
     if (colbgBG<0) colbgBG=0; if (colbgBG>255) colbgBG=255;
     if (colbgBB<0) colbgBB=0; if (colbgBB>255) colbgBB=255;
-    glLineWidth(2.0f);
+    glLineWidth(2.0f*(is_retina?2:1));
     fade_lev=255;
 	glDisable(GL_BLEND);
     for (int y=0;y<4;y++)
@@ -643,7 +643,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     
     glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glLineWidth(1.0f);
+	glLineWidth(1.0f*(is_retina?2:1));
     
 	
 	switch (display_note_mode){
@@ -696,7 +696,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
 	ptsD[5] = LineVertex(_ww-1, _hh,80,80,80,255);
 	ptsD[6] = LineVertex(1, 0,		80,80,80,255);
 	ptsD[7] = LineVertex(1, _hh,	20,20,20,255);
-	glLineWidth(2.0f);
+	glLineWidth(2.0f*(is_retina?2:1));
 	glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsD[0].x);
 	glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsD[0].r);
 	glDrawArrays(GL_LINES, 0, 8);
@@ -714,10 +714,10 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode) {
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	glEnable(GL_BLEND);
-    glLineWidth(2.0f);
+    glLineWidth(2.0f*(is_retina?2:1));
 	glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
 	glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-
+    
 	
 	//current playing line
 	ii=(_hh-30+11)/12;
@@ -727,10 +727,10 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode) {
 	pts[3] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3+8,		230,76,153,120);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	
-	pts[0] = LineVertex(0,     _hh-30-12*(ii/2)+3-8.0f,     230,76,153,60);
-	pts[1] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3-8.0f,     230,76,153,60);
-	pts[2] = LineVertex(0,     _hh-30-12*(ii/2)+3+8.0f,     230,76,153,240);
-	pts[3] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3+8.0f,     230,76,153,240);
+	pts[0] = LineVertex(0,     _hh-30-12*(ii/2)+3-9.0f,     230/2,76/2,153/2,120);
+	pts[1] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3-9.0f,     230/2,76/2,153/2,120);
+	pts[2] = LineVertex(0,     _hh-30-12*(ii/2)+3+9.0f,     250,96,183,190);
+	pts[3] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3+9.0f,     250,96,183,190);
 	glDrawArrays(GL_LINES, 0, 4);
 	
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -824,7 +824,7 @@ float position[] = { 0, 0, 8, 1 };
 
 void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt) {
     float cr,cg,cb;
-    //top    
+    //top
     cr=crt;cg=cgt;cb=cbt;
     vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
     vertices[0][0]=x;
@@ -854,7 +854,7 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[2][2]=1;
     normals[3][0]=0;
     normals[3][1]=0;
-    normals[3][2]=1;    
+    normals[3][2]=1;
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     //left
@@ -1017,7 +1017,7 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[3][0]=0;
     normals[3][1]=0;
     normals[3][2]=-1;
-
+    
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
@@ -1039,8 +1039,8 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     }
     for (int i=0;i<nb_spectrum_bands;i++) {
         /*barSpectrumDataL[i]=barSpectrumDataL[i]*0.8;
-        barSpectrumDataR[i]=barSpectrumDataR[i]*0.8;
-        if (barSpectrumDataL[i]<(float)spectrumDataL[i]/512.0f)
+         barSpectrumDataR[i]=barSpectrumDataR[i]*0.8;
+         if (barSpectrumDataL[i]<(float)spectrumDataL[i]/512.0f)
          */
         barSpectrumDataL[i]=(float)spectrumDataL[i]/512.0f;
         /*if (barSpectrumDataR[i]<(float)spectrumDataR[i]/512.0f) */
@@ -1113,19 +1113,19 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glRotatef(360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
                               0.7f*sin((float)frameCpt*3.14159f/1211)-
                               0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
-
+            
             break;
         case 1:
             glTranslatef(0.0, 0.0, -150.0+
                          15*(0.8f*sin((float)frameCpt*3.14159f/991)+
                              1.7f*sin((float)frameCpt*3.14159f/3065)-
                              0.3f*sin((float)frameCpt*3.14159f/5009)));
-
-            glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*3.14159f/2691)+
-                                0.7f*sin((float)frameCpt*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*3.14159f/7409)),0,0,1);
-
             
+           glRotatef(-90+10.0f*(0.8f*sin((float)frameCpt*3.14159f/2691)+
+                                 0.7f*sin((float)frameCpt*3.14159f/3113)-
+                                 0.3f*sin((float)frameCpt*3.14159f/7409)),0,0,1);
+            
+ 
             glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
                                 0.7f*sin((float)frameCpt*3.14159f/1211)-
                                 0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
@@ -1134,7 +1134,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glRotatef(10.0f*(0.8f*sin((float)frameCpt*3.14159f/891)-
                              0.2f*sin((float)frameCpt*3.14159f/211)-
                              0.4f*sin((float)frameCpt*3.14159f/5213)),0,0,1);
-
+ 
             break;
     }
 	
@@ -1147,119 +1147,13 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     x=-0.5;y=0;z=0;
     sx=sy=24.0/(float)nb_spectrum_bands;
     float trans=14+sx;
-
-    if (mode==2)
-    for (int i=0; i<nb_spectrum_bands; i++) {
-        /////////////////
-        //LEFT
-        spL=barSpectrumDataL[i];
-        
-        if (i<nb_spectrum_bands*2/3) {
-            cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
-        } else {
-            cbt=0;
-        }
-        if (i>nb_spectrum_bands/3) {
-            cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
-        } else {
-            cgt=0;
-        }
-        crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
-        crt*=0.5+(spL/1);
-        if (crt>1) crt=1;
-        cgt*=0.5+(spL/1);
-        if (cgt>1) cgt=1;
-        cbt*=0.5+(spL/1);
-        if (cbt>1) cbt=1;
-        
-        sz=(spL+0.1f);
-        x=0-sx/2;
-        y=4+ang/10;
-        z=-4-ang/10-spL/4;
-        
-        //y=(i-nb_spectrum_bands/2)*sy*1.2;
-        //z=1+spL/4;
-
-        glTranslatef(0,-2,trans);
-        glRotatef(ang+270,1,0,0);
-        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-        glRotatef(-(ang+270),1,0,0);
-        glTranslatef(0,2,-trans);
-        
-        glRotatef(180,0,1,0);
-        
-        glTranslatef(0,-2,trans);
-        glRotatef(ang+270,1,0,0);
-        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-        glRotatef(-(ang+270),1,0,0);
-        glTranslatef(0,2,-trans);
-        
-        
-        glRotatef(180,0,1,0);
-        
-
-        
-        /////////////////
-        //RIGHT
-        spR=barSpectrumDataR[i];
-        /////////////////
-        if (i<nb_spectrum_bands*2/3) {
-            cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
-        } else {
-            cbt=0;
-        }
-        if (i>nb_spectrum_bands/3) {
-            cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
-        } else {
-            cgt=0;
-        }
-        crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
-        crt*=0.5+(spR/1);
-        if (crt>1) crt=1;
-        cgt*=0.5+(spR/1);
-        if (cgt>1) cgt=1;
-        cbt*=0.5+(spR/1);
-        if (cbt>1) cbt=1;
-        
-        sz=(spR+0.1f);
-        x=0-sx/2;
-        y=4+ang/10;
-        z=-4-ang/10-spR/4;
-        
-        //y=(i-nb_spectrum_bands/2)*sy*1.2;
-        //z=1+spL/4;
-        
-        glRotatef(90,0,1,0);
-        
-        glTranslatef(0,-2,trans);
-        glRotatef(ang+270,1,0,0);
-        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-        glRotatef(-(ang+270),1,0,0);
-        glTranslatef(0,2,-trans);
-        
-        glRotatef(180,0,1,0);
-        
-        glTranslatef(0,-2,trans);
-        glRotatef(ang+270,1,0,0);
-        drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-        glRotatef(-(ang+270),1,0,0);
-        glTranslatef(0,2,-trans);
-        
-        
-        glRotatef(180+90,0,1,0);
-        
-        if (ang<90) ang+=(90.0/(float)nb_spectrum_bands)*1.1;
-        if (ang>90) ang=90;
-
-        
-    }
     
-    if (mode==1)
-		for (int i=0; i<nb_spectrum_bands; i++) {
+    if (mode==2) {
+        for (int i=0; i<nb_spectrum_bands; i++) {
             /////////////////
             //LEFT
             spL=barSpectrumDataL[i];
- 
+            
             if (i<nb_spectrum_bands*2/3) {
                 cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
             } else {
@@ -1277,6 +1171,316 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             if (cgt>1) cgt=1;
             cbt*=0.5+(spL/1);
             if (cbt>1) cbt=1;
+            
+            sz=(spL+0.1f);
+            x=0-sx/2;
+            y=4+ang/10;
+            z=-4-ang/10-spL/4;
+            
+            //y=(i-nb_spectrum_bands/2)*sy*1.2;
+            //z=1+spL/4;
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            glRotatef(180,0,1,0);
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            
+            glRotatef(180,0,1,0);
+            
+            
+            
+            /////////////////
+            //RIGHT
+            spR=barSpectrumDataR[i];
+            /////////////////
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+            } else {
+                cgt=0;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spR/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spR/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spR/1);
+            if (cbt>1) cbt=1;
+            
+            sz=(spR+0.1f);
+            x=0-sx/2;
+            y=4+ang/10;
+            z=-4-ang/10-spR/4;
+            
+            //y=(i-nb_spectrum_bands/2)*sy*1.2;
+            //z=1+spL/4;
+            
+            glRotatef(90,0,1,0);
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            glRotatef(180,0,1,0);
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            
+            glRotatef(180+90,0,1,0);
+            
+            if (ang<90) ang+=(90.0/(float)nb_spectrum_bands)*1.1;
+            if (ang>90) ang=90;
+            
+            
+        }
+        
+        glRotatef(180,0,0,1);
+        glTranslatef(0,14,0);
+        ang=0;
+        x=-0.5;y=0;z=0;
+        sx=sy=24.0/(float)nb_spectrum_bands;
+        trans=14+sx;
+        
+        for (int i=0; i<nb_spectrum_bands; i++) {
+            /////////////////
+            //LEFT
+            spL=barSpectrumDataL[i];
+            
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+            } else {
+                cgt=0;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spL/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spL/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spL/1);
+            if (cbt>1) cbt=1;
+            
+            crt*=0.5;cgt*=0.5;cbt*=0.5;
+            
+            sz=(spL+0.1f);
+            x=0-sx/2;
+            y=4+ang/10;
+            z=-4-ang/10-spL/4;
+            
+            //y=(i-nb_spectrum_bands/2)*sy*1.2;
+            //z=1+spL/4;
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            glRotatef(180,0,1,0);
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            
+            glRotatef(180,0,1,0);
+            
+            
+            
+            /////////////////
+            //RIGHT
+            spR=barSpectrumDataR[i];
+            /////////////////
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+            } else {
+                cgt=0;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spR/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spR/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spR/1);
+            if (cbt>1) cbt=1;
+            
+            crt*=0.5;cgt*=0.5;cbt*=0.5;
+            
+            sz=(spR+0.1f);
+            x=0-sx/2;
+            y=4+ang/10;
+            z=-4-ang/10-spR/4;
+            
+            //y=(i-nb_spectrum_bands/2)*sy*1.2;
+            //z=1+spL/4;
+            
+            glRotatef(90,0,1,0);
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            glRotatef(180,0,1,0);
+            
+            glTranslatef(0,-2,trans);
+            glRotatef(ang+270,1,0,0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(-(ang+270),1,0,0);
+            glTranslatef(0,2,-trans);
+            
+            
+            glRotatef(180+90,0,1,0);
+            
+            if (ang<90) ang+=(90.0/(float)nb_spectrum_bands)*1.1;
+            if (ang>90) ang=90;
+            
+            
+        }
+    }
+    if (mode==1) {
+		for (int i=0; i<nb_spectrum_bands; i++) {
+            /////////////////
+            //LEFT
+            spL=barSpectrumDataL[i];
+            
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+            } else {
+                cgt=0;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spL/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spL/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spL/1);
+            if (cbt>1) cbt=1;
+            
+            
+            sx=1;
+            sy=1;
+            sz=spL/2+0.1f;
+            x=0-sx/2;
+            y=(i-nb_spectrum_bands/2)*sy*1.2;
+            z=1+spL/4;
+			
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(180, 0, 1, 0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            
+            /////////////////
+            //RIGHT
+            spR=barSpectrumDataR[i];
+            
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0.1;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3)+0.1;
+            } else {
+                cgt=0.1;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spR/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spR/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spR/1);
+            if (cbt>1) cbt=1;
+            
+            
+            sx=1;
+            sy=1;
+            sz=spR/2+0.1f;
+            x=0-sx/2;
+            y=(i-nb_spectrum_bands/2)*sy*1.2;
+            z=1+spR/4;
+			
+            glRotatef(90, 0, 1, 0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            glRotatef(180, 0, 1, 0);
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            
+            glRotatef(180-90, 0, 1, 0);
+		}
+        
+        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
+                            0.7f*sin((float)frameCpt*3.14159f/1211)-
+                            0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        
+        //glRotatef(180,0,0,1);
+        glTranslatef(8,0,0);
+        
+        glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
+                            0.7f*sin((float)frameCpt*3.14159f/1211)-
+                            0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
+        
+        ang=0;
+        
+        for (int i=0; i<nb_spectrum_bands; i++) {
+            /////////////////
+            //LEFT
+            spL=barSpectrumDataL[i];
+            
+            if (i<nb_spectrum_bands*2/3) {
+                cbt=(float)(nb_spectrum_bands*2/3-i)/(nb_spectrum_bands*2/3);
+            } else {
+                cbt=0;
+            }
+            if (i>nb_spectrum_bands/3) {
+                cgt=(float)(i-nb_spectrum_bands/3)/(nb_spectrum_bands*2/3);
+            } else {
+                cgt=0;
+            }
+            crt=1-fabs(i-nb_spectrum_bands/2)/(nb_spectrum_bands/2);
+            crt*=0.5+(spL/1);
+            if (crt>1) crt=1;
+            cgt*=0.5+(spL/1);
+            if (cgt>1) cgt=1;
+            cbt*=0.5+(spL/1);
+            if (cbt>1) cbt=1;
+            
+            crt*=0.5;cgt*=0.5;cbt*=0.5;
 			
             sx=1;
             sy=1;
@@ -1310,6 +1514,8 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             if (cgt>1) cgt=1;
             cbt*=0.5+(spR/1);
             if (cbt>1) cbt=1;
+            
+            crt*=0.5;cgt*=0.5;cbt*=0.5;
 			
             sx=1;
             sy=1;
@@ -1325,9 +1531,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             glRotatef(180-90, 0, 1, 0);
 		}
- 
- 
- 
+    }
+    
+    
 	/* Disable Vertex Pointer */
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
@@ -1335,7 +1541,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     glDisable(GL_LIGHT0);
     glDisable( GL_LIGHTING );
     glDisable(GL_COLOR_MATERIAL);
-
+    
 	
     //    glDisable(GL_BLEND);
 	
@@ -2476,24 +2682,24 @@ vertices[3][1]=yf+yadj; \
 vertices[3][2]=z-key_length;  \
 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
 /*Key / Down Face*/ \
-    cr=crt*0.4;cg=cgt*0.4;cb=cbt*0.4; \
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-    vertices[0][0]=(float)(white_idx-key_leftpos+0.05f); \
-    vertices[0][1]=yn-key_height; \
-    vertices[0][2]=z; \
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-    vertices[1][0]=(float)(white_idx-key_leftpos+0.05f); \
-    vertices[1][1]=yf-key_height; \
-    vertices[1][2]=z-key_length; \
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-    vertices[2][0]=(float)(white_idx-key_leftpos+0.95f); \
-    vertices[2][1]=yn-key_height; \
-    vertices[2][2]=z; \
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-    vertices[3][0]=(float)(white_idx-key_leftpos+0.95f); \
-    vertices[3][1]=yf-key_height; \
-    vertices[3][2]=z-key_length; \
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+cr=crt*0.4;cg=cgt*0.4;cb=cbt*0.4; \
+vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
+vertices[0][0]=(float)(white_idx-key_leftpos+0.05f); \
+vertices[0][1]=yn-key_height; \
+vertices[0][2]=z; \
+vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
+vertices[1][0]=(float)(white_idx-key_leftpos+0.05f); \
+vertices[1][1]=yf-key_height; \
+vertices[1][2]=z-key_length; \
+vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
+vertices[2][0]=(float)(white_idx-key_leftpos+0.95f); \
+vertices[2][1]=yn-key_height; \
+vertices[2][2]=z; \
+vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
+vertices[3][0]=(float)(white_idx-key_leftpos+0.95f); \
+vertices[3][1]=yf-key_height; \
+vertices[3][2]=z-key_length; \
+glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
 /*Key / Front Face*/ \
 cr=crt*0.6f;cg=cgt*0.6f;cb=cbt*0.6f; \
 vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
@@ -2514,23 +2720,23 @@ vertices[3][1]=yn; \
 vertices[3][2]=z;   \
 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
 /*Key / Back Face*/ \
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-    vertices[0][0]=(float)(white_idx-key_leftpos+0.10f); \
-    vertices[0][1]=yf-key_height; \
-    vertices[0][2]=z-key_length; \
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-    vertices[1][0]=(float)(white_idx-key_leftpos+0.10f); \
-    vertices[1][1]=yf+0; \
-    vertices[1][2]=z-key_length; \
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-    vertices[2][0]=(float)(white_idx-key_leftpos+0.90f); \
-    vertices[2][1]=yf-key_height; \
-    vertices[2][2]=z-key_length; \
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-    vertices[3][0]=(float)(white_idx-key_leftpos+0.90f); \
-    vertices[3][1]=yf; \
-    vertices[3][2]=z-key_length; \
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
+vertices[0][0]=(float)(white_idx-key_leftpos+0.10f); \
+vertices[0][1]=yf-key_height; \
+vertices[0][2]=z-key_length; \
+vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
+vertices[1][0]=(float)(white_idx-key_leftpos+0.10f); \
+vertices[1][1]=yf+0; \
+vertices[1][2]=z-key_length; \
+vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
+vertices[2][0]=(float)(white_idx-key_leftpos+0.90f); \
+vertices[2][1]=yf-key_height; \
+vertices[2][2]=z-key_length; \
+vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
+vertices[3][0]=(float)(white_idx-key_leftpos+0.90f); \
+vertices[3][1]=yf; \
+vertices[3][2]=z-key_length; \
+glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
 /*Key / Right Face*/ \
 vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
 vertices[0][0]=(float)(white_idx-key_leftpos+0.90f); \
@@ -2631,23 +2837,23 @@ vertices[3][1]=yf+key_heightBL; \
 vertices[3][2]=z-key_length; \
 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
 /*BACK*/ \
-    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-    vertices[0][0]=(float)(white_idx-key_leftpos-0.3f); \
-    vertices[0][1]=yf; \
-    vertices[0][2]=z-key_length; \
-    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-    vertices[1][0]=(float)(white_idx-key_leftpos-0.15f); \
-    vertices[1][1]=yf+key_heightBL; \
-    vertices[1][2]=z-key_length; \
-    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-    vertices[2][0]=(float)(white_idx-key_leftpos+0.3f); \
-    vertices[2][1]=yf; \
-    vertices[2][2]=z-key_length; \
-    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-    vertices[3][0]=(float)(white_idx-key_leftpos+0.15f); \
-    vertices[3][1]=yf+key_heightBL; \
-    vertices[3][2]=z-key_length; \
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
+vertices[0][0]=(float)(white_idx-key_leftpos-0.3f); \
+vertices[0][1]=yf; \
+vertices[0][2]=z-key_length; \
+vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
+vertices[1][0]=(float)(white_idx-key_leftpos-0.15f); \
+vertices[1][1]=yf+key_heightBL; \
+vertices[1][2]=z-key_length; \
+vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
+vertices[2][0]=(float)(white_idx-key_leftpos+0.3f); \
+vertices[2][1]=yf; \
+vertices[2][2]=z-key_length; \
+vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
+vertices[3][0]=(float)(white_idx-key_leftpos+0.15f); \
+vertices[3][1]=yf+key_heightBL; \
+vertices[3][2]=z-key_length; \
+glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
 /*LEFT*/ \
 vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
 vertices[0][0]=(float)(white_idx-key_leftpos-0.3f); \
@@ -2812,8 +3018,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         glTranslatef(-xtrans+1*(0.9f*sin((float)piano_fxcpt*3.14159f/319)+
                                 0.5f*sin((float)piano_fxcpt*3.14159f/789)-
                                 0.7f*sin((float)piano_fxcpt*3.14159f/1061)), 0.0, ztrans-5*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
-                                             0.5f*sin((float)piano_fxcpt*3.14159f/289)-
-                                             0.7f*sin((float)piano_fxcpt*3.14159f/361)));
+                                                                                            0.5f*sin((float)piano_fxcpt*3.14159f/289)-
+                                                                                            0.7f*sin((float)piano_fxcpt*3.14159f/361)));
         glRotatef(4.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/173)+
                         0.5f*sin((float)piano_fxcpt*3.14159f/1029)+
                         0.3f*sin((float)piano_fxcpt*3.14159f/511)), 0, 1, 0);
@@ -3164,9 +3370,9 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
      printf("%d %f %f %f\n",i,piano_note_posx[i],piano_note_posy[i],piano_note_posz[i]);
      }*/
     
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
-
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+    
     vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     
     char data_prevline_drawflag[256];
@@ -3187,7 +3393,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                 cgt=((data_midifx_col[colidx]>>8)&0xFF)/255.0f;
                 cbt=(data_midifx_col[colidx]&0xFF)/255.0f;
                 
-                if (vol&&(st&VOICE_ON)) {                    
+                if (vol&&(st&VOICE_ON)) {
                     if (note>tgt_note_max) tgt_note_max=note;
                     if (note<tgt_note_min) tgt_note_min=note;
                     x=piano_note_posx[note&127];
@@ -3322,25 +3528,25 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                         if (data_pianofx_note[j-1][i]&&data_pianofx_vol[j-1][i]&&(data_pianofx_st[j-1][i]&VOICE_ON)) draw_bottom=1;
                     }
                     if (draw_bottom) {
-                            cr=crt/3;cg=cgt/3;cb=cbt/3;
-                            //bottom
-                            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-                            vertices[0][0]=x1;
-                            vertices[0][1]=y1;
-                            vertices[0][2]=z1;
-                            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-                            vertices[1][0]=x1+sx;
-                            vertices[1][1]=y1;
-                            vertices[1][2]=z1;
-                            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-                            vertices[2][0]=x1;
-                            vertices[2][1]=y1;
-                            vertices[2][2]=z1-sz;
-                            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-                            vertices[3][0]=x1+sx;
-                            vertices[3][1]=y1;
-                            vertices[3][2]=z1-sz;
-                            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                        cr=crt/3;cg=cgt/3;cb=cbt/3;
+                        //bottom
+                        vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+                        vertices[0][0]=x1;
+                        vertices[0][1]=y1;
+                        vertices[0][2]=z1;
+                        vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+                        vertices[1][0]=x1+sx;
+                        vertices[1][1]=y1;
+                        vertices[1][2]=z1;
+                        vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+                        vertices[2][0]=x1;
+                        vertices[2][1]=y1;
+                        vertices[2][2]=z1-sz;
+                        vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+                        vertices[3][0]=x1+sx;
+                        vertices[3][1]=y1;
+                        vertices[3][2]=z1-sz;
+                        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
                     }
                     
                     data_prevline_drawflag[i]=1;
@@ -3357,7 +3563,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     /* Pop The Matrix */
     glPopMatrix();
     
- //   glDisable(GL_BLEND);
+    //   glDisable(GL_BLEND);
     
 }
 
