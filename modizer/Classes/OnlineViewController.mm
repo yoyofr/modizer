@@ -227,6 +227,7 @@ extern BOOL is_ios7;
                 case 1:topLabel.text=NSLocalizedString(@"Web browser",@"");
                     bottomLabel.text=NSLocalizedString(@"Browser_Web_SubKey",@"");
                     break;
+                    break;
             }
         }
             break;
