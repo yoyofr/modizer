@@ -32,7 +32,7 @@
 	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
 	
 	ASIHTTPRequest *mASIrequest;
-
+    
 	
 	NSInputStream *networkStream;
 	NSOutputStream *fileStream;
@@ -49,7 +49,7 @@
 	NSString *mURLFilename[MAX_DOWNLOAD_QUEUE];
 	int mURLFilesize[MAX_DOWNLOAD_QUEUE];
     unsigned char mURLIsImage[MAX_DOWNLOAD_QUEUE];
-    unsigned char mCurrentURLIsImage;	
+    unsigned char mCurrentURLIsImage;
 	
 	NSString *mCurrentFilePath,*mCurrentFilename,*mCurrentFTPpath,*mCurrentURLFilename;
 	int mCurrentFileSize,mCurrentUsePrimaryAction;

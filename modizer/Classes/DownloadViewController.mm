@@ -1,4 +1,4 @@
-    //
+//
 //  DownloadViewController.m
 //  modizer4
 //
@@ -63,25 +63,25 @@ static NSFileManager *mFileMngr;
 		if (mFilePath[i]) {[mFilePath[i] release];mFilePath[i]=nil;}
 		if (mFTPpath[i])  {[mFTPpath[i] release];mFTPpath[i]=nil;}
 		if (mFTPhost[i])  {[mFTPhost[i] release];mFTPhost[i]=nil;}
-		if (mFTPFilename[i]) {[mFTPFilename[i] release];mFTPFilename[i]=nil;}				
+		if (mFTPFilename[i]) {[mFTPFilename[i] release];mFTPFilename[i]=nil;}
 	}
     mFTPDownloadQueueDepth=mGetFTPInProgress;
-        
+    
     //HTTP URL
     for (int i=mGetURLInProgress;i<mURLDownloadQueueDepth;i++) {
         if (mURL[i]) {[mURL[i] release];mURL[i]=nil;}
         if (mURLFilename[i])  {[mURLFilename[i] release];mURLFilename[i]=nil;}
         mURL[i]=nil;
-        mURLFilename[i]=nil;        
-    } 
+        mURLFilename[i]=nil;
+    }
     mURLDownloadQueueDepth=mGetURLInProgress;
-            
+    
 	barItem.badgeValue=nil;
 	
 	[downloadTabView reloadData];
 	pthread_mutex_unlock(&download_mutex);
     
-    if (mGetFTPInProgress||mGetURLInProgress) [self cancelCurrent];    
+    if (mGetFTPInProgress||mGetURLInProgress) [self cancelCurrent];
 }
 
 -(IBAction) suspend {
@@ -96,7 +96,7 @@ static NSFileManager *mFileMngr;
 		[mASIrequest cancel];
 	}
 	downloadLabelName.text=NSLocalizedString(@"No download in progress",@"");
-	downloadLabelSize.text=@"";    
+	downloadLabelSize.text=@"";
 }
 
 -(IBAction) resume {
@@ -109,19 +109,19 @@ static NSFileManager *mFileMngr;
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if ((self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
+ - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+ if ((self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {
+ // Custom initialization
+ }
+ return self;
+ }
+ */
 
 /*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
+ // Implement loadView to create a view hierarchy programmatically, without using a nib.
+ - (void)loadView {
+ }
+ */
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 }
@@ -129,8 +129,8 @@ static NSFileManager *mFileMngr;
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-	clock_t start_time,end_time;	
-	start_time=clock();	
+	clock_t start_time,end_time;
+	start_time=clock();
     
     mFileMngr=[[NSFileManager alloc] init];
     
@@ -139,7 +139,7 @@ static NSFileManager *mFileMngr;
     [btnClear setType:BButtonTypeGray];
     [btnSuspend setType:BButtonTypeGray];
     [btnResume setType:BButtonTypeGray];
-
+    
     [btnCancel setShouldShowDisabled:YES];
     [btnClear setShouldShowDisabled:YES];
 	
@@ -150,7 +150,7 @@ static NSFileManager *mFileMngr;
     mSuspended=0;
 	mConnectionIssue=0;
 	mGetURLInProgress=0;
-
+    
 	mFTPDownloadQueueDepth=0;
 	mURLDownloadQueueDepth=0;
 	mCurrentDownloadedBytes=0;
@@ -185,8 +185,8 @@ static NSFileManager *mFileMngr;
     
     
     [super viewDidLoad];
-	end_time=clock();	
-#ifdef LOAD_PROFILE	
+	end_time=clock();
+#ifdef LOAD_PROFILE
 	NSLog(@"download : %d",end_time-start_time);
 #endif
 }
@@ -255,29 +255,29 @@ static NSFileManager *mFileMngr;
 		NSError *err;
 		
 		[mFileMngr createDirectoryAtPath:[[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] stringByDeletingLastPathComponent]
-								  withIntermediateDirectories:TRUE attributes:nil error:&err];	
+             withIntermediateDirectories:TRUE attributes:nil error:&err];
 		
 		
-		[mFileMngr moveItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] 
-												toPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] error:&err];
+		[mFileMngr moveItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME]
+                           toPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] error:&err];
 		
         [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath]];
         
 		if (mIsMODLAND[0]==0) [self checkIfShouldAddFile:[NSHomeDirectory() stringByAppendingPathComponent: mCurrentFilePath] fileName:mCurrentFilename ];
 		else {  //MODLAND
 			if ([self isAllowedFile:mCurrentFilename]) {
-			if ((mCurrentUsePrimaryAction==1)&&(mIsMODLAND[0]==1)) {
-				NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-				NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-				[array_label addObject:mCurrentFilename];
-				[array_path addObject:mCurrentFilePath];
-				[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-				//[self goPlayer];
-			} else {
-				if (mIsMODLAND[0]==1) {
-					[detailViewController add_to_playlist:mCurrentFilePath fileName:mCurrentFilename forcenoplay:(mCurrentUsePrimaryAction==2)];
-				}
-			}
+                if ((mCurrentUsePrimaryAction==1)&&(mIsMODLAND[0]==1)) {
+                    NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                    NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                    [array_label addObject:mCurrentFilename];
+                    [array_path addObject:mCurrentFilePath];
+                    [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                    //[self goPlayer];
+                } else {
+                    if (mIsMODLAND[0]==1) {
+                        [detailViewController add_to_playlist:mCurrentFilePath fileName:mCurrentFilename forcenoplay:(mCurrentUsePrimaryAction==2)];
+                    }
+                }
 			}
 		}
 		//refresh view which potentially list the file as not downloaded
@@ -289,7 +289,7 @@ static NSFileManager *mFileMngr;
 		if (mConnectionIssue==0) {
 			mConnectionIssue=1;
 			UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:statusString delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
-			[alert show];			
+			[alert show];
 		}
 	}
 }
@@ -299,9 +299,9 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)_stopReceiveWithStatus:(NSString *)statusString status:(int)status{
-// Shuts down the connection and displays the result (statusString == nil) 
-// or the error status (otherwise).
-//    NSLog(@"stop, reason: %@",statusString);
+    // Shuts down the connection and displays the result (statusString == nil)
+    // or the error status (otherwise).
+    //    NSLog(@"stop, reason: %@",statusString);
     
 	NSError *err;
     if (self.networkStream != nil) {
@@ -320,29 +320,29 @@ static NSFileManager *mFileMngr;
 	
     if (status==-2) {//Suspended
     } else { //move to next entry
-	pthread_mutex_lock(&download_mutex);
-	if (mFilePath[0]) {[mFilePath[0] release];mFilePath[0]=nil;}
-	if (mFTPpath[0])  {[mFTPpath[0] release];mFTPpath[0]=nil;}
-	if (mFTPhost[0])  {[mFTPhost[0] release];mFTPhost[0]=nil;}
-	if (mFTPFilename[0]) {[mFTPFilename[0] release];mFTPFilename[0]=nil;}
-	
-	for (int i=1;i<mFTPDownloadQueueDepth;i++) {
-		mFilePath[i-1]=mFilePath[i];
-		mFTPpath[i-1]=mFTPpath[i];
-		mFTPhost[i-1]=mFTPhost[i];
-		mFTPFilename[i-1]=mFTPFilename[i];
-		mUsePrimaryAction[i-1]=mUsePrimaryAction[i];
-		mFileSize[i-1]=mFileSize[i];
-		mIsMODLAND[i-1]=mIsMODLAND[i];
-	}
-	if (mFTPDownloadQueueDepth) {
-		mFilePath[mFTPDownloadQueueDepth-1]=nil;
-		mFTPpath[mFTPDownloadQueueDepth-1]=nil;
-		mFTPhost[mFTPDownloadQueueDepth-1]=nil;
-		mFTPFilename[mFTPDownloadQueueDepth-1]=nil;
-		mFTPDownloadQueueDepth--;
-	}
-	pthread_mutex_unlock(&download_mutex);
+        pthread_mutex_lock(&download_mutex);
+        if (mFilePath[0]) {[mFilePath[0] release];mFilePath[0]=nil;}
+        if (mFTPpath[0])  {[mFTPpath[0] release];mFTPpath[0]=nil;}
+        if (mFTPhost[0])  {[mFTPhost[0] release];mFTPhost[0]=nil;}
+        if (mFTPFilename[0]) {[mFTPFilename[0] release];mFTPFilename[0]=nil;}
+        
+        for (int i=1;i<mFTPDownloadQueueDepth;i++) {
+            mFilePath[i-1]=mFilePath[i];
+            mFTPpath[i-1]=mFTPpath[i];
+            mFTPhost[i-1]=mFTPhost[i];
+            mFTPFilename[i-1]=mFTPFilename[i];
+            mUsePrimaryAction[i-1]=mUsePrimaryAction[i];
+            mFileSize[i-1]=mFileSize[i];
+            mIsMODLAND[i-1]=mIsMODLAND[i];
+        }
+        if (mFTPDownloadQueueDepth) {
+            mFilePath[mFTPDownloadQueueDepth-1]=nil;
+            mFTPpath[mFTPDownloadQueueDepth-1]=nil;
+            mFTPhost[mFTPDownloadQueueDepth-1]=nil;
+            mFTPFilename[mFTPDownloadQueueDepth-1]=nil;
+            mFTPDownloadQueueDepth--;
+        }
+        pthread_mutex_unlock(&download_mutex);
     }
 	
 	mGetFTPInProgress=0;
@@ -351,8 +351,8 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)stream:(NSStream *)aStream handleEvent:(NSStreamEvent)eventCode {
-// An NSStream delegate callback that's called when events happen on our 
-// network stream.
+    // An NSStream delegate callback that's called when events happen on our
+    // network stream.
 #pragma unused(aStream)
     assert(aStream == self.networkStream);
 	
@@ -385,7 +385,7 @@ static NSFileManager *mFileMngr;
 			mCurrentDownloadedBytes+=bytesRead;
 			
 			msg=[NSString stringWithFormat:@"Receiving : %d",bytesRead];
-            [self _updateStatus:msg];			
+            [self _updateStatus:msg];
 			
             if (bytesRead == -1) {
                 [self _stopReceiveWithStatus:@"Network read error" status:1];
@@ -440,7 +440,7 @@ static NSFileManager *mFileMngr;
 				if ([mFilePath[i] compare:filePath]==NSOrderedSame) {duplicated=1; break;}
 		}
 		if (!duplicated) {
-		
+            
 			if (isMODLAND) { //check if secondary files are required
 				//1/ TFMX => if mdat, smpl should be downloaded too
 				NSRange r;
@@ -475,8 +475,8 @@ static NSFileManager *mFileMngr;
 					char tmp_str[1024];
                     NSString *newPath,*newName;
                     
-//                    NSLog(@"FILENAME: %@",filePath);
-//                    NSLog(@"FILENAME: %@",[filePath stringByDeletingLastPathComponent]);
+                    //                    NSLog(@"FILENAME: %@",filePath);
+                    //                    NSLog(@"FILENAME: %@",[filePath stringByDeletingLastPathComponent]);
                     
                     newPath=[NSString stringWithFormat:@"%@/%@patch.003",[filePath stringByDeletingLastPathComponent],[fileName substringToIndex:3]];
 					mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:newPath];
@@ -563,7 +563,7 @@ static NSFileManager *mFileMngr;
 
 -(void)checkNextQueuedItem {
 	
-	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) {		
+	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) {
 		btnCancel.enabled=YES;
         btnClear.enabled=YES;
 		barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
@@ -646,10 +646,10 @@ static NSFileManager *mFileMngr;
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 		}
 	if (!found)
-	for (int i=0;i<[filetype_extMODPLUG count];i++) {
-		if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-		if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-	}
+        for (int i=0;i<[filetype_extMODPLUG count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+        }
     if (!found)
         for (int i=0;i<[filetype_extDUMB count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
@@ -705,7 +705,7 @@ static NSFileManager *mFileMngr;
 			if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 		}
-
+    
 	if (found) return 1;
 	return 0;
 }
@@ -716,7 +716,7 @@ static NSFileManager *mFileMngr;
 	NSString *file;
 	NSMutableArray *filePaths,*fileNames;
 	int nb_added=0;
-
+    
 	filePaths=[[NSMutableArray alloc] init];
 	fileNames=[[NSMutableArray alloc] init];
 	
@@ -739,8 +739,8 @@ static NSFileManager *mFileMngr;
 	}
 	
 	if (nb_added==0) {
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Info" 
-								message:[NSString stringWithString:NSLocalizedString(@"Could not add files. Please check manually with file browser (Local Browsing/Downloads).",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Info"
+                                                         message:[NSString stringWithString:NSLocalizedString(@"Could not add files. Please check manually with file browser (Local Browsing/Downloads).",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
 		[alert show];
 	} else {
 		switch ((int)(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value)) {
@@ -756,7 +756,7 @@ static NSFileManager *mFileMngr;
 		}
 	}
 	[filePaths autorelease];
-	[fileNames autorelease];	
+	[fileNames autorelease];
 }
 
 - (void)updateToNextURL{
@@ -780,9 +780,9 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)checkIfShouldAddFile:(NSString*)localPath fileName:(NSString*)fileName {
-        if ([self isAllowedFile:fileName]) {
-            [self addDownloadedURLtoPlayer:fileName filepath:[NSString stringWithFormat:@"Documents/Downloads/%@",fileName] forcenoplay:0];
-        }
+    if ([self isAllowedFile:fileName]) {
+        [self addDownloadedURLtoPlayer:fileName filepath:[NSString stringWithFormat:@"Documents/Downloads/%@",fileName] forcenoplay:0];
+    }
 }
 
 - (void)requestFinished:(ASIHTTPRequest *)request {
@@ -883,12 +883,12 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)startReceiveCurrentFTPEntry {
-// Starts a connection to download the current URL.
+    // Starts a connection to download the current URL.
     NSURL *             url;
     CFReadStreamRef     ftpStream;
 	UIAlertView *alert;
 	NSError *err;
-
+    
     if (mSuspended) return;
 	
 	if (self.networkStream!=nil) {
@@ -914,9 +914,9 @@ static NSFileManager *mFileMngr;
 	else downloadLabelSize.text=[NSString stringWithFormat:@"%dKB",mCurrentDownloadedBytes/1024];
 	downloadPrgView.progress=0.0f;//(float)mCurrentDownloadedBytes/(float)mFileSize;
 	// Open a CFFTPStream for the URL.
-
-	//url=[[[NSURL alloc] initWithScheme:@"ftp" host:mFTPhost[0] path:[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]] autorelease];	
-
+    
+	//url=[[[NSURL alloc] initWithScheme:@"ftp" host:mFTPhost[0] path:[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]] autorelease];
+    
 	url=[NSURL URLWithString:[NSString stringWithFormat:@"ftp://%@%@",mFTPhost[0],[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]]];
     ftpStream = CFReadStreamCreateWithFTPURL(NULL, (CFURLRef) url);
     if (ftpStream == NULL) {
@@ -938,10 +938,10 @@ static NSFileManager *mFileMngr;
     [self.networkStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.networkStream open];
 	
-	// Have to release ftpStream to balance out the create.  self.networkStream 
-	// has retained this for our persistent use.	
+	// Have to release ftpStream to balance out the create.  self.networkStream
+	// has retained this for our persistent use.
     CFRelease(ftpStream);
-    // Tell the UI we're receiving.        
+    // Tell the UI we're receiving.
 	
 	[self _receiveDidStart];
 }
@@ -1002,19 +1002,19 @@ static NSFileManager *mFileMngr;
 			mFTPDownloadQueueDepth--;
 		}
 		
-	} 
+	}
 	if (indexPath.section==1) {//URL
 		if (mGetURLInProgress) pos++;
 		if (mURL[pos]) {[mURL[pos] release];mURL[pos]=nil;}
 		if (mURLFilename[pos]) {[mURLFilename[pos] release];mURLFilename[pos]=nil;}
-	
+        
 		for (int i=pos;i<mURLDownloadQueueDepth-1;i++) {
 			mURL[i]=mURL[i+1];
 			mURLFilename[i]=mURLFilename[i+1];
 		}
 		if (mURLDownloadQueueDepth) {
 			mURL[mURLDownloadQueueDepth-1]=nil;
-			mURLFilename[mURLDownloadQueueDepth-1]=nil;		
+			mURLFilename[mURLDownloadQueueDepth-1]=nil;
 			mURLDownloadQueueDepth--;
 		}
 	}
@@ -1044,48 +1044,48 @@ static NSFileManager *mFileMngr;
         [cell setBackgroundColor:[UIColor clearColor]];
         
         /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = cell.bounds;
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        [cell setBackgroundView:[[UIView alloc] init]];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = cell.bounds;
-        float rev_col_adj=1.2f;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        [cell setSelectedBackgroundView:[[UIView alloc] init]];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
+         gradient.frame = cell.bounds;
+         gradient.colors = [NSArray arrayWithObjects:
+         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+         nil];
+         gradient.locations = [NSArray arrayWithObjects:
+         (id)[NSNumber numberWithFloat:0.00f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:1.00f],
+         nil];
+         [cell setBackgroundView:[[UIView alloc] init]];
+         [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
+         
+         CAGradientLayer *selgrad = [CAGradientLayer layer];
+         selgrad.frame = cell.bounds;
+         float rev_col_adj=1.2f;
+         selgrad.colors = [NSArray arrayWithObjects:
+         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+         nil];
+         selgrad.locations = [NSArray arrayWithObjects:
+         (id)[NSNumber numberWithFloat:0.00f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:1.00f],
+         nil];
+         
+         [cell setSelectedBackgroundView:[[UIView alloc] init]];
+         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
          */
         UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
@@ -1127,10 +1127,10 @@ static NSFileManager *mFileMngr;
         bottomLabel.opaque=TRUE;
         
 		/*lCancelButton                = [UIButton buttonWithType: UIButtonTypeCustom];
-		lCancelButton.frame = CGRectMake(tableView.bounds.size.width-2-24,2,24,24);
-		cell.accessoryView=lCancelButton;
-		[lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
-		[lCancelButton setImage:[UIImage imageNamed:@"mini_cancel.png"] forState:UIControlStateNormal];*/
+         lCancelButton.frame = CGRectMake(tableView.bounds.size.width-2-24,2,24,24);
+         cell.accessoryView=lCancelButton;
+         [lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
+         [lCancelButton setImage:[UIImage imageNamed:@"mini_cancel.png"] forState:UIControlStateNormal];*/
         lCancelButton = [[[BButton alloc] initWithFrame:CGRectMake(tableView.bounds.size.width-2-32,4,32,32) type:BButtonTypeDanger] autorelease];
         [lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
 		cell.accessoryView=lCancelButton;
@@ -1151,7 +1151,7 @@ static NSFileManager *mFileMngr;
                                    18);
     bottomLabel.text=@""; //default value
     
-
+    
 	
 	if (indexPath.section==0) { //FTP
 		if (indexPath.row>=mFTPDownloadQueueDepth) return cell;
