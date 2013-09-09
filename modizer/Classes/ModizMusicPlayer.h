@@ -206,6 +206,9 @@ extern "C" {
 -(void) optTIM_Resample:(int)val;
 
 -(void) optSIDFilter:(int)onoff;
+-(void) optSIDClock:(int)clockMode;
+-(void) optSIDModel:(int)modelMode;
+
 -(void) optSEXYPSF:(int)reverb interpol:(int)interpol;
 -(void) optAOSDK:(int)reverb interpol:(int)interpol;
 -(void) optADPLUG:(int)opltype;

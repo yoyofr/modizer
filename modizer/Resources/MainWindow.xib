@@ -647,6 +647,19 @@
                                     <action selector="showInfo" destination="11" eventType="touchUpInside" id="636"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="3H3-zP-yu3" userLabel="EQ" customClass="BButton">
+                                <rect key="frame" x="234" y="2" width="40" height="40"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <size key="titleShadowOffset" width="2" height="2"/>
+                                <state key="normal" title="EQ">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="showEQ" destination="11" eventType="touchUpInside" id="J5H-Dp-Djp"/>
+                                </connections>
+                            </button>
                             <view clipsSubviews="YES" contentMode="scaleToFill" id="388" userLabel="Vol win">
                                 <rect key="frame" x="0.0" y="416" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
@@ -814,7 +827,7 @@
                                 </connections>
                             </button>
                             <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" id="23" userLabel="Play Progress " customClass="OBSlider">
-                                <rect key="frame" x="48" y="20" width="224" height="29"/>
+                                <rect key="frame" x="48" y="20" width="180" height="29"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <connections>
@@ -1100,6 +1113,7 @@
                 <outlet property="commandViewU" destination="293" id="304"/>
                 <outlet property="cover_view" destination="1730" id="1731"/>
                 <outlet property="detailView" destination="15" id="294"/>
+                <outlet property="eqButton" destination="3H3-zP-yu3" id="sFi-jC-liL"/>
                 <outlet property="infoButton" destination="578" id="630"/>
                 <outlet property="infoMsgLbl" destination="1621" id="1624"/>
                 <outlet property="infoMsgView" destination="1620" id="1625"/>

@@ -32,6 +32,8 @@
 
 #import "GoogleAppHelper.h"
 
+#import "EQViewController.h"
+
 #import <UIKit/UIKit.h>
 #import "TapkuLibrary.h"
 
@@ -43,6 +45,7 @@ struct Resources;
 @class OGLView;
 @class EAGLContext;
 @class CADisplayLink;
+@class EQViewController;
 
 class CFont;
 class CGLString;
@@ -51,10 +54,12 @@ class CGLString;
 //	CLLocationManager *locManager;
     
     
+    //EQ
+    EQViewController *eqVC;
+    
     
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;
-   	IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
 	///////////////////////
     
     
@@ -96,7 +101,7 @@ class CGLString;
 	IBOutlet UILabel *labelModuleSize,*labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
 	IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 	IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
-    IBOutlet BButton *infoButton;
+    IBOutlet BButton *infoButton,*eqButton;
 	IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
 	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;	
     
@@ -191,6 +196,8 @@ class CGLString;
 -(void) longPressPrevSubArc:(UIGestureRecognizer *)gestureRecognizer;
 
 - (IBAction)showPlaylist;
+
+- (IBAction)showEQ;
 
 - (IBAction)showInfo;
 - (IBAction)hideInfo;

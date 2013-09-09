@@ -16,10 +16,33 @@
 extern pthread_mutex_t db_mutex;
 extern pthread_mutex_t play_mutex;
 
-int iCurrentTime,iModuleLength;
+int iModuleLength;
+double iCurrentTime;
 int mod_message_updated;
 
 #import "ModizMusicPlayer.h"
+
+//NVDSP
+#import "Novocaine.h"
+#import "NVDSP.h"
+#import "NVPeakingEQFilter.h"
+#import "NVSoundLevelMeter.h"
+#import "NVClippingDetection.h"
+NVClippingDetection *nvdsp_CDT;
+float nvdsp_sr = 44100;
+// define center frequencies of the bands
+float nvdsp_centerFrequencies[10];
+// define Q factor of the bands
+float nvdsp_QFactor = 2.0f;
+// define initial gain
+float nvdsp_initialGain = 0.0f;
+NVPeakingEQFilter *nvdsp_PEQ[EQUALIZER_NB_BANDS];
+BOOL nvdsp_EQ;
+float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
+
+#import "EQViewController.h"
+
+//
 
 //SIDPLAY
 //SID1
@@ -92,6 +115,8 @@ static SidTune *mSidTune;
 static emuEngine *mSid1EmuEngine;
 static sidTune *mSid1Tune;
 
+static int sid_forceClock;
+static int sid_forceModel;
 
 //GME
 static gme_info_t* gme_info;
@@ -996,10 +1021,55 @@ void propertyListenerCallback (void                   *inUserData,              
 		
 		mSid1Tune=NULL;
 		optSIDoptim=1;
+        
+        sid_forceModel=0;
+        sid_forceClock=0;
 		//
 		// SC68
 		sc68 = [self setupSc68];
 		//
+        
+        
+        // NVDSP
+        //
+        nvdsp_EQ=0;
+        nvdsp_sr = PLAYBACK_FREQ;
+        //clipping util
+        nvdsp_CDT = [[NVClippingDetection alloc] init];
+        
+        // define center frequencies of the bands
+        nvdsp_centerFrequencies[0] = 60.0f;
+        nvdsp_centerFrequencies[1] = 170.0f;
+        nvdsp_centerFrequencies[2] = 310.0f;
+        nvdsp_centerFrequencies[3] = 600.0f;
+        nvdsp_centerFrequencies[4] = 1000.0f;
+        nvdsp_centerFrequencies[5] = 3000.0f;
+        nvdsp_centerFrequencies[6] = 6000.0f;
+        nvdsp_centerFrequencies[7] = 12000.0f;
+        nvdsp_centerFrequencies[8] = 14000.0f;
+        nvdsp_centerFrequencies[9] = 16000.0f;
+        
+        // define Q factor of the bands
+        nvdsp_QFactor = 2.0f;
+        
+        // define initial gain
+        nvdsp_initialGain = 0.0f;
+        
+        // init PeakingFilters
+        // You'll later need to be able to set the gain for these (as the sliders change)
+        // So define them somewhere global using NVPeakingEQFilter *PEQ[10];
+        for (int i = 0; i < 10; i++) {
+            nvdsp_PEQ[i] = [[NVPeakingEQFilter alloc] initWithSamplingRate:nvdsp_sr];
+            nvdsp_PEQ[i].Q = nvdsp_QFactor;
+            nvdsp_PEQ[i].centerFrequency = nvdsp_centerFrequencies[i];
+            nvdsp_PEQ[i].G = nvdsp_initialGain;
+        }
+        
+        //restore EQ settings
+        [EQViewController restoreEQSettings];
+
+        
+        
 		[self iPhoneDrv_Init];
 		
 		[NSThread detachNewThreadSelector:@selector(generateSoundThread) toTarget:self withObject:NULL];
@@ -1194,7 +1264,7 @@ void propertyListenerCallback (void                   *inUserData,              
                 tim_voicenb_cpy[buffer_ana_play_ofs]=tim_voicenb[buffer_ana_play_ofs];
             }
 			
-			iCurrentTime+=1000*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
+			iCurrentTime+=1000.0f*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
 			
 			if (mPlayType==10) {//SC68
 				iCurrentTime=api68_seek(sc68, -1,NULL);
@@ -1268,6 +1338,30 @@ void propertyListenerCallback (void                   *inUserData,              
 		}
 	}
 	if (!skip_queue) {
+        if (nvdsp_EQ) {
+        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+            nvdsp_outData[i*2]=(float)(((short int *)mBuffer->mAudioData)[i*2])/32768.0;
+            nvdsp_outData[i*2+1]=(float)(((short int *)mBuffer->mAudioData)[i*2+1])/32768.0;
+        }
+        
+        // apply the filter
+        for (int i = 0; i < 10; i++) {
+            [nvdsp_PEQ[i] filterData:nvdsp_outData numFrames:SOUND_BUFFER_SIZE_SAMPLE numChannels:2];
+        }
+        [nvdsp_CDT counterClipping:nvdsp_outData numFrames:SOUND_BUFFER_SIZE_SAMPLE numChannels:2];
+        
+        // measure output level
+        //        outputLevelBuffer = [outPutWatcher getdBLevel:outData numFrames:numFrames numChannels:numChannels];
+        
+        
+        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+            ((short int *)mBuffer->mAudioData)[i*2]=nvdsp_outData[i*2]*32767.0;
+            ((short int *)mBuffer->mAudioData)[i*2+1]=nvdsp_outData[i*2+1]*32767.0;
+        }
+        
+        }
+        
+        
 		AudioQueueEnqueueBuffer( mAudioQueue, mBuffer, 0, NULL);
 		if (bGlobalAudioPause==2) {
 			AudioQueueStop( mAudioQueue, FALSE );
@@ -4477,14 +4571,30 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if (mSIDFilterON) cfg.emulateFilter=TRUE;
             else cfg.emulateFilter=FALSE;
 
-            ////////////////////////
-            //TO TEST
-/*            cfg.mos8580=1; // 0
-            cfg.clockSpeed=SIDTUNE_CLOCK_PAL; // SIDTUNE_CLOCK_NTSC
-            cfg.forceSongSpeed=TRUE; // FALSE
- */
-            //
-
+            switch (sid_forceClock) {
+                case 0:
+                    cfg.forceSongSpeed=FALSE;
+                    break;
+                case 1:
+                    cfg.forceSongSpeed=TRUE;
+                    cfg.clockSpeed=SIDTUNE_CLOCK_PAL;
+                    break;
+                case 2:
+                    cfg.forceSongSpeed=TRUE;
+                    cfg.clockSpeed=SIDTUNE_CLOCK_NTSC;
+                    break;
+            }
+            
+            switch (sid_forceModel) {
+                case 0:
+                    break;
+                case 1:
+                    cfg.mos8580=0;
+                    break;
+                case 2:
+                    cfg.mos8580=1;
+                    break;
+            }
             
 			mSid1EmuEngine->setConfig(cfg);
 			
@@ -4557,10 +4667,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 				iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
 				if (iModuleLength<=0) iModuleLength=SID_DEFAULT_LENGTH;
 				
-				if (sidtune_info.sidModel==SIDTUNE_SIDMODEL_6581) {
+				if ((sidtune_info.sidModel==SIDTUNE_SIDMODEL_6581)&&(sid_forceModel==0)) {
+                    mSid1EmuEngine->getConfig(cfg);
+                    cfg.mos8580=0;
+                    mSid1EmuEngine->setConfig(cfg);
 				}
 				
-				if (sidtune_info.sidModel == SIDTUNE_SIDMODEL_8580){
+				if ((sidtune_info.sidModel == SIDTUNE_SIDMODEL_8580)&&(sid_forceModel==0)){
+                    mSid1EmuEngine->getConfig(cfg);
+                    cfg.mos8580=0;
+                    mSid1EmuEngine->setConfig(cfg);
 				} else {
 					//mFilterSettings.distortion_enable = true;
 					//mBuilder->filter(&mFilterSettings);
@@ -4602,35 +4718,33 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			cfg.playback = sid2_stereo;
 			cfg.sidSamples	  = true;
             
+            switch (sid_forceClock) {
+                case 0:
+                    cfg.clockForced=FALSE;
+                    break;
+                case 1:
+                    cfg.clockForced=TRUE;
+                    cfg.clockSpeed=SID2_CLOCK_PAL;
+                    break;
+                case 2:
+                    cfg.clockForced=TRUE;
+                    cfg.clockSpeed=SID2_CLOCK_NTSC;
+                    break;
+            }
             
-            //TO TEST
-            /*struct sid2_config_t
-             {
-             sid2_clock_t        clockDefault;  // Intended tune speed when unknown
-             bool                clockForced;
-             sid2_clock_t        clockSpeed;    // User requested emulation speed
-             sid2_env_t          environment;
-             bool                forceDualSids;
-             sid2_model_t        sidDefault;    // Intended sid model when unknown
-             sidbuilder         *sidEmulation;
-             sid2_model_t        sidModel;      // User requested sid model
-             bool                sidSamples;
-             uint_least32_t      leftVolume;
-             uint_least32_t      rightVolume;
-             uint_least32_t      sid2crcCount;  // Max sid writes to form crc
-             sampling_method_t   samplingMethod;
-             bool                fastSampling;  // Faster low-quality emulation
-             };
-             m_cfg.samplingMethod  = SID2_INTERPOLATE;//SID2_RESAMPLE_INTERPOLATE;
-             m_cfg.fastSampling    = 1;//false;
-
-*/
+            switch (sid_forceModel) {
+                case 0:
+                    cfg.sidModel=SID2_MODEL_CORRECT;
+                    break;
+                case 1:
+                    cfg.sidModel=SID2_MOS6581;
+                    break;
+                case 2:
+                    cfg.sidModel=SID2_MOS8580;
+                    break;
+            }
             
-            
-            
-            
-            
-			// setup resid
+          	// setup resid
             if (mBuilder) mBuilder->create(mSidEmuEngine->info().maxsids);
 			if (mSIDFilterON) mBuilder->filter(true);
             else mBuilder->filter(false);
@@ -5874,6 +5988,14 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 ///////////////////////////
 -(void) optSIDFilter:(int)onoff {
     mSIDFilterON=onoff;
+}
+
+-(void) optSIDClock:(int)clockMode {
+    sid_forceClock=clockMode;
+}
+
+-(void) optSIDModel:(int)modelMode {
+    sid_forceModel=modelMode;
 }
 
 ///////////////////////////

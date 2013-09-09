@@ -670,7 +670,6 @@ static UIAlertView *alertChooseName;
 }
 
 - (void)webViewDidStartLoad:(UIWebView*)webV {
-    NSLog(@"called");
 //	[activityIndicator startAnimating];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     

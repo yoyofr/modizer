@@ -136,6 +136,8 @@ enum MDZ_SETTINGS {
         SID_Optim,
         SID_LibVersion,
         SID_Filter,
+        SID_CLOCK,
+        SID_MODEL,
     
         MDZ_SETTINGS_FAMILY_GME,
         GME_FADEOUT,
