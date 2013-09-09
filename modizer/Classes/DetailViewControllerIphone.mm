@@ -7,6 +7,7 @@
 //
 
 extern BOOL is_ios7;
+extern BOOL nvdsp_EQ;
 
 #import <mach/mach.h>
 #import <mach/mach_host.h>
@@ -45,6 +46,8 @@ static float *fft_frequency,*fft_time,*fft_frequencyAvg,*fft_freqAvgCount;
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
 #import <MediaPlayer/MediaPlayer.h>
+
+#import "EQViewController.h"
 
 #import "modplug.h"
 #import "gme.h"
@@ -435,6 +438,8 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_SID)) {
         [mplayer optSIDFilter:settings[SID_Filter].detail.mdz_boolswitch.switch_value];
+        [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
+        [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];
         mplayer.optSIDoptim=(int)(settings[SID_Optim].detail.mdz_switch.switch_value);
         mplayer.mAskedSidEngineType =(int)(settings[SID_LibVersion].detail.mdz_switch.switch_value)+1;
     }
@@ -955,6 +960,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         
     }
     
+}
+
+- (IBAction)showEQ {
+    eqVC = [[EQViewController alloc]  initWithNibName:@"EQViewController" bundle:[NSBundle mainBundle]];
+    //set new title
+    eqVC.title = @"Equalizer";
+    eqVC.detailViewController=self;
+    
+    // And push the window
+    [self.navigationController pushViewController:eqVC animated:YES];
 }
 
 
@@ -2011,6 +2026,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	orientationHV=interfaceOrientation;
+    
+    if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+    
 	if ((interfaceOrientation==UIInterfaceOrientationPortrait)||(interfaceOrientation==UIInterfaceOrientationPortraitUpsideDown)) {
         waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
         
@@ -2059,6 +2077,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             cover_view.frame = CGRectMake(0, 80-80, mDevice_ww, mDevice_hh-230+80);
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 80-80, mDevice_ww, mDevice_hh-230+80);
 			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
+            
+            volWin.hidden=NO;
 			volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
 			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
                                           volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
@@ -2092,13 +2112,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			mainRating4off.frame = CGRectMake(130+24*3,3+48,24,24);
 			mainRating5off.frame = CGRectMake(130+24*4,3+48,24,24);
 			
-			infoButton.frame = CGRectMake(mDevice_ww-44,4,40,40);
+			infoButton.frame = CGRectMake(mDevice_ww-40,4,36,36);
+            eqButton.frame = CGRectMake(mDevice_ww-40-40,4,36,36);
 			
-			playlistPos.frame = CGRectMake(mDevice_ww/2-90,0,180,20);
+			playlistPos.frame = CGRectMake(mDevice_ww/2-90-20,0,180,20);
 			labelModuleLength.frame=CGRectMake(2,0,45,20);
 			labelTime.frame=CGRectMake(2,24,45,20);
             btnChangeTime.frame=CGRectMake(2,24,45,20);
-			sliderProgressModule.frame = CGRectMake(48,23-(is_ios7?6:0),mDevice_ww-48*2,23);
+			sliderProgressModule.frame = CGRectMake(48,23-(is_ios7?6:0),mDevice_ww-48-40-40-4,23);
 		}
 	} else{
         waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
@@ -2250,9 +2271,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30+82);
                 oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
-                volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
-                volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
-                                              volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
+                //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
+                volWin.hidden=YES;
+                
+                //volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
+               //                               volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
                 //                volumeView.frame = CGRectMake(10, 0, mDevice_hh-375-10, 44);
                 //              volumeView.center = CGPointMake((mDevice_hh-375)/2,32);
                 //            [volumeView sizeToFit];
@@ -2261,8 +2284,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (infoIsFullscreen) infoView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 else infoView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
-                int xofs=mDevice_hh-72-40-31-20-4;
-                int yofs=8;
+                int xofs=mDevice_hh-(24*5+4+32+4+32+8);
+                int yofs=10;
                 //commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
                 commandViewU.frame = CGRectMake(0, 0, mDevice_hh, 32+44+8);
                 
@@ -2273,23 +2296,25 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 				buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
 				btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
                 
-                mainRating1.frame = CGRectMake(xofs+6,yofs+36,24,24);
-                mainRating2.frame = CGRectMake(xofs+6+24,yofs+36,24,24);
-                mainRating3.frame = CGRectMake(xofs+6+24*2,yofs+36,24,24);
-                mainRating4.frame = CGRectMake(xofs+6+24*3,yofs+36,24,24);
-                mainRating5.frame = CGRectMake(xofs+6+24*4,yofs+36,24,24);
-                mainRating1off.frame = CGRectMake(xofs+6,yofs+36,24,24);
-                mainRating2off.frame = CGRectMake(xofs+6+24,yofs+36,24,24);
-                mainRating3off.frame = CGRectMake(xofs+6+24*2,yofs+36,24,24);
-                mainRating4off.frame = CGRectMake(xofs+6+24*3,yofs+36,24,24);
-                mainRating5off.frame = CGRectMake(xofs+6+24*4,yofs+36,24,24);
+                mainRating1.frame = CGRectMake(xofs+6,yofs+42,24,24);
+                mainRating2.frame = CGRectMake(xofs+6+24,yofs+42,24,24);
+                mainRating3.frame = CGRectMake(xofs+6+24*2,yofs+42,24,24);
+                mainRating4.frame = CGRectMake(xofs+6+24*3,yofs+42,24,24);
+                mainRating5.frame = CGRectMake(xofs+6+24*4,yofs+42,24,24);
+                mainRating1off.frame = CGRectMake(xofs+6,yofs+42,24,24);
+                mainRating2off.frame = CGRectMake(xofs+6+24,yofs+42,24,24);
+                mainRating3off.frame = CGRectMake(xofs+6+24*2,yofs+42,24,24);
+                mainRating4off.frame = CGRectMake(xofs+6+24*3,yofs+42,24,24);
+                mainRating5off.frame = CGRectMake(xofs+6+24*4,yofs+42,24,24);
                 
                 
-                btnShowSubSong.frame = CGRectMake(xofs+124+7,yofs+0,32,32);
-                btnShowArcList.frame = CGRectMake(xofs+124+7,yofs+32,32,32);
+                btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
+                btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+32+4,yofs+40,32,32);
                 
                 
-                infoButton.frame = CGRectMake(mDevice_hh-200-10,1,38,38);
+                //infoButton.frame = CGRectMake(mDevice_hh-200-10,1,38,38);
+                infoButton.frame = CGRectMake(mDevice_hh-44,4,40,40);
+                eqButton.frame = CGRectMake(mDevice_hh-44-44,4,40,40);
                 
                 playlistPos.frame = CGRectMake((mDevice_hh-200)/2-90,0,180,20);
                 
@@ -2320,10 +2345,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42), mDevice_ww, 44);
 		pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42), mDevice_ww, 44);
 	} else {
-		playBar.frame = CGRectMake(0, 40, 200, 44); //mDevice_hh-(playBar.hidden?0:375)
-		pauseBar.frame = CGRectMake(0, 40, 200, 44);
-		playBarSub.frame =  CGRectMake(0, 40, 200, 44);
-		pauseBarSub.frame =  CGRectMake(0, 40, 200, 44);
+        int xofs=24*5+32*2+10;
+		playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
+		pauseBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44);
+		playBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
+		pauseBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
 	}
 }
 
@@ -3105,6 +3131,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     [super viewDidLoad];
     
+    //EQ
+    eqVC=nil;
+    
     
     shouldRestart=1;
     m_displayLink=nil;
@@ -3536,6 +3565,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [infoButton setType:BButtonTypeInverse];
     [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
     
+    [eqButton setType:BButtonTypeInverse];
+    [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+//    [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
+    
 	
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -3767,6 +3800,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 - (void)viewWillAppear:(BOOL)animated {
     alertCannotPlay_displayed=0;
+    
+    //eq
+    eqVC=nil;
+    [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
+    [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
     
 	if (mPlaylist_size) {
 		//DBHelper::getFilesStatsDBmod(mPlaylist,mPlaylist_size);

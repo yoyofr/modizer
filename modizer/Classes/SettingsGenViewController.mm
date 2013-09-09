@@ -321,6 +321,8 @@ void optUADEChangedC(id param) {
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
     settings[SID_Optim].detail.mdz_switch.switch_value=1;
     settings[SID_LibVersion].detail.mdz_switch.switch_value=1;
+    settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
+    settings[SID_MODEL].detail.mdz_switch.switch_value=0;
     
     /////////////////////////////////////
     //UADE
@@ -1096,6 +1098,31 @@ void optUADEChangedC(id param) {
     settings[SID_LibVersion].detail.mdz_switch.switch_labels[0]=(char*)"SIDPLAY1";
     settings[SID_LibVersion].detail.mdz_switch.switch_labels[1]=(char*)"SIDPLAY2";
     
+    settings[SID_CLOCK].type=MDZ_SWITCH;
+    settings[SID_CLOCK].label=(char*)"CLOCK";
+    settings[SID_CLOCK].description=NULL;
+    settings[SID_CLOCK].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_CLOCK].sub_family=0;
+    settings[SID_CLOCK].callback=&optSIDChangedC;
+    settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
+    settings[SID_CLOCK].detail.mdz_switch.switch_value_nb=3;
+    settings[SID_CLOCK].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_CLOCK].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_CLOCK].detail.mdz_switch.switch_labels[0]=(char*)"Auto";
+    settings[SID_CLOCK].detail.mdz_switch.switch_labels[1]=(char*)"PAL";
+    settings[SID_CLOCK].detail.mdz_switch.switch_labels[2]=(char*)"NTSC";
+    
+    settings[SID_MODEL].type=MDZ_SWITCH;
+    settings[SID_MODEL].label=(char*)"Model";
+    settings[SID_MODEL].description=NULL;
+    settings[SID_MODEL].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_MODEL].sub_family=0;
+    settings[SID_MODEL].callback=&optSIDChangedC;
+    settings[SID_MODEL].detail.mdz_switch.switch_value=0;
+    settings[SID_MODEL].detail.mdz_switch.switch_value_nb=3;
+    settings[SID_MODEL].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_MODEL].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_MODEL].detail.mdz_switch.switch_labels[0]=(char*)"Auto";
+    settings[SID_MODEL].detail.mdz_switch.switch_labels[1]=(char*)"6581";
+    settings[SID_MODEL].detail.mdz_switch.switch_labels[2]=(char*)"8580";
     
     
     /////////////////////////////////////

@@ -12,7 +12,7 @@ extern BOOL is_retina;
 #include "RenderUtils.h"
 #include "TextureUtils.h"
 
-#define MAX_VISIBLE_CHAN 32
+#define MAX_VISIBLE_CHAN 64
 
 namespace
 {
