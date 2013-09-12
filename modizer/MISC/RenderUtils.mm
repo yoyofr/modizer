@@ -649,6 +649,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
 	switch (display_note_mode){
 		case 0:col_size=12*6;col_ofs=25;break;
 		case 1:col_size=6*6;col_ofs=27;break;
+        case 2:col_size=4*6;col_ofs=27;break;
 	}
 	
 	

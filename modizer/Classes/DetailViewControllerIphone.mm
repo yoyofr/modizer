@@ -367,8 +367,15 @@ static float movePinchScale,movePinchScaleOld;
             settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
             settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
         }
-        int size_chan=12*6;
-        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
+        int size_chan;
+        switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+            case 1:size_chan=12*6;
+                break;
+            case 2:size_chan=6*6;
+                break;
+            case 3:size_chan=4*6;
+                break;
+        }
         visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
         if (startChan<0) startChan=0;
@@ -2327,8 +2334,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
 	}
 	[self updateBarPos];
-	int size_chan=12*6;
-	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
+	int size_chan;
+	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+        case 1:size_chan=12*6;
+            break;
+        case 2:size_chan=6*6;
+            break;
+        case 3:size_chan=4*6;
+            break;
+    }
 	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
@@ -3633,25 +3647,26 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[14]=0;
     txtSubMenuHandle[15]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
     txtSubMenuHandle[16]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b.png"]);
+    txtSubMenuHandle[17]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b.png"]);//TODO: create 7c
     
     
-    txtSubMenuHandle[17]=0;
-    txtSubMenuHandle[18]=txtMenuHandle[7];
-    txtSubMenuHandle[19]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b.png"]);
+    txtSubMenuHandle[18]=0;
+    txtSubMenuHandle[19]=txtMenuHandle[7];
+    txtSubMenuHandle[20]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b.png"]);
     
-	txtSubMenuHandle[20]=0;
-    txtSubMenuHandle[21]=txtMenuHandle[9];
-    txtSubMenuHandle[22]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b.png"]);
+	txtSubMenuHandle[21]=0;
+    txtSubMenuHandle[22]=txtMenuHandle[9];
+    txtSubMenuHandle[23]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b.png"]);
     
-    txtSubMenuHandle[23]=0;
-    txtSubMenuHandle[24]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a.png"]);
-    txtSubMenuHandle[25]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b.png"]);
-    txtSubMenuHandle[26]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c.png"]);
-    txtSubMenuHandle[27]=txtMenuHandle[10];
+    txtSubMenuHandle[24]=0;
+    txtSubMenuHandle[25]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a.png"]);
+    txtSubMenuHandle[26]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b.png"]);
+    txtSubMenuHandle[27]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c.png"]);
+    txtSubMenuHandle[28]=txtMenuHandle[10];
     
-	txtSubMenuHandle[28]=0;
-    txtSubMenuHandle[29]=txtMenuHandle[11];
-    txtSubMenuHandle[30]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b.png"]);
+	txtSubMenuHandle[29]=0;
+    txtSubMenuHandle[30]=txtMenuHandle[11];
+    txtSubMenuHandle[31]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b.png"]);
     
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -3707,8 +3722,15 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
 	
 	
-	int size_chan=12*6;
-	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
+	int size_chan;
+	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+        case 1:size_chan=12*6;
+            break;
+        case 2:size_chan=6*6;
+            break;
+        case 3:size_chan=4*6;
+            break;
+    }
 	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
 	mMoveStartChanLeft=mMoveStartChanRight=0;
 	
@@ -3980,7 +4002,7 @@ static int mOglView2Taps=0;
 	int i,j,k,l,note_avail,idx,startRow;
 	int linestodraw,midline;
 	ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
-	int size_chan=12*6;
+	int size_chan;
     int shouldhide=0;
     int playerpos=[mplayer getCurrentPlayedBufferIdx];
     static float piano_posx=0;
@@ -3989,7 +4011,15 @@ static int mOglView2Taps=0;
     static float piano_rotx=0;
     static float piano_roty=0;
     float fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
-	if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) size_chan=6*6;
+    
+	switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
+        case 1:size_chan=12*6;
+            break;
+        case 2:size_chan=6*6;
+            break;
+        case 3:size_chan=4*6;
+            break;
+    }
     
     framecpt++;
     
@@ -4153,11 +4183,11 @@ static int mOglView2Taps=0;
 				viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=14;
-                viewTapHelpShow_SubNb=3;
+                viewTapHelpShow_SubNb=4;
 			} else if (touched_coord==0x31) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=17;
+                viewTapHelpShow_SubStart=18;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x02) {
 				int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
@@ -4170,17 +4200,17 @@ static int mOglView2Taps=0;
 			} else if (touched_coord==0x12) {
 				viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=20;
+                viewTapHelpShow_SubStart=21;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x22) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=23;
+                viewTapHelpShow_SubStart=24;
                 viewTapHelpShow_SubNb=5;
 			} else if (touched_coord==0x32) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=28;
+                viewTapHelpShow_SubStart=29;
                 viewTapHelpShow_SubNb=3;
 			} else if (touched_coord==0x03) {
                 shouldhide=1;
@@ -4225,17 +4255,17 @@ static int mOglView2Taps=0;
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
                         movePxMOD=movePyMOD=0;
                         break;
-                    case 17: //MIDI Pattern
+                    case 18: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                         movePxMID=movePyMID=0;
                         break;
-                    case 20: //3D Sphere/Torus
+                    case 21: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 23: //Piano
+                    case 24: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                         break;
-                    case 28: //Spectrum3D
+                    case 29: //Spectrum3D
                         settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                         break;
                 }
@@ -4267,20 +4297,20 @@ static int mOglView2Taps=0;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
-                    case 17: //MIDI Pattern
+                    case 18: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
                         movePxMID=movePyMID=0;
                         break;
-                    case 20: //3D Sphere/Torus
+                    case 21: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=1;
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         break;
-                    case 23: //Piano
+                    case 24: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
                         break;
-                    case 28: //Spectrum3D
+                    case 29: //Spectrum3D
                         settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
                         break;
                 }
@@ -4312,20 +4342,20 @@ static int mOglView2Taps=0;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
-                    case 17: //MIDI Pattern
+                    case 18: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
                         movePxMID=movePyMID=0;
                         break;
-                    case 20: //3D Sphere/Torus
+                    case 21: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=2;
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         break;
-                    case 23: //Piano
+                    case 24: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
                         break;
-                    case 28: //Spectrum3D
+                    case 29: //Spectrum3D
                         settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
                         break;
                 }
@@ -4343,13 +4373,22 @@ static int mOglView2Taps=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 23: //Piano
+                    case 14: //MOD Pattern
+                        settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
+                        size_chan=4*6;
+                        movePxMOD=movePyMOD=0;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+                        if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
+                        if (startChan<0) startChan=0;
+                        break;
+                        
+                    case 24: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
                         break;
                 }
             } else if (touched_coord==0x01) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 23: //Piano
+                    case 24: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
                         break;
                 }
@@ -4658,7 +4697,7 @@ static int mOglView2Taps=0;
                             if (note_avail) {
                                 k=0;
                                 switch (display_note_mode) {
-                                    case 0:
+                                    case 0: //all infos
                                         for (j=0;j<endChan-startChan;j++)  {
                                             cnote=currentNotes[idx].Note;
                                             cinst=currentNotes[idx].Instrument;
@@ -4699,7 +4738,7 @@ static int mOglView2Taps=0;
                                             idx++;
                                         }
                                         break;
-                                    case 1:
+                                    case 1: //note + instru
                                         for (j=0;j<endChan-startChan;j++)  {
                                             cnote=currentNotes[idx].Note;
                                             cinst=currentNotes[idx].Instrument;
@@ -4715,6 +4754,20 @@ static int mOglView2Taps=0;
                                                 str_data[k++]=dec2hex[cinst&0xF];
                                             } else {
                                                 str_data[k++]='.';str_data[k++]='.';
+                                            }
+                                            str_data[k++]=' ';
+                                            idx++;
+                                        }
+                                        break;
+                                    case 2: //only note
+                                        for (j=0;j<endChan-startChan;j++)  {
+                                            cnote=currentNotes[idx].Note;
+                                            if (cnote) {
+                                                str_data[k++]=note2charA[(cnote-13)%12];
+                                                str_data[k++]=note2charB[(cnote-13)%12];
+                                                str_data[k++]=(cnote-13)/12+'0';
+                                            } else {
+                                                str_data[k++]='.';str_data[k++]='.';str_data[k++]='.';
                                             }
                                             str_data[k++]=' ';
                                             idx++;
@@ -4736,8 +4789,8 @@ static int mOglView2Taps=0;
                                 glPushMatrix();
                                 glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
                                 
-                                if ((i<0)||(i>=numRows)) mText[l]->Render(4+display_note_mode*2);
-                                else mText[l]->Render(3+display_note_mode*2);
+                                if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
+                                else mText[l]->Render(3+display_note_mode);
                                 glPopMatrix();
                             }
                             if ((i<0)&&prevNotes) {
@@ -4762,6 +4815,7 @@ static int mOglView2Taps=0;
                     //draw header + fps
                     memset(str_data,32,171);   //max 171 chars => 1026pix (6pix/char)
                     str_data[12*16]=0;
+                    float xofs=0;
                     switch (display_note_mode) {
                         case 0:
                             for (j=startChan;j<endChan;j++) {
@@ -4769,6 +4823,7 @@ static int mOglView2Taps=0;
                                 str_data[(j-startChan)*12+8]='0'+(j+1)%10;
                             }
                             str_data[(endChan-1-startChan)*12+9]=0;
+                            xofs=5.0f;
                             break;
                         case 1:
                             for (j=startChan;j<endChan;j++) {
@@ -4776,11 +4831,20 @@ static int mOglView2Taps=0;
                                 str_data[(j-startChan)*6+6]='0'+(j+1)%10;
                             }
                             str_data[(endChan-1-startChan)*6+7]=0;
+                            xofs=5.0f;
                             break;
-                    }                    
+                        case 2:
+                            for (j=startChan;j<endChan;j++) {
+                                str_data[(j-startChan)*4+4]='0'+(j+1)/10;
+                                str_data[(j-startChan)*4+5]='0'+(j+1)%10;
+                            }
+                            str_data[(endChan-1-startChan)*4+6]=0;
+                            xofs=8.0f;
+                            break;
+                    }
                     mHeader= new CGLString(str_data, mFont,mScaleFactor);
                     glPushMatrix();
-                    glTranslatef(5.0f+((int)(movePxMOD)%size_chan), hh-12, 0.0f);
+                    glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-12, 0.0f);
                     //glScalef(1.58f, 1.58f, 1.58f);
                     mHeader->Render(0);
                     glPopMatrix();                    
@@ -4918,16 +4982,16 @@ static int mOglView2Taps=0;
                 case 14: //MOD Pattern
                     active_idx=1<<settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value;
                     break;
-                case 17: //MIDI Pattern
+                case 18: //MIDI Pattern
                     active_idx=1<<settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value;
                     break;
-                case 20: //3D Sphere/Torus
+                case 21: //3D Sphere/Torus
                     active_idx=1<<settings[GLOB_FX5].detail.mdz_switch.switch_value;
                     break;
-                case 23: //Piano
+                case 24: //Piano
                     active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
                     break;
-                case 28:
+                case 29:
                     active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;
                     break;
             }
