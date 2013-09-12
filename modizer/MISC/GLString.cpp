@@ -186,7 +186,7 @@ void CGLString::BuildString(int msg_type)
 	int indIndex = 0;
 	for (int i = 0; i < mNumberOfQuads; ++i)
 	{
-		if (msg_type==3) {
+		if (msg_type==3+0) {
 			switch (i%10) {
 				//note
 				case 0:
@@ -204,7 +204,7 @@ void CGLString::BuildString(int msg_type)
 				case 8:
 				case 9:valr=0xFF;valg=0xE0;valb=0x80;break;
 			}
-		} else if (msg_type==4) {
+		} else if (msg_type==10+0) {
 			switch (i%10) {
 					//note
 				case 0:
@@ -222,7 +222,7 @@ void CGLString::BuildString(int msg_type)
 				case 8:
 				case 9:valr=0xFF/3;valg=0xE0/3;valb=0x80/3;break;
 			}
-		} else if (msg_type==3+2) {
+		} else if (msg_type==3+1) {
 			switch (i%5) {
 					//note
 				case 0:
@@ -232,7 +232,7 @@ void CGLString::BuildString(int msg_type)
 				case 3:
 				case 4:valr=0x80;valg=0xE0;valb=0xFF;break;
 			}
-		} else if (msg_type==4+2) {
+		} else if (msg_type==10+1) {
 			switch (i%5) {
 					//note
 				case 0:
@@ -241,6 +241,20 @@ void CGLString::BuildString(int msg_type)
 					//instr
 				case 3:
 				case 4:valr=0x80/3;valg=0xE0/3;valb=0xFF/3;break;
+			}
+		} else if (msg_type==3+2) {
+			switch (i%3) {
+					//note
+				case 0:
+				case 1:
+				case 2:valr=0xFF;valg=0xFF;valb=0xFF;break;
+			}
+		} else if (msg_type==10+2) {
+			switch (i%3) {
+					//note
+				case 0:
+				case 1:
+				case 2:valr=0xFF/3;valg=0xFF/3;valb=0xFF/3;break;
 			}
 		}
 		mColors[i*4 + 0].r=mColors[i*4 + 1].r=mColors[i*4 + 2].r=mColors[i*4 + 3].r=valr;

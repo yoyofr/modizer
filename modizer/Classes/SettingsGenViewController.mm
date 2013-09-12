@@ -639,11 +639,12 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern].sub_family=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[3]=(char*)"3";
     
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIPattern].label=(char*)"Note display";
@@ -1749,39 +1750,6 @@ void optUADEChangedC(id param) {
 }
 
 #pragma mark - FTP and usefull methods
-- (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
-{
-    //    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    //  NSString *documentsDirectory = [paths objectAtIndex:0];
-    const char* filePath = [path fileSystemRepresentation];
-    
-    const char* attrName = "com.apple.MobileBackup";
-    u_int8_t attrValue = 1;
-    
-    int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
-    return result == 0;
-}
--(void) updateFilesDoNotBackupAttributes {
-    NSError *error;
-    NSArray *dirContent;
-    int result;
-    //BOOL isDir;
-    NSFileManager *mFileMngr = [[NSFileManager alloc] init];
-    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"];
-    NSString *file;
-    const char* attrName = "com.apple.MobileBackup";
-    u_int8_t attrValue = 1;
-    
-    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
-    for (file in dirContent) {
-        //NSLog(@"%@",file);
-        //        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
-        result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
-        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
-    }
-    [mFileMngr release];
-}
-
 
 - (NSString *)getIPAddress {
 	NSString *address = @"error";

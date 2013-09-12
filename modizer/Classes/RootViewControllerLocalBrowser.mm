@@ -115,11 +115,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	
 	if (mUpdateToNewDB) {
 		[fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
-        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
+//        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
 	}
 	
 	[fileManager copyItemAtPath:defaultDBPath toPath:pathToDB error:&error];
-    [self addSkipBackupAttributeToItemAtPath:pathToDB];
+//    [self addSkipBackupAttributeToItemAtPath:pathToDB];
 	
 	
 	if (mUpdateToNewDB) {
