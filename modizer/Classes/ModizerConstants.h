@@ -18,8 +18,8 @@
 #define DEFAULT_WAIT_TIME_MS  0.001   //in s
 #define DEFAULT_WAIT_TIME_UADE_MS  0.001   //in s
 
-#define STATISTICS_URL @"http://localhost:8081"
-//#define STATISTICS_URL @"https://modizerdb.appspot.com"
+//#define STATISTICS_URL @"http://localhost:8081"
+#define STATISTICS_URL @"https://modizerdb.appspot.com"
 #define USERGUIDE_URL @"UserGuide"
 #define WORLDCHARTS_DEFAULTLIST @"ListALL"
 
@@ -36,8 +36,8 @@
 #define PLAYBACK_FREQ 44100
 
 #define SOUND_BUFFER_SIZE_SAMPLE PLAYBACK_FREQ/30
-#define SOUND_BUFFER_NB 48 
-#define MIDIFX_OFS 19
+#define SOUND_BUFFER_NB 64
+#define MIDIFX_OFS 32
 
 #define SPECTRUM_DECREASE_RATE 0.8f
 #define SPECTRUM_BANDS 64
@@ -62,10 +62,10 @@
 
 #define MAX_STIL_DATA_LENGTH 4400
 
-#define VERSION_MAJOR 1
-#define VERSION_MAJOR_STR "1"
-#define VERSION_MINOR 7
-#define VERSION_MINOR_STR "7"
+#define VERSION_MAJOR 2
+#define VERSION_MAJOR_STR "2"
+#define VERSION_MINOR 0
+#define VERSION_MINOR_STR "0"
 
 
 #define MAX_PL_ENTRIES 4096

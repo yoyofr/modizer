@@ -1718,7 +1718,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 
 
--(void) refreshMODLANDView {
+-(void) refreshViewAfterDownload {
 }
 
 -(void) viewWillAppear:(BOOL)animated {

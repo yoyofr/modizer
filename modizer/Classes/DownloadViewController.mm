@@ -284,7 +284,8 @@ static NSFileManager *mFileMngr;
 		[onlineVC refreshViewAfterDownload];
 		[searchViewController refreshViewAfterDownload];
         [moreVC refreshViewAfterDownload];
-		
+		[rootViewController refreshViewAfterDownload];
+        //TODO: playlist
     } else if (mFTPAskCancel==0) {
 		if (mConnectionIssue==0) {
 			mConnectionIssue=1;

@@ -212,6 +212,7 @@ static UIAlertView *alertChooseName;
 - (void)loadWorldCharts {
     if ((currentMode==WCHARTS_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
+        if (lastURL) [lastURL release];
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];        
     }
@@ -227,6 +228,7 @@ static UIAlertView *alertChooseName;
 - (void)loadUserGuide {
 	if ((currentMode==GUIDE_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
+        if (lastURL) [lastURL release];
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];
     }
@@ -255,7 +257,7 @@ static UIAlertView *alertChooseName;
 	
 	if (lastURL) {
         addressTestField.text=[NSString stringWithString:lastURL];
-        [lastURL autorelease];
+        //[lastURL autorelease];
     } else {[self loadHome];loadStatus=LOADED;}
 //	if ([addressTestField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
 //	else {
@@ -745,7 +747,8 @@ static UIAlertView *alertChooseName;
 					addressTestField.text=[NSString stringWithFormat:@"http://%@",addressTestField.text];
 				}
 			}
-            lastURL=[NSString stringWithString:addressTestField.text];
+            if (lastURL) [lastURL release];
+            lastURL=[[NSString alloc] initWithString:addressTestField.text];
 			[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
 		}
     }
@@ -798,7 +801,7 @@ static UIAlertView *alertChooseName;
 	clock_t start_time,end_time;	
 	start_time=clock();
     
-    
+    lastURL=nil;
     
     bookmarksVC=nil;
     

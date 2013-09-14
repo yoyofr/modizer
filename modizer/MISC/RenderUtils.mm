@@ -2518,7 +2518,7 @@ void RenderUtils::DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectr
     glPopMatrix();
 }
 
-#define MIDIFX_LEN 64
+#define MIDIFX_LEN 128
 int data_midifx_len=MIDIFX_LEN;
 unsigned char data_midifx_note[MIDIFX_LEN][256];
 unsigned char data_midifx_ch[MIDIFX_LEN][256];
@@ -2549,12 +2549,13 @@ unsigned int data_midifx_col[16]={
 
 unsigned char piano_key[12]={0,1,0,1,0,0,1,0,1,0,1,0};
 unsigned char piano_key_state[128];
+unsigned char piano_key_ch[128];
 
 static GLfloat texcoords[4][2]; /* Holds Float Info For 4 Sets Of Texture coordinates. */
 
 extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty) {
+void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -2563,6 +2564,7 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
     
     if (first_call) {
         memset(piano_key_state,0,128);
+        memset(piano_key_ch,0,128);
         first_call=0;
         piano_fxcpt=arc4random()&0xFFF;
     }
@@ -2642,6 +2644,7 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
             if (vol&&(st&VOICE_ON)) {
                 //note pressed
                 piano_key_state[(data_pianofx_note[j][i])&127]=4;
+                piano_key_ch[(data_pianofx_note[j][i])&127]=ch;
             }
         }
     }
@@ -2948,7 +2951,7 @@ static float piano_note_posx[128];
 static float piano_note_posy[128];
 static float piano_note_posz[128];
 
-void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty) {
+void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -2966,6 +2969,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     
     if (first_call) {
         memset(piano_key_state,0,128);
+        memset(piano_key_ch,0,128);
         first_call=0;
         piano_fxcpt=arc4random()&0xFFF;
     }
@@ -2999,6 +3003,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                 ztransSpeed_tgt=0;
             }
             
+                ztrans_wait=150+arc4random()&255;
         } else {
             if (ztrans_wait==0) {
                 ztrans=ztrans+(ztrans_tgt-ztrans)*ztransSpeed_tgt;
@@ -3083,6 +3088,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             if (vol&&(st&VOICE_ON)) {
                 //note pressed
                 piano_key_state[(data_pianofx_note[j][i])&127]=4;
+                piano_key_ch[(data_pianofx_note[j][i])&127]=ch;
             }
         }
     }
@@ -3129,7 +3135,13 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             ynBL=yf-key_heightBL*3/5*piano_key_state[i]/4;
             piano_key_state[i]--;
             
-            int colidx=i%12;
+            int colidx;//=i%12;
+            if (color_mode==0) {
+                colidx=i%12;
+            } else if (color_mode==1) {
+                colidx=piano_key_ch[i]&15;
+            }
+            
             crt=(data_midifx_col[colidx]>>16)/255.0f;
             cgt=((data_midifx_col[colidx]>>8)&0xFF)/255.0f;
             cbt=(data_midifx_col[colidx]&0xFF)/255.0f;
@@ -3376,36 +3388,78 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     
     vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     
-    char data_prevline_drawflag[256];
+    int data_prevline_drawflag[128];
+    int data_prevline_drawflag_old[128];
     int tgt_note_min=127;
     int tgt_note_max=0;
-    memset(data_prevline_drawflag,0,256);
-    for (int j=data_pianofx_len-1;j>=0;j--) {
+    
+    
+    
+/*    for (int j=0;j<data_pianofx_len;j++) {
         for (int i=0; i<256; i++) {
-            data_prevline_drawflag[i]=0;
             if (data_pianofx_note[j][i]) {
-                //int ch=data_pianofx_ch[j][i];
+                int ch=data_pianofx_ch[j][i];
+                int vol=data_pianofx_vol[j][i];
+                int st=data_pianofx_st[j][i];
+                int note=data_pianofx_note[j][i];
+                
+                if (vol&&(st&VOICE_ON)) {
+                    piano_
+                }
+            }
+        }
+    }*/
+    
+    memset(data_prevline_drawflag,0,128*4);
+    for (int j=data_pianofx_len-MIDIFX_OFS-1;j>=0;j--) {
+        memcpy(data_prevline_drawflag_old,data_prevline_drawflag,128*4);
+        memset(data_prevline_drawflag,0,128*4);
+
+        for (int i=0; i<256; i++) {
+            
+            if (data_pianofx_note[j][i]) {
+                int ch=data_pianofx_ch[j][i];
                 int vol=data_pianofx_vol[j][i];
                 int st=data_pianofx_st[j][i];
                 int note=data_pianofx_note[j][i];
                 
                 int colidx=note%12;
+                
+                int data_prevline_drawflag_tmp=1;
+                
+                if (color_mode==0) { //note
+                    colidx=note%12;
+                } else if (color_mode==1) { //instru
+                    colidx=ch&15;
+                }
+
+                
                 crt=(data_midifx_col[colidx]>>16)/255.0f;
                 cgt=((data_midifx_col[colidx]>>8)&0xFF)/255.0f;
                 cbt=(data_midifx_col[colidx]&0xFF)/255.0f;
                 
+                
+                
                 if (vol&&(st&VOICE_ON)) {
+                    
+                    if ((j==(data_pianofx_len-1-MIDIFX_OFS))||(data_prevline_drawflag_old[note]==2+ch)) {
+                        crt=(crt+2)/3;
+                        cgt=(cgt+2)/3;
+                        cbt=(cbt+2)/3;
+                        data_prevline_drawflag_tmp=2+ch;
+                    }
+                    
                     if (note>tgt_note_max) tgt_note_max=note;
                     if (note<tgt_note_min) tgt_note_min=note;
                     x=piano_note_posx[note&127];
-                    y=piano_note_posy[note&127]+(j-MIDIFX_OFS);
+                    y=piano_note_posy[note&127]+(j-MIDIFX_OFS)*0.5;
                     z=piano_note_posz[note&127];
                     
                     float x1;
                     float y1=y;
                     float z1=z;
                     float sx;
-                    float sy=1;
+                    float sy=0.5;
                     float sz=1;
                     
                     if (piano_note_type[note&127]) {
@@ -3500,7 +3554,207 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                     vertices[3][2]=z1-sz;
                     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
                     
-                    if (data_prevline_drawflag[i]==0) {
+                    if (data_prevline_drawflag_old[note]==0) {
+                        cr=crt*1.5f;cg=cgt*1.5f;cb=cbt*1.5f;
+                        if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
+                        //top
+                        vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+                        vertices[0][0]=x1;
+                        vertices[0][1]=y1+sy;
+                        vertices[0][2]=z1;
+                        vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+                        vertices[1][0]=x1+sx;
+                        vertices[1][1]=y1+sy;
+                        vertices[1][2]=z1;
+                        vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+                        vertices[2][0]=x1;
+                        vertices[2][1]=y1+sy;
+                        vertices[2][2]=z1-sz;
+                        vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+                        vertices[3][0]=x1+sx;
+                        vertices[3][1]=y1+sy;
+                        vertices[3][2]=z1-sz;
+                        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    }
+                    
+                    int draw_bottom=1;
+//                    if (j==0) draw_bottom=1;
+//                    else {
+//                        if (data_pianofx_note[j-1][i]&&data_pianofx_vol[j-1][i]&&(data_pianofx_st[j-1][i]&VOICE_ON)) draw_bottom=1;
+//                    }
+                    if (draw_bottom) {
+                        cr=crt/3;cg=cgt/3;cb=cbt/3;
+                        //bottom
+                        vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+                        vertices[0][0]=x1;
+                        vertices[0][1]=y1;
+                        vertices[0][2]=z1;
+                        vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+                        vertices[1][0]=x1+sx;
+                        vertices[1][1]=y1;
+                        vertices[1][2]=z1;
+                        vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+                        vertices[2][0]=x1;
+                        vertices[2][1]=y1;
+                        vertices[2][2]=z1-sz;
+                        vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+                        vertices[3][0]=x1+sx;
+                        vertices[3][1]=y1;
+                        vertices[3][2]=z1-sz;
+                        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    }
+                    
+                    data_prevline_drawflag[note]=data_prevline_drawflag_tmp;
+                }
+            }
+        }
+    }
+    
+    memset(data_prevline_drawflag,0,128*4);
+    for (int j=data_pianofx_len-MIDIFX_OFS-1;j<=data_pianofx_len-1;j++) {
+        memcpy(data_prevline_drawflag_old,data_prevline_drawflag,128*4);
+        memset(data_prevline_drawflag,0,128*4);
+        
+        for (int i=0; i<256; i++) {
+            
+            if (data_pianofx_note[j][i]) {
+                int ch=data_pianofx_ch[j][i];
+                int vol=data_pianofx_vol[j][i];
+                int st=data_pianofx_st[j][i];
+                int note=data_pianofx_note[j][i];
+                
+                int colidx=note%12;
+                
+                int data_prevline_drawflag_tmp=1;
+                
+                if (color_mode==0) { //note
+                    colidx=note%12;
+                } else if (color_mode==1) { //instru
+                    colidx=ch&15;
+                }
+                
+                
+                crt=(data_midifx_col[colidx]>>16)/255.0f;
+                cgt=((data_midifx_col[colidx]>>8)&0xFF)/255.0f;
+                cbt=(data_midifx_col[colidx]&0xFF)/255.0f;
+                
+                
+                
+                if (vol&&(st&VOICE_ON)) {
+                    
+                    if ((j==(data_pianofx_len-1-MIDIFX_OFS))||(data_prevline_drawflag_old[note]==2+ch)) {
+                        crt=(crt+2)/3;
+                        cgt=(cgt+2)/3;
+                        cbt=(cbt+2)/3;
+                        data_prevline_drawflag_tmp=2+ch;
+                    }
+                    
+                    if (note>tgt_note_max) tgt_note_max=note;
+                    if (note<tgt_note_min) tgt_note_min=note;
+                    x=piano_note_posx[note&127];
+                    y=piano_note_posy[note&127]+(j-MIDIFX_OFS)*0.5;
+                    z=piano_note_posz[note&127];
+                    
+                    float x1;
+                    float y1=y;
+                    float z1=z;
+                    float sx;
+                    float sy=0.5;
+                    float sz=1;
+                    
+                    if (piano_note_type[note&127]) {
+                        //black key
+                        x1=x-0.15;
+                        sx=0.3;
+                        z1+=key_length*0.55;
+                    } else {
+                        //white key
+                        x1=x-0.3;
+                        sx=0.6;
+                        z1+=key_length*0.9;
+                    }
+                    
+                    //front
+                    cr=crt;cg=cgt;cb=cbt;
+                    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+                    vertices[0][0]=x1;
+                    vertices[0][1]=y1;
+                    vertices[0][2]=z1;
+                    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+                    vertices[1][0]=x1+sx;
+                    vertices[1][1]=y1;
+                    vertices[1][2]=z1;
+                    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+                    vertices[2][0]=x1;
+                    vertices[2][1]=y1+sy;
+                    vertices[2][2]=z1;
+                    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+                    vertices[3][0]=x1+sx;
+                    vertices[3][1]=y1+sy;
+                    vertices[3][2]=z1;
+                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    
+                    //back
+                    cr=crt;cg=cgt;cb=cbt;
+                    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+                    vertices[0][0]=x1;
+                    vertices[0][1]=y1;
+                    vertices[0][2]=z1-sz;
+                    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+                    vertices[1][0]=x1+sx;
+                    vertices[1][1]=y1;
+                    vertices[1][2]=z1-sz;
+                    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+                    vertices[2][0]=x1;
+                    vertices[2][1]=y1+sy;
+                    vertices[2][2]=z1-sz;
+                    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+                    vertices[3][0]=x1+sx;
+                    vertices[3][1]=y1+sy;
+                    vertices[3][2]=z1-sz;
+                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    
+                    
+                    cr=crt/2;cg=cgt/2;cb=cbt/2;
+                    //left
+                    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+                    vertices[0][0]=x1;
+                    vertices[0][1]=y1;
+                    vertices[0][2]=z1;
+                    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+                    vertices[1][0]=x1;
+                    vertices[1][1]=y1;
+                    vertices[1][2]=z1-sz;
+                    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+                    vertices[2][0]=x1;
+                    vertices[2][1]=y1+sy;
+                    vertices[2][2]=z1;
+                    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+                    vertices[3][0]=x1;
+                    vertices[3][1]=y1+sy;
+                    vertices[3][2]=z1-sz;
+                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    
+                    //right
+                    vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
+                    vertices[0][0]=x1+sx;
+                    vertices[0][1]=y1;
+                    vertices[0][2]=z1;
+                    vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
+                    vertices[1][0]=x1+sx;
+                    vertices[1][1]=y1;
+                    vertices[1][2]=z1-sz;
+                    vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
+                    vertices[2][0]=x1+sx;
+                    vertices[2][1]=y1+sy;
+                    vertices[2][2]=z1;
+                    vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
+                    vertices[3][0]=x1+sx;
+                    vertices[3][1]=y1+sy;
+                    vertices[3][2]=z1-sz;
+                    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+                    
+                    if (1) {//data_prevline_drawflag_old[note]==0) {
                         cr=crt*1.5f;cg=cgt*1.5f;cb=cbt*1.5f;
                         if (cr>1) cr=1;if (cg>1) cg=1;if (cb>1) cb=1;
                         //top
@@ -3526,7 +3780,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                     int draw_bottom=0;
                     if (j==0) draw_bottom=1;
                     else {
-                        if (data_pianofx_note[j-1][i]&&data_pianofx_vol[j-1][i]&&(data_pianofx_st[j-1][i]&VOICE_ON)) draw_bottom=1;
+                     //   if (data_pianofx_note[j-1][i]&&data_pianofx_vol[j-1][i]&&(data_pianofx_st[j-1][i]&VOICE_ON)) draw_bottom=1;
+                        if (data_prevline_drawflag[note]==0) draw_bottom=1;
                     }
                     if (draw_bottom) {
                         cr=crt/3;cg=cgt/3;cb=cbt/3;
@@ -3550,11 +3805,12 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
                     }
                     
-                    data_prevline_drawflag[i]=1;
+                    data_prevline_drawflag[note]=data_prevline_drawflag_tmp;
                 }
             }
         }
     }
+    
     if (tgt_note_max>0) note_max=tgt_note_max;
     if (tgt_note_min<127) note_min=tgt_note_min;
     
@@ -3614,11 +3870,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     if (horiz_vert==0) {//Horiz
         band_width=(float)(ww+0*ww/4)/data_midifx_len;
         //        ofs_band=(ww-band_width*data_midifx_len)>>1;
-        line_width=hh/note_display_range;
+        line_width=2*hh/note_display_range;
     } else { //vert
         band_width=(float)(hh+0*hh/4)/data_midifx_len;
         //        ofs_band=(hh-band_width*data_midifx_len)>>1;
-        line_width=ww/note_display_range;
+        line_width=2*ww/note_display_range;
     }
     
 	
@@ -3636,7 +3892,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                 int ch=data_midifx_ch[j][i];
                 int vol=data_midifx_vol[j][i];
                 int st=data_midifx_st[j][i];
-                int pos=(data_midifx_note[j][i])*line_width-note_display_offset;
+                int pos=(data_midifx_note[j][i])*line_width/2-note_display_offset;
                 cr=data_midifx_col[ch&0xF]>>16;
                 cg=(data_midifx_col[ch&0xF]>>8)&0xFF;
                 cb=data_midifx_col[ch&0xF]&0xFF;

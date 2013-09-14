@@ -260,6 +260,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
@@ -421,7 +422,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
     
     
-    settings[GLOB_DefaultLength].label=(char*)"Default Length";
+    settings[GLOB_DefaultLength].label=(char*)"Default Length(s)";
     settings[GLOB_DefaultLength].description=NULL;
     settings[GLOB_DefaultLength].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
@@ -671,6 +672,17 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[3]=(char*)"3";
     settings[GLOB_FXPiano].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    
+    settings[GLOB_FXPianoColorMode].type=MDZ_SWITCH;
+    settings[GLOB_FXPianoColorMode].label=(char*)"Piano color mode";
+    settings[GLOB_FXPianoColorMode].description=NULL;
+    settings[GLOB_FXPianoColorMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoColorMode].sub_family=0;
+    settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
+    settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_labels[0]=(char*)"Note";
+    settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_labels[1]=(char*)"Instr";
     
     settings[GLOB_FX3DSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FX3DSpectrum].label=(char*)"3D Spectrum";
@@ -1228,7 +1240,7 @@ void optUADEChangedC(id param) {
     settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[3]=(char*)"Cub";
     
     settings[SEXYPSF_Reverb].type=MDZ_SWITCH;
-    settings[SEXYPSF_Reverb].label=(char*)"Interpolation";
+    settings[SEXYPSF_Reverb].label=(char*)"Reverb";
     settings[SEXYPSF_Reverb].description=NULL;
     settings[SEXYPSF_Reverb].family=MDZ_SETTINGS_FAMILY_SEXYPSF;
     settings[SEXYPSF_Reverb].sub_family=0;

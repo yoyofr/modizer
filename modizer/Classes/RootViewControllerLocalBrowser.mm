@@ -1445,6 +1445,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         detailViewController.mShouldHaveFocus=0;
         [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
     } else {
+        if (mShowSubdir==0) shouldFillKeys=1; //performance limit-> no update if listing all files
+        
         [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
         [self fillKeys];
         [tableView reloadData];
@@ -1453,12 +1455,36 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [super viewWillAppear:animated];	
     
 }
--(void) refreshMODLANDView {
+-(void) refreshViewAfterDownload {
+//    if (mShowSubdir==0) {
+    
+    if (childController) [childController refreshViewAfterDownload];
+    else {
+    
+    shouldFillKeys=1;
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    
+    int old_mSearch=mSearch;
+    NSString *old_mSearchText=mSearchText;
+    mSearch=0;
+    mSearchText=nil;
+    [self fillKeys];   //1st load eveything
+    mSearch=old_mSearch;
+    mSearchText=old_mSearchText;
+    if (mSearch) {
+        shouldFillKeys=1;
+        [self fillKeys];   //2nd filter for drawing
+    }
+    [tableView reloadData];
+    
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    }
+//}
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-    [super viewDidAppear:animated];		
+    [super viewDidAppear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

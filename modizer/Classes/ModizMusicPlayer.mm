@@ -6,7 +6,6 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
-
 #include <pthread.h>
 #include <sqlite3.h>
 #include <sys/xattr.h>
