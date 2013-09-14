@@ -77,7 +77,7 @@
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 
 -(IBAction)goPlayer;
--(void) refreshMODLANDView;
+-(void) refreshViewAfterDownload;
 -(void)listLocalFiles;
 -(void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
 -(void)createSamplesFromPackage:(BOOL)forceCreate;

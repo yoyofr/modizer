@@ -92,7 +92,7 @@
 -(IBAction)goPlayer;
 
 - (void)freePlaylist;
--(void) refreshMODLANDView;
+-(void) refreshViewAfterDownload;
 - (void)listLocalFiles;
 - (void)checkCreate:(NSString *)filePath;
 
