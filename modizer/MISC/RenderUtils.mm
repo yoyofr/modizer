@@ -807,7 +807,7 @@ static GLfloat normals[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
 static GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
 
 
-#define MAX_BARS 1024
+#define MAX_BARS 2048
 typedef struct {
     unsigned char startidx,note,instr,size;
 } t_data_bar2draw;
@@ -3017,6 +3017,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         memset(piano_key_instr,0,128);
         first_call=0;
         piano_fxcpt=arc4random()&0xFFF;
+        
+        for (int i=0;i<MAX_BARS*6*6;i++) vertColorBAR[i][3]=1;
     }
     
     if (camera_pos_countdown==0) {
@@ -3625,9 +3627,9 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         //        printf("adj: %f\n",adj_size);
         
         
-        crt=(data_midifx_col[colidx&15]>>16)/255.0f;
-        cgt=((data_midifx_col[colidx&15]>>8)&0xFF)/255.0f;
-        cbt=(data_midifx_col[colidx&15]&0xFF)/255.0f;
+        crt=(data_midifx_col[colidx&15]>>16)/255.0f/1.0f;
+        cgt=((data_midifx_col[colidx&15]>>8)&0xFF)/255.0f/1.0f;
+        cbt=(data_midifx_col[colidx&15]&0xFF)/255.0f/1.0f;
         
         if (colidx&0x10) {
             crt=(crt+1)/2;

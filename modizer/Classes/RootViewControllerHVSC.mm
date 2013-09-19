@@ -1177,6 +1177,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     } else {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
         [self.sBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
 
     

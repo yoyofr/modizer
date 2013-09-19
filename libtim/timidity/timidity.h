@@ -363,7 +363,7 @@ typedef float FLOAT_T;
  * This mode needs high CPU power.
  * There is a command line option to enable/disable this mode.
  */
-/* #define MODULATION_ENVELOPE_ALLOW */
+#define MODULATION_ENVELOPE_ALLOW
 
 
 /* Define if you want to trace text meta event at playing.

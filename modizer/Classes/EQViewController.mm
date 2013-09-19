@@ -253,6 +253,7 @@ extern BOOL nvdsp_EQ;
         [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
     } else {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
     
     

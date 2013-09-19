@@ -100,6 +100,7 @@ static NSFileManager *mFileMngr;
     } else {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
         [self.sBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
 
 	

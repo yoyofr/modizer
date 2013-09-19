@@ -105,6 +105,8 @@ BOOL is_ios7,is_retina;
     
     if (!is_ios7) {
         [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleBlackOpaque];
+    } else {
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
     
 	if (pthread_mutex_init(&uade_mutex,NULL)) {
