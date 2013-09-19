@@ -2260,6 +2260,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 }
                 [self.navigationController setNavigationBarHidden:YES animated:YES];
                 
+                
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
                 m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
@@ -3823,6 +3824,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewWillAppear:(BOOL)animated {
     alertCannotPlay_displayed=0;
     
+    if (is_ios7) {
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+    }
+    
     //eq
     eqVC=nil;
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
@@ -3870,7 +3875,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     //get ogl context & bind
 	[EAGLContext setCurrentContext:m_oglContext];
+    [m_oglView layoutSubviews];
     [m_oglView bind];
+    
 	
     //	self.navigationController.navigationBar.hidden = YES;
     m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];

@@ -20,6 +20,7 @@
     //    return UIInterfaceOrientationMaskAllButUpsideDown;
 }
 
+
 - (BOOL)shouldAutorotate {
     [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
     return TRUE;

@@ -1413,8 +1413,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     } else {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
         [self.sBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
-
     
     if (keys) {
         [keys release]; 
@@ -1455,6 +1455,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [super viewWillAppear:animated];	
     
 }
+
 -(void) refreshViewAfterDownload {
 //    if (mShowSubdir==0) {
     
@@ -1485,6 +1486,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (void)viewDidAppear:(BOOL)animated {
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     [super viewDidAppear:animated];
+    
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

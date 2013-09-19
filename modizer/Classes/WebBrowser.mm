@@ -506,13 +506,14 @@ static UIAlertView *alertChooseName;
 
 -(void) openPopup:(NSString *)msg {
 	CGRect frame;
+    infoDownloadLbl.text=[NSString stringWithString:msg];
 	if (mPopupAnimation) return;
 	mPopupAnimation=1;	
 	frame=infoDownloadView.frame;
 	frame.origin.y=self.view.frame.size.height;
 	infoDownloadView.frame=frame;
 	infoDownloadView.hidden=NO;
-	infoDownloadLbl.text=[NSString stringWithString:msg];
+//	infoDownloadLbl.text=[NSString stringWithString:msg];
 	[UIView beginAnimations:nil context:nil];				
 	[UIView setAnimationDelay:0];				
 	[UIView setAnimationDuration:0.5];

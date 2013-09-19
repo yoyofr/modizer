@@ -78,6 +78,7 @@ extern BOOL is_ios7;
         [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
     } else {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
     
     

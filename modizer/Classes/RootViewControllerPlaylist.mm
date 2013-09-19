@@ -1728,6 +1728,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     } else {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
         [self.sBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
     
     

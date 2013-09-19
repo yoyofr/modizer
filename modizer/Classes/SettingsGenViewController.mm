@@ -1412,6 +1412,7 @@ void optUADEChangedC(id param) {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
     } else {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
     
     [super viewWillAppear:animated];
