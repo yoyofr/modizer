@@ -1471,7 +1471,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
         //glRotatef(180,0,0,1);
         glTranslatef(8,0,0);
         
-        glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
+        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*3.14159f/761)-
                             0.7f*sin((float)frameCpt*3.14159f/1211)-
                             0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
         
@@ -3022,7 +3022,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     }
     
     if (camera_pos_countdown==0) {
-        camera_pos=arc4random()%3;
+        camera_pos=arc4random()%5;
         camera_pos_countdown=30*20+(arc4random()&511);//15s min before switching
     } else camera_pos_countdown--;
     
@@ -3052,7 +3052,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         switch (camera_pos) {
             case 1:
             case 2:
-                ztrans_tgt=-z-25;
+                ztrans_tgt=-z-40;
                 break;
         }
         
@@ -3081,14 +3081,12 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         if (abs(xtrans-xtrans_tgt)<0.1) {
             xtransSpeed_tgt=0;
         }
-        glTranslatef(-xtrans+1*(0.9f*sin((float)piano_fxcpt*3.14159f/319)+
-                                0.5f*sin((float)piano_fxcpt*3.14159f/789)-
-                                0.7f*sin((float)piano_fxcpt*3.14159f/1061)), 0.0, ztrans-5*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
-                                                                                            0.5f*sin((float)piano_fxcpt*3.14159f/289)-
-                                                                                            0.7f*sin((float)piano_fxcpt*3.14159f/361)));
         
-        float roty_adj,rotx_adj;
         
+        float roty_adj,rotx_adj,xrandfact,rotx_randfact,roty_randfact;
+        xrandfact=1.0;
+        rotx_randfact=8.0f;
+        roty_randfact=5.0f;
         switch (camera_pos) {
             case 0:
                 rotx_adj=30;
@@ -3102,12 +3100,37 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                 rotx_adj=30;
                 roty_adj=-45;
                 break;
+            case 3:
+                rotx_adj=20;
+                roty_adj=75;
+                xtrans=0;
+                xrandfact=0.2f;
+                rotx_randfact=3.0f;
+                roty_randfact=2.0f;
+                break;
+            case 4:
+                rotx_adj=20;
+                roty_adj=-75;
+                xtrans=0;
+                xrandfact=0.2f;
+                rotx_randfact=3.0f;
+                roty_randfact=2.0f;
+                break;
         }
         
-        glRotatef(rotx_adj+8.0f*(0.4f*sin((float)piano_fxcpt*3.14159f/91)+
+        glTranslatef(-xtrans+xrandfact*(0.9f*sin((float)piano_fxcpt*3.14159f/319)+
+                                0.5f*sin((float)piano_fxcpt*3.14159f/789)-
+                                0.7f*sin((float)piano_fxcpt*3.14159f/1061)),
+                     2.0,
+                     ztrans-5*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
+                               0.5f*sin((float)piano_fxcpt*3.14159f/289)-
+                               0.7f*sin((float)piano_fxcpt*3.14159f/361)));
+        
+        
+        glRotatef(rotx_adj+rotx_randfact*(0.4f*sin((float)piano_fxcpt*3.14159f/91)+
                                  0.7f*sin((float)piano_fxcpt*3.14159f/911)+
                                  0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
-        glRotatef(roty_adj+5.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/173)+
+        glRotatef(roty_adj+roty_randfact*(0.8f*sin((float)piano_fxcpt*3.14159f/173)+
                                  0.5f*sin((float)piano_fxcpt*3.14159f/1029)+
                                  0.3f*sin((float)piano_fxcpt*3.14159f/511)), 0, 1, 0);
         

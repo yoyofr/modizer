@@ -668,11 +668,6 @@
                                     <action selector="showEQ" destination="11" eventType="touchUpInside" id="J5H-Dp-Djp"/>
                                 </connections>
                             </button>
-                            <view clipsSubviews="YES" contentMode="scaleToFill" id="388" userLabel="Vol win">
-                                <rect key="frame" x="0.0" y="416" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                                <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
-                            </view>
                             <toolbar clipsSubviews="YES" contentMode="scaleToFill" barStyle="blackTranslucent" id="426" userLabel="Pause_commands">
                                 <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -798,6 +793,11 @@
                                     <barButtonItem enabled="NO" systemItem="flexibleSpace" id="1210"/>
                                 </items>
                             </toolbar>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" id="388" userLabel="Vol win">
+                                <rect key="frame" x="0.0" y="416" width="320" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                            </view>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="27" userLabel="Elpased time">
                                 <rect key="frame" x="2" y="21" width="45" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>

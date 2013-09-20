@@ -3648,7 +3648,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     txtSubMenuHandle[14]=0;
     txtSubMenuHandle[15]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
     txtSubMenuHandle[16]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b.png"]);
-    txtSubMenuHandle[17]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b.png"]);//TODO: create 7c
+    txtSubMenuHandle[17]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c.png"]);
     
     
     txtSubMenuHandle[18]=0;
