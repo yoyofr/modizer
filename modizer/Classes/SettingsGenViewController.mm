@@ -7,6 +7,7 @@
 //
 
 extern BOOL is_ios7;
+extern volatile int mSlowDevice;
 
 #import "SettingsGenViewController.h"
 #import "MNEValueTrackingSlider.h"
@@ -267,8 +268,11 @@ void optUADEChangedC(id param) {
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
-    settings[GLOB_FXMSAA].detail.mdz_switch.switch_value=1;
+    
+    if (mSlowDevice) settings[GLOB_FXLOD].detail.mdz_switch.switch_value=1;
+    else settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
+    
+    settings[GLOB_FXMSAA].detail.mdz_switch.switch_value=0;
     
     /////////////////////////////////////
     //PLUGINS
