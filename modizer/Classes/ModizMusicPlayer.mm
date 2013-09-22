@@ -6341,7 +6341,7 @@ extern "C" void adjust_amplification(void);
         case 14://DUMB
         {
             DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
-            res=dumb_it_sr_get_channel_volume(itsr,channel);
+            res=dumb_it_sr_get_channel_volume(itsr,channel)*4;
         }
             break;
         default:res=0;
