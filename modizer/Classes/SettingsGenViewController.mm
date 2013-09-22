@@ -304,6 +304,7 @@ void optUADEChangedC(id param) {
     //TIMIDITY
     /////////////////////////////////////
     settings[TIM_Polyphony].detail.mdz_slider.slider_value=128;
+    settings[TIM_Amplification].detail.mdz_slider.slider_value=100;
     settings[TIM_Chorus].detail.mdz_boolswitch.switch_value=1;
     settings[TIM_Reverb].detail.mdz_boolswitch.switch_value=1;
     settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value=1;
@@ -1030,6 +1031,16 @@ void optUADEChangedC(id param) {
     settings[TIM_Polyphony].detail.mdz_slider.slider_min_value=64;
     settings[TIM_Polyphony].detail.mdz_slider.slider_max_value=256;
     
+    settings[TIM_Amplification].label=(char*)"Amplification";
+    settings[TIM_Amplification].description=NULL;
+    settings[TIM_Amplification].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
+    settings[TIM_Amplification].sub_family=0;
+    settings[TIM_Amplification].callback=&optTIMIDITYChangedC;
+    settings[TIM_Amplification].type=MDZ_SLIDER_DISCRETE;
+    settings[TIM_Amplification].detail.mdz_slider.slider_value=100;
+    settings[TIM_Amplification].detail.mdz_slider.slider_min_value=10;
+    settings[TIM_Amplification].detail.mdz_slider.slider_max_value=400;
+    
     settings[TIM_Chorus].type=MDZ_BOOLSWITCH;
     settings[TIM_Chorus].label=(char*)"Chorus";
     settings[TIM_Chorus].description=NULL;
@@ -1401,8 +1412,6 @@ void optUADEChangedC(id param) {
         }
     }
     
-    
-    
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
     
@@ -1443,9 +1452,6 @@ void optUADEChangedC(id param) {
     NSString *title=nil;
     return title;
 }
-
-
-
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
     NSString *footer=(settings[cur_settings_idx[section]].description?[NSString stringWithFormat:@"%s",settings[cur_settings_idx[section]].description]:nil);
@@ -1525,56 +1531,11 @@ void optUADEChangedC(id param) {
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = cell.bounds;
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        [cell setBackgroundView:[[UIView alloc] init]];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = cell.bounds;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:255.0/255.0*0.9 green:255.0/255.0*0.9 blue:255.0/255.0*0.9 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:255.0/255.0*0.9 green:255.0/255.0*0.9 blue:255.0/255.0*0.9 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:235.0/255.0*0.9 green:235.0/255.0*0.9 blue:235.0/255.0*0.9 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:240.0/255.0*0.9 green:240.0/255.0*0.9 blue:240.0/255.0*0.9 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:200.0/255.0*0.9 green:200.0/255.0*0.9 blue:200.0/255.0*0.9 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:200.0/255.0*0.9 green:200.0/255.0*0.9 blue:200.0/255.0*0.9 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        [cell setSelectedBackgroundView:[[UIView alloc] init]];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-        */
-        
         UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
         [imageView release];
-        
         
         //
         // Create the label for the top row of text
@@ -1608,7 +1569,7 @@ void optUADEChangedC(id param) {
     
     
     
-    topLabel.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label];
+    topLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
     
     switch (settings[cur_settings_idx[indexPath.section]].type) {
         case MDZ_FAMILY:
@@ -1636,7 +1597,6 @@ void optUADEChangedC(id param) {
             [segconview setTitleTextAttributes:attributes
                                       forState:UIControlStateNormal];
             
-            //            segconview.segmentedControlStyle = UISegmentedControlStyleBar;
             [segconview addTarget:self action:@selector(segconChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = segconview;
             [segconview release];
@@ -1687,9 +1647,6 @@ void optUADEChangedC(id param) {
             msgLabel = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             msgLabel.tag=indexPath.section;
             
-            //msgLabel.backgroundColor = [UIColor clearColor];
-//            msgLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-            
             msgLabel.borderStyle = UITextBorderStyleRoundedRect;
             msgLabel.font = [UIFont systemFontOfSize:12];
             msgLabel.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -1700,8 +1657,6 @@ void optUADEChangedC(id param) {
             msgLabel.delegate = self;
             msgLabel.enabled=FALSE;
             msgLabel.tag=indexPath.section;
-
-            
             
             if (settings[cur_settings_idx[indexPath.section]].detail.mdz_msgbox.text) msgLabel.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
             else msgLabel.text=@"";
@@ -1760,7 +1715,7 @@ void optUADEChangedC(id param) {
     if (settings[cur_settings_idx[indexPath.section]].type==MDZ_FAMILY) {
         settingsVC=[[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]] autorelease];
         settingsVC->detailViewController=detailViewController;
-        settingsVC.title=NSLocalizedString(@"General Settings",@"");
+        settingsVC.title=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
         settingsVC->current_family=settings[cur_settings_idx[indexPath.section]].sub_family;
         [self.navigationController pushViewController:settingsVC animated:YES];
     }

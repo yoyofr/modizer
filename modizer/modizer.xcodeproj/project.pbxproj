@@ -816,6 +816,7 @@
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
 		CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */; };
 		CCAE594C17EAD8F6007638B9 /* txtMenu7c.png in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594B17EAD8F6007638B9 /* txtMenu7c.png */; };
+		CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594E17ECABD2007638B9 /* Localizable.strings */; };
 		CCB21EB51246C50400A30F62 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EB41246C50400A30F62 /* Default@2x.png */; };
 		CCB21EBB1246C68E00A30F62 /* arrow_right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EBA1246C68E00A30F62 /* arrow_right@2x.png */; };
 		CCB21EBD1246C69800A30F62 /* playlist@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EBC1246C69800A30F62 /* playlist@2x.png */; };
@@ -2446,6 +2447,8 @@
 		CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAppHelper.h; sourceTree = "<group>"; };
 		CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GoogleAppHelper.mm; sourceTree = "<group>"; };
 		CCAE594B17EAD8F6007638B9 /* txtMenu7c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7c.png; sourceTree = "<group>"; };
+		CCAE594F17ECABD2007638B9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CCAE595217ECAC69007638B9 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CCB21EB41246C50400A30F62 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		CCB21EBA1246C68E00A30F62 /* arrow_right@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arrow_right@2x.png"; sourceTree = "<group>"; };
 		CCB21EBC1246C69800A30F62 /* playlist@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "playlist@2x.png"; sourceTree = "<group>"; };
@@ -2693,6 +2696,7 @@
 				CC1E58BA1200B3B7000A8A4E /* Classes */,
 				CCD4631D123CB8F600D063FE /* main.mm */,
 				CC88D1131270AF200004EBBE /* modizer-Info.plist */,
+				CCAE594E17ECABD2007638B9 /* Localizable.strings */,
 				CC1E5A161200B3B8000A8A4E /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
@@ -5514,6 +5518,7 @@
 				3356548917B52EFF003AE763 /* browser_home.html in Resources */,
 				33F6A93F17B99FB8002369E7 /* SettingsViewController.xib in Resources */,
 				33ABD4EA17BCC02600D50393 /* bb_refresh.png in Resources */,
+				CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */,
 				33ABD4EB17BCC02600D50393 /* bb_refresh@2x.png in Resources */,
 				33ABD4EF17BCC49000D50393 /* bb_stop.png in Resources */,
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
@@ -5932,6 +5937,18 @@
 			targetProxy = 33C7397A13A0ACEA0012221C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		CCAE594E17ECABD2007638B9 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CCAE594F17ECABD2007638B9 /* en */,
+				CCAE595217ECAC69007638B9 /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {

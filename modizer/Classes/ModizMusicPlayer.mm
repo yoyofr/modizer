@@ -5319,7 +5319,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             }
             if(duh) {break;}
         }
-        if(!duh) {return 1;}
+        if(!duh) {
+            free(mp_data);
+            mp_data=NULL;
+            return 1;
+        }
         
         iModuleLength = (int)((LONG_LONG)duh_get_length(duh) * 1000 >> 16);
         const char *mod_title = duh_get_tag(duh, "TITLE");
@@ -5341,6 +5345,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         duh_player = (DUH_PLAYER*)malloc(sizeof(DUH_PLAYER));
         if (!duh_player) {
             unload_duh(duh); duh=NULL;
+            free(mp_data);
+            mp_data=NULL;
+            
             return -2;
         }
         duh_player->n_channels = 2;
@@ -5350,6 +5357,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         if (!duh_player->dr) {
             free(duh_player);duh_player=NULL;
             unload_duh(duh); duh=NULL;
+            free(mp_data);
+            mp_data=NULL;
+            
             return -3;
         }
         DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
@@ -5407,12 +5417,26 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		if (f==NULL) {
 			NSLog(@"timidity Cannot open file %@",filePath);
 			mPlayType=0;
+            
+            if (mp_data) free(mp_data);
+            mp_data=NULL;
+            
 			return -1;
 		}
 		
 		fseek(f,0L,SEEK_END);
 		mp_datasize=ftell(f);
+        /*
+        //BUGGY
+        //Pattern display/modplug
+		rewind(f);
+		mp_data=(char*)malloc(mp_datasize);
+		fread(mp_data,mp_datasize,1,f);
+         */
+        //
 		fclose(f);
+        
+        
         mod_subsongs=1;
 		mod_minsub=1;
 		mod_maxsub=1;
@@ -5434,6 +5458,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         
         strcpy(tim_filepath,[filePath UTF8String]);
 		
+        
+        //try to also load with modplug for pattern display
+/*        mp_file=ModPlug_LoadPat(mp_data,mp_datasize);
+		if (mp_file==NULL) {
+			free(mp_data);
+		} else {
+			mPatternDataAvail=1;
+			numPatterns=ModPlug_NumPatterns(mp_file);
+            numChannels=ModPlug_NumChannels(mp_file);
+        }*/
         
 		return 0;
 	}
@@ -5712,6 +5746,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     
     if (mPlayType==15) { //Timidity
         intr = 1;
+        
+        if (mp_data) {
+            free(mp_data);
+            mp_data=NULL;
+        }
     }
     
 	bGlobalIsPlaying=0;
@@ -6117,6 +6156,14 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     }
     set_current_resampler(tim_resampler);
 }
+extern "C" int amplification;
+extern "C" void adjust_master_volume(void);
+extern "C" void adjust_amplification(void);
+-(void) optTIM_Amplification:(int)val {
+    amplification=val;
+//    adjust_master_volume();
+    adjust_amplification();
+}
 
 ///////////////////////////
 // GME
@@ -6263,5 +6310,24 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 -(void) setInfosUpdated {
     mod_message_updated=0;
 }
+
+-(int) getChannelVolume:(int)channel {
+    int res;
+    switch (mPlayType){
+        case 2://Modplug
+            res=ModPlug_GetChannelVolume( mp_file,channel);
+            break;
+
+        case 14://DUMB
+        {
+            DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
+            res=dumb_it_sr_get_channel_volume(itsr,channel);
+        }
+            break;
+        default:res=0;
+    }
+    return res;
+}
+
 //*****************************************
 @end

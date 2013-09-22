@@ -2561,20 +2561,16 @@ int data_pianofx_first=1;
 #define VOICE_DIE	(1<<4)
 
 unsigned int data_midifx_col[16]={
-    /*    0x8010E7,0x5D3E79,0x29004D,0xBF7BFD,0xE7CFFD,
-     0xFF4500,0x865340,0x551700,0xFF9872,0xFFDBCE,
-     0x00E87F,0x3A7A5D,0x004E2A,0x71FDBD,0xCCFDE6,
-     0xFFF200,0x868240,0x555100,0xFFF872,0xFFFDCE,
+/*    0x8010E7,0x5D3E79,0x29004D,0xBF7BFD,0xE7CFFD,
+    0xFF4500,0x865340,0x551700,0xFF9872,0xFFDBCE,
+    0x00E87F,0x3A7A5D,0x004E2A,0x71FDBD,0xCCFDE6,
+    0xFFF200*/
+    //0x868240,0x555100,0xFFF872,0xFFFDCE
      
-     0x8010E7,0x5D3E79,0x29004D,0xBF7BFD,0xE7CFFD,
-     0xFF4500,0x865340,0x551700,0xFF9872,0xFFDBCE,
-     0x00E87F,0x3A7A5D,0x004E2A,0x71FDBD,0xCCFDE6,
-     0xFFF200,0x868240,0x555100,0xFFF872,0xFFFDCE*/
     0xFF5512,0x761AFF,0x21ff94,0xffb129,
     0xcb30ff,0x38ffe4,0xfffc40,0xff47ed,
     0x4fd9ff,0xc7ff57,0xff5eb7,0x66a8ff,
     0x9cff6e,0xff7591,0x7d88ff,0x85ff89
-    
 };
 
 unsigned char piano_key[12]={0,1,0,1,0,0,1,0,1,0,1,0};
@@ -3940,11 +3936,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     if (horiz_vert==0) {//Horiz
         band_width=(float)(ww+0*ww/4)/data_midifx_len;
         //        ofs_band=(ww-band_width*data_midifx_len)>>1;
-        line_width=2*hh/note_display_range;
+        line_width=4*hh/note_display_range;
     } else { //vert
         band_width=(float)(hh+0*hh/4)/data_midifx_len;
         //        ofs_band=(hh-band_width*data_midifx_len)>>1;
-        line_width=2*ww/note_display_range;
+        line_width=4*ww/note_display_range;
     }
     
 	
@@ -3962,7 +3958,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                 int instr=data_midifx_instr[j][i];
                 int vol=data_midifx_vol[j][i];
                 int st=data_midifx_st[j][i];
-                int pos=(data_midifx_note[j][i])*line_width/2-note_display_offset;
+                int pos=(data_midifx_note[j][i])*line_width/4-note_display_offset;
                 cr=data_midifx_col[instr&0xF]>>16;
                 cg=(data_midifx_col[instr&0xF]>>8)&0xFF;
                 cb=data_midifx_col[instr&0xF]&0xFF;
@@ -3974,7 +3970,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                 cr=(cr*vol>>6);
                 cg=(cg*vol>>6);
                 cb=(cb*vol>>6);
-                if ((j==data_midifx_len-1-MIDIFX_OFS)&&(st&(VOICE_ON))) {
+                if ((j==data_midifx_len-1-MIDIFX_OFS)&&(st&VOICE_ON)&&vol) {
                     cr=255;//(cr+255*3)>>2;
                     cg=255;//(cg+255*3)>>2;
                     cb=255;//(cb+255*3)>>2;

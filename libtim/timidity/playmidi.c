@@ -205,16 +205,16 @@ int opt_temper_control = 1;
 int opt_temper_control = 0;
 #endif /* TEMPER_CONTROL_ALLOW */
 
-int opt_tva_attack = 0;	/* attack envelope control */
-int opt_tva_decay = 0;	/* decay envelope control */
-int opt_tva_release = 0;	/* release envelope control */
-int opt_delay_control = 0;	/* CC#94 delay(celeste) effect control */
-int opt_eq_control = 0;		/* channel equalizer control */
-int opt_insertion_effect = 0;	/* insertion effect control */
-int opt_drum_effect = 0;	/* drumpart effect control */
+int opt_tva_attack = 1;	/* attack envelope control */
+int opt_tva_decay = 1;	/* decay envelope control */
+int opt_tva_release = 1;	/* release envelope control */
+int opt_delay_control = 1;	/* CC#94 delay(celeste) effect control */
+int opt_eq_control = 1;		/* channel equalizer control */
+int opt_insertion_effect = 1;	/* insertion effect control */
+int opt_drum_effect = 1;	/* drumpart effect control */
 int32 opt_drum_power = 100;		/* coef. of drum amplitude */
 int opt_amp_compensation = 0;
-int opt_modulation_envelope = 0;
+int opt_modulation_envelope = 1;
 int opt_pan_delay = 0;	/* phase difference between left ear and right ear. */
 int opt_user_volume_curve = 0;
 int opt_default_module = MODULE_TIMIDITY_DEFAULT;
@@ -412,7 +412,7 @@ static FLOAT_T cnv_Hz_to_vib_ratio(FLOAT_T freq)
 	return ((FLOAT_T)(play_mode->rate) / (freq * 2.0f * VIBRATO_SAMPLE_INCREMENTS));
 }
 
-static void adjust_amplification(void)
+/*static*/ void adjust_amplification(void)
 {
     /* compensate master volume */
     master_volume = (double)(amplification) / 100.0 *
@@ -3344,7 +3344,7 @@ static void make_drum_effect(int ch)
 	}
 }
 
-static void adjust_master_volume(void)
+/*static*/ void adjust_master_volume(void)
 {
   int i, uv = upper_voices;
   adjust_amplification();

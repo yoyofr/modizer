@@ -54,7 +54,8 @@ typedef UWORD WORD;
 #else
 #define DIRDELIM		'/'
 #define TIMIDITYCFG	"timidity.cfg"
-#define PATHFORPAT	"instruments"
+#define PATHFORPAT	""
+//"instruments"
 #endif
 
 #define PAT_ENV_PATH2CFG			"MMPAT_PATH_TO_CFG"
@@ -62,8 +63,8 @@ typedef UWORD WORD;
 // 128 gm and 63 drum
 #define MAXSMP				191
 static char midipat[MAXSMP][40];
-static char pathforpat[128];
-static char timiditycfg[128];
+static char pathforpat[256];
+static char timiditycfg[256];
 
 #pragma pack(1)
 
@@ -348,14 +349,20 @@ static void mmreadSBYTES(char *buf, long sz, MMFILE *mmfile)
 
 #endif
 
+extern char homedirectory[512];
+
 void pat_init_patnames(void)
 {
 	int i,j;
 	char *p, *q;
 	char line[80];
 	MMSTREAM *mmcfg;
-	strcpy(pathforpat, PATHFORPAT);
-	strcpy(timiditycfg, TIMIDITYCFG);
+	//strcpy(pathforpat, PATHFORPAT);
+	//strcpy(timiditycfg, TIMIDITYCFG);
+    sprintf(pathforpat,"%s/timidity/eawpats",homedirectory);
+    sprintf(timiditycfg,"%s/timidity/default.cfg",homedirectory);
+    
+    
 	p = getenv(PAT_ENV_PATH2CFG);
 	if( p ) {
 		strcpy(timiditycfg,p);
@@ -376,7 +383,9 @@ void pat_init_patnames(void)
 			if( isdigit(line[0]) ) {
 				i = atoi(line);
 				if( i < MAXSMP && i >= 0 ) {
-					p = strchr(line,'/')+1;
+					//p = strchr(line,'/')+1;
+                    p=line;
+                    while (isdigit(*p)||isspace(*p)) p++;
 					if(j) 
 						q = midipat[pat_gm_drumnr(i)-1];
 					else
@@ -551,7 +560,7 @@ static void pat_get_waveheader(MMFILE *mmpat, WaveHeader *hw, int layer)
 
 static int pat_readpat_attr(int pat, WaveHeader *hw, int layer)
 {
-	char fname[128];
+	char fname[256];
     unsigned long fsize;
 	MMSTREAM *mmpat;
 	pat_build_path(fname, pat);
@@ -560,8 +569,8 @@ static int pat_readpat_attr(int pat, WaveHeader *hw, int layer)
 		return 0;
 	pat_read_waveheader(mmpat, hw, layer);
 	_mm_fclose(mmpat);
-    if (hw->wave_size > fsize)
-		return 0;
+//    if (hw->wave_size > fsize)
+//		return 0;
 	return 1;
 }
 
@@ -631,7 +640,7 @@ static void pat_readpat(int pat, char *dest, int num)
 	static MMSTREAM *mmpat = 0;
 	static char *opt = 0;
 	int amp;
-	char fname[128];
+	char fname[256];
 	WaveHeader hw;
 #ifdef NEWMIKMOD
 	static int patlast = MAXSMP;
