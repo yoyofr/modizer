@@ -163,3 +163,34 @@
 "Default length %d:%.2d"="Durée par défaut %d:%.2d";
 
 "Issue %d while trying to delete entry.\n%@"="Erreur %d lors de la tentative de suppression.\n%@";
+
+"Filter"="Filtre";
+
+"Create a new playlist"="Créer une nouvelle playlist";
+"Most played files"="Fichiers les plus joués";
+"Add a playlist..."="Ajouter une playlist";
+"Now playing..."="Lecture en cours...";
+"No entry"="Aucune entrée";
+"%d entries"="%d entrées";
+"1 entry"="1 entrée";
+"Most played..."="Les plus joués...";
+"Favorites..."="Favoris...";
+"Rated files"="Fichiers notés";
+"Add/Remove files..."="Ajouter/Supprimer fichiers...";
+"Add or remove entries from browser."="Ajouter ou supprimer des entrées.";
+"More actions..."="Plus d'actions...";
+
+"Rename"="Renommer";
+"Edit"="Editer";
+"Shuffle & Play"="Mélanger & Jouer";
+"Sort A->Z"="Tri A->Z";
+"Sort Z->A"="Tri Z->A";
+"Delete"="Supprimer";
+"Cancel"="Annuler";
+"Save"="Sauver";
+"Playlist name"="Nom de la playlist";
+"Now playing"="Lecture en cours";
+"Most played"="Les plus joués";
+"Favorites"="Favoris";
+"Enter new name"="Entrez le nouveau nom";
+"Enter playlist name"="Entrez le nom de la playlist";

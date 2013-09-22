@@ -825,6 +825,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize mVolume;
 @synthesize numChannels,numPatterns,numSamples,numInstr,mPatternDataAvail;
 @synthesize genRow,genPattern,/*genOffset,*/playRow,playPattern;//,playOffset;
+@synthesize genVolData,playVolData;
 //Player status
 @synthesize bGlobalAudioPause;
 //for spectrum analyzer
@@ -949,6 +950,9 @@ void propertyListenerCallback (void                   *inUserData,              
 		//genOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		playPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		playRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
+        
+        genVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*64);
+        playVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*64);
 		//playOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		//
 		//GME specific
@@ -1088,9 +1092,11 @@ void propertyListenerCallback (void                   *inUserData,              
 	free((void*)buffer_ana_flag);
 	free(playRow);
 	free(playPattern);
+    free(playVolData);
 	//free(playOffset);
 	free(genRow);
 	free(genPattern);
+    free(genVolData);
 	//free(genOffset);
     
     if (duh_player) {
@@ -1180,6 +1186,8 @@ void propertyListenerCallback (void                   *inUserData,              
 	for (int i=0;i<SOUND_BUFFER_NB;i++) {
 		buffer_ana_flag[i]=0;
 		playRow[i]=playPattern[i]=genRow[i]=genPattern[i]=0;//=genOffset[i]=playOffset[i]=0;
+        memset(playVolData+i*64,0,64);
+        memset(genVolData+i*64,0,64);
 		memset(buffer_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
 		memset(buffer_ana_cpy[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
         memset(tim_notes[i],0,DEFAULT_VOICES*4);
@@ -1256,6 +1264,7 @@ void propertyListenerCallback (void                   *inUserData,              
 			if (mPatternDataAvail) {//Modplug
 				playPattern[buffer_ana_play_ofs]=genPattern[buffer_ana_play_ofs];
 				playRow[buffer_ana_play_ofs]=genRow[buffer_ana_play_ofs];
+                memcpy(playVolData+buffer_ana_play_ofs*64,genVolData+buffer_ana_play_ofs*64,64);
                 //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
 			}
             if (mPlayType==15) {//Timidity
@@ -2667,6 +2676,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                          }*/
                         //						genOffset[buffer_ana_gen_ofs]=genCurOffset;
 						nbBytes = ModPlug_Read(mp_file,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                        for (int i=0;i<numChannels;i++) {
+                            int v=ModPlug_GetChannelVolume(mp_file,i);
+                            genVolData[buffer_ana_gen_ofs*64+i]=(v>255?255:v);
+                        }
+
 					}
                     if (mPlayType==16) { //PMD
                         // render audio into sound buffer
@@ -2855,6 +2869,12 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                                 
                                 genPattern[buffer_ana_gen_ofs]=ModPlug_GetPatternOrder(mp_file, dumb_it_sr_get_current_order(duh_itsr)) ;
                                 genRow[buffer_ana_gen_ofs]=dumb_it_sr_get_current_row(duh_itsr);
+                                
+                                for (int i=0;i<numChannels;i++) {
+                                    int v=dumb_it_sr_get_channel_volume(duh_itsr,i)*4;
+                                    genVolData[buffer_ana_gen_ofs*64+i]=(v>255?255:v);
+                                }
+
                                 
                                 //NSLog(@"pat %d row %d",genPattern[buffer_ana_gen_ofs],genRow[buffer_ana_gen_ofs]);
                             }

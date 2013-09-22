@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4510" systemVersion="12E55" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
         <deployment version="1280" defaultVersion="1280" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
@@ -1400,7 +1400,7 @@
                         <rect key="frame" x="0.0" y="80" width="320" height="356"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>
-                        <mutableString key="text">v2.0 © Yohann Magnien / YoyoFR
+                        <string key="text">v2.0 © Yohann Magnien / YoyoFR
 
 Web: http://yoyofr.blogspot.com/p/modizer.html
 Forum: http://modizer.988727.n3.nabble.com/
@@ -1440,7 +1440,7 @@ Modizer also uses following software:
 - AnimatedGIF by Stijn Spijker
 
 Disclaimer:
-Internet accesses to the Modland &amp; HVSC libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland &amp; HVSC libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>

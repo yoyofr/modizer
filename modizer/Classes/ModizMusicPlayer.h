@@ -100,6 +100,7 @@ extern "C" {
 	
 	ModPlugFile *mp_file;
 	int *genRow,*genPattern,*playRow,*playPattern;//,*playOffset,*genOffset;
+    unsigned char *genVolData,*playVolData;
 	char *mp_data;
 	int numPatterns,numSamples,numInstr;
 	//
@@ -127,6 +128,7 @@ extern "C" {
 @property ModPlugFile *mp_file;
 @property char *mp_data;
 @property int *genRow,*genPattern,*playRow,*playPattern;//,*playOffset,*genOffset;
+@property unsigned char *genVolData,*playVolData;
 @property float mVolume;
 @property int numChannels,numPatterns,numSamples,numInstr;
 //Player status

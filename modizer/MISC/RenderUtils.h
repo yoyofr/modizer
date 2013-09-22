@@ -27,7 +27,7 @@ void drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float 
 void SetUpOrtho(float rotation,uint width,uint height);
 	
 void DrawChanLayout(uint ww,uint hh,int display_note_mode,int chanNb,int pixOfs);
-void DrawChanLayoutAfter(uint ww,uint hh,int display_note_mode);
+void DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,int pixOfs);
 
 void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);
@@ -44,9 +44,9 @@ void DrawBeat(unsigned char *beatDataL,unsigned char *beatDataR,uint ww,uint hh,
 
 void DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level,int active_idx,int cpt);
 	
-void DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len);
+void DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode);
 void DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
-void DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
+void DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 }
 
 #endif

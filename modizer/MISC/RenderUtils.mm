@@ -7,6 +7,7 @@
  *
  */
 
+
 extern BOOL is_retina;
 
 #include "RenderUtils.h"
@@ -708,9 +709,12 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     
 }
 
-void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode) {
-	LineVertex pts[4*2];
+void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,int pixOfs) {
+	LineVertex pts[64*2];
 	int ii;
+    int count=0;
+	int col_size,col_ofs;
+	
 	//set the opengl state
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -733,6 +737,36 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode) {
 	pts[2] = LineVertex(0,     _hh-30-12*(ii/2)+3+9.0f,     250,96,183,190);
 	pts[3] = LineVertex(_ww-1, _hh-30-12*(ii/2)+3+9.0f,     250,96,183,190);
 	glDrawArrays(GL_LINES, 0, 4);
+    
+    
+    switch (display_note_mode){
+		case 0:col_size=12*6;col_ofs=25;break;
+		case 1:col_size=6*6;col_ofs=27;break;
+        case 2:col_size=4*6;col_ofs=27;break;
+	}
+	
+    
+    count=0;
+	for (int i=0; i<chanNb; i++) {
+		if (col_size*i+col_ofs-2.0f>_ww) break;
+        
+        int cr,cg,cb,crb,cgb,cbb;
+        crb=100;
+        cgb=50;
+        cbb=150;
+        cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
+        cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
+        cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
+        
+        
+        
+		pts[0] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5, 0,	crb,cgb,cbb,125);
+		pts[1] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,	0,	crb,cgb,cbb,125);
+        pts[2] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*1/5,	volumeData[i]*_hh/256/5,cr,cg,cb,125);
+        pts[3] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,	volumeData[i]*_hh/256/5,cr,cg,cb,125);
+        glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+	}
+    //glDrawArrays(GL_LINES, 0, count);
 	
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
@@ -2988,7 +3022,7 @@ int qsort_CompareBar(const void *entryA, const void *entryB) {
 
 
 
-void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
+void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -3018,8 +3052,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     }
     
     if (camera_pos_countdown==0) {
-        camera_pos=arc4random()%5;
-        camera_pos_countdown=30*20+(arc4random()&511);//15s min before switching
+        camera_pos=arc4random()%8;
+        camera_pos_countdown=30*15+(arc4random()&511);//15s min before switching
     } else camera_pos_countdown--;
     
     piano_fxcpt++;
@@ -3059,13 +3093,13 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                 ztransSpeed_tgt=0;
             }
             
-            ztrans_wait=150+arc4random()&255;
+            ztrans_wait=30*5+arc4random()&255;
         } else {
             if (ztrans_wait==0) {
                 ztrans=ztrans+(ztrans_tgt-ztrans)*ztransSpeed_tgt;
                 if (ztransSpeed_tgt<0.1) ztransSpeed_tgt=ztransSpeed_tgt+0.001;
                 if (ztrans_tgt-ztrans<0.1) {
-                    ztrans_wait=150+arc4random()&255;
+                    ztrans_wait=30*5+arc4random()&255;
                     ztransSpeed_tgt=0;
                 }
             } else ztrans_wait--;
@@ -3084,19 +3118,27 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         rotx_randfact=8.0f;
         roty_randfact=5.0f;
         switch (camera_pos) {
-            case 0:
+            case 0:  //front
                 rotx_adj=30;
                 roty_adj=0;
                 break;
-            case 1:
+            case 1:  //left
                 rotx_adj=30;
                 roty_adj=45;
                 break;
-            case 2:
+            case 2:  //front
+                rotx_adj=25;
+                roty_adj=0;
+                break;
+            case 3:  //right
                 rotx_adj=30;
                 roty_adj=-45;
                 break;
-            case 3:
+            case 4: //front
+                rotx_adj=35;
+                roty_adj=0;
+                break;
+            case 5: //left
                 rotx_adj=20;
                 roty_adj=75;
                 xtrans=0;
@@ -3104,7 +3146,11 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                 rotx_randfact=3.0f;
                 roty_randfact=2.0f;
                 break;
-            case 4:
+            case 6: //front
+                rotx_adj=32;
+                roty_adj=0;
+                break;
+            case 7: //right
                 rotx_adj=20;
                 roty_adj=-75;
                 xtrans=0;
@@ -3731,7 +3777,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             vertBARindices[indices_index++]=vertices_index+3;
         }
         vertices_index+=4;
-        
+       
+        if (fxquality==2) {
         //back
         cr=crt;cg=cgt;cb=cbt;
         vertColorBAR[vertices_index+0][0]=cr;vertColorBAR[vertices_index+0][1]=cg;vertColorBAR[vertices_index+0][2]=cb;
@@ -3867,6 +3914,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         vertBARindices[indices_index++]=vertices_index+3;
         vertBARindices[indices_index++]=vertices_index+3;
         vertices_index+=4;
+        }
     }
     
     
@@ -3881,7 +3929,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
     
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND);
     //    glEnable(GL_DEPTH_TEST);
     
     /* Pop The Matrix */
@@ -3890,9 +3938,9 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     
 }
 
-void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len) {
+void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode) {
 	LineVertex *ptsB;
-	int cr,cg,cb,ca;
+    int crt,cgt,cbt,cr,cg,cb,ca;
     int index;
     //int band_width,ofs_band;
     float band_width;
@@ -3928,7 +3976,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     }
     
 	
-	ptsB=(LineVertex*)malloc(sizeof(LineVertex)*2*256);
+	ptsB=(LineVertex*)malloc(sizeof(LineVertex)*2*MAX_BARS);
 	
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -3936,11 +3984,11 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     if (horiz_vert==0) {//Horiz
         band_width=(float)(ww+0*ww/4)/data_midifx_len;
         //        ofs_band=(ww-band_width*data_midifx_len)>>1;
-        line_width=4*hh/note_display_range;
+        line_width=2*hh/note_display_range;
     } else { //vert
         band_width=(float)(hh+0*hh/4)/data_midifx_len;
         //        ofs_band=(hh-band_width*data_midifx_len)>>1;
-        line_width=4*ww/note_display_range;
+        line_width=2*ww/note_display_range;
     }
     
 	
@@ -3949,7 +3997,7 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
     
-    for (int j=data_midifx_len-1;j>=0;j--) {
+    /*for (int j=data_midifx_len-1;j>=0;j--) {
         if (j!=data_midifx_len-1-MIDIFX_OFS) glLineWidth(line_width);
         else glLineWidth(line_width+2);
         index=0;
@@ -3985,13 +4033,13 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
                     ca=255;
                     if (horiz_vert==0) { //horiz
                         if ((pos>=0)&&(pos<hh)) {
-                            ptsB[index++] = LineVertex(j*band_width/*+ofs_band*/, pos,cr,cg,cb,ca);
-                            ptsB[index++] = LineVertex(j*band_width+band_width/*+ofs_band*/, pos,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(j*band_width, pos,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(j*band_width+band_width, pos,cr,cg,cb,ca);
                         }
                     } else {
                         if ((pos>=0)&&(pos<ww)) {
-                            ptsB[index++] = LineVertex(pos,j*band_width/*+ofs_band*/,cr,cg,cb,ca);
-                            ptsB[index++] = LineVertex(pos,j*band_width+band_width/*+ofs_band*/,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(pos,j*band_width,cr,cg,cb,ca);
+                            ptsB[index++] = LineVertex(pos,j*band_width+band_width,cr,cg,cb,ca);
                         }
                     }
                 }
@@ -4000,41 +4048,198 @@ void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_d
         glDrawArrays(GL_LINES, 0, index);
         
     }
+    */
+    
+//////////////////////////////////////////////
+    
+    int data_bar2draw_count=0;
+    
+    
+    
+    for (int i=0; i<256; i++) { //for each channels
+        int j=0;
+        while (j<data_midifx_len) {  //while not having reach roof
+            if (data_midifx_note[j][i]) {  //do we have a note ?
+                int instr=data_midifx_instr[j][i];
+                int vol=data_midifx_vol[j][i];
+                int st=data_midifx_st[j][i];
+                int note=data_midifx_note[j][i];
+                
+                if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
+                    data_bar2draw[data_bar2draw_count].startidx=j;
+                    data_bar2draw[data_bar2draw_count].note=note&127;
+                    data_bar2draw[data_bar2draw_count].instr=instr;
+                    data_bar2draw[data_bar2draw_count].size=0;
+                    while ((data_midifx_instr[j][i]==instr)&&(data_midifx_note[j][i]==note)&&(vol&&(st&VOICE_ON))) {  //while same bar (instru & notes), increase size
+                        data_bar2draw[data_bar2draw_count].size++;
+                        if (j==(data_midifx_len-MIDIFX_OFS-1)) data_bar2draw[data_bar2draw_count].note|=128;
+                        j++;
+                        if (j==data_midifx_len) break;
+                        vol=data_midifx_vol[j][i];
+                        st=data_midifx_st[j][i];
+                    }
+                    data_bar2draw_count++;
+                } else j++;
+            } else j++;
+            if (data_bar2draw_count==MAX_BARS) break;
+        }
+        if (data_bar2draw_count==MAX_BARS) break;
+    }
+    qsort(data_bar2draw,data_bar2draw_count,sizeof(t_data_bar2draw),qsort_CompareBar);
+    
+    if (data_bar2draw_count>=2) { //propagate played flag
+        for (int i=1;i<data_bar2draw_count;i++) {
+            int note=data_bar2draw[i-1].note&127;
+            int played=data_bar2draw[i-1].note&128;
+            int instr=data_bar2draw[i-1].instr;
+            
+            if (played) {
+                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note&127)==note)&&
+                    (data_bar2draw[i].startidx<=(data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)))
+                    data_bar2draw[i].note|=128;
+                /*                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note&127)==note)&&
+                 (data_bar2draw[i].startidx==data_bar2draw[i-1].startidx))
+                 data_bar2draw[i].note|=128;*/
+            }
+        }
+        
+        for (int i=data_bar2draw_count-2;i>=0;i--) {
+            int note=data_bar2draw[i+1].note&127;
+            int played=data_bar2draw[i+1].note&128;
+            int instr=data_bar2draw[i+1].instr;
+            
+            if (played) {
+                if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note&127)==note)&&
+                    (data_bar2draw[i+1].startidx<=(data_bar2draw[i].startidx+data_bar2draw[i].size))) data_bar2draw[i].note|=128;
+                
+                /*if ((data_bar2draw[i].instr==instr)&&((data_bar2draw[i].note&127)==note)&&
+                 (data_bar2draw[i+1].startidx==data_bar2draw[i].startidx)) data_bar2draw[i].note|=128;
+                 */
+            }
+        }
+    }
+    
+    for (int i=1;i<data_bar2draw_count;i++) {
+        if ((data_bar2draw[i].instr==data_bar2draw[i-1].instr)&&
+            (data_bar2draw[i].note==data_bar2draw[i-1].note)&&
+            (data_bar2draw[i].startidx>=data_bar2draw[i-1].startidx)&&
+            (data_bar2draw[i].startidx+data_bar2draw[i].size<=data_bar2draw[i-1].startidx+data_bar2draw[i-1].size)) {
+            data_bar2draw[i].size=0;
+        }
+    }
+    
+    glLineWidth(line_width*(is_retina?2:1));
+    index=0;
+    
+    //TO OPTIMIZE
+    int data_bar_2dmap[128*MIDIFX_LEN];
+    memset(data_bar_2dmap,0,128*MIDIFX_LEN*4);
+    
+    for (int i=0;i<data_bar2draw_count;i++) {
+        int note=data_bar2draw[i].note&127;
+        int played=data_bar2draw[i].note&128;
+        int instr=data_bar2draw[i].instr;
+        int colidx;
+        if (color_mode==0) { //note
+            colidx=note%12;
+        } else if (color_mode==1) { //instru
+            colidx=instr&31;
+        }
+        
+        if (data_bar2draw[i].size==0) continue;
+        
+        //printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
+        
+        
+        int adj_size=0;
+        for (int j=data_bar2draw[i].startidx;j<data_bar2draw[i].startidx+data_bar2draw[i].size;j++) {
+            int _instr=(data_bar_2dmap[note*MIDIFX_LEN+j]>>16);
+            int draw_count=data_bar_2dmap[note*MIDIFX_LEN+j]&255;
+            if (draw_count) {
+                if (_instr!=(instr+1)) {
+                    draw_count++;
+                    data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|draw_count;
+                }
+                if (adj_size<(draw_count-1)) adj_size=(draw_count-1);
+            } else {
+                data_bar_2dmap[note*MIDIFX_LEN+j]=(((int)(data_bar2draw[i].instr)+1)<<16)|1;
+            }
+        }
+        //        printf("adj: %f\n",adj_size);
+        
+        
+        crt=(data_midifx_col[colidx&15]>>16);
+        cgt=((data_midifx_col[colidx&15]>>8)&0xFF);
+        cbt=(data_midifx_col[colidx&15]&0xFF);
+        
+        if (colidx&0x10) {
+            crt=(crt+255)/2;
+            cgt=(cgt+255)/2;
+            cbt=(cbt+255)/2;
+        }
+        
+        if (played) {
+            crt=(crt+255*2)/3;
+            cgt=(cgt+255*2)/3;
+            cbt=(cbt+255*2)/3;
+        }
+        ca=255;
+        
+        if (horiz_vert==0) { //horiz
+            int posNote=note*line_width/2-note_display_offset;
+            int posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
+            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
+            if ((posNote>=0)&&(posNote<hh)) {
+                ptsB[index++] = LineVertex(posStart, posNote,crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posEnd, posNote,crt,cgt,cbt,ca);
+            }
+        } else {
+            int posNote=note*line_width/2-note_display_offset;
+            int posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
+            int posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
+            if ((posNote>=0)&&(posNote<hh)) {
+                ptsB[index++] = LineVertex(posNote, posStart, crt,cgt,cbt,ca);
+                ptsB[index++] = LineVertex(posNote, posEnd, crt,cgt,cbt,ca);
+            }        }
+        
+    }
+    glDrawArrays(GL_LINES, 0, index);
+    
+    
+//////////////////////////////////////////////
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glEnable(GL_BLEND);
+    glEnable(GL_BLEND);
+    
 	
 	//current playing line
     //    230,76,153
-    cr=120;
-    cg=100;
-    cb=200;
     if (horiz_vert==0) {
-        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/, 0,cr,cg,cb,120);
-        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/, hh, cr,cg,cb,120);
+        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, 0,120,100,200,120);
+        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width, hh, 120,100,200,120);
     } else {
-        ptsB[0] = LineVertex( 0,(data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/,cr,cg,cb,120);
-        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width+(band_width/2)/*+ofs_band*/,  cr,cg,cb,120);
+        ptsB[0] = LineVertex( 0,(data_midifx_len-MIDIFX_OFS-1)*band_width,120,100,200,120);
+        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width,  120,100,200,120);
         
     }
-	glLineWidth(band_width);
+	glLineWidth(band_width*(is_retina?2:1));
 	glDrawArrays(GL_LINES, 0, 2);
     
-    if (horiz_vert==0) {
-        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/, 0,cr,cg,cb,40);
-        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/, hh, cr,cg,cb,40);
-        ptsB[2] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/, 0,cr,cg,cb,160);
-        ptsB[3] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/, hh, cr,cg,cb,160);
+/*    if (horiz_vert==0) {
+        ptsB[0] = LineVertex((data_midifx_len-MIDIFX_OFS-2)*band_width, 0,80,70,100,120);
+        ptsB[1] = LineVertex((data_midifx_len-MIDIFX_OFS-2)*band_width, hh, 80,70,100,120);
+        ptsB[2] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width, 0,200,160,250,120);
+        ptsB[3] = LineVertex((data_midifx_len-MIDIFX_OFS)*band_width, hh, 200,160,250,120);
     } else {
-        ptsB[0] = LineVertex(0,(data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/,cr,cg,cb,40);
-        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width/*+ofs_band*/,  cr,cg,cb,40);
-        ptsB[2] = LineVertex(0,(data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/,cr,cg,cb,160);
-        ptsB[3] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS)*band_width/*+ofs_band*/, cr,cg,cb,160);
+        ptsB[0] = LineVertex(0,(data_midifx_len-MIDIFX_OFS-1)*band_width,80,70,100,120);
+        ptsB[1] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS-1)*band_width,  80,70,100,120);
+        ptsB[2] = LineVertex(0,(data_midifx_len-MIDIFX_OFS)*band_width,200,160,250,120);
+        ptsB[3] = LineVertex(ww,(data_midifx_len-MIDIFX_OFS)*band_width, 200,160,250,120);
         
     }
-	glLineWidth(2.0f);
-	glDrawArrays(GL_LINES, 0, 4);
-    
+//    glLineWidth(2.0f*(is_retina?2:1));
+	glDrawArrays(GL_LINES, 0, 4);*/
+ 
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisable(GL_BLEND);

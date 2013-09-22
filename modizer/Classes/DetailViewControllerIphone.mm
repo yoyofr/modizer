@@ -4580,7 +4580,7 @@ extern "C" int current_sample;
             
             if ((mplayer.mPlayType==15)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
+                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                 
                 if (mHeader) delete mHeader;
                 mHeader=nil;
@@ -4622,7 +4622,7 @@ extern "C" int current_sample;
                         }
                     }
                     
-                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,64);
+                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                     
                 }
                 
@@ -4652,6 +4652,8 @@ extern "C" int current_sample;
                     playerpos=[mplayer getCurrentPlayedBufferIdx];
                     currentPattern=pat[playerpos];
                     currentRow=row[playerpos];
+                    
+                    
                     
                     /*
                     //BUGGY
@@ -4683,6 +4685,11 @@ extern "C" int current_sample;
                     else if (endChan<mplayer.numChannels) endChan++;
                     startRow=currentRow-midline;
                     
+                    int channelVolumeData[64];
+                    unsigned char *volData=[mplayer playVolData];
+                    for (int i=0;i<endChan-startChan;i++) {
+                        channelVolumeData[i]=volData[playerpos*64+i+startChan];
+                    }
                     
                     
                     currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
@@ -4871,9 +4878,9 @@ extern "C" int current_sample;
                     glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-12, 0.0f);
                     //glScalef(1.58f, 1.58f, 1.58f);
                     mHeader->Render(0);
-                    glPopMatrix();                    
+                    glPopMatrix();
                     
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode);
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
                 }
             }
         }
@@ -4921,7 +4928,7 @@ extern "C" int current_sample;
                     RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                     break;
                 case 2:
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
                 case 3:
                     if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
@@ -4941,7 +4948,7 @@ extern "C" int current_sample;
                     piano_posx=movePx2FXPiano*0.05;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
             }
         }

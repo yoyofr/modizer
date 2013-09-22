@@ -96,20 +96,20 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     //Get the name of the current pressed button
     NSString *buttonTitle = [actionSheet buttonTitleAtIndex:buttonIndex];
-    if  ([buttonTitle isEqualToString:@"Rename"]) {
+    if  ([buttonTitle isEqualToString:NSLocalizedString(@"Rename",@"")]) {
         mRenamePlaylist=1;
         mValidatePlName=0;
-        alertChooseName=[[[UIAlertView alloc] initWithTitle:@"Enter new name" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
+        alertChooseName=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil] autorelease];
         [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
         UITextField *tf=[alertChooseName textFieldAtIndex:0];
         tf.text=playlist->playlist_name;
         [alertChooseName show];
-    } else if  ([buttonTitle isEqualToString:@"Edit"]) {
+    } else if  ([buttonTitle isEqualToString:NSLocalizedString(@"Edit",@"")]) {
         if (playlist->nb_entries) {
             self.navigationItem.rightBarButtonItem = self.editButtonItem;
             [self setEditing:YES animated:YES];
         }
-    } else if ([buttonTitle isEqualToString:@"Shuffle & Play"]) {
+    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Shuffle & Play",@"")]) {
         if (playlist->nb_entries) {
             int pos=0;
             if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
@@ -120,24 +120,24 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             [detailViewController shuffle];
             [detailViewController play_listmodules:playlist start_index:pos];
         }
-    } else if ([buttonTitle isEqualToString:@"Sort A->Z"]) {
+    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Sort A->Z",@"")]) {
         if (playlist->nb_entries) {
             qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntries);
             if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
             [self.tableView reloadData];
         }
         
-    } else if ([buttonTitle isEqualToString:@"Sort Z->A"]) {
+    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Sort Z->A",@"")]) {
         if (playlist->nb_entries) {
             qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesRev);
             if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
             [self.tableView reloadData];
         }
-    } else if ([buttonTitle isEqualToString:@"Delete"]) {
+    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Delete",@"")]) {
         //TODO
-    } else if ([buttonTitle isEqualToString:@"Save"]) {
+    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Save",@"")]) {
         newPlaylist=2;
-        alertChooseName=[[[UIAlertView alloc] initWithTitle:@"Enter playlist name" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
+        alertChooseName=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter playlist name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil] autorelease];
         [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
         UITextField *tf=[alertChooseName textFieldAtIndex:0];
         tf.text=@"";
@@ -423,12 +423,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         list = [[NSMutableArray alloc] init];
         NSMutableArray *mode_entries = [[[NSMutableArray alloc] init] autorelease];
         NSMutableArray *mode_entries_details = [[[NSMutableArray alloc] init] autorelease];
-        [mode_entries addObject:NSLocalizedString(@"Add playlist...",@"")];
-        [mode_entries_details addObject:NSLocalizedString(@"Create a new playlist.",@"")];
+        [mode_entries addObject:NSLocalizedString(@"Add a playlist...",@"")];
+        [mode_entries_details addObject:NSLocalizedString(@"Create a new playlist",@"")];
         
         if (detailViewController.mPlaylist_size) {
             [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
-            [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),detailViewController.mPlaylist_size]];
+            if (detailViewController.mPlaylist_size==1) [mode_entries_details addObject:NSLocalizedString(@"1 entry",@"")];
+            else [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),detailViewController.mPlaylist_size]];
         }
         else {
             [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
@@ -2270,13 +2271,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             [self replacePlaylistDBwithCurrent];
         }
         if ((browse_depth==0)&&(indexPath.row>=4)) {  //delete a playlist
-            if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-2]]) {
+            if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-4]]) {
                 
                 [keys release];keys=nil;
                 [list release];list=nil;
                 [self fillKeys];
                 [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-                
+                //[tabView reloadData];
                 
             }
         }
@@ -2602,7 +2603,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             newPlaylist=1;
             mValidatePlName=0;
             
-            alertChooseName=[[[UIAlertView alloc] initWithTitle:@"Playlist name" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
+            alertChooseName=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Playlist name",@"") message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
             [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
             [alertChooseName show];
             
@@ -2623,7 +2624,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
             }
             playlist->nb_entries=detailViewController.mPlaylist_size;
-            playlist->playlist_name=[[NSString alloc] initWithFormat:@"Now playing"];
+            playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
             playlist->playlist_id=nil;
             
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -2645,7 +2646,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         }
         if (indexPath.row==2) { //most played
             [self loadMostPlayedList];
-            playlist->playlist_name=[[NSString alloc] initWithFormat:@"Most played"];
+            playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Most played",@"")];
             playlist->playlist_id=nil;
             
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -2668,7 +2669,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         }
         if (indexPath.row==3) { //favorites
             [self loadFavoritesList];
-            playlist->playlist_name=[[NSString alloc] initWithFormat:@"Favorites"];
+            playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Favorites",@"")];
             playlist->playlist_id=nil;
             
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -2738,13 +2739,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             } else if (row==1 ){ //playlist actions
                 if (playlist->playlist_id) {
                     NSString *actionSheetTitle = @""; //Action Sheet Title
-                    NSString *other1 = @"Rename";
-                    NSString *other2 = @"Edit";
-                    NSString *other3 = @"Shuffle & Play";
-                    NSString *other4 = @"Sort A->Z";
-                    NSString *other5 = @"Sort Z->A";
-                    NSString *destructiveTitle = @"Delete";
-                    NSString *cancelTitle = @"Cancel";
+                    NSString *other1 = NSLocalizedString(@"Rename",@"");
+                    NSString *other2 = NSLocalizedString(@"Edit",@"");
+                    NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
+                    NSString *other4 = NSLocalizedString(@"Sort A->Z",@"");
+                    NSString *other5 = NSLocalizedString(@"Sort Z->A",@"");
+                    NSString *destructiveTitle = NSLocalizedString(@"Delete",@"");
+                    NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
                     UIActionSheet *actionSheet = [[UIActionSheet alloc]
                                                   initWithTitle:actionSheetTitle
                                                   delegate:self
@@ -2762,12 +2763,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     UIActionSheet *actionSheet;
                     if (integrated_playlist==0) {
                     NSString *actionSheetTitle = @""; //Action Sheet Title
-                    NSString *other1 = @"Save";
-                    NSString *other2 = @"Edit";
-                    NSString *other3 = @"Shuffle & Play";
-                    NSString *other4 = @"Sort A->Z";
-                    NSString *other5 = @"Sort Z->A";
-                    NSString *cancelTitle = @"Cancel";
+                    NSString *other1 = NSLocalizedString(@"Save",@"");
+                    NSString *other2 = NSLocalizedString(@"Edit",@"");
+                        NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
+                        NSString *other4 = NSLocalizedString(@"Sort A->Z",@"");
+                        NSString *other5 = NSLocalizedString(@"Sort Z->A",@"");
+                        NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
+                        
+                        
                     actionSheet = [[UIActionSheet alloc]
                                                   initWithTitle:actionSheetTitle
                                                   delegate:self
@@ -2778,10 +2781,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     [actionSheet setCancelButtonIndex:5];
                     } else if ((integrated_playlist==1)||(integrated_playlist==2)) {
                         NSString *actionSheetTitle = @""; //Action Sheet Title
-                        NSString *other1 = @"Save";
-                        NSString *other2 = @"Edit";
-                        NSString *other3 = @"Shuffle & Play";
-                        NSString *cancelTitle = @"Cancel";
+                        NSString *other1 = NSLocalizedString(@"Save",@"");
+                        NSString *other2 = NSLocalizedString(@"Edit",@"");
+                        NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
+                        NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
+
+                        
                         actionSheet = [[UIActionSheet alloc]
                                                       initWithTitle:actionSheetTitle
                                                       delegate:self

@@ -800,7 +800,6 @@
 		CC1E641912043064000A8A4E /* uadeipc.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5FEB1202F24F000A8A4E /* uadeipc.c */; };
 		CC2DE0A41217EF2900CF9CFF /* ModizerWin.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
-		CC5C709417CBFFEA00DC7197 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709317CBFFEA00DC7197 /* MainWindow.xib */; };
 		CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709517CC8EB000DC7197 /* txtMenu11c.png */; };
 		CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709617CC8EB000DC7197 /* txtMenu11d.png */; };
 		CC5C709B17CD1BAE00DC7197 /* FFTAccelerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */; };
@@ -910,6 +909,7 @@
 		CCFDC54017DB105500C6692C /* NVDSP.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC52017DB105500C6692C /* NVDSP.mm */; };
 		CCFDC54317DB105500C6692C /* NVClippingDetection.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC52517DB105500C6692C /* NVClippingDetection.m */; };
 		CCFDC54417DB105500C6692C /* NVSoundLevelMeter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC52717DB105500C6692C /* NVSoundLevelMeter.m */; };
+		CCFE183917EF586200C1682F /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCFE183B17EF586200C1682F /* MainWindow.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2332,7 +2332,6 @@
 		CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizerWin.h; sourceTree = "<group>"; };
 		CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizerWin.mm; sourceTree = "<group>"; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
-		CC5C709317CBFFEA00DC7197 /* MainWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		CC5C709517CC8EB000DC7197 /* txtMenu11c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c.png; sourceTree = "<group>"; };
 		CC5C709617CC8EB000DC7197 /* txtMenu11d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11d.png; sourceTree = "<group>"; };
 		CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFTAccelerate.cpp; sourceTree = "<group>"; };
@@ -2636,6 +2635,8 @@
 		CCFDC52517DB105500C6692C /* NVClippingDetection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NVClippingDetection.m; sourceTree = "<group>"; };
 		CCFDC52617DB105500C6692C /* NVSoundLevelMeter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NVSoundLevelMeter.h; sourceTree = "<group>"; };
 		CCFDC52717DB105500C6692C /* NVSoundLevelMeter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NVSoundLevelMeter.m; sourceTree = "<group>"; };
+		CCFE183F17EF5BE200C1682F /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
+		CCFE184017EF5C7C00C1682F /* fr */ = {isa = PBXFileReference; lastKnownFileType = file; name = fr; path = fr.lproj/MainWindow.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3786,7 +3787,7 @@
 			children = (
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
-				CC5C709317CBFFEA00DC7197 /* MainWindow.xib */,
+				CCFE183B17EF586200C1682F /* MainWindow.xib */,
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
 				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
 				33ABE5B617B23DF900AE0EA1 /* BookmarksViewController.xib */,
@@ -5550,7 +5551,7 @@
 				3317854C17C6255200929E8F /* tabview_gradient50@2x.png in Resources */,
 				33B7AD0F17C75A8B00C1E404 /* MaintenanceViewController.xib in Resources */,
 				CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */,
-				CC5C709417CBFFEA00DC7197 /* MainWindow.xib in Resources */,
+				CCFE183917EF586200C1682F /* MainWindow.xib in Resources */,
 				CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */,
 				CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */,
 			);
@@ -5946,6 +5947,15 @@
 				CCAE595217ECAC69007638B9 /* fr */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		CCFE183B17EF586200C1682F /* MainWindow.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CCFE183F17EF5BE200C1682F /* en */,
+				CCFE184017EF5C7C00C1682F /* fr */,
+			);
+			name = MainWindow.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
