@@ -2635,8 +2635,8 @@
 		CCFDC52517DB105500C6692C /* NVClippingDetection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NVClippingDetection.m; sourceTree = "<group>"; };
 		CCFDC52617DB105500C6692C /* NVSoundLevelMeter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NVSoundLevelMeter.h; sourceTree = "<group>"; };
 		CCFDC52717DB105500C6692C /* NVSoundLevelMeter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NVSoundLevelMeter.m; sourceTree = "<group>"; };
-		CCFE183F17EF5BE200C1682F /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
-		CCFE184017EF5C7C00C1682F /* fr */ = {isa = PBXFileReference; lastKnownFileType = file; name = fr; path = fr.lproj/MainWindow.xib; sourceTree = "<group>"; };
+		CCFE183F17EF5BE200C1682F /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
+		CCFE184017EF5C7C00C1682F /* fr */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = fr; path = fr.lproj/MainWindow.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -4422,6 +4422,87 @@
 			name = libgme;
 			sourceTree = "<group>";
 		};
+		CC9167F117EFA6FA0012E2C1 /* Classical */ = {
+			isa = PBXGroup;
+			children = (
+				331EB21A13A6C34E00703140 /* Flowers.jpg */,
+				331EB19B13A6BCB800703140 /* Flowers.mid */,
+				331EB18D13A6BCB800703140 /* beethoven_concerto4_1.jpg */,
+				331EB18E13A6BCB800703140 /* beethoven_concerto4_1.mid */,
+				331EB18F13A6BCB800703140 /* beethoven_moonlight.jpg */,
+				331EB19013A6BCB800703140 /* beethoven_moonlight.mid */,
+				331EB19113A6BCB800703140 /* beethoven_pathetique.jpg */,
+				331EB19213A6BCB800703140 /* beethoven_pathetique.mid */,
+				331EB18713A6BCB800703140 /* albeniz_asturia.jpg */,
+				331EB18813A6BCB800703140 /* albeniz_asturia.mid */,
+				331EB18913A6BCB800703140 /* ALBINONI.jpg */,
+				331EB18A13A6BCB800703140 /* ALBINONI.MID */,
+				331EB1A513A6BCB800703140 /* schubert_imp2.jpg */,
+				331EB1A613A6BCB800703140 /* schubert_imp2.mid */,
+				331EB1A713A6BCB800703140 /* schubert_imp4.jpg */,
+				331EB1A813A6BCB800703140 /* schubert_imp4.mid */,
+			);
+			name = Classical;
+			sourceTree = "<group>";
+		};
+		CC9167F317EFA72F0012E2C1 /* Games */ = {
+			isa = PBXGroup;
+			children = (
+				331EB1A313A6BCB800703140 /* One_Man_and_His_Droid.jpg */,
+				331EB1A413A6BCB800703140 /* One_Man_and_His_Droid.sid */,
+				331EB1A913A6BCB800703140 /* SMB1-Theme.mid */,
+				331EB1AA13A6BCB800703140 /* title theme.laa */,
+				331EB21913A6C34E00703140 /* DukeNukem_Level1.jpg */,
+				331EB21213A6BE7B00703140 /* turrican 2 level 0-intro.jpg */,
+				331EB18513A6BCB800703140 /* 1942.jpg */,
+				331EB18613A6BCB800703140 /* 1942.mod */,
+				331EB18B13A6BCB800703140 /* Auf_Wiedersehen_Monty.jpg */,
+				331EB18C13A6BCB800703140 /* Auf_Wiedersehen_Monty.sid */,
+				331EB19313A6BCB800703140 /* bubble bobble.jpg */,
+				331EB19413A6BCB800703140 /* bubble bobble.mod */,
+				331EB19513A6BCB800703140 /* Doom2-Stage01.jpg */,
+				331EB19613A6BCB800703140 /* Doom2-Stage01.mid */,
+				331EB19713A6BCB800703140 /* DoubleDragon1_Stage1.jpg */,
+				331EB19813A6BCB800703140 /* DoubleDragon1_Stage1.mid */,
+				331EB19913A6BCB800703140 /* DukeNukem_Level1.mid */,
+				331EB19A13A6BCB800703140 /* FF7_AerisTheme.mid */,
+				331EB19F13A6BCB800703140 /* mega man 3.nsf */,
+				331EB21B13A6C34E00703140 /* mega man 3.jpg */,
+				331EB21C13A6C34E00703140 /* title theme.gif */,
+				331EB1AC13A6BCB800703140 /* turrican 2 level 0-intro.mdat */,
+				331EB1AD13A6BCB800703140 /* turrican 2 level 0-intro.smpl */,
+				331EB1B213A6BCB800703140 /* zelda.mid */,
+				331EB1B313A6BCB800703140 /* zelda.png */,
+			);
+			name = Games;
+			sourceTree = "<group>";
+		};
+		CC9167F417EFA7380012E2C1 /* Demoscene */ = {
+			isa = PBXGroup;
+			children = (
+				331EB21513A6BF6600703140 /* virtual escape.gif */,
+				331EB1AB13A6BCB800703140 /* trans atlantic short.mod */,
+				331EB1AF13A6BCB800703140 /* unreal ][.s3m */,
+				331EB21713A6C13D00703140 /* unreal ][.png */,
+				331EB1B013A6BCB800703140 /* varanen short.mod */,
+				331EB1B113A6BCB800703140 /* virtual escape.sndh */,
+				331EB1A013A6BCB800703140 /* nebulos.mod */,
+				331EB1A113A6BCB800703140 /* odyssey-part5.jpg */,
+				331EB1A213A6BCB800703140 /* odyssey-part5.mod */,
+			);
+			name = Demoscene;
+			sourceTree = "<group>";
+		};
+		CC9167F517EFA7660012E2C1 /* Various */ = {
+			isa = PBXGroup;
+			children = (
+				331EB19C13A6BCB800703140 /* james_bond.jpg */,
+				331EB19D13A6BCB800703140 /* james_bond.mid */,
+				331EB19E13A6BCB800703140 /* Live_And_Let_Die.mid */,
+			);
+			name = Various;
+			sourceTree = "<group>";
+		};
 		CC9B17D812FF017B00985967 /* hvl */ = {
 			isa = PBXGroup;
 			children = (
@@ -4613,59 +4694,10 @@
 		CCB21D9C124690E000A30F62 /* Samples2 */ = {
 			isa = PBXGroup;
 			children = (
-				331EB21213A6BE7B00703140 /* turrican 2 level 0-intro.jpg */,
-				331EB18513A6BCB800703140 /* 1942.jpg */,
-				331EB18613A6BCB800703140 /* 1942.mod */,
-				331EB18713A6BCB800703140 /* albeniz_asturia.jpg */,
-				331EB18813A6BCB800703140 /* albeniz_asturia.mid */,
-				331EB18913A6BCB800703140 /* ALBINONI.jpg */,
-				331EB18A13A6BCB800703140 /* ALBINONI.MID */,
-				331EB18B13A6BCB800703140 /* Auf_Wiedersehen_Monty.jpg */,
-				331EB18C13A6BCB800703140 /* Auf_Wiedersehen_Monty.sid */,
-				331EB18D13A6BCB800703140 /* beethoven_concerto4_1.jpg */,
-				331EB18E13A6BCB800703140 /* beethoven_concerto4_1.mid */,
-				331EB18F13A6BCB800703140 /* beethoven_moonlight.jpg */,
-				331EB19013A6BCB800703140 /* beethoven_moonlight.mid */,
-				331EB19113A6BCB800703140 /* beethoven_pathetique.jpg */,
-				331EB19213A6BCB800703140 /* beethoven_pathetique.mid */,
-				331EB19313A6BCB800703140 /* bubble bobble.jpg */,
-				331EB19413A6BCB800703140 /* bubble bobble.mod */,
-				331EB19513A6BCB800703140 /* Doom2-Stage01.jpg */,
-				331EB19613A6BCB800703140 /* Doom2-Stage01.mid */,
-				331EB19713A6BCB800703140 /* DoubleDragon1_Stage1.jpg */,
-				331EB19813A6BCB800703140 /* DoubleDragon1_Stage1.mid */,
-				331EB19913A6BCB800703140 /* DukeNukem_Level1.mid */,
-				331EB19A13A6BCB800703140 /* FF7_AerisTheme.mid */,
-				331EB19B13A6BCB800703140 /* Flowers.mid */,
-				331EB19C13A6BCB800703140 /* james_bond.jpg */,
-				331EB19D13A6BCB800703140 /* james_bond.mid */,
-				331EB19E13A6BCB800703140 /* Live_And_Let_Die.mid */,
-				331EB19F13A6BCB800703140 /* mega man 3.nsf */,
-				331EB1A013A6BCB800703140 /* nebulos.mod */,
-				331EB1A113A6BCB800703140 /* odyssey-part5.jpg */,
-				331EB1A213A6BCB800703140 /* odyssey-part5.mod */,
-				331EB1A313A6BCB800703140 /* One_Man_and_His_Droid.jpg */,
-				331EB1A413A6BCB800703140 /* One_Man_and_His_Droid.sid */,
-				331EB1A513A6BCB800703140 /* schubert_imp2.jpg */,
-				331EB1A613A6BCB800703140 /* schubert_imp2.mid */,
-				331EB1A713A6BCB800703140 /* schubert_imp4.jpg */,
-				331EB1A813A6BCB800703140 /* schubert_imp4.mid */,
-				331EB1A913A6BCB800703140 /* SMB1-Theme.mid */,
-				331EB1AA13A6BCB800703140 /* title theme.laa */,
-				331EB21913A6C34E00703140 /* DukeNukem_Level1.jpg */,
-				331EB21A13A6C34E00703140 /* Flowers.jpg */,
-				331EB21B13A6C34E00703140 /* mega man 3.jpg */,
-				331EB21C13A6C34E00703140 /* title theme.gif */,
-				331EB21513A6BF6600703140 /* virtual escape.gif */,
-				331EB1AB13A6BCB800703140 /* trans atlantic short.mod */,
-				331EB1AC13A6BCB800703140 /* turrican 2 level 0-intro.mdat */,
-				331EB1AD13A6BCB800703140 /* turrican 2 level 0-intro.smpl */,
-				331EB1AF13A6BCB800703140 /* unreal ][.s3m */,
-				331EB21713A6C13D00703140 /* unreal ][.png */,
-				331EB1B013A6BCB800703140 /* varanen short.mod */,
-				331EB1B113A6BCB800703140 /* virtual escape.sndh */,
-				331EB1B213A6BCB800703140 /* zelda.mid */,
-				331EB1B313A6BCB800703140 /* zelda.png */,
+				CC9167F517EFA7660012E2C1 /* Various */,
+				CC9167F417EFA7380012E2C1 /* Demoscene */,
+				CC9167F317EFA72F0012E2C1 /* Games */,
+				CC9167F117EFA6FA0012E2C1 /* Classical */,
 			);
 			name = Samples2;
 			path = Samples;
