@@ -1,3 +1,16 @@
+2.0
+---
+- global interface review
+- new visualizers: 3D spectrum, 3D Piano
+- add of a 10 bands, hardware accelerated equalizer
+- add of ASMA collection
+- updated HVSC to #59 version
+- updated MODLAND to latest version
+- updated plugins to latest version (GME, ASAP, DUMB, MODPLUG)
+- improved settings coverage
+- multiple bugfixes
+
+
 1.7
 ---
 - multiple bugfixes & better stability

@@ -217,7 +217,8 @@ void dumb_it_sr_set_speed(DUMB_IT_SIGRENDERER *sr, int speed)
 
 int dumb_it_sr_get_channel_volume(DUMB_IT_SIGRENDERER *sr, int channel)
 {
-	return sr ? sr->channel[channel].channelvolume : 0;
+//    printf("%d %d %d\n",sr->channel[channel].channelvolume,sr->channel[channel].volume,channel);
+	return sr ? sr->channel[channel].volume/*channelvolume*/ : 0;
 }
 
 

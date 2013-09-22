@@ -212,7 +212,7 @@ int ModPlug_GetPlayingChannels(ModPlugFile* file)
 }
 
 int ModPlug_GetChannelVolume(ModPlugFile *file,int channel) {
-    return file->mSoundFile.ChnSettings[channel].nVolume;
+    return file->mSoundFile.Chn[channel].nVolume;
 }
 
 void ModPlug_SeekOrder(ModPlugFile* file,int order)

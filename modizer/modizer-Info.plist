@@ -376,8 +376,6 @@
 	<string>2.0</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSMainNibFile</key>
@@ -409,6 +407,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
