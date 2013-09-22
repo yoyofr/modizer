@@ -204,6 +204,7 @@ extern "C" {
 -(void) optTIM_Chorus:(int)val;
 -(void) optTIM_LPFilter:(int)val;
 -(void) optTIM_Resample:(int)val;
+-(void) optTIM_Amplification:(int)val;
 
 -(void) optSIDFilter:(int)onoff;
 -(void) optSIDClock:(int)clockMode;
@@ -242,5 +243,6 @@ extern "C" {
 -(int) getCurrentTime;
 -(int) shouldUpdateInfos;
 -(void) setInfosUpdated;
+-(int) getChannelVolume:(int)channel;
 
 @end

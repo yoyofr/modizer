@@ -138,6 +138,7 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_TIMIDITY,
         TIM_Polyphony,
+        TIM_Amplification,
         TIM_Chorus,
         TIM_Reverb,
         TIM_Resample,

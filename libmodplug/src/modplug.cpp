@@ -211,6 +211,10 @@ int ModPlug_GetPlayingChannels(ModPlugFile* file)
 	return ( file->mSoundFile.m_nMixChannels < file->mSoundFile.m_nMaxMixChannels ? file->mSoundFile.m_nMixChannels : file->mSoundFile.m_nMaxMixChannels );
 }
 
+int ModPlug_GetChannelVolume(ModPlugFile *file,int channel) {
+    return file->mSoundFile.ChnSettings[channel].nVolume;
+}
+
 void ModPlug_SeekOrder(ModPlugFile* file,int order)
 {
 	file->mSoundFile.SetCurrentOrder(order);

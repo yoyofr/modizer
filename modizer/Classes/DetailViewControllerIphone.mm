@@ -380,8 +380,14 @@ static float movePinchScale,movePinchScaleOld;
         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
         if (startChan<0) startChan=0;
         
-        tim_midifx_note_range=128; //128notes max
-        tim_midifx_note_offset=0;
+        tim_midifx_note_range=88;// //128notes max
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+            tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.width/tim_midifx_note_range;
+        } else {
+            tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.height/tim_midifx_note_range;
+        }
+        
+        
         
         [self checkGLViewCanDisplay];
     }
@@ -480,6 +486,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optTIM_Reverb:(int)(settings[TIM_Reverb].detail.mdz_boolswitch.switch_value)];
         [mplayer optTIM_Resample:(int)(settings[TIM_Resample].detail.mdz_switch.switch_value)];
         [mplayer optTIM_LPFilter:(int)(settings[TIM_LPFilter].detail.mdz_boolswitch.switch_value)];
+        [mplayer optTIM_Amplification:(int)(settings[TIM_Amplification].detail.mdz_slider.slider_value)];
 	}
     
     /////////////////////
@@ -2347,8 +2354,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
-    tim_midifx_note_range=128; //128notes max
-    tim_midifx_note_offset=0;
+    tim_midifx_note_range=88;// //128notes max
+    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+        tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.width/tim_midifx_note_range;
+    } else {
+        tim_midifx_note_offset=(128-88)/2*m_oglView.frame.size.height/tim_midifx_note_range;
+    }
+
 	
 	return YES;
 }
@@ -3997,6 +4009,7 @@ static int mOglView2Taps=0;
     }
 }
 
+extern "C" int current_sample;
 
 - (void)doFrame {
     static int framecpt=0;
@@ -4439,25 +4452,6 @@ static int mOglView2Taps=0;
 			snd_buffer=[mplayer buffer_ana_cpy];
 			cur_pos=[mplayer getCurrentPlayedBufferIdx];
 			short int *curBuffer=snd_buffer[cur_pos];
-/*			int k=0;
-			int j=256*SOUND_BUFFER_SIZE_SAMPLE/(SPECTRUM_BANDS*2);
-            if (mplayer.bGlobalAudioPause==0) {
-                for (int i=0;i<SPECTRUM_BANDS*2;i++) {
-                    real_spectrumL[i]=(curBuffer[(k>>8)*2]);
-                    real_spectrumR[i]=(curBuffer[(k>>8)*2+1]);
-                    img_spectrumL[i]=0;
-                    img_spectrumR[i]=0;
-                    k+=j;
-                }
-            } else {
-                memset(real_spectrumL,0,SPECTRUM_BANDS*2*2);
-                memset(real_spectrumR,0,SPECTRUM_BANDS*2*2);
-                memset(img_spectrumL,0,SPECTRUM_BANDS*2*2);
-                memset(img_spectrumR,0,SPECTRUM_BANDS*2*2);
-            }
-            */
-            
-            
             // COMPUTE FFT
             
     /////////////////////////////////////////            
@@ -4658,6 +4652,29 @@ static int mOglView2Taps=0;
                     playerpos=[mplayer getCurrentPlayedBufferIdx];
                     currentPattern=pat[playerpos];
                     currentRow=row[playerpos];
+                    
+                    /*
+                    //BUGGY
+                    if (mplayer.mPlayType==15) { //Timidity
+                        int currentPos;
+                        int tempo=ModPlug_GetCurrentTempo(mplayer.mp_file);
+                        int speed=ModPlug_GetCurrentSpeed(mplayer.mp_file);
+                        int numr;
+                        
+                        // compute length of current row
+                        int itime=[mplayer getCurrentTime];
+                        itime=current_sample*1000/44100;
+                        currentPos= itime*16/1000;
+                        if (currentPos<0) currentPos=0;
+                        
+                        currentPattern=currentPos/64;
+                        currentRow=currentPos&63;
+                        currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numr));
+                        NSLog(@"time: %d / pat: %d / pos:%d-%d / tempo:%d / speed:%d",itime/1000,currentPattern,currentRow,numr,tempo,speed);
+                        
+                    }
+                    */
+                    
                     
                     //            int currentYoffset=playerOffset[playerpos]*12/1000;
                     

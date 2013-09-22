@@ -22,6 +22,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 static BOOL backgroundSupported;
 
+char homedirectory[512];
+
 char* strlower(char *Str);
 extern "C" {
 
@@ -88,6 +90,8 @@ BOOL is_ios7,is_retina;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
 	// Override point for customization after application launch
 	//
+    
+    sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;
