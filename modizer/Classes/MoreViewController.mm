@@ -216,7 +216,7 @@ extern BOOL is_ios7;
     switch (indexPath.row) {
         case 0:
             topLabel.text=NSLocalizedString(@"About",@"");
-            bottomLabel.text=NSLocalizedString(@"Some general information",@"");
+            bottomLabel.text=NSLocalizedString(@"Some general informations",@"");
             break;
         case 1:
             topLabel.text=NSLocalizedString(@"Settings",@"");
@@ -224,13 +224,13 @@ extern BOOL is_ios7;
             break;
         case 2:
             topLabel.text=NSLocalizedString(@"Maintenance",@"");
-            bottomLabel.text=NSLocalizedString(@"Clean Database, Reset ratings, ...",@"");
+            bottomLabel.text=NSLocalizedString(@"Clean DB, Reset ratings, ...",@"");
             break;
         case 3: //downloads
         {
             topLabel.text=NSLocalizedString(@"Downloads",@"");
             int download_queue=downloadViewController.mFTPDownloadQueueDepth+downloadViewController.mURLDownloadQueueDepth;
-            if (download_queue==1) bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Download queue: %d file",@""),download_queue];
+            if (download_queue==1) bottomLabel.text=NSLocalizedString(@"Download queue: 1 file",@"");
             else if (download_queue>1) bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"Download queue: %d files",@""),download_queue];
             else bottomLabel.text=NSLocalizedString(@"No download in progress",@"");
         }
