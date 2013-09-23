@@ -194,3 +194,12 @@
 "Favorites"="Favoris";
 "Enter new name"="Entrez le nouveau nom";
 "Enter playlist name"="Entrez le nom de la playlist";
+
+"About"="A propos";
+"Some general informations"="Informations générales";
+"Settings"="Réglages";
+"Downloads"="Téléchargements";
+"Clean DB, Reset ratings, ..."="Nettoyage DB, raz des notes, ...";
+"Download queue: 1 file"="File de téléchargement: 1 fichier";
+"Download queue: %d files"="File de téléchargement: %d fichiers";
+"General Settings"="Réglages généraux";

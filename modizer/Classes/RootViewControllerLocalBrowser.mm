@@ -252,7 +252,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     NSError *error;
 	
 	NSString *samplesDocPath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"]];
-	NSString *samplesPkgPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Samples2"];
+	NSString *samplesPkgPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Samples"];
 	
 	
     success = [fileManager fileExistsAtPath:samplesDocPath];

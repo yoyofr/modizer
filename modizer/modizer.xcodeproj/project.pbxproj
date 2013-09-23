@@ -46,113 +46,7 @@
 		3317854A17C6255200929E8F /* tabview_gradient40@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3317854617C6255200929E8F /* tabview_gradient40@2x.png */; };
 		3317854B17C6255200929E8F /* tabview_gradient50.png in Resources */ = {isa = PBXBuildFile; fileRef = 3317854717C6255200929E8F /* tabview_gradient50.png */; };
 		3317854C17C6255200929E8F /* tabview_gradient50@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3317854817C6255200929E8F /* tabview_gradient50@2x.png */; };
-		331EB1B413A6BCB800703140 /* 1942.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18513A6BCB800703140 /* 1942.jpg */; };
-		331EB1B513A6BCB800703140 /* 1942.mod in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18613A6BCB800703140 /* 1942.mod */; };
-		331EB1B613A6BCB800703140 /* albeniz_asturia.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18713A6BCB800703140 /* albeniz_asturia.jpg */; };
-		331EB1B713A6BCB900703140 /* albeniz_asturia.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18813A6BCB800703140 /* albeniz_asturia.mid */; };
-		331EB1B813A6BCB900703140 /* ALBINONI.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18913A6BCB800703140 /* ALBINONI.jpg */; };
-		331EB1B913A6BCB900703140 /* ALBINONI.MID in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18A13A6BCB800703140 /* ALBINONI.MID */; };
-		331EB1BA13A6BCB900703140 /* Auf_Wiedersehen_Monty.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18B13A6BCB800703140 /* Auf_Wiedersehen_Monty.jpg */; };
-		331EB1BB13A6BCBA00703140 /* Auf_Wiedersehen_Monty.sid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18C13A6BCB800703140 /* Auf_Wiedersehen_Monty.sid */; };
-		331EB1BC13A6BCBA00703140 /* beethoven_concerto4_1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18D13A6BCB800703140 /* beethoven_concerto4_1.jpg */; };
-		331EB1BD13A6BCBA00703140 /* beethoven_concerto4_1.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18E13A6BCB800703140 /* beethoven_concerto4_1.mid */; };
-		331EB1BE13A6BCBA00703140 /* beethoven_moonlight.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB18F13A6BCB800703140 /* beethoven_moonlight.jpg */; };
-		331EB1BF13A6BCBA00703140 /* beethoven_moonlight.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19013A6BCB800703140 /* beethoven_moonlight.mid */; };
-		331EB1C013A6BCBB00703140 /* beethoven_pathetique.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19113A6BCB800703140 /* beethoven_pathetique.jpg */; };
-		331EB1C113A6BCBB00703140 /* beethoven_pathetique.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19213A6BCB800703140 /* beethoven_pathetique.mid */; };
-		331EB1C213A6BCBB00703140 /* bubble bobble.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19313A6BCB800703140 /* bubble bobble.jpg */; };
-		331EB1C313A6BCBB00703140 /* bubble bobble.mod in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19413A6BCB800703140 /* bubble bobble.mod */; };
-		331EB1C413A6BCBC00703140 /* Doom2-Stage01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19513A6BCB800703140 /* Doom2-Stage01.jpg */; };
-		331EB1C513A6BCBC00703140 /* Doom2-Stage01.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19613A6BCB800703140 /* Doom2-Stage01.mid */; };
-		331EB1C613A6BCBC00703140 /* DoubleDragon1_Stage1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19713A6BCB800703140 /* DoubleDragon1_Stage1.jpg */; };
-		331EB1C713A6BCBC00703140 /* DoubleDragon1_Stage1.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19813A6BCB800703140 /* DoubleDragon1_Stage1.mid */; };
-		331EB1C813A6BCBC00703140 /* DukeNukem_Level1.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19913A6BCB800703140 /* DukeNukem_Level1.mid */; };
-		331EB1C913A6BCBD00703140 /* FF7_AerisTheme.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19A13A6BCB800703140 /* FF7_AerisTheme.mid */; };
-		331EB1CA13A6BCBD00703140 /* Flowers.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19B13A6BCB800703140 /* Flowers.mid */; };
-		331EB1CB13A6BCBD00703140 /* james_bond.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19C13A6BCB800703140 /* james_bond.jpg */; };
-		331EB1CC13A6BCBD00703140 /* james_bond.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19D13A6BCB800703140 /* james_bond.mid */; };
-		331EB1CD13A6BCBE00703140 /* Live_And_Let_Die.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19E13A6BCB800703140 /* Live_And_Let_Die.mid */; };
-		331EB1CE13A6BCBE00703140 /* mega man 3.nsf in Resources */ = {isa = PBXBuildFile; fileRef = 331EB19F13A6BCB800703140 /* mega man 3.nsf */; };
-		331EB1CF13A6BCBE00703140 /* nebulos.mod in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A013A6BCB800703140 /* nebulos.mod */; };
-		331EB1D013A6BCBE00703140 /* odyssey-part5.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A113A6BCB800703140 /* odyssey-part5.jpg */; };
-		331EB1D113A6BCBF00703140 /* odyssey-part5.mod in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A213A6BCB800703140 /* odyssey-part5.mod */; };
-		331EB1D213A6BCBF00703140 /* One_Man_and_His_Droid.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A313A6BCB800703140 /* One_Man_and_His_Droid.jpg */; };
-		331EB1D313A6BCBF00703140 /* One_Man_and_His_Droid.sid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A413A6BCB800703140 /* One_Man_and_His_Droid.sid */; };
-		331EB1D413A6BCBF00703140 /* schubert_imp2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A513A6BCB800703140 /* schubert_imp2.jpg */; };
-		331EB1D513A6BCC000703140 /* schubert_imp2.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A613A6BCB800703140 /* schubert_imp2.mid */; };
-		331EB1D613A6BCC000703140 /* schubert_imp4.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A713A6BCB800703140 /* schubert_imp4.jpg */; };
-		331EB1D713A6BCC000703140 /* schubert_imp4.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A813A6BCB800703140 /* schubert_imp4.mid */; };
-		331EB1D813A6BCC000703140 /* SMB1-Theme.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1A913A6BCB800703140 /* SMB1-Theme.mid */; };
-		331EB1D913A6BCC100703140 /* title theme.laa in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1AA13A6BCB800703140 /* title theme.laa */; };
-		331EB1DA13A6BCC100703140 /* trans atlantic short.mod in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1AB13A6BCB800703140 /* trans atlantic short.mod */; };
-		331EB1DB13A6BCC100703140 /* turrican 2 level 0-intro.mdat in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1AC13A6BCB800703140 /* turrican 2 level 0-intro.mdat */; };
-		331EB1DC13A6BCC100703140 /* turrican 2 level 0-intro.smpl in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1AD13A6BCB800703140 /* turrican 2 level 0-intro.smpl */; };
-		331EB1DE13A6BCC200703140 /* unreal ][.s3m in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1AF13A6BCB800703140 /* unreal ][.s3m */; };
-		331EB1DF13A6BCC200703140 /* varanen short.mod in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1B013A6BCB800703140 /* varanen short.mod */; };
-		331EB1E013A6BCC300703140 /* virtual escape.sndh in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1B113A6BCB800703140 /* virtual escape.sndh */; };
-		331EB1E113A6BCC300703140 /* zelda.mid in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1B213A6BCB800703140 /* zelda.mid */; };
-		331EB1E213A6BCC300703140 /* zelda.png in Resources */ = {isa = PBXBuildFile; fileRef = 331EB1B313A6BCB800703140 /* zelda.png */; };
-		331EB1E313A6BDF100703140 /* 1942.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18513A6BCB800703140 /* 1942.jpg */; };
-		331EB1E413A6BDF100703140 /* 1942.mod in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18613A6BCB800703140 /* 1942.mod */; };
-		331EB1E513A6BDF100703140 /* albeniz_asturia.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18713A6BCB800703140 /* albeniz_asturia.jpg */; };
-		331EB1E613A6BDF100703140 /* albeniz_asturia.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18813A6BCB800703140 /* albeniz_asturia.mid */; };
-		331EB1E713A6BDF100703140 /* ALBINONI.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18913A6BCB800703140 /* ALBINONI.jpg */; };
-		331EB1E813A6BDF200703140 /* ALBINONI.MID in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18A13A6BCB800703140 /* ALBINONI.MID */; };
-		331EB1E913A6BDF200703140 /* Auf_Wiedersehen_Monty.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18B13A6BCB800703140 /* Auf_Wiedersehen_Monty.jpg */; };
-		331EB1EA13A6BDF200703140 /* Auf_Wiedersehen_Monty.sid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18C13A6BCB800703140 /* Auf_Wiedersehen_Monty.sid */; };
-		331EB1EB13A6BDF200703140 /* beethoven_concerto4_1.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18D13A6BCB800703140 /* beethoven_concerto4_1.jpg */; };
-		331EB1EC13A6BDF200703140 /* beethoven_concerto4_1.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18E13A6BCB800703140 /* beethoven_concerto4_1.mid */; };
-		331EB1ED13A6BDF200703140 /* beethoven_moonlight.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB18F13A6BCB800703140 /* beethoven_moonlight.jpg */; };
-		331EB1EE13A6BDF200703140 /* beethoven_moonlight.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19013A6BCB800703140 /* beethoven_moonlight.mid */; };
-		331EB1EF13A6BDF200703140 /* beethoven_pathetique.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19113A6BCB800703140 /* beethoven_pathetique.jpg */; };
-		331EB1F013A6BDF200703140 /* beethoven_pathetique.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19213A6BCB800703140 /* beethoven_pathetique.mid */; };
-		331EB1F113A6BDF200703140 /* bubble bobble.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19313A6BCB800703140 /* bubble bobble.jpg */; };
-		331EB1F213A6BDF200703140 /* bubble bobble.mod in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19413A6BCB800703140 /* bubble bobble.mod */; };
-		331EB1F313A6BDF200703140 /* Doom2-Stage01.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19513A6BCB800703140 /* Doom2-Stage01.jpg */; };
-		331EB1F413A6BDF200703140 /* Doom2-Stage01.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19613A6BCB800703140 /* Doom2-Stage01.mid */; };
-		331EB1F513A6BDF200703140 /* DoubleDragon1_Stage1.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19713A6BCB800703140 /* DoubleDragon1_Stage1.jpg */; };
-		331EB1F613A6BDF200703140 /* DoubleDragon1_Stage1.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19813A6BCB800703140 /* DoubleDragon1_Stage1.mid */; };
-		331EB1F713A6BDF200703140 /* DukeNukem_Level1.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19913A6BCB800703140 /* DukeNukem_Level1.mid */; };
-		331EB1F813A6BDF200703140 /* FF7_AerisTheme.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19A13A6BCB800703140 /* FF7_AerisTheme.mid */; };
-		331EB1F913A6BDF200703140 /* Flowers.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19B13A6BCB800703140 /* Flowers.mid */; };
-		331EB1FA13A6BDF200703140 /* james_bond.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19C13A6BCB800703140 /* james_bond.jpg */; };
-		331EB1FB13A6BDF200703140 /* james_bond.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19D13A6BCB800703140 /* james_bond.mid */; };
-		331EB1FC13A6BDF200703140 /* Live_And_Let_Die.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19E13A6BCB800703140 /* Live_And_Let_Die.mid */; };
-		331EB1FD13A6BDF200703140 /* mega man 3.nsf in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB19F13A6BCB800703140 /* mega man 3.nsf */; };
-		331EB1FE13A6BDF200703140 /* nebulos.mod in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A013A6BCB800703140 /* nebulos.mod */; };
-		331EB1FF13A6BDF200703140 /* odyssey-part5.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A113A6BCB800703140 /* odyssey-part5.jpg */; };
-		331EB20013A6BDF200703140 /* odyssey-part5.mod in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A213A6BCB800703140 /* odyssey-part5.mod */; };
-		331EB20113A6BDF200703140 /* One_Man_and_His_Droid.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A313A6BCB800703140 /* One_Man_and_His_Droid.jpg */; };
-		331EB20213A6BDF200703140 /* One_Man_and_His_Droid.sid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A413A6BCB800703140 /* One_Man_and_His_Droid.sid */; };
-		331EB20313A6BDF200703140 /* schubert_imp2.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A513A6BCB800703140 /* schubert_imp2.jpg */; };
-		331EB20413A6BDF200703140 /* schubert_imp2.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A613A6BCB800703140 /* schubert_imp2.mid */; };
-		331EB20513A6BDF200703140 /* schubert_imp4.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A713A6BCB800703140 /* schubert_imp4.jpg */; };
-		331EB20613A6BDF200703140 /* schubert_imp4.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A813A6BCB800703140 /* schubert_imp4.mid */; };
-		331EB20713A6BDF200703140 /* SMB1-Theme.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1A913A6BCB800703140 /* SMB1-Theme.mid */; };
-		331EB20813A6BDF200703140 /* title theme.laa in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1AA13A6BCB800703140 /* title theme.laa */; };
-		331EB20913A6BDF200703140 /* trans atlantic short.mod in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1AB13A6BCB800703140 /* trans atlantic short.mod */; };
-		331EB20A13A6BDF200703140 /* turrican 2 level 0-intro.mdat in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1AC13A6BCB800703140 /* turrican 2 level 0-intro.mdat */; };
-		331EB20B13A6BDF200703140 /* turrican 2 level 0-intro.smpl in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1AD13A6BCB800703140 /* turrican 2 level 0-intro.smpl */; };
-		331EB20D13A6BDF200703140 /* unreal ][.s3m in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1AF13A6BCB800703140 /* unreal ][.s3m */; };
-		331EB20E13A6BDF200703140 /* varanen short.mod in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1B013A6BCB800703140 /* varanen short.mod */; };
-		331EB20F13A6BDF200703140 /* virtual escape.sndh in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1B113A6BCB800703140 /* virtual escape.sndh */; };
-		331EB21013A6BDF200703140 /* zelda.mid in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1B213A6BCB800703140 /* zelda.mid */; };
-		331EB21113A6BDF200703140 /* zelda.png in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB1B313A6BCB800703140 /* zelda.png */; };
-		331EB21313A6BE7B00703140 /* turrican 2 level 0-intro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB21213A6BE7B00703140 /* turrican 2 level 0-intro.jpg */; };
-		331EB21413A6BE8D00703140 /* turrican 2 level 0-intro.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB21213A6BE7B00703140 /* turrican 2 level 0-intro.jpg */; };
-		331EB21613A6BF6600703140 /* virtual escape.gif in Resources */ = {isa = PBXBuildFile; fileRef = 331EB21513A6BF6600703140 /* virtual escape.gif */; };
-		331EB21813A6C13D00703140 /* unreal ][.png in Resources */ = {isa = PBXBuildFile; fileRef = 331EB21713A6C13D00703140 /* unreal ][.png */; };
-		331EB21D13A6C34E00703140 /* DukeNukem_Level1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB21913A6C34E00703140 /* DukeNukem_Level1.jpg */; };
-		331EB21E13A6C34E00703140 /* Flowers.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB21A13A6C34E00703140 /* Flowers.jpg */; };
-		331EB21F13A6C34E00703140 /* mega man 3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 331EB21B13A6C34E00703140 /* mega man 3.jpg */; };
-		331EB22013A6C34E00703140 /* title theme.gif in Resources */ = {isa = PBXBuildFile; fileRef = 331EB21C13A6C34E00703140 /* title theme.gif */; };
-		331EB22113A6C37100703140 /* DukeNukem_Level1.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB21913A6C34E00703140 /* DukeNukem_Level1.jpg */; };
-		331EB22213A6C37100703140 /* Flowers.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB21A13A6C34E00703140 /* Flowers.jpg */; };
-		331EB22313A6C37100703140 /* mega man 3.jpg in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB21B13A6C34E00703140 /* mega man 3.jpg */; };
-		331EB22413A6C38100703140 /* title theme.gif in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB21C13A6C34E00703140 /* title theme.gif */; };
-		331EB22513A6C38100703140 /* virtual escape.gif in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB21513A6BF6600703140 /* virtual escape.gif */; };
 		331EB22813A6C45000703140 /* AnimatedGif.m in Sources */ = {isa = PBXBuildFile; fileRef = 331EB22713A6C45000703140 /* AnimatedGif.m */; };
-		331EB22913A6CFDC00703140 /* unreal ][.png in Copy Files-Samples */ = {isa = PBXBuildFile; fileRef = 331EB21713A6C13D00703140 /* unreal ][.png */; };
 		3321518E139F59990035E105 /* eng_qsf.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E582C1200B3B7000A8A4E /* eng_qsf.c */; };
 		3321518F139F5A020035E105 /* kabuki.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E582D1200B3B7000A8A4E /* kabuki.c */; };
 		33215190139F5A060035E105 /* qsound.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E582E1200B3B7000A8A4E /* qsound.c */; };
@@ -810,6 +704,59 @@
 		CC7E810212698C29006EF083 /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = CC7E810112698C29006EF083 /* previous.png */; };
 		CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */; };
 		CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC85B126B760400156FB3 /* database.modizerdb */; };
+		CC91689517F01F560012E2C1 /* james_bond.jpg in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682B17F01EC80012E2C1 /* james_bond.jpg */; };
+		CC91689617F01F560012E2C1 /* james_bond.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682C17F01EC80012E2C1 /* james_bond.mid */; };
+		CC91689717F01F560012E2C1 /* Live_And_Let_Die.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */; };
+		CC91689817F01F690012E2C1 /* nebulos.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683117F01EE70012E2C1 /* nebulos.mod */; };
+		CC91689917F01F690012E2C1 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683217F01EE70012E2C1 /* odyssey-part5.jpg */; };
+		CC91689A17F01F690012E2C1 /* odyssey-part5.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683317F01EE70012E2C1 /* odyssey-part5.mod */; };
+		CC91689B17F01F690012E2C1 /* trans atlantic short.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683417F01EE70012E2C1 /* trans atlantic short.mod */; };
+		CC91689C17F01F690012E2C1 /* unreal ][.png in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683517F01EE70012E2C1 /* unreal ][.png */; };
+		CC91689D17F01F690012E2C1 /* unreal ][.s3m in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683617F01EE70012E2C1 /* unreal ][.s3m */; };
+		CC91689E17F01F690012E2C1 /* varanen short.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683717F01EE70012E2C1 /* varanen short.mod */; };
+		CC91689F17F01F690012E2C1 /* virtual escape.gif in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683817F01EE70012E2C1 /* virtual escape.gif */; };
+		CC9168A017F01F690012E2C1 /* virtual escape.sndh in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683917F01EE70012E2C1 /* virtual escape.sndh */; };
+		CC9168A117F01F800012E2C1 /* 1942.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684317F01EFA0012E2C1 /* 1942.jpg */; };
+		CC9168A217F01F800012E2C1 /* 1942.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684417F01EFA0012E2C1 /* 1942.mod */; };
+		CC9168A317F01F800012E2C1 /* Auf_Wiedersehen_Monty.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684517F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.jpg */; };
+		CC9168A417F01F800012E2C1 /* Auf_Wiedersehen_Monty.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684617F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.sid */; };
+		CC9168A517F01F800012E2C1 /* bubble bobble.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684717F01EFA0012E2C1 /* bubble bobble.jpg */; };
+		CC9168A617F01F800012E2C1 /* bubble bobble.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684817F01EFA0012E2C1 /* bubble bobble.mod */; };
+		CC9168A717F01F800012E2C1 /* Doom2-Stage01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684917F01EFA0012E2C1 /* Doom2-Stage01.jpg */; };
+		CC9168A817F01F800012E2C1 /* Doom2-Stage01.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684A17F01EFA0012E2C1 /* Doom2-Stage01.mid */; };
+		CC9168A917F01F800012E2C1 /* DoubleDragon1_Stage1.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684B17F01EFA0012E2C1 /* DoubleDragon1_Stage1.jpg */; };
+		CC9168AA17F01F800012E2C1 /* DoubleDragon1_Stage1.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684C17F01EFA0012E2C1 /* DoubleDragon1_Stage1.mid */; };
+		CC9168AB17F01F800012E2C1 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684D17F01EFA0012E2C1 /* DukeNukem_Level1.jpg */; };
+		CC9168AC17F01F800012E2C1 /* DukeNukem_Level1.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684E17F01EFA0012E2C1 /* DukeNukem_Level1.mid */; };
+		CC9168AD17F01F800012E2C1 /* FF7_AerisTheme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684F17F01EFA0012E2C1 /* FF7_AerisTheme.mid */; };
+		CC9168AE17F01F800012E2C1 /* mega man 3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685017F01EFA0012E2C1 /* mega man 3.jpg */; };
+		CC9168AF17F01F800012E2C1 /* mega man 3.nsf in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685117F01EFA0012E2C1 /* mega man 3.nsf */; };
+		CC9168B017F01F800012E2C1 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685217F01EFA0012E2C1 /* One_Man_and_His_Droid.jpg */; };
+		CC9168B117F01F800012E2C1 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685317F01EFA0012E2C1 /* One_Man_and_His_Droid.sid */; };
+		CC9168B217F01F800012E2C1 /* SMB1-Theme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685417F01EFA0012E2C1 /* SMB1-Theme.mid */; };
+		CC9168B317F01F800012E2C1 /* SOMI_title theme.gif in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685517F01EFA0012E2C1 /* SOMI_title theme.gif */; };
+		CC9168B417F01F800012E2C1 /* SOMI_title theme.laa in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685617F01EFA0012E2C1 /* SOMI_title theme.laa */; };
+		CC9168B517F01F800012E2C1 /* turrican 2 level 0-intro.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685717F01EFA0012E2C1 /* turrican 2 level 0-intro.jpg */; };
+		CC9168B617F01F800012E2C1 /* turrican 2 level 0-intro.mdat in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685817F01EFA0012E2C1 /* turrican 2 level 0-intro.mdat */; };
+		CC9168B717F01F800012E2C1 /* turrican 2 level 0-intro.smpl in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685917F01EFA0012E2C1 /* turrican 2 level 0-intro.smpl */; };
+		CC9168B817F01F800012E2C1 /* zelda.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685A17F01EFA0012E2C1 /* zelda.mid */; };
+		CC9168B917F01F800012E2C1 /* zelda.png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685B17F01EFB0012E2C1 /* zelda.png */; };
+		CC9168BA17F01F9B0012E2C1 /* albeniz_asturia.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687517F01F0C0012E2C1 /* albeniz_asturia.jpg */; };
+		CC9168BB17F01F9B0012E2C1 /* albeniz_asturia.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687617F01F0C0012E2C1 /* albeniz_asturia.mid */; };
+		CC9168BC17F01F9B0012E2C1 /* ALBINONI.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687717F01F0C0012E2C1 /* ALBINONI.jpg */; };
+		CC9168BD17F01F9B0012E2C1 /* ALBINONI.MID in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687817F01F0C0012E2C1 /* ALBINONI.MID */; };
+		CC9168BE17F01F9B0012E2C1 /* beethoven_concerto4_1.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687917F01F0C0012E2C1 /* beethoven_concerto4_1.jpg */; };
+		CC9168BF17F01F9B0012E2C1 /* beethoven_concerto4_1.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687A17F01F0C0012E2C1 /* beethoven_concerto4_1.mid */; };
+		CC9168C017F01F9B0012E2C1 /* beethoven_moonlight.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687B17F01F0C0012E2C1 /* beethoven_moonlight.jpg */; };
+		CC9168C117F01F9B0012E2C1 /* beethoven_moonlight.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687C17F01F0C0012E2C1 /* beethoven_moonlight.mid */; };
+		CC9168C217F01F9B0012E2C1 /* beethoven_pathetique.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687D17F01F0C0012E2C1 /* beethoven_pathetique.jpg */; };
+		CC9168C317F01F9B0012E2C1 /* beethoven_pathetique.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687E17F01F0C0012E2C1 /* beethoven_pathetique.mid */; };
+		CC9168C417F01F9B0012E2C1 /* Flowers.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687F17F01F0C0012E2C1 /* Flowers.jpg */; };
+		CC9168C517F01F9B0012E2C1 /* Flowers.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688017F01F0C0012E2C1 /* Flowers.mid */; };
+		CC9168C617F01F9B0012E2C1 /* schubert_imp2.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688117F01F0C0012E2C1 /* schubert_imp2.jpg */; };
+		CC9168C717F01F9B0012E2C1 /* schubert_imp2.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688217F01F0C0012E2C1 /* schubert_imp2.mid */; };
+		CC9168C817F01F9B0012E2C1 /* schubert_imp4.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688317F01F0C0012E2C1 /* schubert_imp4.jpg */; };
+		CC9168C917F01F9B0012E2C1 /* schubert_imp4.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688417F01F0C0012E2C1 /* schubert_imp4.mid */; };
 		CC928DE917D0037B0098696C /* txtMenu12a.png in Resources */ = {isa = PBXBuildFile; fileRef = CC928DE717D0037B0098696C /* txtMenu12a.png */; };
 		CC928DEA17D0037B0098696C /* txtMenu12b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC928DE817D0037B0098696C /* txtMenu12b.png */; };
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
@@ -1162,67 +1109,97 @@
 			name = "Copy Files-Timidity";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CCB21DB61246911300A30F62 /* Copy Files-Samples */ = {
+		CC9167F617F00CD30012E2C1 /* Copy Files-Samples Demoscene */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = Samples2;
+			buildActionMask = 2147483647;
+			dstPath = Samples/Demoscene;
 			dstSubfolderSpec = 7;
 			files = (
-				331EB22913A6CFDC00703140 /* unreal ][.png in Copy Files-Samples */,
-				331EB22413A6C38100703140 /* title theme.gif in Copy Files-Samples */,
-				331EB22513A6C38100703140 /* virtual escape.gif in Copy Files-Samples */,
-				331EB22113A6C37100703140 /* DukeNukem_Level1.jpg in Copy Files-Samples */,
-				331EB22213A6C37100703140 /* Flowers.jpg in Copy Files-Samples */,
-				331EB22313A6C37100703140 /* mega man 3.jpg in Copy Files-Samples */,
-				331EB21413A6BE8D00703140 /* turrican 2 level 0-intro.jpg in Copy Files-Samples */,
-				331EB1E313A6BDF100703140 /* 1942.jpg in Copy Files-Samples */,
-				331EB1E413A6BDF100703140 /* 1942.mod in Copy Files-Samples */,
-				331EB1E513A6BDF100703140 /* albeniz_asturia.jpg in Copy Files-Samples */,
-				331EB1E613A6BDF100703140 /* albeniz_asturia.mid in Copy Files-Samples */,
-				331EB1E713A6BDF100703140 /* ALBINONI.jpg in Copy Files-Samples */,
-				331EB1E813A6BDF200703140 /* ALBINONI.MID in Copy Files-Samples */,
-				331EB1E913A6BDF200703140 /* Auf_Wiedersehen_Monty.jpg in Copy Files-Samples */,
-				331EB1EA13A6BDF200703140 /* Auf_Wiedersehen_Monty.sid in Copy Files-Samples */,
-				331EB1EB13A6BDF200703140 /* beethoven_concerto4_1.jpg in Copy Files-Samples */,
-				331EB1EC13A6BDF200703140 /* beethoven_concerto4_1.mid in Copy Files-Samples */,
-				331EB1ED13A6BDF200703140 /* beethoven_moonlight.jpg in Copy Files-Samples */,
-				331EB1EE13A6BDF200703140 /* beethoven_moonlight.mid in Copy Files-Samples */,
-				331EB1EF13A6BDF200703140 /* beethoven_pathetique.jpg in Copy Files-Samples */,
-				331EB1F013A6BDF200703140 /* beethoven_pathetique.mid in Copy Files-Samples */,
-				331EB1F113A6BDF200703140 /* bubble bobble.jpg in Copy Files-Samples */,
-				331EB1F213A6BDF200703140 /* bubble bobble.mod in Copy Files-Samples */,
-				331EB1F313A6BDF200703140 /* Doom2-Stage01.jpg in Copy Files-Samples */,
-				331EB1F413A6BDF200703140 /* Doom2-Stage01.mid in Copy Files-Samples */,
-				331EB1F513A6BDF200703140 /* DoubleDragon1_Stage1.jpg in Copy Files-Samples */,
-				331EB1F613A6BDF200703140 /* DoubleDragon1_Stage1.mid in Copy Files-Samples */,
-				331EB1F713A6BDF200703140 /* DukeNukem_Level1.mid in Copy Files-Samples */,
-				331EB1F813A6BDF200703140 /* FF7_AerisTheme.mid in Copy Files-Samples */,
-				331EB1F913A6BDF200703140 /* Flowers.mid in Copy Files-Samples */,
-				331EB1FA13A6BDF200703140 /* james_bond.jpg in Copy Files-Samples */,
-				331EB1FB13A6BDF200703140 /* james_bond.mid in Copy Files-Samples */,
-				331EB1FC13A6BDF200703140 /* Live_And_Let_Die.mid in Copy Files-Samples */,
-				331EB1FD13A6BDF200703140 /* mega man 3.nsf in Copy Files-Samples */,
-				331EB1FE13A6BDF200703140 /* nebulos.mod in Copy Files-Samples */,
-				331EB1FF13A6BDF200703140 /* odyssey-part5.jpg in Copy Files-Samples */,
-				331EB20013A6BDF200703140 /* odyssey-part5.mod in Copy Files-Samples */,
-				331EB20113A6BDF200703140 /* One_Man_and_His_Droid.jpg in Copy Files-Samples */,
-				331EB20213A6BDF200703140 /* One_Man_and_His_Droid.sid in Copy Files-Samples */,
-				331EB20313A6BDF200703140 /* schubert_imp2.jpg in Copy Files-Samples */,
-				331EB20413A6BDF200703140 /* schubert_imp2.mid in Copy Files-Samples */,
-				331EB20513A6BDF200703140 /* schubert_imp4.jpg in Copy Files-Samples */,
-				331EB20613A6BDF200703140 /* schubert_imp4.mid in Copy Files-Samples */,
-				331EB20713A6BDF200703140 /* SMB1-Theme.mid in Copy Files-Samples */,
-				331EB20813A6BDF200703140 /* title theme.laa in Copy Files-Samples */,
-				331EB20913A6BDF200703140 /* trans atlantic short.mod in Copy Files-Samples */,
-				331EB20A13A6BDF200703140 /* turrican 2 level 0-intro.mdat in Copy Files-Samples */,
-				331EB20B13A6BDF200703140 /* turrican 2 level 0-intro.smpl in Copy Files-Samples */,
-				331EB20D13A6BDF200703140 /* unreal ][.s3m in Copy Files-Samples */,
-				331EB20E13A6BDF200703140 /* varanen short.mod in Copy Files-Samples */,
-				331EB20F13A6BDF200703140 /* virtual escape.sndh in Copy Files-Samples */,
-				331EB21013A6BDF200703140 /* zelda.mid in Copy Files-Samples */,
-				331EB21113A6BDF200703140 /* zelda.png in Copy Files-Samples */,
+				CC91689817F01F690012E2C1 /* nebulos.mod in Copy Files-Samples Demoscene */,
+				CC91689917F01F690012E2C1 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */,
+				CC91689A17F01F690012E2C1 /* odyssey-part5.mod in Copy Files-Samples Demoscene */,
+				CC91689B17F01F690012E2C1 /* trans atlantic short.mod in Copy Files-Samples Demoscene */,
+				CC91689C17F01F690012E2C1 /* unreal ][.png in Copy Files-Samples Demoscene */,
+				CC91689D17F01F690012E2C1 /* unreal ][.s3m in Copy Files-Samples Demoscene */,
+				CC91689E17F01F690012E2C1 /* varanen short.mod in Copy Files-Samples Demoscene */,
+				CC91689F17F01F690012E2C1 /* virtual escape.gif in Copy Files-Samples Demoscene */,
+				CC9168A017F01F690012E2C1 /* virtual escape.sndh in Copy Files-Samples Demoscene */,
 			);
-			name = "Copy Files-Samples";
+			name = "Copy Files-Samples Demoscene";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC9167F717F00CD90012E2C1 /* Copy Files-Samples Games */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Samples/Games;
+			dstSubfolderSpec = 7;
+			files = (
+				CC9168A117F01F800012E2C1 /* 1942.jpg in Copy Files-Samples Games */,
+				CC9168A217F01F800012E2C1 /* 1942.mod in Copy Files-Samples Games */,
+				CC9168A317F01F800012E2C1 /* Auf_Wiedersehen_Monty.jpg in Copy Files-Samples Games */,
+				CC9168A417F01F800012E2C1 /* Auf_Wiedersehen_Monty.sid in Copy Files-Samples Games */,
+				CC9168A517F01F800012E2C1 /* bubble bobble.jpg in Copy Files-Samples Games */,
+				CC9168A617F01F800012E2C1 /* bubble bobble.mod in Copy Files-Samples Games */,
+				CC9168A717F01F800012E2C1 /* Doom2-Stage01.jpg in Copy Files-Samples Games */,
+				CC9168A817F01F800012E2C1 /* Doom2-Stage01.mid in Copy Files-Samples Games */,
+				CC9168A917F01F800012E2C1 /* DoubleDragon1_Stage1.jpg in Copy Files-Samples Games */,
+				CC9168AA17F01F800012E2C1 /* DoubleDragon1_Stage1.mid in Copy Files-Samples Games */,
+				CC9168AB17F01F800012E2C1 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */,
+				CC9168AC17F01F800012E2C1 /* DukeNukem_Level1.mid in Copy Files-Samples Games */,
+				CC9168AD17F01F800012E2C1 /* FF7_AerisTheme.mid in Copy Files-Samples Games */,
+				CC9168AE17F01F800012E2C1 /* mega man 3.jpg in Copy Files-Samples Games */,
+				CC9168AF17F01F800012E2C1 /* mega man 3.nsf in Copy Files-Samples Games */,
+				CC9168B017F01F800012E2C1 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */,
+				CC9168B117F01F800012E2C1 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */,
+				CC9168B217F01F800012E2C1 /* SMB1-Theme.mid in Copy Files-Samples Games */,
+				CC9168B317F01F800012E2C1 /* SOMI_title theme.gif in Copy Files-Samples Games */,
+				CC9168B417F01F800012E2C1 /* SOMI_title theme.laa in Copy Files-Samples Games */,
+				CC9168B517F01F800012E2C1 /* turrican 2 level 0-intro.jpg in Copy Files-Samples Games */,
+				CC9168B617F01F800012E2C1 /* turrican 2 level 0-intro.mdat in Copy Files-Samples Games */,
+				CC9168B717F01F800012E2C1 /* turrican 2 level 0-intro.smpl in Copy Files-Samples Games */,
+				CC9168B817F01F800012E2C1 /* zelda.mid in Copy Files-Samples Games */,
+				CC9168B917F01F800012E2C1 /* zelda.png in Copy Files-Samples Games */,
+			);
+			name = "Copy Files-Samples Games";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC9167F817F00D210012E2C1 /* Copy Files-Samples Classical */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Samples/Classical;
+			dstSubfolderSpec = 7;
+			files = (
+				CC9168BA17F01F9B0012E2C1 /* albeniz_asturia.jpg in Copy Files-Samples Classical */,
+				CC9168BB17F01F9B0012E2C1 /* albeniz_asturia.mid in Copy Files-Samples Classical */,
+				CC9168BC17F01F9B0012E2C1 /* ALBINONI.jpg in Copy Files-Samples Classical */,
+				CC9168BD17F01F9B0012E2C1 /* ALBINONI.MID in Copy Files-Samples Classical */,
+				CC9168BE17F01F9B0012E2C1 /* beethoven_concerto4_1.jpg in Copy Files-Samples Classical */,
+				CC9168BF17F01F9B0012E2C1 /* beethoven_concerto4_1.mid in Copy Files-Samples Classical */,
+				CC9168C017F01F9B0012E2C1 /* beethoven_moonlight.jpg in Copy Files-Samples Classical */,
+				CC9168C117F01F9B0012E2C1 /* beethoven_moonlight.mid in Copy Files-Samples Classical */,
+				CC9168C217F01F9B0012E2C1 /* beethoven_pathetique.jpg in Copy Files-Samples Classical */,
+				CC9168C317F01F9B0012E2C1 /* beethoven_pathetique.mid in Copy Files-Samples Classical */,
+				CC9168C417F01F9B0012E2C1 /* Flowers.jpg in Copy Files-Samples Classical */,
+				CC9168C517F01F9B0012E2C1 /* Flowers.mid in Copy Files-Samples Classical */,
+				CC9168C617F01F9B0012E2C1 /* schubert_imp2.jpg in Copy Files-Samples Classical */,
+				CC9168C717F01F9B0012E2C1 /* schubert_imp2.mid in Copy Files-Samples Classical */,
+				CC9168C817F01F9B0012E2C1 /* schubert_imp4.jpg in Copy Files-Samples Classical */,
+				CC9168C917F01F9B0012E2C1 /* schubert_imp4.mid in Copy Files-Samples Classical */,
+			);
+			name = "Copy Files-Samples Classical";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CCB21DB61246911300A30F62 /* Copy Files-Samples Various */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = Samples/Various;
+			dstSubfolderSpec = 7;
+			files = (
+				CC91689517F01F560012E2C1 /* james_bond.jpg in Copy Files-Samples Various */,
+				CC91689617F01F560012E2C1 /* james_bond.mid in Copy Files-Samples Various */,
+				CC91689717F01F560012E2C1 /* Live_And_Let_Die.mid in Copy Files-Samples Various */,
+			);
+			name = "Copy Files-Samples Various";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -1278,59 +1255,6 @@
 		3317854617C6255200929E8F /* tabview_gradient40@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40@2x.png"; sourceTree = "<group>"; };
 		3317854717C6255200929E8F /* tabview_gradient50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient50.png; sourceTree = "<group>"; };
 		3317854817C6255200929E8F /* tabview_gradient50@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient50@2x.png"; sourceTree = "<group>"; };
-		331EB18513A6BCB800703140 /* 1942.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 1942.jpg; path = Resources/Samples2/1942.jpg; sourceTree = SOURCE_ROOT; };
-		331EB18613A6BCB800703140 /* 1942.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = 1942.mod; path = Resources/Samples2/1942.mod; sourceTree = SOURCE_ROOT; };
-		331EB18713A6BCB800703140 /* albeniz_asturia.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = albeniz_asturia.jpg; path = Resources/Samples2/albeniz_asturia.jpg; sourceTree = SOURCE_ROOT; };
-		331EB18813A6BCB800703140 /* albeniz_asturia.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = albeniz_asturia.mid; path = Resources/Samples2/albeniz_asturia.mid; sourceTree = SOURCE_ROOT; };
-		331EB18913A6BCB800703140 /* ALBINONI.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ALBINONI.jpg; path = Resources/Samples2/ALBINONI.jpg; sourceTree = SOURCE_ROOT; };
-		331EB18A13A6BCB800703140 /* ALBINONI.MID */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = ALBINONI.MID; path = Resources/Samples2/ALBINONI.MID; sourceTree = SOURCE_ROOT; };
-		331EB18B13A6BCB800703140 /* Auf_Wiedersehen_Monty.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Auf_Wiedersehen_Monty.jpg; path = Resources/Samples2/Auf_Wiedersehen_Monty.jpg; sourceTree = SOURCE_ROOT; };
-		331EB18C13A6BCB800703140 /* Auf_Wiedersehen_Monty.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = Auf_Wiedersehen_Monty.sid; path = Resources/Samples2/Auf_Wiedersehen_Monty.sid; sourceTree = SOURCE_ROOT; };
-		331EB18D13A6BCB800703140 /* beethoven_concerto4_1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_concerto4_1.jpg; path = Resources/Samples2/beethoven_concerto4_1.jpg; sourceTree = SOURCE_ROOT; };
-		331EB18E13A6BCB800703140 /* beethoven_concerto4_1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_concerto4_1.mid; path = Resources/Samples2/beethoven_concerto4_1.mid; sourceTree = SOURCE_ROOT; };
-		331EB18F13A6BCB800703140 /* beethoven_moonlight.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_moonlight.jpg; path = Resources/Samples2/beethoven_moonlight.jpg; sourceTree = SOURCE_ROOT; };
-		331EB19013A6BCB800703140 /* beethoven_moonlight.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_moonlight.mid; path = Resources/Samples2/beethoven_moonlight.mid; sourceTree = SOURCE_ROOT; };
-		331EB19113A6BCB800703140 /* beethoven_pathetique.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_pathetique.jpg; path = Resources/Samples2/beethoven_pathetique.jpg; sourceTree = SOURCE_ROOT; };
-		331EB19213A6BCB800703140 /* beethoven_pathetique.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_pathetique.mid; path = Resources/Samples2/beethoven_pathetique.mid; sourceTree = SOURCE_ROOT; };
-		331EB19313A6BCB800703140 /* bubble bobble.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "bubble bobble.jpg"; path = "Resources/Samples2/bubble bobble.jpg"; sourceTree = SOURCE_ROOT; };
-		331EB19413A6BCB800703140 /* bubble bobble.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "bubble bobble.mod"; path = "Resources/Samples2/bubble bobble.mod"; sourceTree = SOURCE_ROOT; };
-		331EB19513A6BCB800703140 /* Doom2-Stage01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Doom2-Stage01.jpg"; path = "Resources/Samples2/Doom2-Stage01.jpg"; sourceTree = SOURCE_ROOT; };
-		331EB19613A6BCB800703140 /* Doom2-Stage01.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "Doom2-Stage01.mid"; path = "Resources/Samples2/Doom2-Stage01.mid"; sourceTree = SOURCE_ROOT; };
-		331EB19713A6BCB800703140 /* DoubleDragon1_Stage1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DoubleDragon1_Stage1.jpg; path = Resources/Samples2/DoubleDragon1_Stage1.jpg; sourceTree = SOURCE_ROOT; };
-		331EB19813A6BCB800703140 /* DoubleDragon1_Stage1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = DoubleDragon1_Stage1.mid; path = Resources/Samples2/DoubleDragon1_Stage1.mid; sourceTree = SOURCE_ROOT; };
-		331EB19913A6BCB800703140 /* DukeNukem_Level1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = DukeNukem_Level1.mid; path = Resources/Samples2/DukeNukem_Level1.mid; sourceTree = SOURCE_ROOT; };
-		331EB19A13A6BCB800703140 /* FF7_AerisTheme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = FF7_AerisTheme.mid; path = Resources/Samples2/FF7_AerisTheme.mid; sourceTree = SOURCE_ROOT; };
-		331EB19B13A6BCB800703140 /* Flowers.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Flowers.mid; path = Resources/Samples2/Flowers.mid; sourceTree = SOURCE_ROOT; };
-		331EB19C13A6BCB800703140 /* james_bond.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = james_bond.jpg; path = Resources/Samples2/james_bond.jpg; sourceTree = SOURCE_ROOT; };
-		331EB19D13A6BCB800703140 /* james_bond.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = james_bond.mid; path = Resources/Samples2/james_bond.mid; sourceTree = SOURCE_ROOT; };
-		331EB19E13A6BCB800703140 /* Live_And_Let_Die.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Live_And_Let_Die.mid; path = Resources/Samples2/Live_And_Let_Die.mid; sourceTree = SOURCE_ROOT; };
-		331EB19F13A6BCB800703140 /* mega man 3.nsf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "mega man 3.nsf"; path = "Resources/Samples2/mega man 3.nsf"; sourceTree = SOURCE_ROOT; };
-		331EB1A013A6BCB800703140 /* nebulos.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = nebulos.mod; path = Resources/Samples2/nebulos.mod; sourceTree = SOURCE_ROOT; };
-		331EB1A113A6BCB800703140 /* odyssey-part5.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "odyssey-part5.jpg"; path = "Resources/Samples2/odyssey-part5.jpg"; sourceTree = SOURCE_ROOT; };
-		331EB1A213A6BCB800703140 /* odyssey-part5.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "odyssey-part5.mod"; path = "Resources/Samples2/odyssey-part5.mod"; sourceTree = SOURCE_ROOT; };
-		331EB1A313A6BCB800703140 /* One_Man_and_His_Droid.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = One_Man_and_His_Droid.jpg; path = Resources/Samples2/One_Man_and_His_Droid.jpg; sourceTree = SOURCE_ROOT; };
-		331EB1A413A6BCB800703140 /* One_Man_and_His_Droid.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = One_Man_and_His_Droid.sid; path = Resources/Samples2/One_Man_and_His_Droid.sid; sourceTree = SOURCE_ROOT; };
-		331EB1A513A6BCB800703140 /* schubert_imp2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = schubert_imp2.jpg; path = Resources/Samples2/schubert_imp2.jpg; sourceTree = SOURCE_ROOT; };
-		331EB1A613A6BCB800703140 /* schubert_imp2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = schubert_imp2.mid; path = Resources/Samples2/schubert_imp2.mid; sourceTree = SOURCE_ROOT; };
-		331EB1A713A6BCB800703140 /* schubert_imp4.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = schubert_imp4.jpg; path = Resources/Samples2/schubert_imp4.jpg; sourceTree = SOURCE_ROOT; };
-		331EB1A813A6BCB800703140 /* schubert_imp4.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = schubert_imp4.mid; path = Resources/Samples2/schubert_imp4.mid; sourceTree = SOURCE_ROOT; };
-		331EB1A913A6BCB800703140 /* SMB1-Theme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "SMB1-Theme.mid"; path = "Resources/Samples2/SMB1-Theme.mid"; sourceTree = SOURCE_ROOT; };
-		331EB1AA13A6BCB800703140 /* title theme.laa */ = {isa = PBXFileReference; lastKnownFileType = file; name = "title theme.laa"; path = "Resources/Samples2/title theme.laa"; sourceTree = SOURCE_ROOT; };
-		331EB1AB13A6BCB800703140 /* trans atlantic short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "trans atlantic short.mod"; path = "Resources/Samples2/trans atlantic short.mod"; sourceTree = SOURCE_ROOT; };
-		331EB1AC13A6BCB800703140 /* turrican 2 level 0-intro.mdat */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican 2 level 0-intro.mdat"; path = "Resources/Samples2/turrican 2 level 0-intro.mdat"; sourceTree = SOURCE_ROOT; };
-		331EB1AD13A6BCB800703140 /* turrican 2 level 0-intro.smpl */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican 2 level 0-intro.smpl"; path = "Resources/Samples2/turrican 2 level 0-intro.smpl"; sourceTree = SOURCE_ROOT; };
-		331EB1AF13A6BCB800703140 /* unreal ][.s3m */ = {isa = PBXFileReference; lastKnownFileType = file; name = "unreal ][.s3m"; path = "Resources/Samples2/unreal ][.s3m"; sourceTree = SOURCE_ROOT; };
-		331EB1B013A6BCB800703140 /* varanen short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "varanen short.mod"; path = "Resources/Samples2/varanen short.mod"; sourceTree = SOURCE_ROOT; };
-		331EB1B113A6BCB800703140 /* virtual escape.sndh */ = {isa = PBXFileReference; lastKnownFileType = file; name = "virtual escape.sndh"; path = "Resources/Samples2/virtual escape.sndh"; sourceTree = SOURCE_ROOT; };
-		331EB1B213A6BCB800703140 /* zelda.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = zelda.mid; path = Resources/Samples2/zelda.mid; sourceTree = SOURCE_ROOT; };
-		331EB1B313A6BCB800703140 /* zelda.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = zelda.png; path = Resources/Samples2/zelda.png; sourceTree = SOURCE_ROOT; };
-		331EB21213A6BE7B00703140 /* turrican 2 level 0-intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "turrican 2 level 0-intro.jpg"; path = "Resources/Samples2/turrican 2 level 0-intro.jpg"; sourceTree = SOURCE_ROOT; };
-		331EB21513A6BF6600703140 /* virtual escape.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "virtual escape.gif"; path = "Resources/Samples2/virtual escape.gif"; sourceTree = SOURCE_ROOT; };
-		331EB21713A6C13D00703140 /* unreal ][.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "unreal ][.png"; path = "Resources/Samples2/unreal ][.png"; sourceTree = SOURCE_ROOT; };
-		331EB21913A6C34E00703140 /* DukeNukem_Level1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DukeNukem_Level1.jpg; path = Resources/Samples2/DukeNukem_Level1.jpg; sourceTree = SOURCE_ROOT; };
-		331EB21A13A6C34E00703140 /* Flowers.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Flowers.jpg; path = Resources/Samples2/Flowers.jpg; sourceTree = SOURCE_ROOT; };
-		331EB21B13A6C34E00703140 /* mega man 3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "mega man 3.jpg"; path = "Resources/Samples2/mega man 3.jpg"; sourceTree = SOURCE_ROOT; };
-		331EB21C13A6C34E00703140 /* title theme.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "title theme.gif"; path = "Resources/Samples2/title theme.gif"; sourceTree = SOURCE_ROOT; };
 		331EB22613A6C45000703140 /* AnimatedGif.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedGif.h; sourceTree = "<group>"; };
 		331EB22713A6C45000703140 /* AnimatedGif.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedGif.m; sourceTree = "<group>"; };
 		33236911125F8B790032223C /* libsidplay1.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libsidplay1.xcodeproj; path = ../libsidplay1/libsidplay1.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -2346,6 +2270,59 @@
 		CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = databaseMAIN.modizerdb; sourceTree = "<group>"; };
 		CC7FC85B126B760400156FB3 /* database.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = database.modizerdb; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
+		CC91682B17F01EC80012E2C1 /* james_bond.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = james_bond.jpg; path = Resources/Samples2/Various/james_bond.jpg; sourceTree = SOURCE_ROOT; };
+		CC91682C17F01EC80012E2C1 /* james_bond.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = james_bond.mid; path = Resources/Samples2/Various/james_bond.mid; sourceTree = SOURCE_ROOT; };
+		CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Live_And_Let_Die.mid; path = Resources/Samples2/Various/Live_And_Let_Die.mid; sourceTree = SOURCE_ROOT; };
+		CC91683117F01EE70012E2C1 /* nebulos.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = nebulos.mod; path = Resources/Samples2/Demoscene/nebulos.mod; sourceTree = SOURCE_ROOT; };
+		CC91683217F01EE70012E2C1 /* odyssey-part5.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "odyssey-part5.jpg"; path = "Resources/Samples2/Demoscene/odyssey-part5.jpg"; sourceTree = SOURCE_ROOT; };
+		CC91683317F01EE70012E2C1 /* odyssey-part5.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "odyssey-part5.mod"; path = "Resources/Samples2/Demoscene/odyssey-part5.mod"; sourceTree = SOURCE_ROOT; };
+		CC91683417F01EE70012E2C1 /* trans atlantic short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "trans atlantic short.mod"; path = "Resources/Samples2/Demoscene/trans atlantic short.mod"; sourceTree = SOURCE_ROOT; };
+		CC91683517F01EE70012E2C1 /* unreal ][.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "unreal ][.png"; path = "Resources/Samples2/Demoscene/unreal ][.png"; sourceTree = SOURCE_ROOT; };
+		CC91683617F01EE70012E2C1 /* unreal ][.s3m */ = {isa = PBXFileReference; lastKnownFileType = file; name = "unreal ][.s3m"; path = "Resources/Samples2/Demoscene/unreal ][.s3m"; sourceTree = SOURCE_ROOT; };
+		CC91683717F01EE70012E2C1 /* varanen short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "varanen short.mod"; path = "Resources/Samples2/Demoscene/varanen short.mod"; sourceTree = SOURCE_ROOT; };
+		CC91683817F01EE70012E2C1 /* virtual escape.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "virtual escape.gif"; path = "Resources/Samples2/Demoscene/virtual escape.gif"; sourceTree = SOURCE_ROOT; };
+		CC91683917F01EE70012E2C1 /* virtual escape.sndh */ = {isa = PBXFileReference; lastKnownFileType = file; name = "virtual escape.sndh"; path = "Resources/Samples2/Demoscene/virtual escape.sndh"; sourceTree = SOURCE_ROOT; };
+		CC91684317F01EFA0012E2C1 /* 1942.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 1942.jpg; path = Resources/Samples2/Games/1942.jpg; sourceTree = SOURCE_ROOT; };
+		CC91684417F01EFA0012E2C1 /* 1942.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = 1942.mod; path = Resources/Samples2/Games/1942.mod; sourceTree = SOURCE_ROOT; };
+		CC91684517F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Auf_Wiedersehen_Monty.jpg; path = Resources/Samples2/Games/Auf_Wiedersehen_Monty.jpg; sourceTree = SOURCE_ROOT; };
+		CC91684617F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = Auf_Wiedersehen_Monty.sid; path = Resources/Samples2/Games/Auf_Wiedersehen_Monty.sid; sourceTree = SOURCE_ROOT; };
+		CC91684717F01EFA0012E2C1 /* bubble bobble.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "bubble bobble.jpg"; path = "Resources/Samples2/Games/bubble bobble.jpg"; sourceTree = SOURCE_ROOT; };
+		CC91684817F01EFA0012E2C1 /* bubble bobble.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "bubble bobble.mod"; path = "Resources/Samples2/Games/bubble bobble.mod"; sourceTree = SOURCE_ROOT; };
+		CC91684917F01EFA0012E2C1 /* Doom2-Stage01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Doom2-Stage01.jpg"; path = "Resources/Samples2/Games/Doom2-Stage01.jpg"; sourceTree = SOURCE_ROOT; };
+		CC91684A17F01EFA0012E2C1 /* Doom2-Stage01.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "Doom2-Stage01.mid"; path = "Resources/Samples2/Games/Doom2-Stage01.mid"; sourceTree = SOURCE_ROOT; };
+		CC91684B17F01EFA0012E2C1 /* DoubleDragon1_Stage1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DoubleDragon1_Stage1.jpg; path = Resources/Samples2/Games/DoubleDragon1_Stage1.jpg; sourceTree = SOURCE_ROOT; };
+		CC91684C17F01EFA0012E2C1 /* DoubleDragon1_Stage1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = DoubleDragon1_Stage1.mid; path = Resources/Samples2/Games/DoubleDragon1_Stage1.mid; sourceTree = SOURCE_ROOT; };
+		CC91684D17F01EFA0012E2C1 /* DukeNukem_Level1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DukeNukem_Level1.jpg; path = Resources/Samples2/Games/DukeNukem_Level1.jpg; sourceTree = SOURCE_ROOT; };
+		CC91684E17F01EFA0012E2C1 /* DukeNukem_Level1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = DukeNukem_Level1.mid; path = Resources/Samples2/Games/DukeNukem_Level1.mid; sourceTree = SOURCE_ROOT; };
+		CC91684F17F01EFA0012E2C1 /* FF7_AerisTheme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = FF7_AerisTheme.mid; path = Resources/Samples2/Games/FF7_AerisTheme.mid; sourceTree = SOURCE_ROOT; };
+		CC91685017F01EFA0012E2C1 /* mega man 3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "mega man 3.jpg"; path = "Resources/Samples2/Games/mega man 3.jpg"; sourceTree = SOURCE_ROOT; };
+		CC91685117F01EFA0012E2C1 /* mega man 3.nsf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "mega man 3.nsf"; path = "Resources/Samples2/Games/mega man 3.nsf"; sourceTree = SOURCE_ROOT; };
+		CC91685217F01EFA0012E2C1 /* One_Man_and_His_Droid.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = One_Man_and_His_Droid.jpg; path = Resources/Samples2/Games/One_Man_and_His_Droid.jpg; sourceTree = SOURCE_ROOT; };
+		CC91685317F01EFA0012E2C1 /* One_Man_and_His_Droid.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = One_Man_and_His_Droid.sid; path = Resources/Samples2/Games/One_Man_and_His_Droid.sid; sourceTree = SOURCE_ROOT; };
+		CC91685417F01EFA0012E2C1 /* SMB1-Theme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "SMB1-Theme.mid"; path = "Resources/Samples2/Games/SMB1-Theme.mid"; sourceTree = SOURCE_ROOT; };
+		CC91685517F01EFA0012E2C1 /* SOMI_title theme.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "SOMI_title theme.gif"; path = "Resources/Samples2/Games/SOMI_title theme.gif"; sourceTree = SOURCE_ROOT; };
+		CC91685617F01EFA0012E2C1 /* SOMI_title theme.laa */ = {isa = PBXFileReference; lastKnownFileType = file; name = "SOMI_title theme.laa"; path = "Resources/Samples2/Games/SOMI_title theme.laa"; sourceTree = SOURCE_ROOT; };
+		CC91685717F01EFA0012E2C1 /* turrican 2 level 0-intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "turrican 2 level 0-intro.jpg"; path = "Resources/Samples2/Games/turrican 2 level 0-intro.jpg"; sourceTree = SOURCE_ROOT; };
+		CC91685817F01EFA0012E2C1 /* turrican 2 level 0-intro.mdat */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican 2 level 0-intro.mdat"; path = "Resources/Samples2/Games/turrican 2 level 0-intro.mdat"; sourceTree = SOURCE_ROOT; };
+		CC91685917F01EFA0012E2C1 /* turrican 2 level 0-intro.smpl */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican 2 level 0-intro.smpl"; path = "Resources/Samples2/Games/turrican 2 level 0-intro.smpl"; sourceTree = SOURCE_ROOT; };
+		CC91685A17F01EFA0012E2C1 /* zelda.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = zelda.mid; path = Resources/Samples2/Games/zelda.mid; sourceTree = SOURCE_ROOT; };
+		CC91685B17F01EFB0012E2C1 /* zelda.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = zelda.png; path = Resources/Samples2/Games/zelda.png; sourceTree = SOURCE_ROOT; };
+		CC91687517F01F0C0012E2C1 /* albeniz_asturia.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = albeniz_asturia.jpg; path = Resources/Samples2/Classical/albeniz_asturia.jpg; sourceTree = SOURCE_ROOT; };
+		CC91687617F01F0C0012E2C1 /* albeniz_asturia.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = albeniz_asturia.mid; path = Resources/Samples2/Classical/albeniz_asturia.mid; sourceTree = SOURCE_ROOT; };
+		CC91687717F01F0C0012E2C1 /* ALBINONI.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ALBINONI.jpg; path = Resources/Samples2/Classical/ALBINONI.jpg; sourceTree = SOURCE_ROOT; };
+		CC91687817F01F0C0012E2C1 /* ALBINONI.MID */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = ALBINONI.MID; path = Resources/Samples2/Classical/ALBINONI.MID; sourceTree = SOURCE_ROOT; };
+		CC91687917F01F0C0012E2C1 /* beethoven_concerto4_1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_concerto4_1.jpg; path = Resources/Samples2/Classical/beethoven_concerto4_1.jpg; sourceTree = SOURCE_ROOT; };
+		CC91687A17F01F0C0012E2C1 /* beethoven_concerto4_1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_concerto4_1.mid; path = Resources/Samples2/Classical/beethoven_concerto4_1.mid; sourceTree = SOURCE_ROOT; };
+		CC91687B17F01F0C0012E2C1 /* beethoven_moonlight.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_moonlight.jpg; path = Resources/Samples2/Classical/beethoven_moonlight.jpg; sourceTree = SOURCE_ROOT; };
+		CC91687C17F01F0C0012E2C1 /* beethoven_moonlight.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_moonlight.mid; path = Resources/Samples2/Classical/beethoven_moonlight.mid; sourceTree = SOURCE_ROOT; };
+		CC91687D17F01F0C0012E2C1 /* beethoven_pathetique.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_pathetique.jpg; path = Resources/Samples2/Classical/beethoven_pathetique.jpg; sourceTree = SOURCE_ROOT; };
+		CC91687E17F01F0C0012E2C1 /* beethoven_pathetique.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_pathetique.mid; path = Resources/Samples2/Classical/beethoven_pathetique.mid; sourceTree = SOURCE_ROOT; };
+		CC91687F17F01F0C0012E2C1 /* Flowers.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Flowers.jpg; path = Resources/Samples2/Classical/Flowers.jpg; sourceTree = SOURCE_ROOT; };
+		CC91688017F01F0C0012E2C1 /* Flowers.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Flowers.mid; path = Resources/Samples2/Classical/Flowers.mid; sourceTree = SOURCE_ROOT; };
+		CC91688117F01F0C0012E2C1 /* schubert_imp2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = schubert_imp2.jpg; path = Resources/Samples2/Classical/schubert_imp2.jpg; sourceTree = SOURCE_ROOT; };
+		CC91688217F01F0C0012E2C1 /* schubert_imp2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = schubert_imp2.mid; path = Resources/Samples2/Classical/schubert_imp2.mid; sourceTree = SOURCE_ROOT; };
+		CC91688317F01F0C0012E2C1 /* schubert_imp4.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = schubert_imp4.jpg; path = Resources/Samples2/Classical/schubert_imp4.jpg; sourceTree = SOURCE_ROOT; };
+		CC91688417F01F0C0012E2C1 /* schubert_imp4.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = schubert_imp4.mid; path = Resources/Samples2/Classical/schubert_imp4.mid; sourceTree = SOURCE_ROOT; };
 		CC928DE717D0037B0098696C /* txtMenu12a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12a.png; sourceTree = "<group>"; };
 		CC928DE817D0037B0098696C /* txtMenu12b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12b.png; sourceTree = "<group>"; };
 		CC9B180F12FF026700985967 /* gsf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gsf.h; path = ../libgsf/gsf.h; sourceTree = SOURCE_ROOT; };
@@ -4425,22 +4402,22 @@
 		CC9167F117EFA6FA0012E2C1 /* Classical */ = {
 			isa = PBXGroup;
 			children = (
-				331EB21A13A6C34E00703140 /* Flowers.jpg */,
-				331EB19B13A6BCB800703140 /* Flowers.mid */,
-				331EB18D13A6BCB800703140 /* beethoven_concerto4_1.jpg */,
-				331EB18E13A6BCB800703140 /* beethoven_concerto4_1.mid */,
-				331EB18F13A6BCB800703140 /* beethoven_moonlight.jpg */,
-				331EB19013A6BCB800703140 /* beethoven_moonlight.mid */,
-				331EB19113A6BCB800703140 /* beethoven_pathetique.jpg */,
-				331EB19213A6BCB800703140 /* beethoven_pathetique.mid */,
-				331EB18713A6BCB800703140 /* albeniz_asturia.jpg */,
-				331EB18813A6BCB800703140 /* albeniz_asturia.mid */,
-				331EB18913A6BCB800703140 /* ALBINONI.jpg */,
-				331EB18A13A6BCB800703140 /* ALBINONI.MID */,
-				331EB1A513A6BCB800703140 /* schubert_imp2.jpg */,
-				331EB1A613A6BCB800703140 /* schubert_imp2.mid */,
-				331EB1A713A6BCB800703140 /* schubert_imp4.jpg */,
-				331EB1A813A6BCB800703140 /* schubert_imp4.mid */,
+				CC91687517F01F0C0012E2C1 /* albeniz_asturia.jpg */,
+				CC91687617F01F0C0012E2C1 /* albeniz_asturia.mid */,
+				CC91687717F01F0C0012E2C1 /* ALBINONI.jpg */,
+				CC91687817F01F0C0012E2C1 /* ALBINONI.MID */,
+				CC91687917F01F0C0012E2C1 /* beethoven_concerto4_1.jpg */,
+				CC91687A17F01F0C0012E2C1 /* beethoven_concerto4_1.mid */,
+				CC91687B17F01F0C0012E2C1 /* beethoven_moonlight.jpg */,
+				CC91687C17F01F0C0012E2C1 /* beethoven_moonlight.mid */,
+				CC91687D17F01F0C0012E2C1 /* beethoven_pathetique.jpg */,
+				CC91687E17F01F0C0012E2C1 /* beethoven_pathetique.mid */,
+				CC91687F17F01F0C0012E2C1 /* Flowers.jpg */,
+				CC91688017F01F0C0012E2C1 /* Flowers.mid */,
+				CC91688117F01F0C0012E2C1 /* schubert_imp2.jpg */,
+				CC91688217F01F0C0012E2C1 /* schubert_imp2.mid */,
+				CC91688317F01F0C0012E2C1 /* schubert_imp4.jpg */,
+				CC91688417F01F0C0012E2C1 /* schubert_imp4.mid */,
 			);
 			name = Classical;
 			sourceTree = "<group>";
@@ -4448,31 +4425,31 @@
 		CC9167F317EFA72F0012E2C1 /* Games */ = {
 			isa = PBXGroup;
 			children = (
-				331EB1A313A6BCB800703140 /* One_Man_and_His_Droid.jpg */,
-				331EB1A413A6BCB800703140 /* One_Man_and_His_Droid.sid */,
-				331EB1A913A6BCB800703140 /* SMB1-Theme.mid */,
-				331EB1AA13A6BCB800703140 /* title theme.laa */,
-				331EB21913A6C34E00703140 /* DukeNukem_Level1.jpg */,
-				331EB21213A6BE7B00703140 /* turrican 2 level 0-intro.jpg */,
-				331EB18513A6BCB800703140 /* 1942.jpg */,
-				331EB18613A6BCB800703140 /* 1942.mod */,
-				331EB18B13A6BCB800703140 /* Auf_Wiedersehen_Monty.jpg */,
-				331EB18C13A6BCB800703140 /* Auf_Wiedersehen_Monty.sid */,
-				331EB19313A6BCB800703140 /* bubble bobble.jpg */,
-				331EB19413A6BCB800703140 /* bubble bobble.mod */,
-				331EB19513A6BCB800703140 /* Doom2-Stage01.jpg */,
-				331EB19613A6BCB800703140 /* Doom2-Stage01.mid */,
-				331EB19713A6BCB800703140 /* DoubleDragon1_Stage1.jpg */,
-				331EB19813A6BCB800703140 /* DoubleDragon1_Stage1.mid */,
-				331EB19913A6BCB800703140 /* DukeNukem_Level1.mid */,
-				331EB19A13A6BCB800703140 /* FF7_AerisTheme.mid */,
-				331EB19F13A6BCB800703140 /* mega man 3.nsf */,
-				331EB21B13A6C34E00703140 /* mega man 3.jpg */,
-				331EB21C13A6C34E00703140 /* title theme.gif */,
-				331EB1AC13A6BCB800703140 /* turrican 2 level 0-intro.mdat */,
-				331EB1AD13A6BCB800703140 /* turrican 2 level 0-intro.smpl */,
-				331EB1B213A6BCB800703140 /* zelda.mid */,
-				331EB1B313A6BCB800703140 /* zelda.png */,
+				CC91684317F01EFA0012E2C1 /* 1942.jpg */,
+				CC91684417F01EFA0012E2C1 /* 1942.mod */,
+				CC91684517F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.jpg */,
+				CC91684617F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.sid */,
+				CC91684717F01EFA0012E2C1 /* bubble bobble.jpg */,
+				CC91684817F01EFA0012E2C1 /* bubble bobble.mod */,
+				CC91684917F01EFA0012E2C1 /* Doom2-Stage01.jpg */,
+				CC91684A17F01EFA0012E2C1 /* Doom2-Stage01.mid */,
+				CC91684B17F01EFA0012E2C1 /* DoubleDragon1_Stage1.jpg */,
+				CC91684C17F01EFA0012E2C1 /* DoubleDragon1_Stage1.mid */,
+				CC91684D17F01EFA0012E2C1 /* DukeNukem_Level1.jpg */,
+				CC91684E17F01EFA0012E2C1 /* DukeNukem_Level1.mid */,
+				CC91684F17F01EFA0012E2C1 /* FF7_AerisTheme.mid */,
+				CC91685017F01EFA0012E2C1 /* mega man 3.jpg */,
+				CC91685117F01EFA0012E2C1 /* mega man 3.nsf */,
+				CC91685217F01EFA0012E2C1 /* One_Man_and_His_Droid.jpg */,
+				CC91685317F01EFA0012E2C1 /* One_Man_and_His_Droid.sid */,
+				CC91685417F01EFA0012E2C1 /* SMB1-Theme.mid */,
+				CC91685517F01EFA0012E2C1 /* SOMI_title theme.gif */,
+				CC91685617F01EFA0012E2C1 /* SOMI_title theme.laa */,
+				CC91685717F01EFA0012E2C1 /* turrican 2 level 0-intro.jpg */,
+				CC91685817F01EFA0012E2C1 /* turrican 2 level 0-intro.mdat */,
+				CC91685917F01EFA0012E2C1 /* turrican 2 level 0-intro.smpl */,
+				CC91685A17F01EFA0012E2C1 /* zelda.mid */,
+				CC91685B17F01EFB0012E2C1 /* zelda.png */,
 			);
 			name = Games;
 			sourceTree = "<group>";
@@ -4480,15 +4457,15 @@
 		CC9167F417EFA7380012E2C1 /* Demoscene */ = {
 			isa = PBXGroup;
 			children = (
-				331EB21513A6BF6600703140 /* virtual escape.gif */,
-				331EB1AB13A6BCB800703140 /* trans atlantic short.mod */,
-				331EB1AF13A6BCB800703140 /* unreal ][.s3m */,
-				331EB21713A6C13D00703140 /* unreal ][.png */,
-				331EB1B013A6BCB800703140 /* varanen short.mod */,
-				331EB1B113A6BCB800703140 /* virtual escape.sndh */,
-				331EB1A013A6BCB800703140 /* nebulos.mod */,
-				331EB1A113A6BCB800703140 /* odyssey-part5.jpg */,
-				331EB1A213A6BCB800703140 /* odyssey-part5.mod */,
+				CC91683117F01EE70012E2C1 /* nebulos.mod */,
+				CC91683217F01EE70012E2C1 /* odyssey-part5.jpg */,
+				CC91683317F01EE70012E2C1 /* odyssey-part5.mod */,
+				CC91683417F01EE70012E2C1 /* trans atlantic short.mod */,
+				CC91683517F01EE70012E2C1 /* unreal ][.png */,
+				CC91683617F01EE70012E2C1 /* unreal ][.s3m */,
+				CC91683717F01EE70012E2C1 /* varanen short.mod */,
+				CC91683817F01EE70012E2C1 /* virtual escape.gif */,
+				CC91683917F01EE70012E2C1 /* virtual escape.sndh */,
 			);
 			name = Demoscene;
 			sourceTree = "<group>";
@@ -4496,9 +4473,9 @@
 		CC9167F517EFA7660012E2C1 /* Various */ = {
 			isa = PBXGroup;
 			children = (
-				331EB19C13A6BCB800703140 /* james_bond.jpg */,
-				331EB19D13A6BCB800703140 /* james_bond.mid */,
-				331EB19E13A6BCB800703140 /* Live_And_Let_Die.mid */,
+				CC91682B17F01EC80012E2C1 /* james_bond.jpg */,
+				CC91682C17F01EC80012E2C1 /* james_bond.mid */,
+				CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */,
 			);
 			name = Various;
 			sourceTree = "<group>";
@@ -5010,8 +4987,11 @@
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				33863E9212400EA800ECBA04 /* Copy Files-Replay(SC68) */,
-				CCB21DB61246911300A30F62 /* Copy Files-Samples */,
 				3396B6F513297FF9001792E0 /* Copy Files-Timidity */,
+				CCB21DB61246911300A30F62 /* Copy Files-Samples Various */,
+				CC9167F617F00CD30012E2C1 /* Copy Files-Samples Demoscene */,
+				CC9167F717F00CD90012E2C1 /* Copy Files-Samples Games */,
+				CC9167F817F00D210012E2C1 /* Copy Files-Samples Classical */,
 			);
 			buildRules = (
 			);
@@ -5038,6 +5018,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0460;
+				TargetAttributes = {
+					1D6058900D05DD3D006BFB54 = {
+						DevelopmentTeam = ZV46EUY73C;
+					};
+				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "modizer" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -5434,59 +5419,6 @@
 				3388C3BD13842E9100DA8F05 /* playlist_del_all@2x.png in Resources */,
 				33C658B1139437FE00265A1D /* merlin_gold.sf2 in Resources */,
 				33C7397E13A2137A0012221C /* default_art.png in Resources */,
-				331EB1B413A6BCB800703140 /* 1942.jpg in Resources */,
-				331EB1B513A6BCB800703140 /* 1942.mod in Resources */,
-				331EB1B613A6BCB800703140 /* albeniz_asturia.jpg in Resources */,
-				331EB1B713A6BCB900703140 /* albeniz_asturia.mid in Resources */,
-				331EB1B813A6BCB900703140 /* ALBINONI.jpg in Resources */,
-				331EB1B913A6BCB900703140 /* ALBINONI.MID in Resources */,
-				331EB1BA13A6BCB900703140 /* Auf_Wiedersehen_Monty.jpg in Resources */,
-				331EB1BB13A6BCBA00703140 /* Auf_Wiedersehen_Monty.sid in Resources */,
-				331EB1BC13A6BCBA00703140 /* beethoven_concerto4_1.jpg in Resources */,
-				331EB1BD13A6BCBA00703140 /* beethoven_concerto4_1.mid in Resources */,
-				331EB1BE13A6BCBA00703140 /* beethoven_moonlight.jpg in Resources */,
-				331EB1BF13A6BCBA00703140 /* beethoven_moonlight.mid in Resources */,
-				331EB1C013A6BCBB00703140 /* beethoven_pathetique.jpg in Resources */,
-				331EB1C113A6BCBB00703140 /* beethoven_pathetique.mid in Resources */,
-				331EB1C213A6BCBB00703140 /* bubble bobble.jpg in Resources */,
-				331EB1C313A6BCBB00703140 /* bubble bobble.mod in Resources */,
-				331EB1C413A6BCBC00703140 /* Doom2-Stage01.jpg in Resources */,
-				331EB1C513A6BCBC00703140 /* Doom2-Stage01.mid in Resources */,
-				331EB1C613A6BCBC00703140 /* DoubleDragon1_Stage1.jpg in Resources */,
-				331EB1C713A6BCBC00703140 /* DoubleDragon1_Stage1.mid in Resources */,
-				331EB1C813A6BCBC00703140 /* DukeNukem_Level1.mid in Resources */,
-				331EB1C913A6BCBD00703140 /* FF7_AerisTheme.mid in Resources */,
-				331EB1CA13A6BCBD00703140 /* Flowers.mid in Resources */,
-				331EB1CB13A6BCBD00703140 /* james_bond.jpg in Resources */,
-				331EB1CC13A6BCBD00703140 /* james_bond.mid in Resources */,
-				331EB1CD13A6BCBE00703140 /* Live_And_Let_Die.mid in Resources */,
-				331EB1CE13A6BCBE00703140 /* mega man 3.nsf in Resources */,
-				331EB1CF13A6BCBE00703140 /* nebulos.mod in Resources */,
-				331EB1D013A6BCBE00703140 /* odyssey-part5.jpg in Resources */,
-				331EB1D113A6BCBF00703140 /* odyssey-part5.mod in Resources */,
-				331EB1D213A6BCBF00703140 /* One_Man_and_His_Droid.jpg in Resources */,
-				331EB1D313A6BCBF00703140 /* One_Man_and_His_Droid.sid in Resources */,
-				331EB1D413A6BCBF00703140 /* schubert_imp2.jpg in Resources */,
-				331EB1D513A6BCC000703140 /* schubert_imp2.mid in Resources */,
-				331EB1D613A6BCC000703140 /* schubert_imp4.jpg in Resources */,
-				331EB1D713A6BCC000703140 /* schubert_imp4.mid in Resources */,
-				331EB1D813A6BCC000703140 /* SMB1-Theme.mid in Resources */,
-				331EB1D913A6BCC100703140 /* title theme.laa in Resources */,
-				331EB1DA13A6BCC100703140 /* trans atlantic short.mod in Resources */,
-				331EB1DB13A6BCC100703140 /* turrican 2 level 0-intro.mdat in Resources */,
-				331EB1DC13A6BCC100703140 /* turrican 2 level 0-intro.smpl in Resources */,
-				331EB1DE13A6BCC200703140 /* unreal ][.s3m in Resources */,
-				331EB1DF13A6BCC200703140 /* varanen short.mod in Resources */,
-				331EB1E013A6BCC300703140 /* virtual escape.sndh in Resources */,
-				331EB1E113A6BCC300703140 /* zelda.mid in Resources */,
-				331EB1E213A6BCC300703140 /* zelda.png in Resources */,
-				331EB21313A6BE7B00703140 /* turrican 2 level 0-intro.jpg in Resources */,
-				331EB21613A6BF6600703140 /* virtual escape.gif in Resources */,
-				331EB21813A6C13D00703140 /* unreal ][.png in Resources */,
-				331EB21D13A6C34E00703140 /* DukeNukem_Level1.jpg in Resources */,
-				331EB21E13A6C34E00703140 /* Flowers.jpg in Resources */,
-				331EB21F13A6C34E00703140 /* mega man 3.jpg in Resources */,
-				331EB22013A6C34E00703140 /* title theme.gif in Resources */,
 				33CAECAE13E93D7100088A37 /* arc_details.png in Resources */,
 				33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */,
 				33A9678C140E4789007F22F5 /* char.bin in Resources */,
@@ -5997,7 +5929,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Yohann Magnien (BLWK78WX9A)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -6035,7 +5967,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Yohann Magnien (BLWK78WX9A)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -6158,7 +6090,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien (ZV46EUY73C)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -6227,7 +6159,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien (ZV46EUY73C)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;

@@ -208,13 +208,13 @@ extern BOOL is_ios7;
         {
             switch (indexPath.row) {
                 case 0:topLabel.text=NSLocalizedString(@"MODLAND collection",@"");
-                    bottomLabel.text=[NSString stringWithFormat:@"%d entries",mNbMODLANDFileEntries];
+                    bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbMODLANDFileEntries];
                     break;
                 case 1:topLabel.text=NSLocalizedString(@"HVSC collection",@"");
-                    bottomLabel.text=[NSString stringWithFormat:@"%d entries",mNbHVSCFileEntries];
+                    bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbHVSCFileEntries];
                     break;
                 case 2:topLabel.text=NSLocalizedString(@"ASMA collection",@"");
-                    bottomLabel.text=[NSString stringWithFormat:@"%d entries",mNbASMAFileEntries];
+                    bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbASMAFileEntries];
                     break;
             }
         }

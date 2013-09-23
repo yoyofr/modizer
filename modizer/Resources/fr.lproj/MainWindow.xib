@@ -264,7 +264,7 @@
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <toolbarItems/>
-                            <navigationItem key="navigationItem" title="Search" id="685"/>
+                            <navigationItem key="navigationItem" title="Recherche" id="685"/>
                             <nil key="simulatedStatusBarMetrics"/>
                             <nil key="simulatedTopBarMetrics"/>
                             <nil key="simulatedBottomBarMetrics"/>
@@ -312,7 +312,7 @@
                                 <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="calibratedRGB"/>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
-                            <navigationItem key="navigationItem" title="More" id="2019"/>
+                            <navigationItem key="navigationItem" title="Autre" id="2019"/>
                             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
                             <nil key="simulatedTopBarMetrics"/>
                             <nil key="simulatedBottomBarMetrics"/>
@@ -1179,14 +1179,14 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="1234Ko/1234Ko" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="336">
-                        <rect key="frame" x="70" y="0.0" width="180" height="14"/>
+                        <rect key="frame" x="78" y="0.0" width="172" height="14"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="10"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <progressView opaque="NO" contentMode="scaleToFill" id="332">
-                        <rect key="frame" x="70" y="15" width="180" height="2"/>
+                        <rect key="frame" x="78" y="15" width="172" height="2"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     </progressView>
                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="758">
@@ -1199,10 +1199,10 @@
                         </connections>
                     </tableView>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1862" customClass="BButton">
-                        <rect key="frame" x="2" y="2" width="60" height="28"/>
+                        <rect key="frame" x="2" y="2" width="70" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
-                        <state key="normal" title="Resume">
+                        <state key="normal" title="Reprendre">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
                         <connections>
@@ -1210,10 +1210,10 @@
                         </connections>
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="2000" customClass="BButton">
-                        <rect key="frame" x="2" y="2" width="60" height="28"/>
+                        <rect key="frame" x="2" y="2" width="70" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
-                        <state key="normal" title="Suspend">
+                        <state key="normal" title="Suspendre">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
                         <connections>
@@ -1224,7 +1224,7 @@
                         <rect key="frame" x="258" y="2" width="60" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
-                        <state key="normal" title="Cancel">
+                        <state key="normal" title="Annuler">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
                         <connections>
@@ -1232,10 +1232,10 @@
                         </connections>
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1863" customClass="BButton">
-                        <rect key="frame" x="258" y="40" width="60" height="28"/>
+                        <rect key="frame" x="242" y="40" width="75" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
-                        <state key="normal" title="Clear all">
+                        <state key="normal" title="Annuler tout">
                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                         </state>
                         <connections>
