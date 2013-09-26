@@ -133,6 +133,23 @@
 "Settings_RemCovers"="Supprimer jaquettes";
 "Settings_UpdateFilesBackupFlag"="Verifier fichiers";
 
+"Clean Database"="Nettoyage de la base";
+"Recreate Samples folder"="Recréer le dossier Samples";
+"Reset settings to default"="Reinit. les réglages";
+"Remove current cover"="Supprimer la jaquette";
+"Reset Ratings"="Reset des notes";
+"Reset Played Counters"="Reset des compteurs de lecture";
+"Reset Database"="Reset complet de la base";
+
+"Database cleaned"="Base nettoyée";
+"Samples folder created"="Dossier Samples recréé";
+"Database reseted"="Base reinitialisée";
+"Cover removed"="Jaquette supprimée";
+"Settings reseted"="Réglages reinitialisés";
+"Ratings reseted"="Notes reinitialisées";
+"Played Counters reseted"="Compteurs de lecture reinitialisés";
+"No cover to remove"="Pas de jaquette à supprimer";
+
 "Confirm_DBClean"="Lancer le nettoyage de la base (potentiellement long) ?";
 "Confirm_Reset_PlCnt"="Voulez vous reinitialiser les compteurs de lecture ?";
 "Confirm_Reset_Ratings"="Voulez vous reinitialiser les notes ?";

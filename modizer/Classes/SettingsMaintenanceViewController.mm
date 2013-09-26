@@ -11,6 +11,7 @@
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
+extern BOOL is_ios7;
 
 @interface SettingsMaintenanceViewController ()
 @end
@@ -49,6 +50,16 @@ extern pthread_mutex_t db_mutex;
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    }
+    [super viewWillAppear:animated];
 }
 
 - (void)didReceiveMemoryWarning
@@ -195,7 +206,11 @@ extern pthread_mutex_t db_mutex;
     NSError *err;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSString *currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
-    if (currentPlayFilepath==nil) return;
+    if (currentPlayFilepath==nil) {
+        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"No cover to remove",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [alert show];
+        return;
+    }
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
@@ -245,11 +260,11 @@ extern pthread_mutex_t db_mutex;
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
         
-        cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
+        cell.frame=CGRectMake(0,0,tabView.frame.size.width,50);
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
+        UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
@@ -277,9 +292,9 @@ extern pthread_mutex_t db_mutex;
                                    tabView.bounds.size.width,
                                    40);
 */
-        btn= [[[BButton alloc] initWithFrame:CGRectMake(tabView.bounds.size.width/2-80,
-                                                      5,
-                                                      160,
+        btn= [[[BButton alloc] initWithFrame:CGRectMake(tabView.bounds.size.width/2-100,
+                                                      10,
+                                                      200,
           
                                                        30)] autorelease];
         btn.tag=TOP_LABEL_TAG;

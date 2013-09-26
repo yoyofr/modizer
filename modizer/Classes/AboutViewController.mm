@@ -8,6 +8,7 @@
 
 #import "AboutViewController.h"
 
+extern BOOL is_ios7;
 
 @implementation AboutViewController
 
@@ -48,6 +49,15 @@
     self.navigationItem.rightBarButtonItem = item;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    }
+    [super viewWillAppear:animated];
+}
 
 /*
 // Override to allow orientations other than the default portrait orientation.

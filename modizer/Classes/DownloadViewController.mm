@@ -6,6 +6,8 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
+extern BOOL is_ios7;
+
 #define FTP_BUFFER_SIZE 32768
 #define TMP_FILE_NAME @"Documents/tmp.tmpfile"
 
@@ -189,6 +191,16 @@ static NSFileManager *mFileMngr;
 #ifdef LOAD_PROFILE
 	NSLog(@"download : %d",end_time-start_time);
 #endif
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    }
+    [super viewWillAppear:animated];
 }
 
 
