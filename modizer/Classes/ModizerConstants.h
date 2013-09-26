@@ -84,12 +84,13 @@
 
 #define MODLAND_FTPHOST @"ftp.amigascne.org/mirrors/ftp.modland.com/"
 
-#define MODLAND_FTPHOST1 @"ftp.amigascne.org/mirrors/ftp.modland.com/"
-#define MODLAND_FTPHOST2 @"ftp://hangar18.exotica.org.uk/modland/"
-#define MODLAND_FTPHOST3 @"ftp://modland.ziphoid.com/"
+/*#define MODLAND_FTPHOST1 @"ftp.amigascne.org/mirrors/ftp.modland.com/"
+#define MODLAND_FTPHOST2 @"hangar18.exotica.org.uk/modland/"
+#define MODLAND_FTPHOST3 @"modland.ziphoid.com/"
+*/
 
-//#define HVSC_FTPHOST @"dl.xs4all.nl/pub/mirror/HVSC/C64Music/"
 #define HVSC_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"
+
 #define ASMA_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
 
 #define SUPPORTED_FILETYPE_MDX @"MDX"
