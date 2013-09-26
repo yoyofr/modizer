@@ -259,6 +259,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXMODPatternVolume].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
@@ -651,6 +652,13 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[3]=(char*)"3";
+    
+    settings[GLOB_FXMODPatternVolume].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXMODPatternVolume].label=(char*)"MOD Pattern Volume";
+    settings[GLOB_FXMODPatternVolume].description=NULL;
+    settings[GLOB_FXMODPatternVolume].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPatternVolume].sub_family=0;
+    settings[GLOB_FXMODPatternVolume].detail.mdz_boolswitch.switch_value=0;
     
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIPattern].label=(char*)"Note display";
@@ -1427,6 +1435,8 @@ void optUADEChangedC(id param) {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
+    
+    [self.tableView reloadData];
     
     [super viewWillAppear:animated];
 }

@@ -4881,7 +4881,8 @@ extern "C" int current_sample;
                     mHeader->Render(0);
                     glPopMatrix();
                     
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    if (settings[GLOB_FXMODPatternVolume].detail.mdz_boolswitch.switch_value) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan));
                 }
             }
         }

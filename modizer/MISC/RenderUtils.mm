@@ -747,6 +747,7 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
 	
     
     count=0;
+    if (volumeData) {
 	for (int i=0; i<chanNb; i++) {
 		if (col_size*i+col_ofs-2.0f>_ww) break;
         
@@ -766,7 +767,7 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
         pts[3] = LineVertex(pixOfs+col_size*i+col_ofs+col_size*4/5,	volumeData[i]*_hh/256/5,cr,cg,cb,125);
         glDrawArrays(GL_TRIANGLE_STRIP,0,4);
 	}
-    //glDrawArrays(GL_LINES, 0, count);
+    }
 	
     glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
