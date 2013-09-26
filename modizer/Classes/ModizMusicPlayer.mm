@@ -5438,22 +5438,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			NSLog(@"timidity Cannot open file %@",filePath);
 			mPlayType=0;
             
-            if (mp_data) free(mp_data);
-            mp_data=NULL;
-            
 			return -1;
 		}
-		
 		fseek(f,0L,SEEK_END);
 		mp_datasize=ftell(f);
-        /*
-        //BUGGY
-        //Pattern display/modplug
-		rewind(f);
-		mp_data=(char*)malloc(mp_datasize);
-		fread(mp_data,mp_datasize,1,f);
-         */
-        //
 		fclose(f);
         
         
@@ -5477,18 +5465,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		if (mLoopMode==1) iModuleLength=-1;
         
         strcpy(tim_filepath,[filePath UTF8String]);
-		
-        
-        //try to also load with modplug for pattern display
-/*        mp_file=ModPlug_LoadPat(mp_data,mp_datasize);
-		if (mp_file==NULL) {
-			free(mp_data);
-		} else {
-			mPatternDataAvail=1;
-			numPatterns=ModPlug_NumPatterns(mp_file);
-            numChannels=ModPlug_NumChannels(mp_file);
-        }*/
-        
+		      
 		return 0;
 	}
     if (found==16) { //PMD
@@ -5766,11 +5743,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     
     if (mPlayType==15) { //Timidity
         intr = 1;
-        
-        if (mp_data) {
-            free(mp_data);
-            mp_data=NULL;
-        }
     }
     
 	bGlobalIsPlaying=0;

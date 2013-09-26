@@ -56,7 +56,7 @@ typedef struct _MBlockNode
 #ifndef MBLOCK_NOPAD
     void *pad;
 #endif /* MBLOCK_NOPAD */
-    char buffer[1];
+    //char buffer[1];
 } MBlockNode;
 
 typedef struct _MBlockList

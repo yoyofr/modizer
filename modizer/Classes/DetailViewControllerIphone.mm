@@ -965,12 +965,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         ((RootViewControllerPlaylist*)childController)->playlist=playlist;
         ((RootViewControllerPlaylist*)childController)->mFreePlaylist=1;
         ((RootViewControllerPlaylist*)childController)->mDetailPlayerMode=1;
+        ((RootViewControllerPlaylist*)childController)->currentPlayedEntry=mPlaylist_pos+1;
         
         // And push the window
         [self.navigationController pushViewController:childController animated:YES];
         
-        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-        [((RootViewControllerPlaylist*)childController)->tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
+/*        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        [((RootViewControllerPlaylist*)childController)->tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
         
     }
     
@@ -2094,7 +2095,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             volWin.hidden=NO;
 			volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
-			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
+			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),
                                           volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
             //			volumeView.center = CGPointMake((mDevice_ww)/2,32);
             //			[volumeView sizeToFit];
@@ -3470,7 +3471,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	infoUnzoom.hidden=YES;
 	
 	volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
-	volumeView = [[[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/] autorelease];
+	volumeView = [[[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/] autorelease];
     //	volumeView.center = CGPointMake(mDevice_ww/2,32);
     //  [volumeView setShowsRouteButton:YES];
     //	[volumeView sizeToFit];

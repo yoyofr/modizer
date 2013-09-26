@@ -21,6 +21,8 @@
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
+    
+    
 	
 	
 	UIView *waitingView;
@@ -74,7 +76,8 @@
     int browse_depth;
     int integrated_playlist;
     int mDetailPlayerMode;
-    IBOutlet DetailViewControllerIphone *detailViewController;	
+    IBOutlet DetailViewControllerIphone *detailViewController;
+    int currentPlayedEntry;
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;

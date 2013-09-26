@@ -116,7 +116,8 @@ void *new_segment(MBlockList *mblock, size_t nbytes)
     else
 	p = mblock->first;
 
-    addr = (void *)(p->buffer + p->offset);
+    //addr = (void *)(p->buffer + p->offset);
+    addr = (void *)((char*)p + p->offset + sizeof(MBlockNode));
     p->offset += nbytes;
 
 #ifdef DEBUG
@@ -132,12 +133,11 @@ void *new_segment(MBlockList *mblock, size_t nbytes)
 
 static void reuse_mblock1(MBlockNode *p)
 {
-    if(p->block_size > MIN_MBLOCK_SIZE)
-	free(p);
+    if(p->block_size > MIN_MBLOCK_SIZE)	free(p);
     else /* p->block_size <= MIN_MBLOCK_SIZE */
     {
-	p->next = free_mblock_list;
-	free_mblock_list = p;
+        p->next = free_mblock_list;
+        free_mblock_list = p;
     }
 }
 

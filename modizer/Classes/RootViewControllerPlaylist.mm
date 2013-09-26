@@ -256,6 +256,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (self) {
         // Custom initialization
         browse_depth=0;
+        currentPlayedEntry=-1;
+        mDetailPlayerMode=0;
     }
     return self;
 }
@@ -1770,6 +1772,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
     
     
+    if (currentPlayedEntry>=0) {
+        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        [tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:currentPlayedEntry] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    }
     
     [super viewWillAppear:animated];
     
@@ -2233,33 +2239,33 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    int rowofs=(mDetailPlayerMode?1:2);
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
-        if (show_playlist&&(indexPath.row>=2)) { //delete playlist entry
+        if (show_playlist&&(indexPath.row>=rowofs)) { //delete playlist entry
             if (integrated_playlist==1) { //most played: reset playcount
                 short int playcount;
                 signed char rating;
-                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-2].label,
-                                            playlist->entries[indexPath.row-2].fullpath,
+                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
+                                            playlist->entries[indexPath.row-rowofs].fullpath,
                                             &playcount,&rating);
                 playcount=0;
-                DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-2].label,
-                                               playlist->entries[indexPath.row-2].fullpath,
+                DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
+                                               playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating);
             } else if (integrated_playlist==2) {  //favorites: reset rating
                 short int playcount;
                 signed char rating;
-                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-2].label,
-                                            playlist->entries[indexPath.row-2].fullpath,
+                DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
+                                            playlist->entries[indexPath.row-rowofs].fullpath,
                                             &playcount,&rating);
                 rating=0;
-                DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-2].label,
-                                               playlist->entries[indexPath.row-2].fullpath,
+                DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
+                                               playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating);
             }
-            [playlist->entries[indexPath.row-2].label release];
-            [playlist->entries[indexPath.row-2].fullpath release];
+            [playlist->entries[indexPath.row-rowofs].label release];
+            [playlist->entries[indexPath.row-rowofs].fullpath release];
             for (int i=indexPath.row-1;i<playlist->nb_entries;i++) {
                 playlist->entries[i-1].label=playlist->entries[i].label;
                 playlist->entries[i-1].fullpath=playlist->entries[i].fullpath;
@@ -2286,64 +2292,65 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
 }
 - (NSIndexPath *)tableView:(UITableView *)tabView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
-    
+    int rowofs=(mDetailPlayerMode?1:2);
     if (show_playlist) {
-        if (proposedDestinationIndexPath.row<2) {
+        if (proposedDestinationIndexPath.row<rowofs) {
             NSIndexPath *newIndexPath=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-            return [newIndexPath indexPathByAddingIndex:2];
+            return [newIndexPath indexPathByAddingIndex:rowofs];
         }
     }
     return proposedDestinationIndexPath;
 }
 // Override to support rearranging the table view.
 - (void)tableView:(UITableView *)tabView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-    if (show_playlist&&(fromIndexPath.row&&toIndexPath.row>=2)) {
-        signed char tmpR=playlist->entries[fromIndexPath.row-2].ratings;
-        short int tmpC=playlist->entries[fromIndexPath.row-2].playcounts;
-        NSString *tmpF=playlist->entries[fromIndexPath.row-2].fullpath;
-        NSString *tmpL=playlist->entries[fromIndexPath.row-2].label;
+    int rowofs=(mDetailPlayerMode?1:2);
+    if (show_playlist&&(fromIndexPath.row&&toIndexPath.row>=rowofs)) {
+        signed char tmpR=playlist->entries[fromIndexPath.row-rowofs].ratings;
+        short int tmpC=playlist->entries[fromIndexPath.row-rowofs].playcounts;
+        NSString *tmpF=playlist->entries[fromIndexPath.row-rowofs].fullpath;
+        NSString *tmpL=playlist->entries[fromIndexPath.row-rowofs].label;
         if (toIndexPath.row<fromIndexPath.row) {
-            for (int i=fromIndexPath.row-2;i>toIndexPath.row-2;i--) {
+            for (int i=fromIndexPath.row-rowofs;i>toIndexPath.row-rowofs;i--) {
                 playlist->entries[i].label=playlist->entries[i-1].label;
                 playlist->entries[i].fullpath=playlist->entries[i-1].fullpath;
                 playlist->entries[i].ratings=playlist->entries[i-1].ratings;
                 playlist->entries[i].playcounts=playlist->entries[i-1].playcounts;
             }
-            playlist->entries[toIndexPath.row-2].label=tmpL;
-            playlist->entries[toIndexPath.row-2].fullpath=tmpF;
-            playlist->entries[toIndexPath.row-2].ratings=tmpR;
-            playlist->entries[toIndexPath.row-2].playcounts=tmpC;
+            playlist->entries[toIndexPath.row-rowofs].label=tmpL;
+            playlist->entries[toIndexPath.row-rowofs].fullpath=tmpF;
+            playlist->entries[toIndexPath.row-rowofs].ratings=tmpR;
+            playlist->entries[toIndexPath.row-rowofs].playcounts=tmpC;
         } else {
-            for (int i=fromIndexPath.row-2;i<toIndexPath.row-2;i++) {
+            for (int i=fromIndexPath.row-rowofs;i<toIndexPath.row-rowofs;i++) {
                 playlist->entries[i].label=playlist->entries[i+1].label;
                 playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
                 playlist->entries[i].ratings=playlist->entries[i+1].ratings;
                 playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
             }
-            playlist->entries[toIndexPath.row-2].label=tmpL;
-            playlist->entries[toIndexPath.row-2].fullpath=tmpF;
-            playlist->entries[toIndexPath.row-2].ratings=tmpR;
-            playlist->entries[toIndexPath.row-2].playcounts=tmpC;
+            playlist->entries[toIndexPath.row-rowofs].label=tmpL;
+            playlist->entries[toIndexPath.row-rowofs].fullpath=tmpF;
+            playlist->entries[toIndexPath.row-rowofs].ratings=tmpR;
+            playlist->entries[toIndexPath.row-rowofs].playcounts=tmpC;
         }
         
         if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
         else {
             t_plPlaylist_entry tmpF;
-            tmpF=detailViewController.mPlaylist[fromIndexPath.row-2];
+            tmpF=detailViewController.mPlaylist[fromIndexPath.row-rowofs];
             if (toIndexPath.row<fromIndexPath.row) {
-                for (int i=fromIndexPath.row-2;i>toIndexPath.row-2;i--) {
+                for (int i=fromIndexPath.row-rowofs;i>toIndexPath.row-rowofs;i--) {
                     detailViewController.mPlaylist[i]=detailViewController.mPlaylist[i-1];
                 }
-                detailViewController.mPlaylist[toIndexPath.row-2]=tmpF;
+                detailViewController.mPlaylist[toIndexPath.row-rowofs]=tmpF;
             } else {
-                for (int i=fromIndexPath.row-2;i<toIndexPath.row-2;i++) {
+                for (int i=fromIndexPath.row-rowofs;i<toIndexPath.row-rowofs;i++) {
                     detailViewController.mPlaylist[i]=detailViewController.mPlaylist[i+1];
                 }
-                detailViewController.mPlaylist[toIndexPath.row-2]=tmpF;
+                detailViewController.mPlaylist[toIndexPath.row-rowofs]=tmpF;
             }
-            if ((fromIndexPath.row-2>detailViewController.mPlaylist_pos)&&(toIndexPath.row-2<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
-            else if ((fromIndexPath.row-2<detailViewController.mPlaylist_pos)&&(toIndexPath.row-2>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
-            else if (fromIndexPath.row-2==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=toIndexPath.row-2;
+            if ((fromIndexPath.row-rowofs>detailViewController.mPlaylist_pos)&&(toIndexPath.row-rowofs<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
+            else if ((fromIndexPath.row-rowofs<detailViewController.mPlaylist_pos)&&(toIndexPath.row-rowofs>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
+            else if (fromIndexPath.row-rowofs==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=toIndexPath.row-rowofs;
             
             detailViewController.mShouldUpdateInfos=1;
         }
@@ -2352,13 +2359,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tabView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    if (show_playlist&&(indexPath.row>=2)&&(integrated_playlist==0)) return YES;
+    int rowofs=(mDetailPlayerMode?1:2);
+    if (show_playlist&&(indexPath.row>=rowofs)&&(integrated_playlist==0)) return YES;
     return NO;
 }
 - (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    if (show_playlist&&(indexPath.row>=2)) return YES;
+    int rowofs=(mDetailPlayerMode?1:2);
+    if (show_playlist&&(indexPath.row>=rowofs)) return YES;
     if ((browse_depth==0)&&(indexPath.row>=4)) return YES;
+    
     return NO;
 }
 
