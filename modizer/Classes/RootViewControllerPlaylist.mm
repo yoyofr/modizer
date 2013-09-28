@@ -271,12 +271,22 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
     if (indexPath != nil) {
         if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-            //        NSLog(@"long press on table view at row %d", indexPath.row);
-            int crow=indexPath.row-2;
-            if (playlist->playlist_id==nil) crow++;
-            if (crow>=0) {
+            int crow=indexPath.row;
+            int csection=indexPath.section;
+            NSString *str=nil;
+            if (show_playlist) {
+                if (playlist->playlist_id==nil) crow++;
+                crow-=2;
+                str=playlist->entries[crow].fullpath;
+            } else if (browse_depth>0) {
+                csection-=2;
+                t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+                str=cur_local_entries[csection][crow].fullpath;
+            }
+            
+            
+            if (str) {
                 //display popup
-                NSString *str=playlist->entries[crow].label;
                 if (self.popTipView == nil) {
                     self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
                     self.popTipView.delegate = self;
@@ -285,11 +295,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     
                     [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
                     popTipViewRow=crow;
+                    popTipViewSection=csection;
                 } else {
-                    if ((popTipViewRow!=crow)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                    if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
                         self.popTipView.message=str;
                         [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
                         popTipViewRow=crow;
+                        popTipViewSection=csection;
                     }
                 }
             }
@@ -350,6 +362,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     //	self.tableView.backgroundColor = [UIColor blackColor];
     
     popTipViewRow=-1;
+    popTipViewSection=-1;
     UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
                                           initWithTarget:self action:@selector(handleLongPress:)];
     lpgr.minimumPressDuration = 1.0; //seconds
@@ -1968,50 +1981,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         [cell setBackgroundColor:[UIColor clearColor]];        
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = cell.bounds;
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        [cell setBackgroundView:[[UIView alloc] init]];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = cell.bounds;
-        float rev_col_adj=1.2f;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        [cell setSelectedBackgroundView:[[UIView alloc] init]];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
         UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
         MDZUIImageView *imageView = [[MDZUIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
@@ -2084,8 +2053,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
     bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
     bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
-    
-    
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,

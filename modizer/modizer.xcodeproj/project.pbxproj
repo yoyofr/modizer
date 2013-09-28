@@ -716,21 +716,13 @@
 		CC91689E17F01F690012E2C1 /* varanen short.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683717F01EE70012E2C1 /* varanen short.mod */; };
 		CC91689F17F01F690012E2C1 /* virtual escape.gif in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683817F01EE70012E2C1 /* virtual escape.gif */; };
 		CC9168A017F01F690012E2C1 /* virtual escape.sndh in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC91683917F01EE70012E2C1 /* virtual escape.sndh */; };
-		CC9168A117F01F800012E2C1 /* 1942.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684317F01EFA0012E2C1 /* 1942.jpg */; };
-		CC9168A217F01F800012E2C1 /* 1942.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684417F01EFA0012E2C1 /* 1942.mod */; };
-		CC9168A317F01F800012E2C1 /* Auf_Wiedersehen_Monty.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684517F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.jpg */; };
-		CC9168A417F01F800012E2C1 /* Auf_Wiedersehen_Monty.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684617F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.sid */; };
 		CC9168A517F01F800012E2C1 /* bubble bobble.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684717F01EFA0012E2C1 /* bubble bobble.jpg */; };
 		CC9168A617F01F800012E2C1 /* bubble bobble.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684817F01EFA0012E2C1 /* bubble bobble.mod */; };
 		CC9168A717F01F800012E2C1 /* Doom2-Stage01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684917F01EFA0012E2C1 /* Doom2-Stage01.jpg */; };
 		CC9168A817F01F800012E2C1 /* Doom2-Stage01.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684A17F01EFA0012E2C1 /* Doom2-Stage01.mid */; };
-		CC9168A917F01F800012E2C1 /* DoubleDragon1_Stage1.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684B17F01EFA0012E2C1 /* DoubleDragon1_Stage1.jpg */; };
-		CC9168AA17F01F800012E2C1 /* DoubleDragon1_Stage1.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684C17F01EFA0012E2C1 /* DoubleDragon1_Stage1.mid */; };
 		CC9168AB17F01F800012E2C1 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684D17F01EFA0012E2C1 /* DukeNukem_Level1.jpg */; };
 		CC9168AC17F01F800012E2C1 /* DukeNukem_Level1.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684E17F01EFA0012E2C1 /* DukeNukem_Level1.mid */; };
 		CC9168AD17F01F800012E2C1 /* FF7_AerisTheme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91684F17F01EFA0012E2C1 /* FF7_AerisTheme.mid */; };
-		CC9168AE17F01F800012E2C1 /* mega man 3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685017F01EFA0012E2C1 /* mega man 3.jpg */; };
-		CC9168AF17F01F800012E2C1 /* mega man 3.nsf in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685117F01EFA0012E2C1 /* mega man 3.nsf */; };
 		CC9168B017F01F800012E2C1 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685217F01EFA0012E2C1 /* One_Man_and_His_Droid.jpg */; };
 		CC9168B117F01F800012E2C1 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685317F01EFA0012E2C1 /* One_Man_and_His_Droid.sid */; };
 		CC9168B217F01F800012E2C1 /* SMB1-Theme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685417F01EFA0012E2C1 /* SMB1-Theme.mid */; };
@@ -743,20 +735,8 @@
 		CC9168B917F01F800012E2C1 /* zelda.png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CC91685B17F01EFB0012E2C1 /* zelda.png */; };
 		CC9168BA17F01F9B0012E2C1 /* albeniz_asturia.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687517F01F0C0012E2C1 /* albeniz_asturia.jpg */; };
 		CC9168BB17F01F9B0012E2C1 /* albeniz_asturia.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687617F01F0C0012E2C1 /* albeniz_asturia.mid */; };
-		CC9168BC17F01F9B0012E2C1 /* ALBINONI.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687717F01F0C0012E2C1 /* ALBINONI.jpg */; };
-		CC9168BD17F01F9B0012E2C1 /* ALBINONI.MID in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687817F01F0C0012E2C1 /* ALBINONI.MID */; };
-		CC9168BE17F01F9B0012E2C1 /* beethoven_concerto4_1.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687917F01F0C0012E2C1 /* beethoven_concerto4_1.jpg */; };
-		CC9168BF17F01F9B0012E2C1 /* beethoven_concerto4_1.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687A17F01F0C0012E2C1 /* beethoven_concerto4_1.mid */; };
-		CC9168C017F01F9B0012E2C1 /* beethoven_moonlight.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687B17F01F0C0012E2C1 /* beethoven_moonlight.jpg */; };
-		CC9168C117F01F9B0012E2C1 /* beethoven_moonlight.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687C17F01F0C0012E2C1 /* beethoven_moonlight.mid */; };
-		CC9168C217F01F9B0012E2C1 /* beethoven_pathetique.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687D17F01F0C0012E2C1 /* beethoven_pathetique.jpg */; };
-		CC9168C317F01F9B0012E2C1 /* beethoven_pathetique.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687E17F01F0C0012E2C1 /* beethoven_pathetique.mid */; };
 		CC9168C417F01F9B0012E2C1 /* Flowers.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91687F17F01F0C0012E2C1 /* Flowers.jpg */; };
 		CC9168C517F01F9B0012E2C1 /* Flowers.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688017F01F0C0012E2C1 /* Flowers.mid */; };
-		CC9168C617F01F9B0012E2C1 /* schubert_imp2.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688117F01F0C0012E2C1 /* schubert_imp2.jpg */; };
-		CC9168C717F01F9B0012E2C1 /* schubert_imp2.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688217F01F0C0012E2C1 /* schubert_imp2.mid */; };
-		CC9168C817F01F9B0012E2C1 /* schubert_imp4.jpg in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688317F01F0C0012E2C1 /* schubert_imp4.jpg */; };
-		CC9168C917F01F9B0012E2C1 /* schubert_imp4.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CC91688417F01F0C0012E2C1 /* schubert_imp4.mid */; };
 		CC928DE917D0037B0098696C /* txtMenu12a.png in Resources */ = {isa = PBXBuildFile; fileRef = CC928DE717D0037B0098696C /* txtMenu12a.png */; };
 		CC928DEA17D0037B0098696C /* txtMenu12b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC928DE817D0037B0098696C /* txtMenu12b.png */; };
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
@@ -1165,21 +1145,13 @@
 			dstPath = Samples/Games;
 			dstSubfolderSpec = 7;
 			files = (
-				CC9168A117F01F800012E2C1 /* 1942.jpg in Copy Files-Samples Games */,
-				CC9168A217F01F800012E2C1 /* 1942.mod in Copy Files-Samples Games */,
-				CC9168A317F01F800012E2C1 /* Auf_Wiedersehen_Monty.jpg in Copy Files-Samples Games */,
-				CC9168A417F01F800012E2C1 /* Auf_Wiedersehen_Monty.sid in Copy Files-Samples Games */,
 				CC9168A517F01F800012E2C1 /* bubble bobble.jpg in Copy Files-Samples Games */,
 				CC9168A617F01F800012E2C1 /* bubble bobble.mod in Copy Files-Samples Games */,
 				CC9168A717F01F800012E2C1 /* Doom2-Stage01.jpg in Copy Files-Samples Games */,
 				CC9168A817F01F800012E2C1 /* Doom2-Stage01.mid in Copy Files-Samples Games */,
-				CC9168A917F01F800012E2C1 /* DoubleDragon1_Stage1.jpg in Copy Files-Samples Games */,
-				CC9168AA17F01F800012E2C1 /* DoubleDragon1_Stage1.mid in Copy Files-Samples Games */,
 				CC9168AB17F01F800012E2C1 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */,
 				CC9168AC17F01F800012E2C1 /* DukeNukem_Level1.mid in Copy Files-Samples Games */,
 				CC9168AD17F01F800012E2C1 /* FF7_AerisTheme.mid in Copy Files-Samples Games */,
-				CC9168AE17F01F800012E2C1 /* mega man 3.jpg in Copy Files-Samples Games */,
-				CC9168AF17F01F800012E2C1 /* mega man 3.nsf in Copy Files-Samples Games */,
 				CC9168B017F01F800012E2C1 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */,
 				CC9168B117F01F800012E2C1 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */,
 				CC9168B217F01F800012E2C1 /* SMB1-Theme.mid in Copy Files-Samples Games */,
@@ -1202,20 +1174,8 @@
 			files = (
 				CC9168BA17F01F9B0012E2C1 /* albeniz_asturia.jpg in Copy Files-Samples Classical */,
 				CC9168BB17F01F9B0012E2C1 /* albeniz_asturia.mid in Copy Files-Samples Classical */,
-				CC9168BC17F01F9B0012E2C1 /* ALBINONI.jpg in Copy Files-Samples Classical */,
-				CC9168BD17F01F9B0012E2C1 /* ALBINONI.MID in Copy Files-Samples Classical */,
-				CC9168BE17F01F9B0012E2C1 /* beethoven_concerto4_1.jpg in Copy Files-Samples Classical */,
-				CC9168BF17F01F9B0012E2C1 /* beethoven_concerto4_1.mid in Copy Files-Samples Classical */,
-				CC9168C017F01F9B0012E2C1 /* beethoven_moonlight.jpg in Copy Files-Samples Classical */,
-				CC9168C117F01F9B0012E2C1 /* beethoven_moonlight.mid in Copy Files-Samples Classical */,
-				CC9168C217F01F9B0012E2C1 /* beethoven_pathetique.jpg in Copy Files-Samples Classical */,
-				CC9168C317F01F9B0012E2C1 /* beethoven_pathetique.mid in Copy Files-Samples Classical */,
 				CC9168C417F01F9B0012E2C1 /* Flowers.jpg in Copy Files-Samples Classical */,
 				CC9168C517F01F9B0012E2C1 /* Flowers.mid in Copy Files-Samples Classical */,
-				CC9168C617F01F9B0012E2C1 /* schubert_imp2.jpg in Copy Files-Samples Classical */,
-				CC9168C717F01F9B0012E2C1 /* schubert_imp2.mid in Copy Files-Samples Classical */,
-				CC9168C817F01F9B0012E2C1 /* schubert_imp4.jpg in Copy Files-Samples Classical */,
-				CC9168C917F01F9B0012E2C1 /* schubert_imp4.mid in Copy Files-Samples Classical */,
 			);
 			name = "Copy Files-Samples Classical";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2313,21 +2273,13 @@
 		CC91683717F01EE70012E2C1 /* varanen short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "varanen short.mod"; path = "Resources/Samples2/Demoscene/varanen short.mod"; sourceTree = SOURCE_ROOT; };
 		CC91683817F01EE70012E2C1 /* virtual escape.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "virtual escape.gif"; path = "Resources/Samples2/Demoscene/virtual escape.gif"; sourceTree = SOURCE_ROOT; };
 		CC91683917F01EE70012E2C1 /* virtual escape.sndh */ = {isa = PBXFileReference; lastKnownFileType = file; name = "virtual escape.sndh"; path = "Resources/Samples2/Demoscene/virtual escape.sndh"; sourceTree = SOURCE_ROOT; };
-		CC91684317F01EFA0012E2C1 /* 1942.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = 1942.jpg; path = Resources/Samples2/Games/1942.jpg; sourceTree = SOURCE_ROOT; };
-		CC91684417F01EFA0012E2C1 /* 1942.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = 1942.mod; path = Resources/Samples2/Games/1942.mod; sourceTree = SOURCE_ROOT; };
-		CC91684517F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Auf_Wiedersehen_Monty.jpg; path = Resources/Samples2/Games/Auf_Wiedersehen_Monty.jpg; sourceTree = SOURCE_ROOT; };
-		CC91684617F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = Auf_Wiedersehen_Monty.sid; path = Resources/Samples2/Games/Auf_Wiedersehen_Monty.sid; sourceTree = SOURCE_ROOT; };
 		CC91684717F01EFA0012E2C1 /* bubble bobble.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "bubble bobble.jpg"; path = "Resources/Samples2/Games/bubble bobble.jpg"; sourceTree = SOURCE_ROOT; };
 		CC91684817F01EFA0012E2C1 /* bubble bobble.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "bubble bobble.mod"; path = "Resources/Samples2/Games/bubble bobble.mod"; sourceTree = SOURCE_ROOT; };
 		CC91684917F01EFA0012E2C1 /* Doom2-Stage01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Doom2-Stage01.jpg"; path = "Resources/Samples2/Games/Doom2-Stage01.jpg"; sourceTree = SOURCE_ROOT; };
 		CC91684A17F01EFA0012E2C1 /* Doom2-Stage01.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "Doom2-Stage01.mid"; path = "Resources/Samples2/Games/Doom2-Stage01.mid"; sourceTree = SOURCE_ROOT; };
-		CC91684B17F01EFA0012E2C1 /* DoubleDragon1_Stage1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DoubleDragon1_Stage1.jpg; path = Resources/Samples2/Games/DoubleDragon1_Stage1.jpg; sourceTree = SOURCE_ROOT; };
-		CC91684C17F01EFA0012E2C1 /* DoubleDragon1_Stage1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = DoubleDragon1_Stage1.mid; path = Resources/Samples2/Games/DoubleDragon1_Stage1.mid; sourceTree = SOURCE_ROOT; };
 		CC91684D17F01EFA0012E2C1 /* DukeNukem_Level1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DukeNukem_Level1.jpg; path = Resources/Samples2/Games/DukeNukem_Level1.jpg; sourceTree = SOURCE_ROOT; };
 		CC91684E17F01EFA0012E2C1 /* DukeNukem_Level1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = DukeNukem_Level1.mid; path = Resources/Samples2/Games/DukeNukem_Level1.mid; sourceTree = SOURCE_ROOT; };
 		CC91684F17F01EFA0012E2C1 /* FF7_AerisTheme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = FF7_AerisTheme.mid; path = Resources/Samples2/Games/FF7_AerisTheme.mid; sourceTree = SOURCE_ROOT; };
-		CC91685017F01EFA0012E2C1 /* mega man 3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "mega man 3.jpg"; path = "Resources/Samples2/Games/mega man 3.jpg"; sourceTree = SOURCE_ROOT; };
-		CC91685117F01EFA0012E2C1 /* mega man 3.nsf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "mega man 3.nsf"; path = "Resources/Samples2/Games/mega man 3.nsf"; sourceTree = SOURCE_ROOT; };
 		CC91685217F01EFA0012E2C1 /* One_Man_and_His_Droid.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = One_Man_and_His_Droid.jpg; path = Resources/Samples2/Games/One_Man_and_His_Droid.jpg; sourceTree = SOURCE_ROOT; };
 		CC91685317F01EFA0012E2C1 /* One_Man_and_His_Droid.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = One_Man_and_His_Droid.sid; path = Resources/Samples2/Games/One_Man_and_His_Droid.sid; sourceTree = SOURCE_ROOT; };
 		CC91685417F01EFA0012E2C1 /* SMB1-Theme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "SMB1-Theme.mid"; path = "Resources/Samples2/Games/SMB1-Theme.mid"; sourceTree = SOURCE_ROOT; };
@@ -2340,20 +2292,8 @@
 		CC91685B17F01EFB0012E2C1 /* zelda.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = zelda.png; path = Resources/Samples2/Games/zelda.png; sourceTree = SOURCE_ROOT; };
 		CC91687517F01F0C0012E2C1 /* albeniz_asturia.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = albeniz_asturia.jpg; path = Resources/Samples2/Classical/albeniz_asturia.jpg; sourceTree = SOURCE_ROOT; };
 		CC91687617F01F0C0012E2C1 /* albeniz_asturia.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = albeniz_asturia.mid; path = Resources/Samples2/Classical/albeniz_asturia.mid; sourceTree = SOURCE_ROOT; };
-		CC91687717F01F0C0012E2C1 /* ALBINONI.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ALBINONI.jpg; path = Resources/Samples2/Classical/ALBINONI.jpg; sourceTree = SOURCE_ROOT; };
-		CC91687817F01F0C0012E2C1 /* ALBINONI.MID */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = ALBINONI.MID; path = Resources/Samples2/Classical/ALBINONI.MID; sourceTree = SOURCE_ROOT; };
-		CC91687917F01F0C0012E2C1 /* beethoven_concerto4_1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_concerto4_1.jpg; path = Resources/Samples2/Classical/beethoven_concerto4_1.jpg; sourceTree = SOURCE_ROOT; };
-		CC91687A17F01F0C0012E2C1 /* beethoven_concerto4_1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_concerto4_1.mid; path = Resources/Samples2/Classical/beethoven_concerto4_1.mid; sourceTree = SOURCE_ROOT; };
-		CC91687B17F01F0C0012E2C1 /* beethoven_moonlight.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_moonlight.jpg; path = Resources/Samples2/Classical/beethoven_moonlight.jpg; sourceTree = SOURCE_ROOT; };
-		CC91687C17F01F0C0012E2C1 /* beethoven_moonlight.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_moonlight.mid; path = Resources/Samples2/Classical/beethoven_moonlight.mid; sourceTree = SOURCE_ROOT; };
-		CC91687D17F01F0C0012E2C1 /* beethoven_pathetique.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = beethoven_pathetique.jpg; path = Resources/Samples2/Classical/beethoven_pathetique.jpg; sourceTree = SOURCE_ROOT; };
-		CC91687E17F01F0C0012E2C1 /* beethoven_pathetique.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_pathetique.mid; path = Resources/Samples2/Classical/beethoven_pathetique.mid; sourceTree = SOURCE_ROOT; };
 		CC91687F17F01F0C0012E2C1 /* Flowers.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Flowers.jpg; path = Resources/Samples2/Classical/Flowers.jpg; sourceTree = SOURCE_ROOT; };
 		CC91688017F01F0C0012E2C1 /* Flowers.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Flowers.mid; path = Resources/Samples2/Classical/Flowers.mid; sourceTree = SOURCE_ROOT; };
-		CC91688117F01F0C0012E2C1 /* schubert_imp2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = schubert_imp2.jpg; path = Resources/Samples2/Classical/schubert_imp2.jpg; sourceTree = SOURCE_ROOT; };
-		CC91688217F01F0C0012E2C1 /* schubert_imp2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = schubert_imp2.mid; path = Resources/Samples2/Classical/schubert_imp2.mid; sourceTree = SOURCE_ROOT; };
-		CC91688317F01F0C0012E2C1 /* schubert_imp4.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = schubert_imp4.jpg; path = Resources/Samples2/Classical/schubert_imp4.jpg; sourceTree = SOURCE_ROOT; };
-		CC91688417F01F0C0012E2C1 /* schubert_imp4.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = schubert_imp4.mid; path = Resources/Samples2/Classical/schubert_imp4.mid; sourceTree = SOURCE_ROOT; };
 		CC928DE717D0037B0098696C /* txtMenu12a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12a.png; sourceTree = "<group>"; };
 		CC928DE817D0037B0098696C /* txtMenu12b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12b.png; sourceTree = "<group>"; };
 		CC9B180F12FF026700985967 /* gsf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gsf.h; path = ../libgsf/gsf.h; sourceTree = SOURCE_ROOT; };
@@ -4499,20 +4439,8 @@
 			children = (
 				CC91687517F01F0C0012E2C1 /* albeniz_asturia.jpg */,
 				CC91687617F01F0C0012E2C1 /* albeniz_asturia.mid */,
-				CC91687717F01F0C0012E2C1 /* ALBINONI.jpg */,
-				CC91687817F01F0C0012E2C1 /* ALBINONI.MID */,
-				CC91687917F01F0C0012E2C1 /* beethoven_concerto4_1.jpg */,
-				CC91687A17F01F0C0012E2C1 /* beethoven_concerto4_1.mid */,
-				CC91687B17F01F0C0012E2C1 /* beethoven_moonlight.jpg */,
-				CC91687C17F01F0C0012E2C1 /* beethoven_moonlight.mid */,
-				CC91687D17F01F0C0012E2C1 /* beethoven_pathetique.jpg */,
-				CC91687E17F01F0C0012E2C1 /* beethoven_pathetique.mid */,
 				CC91687F17F01F0C0012E2C1 /* Flowers.jpg */,
 				CC91688017F01F0C0012E2C1 /* Flowers.mid */,
-				CC91688117F01F0C0012E2C1 /* schubert_imp2.jpg */,
-				CC91688217F01F0C0012E2C1 /* schubert_imp2.mid */,
-				CC91688317F01F0C0012E2C1 /* schubert_imp4.jpg */,
-				CC91688417F01F0C0012E2C1 /* schubert_imp4.mid */,
 			);
 			name = Classical;
 			sourceTree = "<group>";
@@ -4520,21 +4448,13 @@
 		CC9167F317EFA72F0012E2C1 /* Games */ = {
 			isa = PBXGroup;
 			children = (
-				CC91684317F01EFA0012E2C1 /* 1942.jpg */,
-				CC91684417F01EFA0012E2C1 /* 1942.mod */,
-				CC91684517F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.jpg */,
-				CC91684617F01EFA0012E2C1 /* Auf_Wiedersehen_Monty.sid */,
 				CC91684717F01EFA0012E2C1 /* bubble bobble.jpg */,
 				CC91684817F01EFA0012E2C1 /* bubble bobble.mod */,
 				CC91684917F01EFA0012E2C1 /* Doom2-Stage01.jpg */,
 				CC91684A17F01EFA0012E2C1 /* Doom2-Stage01.mid */,
-				CC91684B17F01EFA0012E2C1 /* DoubleDragon1_Stage1.jpg */,
-				CC91684C17F01EFA0012E2C1 /* DoubleDragon1_Stage1.mid */,
 				CC91684D17F01EFA0012E2C1 /* DukeNukem_Level1.jpg */,
 				CC91684E17F01EFA0012E2C1 /* DukeNukem_Level1.mid */,
 				CC91684F17F01EFA0012E2C1 /* FF7_AerisTheme.mid */,
-				CC91685017F01EFA0012E2C1 /* mega man 3.jpg */,
-				CC91685117F01EFA0012E2C1 /* mega man 3.nsf */,
 				CC91685217F01EFA0012E2C1 /* One_Man_and_His_Droid.jpg */,
 				CC91685317F01EFA0012E2C1 /* One_Man_and_His_Droid.sid */,
 				CC91685417F01EFA0012E2C1 /* SMB1-Theme.mid */,

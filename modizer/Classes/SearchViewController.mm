@@ -38,6 +38,7 @@ static NSFileManager *mFileMngr;
 
 @synthesize searchResultTabView,sBar,detailViewController,searchPrgView,searchLabel,prgView;
 @synthesize downloadViewController,rootViewControllerIphone;
+@synthesize popTipView;
 
 -(IBAction)goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
@@ -47,6 +48,71 @@ static NSFileManager *mFileMngr;
         [nofileplaying show];
     }
 }
+
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    CGPoint p = [gestureRecognizer locationInView:self.searchResultTabView];
+    
+    NSIndexPath *indexPath = [self.searchResultTabView indexPathForRowAtPoint:p];
+    if (indexPath != nil) {
+        if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
+            int crow=indexPath.row;
+            int csection=indexPath.section;
+            NSString *str=nil;
+            
+            switch (csection) {
+                case 0:
+                    str=[NSString stringWithFormat:@"%@", playlist_entries[indexPath.row].playlist_name];
+                    break;
+                case 1:
+                    str=local_entries[crow].fullpath;
+                    break;
+                case 2:
+                    str=db_entries[crow].fullpath;
+                    break;
+                case 3:
+                    str=dbHVSC_entries[crow].fullpath;
+                    break;
+                case 4:
+                    str=dbASMA_entries[crow].fullpath;
+                    break;
+            }
+            
+            if (str) {
+                //display popup
+                if (self.popTipView == nil) {
+                    self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
+                    self.popTipView.delegate = self;
+                    self.popTipView.backgroundColor = [UIColor lightGrayColor];
+                    self.popTipView.textColor = [UIColor darkTextColor];
+                    
+                    [self.popTipView presentPointingAtView:[self.searchResultTabView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                    popTipViewRow=crow;
+                    popTipViewSection=csection;
+                } else {
+                    if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                        self.popTipView.message=str;
+                        [self.popTipView presentPointingAtView:[self.searchResultTabView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        popTipViewRow=crow;
+                        popTipViewSection=csection;
+                    }
+                }
+            }
+        } else {
+            //hide popup
+            if (popTipView!=nil) {
+                [self.popTipView dismissAnimated:YES];
+                popTipView=nil;
+            }
+        }
+    }
+}
+
+#pragma mark CMPopTipViewDelegate methods
+- (void)popTipViewWasDismissedByUser:(CMPopTipView *)_popTipView {
+    // User can tap CMPopTipView to dismiss it
+    self.popTipView = nil;
+}
+
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
@@ -75,6 +141,16 @@ static NSFileManager *mFileMngr;
     //searchResultTabView.rowHeight = 28;
 	searchResultTabView.sectionHeaderHeight = 32;
     //self.tableView.backgroundColor = [UIColor clearColor];
+    
+    popTipViewRow=-1;
+    popTipViewSection=-1;
+    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
+                                          initWithTarget:self action:@selector(handleLongPress:)];
+    lpgr.minimumPressDuration = 1.0; //seconds
+    lpgr.delegate = self;
+    [self.searchResultTabView addGestureRecognizer:lpgr];
+    [lpgr release];
+    
 	
 	
 	mSearch=0;
@@ -1430,50 +1506,6 @@ static NSFileManager *mFileMngr;
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = cell.bounds;
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        [cell setBackgroundView:[[UIView alloc] init]];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = cell.bounds;
-        float rev_col_adj=1.2f;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        [cell setSelectedBackgroundView:[[UIView alloc] init]];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
         UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;

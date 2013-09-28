@@ -46,6 +46,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize currentPath;
 @synthesize childController;
 @synthesize mSearchText;
+@synthesize popTipView;
 
 
 #include <sys/types.h>
@@ -411,6 +412,16 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.tableView.sectionHeaderHeight = 18;
 	self.tableView.rowHeight = 40;
+    
+    popTipViewRow=-1;
+    popTipViewSection=-1;
+    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
+                                          initWithTarget:self action:@selector(handleLongPress:)];
+    lpgr.minimumPressDuration = 1.0; //seconds
+    lpgr.delegate = self;
+    [self.tableView addGestureRecognizer:lpgr];
+    [lpgr release];
+    
 	
 	shouldFillKeys=1;
 	mSearch=0;
@@ -1565,52 +1576,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = cell.bounds;
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        [cell setBackgroundView:[[UIView alloc] init]];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = cell.bounds;
-        float rev_col_adj=1.2f;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        [cell setSelectedBackgroundView:[[UIView alloc] init]];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
-        
         UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
@@ -1683,7 +1648,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
     bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     
-    
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
                                tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
@@ -1713,8 +1677,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                    0,
                                    tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                    22);
-        
-        
         
         [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
         [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
@@ -2262,6 +2224,53 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     infoMsgView.frame=frame;
     [UIView setAnimationDidStopSelector:@selector(hidePopup)];
     [UIView commitAnimations];
+}
+
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    CGPoint p = [gestureRecognizer locationInView:self.tableView];
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
+    if (indexPath != nil) {
+        if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
+//                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
+            int crow=indexPath.row;
+            int csection=indexPath.section-2;
+            if (csection>=0) {
+                //display popup
+                t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+                NSString *str=cur_local_entries[csection][crow].fullpath;
+                if (self.popTipView == nil) {
+                    self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
+                    self.popTipView.delegate = self;
+                    self.popTipView.backgroundColor = [UIColor lightGrayColor];
+                    self.popTipView.textColor = [UIColor darkTextColor];
+                    
+                    [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                    popTipViewRow=crow;
+                    popTipViewSection=csection;
+                } else {
+                    if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                        self.popTipView.message=str;
+                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        popTipViewRow=crow;
+                        popTipViewSection=csection;
+                    }
+                }
+            }
+        } else {
+            //hide popup
+            if (popTipView!=nil) {
+                [self.popTipView dismissAnimated:YES];
+                popTipView=nil;
+            }
+        }
+    }
+}
+
+#pragma mark CMPopTipViewDelegate methods
+- (void)popTipViewWasDismissedByUser:(CMPopTipView *)_popTipView {
+    // User can tap CMPopTipView to dismiss it
+    self.popTipView = nil;
 }
 
 

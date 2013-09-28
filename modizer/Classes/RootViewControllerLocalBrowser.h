@@ -12,16 +12,21 @@
 #import "DBHelper.h"
 #import "RootViewControllerStruct.h"
 #import "fex.h"
+#import "CMPopTipView.h"
+
 
 
 @class DetailViewControllerIphone;
 
 
-@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     NSFileManager *mFileMngr;
+	
+    CMPopTipView *popTipView;
+    int popTipViewRow,popTipViewSection;
 	
 	
 	UIView *waitingView;
@@ -75,6 +80,7 @@
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
+@property (nonatomic, retain) CMPopTipView *popTipView;
 
 -(IBAction)goPlayer;
 -(void) refreshViewAfterDownload;

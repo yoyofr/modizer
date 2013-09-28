@@ -13,7 +13,7 @@
 #import "DetailViewControllerIphone.h"
 #import "DownloadViewController.h"
 #import "RootViewControllerLocalBrowser.h"
-
+#import "CMPopTipView.h"
 
 @class DetailViewControllerIphone;
 @class DownloadViewController;
@@ -63,7 +63,7 @@ typedef struct {
 	signed char downloaded;
 } t_dbASMA_browse_entryS;
 
-@interface SearchViewController : UIViewController <UITableViewDelegate,UISearchBarDelegate>  {
+@interface SearchViewController : UIViewController <UITableViewDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate>  {
 	IBOutlet DetailViewControllerIphone *detailViewController;
 	IBOutlet DownloadViewController *downloadViewController;
 	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
@@ -72,6 +72,9 @@ typedef struct {
 	IBOutlet UIView *searchPrgView;
 	IBOutlet UILabel *searchLabel;
 	IBOutlet UIProgressView *prgView;
+    
+    CMPopTipView *popTipView;
+    int popTipViewRow,popTipViewSection;
 	
 	UIAlertView *alertDownload;
 	NSString *mSearchText;
@@ -111,6 +114,7 @@ typedef struct {
 @property (nonatomic, retain) IBOutlet UIView *searchPrgView;
 @property (nonatomic, retain) IBOutlet UILabel *searchLabel;
 @property (nonatomic, retain) IBOutlet UIProgressView *prgView;
+@property (nonatomic, retain) CMPopTipView *popTipView;
 
 -(IBAction)goPlayer;
 

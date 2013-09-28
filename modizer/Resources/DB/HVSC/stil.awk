@@ -6,6 +6,7 @@ BEGIN {
   if (readflag==1) {
      if (length($0)<=1) {
         readflag=0;
+        gsub(/"/,"'",info);
         print title ";;" info;
      } else {
         info= info substr($0,1,length($0)-1) "\\n";
