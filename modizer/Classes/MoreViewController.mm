@@ -20,8 +20,12 @@ extern BOOL is_ios7;
 @synthesize detailViewController,tableView,aboutVC,rootVC,downloadViewController;
 
 -(IBAction) goPlayer {
-    [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
-    
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 

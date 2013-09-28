@@ -28,7 +28,12 @@ extern volatile int mSlowDevice;
 volatile t_settings settings[MAX_SETTINGS];
 
 -(IBAction) goPlayer {
-	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 #pragma mark - Callback methods
@@ -259,7 +264,6 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXMODPatternVolume].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
@@ -646,19 +650,15 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern].sub_family=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=7;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[3]=(char*)"3";
-    
-    settings[GLOB_FXMODPatternVolume].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXMODPatternVolume].label=(char*)"MOD Pattern Volume";
-    settings[GLOB_FXMODPatternVolume].description=NULL;
-    settings[GLOB_FXMODPatternVolume].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FXMODPatternVolume].sub_family=0;
-    settings[GLOB_FXMODPatternVolume].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[4]=(char*)"4";
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[5]=(char*)"5";
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[6]=(char*)"6";
     
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIPattern].label=(char*)"Note display";
@@ -1413,7 +1413,7 @@ void optUADEChangedC(id param) {
     
     //Build current mapping
     cur_settings_nb=0;
-    for (int i=0,idx=0;i<MAX_SETTINGS;i++) {
+    for (int i=0;i<MAX_SETTINGS;i++) {
         if (settings[i].family==current_family) {
             cur_settings_idx[cur_settings_nb++]=i;
             
@@ -1589,6 +1589,7 @@ void optUADEChangedC(id param) {
         case MDZ_BOOLSWITCH:
             switchview = [[UISwitch alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,40)];
             [switchview addTarget:self action:@selector(boolswitchChanged:) forControlEvents:UIControlEventValueChanged];
+            switchview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             cell.accessoryView = switchview;
             [switchview release];
             switchview.on=settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value;
@@ -1600,6 +1601,7 @@ void optUADEChangedC(id param) {
             }
             segconview = [[UISegmentedControl alloc] initWithItems:tmpArray];
             segconview.frame=CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30);
+            segconview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             //            segconview.
             UIFont *font = [UIFont boldSystemFontOfSize:12.0f];
             NSDictionary *attributes = [NSDictionary dictionaryWithObject:font
@@ -1615,6 +1617,7 @@ void optUADEChangedC(id param) {
             break;
         case MDZ_SLIDER_CONTINUOUS:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             sliderview.integerMode=0;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
@@ -1626,6 +1629,7 @@ void optUADEChangedC(id param) {
             break;
         case MDZ_SLIDER_DISCRETE:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             sliderview.integerMode=1;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
@@ -1637,7 +1641,7 @@ void optUADEChangedC(id param) {
             break;
         case MDZ_TEXTBOX:
             txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
-            
+            txtfield.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             txtfield.borderStyle = UITextBorderStyleRoundedRect;
             txtfield.font = [UIFont systemFontOfSize:15];
             txtfield.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -1655,6 +1659,7 @@ void optUADEChangedC(id param) {
             break;
         case MDZ_MSGBOX:
             msgLabel = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            msgLabel.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             msgLabel.tag=indexPath.section;
             
             msgLabel.borderStyle = UITextBorderStyleRoundedRect;
@@ -1674,6 +1679,7 @@ void optUADEChangedC(id param) {
             [msgLabel release];
             break;
     }
+    
     
     return cell;
 }

@@ -40,8 +40,12 @@ static NSFileManager *mFileMngr;
 @synthesize downloadViewController,rootViewControllerIphone;
 
 -(IBAction)goPlayer {
-	//	self.navigationController.navigationBar.hidden = YES;
-	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.

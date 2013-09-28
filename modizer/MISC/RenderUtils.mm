@@ -1081,7 +1081,7 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
 float barSpectrumDataL[SPECTRUM_BANDS];
 float barSpectrumDataR[SPECTRUM_BANDS];
 
-void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands) {
+void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror) {
 	GLfloat spL,spR;
     GLfloat cr,cg,cb,crt,cgt,cbt;
     GLfloat x,y,z,sx,sy,sz;
@@ -1149,8 +1149,8 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     
     switch (mode) {
         case 2:
-            glTranslatef(0.0, 0.0, -170.0+
-                         20*(0.8f*sin((float)frameCpt*3.14159f/991)+
+            glTranslatef(0.0, 0.0, -190.0+
+                         15*(0.8f*sin((float)frameCpt*3.14159f/991)+
                              1.7f*sin((float)frameCpt*3.14159f/3065)-
                              0.3f*sin((float)frameCpt*3.14159f/5009)));
             
@@ -1315,7 +1315,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
         x=-0.5;y=0;z=0;
         sx=sy=24.0/(float)nb_spectrum_bands;
         trans=14+sx;
-        
+        if (mirror)
         for (int i=0; i<nb_spectrum_bands; i++) {
             /////////////////
             //LEFT
@@ -1511,7 +1511,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                             0.9f*sin((float)frameCpt*3.14159f/2213)), 0, 1, 0);
         
         ang=0;
-        
+        if (mirror)
         for (int i=0; i<nb_spectrum_bands; i++) {
             /////////////////
             //LEFT
@@ -2612,7 +2612,7 @@ unsigned char piano_key[12]={0,1,0,1,0,0,1,0,1,0,1,0};
 unsigned char piano_key_state[128];
 unsigned char piano_key_instr[128];
 
-extern int texturePiano;
+//extern int texturePiano;
 
 void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
     int index;

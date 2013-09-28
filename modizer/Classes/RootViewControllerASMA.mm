@@ -1415,9 +1415,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 -(IBAction)goPlayer {
-    //	self.navigationController.navigationBar.hidden = YES;
-    //[self performSelectorInBackground:@selector(showWaiting) withObject:nil];    
-    [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 #pragma mark -
