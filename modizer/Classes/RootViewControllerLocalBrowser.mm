@@ -1948,7 +1948,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 
 -(IBAction)goPlayer {
-    [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 #pragma mark -

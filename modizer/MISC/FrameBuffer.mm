@@ -56,13 +56,13 @@ void FrameBufferUtils::Create(FrameBuffer& buffer, EAGLContext* oglContext, id<E
 
 void FrameBufferUtils::Destroy(FrameBuffer& buffer)
 {
-	glDeleteFramebuffersOES(1, &buffer.viewFramebuffer);
-	glDeleteRenderbuffersOES(1, &buffer.viewRenderbuffer);
-    glDeleteRenderbuffersOES(1, &buffer.depthBuffer);
+	if (buffer.viewFramebuffer) glDeleteFramebuffersOES(1, &buffer.viewFramebuffer);
+	if (buffer.viewRenderbuffer) glDeleteRenderbuffersOES(1, &buffer.viewRenderbuffer);
+    if (buffer.depthBuffer) glDeleteRenderbuffersOES(1, &buffer.depthBuffer);
     if (buffer.msaaFramebuffer) {
-        glDeleteFramebuffersOES(1, &buffer.msaaFramebuffer);
-        glDeleteRenderbuffersOES(1, &buffer.msaaRenderBuffer);
-        glDeleteRenderbuffersOES(1, &buffer.msaaDepthBuffer);
+        if (buffer.msaaFramebuffer) glDeleteFramebuffersOES(1, &buffer.msaaFramebuffer);
+        if (buffer.msaaRenderBuffer) glDeleteRenderbuffersOES(1, &buffer.msaaRenderBuffer);
+        if (buffer.msaaDepthBuffer) glDeleteRenderbuffersOES(1, &buffer.msaaDepthBuffer);
     }
 }
 

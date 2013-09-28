@@ -130,8 +130,8 @@ class CGLString;
 	NSTimer *repeatingTimer;
 	
 	CFont *mFont;
-	CGLString *mText[128];
-	CGLString *mTextLine[128];
+	CGLString *mText[512];
+	CGLString *mTextLine[512];
 	CGLString *viewTapInfoStr[9];
 	CGLString *mHeader;
 	

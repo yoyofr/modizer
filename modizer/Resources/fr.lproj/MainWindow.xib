@@ -49,7 +49,7 @@
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             </tabBar>
             <viewControllers>
-                <navigationController definesPresentationContext="YES" id="49">
+                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="49">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Bibliothèque" image="bb_music.png" id="53"/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
@@ -61,7 +61,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
-                        <viewController title="Browse" id="1979" customClass="RootViewControllerLocalBrowser">
+                        <viewController title="Browse" modalTransitionStyle="flipHorizontal" id="1979" customClass="RootViewControllerLocalBrowser">
                             <view key="view" contentMode="scaleToFill" id="1984">
                                 <rect key="frame" x="0.0" y="64" width="320" height="367"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -106,7 +106,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                 </navigationController>
-                <navigationController definesPresentationContext="YES" id="1892" userLabel="Navigation Controller - Playlist">
+                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1892" userLabel="Navigation Controller - Playlist">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Playlists" image="bb_list.png" id="1896" userLabel="Tab Bar Item - Playlists"/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
@@ -118,7 +118,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
-                        <viewController title="Playlists" id="1954" customClass="RootViewControllerPlaylist">
+                        <viewController title="Playlists" modalTransitionStyle="flipHorizontal" id="1954" customClass="RootViewControllerPlaylist">
                             <view key="view" contentMode="scaleToFill" id="1956">
                                 <rect key="frame" x="0.0" y="64" width="320" height="367"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -150,7 +150,7 @@
                         </viewController>
                     </viewControllers>
                 </navigationController>
-                <navigationController definesPresentationContext="YES" id="1897" userLabel="Navigation Controller - Online">
+                <navigationController title="Online" definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1897" userLabel="Navigation Controller - Online">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Online" image="bb_download.png" id="1901"/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
@@ -162,7 +162,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
-                        <viewController id="1934" customClass="OnlineViewController">
+                        <viewController modalTransitionStyle="flipHorizontal" id="1934" customClass="OnlineViewController">
                             <view key="view" contentMode="scaleToFill" id="1936">
                                 <rect key="frame" x="0.0" y="64" width="320" height="367"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -196,7 +196,7 @@
                         </viewController>
                     </viewControllers>
                 </navigationController>
-                <navigationController title="Search" id="682" userLabel="Search">
+                <navigationController title="Search" definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="682" userLabel="Search">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="" systemItem="search" id="683"/>
                     <toolbarItems/>
@@ -210,7 +210,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
-                        <viewController id="684" customClass="SearchViewController">
+                        <viewController modalTransitionStyle="flipHorizontal" id="684" customClass="SearchViewController">
                             <view key="view" contentMode="scaleToFill" id="715">
                                 <rect key="frame" x="0.0" y="64" width="320" height="367"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -282,7 +282,7 @@
                         </viewController>
                     </viewControllers>
                 </navigationController>
-                <navigationController definesPresentationContext="YES" id="1902" userLabel="Navigation Controller - More">
+                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1902" userLabel="Navigation Controller - More">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" systemItem="more" id="1906"/>
                     <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
@@ -294,7 +294,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
-                        <viewController title="More" id="2018" customClass="MoreViewController">
+                        <viewController title="More" modalTransitionStyle="flipHorizontal" id="2018" customClass="MoreViewController">
                             <view key="view" contentMode="scaleToFill" id="2020">
                                 <rect key="frame" x="0.0" y="64" width="320" height="367"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -334,7 +334,7 @@
                 <outlet property="webBrowser" destination="444" id="464"/>
             </connections>
         </tabBarController>
-        <viewController title="File" id="11" userLabel="Player Controller" customClass="DetailViewControllerIphone">
+        <viewController title="File" modalTransitionStyle="flipHorizontal" id="11" userLabel="Player Controller" customClass="DetailViewControllerIphone">
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="15" userLabel="PlayerView">
                 <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -890,7 +890,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="calibratedRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <view multipleTouchEnabled="YES" contentMode="scaleToFill" id="24" userLabel="openGL view" customClass="OGLView">
+                            <view opaque="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" id="24" userLabel="openGL view" customClass="OGLView">
                                 <rect key="frame" x="0.0" y="82" width="320" height="246"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -1050,7 +1050,7 @@
                     </pickerView>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1672" userLabel="SubsongPickerBtn">
                         <rect key="frame" x="7" y="200" width="305" height="44"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
                         <state key="normal">
@@ -1083,7 +1083,7 @@
                     </pickerView>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="wordWrap" id="1669" userLabel="ArcPickerBtn">
                         <rect key="frame" x="7" y="200" width="305" height="44"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
                         <state key="normal">
@@ -1166,7 +1166,7 @@
                 <outlet property="volWin" destination="388" id="399"/>
             </connections>
         </viewController>
-        <viewController id="642" customClass="DownloadViewController">
+        <viewController modalTransitionStyle="flipHorizontal" id="642" customClass="DownloadViewController">
             <view key="view" contentMode="scaleToFill" id="331" userLabel="DownloadView">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="411"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -1270,7 +1270,7 @@
                 <outlet property="searchViewController" destination="684" id="767"/>
             </connections>
         </viewController>
-        <viewController title="web browser" id="444" customClass="WebBrowser">
+        <viewController title="web browser" modalTransitionStyle="flipHorizontal" id="444" customClass="WebBrowser">
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="445" userLabel="WB View">
                 <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1387,7 +1387,7 @@
                 <outlet property="webView" destination="448" id="458"/>
             </connections>
         </viewController>
-        <viewController id="1466" userLabel="View Controller (About)" customClass="AboutViewController">
+        <viewController modalTransitionStyle="flipHorizontal" id="1466" userLabel="View Controller (About)" customClass="AboutViewController">
             <view key="view" contentMode="scaleToFill" id="1471">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

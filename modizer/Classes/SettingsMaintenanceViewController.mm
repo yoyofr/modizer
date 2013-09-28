@@ -21,7 +21,12 @@ extern BOOL is_ios7;
 @synthesize tableView,detailViewController,rootVC;
 
 -(IBAction) goPlayer {
-	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -60,6 +65,11 @@ extern BOOL is_ios7;
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
     [super viewWillAppear:animated];
+}
+
+-(void) viewDidAppear:(BOOL)animated {
+//    [self.tableView reloadData];
+    [super viewDidAppear:animated];
 }
 
 - (void)didReceiveMemoryWarning
@@ -260,8 +270,8 @@ extern BOOL is_ios7;
     if (cell == nil) {
         cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
         
-        cell.frame=CGRectMake(0,0,tabView.frame.size.width,50);
-        
+        cell.frame=CGRectMake(0,0,self.view.frame.size.width,50);
+        cell.autoresizingMask=UIViewAutoresizingFlexibleWidth;
         [cell setBackgroundColor:[UIColor clearColor]];
         
         UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
@@ -271,42 +281,22 @@ extern BOOL is_ios7;
         [imageView release];
         
         
-        //
-        // Create the label for the top row of text
-        //
-/*        topLabel = [[[UILabel alloc] init] autorelease];
-        [cell.contentView addSubview:topLabel];
-        //
-        // Configure the properties for the text that are the same on every row
-        //
-        topLabel.tag = TOP_LABEL_TAG;
-        topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
-        topLabel.font = [UIFont boldSystemFontOfSize:14];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
-        topLabel.opaque=TRUE;
-        topLabel.numberOfLines=0;
-        topLabel.frame= CGRectMake(4,
-                                   0,
-                                   tabView.bounds.size.width,
-                                   40);
-*/
-        btn= [[[BButton alloc] initWithFrame:CGRectMake(tabView.bounds.size.width/2-100,
+        btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                       10,
                                                       200,
           
                                                        30)] autorelease];
         btn.tag=TOP_LABEL_TAG;
         [cell.contentView addSubview:btn];
-        btn.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+        btn.autoresizingMask=UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin;
         
         cell.accessoryView=nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
+        [cell layoutSubviews];
     } else {
-//        topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         btn = (BButton *)[cell viewWithTag:TOP_LABEL_TAG];
-    }
+    }    
+    btn.frame=CGRectMake(self.view.frame.size.width/2-100,10,200,30);
     
     
     NSString *txt;

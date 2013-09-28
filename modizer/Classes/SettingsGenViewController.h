@@ -160,7 +160,6 @@ enum MDZ_SETTINGS {
     GLOB_FXLOD,
     GLOB_FXMSAA,
     GLOB_FXMODPattern,
-    GLOB_FXMODPatternVolume,
     GLOB_FXMIDIPattern,
     GLOB_FXPiano,
         GLOB_FXPianoColorMode,

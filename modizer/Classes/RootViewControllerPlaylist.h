@@ -11,19 +11,21 @@
 #import "DBHelper.h"
 #import "RootViewControllerStruct.h"
 #import "fex.h"
+#import "CMPopTipView.h"
 
 
 
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerPlaylist : UIViewController <UISearchBarDelegate,UIActionSheetDelegate> {
+@interface RootViewControllerPlaylist : UIViewController <UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     
     
-	
+	CMPopTipView *popTipView;
+    int popTipViewRow;
 	
 	UIView *waitingView;
     
@@ -89,6 +91,8 @@
 @property (nonatomic, retain) NSArray *list;
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
+
+@property (nonatomic, retain) CMPopTipView *popTipView;
 
 @property int mDetailPlayerMode;
 

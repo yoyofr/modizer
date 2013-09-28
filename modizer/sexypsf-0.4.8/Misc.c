@@ -776,8 +776,11 @@ static PSFINFO *LoadPSF(char *path, int level, int type,const char *pathDir) // 
 					//free(key);
 					//free(value);
 					//free(tmpfn);
-					//fclose(fp);
-			        //return(0);
+                    sexypsf_missing_psflib=1;
+                    strcpy(sexypsf_psflib_str,cache[cur].value);
+                    if (tmpfn) free(tmpfn);
+                    if (cache) free(cache);
+                    return(0);
 				} else {
                     FreeTags(tmpi->tags);
                     free(tmpi);

@@ -26,12 +26,33 @@ static volatile int mGetFTPInProgress,mConnectionIssue,mSuspended;
 
 static NSFileManager *mFileMngr;
 
+#import "MDZUIImageView.h"
+
 @implementation DownloadViewController
 
 @synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,downloadTabView,downloadPrgView,detailViewController,barItem,rootViewController,onlineVC;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
 @synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth,moreVC;
 
+/* NOT Implemented yet
+- (void)backupDownloadList {
+    
+}
+
+- (void)restoreDownloadList {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSString *str,*valStr;
+    
+	for (int i=0;i<MAX_DOWNLOAD_QUEUE;i++) {
+        str=[NSString stringWithFormat:@"DownSlot#%d",i];
+        valStr=[prefs objectForKey:str];
+        if (valStr!=nil) {
+            
+        }
+    }
+
+}
+*/
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString* )path
 {
     const char* filePath = [path fileSystemRepresentation];
@@ -44,7 +65,12 @@ static NSFileManager *mFileMngr;
 }
 
 -(IBAction) goPlayer {
-	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 -(IBAction)cancelCurrent {
@@ -185,6 +211,7 @@ static NSFileManager *mFileMngr;
     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
     
+    self.downloadTabView.editing=TRUE;
     
     [super viewDidLoad];
 	end_time=clock();
@@ -760,7 +787,7 @@ static NSFileManager *mFileMngr;
 			case 0://do nothing
 				break;
 			case 1://Enqueue
-				[detailViewController add_to_playlist:filePaths fileNames:fileNames forcenoplay:0];
+				[detailViewController add_to_playlist:filePaths fileNames:fileNames forcenoplay:1];
 				break;
 			case 2://Play
 				[detailViewController play_listmodules:fileNames start_index:0 path:filePaths];
@@ -794,7 +821,7 @@ static NSFileManager *mFileMngr;
 
 - (void)checkIfShouldAddFile:(NSString*)localPath fileName:(NSString*)fileName {
     if ([self isAllowedFile:fileName]) {
-        [self addDownloadedURLtoPlayer:fileName filepath:[NSString stringWithFormat:@"Documents/Downloads/%@",fileName] forcenoplay:0];
+        [self addDownloadedURLtoPlayer:fileName filepath:[NSString stringWithFormat:@"Documents/Downloads/%@",fileName] forcenoplay:1];
     }
 }
 
@@ -852,7 +879,6 @@ static NSFileManager *mFileMngr;
 	
 	[self checkIfShouldAddFile:localPath fileName:fileName];
 	//Remove file if it is not part of accepted one
-	
 	
 	[self updateToNextURL];
 	mGetURLInProgress=0;
@@ -1047,7 +1073,7 @@ static NSFileManager *mFileMngr;
     UILabel *topLabel;
     UILabel *bottomLabel;
     
-	BButton *lCancelButton;
+//	BButton *lCancelButton;
 	
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
@@ -1056,56 +1082,13 @@ static NSFileManager *mFileMngr;
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-         gradient.frame = cell.bounds;
-         gradient.colors = [NSArray arrayWithObjects:
-         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-         nil];
-         gradient.locations = [NSArray arrayWithObjects:
-         (id)[NSNumber numberWithFloat:0.00f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:1.00f],
-         nil];
-         [cell setBackgroundView:[[UIView alloc] init]];
-         [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-         
-         CAGradientLayer *selgrad = [CAGradientLayer layer];
-         selgrad.frame = cell.bounds;
-         float rev_col_adj=1.2f;
-         selgrad.colors = [NSArray arrayWithObjects:
-         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-         nil];
-         selgrad.locations = [NSArray arrayWithObjects:
-         (id)[NSNumber numberWithFloat:0.00f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:1.00f],
-         nil];
-         
-         [cell setSelectedBackgroundView:[[UIView alloc] init]];
-         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
         UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        MDZUIImageView *imageView = [[MDZUIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
         [imageView release];
         
+        cell.contentView.backgroundColor = [UIColor clearColor];
         //
         // Create the label for the top row of text
         //
@@ -1121,6 +1104,7 @@ static NSFileManager *mFileMngr;
         topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
+        topLabel.autoresizesSubviews=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleRightMargin;
         
         //
         // Create the label for the top row of text
@@ -1138,17 +1122,14 @@ static NSFileManager *mFileMngr;
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
         bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
         bottomLabel.opaque=TRUE;
+        bottomLabel.autoresizesSubviews=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleRightMargin;
         
-		/*lCancelButton                = [UIButton buttonWithType: UIButtonTypeCustom];
-         lCancelButton.frame = CGRectMake(tableView.bounds.size.width-2-24,2,24,24);
-         cell.accessoryView=lCancelButton;
-         [lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
-         [lCancelButton setImage:[UIImage imageNamed:@"mini_cancel.png"] forState:UIControlStateNormal];*/
-        lCancelButton = [[[BButton alloc] initWithFrame:CGRectMake(tableView.bounds.size.width-2-32,4,32,32) type:BButtonTypeDanger] autorelease];
+        
+/*        lCancelButton = [[[BButton alloc] initWithFrame:CGRectMake(tableView.bounds.size.width-2-32,4,32,32) type:BButtonTypeDanger] autorelease];
         [lCancelButton addTarget: self action: @selector(cancelTapped:) forControlEvents: UIControlEventTouchUpInside];
 		cell.accessoryView=lCancelButton;
-        [lCancelButton addAwesomeIcon:0x057 beforeTitle:YES font_size:20];
-		
+        [lCancelButton addAwesomeIcon:0x057 beforeTitle:YES font_size:20];*/
+		[cell layoutSubviews];
 	} else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
@@ -1156,11 +1137,11 @@ static NSFileManager *mFileMngr;
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
-                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32,
+                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-(cell.editingStyle==UITableViewCellEditingStyleDelete?32:0),
                                22);
     bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                    22,
-                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32,
+                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-(cell.editingStyle==UITableViewCellEditingStyleDelete?32:0),
                                    18);
     bottomLabel.text=@""; //default value
     
@@ -1184,6 +1165,144 @@ static NSFileManager *mFileMngr;
 		//cell.accessoryType = UITableViewCellAccessoryNone;
 	}
 	return cell;
+}
+
+// Override to support conditional rearranging of the table view.
+- (BOOL)tableView:(UITableView *)tabView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
+}
+- (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
+}
+
+- (void)tableView:(UITableView *)tabView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+    pthread_mutex_lock(&download_mutex);
+    if (fromIndexPath.section==0) { //FTP
+        NSString *tmpS;
+        tmpS=mFilePath[fromIndexPath.row];
+        mFilePath[fromIndexPath.row]=mFilePath[toIndexPath.row];
+        mFilePath[toIndexPath.row]=tmpS;
+        
+        tmpS=mFTPFilename[fromIndexPath.row];
+        mFTPFilename[fromIndexPath.row]=mFTPFilename[toIndexPath.row];
+        mFTPFilename[toIndexPath.row]=tmpS;
+        
+        tmpS=mFTPpath[fromIndexPath.row];
+        mFTPpath[fromIndexPath.row]=mFTPpath[toIndexPath.row];
+        mFTPpath[toIndexPath.row]=tmpS;
+        
+        tmpS=mFTPhost[fromIndexPath.row];
+        mFTPhost[fromIndexPath.row]=mFTPhost[toIndexPath.row];
+        mFTPhost[toIndexPath.row]=tmpS;
+        
+        int tmpI;
+        tmpI=mFileSize[fromIndexPath.row];
+        mFileSize[fromIndexPath.row]=mFileSize[toIndexPath.row];
+        mFileSize[toIndexPath.row]=tmpI;
+        
+        tmpI=mUsePrimaryAction[fromIndexPath.row];
+        mUsePrimaryAction[fromIndexPath.row]=mUsePrimaryAction[toIndexPath.row];
+        mUsePrimaryAction[toIndexPath.row]=tmpI;
+        
+        tmpI=mFTPDownloaded[fromIndexPath.row];
+        mFTPDownloaded[fromIndexPath.row]=mFTPDownloaded[toIndexPath.row];
+        mFTPDownloaded[toIndexPath.row]=tmpI;
+        
+        unsigned char tmpC;
+        tmpC=mIsMODLAND[fromIndexPath.row];
+        mIsMODLAND[fromIndexPath.row]=mIsMODLAND[toIndexPath.row];
+        mIsMODLAND[toIndexPath.row]=tmpC;
+        
+        tmpC=mStatus[fromIndexPath.row];
+        mStatus[fromIndexPath.row]=mStatus[toIndexPath.row];
+        mStatus[toIndexPath.row]=tmpC;
+        
+    } else { //HTTP
+        NSString *tmpS;
+        tmpS=mURL[fromIndexPath.row];
+        mURL[fromIndexPath.row]=mURL[toIndexPath.row];
+        mURL[toIndexPath.row]=tmpS;
+        
+        tmpS=mURLFilename[fromIndexPath.row];
+        mURLFilename[fromIndexPath.row]=mURLFilename[toIndexPath.row];
+        mURLFilename[toIndexPath.row]=tmpS;
+        
+        int tmpI;
+        tmpI=mURLFilesize[fromIndexPath.row];
+        mURLFilesize[fromIndexPath.row]=mURLFilesize[toIndexPath.row];
+        mURLFilesize[toIndexPath.row]=tmpI;
+        
+        unsigned char tmpC;
+        tmpC=mURLIsImage[fromIndexPath.row];
+        mURLIsImage[fromIndexPath.row]=mURLIsImage[toIndexPath.row];
+        mURLIsImage[toIndexPath.row]=tmpC;
+        
+    }
+    pthread_mutex_unlock(&download_mutex);
+}
+
+- (NSIndexPath *)tableView:(UITableView *)tabView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
+        //NSIndexPath *newIndexPath=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+    if (proposedDestinationIndexPath.section>sourceIndexPath.section) {
+        return [NSIndexPath indexPathForRow:[tabView numberOfRowsInSection:sourceIndexPath.section]-1 inSection:sourceIndexPath.section];
+    } else if (proposedDestinationIndexPath.section<sourceIndexPath.section) {
+        return [NSIndexPath indexPathForRow:0 inSection:sourceIndexPath.section];
+    }
+    return proposedDestinationIndexPath;
+}
+
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+    pthread_mutex_lock(&download_mutex);
+	int pos=indexPath.row;
+	if (indexPath.section==0) {//FTP
+        if (mGetFTPInProgress) pos++;
+		if (mFilePath[pos]) {[mFilePath[pos] release];mFilePath[pos]=nil;}
+		if (mFTPpath[pos])  {[mFTPpath[pos] release];mFTPpath[pos]=nil;}
+		if (mFTPhost[pos])  {[mFTPhost[pos] release];mFTPhost[pos]=nil;}
+		if (mFTPFilename[pos]) {[mFTPFilename[pos] release];mFTPFilename[pos]=nil;}
+		
+		for (int i=pos;i<mFTPDownloadQueueDepth-1;i++) {
+			mFilePath[i]=mFilePath[i+1];
+			mFTPpath[i]=mFTPpath[i+1];
+			mFTPhost[i]=mFTPhost[i+1];
+			mFTPFilename[i]=mFTPFilename[i+1];
+			mUsePrimaryAction[i]=mUsePrimaryAction[i+1];
+			mFileSize[i]=mFileSize[i+1];
+			mIsMODLAND[i]=mIsMODLAND[i+1];
+		}
+		if (mFTPDownloadQueueDepth) {
+			mFilePath[mFTPDownloadQueueDepth-1]=nil;
+			mFTPpath[mFTPDownloadQueueDepth-1]=nil;
+			mFTPhost[mFTPDownloadQueueDepth-1]=nil;
+			mFTPFilename[mFTPDownloadQueueDepth-1]=nil;
+			mFTPDownloadQueueDepth--;
+		}
+		
+	}
+	if (indexPath.section==1) {//URL
+		if (mGetURLInProgress) pos++;
+		if (mURL[pos]) {[mURL[pos] release];mURL[pos]=nil;}
+		if (mURLFilename[pos]) {[mURLFilename[pos] release];mURLFilename[pos]=nil;}
+        
+		for (int i=pos;i<mURLDownloadQueueDepth-1;i++) {
+			mURL[i]=mURL[i+1];
+			mURLFilename[i]=mURLFilename[i+1];
+		}
+		if (mURLDownloadQueueDepth) {
+			mURL[mURLDownloadQueueDepth-1]=nil;
+			mURLFilename[mURLDownloadQueueDepth-1]=nil;
+			mURLDownloadQueueDepth--;
+		}
+	}
+	
+	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
+    else barItem.badgeValue=nil;
+	
+	[downloadTabView reloadData];
+	pthread_mutex_unlock(&download_mutex);
+    }
 }
 
 @end

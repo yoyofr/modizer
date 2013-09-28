@@ -5,6 +5,7 @@
 //  Created by yoyofr on 7/4/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
+extern BOOL is_ios7;
 
 #define EMPTY_PAGE @"<html><head><title>Modizer Web Browser</title>\
 <meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" /></head>\
@@ -59,7 +60,12 @@ static UIAlertView *alertChooseName;
 }
 
 -(IBAction) goPlayer {
-	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    else {
+        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        [nofileplaying show];
+    }
 }
 
 
@@ -413,9 +419,10 @@ static UIAlertView *alertChooseName;
 				ftpHost=[NSString stringWithFormat:@"%s",tmp_str+6];  //skip the FTP://
 				ftpPath=[NSString stringWithFormat:@"/%s",ptr_str];
 				
-				//Check if it is a MODLAND or a HVSC download
+				//Check if it is a collection download (MODLAND, HVSC, ...)
 				int isModland=0;
 				int isHVSC=0;
+                int isASMA=0;
 				NSRange rMODLAND;
 				rMODLAND.location=NSNotFound;
 				rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
@@ -428,6 +435,11 @@ static UIAlertView *alertChooseName;
 				rHVSC.location=NSNotFound;
 				rHVSC=[ftpPath rangeOfString:@"/C64Music/" options:NSCaseInsensitiveSearch];
 				if (rHVSC.location!=NSNotFound) isHVSC++;
+                
+                NSRange rASMA;
+				rASMA.location=NSNotFound;
+				rASMA=[ftpPath rangeOfString:@"/ASMA/" options:NSCaseInsensitiveSearch];
+				if (rASMA.location!=NSNotFound) isASMA++;
 				
 				if (isModland==2) {  //MODLAND DOWNLOAD
 					//get modland path to rebuild localPath
@@ -478,16 +490,36 @@ static UIAlertView *alertChooseName;
 															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 					}
                     [fileManager release];
-				} else { //STANDARD DOWNLOAD
+				}  else if (isASMA==1) {  //ASMA DOWNLOAD
+					//get modland path to rebuild localPath
+					NSString *tmpstr=[ftpPath substringFromIndex:rASMA.location+6];
+					localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",ASMA_BASEDIR,tmpstr];
+					//NSLog(@"newlocal : %@",localPath);
+					//Is it already existing ?
+					NSFileManager *fileManager = [[NSFileManager alloc] init];
+					BOOL success;
+					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+					if (success) {//already existing : start play/enqueue
+						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+							NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+							NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+							[array_label addObject:[localPath lastPathComponent]];
+							[array_path addObject:localPath];
+							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
+						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
+						//[self goPlayer];
+					} else { //start download
+						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
+															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
+					}
+                    [fileManager release];
+				}else { //STANDARD DOWNLOAD
 					localPath=[[NSString alloc] initWithFormat:@"Documents/Downloads/%@",suggestedFilename];
 					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-														filename:suggestedFilename isMODLAND:0 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
+														filename:suggestedFilename isMODLAND:0 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
 				}
-				
-				
-				
-				
 			}
 		} else {
 			[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
@@ -617,7 +649,7 @@ static UIAlertView *alertChooseName;
 					
 					
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
-														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
+														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
 				}
                 [fileManager release];
 				return NO;
@@ -644,7 +676,7 @@ static UIAlertView *alertChooseName;
 					
 					
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
-														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
+														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
 				}
                 [fileManager release];
 				return NO;
@@ -683,6 +715,7 @@ static UIAlertView *alertChooseName;
     [button addTarget:self action:@selector(stopLoading:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    [button release];
     
     //update back/forward buttons
     UIBarButtonItem *barBtn;
@@ -818,6 +851,7 @@ static UIAlertView *alertChooseName;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
+    [btn release];
 
 	
 	webView.scalesPageToFit = YES;
@@ -830,6 +864,7 @@ static UIAlertView *alertChooseName;
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    [button release];
 	
 	[[infoDownloadView layer] setCornerRadius:5.0];
 	[[infoDownloadView layer] setBorderWidth:2.0];
@@ -848,6 +883,14 @@ static UIAlertView *alertChooseName;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+    if (!is_ios7) {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
+    } else {
+        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    }
+    
+    
     [super viewWillAppear:animated];
     
     [self loadBookmarks];
