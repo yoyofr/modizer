@@ -367,7 +367,7 @@ void optUADEChangedC(id param) {
     /////////////////////////////////////
     //ADPLUG
     /////////////////////////////////////
-    settings[ADPLUG_OplType].detail.mdz_switch.switch_value=1;
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_value=0;
     
 }
 
@@ -1377,7 +1377,7 @@ void optUADEChangedC(id param) {
     settings[ADPLUG_OplType].family=MDZ_SETTINGS_FAMILY_ADPLUG;
     settings[ADPLUG_OplType].sub_family=0;
     settings[ADPLUG_OplType].callback=&optADPLUGChangedC;
-    settings[ADPLUG_OplType].detail.mdz_switch.switch_value=1;
+    settings[ADPLUG_OplType].detail.mdz_switch.switch_value=0;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb=3;
     settings[ADPLUG_OplType].detail.mdz_switch.switch_labels=(char**)malloc(settings[ADPLUG_OplType].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[ADPLUG_OplType].detail.mdz_switch.switch_labels[0]=(char*)"Std";

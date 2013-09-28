@@ -25,7 +25,7 @@
     
     
 	CMPopTipView *popTipView;
-    int popTipViewRow;
+    int popTipViewRow,popTipViewSection;
 	
 	UIView *waitingView;
     

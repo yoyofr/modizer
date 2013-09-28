@@ -72,8 +72,7 @@ CREATE INDEX idx_mod_albumId on mod_album (id);
 UPDATE mod_album
 SET id_author=(SELECT a.id 
 	FROM mod_author a
-	WHERE a.author=mod_album.author)
-;
+	WHERE a.author=mod_album.author);
 
 
 INSERT INTO mod_file (id_type,id_author,id_album,filename,filesize,fullpath)
@@ -81,8 +80,9 @@ INSERT INTO mod_file (id_type,id_author,id_album,filename,filesize,fullpath)
 	FROM import_7comp i,mod_type t,mod_author au,mod_album al
 	WHERE i.filetype=t.filetype
 	AND   i.author=au.author
+	AND i.author=al.author 
 	AND   i.album=al.album;
-
+	
 INSERT INTO mod_file (id_type,id_author,filename,filesize,fullpath)
 	SELECT t.id,au.id,i.filename,i.filesize,i.fullpath
 	FROM import_7comp i,mod_type t,mod_author au
@@ -120,6 +120,18 @@ CREATE INDEX idx_mod_author_albumAuthor on mod_author_album (id_author);
 
 DROP TABLE import_7comp;
 
+UPDATE mod_file
+SET localpath=( SELECT a.author||"/"||t.filetype||"/"||l.album||"/"||mod_file.filename
+				FROM mod_author a,mod_type t,mod_album l
+				WHERE mod_file.id_author=a.id AND mod_file.id_type=t.id AND mod_file.id_album=l.id)
+WHERE id_album is not null;
+
+UPDATE mod_file
+SET localpath=( SELECT a.author||"/"||t.filetype||"/"||mod_file.filename
+				FROM mod_author a,mod_type t
+				WHERE mod_file.id_author=a.id AND mod_file.id_type=t.id)
+WHERE id_album is null;
+
 CREATE TABLE songlength (id_md5 text,track_nb int,song_length int);
 CREATE TABLE hvsc_path (id_md5 text,filepath text);
 CREATE TABLE asma_path (id_md5 text,filepath text);
@@ -133,17 +145,7 @@ CREATE INDEX idx_songlengthMD5 on songlength (id_md5);
 CREATE INDEX idx_hvsc_pathMD5 on hvsc_path (id_md5);
 CREATE INDEX idx_asma_pathMD5 on asma_path (id_md5);
 
-UPDATE mod_file
-SET localpath=( SELECT a.author||"/"||t.filetype||"/"||l.album||"/"||mod_file.filename
-				FROM mod_author a,mod_type t,mod_album l
-				WHERE mod_file.id_author=a.id AND mod_file.id_type=t.id AND mod_file.id_album=l.id)
-WHERE id_album is not null;
 
-UPDATE mod_file
-SET localpath=( SELECT a.author||"/"||t.filetype||"/"||mod_file.filename
-				FROM mod_author a,mod_type t
-				WHERE mod_file.id_author=a.id AND mod_file.id_type=t.id)
-WHERE id_album is null;
 
 CREATE TABLE import_4hvsc (id_md5 text,dir1 text,dir2 text,filename text);
 CREATE TABLE import_5hvsc (id_md5 text,dir1 text,dir2 text,dir3 text,filename text);
