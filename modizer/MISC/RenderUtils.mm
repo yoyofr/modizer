@@ -1121,6 +1121,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             break;
     }
+    
     glFrustumf(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
     
     glMatrixMode(GL_MODELVIEW);
@@ -3083,7 +3084,11 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         switch (camera_pos) {
             case 1:
             case 2:
-                ztrans_tgt=-z-40;
+                ztrans_tgt=-z-30;
+                break;
+            case 5:
+            case 7:
+                ztrans_tgt=-z-30;
                 break;
         }
         

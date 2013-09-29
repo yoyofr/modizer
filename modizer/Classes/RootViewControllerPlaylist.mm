@@ -1872,6 +1872,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     
     [super viewDidAppear:animated];
+    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist<2)) {
+        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:currentPlayedEntry+1] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    }
+    
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -1880,6 +1885,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         [childController viewDidDisappear:FALSE];
     }
     [super viewDidDisappear:animated];
+    
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {

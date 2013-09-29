@@ -24,8 +24,6 @@
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	
-	
 	UIView *waitingView;
 	
     IBOutlet UITableView *tableView;

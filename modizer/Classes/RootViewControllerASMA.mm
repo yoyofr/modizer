@@ -49,6 +49,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize currentPath;
 @synthesize childController;
 @synthesize mSearchText;
+@synthesize popTipView;
 
 #pragma mark -
 #pragma mark View lifecycle
@@ -86,6 +87,67 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	waitingView.hidden=TRUE;
 }
 
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+    CGPoint p = [gestureRecognizer locationInView:self.tableView];
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
+    if (browse_depth>1) {
+        if (indexPath != nil) {
+            if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
+                //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
+                int crow=indexPath.row;
+                int csection;
+                
+                int download_all=0;
+                if (search_dbASMA) {
+                    if (search_dbASMA_hasFiles) download_all=1;
+                } else {
+                    if (dbASMA_hasFiles) download_all=1;
+                }
+                csection=indexPath.section-1-download_all;
+                
+                if (csection>=0) {
+                    //display popup
+                    t_dbHVSC_browse_entry **cur_db_entries;
+                    cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
+                    
+                    NSString *str=cur_db_entries[csection][crow].fullpath;
+                    if (self.popTipView == nil) {
+                        self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
+                        self.popTipView.delegate = self;
+                        self.popTipView.backgroundColor = [UIColor lightGrayColor];
+                        self.popTipView.textColor = [UIColor darkTextColor];
+                        
+                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        popTipViewRow=crow;
+                        popTipViewSection=csection;
+                    } else {
+                        if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                            self.popTipView.message=str;
+                            [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                            popTipViewRow=crow;
+                            popTipViewSection=csection;
+                        }
+                    }
+                }
+            } else {
+                //hide popup
+                if (popTipView!=nil) {
+                    [self.popTipView dismissAnimated:YES];
+                    popTipView=nil;
+                }
+            }
+        }
+    }
+}
+
+#pragma mark CMPopTipViewDelegate methods
+- (void)popTipViewWasDismissedByUser:(CMPopTipView *)_popTipView {
+    // User can tap CMPopTipView to dismiss it
+    self.popTipView = nil;
+}
+
+
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
 	start_time=clock();	
@@ -122,6 +184,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	self.tableView.rowHeight = 40;
     //self.tableView.backgroundColor = [UIColor clearColor];
 //	self.tableView.backgroundColor = [UIColor blackColor];
+    
+    popTipViewRow=-1;
+    popTipViewSection=-1;
+    UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
+                                          initWithTarget:self action:@selector(handleLongPress:)];
+    lpgr.minimumPressDuration = 1.0; //seconds
+    lpgr.delegate = self;
+    [self.tableView addGestureRecognizer:lpgr];
+    [lpgr release];
 	
 	shouldFillKeys=1;
 	mSearch=0;

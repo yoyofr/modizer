@@ -14,10 +14,7 @@
 #import "fex.h"
 #import "CMPopTipView.h"
 
-
-
 @class DetailViewControllerIphone;
-
 
 @interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[6];
@@ -27,7 +24,6 @@
 	
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
-	
 	
 	UIView *waitingView;
 	
