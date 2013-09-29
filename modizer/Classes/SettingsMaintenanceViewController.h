@@ -12,8 +12,9 @@
 #import "SettingsGenViewController.h"
 #import "RootViewControllerLocalBrowser.h"
 
-@interface SettingsMaintenanceViewController : UIViewController {
+@interface SettingsMaintenanceViewController : UIViewController <UIAlertViewDelegate> {
     IBOutlet UITableView *tableView;
+    UIView *waitingView;
 @public
     DetailViewControllerIphone *detailViewController;
     RootViewControllerLocalBrowser *rootVC;

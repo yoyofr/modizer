@@ -29,6 +29,19 @@ extern BOOL is_ios7;
     }
 }
 
+-(void)showWaiting{
+	waitingView.hidden=FALSE;
+}
+
+-(void)hideWaiting{
+	waitingView.hidden=TRUE;
+}
+
+- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+}
+
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -55,6 +68,19 @@ extern BOOL is_ios7;
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    waitingView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2-40,self.view.bounds.size.height/2-40,80,80)];
+	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
+	waitingView.opaque=TRUE;
+	waitingView.hidden=TRUE;
+	waitingView.layer.cornerRadius=20;
+	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
+	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
+	[waitingView addSubview:indView];
+	[indView startAnimating];
+	[indView autorelease];
+	[self.view addSubview:waitingView];
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -79,13 +105,15 @@ extern BOOL is_ios7;
 }
 
 -(void) resetSettings {
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     [SettingsGenViewController applyDefaultSettings];
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
     
 }
 
 -(bool) resetRatingsDB {
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -100,13 +128,14 @@ extern BOOL is_ios7;
 	};
 	sqlite3_close(db);
 
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Ratings reseted",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Ratings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
     
 	return TRUE;
 }
 
 -(bool) resetPlaycountDB {
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -121,13 +150,14 @@ extern BOOL is_ios7;
 	};
 	sqlite3_close(db);
     
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Played Counters reseted",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Played Counters reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
     
 	return TRUE;
 }
 
 -(bool) cleanDB {
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -193,31 +223,34 @@ extern BOOL is_ios7;
 	pthread_mutex_unlock(&db_mutex);
     [fileManager release];
 	
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database cleaned",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database cleaned",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
     
 	return TRUE;
 }
 
 -(void) recreateSamplesFolder {
- //   [rootViewControllerIphone createSamplesFromPackage:TRUE];
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    
     [rootVC createSamplesFromPackage:TRUE];
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Samples folder created",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Samples folder created",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
 }
 
 -(void) resetDB {
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     [rootVC createEditableCopyOfDatabaseIfNeeded:TRUE quiet:TRUE];
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
 }
 
 -(void) removeCurrentCover {
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     NSError *err;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSString *currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
     if (currentPlayFilepath==nil) {
-        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"No cover to remove",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"No cover to remove",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
         [alert show];
         return;
     }
@@ -229,7 +262,7 @@ extern BOOL is_ios7;
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
     [mFileMngr release];
     
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Cover removed",@"") delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Cover removed",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
 }
 

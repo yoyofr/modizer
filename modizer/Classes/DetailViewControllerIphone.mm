@@ -2123,16 +2123,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0+48,32,32);
             btnShowArcList.frame = CGRectMake(mDevice_ww-36-36,0+48,32,32);
 			
-			mainRating1.frame = CGRectMake(130,3+48,24,24);
-			mainRating2.frame = CGRectMake(130+24,3+48,24,24);
-			mainRating3.frame = CGRectMake(130+24*2,3+48,24,24);
-			mainRating4.frame = CGRectMake(130+24*3,3+48,24,24);
-			mainRating5.frame = CGRectMake(130+24*4,3+48,24,24);
-			mainRating1off.frame = CGRectMake(130,3+48,24,24);
-			mainRating2off.frame = CGRectMake(130+24,3+48,24,24);
-			mainRating3off.frame = CGRectMake(130+24*2,3+48,24,24);
-			mainRating4off.frame = CGRectMake(130+24*3,3+48,24,24);
-			mainRating5off.frame = CGRectMake(130+24*4,3+48,24,24);
+			mainRating1.frame = CGRectMake(130+2,3+48+4,20,20);
+			mainRating2.frame = CGRectMake(130+24+2,3+48+4,20,20);
+			mainRating3.frame = CGRectMake(130+24*2+2,3+48+4,20,20);
+			mainRating4.frame = CGRectMake(130+24*3+2,3+48+4,20,20);
+			mainRating5.frame = CGRectMake(130+24*4+2,3+48+4,20,20);
+			mainRating1off.frame = CGRectMake(130+2,3+48+4,20,20);
+			mainRating2off.frame = CGRectMake(130+24+2,3+48+4,20,20);
+			mainRating3off.frame = CGRectMake(130+24*2+2,3+48+4,20,20);
+			mainRating4off.frame = CGRectMake(130+24*3+2,3+48+4,20,20);
+			mainRating5off.frame = CGRectMake(130+24*4+2,3+48+4,20,20);
 			
 			infoButton.frame = CGRectMake(mDevice_ww-40,4,36,36);
             eqButton.frame = CGRectMake(mDevice_ww-40-40,4,36,36);
@@ -2319,16 +2319,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 				buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
 				btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
                 
-                mainRating1.frame = CGRectMake(xofs+6,yofs+42,24,24);
-                mainRating2.frame = CGRectMake(xofs+6+24,yofs+42,24,24);
-                mainRating3.frame = CGRectMake(xofs+6+24*2,yofs+42,24,24);
-                mainRating4.frame = CGRectMake(xofs+6+24*3,yofs+42,24,24);
-                mainRating5.frame = CGRectMake(xofs+6+24*4,yofs+42,24,24);
-                mainRating1off.frame = CGRectMake(xofs+6,yofs+42,24,24);
-                mainRating2off.frame = CGRectMake(xofs+6+24,yofs+42,24,24);
-                mainRating3off.frame = CGRectMake(xofs+6+24*2,yofs+42,24,24);
-                mainRating4off.frame = CGRectMake(xofs+6+24*3,yofs+42,24,24);
-                mainRating5off.frame = CGRectMake(xofs+6+24*4,yofs+42,24,24);
+                mainRating1.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
+                mainRating2.frame = CGRectMake(xofs+6+24+2,yofs+42+2,20,20);
+                mainRating3.frame = CGRectMake(xofs+6+24*2+2,yofs+42+2,20,20);
+                mainRating4.frame = CGRectMake(xofs+6+24*3+2,yofs+42+2,20,20);
+                mainRating5.frame = CGRectMake(xofs+6+24*4+2,yofs+42+2,20,20);
+                mainRating1off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
+                mainRating2off.frame = CGRectMake(xofs+6+24+2,yofs+42+2,20,20);
+                mainRating3off.frame = CGRectMake(xofs+6+24*2+2,yofs+42+2,20,20);
+                mainRating4off.frame = CGRectMake(xofs+6+24*3+2,yofs+42+2,20,20);
+                mainRating5off.frame = CGRectMake(xofs+6+24*4+2,yofs+42+2,20,20);
                 
                 
                 btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);

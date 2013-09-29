@@ -13,7 +13,6 @@
 		330F36C917A683FB00EEC84A /* OnlineViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 330F36C817A683FB00EEC84A /* OnlineViewController.mm */; };
 		330F36CD17A69A7B00EEC84A /* bb_home.png in Resources */ = {isa = PBXBuildFile; fileRef = 330F36CB17A69A7B00EEC84A /* bb_home.png */; };
 		330F36CE17A69A7B00EEC84A /* bb_home@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 330F36CC17A69A7B00EEC84A /* bb_home@2x.png */; };
-		330F36D917A8792500EEC84A /* text_wood.png in Resources */ = {isa = PBXBuildFile; fileRef = 330F36D817A8792400EEC84A /* text_wood.png */; };
 		330FB72D138053E9001EC7A2 /* play_all.png in Resources */ = {isa = PBXBuildFile; fileRef = 330FB72C138053E8001EC7A2 /* play_all.png */; };
 		330FB72F138053F6001EC7A2 /* play_all@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 330FB72E138053F6001EC7A2 /* play_all@2x.png */; };
 		330FB73213810D1D001EC7A2 /* playlist_add_all.png in Resources */ = {isa = PBXBuildFile; fileRef = 330FB73013810D1D001EC7A2 /* playlist_add_all.png */; };
@@ -258,7 +257,6 @@
 		33B7AD0F17C75A8B00C1E404 /* MaintenanceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */; };
 		33BA5B521431B4AB00C87F5B /* FXFluid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33BA5B501431B4AB00C87F5B /* FXFluid.cpp */; };
 		33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BB80CE14D4679B00EA4B32 /* OBSlider.m */; };
-		33C658B1139437FE00265A1D /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		33C658B21394381F00265A1D /* merlin_gold.sf2 in Copy Files-Timidity */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722CF1691F26C001D77A5 /* 05-shuffle-green@2x.png */; };
 		33C722D21691F274001D77A5 /* 05-shuffle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D11691F274001D77A5 /* 05-shuffle@2x.png */; };
@@ -759,120 +757,8 @@
 		CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */; };
 		CCC6776C17F62BCC00F16A54 /* txtMenu7e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */; };
 		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CCC6779B17F75AEB00F16A54 /* 2 good 2 b true.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777217F75AEA00F16A54 /* 2 good 2 b true.mod */; };
-		CCC6779C17F75AEB00F16A54 /* 1999.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777317F75AEA00F16A54 /* 1999.xm */; };
-		CCC6779D17F75AEB00F16A54 /* ambrozia.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777417F75AEA00F16A54 /* ambrozia.xm */; };
-		CCC6779E17F75AEB00F16A54 /* beat to the pulp.sid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */; };
-		CCC6779F17F75AEB00F16A54 /* beyond music.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777617F75AEA00F16A54 /* beyond music.mod */; };
-		CCC677A017F75AEB00F16A54 /* celtic waves.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777717F75AEA00F16A54 /* celtic waves.xm */; };
-		CCC677A117F75AEB00F16A54 /* cream of the earth.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777817F75AEA00F16A54 /* cream of the earth.mod */; };
-		CCC677A217F75AEB00F16A54 /* crystal rain.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777917F75AEA00F16A54 /* crystal rain.mod */; };
-		CCC677A317F75AEB00F16A54 /* desert dream.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777A17F75AEB00F16A54 /* desert dream.mod */; };
 		CCC677A417F75AEB00F16A54 /* dope - onward ride.ft in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777B17F75AEB00F16A54 /* dope - onward ride.ft */; };
-		CCC677A517F75AEB00F16A54 /* elysium.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777C17F75AEB00F16A54 /* elysium.mod */; };
-		CCC677A617F75AEB00F16A54 /* emotional landscape.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777D17F75AEB00F16A54 /* emotional landscape.xm */; };
-		CCC677A717F75AEB00F16A54 /* ghouls.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777E17F75AEB00F16A54 /* ghouls.mod */; };
-		CCC677A817F75AEB00F16A54 /* god = martin galway.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777F17F75AEB00F16A54 /* god = martin galway.xm */; };
-		CCC677A917F75AEB00F16A54 /* guitar slinger.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778017F75AEB00F16A54 /* guitar slinger.mod */; };
-		CCC677AA17F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778117F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod */; };
-		CCC677AB17F75AEB00F16A54 /* knulla kuk !!!.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778217F75AEB00F16A54 /* knulla kuk !!!.mod */; };
-		CCC677AC17F75AEB00F16A54 /* livin' insanity.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778317F75AEB00F16A54 /* livin' insanity.mod */; };
-		CCC677AD17F75AEB00F16A54 /* nearly there.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778417F75AEB00F16A54 /* nearly there.mod */; };
-		CCC677AE17F75AEB00F16A54 /* nebulos.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778517F75AEB00F16A54 /* nebulos.mod */; };
-		CCC677AF17F75AEB00F16A54 /* nine one one.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778617F75AEB00F16A54 /* nine one one.xm */; };
-		CCC677B017F75AEB00F16A54 /* now what 3.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778717F75AEB00F16A54 /* now what 3.mod */; };
-		CCC677B117F75AEB00F16A54 /* odyssey-part5.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778817F75AEB00F16A54 /* odyssey-part5.jpg */; };
-		CCC677B217F75AEB00F16A54 /* odyssey-part5.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778917F75AEB00F16A54 /* odyssey-part5.mod */; };
-		CCC677B317F75AEB00F16A54 /* physical presence.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778A17F75AEB00F16A54 /* physical presence.mod */; };
-		CCC677B417F75AEB00F16A54 /* pools of poison.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778B17F75AEB00F16A54 /* pools of poison.xm */; };
-		CCC677B517F75AEB00F16A54 /* reverie of truth.compo.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778C17F75AEB00F16A54 /* reverie of truth.compo.mod */; };
-		CCC677B617F75AEB00F16A54 /* sleeping waste.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778D17F75AEB00F16A54 /* sleeping waste.mod */; };
-		CCC677B717F75AEB00F16A54 /* space debris.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778E17F75AEB00F16A54 /* space debris.mod */; };
-		CCC677B817F75AEB00F16A54 /* spell-amelioration.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6778F17F75AEB00F16A54 /* spell-amelioration.mod */; };
-		CCC677B917F75AEB00F16A54 /* switchback.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779017F75AEB00F16A54 /* switchback.mod */; };
-		CCC677BA17F75AEB00F16A54 /* the_wanderer_2.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779117F75AEB00F16A54 /* the_wanderer_2.mod */; };
-		CCC677BB17F75AEB00F16A54 /* touchin' the chip.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779217F75AEB00F16A54 /* touchin' the chip.xm */; };
-		CCC677BC17F75AEB00F16A54 /* trans atlantic short.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779317F75AEB00F16A54 /* trans atlantic short.mod */; };
-		CCC677BD17F75AEB00F16A54 /* umbrellas of peru.xm in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779417F75AEB00F16A54 /* umbrellas of peru.xm */; };
-		CCC677BE17F75AEB00F16A54 /* unreal ][.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779517F75AEB00F16A54 /* unreal ][.png */; };
-		CCC677BF17F75AEB00F16A54 /* unreal ][.s3m in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779617F75AEB00F16A54 /* unreal ][.s3m */; };
-		CCC677C017F75AEB00F16A54 /* varanen short.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779717F75AEB00F16A54 /* varanen short.mod */; };
-		CCC677C117F75AEB00F16A54 /* virtual escape.gif in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779817F75AEB00F16A54 /* virtual escape.gif */; };
 		CCC677C217F75AEB00F16A54 /* virtual escape.sndh in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779917F75AEB00F16A54 /* virtual escape.sndh */; };
-		CCC677C317F75AEB00F16A54 /* we're the devils.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779A17F75AEB00F16A54 /* we're the devils.mod */; };
-		CCC677F017F75AFB00F16A54 /* bubble bobble.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677C417F75AFB00F16A54 /* bubble bobble.jpg */; };
-		CCC677F117F75AFB00F16A54 /* bubble bobble.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC677C517F75AFB00F16A54 /* bubble bobble.mod */; };
-		CCC677F217F75AFB00F16A54 /* Castlevania3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677C617F75AFB00F16A54 /* Castlevania3.jpg */; };
-		CCC677F317F75AFB00F16A54 /* Castlevania3.rar in Resources */ = {isa = PBXBuildFile; fileRef = CCC677C717F75AFB00F16A54 /* Castlevania3.rar */; };
-		CCC677F417F75AFB00F16A54 /* Doom2-Stage01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677C817F75AFB00F16A54 /* Doom2-Stage01.jpg */; };
-		CCC677F517F75AFB00F16A54 /* Doom2-Stage01.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC677C917F75AFB00F16A54 /* Doom2-Stage01.mid */; };
-		CCC677F617F75AFB00F16A54 /* DukeNukem_Level1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677CA17F75AFB00F16A54 /* DukeNukem_Level1.jpg */; };
-		CCC677F717F75AFB00F16A54 /* DukeNukem_Level1.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC677CB17F75AFB00F16A54 /* DukeNukem_Level1.mid */; };
-		CCC677F817F75AFB00F16A54 /* dune - ecolove.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677CC17F75AFB00F16A54 /* dune - ecolove.jpg */; };
-		CCC677F917F75AFB00F16A54 /* dune - ecolove.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC677CD17F75AFB00F16A54 /* dune - ecolove.mod */; };
-		CCC677FA17F75AFB00F16A54 /* dune - fremens.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677CE17F75AFB00F16A54 /* dune - fremens.jpg */; };
-		CCC677FB17F75AFB00F16A54 /* dune - fremens.mod in Resources */ = {isa = PBXBuildFile; fileRef = CCC677CF17F75AFB00F16A54 /* dune - fremens.mod */; };
-		CCC677FC17F75AFB00F16A54 /* FF7_AerisTheme.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D017F75AFB00F16A54 /* FF7_AerisTheme.mid */; };
-		CCC677FD17F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D117F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */; };
-		CCC677FE17F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D217F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */; };
-		CCC6780017F75AFB00F16A54 /* ij4 - end credits1.laa in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D417F75AFB00F16A54 /* ij4 - end credits1.laa */; };
-		CCC6780117F75AFB00F16A54 /* MegaMan3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D517F75AFB00F16A54 /* MegaMan3.jpg */; };
-		CCC6780217F75AFB00F16A54 /* MegaMan3.rar in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D617F75AFB00F16A54 /* MegaMan3.rar */; };
-		CCC6780317F75AFB00F16A54 /* monkey island 2 - intro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D717F75AFB00F16A54 /* monkey island 2 - intro.jpg */; };
-		CCC6780417F75AFB00F16A54 /* monkey island 2 - intro.raw in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D817F75AFB00F16A54 /* monkey island 2 - intro.raw */; };
-		CCC6780517F75AFB00F16A54 /* Monty_on_the_Run.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677D917F75AFB00F16A54 /* Monty_on_the_Run.jpg */; };
-		CCC6780617F75AFB00F16A54 /* Monty_on_the_Run.sid in Resources */ = {isa = PBXBuildFile; fileRef = CCC677DA17F75AFB00F16A54 /* Monty_on_the_Run.sid */; };
-		CCC6780717F75AFB00F16A54 /* One_Man_and_His_Droid.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677DB17F75AFB00F16A54 /* One_Man_and_His_Droid.jpg */; };
-		CCC6780817F75AFB00F16A54 /* One_Man_and_His_Droid.sid in Resources */ = {isa = PBXBuildFile; fileRef = CCC677DC17F75AFB00F16A54 /* One_Man_and_His_Droid.sid */; };
-		CCC6780917F75AFB00F16A54 /* SMB1-Theme.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC677DD17F75AFB00F16A54 /* SMB1-Theme.mid */; };
-		CCC6780A17F75AFB00F16A54 /* SOMI_title theme.gif in Resources */ = {isa = PBXBuildFile; fileRef = CCC677DE17F75AFB00F16A54 /* SOMI_title theme.gif */; };
-		CCC6780B17F75AFB00F16A54 /* SOMI_title theme.laa in Resources */ = {isa = PBXBuildFile; fileRef = CCC677DF17F75AFB00F16A54 /* SOMI_title theme.laa */; };
-		CCC6780C17F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E017F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */; };
-		CCC6780D17F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E117F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */; };
-		CCC6780E17F75AFB00F16A54 /* the seven gates of jambala (intro).gif in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E217F75AFB00F16A54 /* the seven gates of jambala (intro).gif */; };
-		CCC6780F17F75AFB00F16A54 /* the seven gates of jambala (intro).hip in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E317F75AFB00F16A54 /* the seven gates of jambala (intro).hip */; };
-		CCC6781017F75AFB00F16A54 /* turrican 2 level 0-intro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E417F75AFB00F16A54 /* turrican 2 level 0-intro.jpg */; };
-		CCC6781117F75AFB00F16A54 /* turrican 2 level 0-intro.mdat in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E517F75AFB00F16A54 /* turrican 2 level 0-intro.mdat */; };
-		CCC6781217F75AFB00F16A54 /* turrican 2 level 0-intro.smpl in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E617F75AFB00F16A54 /* turrican 2 level 0-intro.smpl */; };
-		CCC6781317F75AFB00F16A54 /* turrican intro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E717F75AFB00F16A54 /* turrican intro.jpg */; };
-		CCC6781417F75AFB00F16A54 /* turrican intro.mdat in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E817F75AFB00F16A54 /* turrican intro.mdat */; };
-		CCC6781517F75AFB00F16A54 /* turrican intro.smpl in Resources */ = {isa = PBXBuildFile; fileRef = CCC677E917F75AFB00F16A54 /* turrican intro.smpl */; };
-		CCC6781617F75AFB00F16A54 /* unreal menu.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677EA17F75AFB00F16A54 /* unreal menu.jpg */; };
-		CCC6781717F75AFB00F16A54 /* unreal menu.jt in Resources */ = {isa = PBXBuildFile; fileRef = CCC677EB17F75AFB00F16A54 /* unreal menu.jt */; };
-		CCC6781817F75AFB00F16A54 /* unreal title.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC677EC17F75AFB00F16A54 /* unreal title.jpg */; };
-		CCC6781917F75AFB00F16A54 /* unreal title.jt in Resources */ = {isa = PBXBuildFile; fileRef = CCC677ED17F75AFB00F16A54 /* unreal title.jt */; };
-		CCC6781A17F75AFB00F16A54 /* zelda.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC677EE17F75AFB00F16A54 /* zelda.mid */; };
-		CCC6781B17F75AFB00F16A54 /* zelda.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC677EF17F75AFB00F16A54 /* zelda.png */; };
-		CCC6783A17F75B1000F16A54 /* albeniz_asturia.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6781C17F75B1000F16A54 /* albeniz_asturia.mid */; };
-		CCC6783B17F75B1000F16A54 /* bach_cs1-1pre.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6781D17F75B1000F16A54 /* bach_cs1-1pre.mid */; };
-		CCC6783C17F75B1000F16A54 /* bach_goldberg.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6781E17F75B1000F16A54 /* bach_goldberg.mid */; };
-		CCC6783D17F75B1000F16A54 /* bach_toccata_fugue_Dmin.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6781F17F75B1000F16A54 /* bach_toccata_fugue_Dmin.mid */; };
-		CCC6783E17F75B1000F16A54 /* beethoven_op27m3.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782017F75B1000F16A54 /* beethoven_op27m3.mid */; };
-		CCC6783F17F75B1000F16A54 /* beethoven_op125_3.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782117F75B1000F16A54 /* beethoven_op125_3.mid */; };
-		CCC6784017F75B1000F16A54 /* brahms_hungdan5.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782217F75B1000F16A54 /* brahms_hungdan5.mid */; };
-		CCC6784117F75B1000F16A54 /* chopin_ballade1.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782317F75B1000F16A54 /* chopin_ballade1.mid */; };
-		CCC6784217F75B1000F16A54 /* chopin_fantaisie.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782417F75B1000F16A54 /* chopin_fantaisie.mid */; };
-		CCC6784317F75B1000F16A54 /* chopin_no4801.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782517F75B1000F16A54 /* chopin_no4801.mid */; };
-		CCC6784417F75B1000F16A54 /* debussy_arabesqu.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782617F75B1000F16A54 /* debussy_arabesqu.mid */; };
-		CCC6784517F75B1000F16A54 /* faure_pavane.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782717F75B1000F16A54 /* faure_pavane.mid */; };
-		CCC6784617F75B1000F16A54 /* grieg_4_mtking.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782817F75B1000F16A54 /* grieg_4_mtking.mid */; };
-		CCC6784717F75B1000F16A54 /* grieg_pianocon.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782917F75B1000F16A54 /* grieg_pianocon.mid */; };
-		CCC6784817F75B1000F16A54 /* joplin_mapleaf.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782A17F75B1000F16A54 /* joplin_mapleaf.mid */; };
-		CCC6784917F75B1000F16A54 /* liszt_feux.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782B17F75B1000F16A54 /* liszt_feux.mid */; };
-		CCC6784A17F75B1000F16A54 /* liszt_hr2.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782C17F75B1000F16A54 /* liszt_hr2.mid */; };
-		CCC6784B17F75B1000F16A54 /* liszt_liebstrm.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782D17F75B1000F16A54 /* liszt_liebstrm.mid */; };
-		CCC6784C17F75B1000F16A54 /* liszt_mazeppa.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782E17F75B1000F16A54 /* liszt_mazeppa.mid */; };
-		CCC6784D17F75B1000F16A54 /* liszt_pe3.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6782F17F75B1000F16A54 /* liszt_pe3.mid */; };
-		CCC6784E17F75B1000F16A54 /* mozart_k331c.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783017F75B1000F16A54 /* mozart_k331c.mid */; };
-		CCC6784F17F75B1000F16A54 /* rachmaninoff_op18_1.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783117F75B1000F16A54 /* rachmaninoff_op18_1.mid */; };
-		CCC6785017F75B1000F16A54 /* rachmaninoff_op18_2.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783217F75B1000F16A54 /* rachmaninoff_op18_2.mid */; };
-		CCC6785117F75B1000F16A54 /* rachmaninoff_op18_3.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783317F75B1000F16A54 /* rachmaninoff_op18_3.mid */; };
-		CCC6785217F75B1000F16A54 /* rachmaninoff_pagvar18.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783417F75B1000F16A54 /* rachmaninoff_pagvar18.mid */; };
-		CCC6785317F75B1000F16A54 /* ravel_pavane_orchestra.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783517F75B1000F16A54 /* ravel_pavane_orchestra.mid */; };
-		CCC6785417F75B1000F16A54 /* Ravel_PianoConcertoinG.zip in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783617F75B1000F16A54 /* Ravel_PianoConcertoinG.zip */; };
-		CCC6785517F75B1000F16A54 /* tchaikovski_Flowers.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */; };
-		CCC6785617F75B1000F16A54 /* tchaikovsky_1-1.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783817F75B1000F16A54 /* tchaikovsky_1-1.mid */; };
-		CCC6785717F75B1000F16A54 /* tchaikovsky_1-2.mid in Resources */ = {isa = PBXBuildFile; fileRef = CCC6783917F75B1000F16A54 /* tchaikovsky_1-2.mid */; };
 		CCC6785817F75B9500F16A54 /* 2 good 2 b true.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777217F75AEA00F16A54 /* 2 good 2 b true.mod */; };
 		CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777317F75AEA00F16A54 /* 1999.xm */; };
 		CCC6785A17F75B9500F16A54 /* ambrozia.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777417F75AEA00F16A54 /* ambrozia.xm */; };
@@ -987,13 +873,6 @@
 		CCC678C817F75DE000F16A54 /* tchaikovski_Flowers.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */; };
 		CCC678C917F75DE000F16A54 /* tchaikovsky_1-1.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783817F75B1000F16A54 /* tchaikovsky_1-1.mid */; };
 		CCC678CA17F75DE000F16A54 /* tchaikovsky_1-2.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783917F75B1000F16A54 /* tchaikovsky_1-2.mid */; };
-		CCC678D217F76CA700F16A54 /* gr-b01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC678CB17F76CA700F16A54 /* gr-b01.jpg */; };
-		CCC678D317F76CA700F16A54 /* gr-b01.mdx in Resources */ = {isa = PBXBuildFile; fileRef = CCC678CC17F76CA700F16A54 /* gr-b01.mdx */; };
-		CCC678D417F76CA700F16A54 /* gr-b03.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC678CD17F76CA700F16A54 /* gr-b03.jpg */; };
-		CCC678D517F76CA700F16A54 /* gr-b03.mdx in Resources */ = {isa = PBXBuildFile; fileRef = CCC678CE17F76CA700F16A54 /* gr-b03.mdx */; };
-		CCC678D617F76CA700F16A54 /* gr-b07.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CCC678CF17F76CA700F16A54 /* gr-b07.jpg */; };
-		CCC678D717F76CA700F16A54 /* gr-b07.mdx in Resources */ = {isa = PBXBuildFile; fileRef = CCC678D017F76CA700F16A54 /* gr-b07.mdx */; };
-		CCC678D817F76CA700F16A54 /* gr-pcm.pdx in Resources */ = {isa = PBXBuildFile; fileRef = CCC678D117F76CA700F16A54 /* gr-pcm.pdx */; };
 		CCC678D917F76CC600F16A54 /* gr-b01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CB17F76CA700F16A54 /* gr-b01.jpg */; };
 		CCC678DA17F76CC600F16A54 /* gr-b01.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CC17F76CA700F16A54 /* gr-b01.mdx */; };
 		CCC678DB17F76CC600F16A54 /* gr-b03.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CD17F76CA700F16A54 /* gr-b03.jpg */; };
@@ -1001,8 +880,13 @@
 		CCC678DD17F76CC600F16A54 /* gr-b07.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CF17F76CA700F16A54 /* gr-b07.jpg */; };
 		CCC678DE17F76CC600F16A54 /* gr-b07.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678D017F76CA700F16A54 /* gr-b07.mdx */; };
 		CCC678DF17F76CC600F16A54 /* gr-pcm.pdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678D117F76CA700F16A54 /* gr-pcm.pdx */; };
-		CCC678E117F76ED900F16A54 /* ij4 - end credits1.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E017F76ED900F16A54 /* ij4 - end credits1.png */; };
 		CCC678E217F76F0100F16A54 /* ij4 - end credits1.png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678E017F76ED900F16A54 /* ij4 - end credits1.png */; };
+		CCC678E917F88AF900F16A54 /* star0@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E317F88AF900F16A54 /* star0@2x.png */; };
+		CCC678EA17F88AF900F16A54 /* star1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E417F88AF900F16A54 /* star1@2x.png */; };
+		CCC678EB17F88AF900F16A54 /* star2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E517F88AF900F16A54 /* star2@2x.png */; };
+		CCC678EC17F88AF900F16A54 /* star3@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E617F88AF900F16A54 /* star3@2x.png */; };
+		CCC678ED17F88AF900F16A54 /* star4@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E717F88AF900F16A54 /* star4@2x.png */; };
+		CCC678EE17F88AF900F16A54 /* star5@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E817F88AF900F16A54 /* star5@2x.png */; };
 		CCCE26D612588EA100741F5A /* rating0.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCE26D512588EA100741F5A /* rating0.png */; };
 		CCCE9BF4123D7CA6007D9462 /* modizer_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCE9BF3123D7CA6007D9462 /* modizer_logo.png */; };
 		CCCE9CB4123D807A007D9462 /* api68.c in Sources */ = {isa = PBXBuildFile; fileRef = CCCE9C33123D807A007D9462 /* api68.c */; };
@@ -1511,7 +1395,6 @@
 		330F36C817A683FB00EEC84A /* OnlineViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OnlineViewController.mm; sourceTree = "<group>"; };
 		330F36CB17A69A7B00EEC84A /* bb_home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bb_home.png; sourceTree = "<group>"; };
 		330F36CC17A69A7B00EEC84A /* bb_home@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bb_home@2x.png"; sourceTree = "<group>"; };
-		330F36D817A8792400EEC84A /* text_wood.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = text_wood.png; sourceTree = "<group>"; };
 		330FB71B137DEF62001EC7A2 /* libmodplug.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libmodplug.xcodeproj; path = ../libmodplug/libmodplug.xcodeproj; sourceTree = "<group>"; };
 		330FB72C138053E8001EC7A2 /* play_all.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play_all.png; sourceTree = "<group>"; };
 		330FB72E138053F6001EC7A2 /* play_all@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play_all@2x.png"; sourceTree = "<group>"; };
@@ -2848,6 +2731,12 @@
 		CCC678D017F76CA700F16A54 /* gr-b07.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gr-b07.mdx"; path = "Resources/Samples2/Games/gr-b07.mdx"; sourceTree = SOURCE_ROOT; };
 		CCC678D117F76CA700F16A54 /* gr-pcm.pdx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gr-pcm.pdx"; path = "Resources/Samples2/Games/gr-pcm.pdx"; sourceTree = SOURCE_ROOT; };
 		CCC678E017F76ED900F16A54 /* ij4 - end credits1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ij4 - end credits1.png"; path = "Resources/Samples2/Games/ij4 - end credits1.png"; sourceTree = SOURCE_ROOT; };
+		CCC678E317F88AF900F16A54 /* star0@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star0@2x.png"; sourceTree = "<group>"; };
+		CCC678E417F88AF900F16A54 /* star1@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star1@2x.png"; sourceTree = "<group>"; };
+		CCC678E517F88AF900F16A54 /* star2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star2@2x.png"; sourceTree = "<group>"; };
+		CCC678E617F88AF900F16A54 /* star3@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star3@2x.png"; sourceTree = "<group>"; };
+		CCC678E717F88AF900F16A54 /* star4@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star4@2x.png"; sourceTree = "<group>"; };
+		CCC678E817F88AF900F16A54 /* star5@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star5@2x.png"; sourceTree = "<group>"; };
 		CCCE26D512588EA100741F5A /* rating0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rating0.png; sourceTree = "<group>"; };
 		CCCE9BF3123D7CA6007D9462 /* modizer_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = modizer_logo.png; sourceTree = "<group>"; };
 		CCCE9C33123D807A007D9462 /* api68.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = api68.c; sourceTree = "<group>"; };
@@ -4240,7 +4129,6 @@
 				336D451315FC9DF200F0DC00 /* arrow_left_h.png */,
 				336D451415FC9DF200F0DC00 /* arrow_left_h@2x.png */,
 				336D451715FC9E1400F0DC00 /* video_previous_h.png */,
-				330F36D817A8792400EEC84A /* text_wood.png */,
 				336D451815FC9E1400F0DC00 /* video_previous_h@2x.png */,
 				CCAE594B17EAD8F6007638B9 /* txtMenu7c.png */,
 				336D450F15FC9DAE00F0DC00 /* video_play_h.png */,
@@ -4351,6 +4239,12 @@
 				33C722D31691F877001D77A5 /* 03-loopback.png */,
 				33C722D71691F882001D77A5 /* 03-loopback@2x.png */,
 				CC1E5A2F1200B3B8000A8A4E /* 03-loopback-green.png */,
+				CCC678E317F88AF900F16A54 /* star0@2x.png */,
+				CCC678E417F88AF900F16A54 /* star1@2x.png */,
+				CCC678E517F88AF900F16A54 /* star2@2x.png */,
+				CCC678E617F88AF900F16A54 /* star3@2x.png */,
+				CCC678E717F88AF900F16A54 /* star4@2x.png */,
+				CCC678E817F88AF900F16A54 /* star5@2x.png */,
 				33C722D61691F882001D77A5 /* 03-loopback-green@2x.png */,
 				CC1E5A311200B3B8000A8A4E /* 05-shuffle-green.png */,
 				33C722CF1691F26C001D77A5 /* 05-shuffle-green@2x.png */,
@@ -5673,38 +5567,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCB8D99D17F62A18008E6A45 /* txtMenu6_2x.png in Resources */,
+				CCC678EB17F88AF900F16A54 /* star2@2x.png in Resources */,
 				CC1E5C931200B3B8000A8A4E /* consolas8.fnt in Resources */,
 				CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */,
-				CCC6784817F75B1000F16A54 /* joplin_mapleaf.mid in Resources */,
 				CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */,
-				CCC677F917F75AFB00F16A54 /* dune - ecolove.mod in Resources */,
-				CCC677A317F75AEB00F16A54 /* desert dream.mod in Resources */,
-				CCC677BD17F75AEB00F16A54 /* umbrellas of peru.xm in Resources */,
 				CC1E5C961200B3B8000A8A4E /* 03-loopback-green.png in Resources */,
 				CC1E5C981200B3B8000A8A4E /* 05-shuffle-green.png in Resources */,
 				CC1E5C991200B3B8000A8A4E /* 05-shuffle.png in Resources */,
 				CCB8D97E17F62356008E6A45 /* txtMenu11d_2x.png in Resources */,
 				CC1E5CA41200B3B8000A8A4E /* arrow_right.png in Resources */,
-				CCC6780C17F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Resources */,
-				CCC6780A17F75AFB00F16A54 /* SOMI_title theme.gif in Resources */,
 				CCC6776C17F62BCC00F16A54 /* txtMenu7e_2x.png in Resources */,
-				CCC678D417F76CA700F16A54 /* gr-b03.jpg in Resources */,
-				CCC6780D17F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Resources */,
-				CCC6783C17F75B1000F16A54 /* bach_goldberg.mid in Resources */,
+				CCC678EC17F88AF900F16A54 /* star3@2x.png in Resources */,
 				CC1E5CA51200B3B8000A8A4E /* boxdownload32.png in Resources */,
-				CCC677A517F75AEB00F16A54 /* elysium.mod in Resources */,
 				CC1E5CA81200B3B8000A8A4E /* close.png in Resources */,
 				CC928DEA17D0037B0098696C /* txtMenu12b.png in Resources */,
 				CC1E5CA91200B3B8000A8A4E /* collapsed.png in Resources */,
 				CC1E5CAB1200B3B8000A8A4E /* expanded.png in Resources */,
-				CCC677AC17F75AEB00F16A54 /* livin' insanity.mod in Resources */,
 				CC1E5CAC1200B3B8000A8A4E /* folder32.png in Resources */,
 				CC1E5CAD1200B3B8000A8A4E /* info.png in Resources */,
 				CC1E5CAF1200B3B8000A8A4E /* next.png in Resources */,
 				CC1E5CB01200B3B8000A8A4E /* play.png in Resources */,
 				CC1E5CB11200B3B8000A8A4E /* playlist.png in Resources */,
 				CC1E5CB21200B3B8000A8A4E /* playlist_add.png in Resources */,
-				CCC6785617F75B1000F16A54 /* tchaikovsky_1-1.mid in Resources */,
 				CC1E5CB51200B3B8000A8A4E /* rating1.png in Resources */,
 				CC1E5CB61200B3B8000A8A4E /* rating2.png in Resources */,
 				CC1E5CB71200B3B8000A8A4E /* rating3.png in Resources */,
@@ -5721,13 +5605,11 @@
 				CC1E5EA61200D05E000A8A4E /* iTunesArtwork in Resources */,
 				CC1E5EF51200E07C000A8A4E /* Default.png in Resources */,
 				CC6CBDEF17DBE380006DCBC7 /* EQViewController.xib in Resources */,
-				CCC6784417F75B1000F16A54 /* debussy_arabesqu.mid in Resources */,
 				CC1E5F0D120154A8000A8A4E /* Icon-72.png in Resources */,
 				CC1E5F0F120154A8000A8A4E /* Icon-Small.png in Resources */,
 				CC1E5F10120154A8000A8A4E /* Icon-Small@2x.png in Resources */,
 				CC1E5F11120154A8000A8A4E /* Icon.png in Resources */,
 				CC1E5F12120154A8000A8A4E /* Icon@2x.png in Resources */,
-				CCC677B417F75AEB00F16A54 /* pools of poison.xm in Resources */,
 				CC1E5F14120154F9000A8A4E /* Icon-Small-50.png in Resources */,
 				CC1E5F1B120155FC000A8A4E /* Default-Landscape.png in Resources */,
 				CC1E5F1C120155FC000A8A4E /* Default-Portrait.png in Resources */,
@@ -5735,23 +5617,19 @@
 				CC1E6311120423DF000A8A4E /* AbyssHighestExperience in Resources */,
 				CCB8D99817F62A18008E6A45 /* txtMenu3c_2x.png in Resources */,
 				CC1E6312120423DF000A8A4E /* ActionAmics in Resources */,
-				CCC6780E17F75AFB00F16A54 /* the seven gates of jambala (intro).gif in Resources */,
 				CC1E6313120423DF000A8A4E /* ADPCM_mono in Resources */,
-				CCC6784E17F75B1000F16A54 /* mozart_k331c.mid in Resources */,
 				CC1E6314120423DF000A8A4E /* Alcatraz_Packer in Resources */,
 				CC1E6315120423DF000A8A4E /* AM-Composer in Resources */,
-				CCC6781617F75AFB00F16A54 /* unreal menu.jpg in Resources */,
 				CC1E6316120423DF000A8A4E /* AMOS in Resources */,
 				CC1E6317120423DF000A8A4E /* ArtAndMagic in Resources */,
-				CCC6779C17F75AEB00F16A54 /* 1999.xm in Resources */,
 				CC1E6318120423DF000A8A4E /* ArtOfNoise-4V in Resources */,
 				CC1E6319120423DF000A8A4E /* ArtOfNoise-8V in Resources */,
+				CCC678EE17F88AF900F16A54 /* star5@2x.png in Resources */,
 				CCB8D99617F62A18008E6A45 /* txtMenu3a_2x.png in Resources */,
 				CC1E631A120423DF000A8A4E /* AudioSculpture in Resources */,
 				CC1E631B120423DF000A8A4E /* BeathovenSynthesizer in Resources */,
 				CC1E631C120423DF000A8A4E /* BenDaglish in Resources */,
 				CC1E631D120423DF000A8A4E /* BenDaglish-SID in Resources */,
-				CCC677B317F75AEB00F16A54 /* physical presence.mod in Resources */,
 				CC1E631E120423DF000A8A4E /* BladePacker in Resources */,
 				CC1E631F120423DF000A8A4E /* ChipTracker in Resources */,
 				CC1E6320120423DF000A8A4E /* Cinemaware in Resources */,
@@ -5764,7 +5642,6 @@
 				CCB8D9A217F62A18008E6A45 /* txtMenu10b_2x.png in Resources */,
 				CC1E6327120423DF000A8A4E /* DavidHanney in Resources */,
 				CC1E6328120423DF000A8A4E /* DavidWhittaker in Resources */,
-				CCC677B117F75AEB00F16A54 /* odyssey-part5.jpg in Resources */,
 				CC1E6329120423DF000A8A4E /* DeltaMusic1.3 in Resources */,
 				CC1E632A120423DF000A8A4E /* DeltaMusic2.0 in Resources */,
 				CC1E632B120423DF000A8A4E /* Desire in Resources */,
@@ -5772,63 +5649,44 @@
 				CC1E632D120423DF000A8A4E /* DigitalSonixChrome in Resources */,
 				CC1E632E120423DF000A8A4E /* DigitalSoundStudio in Resources */,
 				CC1E632F120423DF000A8A4E /* DirkBialluch in Resources */,
-				CCC678D617F76CA700F16A54 /* gr-b07.jpg in Resources */,
-				CCC6780F17F75AFB00F16A54 /* the seven gates of jambala (intro).hip in Resources */,
 				CCB8D99E17F62A18008E6A45 /* txtMenu8a_2x.png in Resources */,
-				CCC6784517F75B1000F16A54 /* faure_pavane.mid in Resources */,
 				CC1E6330120423DF000A8A4E /* DynamicSynthesizer in Resources */,
 				CC1E6331120423DF000A8A4E /* EarAche in Resources */,
 				CC1E6332120423DF000A8A4E /* EMS in Resources */,
 				CCB8D9A117F62A18008E6A45 /* txtMenu10a_2x.png in Resources */,
 				CC1E6333120423DF000A8A4E /* EMS-6 in Resources */,
-				CCC678E117F76ED900F16A54 /* ij4 - end credits1.png in Resources */,
-				CCC6784217F75B1000F16A54 /* chopin_fantaisie.mid in Resources */,
 				CC1E6334120423DF000A8A4E /* ahx in Resources */,
-				CCC677F317F75AFB00F16A54 /* Castlevania3.rar in Resources */,
 				CC1E6335120423DF000A8A4E /* ahx.waves in Resources */,
 				CC1E6336120423DF000A8A4E /* ems_v6.cfg in Resources */,
-				CCC677FC17F75AFB00F16A54 /* FF7_AerisTheme.mid in Resources */,
 				CC1E6337120423DF000A8A4E /* ems_v6.cfg.txt in Resources */,
-				CCC6784F17F75B1000F16A54 /* rachmaninoff_op18_1.mid in Resources */,
 				CC1E6338120423DF000A8A4E /* EP-Hippel_7V.cfg in Resources */,
-				CCC6779F17F75AEB00F16A54 /* beyond music.mod in Resources */,
 				CC1E6339120423DF000A8A4E /* EP-Mugician_II.cfg in Resources */,
 				CC1E633A120423DF000A8A4E /* EP-PTK-Prowiz.cfg in Resources */,
 				CC1E633B120423DF000A8A4E /* EP-S3M.cfg in Resources */,
-				CCC6780017F75AFB00F16A54 /* ij4 - end credits1.laa in Resources */,
 				CCB8D99F17F62A18008E6A45 /* txtMenu8b_2x.png in Resources */,
 				CC1E633C120423DF000A8A4E /* EP-TFMX_7V.cfg in Resources */,
 				CC1E633D120423DF000A8A4E /* EP-TFMX_Pro.cfg in Resources */,
 				CC1E633E120423DF000A8A4E /* FashionTracker in Resources */,
 				CC1E633F120423DF000A8A4E /* ForgottenWorlds_Game in Resources */,
 				CC1E6340120423DF000A8A4E /* Fred in Resources */,
-				CCC677AE17F75AEB00F16A54 /* nebulos.mod in Resources */,
 				CC1E6341120423DF000A8A4E /* FredGray in Resources */,
 				CC1E6342120423DF000A8A4E /* FutureComposer-BSI in Resources */,
 				CC1E6343120423DF000A8A4E /* FutureComposer1.3 in Resources */,
 				CC1E6344120423DF000A8A4E /* FutureComposer1.4 in Resources */,
-				CCC677A617F75AEB00F16A54 /* emotional landscape.xm in Resources */,
 				CC1E6345120423DF000A8A4E /* FuturePlayer in Resources */,
 				CC1E6346120423DF000A8A4E /* GlueMon in Resources */,
 				CC1E6347120423DF000A8A4E /* HowieDavies in Resources */,
 				CC1E6348120423DF000A8A4E /* ImagesMusicSystem in Resources */,
-				CCC6781017F75AFB00F16A54 /* turrican 2 level 0-intro.jpg in Resources */,
-				CCC677B717F75AEB00F16A54 /* space debris.mod in Resources */,
 				CC1E6349120423DF000A8A4E /* Infogrames in Resources */,
 				CC1E634A120423DF000A8A4E /* InStereo in Resources */,
 				CC1E634B120423DF000A8A4E /* InStereo2.0 in Resources */,
-				CCC677F117F75AFB00F16A54 /* bubble bobble.mod in Resources */,
 				CC1E634C120423DF000A8A4E /* JamCracker in Resources */,
 				CC1E634D120423DF000A8A4E /* JankoMrsicFlogel in Resources */,
-				CCC6784A17F75B1000F16A54 /* liszt_hr2.mid in Resources */,
-				CCC6780B17F75AFB00F16A54 /* SOMI_title theme.laa in Resources */,
 				CC1E634E120423DF000A8A4E /* JasonBrooke in Resources */,
 				CC1E634F120423DF000A8A4E /* JasonPage in Resources */,
 				CC1E6350120423DF000A8A4E /* JasonPage_JP in Resources */,
 				CC1E6351120423DF000A8A4E /* JeroenTel in Resources */,
-				CCC6781717F75AFB00F16A54 /* unreal menu.jt in Resources */,
 				CCAE594C17EAD8F6007638B9 /* txtMenu7c.png in Resources */,
-				CCC6781317F75AFB00F16A54 /* turrican intro.jpg in Resources */,
 				CC1E6352120423DF000A8A4E /* JesperOlsen in Resources */,
 				CC1E6353120423DF000A8A4E /* JesperOlsen_EP in Resources */,
 				CC1E6354120423DF000A8A4E /* Jochen_Hippel_ST in Resources */,
@@ -5842,7 +5700,6 @@
 				CC1E635B120423DF000A8A4E /* LegglessMusicEditor in Resources */,
 				CC1E635C120423DF000A8A4E /* Lionheart_Game in Resources */,
 				CC1E635D120423DF000A8A4E /* MagneticFieldsPacker in Resources */,
-				CCC678D717F76CA700F16A54 /* gr-b07.mdx in Resources */,
 				CC1E635E120423DF000A8A4E /* MajorTom in Resources */,
 				CC1E635F120423DF000A8A4E /* ManiacsOfNoise in Resources */,
 				CC1E6360120423DF000A8A4E /* Mark_Cooksey in Resources */,
@@ -5850,9 +5707,6 @@
 				CC1E6362120423DF000A8A4E /* MarkII in Resources */,
 				CC1E6363120423DF000A8A4E /* MartinWalker in Resources */,
 				CC1E6364120423DF000A8A4E /* Maximum_Effect in Resources */,
-				CCC677B017F75AEB00F16A54 /* now what 3.mod in Resources */,
-				CCC677BC17F75AEB00F16A54 /* trans atlantic short.mod in Resources */,
-				CCC6779E17F75AEB00F16A54 /* beat to the pulp.sid in Resources */,
 				CC1E6365120423DF000A8A4E /* MCMD in Resources */,
 				CCB8D99417F62A18008E6A45 /* txtMenu2b_2x.png in Resources */,
 				CCB8D97217F61AEA008E6A45 /* txtMenu2a_2x.png in Resources */,
@@ -5865,45 +5719,31 @@
 				CC1E636C120423DF000A8A4E /* MugicianII in Resources */,
 				CC1E636D120423DF000A8A4E /* MultiMedia_Sound in Resources */,
 				CC1E636E120423DF000A8A4E /* MusicAssembler in Resources */,
-				CCC677B817F75AEB00F16A54 /* spell-amelioration.mod in Resources */,
 				CC1E636F120423DF000A8A4E /* MusiclineEditor in Resources */,
 				CC1E6370120423DF000A8A4E /* MusicMaker-4V in Resources */,
-				CCC6779B17F75AEB00F16A54 /* 2 good 2 b true.mod in Resources */,
 				CC1E6371120423DF000A8A4E /* MusicMaker-8V in Resources */,
 				CC1E6372120423DF000A8A4E /* NovoTradePacker in Resources */,
 				CC1E6373120423DF000A8A4E /* NTSP-system in Resources */,
-				CCC6780917F75AFB00F16A54 /* SMB1-Theme.mid in Resources */,
 				CC1E6374120423DF000A8A4E /* Octa-MED in Resources */,
 				CC1E6375120423DF000A8A4E /* Oktalyzer in Resources */,
-				CCC6785217F75B1000F16A54 /* rachmaninoff_pagvar18.mid in Resources */,
 				CC1E6376120423DF000A8A4E /* onEscapee in Resources */,
 				CC1E6377120423DF000A8A4E /* PaulRobotham in Resources */,
 				CC1E6378120423DF000A8A4E /* PaulShields in Resources */,
-				CCC6780717F75AFB00F16A54 /* One_Man_and_His_Droid.jpg in Resources */,
 				CC1E6379120423DF000A8A4E /* PaulSummers in Resources */,
 				CC1E637A120423DF000A8A4E /* PeterVerswyvelen in Resources */,
 				CCB8D97A17F62356008E6A45 /* txtMenu7c_2x.png in Resources */,
-				CCC677C317F75AEB00F16A54 /* we're the devils.mod in Resources */,
 				CC1E637B120423DF000A8A4E /* PierreAdane in Resources */,
 				CC1E637C120423DF000A8A4E /* ProfessionalSoundArtists in Resources */,
-				CCC6784B17F75B1000F16A54 /* liszt_liebstrm.mid in Resources */,
 				CC1E637D120423DF000A8A4E /* PTK-Prowiz in Resources */,
 				CC1E637E120423DF000A8A4E /* PumaTracker in Resources */,
 				CC1E637F120423DF000A8A4E /* QuadraComposer in Resources */,
 				CC1E6380120423DF000A8A4E /* Quartet in Resources */,
-				CCC678D817F76CA700F16A54 /* gr-pcm.pdx in Resources */,
-				CCC6785517F75B1000F16A54 /* tchaikovski_Flowers.mid in Resources */,
 				CC1E6381120423DF000A8A4E /* Quartet_PSG in Resources */,
 				CC1E6382120423DF000A8A4E /* Quartet_ST in Resources */,
 				CC1E6383120423DF000A8A4E /* RichardJoseph in Resources */,
 				CC1E6384120423DF000A8A4E /* RiffRaff in Resources */,
 				CC1E6385120423DF000A8A4E /* RobHubbard in Resources */,
-				CCC677B617F75AEB00F16A54 /* sleeping waste.mod in Resources */,
-				CCC6783A17F75B1000F16A54 /* albeniz_asturia.mid in Resources */,
-				CCC677BB17F75AEB00F16A54 /* touchin' the chip.xm in Resources */,
-				CCC6785417F75B1000F16A54 /* Ravel_PianoConcertoinG.zip in Resources */,
 				CC1E6386120423DF000A8A4E /* RobHubbardOld in Resources */,
-				CCC6780217F75AFB00F16A54 /* MegaMan3.rar in Resources */,
 				CC1E6387120423DF000A8A4E /* dummy_file in Resources */,
 				CC1E6388120423DF000A8A4E /* ScottJohnston in Resources */,
 				CC1E6389120423DF000A8A4E /* SCUMM in Resources */,
@@ -5912,20 +5752,17 @@
 				CC1E638C120423E0000A8A4E /* SIDMon1.0 in Resources */,
 				CC1E638D120423E0000A8A4E /* SIDMon2.0 in Resources */,
 				CC1E638E120423E0000A8A4E /* Sierra-AGI in Resources */,
-				CCC6781417F75AFB00F16A54 /* turrican intro.mdat in Resources */,
 				CC1E638F120423E0000A8A4E /* Silmarils in Resources */,
 				CCB8D9A017F62A18008E6A45 /* txtMenu9_2x.png in Resources */,
 				CC1E6390120423E0000A8A4E /* SonicArranger in Resources */,
 				CC1E6391120423E0000A8A4E /* SonicArranger-pc-all in Resources */,
 				CC1E6392120423E0000A8A4E /* SonixMusicDriver in Resources */,
-				CCC677A017F75AEB00F16A54 /* celtic waves.xm in Resources */,
 				CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */,
 				CC1E6393120423E0000A8A4E /* Sound-FX in Resources */,
 				CC1E6394120423E0000A8A4E /* SoundControl in Resources */,
 				CC1E6395120423E0000A8A4E /* SoundFactory in Resources */,
 				CC1E6396120423E0000A8A4E /* SoundImages in Resources */,
 				CC1E6397120423E0000A8A4E /* SoundMaster in Resources */,
-				CCC6780617F75AFB00F16A54 /* Monty_on_the_Run.sid in Resources */,
 				CC1E6398120423E0000A8A4E /* SoundMon2.0 in Resources */,
 				CC1E6399120423E0000A8A4E /* SoundMon2.2 in Resources */,
 				CC1E639A120423E0000A8A4E /* SoundPlayer in Resources */,
@@ -5936,9 +5773,7 @@
 				CC1E639E120423E0000A8A4E /* Special-FX_ST in Resources */,
 				CCB8D99C17F62A18008E6A45 /* txtMenu5b_2x.png in Resources */,
 				CC1E639F120423E0000A8A4E /* SpeedyA1System in Resources */,
-				CCC6783D17F75B1000F16A54 /* bach_toccata_fugue_Dmin.mid in Resources */,
 				CC1E63A0120423E0000A8A4E /* SpeedySystem in Resources */,
-				CCC6781217F75AFB00F16A54 /* turrican 2 level 0-intro.smpl in Resources */,
 				CC1E63A1120423E0000A8A4E /* SteveBarrett in Resources */,
 				CC1E63A2120423E0000A8A4E /* SteveTurner in Resources */,
 				CC1E63A3120423E0000A8A4E /* SUN-Tronic in Resources */,
@@ -5949,16 +5784,14 @@
 				CC1E63A6120423E0000A8A4E /* SynthPack in Resources */,
 				CC1E63A7120423E0000A8A4E /* SynTracker in Resources */,
 				CC1E63A8120423E0000A8A4E /* TFMX in Resources */,
-				CCC677F217F75AFB00F16A54 /* Castlevania3.jpg in Resources */,
 				CC1E63A9120423E0000A8A4E /* TFMX-7V in Resources */,
 				CC1E63AA120423E0000A8A4E /* TFMX-7V-TFHD in Resources */,
 				CC1E63AB120423E0000A8A4E /* TFMX-Pro in Resources */,
-				CCC6784917F75B1000F16A54 /* liszt_feux.mid in Resources */,
 				CC1E63AC120423E0000A8A4E /* TFMX-Pro-TFHD in Resources */,
 				CC1E63AD120423E0000A8A4E /* TFMX-TFHD in Resources */,
-				CCC6785017F75B1000F16A54 /* rachmaninoff_op18_2.mid in Resources */,
 				CC1E63AE120423E0000A8A4E /* TFMX_ST in Resources */,
 				CC1E63AF120423E0000A8A4E /* TheMusicalEnlightenment in Resources */,
+				CCC678E917F88AF900F16A54 /* star0@2x.png in Resources */,
 				CC1E63B0120423E0000A8A4E /* ThomasHermann in Resources */,
 				CC1E63B1120423E0000A8A4E /* TimFollin in Resources */,
 				CC1E63B2120423E0000A8A4E /* TomyTracker in Resources */,
@@ -5967,42 +5800,30 @@
 				CCB8D99317F62A18008E6A45 /* txtMenu1_2x.png in Resources */,
 				CC1E63B5120423E0000A8A4E /* VoodooSupremeSynthesizer in Resources */,
 				CC1E63B6120423E0000A8A4E /* WallyBeben in Resources */,
-				CCC677C017F75AEB00F16A54 /* varanen short.mod in Resources */,
 				CC1E63B7120423E0000A8A4E /* YM-2149 in Resources */,
 				CC1E63B8120423E0000A8A4E /* score in Resources */,
-				CCC677B217F75AEB00F16A54 /* odyssey-part5.mod in Resources */,
 				CC1E63B9120423E0000A8A4E /* uade.conf in Resources */,
 				CC1E63BA120423E0000A8A4E /* uaerc in Resources */,
-				CCC6784317F75B1000F16A54 /* chopin_no4801.mid in Resources */,
 				CCD00F7F1209EA92002A1D61 /* cancel.png in Resources */,
-				CCC678D217F76CA700F16A54 /* gr-b01.jpg in Resources */,
 				CCD00F811209EAF5002A1D61 /* mini_cancel.png in Resources */,
-				CCC677FD17F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Resources */,
 				CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */,
-				CCC677F417F75AFB00F16A54 /* Doom2-Stage01.jpg in Resources */,
 				CC03F2CE12160E9500F2AC65 /* button.png in Resources */,
-				CCC677AF17F75AEB00F16A54 /* nine one one.xm in Resources */,
 				CC03F2DB12160FE000F2AC65 /* buttonB-highlight.png in Resources */,
 				CC03F2DC12160FE000F2AC65 /* buttonB.png in Resources */,
 				CC03F2DD12160FE000F2AC65 /* buttonR-highlight.png in Resources */,
 				CC03F2DE12160FE000F2AC65 /* buttonR.png in Resources */,
-				CCC6781817F75AFB00F16A54 /* unreal title.jpg in Resources */,
 				CC03F2DF12160FE000F2AC65 /* buttonY-highlight.png in Resources */,
 				CC03F2E012160FE000F2AC65 /* buttonY.png in Resources */,
 				CCB8D97F17F62356008E6A45 /* txtMenu12a_2x.png in Resources */,
 				CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */,
-				CCC677C117F75AEB00F16A54 /* virtual escape.gif in Resources */,
 				CCD791731219FC6B0063D0E7 /* zoom.png in Resources */,
-				CCC6781917F75AFB00F16A54 /* unreal title.jt in Resources */,
 				CCDCFFBC121FD47300B89B19 /* MIMETYPES.plist in Resources */,
 				33888AA212231EEA0030C82E /* 1237346308.jpg in Resources */,
-				CCC6781B17F75AFB00F16A54 /* zelda.png in Resources */,
 				3335B7CE122E30BB00E06F60 /* playlist_del.png in Resources */,
+				CCC678ED17F88AF900F16A54 /* star4@2x.png in Resources */,
 				CCCE9BF4123D7CA6007D9462 /* modizer_logo.png in Resources */,
 				CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */,
-				CCC6780317F75AFB00F16A54 /* monkey island 2 - intro.jpg in Resources */,
 				337FA7D8124346F500DDD352 /* checkbox_single.png in Resources */,
-				CCC677A717F75AEB00F16A54 /* ghouls.mod in Resources */,
 				337FA7D9124346F500DDD352 /* checkbox_unchecked.png in Resources */,
 				CCB21EB51246C50400A30F62 /* Default@2x.png in Resources */,
 				CCB21EBB1246C68E00A30F62 /* arrow_right@2x.png in Resources */,
@@ -6010,45 +5831,32 @@
 				CCB8D99A17F62A18008E6A45 /* txtMenu4b_2x.png in Resources */,
 				CCB21EC91246C73600A30F62 /* play@2x.png in Resources */,
 				CCB21ECB1246C90100A30F62 /* playlist_del@2x.png in Resources */,
-				CCC677A917F75AEB00F16A54 /* guitar slinger.mod in Resources */,
+				CCC678EA17F88AF900F16A54 /* star1@2x.png in Resources */,
 				CCB21ED21246C91800A30F62 /* playlist_add@2x.png in Resources */,
 				CCB21EDA1246C9E900A30F62 /* unzoom@2x.png in Resources */,
 				CCB8D97C17F62356008E6A45 /* txtMenu7f_2x.png in Resources */,
-				CCC6784D17F75B1000F16A54 /* liszt_pe3.mid in Resources */,
 				CCB21EDC1246C9F200A30F62 /* zoom@2x.png in Resources */,
 				CCB21EE21246CA5100A30F62 /* close@2x.png in Resources */,
-				CCC6783E17F75B1000F16A54 /* beethoven_op27m3.mid in Resources */,
-				CCC6784C17F75B1000F16A54 /* liszt_mazeppa.mid in Resources */,
 				CC4D69B312472B5C0074E94B /* info@2x.png in Resources */,
 				3370BC14124A853F00691400 /* sin_tab.dat in Resources */,
-				CCC6781A17F75AFB00F16A54 /* zelda.mid in Resources */,
 				3370BC15124A853F00691400 /* tl_tab.dat in Resources */,
-				CCC677BF17F75AEB00F16A54 /* unreal ][.s3m in Resources */,
 				CCCE26D612588EA100741F5A /* rating0.png in Resources */,
 				CC928DE917D0037B0098696C /* txtMenu12a.png in Resources */,
 				CC7E810212698C29006EF083 /* previous.png in Resources */,
-				CCC6781517F75AFB00F16A54 /* turrican intro.smpl in Resources */,
 				CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */,
 				CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */,
-				CCC677FA17F75AFB00F16A54 /* dune - fremens.jpg in Resources */,
 				3314C184132C221B007F171B /* Default-Portrait~ipad.png in Resources */,
-				CCC6784017F75B1000F16A54 /* brahms_hungdan5.mid in Resources */,
 				3314C186132C222D007F171B /* Default-Landscape~ipad.png in Resources */,
 				337D3ED5137B094F00270218 /* adplug.db in Resources */,
-				CCC6780517F75AFB00F16A54 /* Monty_on_the_Run.jpg in Resources */,
 				330FB72D138053E9001EC7A2 /* play_all.png in Resources */,
 				330FB72F138053F6001EC7A2 /* play_all@2x.png in Resources */,
 				330FB73213810D1D001EC7A2 /* playlist_add_all.png in Resources */,
 				330FB73313810D1D001EC7A2 /* playlist_add_all@2x.png in Resources */,
 				3388C3BC13842E9100DA8F05 /* playlist_del_all.png in Resources */,
 				3388C3BD13842E9100DA8F05 /* playlist_del_all@2x.png in Resources */,
-				33C658B1139437FE00265A1D /* merlin_gold.sf2 in Resources */,
 				33C7397E13A2137A0012221C /* default_art.png in Resources */,
-				CCC677BA17F75AEB00F16A54 /* the_wanderer_2.mod in Resources */,
 				33CAECAE13E93D7100088A37 /* arc_details.png in Resources */,
 				33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */,
-				CCC677BE17F75AEB00F16A54 /* unreal ][.png in Resources */,
-				CCC6783B17F75B1000F16A54 /* bach_cs1-1pre.mid in Resources */,
 				33A9678C140E4789007F22F5 /* char.bin in Resources */,
 				CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */,
 				33554E1414C326EE00018161 /* btnpause.png in Resources */,
@@ -6060,14 +5868,11 @@
 				3358147A14EC0F27003D7B5B /* pinfo@2x.png in Resources */,
 				CCB8D99917F62A18008E6A45 /* txtMenu4a_2x.png in Resources */,
 				3389C97815F2AAA9000B28BB /* consolas16.fnt in Resources */,
-				CCC6785717F75B1000F16A54 /* tchaikovsky_1-2.mid in Resources */,
 				333DA8EA15F48CD80095494B /* arrow_left.png in Resources */,
 				333DA8EB15F48CD80095494B /* arrow_left@2x.png in Resources */,
-				CCC6785317F75B1000F16A54 /* ravel_pavane_orchestra.mid in Resources */,
 				333DA8FA15F48D5E0095494B /* video_next.png in Resources */,
 				333DA8FB15F48D5E0095494B /* video_next@2x.png in Resources */,
 				333DA8FC15F48D5E0095494B /* video_pause.png in Resources */,
-				CCC677AD17F75AEB00F16A54 /* nearly there.mod in Resources */,
 				333DA8FD15F48D5E0095494B /* video_pause@2x.png in Resources */,
 				333DA8FE15F48D5E0095494B /* video_play.png in Resources */,
 				333DA8FF15F48D5E0095494B /* video_play@2x.png in Resources */,
@@ -6080,7 +5885,6 @@
 				336D451115FC9DAE00F0DC00 /* video_play_h.png in Resources */,
 				336D451215FC9DAE00F0DC00 /* video_play_h@2x.png in Resources */,
 				336D451515FC9DF200F0DC00 /* arrow_left_h.png in Resources */,
-				CCC677F717F75AFB00F16A54 /* DukeNukem_Level1.mid in Resources */,
 				336D451615FC9DF200F0DC00 /* arrow_left_h@2x.png in Resources */,
 				336D451915FC9E1400F0DC00 /* video_previous_h.png in Resources */,
 				336D451A15FC9E1400F0DC00 /* video_previous_h@2x.png in Resources */,
@@ -6090,60 +5894,44 @@
 				33C722D41691F877001D77A5 /* 03-loopback.png in Resources */,
 				33C722D81691F882001D77A5 /* 02-redo-green@2x.png in Resources */,
 				33C722D91691F882001D77A5 /* 03-loopback-green@2x.png in Resources */,
-				CCC6781117F75AFB00F16A54 /* turrican 2 level 0-intro.mdat in Resources */,
-				CCC677B517F75AEB00F16A54 /* reverie of truth.compo.mod in Resources */,
-				CCC677A817F75AEB00F16A54 /* god = martin galway.xm in Resources */,
 				33C722DA1691F882001D77A5 /* 03-loopback@2x.png in Resources */,
-				CCC677FE17F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Resources */,
 				330F36CD17A69A7B00EEC84A /* bb_home.png in Resources */,
 				330F36CE17A69A7B00EEC84A /* bb_home@2x.png in Resources */,
-				330F36D917A8792500EEC84A /* text_wood.png in Resources */,
 				337FF18717A9D18900CE0A28 /* PlaylistViewController.xib in Resources */,
 				33ABE58A17B0E65500AE0EA1 /* bb_list.png in Resources */,
-				CCC677F817F75AFB00F16A54 /* dune - ecolove.jpg in Resources */,
 				CCB8D99B17F62A18008E6A45 /* txtMenu5a_2x.png in Resources */,
 				CCB8D9A317F62A18008E6A45 /* txtMenu11a_2x.png in Resources */,
 				33ABE58B17B0E65500AE0EA1 /* bb_list@2x.png in Resources */,
-				CCC678D517F76CA700F16A54 /* gr-b03.mdx in Resources */,
 				33ABE58C17B0E65500AE0EA1 /* bb_music.png in Resources */,
-				CCC677AA17F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod in Resources */,
 				33ABE58D17B0E65500AE0EA1 /* bb_music@2x.png in Resources */,
-				CCC677A217F75AEB00F16A54 /* crystal rain.mod in Resources */,
 				33ABE59417B0E87D00AE0EA1 /* bb_caret-right.png in Resources */,
 				33ABE59517B0E87D00AE0EA1 /* bb_caret-left.png in Resources */,
 				33ABE59617B0E87D00AE0EA1 /* bb_download.png in Resources */,
 				33ABE59717B0E87D00AE0EA1 /* bb_download@2x.png in Resources */,
-				CCC677A117F75AEB00F16A54 /* cream of the earth.mod in Resources */,
 				33ABE59817B0E87D00AE0EA1 /* bb_caret-left@2x.png in Resources */,
 				33ABE59917B0E87D00AE0EA1 /* bb_caret-right@2x.png in Resources */,
 				33ABE59E17B0EA6D00AE0EA1 /* nowplaying_back.png in Resources */,
 				33ABE59F17B0EA6D00AE0EA1 /* nowplaying_back@2x.png in Resources */,
 				33ABE5A017B0EA6D00AE0EA1 /* nowplaying_fwd@2x.png in Resources */,
 				33ABE5A117B0EA6D00AE0EA1 /* nowplaying_fwd.png in Resources */,
-				CCC677F017F75AFB00F16A54 /* bubble bobble.jpg in Resources */,
 				33ABE5A417B142EC00AE0EA1 /* bb_list_white.png in Resources */,
 				33ABE5A517B142EC00AE0EA1 /* bb_list_white@2x.png in Resources */,
 				33ABE5B117B17A5200AE0EA1 /* FontAwesome.ttf in Resources */,
 				CCC677C217F75AEB00F16A54 /* virtual escape.sndh in Resources */,
-				CCC678D317F76CA700F16A54 /* gr-b01.mdx in Resources */,
 				33ABE5B717B23DF900AE0EA1 /* BookmarksViewController.xib in Resources */,
 				3356548617B51924003AE763 /* UpheavalPro.ttf in Resources */,
-				CCC6780417F75AFB00F16A54 /* monkey island 2 - intro.raw in Resources */,
 				3356548917B52EFF003AE763 /* browser_home.html in Resources */,
 				33F6A93F17B99FB8002369E7 /* SettingsViewController.xib in Resources */,
 				33ABD4EA17BCC02600D50393 /* bb_refresh.png in Resources */,
 				CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */,
 				33ABD4EB17BCC02600D50393 /* bb_refresh@2x.png in Resources */,
-				CCC6784617F75B1000F16A54 /* grieg_4_mtking.mid in Resources */,
 				CCB8D99517F62A18008E6A45 /* txtMenu2c_2x.png in Resources */,
 				33ABD4EF17BCC49000D50393 /* bb_stop.png in Resources */,
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
-				CCC6785117F75B1000F16A54 /* rachmaninoff_op18_3.mid in Resources */,
 				33E46B0B17C2B77600F70A14 /* txtMenu1.png in Resources */,
 				33E46B0C17C2B77600F70A14 /* txtMenu2a.png in Resources */,
-				CCC6780817F75AFB00F16A54 /* One_Man_and_His_Droid.sid in Resources */,
 				33E46B0D17C2B77600F70A14 /* txtMenu2b.png in Resources */,
 				33E46B0E17C2B77600F70A14 /* txtMenu2c.png in Resources */,
 				33E46B0F17C2B77600F70A14 /* txtMenu3a.png in Resources */,
@@ -6151,35 +5939,25 @@
 				33E46B1117C2B77600F70A14 /* txtMenu3c.png in Resources */,
 				33E46B1217C2B77600F70A14 /* txtMenu4a.png in Resources */,
 				33E46B1317C2B77600F70A14 /* txtMenu4b.png in Resources */,
-				CCC6784717F75B1000F16A54 /* grieg_pianocon.mid in Resources */,
 				33E46B1417C2B77600F70A14 /* txtMenu5a.png in Resources */,
-				CCC677AB17F75AEB00F16A54 /* knulla kuk !!!.mod in Resources */,
-				CCC677F617F75AFB00F16A54 /* DukeNukem_Level1.jpg in Resources */,
 				33E46B1517C2B77600F70A14 /* txtMenu5b.png in Resources */,
-				CCC677F517F75AFB00F16A54 /* Doom2-Stage01.mid in Resources */,
 				33E46B1617C2B77600F70A14 /* txtMenu6.png in Resources */,
 				33E46B1717C2B77600F70A14 /* txtMenu7a.png in Resources */,
-				CCC677FB17F75AFB00F16A54 /* dune - fremens.mod in Resources */,
 				33E46B1817C2B77600F70A14 /* txtMenu7b.png in Resources */,
 				33E46B1917C2B77600F70A14 /* txtMenu8a.png in Resources */,
-				CCC677B917F75AEB00F16A54 /* switchback.mod in Resources */,
 				33E46B1A17C2B77600F70A14 /* txtMenu8b.png in Resources */,
 				33E46B1B17C2B77600F70A14 /* txtMenu9.png in Resources */,
-				CCC6784117F75B1000F16A54 /* chopin_ballade1.mid in Resources */,
 				33E46B2117C350B200F70A14 /* txtMenu10a.png in Resources */,
 				33E46B2217C350B200F70A14 /* txtMenu10b.png in Resources */,
 				33E46B2417C350C800F70A14 /* txtMenu11a.png in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,
 				CCB8D97B17F62356008E6A45 /* txtMenu7d_2x.png in Resources */,
-				CCC6779D17F75AEB00F16A54 /* ambrozia.xm in Resources */,
-				CCC6780117F75AFB00F16A54 /* MegaMan3.jpg in Resources */,
 				3317854A17C6255200929E8F /* tabview_gradient40@2x.png in Resources */,
 				3317854B17C6255200929E8F /* tabview_gradient50.png in Resources */,
 				3317854C17C6255200929E8F /* tabview_gradient50@2x.png in Resources */,
 				33B7AD0F17C75A8B00C1E404 /* MaintenanceViewController.xib in Resources */,
 				CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */,
 				CCFE183917EF586200C1682F /* MainWindow.xib in Resources */,
-				CCC6783F17F75B1000F16A54 /* beethoven_op125_3.mid in Resources */,
 				CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */,
 				CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */,
 			);
