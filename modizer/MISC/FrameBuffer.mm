@@ -8,8 +8,6 @@
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
-static int msaa=1;
-
 void FrameBufferUtils::Create(FrameBuffer& buffer, EAGLContext* oglContext, id<EAGLDrawable> drawable)
 {
     //Create our viewFrame and render Buffers.

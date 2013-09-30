@@ -1083,7 +1083,7 @@ float barSpectrumDataR[SPECTRUM_BANDS];
 
 void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror) {
 	GLfloat spL,spR;
-    GLfloat cr,cg,cb,crt,cgt,cbt;
+    GLfloat crt,cgt,cbt;
     GLfloat x,y,z,sx,sy,sz;
     static int frameCpt=0;
     
@@ -3946,7 +3946,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
 
 void RenderUtils::DrawMidiFX(int *data,uint ww,uint hh,int horiz_vert,int note_display_range, int note_display_offset,int fx_len,int color_mode) {
 	LineVertex *ptsB;
-    int crt,cgt,cbt,cr,cg,cb,ca;
+    int crt,cgt,cbt,ca;
     int index;
     //int band_width,ofs_band;
     float band_width;

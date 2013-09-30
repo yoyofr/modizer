@@ -3183,7 +3183,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     cover_view.contentMode=UIViewContentModeScaleAspectFill;//UIViewContentModeScaleAspectFit;
     
     [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(animationDidStop:)];
+    [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
     
     UILongPressGestureRecognizer *longPressPaPrevSGesture = [[[UILongPressGestureRecognizer alloc]
                                                               initWithTarget:self

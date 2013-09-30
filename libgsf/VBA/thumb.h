@@ -767,7 +767,7 @@ u32 opcode = CPUReadHalfWordQuick(armNextPC);
 clockTicks = thumbCycles[opcode >> 8] + memoryWaitFetch[(armNextPC >> 24) & 15];
 #ifndef FINAL_VERSION
 if(armNextPC == stop) {
-  armNextPC = armNextPC++;
+  /*armNextPC = */armNextPC++;
 }
 #endif
 

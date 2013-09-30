@@ -190,7 +190,6 @@ BOOL is_ios7,is_retina;
         r=[filepath rangeOfString:@"Documents/"];
         if (r.location!=NSNotFound) {
             NSString *shortfilepath=[filepath substringFromIndex:r.location];
-
             t_playlist pl;
             pl.nb_entries=1;
             pl.entries[0].label=[shortfilepath lastPathComponent];
@@ -198,9 +197,10 @@ BOOL is_ios7,is_retina;
             pl.entries[0].ratings=-1;
             pl.entries[0].playcounts=0;
             [detailViewControlleriPhone play_listmodules:&pl start_index:0];
-            
+            return YES;
         }
     }
+    return NO;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

@@ -19,6 +19,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "dumb.h"
 #include "internal/dumb.h"
@@ -935,7 +936,7 @@ static void reset_channel_effects(IT_CHANNEL *channel)
 	channel->xm_volslide = 0;
 	channel->panslide = 0;
 	channel->channelvolslide = 0;
-	channel->arpeggio_table = &arpeggio_mod;
+	channel->arpeggio_table = (unsigned char const*)&arpeggio_mod;
 	memset(channel->arpeggio_offsets, 0, sizeof(channel->arpeggio_offsets));
 	channel->retrig = 0;
 	if (channel->xm_retrig) {
@@ -2487,7 +2488,7 @@ Yxy             This uses a table 4 times larger (hence 4 times slower) than
 					channel->arpeggio_offsets[0] = 0;
 					channel->arpeggio_offsets[1] = (v & 0xF0) >> 4;
 					channel->arpeggio_offsets[2] = (v & 0x0F);
-					channel->arpeggio_table = ((sigdata->flags & (IT_WAS_AN_XM|IT_WAS_A_MOD))==IT_WAS_AN_XM) ? &arpeggio_xm : &arpeggio_mod;
+					channel->arpeggio_table = ((sigdata->flags & (IT_WAS_AN_XM|IT_WAS_A_MOD))==IT_WAS_AN_XM) ? (unsigned char const*)&arpeggio_xm : (unsigned char const*)&arpeggio_mod;
 				}
 				break;
 			case IT_SET_CHANNEL_VOLUME:
@@ -3124,15 +3125,15 @@ Yxy             This uses a table 4 times larger (hence 4 times slower) than
 					switch (entry->effect)
 					{
 					case IT_OKT_ARPEGGIO_3:
-						channel->arpeggio_table = &arpeggio_okt_3;
+						channel->arpeggio_table = (unsigned char const*)&arpeggio_okt_3;
 						break;
 
 					case IT_OKT_ARPEGGIO_4:
-						channel->arpeggio_table = &arpeggio_okt_4;
+						channel->arpeggio_table = (unsigned char const*)&arpeggio_okt_4;
 						break;
 
 					case IT_OKT_ARPEGGIO_5:
-						channel->arpeggio_table = &arpeggio_okt_5;
+						channel->arpeggio_table = (unsigned char const*)&arpeggio_okt_5;
 						break;
 					}
 				}
