@@ -702,6 +702,13 @@
 		CC7E810212698C29006EF083 /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = CC7E810112698C29006EF083 /* previous.png */; };
 		CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */; };
 		CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC85B126B760400156FB3 /* database.modizerdb */; };
+		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
+		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
+		CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */; };
+		CC8A8D4617F9FF5500A56E0C /* Icon-152.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3F17F9FF5500A56E0C /* Icon-152.png */; };
+		CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */; };
+		CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */; };
+		CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */; };
 		CC91689517F01F560012E2C1 /* james_bond.jpg in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682B17F01EC80012E2C1 /* james_bond.jpg */; };
 		CC91689617F01F560012E2C1 /* james_bond.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682C17F01EC80012E2C1 /* james_bond.mid */; };
 		CC91689717F01F560012E2C1 /* Live_And_Let_Die.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */; };
@@ -2449,6 +2456,13 @@
 		CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = databaseMAIN.modizerdb; sourceTree = "<group>"; };
 		CC7FC85B126B760400156FB3 /* database.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = database.modizerdb; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
+		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
+		CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-120.png"; sourceTree = "<group>"; };
+		CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-144.png"; sourceTree = "<group>"; };
+		CC8A8D3F17F9FF5500A56E0C /* Icon-152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-152.png"; sourceTree = "<group>"; };
+		CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-40.png"; sourceTree = "<group>"; };
+		CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-80.png"; sourceTree = "<group>"; };
+		CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-100.png"; sourceTree = "<group>"; };
 		CC91682B17F01EC80012E2C1 /* james_bond.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = james_bond.jpg; path = Resources/Samples2/Various/james_bond.jpg; sourceTree = SOURCE_ROOT; };
 		CC91682C17F01EC80012E2C1 /* james_bond.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = james_bond.mid; path = Resources/Samples2/Various/james_bond.mid; sourceTree = SOURCE_ROOT; };
 		CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Live_And_Let_Die.mid; path = Resources/Samples2/Various/Live_And_Let_Die.mid; sourceTree = SOURCE_ROOT; };
@@ -4361,6 +4375,13 @@
 			children = (
 				CC1E5F13120154F9000A8A4E /* Icon-Small-50.png */,
 				CC1E5F07120154A8000A8A4E /* Icon-72.png */,
+				CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */,
+				CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */,
+				CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */,
+				CC8A8D3F17F9FF5500A56E0C /* Icon-152.png */,
+				CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */,
+				CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */,
+				CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */,
 				CC1E5F09120154A8000A8A4E /* Icon-Small.png */,
 				CC1E5F0A120154A8000A8A4E /* Icon-Small@2x.png */,
 				CC1E5F0B120154A8000A8A4E /* Icon.png */,
@@ -5618,6 +5639,7 @@
 				CCB8D99817F62A18008E6A45 /* txtMenu3c_2x.png in Resources */,
 				CC1E6312120423DF000A8A4E /* ActionAmics in Resources */,
 				CC1E6313120423DF000A8A4E /* ADPCM_mono in Resources */,
+				CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */,
 				CC1E6314120423DF000A8A4E /* Alcatraz_Packer in Resources */,
 				CC1E6315120423DF000A8A4E /* AM-Composer in Resources */,
 				CC1E6316120423DF000A8A4E /* AMOS in Resources */,
@@ -5659,6 +5681,7 @@
 				CC1E6335120423DF000A8A4E /* ahx.waves in Resources */,
 				CC1E6336120423DF000A8A4E /* ems_v6.cfg in Resources */,
 				CC1E6337120423DF000A8A4E /* ems_v6.cfg.txt in Resources */,
+				CC8A8D4617F9FF5500A56E0C /* Icon-152.png in Resources */,
 				CC1E6338120423DF000A8A4E /* EP-Hippel_7V.cfg in Resources */,
 				CC1E6339120423DF000A8A4E /* EP-Mugician_II.cfg in Resources */,
 				CC1E633A120423DF000A8A4E /* EP-PTK-Prowiz.cfg in Resources */,
@@ -5679,6 +5702,7 @@
 				CC1E6348120423DF000A8A4E /* ImagesMusicSystem in Resources */,
 				CC1E6349120423DF000A8A4E /* Infogrames in Resources */,
 				CC1E634A120423DF000A8A4E /* InStereo in Resources */,
+				CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */,
 				CC1E634B120423DF000A8A4E /* InStereo2.0 in Resources */,
 				CC1E634C120423DF000A8A4E /* JamCracker in Resources */,
 				CC1E634D120423DF000A8A4E /* JankoMrsicFlogel in Resources */,
@@ -5796,8 +5820,10 @@
 				CC1E63B1120423E0000A8A4E /* TimFollin in Resources */,
 				CC1E63B2120423E0000A8A4E /* TomyTracker in Resources */,
 				CC1E63B3120423E0000A8A4E /* Tronic in Resources */,
+				CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */,
 				CC1E63B4120423E0000A8A4E /* UltimateSoundtracker in Resources */,
 				CCB8D99317F62A18008E6A45 /* txtMenu1_2x.png in Resources */,
+				CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */,
 				CC1E63B5120423E0000A8A4E /* VoodooSupremeSynthesizer in Resources */,
 				CC1E63B6120423E0000A8A4E /* WallyBeben in Resources */,
 				CC1E63B7120423E0000A8A4E /* YM-2149 in Resources */,
@@ -5858,6 +5884,7 @@
 				33CAECAE13E93D7100088A37 /* arc_details.png in Resources */,
 				33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */,
 				33A9678C140E4789007F22F5 /* char.bin in Resources */,
+				CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */,
 				CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */,
 				33554E1414C326EE00018161 /* btnpause.png in Resources */,
 				33554E1514C326EE00018161 /* btnplay.png in Resources */,
@@ -5877,6 +5904,7 @@
 				333DA8FE15F48D5E0095494B /* video_play.png in Resources */,
 				333DA8FF15F48D5E0095494B /* video_play@2x.png in Resources */,
 				333DA90015F48D5E0095494B /* video_previous.png in Resources */,
+				CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */,
 				333DA90115F48D5E0095494B /* video_previous@2x.png in Resources */,
 				336D450515FB3A8B00F0DC00 /* video_next_h.png in Resources */,
 				336D450615FB3A8B00F0DC00 /* video_next_h@2x.png in Resources */,
