@@ -45,7 +45,7 @@
     if ([[UIDevice currentDevice] respondsToSelector:@selector(identifierForVendor)]) {
         identifier=[[[UIDevice currentDevice] identifierForVendor] UUIDString];
     } else {
-        identifier=[[UIDevice currentDevice] uniqueIdentifier];
+        identifier=@"unknwown";//[[UIDevice currentDevice] uniqueIdentifier];
     }
 	NSString *urlString=[NSString stringWithFormat:@"%@/Stats?Name=%@&Path=%@&Rating=%d&Played=%d&UID=%@&Type=%d&Country=%@&City=%@&%@",
 						 STATISTICS_URL,
