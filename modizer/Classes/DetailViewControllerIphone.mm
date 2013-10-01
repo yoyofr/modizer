@@ -709,7 +709,7 @@ static float movePinchScale,movePinchScaleOld;
             }
 		}
 		[mplayer setInfosUpdated];
-		if ((mplayer.mod_subsongs>1)&&(mOnlyCurrentSubEntry==0)) {
+		if ((mplayer.mod_subsongs>1)/*&&(mOnlyCurrentSubEntry==0)*/) {
             int mpl_arcCnt=[mplayer getArcEntriesCnt];
             if (mpl_arcCnt&&(mOnlyCurrentEntry==0)) {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/arc %d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,
@@ -1578,6 +1578,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //ensure any settings changes to be taken into account before loading next file
     [self settingsChanged:(int)SETTINGS_ALL];
     
+    if (mShuffle) {
+        mOnlyCurrentSubEntry=1;
+        mOnlyCurrentEntry=1;
+    }
+    
 	// load module
 	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
 		//error while loading
@@ -1665,7 +1670,18 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
     else self.pauseBar.hidden=NO;
 	[self updateBarPos];
-	[mplayer PlaySeek:mPlayingPosRestart subsong:0];
+    
+    
+    //random mode & mutli song ?
+    if (mShuffle) {
+        if ([mplayer isMultiSongs]) {
+            mOnlyCurrentSubEntry=1;
+            mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
+        }
+        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
+    } else {
+        [mplayer PlaySeek:mPlayingPosRestart subsong:0];
+    }
 	sliderProgressModule.value=0;
 	mIsPlaying=YES;
 	mPaused=0;
@@ -1789,18 +1805,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		[mplayer Stop];
 	}
     mShouldUpdateInfos=1;
-	//Update position
-    /*	if (locManager_isOn==1) {
-     if (locationLastUpdate) {
-     int i=[locationLastUpdate timeIntervalSinceNow];
-     if (i<-LOCATION_UPDATE_TIMING) {
-     locManager_isOn=2;
-     [self.locManager startUpdatingLocation];
-     [locationLastUpdate release];
-     locationLastUpdate=[[NSDate alloc] init];
-     }
-     }
-     }*/
 	// load module
     
     const char *tmp_str=[filePath UTF8String];
@@ -1845,6 +1849,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     //ensure any settings changes to be taken into account before loading next file
     [self settingsChanged:(int)SETTINGS_ALL];
+    
+    if (mShuffle) {
+        mOnlyCurrentSubEntry=1;
+        mOnlyCurrentEntry=1;
+    }
     
 	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry])) {
 		//error while loading
@@ -1956,6 +1965,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mIsPlaying=YES;
 		mPaused=1;
 	} else {
+        //random mode & mutli song ?
+        if (mShuffle) {
+/*            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
+                mOnlyCurrentSubEntry=1;
+            }*/
+            if ([mplayer isMultiSongs]) {
+                mOnlyCurrentSubEntry=1;
+                mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
+            }
+        }
+        
 		self.pauseBarSub.hidden=YES;
 		self.playBarSub.hidden=YES;
 		self.pauseBar.hidden=YES;
