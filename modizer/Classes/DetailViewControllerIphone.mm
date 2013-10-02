@@ -711,7 +711,7 @@ static float movePinchScale,movePinchScaleOld;
 		[mplayer setInfosUpdated];
 		if ((mplayer.mod_subsongs>1)/*&&(mOnlyCurrentSubEntry==0)*/) {
             int mpl_arcCnt=[mplayer getArcEntriesCnt];
-            if (mpl_arcCnt&&(mOnlyCurrentEntry==0)) {
+            if (mpl_arcCnt) {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/arc %d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,
                                   [mplayer getArcIndex]+1,mpl_arcCnt,
                                   mplayer.mod_currentsub,mplayer.mod_minsub,mplayer.mod_maxsub];
@@ -727,7 +727,7 @@ static float movePinchScale,movePinchScaleOld;
 			
 		} else {
             int mpl_arcCnt=[mplayer getArcEntriesCnt];
-            if (mpl_arcCnt&&(mOnlyCurrentEntry==0)) {
+            if (mpl_arcCnt) {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/arc %d of %d",mPlaylist_pos+1,mPlaylist_size,
                                   [mplayer getArcIndex]+1,mpl_arcCnt];
             } else playlistPos.text=[NSString stringWithFormat:@"%d of %d",mPlaylist_pos+1,mPlaylist_size];
@@ -1141,7 +1141,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	NSString *filePath;
 	mIsPlaying=FALSE;
     
-	if (!mPlaylist_size) return FALSE;
+	if (mPlaylist_size==0) {
+        [repeatingTimer invalidate];
+		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+		[mplayer Stop];
+        mPaused=1;
+        if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
+        return FALSE;
+    }
 	
 	if (mPlaylist_pos>mPlaylist_size-1) mPlaylist_pos=0;
 	
@@ -1182,6 +1189,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 -(void)play_prevEntry {
+    if (mPlaylist_size==0) {
+        [repeatingTimer invalidate];
+		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+		[mplayer Stop];
+        mPaused=1;
+        if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
+        return;
+    }
 	if (mShuffle) {
 		int i;
 		int minval;
@@ -1203,6 +1218,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 -(void)play_nextEntry {
+    if (mPlaylist_size==0) {
+        [repeatingTimer invalidate];
+		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+		[mplayer Stop];
+        mPaused=1;
+        if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
+        return;
+    }
 	if (mShuffle) {
 		int i;
 		int minval;
@@ -1591,6 +1614,23 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		else mLoadIssueMessage=1;
 		return FALSE;
 	}
+    
+    if (mShuffle) {
+        if ([mplayer isArchive]) {
+//            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+                //error while loading
+                NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                if (retcode==-99) mLoadIssueMessage=0;
+                else mLoadIssueMessage=1;
+                return FALSE;
+            }
+
+//            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        }
+    }
+    
     //fix issue with modplug settings reset after load
     [self settingsChanged:(int)SETTINGS_ALL];
     
@@ -1865,6 +1905,22 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		else mLoadIssueMessage=1;
 		return FALSE;
 	}
+    
+    if (mShuffle) {
+        if ([mplayer isArchive]) {
+//            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+                //error while loading
+                NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                if (retcode==-99) mLoadIssueMessage=0;
+                else mLoadIssueMessage=1;
+                return FALSE;
+            }
+            
+//            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        }
+    }
     
     //fix issue with modplug settings reset after load
     [self settingsChanged:(int)SETTINGS_ALL];
