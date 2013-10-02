@@ -2284,6 +2284,20 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
         if (show_playlist&&(indexPath.row>=rowofs)) { //delete playlist entry
+            if (integrated_playlist==1) { //current queue
+                [detailViewController.mPlaylist[indexPath.row-rowofs].mPlaylistFilename release];
+                [detailViewController.mPlaylist[indexPath.row-rowofs].mPlaylistFilepath release];
+                for (int i=indexPath.row-rowofs;i<playlist->nb_entries-1;i++) {
+                    detailViewController.mPlaylist[i].mPlaylistFilename=detailViewController.mPlaylist[i+1].mPlaylistFilename;
+                    detailViewController.mPlaylist[i].mPlaylistFilepath=detailViewController.mPlaylist[i+1].mPlaylistFilepath;
+                    detailViewController.mPlaylist[i].mPlaylistRating=detailViewController.mPlaylist[i+1].mPlaylistRating;
+                    detailViewController.mPlaylist[i].mPlaylistCount=detailViewController.mPlaylist[i+1].mPlaylistCount;
+                    detailViewController.mPlaylist[i].cover_flag=detailViewController.mPlaylist[i+1].cover_flag;
+                }
+                detailViewController.mPlaylist_size--;
+                if (detailViewController.mPlaylist_pos>=detailViewController.mPlaylist_size) detailViewController.mPlaylist_pos--;
+                detailViewController.mShouldUpdateInfos=1;
+            }
             if (integrated_playlist==2) { //most played: reset playcount
                 short int playcount;
                 signed char rating;

@@ -19,6 +19,7 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
 	sqlite3 *db;
 	int err;	
 	NSString *result=nil;
+    if (localPath==nil) return nil;
 	
 	pthread_mutex_lock(&db_mutex);
 	
@@ -52,6 +53,8 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 	sqlite3 *db;
 	int err;	
 	NSString *result=nil;
+    
+    if (fullPath==nil) return nil;
 	
 	pthread_mutex_lock(&db_mutex);
 	
@@ -96,7 +99,9 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 void DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *playcount,signed char *rating,int *song_length,char *channels_nb,int *songs) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
-	int err;	
+	int err;
+    
+    if (name==nil) return;
 	
 	if (playcount) *playcount=0;
 	if (rating) *rating=0;
@@ -136,7 +141,12 @@ void DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pl
 void DBHelper::getFilesStatsDBmod(NSMutableArray *names,NSMutableArray *fullpaths,short int *playcountArray,signed char *ratingArray,int *song_lengthA,char *channels_nbA,int *songsA) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
-	int err;	
+	int err;
+    
+    
+    if (names==nil) return ;
+    if ([names count]==0) return ;
+    
 	int nb_entries=[names count];
 	
 	if (playcountArray) memset(playcountArray,0,sizeof(short int)*nb_entries);
@@ -183,6 +193,9 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err,ret;
+    
+    if (fullpath==nil) return -1;
+    
 	pthread_mutex_lock(&db_mutex);
 	ret=1;
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -202,6 +215,9 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err,ret;
+    
+    if (fullpath==nil) return -1;
+    
 	pthread_mutex_lock(&db_mutex);
 	ret=1;
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -222,7 +238,10 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
 void DBHelper::getFilesStatsDBmod(t_plPlaylist_entry *playlist,int nb_entries) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
-	int err;	
+	int err;
+    
+    if (playlist==NULL) return;
+    if (nb_entries==0) return;
 	
 	for (int i=0;i<nb_entries;i++) {
 		playlist[i].mPlaylistRating=0;
@@ -399,6 +418,7 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	sqlite3 *db;
 	int err;	
 	
+    if (name==nil) return;
     
 	pthread_mutex_lock(&db_mutex);
 	
@@ -424,7 +444,9 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,int song_length,char channels_nb,int songs) {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
-	int err;	
+	int err;
+    
+    if (name==nil) return;
     
 	pthread_mutex_lock(&db_mutex);
 	
