@@ -176,7 +176,7 @@ extern "C" {
 -(void) Play;
 -(void) PlaySeek:(int)startPos subsong:(int)subsong;
 -(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode;
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;
