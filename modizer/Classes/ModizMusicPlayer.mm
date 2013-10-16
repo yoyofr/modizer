@@ -81,8 +81,12 @@ static int mSingleSubMode;
 #define DEFAULT_MODPLUG 0
 #define DEFAULT_DUMB 1
 #define DEFAULT_UADE 2
+
+#define DEFAULT_ASAP 0
+#define DEFAULT_GME 1
+
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
-static int mdz_defaultMODPLAYER;
+static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER;
 static char **mdz_ArchiveFilesList;
 static char **mdz_ArchiveFilesListAlias;
 
@@ -3685,7 +3689,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     return found;
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
 	NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -3722,6 +3726,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		
         mdz_IsArchive=0;
 		mdz_defaultMODPLAYER=defaultMODPLAYER;
+        mdz_defaultSAPPLAYER=defaultSAPPLAYER;
 		mNeedSeek=0;
 		mod_message_updated=0;
 		mod_subsongs=1;
@@ -3922,7 +3927,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
 		}
-	if (!found)
+	
+	if (!found||(mdz_defaultSAPPLAYER==DEFAULT_GME))
 		for (int i=0;i<[filetype_extGME count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}

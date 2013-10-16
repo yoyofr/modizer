@@ -3058,6 +3058,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         camera_pos_countdown=30*15+(arc4random()&511);//15s min before switching
     } else camera_pos_countdown--;
     
+//    camera_pos=5;
+    
     piano_fxcpt++;
     
     GLfloat x,y,z,yf,yn,ynBL,yadj;
@@ -3086,6 +3088,9 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             case 2:
                 ztrans_tgt=-z-30;
                 break;
+/*            case 3:
+                ztrans_tgt=-z-60;
+                break;*/
             case 5:
             case 7:
                 ztrans_tgt=-z-30;

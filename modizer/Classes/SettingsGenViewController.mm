@@ -226,6 +226,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_PanningValue].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=2;
@@ -443,7 +444,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=1200;
     
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
-    settings[GLOB_DefaultMODPlayer].label=(char*)"Default mod player";
+    settings[GLOB_DefaultMODPlayer].label=(char*)"Default MOD player";
     settings[GLOB_DefaultMODPlayer].description=NULL;
     settings[GLOB_DefaultMODPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultMODPlayer].sub_family=0;
@@ -454,6 +455,18 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MDPLG";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
+    
+    settings[GLOB_DefaultSAPPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultSAPPlayer].label=(char*)"Default SAP player";
+    settings[GLOB_DefaultSAPPlayer].description=NULL;
+    settings[GLOB_DefaultSAPPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_DefaultSAPPlayer].sub_family=0;
+    settings[GLOB_DefaultSAPPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ASAP";
+    settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
     settings[GLOB_TitleFilename].label=(char*)"Filename as title";
     settings[GLOB_TitleFilename].description=NULL;
@@ -776,7 +789,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMSAA].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMSAA].sub_family=0;
     settings[GLOB_FXMSAA].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value=0;
     
     
     /////////////////////////////////////

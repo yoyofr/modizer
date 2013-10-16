@@ -93,6 +93,9 @@ static int infoIsFullscreen=0;
 static UIAlertView *alertCrash;
 static MPVolumeView *volumeView;
 
+static UIImage *cover_img,*default_cover;
+static MPMediaItemArtwork *artwork;
+
 static int txtMenuHandle[16];
 static int txtSubMenuHandle[35];
 
@@ -675,6 +678,7 @@ static float movePinchScale,movePinchScaleOld;
 
 //define the targetmethod
 -(void) updateInfos: (NSTimer *) theTimer {
+    static int updMPNowCnt=0;
 	int itime=[mplayer getCurrentTime];
 	
 	if (mSendStatTimer) {
@@ -916,7 +920,28 @@ static float movePinchScale,movePinchScaleOld;
 		
 	}
 	
-	
+	if (updMPNowCnt==0) {
+        MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+        
+        infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithString:lblCurrentSongCFlow.text],
+                                     MPMediaItemPropertyTitle,
+                                     [NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath],
+                                     MPMediaItemPropertyArtist,
+                                     [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
+                                     MPMediaItemPropertyPlaybackDuration,
+                                     [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
+                                     MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                     [NSNumber numberWithInt:1],
+                                     MPNowPlayingInfoPropertyPlaybackRate,
+                                     [NSNumber numberWithInt:mPlaylist_size],
+                                     MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                     [NSNumber numberWithInt:mPlaylist_pos],
+                                     MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                     artwork,
+                                     MPMediaItemPropertyArtwork,
+                                     nil];
+        updMPNowCnt=10;
+    } else updMPNowCnt--;
 	return;
 }
 
@@ -1607,7 +1632,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
 	// load module
-	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
 		//error while loading
 		NSLog(@"Issue in LoadModule(archive) %@",filePath);
 		if (retcode==-99) mLoadIssueMessage=0;
@@ -1619,7 +1644,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         if ([mplayer isArchive]) {
 //            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
                 //error while loading
                 NSLog(@"Issue in LoadModule(archive) %@",filePath);
                 if (retcode==-99) mLoadIssueMessage=0;
@@ -1787,7 +1812,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
     pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
     
-    UIImage *cover_img=nil;
+    cover_img=nil;
     //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
     if (gifAnimation) [gifAnimation removeFromSuperview];
     gifAnimation=nil;
@@ -1820,7 +1845,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     if (cover_img) {
         
-        if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
+        if (mScaleFactor!=1) cover_img = [[[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp] autorelease];
         
         cover_view.image=cover_img;
         cover_view.hidden=FALSE;
@@ -1895,7 +1920,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mOnlyCurrentEntry=1;
     }
     
-	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry])) {
+	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry])) {
 		//error while loading
 		NSLog(@"Issue in LoadModule %@",filePathTmp);
 		mRestart=0;
@@ -1910,7 +1935,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         if ([mplayer isArchive]) {
 //            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
                 //error while loading
                 NSLog(@"Issue in LoadModule(archive) %@",filePath);
                 if (retcode==-99) mLoadIssueMessage=0;
@@ -1921,6 +1946,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 //            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
         }
     }
+    
+    
     
     //fix issue with modplug settings reset after load
     [self settingsChanged:(int)SETTINGS_ALL];
@@ -1968,6 +1995,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [labelModuleName setNeedsDisplay];
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
+    
+    
     
 	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
 	if ([mplayer getSongLength]>0) {
@@ -2091,6 +2120,33 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	textMessage.text=[NSString stringWithFormat:@"\n%@",[mplayer getModMessage]];
 	
 	[textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
+    
+    
+    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+    
+    
+    if (cover_img) artwork=[[[MPMediaItemArtwork alloc] initWithImage:cover_img] autorelease];
+    else artwork=[[[MPMediaItemArtwork alloc] initWithImage:default_cover] autorelease];
+    
+    infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithString:lblCurrentSongCFlow.text],
+                                 MPMediaItemPropertyTitle,
+                                 [NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath],
+                                 MPMediaItemPropertyArtist,
+                                 [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
+                                 MPMediaItemPropertyPlaybackDuration,
+                                 [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
+                                 MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                 [NSNumber numberWithInt:1],
+                                 MPNowPlayingInfoPropertyPlaybackRate,
+                                 [NSNumber numberWithInt:mPlaylist_size],
+                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                 [NSNumber numberWithInt:mPlaylist_pos],
+                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                 artwork,
+                                 MPMediaItemPropertyArtwork,
+                                 nil];
+
+    
 	//Activate timer for play infos
 	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.33 target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //3 times/second
 	
@@ -3247,6 +3303,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	start_time=clock();
     
     [super viewDidLoad];
+    
+    default_cover=[UIImage imageNamed:@"AppStore512.png"];
+    [default_cover retain];
+    artwork=nil;
     
     //EQ
     eqVC=nil;
