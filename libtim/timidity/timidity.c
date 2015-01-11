@@ -114,6 +114,9 @@
 #define __attribute__(x) /* ignore */
 #endif
 
+void free_wrd(void);
+void free_reverb_buffer(void);
+
 /* option enums */
 enum {
 	TIM_OPT_FIRST = 256,

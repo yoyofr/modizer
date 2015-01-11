@@ -10,29 +10,29 @@
 	<string>modizer</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>98B8445A-57D8-4D0A-BBEE-43307F4C0761</key>
-		<string>ssh://github.com/yoyofr/modizer.git</string>
+		<key>EA74B1461F5FBC9EC97688BB3AFCB02713DBA164</key>
+		<string>github.com:yoyofr/modizer.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>modizer/modizer.xcodeproj/project.xcworkspace</string>
+	<string>modizer/modizer.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>98B8445A-57D8-4D0A-BBEE-43307F4C0761</key>
+		<key>EA74B1461F5FBC9EC97688BB3AFCB02713DBA164</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>ssh://github.com/yoyofr/modizer.git</string>
+	<string>github.com:yoyofr/modizer.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>98B8445A-57D8-4D0A-BBEE-43307F4C0761</string>
+	<string>EA74B1461F5FBC9EC97688BB3AFCB02713DBA164</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>98B8445A-57D8-4D0A-BBEE-43307F4C0761</string>
+			<string>EA74B1461F5FBC9EC97688BB3AFCB02713DBA164</string>
 			<key>IDESourceControlWCCName</key>
 			<string>modizer</string>
 		</dict>

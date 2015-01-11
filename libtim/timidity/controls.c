@@ -27,6 +27,7 @@
 #include "interface.h"
 #include "timidity.h"
 #include "controls.h"
+#include <unistd.h>
 
 #if defined(__MACOS__)
 extern ControlMode mac_control_mode;

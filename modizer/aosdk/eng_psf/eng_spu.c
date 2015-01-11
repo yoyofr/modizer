@@ -40,6 +40,9 @@
 #include "cpuintrf.h"
 #include "psx.h"
 
+uint16 SPUreadRegister(uint32 reg);
+void SPUwriteRegister(uint32 reg, uint16 val);
+
 
 extern int SPUinit(void);
 extern int SPUopen(void);
@@ -128,6 +131,7 @@ extern int SPUasync(uint32 cycles);
 extern void SPU_flushboot(void);
 
 extern char *spu_pOutput;	// this is a bit lame, but we'll deal
+
 
 static void spu_tick(void)
 {
