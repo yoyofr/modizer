@@ -491,6 +491,8 @@ int SPUasync(u32 cycles)
  return(1);
 }
 
+void spu_update(unsigned char* pSound,long lBytes);
+
 void SPU_flushboot(void)
 {
    if((u8*)pS>((u8*)pSpuBuffer+1024))

@@ -85,6 +85,12 @@
 
 #include "mem.h"
 
+uint8 qsf_memory_read(uint16 addr);
+void qsf_memory_write(uint16 addr, uint8 byte);
+uint8 qsf_memory_readop(uint16 addr);
+uint8 qsf_memory_readport(uint16 addr);
+void qsf_memory_writeport(uint16 addr, uint8 byte);
+
 #undef cpu_readmem16
 #undef cpu_readport16
 #undef cpu_writeport16

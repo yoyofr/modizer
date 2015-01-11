@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="4510" systemVersion="12F37" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
-        <deployment version="1280" defaultVersion="1280" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3742"/>
+        <deployment version="1280" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UIApplication">
@@ -32,17 +32,15 @@
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackOpaque"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="detailViewControllerIphone" destination="11" id="1419"/>
             </connections>
         </window>
         <tabBarController wantsFullScreenLayout="YES" modalTransitionStyle="flipHorizontal" id="9" customClass="myTabBarController">
             <extendedEdge key="edgesForExtendedLayout"/>
-            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
             <nil key="simulatedBottomBarMetrics"/>
-            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-            <nil key="simulatedDestinationMetrics"/>
             <tabBar key="tabBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="10">
                 <rect key="frame" x="0.0" y="431" width="320" height="49"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -52,22 +50,17 @@
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="49">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Bibliothèque" image="bb_music.png" id="53"/>
-                    <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                    <nil key="simulatedTopBarMetrics"/>
-                    <nil key="simulatedBottomBarMetrics"/>
-                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                    <nil key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="51">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController title="Browse" modalTransitionStyle="flipHorizontal" id="1979" customClass="RootViewControllerLocalBrowser">
                             <view key="view" contentMode="scaleToFill" id="1984">
-                                <rect key="frame" x="0.0" y="64" width="320" height="367"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" id="1985">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="367"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="calibratedRGB"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" id="1993">
@@ -88,11 +81,6 @@
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Bibliothèque" id="1980"/>
-                            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                            <nil key="simulatedTopBarMetrics"/>
-                            <nil key="simulatedBottomBarMetrics"/>
-                            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                            <nil key="simulatedDestinationMetrics"/>
                             <connections>
                                 <outlet property="detailViewController" destination="11" id="1990"/>
                                 <outlet property="sBar" destination="1993" id="1995"/>
@@ -109,22 +97,17 @@
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1892" userLabel="Navigation Controller - Playlist">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Playlists" image="bb_list.png" id="1896" userLabel="Tab Bar Item - Playlists"/>
-                    <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                    <nil key="simulatedTopBarMetrics"/>
-                    <nil key="simulatedBottomBarMetrics"/>
-                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                    <nil key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="1893">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController title="Playlists" modalTransitionStyle="flipHorizontal" id="1954" customClass="RootViewControllerPlaylist">
                             <view key="view" contentMode="scaleToFill" id="1956">
-                                <rect key="frame" x="0.0" y="64" width="320" height="367"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="1965">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="367"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>
@@ -137,11 +120,6 @@
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Playlists" id="1955"/>
-                            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                            <nil key="simulatedTopBarMetrics"/>
-                            <nil key="simulatedBottomBarMetrics"/>
-                            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                            <nil key="simulatedDestinationMetrics"/>
                             <connections>
                                 <outlet property="detailViewController" destination="11" id="2029"/>
                                 <outlet property="tableView" destination="1965" id="1970"/>
@@ -153,22 +131,17 @@
                 <navigationController title="Online" definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1897" userLabel="Navigation Controller - Online">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Online" image="bb_download.png" id="1901"/>
-                    <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                    <nil key="simulatedTopBarMetrics"/>
-                    <nil key="simulatedBottomBarMetrics"/>
-                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                    <nil key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="1898">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController modalTransitionStyle="flipHorizontal" id="1934" customClass="OnlineViewController">
                             <view key="view" contentMode="scaleToFill" id="1936">
-                                <rect key="frame" x="0.0" y="64" width="320" height="367"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="1942">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="367"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>
@@ -181,11 +154,6 @@
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Online" id="1935"/>
-                            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                            <nil key="simulatedTopBarMetrics"/>
-                            <nil key="simulatedBottomBarMetrics"/>
-                            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                            <nil key="simulatedDestinationMetrics"/>
                             <connections>
                                 <outlet property="detailViewController" destination="11" id="1977"/>
                                 <outlet property="downloadViewController" destination="642" id="1975"/>
@@ -200,11 +168,6 @@
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="" systemItem="search" id="683"/>
                     <toolbarItems/>
-                    <nil key="simulatedStatusBarMetrics"/>
-                    <nil key="simulatedTopBarMetrics"/>
-                    <nil key="simulatedBottomBarMetrics"/>
-                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                    <nil key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="686">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -212,11 +175,11 @@
                     <viewControllers>
                         <viewController modalTransitionStyle="flipHorizontal" id="684" customClass="SearchViewController">
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="64" width="320" height="367"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="722">
-                                        <rect key="frame" x="0.0" y="44" width="320" height="323"/>
+                                        <rect key="frame" x="0.0" y="44" width="320" height="411"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>
@@ -233,7 +196,7 @@
                                         </connections>
                                     </searchBar>
                                     <view hidden="YES" contentMode="scaleToFill" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="367"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" animating="YES" style="whiteLarge" id="746">
@@ -265,11 +228,6 @@
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <toolbarItems/>
                             <navigationItem key="navigationItem" title="Recherche" id="685"/>
-                            <nil key="simulatedStatusBarMetrics"/>
-                            <nil key="simulatedTopBarMetrics"/>
-                            <nil key="simulatedBottomBarMetrics"/>
-                            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                            <nil key="simulatedDestinationMetrics"/>
                             <connections>
                                 <outlet property="detailViewController" destination="11" id="729"/>
                                 <outlet property="downloadViewController" destination="642" id="766"/>
@@ -285,22 +243,17 @@
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1902" userLabel="Navigation Controller - More">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" systemItem="more" id="1906"/>
-                    <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                    <nil key="simulatedTopBarMetrics"/>
-                    <nil key="simulatedBottomBarMetrics"/>
-                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                    <nil key="simulatedDestinationMetrics"/>
                     <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="1903">
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController title="More" modalTransitionStyle="flipHorizontal" id="2018" customClass="MoreViewController">
                             <view key="view" contentMode="scaleToFill" id="2020">
-                                <rect key="frame" x="0.0" y="64" width="320" height="367"/>
+                                <rect key="frame" x="0.0" y="64" width="320" height="455"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" id="2021">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="367"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="calibratedRGB"/>
                                         <connections>
@@ -313,11 +266,6 @@
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Autre" id="2019"/>
-                            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-                            <nil key="simulatedTopBarMetrics"/>
-                            <nil key="simulatedBottomBarMetrics"/>
-                            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-                            <nil key="simulatedDestinationMetrics"/>
                             <connections>
                                 <outlet property="aboutVC" destination="1466" id="2026"/>
                                 <outlet property="detailViewController" destination="11" id="2025"/>
@@ -741,7 +689,7 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem enabled="NO" style="plain" systemItem="flexibleSpace" id="1234"/>
-                                    <barButtonItem title=">" style="plain" id="1236">
+                                    <barButtonItem title="&gt;" style="plain" id="1236">
                                         <connections>
                                             <action selector="playNextSub" destination="11" id="1249"/>
                                         </connections>
@@ -779,7 +727,7 @@
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem enabled="NO" style="plain" systemItem="flexibleSpace" id="1212"/>
-                                    <barButtonItem title=">" style="plain" id="1242">
+                                    <barButtonItem title="&gt;" style="plain" id="1242">
                                         <connections>
                                             <action selector="playNextSub" destination="11" id="1247"/>
                                         </connections>
@@ -1102,11 +1050,8 @@
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
             <toolbarItems/>
-            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
-            <nil key="simulatedBottomBarMetrics"/>
-            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-            <nil key="simulatedDestinationMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="backInfo" destination="633" id="688"/>
                 <outlet property="btnChangeTime" destination="1885" id="1887"/>
@@ -1249,10 +1194,7 @@
             <toolbarItems/>
             <navigationItem key="navigationItem" title="Downloads" id="643"/>
             <nil key="simulatedStatusBarMetrics"/>
-            <nil key="simulatedTopBarMetrics"/>
-            <nil key="simulatedBottomBarMetrics"/>
-            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-            <nil key="simulatedDestinationMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="barItem" destination="1906" id="5Sl-wq-qIR"/>
                 <outlet property="btnCancel" destination="1394" id="1811"/>
@@ -1371,9 +1313,7 @@
             <navigationItem key="navigationItem" title="Internet" id="1921"/>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackOpaque"/>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
-            <nil key="simulatedBottomBarMetrics"/>
-            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-            <nil key="simulatedDestinationMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="activityIndicator" destination="447" id="460"/>
                 <outlet property="addressTestField" destination="1160" id="1162"/>
@@ -1400,7 +1340,7 @@
                         <rect key="frame" x="0.0" y="80" width="320" height="356"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>
-                        <mutableString key="text">v2.0 © Yohann Magnien / YoyoFR
+                        <string key="text">v2.0 © Yohann Magnien / YoyoFR
 
 Web: http://yoyofr.blogspot.com/p/modizer.html
 Forum: http://modizer.988727.n3.nabble.com/
@@ -1448,7 +1388,7 @@ Modizer utilise les logiciels suivants:
 - CMPopTipView
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>
@@ -1460,11 +1400,8 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
             <extendedEdge key="edgesForExtendedLayout"/>
             <toolbarItems/>
             <navigationItem key="navigationItem" title="About" id="1467" userLabel="Navigation Item (About)"/>
-            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
-            <nil key="simulatedTopBarMetrics"/>
             <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
-            <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
-            <nil key="simulatedDestinationMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="detailViewControllerIphone" destination="11" id="1477"/>
                 <outlet property="textView" destination="1468" id="1481"/>
@@ -1494,4 +1431,9 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
         <image name="unzoom.png" width="32" height="32"/>
         <image name="zoom.png" width="32" height="32"/>
     </resources>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination" type="retina4"/>
+    </simulatedMetricsContainer>
 </document>

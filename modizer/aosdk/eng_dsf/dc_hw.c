@@ -14,6 +14,7 @@
 
 uint8 dc_ram[8*1024*1024];
 
+
 static void aica_irq(int irq)
 {
 	if (irq > 0)
@@ -169,6 +170,8 @@ void dc_write32(int addr, uint32 data)
 
 	printf("W32 %x @ %x\n", data, addr);
 }
+
+void *aica_start(const void *config);
 
 void dc_hw_init(void)
 {

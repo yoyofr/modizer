@@ -231,6 +231,7 @@ int32 ssf_start(uint8 *buffer, uint32 length,int32 loop_infinite,int32 defaultle
 }
 
 
+int m68k_execute(int num_cycles);
 
 int32 ssf_gen(int16 *buffer, uint32 samples)
 {	

@@ -1,5 +1,13 @@
 // memory inline functions shared by ARM and THUMB modes
 
+void dc_write8(int addr, uint8 data);
+void dc_write16(int addr, uint16 data);
+void dc_write32(int addr, uint32 data);
+uint8 dc_read8(int addr);
+uint16 dc_read16(int addr);
+uint32 dc_read32(int addr);
+
+
 static INLINE void arm7_write_32(UINT32 addr, UINT32 data )
 {
 	addr &= ~3;

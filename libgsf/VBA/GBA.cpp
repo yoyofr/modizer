@@ -682,17 +682,17 @@ int CPULoadRom(const char *szFile)
       return 0;
     }
   } else*/
-  int i;
+  long int i;
   if(cpuIsMultiBoot)
   {
 	  rom = (u8 *)malloc(0x200);
 	  loadedsize=0;
-	  i = (int)utilLoad(szFile,utilIsGBAImage,whereToLoad,size);
+	  i = (long int)utilLoad(szFile,utilIsGBAImage,whereToLoad,size);
   }
   else
   {
 	  rom = utilLoad(szFile,utilIsGBAImage,whereToLoad,size);
-	  i = (int) rom;
+	  i = (long int) rom;
   }
 
   //loadedsize = sizeof(*rom);

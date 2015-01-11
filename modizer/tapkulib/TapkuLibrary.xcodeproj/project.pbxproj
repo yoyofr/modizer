@@ -692,7 +692,7 @@
 			name = LogicTests;
 			productName = LogicTests;
 			productReference = 3B45DDF1134C736600D24C1A /* LogicTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 		D2AAC07D0554694100DB518D /* TapkuLibrary */ = {
 			isa = PBXNativeTarget;
@@ -717,6 +717,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastTestingUpgradeCheck = 0610;
 				LastUpgradeCheck = 0500;
 			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "TapkuLibrary" */;
