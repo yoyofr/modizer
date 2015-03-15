@@ -2184,8 +2184,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
     
 	if ((interfaceOrientation==UIInterfaceOrientationPortrait)||(interfaceOrientation==UIInterfaceOrientationPortraitUpsideDown)) {
-        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
-        
+//        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
+        waitingView.frame=CGRectMake(mDevice_ww/2-60,mDevice_hh/2-60,120,110);
         
         if (coverflow.hidden==FALSE) {
             
@@ -2276,7 +2276,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			sliderProgressModule.frame = CGRectMake(48,23-(is_ios7?6:0),mDevice_ww-48-40-40-4,23);
 		}
 	} else{
-        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
+//        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
+        waitingView.frame=CGRectMake(mDevice_hh/2-60,mDevice_ww/2-60,120,110);
         if ((mPlaylist_size>0)&&(settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value)) {
             if (mHasFocus) {
                 [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];

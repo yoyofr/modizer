@@ -5318,10 +5318,9 @@ MAIN_INTERFACE int timidity_pre_load_configuration(void)
     
     if (got_a_configuration==0) {
         chdir(bundledirectory);
-        char configpath[512];
-        sprintf(configpath,"timidity.cfg");//"%s/timidity/timidity.cfg",bundledirectory);
-        printf("reading at: %s\n",configpath);
-        if(!read_config_file(configpath, 0))
+//        char configpath[512];
+//        sprintf(configpath,"timidity.cfg");//"%s/timidity/timidity.cfg",bundledirectory);
+        if(!read_config_file(CONFIG_FILE/*configpath*/, 0))
             got_a_configuration = 1;
     }
     return 0;
