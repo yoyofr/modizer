@@ -1,0 +1,1031 @@
+Information About the Creators of High Voltage SID Collection
+=============================================================
+
+The HVSC Crew is composed of some of the biggest SID fans
+in the world.  Below is some information about the people
+who helped make HVSC possible.
+
+Note:
+-----
+The file is split into Current and Retired members, in order
+of them joining the HVSC team.
+
+The email adresses are spam protected, so you have to replace (sid) with the
+email sign @.
+
+Favourite Top 100 SIDs
+--------------------------------
+Below is the current Top 100 favourite SIDs in HVSC according to
+the HVSC Crew past and present, along with SID fans that voted,
+so you can see at a glance which C64 tunes people like:
+
+  1. /MUSICIANS/D/Daglish_Ben/Last_Ninja.sid
+  2. /MUSICIANS/G/Galway_Martin/Wizball.sid
+  3. /MUSICIANS/H/Hubbard_Rob/Sanxion.sid
+  4. /MUSICIANS/H/Hubbard_Rob/International_Karate.sid
+  5. /MUSICIANS/H/Hubbard_Rob/Commando.sid
+  6. /MUSICIANS/T/Tel_Jeroen/Cybernoid_II.sid
+  7. /MUSICIANS/H/Hubbard_Rob/Delta.sid
+  8. /MUSICIANS/G/Galway_Martin/Rambo_First_Blood_Part_II.sid
+  9. /MUSICIANS/H/Hubbard_Rob/Monty_on_the_Run.sid
+ 10. /MUSICIANS/G/Galway_Martin/Arkanoid.sid
+ 11. /MUSICIANS/H/Hubbard_Rob/Crazy_Comets.sid
+ 12. /MUSICIANS/T/Tel_Jeroen/Cybernoid.sid
+ 13. /MUSICIANS/O/Ouwehand_Reyn/Last_Ninja_3.sid
+ 14. /MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid
+ 15. /MUSICIANS/G/Gray_Fred/Mutants.sid
+ 16. /MUSICIANS/H/Hubbard_Rob/Knucklebusters.sid
+ 17. /MUSICIANS/H/Hubbard_Rob/Auf_Wiedersehen_Monty.sid
+ 18. /MUSICIANS/C/Cooksey_Mark/Ghosts_n_Goblins.sid
+ 19. /MUSICIANS/H/Hubbard_Rob/Nemesis_the_Warlock.sid
+ 20. /MUSICIANS/G/Galway_Martin/Green_Beret.sid
+ 21. /MUSICIANS/B/Brennan_Neil/Way_of_the_Exploding_Fist.sid
+ 22. /MUSICIANS/D/Dunn_Jonathan/Platoon.sid
+ 23. /MUSICIANS/H/Huelsbeck_Chris/R-Type.sid
+ 24. /MUSICIANS/D/Daglish_Ben/Cobra.sid
+ 25. /MUSICIANS/H/Huelsbeck_Chris/Great_Giana_Sisters.sid
+ 26. /MUSICIANS/T/Tel_Jeroen/Myth.sid
+ 27. /MUSICIANS/F/Follin_Tim/Ghouls_n_Ghosts.sid
+ 28. /MUSICIANS/B/Bjerregaard_Johannes/Stormlord.sid
+ 29. /MUSICIANS/G/Galway_Martin/Parallax.sid
+ 30. /MUSICIANS/H/Hubbard_Rob/Lightforce.sid
+ 31. /MUSICIANS/D/Deenen_Charles/Zamzara.sid
+ 32. /MUSICIANS/G/Galway_Martin/Comic_Bakery.sid
+ 33. /MUSICIANS/T/Tel_Jeroen/Robocop_3.sid
+ 34. /MUSICIANS/G/Galway_Martin/Yie_Ar_Kung_Fu.sid
+ 35. /MUSICIANS/J/Joseph_Richard/Defender_of_the_Crown.sid
+ 36. /MUSICIANS/T/Tel_Jeroen/Turbo_Outrun.sid
+ 37. /MUSICIANS/H/Hubbard_Rob/Master_of_Magic.sid
+ 38. /MUSICIANS/C/Clarke_Peter/Ocean_Loader_3.sid
+ 39. /MUSICIANS/H/Hubbard_Rob/Spellbound.sid
+ 40. /MUSICIANS/D/Daglish_Ben/Trap.sid
+ 41. /MUSICIANS/B/Bjerregaard_Johannes/Sweet.sid
+ 42. /MUSICIANS/H/Huelsbeck_Chris/Dulcedo_Cogitationis.sid
+ 43. /MUSICIANS/H/Hubbard_Rob/IK_plus.sid
+ 44. /MUSICIANS/D/Daglish_Ben/Thing_Bounces_Back.sid
+ 45. /MUSICIANS/D/Dunn_Jonathan/RoboCop.sid
+ 46. /MUSICIANS/F/Future_Freak/Cooperation_Demo.sid
+ 47. /MUSICIANS/H/Hubbard_Rob/Zoids.sid
+ 48. /MUSICIANS/T/Tel_Jeroen/Supremacy.sid
+ 49. /MUSICIANS/G/Gray_Matt/Driller.sid
+ 50. /MUSICIANS/H/Hubbard_Rob/One_Man_and_His_Droid.sid
+ 51. /MUSICIANS/T/Tel_Jeroen/Savage.sid
+ 52. /MUSICIANS/H/Hubbard_Rob/ACE_II.sid
+ 53. /MUSICIANS/H/Hubbard_Rob/Thrust.sid
+ 54. /MUSICIANS/G/Gray_Fred/Hysteria.sid
+ 55. /MUSICIANS/H/Hubbard_Rob/BMX_Kidz.sid
+ 56. /MUSICIANS/Y/Yip/Scroll_Machine.sid
+ 57. /MUSICIANS/H/Huelsbeck_Chris/Baby_Of_Can_Guru.sid
+ 58. /MUSICIANS/H/Huelsbeck_Chris/To_Be_on_Top.sid
+ 59. /GAMES/S-Z/Wizardry.sid
+ 60. /MUSICIANS/W/Walker_Martin/Armalyte.sid
+ 61. /MUSICIANS/F/Follin_Tim/Gauntlet_III.sid
+ 62. /MUSICIANS/H/Hatlelid_Kris/Grand_Prix_Circuit.sid
+ 63. /MUSICIANS/B/Bjerregaard_Johannes/Nightdawn.sid
+ 64. /MUSICIANS/F/Follin_Tim/Scumball.sid
+ 65. /MUSICIANS/B/Beben_Wally/R_I_S_K.sid
+ 66. /MUSICIANS/F/Future_Freak/Rocky_Star.sid
+ 67. /MUSICIANS/H/Hubbard_Rob/Mega_Apocalypse.sid
+ 68. /MUSICIANS/H/Huelsbeck_Chris/Katakis.sid
+ 69. /MUSICIANS/H/Hubbard_Rob/Gerry_the_Germ.sid
+ 70. /MUSICIANS/A/ATOO/Compleeto.sid
+ 71. /MUSICIANS/T/Tel_Jeroen/Eliminator.sid
+ 72. /MUSICIANS/D/Daglish_Ben/Bulldog.sid
+ 73. /MUSICIANS/C/Cooksey_Mark/Ramparts.sid
+ 74. /MUSICIANS/D/Daglish_Ben/Ark_Pandora.sid
+ 75. /MUSICIANS/H/Hubbard_Rob/Warhawk.sid
+ 76. /MUSICIANS/D/Daglish_Ben/Vikings.sid
+ 77. /MUSICIANS/F/FAME/Hendriks_Michael/Dynamic_Range.sid
+ 78. /MUSICIANS/G/Galway_Martin/Times_of_Lore.sid
+ 79. /MUSICIANS/J/JCH/Batman_long.sid
+ 80. /MUSICIANS/G/Galway_Martin/Mikie.sid
+ 81. /MUSICIANS/C/Crowther_Antony/Zig_Zag.sid
+ 82. /MUSICIANS/T/Tel_Jeroen/Battle_Valley.sid
+ 83. /MUSICIANS/J/JCH/Chordian.sid
+ 84. /MUSICIANS/T/Tel_Jeroen/Combat_Crazy.sid
+ 85. /MUSICIANS/T/Tel_Jeroen/Hawkeye.sid
+ 86. /MUSICIANS/G/Galway_Martin/Short_Circuit.sid
+ 87. /MUSICIANS/L/Laxity/DNA_Warrior.sid
+ 88. /MUSICIANS/W/Whittaker_David/Glider_Rider.sid
+ 89. /MUSICIANS/T/Tel_Jeroen/Kinetix.sid
+ 90. /MUSICIANS/T/Turner_Steve/Uridium.sid
+ 91. /MUSICIANS/B/Bjerregaard_Johannes/Thunderforce.sid
+ 92. /MUSICIANS/H/Hubbard_Rob/Kentilla.sid
+ 93. /MUSICIANS/B/Bjerregaard_Johannes/Crazy_Comets_remix.sid
+ 94. /MUSICIANS/C/Clarke_Peter/Mission_of_Mercy.sid
+ 95. /MUSICIANS/T/Tel_Jeroen/Afterburner.sid
+ 96. /MUSICIANS/B/Baldwin_Neil/Another_Tune_for_Joanna.sid
+ 97. /MUSICIANS/G/Galway_Martin/Neverending_Story.sid
+ 98. /MUSICIANS/G/Galway_Martin/Ocean_Loader_2.sid
+ 99. /MUSICIANS/W/Walker_Martin/Snare.sid
+100. /MUSICIANS/B/Brennan_Neil/Fist_II-The_Legend_Continues.sid
+
+
+###############
+Current Members
+###############
+
+***********************************************
+* The Shark of International Network of Chaos *
+* <shark (sid) dhp.com>                 - USA *
+***********************************************
+
+Contributions
+-------------
+The grunt work!  Sorted and searched and sorted and searched.  :)
+Eliminated a billion repeats by hand (or ear?).  Dug up a few C64 titles
+for friends to rip.  Contacted several composers asking (begging) for help.
+Corrected thousands of credits.  Made the original release of the UPDATE
+tool and other SID tools such as SID2LFN.  Now attempting to become a
+novice ripper.
+
+Comments
+--------
+Looking back to the old days on the C64, I can't remember when I first
+started to really listen to the music, but I distinctively remember being
+blown away by Commando (Hubbard) and its very famous high-score music.
+After that, it was all of the tunes jammed into Lettermaker/Futurewriter
+that really got me hooked.  No other system since has been able to compare.
+
+Also, thanks to Strider of FairLight for introducing me to SIDPlay!
+
+C64 History
+-----------
+Upgraded from a Vic20 to a C64 in 1983.  Started INC in 1987 which
+specialized in importing/exporting software from/to Europe, and we also
+managed a few USA cracks.  Kept C64 to this day in order to still hear
+the music (and perhaps play an old game or two).
+
+
+****************************************************
+* Simon White <sidplay2 (sid) yahoo.com> - ENGLAND *
+****************************************************
+
+Contributions
+-------------
+Back in 2000, Simon first started realising his dream of making a more
+cycle accurate SID emulator that could facilitiate more accurate and
+more C64 friendly playback of SID tunes.  Through development of the
+libsidplay2 library used in most new SID emulators, he also fixed many
+a bad rip for HVSC as well as helped invent the PSIDv2NG and RSID file
+formats in use by HVSC today.  He shadowed the HVSC Team for some time
+and helped them immensely with PSIDv2NG conversion, and his hard work
+was rewarded with full membership of the Team in September 2002.
+
+C64 History
+-----------
+Had a C64 from about the age of eight which my dad kindly purchased.  I
+loved the games and always aspired to be able to write some of my own.
+From that very early age I started learning how to program on the C64.
+Some four years later after a lot of use the C64 was finally retired
+for an Amiga, although I still have the C64 in working condition to
+this day.
+
+
+*************************************
+* Inge H.P. ("448" 1985-1991)       *
+* <ingehp (sid) outlook.com> - NORWAY *
+*************************************
+
+Contributions
+-------------
+Inge has ripped several SIDs and represents the Amiga community quite
+well.  As he notes below he plans to fixe a few SIDs so that they work
+on _both_ PlaySID and SIDPlay (actually, he has already fixed a few).
+Inge also holds the 'coveted' SID Hunt MVP award which was awarded to
+the ripper who ripped the most SIDs from Lala's SID Hunt list.  I should
+note that Inge almost wasn't accepted into the HVSC team due to his
+Hubbard comment below...  ;)
+
+Comments
+--------
+I was feeling most honoured when asked to be a part of this team.  Since
+I got my C64 back in 1984, I have always felt a certain dragging towards
+the wonderful music of the SID.  As I use both Amiga and PC nowadays, I
+feel there is next to none of the modern tracker-tunes that have that
+little extra like SIDmusic has.
+
+C64 History
+-----------
+When some friends of mine got their C64's in 1983, I didn't stop bugging
+my parents until I got one myself. That was in spring 1984. As so many
+others, I started my C64-life by playing games. My first game was
+Terminal Software's "Super Skramble", which also my parents enjoyed.
+Some times later, Turbo Tape appeared at some friends, and soon we had
+loads of tapes with games. Later I had to buy a disk drive.
+
+I tried to learn basic during my first years, and in the end, I had made
+several Font-editors and the likes. In 1986, I started to learn assembly,
+and in 1987 I made lots of scrollers and crappy demos (You know, "demos"
+which consisted of a picture and a scrolltext, and some music).
+
+In August 1990 I bought an Amiga 500. Strangely enough, the years 1990-91
+was my most productive years on the C64. ...until my old C64 broke down.
+I got it fixed late in 1992, but soon it broke down again. In 1994 I bought
+an A1200 which I am still using. In 1995 I bought another C64, and revived
+some of my C64 skills. I made a parallel cable, and suddenly I could
+transfer files back and forth between by C64 and Amiga. ...until I short-
+circuited the cable (and also my C64) in October 1996. Since then, I have
+done all my ripping in an emulator on Amiga. I have plans for repairing my
+C64, so I can convert the music that won't run properly in the emulator.
+
+The first real musical experience I had was when I heard the loader tune to
+Daley Thompson's Decathlon (still one of my favourites).  Later, the Rambo
+Loader tune really made my jaw drop down on my chest. From that moment, I
+have been devoted to Martin Galway. Rob Hubbard has never really made it
+past that level in my consciousness. That does not mean that I don't like
+other composers too ;-)
+
+
+****************************
+* Mariusz Mlynski - POLAND *
+****************************
+
+Contributions
+-------------
+Mariusz has sent in a lot of quality rippacks the last couple
+of years, and found credits for many of the polish composers.
+He also spotted and fixed a lot of bugged tunes, and his ongoing work
+was rewarded with membership of the HVSC Team in July 2003.
+
+C64 History
+-----------
+My Commodore 64 adventures began in the early 90s: one day I first saw this
+cute machine whilst at my Uncle's house. This was my first contact with the
+computer, and I was delighted with its capabilities. On the 15th February 1993,
+my dream came true when I got a brand new C64 with Datassette. I spent an
+enormous amount of hours playing games, coding simple routines in BASIC, etc.
+In 1994 I bought a 1541-II (which I use to this day). Then in 1996 I got some
+demo-scene productions. I liked them a lot and this led me to join the C64
+scene (which my brother had joined a few months earlier). I became a swapper,
+focussing on collecting disk covers.
+
+In late 2001 I discovered HVSC. I was astounded with its content - almost every
+tune I used to love in the past could be found there. After a few months of
+going through HVSC's directories, I realised that there are still a lot of
+tunes missing as well as many miscredited or badly ripped ones. "Why not help
+out?", I thought, and started experimenting with PSIDEdit.
+
+Today I'm a member of the HVSC crew, swapping disk covers and maintaining the
+Obsession covergroup, which still releases paper-stuff to the C64 scene.
+
+
+*****************************************************
+* Chris Abbott <chris (sid) c64audio.com> - ENGLAND *
+*****************************************************
+
+Contributions
+-------------
+Got new SIDs out of Fred Gray and Martin Galway, bought Mat Cannon to BIT
+Live (where he gave new SIDs to Peter Sanden, gave permission to HVSC to
+feature legally all of the SIDs I administrate on behalf of the composers,
+also I give advice on copyright, and contribute when people have questions.
+
+Comments
+--------
+Now Publisher to many HVSC composers, protecting their work from companies
+who have nothing better to do than to rip off C64 music for money and not
+pay the composers any of it. Also I produced the C64 remix CDs "Back in Time
+1", "Back in Time 2", "Back in Time 3", "Karma64" and "Crystal Dreamscapes",
+although there were many other contributors to these CDs (most notable
+Alistair "Boz" Bowness and Marcel Donne).
+
+C64 History
+-----------
+First met C64 in 1982, when one of the guys in my school bought one and
+programmed machine code Pacman (the guy went on to write "BC Basic" for
+Kuma, and later was a leading light at Demon UK). Got one quite a bit later,
+and started doing stuff on Ubik's Music. Eventually did some stuff for
+Superior Software on that and the BBC (only the BBC stuff actually got
+published).
+
+Eventually started programming MIDI renditions of C64 tunes on my AWE
+(pre-SID2MIDI), from which the long creative journey in C64 music began.
+
+
+************************************************************
+* Wilfred Bos <wilfred_hvsc (sid) xs4all.nl> - NETHERLANDS *
+************************************************************
+
+Contributions
+-------------
+Has ripped several tunes and found SIDs from other collections
+that weren't part of HVSC.  Provided a few corrected rips.  Helped
+find some SID tune credits.  Found several errors in HVSC.
+Author of the Acid64 player for Windows, a SID player that makes
+use of hardware based SID cards such as Hardsid or Catweasel.
+
+Comments
+--------
+The 6581 and 8580 chips are incredible sound chips! If you hear all the music
+in this collection, then you know that most music composers are real artists.
+They got the best out of the SID chip and made real good music. They made
+special sound effects that are realy unique.
+There were a lot of moments that I turned on my C64 only for having some nice
+background music. Nowadays emulators get better and better and even various
+sound cards are on the market that have a real SID chip on board.
+
+C64 History
+-----------
+I got my first C64 in 1985. In 1987 I started with 3 friends the group
+Channel Four. My nickname was Fred. I made a lot of demos for this group. In
+the beginning of 1989 I started making my own music routine. Unfortunately
+it wasn't finished and I lost it. That same year I sold my C64 with my whole
+demo collection. A few years later I had many regrets that I sold all the
+software with it. I bought a C64 again when I heard Sidplay 1.04 for DOS.
+When I play C64 tunes, a lot of memories come back...
+
+Check out my site: http://www.acid64.com
+
+
+****************************************
+* Mariusz Rozwadowski (Ramos/Samar)    *
+* <ramos64 (sid) interia.pl> - POLAND  *
+****************************************
+
+Contributions
+-------------
+After ripping over 1000 tunes for HVSC and providing lots of STIL entries
+we thought it's about time to invite him to the HVSC team together with
+Murdock.
+
+Comments
+--------
+Since I got my own C64 the music from this machine always accompanied me.
+Because of HVSC I was able to find this music once again.
+
+C64 History
+-----------
+My adventure with the C64 has started in 1990 when I got this computer after
+passing exams to highschool. In 1993 I discoverd the scene, and I founded the
+group Samar, which is still active today. I was working as a musician,
+graphician and coder but as I wasn't too good at it I became a swapper
+eventually.
+When I discovered HVSC I found that it wasn't all complete and there were
+a lot of tunes in my personal collection that were missing in HVSC.
+So I wanted to create my own archive, but after some time I came to the
+conclusion that it's better to join forces with HVSC rather than having two
+independent collections out there on the net.
+
+
+*************************************************
+* Stefan Wolff <hvsc (sid) swolff.dk> - DENMARK *
+*************************************************
+
+Contributions
+-------------
+
+Ripped SidHunt tunes and other requested tunes. Bug reports, STIL info
+and credit fixes. A long time user of SIDs in general and HVSC in
+particular, given the chance to give something back, joined the HVSC
+team as of Update #45.
+
+Comments
+--------
+
+Although there are many good compositions in the VARIOUS and DEMOS
+directories, the other directories are the ones I listen to the most.
+Whereas most of the tunes in the former directories sound like Sound
+Monitor, Future Composer or JCH Editor, the instruments in the latter
+directories are a lot more varied, more "special".
+
+C64 History
+-----------
+
+Started out with a Commodore 16 in the mid eighties. Hacked around with
+the built-in machine code monitor and the one tape original I owned
+(Rockman/Mastertronic). Sold the C16 after about a year to buy a
+Commodore 64. I began ripping music, programming demos and cracking
+games for small-time Danish groups until, in the early nineties, when
+I had to sell my C64 (and disks!) to raise the cash needed to buy an
+Amiga. Although I coded some demo effects on the Amigas that followed
+the C64, they never really caught on, so I returned to the C64 in about
+1997.
+
+
+***************************************************************
+* Emiliano Peruch (iAN CooG) <iancoog (sid) alice.it> - ITALY *
+***************************************************************
+
+Contributions
+-------------
+
+My contribution to HVSC started unexpectedly, I just sent some rips IIRC,
+some fixes, I helped where I could and when time permitted.
+Being a fan of 6510 disassembling, it allowed me to improve my ripping
+skills enough to help the project, but I don't know anything about music
+and SID composing. From Update #49 I've took over as HVSC administrator.
+
+Comments
+--------
+
+SID emulators and the HVSID helped me return to the C64 scene, which I left
+in '91 in favour of the PC. I never stopped listening to SID music, and I
+don't see any reason to stop in the future as the quality is even raised
+than in the past.
+
+C64 History
+-----------
+
+I started my career of coder thanks to the C64 gifted to me at Xmas'83.
+My main interest was always peeking into other's code to find out how things
+worked. This took and still takes me so much time that I don't find time
+to actually code something by myself. My first and only C64 group lasted
+from 1986 to 1989, we did some cracks from originals, but noone could code
+intros, so we lamed ripping others changing the logos and text. *blush*
+At that time, not having a modem or snail mail contacts, was the only way to
+swap lots of disks of games/demos/tools, and spreading those cracks we made
+at the local schools helped a lot to know what was happening in the scene.
+Anyway in the 90s we all switched to PC, my group also switched to a legal
+form, producing freeware/shareware PC tools (anyone ever heard of or used my
+MultiRipper?).
+I also tried to do some cracks, which have never been spread, but the
+knowledge acquired during the C64 days helped a lot to understand x86 asm.
+In RealLife(TM) I work as a C coder and, rarely because I dislike it but I'm
+supposed to know and use it, Delphi coder.
+I did also some C64 scene related tools and maintained some forks of
+open source/PD tools in C, with my own modifications.
+I was a member of HokutoForce (2003-2009), now retired from the cracking scene.
+My main activities on C64 are: recovering lost games for Ready64.org,
+ripping sids for HVSC and intros for intros.c64.org, hanging about in
+forums and once in a while on IRC chats.
+
+
+**********************************************
+* Rafal Szyja (Raf/Vulture Design)           *
+* <rafalszyja (sid) poczta.onet.pl> - POLAND *
+**********************************************
+
+Contributions
+-------------
+
+<?> hmm.. some stil entries?
+
+Comments
+--------
+
+C64 music always fascinated me and STIL hunting
+is just very fun . I listen to SID nearly every day
+and I'm a fan of various electronic music and sounds.
+Search for me over the internet if you would like to know more :)
+
+C64 History
+-----------
+
+I started to use my cousin's C64 in 1993 but eventually
+got mine in 1995 and used it on every-day basis up to early 2000.
+this is very important machine to me because my IT fascination
+which still continues started with my old lovely white C64G breadbin.
+I've got regular access to internet around 2001-2002 and I
+instantly started to see what's still going on with commie.
+in the past I always wanted to be part of scene but I was affraid
+I was too young to be noticed by anyone and at that time surely my
+parents would make me troubles contacting older ppl ;-) in 1998
+I was 12 yrs old and the only in my district who used commie to
+do other things than exclusively playing games. *sigh* :)
+
+
+***********************************************************************
+* Tobias Samuelsson (McLoaf) <dasforum_91 (sid) hotmail.com> - SWEDEN *
+***********************************************************************
+
+Contributions
+-------------
+Has always supported the HVSC crew by submitting numerous bug reports.
+Due to his great eye for details he has been invited to the HVSC crew's
+quality assurance team. He even sent his first rip in 2009 (and not a
+$1000/$1003 tune!), so there's great potential to be uncovered!  ;-)
+
+
+**************************************************
+* Sebastian Sprenger (Professor Chaos) - GERMANY *
+**************************************************
+
+Contributions
+-------------
+Several different fixes, new subtunes, and a few credits.  Sometimes touched
+old SID's.
+I sent one standardized such pack as an external contributor, and within hours
+was invited to keep packs coming and join the HVSC Crew.
+
+Comments
+--------
+Always wondering how SID musicians get these catchy melodies and incredible
+sounds!  I still find old and new songs in the HVSC to become favorites, big
+favorites of mine...
+
+C64 History
+-----------
+First spotted a C64 on my father's desk, in the early 1990's.  It was running
+Boulder Dash.  That alone was love at first sight...  We had many disks with
+games, demos and tools, and I became fascinated by what you could make that
+machine do!  Especially demo-makers were fun...
+Eventually got my own C64C and around the age of 10, did a few BASIC games with
+sprites, and custom fonts (preferably in an editor which played Traz by Jeroen
+Kimmel ;)).  Later, I mainly switched between just playing games, trying music
+editors, and picking other people's programs and sounds apart.
+I have never been in the scene, just browsed, and posted a bit here and there,
+mostly at a C64 games forum.  The most notable thing from me out there is
+probably an actual solution to the infamous comic tie-in 'Clever & Smart';
+I had spent a week reading almost the entire 6510 code...
+
+
+###############
+Retired Members
+###############
+
+********************************
+* Darren, Bod/Talent - ENGLAND *
+********************************
+
+Contributions
+-------------
+   Providing several C64 demos/games on his C64 CD which allowed us to fill
+in the proper credits for several tunes.  Renaming the NemeSIDs collection
+by hand so that it could be used with SIDPlay (shortly after, a tool
+emerged that could do this automatically :).  Provided around 50-100 SIDs
+for the collection.
+
+Comments
+--------
+Being involved in some way with this SID collection means a lot to me. The
+64 was part of me for a long time and listening to some of these tunes bring
+back so many happy and fond memories of good times and friendship that I
+have known through the C64 Scene since I started.
+
+C64 History
+-----------
+I got my c64 back in 1986 and joined Hotline in 1987. Supplying, trading and
+cracking. In 1990 me and XXX left Hotline and started our own group Talent,
+later the same year we joined up with our Danish Friends in Ikari to form
+the best co-op that ever lived. :) Ikari & Talent.
+
+
+******************************
+* Michael Schwendt - GERMANY *
+******************************
+
+Contributions
+-------------
+The author of Sidplay and the libsidplay Library, without which the
+collection wouldn't probably be here.  As well as that, he:
+Added a bunch of great tune fixes.  Helped find repeats in the
+collection.  Helped with the proper identification of SID tunes.  Added to
+and helped correct the musician list.  Added several ideas to help with the
+collection.  Answered several questions about SIDPlay and SIDs in general.
+Added several new tunes to the collection, and indeed wrote the current
+source to the update tool.
+
+Comments
+--------
+I simply adore the SID (the MOS-6581), its sound capabilities and especially
+the quality of the SID tunes. Imagine, those SIDs consist only out of three
+voices (neglecting the virtual fourth channel for samples). In comparison,
+most of the existing MODules from Amiga and PC, which use several hundred
+kilobytes of high-quality samples, sound like crap ! Disgusting, isn't ?
+Btw, I think the High Voltage SIDtune Collection will be the new standard
+on the Net.
+
+
+*************************
+* Jan Krolzig - GERMANY *
+*************************
+
+Contributions
+-------------
+Jan provides HVSC with many a quality rip including many a requested
+tune from the SID Hunt.   He also unearthed the whole truth about many
+of the Magic Disk and Game On tunes by Thomas Detert as well as
+providing useful credit and STIL information, and also has fixed many
+tunes to be PlaySID compatible <understatement>.
+
+Comments
+--------
+After seeing a C64 first time, I fell in love with it. "Katakis"
+was running and it was not only the perfect program or the astonishing
+graphics, which made me shout for joy.  No, it was the great tunes,
+including nice sound and great compositions, which impressed me. A new
+period of time started for me and during the following years SID music
+became an important part of my life. There is no doubt that that will
+never change.
+
+
+*************************************
+* LaLa (Imre Olajos, Jr.) - HUNGARY *
+*************************************
+
+(note: LaLa's favourite SIDs are also in SIDPlay Lists - get them
+       from the URL below)
+
+Contributions
+-------------
+Indirectly was responsible for forwarding many tunes.  Maintained the SID
+Tune Information List (STIL) until Update #16.  Also runs the SID
+Hunt Web page, which is where to go to request a tune to be ripped for
+HVSC.  Rumoured to be writing his first book, "The Power of Perl"
+at the same time ;)
+
+Comments
+--------
+C64 music is the alpha and the omega in my life. I knew there was something
+special going on when I heard LOCO from Ben. Then I learned it was really
+Jarre - so I got into Jarre. I remember when I first heard Commando by Rob -
+I was just totally blown away, but the funny thing is that nobody in my
+neighborhood really understood why I was so crazy about such blip-blop
+computer muzak... The rest is history, and music in general became an
+essential part of my life.
+
+C64 History
+-----------
+The first computer I have ever touched: a ZX-81 at age 6. Then came
+Spectrum, something I really wanted but never got 'cause my Dad bought me a
+C-64 instead.  I don't think I will ever regret his decision. :) Have never
+been into the scene, but I had good contact with swappers, so I was always
+flooded with games and demos (who wasn't? ;). Unfortunately, I had to sell
+my C64 before we moved to the US from Hungary. I still remember that sad
+date: on October 6, 1991 I waved goodbye to my beloved machine... HVSC and
+Michael's SIDPLAY has truly saved my sanity!!!
+
+LaLa's SID pages (SIDPlayLists, STIL stuff, and other SID-related things)
+                   -> http://lala.c64.org
+
+
+**********************************************************
+* Laust Brock-Nannestad <lbn (sid) prg.dtu.dk> - DENMARK *
+**********************************************************
+
+Contributions
+-------------
+Laust's main contributions has been with the STIL.  He created the HTML
+STIL pages, added many new entries, and then later created a
+STIL-syntax-checker.  In addition to helping with the STIL, Laust has
+identified many incorrect credits and other problems with in HVSC and
+from Update #16 to Update #49 has been the STIL Administrator. After having
+formally retired from HVSC, he still helps checking STIL before updates.
+
+Comments
+--------
+It will come as no surprise when I say that SID music takes up a large
+amount of my time. In fact, a day rarely goes by without Sidplay playing in
+the background while I work. Ever since I made my first tape recording of SID
+tunes, years ago, I've been comforted and amazed by the diversity of the
+tunes and the SID chip in general. Especially when you consider the SID's
+complexity compared to the sound capabilities of other 8-bit systems in
+the eighties.
+
+C64 History
+-----------
+After a brief period with access to a ZX81-clone and a CP/M machine, I
+finally got the thing I wanted: A C64. Some of my first games were
+Phantoms of the Asteroid and Commando and even back then I knew there was
+something special about the music in those games - in fact I bought
+specific games (such as the not too exciting W.A.R) just because it had
+music by Rob Hubbard. Now how's that for dedication? :-). As the C64
+market dwindled, so did my interest in the C64. I kept my C64 on my desk,
+but used it less and less. Then one day I bought a shareware CD that had
+Sidplay v1.10 on it. I was ecstatic! - suddenly having the sound of the
+C64 combined with the convenience (and storage capability) of the PC. I
+didn't have any tunes but the four built-in ones, but it was enough to
+keep me going until I found a 500kb pack of assorted tunes on another CD.
+Soon after that, I got Internet access, which meant the newest Sidplay and
+the NemeSIDs collection. However, the NemeSIDs collection was soon replaced
+with the High Voltage Sid Collection, due to its many advantages. Then
+after HVSC v2.0 was released I got in touch with LaLa and started submitting
+STIL entries. Following that, the HTML version of the STIL was born.
+
+
+*******************************************
+* Warren Pilkington (Waz/Padua) - ENGLAND *
+*******************************************
+
+Contributions
+-------------
+Warren is quite an authority on British software houses.  This has
+lead him to send us quite a number of credit fixes in addition to
+providing some interesting C64 music/game history.  Warren has
+also provided tons of tunes, added several STIL entries, fixed
+bad rips, and has contacted many composers for some proper
+information as well as filtering out many a repeat.  Took over
+from The Shark as main admin after Update #11 and retired after
+Update #34.
+
+Comments
+--------
+For me, the SID chip was ahead of its time when launched into the
+C64 many years ago.  The original 6581 was simply a design for life,
+and soon realised many great themes from the likes of Rob Hubbard and
+Martin Galway.  What was more, most tunes didn't sound like 'chip'
+music at all, they were soundtracks for a generation of gaming.  If
+you look at most modern game developments, the backbone of C64
+musicians are still influencing computer gaming soundtracks today.
+In years to come may people listen to this collection and realise
+how memorable C64 music really is.
+
+C64 History (now condensed :)
+-----------------------------
+I first got a Commodore Plus/4 in 1985 and spent many a day using one.
+However I really wanted a C64 and realised my dream in 1987.  Imagine
+my shock when I heard Rob Hubbard's 'Thalamusik' (the Sanxion Loading
+theme) for the first time.  It blew me away, and is still my favourite
+C64 tune ever written.  In September 1988, my first C64 game
+tips (for Stormbringer) were published in Zzap! 64.
+From then until late 1991 I contributed a stack of tips, listings and
+POKEs to Zzap! 64, sometimes under my nickname of "Waz".  Whilst
+contributing, Robin Hogg who worked there also got me into writing
+music hacks for games.  Later, I started to contribute numerous
+tips and listings to Commodore Format (1991-1996). In 1991, I also
+formed my 'group' Zaw Productions (even though it's mostly me) for
+mainly writing C64 music.  I also helped Peter de Bie a fair bit with his
+ambitious 'Screens' collection, and in many ways this was a precursor
+to what HVSC is now.  I've also had some music of mine in games, and
+I still am writing C64 music as well as writing two regular articles for
+'Commodore Zone' magazine and tracking down ex-Zzap! 64
+reviewers for old times.  I'm also contributing to the last ever issue of
+Zzap! 64 along with being a member of the C64 demo group Padua.
+
+Padua (style is innate):  http://www.padua.org/
+
+
+****************************************
+* Gabriele Priarone (G-Knight) - ITALY *
+****************************************
+
+Contributions
+-------------
+Provided several credit fixes.  Sent in some SIDs after
+learning how to rip.  Ran the old HVSC News web page which keeps track
+of the latest rips submitted to the HVSC crew.  He is now working
+on a collection of Amiga game music tunes.  Contact him if you are
+willing to help.
+
+Comments
+--------
+I still remember the days passed listening to C64 music. I often loaded
+some games only to hear their awesome music. I then recorded many tapes
+with hours of C64 musics on them to hear them whenever I was willing to.
+Most people don't understand the real meaning of music. It doesn't matter
+the sounds, doesn't matter the quality, the only thing that should be
+considered are the melodies. Most people think C64 music is crap only
+because it doesn't feature real drums or famous musicians' speech..
+well, they'll never know what they're missing.
+
+C64 History
+-----------
+The first computer I've ever seen was a ZX-Spectrum at the age of 7
+...damn, I can't really remember what I saw, but I was amazed by the
+things it could do. I and my brother decided to buy it, but my father
+thought that would have been better to buy a C64. It was 1987. I've never
+regretted his decision. I still remember my first original game I've ever
+played: DeathWish 3 with awesome music by Ben Daglish.
+This was the first happy moment of my life. The second happy moment
+of my life was 8 years later, when i found SidPlay V1.23b in a BBS with a
+little collection of music included... Until then I thought I was the
+only fool who listened daily to C64 music, but I was not alone! :)
+
+
+************************************************************
+* Michal Hoffmann (Smalltown Boy/MultiStyle Labs) - POLAND *
+************************************************************
+
+Contributions
+-------------
+Michal contributed to the HVSC effort for some time, whether it be rips
+from various C64 demos, many correct STIL entries and indeed other useful
+information along the way.  He also is in touch with the current Polish
+C64 scene providing an important link between the composers and HVSC,
+and his hard work was rewarded with membership of the HVSC Team in
+September 2002.  He is still an active C64 composer as well.
+
+Comments
+--------
+Just thanks to all those freaks writing emulators of old 8- and 16-bit
+systems for PC. Without them, my life would most probably be a little blank
+and boring. Go back to the 80's y'all!...
+
+C64 History
+-----------
+I got my C64 in 1988, sold it in 1992. What interested me the most in it
+was games and music, but I had been too young and unexperienced to compose
+my own songs. However, after I had sold my breadbox, I decided to become a
+musician - note that the C64 music was the main inspiration for that - and I
+did so. I discovered the C64 again thanks to emulators in 1999. Since then,
+I've been fulfilling my childhood dreams by making sidmusic and taking part
+in C64 scene life.
+
+
+*********************************
+* Kristoffer Johansson - SWEDEN *
+*********************************
+
+Contributions
+-------------
+Ripped a ton a highly requested tunes as well as making better rips
+of tunes already in HVSC.  Also provided credit fixes and some other
+great information.
+
+Comments
+--------
+SID music simply makes me feel good.  The songs from the good old 64 have
+a musical honesty, brought by the crude environment in which they were
+created.  And every now and then, the quality of the these compositions
+really astonish me.  True art, of our time.
+
+
+******************************************
+* Pawel Ruczko (Murdock/Tropyx) - POLAND *
+******************************************
+
+Contributions
+-------------
+Provided quite a few quality fixes of bugged tunes to us, kindly assisted
+with some of the more difficult to rip SID tunes and sent a lot of valuable
+STIL entries. He's a skilled ripper and thus was awarded HVSC
+membership in April 2005.
+
+Comments
+--------
+C64 music was always the main part of my life, since I got my C64.
+Since the beginning I was just addicted to several songs from the
+famous games and cracktros. Mostly I'm into late 80's 0ldsk00l zaks
+which blow my mind all the time! Looking up nowadays, I'm quite
+dissapointed that so many people aren't showing their respect to the
+SID chip and uses PC for composing tunes for C64. Anyway, my life
+without C64, especially C64 music would be quite boring. So I'm thankful
+for the luck that I met this computer in the past and stayed
+where I should be. Big respect for all Music-Coders!
+
+C64 History
+-----------
+My first encounter with the C64 was in 1990 at a friend's place. I got
+my own one in early 1993, but only used it for playing tape games.
+In 1995 I founded that one person label Tropyx and named myself V-12.
+I released a fair bit of my selfmade BASIC programs under that handle
+but only got in contact with the scene in 1999 when I found it's time
+to change my handle to Howling Mad Murdock (H.M.Murdock), I learned
+assembler and got some new members to Tropyx. In 2000 I found a new
+addiction: Ripping tunes out of demos and games just for my own fun,
+without even know about the existance of HVSC at all. I started composing,
+first in Hardtrack, later Future Composer and finally in SID Duzz'it!
+I'm still active in the scene as musician, coder and swapper, and I'm
+quite proud to say that I'm still doing it all on the real thing, without
+touching an emulator at all.
+
+
+*****************************************
+* Peter Sandén (Panda/Defiers)          *
+* <yodelking (sid) formec.com> - SWEDEN *
+*****************************************
+
+Contributions
+-------------
+Peter's long been a regular contributor to HVSC, whether it be rips,
+STIL info or just general feedback to make the collection better.
+In addition, he has reported many a bug (and fixed them at the
+same time) along with quality credit fixes.   His work was rewarded
+with HVSC Team membership as of Update #20.  Now maintains the C64
+composers gallery page at http://composers.c64.org/
+
+Comments
+--------
+I'd just want to thank all the great C-64 composers for all the lovely
+songs they made... I've spend countless hours listening to SIDs.
+
+C64 History
+-----------
+I got my first C-64 in 1983. I was a member of several unknown groups
+before I became a member of The Defiers in 1988. Between 1987 and 1991
+I was mostly interested in the music, so I ripped all songs that
+crossed my computer. I had around 10 disks with ripped music at that
+time. I sold the C-64 (A sad day. I finished my last C-64 demo 2 minutes
+before they took my computer.)  When I got my first C-64 emulator on
+the Amiga, I started to rip again, and I was one of the contributors
+for the NemeSIDs Collection.  Now I use my PC for ripping using CCS64.
+Recently I bought a HardSID, which gives me the real C-64 sound again!
+If you want to see my old crappy demos, take a look at:
+http://hem1.passagen.se/tralala/index.htm
+
+
+*********************************************
+* Jan Diabelez Arent Harries                *
+* Rambones/The Supply Team, 1985-1989       *
+* <nmioaon (sid) hotmail.com>  - DENMARK    *
+*********************************************
+
+Contributions
+-------------
+Added several hundred new tunes from his collection and others.  Helped
+verified SID musician list.  Ripped even more tunes (has this guy ripped
+the most of anyone?).  Helped with giving several tunes the proper
+credits.  Added a few ideas that helped make the collection better.
+And even now he still tirelessly rips SIDs :)
+In 2007 he became admin, and has now added ~4500 tunes to the collection.
+Retired from HVSC in 2011 after a long break.
+
+Comments
+--------
+
+C64 History
+-----------
+I got C64 in 1985, and quickly met TSN and Kaze who then formed
+The Supply Team. 1986 I made my first assembler code, and 87-88
+was spent doing demos and learning to make music.
+In 1988 I got an Amiga 500, and became quickly a MOD musician.
+In 1991 came PlaySID for Amiga, and I ported the first 300 tunes
+to that small collection. In 1993 it became organized, and in those
+years i ripped thousands of tunes, which were incorporated into
+the NemeSIDs collection. 1996 came the PC days, and I joined the
+HVSC crew at birth. 1995-1998 I started to compose C64 music
+again, and in 2005 I released a new musicdisk entitled
+SID Expander. Since 2004 I have attended several C64 scene parties
+on a regular basis, and 2005 saw the birth of my new group Ancients.
+Joined also Gheymaid Inc. in 2007.
+
+
+**********************************************************
+* Adam Lorentzon <adam.lorentzon (sid) home.se> - SWEDEN *
+**********************************************************
+
+Contributions
+-------------
+Added new conversion options to SIDPlay (Win) that helped out this
+collection tremendously.  Provided a ton of credit fixes.  Helped
+identify tunes in the collection.  Relayed several new SIDs and
+now has become a proficent ripper himself.  Also maintains the up
+to date Windows version of Sidplay.
+
+Comments
+--------
+Check out the C64 Games WWW Page at
+http://www.gsldata.se/c64/spw/
+
+It has the SIDPLAY/Windows homepage amongst other
+bits of C64 nostalgia, and a massive list of links.
+
+
+***************************************************************
+*   Andreas Varga (mr.sid) <sid (sid) sidmusic.org> - AUSTRIA *
+***************************************************************
+
+Contributions
+-------------
+Has provided several rips and is known for his mega-fast transfering of
+party competition SIDs to PSID format.  Provided some credit fixes
+and other useful information.  The lone MacOS representative.  :)
+
+Comments
+--------
+SID music is an integral part of my life. Not a single day passes without
+me spending at least an hour listening to my favourite tunes.
+I remember the early spring of 1987. I was 11 years old, sitting in
+school, with my walkman, playing a tape of Commando by Rob Hubbard. My
+teacher took it away... Man, I was pissed ! :)
+Gosh, this was FOURTEEN years ago !!
+
+C64 History
+-----------
+Laming around in the non-existent Austrian scene.
+
+mr.sid's web site -> http://stud1.tuwien.ac.at/~e9426444/
+
+
+***********************************************************
+* Stephan Schmid <steppe (sid) demodungeon.com> - GERMANY *
+***********************************************************
+
+Contributions
+-------------
+Stephan had ripped many tunes and contributed information to the HVSC
+effort for the last two years plus.  His hard work and dedication in
+ensuring that demo tunes were ripped correctly along with providing
+quality STIL entries not only helped his efforts with his Demo Dungeon
+website, but improved HVSC's quality also, and was rewarded with
+membership of the HVSC Team in September 2002.  He still maintains
+the Demodungeon site which is a useful place to go if you wish to find
+which SID tunes appeared in which demo.
+
+Comments
+--------
+I'm actually one of the few HVSC members that spends more time in the
+/VARIOUS directory than with the major composers - and I mean *much* more!
+Not that I dislike the classic game-tunes, not at all. My favourite game-
+composer is Jeroen Tel - but for the same reason why I listen to so much
+of the /VARIOUS composers: They managed to push the soundcapabilities of
+the SID to - and sometimes seemingly over its limits while still main-
+taining a high level of musical quality paired with skillful compositions.
+
+C64 History
+-----------
+My first real memories to SID music are the MASH demo with Hubbard's
+Sanxion and the Wanderer crackintro with Fred Gray's Hysteria, #3 playing.
+I remember I could listen to these tunes virtually for hours.
+Then I got into demos, fascinated by how they expanded the limits of the C64.
+At about the same time I discovered the HVSC and found fun in locating all
+the demotunes in the collection, however quite a few of them I couldn’t find.
+So I requested *tons* of tunes at LaLa's Big SID Hunt before Warren Pilkington
+and Peter Sandén taught me how to rip.
+
+The Demo Dungeon (nearly 300 demos with lots of screenshots, ratings, comments
+and all the sidtunes that appeared in the demos):
+-> www.demodungeon.com - for your daily dose of demos!
+
+

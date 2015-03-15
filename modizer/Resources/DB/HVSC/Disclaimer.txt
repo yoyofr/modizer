@@ -1,0 +1,46 @@
+-------------------------------
+COPYRIGHT NOTICE AND DISCLAIMER
+-------------------------------
+
+All of the tunes available in the High Voltage SID Collection (HVSC) are
+copyrighted.
+
+Such copyright may be owned by the original authors/software companies or a
+third-party publisher or other organisation. The copyright ownership of the
+tune is not necessarily the same as the attribution in the SID itself, or in
+any of the STIL documents. It might be owned by the composer, the software
+house, a publisher, or some other third party organisation.
+
+Use of the SIDs in this collection for any purpose other than private
+enjoyment is subject to relevant copyright law. While remixing of the tunes
+for non-commercial audio purposes without the permission of the composer tends
+to be tolerated or encouraged, this is not a right, and any other use
+(including YouTube use) requires additional permissions.
+
+Please also note that these tunes are unsuitable to be used within anything
+released on Creative Commons licences, without a further agreement with the
+rights holder.
+
+Unauthorised commercial exploitation of any tune in this collection is illegal.
+
+Please note that the creators of this collection do not have (and neither do
+they claim) the legal authority to grant licences or collect royalties or
+other contributions to permit any use. Do not offer any such contributions to
+them, for none will be accepted.
+
+The copyrights to some of the SID files in this collection are now copyright
+administered by High Technology Publishing Limited and appear in HVSC with
+their explicit permission on behalf of the composers. All other rights are
+reserved.
+
+For any usage apart from audio remixing, you should endeavor to contact the
+original C64 composer to ensure not just permission but also that the composer
+gets due authorship credit (and any appropriate payment).
+
+As a first point of contact for matters such as these, feel free to contact
+Chris Abbott <chris (sid) c64audio.com>.
+
+Further, HVSC accepts no responsibility for the use of any language, whether
+it be in the SID file names or any speech samples, which you may consider
+offensive. It is up to you to decide whether to listen to those SIDs or not.
+

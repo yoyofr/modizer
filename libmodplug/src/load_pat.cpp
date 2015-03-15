@@ -350,6 +350,7 @@ static void mmreadSBYTES(char *buf, long sz, MMFILE *mmfile)
 #endif
 
 extern char homedirectory[512];
+extern char bundledirectory[512];
 
 void pat_init_patnames(void)
 {
@@ -359,8 +360,8 @@ void pat_init_patnames(void)
 	MMSTREAM *mmcfg;
 	//strcpy(pathforpat, PATHFORPAT);
 	//strcpy(timiditycfg, TIMIDITYCFG);
-    sprintf(pathforpat,"%s/timidity/eawpats",homedirectory);
-    sprintf(timiditycfg,"%s/timidity/default.cfg",homedirectory);
+    sprintf(pathforpat,"%s/timidity/eawpats",bundledirectory);
+    sprintf(timiditycfg,"%s/timidity/default.cfg",bundledirectory);
     
     
 	p = getenv(PAT_ENV_PATH2CFG);

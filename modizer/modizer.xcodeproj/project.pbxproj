@@ -217,7 +217,6 @@
 		33952DD6139F54C1000B7839 /* aicadsp.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57BA1200B3B7000A8A4E /* aicadsp.c */; };
 		33952DD7139F54D5000B7839 /* aica.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57B81200B3B7000A8A4E /* aica.c */; };
 		33952DD8139F559C000B7839 /* arm7.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57BD1200B3B7000A8A4E /* arm7.c */; };
-		3396B6DD13297F8E001792E0 /* timidity.cfg in Copy Files-Timidity */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		3397DC90179C792400607236 /* liblibgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33CA194414079ADC00CBEF9B /* liblibgme.a */; };
 		3399D61217B5A143009E2AE9 /* RootViewControllerASMA.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3399D61017B59CD6009E2AE9 /* RootViewControllerASMA.mm */; };
 		3399D61617B5A5C6009E2AE9 /* asap.c in Sources */ = {isa = PBXBuildFile; fileRef = 3399D61417B5A5C6009E2AE9 /* asap.c */; };
@@ -257,7 +256,6 @@
 		33B7AD0F17C75A8B00C1E404 /* MaintenanceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */; };
 		33BA5B521431B4AB00C87F5B /* FXFluid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33BA5B501431B4AB00C87F5B /* FXFluid.cpp */; };
 		33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BB80CE14D4679B00EA4B32 /* OBSlider.m */; };
-		33C658B21394381F00265A1D /* merlin_gold.sf2 in Copy Files-Timidity */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722CF1691F26C001D77A5 /* 05-shuffle-green@2x.png */; };
 		33C722D21691F274001D77A5 /* 05-shuffle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D11691F274001D77A5 /* 05-shuffle@2x.png */; };
 		33C722D41691F877001D77A5 /* 03-loopback.png in Resources */ = {isa = PBXBuildFile; fileRef = 33C722D31691F877001D77A5 /* 03-loopback.png */; };
@@ -312,6 +310,8 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
+		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
+		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03925117CAC8ED00062381 /* txtMenu11b.png */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
 		CC03F2CE12160E9500F2AC65 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CC12160E9500F2AC65 /* button.png */; };
@@ -1212,18 +1212,6 @@
 				33863EED1240102600ECBA04 /* zonewarrior.bin in Copy Files-Replay(SC68) */,
 			);
 			name = "Copy Files-Replay(SC68)";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3396B6F513297FF9001792E0 /* Copy Files-Timidity */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = timidity;
-			dstSubfolderSpec = 7;
-			files = (
-				33C658B21394381F00265A1D /* merlin_gold.sf2 in Copy Files-Timidity */,
-				3396B6DD13297F8E001792E0 /* timidity.cfg in Copy Files-Timidity */,
-			);
-			name = "Copy Files-Timidity";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC9167F617F00CD30012E2C1 /* Copy Files-Samples Demoscene */ = {
@@ -5418,7 +5406,6 @@
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				33863E9212400EA800ECBA04 /* Copy Files-Replay(SC68) */,
-				3396B6F513297FF9001792E0 /* Copy Files-Timidity */,
 				CCB21DB61246911300A30F62 /* Copy Files-Samples Various */,
 				CC9167F617F00CD30012E2C1 /* Copy Files-Samples Demoscene */,
 				CC9167F717F00CD90012E2C1 /* Copy Files-Samples Games */,
@@ -5590,6 +5577,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */,
+				CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */,
 				CCB8D99D17F62A18008E6A45 /* txtMenu6_2x.png in Resources */,
 				CCC678EB17F88AF900F16A54 /* star2@2x.png in Resources */,
 				CC1E5C931200B3B8000A8A4E /* consolas8.fnt in Resources */,

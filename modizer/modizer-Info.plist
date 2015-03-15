@@ -385,13 +385,13 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0</string>
+	<string>2.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array/>
 	<key>CFBundleVersion</key>
-	<string>2.0</string>
+	<string>2.1</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -794,10 +794,10 @@
 			<array>
 				<string></string>
 			</array>
-			<key>UTTypeIdentifier</key>
-			<string>com.yoyofr.modizer.sid</string>
 			<key>UTTypeDescription</key>
 			<string>C64 SID file</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.sid</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>

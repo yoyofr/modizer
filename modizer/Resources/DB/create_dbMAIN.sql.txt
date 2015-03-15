@@ -231,7 +231,7 @@ CREATE INDEX idx_stilasma_fullpath on stil_asma (fullpath);
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)
-VALUES (2,0);
+VALUES (2,1);
 
 
 

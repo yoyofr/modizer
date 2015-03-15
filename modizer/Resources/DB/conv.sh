@@ -19,5 +19,6 @@ awk -F '\' '// {if (NF==5) printf("%s\\%s/%s/%s/%s\n",$0,$2,$3,$4,$5);}' conv.tm
 awk -F '\' '// {if (NF==6) printf("%s\\%s/%s/%s/%s/%s\n",$0,$2,$3,$4,$5,$6);}' conv.tmp > comp6.txt
 awk -F '\' '// {if (NF==7) printf("%s\\%s/%s/%s/%s/%s/%s\n",$0,$2,$3,$4,$5,$6,$7);}' conv.tmp > comp7.txt
 awk -F '\' '// {if (NF==8) printf("%s\\%s/%s/%s/%s/%s/%s/%s\n",$0,$2,$3,$4,$5,$6,$7,$8);}' conv.tmp > comp8.txt
+awk -F '\' '// {if ((NF<2)||(NF>8)) printf("%d\\%s\n",NF,$0);}' conv.tmp
 rm conv.tmp
 rm conv1.tmp
