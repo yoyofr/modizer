@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6250" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6254" systemVersion="14C109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
         <deployment version="1280" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UIApplication">
@@ -1340,16 +1340,16 @@
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </imageView>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" id="1468" userLabel="Text View">
-                        <rect key="frame" x="0.0" y="80" width="320" height="356"/>
+                        <rect key="frame" x="0.0" y="80" width="320" height="2734"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>
-                        <string key="text">v2.0 © Yohann Magnien / YoyoFR
+                        <mutableString key="text">v2.1 © Yohann Magnien / YoyoFR
 
 Web: http://yoyofr.blogspot.com/p/modizer.html
 Forum: http://modizer.988727.n3.nabble.com/
 Contact: mailto://ymagnien@gmail.com
 
-Modizer's logo by Steve Miele: http://artisteve.com
+Modizer's logo by Steve Miele: http://stevemiel.com
 
 Pmdmini support thanks to Misty De Meo.
 
@@ -1391,7 +1391,7 @@ Modizer also uses following software:
 - CMPopTipView
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>

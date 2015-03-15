@@ -2278,6 +2278,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	} else{
         waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
         if ((mPlaylist_size>0)&&(settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value)) {
+            if (mHasFocus) {
+                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+            }
+            [self.navigationController setNavigationBarHidden:YES animated:YES];
+            if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
             
             //[coverflow setNumberOfCovers:mPlaylist_size];
             //coverflow.currentIndex=mPlaylist_pos;
