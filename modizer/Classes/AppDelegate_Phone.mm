@@ -23,6 +23,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 static BOOL backgroundSupported;
 
 char homedirectory[512];
+char bundledirectory[512];
 
 char* strlower(char *Str);
 extern "C" {
@@ -92,6 +93,9 @@ BOOL is_ios7,is_retina;
 	//
     
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
+    
+    sprintf(bundledirectory,"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
+    
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;

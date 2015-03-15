@@ -5297,6 +5297,8 @@ MAIN_INTERFACE void timidity_start_initialize(void)
     //MODIZER
 //    is_first = 0;
 }
+    
+extern char bundledirectory[512];
 
 MAIN_INTERFACE int timidity_pre_load_configuration(void)
 {
@@ -5315,8 +5317,12 @@ MAIN_INTERFACE int timidity_pre_load_configuration(void)
     }
     
     if (got_a_configuration==0) {
-    if(!read_config_file(CONFIG_FILE, 0))
-     got_a_configuration = 1;
+        chdir(bundledirectory);
+        char configpath[512];
+        sprintf(configpath,"timidity.cfg");//"%s/timidity/timidity.cfg",bundledirectory);
+        printf("reading at: %s\n",configpath);
+        if(!read_config_file(configpath, 0))
+            got_a_configuration = 1;
     }
     return 0;
 }
