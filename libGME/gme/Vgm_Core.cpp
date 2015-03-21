@@ -909,7 +909,7 @@ blargg_err_t Vgm_Core::load_mem_( byte const data [], int size )
 	
 	set_tempo( 1 );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 // Update pre-1.10 header FM rates by scanning commands
@@ -1343,7 +1343,7 @@ blargg_err_t Vgm_Core::init_chips( double* rate, bool reinit )
     
 	fm_rate = *rate;
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Vgm_Core::start_track()

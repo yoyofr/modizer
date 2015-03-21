@@ -234,7 +234,7 @@ static blargg_err_t parse_info( byte const in [], int size, Sap_Emu::info_t* out
 		return BLARGG_ERR( BLARGG_ERR_FILE_CORRUPT, "ROM data missing" );
 	out->rom_data = in + 2;
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static void copy_sap_fields( Sap_Emu::info_t const& in, track_info_t* out )
@@ -278,7 +278,7 @@ blargg_err_t Sap_Emu::track_info_( track_info_t* out, int track ) const
 			out->length = time;
 		}
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 struct Sap_File : Gme_Info_
@@ -291,19 +291,19 @@ struct Sap_File : Gme_Info_
 	{
 		RETURN_ERR( parse_info( begin, size, &info ) );
 		set_track_count( info.track_count );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		copy_sap_fields( info, out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_sap_file( info, info.rom_data, file_end() - info.rom_data, out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 };
 
@@ -406,5 +406,5 @@ blargg_err_t Sap_Emu::run_clocks( blip_time_t& duration, int )
 blargg_err_t Sap_Emu::hash_( Hash_Function& out ) const
 {
 	hash_sap_file( info(), info().rom_data, file_end - info().rom_data, out );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

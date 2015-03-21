@@ -119,5 +119,5 @@ blargg_err_t Fir_Resampler_::set_rate_( double new_factor )
 	
 	imp = impulses;
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

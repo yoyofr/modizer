@@ -186,8 +186,10 @@ float CimfPlayer::getrate(const std::string &filename, const CFileProvider &fp, 
   if(db) {	// Database available
     f->seek(0, binio::Set);
     CClockRecord *record = (CClockRecord *)db->search(CAdPlugDatabase::CKey(*f));
-    if (record && record->type == CAdPlugDatabase::CRecord::ClockSpeed)
-      return record->clock;
+      if (record && record->type == CAdPlugDatabase::CRecord::ClockSpeed) {
+//          printf("speed:%f\n",record->clock);
+          return record->clock;
+      }
   }
 
   // Otherwise the database is either unavailable, or there's no entry for this file

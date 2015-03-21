@@ -1,6 +1,8 @@
 2.1
 ÑÑÑ
 - bug fixing
+- replaced libmodplug by libOpenMPT
+- Adplug: fixed tempo issues (IMF)
 - updated HVSC to #62
 - updated MODLAND to latest version
 

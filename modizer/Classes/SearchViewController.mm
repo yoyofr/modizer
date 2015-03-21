@@ -1071,7 +1071,7 @@ static NSFileManager *mFileMngr;
 	UIButton *buttonLabel                  = [UIButton buttonWithType: UIButtonTypeCustom];
 	buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 20];
 	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (0.0, 1.0);
-	buttonLabel.titleLabel.lineBreakMode   = UILineBreakModeTailTruncation;
+	buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
 //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);
 	buttonLabel.frame=CGRectMake(32, 0.0, tableView.bounds.size.width-32*2, 32);
 	
@@ -1525,7 +1525,7 @@ static NSFileManager *mFileMngr;
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.lineBreakMode=(NSLineBreakMode)UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
         
         //
@@ -1542,7 +1542,7 @@ static NSFileManager *mFileMngr;
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        bottomLabel.lineBreakMode=(NSLineBreakMode)UILineBreakModeMiddleTruncation;
         bottomLabel.opaque=TRUE;
 
 		actionView = [UIButton buttonWithType: UIButtonTypeCustom];		

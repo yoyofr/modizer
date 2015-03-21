@@ -191,7 +191,7 @@ inline blargg_err_t Multi_Buffer::set_sample_rate( int rate, int msec )
 {
 	sample_rate_ = rate;
 	length_ = msec;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 inline int  Multi_Buffer::samples_per_frame() const             { return samples_per_frame_; }
@@ -208,7 +208,7 @@ inline blargg_err_t Multi_Buffer::set_channel_count( int n, int const types [] )
 {
 	channel_count_ = n;
 	channel_types_ = types;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 inline blargg_err_t Silent_Buffer::set_sample_rate( int rate, int msec )

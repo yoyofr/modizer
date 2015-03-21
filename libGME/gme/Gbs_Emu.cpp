@@ -67,7 +67,7 @@ static void hash_gbs_file( Gbs_Emu::header_t const& h, byte const* data, int dat
 blargg_err_t Gbs_Emu::track_info_( track_info_t* out, int ) const
 {
 	copy_gbs_fields( header(), out );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 struct Gbs_File : Gme_Info_
@@ -84,19 +84,19 @@ struct Gbs_File : Gme_Info_
 		if ( !h->valid_tag() )
 			return blargg_err_file_type;
 		
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		copy_gbs_fields( Gbs_Emu::header_t( *h ), out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_gbs_file( *h, file_begin() + h->size, file_end() - file_begin() - h->size, out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 };
 
@@ -163,5 +163,5 @@ blargg_err_t Gbs_Emu::run_clocks( blip_time_t& duration, int )
 blargg_err_t Gbs_Emu::hash_( Hash_Function& out ) const
 {
 	hash_gbs_file( header(), core_.rom_().begin(), core_.rom_().file_size(), out );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

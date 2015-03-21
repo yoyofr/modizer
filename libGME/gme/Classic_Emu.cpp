@@ -86,14 +86,14 @@ blargg_err_t Classic_Emu::setup_buffer( int rate )
 	RETURN_ERR( buf->set_channel_count( voice_count(), voice_types ) );
 	set_equalizer( equalizer() );
 	buf_changed_count = buf->channels_changed_count();
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Classic_Emu::start_track_( int track )
 {
 	RETURN_ERR( Music_Emu::start_track_( track ) );
 	buf->clear();
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Classic_Emu::play_( int count, sample_t out [] )
@@ -120,5 +120,5 @@ blargg_err_t Classic_Emu::play_( int count, sample_t out [] )
 			buf->end_frame( clocks_emulated );
 		}
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

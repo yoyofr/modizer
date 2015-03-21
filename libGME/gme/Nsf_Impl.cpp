@@ -114,7 +114,7 @@ blargg_err_t Nsf_Impl::load_( Data_Reader& in )
 	
 	set_play_period( header_.play_period() );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Nsf_Impl::write_bank( int bank, int data )
@@ -232,7 +232,7 @@ blargg_err_t Nsf_Impl::start_track( int track )
 	if ( cpu.r.pc < get_addr( header_.load_addr ) )
 		set_warning( "Init address < load address" );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Nsf_Impl::unmapped_write( addr_t addr, int data )

@@ -19,6 +19,8 @@ int iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
 
+
+
 #import "ModizMusicPlayer.h"
 
 //NVDSP
@@ -810,7 +812,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize mp_datasize;
 @synthesize optForceMono;
 //Adplug stuff
-@synthesize adPlugPlayer;
+@synthesize adPlugPlayer,adplugDB;
 @synthesize opl;
 @synthesize opl_towrite;
 @synthesize mADPLUGopltype;
@@ -2871,7 +2873,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                                 if (prev_ofs<0) prev_ofs=SOUND_BUFFER_NB-1;
                                 DUMB_IT_SIGRENDERER *duh_itsr=duh_get_it_sigrenderer(duh_player->dr);
                                 
-                                genPattern[buffer_ana_gen_ofs]=ModPlug_GetPatternOrder(mp_file, dumb_it_sr_get_current_order(duh_itsr)) ;
+                                ModPlug_SeekOrder(mp_file,dumb_it_sr_get_current_order(duh_itsr));
+                                genPattern[buffer_ana_gen_ofs]=ModPlug_GetCurrentOrder(mp_file);
+                                //ModPlug_GetPatternOrder(mp_file, dumb_it_sr_get_current_order(duh_itsr)) ;
+                                
                                 genRow[buffer_ana_gen_ofs]=dumb_it_sr_get_current_row(duh_itsr);
                                 
                                 for (int i=0;i<numChannels;i++) {
@@ -4150,12 +4155,22 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 break;
         }
         
+        adplugDB = new CAdPlugDatabase;
+        
+        NSString *db_path = [[NSBundle mainBundle] resourcePath];
+        
+        adplugDB->load ([[NSString stringWithFormat:@"%@/adplug.db",db_path] UTF8String]);    // load user's database
+        CAdPlug::set_database (adplugDB);
+        
 		adPlugPlayer = CAdPlug::factory([filePath UTF8String], opl);
 		
 		if (!adPlugPlayer) {
 			//could not open.
 			//let try the other lib below...
+            delete adplugDB;
+            adplugDB=NULL;
 			delete opl;
+            opl=NULL;
 			mPlayType=0;
 			for (int i=0;i<[filetype_extDUMB count];i++) { //Try Dumb if applicable
 				if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
@@ -5417,7 +5432,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         }
         
         //try to also load with modplug for pattern display
-        mp_file=ModPlug_LoadPat(mp_data,mp_datasize);
+        mp_file=NULL;//ModPlug_LoadPat(mp_data,mp_datasize);
 		if (mp_file==NULL) {
 			free(mp_data);
 		} else {
@@ -5778,6 +5793,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		adPlugPlayer=NULL;
 		delete opl;
 		opl=NULL;
+        delete adplugDB;
+        adplugDB=NULL;
 	}
 	if (mPlayType==4) {
 		(*ao_types[ao_type].stop)();
@@ -5844,7 +5861,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         if (mPatternDataAvail) {
             mPatternDataAvail=0;
             if (mp_file) {
-                ModPlug_UnloadPat(mp_file);
+                //ModPlug_UnloadPat(mp_file);
             }
             if (mp_data) free(mp_data);
             mp_file=NULL;
@@ -5896,7 +5913,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(NSString*) getPlayerName {
 	if (mPlayType==1) return @"Game Music Emulator";
-	if (mPlayType==2) return @"Modplug";
+	if (mPlayType==2) return @"OpenMPT";
 	if (mPlayType==3) return @"Adplug";
 	if (mPlayType==4) return @"Audio Overload";
 	if (mPlayType==5) return @"SexyPSF";
@@ -5936,7 +5953,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		return [NSString stringWithFormat:@"%s",gmetype];
 	}
 	if (mPlayType==2) {
-		switch (ModPlug_GetModuleType(mp_file)) {
+		switch ((unsigned int)ModPlug_GetModuleType(mp_file)) {
 			case MOD_TYPE_MOD:return @"Amiga MODule";
 			case MOD_TYPE_S3M:return @"Screamtracker 3";
 			case MOD_TYPE_XM:return @"Fastracker 2";

@@ -49,7 +49,10 @@ static float *fft_frequency,*fft_time,*fft_frequencyAvg,*fft_freqAvgCount;
 
 #import "EQViewController.h"
 
-#import "modplug.h"
+//#import "modplug.h"
+#import "../../libopenmpt/libmodplug/modplug.h"
+
+
 #import "gme.h"
 
 #import "math.h"
@@ -3551,15 +3554,15 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     lblTimeFCflow.textColor=[UIColor whiteColor];
     
     
-    lblMainCoverflow.textAlignment=UITextAlignmentCenter;
-    lblSecCoverflow.textAlignment=UITextAlignmentCenter;
-    lblCurrentSongCFlow.textAlignment=UITextAlignmentLeft;
-    lblTimeFCflow.textAlignment=UITextAlignmentRight;
+    lblMainCoverflow.textAlignment=NSTextAlignmentCenter;
+    lblSecCoverflow.textAlignment=NSTextAlignmentCenter;
+    lblCurrentSongCFlow.textAlignment=NSTextAlignmentLeft;
+    lblTimeFCflow.textAlignment=NSTextAlignmentRight;
     
-    lblMainCoverflow.lineBreakMode=UILineBreakModeMiddleTruncation;
-    lblSecCoverflow.lineBreakMode=UILineBreakModeMiddleTruncation;
-    lblCurrentSongCFlow.lineBreakMode=UILineBreakModeMiddleTruncation;
-    lblTimeFCflow.lineBreakMode=UILineBreakModeMiddleTruncation;
+    lblMainCoverflow.lineBreakMode=NSLineBreakByTruncatingMiddle;
+    lblSecCoverflow.lineBreakMode=NSLineBreakByTruncatingMiddle;
+    lblCurrentSongCFlow.lineBreakMode=NSLineBreakByTruncatingMiddle;
+    lblTimeFCflow.lineBreakMode=NSLineBreakByTruncatingMiddle;
     
     [self.view addSubview:coverflow];
     [self.view addSubview:lblMainCoverflow];
@@ -3661,7 +3664,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     lblLoading.backgroundColor=[UIColor blackColor];
     lblLoading.opaque=YES;
     lblLoading.textColor=[UIColor whiteColor];
-    lblLoading.textAlignment=UITextAlignmentCenter;
+    lblLoading.textAlignment=NSTextAlignmentCenter;
     lblLoading.font=[UIFont italicSystemFontOfSize:18];
     [waitingView addSubview:lblLoading];
     [lblLoading autorelease];
@@ -5361,8 +5364,8 @@ extern "C" int current_sample;
     if (pickerLabel == nil) {
         CGRect frame = CGRectMake(0.0, 0.0, pickerView.frame.size.width-32, 32);
         pickerLabel = [[[UILabel alloc] initWithFrame:frame] autorelease];
-        pickerLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
-        [pickerLabel setTextAlignment:UITextAlignmentLeft];
+        pickerLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        [pickerLabel setTextAlignment:NSTextAlignmentLeft];
         [pickerLabel setBackgroundColor:[UIColor clearColor]];
         [pickerLabel setFont:[UIFont boldSystemFontOfSize:15]];
     }

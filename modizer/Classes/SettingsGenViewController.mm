@@ -452,7 +452,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"MDPLG";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
     
@@ -1573,7 +1573,7 @@ void optUADEChangedC(id param) {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:14];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
         topLabel.numberOfLines=0;
         

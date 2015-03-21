@@ -16,7 +16,7 @@ blargg_err_t Sms_Fm_Apu::init( double clock_rate, double sample_rate )
 	set_output( 0 );
 	volume( 1.0 );
 	reset();
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Sms_Fm_Apu::reset()

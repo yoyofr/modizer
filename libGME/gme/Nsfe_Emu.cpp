@@ -233,7 +233,7 @@ blargg_err_t Nsfe_Info::load( Data_Reader& in, Nsfe_Emu* nsf_emu )
 		}
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Nsfe_Info::track_info_( track_info_t* out, int track ) const
@@ -252,7 +252,7 @@ blargg_err_t Nsfe_Info::track_info_( track_info_t* out, int track ) const
 	GME_COPY_FIELD( info, out, author );
 	GME_COPY_FIELD( info, out, copyright );
 	GME_COPY_FIELD( info, out, dumper );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 Nsfe_Emu::Nsfe_Emu()
@@ -284,7 +284,7 @@ struct Nsfe_File : Gme_Info_
 		RETURN_ERR( info.load( in, 0 ) );
 		info.disable_playlist( false );
 		set_track_count( info.info.track_count );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int track ) const
@@ -295,7 +295,7 @@ struct Nsfe_File : Gme_Info_
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_nsf_file( info.info, info.data.begin(), info.data.end() - info.data.begin(), out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 };
 
@@ -308,7 +308,7 @@ blargg_err_t Nsfe_Emu::load_( Data_Reader& in )
 {
 	RETURN_ERR( info.load( in, this ) );
 	disable_playlist_( false );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Nsfe_Emu::disable_playlist_( bool b )

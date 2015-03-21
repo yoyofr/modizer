@@ -86,7 +86,7 @@ blargg_err_t Hes_Core::load_( Data_Reader& in )
 	
 	rom.set_addr( addr );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Hes_Core::recalc_timer_load()
@@ -136,7 +136,7 @@ blargg_err_t Hes_Core::start_track( int track )
 	
 	recalc_timer_load();
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 // Hardware
@@ -404,5 +404,5 @@ blargg_err_t Hes_Core::end_frame( time_t duration )
     apu_.end_frame( duration );
     adpcm_.end_frame( duration );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

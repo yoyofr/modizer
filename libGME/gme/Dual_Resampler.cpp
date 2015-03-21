@@ -32,7 +32,7 @@ blargg_err_t Dual_Resampler::reset( int pairs )
 	resampler_size = oversamples_per_frame + (oversamples_per_frame >> 2);
 	RETURN_ERR( resampler.resize_buffer( resampler_size ) );
 	resampler.clear();
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Dual_Resampler::resize( int pairs )

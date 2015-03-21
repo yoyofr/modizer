@@ -70,7 +70,7 @@ blargg_err_t Music_Emu::set_sample_rate( int rate )
 	RETURN_ERR( track_filter.init( this ) );
 	sample_rate_ = rate;
 	tfilter.max_silence = 6 * stereo * sample_rate();
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Music_Emu::pre_load()
@@ -225,7 +225,7 @@ blargg_err_t Music_Emu::play( int out_count, sample_t out [] )
 
 // Gme_Info_
 
-blargg_err_t Gme_Info_::set_sample_rate_( int )             { return blargg_ok; }
+blargg_err_t Gme_Info_::set_sample_rate_( int )             { return (blargg_err_t)blargg_ok; }
 void         Gme_Info_::pre_load()                          { Gme_File::pre_load(); } // skip Music_Emu
 blargg_err_t Gme_Info_::post_load()                         { return Gme_File::post_load(); } // skip Music_Emu
 void         Gme_Info_::set_equalizer_( equalizer_t const& ){ check( false ); }

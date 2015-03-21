@@ -104,7 +104,7 @@ blargg_err_t Zip7_Extractor::zip7_err( int err )
 	
 	switch ( err )
 	{
-	case SZ_OK:                 return blargg_ok;
+	case SZ_OK:                 return (blargg_err_t)blargg_ok;
 	case SZ_ERROR_MEM:          return blargg_err_memory;
 	case SZ_ERROR_READ:         return blargg_err_file_io;
 	case SZ_ERROR_CRC:
@@ -126,7 +126,7 @@ static blargg_err_t init_7z()
 		inited = true;
 		CrcGenerateTable();
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static File_Extractor* new_7z()
@@ -216,7 +216,7 @@ blargg_err_t Zip7_Extractor::next_v()
 		}
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Zip7_Extractor::rewind_v()
@@ -248,5 +248,5 @@ blargg_err_t Zip7_Extractor::data_v( void const** out )
 	assert( count == (size_t) size() );
 	
 	*out = impl->buf + offset;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

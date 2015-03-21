@@ -1851,7 +1851,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist<2)) {
         NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:currentPlayedEntry+1] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+        int pos=currentPlayedEntry+1;
+        if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
     }
 /*    if (show_playlist&&(integrated_playlist<2)) {
         self.tableView.editing=TRUE;
@@ -1874,7 +1876,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [super viewDidAppear:animated];
     if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist<2)) {
         NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:currentPlayedEntry+1] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+        int pos=currentPlayedEntry+1;
+        if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
     }
     
 }
@@ -2006,7 +2010,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
         
         //
@@ -2023,7 +2027,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         bottomLabel.opaque=TRUE;
         
         
