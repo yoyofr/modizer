@@ -49,7 +49,7 @@ blargg_err_t Gzip_Reader::calc_size()
 		
 		size_ = n;
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Gzip_Reader::open( File_Reader* new_in )
@@ -63,7 +63,7 @@ blargg_err_t Gzip_Reader::open( File_Reader* new_in )
 	RETURN_ERR( calc_size() );
 	set_remain( size_ );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Gzip_Reader::close()
@@ -81,5 +81,5 @@ blargg_err_t Gzip_Reader::read_v( void* out, int count )
 	if ( actual != count )
 		return blargg_err_file_corrupt;
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

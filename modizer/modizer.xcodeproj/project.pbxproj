@@ -288,7 +288,6 @@
 		33E46B2217C350B200F70A14 /* txtMenu10b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B2017C350B200F70A14 /* txtMenu10b.png */; };
 		33E46B2417C350C800F70A14 /* txtMenu11a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B2317C350C800F70A14 /* txtMenu11a.png */; };
 		33EDF0EF145939850038C673 /* RootViewControllerHVSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */; };
-		33F60A8814D1D6F5009ABA8F /* liblibmodplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 330FB723137DEF63001EC7A2 /* liblibmodplug.a */; };
 		33F60A8914D1D700009ABA8F /* liblibtim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33BA70661407A1300099E943 /* liblibtim.a */; };
 		33F60A8A14D1D709009ABA8F /* liblibFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33D3B9221414253C004679CD /* liblibFileExtractor.a */; };
 		33F60A8B14D1D711009ABA8F /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33C7397413A0AC220012221C /* libTapkuLibrary.a */; };
@@ -691,6 +690,8 @@
 		CC1E63BA120423E0000A8A4E /* uaerc in Resources */ = {isa = PBXBuildFile; fileRef = CC1E630F120423DF000A8A4E /* uaerc */; };
 		CC1E641912043064000A8A4E /* uadeipc.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5FEB1202F24F000A8A4E /* uadeipc.c */; };
 		CC2DE0A41217EF2900CF9CFF /* ModizerWin.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */; };
+		CC33B3C81ABAC193009608E8 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B2951AB8197F009608E8 /* liblibopenmpt.a */; };
+		CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B4181ABD827D009608E8 /* libc++.dylib */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
 		CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709517CC8EB000DC7197 /* txtMenu11c.png */; };
 		CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709617CC8EB000DC7197 /* txtMenu11d.png */; };
@@ -977,13 +978,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		330FB722137DEF63001EC7A2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 330FB71B137DEF62001EC7A2 /* libmodplug.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = libmodplug;
-		};
 		33236915125F8B790032223C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 33236911125F8B790032223C /* libsidplay1.xcodeproj */;
@@ -1025,13 +1019,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = libsidplay1;
-		};
-		334899F6138E2B3400061A93 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 330FB71B137DEF62001EC7A2 /* libmodplug.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = libmodplug;
 		};
 		33A961D81407F195007F22F5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1109,6 +1096,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = libFileExtractor;
+		};
+		CC33B2941AB8197F009608E8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC33B2891AB8197E009608E8;
+			remoteInfo = libopenmpt;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1212,6 +1206,16 @@
 				33863EED1240102600ECBA04 /* zonewarrior.bin in Copy Files-Replay(SC68) */,
 			);
 			name = "Copy Files-Replay(SC68)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC767DBE1AB627A300689B58 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC9167F617F00CD30012E2C1 /* Copy Files-Samples Demoscene */ = {
@@ -1391,7 +1395,6 @@
 		330F36C817A683FB00EEC84A /* OnlineViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OnlineViewController.mm; sourceTree = "<group>"; };
 		330F36CB17A69A7B00EEC84A /* bb_home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bb_home.png; sourceTree = "<group>"; };
 		330F36CC17A69A7B00EEC84A /* bb_home@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bb_home@2x.png"; sourceTree = "<group>"; };
-		330FB71B137DEF62001EC7A2 /* libmodplug.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libmodplug.xcodeproj; path = ../libmodplug/libmodplug.xcodeproj; sourceTree = "<group>"; };
 		330FB72C138053E8001EC7A2 /* play_all.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play_all.png; sourceTree = "<group>"; };
 		330FB72E138053F6001EC7A2 /* play_all@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play_all@2x.png"; sourceTree = "<group>"; };
 		330FB73013810D1D001EC7A2 /* playlist_add_all.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist_add_all.png; sourceTree = "<group>"; };
@@ -1564,7 +1567,6 @@
 		3399D61517B5A5C6009E2AE9 /* asap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asap.h; sourceTree = "<group>"; };
 		33A7183513ACA587009858B7 /* dumb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dumb.h; path = ../dumb/src/include/dumb.h; sourceTree = "<group>"; };
 		33A7186713ACDD06009858B7 /* it.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = it.h; path = ../dumb/src/include/internal/it.h; sourceTree = "<group>"; };
-		33A7186A13AE802A009858B7 /* modplug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = modplug.h; path = ../libmodplug/src/modplug.h; sourceTree = "<group>"; };
 		33A961D01407F194007F22F5 /* libgsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libgsf.xcodeproj; path = ../libgsf/libgsf/libgsf.xcodeproj; sourceTree = "<group>"; };
 		33A9657F140E1283007F22F5 /* sidplayfp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = sidplayfp.xcodeproj; path = "../../libsidplayfp-0.2.0/sidplayfp/sidplayfp.xcodeproj"; sourceTree = "<group>"; };
 		33A96617140E4788007F22F5 /* dac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dac.h; sourceTree = "<group>"; };
@@ -2430,6 +2432,8 @@
 		CC1E630F120423DF000A8A4E /* uaerc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uaerc; sourceTree = "<group>"; };
 		CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizerWin.h; sourceTree = "<group>"; };
 		CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizerWin.mm; sourceTree = "<group>"; };
+		CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libopenmpt.xcodeproj; path = ../libopenmpt/libopenmpt/libopenmpt.xcodeproj; sourceTree = "<group>"; };
+		CC33B4181ABD827D009608E8 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
 		CC5C709517CC8EB000DC7197 /* txtMenu11c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c.png; sourceTree = "<group>"; };
 		CC5C709617CC8EB000DC7197 /* txtMenu11d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11d.png; sourceTree = "<group>"; };
@@ -2915,13 +2919,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */,
 				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
+				CC33B3C81ABAC193009608E8 /* liblibopenmpt.a in Frameworks */,
 				3397DC90179C792400607236 /* liblibgme.a in Frameworks */,
 				33F60A8C14D1D719009ABA8F /* libdumb.a in Frameworks */,
 				33F60A8B14D1D711009ABA8F /* libTapkuLibrary.a in Frameworks */,
 				33F60A8A14D1D709009ABA8F /* liblibFileExtractor.a in Frameworks */,
 				33F60A8914D1D700009ABA8F /* liblibtim.a in Frameworks */,
-				33F60A8814D1D6F5009ABA8F /* liblibmodplug.a in Frameworks */,
 				33B4EA4514B374C00060F9B1 /* liblibgsf.a in Frameworks */,
 				33B4EA4614B374C00060F9B1 /* liblibsidplay1.a in Frameworks */,
 				33B4EA4714B374C00060F9B1 /* libsidplayfp.a in Frameworks */,
@@ -2995,16 +3000,9 @@
 				CC1E56CE1200B391000A8A4E /* SystemConfiguration.framework */,
 				CC1E56D01200B391000A8A4E /* libsqlite3.dylib */,
 				CC1E56D21200B391000A8A4E /* libz.dylib */,
+				CC33B4181ABD827D009608E8 /* libc++.dylib */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		330FB71C137DEF62001EC7A2 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				330FB723137DEF63001EC7A2 /* liblibmodplug.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		33114CA713430A0A00C7CC19 /* lha */ = {
@@ -3193,15 +3191,6 @@
 				33888AA112231EEA0030C82E /* 1237346308.jpg */,
 			);
 			path = backgrounds;
-			sourceTree = "<group>";
-		};
-		338AE2B3121AC2D300A9EA9F /* libmodplug */ = {
-			isa = PBXGroup;
-			children = (
-				33A7186A13AE802A009858B7 /* modplug.h */,
-				330FB71B137DEF62001EC7A2 /* libmodplug.xcodeproj */,
-			);
-			name = libmodplug;
 			sourceTree = "<group>";
 		};
 		3396B55613297F8C001792E0 /* timidity */ = {
@@ -4727,6 +4716,22 @@
 			path = S;
 			sourceTree = "<group>";
 		};
+		CC33B25F1AB81688009608E8 /* libopenmpt */ = {
+			isa = PBXGroup;
+			children = (
+				CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */,
+			);
+			name = libopenmpt;
+			sourceTree = "<group>";
+		};
+		CC33B2911AB8197E009608E8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC33B2951AB8197F009608E8 /* liblibopenmpt.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC6BE1F612FF3CCD0035A210 /* libgme */ = {
 			isa = PBXGroup;
 			children = (
@@ -4910,6 +4915,7 @@
 		CC9B193312FF0B9800985967 /* SndPlayers */ = {
 			isa = PBXGroup;
 			children = (
+				CC33B25F1AB81688009608E8 /* libopenmpt */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
 				333157371207699700815317 /* AHX */,
 				508199FE14B3E06F0062FA86 /* pmdmini */,
@@ -4926,7 +4932,6 @@
 				CC1E57B11200B3B7000A8A4E /* aosdk */,
 				3370BBCE124A853F00691400 /* mdxplay */,
 				CC9B17FB12FF023600985967 /* libgsf */,
-				338AE2B3121AC2D300A9EA9F /* libmodplug */,
 				33B1094D125BC322006D55D6 /* sid */,
 			);
 			name = SndPlayers;
@@ -5410,6 +5415,7 @@
 				CC9167F617F00CD30012E2C1 /* Copy Files-Samples Demoscene */,
 				CC9167F717F00CD90012E2C1 /* Copy Files-Samples Games */,
 				CC9167F817F00D210012E2C1 /* Copy Files-Samples Classical */,
+				CC767DBE1AB627A300689B58 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
@@ -5422,7 +5428,6 @@
 				33C294CF13ACA1C7006A3BC0 /* PBXTargetDependency */,
 				33C7397B13A0ACEA0012221C /* PBXTargetDependency */,
 				334899F3138E2B3400061A93 /* PBXTargetDependency */,
-				334899F7138E2B3400061A93 /* PBXTargetDependency */,
 			);
 			name = modizer;
 			productName = modizer;
@@ -5472,8 +5477,8 @@
 					ProjectRef = 33A961D01407F194007F22F5 /* libgsf.xcodeproj */;
 				},
 				{
-					ProductGroup = 330FB71C137DEF62001EC7A2 /* Products */;
-					ProjectRef = 330FB71B137DEF62001EC7A2 /* libmodplug.xcodeproj */;
+					ProductGroup = CC33B2911AB8197E009608E8 /* Products */;
+					ProjectRef = CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */;
 				},
 				{
 					ProductGroup = 33236912125F8B790032223C /* Products */;
@@ -5500,13 +5505,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		330FB723137DEF63001EC7A2 /* liblibmodplug.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = liblibmodplug.a;
-			remoteRef = 330FB722137DEF63001EC7A2 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		33236916125F8B790032223C /* liblibsidplay1.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -5568,6 +5566,13 @@
 			fileType = archive.ar;
 			path = liblibFileExtractor.a;
 			remoteRef = 33D3B9211414253C004679CD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC33B2951AB8197F009608E8 /* liblibopenmpt.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibopenmpt.a;
+			remoteRef = CC33B2941AB8197F009608E8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -6346,11 +6351,6 @@
 			name = libsidplay1;
 			targetProxy = 334899F2138E2B3400061A93 /* PBXContainerItemProxy */;
 		};
-		334899F7138E2B3400061A93 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = libmodplug;
-			targetProxy = 334899F6138E2B3400061A93 /* PBXContainerItemProxy */;
-		};
 		33BA706C1407A1FA0099E943 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = libgme;
@@ -6406,7 +6406,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6444,7 +6444,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6471,6 +6471,8 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6495,6 +6497,8 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6520,6 +6524,8 @@
 		CC1E56AA1200B2B2000A8A4E /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6558,7 +6564,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6586,6 +6592,8 @@
 		CCAF10E912BB48A200F4262D /* Distribution Beta */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6624,7 +6632,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",

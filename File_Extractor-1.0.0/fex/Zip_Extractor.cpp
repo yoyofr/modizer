@@ -92,7 +92,7 @@ int const end_entry_size = 22;
 static blargg_err_t init_zip()
 {
 	get_crc_table(); // initialize zlib's CRC-32 tables
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static File_Extractor* new_zip()
@@ -261,7 +261,7 @@ blargg_err_t Zip_Extractor::update_info( bool advance_first )
 		advance_first = false;
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Zip_Extractor::next_v()
@@ -386,5 +386,5 @@ blargg_err_t Zip_Extractor::extract_v( void* out, int count )
 	if ( count == reader().remain() && crc != correct_crc )
 		return blargg_err_file_corrupt;
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

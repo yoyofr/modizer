@@ -16,8 +16,8 @@ public:
 	
 	struct callbacks_t {
 		// Samples may be stereo or mono
-		virtual blargg_err_t play_( int count, sample_t* out )  BLARGG_PURE( { return blargg_ok; } )
-		virtual blargg_err_t skip_( int count )                 BLARGG_PURE( { return blargg_ok; } )
+		virtual blargg_err_t play_( int count, sample_t* out )  BLARGG_PURE( { return (blargg_err_t)blargg_ok; } )
+		virtual blargg_err_t skip_( int count )                 BLARGG_PURE( { return (blargg_err_t)blargg_ok; } )
 		virtual ~callbacks_t() { } // avoids silly "non-virtual dtor" warning
 	};
 	

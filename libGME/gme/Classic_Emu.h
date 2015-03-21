@@ -74,6 +74,6 @@ inline void Classic_Emu::set_voice( int, Blip_Buffer*, Blip_Buffer*, Blip_Buffer
 
 inline void Classic_Emu::update_eq( blip_eq_t const& )                              { }
 
-inline blargg_err_t Classic_Emu::run_clocks( blip_time_t&, int )                    { return blargg_ok; }
+inline blargg_err_t Classic_Emu::run_clocks( blip_time_t&, int )                    { return (blargg_err_t)blargg_ok; }
 
 #endif

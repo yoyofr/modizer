@@ -57,7 +57,7 @@ BLARGG_EXPORT fex_err_t fex_init( void )
 		}
 		inited = true;
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 BLARGG_EXPORT const char* fex_identify_header( void const* header )
@@ -180,7 +180,7 @@ BLARGG_EXPORT fex_err_t fex_identify_file( fex_type_t* type_out, const char path
 	
 	// Unsupported extension?
 	if ( !type )
-		return blargg_ok; // reject
+		return (blargg_err_t)blargg_ok; // reject
 	
 	// Unknown/no extension?
 	if ( !*(type->extension) )
@@ -198,7 +198,7 @@ BLARGG_EXPORT fex_err_t fex_identify_file( fex_type_t* type_out, const char path
 	}
 	
 	*type_out = type;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 BLARGG_EXPORT fex_err_t fex_open_type( fex_t** fe_out, const char path [], fex_type_t type )
@@ -219,7 +219,7 @@ BLARGG_EXPORT fex_err_t fex_open_type( fex_t** fe_out, const char path [], fex_t
 	}
 	
 	*fe_out = fe;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 BLARGG_EXPORT fex_err_t fex_open( fex_t** fe_out, const char path [] )

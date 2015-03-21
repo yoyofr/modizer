@@ -113,7 +113,7 @@ blargg_err_t Gme_File::remap_track_( int* track_io ) const
 	{
 		check( !playlist.size() );
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Gme_File::track_info( track_info_t* out, int track ) const
@@ -179,5 +179,5 @@ blargg_err_t Gme_File::track_info( track_info_t* out, int track ) const
 			out->play_length = 150 * 1000; // 2.5 minutes
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

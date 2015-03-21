@@ -50,7 +50,7 @@ protected:
 	
 	// Do same as read(). Guaranteed that 0 < n <= remain(). Value of remain() is updated
 	// AFTER this call succeeds, not before. set_remain() should NOT be called from this.
-	virtual blargg_err_t read_v( void*, int n )     BLARGG_PURE( { (void)n; return blargg_ok; } )
+	virtual blargg_err_t read_v( void*, int n )     BLARGG_PURE( { (void)n; return (blargg_err_t)blargg_ok; } )
 	
 	// Do same as skip(). Guaranteed that 0 < n <= remain(). Default just reads data
 	// and discards it. Value of remain() is updated AFTER this call succeeds, not
@@ -90,7 +90,7 @@ protected:
 	
 	// Do same as seek(). Guaranteed that 0 <= n <= size().  Value of tell() is updated
 	// AFTER this call succeeds, not before. set_* functions should NOT be called from this.
-	virtual blargg_err_t seek_v( int n ) BLARGG_PURE( { (void)n; return blargg_ok; } )
+	virtual blargg_err_t seek_v( int n ) BLARGG_PURE( { (void)n; return (blargg_err_t)blargg_ok; } )
 	
 // Implementation
 protected:

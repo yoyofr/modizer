@@ -109,7 +109,7 @@ gme_err_t gme_identify_file( const char path [], gme_type_t* type_out )
 		RETURN_ERR( in.read( header, sizeof header ) );
 		*type_out = gme_identify_extension( gme_identify_header( header ) );
 	}
-	return blargg_ok;   
+	return (blargg_err_t)blargg_ok;
 }
 
 gme_err_t gme_open_data( void const* data, long size, Music_Emu** out, int sample_rate )
@@ -298,7 +298,7 @@ gme_err_t gme_track_info( Music_Emu const* me, gme_info_t** out, int track )
 	
 	*out = info;
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void gme_free_info( gme_info_t* info )

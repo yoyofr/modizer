@@ -1465,6 +1465,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     }
     [super viewWillAppear:animated];	
     
+    [self hideWaiting];
 }
 
 -(void) refreshViewAfterDownload {
@@ -1595,7 +1596,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
-        topLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
         
         //
@@ -1612,7 +1613,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
-        bottomLabel.lineBreakMode=UILineBreakModeMiddleTruncation;
+        bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         bottomLabel.opaque=TRUE;
         
         bottomImageView = [[[UIImageView alloc] initWithImage:nil]  autorelease];
@@ -1642,6 +1643,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     }
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
+    
     
     topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
     topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];

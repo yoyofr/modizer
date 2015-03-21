@@ -13,8 +13,13 @@
 #import <AudioToolbox/AudioToolbox.h>
 
 #import "AppDelegate_Phone.h"
+
+//libopenmpt
+#import "../../libopenmpt/libopenmpt.h"
+#import "../../libopenmpt/libopenmpt_stream_callbacks_file.h"
+#import "../../libopenmpt/libmodplug/modplug.h"
 //MODPLUG
-#import "modplug.h"
+//#import "modplug.h"
 
 //GME
 #import "gme.h"
@@ -44,13 +49,14 @@ extern "C" {
 // PMD
 #import "pmdmini.h"
 #import "pmdwinimport.h"
+
 }
 
 @interface ModizMusicPlayer : NSObject {
 	//General infos
 	int mod_subsongs;
 	int mod_currentsub,mod_minsub,mod_maxsub;
-	int mPlayType; //1:GME, 2:libmodplug, 3:Adplug, 4:AO, 5:SexyPSF, 6:UADE, 7:HVL
+	unsigned int mPlayType; //1:GME, 2:libmodplug, 3:Adplug, 4:AO, 5:SexyPSF, 6:UADE, 7:HVL
 	int mp_datasize,numChannels;
 	int mLoopMode; //0:off, 1:infinite
 
@@ -86,6 +92,7 @@ extern "C" {
 	
 	//Adplug stuff
 	CPlayer	*adPlugPlayer;
+    CAdPlugDatabase *adplugDB;
 	CEmuopl *opl;
 	int opl_towrite;
 	//
@@ -110,10 +117,11 @@ extern "C" {
 };
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @property int optForceMono;
-@property int mPlayType; //1:GME, 2:libmodplug, 3:Adplug
+@property unsigned int mPlayType; //1:GME, 2:libmodplug, 3:Adplug
 @property int mp_datasize,mPatternDataAvail;
 //Adplug stuff
 @property CPlayer	*adPlugPlayer;
+@property CAdPlugDatabase *adplugDB;
 @property CEmuopl *opl;
 @property int opl_towrite,mADPLUGopltype;
 //GME stuff

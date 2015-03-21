@@ -22,7 +22,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 static blargg_err_t init_rar()
 {
 	unrar_init();
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static File_Extractor* new_rar()
@@ -46,13 +46,13 @@ fex_type_t_ const fex_rar_type [2] = {{
 blargg_err_t Rar_Extractor::convert_err( unrar_err_t err )
 {
 	blargg_err_t reader_err = reader.err;
-	reader.err = blargg_ok;
+	reader.err = (blargg_err_t)blargg_ok;
 	if ( reader_err )
 		check( err == unrar_next_err );
 	
 	switch ( err )
 	{
-	case unrar_ok:              return blargg_ok;
+	case unrar_ok:              return (blargg_err_t)blargg_ok;
 	case unrar_err_memory:      return blargg_err_memory;
 	case unrar_err_open:        return blargg_err_file_read;
 	case unrar_err_not_arc:     return blargg_err_file_type;
@@ -126,7 +126,7 @@ blargg_err_t Rar_Extractor::open_v()
 {
 	reader.pos = 0;
 	reader.in  = &arc();
-	reader.err = blargg_ok;
+	reader.err = (blargg_err_t)blargg_ok;
 	
 	RETURN_ERR( arc().seek( 0 ) );
 	RETURN_ERR( convert_err( unrar_open_custom( &unrar, &my_unrar_read, &reader ) ) );
@@ -154,7 +154,7 @@ blargg_err_t Rar_Extractor::skip_unextractables()
 		set_info( info->size, info->dos_date, (info->is_crc32 ? info->crc : 0) );
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Rar_Extractor::next_raw()

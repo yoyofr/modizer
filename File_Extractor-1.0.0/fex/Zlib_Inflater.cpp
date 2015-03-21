@@ -65,7 +65,7 @@ blargg_err_t Zlib_Inflater::fill_buf( int count )
 	RETURN_ERR( callback( user_data, out, &count ) );
 	zbuf.avail_in = count;
 	zbuf.next_in  = out;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Zlib_Inflater::begin( callback_t new_callback, void* new_user_data,
@@ -125,7 +125,7 @@ blargg_err_t Zlib_Inflater::set_mode( mode_t mode, int data_offset )
 
 		deflated_ = true;
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 /*
@@ -253,5 +253,5 @@ blargg_err_t Zlib_Inflater::read( void* out, int* count_io )
 		}
 	}
 	*count_io -= remain;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

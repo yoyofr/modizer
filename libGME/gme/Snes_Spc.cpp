@@ -74,7 +74,7 @@ blargg_err_t Snes_Spc::init()
 #endif
 	
 	reset();
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Snes_Spc::init_rom( uint8_t const in [rom_size] )
@@ -237,7 +237,7 @@ blargg_err_t Snes_Spc::load_spc( void const* data, long size )
 	
 	reset_time_regs();
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Snes_Spc::clear_echo(bool force)

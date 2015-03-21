@@ -260,14 +260,14 @@ static void hash_spc_file( Spc_Emu::header_t const& h, byte const* data, int dat
 blargg_err_t Spc_Emu::track_info_( track_info_t* out, int ) const
 {
 	get_spc_info( header(), trailer_(), trailer_size_(), out );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static blargg_err_t check_spc_header( void const* header )
 {
 	if ( memcmp( header, "SNES-SPC700 Sound File Data", 27 ) )
 		return blargg_err_file_type;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 struct Spc_File : Gme_Info_
@@ -294,19 +294,19 @@ struct Spc_File : Gme_Info_
 			RETURN_ERR( xid6.resize( xid6_size ) );
 			RETURN_ERR( in.read( xid6.begin(), xid6.size() ) );
 		}
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		get_spc_info( header, xid6.begin(), xid6.size(), out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
     
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_spc_file( header, data.begin(), data.end() - data.begin(), out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 };
 
@@ -325,7 +325,7 @@ blargg_err_t Spc_Emu::set_sample_rate_( int sample_rate )
 		RETURN_ERR( resampler.resize_buffer( native_sample_rate / 20 * 2 ) );
 		RETURN_ERR( resampler.set_rate( (double) native_sample_rate / sample_rate ) ); // 0.9965 rolloff
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Spc_Emu::mute_voices_( int m )
@@ -364,14 +364,14 @@ blargg_err_t Spc_Emu::start_track_( int track )
 	RETURN_ERR( apu.load_spc( file_begin(), file_size() ) );
 	filter.set_gain( (int) (gain() * Spc_Filter::gain_unit) );
 	apu.clear_echo( true );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Spc_Emu::play_and_filter( int count, sample_t out [] )
 {
 	RETURN_ERR( apu.play( count, out ) );
 	filter.run( out, count );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Spc_Emu::skip_( int count )
@@ -413,11 +413,11 @@ blargg_err_t Spc_Emu::play_( int count, sample_t out [] )
 		}
 	}
 	check( remain == 0 );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Spc_Emu::hash_( Hash_Function& out ) const
 {
     hash_spc_file( header(), file_begin() + header_t::size, blargg_min( (size_t) ( 0x10200 - header_t::size ), (size_t) ( file_end() - file_begin() - header_t::size ) ), out );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

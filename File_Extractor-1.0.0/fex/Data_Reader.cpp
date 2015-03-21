@@ -33,7 +33,7 @@ blargg_err_t Data_Reader::read( void* p, int n )
 		return blargg_err_caller;
 	
 	if ( n <= 0 )
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	
 	if ( n > remain() )
 		return blargg_err_file_eof;
@@ -56,7 +56,7 @@ blargg_err_t Data_Reader::read_avail( void* p, int* n_ )
 		return blargg_err_caller;
 	
 	if ( n <= 0 )
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	
 	blargg_err_t err = read_v( p, n );
 	if ( !err )
@@ -85,7 +85,7 @@ blargg_err_t Data_Reader::skip_v( int count )
 		count -= n;
 		RETURN_ERR( read_v( buf, n ) );
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Data_Reader::skip( int n )
@@ -96,7 +96,7 @@ blargg_err_t Data_Reader::skip( int n )
 		return blargg_err_caller;
 	
 	if ( n <= 0 )
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	
 	if ( n > remain() )
 		return blargg_err_file_eof;
@@ -119,7 +119,7 @@ blargg_err_t File_Reader::seek( int n )
 		return blargg_err_caller;
 	
 	if ( n == tell() )
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	
 	if ( n > size() )
 		return blargg_err_file_eof;
@@ -187,12 +187,12 @@ Mem_File_Reader::Mem_File_Reader( const void* p, long s ) :
 blargg_err_t Mem_File_Reader::read_v( void* p, int s )
 {
 	memcpy( p, begin + tell(), s );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Mem_File_Reader::seek_v( int )
 {
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 
@@ -227,7 +227,7 @@ blargg_err_t Callback_File_Reader::read_v( void* out, int count )
 
 blargg_err_t Callback_File_Reader::seek_v( int )
 {
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 
@@ -349,7 +349,7 @@ static blargg_err_t blargg_fopen( FILE** out, const char path [] )
 		return blargg_err_file_read;
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static blargg_err_t blargg_fsize( FILE* f, long* out )
@@ -364,7 +364,7 @@ static blargg_err_t blargg_fsize( FILE* f, long* out )
 	if ( fseek( f, 0, SEEK_SET ) )
 		return blargg_err_file_io;
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Std_File_Reader::open( const char path [] )
@@ -385,7 +385,7 @@ blargg_err_t Std_File_Reader::open( const char path [] )
 	file_ = f;
 	set_size( s );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Std_File_Reader::make_unbuffered()
@@ -404,7 +404,7 @@ blargg_err_t Std_File_Reader::read_v( void* p, int s )
 		return blargg_err_file_io;
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Std_File_Reader::seek_v( int n )
@@ -417,7 +417,7 @@ blargg_err_t Std_File_Reader::seek_v( int n )
 		return blargg_err_file_io;
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Std_File_Reader::close()
@@ -473,7 +473,7 @@ static const char* get_gzip_eof( const char path [], long* eof )
 	if ( fclose( file ) )
 		check( false );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 Gzip_File_Reader::Gzip_File_Reader()
@@ -498,7 +498,7 @@ blargg_err_t Gzip_File_Reader::open( const char path [] )
 		return blargg_err_file_read;
 	
 	set_size( s );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static blargg_err_t convert_gz_error( gzFile file )
@@ -527,7 +527,7 @@ blargg_err_t Gzip_File_Reader::read_v( void* p, int s )
 		return blargg_err_file_corrupt;
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Gzip_File_Reader::seek_v( int n )
@@ -535,7 +535,7 @@ blargg_err_t Gzip_File_Reader::seek_v( int n )
 	if ( gzseek( file_, n, SEEK_SET ) < 0 )
 		return convert_gz_error( file_ );
 
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Gzip_File_Reader::close()

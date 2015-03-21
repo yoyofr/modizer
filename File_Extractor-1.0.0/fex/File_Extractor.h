@@ -104,7 +104,7 @@ protected:
 	virtual void         clear_file_v()             { }
 	
 	// Call set_info() if not already called by next_v()
-	virtual blargg_err_t stat_v()                   { return blargg_ok; }
+	virtual blargg_err_t stat_v()                   { return (blargg_err_t)blargg_ok; }
 	
 	// Return value that allows later return to this file. Result must be >= 0.
 	virtual fex_pos_t tell_arc_v() const;
@@ -176,9 +176,9 @@ extern const fex_type_t_
 	fex_zip_type [1],
 	fex_bin_type [1];
 
-inline blargg_err_t File_Extractor::open_v()    { return blargg_ok; }
-inline blargg_err_t File_Extractor::next_v()    { return blargg_ok; }
-inline blargg_err_t File_Extractor::rewind_v()  { return blargg_ok; }
+inline blargg_err_t File_Extractor::open_v()    { return (blargg_err_t)blargg_ok; }
+inline blargg_err_t File_Extractor::next_v()    { return (blargg_err_t)blargg_ok; }
+inline blargg_err_t File_Extractor::rewind_v()  { return (blargg_err_t)blargg_ok; }
 inline void         File_Extractor::close_v()   { }
 
 // Default to Std_File_Reader for archive access

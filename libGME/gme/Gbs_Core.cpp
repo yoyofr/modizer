@@ -62,7 +62,7 @@ blargg_err_t Gbs_Core::load_( Data_Reader& in )
 	cpu.rst_base = load_addr;
 	rom.set_addr( load_addr );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Gbs_Core::set_bank( int n )
@@ -145,7 +145,7 @@ blargg_err_t Gbs_Core::start_track( int track, Gb_Apu::mode_t mode )
 	cpu.r.sp = get_le16( header_.stack_ptr );
 	jsr_then_stop( header_.init_addr );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Gbs_Core::run_until( int end )
@@ -186,7 +186,7 @@ blargg_err_t Gbs_Core::run_until( int end )
 		}
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Gbs_Core::end_frame( int end )
@@ -204,5 +204,5 @@ blargg_err_t Gbs_Core::end_frame( int end )
 	
 	apu_.end_frame( end );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

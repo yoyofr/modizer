@@ -42,14 +42,14 @@ blargg_err_t Sfm_Emu::track_info_( track_info_t* out, int ) const
     if (title) strncpy( out->song, title, 255 );
     else out->song[0] = 0;
     out->song[255] = '\0';
-    return blargg_ok;
+    return (blargg_err_t)blargg_ok;
 }
 
 static blargg_err_t check_sfm_header( void const* header )
 {
     if ( memcmp( header, "SFM1", 4 ) )
         return blargg_err_file_type;
-    return blargg_ok;
+    return (blargg_err_t)blargg_ok;
 }
 
 struct Sfm_File : Gme_Info_
@@ -72,7 +72,7 @@ struct Sfm_File : Gme_Info_
         data[ 8 + metadata_size ] = '\0';
         metadata.parseDocument( (const char *)data.begin() + 8 );
         data[ 8 + metadata_size ] = temp;
-        return blargg_ok;
+        return (blargg_err_t)blargg_ok;
     }
     
     blargg_err_t track_info_( track_info_t* out, int ) const
@@ -81,13 +81,13 @@ struct Sfm_File : Gme_Info_
         if (title) strncpy( out->song, title, 255 );
         else out->song[0] = 0;
         out->song[255] = '\0';
-        return blargg_ok;
+        return (blargg_err_t)blargg_ok;
     }
     
     blargg_err_t hash_( Hash_Function& out ) const
     {
         hash_sfm_file( data.begin(), data.end() - data.begin(), out );
-        return blargg_ok;
+        return (blargg_err_t)blargg_ok;
     }
 };
 
@@ -106,7 +106,7 @@ blargg_err_t Sfm_Emu::set_sample_rate_( int sample_rate )
         RETURN_ERR( resampler.resize_buffer( native_sample_rate / 20 * 2 ) );
         RETURN_ERR( resampler.set_rate( (double) native_sample_rate / sample_rate ) ); // 0.9965 rolloff
     }
-    return blargg_ok;
+    return (blargg_err_t)blargg_ok;
 }
 
 void Sfm_Emu::mute_voices_( int m )
@@ -368,7 +368,7 @@ value = end + 1; \
     
     filter.set_gain( (int) (gain() * Spc_Filter::gain_unit) );
     apu.clear_echo( true );
-    return blargg_ok;
+    return (blargg_err_t)blargg_ok;
 }
 
 #undef META_ENUM_INT
@@ -377,7 +377,7 @@ blargg_err_t Sfm_Emu::play_and_filter( int count, sample_t out [] )
 {
     RETURN_ERR( apu.play( count, out ) );
     filter.run( out, count );
-    return blargg_ok;
+    return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Sfm_Emu::skip_( int count )
@@ -419,11 +419,11 @@ blargg_err_t Sfm_Emu::play_( int count, sample_t out [] )
         }
     }
     check( remain == 0 );
-    return blargg_ok;
+    return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Sfm_Emu::hash_( Hash_Function& out ) const
 {
     hash_sfm_file( file_begin(), file_size(), out );
-    return blargg_ok;
+    return (blargg_err_t)blargg_ok;
 }

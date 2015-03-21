@@ -28,7 +28,7 @@ blargg_err_t Sgc_Core::load_( Data_Reader& dr )
 		RETURN_ERR( fm_apu_.init( clock_rate(), clock_rate() / 72 ) );
 	
 	set_tempo( 1.0 );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Sgc_Core::start_track( int t )
@@ -59,7 +59,7 @@ blargg_err_t Sgc_Core::end_frame( time_t t )
 			set_warning( "FM sound not supported" );
 	}
 
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 	
 Sgc_Core::Sgc_Core()

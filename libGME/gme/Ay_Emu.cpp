@@ -68,7 +68,7 @@ static blargg_err_t parse_header( byte const in [], int size, Ay_Emu::file_t* ou
 	if ( !out->tracks )
 		return BLARGG_ERR( BLARGG_ERR_FILE_CORRUPT, "missing track data" );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static void copy_ay_fields( Ay_Emu::file_t const& file, track_info_t* out, int track )
@@ -124,7 +124,7 @@ static void hash_ay_file( Ay_Emu::file_t const& file, Gme_Info_::Hash_Function& 
 blargg_err_t Ay_Emu::track_info_( track_info_t* out, int track ) const
 {
 	copy_ay_fields( file, out, track );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 struct Ay_File : Gme_Info_
@@ -137,19 +137,19 @@ struct Ay_File : Gme_Info_
 	{
 		RETURN_ERR( parse_header( begin, size, &file ) );
 		set_track_count( file.header->max_track + 1 );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int track ) const
 	{
 		copy_ay_fields( file, out, track );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_ay_file( file, out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 };
 
@@ -330,13 +330,13 @@ blargg_err_t Ay_Emu::start_track_( int track )
 	
 	core.start_track( r, play_addr );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Ay_Emu::run_clocks( blip_time_t& duration, int )
 {
 	core.end_frame( &duration );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 inline void Ay_Emu::enable_cpc()
@@ -353,5 +353,5 @@ void Ay_Emu::enable_cpc_( void* data )
 blargg_err_t Ay_Emu::hash_( Hash_Function& out ) const
 {
 	hash_ay_file( file, out );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

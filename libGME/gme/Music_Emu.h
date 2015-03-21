@@ -239,11 +239,11 @@ inline void Music_Emu::set_gain( double g )
 	gain_ = g;
 }
 
-inline blargg_err_t Music_Emu::start_track_( int )  { return blargg_ok; }
+inline blargg_err_t Music_Emu::start_track_( int )  { return (blargg_err_t)blargg_ok; }
 
-inline blargg_err_t Music_Emu::set_sample_rate_( int ) { return blargg_ok; }
+inline blargg_err_t Music_Emu::set_sample_rate_( int ) { return (blargg_err_t)blargg_ok; }
 
-inline blargg_err_t Music_Emu::play_( int, sample_t [] ) { return blargg_ok; }
+inline blargg_err_t Music_Emu::play_( int, sample_t [] ) { return (blargg_err_t)blargg_ok; }
 
 inline blargg_err_t Music_Emu::hash_( Hash_Function& ) const { return BLARGG_ERR( BLARGG_ERR_CALLER, "no hashing function defined" ); }
 

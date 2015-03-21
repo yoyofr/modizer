@@ -32,7 +32,7 @@ blargg_err_t File_Extractor::set_path( const char* path )
 	
 	RETURN_ERR( path_.resize( strlen( path ) + 1 ) );
 	memcpy( path_.begin(), path, path_.size() );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t File_Extractor::open( const char path [] )
@@ -70,7 +70,7 @@ static void make_unbuffered( void* )
 blargg_err_t File_Extractor::open_arc_file( bool unbuffered )
 {
 	if ( reader_ )
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	
 	FEX_FILE_READER* in = BLARGG_NEW FEX_FILE_READER;
 	CHECK_ALLOC( in );
@@ -208,7 +208,7 @@ blargg_err_t File_Extractor::stat()
 		RETURN_ERR( stat_v() );
 		stat_called = true;
 	}
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 // Tell/seek
@@ -263,7 +263,7 @@ blargg_err_t File_Extractor::seek_arc_v( fex_pos_t pos )
 	
 	assert( tell_ == pos );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 // Extraction
@@ -285,7 +285,7 @@ blargg_err_t File_Extractor::rewind_file()
 		}
 	}
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t File_Extractor::data( const void** data_out )
@@ -308,7 +308,7 @@ blargg_err_t File_Extractor::data( const void** data_out )
 	}
 	
 	*data_out = data_ptr_;
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t File_Extractor::data_v( void const** out )
@@ -329,7 +329,7 @@ blargg_err_t File_Extractor::extract_v( void* out, int count )
 	RETURN_ERR( data( &p ) );
 	memcpy( out, STATIC_CAST(char const*,p) + (size() - remain()), count );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t File_Extractor::read_v( void* out, int count )

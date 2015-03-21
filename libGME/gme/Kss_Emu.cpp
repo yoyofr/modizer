@@ -103,7 +103,7 @@ blargg_err_t Kss_Emu::track_info_( track_info_t* out, int ) const
 //if ( msx.music ) strcpy( out->system, "msxmusic" );
 //if ( msx.audio ) strcpy( out->system, "msxaudio" );
 //if ( sms.fm    ) strcpy( out->system, "fmunit"   );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 static blargg_err_t check_kss_header( void const* header )
@@ -111,7 +111,7 @@ static blargg_err_t check_kss_header( void const* header )
 	if ( memcmp( header, "KSCC", 4 ) && memcmp( header, "KSSX", 4 ) )
 		return blargg_err_file_type;
 
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 struct Kss_File : Gme_Info_
@@ -133,13 +133,13 @@ struct Kss_File : Gme_Info_
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		copy_kss_fields( *header_, out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_kss_file( *header_, file_begin() + Kss_Core::header_t::base_size, file_end() - file_begin() - Kss_Core::header_t::base_size, out );
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	}
 };
 
@@ -483,11 +483,11 @@ blargg_err_t Kss_Emu::run_clocks( blip_time_t& duration, int )
 	FOR_EACH_APU( ACTION );
 	#undef ACTION
 
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 blargg_err_t Kss_Emu::hash_( Hash_Function& out ) const
 {
 	hash_kss_file( header(), core.rom_().begin(), core.rom_().file_size(), out );
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }

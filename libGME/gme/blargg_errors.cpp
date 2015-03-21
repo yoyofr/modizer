@@ -103,7 +103,7 @@ int blargg_err_to_code( blargg_err_t err, blargg_err_to_code_t const codes [] )
 blargg_err_t blargg_code_to_err( int code, blargg_err_to_code_t const codes [] )
 {
 	if ( !code )
-		return blargg_ok;
+		return (blargg_err_t)blargg_ok;
 	
 	while ( codes->str && codes->code != code )
 		codes++;

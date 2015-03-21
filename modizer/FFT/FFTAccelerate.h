@@ -15,7 +15,7 @@
 using namespace std;
 
 #include <Accelerate/Accelerate.h>
-#include <vector.h>
+#include <vector>
 class FFTAccelerate
 {
 

@@ -66,7 +66,7 @@ blargg_err_t Sgc_Impl::load_( Data_Reader& in )
 	// TODO: doesn't need to be larger than page size, if we do mapping calls right
 	RETURN_ERR( unmapped_write.resize( bank_size ) );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 void Sgc_Impl::unload()
@@ -130,7 +130,7 @@ blargg_err_t Sgc_Impl::start_track( int track )
 	
 	jsr( header_.init_addr );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
 
 // Emulation
@@ -221,5 +221,5 @@ blargg_err_t Sgc_Impl::end_frame( time_t end )
 	check( next_play >= 0 );
 	cpu.adjust_time( -end );
 	
-	return blargg_ok;
+	return (blargg_err_t)blargg_ok;
 }
