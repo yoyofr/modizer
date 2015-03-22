@@ -20,7 +20,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 static blargg_err_t init_gzip_file()
 {
 	get_crc_table(); // initialize zlib's CRC-32 tables
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 static File_Extractor* new_gzip()
@@ -57,7 +57,7 @@ blargg_err_t Gzip_Extractor::stat_v()
 		RETURN_ERR( gr.open( &arc() ) );
 	
 	set_info( gr.remain(), 0, gr.crc32() );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Gzip_Extractor::open_v()
@@ -72,7 +72,7 @@ blargg_err_t Gzip_Extractor::open_v()
 	name [name.size() - 1] = '\0';
 	
 	set_name( name.begin() );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Gzip_Extractor::close_v()
@@ -83,16 +83,16 @@ void Gzip_Extractor::close_v()
 
 blargg_err_t Gzip_Extractor::next_v()
 {
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Gzip_Extractor::rewind_v()
 {
 	set_name( name.begin() );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
-blargg_err_t Gzip_Extractor::extract_v( void* p, int n )
+blargg_err_t Gzip_Extractor::extract_v( void* p, long n )
 {
 	return gr.read( p, n );
 }

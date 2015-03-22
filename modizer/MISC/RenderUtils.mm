@@ -2692,7 +2692,7 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
     }
     
 	
-    int j=data_pianofx_len-1-MIDIFX_OFS;
+    int j=data_pianofx_len-1-(data_pianofx_len/2);//MIDIFX_OFS;
     //glLineWidth(line_width+2);
     index=0;
     for (int i=0; i<256; i++) {
@@ -3723,7 +3723,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         if (note<tgt_note_min) tgt_note_min=note;
         
         x=piano_note_posx[note&127];
-        y=piano_note_posy[note&127]+((float)(data_bar2draw[i].startidx)-MIDIFX_OFS)*0.5f;
+        y=piano_note_posy[note&127]+((float)(data_bar2draw[i].startidx)-MIDIFX_OFS*3)*0.5f;
         z=piano_note_posz[note&127];
         
         

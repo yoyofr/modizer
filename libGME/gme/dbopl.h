@@ -45,8 +45,6 @@ typedef unsigned short		Bit16u;
 typedef   signed short		Bit16s;
 typedef  unsigned long		Bit32u;
 typedef    signed long		Bit32s;
-//typedef unsigned __int64	Bit64u;
-//typedef   signed __int64	Bit64s;
 typedef unsigned long long	Bit64u;
 typedef   signed long long	Bit64s;
 #endif

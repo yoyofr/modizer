@@ -514,7 +514,7 @@ static float movePinchScale,movePinchScaleOld;
             case 3:mpsettings->mResamplingMode = MODPLUG_RESAMPLE_FIR;break;
         }
         mpsettings->mFlags|=MODPLUG_ENABLE_OVERSAMPLING|MODPLUG_ENABLE_NOISE_REDUCTION;
-        switch ( settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value) {
+       /* switch ( settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value) {
             case 1:mpsettings->mFlags|=MODPLUG_ENABLE_REVERB;break;
             case 0:mpsettings->mFlags&=~MODPLUG_ENABLE_REVERB;break;
         }
@@ -530,9 +530,9 @@ static float movePinchScale,movePinchScaleOld;
         mpsettings->mReverbDelay=(int)(settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value*160.0f+40.0f);
         mpsettings->mBassAmount=(int)(settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value*100.0f);
         mpsettings->mBassRange=(int)(settings[MODPLUG_BassRange].detail.mdz_slider.slider_value*80.0f+20.0f);
-        mpsettings->mStereoSeparation=(int)(settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value*255.0f+1);
         mpsettings->mSurroundDepth=(int)(settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_value*100.0f);
-        mpsettings->mSurroundDelay=(int)(settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value*35.0f+5.0f);
+        mpsettings->mSurroundDelay=(int)(settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value*35.0f+5.0f);*/
+        mpsettings->mStereoSeparation=(int)(settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value*255.0f+1);
         [mplayer setModPlugMasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
         [mplayer updateMPSettings];
     }
@@ -3320,6 +3320,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //EQ
     eqVC=nil;
     
+    [sliderProgressModule setThumbImage:[UIImage imageNamed:@"slider.png" ] forState:UIControlStateNormal];
+    
     
     shouldRestart=1;
     m_displayLink=nil;
@@ -4786,7 +4788,7 @@ extern "C" int current_sample;
             
             if ((mplayer.mPlayType==15)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
-                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                 
                 if (mHeader) delete mHeader;
                 mHeader=nil;
@@ -4828,8 +4830,7 @@ extern "C" int current_sample;
                         }
                     }
                     
-                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*2,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
-                    
+                    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                 }
                 
                 if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
@@ -5140,7 +5141,7 @@ extern "C" int current_sample;
                     RenderUtils::DrawPiano3D(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                     break;
                 case 2:
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*4,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
                 case 3:
                     if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
@@ -5160,7 +5161,7 @@ extern "C" int current_sample;
                     piano_posx=movePx2FXPiano*0.05;
                     piano_posy=-movePy2FXPiano*0.05;
                     piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*2,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+                    RenderUtils::DrawPiano3DWithNotesWall(tim_notes_cpy[playerpos],ww,hh,MIDIFX_OFS*4,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
                     break;
             }
         }

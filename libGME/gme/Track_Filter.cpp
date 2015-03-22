@@ -125,7 +125,7 @@ blargg_err_t Track_Filter::skip_( int count )
 		count -= n;
 		RETURN_ERR( callbacks->play_( n, buf.begin() ) );
 	}
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 // Fading

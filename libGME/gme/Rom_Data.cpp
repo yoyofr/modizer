@@ -65,7 +65,7 @@ blargg_err_t Rom_Data::load( Data_Reader& in, int header_size,
 	memset( rom.begin()         , fill, pad_size );
 	memset( rom.end() - pad_size, fill, pad_size );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Rom_Data::set_addr( int addr )

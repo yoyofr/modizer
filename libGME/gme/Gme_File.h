@@ -148,6 +148,6 @@ inline gme_type_t Gme_File::type() const            { return type_; }
 
 inline int Gme_File::track_count() const            { return track_count_; }
 
-inline blargg_err_t Gme_File::track_info_( track_info_t*, int ) const { return (blargg_err_t)blargg_ok; }
+inline blargg_err_t Gme_File::track_info_( track_info_t*, int ) const { return blargg_ok; }
 
 #endif

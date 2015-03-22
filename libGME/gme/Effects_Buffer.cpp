@@ -66,7 +66,7 @@ blargg_err_t Effects_Buffer::new_bufs( int size )
 	for ( int i = 0; i < size; i++ )
 		new (bufs + i) buf_t;
 	bufs_size = size;
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Effects_Buffer::delete_bufs()
@@ -135,7 +135,7 @@ blargg_err_t Effects_Buffer::set_channel_count( int count, int const types [] )
 	apply_config();
 	clear();
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Effects_Buffer::clear_echo()

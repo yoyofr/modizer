@@ -128,7 +128,7 @@ blargg_err_t Vgm_Emu::track_info_( track_info_t* out, int ) const
 	
 	int gd3_offset = get_le32( header().gd3_offset );
 	if ( gd3_offset <= 0 )
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	
 	byte const* gd3 = core.file_begin() + gd3_offset + offsetof( header_t, gd3_offset );
 	int gd3_size = check_gd3_header( gd3, core.file_end() - gd3 );
@@ -138,7 +138,7 @@ blargg_err_t Vgm_Emu::track_info_( track_info_t* out, int ) const
 		parse_gd3( gd3_data, gd3_data + gd3_size, out );
 	}
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Vgm_Emu::gd3_data( const unsigned char ** data, int * size )
@@ -148,7 +148,7 @@ blargg_err_t Vgm_Emu::gd3_data( const unsigned char ** data, int * size )
 
 	int gd3_offset = get_le32( header().gd3_offset );
 	if ( gd3_offset <= 0 )
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 
 	byte const* gd3 = core.file_begin() + gd3_offset + offsetof( header_t, gd3_offset );
 	int gd3_size = check_gd3_header( gd3, core.file_end() - gd3 );
@@ -158,7 +158,7 @@ blargg_err_t Vgm_Emu::gd3_data( const unsigned char ** data, int * size )
 		*size = gd3_size + gd3_header_size;
 	}
 
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 static void hash_vgm_file( Vgm_Emu::header_t const& h, byte const* data, int data_size, Music_Emu::Hash_Function& out )
@@ -282,7 +282,7 @@ struct Vgm_File : Gme_Info_
 			}
 		}
 
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int ) const
@@ -290,13 +290,13 @@ struct Vgm_File : Gme_Info_
 		get_vgm_length( h, out );
 		if ( gd3.size() )
 			parse_gd3( gd3.begin(), gd3.end(), out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_vgm_file( h, data.begin(), data.end() - data.begin(), out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 };
 
@@ -319,7 +319,8 @@ blargg_err_t Vgm_Emu::set_sample_rate_( int sample_rate )
 	RETURN_ERR( core.stereo_buf[0].set_sample_rate( sample_rate, 1000 / 30 ) );
 	RETURN_ERR( core.stereo_buf[1].set_sample_rate( sample_rate, 1000 / 30 ) );
     RETURN_ERR( core.stereo_buf[2].set_sample_rate( sample_rate, 1000 / 30 ) );
-	core.set_sample_rate( sample_rate );
+	RETURN_ERR( core.stereo_buf[3].set_sample_rate( sample_rate, 1000 / 30 ) );
+	core.set_sample_rate(sample_rate);
 	return Classic_Emu::set_sample_rate_( sample_rate );
 }
 
@@ -331,6 +332,8 @@ void Vgm_Emu::update_eq( blip_eq_t const& eq )
 	core.ay[1].treble_eq( eq );
     core.huc6280[0].treble_eq( eq );
     core.huc6280[1].treble_eq( eq );
+	core.gbdmg[0].treble_eq( eq );
+	core.gbdmg[1].treble_eq( eq );
 	core.pcm.treble_eq( eq );
 }
 
@@ -367,7 +370,15 @@ void Vgm_Emu::mute_voices_( int mask )
             core.huc6280[0].set_output( i, center, left, right );
             core.huc6280[1].set_output( i, center, left, right );
         }
-		if ( core.ym2612[0].enabled() )
+		for (unsigned i = 0, j = 1; i < core.gbdmg[0].osc_count; i++, j <<= 1)
+		{
+			Blip_Buffer * center = (mask & j) ? 0 : core.stereo_buf[3].center();
+			Blip_Buffer * left   = (mask & j) ? 0 : core.stereo_buf[3].left();
+			Blip_Buffer * right  = (mask & j) ? 0 : core.stereo_buf[3].right();
+			core.gbdmg[0].set_output(i, center, left, right);
+			core.gbdmg[1].set_output(i, center, left, right);
+		}
+		if (core.ym2612[0].enabled())
 		{
 			core.pcm.volume( (mask & 0x40) ? 0.0 : 0.1115 / 256 * fm_gain * gain() );
 			core.ym2612[0].mute_voices( mask );
@@ -441,6 +452,8 @@ blargg_err_t Vgm_Emu::load_mem_( byte const data [], int size )
 		core.ay[1].volume( 0.135 * fm_gain * gain() );
         core.huc6280[0].volume( 0.135 * fm_gain * gain() );
         core.huc6280[1].volume( 0.135 * fm_gain * gain() );
+		core.gbdmg[0].volume( 0.135 * fm_gain * gain() );
+		core.gbdmg[1].volume( 0.135 * fm_gain * gain() );
 	}
 	else
 	{
@@ -476,7 +489,7 @@ blargg_err_t Vgm_Emu::start_track_( int track )
 	if ( core.uses_fm() )
 		resampler.clear();
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 inline void Vgm_Emu::check_end()
@@ -497,7 +510,7 @@ blargg_err_t Vgm_Emu::run_clocks( blip_time_t& time_io, int msec )
 	check_end();
 	time_io = core.run_psg( msec );
 	check_warning();
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 inline int Vgm_Emu::play_frame( blip_time_t blip_time, int sample_count, sample_t buf [] )
@@ -518,9 +531,9 @@ blargg_err_t Vgm_Emu::play_( int count, sample_t out [] )
 	if ( !core.uses_fm() )
 		return Classic_Emu::play_( count, out );
 
-    Stereo_Buffer * secondaries[] = { &core.stereo_buf[1], &core.stereo_buf[2] };
-    resampler.dual_play( count, out, core.stereo_buf[0], secondaries, 2 );
-	return (blargg_err_t)blargg_ok;
+    Stereo_Buffer * secondaries[] = { &core.stereo_buf[1], &core.stereo_buf[2], &core.stereo_buf[3] };
+    resampler.dual_play( count, out, core.stereo_buf[0], secondaries, 3 );
+	return blargg_ok;
 }
 
 blargg_err_t Vgm_Emu::hash_( Hash_Function& out ) const
@@ -534,5 +547,5 @@ blargg_err_t Vgm_Emu::hash_( Hash_Function& out ) const
 	if ( gd3_offset > 0 && gd3_offset + offsetof( header_t, gd3_offset ) > data_offset + offsetof( header_t, data_offset ) )
 		e = file_begin() + gd3_offset + offsetof( header_t, gd3_offset );
 	hash_vgm_file( header(), p, e - p, out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

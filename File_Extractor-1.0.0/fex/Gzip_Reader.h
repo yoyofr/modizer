@@ -25,19 +25,19 @@ public:
 	unsigned int crc32() const          { return crc32_; }
 	
 	// Number of bytes read since opening
-	int tell() const                    { return size_ - remain(); }
+	BOOST::uint64_t tell() const                    { return size_ - remain(); }
 
 public:
 	Gzip_Reader();
 	virtual ~Gzip_Reader();
 	
 protected:
-	virtual blargg_err_t read_v( void*, int );
+	virtual blargg_err_t read_v( void*, long );
 
 private:
 	File_Reader* in;
 	unsigned crc32_;
-	int size_;
+    BOOST::uint64_t size_;
 	Zlib_Inflater inflater;
 
 	blargg_err_t calc_size();

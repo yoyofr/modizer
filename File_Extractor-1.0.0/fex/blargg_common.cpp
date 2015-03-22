@@ -47,5 +47,5 @@ blargg_err_t blargg_vector_::resize_( size_t n, size_t elem_size )
 			size_  = n;
 		}
 	}
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

@@ -108,7 +108,7 @@ static int gym_track_length( byte const p [], byte const* end )
 blargg_err_t Gym_Emu::track_info_( track_info_t* out, int ) const
 {
 	get_gym_info( header_, gym_track_length( log_begin(), file_end() ), out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 static blargg_err_t check_header( byte const in [], int size, int* data_offset = NULL )
@@ -132,7 +132,7 @@ static blargg_err_t check_header( byte const in [], int size, int* data_offset =
 		return blargg_err_file_type;
 	}
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 struct Gym_File : Gme_Info_
@@ -151,7 +151,7 @@ struct Gym_File : Gme_Info_
 	{
 		int length = gym_track_length( &file_begin() [data_offset], file_end() );
 		get_gym_info( *(Gym_Emu::header_t const*) file_begin(), length, out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
@@ -161,7 +161,7 @@ struct Gym_File : Gme_Info_
 
 		hash_gym_file( *h, data, file_end() - data, out );
 
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 };
 
@@ -193,7 +193,7 @@ blargg_err_t Gym_Emu::set_sample_rate_( int sample_rate )
 	RETURN_ERR( fm.set_rate( fm_rate, base_clock / 7.0 ) );
 	RETURN_ERR( resampler.reset( (int) (1.0 / 60 / min_tempo * sample_rate) ) );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Gym_Emu::set_tempo_( double t )
@@ -240,7 +240,7 @@ blargg_err_t Gym_Emu::load_mem_( byte const in [], int size )
 	else
 		memset( &header_, 0, sizeof header_ );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 // Emulation
@@ -261,7 +261,7 @@ blargg_err_t Gym_Emu::start_track_( int track )
 	stereo_buf.clear();
 	resampler.clear();
 	pcm_buf = stereo_buf.center();
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Gym_Emu::run_pcm( byte const pcm_in [], int pcm_count )
@@ -418,11 +418,11 @@ int Gym_Emu::play_frame_( void* p, blip_time_t a, int b, sample_t c [] )
 blargg_err_t Gym_Emu::play_( int count, sample_t out [] )
 {
 	resampler.dual_play( count, out, stereo_buf );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Gym_Emu::hash_( Hash_Function& out ) const
 {
 	hash_gym_file( header(), log_begin(), file_end() - log_begin(), out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

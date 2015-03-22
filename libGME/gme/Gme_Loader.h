@@ -50,7 +50,7 @@ protected:
 	
 	// Optionally overridden
 	virtual void pre_load()             { unload(); } // called before load_()/load_mem_()
-	virtual blargg_err_t post_load()    { return (blargg_err_t)blargg_ok; } // called after load_()/load_mem_() succeeds
+	virtual blargg_err_t post_load()    { return blargg_ok; } // called after load_()/load_mem_() succeeds
 	
 private:
 	// noncopyable

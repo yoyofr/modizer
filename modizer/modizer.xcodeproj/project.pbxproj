@@ -692,6 +692,8 @@
 		CC2DE0A41217EF2900CF9CFF /* ModizerWin.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */; };
 		CC33B3C81ABAC193009608E8 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B2951AB8197F009608E8 /* liblibopenmpt.a */; };
 		CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B4181ABD827D009608E8 /* libc++.dylib */; };
+		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
+		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
 		CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709517CC8EB000DC7197 /* txtMenu11c.png */; };
 		CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709617CC8EB000DC7197 /* txtMenu11d.png */; };
@@ -2434,6 +2436,8 @@
 		CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizerWin.mm; sourceTree = "<group>"; };
 		CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libopenmpt.xcodeproj; path = ../libopenmpt/libopenmpt/libopenmpt.xcodeproj; sourceTree = "<group>"; };
 		CC33B4181ABD827D009608E8 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
+		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
+		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
 		CC5C709517CC8EB000DC7197 /* txtMenu11c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c.png; sourceTree = "<group>"; };
 		CC5C709617CC8EB000DC7197 /* txtMenu11d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11d.png; sourceTree = "<group>"; };
@@ -4160,6 +4164,8 @@
 				333DA8F315F48D5E0095494B /* video_play@2x.png */,
 				333DA8F415F48D5E0095494B /* video_previous.png */,
 				333DA8F515F48D5E0095494B /* video_previous@2x.png */,
+				CC33B4261ABE1FC6009608E8 /* slider.png */,
+				CC33B42C1ABF05A3009608E8 /* slider@2x.png */,
 				333DA8E815F48CD80095494B /* arrow_left.png */,
 				333DA8E915F48CD80095494B /* arrow_left@2x.png */,
 				3358147714EC0F27003D7B5B /* pinfo.png */,
@@ -5652,6 +5658,7 @@
 				CC1E631E120423DF000A8A4E /* BladePacker in Resources */,
 				CC1E631F120423DF000A8A4E /* ChipTracker in Resources */,
 				CC1E6320120423DF000A8A4E /* Cinemaware in Resources */,
+				CC33B4271ABE1FC6009608E8 /* slider.png in Resources */,
 				CC1E6321120423DF000A8A4E /* CoreDesign in Resources */,
 				CC1E6322120423DF000A8A4E /* CustomMade in Resources */,
 				CC1E6323120423DF000A8A4E /* DariusZendeh in Resources */,
@@ -5802,6 +5809,7 @@
 				CC1E63A4120423E0000A8A4E /* Synth in Resources */,
 				CC1E63A5120423E0000A8A4E /* SynthDream in Resources */,
 				CCC677A417F75AEB00F16A54 /* dope - onward ride.ft in Resources */,
+				CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */,
 				CC1E63A6120423E0000A8A4E /* SynthPack in Resources */,
 				CC1E63A7120423E0000A8A4E /* SynTracker in Resources */,
 				CC1E63A8120423E0000A8A4E /* TFMX in Resources */,
@@ -6406,7 +6414,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6423,7 +6431,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "FECE1F6E-1766-476B-995F-30337E85301D";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -6444,7 +6452,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6461,7 +6469,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "FECE1F6E-1766-476B-995F-30337E85301D";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -6564,7 +6572,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6581,8 +6589,8 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "CB793328-B6E5-46AE-9D36-6917FB3879D7";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -6632,7 +6640,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6649,8 +6657,8 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "AAB6C096-42FA-42BC-AAA9-066BC69E4201";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6F667B42-267B-4018-8D5E-22BA3CA81907";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
