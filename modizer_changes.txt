@@ -1,14 +1,11 @@
 2.1
 ÑÑÑ
-- replaced libmodplug by libOpenMPT
-- Adplug: fixed tempo issues (IMF)
 - updated HVSC to #62
 - updated MODLAND to latest version
+- replaced Modplug by OpenMPT
 - reduced audio latency
-- updated GME lib
-- updated FileExtractor lib
+- updated playback librairies
 - several bug fixes
-
 
 2.0
 ---
