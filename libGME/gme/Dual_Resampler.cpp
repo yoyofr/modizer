@@ -32,7 +32,7 @@ blargg_err_t Dual_Resampler::reset( int pairs )
 	resampler_size = oversamples_per_frame + (oversamples_per_frame >> 2);
 	RETURN_ERR( resampler.resize_buffer( resampler_size ) );
 	resampler.clear();
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Dual_Resampler::resize( int pairs )
@@ -255,7 +255,6 @@ void Dual_Resampler::mix_extra_mono( Stereo_Buffer& stereo_buf, dsample_t out_ [
 	typedef dsample_t stereo_dsample_t [2];
 	stereo_dsample_t* BLARGG_RESTRICT out = (stereo_dsample_t*) out_ + count;
 	int offset = -count;
-	int const gain = gain_;
 	do
 	{
 		int s = BLIP_READER_READ_RAW( sn ) >> (blip_sample_bits - 16);
@@ -290,7 +289,6 @@ void Dual_Resampler::mix_extra_stereo( Stereo_Buffer& stereo_buf, dsample_t out_
 	typedef dsample_t stereo_dsample_t [2];
 	stereo_dsample_t* BLARGG_RESTRICT out = (stereo_dsample_t*) out_ + count;
 	int offset = -count;
-	int const gain = gain_;
 	do
 	{
 		int sc = BLIP_READER_READ_RAW( snc ) >> (blip_sample_bits - 16);

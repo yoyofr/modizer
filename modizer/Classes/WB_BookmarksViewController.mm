@@ -85,15 +85,12 @@
     [self addbuiltinURL:@"http://snesmusic.org/pmh/" name:@"Portable Music History"];
     [self addbuiltinURL:@"http://project2612.org/" name:@"Megadrive/Genesis Music"];
     
-    [self addbuiltinURL:@"http://chiptunes.org/" name:@"Chiptunes.org"];
-    [self addbuiltinURL:@"http://chiptunes.back2roots.org/" name:@"Chiptunes Back2Roots"];
     [self addbuiltinURL:@"http://www.mirsoft.info/gamemods-archive.php" name:@"Mirsoft MODS"];
     [self addbuiltinURL:@"http://www.scene.org/dir.php?dir=/music" name:@"Scene.org"];
     [self addbuiltinURL:@"http://www.vgmusic.com/" name:@"VGMusic"];
     [self addbuiltinURL:@"http://www.mirsoft.info/gamemids-archive.php" name:@"Mirsoft Midis"];
     [self addbuiltinURL:@"http://www.midishrine.com/" name:@"Midishrine"];
     [self addbuiltinURL:@"http://www.lvbeethoven.com/Midi/index.html" name:@"Beethoven Midis"];
-    [self addbuiltinURL:@"http://www.aganazzar.com/midi.html" name:@"Games Midis"];
     
 }
 -(void) loadBookmarks {

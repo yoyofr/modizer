@@ -78,14 +78,14 @@ void hash_nsf_file( Nsf_Core::header_t const& h, unsigned char const* data, int 
 blargg_err_t Nsf_Emu::track_info_( track_info_t* out, int ) const
 {
 	copy_nsf_fields( header(), out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 static blargg_err_t check_nsf_header( Nsf_Emu::header_t const& h )
 {
 	if ( !h.valid_tag() )
 		return blargg_err_file_type;
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 struct Nsf_File : Gme_Info_
@@ -115,13 +115,13 @@ struct Nsf_File : Gme_Info_
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		copy_nsf_fields( *h, out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_nsf_file( *h, file_begin() + h->size, file_end() - file_begin() - h->size, out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 };
 
@@ -266,7 +266,7 @@ blargg_err_t Nsf_Emu::init_sound()
 	
 	core_.nes_apu()->volume( adjusted_gain );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Nsf_Emu::load_( Data_Reader& in )
@@ -332,11 +332,11 @@ blargg_err_t Nsf_Emu::run_clocks( blip_time_t& duration, int )
 	const char* w = core_.warning();
 	if ( w )
 		set_warning( w );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Nsf_Emu::hash_( Hash_Function& out ) const
 {
 	hash_nsf_file( header(), core_.rom_().begin(), core_.rom_().file_size(), out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

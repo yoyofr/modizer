@@ -6,13 +6,27 @@
 #define BLARGG_COMMON_H
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <assert.h>
 #include <limits.h>
 
 typedef const char* blargg_err_t; // 0 on success, otherwise error string
 
+#ifdef _WIN32
+typedef wchar_t blargg_wchar_t;
+#else
+typedef uint16_t blargg_wchar_t;
+#endif
+
+inline size_t blargg_wcslen( const blargg_wchar_t* str )
+{
+    size_t length = 0;
+    while ( *str++ ) length++;
+    return length;
+}
+
 // Success; no error
-int const blargg_ok = 0;
+blargg_err_t const blargg_ok = 0;
 
 // BLARGG_RESTRICT: equivalent to C99's restrict, where supported
 #if __GNUC__ >= 3 || _MSC_VER >= 1100
@@ -104,12 +118,14 @@ global scope already. */
 #else
 	struct BOOST
 	{
-		typedef signed char       int8_t;
-		typedef unsigned char    uint8_t;
-		typedef short            int16_t;
-		typedef unsigned short  uint16_t;
-		typedef int              int32_t;
-		typedef unsigned int    uint32_t;
+		typedef signed char        int8_t;
+		typedef unsigned char     uint8_t;
+		typedef short             int16_t;
+		typedef unsigned short   uint16_t;
+		typedef int               int32_t;
+		typedef unsigned int     uint32_t;
+		typedef __int64           int64_t;
+		typedef unsigned __int64 uint64_t;
 	};
 #endif
 
@@ -191,11 +207,6 @@ struct blargg_callback
 	blargg_callback() { f = NULL; }
 	void operator () ( T callback, void* user_data = NULL ) { f = callback; data = user_data; }
 };
-
-#ifndef _WIN32
-	// Not supported on any other platforms
-	#undef BLARGG_UTF8_PATHS
-#endif
 
 BLARGG_DEPRECATED( typedef signed   int blargg_long; )
 BLARGG_DEPRECATED( typedef unsigned int blargg_ulong; )

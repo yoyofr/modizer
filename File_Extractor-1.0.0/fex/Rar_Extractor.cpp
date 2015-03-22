@@ -22,7 +22,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 static blargg_err_t init_rar()
 {
 	unrar_init();
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 static File_Extractor* new_rar()
@@ -30,29 +30,23 @@ static File_Extractor* new_rar()
 	return BLARGG_NEW Rar_Extractor;
 }
 
-fex_type_t_ const fex_rar_type [2] = {{
+fex_type_t_ const fex_rar_type [1] = {{
 	".rar",
 	&new_rar,
 	"RAR archive",
 	&init_rar
-},{
-	".rsn",
-	&new_rar,
-	"RSN archive",
-	&init_rar
-}
-};
+}};
 
 blargg_err_t Rar_Extractor::convert_err( unrar_err_t err )
 {
 	blargg_err_t reader_err = reader.err;
-	reader.err = (blargg_err_t)blargg_ok;
+	reader.err = blargg_ok;
 	if ( reader_err )
 		check( err == unrar_next_err );
 	
 	switch ( err )
 	{
-	case unrar_ok:              return (blargg_err_t)blargg_ok;
+	case unrar_ok:              return blargg_ok;
 	case unrar_err_memory:      return blargg_err_memory;
 	case unrar_err_open:        return blargg_err_file_read;
 	case unrar_err_not_arc:     return blargg_err_file_type;
@@ -89,8 +83,6 @@ extern "C"
 {
 	static unrar_err_t my_unrar_read( void* data, void* out, int* count, unrar_pos_t pos )
 	{
-		// TODO: 64-bit file support
-		
 		Rar_Extractor::read_callback_t* h = STATIC_CAST(Rar_Extractor::read_callback_t*,data);
 		if ( h->pos != pos )
 		{
@@ -126,7 +118,7 @@ blargg_err_t Rar_Extractor::open_v()
 {
 	reader.pos = 0;
 	reader.in  = &arc();
-	reader.err = (blargg_err_t)blargg_ok;
+	reader.err = blargg_ok;
 	
 	RETURN_ERR( arc().seek( 0 ) );
 	RETURN_ERR( convert_err( unrar_open_custom( &unrar, &my_unrar_read, &reader ) ) );
@@ -151,10 +143,10 @@ blargg_err_t Rar_Extractor::skip_unextractables()
 		unrar_info_t const* info = unrar_info( unrar );
 		
 		set_name( info->name, (info->name_w && *info->name_w) ? info->name_w : NULL );
-		set_info( info->size, info->dos_date, (info->is_crc32 ? info->crc : 0) );
+		set_info( info->size, (unsigned int)info->dos_date, (unsigned int)(info->is_crc32 ? info->crc : 0) );
 	}
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Rar_Extractor::next_raw()
@@ -190,7 +182,7 @@ blargg_err_t Rar_Extractor::data_v( void const** out )
 	return convert_err( unrar_extract_mem( unrar, out ) );
 }
 
-blargg_err_t Rar_Extractor::extract_v( void* out, int count )
+blargg_err_t Rar_Extractor::extract_v( void* out, long count )
 {
 	// We can read entire file directly into user buffer
 	if ( count == size() )

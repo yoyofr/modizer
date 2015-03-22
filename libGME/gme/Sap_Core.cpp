@@ -110,7 +110,7 @@ blargg_err_t Sap_Core::start_track( int track, info_t const& new_info )
 	call_init( track );
 	time_mask = ~0;
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Sap_Core::run_until( time_t end )
@@ -164,7 +164,7 @@ blargg_err_t Sap_Core::run_until( time_t end )
 			}
 		}
 	}
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Sap_Core::end_frame( time_t end )
@@ -188,5 +188,5 @@ blargg_err_t Sap_Core::end_frame( time_t end )
 	if ( info.stereo )
 		apu2_.end_frame( end );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
 
+
 @class DetailViewControllerIphone;
 
 @interface AboutViewController : UIViewController {

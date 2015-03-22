@@ -2,9 +2,13 @@
 
 #include "Zip7_Extractor.h"
 
-#include "../7z_C/7zExtract.h"
+extern "C" {
+#include "../7z_C/7z.h"
 #include "../7z_C/7zAlloc.h"
 #include "../7z_C/7zCrc.h"
+}
+
+#include <time.h>
 
 /* Copyright (C) 2005-2009 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -66,7 +70,12 @@ extern "C"
 		ISeekInStream* stream = STATIC_CAST(ISeekInStream*,vstream);
 		Zip7_Extractor_Impl* impl = STATIC_CAST(Zip7_Extractor_Impl*,stream);
 		
-		assert( mode != SZ_SEEK_CUR ); // never used
+		if ( mode == SZ_SEEK_CUR )
+		{
+			assert( *pos == 0 ); // only used to find the archive start position
+			*pos = impl->in->tell();
+			return SZ_OK;
+		}
 		
 		if ( mode == SZ_SEEK_END )
 		{
@@ -104,7 +113,7 @@ blargg_err_t Zip7_Extractor::zip7_err( int err )
 	
 	switch ( err )
 	{
-	case SZ_OK:                 return (blargg_err_t)blargg_ok;
+	case SZ_OK:                 return blargg_ok;
 	case SZ_ERROR_MEM:          return blargg_err_memory;
 	case SZ_ERROR_READ:         return blargg_err_file_io;
 	case SZ_ERROR_CRC:
@@ -126,7 +135,7 @@ static blargg_err_t init_7z()
 		inited = true;
 		CrcGenerateTable();
 	}
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 static File_Extractor* new_7z()
@@ -204,19 +213,49 @@ blargg_err_t Zip7_Extractor::next_v()
 		CSzFileItem const& item = impl->db.db.Files [index];
 		if ( !item.IsDir )
 		{
-			// TODO: Support date.
-			// NTFS representation, stored as 64-bit value.
-			// Divide by 10000000 (ten million) to get seconds
-			//item.MTime.Low + (.High << 32)
-			// How to convert to DOS style?
-			
-			set_name( item.Name );
-			set_info( item.Size, 0, (item.FileCRCDefined ? item.FileCRC : 0) );
+			unsigned long date = 0;
+			if ( item.MTimeDefined )
+			{
+				const UInt64 epoch = ((UInt64)0x019db1de << 32) + 0xd53e8000;
+				/* 0x019db1ded53e8000ULL: 1970-01-01 00:00:00 (UTC) */
+				struct tm tm;
+
+				UInt64 time = ((UInt64)item.MTime.High << 32) + item.MTime.Low - epoch;
+				time /= 1000000;
+
+				time_t _time = time;
+				
+#ifdef _WIN32
+                localtime_s( &tm, &_time );
+#else
+                localtime_r( &_time, &tm );
+#endif
+
+				date = (( tm.tm_sec >> 1 ) & 0x1F) |
+					(( tm.tm_min & 0x3F ) << 5 ) |
+					(( tm.tm_hour & 0x1F ) << 11 ) |
+					(( tm.tm_mday & 0x1F ) << 16 ) |
+					(( ( tm.tm_mon + 1 ) & 0x0F ) << 21 ) |
+					(( ( tm.tm_year - 80 ) & 0x7F ) << 25 );
+			}
+
+			size_t name_length = SzArEx_GetFileNameUtf16( &impl->db, (size_t) index, 0 );
+			name16.resize( name_length );
+			SzArEx_GetFileNameUtf16( &impl->db, (size_t) index, ( UInt16 * ) name16.begin() );
+			char * temp = blargg_to_utf8( name16.begin() );
+            const char * name_8 = temp;
+			if ( !temp ) name_8 = "";
+			size_t utf8_length = strlen( name_8 );
+			name8.resize( utf8_length + 1 );
+			memcpy( name8.begin(), name_8, utf8_length + 1 );
+			if ( temp ) free( temp );
+			set_name( name8.begin(), name16.begin() );
+			set_info( item.Size, 0, (item.CrcDefined ? item.Crc : 0) );
 			break;
 		}
 	}
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Zip7_Extractor::rewind_v()
@@ -242,11 +281,11 @@ blargg_err_t Zip7_Extractor::data_v( void const** out )
 	impl->in_err = NULL;
 	size_t offset = 0;
 	size_t count  = 0;
-	RETURN_ERR( zip7_err( SzAr_Extract( &impl->db, &impl->look.s, index,
+	RETURN_ERR( zip7_err( SzArEx_Extract( &impl->db, &impl->look.s, index,
 			&impl->block_index, &impl->buf, &impl->buf_size,
 			&offset, &count, &zip7_alloc, &zip7_alloc_temp ) ) );
 	assert( count == (size_t) size() );
 	
 	*out = impl->buf + offset;
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

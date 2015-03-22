@@ -5,11 +5,17 @@
 #define FEX_H
 
 #include <stddef.h>
+#include <stdint.h>
+
+#ifdef _WIN32
+typedef wchar_t blargg_wchar_t;
+#else
+typedef uint16_t blargg_wchar_t;
+#endif
 
 #ifdef __cplusplus
 	extern "C" {
 #endif
-
 
 /** First parameter of most functions is fex_t*, or const fex_t* if nothing is
 changed. Once one of these functions returns an error, the archive should not
@@ -40,14 +46,12 @@ returns "", since it can open any file. */
 const char* fex_type_extension( fex_type_t );
 
 
-/**** Wide-character file paths (Windows only) ****/
+/**** Wide-character file paths ****/
 
-/** Converts wide-character path to form suitable for use with fex functions.
-Only supported when BLARGG_UTF8_PATHS is defined and building on Windows. */
-char* fex_wide_to_path( const wchar_t* wide );
+/** Converts wide-character path to form suitable for use with fex functions. */
+char* fex_wide_to_path( const blargg_wchar_t* wide );
 
-/** Frees converted path. OK to pass NULL. Only supported when BLARGG_UTF8_PATHS
-is defined and building on Windows */
+/** Frees converted path. OK to pass NULL. */
 void fex_free_path( char* );
 
 
@@ -109,7 +113,7 @@ fex_open() */
 fex_err_t fex_rewind( fex_t* );
 
 /** Saved position in archive. Can also store zero. */
-typedef int fex_pos_t;
+typedef uint64_t fex_pos_t;
 
 /** Position of current file in archive. Never returns zero. */
 fex_pos_t fex_tell_arc( const fex_t* );
@@ -124,13 +128,13 @@ fex_err_t fex_seek_arc( fex_t*, fex_pos_t );
 const char* fex_name( const fex_t* );
 
 /** Wide-character name of current file, or NULL if unavailable */
-const wchar_t* fex_wname( const fex_t* );
+const blargg_wchar_t* fex_wname( const fex_t* );
 
 /** Makes further information available for file */
 fex_err_t fex_stat( fex_t* );
 
 /** Size of current file. fex_stat() or fex_data() must have been called. */
-int fex_size( const fex_t* );
+uint64_t fex_size( const fex_t* );
 
 /** Modification date of current file (MS-DOS format), or 0 if unavailable.
 fex_stat() must have been called. */
@@ -146,10 +150,13 @@ unsigned int fex_crc32( const fex_t* );
 
 /** Reads n bytes from current file. Reading past end of file results in
 fex_err_file_eof. */
-fex_err_t fex_read( fex_t*, void* out, int n );
+fex_err_t fex_read( fex_t*, void* out, long n );
 
 /** Number of bytes read from current file */
-int fex_tell( const fex_t* );
+uint64_t fex_tell( const fex_t* );
+        
+/** Skips the specified number of bytes in the current file */
+fex_err_t fex_skip( fex_t*, long n );
 
 /** Points *out at current file's data in memory. Pointer is valid until
 fex_next(), fex_rewind(), fex_seek_arc(), or fex_close() is called. Pointer

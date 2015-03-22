@@ -89,7 +89,7 @@ static void hash_hes_file( Hes_Emu::header_t const& h, byte const* data, int dat
 blargg_err_t Hes_Emu::track_info_( track_info_t* out, int ) const
 {
 	copy_hes_fields( core.data() + core.info_offset, out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 struct Hes_File : Gme_Info_
@@ -113,19 +113,19 @@ struct Hes_File : Gme_Info_
 		if ( !h->header.valid_tag() )
 			return blargg_err_file_type;
 		
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		copy_hes_fields( h->data + fields_offset, out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_hes_file( h->header, file_begin() + h->header.size, file_end() - file_begin() - h->header.size, out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 };
 
@@ -188,5 +188,5 @@ blargg_err_t Hes_Emu::run_clocks( blip_time_t& duration_, int )
 blargg_err_t Hes_Emu::hash_( Hash_Function& out ) const
 {
 	hash_hes_file( header(), core.data(), core.data_size(), out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

@@ -94,7 +94,7 @@ blargg_err_t Blip_Buffer::set_sample_rate( int new_rate, int msec )
 	
 	clear();
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blip_resampled_time_t Blip_Buffer::clock_rate_factor( int rate ) const

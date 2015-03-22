@@ -41,14 +41,14 @@ Binary_Extractor::~Binary_Extractor()
 blargg_err_t Binary_Extractor::open_path_v()
 {
 	set_name( arc_path() );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Binary_Extractor::open_v()
 {
 	set_name( arc_path() );
 	set_info( arc().remain(), 0, 0 );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Binary_Extractor::close_v()
@@ -56,7 +56,7 @@ void Binary_Extractor::close_v()
 
 blargg_err_t Binary_Extractor::next_v()
 {
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Binary_Extractor::rewind_v()
@@ -71,7 +71,7 @@ blargg_err_t Binary_Extractor::stat_v()
 	return open_v();
 }
 
-blargg_err_t Binary_Extractor::extract_v( void* p, int n )
+blargg_err_t Binary_Extractor::extract_v( void* p, long n )
 {
 	return arc().read( p, n );
 }

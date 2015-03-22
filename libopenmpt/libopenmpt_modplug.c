@@ -258,10 +258,16 @@ LIBOPENMPT_MODPLUG_API void ModPlug_GetSettings(ModPlug_Settings* settings)
 	memcpy(settings,&globalsettings,sizeof(ModPlug_Settings));
 }
 
-LIBOPENMPT_MODPLUG_API void ModPlug_SetSettings(const ModPlug_Settings* settings)
+LIBOPENMPT_MODPLUG_API void ModPlug_SetSettings(ModPlugFile *file,const ModPlug_Settings* settings)
 {
 	if(!settings) return;
 	memcpy(&globalsettings,settings,sizeof(ModPlug_Settings));
+    
+    if (!file) return;
+    
+    openmpt_module_set_render_param(file->mod,OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,modplugresamplingmode_to_filterlength(globalsettings.mResamplingMode));
+    openmpt_module_set_render_param(file->mod,OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT,globalsettings.mStereoSeparation*100/128);
+
 }
 
 LIBOPENMPT_MODPLUG_API unsigned int ModPlug_GetMasterVolume(ModPlugFile* file)
@@ -423,7 +429,7 @@ LIBOPENMPT_MODPLUG_API unsigned int ModPlug_NumChannels(ModPlugFile* file)
 }
 
 LIBOPENMPT_MODPLUG_API int ModPlug_GetChannelVolume(ModPlugFile *file,int channel) {
-    return openmpt_module_get_current_channel_vu_mono(file->mod,channel);
+    return (int)(openmpt_module_get_current_channel_vu_mono(file->mod,channel)*255);
 }
 
 
@@ -492,9 +498,9 @@ LIBOPENMPT_MODPLUG_API ModPlugNote* ModPlug_GetPattern(ModPlugFile* file, int pa
 		return NULL;
 	}
 	if(!file->patterns){
-		file->patterns = malloc(sizeof(unsigned char*)*openmpt_module_get_pattern_num_rows(file->mod,pattern));
+		file->patterns = malloc(sizeof(unsigned char*)*openmpt_module_get_num_patterns(file->mod));
 		if(!file->patterns) return NULL;
-		memset(file->patterns,0,sizeof(unsigned char*)*openmpt_module_get_pattern_num_rows(file->mod,pattern));
+		memset(file->patterns,0,sizeof(unsigned char*)*openmpt_module_get_num_patterns(file->mod));
 	}
 	if(!file->patterns[pattern]){
 		file->patterns[pattern] = malloc(sizeof(ModPlugNote)*openmpt_module_get_pattern_num_rows(file->mod,pattern)*openmpt_module_get_num_channels(file->mod));

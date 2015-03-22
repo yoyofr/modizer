@@ -2240,7 +2240,20 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             if (csection>=0) {
                 //display popup
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+                
+                //get file info
+                NSError *err;
+                NSDictionary *dict;
+                NSFileManager *fileManager=[[NSFileManager alloc] init];
+                
                 NSString *str=cur_local_entries[csection][crow].fullpath;
+                dict=[fileManager attributesOfItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:  str] error:&err];
+                if (dict) {
+                    str=[str stringByAppendingFormat:@"\n%lluKo",[dict fileSize]/1024];
+                }
+                [fileManager release];
+                
+                
                 if (self.popTipView == nil) {
                     self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
                     self.popTipView.delegate = self;

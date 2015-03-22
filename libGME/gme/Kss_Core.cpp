@@ -33,7 +33,7 @@ static blargg_err_t check_kss_header( void const* header )
 {
 	if ( memcmp( header, "KSCC", 4 ) && memcmp( header, "KSSX", 4 ) )
 		return blargg_err_file_type;
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Kss_Core::load_( Data_Reader& in )
@@ -82,7 +82,7 @@ blargg_err_t Kss_Core::load_( Data_Reader& in )
 	}
 	#endif
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Kss_Core::jsr( byte const (&addr) [2] )
@@ -144,7 +144,7 @@ blargg_err_t Kss_Core::start_track( int track )
 	gain_updated = false;
 	jsr( header_.init_addr );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 void Kss_Core::set_bank( int logical, int physical )
@@ -210,5 +210,5 @@ blargg_err_t Kss_Core::end_frame( time_t end )
 	check( next_play >= 0 );
 	cpu.adjust_time( -end );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

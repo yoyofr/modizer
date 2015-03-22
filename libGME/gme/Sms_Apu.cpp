@@ -367,5 +367,5 @@ blargg_err_t Sms_Apu::load_state( sms_apu_state_t const& in )
 {
 	RETURN_ERR( save_load( CONST_CAST(sms_apu_state_t*,&in), false ) );
 	write_ggstereo( 0, ggstereo );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

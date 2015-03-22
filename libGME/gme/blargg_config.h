@@ -31,7 +31,7 @@
 */
 
 // Enable platform-specific optimizations.
-//#define BLARGG_NONPORTABLE 1
+#define BLARGG_NONPORTABLE 1
 
 // Use faster sample rate convertor for SPC music.
 //#define GME_SPC_FAST_RESAMPLER 1

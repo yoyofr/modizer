@@ -128,7 +128,7 @@ typedef struct _ModPlug_Settings
  * sampling rate, and loop count, will take effect immediately.  Those options which don't
  * take effect immediately will take effect the next time you load a mod. */
 void ModPlug_GetSettings(ModPlug_Settings* settings);
-void ModPlug_SetSettings(const ModPlug_Settings* settings);
+void ModPlug_SetSettings(ModPlugFile *file,const ModPlug_Settings* settings);
 
 /* New ModPlug API Functions */
 /* NOTE: Master Volume (1-512) */

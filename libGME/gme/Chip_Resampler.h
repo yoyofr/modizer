@@ -53,7 +53,7 @@ public:
 	{
 		Emu::reset();
 		resampler.clear();
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 
 	blargg_err_t reset_resampler()
@@ -66,7 +66,7 @@ public:
 		resize( pairs );
 		resampler_size = oversamples_per_frame + (oversamples_per_frame >> 2);
 		RETURN_ERR( resampler.resize_buffer( resampler_size ) );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 
 	void resize( int pairs )

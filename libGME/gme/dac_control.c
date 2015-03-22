@@ -193,7 +193,6 @@ void * device_start_daccontrol(UINT32 samplerate, void * context)
 	dac_control *chip;
 	
 	chip = (dac_control *) calloc(1, sizeof(dac_control));
-    if (!chip) return 0;
 
 	chip->SampleRate = samplerate;
 	chip->context = context;
@@ -210,7 +209,7 @@ void * device_start_daccontrol(UINT32 samplerate, void * context)
 void device_stop_daccontrol(void *_chip)
 {
 	dac_control *chip = (dac_control *) _chip;
-
+	
 	free( chip );
 }
 

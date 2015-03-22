@@ -56,7 +56,7 @@ blargg_err_t Resampler::resize_buffer( int new_size )
 {
 	RETURN_ERR( buf.resize( new_size ) );
 	clear();
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 int Resampler::skip_input( int count )

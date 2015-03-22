@@ -49,11 +49,7 @@ typedef INT32 stream_sample_t;
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#ifdef _DEBUG
-#define logerror	printf
-#else
 #define logerror
-#endif
 
 
 #endif

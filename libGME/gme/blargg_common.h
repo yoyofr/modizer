@@ -5,11 +5,6 @@
 #ifndef BLARGG_COMMON_H
 #define BLARGG_COMMON_H
 
-//IOS_BUILD_PATCH
-#define NDEBUG 1
-#define HAVE_STDINT_H 1
-#define HAVE_ZLIB_H 1
-
 #include <stdlib.h>
 #include <assert.h>
 #include <limits.h>
@@ -17,7 +12,7 @@
 typedef const char* blargg_err_t; // 0 on success, otherwise error string
 
 // Success; no error
-int const blargg_ok = 0;
+blargg_err_t const blargg_ok = 0;
 
 // BLARGG_RESTRICT: equivalent to C99's restrict, where supported
 #if __GNUC__ >= 3 || _MSC_VER >= 1100
@@ -129,12 +124,8 @@ global scope already. */
 		typedef unsigned short   uint16_t;
 		typedef int               int32_t;
 		typedef unsigned int     uint32_t;
-//IOS_BUILD_PATCH
-        typedef long long           int64_t;
-        typedef unsigned long long uint64_t;
-
-//		typedef __int64           int64_t;
-//		typedef unsigned __int64 uint64_t;
+		typedef signed long long         int64_t;
+		typedef unsigned long long uint64_t;
 	};
 #endif
 

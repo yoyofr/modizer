@@ -26,41 +26,42 @@
 #include "Qsound_Apu.h"
 #include "Ym2203_Emu.h"
 #include "Ay_Apu.h"
+#include "Gb_Apu.h"
 #include "Hes_Apu.h"
 #include "Sms_Apu.h"
 #include "Multi_Buffer.h"
 #include "Chip_Resampler.h"
 
-template<class Emu>
-class Chip_Emu : public Emu {
-    int last_time;
-    short* out;
-    enum { disabled_time = -1 };
-public:
-    Chip_Emu()                      { last_time = disabled_time; out = NULL; }
-    void enable( bool b = true )    { last_time = b ? 0 : disabled_time; }
-    bool enabled() const            { return last_time != disabled_time; }
-    void begin_frame( short* buf )  { out = buf; last_time = 0; }
-    
-    int run_until( int time )
-    {
-        int count = time - last_time;
-        if ( count > 0 )
-        {
-            if ( last_time < 0 )
-                return false;
-            last_time = time;
-            short* p = out;
-            out += count * Emu::out_chan_count;
-            Emu::run( count, p );
-        }
-        return true;
-    }
-};
+	template<class Emu>
+	class Chip_Emu : public Emu {
+		int last_time;
+		short* out;
+		enum { disabled_time = -1 };
+	public:
+		Chip_Emu()                      { last_time = disabled_time; out = NULL; }
+		void enable( bool b = true )    { last_time = b ? 0 : disabled_time; }
+		bool enabled() const            { return last_time != disabled_time; }
+		void begin_frame( short* buf )  { out = buf; last_time = 0; }
+		
+		int run_until( int time )
+		{
+			int count = time - last_time;
+			if ( count > 0 )
+			{
+				if ( last_time < 0 )
+					return false;
+				last_time = time;
+				short* p = out;
+				out += count * Emu::out_chan_count;
+				Emu::run( count, p );
+			}
+			return true;
+		}
+	};
 
 class Vgm_Core : public Gme_Loader {
 public:
-    
+
 	// VGM file header
 	struct header_t
 	{
@@ -150,16 +151,17 @@ public:
 	// True if any FM chips are used by file. Always false until init_fm()
 	// is called.
 	bool uses_fm() const                { return ym2612[0].enabled() || ym2413[0].enabled() || ym2151[0].enabled() || c140.enabled() ||
-		segapcm.enabled() || rf5c68.enabled() || rf5c164.enabled() || pwm.enabled() || okim6258.enabled() || okim6295[0].enabled() ||
+		segapcm.enabled() || rf5c68.enabled() || rf5c164.enabled() || pwm.enabled() || okim6258[0].enabled() || okim6295[0].enabled() ||
 		k051649.enabled() || k053260.enabled() || k054539.enabled() || ym2203[0].enabled() || ym3812[0].enabled() || ymf262[0].enabled() ||
         ymz280b.enabled() || ym2610[0].enabled() || ym2608[0].enabled() || qsound[0].enabled() ||
         (header().ay8910_rate[0] | header().ay8910_rate[1] | header().ay8910_rate[2] | header().ay8910_rate[3]) ||
-        (header().huc6280_rate[0] | header().huc6280_rate[1] | header().huc6280_rate[2] | header().huc6280_rate[3]); }
+        (header().huc6280_rate[0] | header().huc6280_rate[1] | header().huc6280_rate[2] | header().huc6280_rate[3]) ||
+		(header().gbdmg_rate[0] | header().gbdmg_rate[1] | header().gbdmg_rate[2] | header().gbdmg_rate[3]); }
 	
 	// Adjusts music tempo, where 1.0 is normal. Can be changed while playing.
 	// Loading a file resets tempo to 1.0.
 	void set_tempo( double );
-    
+
 	void set_sample_rate( int r ) { sample_rate = r; }
 	
 	// Starts track
@@ -175,9 +177,9 @@ public:
 	// True if all of file data has been played
 	bool track_ended() const            { return pos >= file_end(); }
 	
-    // 0 for PSG and YM2612 DAC, 1 for AY, 2 for HuC6280
-    Stereo_Buffer stereo_buf[3];
-    
+    // 0 for PSG and YM2612 DAC, 1 for AY, 2 for HuC6280, 3 for GB DMG
+    Stereo_Buffer stereo_buf[4];
+
     // PCM sound is always generated here
     Blip_Buffer * blip_buf[2];
 	
@@ -185,6 +187,7 @@ public:
 	Sms_Apu psg[2];
 	Ay_Apu ay[2];
     Hes_Apu huc6280[2];
+	Gb_Apu gbdmg[2];
 	
 	// PCM synth, for setting volume and EQ
 	Blip_Synth_Fast pcm;
@@ -198,49 +201,49 @@ public:
 	Chip_Resampler_Emu<Ym2413_Emu> ym2413[2];
 	Chip_Resampler_Emu<Ym2151_Emu> ym2151[2];
 	Chip_Resampler_Emu<Ym2203_Emu> ym2203[2];
-    
+
 	// PCM sound chips
 	Chip_Resampler_Emu<C140_Emu> c140;
 	Chip_Resampler_Emu<SegaPcm_Emu> segapcm;
 	Chip_Resampler_Emu<Rf5C68_Emu> rf5c68;
 	Chip_Resampler_Emu<Rf5C164_Emu> rf5c164;
 	Chip_Resampler_Emu<Pwm_Emu> pwm;
-	Chip_Resampler_Emu<Okim6258_Emu> okim6258; int okim6258_hz;
+	Chip_Resampler_Emu<Okim6258_Emu> okim6258[2]; int okim6258_hz[2];
 	Chip_Resampler_Emu<Okim6295_Emu> okim6295[2]; int okim6295_hz;
 	Chip_Resampler_Emu<K051649_Emu> k051649;
 	Chip_Resampler_Emu<K053260_Emu> k053260;
 	Chip_Resampler_Emu<K054539_Emu> k054539;
 	Chip_Resampler_Emu<Ymz280b_Emu> ymz280b; int ymz280b_hz;
     Chip_Resampler_Emu<Qsound_Apu> qsound[2];
-    
+
 	// DAC control
 	typedef struct daccontrol_data
 	{
 		bool Enable;
 		byte Bank;
 	} DACCTRL_DATA;
-    
+
 	byte DacCtrlUsed;
 	byte DacCtrlUsg[0xFF];
 	DACCTRL_DATA DacCtrl[0xFF];
 	byte DacCtrlMap[0xFF];
 	int DacCtrlTime[0xFF];
 	void ** dac_control;
-    
+
 	void dac_control_grow(byte chip_id);
-    
+
 	int dac_control_recursion;
-    
+
 	int run_dac_control( int time );
-    
+
 public:
 	void chip_reg_write(unsigned Sample, byte ChipType, byte ChipID, byte Port, byte Offset, byte Data);
-    
-    // Implementation
+
+// Implementation
 public:
 	Vgm_Core();
 	~Vgm_Core();
-    
+
 protected:
 	virtual blargg_err_t load_mem_( byte const [], int );
 	
@@ -252,25 +255,29 @@ private:
 	int sample_rate;
 	int vgm_rate;   // rate of log, 44100 normally, adjusted by tempo
 	double fm_rate; // FM samples per second
-    
+
 	header_t _header;
 	
 	// VGM to FM time
-	int fm_time_factor;
+	int fm_time_factor;     
 	int fm_time_offset;
 	fm_time_t to_fm_time( vgm_time_t ) const;
-    
+
 	// VGM to PSG time
 	int blip_time_factor;
 	blip_time_t to_psg_time( vgm_time_t ) const;
-    
+
 	int blip_ay_time_factor;
 	int ay_time_offset;
 	blip_time_t to_ay_time( vgm_time_t ) const;
-    
+
     int blip_huc6280_time_factor;
     int huc6280_time_offset;
     blip_time_t to_huc6280_time( vgm_time_t ) const;
+
+	int blip_gbdmg_time_factor;
+	int gbdmg_time_offset;
+	blip_time_t to_gbdmg_time( vgm_time_t ) const;
 	
 	// Current time and position in log
 	vgm_time_t vgm_time;
@@ -295,7 +302,7 @@ private:
 		unsigned DataPos;
 		unsigned BnkPos;
 	} VGM_PCM_BANK;
-    
+
 	typedef struct pcmbank_table
 	{
 		byte ComprType;
@@ -305,15 +312,15 @@ private:
 		unsigned EntryCount;
 		void* Entries;
 	} PCMBANK_TBL;
-    
+
 	VGM_PCM_BANK PCMBank[PCM_BANK_COUNT];
 	PCMBANK_TBL PCMTbl;
-    
+
 	void ReadPCMTable(unsigned DataSize, const byte* Data);
 	void AddPCMData(byte Type, unsigned DataSize, const byte* Data);
 	bool DecompressDataBlk(VGM_PCM_DATA* Bank, unsigned DataSize, const byte* Data);
 	const byte* GetPointerFromPCMBank(byte Type, unsigned DataPos);
-    
+
 	byte const* pcm_pos;    // current position in PCM data
 	int dac_amp[2];
 	int dac_disabled[2];       // -1 if disabled
@@ -334,7 +341,7 @@ private:
 	int run_rf5c68( int time );
 	int run_rf5c164( int time );
 	int run_pwm( int time );
-	int run_okim6258( int time );
+	int run_okim6258( int chip, int time );
 	int run_okim6295( int chip, int time );
 	int run_k051649( int time );
 	int run_k053260( int time );

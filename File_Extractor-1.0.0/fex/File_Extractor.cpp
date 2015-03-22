@@ -32,7 +32,7 @@ blargg_err_t File_Extractor::set_path( const char* path )
 	
 	RETURN_ERR( path_.resize( strlen( path ) + 1 ) );
 	memcpy( path_.begin(), path, path_.size() );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t File_Extractor::open( const char path [] )
@@ -70,7 +70,7 @@ static void make_unbuffered( void* )
 blargg_err_t File_Extractor::open_arc_file( bool unbuffered )
 {
 	if ( reader_ )
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	
 	FEX_FILE_READER* in = BLARGG_NEW FEX_FILE_READER;
 	CHECK_ALLOC( in );
@@ -152,14 +152,14 @@ void File_Extractor::clear_file()
 	clear_file_v();
 }
 
-void File_Extractor::set_name( const char new_name [], const wchar_t* new_wname )
+void File_Extractor::set_name( const char new_name [], const blargg_wchar_t* new_wname )
 {
 	name_  = new_name;
 	wname_ = new_wname;
 	done_  = false;
 }
 
-void File_Extractor::set_info( int new_size, unsigned date, unsigned crc )
+void File_Extractor::set_info( BOOST::uint64_t new_size, unsigned date, unsigned crc )
 {
 	size_  = new_size;
 	date_  = (date != 0xFFFFFFFF ? date : 0);
@@ -208,7 +208,7 @@ blargg_err_t File_Extractor::stat()
 		RETURN_ERR( stat_v() );
 		stat_called = true;
 	}
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 // Tell/seek
@@ -263,7 +263,7 @@ blargg_err_t File_Extractor::seek_arc_v( fex_pos_t pos )
 	
 	assert( tell_ == pos );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 // Extraction
@@ -285,7 +285,7 @@ blargg_err_t File_Extractor::rewind_file()
 		}
 	}
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t File_Extractor::data( const void** data_out )
@@ -295,7 +295,7 @@ blargg_err_t File_Extractor::data( const void** data_out )
 	*data_out = NULL;
 	if ( !data_ptr_ )
 	{
-		int old_tell = tell();
+		BOOST::uint64_t old_tell = tell();
 		
 		RETURN_ERR( rewind_file() );
 		
@@ -308,12 +308,12 @@ blargg_err_t File_Extractor::data( const void** data_out )
 	}
 	
 	*data_out = data_ptr_;
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t File_Extractor::data_v( void const** out )
 {
-	RETURN_ERR( own_data_.resize( size() ) );
+	RETURN_ERR( own_data_.resize( (size_t) size() ) );
 	*out = own_data_.begin();
 	
 	blargg_err_t err = extract_v( own_data_.begin(), own_data_.size() );
@@ -323,16 +323,16 @@ blargg_err_t File_Extractor::data_v( void const** out )
 	return err;
 }
 
-blargg_err_t File_Extractor::extract_v( void* out, int count )
+blargg_err_t File_Extractor::extract_v( void* out, long count )
 {
 	void const* p;
 	RETURN_ERR( data( &p ) );
 	memcpy( out, STATIC_CAST(char const*,p) + (size() - remain()), count );
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
-blargg_err_t File_Extractor::read_v( void* out, int count )
+blargg_err_t File_Extractor::read_v( void* out, long count )
 {
 	if ( data_ptr_ )
 		return File_Extractor::extract_v( out, count );

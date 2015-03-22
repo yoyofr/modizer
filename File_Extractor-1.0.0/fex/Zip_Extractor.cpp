@@ -92,7 +92,7 @@ int const end_entry_size = 22;
 static blargg_err_t init_zip()
 {
 	get_crc_table(); // initialize zlib's CRC-32 tables
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 static File_Extractor* new_zip()
@@ -130,7 +130,7 @@ blargg_err_t Zip_Extractor::open_path_v()
 }
 
 inline
-void Zip_Extractor::reorder_entry_header( int offset )
+void Zip_Extractor::reorder_entry_header( long offset )
 {
 	catalog [offset + 0] = 0;
 	catalog [offset + 4] = 'P';
@@ -142,19 +142,19 @@ blargg_err_t Zip_Extractor::open_v()
 		return blargg_err_file_type;
 
 	// Read final end_read_size bytes of file
-	int file_pos = max( 0, arc().size() - end_read_size );
+	BOOST::uint64_t file_pos = max( (BOOST::uint64_t) 0, arc().size() - end_read_size );
 	file_pos -= file_pos % disk_block_size;
-	RETURN_ERR( catalog.resize( arc().size() - file_pos ) );
+	RETURN_ERR( catalog.resize( (size_t)(arc().size() - file_pos) ) );
 	RETURN_ERR( arc().seek( file_pos ) );
 	RETURN_ERR( arc().read( catalog.begin(), catalog.size() ) );
 
 	// Find end-of-catalog entry
-	int end_pos = catalog.size() - end_entry_size;
-	while ( end_pos >= 0 && memcmp( &catalog [end_pos], "PK\5\6", 4 ) )
+	BOOST::int64_t end_pos = catalog.size() - end_entry_size;
+	while ( end_pos >= 0 && memcmp( &catalog [(size_t)end_pos], "PK\5\6", 4 ) )
 		end_pos--;
 	if ( end_pos < 0 )
 		return blargg_err_file_type;
-	end_entry_t const& end_entry = (end_entry_t&) catalog [end_pos];
+	end_entry_t const& end_entry = (end_entry_t&) catalog [(size_t)end_pos];
 	end_pos += file_pos;
 
 	// some idiotic zip compressors add data to end of zip without setting comment len
@@ -162,17 +162,17 @@ blargg_err_t Zip_Extractor::open_v()
 
 	// Find file offset of beginning of catalog
 	catalog_begin = get_le32( end_entry.dir_offset );
-	int catalog_size = end_pos - catalog_begin;
+    BOOST::int64_t catalog_size = end_pos - catalog_begin;
 	if ( catalog_size < 0 )
 		return blargg_err_file_corrupt;
 	catalog_size += end_entry_size;
 
 	// See if catalog is entirely contained in bytes already read
-	int begin_offset = catalog_begin - file_pos;
+	BOOST::int64_t begin_offset = catalog_begin - file_pos;
 	if ( begin_offset >= 0 )
-		memmove( catalog.begin(), &catalog [begin_offset], catalog_size );
+		memmove( catalog.begin(), &catalog [(size_t)begin_offset], (size_t)catalog_size );
 
-	RETURN_ERR( catalog.resize( catalog_size ) );
+	RETURN_ERR( catalog.resize( (size_t)catalog_size ) );
 	if ( begin_offset < 0 )
 	{
 		// Catalog begins before bytes read, so it needs to be read
@@ -228,7 +228,7 @@ blargg_err_t Zip_Extractor::update_info( bool advance_first )
 {
 	while ( 1 )
 	{
-		entry_t& e = (entry_t&) catalog [catalog_pos];
+		entry_t& e = (entry_t&) catalog [(size_t)catalog_pos];
 
 		if ( memcmp( e.type, "\0K\1\2P", 5 ) && memcmp( e.type, "PK\1\2", 4 ) )
 		{
@@ -237,13 +237,13 @@ blargg_err_t Zip_Extractor::update_info( bool advance_first )
 		}
 
 		unsigned len = get_le16( e.filename_len );
-		int next_offset = catalog_pos + entry_size + len + get_le16( e.extra_len ) +
+        BOOST::int64_t next_offset = catalog_pos + entry_size + len + get_le16( e.extra_len ) +
 				get_le16( e.comment_len );
 		if ( (unsigned) next_offset > catalog.size() - end_entry_size )
 			return blargg_err_file_corrupt;
 		
-		if ( catalog [next_offset] == 'P' )
-			reorder_entry_header( next_offset );
+		if ( catalog [(size_t)next_offset] == 'P' )
+			reorder_entry_header( (long)next_offset );
 
 		if ( !advance_first )
 		{
@@ -261,7 +261,7 @@ blargg_err_t Zip_Extractor::update_info( bool advance_first )
 		advance_first = false;
 	}
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Zip_Extractor::next_v()
@@ -294,28 +294,28 @@ void Zip_Extractor::clear_file_v()
 	buf.end();
 }
 
-blargg_err_t Zip_Extractor::inflater_read( void* data, void* out, int* count )
+blargg_err_t Zip_Extractor::inflater_read( void* data, void* out, long* count )
 {
 	Zip_Extractor& self = *STATIC_CAST(Zip_Extractor*,data);
 	
 	if ( *count > self.raw_remain )
-		*count = self.raw_remain;
+		*count = (long)self.raw_remain;
 	
 	self.raw_remain -= *count;
 	
 	return self.arc().read( out, *count );
 }
 
-blargg_err_t Zip_Extractor::fill_buf( int offset, int buf_size, int initial_read )
+blargg_err_t Zip_Extractor::fill_buf( long offset, long buf_size, long initial_read )
 {
 	raw_remain = arc().size() - offset;
 	RETURN_ERR( arc().seek( offset ) );
 	return buf.begin( inflater_read, this, buf_size, initial_read );
 }
 
-blargg_err_t Zip_Extractor::first_read( int count )
+blargg_err_t Zip_Extractor::first_read( long count )
 {
-	entry_t const& e = (entry_t&) catalog [catalog_pos];
+	entry_t const& e = (entry_t&) catalog [(size_t)catalog_pos];
 	
 	// Determine compression
 	{
@@ -372,19 +372,27 @@ blargg_err_t Zip_Extractor::first_read( int count )
 	return buf.set_mode( (file_deflated ? buf.mode_raw_deflate : buf.mode_copy), buf_offset );
 }
 
-blargg_err_t Zip_Extractor::extract_v( void* out, int count )
+blargg_err_t Zip_Extractor::extract_v( void* out, long count )
 {
 	if ( tell() == 0 )
 		RETURN_ERR( first_read( count ) );
 	
-	int actual = count;
+	long actual = count;
 	RETURN_ERR( buf.read( out, &actual ) );
 	if ( actual < count )
 		return blargg_err_file_corrupt;
-	
-	crc = ::crc32( crc, (byte const*) out, count );
+
+    long count_crc = count;
+    const byte * out_crc = (const byte *) out;
+    while ( count_crc > 0 )
+    {
+        unsigned int count_i = (unsigned int)( count_crc > UINT_MAX ? UINT_MAX : count_crc );
+        crc = ::crc32( crc, out_crc, count_i );
+        out_crc += count_i;
+        count_crc -= count_i;
+    }
 	if ( count == reader().remain() && crc != correct_crc )
 		return blargg_err_file_corrupt;
 	
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

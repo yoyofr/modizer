@@ -65,7 +65,7 @@ static void hash_sgc_file( Sgc_Emu::header_t const& h, byte const* data, int dat
 blargg_err_t Sgc_Emu::track_info_( track_info_t* out, int ) const
 {
 	copy_sgc_fields( header(), out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 struct Sgc_File : Gme_Info_
@@ -82,19 +82,19 @@ struct Sgc_File : Gme_Info_
 		if ( !h->valid_tag() )
 			return blargg_err_file_type;
 		
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 	
 	blargg_err_t track_info_( track_info_t* out, int ) const
 	{
 		copy_sgc_fields( *h, out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 
 	blargg_err_t hash_( Hash_Function& out ) const
 	{
 		hash_sgc_file( *h, file_begin() + h->size, file_end() - file_begin() - h->size, out );
-		return (blargg_err_t)blargg_ok;
+		return blargg_ok;
 	}
 };
 
@@ -157,11 +157,11 @@ blargg_err_t Sgc_Emu::run_clocks( blip_time_t& duration, int )
 {
 	RETURN_ERR( core_.end_frame( duration ) );
 	set_warning( core_.warning() );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 blargg_err_t Sgc_Emu::hash_( Hash_Function& out ) const
 {
 	hash_sgc_file( header(), core_.rom_().begin(), core_.rom_().file_size(), out );
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }

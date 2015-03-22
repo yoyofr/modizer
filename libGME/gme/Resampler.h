@@ -99,7 +99,7 @@ inline void Resampler::write( int count )
 inline blargg_err_t Resampler::set_rate_( double r )
 {
 	rate_ = r;
-	return (blargg_err_t)blargg_ok;
+	return blargg_ok;
 }
 
 inline blargg_err_t Resampler::set_rate( double r )
