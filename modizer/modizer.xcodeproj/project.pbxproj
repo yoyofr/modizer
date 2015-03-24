@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 47;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -320,6 +320,12 @@
 		CC03F2DE12160FE000F2AC65 /* buttonR.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D812160FE000F2AC65 /* buttonR.png */; };
 		CC03F2DF12160FE000F2AC65 /* buttonY-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */; };
 		CC03F2E012160FE000F2AC65 /* buttonY.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2DA12160FE000F2AC65 /* buttonY.png */; };
+		CC1343571ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m in Sources */ = {isa = PBXBuildFile; fileRef = CC13434C1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CC1343581ABFFF2A00CAB284 /* SWCellScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC13434E1ABFFF2A00CAB284 /* SWCellScrollView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CC1343591ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343501ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CC13435A1ABFFF2A00CAB284 /* SWTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343521ABFFF2A00CAB284 /* SWTableViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CC13435B1ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CC13435C1ABFFF2A00CAB284 /* SWUtilityButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC1A554F17D5C0820009E78B /* BRRequest+_UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC1A555017D5C0820009E78B /* BRRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553E17D5C0820009E78B /* BRRequest.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC1A555117D5C0820009E78B /* BRRequestCreateDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554017D5C0820009E78B /* BRRequestCreateDirectory.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -694,6 +700,7 @@
 		CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B4181ABD827D009608E8 /* libc++.dylib */; };
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
+		CC35CF2D1ABF86F9004EDAC0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC35CF2C1ABF86F9004EDAC0 /* Images.xcassets */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
 		CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709517CC8EB000DC7197 /* txtMenu11c.png */; };
 		CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709617CC8EB000DC7197 /* txtMenu11d.png */; };
@@ -1785,6 +1792,18 @@
 		CC03F2D812160FE000F2AC65 /* buttonR.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonR.png; sourceTree = "<group>"; };
 		CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonY-highlight.png"; sourceTree = "<group>"; };
 		CC03F2DA12160FE000F2AC65 /* buttonY.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonY.png; sourceTree = "<group>"; };
+		CC13434B1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+SWUtilityButtons.h"; sourceTree = "<group>"; };
+		CC13434C1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+SWUtilityButtons.m"; sourceTree = "<group>"; };
+		CC13434D1ABFFF2A00CAB284 /* SWCellScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWCellScrollView.h; sourceTree = "<group>"; };
+		CC13434E1ABFFF2A00CAB284 /* SWCellScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWCellScrollView.m; sourceTree = "<group>"; };
+		CC13434F1ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWLongPressGestureRecognizer.h; sourceTree = "<group>"; };
+		CC1343501ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWLongPressGestureRecognizer.m; sourceTree = "<group>"; };
+		CC1343511ABFFF2A00CAB284 /* SWTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWTableViewCell.h; sourceTree = "<group>"; };
+		CC1343521ABFFF2A00CAB284 /* SWTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWTableViewCell.m; sourceTree = "<group>"; };
+		CC1343531ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWUtilityButtonTapGestureRecognizer.h; sourceTree = "<group>"; };
+		CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUtilityButtonTapGestureRecognizer.m; sourceTree = "<group>"; };
+		CC1343551ABFFF2A00CAB284 /* SWUtilityButtonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWUtilityButtonView.h; sourceTree = "<group>"; };
+		CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUtilityButtonView.m; sourceTree = "<group>"; };
 		CC1A553A17D5C0820009E78B /* BRGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRGlobal.h; sourceTree = "<group>"; };
 		CC1A553B17D5C0820009E78B /* BRRequest+_UserData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "BRRequest+_UserData.h"; sourceTree = "<group>"; };
 		CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "BRRequest+_UserData.m"; sourceTree = "<group>"; };
@@ -2438,6 +2457,7 @@
 		CC33B4181ABD827D009608E8 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
+		CC35CF2C1ABF86F9004EDAC0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = modizer/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
 		CC5C709517CC8EB000DC7197 /* txtMenu11c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c.png; sourceTree = "<group>"; };
 		CC5C709617CC8EB000DC7197 /* txtMenu11d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11d.png; sourceTree = "<group>"; };
@@ -3620,6 +3640,25 @@
 			path = pmdwin;
 			sourceTree = "<group>";
 		};
+		CC13434A1ABFFF2A00CAB284 /* SWTableViewCell */ = {
+			isa = PBXGroup;
+			children = (
+				CC13434B1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.h */,
+				CC13434C1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m */,
+				CC13434D1ABFFF2A00CAB284 /* SWCellScrollView.h */,
+				CC13434E1ABFFF2A00CAB284 /* SWCellScrollView.m */,
+				CC13434F1ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.h */,
+				CC1343501ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m */,
+				CC1343511ABFFF2A00CAB284 /* SWTableViewCell.h */,
+				CC1343521ABFFF2A00CAB284 /* SWTableViewCell.m */,
+				CC1343531ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.h */,
+				CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */,
+				CC1343551ABFFF2A00CAB284 /* SWUtilityButtonView.h */,
+				CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */,
+			);
+			path = SWTableViewCell;
+			sourceTree = "<group>";
+		};
 		CC1A553917D5C0820009E78B /* BlackRaccoon */ = {
 			isa = PBXGroup;
 			children = (
@@ -4050,6 +4089,7 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CC35CF2C1ABF86F9004EDAC0 /* Images.xcassets */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				CCFE183B17EF586200C1682F /* MainWindow.xib */,
@@ -4946,6 +4986,7 @@
 		CC9B194012FF0BCA00985967 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				CC13434A1ABFFF2A00CAB284 /* SWTableViewCell */,
 				CCC6776E17F6B92500F16A54 /* CMPopTipView */,
 				CCFDC4EB17DB105400C6692C /* NVDSP */,
 				CC1A553917D5C0820009E78B /* BlackRaccoon */,
@@ -5454,7 +5495,7 @@
 				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "modizer" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 6.3";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -5669,6 +5710,7 @@
 				CC1E6327120423DF000A8A4E /* DavidHanney in Resources */,
 				CC1E6328120423DF000A8A4E /* DavidWhittaker in Resources */,
 				CC1E6329120423DF000A8A4E /* DeltaMusic1.3 in Resources */,
+				CC35CF2D1ABF86F9004EDAC0 /* Images.xcassets in Resources */,
 				CC1E632A120423DF000A8A4E /* DeltaMusic2.0 in Resources */,
 				CC1E632B120423DF000A8A4E /* Desire in Resources */,
 				CC1E632C120423DF000A8A4E /* DIGI-Booster in Resources */,
@@ -6075,6 +6117,7 @@
 				CC1E5BB71200B3B8000A8A4E /* ASIDownloadCache.m in Sources */,
 				CC1E5BB81200B3B8000A8A4E /* ASIFormDataRequest.m in Sources */,
 				CC1E5BB91200B3B8000A8A4E /* ASIHTTPRequest.m in Sources */,
+				CC1343571ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m in Sources */,
 				CC1E5BBA1200B3B8000A8A4E /* ASIInputStream.m in Sources */,
 				CC1E5BBB1200B3B8000A8A4E /* ASINetworkQueue.m in Sources */,
 				CC1E5BC31200B3B8000A8A4E /* Reachability.m in Sources */,
@@ -6088,6 +6131,7 @@
 				CC1E5C7F1200B3B8000A8A4E /* RenderUtils.mm in Sources */,
 				CC1E5C801200B3B8000A8A4E /* TextureUtils.mm in Sources */,
 				CC1E5CC81200B3B8000A8A4E /* Misc.c in Sources */,
+				CC13435B1ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m in Sources */,
 				CC1E5CC91200B3B8000A8A4E /* PsxBios.c in Sources */,
 				CC1E5CCA1200B3B8000A8A4E /* PsxCounters.c in Sources */,
 				CC1E5CCB1200B3B8000A8A4E /* PsxDma.c in Sources */,
@@ -6099,6 +6143,7 @@
 				CC1E5CD71200B3B8000A8A4E /* spu.c in Sources */,
 				CC1E5CDA1200B3B8000A8A4E /* Spu.c in Sources */,
 				CC1E5D241200B3B8000A8A4E /* ioapi.c in Sources */,
+				CC13435C1ABFFF2A00CAB284 /* SWUtilityButtonView.m in Sources */,
 				CC1E5D251200B3B8000A8A4E /* unzip.c in Sources */,
 				CC1E5D261200B3F3000A8A4E /* spu.c in Sources */,
 				CC1E5D281200B405000A8A4E /* eng_psf2.c in Sources */,
@@ -6242,6 +6287,7 @@
 				3370BC4B124A891500691400 /* mdxmain.c in Sources */,
 				CCB8D96D17F5F1E4008E6A45 /* MDZUIImageView.m in Sources */,
 				3370BC8E124A8B7D00691400 /* pcm8.c in Sources */,
+				CC1343591ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m in Sources */,
 				33D1BD89126C31B700B06781 /* eng_psf.c in Sources */,
 				CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */,
 				33114CF813430A0B00C7CC19 /* append.c in Sources */,
@@ -6252,12 +6298,14 @@
 				33114CFC13430A0B00C7CC19 /* extract.c in Sources */,
 				33114CFF13430A0B00C7CC19 /* header.c in Sources */,
 				33114D0013430A0B00C7CC19 /* huf.c in Sources */,
+				CC1343581ABFFF2A00CAB284 /* SWCellScrollView.m in Sources */,
 				33114D0113430A0B00C7CC19 /* indicator.c in Sources */,
 				33114D0213430A0B00C7CC19 /* larc.c in Sources */,
 				33114D0313430A0B00C7CC19 /* lhadd.c in Sources */,
 				33114D0413430A0B00C7CC19 /* lharc.c in Sources */,
 				33114D0613430A0B00C7CC19 /* lhext.c in Sources */,
 				33114D0713430A0B00C7CC19 /* lhlist.c in Sources */,
+				CC13435A1ABFFF2A00CAB284 /* SWTableViewCell.m in Sources */,
 				33114D0B13430A0B00C7CC19 /* maketbl.c in Sources */,
 				33114D0C13430A0B00C7CC19 /* maketree.c in Sources */,
 				33114D0D13430A0B00C7CC19 /* patmatch.c in Sources */,
@@ -6402,6 +6450,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6441,6 +6491,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6560,6 +6612,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;
@@ -6628,6 +6682,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;

@@ -180,6 +180,7 @@
 "Default length %d:%.2d"="Durée par défaut %d:%.2d";
 
 "Issue %d while trying to delete entry.\n%@"="Erreur %d lors de la tentative de suppression.\n%@";
+"Issue %d while trying to renamefile.\n%@"="Erreur %d lors de la tentative de renommage.\n%@";
 
 "Filter"="Filtre";
 
@@ -196,6 +197,9 @@
 "Add/Remove files..."="Ajouter/Supprimer fichiers...";
 "Add or remove entries from browser."="Ajouter ou supprimer des entrées.";
 "More actions..."="Plus d'actions...";
+
+
+
 
 "Rename"="Renommer";
 "Edit"="Editer";
