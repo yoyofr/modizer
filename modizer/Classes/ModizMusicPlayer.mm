@@ -156,6 +156,35 @@ int uade_song_end_trigger;
 void gsf_update(unsigned char *pSound,int lBytes);
 extern "C" char gsf_libfile[1024];
 
+extern "C" GD3_TAG VGMTag;
+
+int PreferJapTag=0;
+static const wchar_t* GetTagStrEJ(const wchar_t* EngTag, const wchar_t* JapTag)
+{
+    const wchar_t* RetTag;
+    
+    if (EngTag == NULL || ! wcslen(EngTag))
+    {
+        RetTag = JapTag;
+    }
+    else if (JapTag == NULL || ! wcslen(JapTag))
+    {
+        RetTag = EngTag;
+    }
+    else
+    {
+        if (! PreferJapTag)
+            RetTag = EngTag;
+        else
+            RetTag = JapTag;
+    }
+    
+    if (RetTag == NULL)
+        return L"";
+    else
+        return RetTag;
+}
+
 
 extern "C" int lha_main(int argc, char *argv[]);
 extern "C" {
@@ -2704,6 +2733,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             bGlobalAudioPause=2;
                         }
                     }
+                    if (mPlayType==17) { //VGM
+                        // render audio into sound buffer
+                        // TODO does this work OK on mSlowDevices?
+                        nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
+                    }
 					if (mPlayType==3) {  //ADPLUG
 						if (opl_towrite) {
 							int written=0;
@@ -3394,13 +3428,14 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
 								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
-								  [filetype_extASAP count]+[filetype_extWMIDI count]];
+								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
 	
 	int err;
 	int local_nb_entries=0;
@@ -3424,6 +3459,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
 	[filetype_ext addObjectsFromArray:filetype_extGSF];
 	[filetype_ext addObjectsFromArray:filetype_extASAP];
+    [filetype_ext addObjectsFromArray:filetype_extVGM];
 	[filetype_ext addObjectsFromArray:filetype_extWMIDI];
 	
 	// First check count for each section
@@ -3504,6 +3540,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
 	
 	NSString *extension;
@@ -3519,10 +3556,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     mSingleFileType=1; //used to identify file which relies or not on another file (sample, psflib, ...)
 	
 	if (!found)
-		for (int i=0;i<[filetype_extASAP count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+		for (int i=0;i<[filetype_extVGM count];i++) {
+			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
 		}
+    if (!found)
+        for (int i=0;i<[filetype_extASAP count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+        }
 	if (!found)
 		for (int i=0;i<[filetype_extGME count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
@@ -3712,6 +3754,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
 	
 	NSString *extension;
@@ -3928,11 +3971,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	
 	found=0;
 	if (!found)
-		for (int i=0;i<[filetype_extASAP count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+		for (int i=0;i<[filetype_extVGM count];i++) {
+			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
 		}
-	
+    if (!found)
+        for (int i=0;i<[filetype_extASAP count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+        }
 	if (!found||(mdz_defaultSAPPLAYER==DEFAULT_GME))
 		for (int i=0;i<[filetype_extGME count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
@@ -4279,62 +4326,110 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		
 		return 0;
 	}
-	if (found==13) { //ASAP
-		mPlayType=13;
-		FILE *f;
-		int song,duration;
-		
+    if (found==13) { //ASAP
+        mPlayType=13;
+        FILE *f;
+        int song,duration;
+        
         //		if (ASAP_IsOurFile([filePath UTF8String])==0) {
         //			NSLog(@"Incompatible with ASAP: %@",filePath);
         //			mPlayType=0;
         //			return -1;
         //		}
-		
-		f = fopen([filePath UTF8String], "rb");
-		if (f == NULL) {
-			NSLog(@"ASAP Cannot open file %@",filePath);
-			mPlayType=0;
-			return -1;
-		}
-		fseek(f,0L,SEEK_END);
-		ASAP_module_len=ftell(f);
+        
+        f = fopen([filePath UTF8String], "rb");
+        if (f == NULL) {
+            NSLog(@"ASAP Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        fseek(f,0L,SEEK_END);
+        ASAP_module_len=ftell(f);
         mp_datasize=ASAP_module_len;
         ASAP_module=(unsigned char*)malloc(ASAP_module_len);
-		fseek(f,0,SEEK_SET);
-		fread(ASAP_module, 1, ASAP_module_len, f);
-		fclose(f);
-		
-		if (!ASAP_Load(&asap, [filePath UTF8String], ASAP_module, ASAP_module_len)) {
-			NSLog(@"Cannot ASAP_Load file %@",filePath);
-			mPlayType=0;
-			return -2;
-		}
+        fseek(f,0,SEEK_SET);
+        fread(ASAP_module, 1, ASAP_module_len, f);
+        fclose(f);
+        
+        if (!ASAP_Load(&asap, [filePath UTF8String], ASAP_module, ASAP_module_len)) {
+            NSLog(@"Cannot ASAP_Load file %@",filePath);
+            mPlayType=0;
+            return -2;
+        }
         
         md5_from_buffer(song_md5,33,(char*)ASAP_module,ASAP_module_len);
         song_md5[32]=0;
         
-		song = asap.moduleInfo.defaultSong;
-		duration = asap.moduleInfo.durations[song];
-		ASAP_PlaySong(&asap, song, duration);
+        song = asap.moduleInfo.defaultSong;
+        duration = asap.moduleInfo.durations[song];
+        ASAP_PlaySong(&asap, song, duration);
         
-		sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap.moduleInfo.author,asap.moduleInfo.title,asap.moduleInfo.songs,asap.moduleInfo.channels);
-		
-		iModuleLength=duration;
-		iCurrentTime=0;
-		numChannels=asap.moduleInfo.channels;
-		mod_minsub=0;
-		mod_maxsub=asap.moduleInfo.songs-1;
-		mod_subsongs=asap.moduleInfo.songs;
-		
-		sprintf(mod_name,"");
-		if (asap.moduleInfo.title[0]) sprintf(mod_name," %s",asap.moduleInfo.title);
-		if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap.moduleInfo.author,asap.moduleInfo.title,asap.moduleInfo.songs,asap.moduleInfo.channels);
+        
+        iModuleLength=duration;
+        iCurrentTime=0;
+        numChannels=asap.moduleInfo.channels;
+        mod_minsub=0;
+        mod_maxsub=asap.moduleInfo.songs-1;
+        mod_subsongs=asap.moduleInfo.songs;
+        
+        sprintf(mod_name,"");
+        if (asap.moduleInfo.title[0]) sprintf(mod_name," %s",asap.moduleInfo.title);
+        if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
         
         stil_info[0]=0;
         [self getStilAsmaInfo:(char*)[filePath UTF8String]];
         
         sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
+        
+        //Loop
+        if (mLoopMode==1) iModuleLength=-1;
+        
+        return 0;
+    }
+    
+	if (found==17) { //VGM
+		mPlayType=17;
+		FILE *f;
+		int song,duration;
 		
+		f = fopen([filePath UTF8String], "rb");
+		if (f == NULL) {
+			NSLog(@"VGM Cannot open file %@",filePath);
+			mPlayType=0;
+			return -1;
+		}
+		fseek(f,0L,SEEK_END);
+		mp_datasize=ftell(f);
+		fclose(f);
+        
+        VGMPlay_Init();
+        // load configuration file here
+        VGMPlay_Init2();
+        if (!OpenVGMFile([filePath UTF8String])) {
+            NSLog(@"Cannot OpenVGMFile file %@",filePath);
+            mPlayType=0;
+            return -2;
+        }
+        
+		sprintf(mod_message,"Author:%ls\nGame:%ls\nSystem:%ls\nTitle:%ls\nNotes:%ls\n",
+                GetTagStrEJ(VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ),
+                GetTagStrEJ(VGMTag.strGameNameE,VGMTag.strGameNameJ),
+                GetTagStrEJ(VGMTag.strSystemNameE,VGMTag.strSystemNameJ),
+                GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ),
+                VGMTag.strNotes);
+		
+		iModuleLength=-1;
+		iCurrentTime=0;
+		numChannels=asap.moduleInfo.channels;
+		mod_minsub=0;
+		mod_maxsub=0;
+		mod_subsongs=1;
+		
+		sprintf(mod_name,"");
+		if (GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ)[0]) sprintf(mod_name," %ls",GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ));
+		if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        
 		//Loop
 		if (mLoopMode==1) iModuleLength=-1;
 		
@@ -5758,6 +5853,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         case 16: //PMD
 			[self Play];
 			break;
+        case 17: //VGM
+            PlayVGM();
+            [self Play]; //TODO: seek
+            break;
 	}
 }
 -(void) Stop {
@@ -5874,8 +5973,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             unload_duh(duh); duh=NULL;
         }
     }
+    if (mPlayType==15) { //VGM
+        CloseVGMFile();
+        VGMPlay_Deinit();
+    }
     if (mPlayType==16) { //PMD
         pmd_stop();
+    }
+    if (mPlayType==17) { //VGM
+        //TODO
+        StopVGM();
     }
     
 }
@@ -5893,7 +6000,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 //Playback infos
 -(NSString*) getModMessage {
 	NSString *modMessage;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
 	else {
 		modMessage=[NSString stringWithCString:mod_message encoding:NSUTF8StringEncoding];
 		if (modMessage==nil) modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -5903,7 +6010,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(NSString*) getModName {
 	NSString *modName;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
 	else {
 		modName=[NSString stringWithCString:mod_name encoding:NSUTF8StringEncoding];
 		if (modName==nil) modName=[NSString stringWithFormat:@"%s",mod_name];
@@ -5928,6 +6035,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     if (mPlayType==14) return @"DUMB";
     if (mPlayType==15) return @"Timidity";
     if (mPlayType==16) return @"PMDMini";
+    if (mPlayType==17) return @"VGMPlay";
 	return @"";
 }
 -(NSString*) getSubTitle:(int)subsong {
@@ -6008,6 +6116,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     }
     if (mPlayType==15) return @"MIDI";
     if (mPlayType==16) return @"PMD";
+    if (mPlayType==17) return @"VGM"; //TODO
 	return @" ";
 }
 -(BOOL) isPlaying {
@@ -6273,6 +6382,7 @@ extern "C" void adjust_amplification(void);
 	mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
+    //TODO: seek VGM
 	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)
         ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||mNeedSeek) return;
 	

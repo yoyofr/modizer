@@ -39,4 +39,4 @@ void RefreshMuting(void);
 void RefreshPanning(void);
 void RefreshPlaybackOptions(void);
 
-UINT32 FillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize);
+UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize);

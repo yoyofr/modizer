@@ -234,7 +234,7 @@ static void null_update(UINT8 ChipID, stream_sample_t **outputs, int samples);
 static void dual_opl2_stereo(UINT8 ChipID, stream_sample_t **outputs, int samples);
 static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Length);
 static INT32 RecalcFadeVolume(void);
-//UINT32 FillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
+//UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
 
 #ifdef WIN32
 DWORD WINAPI PlayingThread(void* Arg);
@@ -492,50 +492,6 @@ void VGMPlay_Init2(void)
 {
 	// has to be called after the configuration is loaded
 	
-	if (FMPort)
-	{
-#if defined(WIN32) && defined(_MSC_VER)
-		__try
-		{
-			// should work well with WinXP Compatibility Mode
-			_inp(FMPort);
-			WINNT_MODE = false;
-		}
-		__except(EXCEPTION_EXECUTE_HANDLER)
-		{
-			WINNT_MODE = true;
-		}
-#endif
-		
-		if (! OPL_MODE)	// OPL not forced
-			OPL_Hardware_Detecton();
-		if (! OPL_MODE)	// no OPL chip found
-			FMPort = 0x0000;	// disable FM
-	}
-	if (FMPort)
-	{
-		// prepare FM Hardware Access and open MIDI Mixer
-#ifdef WIN32
-#ifdef MIXER_MUTING
-		mixerOpen(&hmixer, 0x00, 0x00, 0x00, 0x00);
-		GetMixerControl();
-#endif
-		
-		if (WINNT_MODE)
-		{
-			if (OpenPortTalk())
-				return;
-		}
-#else	//#ifndef WIN32
-#ifdef MIXER_MUTING
-		hmixer = open("/dev/mixer", O_RDWR);
-#endif
-		
-		if (OpenPortTalk())
-			return;
-#endif
-	}
-	
 	StreamBufs[0x00] = (INT32*)malloc(SMPL_BUFSIZE * sizeof(INT32));
 	StreamBufs[0x01] = (INT32*)malloc(SMPL_BUFSIZE * sizeof(INT32));
 	
@@ -552,16 +508,6 @@ void VGMPlay_Deinit(void)
 	UINT8 CurCSet;
 	CHIP_OPTS* TempCOpt;
 	
-	if (FMPort)
-	{
-#ifdef MIXER_MUTING
-#ifdef WIN32
-		mixerClose(hmixer);
-#else
-		close(hmixer);
-#endif
-#endif
-	}
 	
 	free(StreamBufs[0x00]);	StreamBufs[0x00] = NULL;
 	free(StreamBufs[0x01]);	StreamBufs[0x01] = NULL;
@@ -734,6 +680,107 @@ static UINT32 gcd(UINT32 x, UINT32 y)
 	
 	return x << shift;
 }
+
+void PlayVGM(void)
+{
+    UINT8 CurChip;
+    UINT8 FMVal;
+    INT32 TempSLng;
+    
+    if (PlayingMode != 0xFF) return;
+    
+    //PausePlay = false;
+    FadePlay = false;
+    MasterVol = 1.0f;
+    ForceVGMExec = false;
+    AutoStopSkip = false;
+    FadeStart = 0;
+    ForceVGMExec = true;
+    PauseThread = true;
+    
+    // FM Check
+    FMVal = 0x00;
+    
+    PlayingMode = 0x00;	// Normal Mode
+    
+    if (VGMHead.bytVolumeModifier <= VOLUME_MODIF_WRAP)
+        TempSLng = VGMHead.bytVolumeModifier;
+    else if (VGMHead.bytVolumeModifier == (VOLUME_MODIF_WRAP + 0x01))
+        TempSLng = VOLUME_MODIF_WRAP - 0x100;
+    else
+        TempSLng = VGMHead.bytVolumeModifier - 0x100;
+    VolumeLevelM = (float)(VolumeLevel * pow(2.0, TempSLng / (double)0x20));
+    
+    FinalVol = VolumeLevelM;
+    
+    if (! VGMMaxLoop)
+    {
+        VGMMaxLoopM = 0x00;
+    }
+    else
+    {
+        TempSLng = (VGMMaxLoop * VGMHead.bytLoopModifier + 0x08) / 0x10 - VGMHead.bytLoopBase;
+        VGMMaxLoopM = (TempSLng >= 0x01) ? TempSLng : 0x01;
+    }
+    
+    if (! VGMPbRate || ! VGMHead.lngRate)
+    {
+        VGMPbRateMul = 1;
+        VGMPbRateDiv = 1;
+    }
+    else
+    {
+        // I prefer small Multiplers and Dividers, as they're used very often
+        TempSLng = gcd(VGMHead.lngRate, VGMPbRate);
+        VGMPbRateMul = VGMHead.lngRate / TempSLng;
+        VGMPbRateDiv = VGMPbRate / TempSLng;
+    }
+    VGMSmplRateMul = SampleRate * VGMPbRateMul;
+    VGMSmplRateDiv = VGMSampleRate * VGMPbRateDiv;
+    // same as above - to speed up the VGM <-> Playback calculation
+    TempSLng = gcd(VGMSmplRateMul, VGMSmplRateDiv);
+    VGMSmplRateMul /= TempSLng;
+    VGMSmplRateDiv /= TempSLng;
+    
+    PlayingTime = 0;
+    EndPlay = false;
+    
+    VGMPos = VGMHead.lngDataOffset;
+    VGMSmplPos = 0;
+    VGMSmplPlayed = 0;
+    VGMEnd = false;
+    VGMCurLoop = 0x00;
+    PauseSmpls = (PauseTime * SampleRate + 500) / 1000;
+    
+    Chips_GeneralActions(0x00);	// Start chips
+    // also does Reset (0x01), Muting Mask (0x10) and Panning (0x20)
+    
+    Last95Drum = 0xFFFF;
+    Last95Freq = 0;
+    Last95Max = 0xFFFF;
+    IsVGMInit = true;
+    Interpreting = false;
+    InterpretFile(0);
+    IsVGMInit = false;
+    
+    PauseThread = false;
+    AutoStopSkip = true;
+    ForceVGMExec = false;
+    
+    return;
+}
+
+void StopVGM(void)
+{
+    if (PlayingMode == 0xFF)
+        return;
+    
+    Chips_GeneralActions(0x02);	// Stop chips
+    PlayingMode = 0xFF;
+    
+    return;
+}
+
 
 #if 0
 void PlayVGM(void)
@@ -5403,7 +5450,7 @@ static INT32 RecalcFadeVolume(void)
 	return (INT32)(0x100 * FinalVol + 0.5f);
 }
 
-UINT32 FillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
+UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
 {
 	UINT32 CurSmpl;
 	WAVE_32BS TempBuf;
@@ -5576,7 +5623,7 @@ DWORD WINAPI PlayingThread(void* Arg)
 				Ticks = TimeDiff * SampleRate / CPUFreq.QuadPart;
 				if (Ticks > SampleRate / 2)
 					Ticks = SampleRate / 50;
-				FillBuffer(NULL, (UINT32)Ticks);
+				VGMFillBuffer(NULL, (UINT32)Ticks);
 				if (! ResetPBTimer)
 				{
 					TimeLast = TimeNow;
@@ -5648,7 +5695,7 @@ void* PlayingThread(void* Arg)
 				Ticks = TimeDiff * SampleRate / CPUFreq;
 				if (Ticks > SampleRate / 2)
 					Ticks = SampleRate / 50;
-				FillBuffer(NULL, (UINT32)Ticks);
+				VGMFillBuffer(NULL, (UINT32)Ticks);
 				if (! ResetPBTimer)
 				{
 					TimeLast = TimeNow;

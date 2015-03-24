@@ -608,12 +608,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
 								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
-								  [filetype_extASAP count]+[filetype_extWMIDI count]];
+								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
 	NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
 	NSArray *filetype_extGME_MULTISONGSFILE=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
@@ -688,6 +689,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
 	[filetype_ext addObjectsFromArray:filetype_extGSF];
 	[filetype_ext addObjectsFromArray:filetype_extASAP];
+    [filetype_ext addObjectsFromArray:filetype_extVGM];
 	[filetype_ext addObjectsFromArray:filetype_extWMIDI];
     
     [archivetype_ext addObjectsFromArray:filetype_extARCHIVEFILE];

@@ -50,6 +50,11 @@ extern "C" {
 #import "pmdmini.h"
 #import "pmdwinimport.h"
 
+//VGM
+#import "../../vgmplay/vgm/chips/mamedef.h"
+#import "../../vgmplay/vgm/VGMFile.h"
+#import "../../vgmplay/vgm/VGMPlay_Intf.h"
+
 }
 
 @interface ModizMusicPlayer : NSObject {
