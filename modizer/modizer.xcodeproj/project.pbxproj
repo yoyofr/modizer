@@ -326,6 +326,8 @@
 		CC13435A1ABFFF2A00CAB284 /* SWTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343521ABFFF2A00CAB284 /* SWTableViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC13435B1ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC13435C1ABFFF2A00CAB284 /* SWUtilityButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */; };
+		CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1343741AC17B3A00CAB284 /* libvgmplay.a */; };
 		CC1A554F17D5C0820009E78B /* BRRequest+_UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC1A555017D5C0820009E78B /* BRRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553E17D5C0820009E78B /* BRRequest.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC1A555117D5C0820009E78B /* BRRequestCreateDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554017D5C0820009E78B /* BRRequestCreateDirectory.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -1106,6 +1108,13 @@
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = libFileExtractor;
 		};
+		CC1343731AC17B3A00CAB284 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC1343681AC17B3900CAB284;
+			remoteInfo = vgmplay;
+		};
 		CC33B2941AB8197F009608E8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */;
@@ -1804,6 +1813,8 @@
 		CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUtilityButtonTapGestureRecognizer.m; sourceTree = "<group>"; };
 		CC1343551ABFFF2A00CAB284 /* SWUtilityButtonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWUtilityButtonView.h; sourceTree = "<group>"; };
 		CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUtilityButtonView.m; sourceTree = "<group>"; };
+		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmplay.xcodeproj; path = ../vgmplay/vgmplay.xcodeproj; sourceTree = "<group>"; };
+		CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VGMPlay.ini; path = ../../vgmplay/vgm/VGMPlay.ini; sourceTree = "<group>"; };
 		CC1A553A17D5C0820009E78B /* BRGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRGlobal.h; sourceTree = "<group>"; };
 		CC1A553B17D5C0820009E78B /* BRRequest+_UserData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "BRRequest+_UserData.h"; sourceTree = "<group>"; };
 		CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "BRRequest+_UserData.m"; sourceTree = "<group>"; };
@@ -2943,6 +2954,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */,
 				CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */,
 				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
 				CC33B3C81ABAC193009608E8 /* liblibopenmpt.a in Frameworks */,
@@ -3659,6 +3671,30 @@
 			path = SWTableViewCell;
 			sourceTree = "<group>";
 		};
+		CC1343701AC17B3900CAB284 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC1343741AC17B3A00CAB284 /* libvgmplay.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC1343751AC17B4D00CAB284 /* libvgmplay */ = {
+			isa = PBXGroup;
+			children = (
+				CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */,
+			);
+			name = libvgmplay;
+			sourceTree = "<group>";
+		};
+		CC13449B1AC17CC200CAB284 /* vgmplay */ = {
+			isa = PBXGroup;
+			children = (
+				CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */,
+			);
+			name = vgmplay;
+			sourceTree = "<group>";
+		};
 		CC1A553917D5C0820009E78B /* BlackRaccoon */ = {
 			isa = PBXGroup;
 			children = (
@@ -4089,6 +4125,7 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CC13449B1AC17CC200CAB284 /* vgmplay */,
 				CC35CF2C1ABF86F9004EDAC0 /* Images.xcassets */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
@@ -4961,6 +4998,7 @@
 		CC9B193312FF0B9800985967 /* SndPlayers */ = {
 			isa = PBXGroup;
 			children = (
+				CC1343751AC17B4D00CAB284 /* libvgmplay */,
 				CC33B25F1AB81688009608E8 /* libopenmpt */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
 				333157371207699700815317 /* AHX */,
@@ -5543,6 +5581,10 @@
 					ProductGroup = 33C7396C13A0AC210012221C /* Products */;
 					ProjectRef = 33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */;
 				},
+				{
+					ProductGroup = CC1343701AC17B3900CAB284 /* Products */;
+					ProjectRef = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -5613,6 +5655,13 @@
 			fileType = archive.ar;
 			path = liblibFileExtractor.a;
 			remoteRef = 33D3B9211414253C004679CD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC1343741AC17B3A00CAB284 /* libvgmplay.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libvgmplay.a;
+			remoteRef = CC1343731AC17B3A00CAB284 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC33B2951AB8197F009608E8 /* liblibopenmpt.a */ = {
@@ -6022,6 +6071,7 @@
 				33E46B1817C2B77600F70A14 /* txtMenu7b.png in Resources */,
 				33E46B1917C2B77600F70A14 /* txtMenu8a.png in Resources */,
 				33E46B1A17C2B77600F70A14 /* txtMenu8b.png in Resources */,
+				CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */,
 				33E46B1B17C2B77600F70A14 /* txtMenu9.png in Resources */,
 				33E46B2117C350B200F70A14 /* txtMenu10a.png in Resources */,
 				33E46B2217C350B200F70A14 /* txtMenu10b.png in Resources */,

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		AA747D9F0F9514B9006C5449 /* libgme_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* libgme_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		CC1344A41AC1B6E300CAB284 /* ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = CC33B51B1ABF1C29009608E8 /* ym2151.c */; };
 		CC33B5381ABF1C29009608E8 /* adlib.h in Headers */ = {isa = PBXBuildFile; fileRef = CC33B42E1ABF1C26009608E8 /* adlib.h */; };
 		CC33B5391ABF1C29009608E8 /* Ay_Apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC33B42F1ABF1C26009608E8 /* Ay_Apu.cpp */; };
 		CC33B53A1ABF1C29009608E8 /* Ay_Apu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC33B4301ABF1C26009608E8 /* Ay_Apu.h */; };
@@ -233,7 +234,6 @@
 		CC33B61B1ABF1C29009608E8 /* Vgm_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC33B5181ABF1C29009608E8 /* Vgm_Emu.h */; };
 		CC33B61C1ABF1C29009608E8 /* Ym2151_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC33B5191ABF1C29009608E8 /* Ym2151_Emu.cpp */; };
 		CC33B61D1ABF1C29009608E8 /* Ym2151_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC33B51A1ABF1C29009608E8 /* Ym2151_Emu.h */; };
-		CC33B61E1ABF1C29009608E8 /* ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = CC33B51B1ABF1C29009608E8 /* ym2151.c */; };
 		CC33B61F1ABF1C29009608E8 /* ym2151.h in Headers */ = {isa = PBXBuildFile; fileRef = CC33B51C1ABF1C29009608E8 /* ym2151.h */; };
 		CC33B6201ABF1C29009608E8 /* Ym2203_Emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC33B51D1ABF1C29009608E8 /* Ym2203_Emu.cpp */; };
 		CC33B6211ABF1C29009608E8 /* Ym2203_Emu.h in Headers */ = {isa = PBXBuildFile; fileRef = CC33B51E1ABF1C29009608E8 /* Ym2203_Emu.h */; };
@@ -1129,7 +1129,6 @@
 				CC33B55B1ABF1C29009608E8 /* Dual_Resampler.cpp in Sources */,
 				CC33B5F01ABF1C29009608E8 /* s_logtbl.c in Sources */,
 				CC33B5F81ABF1C29009608E8 /* Sap_Core.cpp in Sources */,
-				CC33B61E1ABF1C29009608E8 /* ym2151.c in Sources */,
 				CC33B6081ABF1C29009608E8 /* Sgc_Impl.cpp in Sources */,
 				CC33B5791ABF1C29009608E8 /* gme.cpp in Sources */,
 				CC33B6221ABF1C29009608E8 /* Ym2413_Emu.cpp in Sources */,
@@ -1180,6 +1179,7 @@
 				CC33B55D1ABF1C29009608E8 /* Effects_Buffer.cpp in Sources */,
 				CC33B62C1ABF1C29009608E8 /* Ym2612_Emu.cpp in Sources */,
 				CC33B6281ABF1C29009608E8 /* Ym2610b_Emu.cpp in Sources */,
+				CC1344A41AC1B6E300CAB284 /* ym2151.c in Sources */,
 				CC33B5D21ABF1C29009608E8 /* Okim6258_Emu.cpp in Sources */,
 				CC33B5751ABF1C29009608E8 /* Gme_File.cpp in Sources */,
 				CC33B61A1ABF1C29009608E8 /* Vgm_Emu.cpp in Sources */,
