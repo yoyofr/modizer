@@ -227,6 +227,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value=2;
@@ -467,6 +468,18 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[0]=(char*)"ASAP";
     settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
+    
+    settings[GLOB_DefaultVGMPlayer].type=MDZ_SWITCH;
+    settings[GLOB_DefaultVGMPlayer].label=(char*)"Default VGM player";
+    settings[GLOB_DefaultVGMPlayer].description=NULL;
+    settings[GLOB_DefaultVGMPlayer].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_DefaultVGMPlayer].sub_family=0;
+    settings[GLOB_DefaultVGMPlayer].callback=&optGLOBALChangedC;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value=0;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[0]=(char*)"VGM";
+    settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_labels[1]=(char*)"GME";
     
     settings[GLOB_TitleFilename].label=(char*)"Filename as title";
     settings[GLOB_TitleFilename].description=NULL;

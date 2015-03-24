@@ -21,6 +21,7 @@ char* FindFile(const char* FileName);
 
 UINT32 GetGZFileLength(const char* FileName);
 bool OpenVGMFile(const char* FileName);
+bool OpenOtherFile(const char* FileName);
 void CloseVGMFile(void);
 void FreeGD3Tag(GD3_TAG* TagData);
 UINT32 GetVGMFileInfo(const char* FileName, VGM_HEADER* RetVGMHead, GD3_TAG* RetGD3Tag);

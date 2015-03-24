@@ -85,10 +85,13 @@ static int mSingleSubMode;
 #define DEFAULT_UADE 2
 
 #define DEFAULT_ASAP 0
-#define DEFAULT_GME 1
+#define DEFAULT_SAPGME 1
+
+#define DEFAULT_VGMVGM 0
+#define DEFAULT_VGMGME 1
 
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
-static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER;
+static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER;
 static char **mdz_ArchiveFilesList;
 static char **mdz_ArchiveFilesListAlias;
 
@@ -157,6 +160,7 @@ void gsf_update(unsigned char *pSound,int lBytes);
 extern "C" char gsf_libfile[1024];
 
 extern "C" GD3_TAG VGMTag;
+extern "C" VGM_HEADER VGMHead;
 
 int PreferJapTag=0;
 static const wchar_t* GetTagStrEJ(const wchar_t* EngTag, const wchar_t* JapTag)
@@ -2317,6 +2321,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         if (mPlayType==16) { //PMDMini : not supported
                             mNeedSeek=0;
                         }
+                        if (mPlayType==17) { //VGM
+                            SeekVGM(false,mNeedSeekTime*441/10);
+                            mNeedSeek=0;
+                        }
 					}
 					if (moveToNextSubSong) {
 						if (mod_currentsub<mod_maxsub) {
@@ -3736,7 +3744,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     return found;
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
 	NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -3775,6 +3783,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         mdz_IsArchive=0;
 		mdz_defaultMODPLAYER=defaultMODPLAYER;
         mdz_defaultSAPPLAYER=defaultSAPPLAYER;
+        mdz_defaultVGMPLAYER=defaultVGMPLAYER;
 		mNeedSeek=0;
 		mod_message_updated=0;
 		mod_subsongs=1;
@@ -3980,7 +3989,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
         }
-	if (!found||(mdz_defaultSAPPLAYER==DEFAULT_GME))
+	if (!found||((mdz_defaultSAPPLAYER==DEFAULT_SAPGME)&&found==13)||((mdz_defaultVGMPLAYER==DEFAULT_VGMGME)&&found==17))
 		for (int i=0;i<[filetype_extGME count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
@@ -4406,11 +4415,13 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         VGMPlay_Init();
         // load configuration file here
         VGMPlay_Init2();
-        if (!OpenVGMFile([filePath UTF8String])) {
-            NSLog(@"Cannot OpenVGMFile file %@",filePath);
-            mPlayType=0;
-            return -2;
+        if (!OpenVGMFile([filePath UTF8String]))
+            if (!OpenOtherFile([filePath UTF8String])) {
+                NSLog(@"Cannot OpenVGMFile file %@",filePath);
+                mPlayType=0;
+                return -2;
         }
+        
         
 		sprintf(mod_message,"Author:%ls\nGame:%ls\nSystem:%ls\nTitle:%ls\nNotes:%ls\n",
                 GetTagStrEJ(VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ),
@@ -4419,7 +4430,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ),
                 VGMTag.strNotes);
 		
-		iModuleLength=-1;
+        
+		iModuleLength=VGMHead.lngTotalSamples*10/441+2000;//ms
 		iCurrentTime=0;
 		numChannels=asap.moduleInfo.channels;
 		mod_minsub=0;
@@ -5855,7 +5867,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			break;
         case 17: //VGM
             PlayVGM();
-            [self Play]; //TODO: seek
+            if (startPos) [self Seek:startPos];
+            [self Play];
             break;
 	}
 }
@@ -5981,7 +5994,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         pmd_stop();
     }
     if (mPlayType==17) { //VGM
-        //TODO
         StopVGM();
     }
     
@@ -6116,7 +6128,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     }
     if (mPlayType==15) return @"MIDI";
     if (mPlayType==16) return @"PMD";
-    if (mPlayType==17) return @"VGM"; //TODO
+    if (mPlayType==17) return @"VGM";
 	return @" ";
 }
 -(BOOL) isPlaying {
@@ -6382,7 +6394,6 @@ extern "C" void adjust_amplification(void);
 	mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    //TODO: seek VGM
 	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)
         ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||mNeedSeek) return;
 	

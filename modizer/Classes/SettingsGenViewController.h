@@ -61,6 +61,7 @@ enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER,
     GLOB_DefaultMODPlayer,
     GLOB_DefaultSAPPlayer,
+    GLOB_DefaultVGMPlayer,
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,
