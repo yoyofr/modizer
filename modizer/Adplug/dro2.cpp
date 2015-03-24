@@ -54,7 +54,8 @@ bool Cdro2Player::load(const std::string &filename, const CFileProvider &fp)
 		return false;
 	}
 	int version = f->readInt(4);
-	if (version != 0x2) {
+//    printf("dro2 version: %X\n",version);
+    if (version != 0x2) {
 		fp.close(f);
 		return false;
 	}
