@@ -1849,7 +1849,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     
-    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist<2)) {
+    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist<2)&&(playlist->nb_entries)) {
         NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
         int pos=currentPlayedEntry+1;
         if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;

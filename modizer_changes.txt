@@ -4,7 +4,7 @@
 - updated MODLAND to latest version
 - replaced Modplug by OpenMPT
 - reduced audio latency
-- updated playback librairies
+- updated playback libraries
 - several bug fixes
 
 2.0

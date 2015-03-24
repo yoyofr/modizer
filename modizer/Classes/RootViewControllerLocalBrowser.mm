@@ -35,7 +35,6 @@ static volatile int mPopupAnimation=0;
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
-
 @implementation RootViewControllerLocalBrowser
 
 @synthesize mFileMngr;
@@ -47,6 +46,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize childController;
 @synthesize mSearchText;
 @synthesize popTipView;
+@synthesize alertRename;
+
 
 
 #include <sys/types.h>
@@ -348,7 +349,52 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         UIAlertView *alert2 = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Database created.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
         [alert2 show];
     }
+    if (renameFile) {
+        renameFile=0;
+        if (buttonIndex==1) {
+            t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+            UITextField *tf=[alertView textFieldAtIndex:0];
+            //NSLog(@"rename %@ to %@",cur_local_entries[renameSec][renameIdx].label,tf.text);
+            if (cur_local_entries[renameSec][renameIdx].label) [cur_local_entries[renameSec][renameIdx].label release];
+            
+            NSString *curPath,*tgtPath;
+            curPath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[renameSec][renameIdx].fullpath];
+            tgtPath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[renameSec][renameIdx].fullpath];
+            
+            tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
+            //NSLog(@"rename %@ to %@",curPath,tgtPath);
+            
+            NSError *err;
+            if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
+                NSLog(@"Issue %d while renaming file %@",err.code,curPath);
+                UIAlertView *removeAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                [removeAlert show];
+            } else {
+                cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
+                
+                [cur_local_entries[renameSec][renameIdx].fullpath release];
+                cur_local_entries[renameSec][renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
+                shouldFillKeys=1;
+                [self fillKeys];
+
+                [self.tableView reloadData];
+            }
+            //tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
+        }
+    }
+    
 }
+
+- (BOOL)alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView
+{
+    NSString *inputText = [[alertView textFieldAtIndex:0] text];
+    if( [inputText length] >= 1 ) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 
 - (NSString *)machine {
 	size_t size;
@@ -527,6 +573,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	[self.view addSubview:waitingView];
 	
 	[super viewDidLoad];
+    renameFile=0;
 	
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -1519,8 +1566,77 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return YES;
 }
 
-#pragma mark -
-#pragma mark Table view data source
+
+#pragma mark - SWTableViewDelegate
+
+- (void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerLeftUtilityButtonWithIndex:(NSInteger)index {
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    int section=indexPath.section-2;
+    
+    switch (index) {
+        case 0: {
+            //rename
+            renameFile=1;
+            renameSec=section;renameIdx=indexPath.row;
+            
+            alertRename=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil] autorelease];
+            [alertRename setAlertViewStyle:UIAlertViewStylePlainTextInput];
+            UITextField *tf=[alertRename textFieldAtIndex:0];
+            tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].label];
+            [alertRename show];
+            
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+- (void)swipeableTableViewCell:(SWTableViewCell *)cell didTriggerRightUtilityButtonWithIndex:(NSInteger)index {
+    switch (index) {
+        case 0:
+        {
+            // Delete button was pressed
+            NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+            
+            //delete entry
+            t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+            int section=indexPath.section-2;
+            NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
+            NSError *err;
+            
+            if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
+                NSLog(@"Issue %d while removing: %@",err.code,fullpath);
+                UIAlertView *removeAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                [removeAlert show];
+            } else {
+                if (cur_local_entries[section][indexPath.row].type==0) { //Dir
+                    DBHelper::deleteStatsDirDB(fullpath);
+                }
+                if (cur_local_entries[section][indexPath.row].type&3) { //File
+                    DBHelper::deleteStatsFileDB(fullpath);
+                }
+                
+                [self listLocalFiles];
+                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [self.tableView reloadData];
+            }
+          
+//            [self.tableView deleteRowsAtIndexPaths:@[cellIndexPath]
+//                                  withRowAnimation:UITableViewRowAnimationAutomatic];
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+- (BOOL)swipeableTableViewCellShouldHideUtilityButtonsOnSwipe:(SWTableViewCell *)cell {
+    return YES;
+}
+
+#pragma mark - Table view data source
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (mSearch) return nil;
@@ -1555,6 +1671,25 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return index;
 }
 
+- (NSArray *)rightButtons {
+    NSMutableArray *rightUtilityButtons = [NSMutableArray new];
+    [rightUtilityButtons sw_addUtilityButtonWithColor:
+     [UIColor colorWithRed:1.0f green:0.231f blue:0.188 alpha:1.0f]
+                                                title:[NSString stringWithFormat:@"%@ ",NSLocalizedString(@"Delete",@"")]];
+    
+    return rightUtilityButtons;
+}
+
+- (NSArray *)leftButtons {
+    NSMutableArray *leftUtilityButtons = [NSMutableArray new];
+    
+    [leftUtilityButtons sw_addUtilityButtonWithColor:
+     [UIColor colorWithRed:0.07 green:0.16f blue:0.75f alpha:1.0]
+                                                title:NSLocalizedString(@"Rename",@"")];
+    return leftUtilityButtons;
+}
+
+
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
     NSString *cellValue;
@@ -1570,9 +1705,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
     
-    UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    SWTableViewCell *cell = (SWTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[[SWTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
+        cell.leftUtilityButtons = [self leftButtons];
+        cell.rightUtilityButtons = [self rightButtons];
+        cell.delegate = self;
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
@@ -1820,7 +1958,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         // Delete the row from the data source
         
         //delete entry
-        
         int section=indexPath.section-2;
         NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
         NSError *err;
@@ -1861,7 +1998,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-    int section=indexPath.section-2;
+/*    int section=indexPath.section-2;
     if (section>=0) {
         NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
         BOOL res;
@@ -1869,7 +2006,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         res=[myMngr isDeletableFileAtPath:fullpath];
         [myMngr release];
         return res;
-    }
+    }*/
     return NO;
 }
 
