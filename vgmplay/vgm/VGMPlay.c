@@ -389,7 +389,7 @@ void VGMPlay_Init(void)
 	CAUD_ATTR* TempCAud;
 	
 	SampleRate = 44100;
-	FadeTime = 5000;
+	FadeTime = 2000;
 	PauseTime = 0;
 	
 	FadeRAWLog = false;
@@ -401,7 +401,7 @@ void VGMPlay_Init(void)
 	FMBreakFade = false;
 	FMVol = 0.0f;
 	SurroundSound = false;
-	VGMMaxLoop = 0x02;
+    VGMMaxLoop = 1;//0x02;
 	VGMPbRate = 0;
 #ifdef ADDITIONAL_FORMATS
 	CMFMaxLoop = 0x01;
@@ -780,6 +780,64 @@ void StopVGM(void)
     
     return;
 }
+
+void RestartPlaying(void)
+{
+    Interpreting = true;	// Avoid any Thread-Call
+    
+    VGMPos = VGMHead.lngDataOffset;
+    VGMSmplPos = 0;
+    VGMSmplPlayed = 0;
+    VGMEnd = false;
+    EndPlay = false;
+    VGMCurLoop = 0x00;
+    PauseSmpls = (PauseTime * SampleRate + 500) / 1000;
+    
+    Chips_GeneralActions(0x01);	// Reset Chips
+    // also does Muting Mask (0x10) and Panning (0x20)
+    
+    Last95Drum = 0xFFFF;
+    Last95Freq = 0;
+    Interpreting = false;
+    ForceVGMExec = true;
+    IsVGMInit = true;
+    InterpretFile(0);
+    IsVGMInit = false;
+    ForceVGMExec = false;
+    
+    return;
+}
+
+
+void SeekVGM(bool Relative, INT32 PlayBkSamples)
+{
+    INT32 Samples;
+    UINT32 LoopSmpls;
+    
+    if (PlayingMode == 0xFF || (Relative && ! PlayBkSamples))
+        return;
+    
+    LoopSmpls = VGMCurLoop * SampleVGM2Playback(VGMHead.lngLoopSamples);
+    if (! Relative)
+        Samples = PlayBkSamples - (LoopSmpls + VGMSmplPlayed);
+    else
+        Samples = PlayBkSamples;
+    
+    if (Samples < 0)
+    {
+        Samples = LoopSmpls + VGMSmplPlayed + Samples;
+        if (Samples < 0)
+            Samples = 0;
+        RestartPlaying();
+    }
+    
+    ForceVGMExec = true;
+    InterpretFile(Samples);
+    ForceVGMExec = false;
+    
+    return;
+}
+
 
 
 #if 0
@@ -2216,6 +2274,7 @@ static UINT16 GetChipVolume(VGM_HEADER* FileHead, UINT8 ChipID, UINT8 ChipNum, U
 }
 
 
+#if 0
 static void RestartPlaying(void)
 {
 	bool OldPThread;
@@ -2268,6 +2327,7 @@ static void RestartPlaying(void)
 	
 	return;
 }
+#endif
 
 static void Chips_GeneralActions(UINT8 Mode)
 {

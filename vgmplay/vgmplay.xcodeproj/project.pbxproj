@@ -810,6 +810,15 @@
 					"ym2413_read=VGMym2413_read",
 					"ym2413_write=VGMym2413_write",
 					"ym2413_reset_chip=VGMym2413_reset_chip",
+					"ym2612_write=VGMym2612_write",
+					"ym2612_setoptions=VGMym2612_setoptions",
+					"ym2612_set_mutemask=VGMym2612_set_mutemask",
+					"ym2612_timer_over=VGMym2612_timer_over",
+					"ym2612_read=VGMym2612_read",
+					"ym2612_reset_chip=VGMym2612_reset_chip",
+					"ym2612_shutdown=VGMym2612_shutdown",
+					"ym2612_init=VGMym2612_init",
+					"ym2612_update_one=VGMym2612_update_one",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CFLAGS = (
