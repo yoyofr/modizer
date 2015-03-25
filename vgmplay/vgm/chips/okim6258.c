@@ -42,6 +42,7 @@ struct _okim6258_state
 	//sound_stream *stream;	/* which stream are we playing on? */
 
 	UINT8 output_bits;
+	INT32 output_mask;
 
 	// Valley Bell: Added a small queue to prevent race conditions.
 	UINT8 data_buf[2];
@@ -74,6 +75,7 @@ static int tables_computed = 0;
 
 #define MAX_CHIPS	0x02
 static okim6258_state OKIM6258Data[MAX_CHIPS];
+static UINT8 Iternal10Bit = 0x00;
 
 /*INLINE okim6258_state *get_safe_token(running_device *device)
 {
@@ -127,8 +129,8 @@ static void compute_tables(void)
 
 static INT16 clock_adpcm(okim6258_state *chip, UINT8 nibble)
 {
-	INT32 max = (1 << (chip->output_bits - 1)) - 1;
-	INT32 min = -(1 << (chip->output_bits - 1));
+	INT32 max = chip->output_mask - 1;
+	INT32 min = -chip->output_mask;
 
 	chip->signal += diff_lookup[chip->step * 16 + (nibble & 15)];
 
@@ -205,16 +207,18 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 			}
 			else
 			{
-				sample = chip->last_smpl;
 				// Valley Bell: data_empty behaviour (loosely) ported from XM6
-				if (chip->data_empty >= 0x12)
+				if (chip->data_empty >= 0x02 + 0x01)
 				{
-					chip->data_empty -= 0x10;
-					if (chip->signal < 0)
+					chip->data_empty -= 0x01;
+					/*if (chip->signal < 0)
 						chip->signal ++;
 					else if (chip->signal > 0)
-						chip->signal --;
+						chip->signal --;*/
+					chip->signal = chip->signal * 15 / 16;
+					chip->last_smpl = chip->signal << 4;
 				}
+				sample = chip->last_smpl;
 			}
 
 			nibble_shift ^= 4;
@@ -292,6 +296,10 @@ int device_start_okim6258(UINT8 ChipID, int clock, int divider, int adpcm_type, 
 
 	/* D/A precision is 10-bits but 12-bit data can be output serially to an external DAC */
 	info->output_bits = /*intf->*/output_12bits ? 12 : 10;
+	if (Iternal10Bit)
+		info->output_mask = (1 << (info->output_bits - 1));
+	else
+		info->output_mask = (1 << (12 - 1));
 	info->divider = dividers[/*intf->*/divider];
 
 	//info->stream = stream_create(device, 0, 1, device->clock()/info->divider, info, okim6258_update);
@@ -481,12 +489,15 @@ static void okim6258_ctrl_w(UINT8 ChipID, /*offs_t offset, */UINT8 data)
 			info->status |= STATUS_PLAYING;
 
 			/* Also reset the ADPCM parameters */
-			//info->signal = -2;
-			//info->step = 0;
-			//info->nibble_shift = 0;
+			info->signal = -2;
+			info->step = 0;
+			info->nibble_shift = 0;
 		}
+		// Resetting the ADPCM sample always seems to reduce the clicks and improves the waveform.
+		// For games that don't use the Multichannel ADPCM driver (whose waveform looks horrible anyway),
+		// this causes additional clicks though.
 		//info->signal = -2;
-		info->step = 0;
+		info->step = 0;	// this was verified with the source of XM6
 		info->nibble_shift = 0;
 	}
 	else
@@ -554,6 +565,13 @@ void okim6258_write(UINT8 ChipID, UINT8 Port, UINT8 Data)
 	return;
 }
 
+
+void okim6258_set_options(UINT16 Options)
+{
+	Iternal10Bit = (Options >> 0) & 0x01;
+	
+	return;
+}
 
 
 

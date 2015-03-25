@@ -201,6 +201,8 @@ struct _scsp_state
 	//char Master;
 	//void (*Int68kCB)(device_t *device, int irq);
 	//sound_stream * stream;
+	int clock;
+	int rate;
 
 	//INT32 *buffertmpl,*buffertmpr;
 
@@ -260,7 +262,7 @@ static signed short *RBUFDST;	//this points to where the sample will be stored i
 
 #define MAX_CHIPS	0x02
 static scsp_state SCSPData[MAX_CHIPS];
-static UINT8 BypassDSP = 0x00;
+static UINT8 BypassDSP = 0x01;
 
 /*INLINE scsp_state *get_safe_token(device_t *device)
 {
@@ -535,7 +537,7 @@ static void SCSP_StopSlot(struct _SLOT *slot,int keyoff)
 #define log_base_2(n) (log((double)(n))/log(2.0))
 
 //static void SCSP_Init(device_t *device, scsp_state *scsp, const scsp_interface *intf)
-static void SCSP_Init(scsp_state *scsp)
+static void SCSP_Init(scsp_state *scsp, int clock)
 {
 	int i;
 
@@ -544,6 +546,9 @@ static void SCSP_Init(scsp_state *scsp)
 	SCSPDSP_Init(&scsp->DSP);
 
 	//scsp->device = device;
+	scsp->clock = clock;
+	scsp->rate = clock / 512;
+	
 	//scsp->IrqTimA = scsp->IrqTimBC = scsp->IrqMidi = 0;
 	scsp->MidiR=scsp->MidiW=0;
 	scsp->MidiOutR=scsp->MidiOutW=0;
@@ -981,8 +986,10 @@ INLINE void SCSP_w16(scsp_state *scsp,unsigned int addr,unsigned short val)
 		//DSP
 		if(addr<0x780)	//COEF
 			*((unsigned short *) (scsp->DSP.COEF+(addr-0x700)/2))=val;
-		else if(addr<0x800)
+		else if(addr<0x7c0)
 			*((unsigned short *) (scsp->DSP.MADRS+(addr-0x780)/2))=val;
+		else if(addr<0x800)	// MADRS is mirrored twice
+			*((unsigned short *) (scsp->DSP.MADRS+(addr-0x7c0)/2))=val;
 		else if(addr<0xC00)
 		{
 			*((unsigned short *) (scsp->DSP.MPRO+(addr-0x800)/2))=val;
@@ -1018,14 +1025,17 @@ INLINE unsigned short SCSP_r16(scsp_state *scsp, unsigned int addr)
 	}
 	else if(addr<0x700)
 		v=scsp->RINGBUF[(addr-0x600)/2];
-#if 0	// disable until I get the DSP to work correctly
+#if 1	// disabled by default until I get the DSP to work correctly
+		// can be enabled using separate option
 	else
 	{
 		//DSP
 		if(addr<0x780)  //COEF
 			v= *((unsigned short *) (scsp->DSP.COEF+(addr-0x700)/2));
-		else if(addr<0x800)
+		else if(addr<0x7c0)
 			v= *((unsigned short *) (scsp->DSP.MADRS+(addr-0x780)/2));
+		else if(addr<0x800)
+			v= *((unsigned short *) (scsp->DSP.MADRS+(addr-0x7c0)/2));
 		else if(addr<0xC00)
 			v= *((unsigned short *) (scsp->DSP.MPRO+(addr-0x800)/2));
 		else if(addr<0xE00)
@@ -1106,6 +1116,9 @@ INLINE INT32 SCSP_UpdateSlot(scsp_state *scsp, struct _SLOT *slot)
 		addr1+=smp; addr2+=smp;
 	}
 
+#if 0
+	// Since the SCSP is for Big Endian platforms, this code expects the data in
+	// byte order 1 0 3 2 5 4 ....
 	if(PCM8B(slot))	//8 bit signed
 	{
 		INT8 *p1=(signed char *) (scsp->SCSPRAM+BYTE_XOR_BE(((SA(slot)+addr1))&0x7FFFF));
@@ -1113,7 +1126,7 @@ INLINE INT32 SCSP_UpdateSlot(scsp_state *scsp, struct _SLOT *slot)
 		//sample=(p[0])<<8;
 		INT32 s;
 		INT32 fpart=slot->cur_addr&((1<<SHIFT)-1);
-		s=(int) (p1[0]<<8)*((1<<SHIFT)-fpart)+(int) (p2[0]<<8)*fpart;
+		s=(int) (p1[0]<<8)*((1<<SHIFT)-fpart)+(int)(p2[0]<<8)*fpart;
 		sample=(s>>SHIFT);
 	}
 	else	//16 bit signed (endianness?)
@@ -1122,9 +1135,34 @@ INLINE INT32 SCSP_UpdateSlot(scsp_state *scsp, struct _SLOT *slot)
 		INT16 *p2=(signed short *) (scsp->SCSPRAM+((SA(slot)+addr2)&0x7FFFE));
 		INT32 s;
 		INT32 fpart=slot->cur_addr&((1<<SHIFT)-1);
-		s=(int)(p1[0])*((1<<SHIFT)-fpart)+(int)(p2[0])*fpart;
+		s=(int)(p1[0])*((1<<SHIFT)-fpart)+(int)(p2)*fpart;
 		sample=(s>>SHIFT);
 	}
+#else
+#define READ_BE16(ptr)	(((ptr)[0] << 8) | (ptr)[1])
+	// I prefer the byte order 0 1 2 3 4 5 ...
+	// also, I won't use pointers here, since they only used [0] on them anyway.
+	if(PCM8B(slot))	//8 bit signed
+	{
+		INT8 p1=(INT8)scsp->SCSPRAM[(SA(slot)+addr1)&0x7FFFF];
+		INT8 p2=(INT8)scsp->SCSPRAM[(SA(slot)+addr2)&0x7FFFF];
+		INT32 s;
+		INT32 fpart=slot->cur_addr&((1<<SHIFT)-1);
+		s=(int)(p1<<8)*((1<<SHIFT)-fpart)+(int)(p2<<8)*fpart;
+		sample=(s>>SHIFT);
+	}
+	else	//16 bit signed
+	{
+		UINT8 *pp1 = &scsp->SCSPRAM[(SA(slot)+addr1)&0x7FFFE];
+		UINT8 *pp2 = &scsp->SCSPRAM[(SA(slot)+addr2)&0x7FFFE];
+		INT16 p1 = (INT16)READ_BE16(pp1);
+		INT16 p2 = (INT16)READ_BE16(pp2);
+		INT32 s;
+		INT32 fpart=slot->cur_addr&((1<<SHIFT)-1);
+		s=(int)(p1)*((1<<SHIFT)-fpart)+(int)(p2)*fpart;
+		sample=(s>>SHIFT);
+	}
+#endif
 
 	if(SBCTL(slot)&0x1)
 		sample ^= 0x7FFF;
@@ -1434,9 +1472,12 @@ int device_start_scsp(UINT8 ChipID, int clock)
 	
 	scsp = &SCSPData[ChipID];
 
+	if (clock < 1000000)	// if < 1 MHz, then it's the sample rate, not the clock
+		clock *= 512;	// (for backwards compatibility with old VGM logs)
+	
 	// init the emulation
 	//SCSP_Init(device, scsp, intf);
-	SCSP_Init(scsp);
+	SCSP_Init(scsp, clock);
 
 	// set up the IRQ callbacks
 	/*{
@@ -1446,7 +1487,7 @@ int device_start_scsp(UINT8 ChipID, int clock)
 	}
 
 	scsp->main_irq.resolve(intf->main_irq, *device);*/
-	return 44100;
+	return scsp->rate;	// 44100
 }
 
 void device_stop_scsp(UINT8 ChipID)

@@ -36,7 +36,7 @@
 #include "mamedef.h"
 #include <math.h>
 #include <memory.h>
-#include <stdlib.h>
+#include <malloc.h>
 #include "multipcm.h"
 
 #define NULL	((void *)0)

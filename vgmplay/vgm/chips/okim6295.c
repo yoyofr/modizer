@@ -25,7 +25,7 @@
 //#include "emu.h"
 //#include "streams.h"
 #include <stdio.h>
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 #include <math.h>
 #include "okim6295.h"

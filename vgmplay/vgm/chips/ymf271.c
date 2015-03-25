@@ -33,7 +33,7 @@
 #ifdef _DEBUG
 #include <stdio.h>
 #endif
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 #include "ymf271.h"
 

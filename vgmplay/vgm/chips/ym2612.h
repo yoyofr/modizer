@@ -14,7 +14,7 @@
 
 // VC++ inline
 #ifndef INLINE
-//#define INLINE              __inline
+#define INLINE              __inline
 #endif
 
 typedef struct slot__ {

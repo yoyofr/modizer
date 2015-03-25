@@ -116,7 +116,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
-//#include <malloc.h>
+#include <malloc.h>
 
 #include "mamedef.h"
 //#ifndef __RAINE__
@@ -2599,7 +2599,8 @@ static void FM_ADPCMAWrite(YM2610 *F2610,int r,int v)
 				if( (v>>c)&1 )
 				{
 					/**** start adpcm ****/
-					adpcm[c].step      = (UINT32)((float)(1<<ADPCM_SHIFT)*((float)F2610->OPN.ST.freqbase)/3.0);
+					// The .step variable is already set and for the YM2608 it is different on channels 4 and 5.
+					//adpcm[c].step      = (UINT32)((float)(1<<ADPCM_SHIFT)*((float)F2610->OPN.ST.freqbase)/3.0);
 					adpcm[c].now_addr  = adpcm[c].start<<1;
 					adpcm[c].now_step  = 0;
 					adpcm[c].adpcm_acc = 0;
@@ -3730,6 +3731,7 @@ int ym2608_write(void *chip, int a,UINT8 v)
 		if( v >= 0x2d && v <= 0x2f )
 		{
 			OPNPrescaler_w(OPN , v , 2);
+			//TODO: set ADPCM[c].step
 			F2608->deltaT.freqbase = OPN->ST.freqbase;
 		}
 		break;

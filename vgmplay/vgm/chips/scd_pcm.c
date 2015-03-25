@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
+#include <malloc.h>
 
 #include "mamedef.h"
 #include "scd_pcm.h"
@@ -450,7 +450,7 @@ int device_start_rf5c164(UINT8 ChipID, int clock)
 	
 	chip = &PCM_Chip[ChipID];
 	rate = (clock & 0x7FFFFFFF) / 384;
-	if ((CHIP_SAMPLING_MODE == 0x01 && rate < CHIP_SAMPLE_RATE) ||
+	if (((CHIP_SAMPLING_MODE & 0x01) && rate < CHIP_SAMPLE_RATE) ||
 		CHIP_SAMPLING_MODE == 0x02)
 		rate = CHIP_SAMPLE_RATE;
 	

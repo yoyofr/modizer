@@ -25,9 +25,8 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h> // for memset()
+#include "mamedef.h"	// for correct INLINE macro
 #include "ym2612.h"
-
-#define INLINE static __inline__
 
 
 /********************************************

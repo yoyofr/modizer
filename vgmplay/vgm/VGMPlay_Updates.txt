@@ -59,3 +59,26 @@ Update list since 0.4.0u3 (03.12.2012)
 - [VGMPlay Linux] fixed warnings that are printed from ym2612.c
 - added VRC7 mode for YM2413 (reducing features and using separate instrument set)
 - [in_vgm] made OK button of File Dialog return another error code to Winamp to prevent a playlist bug
+
+Updates since 0.4.0u4 (02.11.2013)
+- added code for muting channels to K053260 (looks like I forgot that one) and K054539 (lost when applying MAME fixes)
+- made K054539 use a proper clock (with a fallback for older VGMs)
+- added a small hack that allows mid-song sample rate changes for the OKIM6258 chip (I'll make a proper implementation for 0.41)
+- [VGMPlay] fixed absolute paths in m3u files
+- [VGMPlay] fixed path handling, makes paths that contain / and \ work in both Windows and Unix, fixes m3u Windows paths under Unix
+- fixed pitch of YM2608 ADPCM Tom Tom and Rim Shot (reported by MaliceX)
+- fixed YM2612 Timer A (there are still tiny rounding errors though), this fixed the CSM mode
+- fixed probable YM2612 bug (CSM mode was able to prevent KeyOn/Off commands on channels other than FM3)
+- fixed noise calculation in MAME's AY8910 (applied latest MAME update)
+- fixed a few crashes related to corrupted VGM headers with invalid offsets and insane clock values (though not all)
+- [VGMPlay] MuteWTCh# now works in VGMPlay.ini
+- fixed clicks in YMF278B core (introduced when porting it from openMSX)
+- [VGMPlay] fixed length display when VGMs play slower/faster after using the PlaybackRate option
+- fixed bug where VGZs with additional 00s at the end won't play (because VGMPlay will read an unpacked size of 0 bytes)
+- changed Endianess of SCSP RAM data to Big Endian (as it should be)
+- applied MAME QSound fixes (key on register, chip initialization)
+- removed last A from AY-3-8910A and variants
+- added an option to force OKIM6258 into 12-bit mode (makes it louder sometimes, but an internal 12-bit calculation seems to be more correct)
+- VGMs using the OKIM6258 or OKIM6295 are now half as loud (affects global volume only, not chip-relative volume)
+- [VGMPlay] fixed crash that happened on Linux when trying to display a large Notes tag (thanks to vampi-the-frog for the report)
+- OKIM6258 lowers its output signal faster if there's no incoming data (reduces clicks)
