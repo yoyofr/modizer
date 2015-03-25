@@ -80,7 +80,7 @@
     [self addbuiltinURL:@"http://modarchive.org/" name:@"MOD Archive"];
     [self addbuiltinURL:@"http://sndh.atari.org/sndh/browser/index.php?dir=sndh_lf%2F" name:@"Atari ST SNDH Archive"];    
     [self addbuiltinURL:@"http://2a03.free.fr/" name:@"2A03"];
-    [self addbuiltinURL:@"http://vgm.mdscene.net/" name:@"VGM Rips (Arcade, Computers, Consoles)"];
+    [self addbuiltinURL:@"http://vgmrips.net/packs/" name:@"VGM Rips (Arcade, Computers, Consoles)"];
     [self addbuiltinURL:@"http://snesmusic.org/v2/" name:@"SNES Music"];
     [self addbuiltinURL:@"http://snesmusic.org/pmh/" name:@"Portable Music History"];
     [self addbuiltinURL:@"http://project2612.org/" name:@"Megadrive/Genesis Music"];

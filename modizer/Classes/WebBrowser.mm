@@ -793,17 +793,21 @@ static UIAlertView *alertChooseName;
     //  <If tag is IMG, then get image URL and start saving>
     int scrollPositionY = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] intValue];
     int scrollPositionX = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] intValue];
-    int displayWidth = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.outerWidth"] intValue];
+    int displayWidth = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue];
     CGFloat scale = webView.frame.size.width / displayWidth;
     CGPoint pt = [sender locationInView:self.webView];
     pt.x *= scale;
     pt.y *= scale;
     pt.x += scrollPositionX;
     pt.y += scrollPositionY;
+//    NSLog(@"scale:%f displayWidth: %d,x:%f y:%f sx:%f sy:%f",scale,displayWidth, pt.x,pt.y,scrollPositionX,scrollPositionY);
     NSString *js = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).tagName", pt.x, pt.y];
     NSString *tagName = [self.webView stringByEvaluatingJavaScriptFromString:js];
     NSString *imgURL = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).src", pt.x, pt.y];
     NSString *urlToSave = [self.webView stringByEvaluatingJavaScriptFromString:imgURL];
+    
+//    NSLog(@"tagName: %@",tagName);
+//    NSLog(@"urg: %@",urlToSave);
     
     if ([tagName compare:@"IMG" options:NSCaseInsensitiveSearch]==NSOrderedSame) {
         found_img=0;
@@ -839,9 +843,6 @@ static UIAlertView *alertChooseName;
     
     bookmarksVC=nil;
     
-    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-    doubleTap.numberOfTouchesRequired = 2;
-    [self.webView addGestureRecognizer:doubleTap];
     
 	self.hidesBottomBarWhenPushed = YES;
     
@@ -875,8 +876,13 @@ static UIAlertView *alertChooseName;
 	
 	[self loadHome];
     [super viewDidLoad];
+    
+    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    doubleTap.numberOfTouchesRequired = 2;
+    [self.webView addGestureRecognizer:doubleTap];
+
 	
-	end_time=clock();	
+	end_time=clock();
 #ifdef LOAD_PROFILE
 	NSLog(@"webbro : %d",end_time-start_time);
 #endif

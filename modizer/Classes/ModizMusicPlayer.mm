@@ -1109,8 +1109,6 @@ void propertyListenerCallback (void                   *inUserData,              
         
         //restore EQ settings
         [EQViewController restoreEQSettings];
-
-        
         
 		[self iPhoneDrv_Init];
 		
