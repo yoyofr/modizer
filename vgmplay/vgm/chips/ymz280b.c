@@ -37,7 +37,7 @@
 #include <stdio.h>
 #endif
 #include <memory.h>
-#include <stdlib.h>
+#include <malloc.h>
 #include "ymz280b.h"
 
 #define NULL	((void *)0)
@@ -830,7 +830,7 @@ int device_start_ymz280b(UINT8 ChipID, int clock)
 	
 	chip->rate = chip->master_clock * 2.0;
 	// disabled until the frequency calculation gets fixed
-	/*if ((CHIP_SAMPLING_MODE == 0x01 && chip->rate < CHIP_SAMPLE_RATE) ||
+	/*if (((CHIP_SAMPLING_MODE & 0x01) && chip->rate < CHIP_SAMPLE_RATE) ||
 		CHIP_SAMPLING_MODE == 0x02)
 		chip->rate = (double)CHIP_SAMPLE_RATE;*/
 	

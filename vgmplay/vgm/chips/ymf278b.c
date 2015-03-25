@@ -63,7 +63,7 @@
 //#include "sndintrf.h"
 //#include "streams.h"
 //#include "cpuintrf.h"
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 #include <stdio.h>
 #include <string.h>
@@ -677,10 +677,8 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
 			// TODO prob doesn't happen in real chip
 			//volLeft  = std::max(0, volLeft);
 			//volRight = std::max(0, volRight);
-			/*if (volLeft < 0)
- 				volLeft = 0;
-			if (volRight < 0)
-				volRight = 0;*/
+			volLeft &= 0x3FF;	// catch negative Volume values in a hardware-like way
+			volRight &= 0x3FF;	// (anything beyond 0x100 results in *0)
 
 			outputs[0][j] += (sample * chip->volume[volLeft] ) >> 17;
 			outputs[1][j] += (sample * chip->volume[volRight]) >> 17;
@@ -1140,7 +1138,7 @@ static void ymf278b_init(YMF278BChip *chip, int clock, void (*cb)(int))
 	int rate;
 	
 	rate = clock / 768;
-	if ((CHIP_SAMPLING_MODE == 0x01 && rate < CHIP_SAMPLE_RATE) ||
+	if (((CHIP_SAMPLING_MODE & 0x01) && rate < CHIP_SAMPLE_RATE) ||
 		CHIP_SAMPLING_MODE == 0x02)
 		rate = CHIP_SAMPLE_RATE;
 	chip->fmchip = ymf262_init(clock, rate);

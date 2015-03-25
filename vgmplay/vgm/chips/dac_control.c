@@ -4,7 +4,7 @@
 // (Custom Driver to handle PCM Streams of YM2612 DAC and PWM.)
 //
 // Written on 3 February 2011 by Valley Bell
-// Last Update: 02 August 2013
+// Last Update: 13 April 2014
 //
 // Only for usage in non-commercial, VGM file related software.
 
@@ -193,7 +193,7 @@ INLINE void daccontrol_SendCommand(dac_control *chip)
 INLINE UINT32 muldiv64round(UINT32 Multiplicand, UINT32 Multiplier, UINT32 Divisor)
 {
 	// Yes, I'm correctly rounding the values.
-	return (UINT32)(((UINT64)Multiplicand * Multiplier + Multiplier / 2) / Divisor);
+	return (UINT32)(((UINT64)Multiplicand * Multiplier + Divisor / 2) / Divisor);
 }
 
 void daccontrol_update(UINT8 ChipID, UINT32 samples)

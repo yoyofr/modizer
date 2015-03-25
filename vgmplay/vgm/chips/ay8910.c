@@ -9,6 +9,13 @@
 
   Mostly rewritten by couriersud in 2008
 
+  Public documentation:
+
+  - http://privatfrickler.de/blick-auf-den-chip-soundchip-general-instruments-ay-3-8910/
+    Die pictures of the AY8910
+
+  - US Patent 4933980
+
   Games using ADSR: gyruss
 
   A list with more games using ADSR can be found here:
@@ -109,7 +116,7 @@ has twice the steps, happening twice as fast.
 //#include "streams.h"
 //#include "cpuintrf.h"
 //#include "cpuexec.h"
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 #include <stdio.h>
 #include "ay8910.h"
@@ -155,6 +162,7 @@ has twice the steps, happening twice as fast.
 //#define TONE_ENVELOPE(_psg, _chan)	(((_psg)->regs[AY_AVOL + (_chan)] >> 4) & (((_psg)->device->type() == AY8914) ? 3 : 1))
 #define TONE_ENVELOPE(_psg, _chan)	(((_psg)->regs[AY_AVOL + (_chan)] >> 4) & (((_psg)->chip_type == CHTYPE_AY8914) ? 3 : 1))
 #define ENVELOPE_PERIOD(_psg)		(((_psg)->regs[AY_EFINE] | ((_psg)->regs[AY_ECOARSE]<<8)))
+#define NOISE_OUTPUT(_psg)			((_psg)->rng & 1)
 
 #define CHTYPE_AY8910	0x00
 #define CHTYPE_AY8912	0x01
@@ -198,7 +206,7 @@ struct _ay8910_context
 	INT32 last_enable;
 	INT32 count[NUM_CHANNELS];
 	UINT8 output[NUM_CHANNELS];
-	UINT8 output_noise;
+	UINT8 prescale_noise;
 	INT32 count_noise;
 	INT32 count_env;
 	INT8 env_step;
@@ -691,30 +699,26 @@ void ay8910_update_one(void *param, stream_sample_t **outputs, int samples)
 		psg->count_noise++;
 		if (psg->count_noise >= NOISE_PERIOD(psg))
 		{
-			/* Is noise output going to change? */
-			if ((psg->rng + 1) & 2)	/* (bit0^bit1)? */
-			{
-				psg->output_noise ^= 1;
-			}
-
-			/* The Random Number Generator of the 8910 is a 17-bit shift */
-			/* register. The input to the shift register is bit0 XOR bit3 */
-			/* (bit0 is the output). This was verified on AY-3-8910 and YM2149 chips. */
-
-			/* The following is a fast way to compute bit17 = bit0^bit3. */
-			/* Instead of doing all the logic operations, we only check */
-			/* bit0, relying on the fact that after three shifts of the */
-			/* register, what now is bit3 will become bit0, and will */
-			/* invert, if necessary, bit14, which previously was bit17. */
-			if (psg->rng & 1)
-				psg->rng ^= 0x24000; /* This version is called the "Galois configuration". */
-			psg->rng >>= 1;
+			/* toggle the prescaler output. Noise is no different to
+			 * channels.
+			 */
 			psg->count_noise = 0;
+			psg->prescale_noise ^= 1;
+
+			if ( psg->prescale_noise)
+			{
+				/* The Random Number Generator of the 8910 is a 17-bit shift */
+				/* register. The input to the shift register is bit0 XOR bit3 */
+				/* (bit0 is the output). This was verified on AY-3-8910 and YM2149 chips. */
+
+				psg->rng ^= (((psg->rng & 1) ^ ((psg->rng >> 3) & 1)) << 17);
+				psg->rng >>= 1;
+			}
 		}
 
 		for (chan = 0; chan < NUM_CHANNELS; chan++)
 		{
-			psg->vol_enabled[chan] = (psg->output[chan] | TONE_ENABLEQ(psg, chan)) & (psg->output_noise | NOISE_ENABLEQ(psg, chan));
+			psg->vol_enabled[chan] = (psg->output[chan] | TONE_ENABLEQ(psg, chan)) & (NOISE_OUTPUT(psg) | NOISE_ENABLEQ(psg, chan));
 		}
 
 		/* update envelope */
@@ -825,7 +829,7 @@ static void build_mixer_table(ay8910_context *psg)
 	}
 	normalize = 1;
 
-	/* skip unneccessary things to speed up the AY8910 init
+	/* skip unnecessary things to speed up the AY8910 init
 		1-channel AY uses the 3D table, 3-channel AY uses envelope and volume
 		but building the 3D table still takes too long */
 	//if (psg->streams == NUM_CHANNELS)
@@ -979,7 +983,7 @@ void ay8910_reset_ym(void *chip)
 	psg->count[2] = 0;
 	psg->count_noise = 0;
 	psg->count_env = 0;
-	psg->output_noise = 0x01;
+	psg->prescale_noise = 0;
 	psg->last_enable = -1;	/* force a write */
 	for (i = 0;i < AY_PORTA;i++)
 		ay8910_write_reg(psg,i,0);

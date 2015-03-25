@@ -23,7 +23,7 @@
 ***************************************************************************/
 
 #include "mamedef.h"
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 //#include "emu.h"
 //#include "streams.h"

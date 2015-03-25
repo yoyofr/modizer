@@ -1,24 +1,14 @@
 /*********************************************************
 
-    Konami 054539 PCM Sound Chip
+    Konami 054539 (TOP) PCM Sound Chip
 
     A lot of information comes from Amuse.
     Big thanks to them.
 
-
-
-CHANNEL_DEBUG enables the following keys:
-
-    PAD.   : toggle debug mode
-    PAD0   : toggle chip    (0 / 1)
-    PAD4,6 : select channel (0 - 7)
-    PAD8,2 : adjust gain    (00=0.0 10=1.0, 20=2.0, etc.)
-    PAD5   : reset gain factor to 1.0
-
 *********************************************************/
 
 //#include "emu.h"
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 #include <math.h>
 #include "mamedef.h"
@@ -29,7 +19,6 @@ CHANNEL_DEBUG enables the following keys:
 
 #define NULL	((void *)0)
 
-#define CHANNEL_DEBUG 0
 #define VERBOSE 0
 #define LOG(x) do { if (VERBOSE) logerror x; } while (0)
 
@@ -50,15 +39,26 @@ CHANNEL_DEBUG enables the following keys:
      00: type (b2-3), reverse (b5)
      01: loop (b0)
 
-   214: keyon (b0-7 = channel 0-7)
-   215: keyoff          ""
-   22c: channel active? ""
-   22d: data read/write port
-   22e: rom/ram select (00..7f == rom banks, 80 = ram)
-   22f: enable pcm (b0), disable register ram updating (b7)
+   214: Key on (b0-7 = channel 0-7)
+   215: Key off          ""
+   225: ?
+   227: Timer frequency
+   228: ?
+   229: ?
+   22a: ?
+   22b: ?
+   22c: Channel active? (b0-7 = channel 0-7)
+   22d: Data read/write port
+   22e: ROM/RAM select (00..7f == ROM banks, 80 = Reverb RAM)
+   22f: Global control:
+		.......x - Enable PCM
+		......x. - Timer related?
+		...x.... - Enable ROM/RAM readback from 0x22d
+		..x..... - Timer output enable?
+		x....... - Disable register RAM updates
 
-   The chip has a 0x4000 bytes reverb buffer (the ram from 0x22e).
-   The reverb delay is actually an offset in this buffer.
+	The chip has an optional 0x8000 byte reverb buffer.
+	The reverb delay is actually an offset in this buffer.
 */
 
 typedef struct _k054539_channel k054539_channel;
@@ -187,7 +187,7 @@ void k054539_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		rbase[info->reverb_pos] = 0;
 
 		for(ch=0; ch<8; ch++)
-			if(info->regs[0x22c] & (1<<ch)) {
+			if(info->regs[0x22c] & (1<<ch) && ! info->Muted[ch]) {
 				base1 = info->regs + 0x20*ch;
 				base2 = info->regs + 0x200 + 0x2*ch;
 				chan = info->channels + ch;
@@ -372,6 +372,8 @@ static int k054539_init_chip(k054539_state *info, int clock)
 {
 	//int i;
 
+	if (clock < 1000000)	// if < 1 MHz, then it's the sample rate, not the clock
+		clock *= 384;	// (for backwards compatibility with old VGM logs)
 	info->clock = clock;
 	// most of these are done in device_reset
 //	memset(info->regs, 0, sizeof(info->regs));
@@ -402,13 +404,13 @@ static int k054539_init_chip(k054539_state *info, int clock)
 		// 480 hz is TRUSTED by gokuparo disco stage - the looping sample doesn't line up otherwise
 	//	device->machine().scheduler().timer_pulse(attotime::from_hz(480), FUNC(k054539_irq), 0, info);
 
-	//info->stream = device->machine().sound().stream_alloc(*device, 0, 2, device->clock(), info, k054539_update);
+	//info->stream = device->machine().sound().stream_alloc(*device, 0, 2, device->clock() / 384, info, k054539_update);
 
 	//device->save_item(NAME(info->regs));
 	//device->save_pointer(NAME(info->ram), 0x4000);
 	//device->save_item(NAME(info->cur_ptr));
 	
-	return info->clock;
+	return info->clock / 384;
 }
 
 //WRITE8_DEVICE_HANDLER( k054539_w )
@@ -499,6 +501,17 @@ void k054539_w(UINT8 ChipID, offs_t offset, UINT8 data)
 					k054539_keyoff(info, ch);
 		break;
 
+		/*case 0x227:
+		{
+			attotime period = attotime::from_hz((float)(38 + data) * (clock()/384.0f/14400.0f)) / 2.0f;
+
+			m_timer->adjust(period, 0, period);
+
+			m_timer_state = 0;
+			m_timer_handler(m_timer_state);
+		}*/
+		break;
+
 		case 0x22d:
 			if(regbase[0x22e] == 0x80)
 				info->cur_zone[info->cur_ptr] = data;
@@ -514,6 +527,14 @@ void k054539_w(UINT8 ChipID, offs_t offset, UINT8 data)
 			info->cur_limit = data == 0x80 ? 0x4000 : 0x20000;
 			info->cur_ptr = 0;
 		break;
+		
+		/*case 0x22f:
+			if (!(data & 0x20)) // Disable timer output?
+			{
+				m_timer_state = 0;
+				m_timer_handler(m_timer_state);
+			}
+		break;*/
 
 		default:
 #if 0

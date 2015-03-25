@@ -8,7 +8,7 @@
 #include <math.h>
 
 #include "mamedef.h"
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 //#include "sndintrf.h"
 //#include "streams.h"
@@ -1209,7 +1209,7 @@ void ym2151_write_reg(void *_chip, int r, int v)
 
 		default:
 #ifdef _DEBUG
-			logerror("YM2151 Write %02x to undocumented register #%02x\n",v,r);
+			//logerror("YM2151 Write %02x to undocumented register #%02x\n",v,r);
 #endif
 			break;
 		}

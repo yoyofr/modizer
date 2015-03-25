@@ -5,7 +5,7 @@
 ****************************************************************/
 
 #include <memory.h>	// for memset
-#include <stdlib.h>	// for free
+#include <malloc.h>	// for free
 #include <stddef.h>	// for NULL
 #include "mamedef.h"
 //#include "sndintrf.h"
@@ -65,7 +65,7 @@ int device_start_ayxx(UINT8 ChipID, int clock, UINT8 chip_type, UINT8 Flags)
 		rate = clock / 16;
 	else
 		rate = clock / 8;
-	if ((CHIP_SAMPLING_MODE == 0x01 && rate < CHIP_SAMPLE_RATE) ||
+	if (((CHIP_SAMPLING_MODE & 0x01) && rate < CHIP_SAMPLE_RATE) ||
 		CHIP_SAMPLING_MODE == 0x02)
 		rate = CHIP_SAMPLE_RATE;
 	

@@ -129,7 +129,7 @@
 /************************************************************************/
 
 //#include "emu.h"
-#include <stdlib.h>
+#include <malloc.h>
 #include <memory.h>
 #include <math.h>
 #include "mamedef.h"
@@ -765,7 +765,10 @@ INLINE void FM_KEYON(FM_OPN *OPN, FM_CH *CH , int s )
 {
 	FM_SLOT *SLOT = &CH->SLOT[s];
 
-	if( !SLOT->key && !OPN->SL3.key_csm)
+	// Note by Valley Bell:
+	//  I assume that the CSM mode shouldn't affect channels
+	//  other than FM3, so I added a check for it here.
+	if( !SLOT->key && (!OPN->SL3.key_csm || CH == &OPN->P_CH[3]))
 	{
 		/* restart Phase Generator */
 		SLOT->phase = 0;
@@ -800,7 +803,7 @@ INLINE void FM_KEYOFF(FM_OPN *OPN, FM_CH *CH , int s )
 {
 	FM_SLOT *SLOT = &CH->SLOT[s];
 
-	if (SLOT->key && !OPN->SL3.key_csm)
+	if (SLOT->key && (!OPN->SL3.key_csm || CH == &OPN->P_CH[3]))
 	{
 		if (IsVGMInit)	// workaround for VGMs trimmed with VGMTool
 		{
@@ -965,6 +968,7 @@ INLINE void set_timers( FM_OPN *OPN, FM_ST *ST, void *n, int v )
 			ST->TAC = (1024-ST->TA);
 			/* External timer handler */
 			if (ST->timer_handler) (ST->timer_handler)(n,0,ST->TAC * ST->timer_prescaler,ST->clock);
+			ST->TAC *= 4096;
 		}
 	}
 	else
@@ -987,6 +991,7 @@ INLINE void TimerAOver(FM_ST *ST)
 	/* clear or reload the counter */
 	ST->TAC = (1024-ST->TA);
 	if (ST->timer_handler) (ST->timer_handler)(ST->param,0,ST->TAC * ST->timer_prescaler,ST->clock);
+	ST->TAC *= 4096;
 }
 /* Timer B Overflow */
 INLINE void TimerBOver(FM_ST *ST)
@@ -2418,7 +2423,17 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
 		OPN->SL3.key_csm <<= 1;
 
 		/* timer A control */
-		INTERNAL_TIMER_A( &OPN->ST , cch[2] )
+		//INTERNAL_TIMER_A( &OPN->ST , cch[2] )
+		{
+			if( OPN->ST.TAC &&  (OPN->ST.timer_handler==0) )
+				if( (OPN->ST.TAC -= (int)(OPN->ST.freqbase*4096)) <= 0 )
+				{
+					TimerAOver( &OPN->ST );
+					// CSM mode total level latch and auto key on
+					if( OPN->ST.mode & 0x80 )
+						CSMKeyControll( OPN, cch[2] );
+				}
+		}
 
 		/* CSM Mode Key ON still disabled */
 		if (OPN->SL3.key_csm & 2)
@@ -2433,7 +2448,7 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
 	}
 
 	/* timer B control */
-	INTERNAL_TIMER_B(&OPN->ST,length)
+//	INTERNAL_TIMER_B(&OPN->ST,length)
 }
 
 #ifdef __STATE_H__

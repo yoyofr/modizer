@@ -142,6 +142,7 @@
 		CC13449A1AC17C8500CAB284 /* XMasBonus.h in Headers */ = {isa = PBXBuildFile; fileRef = CC13440C1AC17C8500CAB284 /* XMasBonus.h */; };
 		CC1344A11AC1B4EC00CAB284 /* VGMPlay.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1344051AC17C8500CAB284 /* VGMPlay.c */; };
 		CC1344A31AC1B6BB00CAB284 /* ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1343E61AC17C8400CAB284 /* ym2151.c */; };
+		CC2D2A241AC2F450007C5296 /* malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = CC2D2A231AC2F450007C5296 /* malloc.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -285,6 +286,7 @@
 		CC1344061AC17C8500CAB284 /* VGMPlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VGMPlay.h; path = vgm/VGMPlay.h; sourceTree = "<group>"; };
 		CC1344091AC17C8500CAB284 /* VGMPlayUI.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = VGMPlayUI.c; path = vgm/VGMPlayUI.c; sourceTree = "<group>"; };
 		CC13440C1AC17C8500CAB284 /* XMasBonus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMasBonus.h; sourceTree = "<group>"; };
+		CC2D2A231AC2F450007C5296 /* malloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = malloc.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -301,6 +303,7 @@
 		CC13435F1AC17B3900CAB284 = {
 			isa = PBXGroup;
 			children = (
+				CC2D2A231AC2F450007C5296 /* malloc.h */,
 				CC1343761AC17C7300CAB284 /* vgm */,
 				CC1343691AC17B3900CAB284 /* Products */,
 			);
@@ -515,6 +518,7 @@
 				CC1344481AC17C8500CAB284 /* mamedef.h in Headers */,
 				CC1344931AC17C8500CAB284 /* Stream.h in Headers */,
 				CC13447E1AC17C8500CAB284 /* ym2413.h in Headers */,
+				CC2D2A241AC2F450007C5296 /* malloc.h in Headers */,
 				CC1344201AC17C8500CAB284 /* 3526intf.h in Headers */,
 				CC13446B1AC17C8500CAB284 /* scsp.h in Headers */,
 				CC1344551AC17C8500CAB284 /* np_nes_fds.h in Headers */,
@@ -851,6 +855,7 @@
 				CC13436E1AC17B3900CAB284 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

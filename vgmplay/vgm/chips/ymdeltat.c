@@ -276,7 +276,7 @@ value:   START, REC, MEMDAT, REPEAT, SPOFF, x,x,RESET   meaning:
 		/* handle emulation mode */
 		if(DELTAT->emulation_mode == YM_DELTAT_EMULATION_MODE_YM2610)
 		{
-			v |= 0x01;		/*  YM2610 always uses ROM as an external memory and doesn't tave ROM/RAM memory flag bit. */
+			v |= 0x01;		/*  YM2610 always uses ROM as an external memory and doesn't have ROM/RAM memory flag bit. */
 		}
 
 		DELTAT->pan = &DELTAT->output_pointer[(v>>6)&0x03];

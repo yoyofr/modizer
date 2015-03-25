@@ -6,7 +6,7 @@
 
 #include "mamedef.h"
 #include <memory.h>	// for memset
-#include <stdlib.h>	// for free
+#include <malloc.h>	// for free
 #include <stddef.h>	// for NULL
 #include "../stdbool.h"
 //#include "sndintrf.h"
@@ -96,7 +96,7 @@ int device_start_nes(UINT8 ChipID, int clock)
 	
 	info = &NESAPUData[ChipID];
 	rate = clock / 4;
-	if ((CHIP_SAMPLING_MODE == 0x01 && rate < CHIP_SAMPLE_RATE) ||
+	if (((CHIP_SAMPLING_MODE & 0x01) && rate < CHIP_SAMPLE_RATE) ||
 		CHIP_SAMPLING_MODE == 0x02)
 		rate = CHIP_SAMPLE_RATE;
 	
@@ -288,7 +288,7 @@ void nes_set_emu_core(UINT8 Emulator)
 	return;
 }
 
-void nes_set_option(UINT16 Options)
+void nes_set_options(UINT16 Options)
 {
 	NesOptions = Options;
 	
@@ -352,7 +352,7 @@ void nes_set_mute_mask(UINT8 ChipID, UINT32 MuteMask)
 		break;
 	}
 	if (info->chip_fds != NULL)
-		NES_FDS_SetMask(info->chip_fds, (MuteMask & 0x20) >> 6);
+		NES_FDS_SetMask(info->chip_fds, (MuteMask & 0x20) >> 5);
 	
 	return;
 }
