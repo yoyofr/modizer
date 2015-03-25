@@ -98,7 +98,7 @@ ao_device* dev_ao;
 
 INLINE int fputLE32(UINT32 Value, FILE* hFile)
 {
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return fwrite(&Value, 0x04, 1, hFile);
 #else
 	int RetVal;
@@ -115,7 +115,7 @@ INLINE int fputLE32(UINT32 Value, FILE* hFile)
 
 INLINE int fputLE16(UINT16 Value, FILE* hFile)
 {
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return fwrite(&Value, 0x02, 1, hFile);
 #else
 	int RetVal;
@@ -154,7 +154,7 @@ UINT8 SaveFile(UINT32 FileLen, const void* TempData)
 			DataLen = 0x00000010;
 			fputLE32(DataLen, hFile);		// format chunk legth
 			
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 			fwrite(&WaveFmt, DataLen, 1, hFile);
 #else
 			fputLE16(WaveFmt.wFormatTag,		hFile);	// 0x00
@@ -192,7 +192,7 @@ UINT8 SaveFile(UINT32 FileLen, const void* TempData)
 		//fseek(hFile, 0x00000000, SEEK_END);
 		//TempVal[0x0] = ftell(hFile);
 		//TempVal[0x1] = fwrite(TempData, 1, FileLen, hFile);
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 		SndLogLen += fwrite(TempData, SAMPLESIZE, FileLen, hFile);
 #else
 		{

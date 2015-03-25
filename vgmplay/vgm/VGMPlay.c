@@ -23,7 +23,7 @@
 //
 //#define ADDITIONAL_FORMATS
 //#define CONSOLE_MODE
-//#define BIG_ENDIAN
+//#define VGMBIG_ENDIAN
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -576,7 +576,7 @@ char* FindFile(const char* FileName)
 INLINE UINT16 ReadLE16(const UINT8* Data)
 {
 	// read 16-Bit Word (Little Endian/Intel Byte Order)
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return *(UINT16*)Data;
 #else
 	return (Data[0x01] << 8) | (Data[0x00] << 0);
@@ -586,7 +586,7 @@ INLINE UINT16 ReadLE16(const UINT8* Data)
 INLINE UINT16 ReadBE16(const UINT8* Data)
 {
 	// read 16-Bit Word (Big Endian/Motorola Byte Order)
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return (Data[0x00] << 8) | (Data[0x01] << 0);
 #else
 	return *(UINT16*)Data;
@@ -596,7 +596,7 @@ INLINE UINT16 ReadBE16(const UINT8* Data)
 INLINE UINT32 ReadLE24(const UINT8* Data)
 {
 	// read 24-Bit Word (Little Endian/Intel Byte Order)
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return	(*(UINT32*)Data) & 0x00FFFFFF;
 #else
 	return	(Data[0x02] << 16) | (Data[0x01] <<  8) | (Data[0x00] <<  0);
@@ -606,7 +606,7 @@ INLINE UINT32 ReadLE24(const UINT8* Data)
 INLINE UINT32 ReadLE32(const UINT8* Data)
 {
 	// read 32-Bit Word (Little Endian/Intel Byte Order)
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return	*(UINT32*)Data;
 #else
 	return	(Data[0x03] << 24) | (Data[0x02] << 16) |
@@ -616,7 +616,7 @@ INLINE UINT32 ReadLE32(const UINT8* Data)
 
 INLINE int gzgetLE16(gzFile hFile, UINT16* RetValue)
 {
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return gzread(hFile, RetValue, 0x02);
 #else
 	int RetVal;
@@ -630,7 +630,7 @@ INLINE int gzgetLE16(gzFile hFile, UINT16* RetValue)
 
 INLINE int gzgetLE32(gzFile hFile, UINT32* RetValue)
 {
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return gzread(hFile, RetValue, 0x04);
 #else
 	int RetVal;
@@ -1241,7 +1241,7 @@ UINT32 GetGZFileLength(const char* FileName)
 	
 	fread(&gzHead, 0x02, 0x01, hFile);
 	
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	if (gzHead != 0x8B1F)
 #else
 	if (gzHead != 0x1F8B)
@@ -1256,7 +1256,7 @@ UINT32 GetGZFileLength(const char* FileName)
 		// .gz File
 		fseek(hFile, -4, SEEK_END);
 		fread(&FileSize, 0x04, 0x01, hFile);
-#ifdef BIG_ENDIAN
+#ifdef VGMBIG_ENDIAN
 		FileSize = ReadLE32((UINT8*)&FileSize);
 #endif
 	}
@@ -1392,7 +1392,7 @@ static void ReadVGMHeader(gzFile hFile, VGM_HEADER* RetVGMHead)
 	UINT32 HdrLimit;
 	
 	gzread(hFile, &CurHead, sizeof(VGM_HEADER));
-#ifdef BIG_ENDIAN
+#ifdef VGMBIG_ENDIAN
 	{
 		UINT8* TempPtr;
 		
@@ -4154,7 +4154,7 @@ static bool DecompressDataBlk(VGM_PCM_DATA* Bank, UINT32 DataSize, const UINT8* 
 					OutVal = Ent1B[InVal];
 					break;
 				case 0x02:
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 					OutVal = Ent2B[InVal];
 #else
 					OutVal = ReadLE16((UINT8*)&Ent2B[InVal]);
@@ -4164,7 +4164,7 @@ static bool DecompressDataBlk(VGM_PCM_DATA* Bank, UINT32 DataSize, const UINT8* 
 				break;
 			}
 			
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 			//memcpy(OutPos, &OutVal, ValSize);
 			if (ValSize == 0x01)
 				*((UINT8*)OutPos) = (UINT8)OutVal;
@@ -4248,14 +4248,14 @@ static bool DecompressDataBlk(VGM_PCM_DATA* Bank, UINT32 DataSize, const UINT8* 
 				*((UINT8*)OutPos) = (UINT8)OutVal;
 				break;
 			case 0x02:
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 				AddVal = Ent2B[InVal];
 #else
 				AddVal = ReadLE16((UINT8*)&Ent2B[InVal]);
 #endif
 				OutVal += AddVal;
 				OutVal &= OutMask;
-#ifndef BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 				*((UINT16*)OutPos) = (UINT16)OutVal;
 #else
 				OutPos[0x00] = (UINT8)((OutVal & 0x00FF) >> 0);

@@ -973,7 +973,7 @@ static int read_sample_data(int32 flags, struct timidity_file *tf, int bits, int
 					sdata[0][i] = BE_SHORT(sdata[0][i]);
 				#endif
 			} else {
-				#ifdef BIG_ENDIAN
+				#ifdef __BIG_ENDIAN__
 				for(i = 0; i < frames; i++)
 					sdata[0][i] = LE_SHORT(sdata[0][i]);
 				#endif

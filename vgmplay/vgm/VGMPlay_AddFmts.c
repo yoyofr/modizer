@@ -216,7 +216,7 @@ bool OpenOtherFile(const char* FileName)
 		gzseek(hFile, 0x00, SEEK_SET);
 		gzread(hFile, VGMData, VGMDataLen);
 		
-#ifndef VGM_BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 		memcpy(&CMFHead, &VGMData[0x00], sizeof(CMF_HEADER));
 #else
 		CMFHead.fccCMF = ReadLE32(&VGMData[0x00]);
@@ -293,7 +293,7 @@ bool OpenOtherFile(const char* FileName)
 		
 		memset(&VGMHead, 0x00, sizeof(VGM_HEADER));
 		CurPos = 0x00;
-#ifndef VGM_BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 		memcpy(&DROHead, &VGMData[CurPos], sizeof(DRO_HEADER));
 #else
 		memcpy(DROHead.cSignature,			&VGMData[CurPos + 0x00], 0x08);
@@ -430,7 +430,7 @@ OpenErr:
 INLINE UINT16 ReadLE16(const UINT8* Data)
 {
 	// read 16-Bit Word (Little Endian/Intel Byte Order)
-#ifndef VGM_BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return *(UINT16*)Data;
 #else
 	return (Data[0x01] << 8) | (Data[0x00] << 0);
@@ -440,7 +440,7 @@ INLINE UINT16 ReadLE16(const UINT8* Data)
 INLINE UINT32 ReadLE32(const UINT8* Data)
 {
 	// read 32-Bit Word (Little Endian/Intel Byte Order)
-#ifndef VGM_BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return	*(UINT32*)Data;
 #else
 	return	(Data[0x03] << 24) | (Data[0x02] << 16) |
@@ -450,7 +450,7 @@ INLINE UINT32 ReadLE32(const UINT8* Data)
 
 INLINE int gzgetLE32(gzFile hFile, UINT32* RetValue)
 {
-#ifndef VGM_BIG_ENDIAN
+#ifndef VGMBIG_ENDIAN
 	return gzread(hFile, RetValue, 0x04);
 #else
 	int RetVal;
