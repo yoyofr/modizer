@@ -3386,13 +3386,20 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	mScaleFactor=1.0f;
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 		mDeviceType=1; //ipad
+        UIScreen* mainscr = [UIScreen mainScreen];
+        /*NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
 		mDevice_hh=1024;
 		mDevice_ww=768;
-        UIScreen* mainscr = [UIScreen mainScreen];
+
         if (mainscr.currentMode.size.width>1024) {  //new ipad
             mDeviceType=2;
             mScaleFactor=2;
-        }
+        }*/
+        mDevice_hh=mainscr.bounds.size.height;
+        mDevice_ww=mainscr.bounds.size.width;
+        mScaleFactor=mainscr.scale;
+        
+        if (mScaleFactor>=2) mDeviceType=2;
 	}
 	else {
 		
@@ -3400,7 +3407,15 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 		mDevice_hh=480;
 		mDevice_ww=320;
 		UIScreen* mainscr = [UIScreen mainScreen];
-		if ([mainscr respondsToSelector:@selector(currentMode)]) {
+        
+//        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
+        mDevice_hh=mainscr.bounds.size.height;
+        mDevice_ww=mainscr.bounds.size.width;
+        mScaleFactor=mainscr.scale;
+        
+        if (mScaleFactor>=2) mDeviceType=2;
+        
+/*		if ([mainscr respondsToSelector:@selector(currentMode)]) {
 			if (mainscr.currentMode.size.width>480) {  //iphone 4
 				mDeviceType=2;
 				mScaleFactor=2;
@@ -3409,7 +3424,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                 mDevice_hh=568; //iPhone 5
             }
 		}
-		
+		*/
 	}
 	/* iPhone Simulator == i386
 	 iPhone == iPhone1,1             //Slow
