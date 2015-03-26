@@ -3,6 +3,8 @@
 - updated HVSC to #62
 - updated MODLAND to latest version
 - replaced Modplug by OpenMPT
+- VGMPlay added
+- improved layout for modern devices
 - reduced audio latency
 - updated playback libraries
 - several bug fixes
