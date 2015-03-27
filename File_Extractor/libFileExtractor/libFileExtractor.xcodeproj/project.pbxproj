@@ -199,12 +199,6 @@
 		33E0143412FBEEE900345BE2 /* LzmaDec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LzmaDec.h; sourceTree = "<group>"; };
 		33E0143512FBEEE900345BE2 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		33E0143612FBEEE900345BE2 /* Types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Types.h; sourceTree = "<group>"; };
-		33E0143712FBEEE900345BE2 /* changes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = changes.txt; path = ../changes.txt; sourceTree = SOURCE_ROOT; };
-		33E0143812FBEEE900345BE2 /* demo_directory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = demo_directory.c; path = ../demo_directory.c; sourceTree = SOURCE_ROOT; };
-		33E0143912FBEEE900345BE2 /* demo_read.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = demo_read.c; path = ../demo_read.c; sourceTree = SOURCE_ROOT; };
-		33E0143A12FBEEE900345BE2 /* demo_rewind.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = demo_rewind.c; path = ../demo_rewind.c; sourceTree = SOURCE_ROOT; };
-		33E0143B12FBEEE900345BE2 /* demo_seek.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = demo_seek.c; path = ../demo_seek.c; sourceTree = SOURCE_ROOT; };
-		33E0143C12FBEEE900345BE2 /* demo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = demo.c; path = ../demo.c; sourceTree = SOURCE_ROOT; };
 		33E0143F12FBEEE900345BE2 /* Binary_Extractor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Binary_Extractor.cpp; sourceTree = "<group>"; };
 		33E0144012FBEEE900345BE2 /* Binary_Extractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Binary_Extractor.h; sourceTree = "<group>"; };
 		33E0144112FBEEE900345BE2 /* blargg_common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blargg_common.cpp; sourceTree = "<group>"; };
@@ -232,11 +226,6 @@
 		33E0145712FBEEE900345BE2 /* Zip_Extractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Zip_Extractor.h; sourceTree = "<group>"; };
 		33E0145812FBEEE900345BE2 /* Zlib_Inflater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Zlib_Inflater.cpp; sourceTree = "<group>"; };
 		33E0145912FBEEE900345BE2 /* Zlib_Inflater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Zlib_Inflater.h; sourceTree = "<group>"; };
-		33E0145A12FBEEE900345BE2 /* fex.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = fex.txt; path = ../fex.txt; sourceTree = SOURCE_ROOT; };
-		33E0145B12FBEEE900345BE2 /* internals.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = internals.txt; path = ../internals.txt; sourceTree = SOURCE_ROOT; };
-		33E0145C12FBEEE900345BE2 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = license.txt; path = ../license.txt; sourceTree = SOURCE_ROOT; };
-		33E0145D12FBEEE900345BE2 /* makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = makefile; path = ../makefile; sourceTree = SOURCE_ROOT; };
-		33E0145E12FBEEE900345BE2 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = readme.txt; path = ../readme.txt; sourceTree = SOURCE_ROOT; };
 		33E0146012FBEEE900345BE2 /* archive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = archive.cpp; sourceTree = "<group>"; };
 		33E0146112FBEEE900345BE2 /* archive.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = archive.hpp; sourceTree = "<group>"; };
 		33E0146212FBEEE900345BE2 /* arcread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arcread.cpp; sourceTree = "<group>"; };
@@ -381,18 +370,7 @@
 			isa = PBXGroup;
 			children = (
 				33E0141A12FBEEE900345BE2 /* 7z_C */,
-				33E0143712FBEEE900345BE2 /* changes.txt */,
-				33E0143812FBEEE900345BE2 /* demo_directory.c */,
-				33E0143912FBEEE900345BE2 /* demo_read.c */,
-				33E0143A12FBEEE900345BE2 /* demo_rewind.c */,
-				33E0143B12FBEEE900345BE2 /* demo_seek.c */,
-				33E0143C12FBEEE900345BE2 /* demo.c */,
 				33E0143E12FBEEE900345BE2 /* fex */,
-				33E0145A12FBEEE900345BE2 /* fex.txt */,
-				33E0145B12FBEEE900345BE2 /* internals.txt */,
-				33E0145C12FBEEE900345BE2 /* license.txt */,
-				33E0145D12FBEEE900345BE2 /* makefile */,
-				33E0145E12FBEEE900345BE2 /* readme.txt */,
 				33E0145F12FBEEE900345BE2 /* unrar */,
 				33E0148712FBEEE900345BE2 /* zlib */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
