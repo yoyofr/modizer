@@ -234,11 +234,10 @@ bool LowAscii(const wchar *Str)
 
 int wcsicompc(const wchar *Str1,const wchar *Str2)
 {
-#if defined (_UNIX) || defined(_MSC_VER)
+#if defined(_UNIX) || defined(_MSC_VER)
   return my_wcscmp(Str1,Str2);
 #else
-  //return wcsicomp(Str1,Str2);
-    return my_wcscmp(Str1,Str2);
+  return /*wcsicomp*/my_wcscmp(Str1,Str2);
 #endif
 }
 

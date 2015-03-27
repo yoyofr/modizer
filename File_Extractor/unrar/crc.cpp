@@ -58,7 +58,7 @@ uint CRC32(uint StartCRC,const void *Addr,size_t Size)
     
     for (;Size>=8;Size-=8,Data+=8)
     {
-#ifdef __BIG_ENDIAN__
+#ifdef BIG_ENDIAN
         StartCRC ^= Data[0]|(Data[1] << 8)|(Data[2] << 16)|(Data[3] << 24);
         uint NextData = Data[4]|(Data[5] << 8)|(Data[6] << 16)|(Data[7] << 24);
 #else
