@@ -788,37 +788,86 @@ static UIAlertView *alertChooseName;
     }
 }
 
+- (CGSize)windowSize {
+    CGSize size;
+    size.width = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] integerValue];
+    size.height = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] integerValue];
+    return size;
+}
+
+- (CGPoint)scrollOffset {
+    CGPoint pt;
+    pt.x = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] integerValue];
+    pt.y = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] integerValue];
+    return pt;
+}
+
+
 -(void) doubleTap :(UITapGestureRecognizer*) sender {
     //  <Find HTML tag which was clicked by user>
     //  <If tag is IMG, then get image URL and start saving>
-    int scrollPositionY = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] intValue];
+/*    int scrollPositionY = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] intValue];
     int scrollPositionX = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] intValue];
     int displayWidth = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue];
     CGFloat scale = webView.frame.size.width / displayWidth;
     CGPoint pt = [sender locationInView:self.webView];
-    pt.x *= scale;
-    pt.y *= scale;
+    pt.x /= scale;
+    pt.y /= scale;
     pt.x += scrollPositionX;
     pt.y += scrollPositionY;
-//    NSLog(@"scale:%f displayWidth: %d,x:%f y:%f sx:%f sy:%f",scale,displayWidth, pt.x,pt.y,scrollPositionX,scrollPositionY);
+    NSLog(@"scale:%f displayWidth: %d,x:%f y:%f sx:%f sy:%f",scale,displayWidth, pt.x,pt.y,scrollPositionX,scrollPositionY);
     NSString *js = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).tagName", pt.x, pt.y];
     NSString *tagName = [self.webView stringByEvaluatingJavaScriptFromString:js];
     NSString *imgURL = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).src", pt.x, pt.y];
     NSString *urlToSave = [self.webView stringByEvaluatingJavaScriptFromString:imgURL];
     
-//    NSLog(@"tagName: %@",tagName);
-//    NSLog(@"urg: %@",urlToSave);
+    NSLog(@"tagName: %@",tagName);
+    NSLog(@"urg: %@",urlToSave);*/
     
-    if ([tagName compare:@"IMG" options:NSCaseInsensitiveSearch]==NSOrderedSame) {
+    CGPoint point = [sender locationInView:self.webView];
+    // convert point from view to HTML coordinate system
+    CGSize viewSize = [webView frame].size;
+    CGSize windowSize = [self windowSize];
+    
+    CGFloat f = windowSize.width / viewSize.width;
+    if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 5.) {
+        point.x = point.x * f;
+        point.y = point.y * f;
+    } else {
+        // On iOS 4 and previous, document.elementFromPoint is not taking
+        // offset into account, we have to handle it
+        CGPoint offset = [self scrollOffset];
+        point.x = point.x * f + offset.x;
+        point.y = point.y * f + offset.y;
+    }
+    
+    // Load the JavaScript code from the Resources and inject it into the web page
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"JSTools" ofType:@"js"];
+    NSString *jsCode = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    [webView stringByEvaluatingJavaScriptFromString: jsCode];
+    
+    
+    // call js functions
+    NSString *tags = [webView stringByEvaluatingJavaScriptFromString:
+                      [NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
+    NSString *tagsSRC = [webView stringByEvaluatingJavaScriptFromString:
+                         [NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
+    
+//    NSLog(@"src : %@",tags);
+//    NSLog(@"src : %@",tagsSRC);
+    
+    NSString *url = nil;
+    if ([tags rangeOfString:@",IMG,"].location != NSNotFound) {
+        url = tagsSRC;    // Here is the image url!
+    }
+    
+    if (url!=nil) {
         found_img=0;
         
-        //NSLog(@"tagName %@",tagName);
-        //NSLog(@"urlToSave %@",urlToSave);
-        
-        if ([[urlToSave pathExtension] compare:@"jpg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
-        if ([[urlToSave pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
-        if ([[urlToSave pathExtension] compare:@"png" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=2; //png
-        if ([[urlToSave pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
+        if ([[url pathExtension] compare:@"jpg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
+        if ([[url pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
+        if ([[url pathExtension] compare:@"png" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=2; //png
+        if ([[url pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
         
         if (found_img) {
             UIAlertView *msgAlert;  
@@ -826,7 +875,7 @@ static UIAlertView *alertChooseName;
             if (cover_currentPlayFilepath) {
                 msgAlert=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Image detected",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]] delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"CoverFolder",@""),NSLocalizedString(@"CoverFile",@""),nil] autorelease];
                 
-                cover_url_string=[[NSString alloc] initWithString:urlToSave];
+                cover_url_string=[[NSString alloc] initWithString:url];
                 cover_expectedContentLength=-1;
                 [msgAlert show];
             }

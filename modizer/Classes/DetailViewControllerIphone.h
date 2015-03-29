@@ -118,7 +118,7 @@ class CGLString;
 
 	IBOutlet UIView *volWin;
     
-    IBOutlet UIImageView *cover_view;
+    IBOutlet UIImageView *cover_view,*cover_viewBG;
     UIImageView *gifAnimation;
 
 	
@@ -286,7 +286,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
 
 
-@property (nonatomic, retain) IBOutlet UIImageView *cover_view;
+@property (nonatomic, retain) IBOutlet UIImageView *cover_view,*cover_viewBG;
 @property (nonatomic, retain) UIImageView *gifAnimation;
 
 -(IBAction) changeTimeDisplay;
