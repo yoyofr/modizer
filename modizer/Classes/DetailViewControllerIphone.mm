@@ -41,6 +41,8 @@ static float *fft_frequency,*fft_time,*fft_frequencyAvg,*fft_freqAvgCount;
 #include <OpenGLES/ES1/glext.h>
 #import <QuartzCore/QuartzCore.h>
 
+#import "UIImage+ImageEffects.h"
+
 #import "UIImageResize.h"
 
 #import "DetailViewControllerIphone.h"
@@ -134,7 +136,7 @@ static int display_length_mode=0;
 @synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime,btnNextCFlow,btnPrevCFlow,btnNextSubCFlow,btnPrevSubCFlow;
 
 @synthesize mDeviceType;
-@synthesize cover_view,gifAnimation;
+@synthesize cover_view,cover_viewBG,gifAnimation;
 //@synthesize locManager;
 @synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
@@ -1806,6 +1808,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
 }
 
+
 -(void) checkForCover:(NSString *)filePath {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF;
     pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
@@ -1814,6 +1817,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
     pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
     pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
+    
+    
+    
     
     cover_img=nil;
     //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
@@ -1829,7 +1835,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
             gifAnimation = [AnimatedGif getAnimationForGifAtUrl: firstUrl];
             
-            gifAnimation.frame=CGRectMake(cover_view.frame.origin.x, cover_view.frame.origin.y,                                          cover_view.frame.size.width,cover_view.frame.size.height);
+            gifAnimation.frame=CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
             [cover_view addSubview:gifAnimation];
         }
     }
@@ -1841,18 +1847,54 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
             gifAnimation= [AnimatedGif getAnimationForGifAtUrl: firstUrl];
             
-            gifAnimation.frame=CGRectMake(0, 0, mDevice_ww, mDevice_hh-234+82);
+            gifAnimation.frame=CGRectMake(0, 0,                                          cover_view.frame.size.width,cover_view.frame.size.height);
             [gifAnimation layoutSubviews];
             [cover_view addSubview:gifAnimation];
         }
     }
+    
+    if ((cover_img==nil)&&[mplayer isArchive]) {//archive mode, check tmp folder
+        NSError *error;
+        NSArray *dirContent;//
+        BOOL isDir;
+        NSString *file,*cpath;
+        NSArray *filetype_ext=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
+        NSFileManager *fileMngr=[[NSFileManager alloc] init];
+        
+        cpath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
+        dirContent=[fileMngr contentsOfDirectoryAtPath:cpath error:&error];
+        for (file in dirContent) {
+            [fileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+            if (!isDir) {
+                NSString *extension = [[file pathExtension] uppercaseString];
+                NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                if ([filetype_ext indexOfObject:extension]!=NSNotFound) {
+                    cover_img=[UIImage imageWithContentsOfFile:[cpath stringByAppendingFormat:@"/%@",file]];
+                    break;
+                }
+                else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) {
+                    cover_img=[UIImage imageWithContentsOfFile:[cpath stringByAppendingFormat:@"/%@",file]];
+                    break;
+                }
+                
+            }
+        }
+        [fileMngr release];
+    }
+    
     if (cover_img) {
         
         if (mScaleFactor!=1) cover_img = [[[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp] autorelease];
         
         cover_view.image=cover_img;
         cover_view.hidden=FALSE;
-    } else cover_view.hidden=TRUE;
+        
+        cover_viewBG.image=[cover_img applyLightEffect];
+        cover_viewBG.hidden=FALSE;
+    } else {
+        cover_view.hidden=TRUE;
+        cover_viewBG.hidden=TRUE;
+    }
 }
 
 -(BOOL)play_module:(NSString *)filePath fname:(NSString *)fileName {
@@ -2231,8 +2273,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
 			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
-            cover_view.frame = CGRectMake(0, 80-80, mDevice_ww, mDevice_hh-230+80);
-            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 80-80, mDevice_ww, mDevice_hh-230+80);
+            cover_view.frame = CGRectMake(8, 80+8, mDevice_ww-16, mDevice_hh-230-16);
+            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44);
+            
+            
+            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230);
 			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
             
             volWin.hidden=NO;
@@ -2431,8 +2476,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
-                cover_view.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30+82);
-                if (gifAnimation) gifAnimation.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30+82);
+                cover_view.frame = CGRectMake(0.0+8, 82+8, mDevice_hh-16, mDevice_ww-104-30-16);
+                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30+82);
+                if (gifAnimation) gifAnimation.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30);
                 oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
                 //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
@@ -3243,6 +3289,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
  }
  */
 
+/*
 - (void) checkAvailableCovers {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF,*filePath,*basePath;
     NSFileManager *fileMngr=[[NSFileManager alloc] init];
@@ -3267,6 +3314,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	}
     [fileMngr release];
 }
+ */
 
 - (void) checkAvailableCovers:(int)index {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF,*filePath,*basePath;
@@ -3291,6 +3339,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     else if ([fileMngr fileExistsAtPath:pathFolderImgJPG]) mPlaylist[index].cover_flag=8;
     else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[index].cover_flag=16;
     else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=32;
+    else { //TODO: check if it is an archive and if it contains an image file
+    }
+    
     [fileMngr release];
 }
 
@@ -3317,17 +3368,27 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [default_cover retain];
     artwork=nil;
     
+    cover_view.layer.shadowColor = [UIColor blackColor].CGColor;
+    cover_view.layer.shadowOffset = CGSizeMake(1, 2);
+    cover_view.layer.shadowOpacity = 1;
+    cover_view.layer.shadowRadius = 2.0;
+    cover_view.clipsToBounds = NO;
+    
+    
     //EQ
     eqVC=nil;
-    
+  
+
     [sliderProgressModule setThumbImage:[UIImage imageNamed:@"slider.png" ] forState:UIControlStateNormal];
+    
     
     
     shouldRestart=1;
     m_displayLink=nil;
     
     gifAnimation=nil;
-    cover_view.contentMode=UIViewContentModeScaleAspectFill;//UIViewContentModeScaleAspectFit;
+    cover_view.contentMode=UIViewContentModeScaleAspectFit;
+    cover_viewBG.contentMode=UIViewContentModeScaleToFill;
     
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];

@@ -234,7 +234,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
@@ -269,7 +269,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
-    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
     settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
@@ -555,7 +555,7 @@ void optUADEChangedC(id param) {
     settings[GLOB_CoverFlow].sub_family=0;
     settings[GLOB_CoverFlow].callback=&optGLOBALChangedC;
     settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
     
     settings[GLOB_PlayerViewOnPlay].label=(char*)"Player view on play";
     settings[GLOB_PlayerViewOnPlay].description=NULL;

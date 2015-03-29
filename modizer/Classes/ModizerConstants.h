@@ -93,6 +93,8 @@
 
 #define ASMA_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
 
+#define SUPPORTED_FILETYPE_COVER @"GIF,JPEG,JPG,PNG"
+
 #define SUPPORTED_FILETYPE_MDX @"MDX"
 
 #define SUPPORTED_FILETYPE_PMD @"M,M2,MZ"

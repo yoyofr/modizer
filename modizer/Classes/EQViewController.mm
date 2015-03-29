@@ -133,6 +133,9 @@ extern BOOL nvdsp_EQ;
         eqSlider[i]=[[UISlider alloc] init];
         [eqSlider[i] addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
         
+        [eqSlider[i] setThumbImage:[UIImage imageNamed:@"slider.png" ] forState:UIControlStateNormal];
+
+        
         eqSlider[i].tag=i+1;
         eqSlider[i].maximumValue=12;
         eqSlider[i].minimumValue=-12;
@@ -160,6 +163,9 @@ extern BOOL nvdsp_EQ;
     
     eqGlobalGain=[[UISlider alloc] init];
     [eqGlobalGain addTarget:self action:@selector(sliderEQGainChanged:) forControlEvents:UIControlEventValueChanged];
+    
+    [eqGlobalGain setThumbImage:[UIImage imageNamed:@"slider.png" ] forState:UIControlStateNormal];
+    
     eqGlobalGain.tag=100;
     eqGlobalGain.maximumValue=12;
     eqGlobalGain.minimumValue=-12;

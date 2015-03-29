@@ -701,7 +701,6 @@
 		CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B4181ABD827D009608E8 /* libc++.dylib */; };
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
-		CC35CF2D1ABF86F9004EDAC0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC35CF2C1ABF86F9004EDAC0 /* Images.xcassets */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
 		CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709517CC8EB000DC7197 /* txtMenu11c.png */; };
 		CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5C709617CC8EB000DC7197 /* txtMenu11d.png */; };
@@ -726,6 +725,7 @@
 		CC91689717F01F560012E2C1 /* Live_And_Let_Die.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */; };
 		CC928DE917D0037B0098696C /* txtMenu12a.png in Resources */ = {isa = PBXBuildFile; fileRef = CC928DE717D0037B0098696C /* txtMenu12a.png */; };
 		CC928DEA17D0037B0098696C /* txtMenu12b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC928DE817D0037B0098696C /* txtMenu12b.png */; };
+		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
 		CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */; };
 		CCAE594C17EAD8F6007638B9 /* txtMenu7c.png in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594B17EAD8F6007638B9 /* txtMenu7c.png */; };
@@ -971,6 +971,7 @@
 		CCDDA6F91AC3E6F000AEA09F /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */; };
 		CCDDA6FE1AC3E81E00AEA09F /* AppStore1024.png in Resources */ = {isa = PBXBuildFile; fileRef = CCDDA6FD1AC3E81D00AEA09F /* AppStore1024.png */; };
 		CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC59B90B1AC4B882004FEEBA /* liblibFileExtractor.a */; };
+		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
 		CCFDC52C17DB105500C6692C /* Novocaine.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F617DB105400C6692C /* Novocaine.m */; };
@@ -2461,7 +2462,6 @@
 		CC33B4181ABD827D009608E8 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
-		CC35CF2C1ABF86F9004EDAC0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = modizer/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
 		CC59B9061AC4B882004FEEBA /* libFileExtractor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libFileExtractor.xcodeproj; path = ../File_Extractor/libFileExtractor/libFileExtractor.xcodeproj; sourceTree = "<group>"; };
 		CC59B90C1AC4B91E004FEEBA /* fex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fex.h; path = ../File_Extractor/fex/fex.h; sourceTree = "<group>"; };
@@ -2492,6 +2492,8 @@
 		CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Live_And_Let_Die.mid; path = Resources/Samples2/Various/Live_And_Let_Die.mid; sourceTree = SOURCE_ROOT; };
 		CC928DE717D0037B0098696C /* txtMenu12a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12a.png; sourceTree = "<group>"; };
 		CC928DE817D0037B0098696C /* txtMenu12b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu12b.png; sourceTree = "<group>"; };
+		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
+		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		CC9B180F12FF026700985967 /* gsf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gsf.h; path = ../libgsf/gsf.h; sourceTree = SOURCE_ROOT; };
 		CC9B183112FF048700985967 /* psftag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = psftag.h; path = ../libgsf/VBA/psftag.h; sourceTree = SOURCE_ROOT; };
 		CC9B97161221739A007A156C /* ModizerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizerConstants.h; sourceTree = "<group>"; };
@@ -2906,6 +2908,7 @@
 		CCDCFFB1121FD3A400B89B19 /* MIMETYPES.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = MIMETYPES.plist; sourceTree = "<group>"; };
 		CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		CCDDA6FD1AC3E81D00AEA09F /* AppStore1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore1024.png; sourceTree = "<group>"; };
+		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
 		CCFDC4F217DB105400C6692C /* AudioFileReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioFileReader.mm; sourceTree = "<group>"; };
@@ -2954,7 +2957,6 @@
 				CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */,
 				CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */,
 				CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */,
-				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
 				CC33B3C81ABAC193009608E8 /* liblibopenmpt.a in Frameworks */,
 				3397DC90179C792400607236 /* liblibgme.a in Frameworks */,
 				33F60A8C14D1D719009ABA8F /* libdumb.a in Frameworks */,
@@ -2963,6 +2965,7 @@
 				33B4EA4514B374C00060F9B1 /* liblibgsf.a in Frameworks */,
 				33B4EA4614B374C00060F9B1 /* liblibsidplay1.a in Frameworks */,
 				33B4EA4714B374C00060F9B1 /* libsidplayfp.a in Frameworks */,
+				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
@@ -2995,7 +2998,6 @@
 			children = (
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
 				CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */,
-				CC5C709C17CD1D7900DC7197 /* Accelerate.framework */,
 				3371987E1692053C00163CA3 /* modizer.entitlements */,
 				33697802166BA6DF00F12CC3 /* Default-568h@2x.png */,
 				3314C185132C222D007F171B /* Default-Landscape~ipad.png */,
@@ -3021,6 +3023,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CC5C709C17CD1D7900DC7197 /* Accelerate.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
@@ -4084,6 +4087,8 @@
 			isa = PBXGroup;
 			children = (
 				3317853F17C56EAC00929E8F /* TPKeyboardAvoidingTableView.h */,
+				CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */,
+				CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */,
 				3317854017C56EAC00929E8F /* TPKeyboardAvoidingTableView.m */,
 				33F6A94017B9A36A002369E7 /* MNEValueTrackingSlider.h */,
 				33F6A94117B9A36A002369E7 /* MNEValueTrackingSlider.m */,
@@ -4115,8 +4120,8 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CCFA9ADC1AC75830007C658A /* WebTools */,
 				CC13449B1AC17CC200CAB284 /* vgmplay */,
-				CC35CF2C1ABF86F9004EDAC0 /* Images.xcassets */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */,
@@ -5408,6 +5413,14 @@
 			path = unice68;
 			sourceTree = "<group>";
 		};
+		CCFA9ADC1AC75830007C658A /* WebTools */ = {
+			isa = PBXGroup;
+			children = (
+				CCFA9ADD1AC75848007C658A /* JSTools.js */,
+			);
+			name = WebTools;
+			sourceTree = "<group>";
+		};
 		CCFDC4EB17DB105400C6692C /* NVDSP */ = {
 			isa = PBXGroup;
 			children = (
@@ -5758,7 +5771,6 @@
 				CC1E6327120423DF000A8A4E /* DavidHanney in Resources */,
 				CC1E6328120423DF000A8A4E /* DavidWhittaker in Resources */,
 				CC1E6329120423DF000A8A4E /* DeltaMusic1.3 in Resources */,
-				CC35CF2D1ABF86F9004EDAC0 /* Images.xcassets in Resources */,
 				CC1E632A120423DF000A8A4E /* DeltaMusic2.0 in Resources */,
 				CC1E632B120423DF000A8A4E /* Desire in Resources */,
 				CC1E632C120423DF000A8A4E /* DIGI-Booster in Resources */,
@@ -5768,6 +5780,7 @@
 				CCB8D99E17F62A18008E6A45 /* txtMenu8a_2x.png in Resources */,
 				CC1E6330120423DF000A8A4E /* DynamicSynthesizer in Resources */,
 				CC1E6331120423DF000A8A4E /* EarAche in Resources */,
+				CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */,
 				CC1E6332120423DF000A8A4E /* EMS in Resources */,
 				CCB8D9A117F62A18008E6A45 /* txtMenu10a_2x.png in Resources */,
 				CC1E6333120423DF000A8A4E /* EMS-6 in Resources */,
@@ -6295,6 +6308,7 @@
 				CCCE9CDD123D807A007D9462 /* mem68.c in Sources */,
 				CCFDC53E17DB105500C6692C /* NVPeakingEQFilter.m in Sources */,
 				CCCE9CDF123D807A007D9462 /* table68.c in Sources */,
+				CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */,
 				CCCE9CE0123D807A007D9462 /* alloc68.c in Sources */,
 				CCCE9CE1123D807A007D9462 /* debugmsg68.c in Sources */,
 				CCCE9CE2123D807A007D9462 /* endian68.c in Sources */,
@@ -6496,6 +6510,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6536,6 +6551,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -6656,6 +6672,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;
@@ -6725,6 +6742,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
 				COPY_PHASE_STRIP = YES;

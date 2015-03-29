@@ -3548,6 +3548,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extCOVER=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
 	
 	NSString *extension;
     NSString *file_no_ext;
@@ -3561,6 +3562,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     //    NSLog(@"check: %@",_filePath);
     mSingleFileType=1; //used to identify file which relies or not on another file (sample, psflib, ...)
 	
+    
 	if (!found)
 		for (int i=0;i<[filetype_extVGM count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
@@ -3738,6 +3740,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     }
     
     //    NSLog(@"found: %d / single: %d",found,mSingleFileType);
+    
+    if (!no_aux_file) {
+        if (!found)
+            for (int i=0;i<[filetype_extCOVER count];i++) {
+                if ([extension caseInsensitiveCompare:[filetype_extCOVER objectAtIndex:i]]==NSOrderedSame)    {found=99;break;}
+                if ([file_no_ext caseInsensitiveCompare:[filetype_extCOVER objectAtIndex:i]]==NSOrderedSame) {found=99;break;}
+                
+            }
+    }
     
     return found;
 }
