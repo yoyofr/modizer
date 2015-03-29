@@ -86,7 +86,7 @@ static AnimatedGif * instance;
     	[self decodeGIF: data];
    	 	UIImageView *tempImageView = [self getAnimation];
    	 	[imageView setImage: [tempImageView image]];
-        imageView.contentMode=UIViewContentModeScaleAspectFill;
+        imageView.contentMode=UIViewContentModeScaleAspectFit;
 //    	[imageView sizeToFit];
     	[imageView setAnimationImages: [tempImageView animationImages]];
     	[imageView startAnimating];

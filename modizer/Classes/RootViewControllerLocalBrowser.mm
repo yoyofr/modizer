@@ -1706,13 +1706,18 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     UIButton *actionView,*secActionView;
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
+    SWTableViewCell *cell;
+    cell = (SWTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    SWTableViewCell *cell = (SWTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[SWTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
-        cell.leftUtilityButtons = [self leftButtons];
-        cell.rightUtilityButtons = [self rightButtons];
-        cell.delegate = self;
+        if (is_ios7) {
+            cell = [[[SWTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier] autorelease];
+            cell.leftUtilityButtons = [self leftButtons];
+            cell.rightUtilityButtons = [self rightButtons];
+            cell.delegate = self;
+        } else {
+            cell = (SWTableViewCell*)[[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
+        }
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
@@ -1999,8 +2004,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
+    if (is_ios7) return NO;
+    
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-/*    int section=indexPath.section-2;
+   int section=indexPath.section-2;
     if (section>=0) {
         NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
         BOOL res;
@@ -2008,7 +2015,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         res=[myMngr isDeletableFileAtPath:fullpath];
         [myMngr release];
         return res;
-    }*/
+    }
     return NO;
 }
 

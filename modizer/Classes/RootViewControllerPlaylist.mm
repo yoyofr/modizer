@@ -2486,9 +2486,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-    
+
     if (browse_depth==0) {
-        if (indexPath.row>=4) { //start selected playlist
+        if (indexPath.row>=2) { //start selected playlist
             [self freePlaylist];
             playlist=(t_playlist*)malloc(sizeof(t_playlist));
             memset(playlist,0,sizeof(t_playlist));

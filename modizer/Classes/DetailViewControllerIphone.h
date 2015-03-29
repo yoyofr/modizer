@@ -307,7 +307,6 @@ class CGLString;
 
 -(NSString*) getCurrentModuleFilepath;
 
-- (void) checkAvailableCovers;
 - (void) checkAvailableCovers:(int)index;
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
