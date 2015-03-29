@@ -2274,7 +2274,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
 			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
-            cover_view.frame = CGRectMake(8, 80+8, mDevice_ww-16, mDevice_hh-230-16);
+            cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44);
             
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
@@ -2474,16 +2474,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
                 
-                mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
-                m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
-                cover_view.frame = CGRectMake(0.0+8, 82+8, mDevice_hh-16, mDevice_ww-104-30-16);
-                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh-16, mDevice_ww-104-30+82-16);
+                mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-30);
+                m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
+                cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-30-mDevice_ww/10);
+                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82-30+82);
                 if (gifAnimation) {
-                    NSLog(@"3: %f %f",cover_view.frame.size.width,cover_view.frame.size.height);
+                    //NSLog(@"3: %f %f",cover_view.frame.size.width,cover_view.frame.size.height);
                     gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
                 }
 
-                oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
+                oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
                 
                 //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
                 volWin.hidden=YES;
@@ -2496,7 +2496,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 
                 if (infoIsFullscreen) infoView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
-                else infoView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
+                else infoView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
                 
                 int xofs=mDevice_hh-(24*5+4+32+4+32+8);
                 int yofs=10;

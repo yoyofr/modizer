@@ -327,6 +327,7 @@
 		CC13435C1ABFFF2A00CAB284 /* SWUtilityButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */; };
 		CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1343741AC17B3A00CAB284 /* libvgmplay.a */; };
+		CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC17F07E1AC87866006C1E82 /* Images-2.xcassets */; };
 		CC1A554F17D5C0820009E78B /* BRRequest+_UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC1A555017D5C0820009E78B /* BRRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553E17D5C0820009E78B /* BRRequest.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC1A555117D5C0820009E78B /* BRRequestCreateDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554017D5C0820009E78B /* BRRequestCreateDirectory.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -1809,6 +1810,7 @@
 		CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUtilityButtonView.m; sourceTree = "<group>"; };
 		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmplay.xcodeproj; path = ../vgmplay/vgmplay.xcodeproj; sourceTree = "<group>"; };
 		CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VGMPlay.ini; path = ../../vgmplay/vgm/VGMPlay.ini; sourceTree = "<group>"; };
+		CC17F07E1AC87866006C1E82 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = "Images-2.xcassets"; path = "modizer/Images-2.xcassets"; sourceTree = SOURCE_ROOT; };
 		CC1A553A17D5C0820009E78B /* BRGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRGlobal.h; sourceTree = "<group>"; };
 		CC1A553B17D5C0820009E78B /* BRRequest+_UserData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "BRRequest+_UserData.h"; sourceTree = "<group>"; };
 		CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "BRRequest+_UserData.m"; sourceTree = "<group>"; };
@@ -4120,6 +4122,7 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
 				CCFA9ADC1AC75830007C658A /* WebTools */,
 				CC13449B1AC17CC200CAB284 /* vgmplay */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
@@ -5845,6 +5848,7 @@
 				CC1E6367120423DF000A8A4E /* Medley in Resources */,
 				CC1E6368120423DF000A8A4E /* MIDI-Loriciel in Resources */,
 				CC1E6369120423DF000A8A4E /* MikeDavies in Resources */,
+				CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */,
 				CC1E636A120423DF000A8A4E /* MMDC in Resources */,
 				CC1E636B120423DF000A8A4E /* Mugician in Resources */,
 				CC1E636C120423DF000A8A4E /* MugicianII in Resources */,

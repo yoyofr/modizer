@@ -1849,11 +1849,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     
-    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist<2)&&(playlist->nb_entries)) {
+    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist==1)&&(playlist->nb_entries)) {
         NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
         int pos=currentPlayedEntry+1;
         if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
-        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+        if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
     }
 /*    if (show_playlist&&(integrated_playlist<2)) {
         self.tableView.editing=TRUE;
@@ -1874,11 +1874,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     
     [super viewDidAppear:animated];
-    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist<2)) {
+    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist==1)) {
         NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
         int pos=currentPlayedEntry+1;
         if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
-        [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+        if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
     }
     
 }
@@ -2811,7 +2811,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [self.navigationController pushViewController:childController animated:YES];
             } else if (row==1 ){ //playlist actions
                 if (playlist->playlist_id) {
-                    NSString *actionSheetTitle = @""; //Action Sheet Title
+                    //NSString *actionSheetTitle = @""; //Action Sheet Title
                     NSString *other1 = NSLocalizedString(@"Rename",@"");
                     NSString *other2 = NSLocalizedString(@"Edit",@"");
                     NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
@@ -2820,7 +2820,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     NSString *destructiveTitle = NSLocalizedString(@"Delete",@"");
                     NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
                     UIActionSheet *actionSheet = [[UIActionSheet alloc]
-                                                  initWithTitle:actionSheetTitle
+                                                  initWithTitle:nil
                                                   delegate:self
                                                   cancelButtonTitle:nil
                                                   destructiveButtonTitle:nil
@@ -2830,12 +2830,15 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     [actionSheet setDestructiveButtonIndex:5];
                     [actionSheet setCancelButtonIndex:6];
                     
-                    if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
-                    else[ actionSheet showFromToolbar:self.navigationController.toolbar];
+                    if (SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+                        if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
+                        else[ actionSheet showFromToolbar:self.navigationController.toolbar];
+                    } else [actionSheet showInView:self.view];
+
                 } else { //"now playing", "most played", "favorites" playlists -> does not exist in DB
                     UIActionSheet *actionSheet;
                     if (integrated_playlist<2) {
-                    NSString *actionSheetTitle = @""; //Action Sheet Title
+                    //NSString *actionSheetTitle = @""; //Action Sheet Title
                     NSString *other1 = NSLocalizedString(@"Save",@"");
                     NSString *other2 = NSLocalizedString(@"Edit",@"");
                         NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
@@ -2845,7 +2848,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         
                         
                     actionSheet = [[UIActionSheet alloc]
-                                                  initWithTitle:actionSheetTitle
+                                                  initWithTitle:nil
                                                   delegate:self
                                                   cancelButtonTitle:nil
                                                   destructiveButtonTitle:nil
@@ -2853,7 +2856,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     [actionSheet addButtonWithTitle:cancelTitle];
                     [actionSheet setCancelButtonIndex:5];
                     } else if ((integrated_playlist==2)||(integrated_playlist==3)) {
-                        NSString *actionSheetTitle = @""; //Action Sheet Title
+                        //NSString *actionSheetTitle = @""; //Action Sheet Title
                         NSString *other1 = NSLocalizedString(@"Save",@"");
                         NSString *other2 = NSLocalizedString(@"Edit",@"");
                         NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
@@ -2861,7 +2864,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
                         
                         actionSheet = [[UIActionSheet alloc]
-                                                      initWithTitle:actionSheetTitle
+                                                      initWithTitle:nil
                                                       delegate:self
                                                       cancelButtonTitle:nil
                                                       destructiveButtonTitle:nil
@@ -2870,8 +2873,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         [actionSheet setCancelButtonIndex:3];
                         
                     }
-                    if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
-                    else [actionSheet showFromToolbar:self.navigationController.toolbar];
+                    if (SYSTEM_VERSION_LESS_THAN(@"8.0")) {
+                        if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
+                        else[ actionSheet showFromToolbar:self.navigationController.toolbar];
+                    } else [actionSheet showInView:self.view];
                 }
                 
                 
