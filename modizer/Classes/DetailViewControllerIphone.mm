@@ -1836,6 +1836,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             gifAnimation = [AnimatedGif getAnimationForGifAtUrl: firstUrl];
             
             gifAnimation.frame=CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
+            [gifAnimation layoutSubviews];
             [cover_view addSubview:gifAnimation];
         }
     }
@@ -1847,7 +1848,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
             gifAnimation= [AnimatedGif getAnimationForGifAtUrl: firstUrl];
             
-            gifAnimation.frame=CGRectMake(0, 0,                                          cover_view.frame.size.width,cover_view.frame.size.height);
+            gifAnimation.frame=CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
             [gifAnimation layoutSubviews];
             [cover_view addSubview:gifAnimation];
         }
@@ -2276,8 +2277,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             cover_view.frame = CGRectMake(8, 80+8, mDevice_ww-16, mDevice_hh-230-16);
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44);
             
-            
-            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230);
+            if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
 			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
             
             volWin.hidden=NO;
@@ -2477,8 +2477,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 m_oglView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 cover_view.frame = CGRectMake(0.0+8, 82+8, mDevice_hh-16, mDevice_ww-104-30-16);
-                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30+82);
-                if (gifAnimation) gifAnimation.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-104-30);
+                cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh-16, mDevice_ww-104-30+82-16);
+                if (gifAnimation) {
+                    NSLog(@"3: %f %f",cover_view.frame.size.width,cover_view.frame.size.height);
+                    gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
+                }
+
                 oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-104-30);
                 
                 //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
@@ -3289,33 +3293,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
  }
  */
 
-/*
-- (void) checkAvailableCovers {
-    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF,*filePath,*basePath;
-    NSFileManager *fileMngr=[[NSFileManager alloc] init];
-    for (int i=0;i<mPlaylist_size;i++) {
-        mPlaylist[i].cover_flag=0; //used for cover flag
-        filePath=mPlaylist[i].mPlaylistFilepath;
-        basePath=[filePath stringByDeletingLastPathComponent];
-        pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",basePath];
-        pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",basePath];
-        pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",basePath];
-        basePath=[filePath stringByDeletingPathExtension];
-        pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",basePath];
-        pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",basePath];
-        pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",basePath];
-        //isReadableFileAtPath
-        if ([fileMngr fileExistsAtPath:pathFileImgJPG]) mPlaylist[i].cover_flag=1;
-        else if ([fileMngr fileExistsAtPath:pathFileImgPNG]) mPlaylist[i].cover_flag=2;
-        else if ([fileMngr fileExistsAtPath:pathFileImgGIF]) mPlaylist[i].cover_flag=4;
-        else if ([fileMngr fileExistsAtPath:pathFolderImgJPG]) mPlaylist[i].cover_flag=8;
-        else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[i].cover_flag=16;
-        else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[i].cover_flag=32;
-	}
-    [fileMngr release];
-}
- */
-
 - (void) checkAvailableCovers:(int)index {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF,*filePath,*basePath;
     NSFileManager *fileMngr=[[NSFileManager alloc] init];
@@ -3985,8 +3962,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 		mShouldUpdateInfos=1;
 	} else [self loadSettings:0];
     
-    /*update covers*/
-    //    [self checkAvailableCovers];
     for (int i=0;i<mPlaylist_size;i++) mPlaylist[i].cover_flag=-1;
     
 	
@@ -4097,7 +4072,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     if (shouldRestart) {
         shouldRestart=0;
-        //[self checkAvailableCovers];
         [self play_restart];
     }
     

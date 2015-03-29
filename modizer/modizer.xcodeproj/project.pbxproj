@@ -6523,7 +6523,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6563,7 +6563,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6640,6 +6640,77 @@
 			};
 			name = Release;
 		};
+		CC17F0781AC82BD0006C1E82 /* Release_No64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = armv7;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
+				GCC_THUMB_SUPPORT = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = /usr/include/libxml2;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release_No64;
+		};
+		CC17F0791AC82BD0006C1E82 /* Release_No64 */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = modizer_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_THUMB_SUPPORT = NO;
+				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = "modizer-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/timidity-bpysqhjfftpcwddzpyetxenbgpde/Build/Products/Release-iphonesimulator\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/timidity-bpysqhjfftpcwddzpyetxenbgpde/Build/Products/Debug-iphonesimulator\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/timidity-bpysqhjfftpcwddzpyetxenbgpde/Build/Products/Debug-iphoneos\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgme-atjusmvlwaaasocyozwfnmzcavmb/Build/Products/Release-iphoneos\"",
+					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Debug-iphoneos\"",
+					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
+					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
+				);
+				PRODUCT_NAME = modizer;
+				PROVISIONING_PROFILE = "";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release_No64;
+		};
 		CC1E56AA1200B2B2000A8A4E /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -6685,7 +6756,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6755,7 +6826,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6788,6 +6859,7 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
+				CC17F0791AC82BD0006C1E82 /* Release_No64 */,
 				CC1E56AB1200B2B2000A8A4E /* Distribution */,
 				CCAF10EA12BB48A200F4262D /* Distribution Beta */,
 			);
@@ -6799,6 +6871,7 @@
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
+				CC17F0781AC82BD0006C1E82 /* Release_No64 */,
 				CC1E56AA1200B2B2000A8A4E /* Distribution */,
 				CCAF10E912BB48A200F4262D /* Distribution Beta */,
 			);
