@@ -103,6 +103,7 @@ void CGLString::Render(int msg_type)
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
+    
 }
 
 void CGLString::BuildString(int msg_type)
@@ -139,7 +140,7 @@ void CGLString::BuildString(int msg_type)
 	else if (msg_type&128) {
 		valr=valg=valb=0xFF;
 		vala=(msg_type&127)*2;
-	} 
+	}    
 	
 	// Set up vertex data...
 	int length = strlen(mText);

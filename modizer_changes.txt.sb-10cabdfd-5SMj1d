@@ -1,0 +1,198 @@
+2.1
+———
+- updated HVSC to #62
+- updated MODLAND to latest version
+- replaced Modplug by OpenMPT
+- VGMPlay added
+- improved layout for modern devices
+- reduced audio latency
+- updated playback libraries
+- several bug fixes
+
+2.0
+---
+- Global interface review
+- New visualizers: 3D spectrum, 3D Piano
+- 10 bands, hardware accelerated equalizer
+- ASMA collection
+- Updated HVSC to #59
+- Updated MODLAND to latest version
+- Updated plugins to latest version (GME, ASAP, DUMB, MODPLUG)
+- Improved settings coverage
+- Multiple bugfixes & improvements
+
+
+1.7
+---
+- multiple bugfixes & better stability
+- iphone 5 resolution support
+- improved retina support
+- most popular file types are now registered to modizer (mod, xm, it, rsn, vgz, spc, ...)
+- added playback control buttons in coverflow view
+- updated modland to latest version (2012/06/03)
+- updated hvsc to latest version (#58)
+
+1.6
+---
+[Improvements]
+- Web browser: changed keyboard layout to standard keyboard (easier to do search request).
+- Player screen: playlist now displays file name for archive entries instead of "archivename.7z@31".
+- DUMB: optimized file loading & memory usage.
+- Player screen: info & playlist fullscreen states now saved & restored.
+- Playlist: add subsongs/archives management.
+- Timidity: user's custom timidity.cfg & sound font supported.
+- DSF: output can be switch between 22Khz & 44Khz. Output gain increased.
+- Player screen: small changes to improve access to info button & elapse/remaining time.
+[BugFixes]
+- Fixed background playback issue.
+- Global: fixed some memory leaks.
+- Dumb: wrong format reported in info screen for IT files.
+- Issue fixed with archive management & display in player screen.
+- Fixed crash when modizer is running in background (double free issue).
+- Fixed long press on '<' & '>' (used to change archive entry when current entry has also sub song).
+- Fixed wrong save/restore of default playback length.
+- Fixed an issue with file manager.
+
+1.5
+---
+[Improvements]
+- Settings: now a single setting for default length (in Player settings menu).
+- Pmdmini: new playback library supporting japanese PC-9801 computer.
+- AOSDK/DSF: optimized playback using a 22KHz output.
+- Coverflow: add of a basic interface.
+- MODLAND: updated with latest entries (22/01/2012).
+- HVSC: update to #56.
+[BugFixes]
+- AOSDK playback: issue fixed in file decoding, was preventing playback of dsf, ssf, sqf, psf2, ... files.
+- french translations: issues fixed.
+- "Loading..." window now correctly rotated.
+- File browser: directories with a '.' in their name were detected as files.
+- Infinite loop mode: fixed issue with Modplug & UADE.
+- Coverflow: fixed issue with covert art not being loaded.
+- Player: removed click that could be heard sometime at end of song.
+- Player: fixed issue with infinite loop in Modplug & UADE.
+- Player: fixed a pattern break issue with Modplug.
+- Global: lots of minor bug fixes.
+
+1.4
+---
+[Improvements]
+- SIDPLAY2: updated with latest version, fixing an issue with 'Fanta in space.sid' (fast device required for this one).
+- MODLAND: updated to 04/09/2011
+- HVSC: updated to #55
+- BROWSER: optimizations
+- BROWSER/PLAYER: playback of only 1 entry within a GME file (NSF,NSFE,GBS,...)
+- PLAYER/VISUALIZERS: new visualizers, better selection menu, better beat detection
+
+[BugFixes]
+- SETTINGS/PLAYER: panning now applied as choosen
+- SETTINGS/MODPLUG: settings now applied at launch
+- VISU/SPECTRUM: high details mode was displaying Left value for Right Spectrum
+- DOWNLOADS: wrong files list update when removing an entry
+- SETTINGS/GME: default length now applied when applicable
+- Lots of small bugfixes
+
+1.3
+---
+[Improvements]
+- PLAYER: last visu set up now kept when turning off/on.
+- PLAYER: larger touch area for Info button.
+- DUMB: add of new module playback lib, should be more accurate than modplug.
+- COVERFLOW: optimized. iPhone 3GS or faster recommended.
+- BROWSER/PLAYER: playback of only 1 entry within an archive (zip, rsn, rar, gz, 7z) is now supported.
+- SID: add of a new option for Filter emulation on/off (both for SID1 & SID2)
+- SETTINGS: added a global panning setting (usefull when using headphones).
+- BROWSER: added a limit to files list when too much entries.
+- GLOBAL: disable auto screen lock only when plugged & battery is charging.
+- PLAYER: now start on a random entry when random mode is active and a new list is started.
+- PLAYER: now resume playback after being interrupted (phone call) only if headpone are plugged.
+[BugFixes]
+- GLOBAL: fixed crash issue (timeout) on loading.
+- SETTINGS/PLAYER: removed "resume on launch" since it caused crash issue.
+- PLAYER: fixed glow issue when tapping play/pause/... buttons.
+- MODPLUG: settings were not applied at launch.
+- GLOBAL: fixed crash issue / filesystem access.
+- ASAP: fixed wrong filesize reported.
+- PSF: fixed a crash on load issue.
+- BROWSER: when in a list (search string), after selecting an entry, was scrolled to top.
+- mini<psf,gsf,...> formats: fixed issue of <psf,gsf,...>lib file loading when included in an archive (rar, zip, ...).
+
+
+To Do:
+-> settings :
+GSF Settings: freq/lpf/echo
+
+
+V1.2:
+[Improvements]
+- New logo/splashscreen/background by Steve Miele
+- 7z, rar/rsn, zip, gz, lha/lzh files support.
+- GSF support: play all your GBA files! iPhone 4 or faster device recommanded.
+- MIDI support: based on Timidity & vienna gold SF2 soundfont.
+- ASAP support: better Atari/Pokey support.
+- GME updated: VRC7, MMC5, FDS mappers support (NSF/NSFE). Faster SPC playback.
+- AOSDK: add of DSF,QSF & SSF formats. Please note DSF & SSF requires a very fast device.
+- ADPLUG: opl emulation has now 3 settings (including ad-lib).
+- ADPLUG: adjusted playback level.
+- WEB: 2-fingers tap an image (jpg/png/gif) to download as folder or file cover.
+- SETTINGS: new options added.
+- PLAYER: coverflow like effect in landscape mode.
+- PLAYER: covers support for both folder & file levels.
+- PLAYER: subsongs picker.
+- PLAYER: archive entries picker.
+- PLAYER: visualization selector enhanced.
+- PLAYER: new visualizer for midi & mods.
+- BROWSER: add a link to the user guide, currently under construction.
+- BROWSER: more infos displayed : length(wrong if more than one song), channels, songs.
+- BROWSER: waiting screen when long requests are processed.
+- BROWSER: "enqueue all"/"play all buttons" added.
+- PLAYLIST: increased max size to 8192 entries.
+- SID: activated filter emulation for sidplay2 engine.
+- UADE: fixed some issues with rjp files.
+
+[BugFixes]
+- WEB BROWSER: fixed issue with some links which were not correctly handled.
+- MODPLUG: better detection of Noisetracker mod to fix tempo issue. 
+- MODPLUG: resampling mode option was broken in v1.1.
+- PLAYLIST: fixed wrong order issue when moving entries.
+- PLAYLIST: quit "Edit" mode when closing popup.
+- PLAYER: removed auto scrolling for title, improving performance.
+- PLAYER: fixed skipping to next file issue when files cannot be played.
+- SexyPSF: fadeout/in issue with looping PSF files.
+
+V1.1:
+- [Improv] (beta)ONLINE WORLD CHARTS: top rated & most played songs with links to download them when part of MODLAND & HVSC libraries.
+- [Improv] MDX support (Sharp X68000).
+- [Improv] SID: STIL information database support.
+- [Improv] SID: now 2 engines, SIDPLAY1 & SIDPLAY2/ReSID.
+- [Improv] GME: ym2413 emulation, needed by some VGZ/VGM files.
+- [Improv] GME: optimized (22Khz) mode for slow devices.
+- [Improv] GME/HES: better subsong handling.
+- [Improv] BROWSER: improved performance.
+- [Improv] BROWSER: new option to list all files, including subdirectories.
+- [Improv] BROWSER: "get all" for hvsc.
+- [Improv] BROWSER: "preview" mode => file can be deleted within HVSC/MODLAND using standard "swipe" gesture.
+- [Improv] BROWSER: Updated MODLAND database.
+- [Improv] BROWSER&PLAYER: special chars support(ex: Bjerregård).
+- [Improv] PLAYER: autoscroll song title (only on fast devices, 3GS & faster).
+- [Improv] PLAYER: optimized playlist handling.
+- [Improv] SEARCH: design reviewed & global optimization.
+- [Improv] SETTINGS: design reviewed & optimized.
+- [Improv] SETTINGS/GME: max song length (useful for nsf, sap, …)
+- [Improv] SETTINGS/MODPLUG: new setting for panning.
+- [Improv] SETTINGS/MODPLUG: add an "OFF" option for resampling.
+- [Improv] Database creation/update is faster.
+- [Improv] French translation added.
+- [BugFix] MODPLUG: fixed tempo issue for some mod files (ex. : Nebulos).
+- [BugFix] ADPLUG: fixed issue with ADL files (Dune II).
+- [BugFix] AOSDK: psf2 playback was broken.
+- [Bugfix] SETTINGS: MODPLUG settings were not correctly applied.
+- [Bugfix] SETTINGS: AOSDK/SexyPSF settings were not saved.
+- [Bugfix] SETTINGS: "Clean downloads" was broken, leading to the creation of an empty "Web" folder.
+- [Bugfix] UADE: SIDMON 1 crash issue fixed.
+- [BugFix] UADE: hang issue when skipping multiple songs fixed.
+- [Bugfix] SID playback fixed & optimized.
+- [BufFix] PLAYER: better subsongs handling.
+- [Bugfix] PLAYER: restart music only if was playing after a phone call.
+- [BugFix] VISU: 2D Spectrum & Oscilloscope background gfx issues fixed.
+- [Bugfix] BROWSER: multiple bug fixes.

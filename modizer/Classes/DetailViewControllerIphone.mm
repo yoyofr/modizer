@@ -3434,7 +3434,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	}
 	else {
 		
-		mDeviceType=0; //iphone   (iphone 4 res currently not handled)
+		mDeviceType=0; //iphone
 		mDevice_hh=480;
 		mDevice_ww=320;
 		UIScreen* mainscr = [UIScreen mainScreen];
@@ -3447,6 +3447,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         if (mScaleFactor>=2) mDeviceType=2;
         
 	}
+    
+//    NSLog(@"s %f w %d h %d",mScaleFactor,mDevice_ww,mDevice_hh);
 	/* iPhone Simulator == i386
 	 iPhone == iPhone1,1             //Slow
 	 3G iPhone == iPhone1,2          //Slow
@@ -4266,11 +4268,12 @@ extern "C" int current_sample;
         else fontPath = [[NSBundle mainBundle] pathForResource:  @"consolas16" ofType: @"fnt"];
 		mFont = new CFont([fontPath cStringUsingEncoding:1]);
 	}
-	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit Menu", mFont,mScaleFactor);
-	if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFont,mScaleFactor);
-    if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("All Off", mFont,mScaleFactor);
+	if (!viewTapInfoStr[0]) viewTapInfoStr[0]= new CGLString("Exit Menu", mFont,(mScaleFactor>=2?2:mScaleFactor));
+	if (!viewTapInfoStr[1]) viewTapInfoStr[1]= new CGLString("Off", mFont,(mScaleFactor>=2?2:mScaleFactor));
+    if (!viewTapInfoStr[2]) viewTapInfoStr[2]= new CGLString("All Off", mFont,(mScaleFactor>=2?2:mScaleFactor));
 	
 	
+    
 	//get ogl view dimension
 	ww=m_oglView.frame.size.width;
 	hh=m_oglView.frame.size.height;
@@ -4827,7 +4830,7 @@ extern "C" int current_sample;
                 mHeader=nil;
                 if (DEBUG_INFOS) {
                     sprintf(str_data,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
-                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
+                    mHeader= new CGLString(str_data, mFont,(mScaleFactor>=2?2:mScaleFactor));
                     glPushMatrix();
                     glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
                     //glScalef(1.58f, 1.58f, 1.58f);
@@ -5046,7 +5049,7 @@ extern "C" int current_sample;
                                         break;
                                 }
                                 str_data[k]=0;
-                                mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
+                                mText[l++] = new CGLString(str_data, mFont,(mScaleFactor>=2?2:mScaleFactor));
                                 
                             } else {
                                 mText[l++] = NULL;
@@ -5074,7 +5077,7 @@ extern "C" int current_sample;
                                 str_data[0]=dec2hex[((i-numRows)>>4)&0xF];
                                 str_data[1]=dec2hex[(i-numRows)&0xF];
                             }
-                            mTextLine[l]= new CGLString(str_data, mFont,mScaleFactor);
+                            mTextLine[l]= new CGLString(str_data, mFont,(mScaleFactor>=2?2:mScaleFactor));
                             glPushMatrix();
                             glTranslatef(8.0f, hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
                             mTextLine[l]->Render(1+(l&1));
@@ -5113,7 +5116,7 @@ extern "C" int current_sample;
                             xofs=8.0f;
                             break;
                     }
-                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
+                    mHeader= new CGLString(str_data, mFont,(mScaleFactor>=2?2:mScaleFactor));
                     glPushMatrix();
                     glTranslatef(xofs+((int)(movePxMOD)%size_chan), hh-12, 0.0f);
                     //glScalef(1.58f, 1.58f, 1.58f);
