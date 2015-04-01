@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7525" systemVersion="14C1514" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="6751" systemVersion="14C1514" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
     <dependencies>
         <deployment version="1280" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7516"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6736"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="UIApplication">
@@ -166,7 +166,7 @@
                 </navigationController>
                 <navigationController title="Search" modalTransitionStyle="flipHorizontal" id="682" userLabel="Search">
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" title="" systemItem="search" id="683"/>
+                    <tabBarItem key="tabBarItem" systemItem="search" id="EWy-Ra-Bcy"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="686">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -175,7 +175,7 @@
                     <viewControllers>
                         <viewController modalTransitionStyle="flipHorizontal" id="684" customClass="SearchViewController">
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="64" width="320" height="455"/>
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="455"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="722">
@@ -1194,7 +1194,6 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <size key="freeformSize" width="320" height="411"/>
             <connections>
-                <outlet property="barItem" destination="1906" id="5Sl-wq-qIR"/>
                 <outlet property="btnCancel" destination="1394" id="1811"/>
                 <outlet property="btnClear" destination="1863" id="1865"/>
                 <outlet property="btnResume" destination="1862" id="1864"/>

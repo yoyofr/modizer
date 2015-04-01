@@ -22,7 +22,7 @@
 		CCB6EAEE12FEF0F5007064CB /* arm-new.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EAC612FEF0F4007064CB /* arm-new.h */; };
 		CCB6EAEF12FEF0F5007064CB /* bios.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EAC712FEF0F4007064CB /* bios.cpp */; };
 		CCB6EAF012FEF0F5007064CB /* bios.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EAC812FEF0F4007064CB /* bios.h */; };
-		CCB6EAF112FEF0F5007064CB /* GBA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EAC912FEF0F4007064CB /* GBA.cpp */; };
+		CCB6EAF112FEF0F5007064CB /* GBA.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EAC912FEF0F4007064CB /* GBA.cpp */; settings = {COMPILER_FLAGS = "-O1"; }; };
 		CCB6EAF212FEF0F5007064CB /* GBA.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACA12FEF0F4007064CB /* GBA.h */; };
 		CCB6EAF312FEF0F5007064CB /* GBAinline.h in Headers */ = {isa = PBXBuildFile; fileRef = CCB6EACB12FEF0F4007064CB /* GBAinline.h */; };
 		CCB6EAF412FEF0F5007064CB /* getopt1.c in Sources */ = {isa = PBXBuildFile; fileRef = CCB6EACC12FEF0F4007064CB /* getopt1.c */; };
@@ -346,7 +346,7 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -365,7 +365,7 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SYMROOT = build;
