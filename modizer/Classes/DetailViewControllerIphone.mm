@@ -14,7 +14,8 @@ extern BOOL nvdsp_EQ;
 
 #import "FFTAccelerate.h"
 static FFTAccelerate *fftAccel;
-static float *fft_frequency,*fft_time,*fft_frequencyAvg,*fft_freqAvgCount;
+static float *fft_frequency,*fft_time,*fft_frequencyAvg;
+static int *fft_freqAvgCount;
 
 
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
@@ -3924,8 +3925,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     fftAccel = new FFTAccelerate(SOUND_BUFFER_SIZE_SAMPLE);
     
     fft_frequency = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
-    fft_frequencyAvg = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
-    fft_freqAvgCount = (float *)malloc(sizeof(float)*SPECTRUM_BANDS/2);
+    fft_frequencyAvg = (float *)malloc(sizeof(float)*SPECTRUM_BANDS);
+    fft_freqAvgCount = (int *)malloc(sizeof(int)*SPECTRUM_BANDS);
     fft_time = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
 
     
@@ -4707,39 +4708,41 @@ extern "C" int current_sample;
             //Fill Input Array with Left channel
             for (int i=0; i<numSamples; i++) {
                 fft_time[i]=(float)curBuffer[i*2]/32768.0;;
-                fft_frequencyAvg[i]=0;
             }
+            memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
+            memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
-            memset(fft_freqAvgCount,0,sizeof(float)*SPECTRUM_BANDS/2);
             
-            for (int i=0; i<numSamples/2; i++) {
-                idx=i*SPECTRUM_BANDS/numSamples;
-                if (idx<numSamples/2-1) {
-                    fft_frequencyAvg[idx]=fft_frequencyAvg[idx]+fft_frequency[idx+1];
-                    fft_freqAvgCount[idx]=fft_freqAvgCount[idx]+1;
+            
+            for (int i=1; i<numSamples/2; i++) {
+                idx=12*(i-1)*2*SPECTRUM_BANDS/numSamples;
+                if (idx<SPECTRUM_BANDS) {
+                    fft_frequencyAvg[idx]=max(fft_frequencyAvg[idx],fft_frequency[i]);
+                    fft_freqAvgCount[idx]++;
                 }
             }
-            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
-                float t=16.00*(fft_frequencyAvg[i])/fft_freqAvgCount[idx];
+            for (int i=0;i<SPECTRUM_BANDS;i++) {
+                float t=20.00*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
                 if (t>oreal_spectrumL[i]) oreal_spectrumL[i]=t;
                 else oreal_spectrumL[i]=oreal_spectrumL[i]*SPECTRUM_DECREASE_RATE;
             }
             //Fill Input Array with Right channel
             for (int i=0; i<numSamples; i++) {
                 fft_time[i]=(float)curBuffer[i*2+1]/32768.0;
-                fft_frequencyAvg[i]=0;
             }
+            memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
+            memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
-            memset(fft_freqAvgCount,0,sizeof(float)*SPECTRUM_BANDS/2);
-            for (int i=0; i<numSamples/2; i++) {
-                idx=i*SPECTRUM_BANDS/numSamples;
-                if (idx<numSamples/2-1) {
-                    fft_frequencyAvg[idx]=fft_frequencyAvg[idx]+fft_frequency[idx+1];
-                    fft_freqAvgCount[idx]=fft_freqAvgCount[idx]+1;
+            
+            for (int i=1; i<numSamples/2; i++) {
+                idx=12*(i-1)*2*SPECTRUM_BANDS/numSamples;
+                if (idx<SPECTRUM_BANDS) {
+                    fft_frequencyAvg[idx]=max(fft_frequencyAvg[idx],fft_frequency[i]);
+                    fft_freqAvgCount[idx]++;
                 }
             }
-            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
-                float t=16.00*(fft_frequencyAvg[i])/fft_freqAvgCount[idx];
+            for (int i=0;i<SPECTRUM_BANDS;i++) {
+                float t=20.00*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
                 if (t>oreal_spectrumR[i]) oreal_spectrumR[i]=t;
                 else oreal_spectrumR[i]=oreal_spectrumR[i]*SPECTRUM_DECREASE_RATE;
             }
@@ -4747,7 +4750,7 @@ extern "C" int current_sample;
             
             // COMPUTE FINAL FFT & BEAT DETECTION
             int newSpecL,newSpecR,sumL,sumR;
-            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
+            for (int i=0;i<SPECTRUM_BANDS;i++) {
                 newSpecL=oreal_spectrumL[i];
                 newSpecR=oreal_spectrumR[i];
                 //SUM THE LAST 8 FFT & COMPUTE AVERAGE
@@ -4778,15 +4781,15 @@ extern "C" int current_sample;
     
 	switch (detail_lvl) {
 		case 2:
-			nb_spectrum_bands=SPECTRUM_BANDS/2;
-			for (int i=0;i<SPECTRUM_BANDS/2;i++) {
+			nb_spectrum_bands=SPECTRUM_BANDS;
+			for (int i=0;i<SPECTRUM_BANDS;i++) {
 				real_spectrumL[i]=oreal_spectrumL[i];
 				real_spectrumR[i]=oreal_spectrumR[i];
             }
             break;
 		case 1:
-			nb_spectrum_bands=SPECTRUM_BANDS/4;
-            for (int i=0;i<SPECTRUM_BANDS/4;i++) {
+			nb_spectrum_bands=SPECTRUM_BANDS/2;
+            for (int i=0;i<SPECTRUM_BANDS/2;i++) {
 				real_spectrumL[i]=max2(oreal_spectrumL[i*2],oreal_spectrumL[i*2+1]);
 				real_spectrumR[i]=max2(oreal_spectrumR[i*2],oreal_spectrumR[i*2+1]);
                 real_beatDetectedL[i]=max2(real_beatDetectedL[i*2],real_beatDetectedL[i*2+1]);
@@ -4795,8 +4798,8 @@ extern "C" int current_sample;
 			break;
 			
 		case 0:
-			nb_spectrum_bands=SPECTRUM_BANDS/8;
-            for (int i=0;i<SPECTRUM_BANDS/8;i++) {
+			nb_spectrum_bands=SPECTRUM_BANDS/4;
+            for (int i=0;i<SPECTRUM_BANDS/4;i++) {
                 real_spectrumL[i]=max4(oreal_spectrumL[i*4],oreal_spectrumL[i*4+1],oreal_spectrumL[i*4+2],oreal_spectrumL[i*4+3]);
                 real_spectrumR[i]=max4(oreal_spectrumR[i*4],oreal_spectrumR[i*4+1],oreal_spectrumR[i*4+2],oreal_spectrumR[i*4+3]);
 				real_beatDetectedL[i]=max4(real_beatDetectedL[i*4],real_beatDetectedL[i*4+1],real_beatDetectedL[i*4+2],real_beatDetectedL[i*4+3]);
