@@ -102,7 +102,7 @@ static UIImage *cover_img,*default_cover;
 static MPMediaItemArtwork *artwork;
 
 static int txtMenuHandle[16];
-static int txtSubMenuHandle[35];
+static int txtSubMenuHandle[36];
 
 //int texturePiano;
 
@@ -3883,6 +3883,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	txtSubMenuHandle[32]=0;
     txtSubMenuHandle[33]=txtMenuHandle[11];
     txtSubMenuHandle[34]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
+    txtSubMenuHandle[35]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
     
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -4444,7 +4445,7 @@ extern "C" int current_sample;
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
                 viewTapHelpShow_SubStart=32;
-                viewTapHelpShow_SubNb=3;
+                viewTapHelpShow_SubNb=4;
 			} else if (touched_coord==0x03) {
                 shouldhide=1;
 			} else if (touched_coord==0x23) {
@@ -4618,6 +4619,8 @@ extern "C" int current_sample;
                     case 27: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
                         break;
+                    case 32: //Spectrum3D
+                        settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
                 }
             } else if (touched_coord==0x01) {
                 switch (viewTapHelpShow_SubStart) {
@@ -5166,7 +5169,8 @@ extern "C" int current_sample;
             if (settings[GLOB_FX3].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FX5].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
-            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
+            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
+                    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
         }
         
         if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
