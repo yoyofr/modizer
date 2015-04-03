@@ -4713,16 +4713,37 @@ extern "C" int current_sample;
             memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
             
+            const float log2FrameSize = log2f(numSamples);
             
-            for (int i=1; i<numSamples/2; i++) {
-                idx=12*(i-1)*2*SPECTRUM_BANDS/numSamples;
+            /*for (int i=1; i<numSamples/2; i++) {
+                
+                //idx=6*(i-1)*2*SPECTRUM_BANDS/numSamples;
+                idx=SPECTRUM_BANDS*log2f(i)/log2FrameSize;
                 if (idx<SPECTRUM_BANDS) {
                     fft_frequencyAvg[idx]=max(fft_frequencyAvg[idx],fft_frequency[i]);
                     fft_freqAvgCount[idx]++;
                 }
-            }
+            }*/
+            int lowfreq,highfreq;
+            float sum;
             for (int i=0;i<SPECTRUM_BANDS;i++) {
-                float t=20.00*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
+                lowfreq=(float)numSamples/2/powf(2.f,log2FrameSize-i*log2FrameSize/SPECTRUM_BANDS)+1;
+                highfreq=(float)numSamples/2/powf(2.f,log2FrameSize-(i+1)*log2FrameSize/SPECTRUM_BANDS)+1;
+                if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
+                if (lowfreq<numSamples/2) {
+                    sum=0;
+                    for (int k=lowfreq;k<=highfreq;k++) {
+                            //fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+                        sum=sum+fft_frequency[k];
+                    }
+                    sum=sum/(float)(highfreq-lowfreq+1);
+                    sum*=(float)powf(i,1.5f)+1;
+                    fft_frequencyAvg[i]=sum;
+                }
+            }
+            
+            for (int i=0;i<SPECTRUM_BANDS;i++) {
+                float t=512.0f*fft_frequencyAvg[i];
                 if (t>oreal_spectrumL[i]) oreal_spectrumL[i]=t;
                 else oreal_spectrumL[i]=oreal_spectrumL[i]*SPECTRUM_DECREASE_RATE;
             }
@@ -4734,15 +4755,24 @@ extern "C" int current_sample;
             memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
             
-            for (int i=1; i<numSamples/2; i++) {
-                idx=12*(i-1)*2*SPECTRUM_BANDS/numSamples;
-                if (idx<SPECTRUM_BANDS) {
-                    fft_frequencyAvg[idx]=max(fft_frequencyAvg[idx],fft_frequency[i]);
-                    fft_freqAvgCount[idx]++;
+            for (int i=0;i<SPECTRUM_BANDS;i++) {
+                lowfreq=(float)numSamples/2/powf(2.f,log2FrameSize-i*log2FrameSize/SPECTRUM_BANDS)+1;
+                highfreq=(float)numSamples/2/powf(2.f,log2FrameSize-(i+1)*log2FrameSize/SPECTRUM_BANDS)+1;
+                if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
+                if (lowfreq<numSamples/2) {
+                    sum=0;
+                    for (int k=lowfreq;k<=highfreq;k++) {
+                        //fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+                        sum=sum+fft_frequency[k];
+                    }
+                    sum=sum/(float)(highfreq-lowfreq+1);
+                    sum*=(float)powf(i,1.5f)+1;
+                    fft_frequencyAvg[i]=sum;
                 }
             }
+            
             for (int i=0;i<SPECTRUM_BANDS;i++) {
-                float t=20.00*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
+                float t=512.0f*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
                 if (t>oreal_spectrumR[i]) oreal_spectrumR[i]=t;
                 else oreal_spectrumR[i]=oreal_spectrumR[i]*SPECTRUM_DECREASE_RATE;
             }
