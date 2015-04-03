@@ -35,10 +35,21 @@ void FFTAccelerate::doFFTReal(float samples[], float amp[], int numSamples)
     //Results are returned in A
 	vDSP_fft_zrip(fftSetup, &A, 1, log2n, FFT_FORWARD);
     
+    // scale by 1/2*n because vDSP_fft_zrip doesn't use the right scaling factors natively ("for better performances")
+    {
+        const float scale = 1.0f/(2.0f*(float)numSamples);
+        vDSP_vsmul( A.realp, 1, &scale, A.realp, 1, numSamples/2 );
+        vDSP_vsmul( A.imagp, 1, &scale, A.imagp, 1, numSamples/2 );
+    }
+    
     //Convert COMPLEX_SPLIT A result to float array to be returned
-    amp[0] = A.realp[0]/(numSamples*2);
+    /*amp[0] = A.realp[0]/(numSamples*2);
 	for(i=1;i<numSamples/2;i++)
-		amp[i]=sqrt(A.realp[i]*A.realp[i]+A.imagp[i]*A.imagp[i]);
+		amp[i]=sqrt(A.realp[i]*A.realp[i]+A.imagp[i]*A.imagp[i]);*/
+    
+    // collapse split complex array into a real array.
+    // split[0] contains the DC, and the values we're interested in are split[1] to split[len/2] (since the rest are complex conjugates)
+    vDSP_zvabs( &A, 1, amp, 1, numSamples/2 );
 }
 
 //Constructor

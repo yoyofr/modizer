@@ -1614,7 +1614,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
 		}
     }
     if (mode==3) {
-        float dsz;
+        float dsz,curve_rate;
 #define absf(x) (x<0?x:-x)
         for (int i=0; i<nb_spectrum_bands; i++) {
             /////////////////
@@ -1643,20 +1643,21 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             sx=1;
             sy=1;
-            sz=spL/2+0.1f;
+            sz=spL*2+0.1f;
             x=-0.5f;
             z=dsz+spL/4;
             y=(i-nb_spectrum_bands/2)*sy*1.05f;
             
             //glTranslatef(0,0,-8);
-            glRotatef(i*2*360/nb_spectrum_bands,0,1,0);
+            curve_rate=i*2*360/nb_spectrum_bands+360*(0.2f*sin(frameCpt*0.02f+i*0.01f)+0.5f*sin(frameCpt*0.01f-i*0.03f+0.01f)*sin(frameCpt*0.01f-i*0.03f+0.01f)+0.5f*sin(frameCpt*0.008f+i*0.003f+0.2f)*sin(frameCpt*0.008f+i*0.003f+0.2f)*sin(frameCpt*0.008f+i*0.003f+0.2f));
+            glRotatef( curve_rate ,0,1,0);
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             glRotatef(90, 0, 1, 0);
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             glRotatef(90, 0, -1, 0);
             
-            glRotatef(i*2*360/nb_spectrum_bands,0,-1,0);
+            glRotatef(curve_rate,0,-1,0);
             //glTranslatef(0,0,8);
             
             /////////////////
@@ -1684,17 +1685,17 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             sx=1;
             sy=1;
-            sz=spR/2+0.1f;
+            sz=spR*2+0.1f;
             x=-0.5f;
             z=dsz+spR/4;
             y=(i-nb_spectrum_bands/2)*sy*1.05f;
             
-            glRotatef(180+i*2*360/nb_spectrum_bands,0,1,0);
+            glRotatef(180+curve_rate,0,1,0);
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             glRotatef(90, 0, 1, 0);
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             glRotatef(90, 0, -1, 0);
-            glRotatef(180+i*2*360/nb_spectrum_bands,0,-1,0);
+            glRotatef(180+curve_rate,0,-1,0);
             
         }
         
@@ -1738,19 +1739,22 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 
                 dsz=2+3*(0.2f*sin(frameCpt*0.05f+i*0.1f)+0.5f*sin(frameCpt*0.07f-i*0.3f+0.01f)*sin(frameCpt*0.07f-i*0.3f+0.01f)+0.5f*sin(frameCpt*0.01f+i*0.03f+0.2f)*sin(frameCpt*0.01f+i*0.03f+0.2f)*sin(frameCpt*0.01f+i*0.03f+0.2f));
                 
+                curve_rate=i*2*360/nb_spectrum_bands+360*(0.2f*sin(frameCpt*0.02f+i*0.01f)+0.5f*sin(frameCpt*0.01f-i*0.03f+0.01f)*sin(frameCpt*0.01f-i*0.03f+0.01f)+0.5f*sin(frameCpt*0.008f+i*0.003f+0.2f)*sin(frameCpt*0.008f+i*0.003f+0.2f)*sin(frameCpt*0.008f+i*0.003f+0.2f));
+                
+                
                 sx=1;
                 sy=1;
-                sz=spL/2+0.1f;
+                sz=spL*2+0.1f;
                 x=-0.5f;
                 z=dsz+spL/4;
                 y=(i-nb_spectrum_bands/2)*sy*1.05f;
                 
-                glRotatef(i*2*360/nb_spectrum_bands,0,1,0);
+                glRotatef(curve_rate,0,1,0);
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 glRotatef(90, 0, 1, 0);
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 glRotatef(90, 0, -1, 0);
-                glRotatef(i*2*360/nb_spectrum_bands,0,-1,0);
+                glRotatef(curve_rate,0,-1,0);
                 
                 
                 /////////////////
@@ -1779,12 +1783,12 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 
                 sx=1;
                 sy=1;
-                sz=spR/2+0.1f;
+                sz=spR*2+0.1f;
                 x=-0.5f;
                 z=dsz+spR/4;
                 y=(i-nb_spectrum_bands/2)*sy*1.05f;
                 
-                glRotatef(180+i*2*360/nb_spectrum_bands,0,1,0);
+                glRotatef(180+curve_rate,0,1,0);
                 
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
@@ -1792,7 +1796,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 glRotatef(90, 0, -1, 0);
                 
-                glRotatef(180+i*2*360/nb_spectrum_bands,0,-1,0);
+                glRotatef(180+curve_rate,0,-1,0);
             }
     }
     
