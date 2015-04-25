@@ -51,7 +51,7 @@ s8 *psxH;
 char **psxMemLUT;
 
 #define PSXM(mem)		(psxMemLUT[(mem) >> 16] == 0 ? NULL : (void*)(psxMemLUT[(mem) >> 16] + ((mem) & 0xffff)))
-#define PSXM16(mem)	    ((void*)((u32)PSXM(mem) & 0xFFFFFFFE))
+#define PSXM16(mem)	    ((void*)((u64)PSXM(mem) & 0xFFFFFFFFFFFFFFFE))
 
 #define PSXMu8(mem)	    (*(u8 *)PSXM(mem))
 #define PSXMu32(mem)    (*(u32*)PSXM(mem))

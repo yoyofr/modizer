@@ -3427,8 +3427,14 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 		mDeviceType=1; //ipad
         UIScreen* mainscr = [UIScreen mainScreen];
 
-        mDevice_hh=mainscr.bounds.size.height;
-        mDevice_ww=mainscr.bounds.size.width;
+        if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
+            mDevice_hh=mainscr.bounds.size.height;
+            mDevice_ww=mainscr.bounds.size.width;
+        } else {
+            mDevice_ww=mainscr.bounds.size.height;
+            mDevice_hh=mainscr.bounds.size.width;
+        }
+        
         mScaleFactor=mainscr.scale;
         
         if (mScaleFactor>=2) mDeviceType=2;
@@ -3441,8 +3447,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 		UIScreen* mainscr = [UIScreen mainScreen];
         
 //        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
-        mDevice_hh=mainscr.bounds.size.height;
-        mDevice_ww=mainscr.bounds.size.width;
+        if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
+            mDevice_hh=mainscr.bounds.size.height;
+            mDevice_ww=mainscr.bounds.size.width;
+        } else {
+            mDevice_ww=mainscr.bounds.size.height;
+            mDevice_hh=mainscr.bounds.size.width;
+        }
         mScaleFactor=mainscr.scale;
         
         if (mScaleFactor>=2) mDeviceType=2;
