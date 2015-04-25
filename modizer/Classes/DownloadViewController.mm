@@ -8,7 +8,7 @@
 
 extern BOOL is_ios7;
 
-#define FTP_BUFFER_SIZE 32768
+#define FTP_BUFFER_SIZE 256*1024
 #define TMP_FILE_NAME @"Documents/tmp.tmpfile"
 
 #import "DownloadViewController.h"

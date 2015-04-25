@@ -61,6 +61,7 @@ int psxMemInit() {
 	psxM = (s8 *)malloc( 0x00200000);
 	psxP = (s8 *)malloc( 0x00010000);
 	psxH = (s8 *)malloc( 0x00010000);
+
 	psxR = (s8 *)malloc( 0x00080000);
 	if (psxMemLUT == NULL || psxM == NULL || psxP == NULL || psxH == NULL || psxR == NULL) {
 		return -1;

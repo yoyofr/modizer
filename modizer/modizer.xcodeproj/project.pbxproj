@@ -267,26 +267,6 @@
 		33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 33CAECAD13E93D7100088A37 /* arc_details@2x.png */; };
 		33D1BD89126C31B700B06781 /* eng_psf.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57CA1200B3B7000A8A4E /* eng_psf.c */; };
 		33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AF517C2B77600F70A14 /* txtMenu0.png */; };
-		33E46B0B17C2B77600F70A14 /* txtMenu1.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AF617C2B77600F70A14 /* txtMenu1.png */; };
-		33E46B0C17C2B77600F70A14 /* txtMenu2a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AF717C2B77600F70A14 /* txtMenu2a.png */; };
-		33E46B0D17C2B77600F70A14 /* txtMenu2b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AF817C2B77600F70A14 /* txtMenu2b.png */; };
-		33E46B0E17C2B77600F70A14 /* txtMenu2c.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AF917C2B77600F70A14 /* txtMenu2c.png */; };
-		33E46B0F17C2B77600F70A14 /* txtMenu3a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AFA17C2B77600F70A14 /* txtMenu3a.png */; };
-		33E46B1017C2B77600F70A14 /* txtMenu3b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AFB17C2B77600F70A14 /* txtMenu3b.png */; };
-		33E46B1117C2B77600F70A14 /* txtMenu3c.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AFC17C2B77600F70A14 /* txtMenu3c.png */; };
-		33E46B1217C2B77600F70A14 /* txtMenu4a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AFD17C2B77600F70A14 /* txtMenu4a.png */; };
-		33E46B1317C2B77600F70A14 /* txtMenu4b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AFE17C2B77600F70A14 /* txtMenu4b.png */; };
-		33E46B1417C2B77600F70A14 /* txtMenu5a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AFF17C2B77600F70A14 /* txtMenu5a.png */; };
-		33E46B1517C2B77600F70A14 /* txtMenu5b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0017C2B77600F70A14 /* txtMenu5b.png */; };
-		33E46B1617C2B77600F70A14 /* txtMenu6.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0117C2B77600F70A14 /* txtMenu6.png */; };
-		33E46B1717C2B77600F70A14 /* txtMenu7a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0217C2B77600F70A14 /* txtMenu7a.png */; };
-		33E46B1817C2B77600F70A14 /* txtMenu7b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0317C2B77600F70A14 /* txtMenu7b.png */; };
-		33E46B1917C2B77600F70A14 /* txtMenu8a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0417C2B77600F70A14 /* txtMenu8a.png */; };
-		33E46B1A17C2B77600F70A14 /* txtMenu8b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0517C2B77600F70A14 /* txtMenu8b.png */; };
-		33E46B1B17C2B77600F70A14 /* txtMenu9.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B0617C2B77600F70A14 /* txtMenu9.png */; };
-		33E46B2117C350B200F70A14 /* txtMenu10a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B1F17C350B200F70A14 /* txtMenu10a.png */; };
-		33E46B2217C350B200F70A14 /* txtMenu10b.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B2017C350B200F70A14 /* txtMenu10b.png */; };
-		33E46B2417C350C800F70A14 /* txtMenu11a.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46B2317C350C800F70A14 /* txtMenu11a.png */; };
 		33EDF0EF145939850038C673 /* RootViewControllerHVSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */; };
 		33F60A8914D1D700009ABA8F /* liblibtim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33BA70661407A1300099E943 /* liblibtim.a */; };
 		33F60A8B14D1D711009ABA8F /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 33C7397413A0AC220012221C /* libTapkuLibrary.a */; };
@@ -310,7 +290,6 @@
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
-		CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03925117CAC8ED00062381 /* txtMenu11b.png */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
 		CC03F2CE12160E9500F2AC65 /* button.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CC12160E9500F2AC65 /* button.png */; };
 		CC03F2DB12160FE000F2AC65 /* buttonB-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */; };
@@ -779,23 +758,16 @@
 		CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */; };
 		CCC6776C17F62BCC00F16A54 /* txtMenu7e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */; };
 		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CCC677A417F75AEB00F16A54 /* dope - onward ride.ft in Resources */ = {isa = PBXBuildFile; fileRef = CCC6777B17F75AEB00F16A54 /* dope - onward ride.ft */; };
 		CCC677C217F75AEB00F16A54 /* virtual escape.sndh in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779917F75AEB00F16A54 /* virtual escape.sndh */; };
-		CCC6785817F75B9500F16A54 /* 2 good 2 b true.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777217F75AEA00F16A54 /* 2 good 2 b true.mod */; };
 		CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777317F75AEA00F16A54 /* 1999.xm */; };
 		CCC6785A17F75B9500F16A54 /* ambrozia.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777417F75AEA00F16A54 /* ambrozia.xm */; };
 		CCC6785B17F75B9500F16A54 /* beat to the pulp.sid in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */; };
 		CCC6785C17F75B9500F16A54 /* beyond music.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777617F75AEA00F16A54 /* beyond music.mod */; };
-		CCC6785D17F75B9500F16A54 /* celtic waves.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777717F75AEA00F16A54 /* celtic waves.xm */; };
 		CCC6785E17F75B9500F16A54 /* cream of the earth.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777817F75AEA00F16A54 /* cream of the earth.mod */; };
 		CCC6785F17F75B9500F16A54 /* crystal rain.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777917F75AEA00F16A54 /* crystal rain.mod */; };
 		CCC6786017F75B9500F16A54 /* desert dream.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777A17F75AEB00F16A54 /* desert dream.mod */; };
-		CCC6786117F75B9500F16A54 /* dope - onward ride.ft in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777B17F75AEB00F16A54 /* dope - onward ride.ft */; };
 		CCC6786217F75B9500F16A54 /* elysium.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777C17F75AEB00F16A54 /* elysium.mod */; };
-		CCC6786317F75B9500F16A54 /* emotional landscape.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777D17F75AEB00F16A54 /* emotional landscape.xm */; };
 		CCC6786417F75B9500F16A54 /* ghouls.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777E17F75AEB00F16A54 /* ghouls.mod */; };
-		CCC6786517F75B9500F16A54 /* god = martin galway.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777F17F75AEB00F16A54 /* god = martin galway.xm */; };
-		CCC6786617F75B9500F16A54 /* guitar slinger.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778017F75AEB00F16A54 /* guitar slinger.mod */; };
 		CCC6786717F75B9500F16A54 /* hyperbased (musiklinjen, enigma).mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778117F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod */; };
 		CCC6786817F75B9500F16A54 /* knulla kuk !!!.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778217F75AEB00F16A54 /* knulla kuk !!!.mod */; };
 		CCC6786917F75B9500F16A54 /* livin' insanity.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778317F75AEB00F16A54 /* livin' insanity.mod */; };
@@ -886,15 +858,10 @@
 		CCC678BF17F75DE000F16A54 /* liszt_mazeppa.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782E17F75B1000F16A54 /* liszt_mazeppa.mid */; };
 		CCC678C017F75DE000F16A54 /* liszt_pe3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782F17F75B1000F16A54 /* liszt_pe3.mid */; };
 		CCC678C117F75DE000F16A54 /* mozart_k331c.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783017F75B1000F16A54 /* mozart_k331c.mid */; };
-		CCC678C217F75DE000F16A54 /* rachmaninoff_op18_1.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783117F75B1000F16A54 /* rachmaninoff_op18_1.mid */; };
-		CCC678C317F75DE000F16A54 /* rachmaninoff_op18_2.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783217F75B1000F16A54 /* rachmaninoff_op18_2.mid */; };
-		CCC678C417F75DE000F16A54 /* rachmaninoff_op18_3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783317F75B1000F16A54 /* rachmaninoff_op18_3.mid */; };
 		CCC678C517F75DE000F16A54 /* rachmaninoff_pagvar18.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783417F75B1000F16A54 /* rachmaninoff_pagvar18.mid */; };
 		CCC678C617F75DE000F16A54 /* ravel_pavane_orchestra.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783517F75B1000F16A54 /* ravel_pavane_orchestra.mid */; };
 		CCC678C717F75DE000F16A54 /* Ravel_PianoConcertoinG.zip in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783617F75B1000F16A54 /* Ravel_PianoConcertoinG.zip */; };
 		CCC678C817F75DE000F16A54 /* tchaikovski_Flowers.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */; };
-		CCC678C917F75DE000F16A54 /* tchaikovsky_1-1.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783817F75B1000F16A54 /* tchaikovsky_1-1.mid */; };
-		CCC678CA17F75DE000F16A54 /* tchaikovsky_1-2.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783917F75B1000F16A54 /* tchaikovsky_1-2.mid */; };
 		CCC678D917F76CC600F16A54 /* gr-b01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CB17F76CA700F16A54 /* gr-b01.jpg */; };
 		CCC678DA17F76CC600F16A54 /* gr-b01.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CC17F76CA700F16A54 /* gr-b01.mdx */; };
 		CCC678DB17F76CC600F16A54 /* gr-b03.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CD17F76CA700F16A54 /* gr-b03.jpg */; };
@@ -1241,21 +1208,15 @@
 			dstPath = Samples/Demoscene;
 			dstSubfolderSpec = 7;
 			files = (
-				CCC6785817F75B9500F16A54 /* 2 good 2 b true.mod in Copy Files-Samples Demoscene */,
 				CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */,
 				CCC6785A17F75B9500F16A54 /* ambrozia.xm in Copy Files-Samples Demoscene */,
 				CCC6785B17F75B9500F16A54 /* beat to the pulp.sid in Copy Files-Samples Demoscene */,
 				CCC6785C17F75B9500F16A54 /* beyond music.mod in Copy Files-Samples Demoscene */,
-				CCC6785D17F75B9500F16A54 /* celtic waves.xm in Copy Files-Samples Demoscene */,
 				CCC6785E17F75B9500F16A54 /* cream of the earth.mod in Copy Files-Samples Demoscene */,
 				CCC6785F17F75B9500F16A54 /* crystal rain.mod in Copy Files-Samples Demoscene */,
 				CCC6786017F75B9500F16A54 /* desert dream.mod in Copy Files-Samples Demoscene */,
-				CCC6786117F75B9500F16A54 /* dope - onward ride.ft in Copy Files-Samples Demoscene */,
 				CCC6786217F75B9500F16A54 /* elysium.mod in Copy Files-Samples Demoscene */,
-				CCC6786317F75B9500F16A54 /* emotional landscape.xm in Copy Files-Samples Demoscene */,
 				CCC6786417F75B9500F16A54 /* ghouls.mod in Copy Files-Samples Demoscene */,
-				CCC6786517F75B9500F16A54 /* god = martin galway.xm in Copy Files-Samples Demoscene */,
-				CCC6786617F75B9500F16A54 /* guitar slinger.mod in Copy Files-Samples Demoscene */,
 				CCC6786717F75B9500F16A54 /* hyperbased (musiklinjen, enigma).mod in Copy Files-Samples Demoscene */,
 				CCC6786817F75B9500F16A54 /* knulla kuk !!!.mod in Copy Files-Samples Demoscene */,
 				CCC6786917F75B9500F16A54 /* livin' insanity.mod in Copy Files-Samples Demoscene */,
@@ -1374,15 +1335,10 @@
 				CCC678BF17F75DE000F16A54 /* liszt_mazeppa.mid in Copy Files-Samples Classical */,
 				CCC678C017F75DE000F16A54 /* liszt_pe3.mid in Copy Files-Samples Classical */,
 				CCC678C117F75DE000F16A54 /* mozart_k331c.mid in Copy Files-Samples Classical */,
-				CCC678C217F75DE000F16A54 /* rachmaninoff_op18_1.mid in Copy Files-Samples Classical */,
-				CCC678C317F75DE000F16A54 /* rachmaninoff_op18_2.mid in Copy Files-Samples Classical */,
-				CCC678C417F75DE000F16A54 /* rachmaninoff_op18_3.mid in Copy Files-Samples Classical */,
 				CCC678C517F75DE000F16A54 /* rachmaninoff_pagvar18.mid in Copy Files-Samples Classical */,
 				CCC678C617F75DE000F16A54 /* ravel_pavane_orchestra.mid in Copy Files-Samples Classical */,
 				CCC678C717F75DE000F16A54 /* Ravel_PianoConcertoinG.zip in Copy Files-Samples Classical */,
 				CCC678C817F75DE000F16A54 /* tchaikovski_Flowers.mid in Copy Files-Samples Classical */,
-				CCC678C917F75DE000F16A54 /* tchaikovsky_1-1.mid in Copy Files-Samples Classical */,
-				CCC678CA17F75DE000F16A54 /* tchaikovsky_1-2.mid in Copy Files-Samples Classical */,
 			);
 			name = "Copy Files-Samples Classical";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1722,26 +1678,6 @@
 		33CAECAC13E93D7100088A37 /* arc_details.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arc_details.png; sourceTree = "<group>"; };
 		33CAECAD13E93D7100088A37 /* arc_details@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "arc_details@2x.png"; sourceTree = "<group>"; };
 		33E46AF517C2B77600F70A14 /* txtMenu0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu0.png; sourceTree = "<group>"; };
-		33E46AF617C2B77600F70A14 /* txtMenu1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu1.png; sourceTree = "<group>"; };
-		33E46AF717C2B77600F70A14 /* txtMenu2a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2a.png; sourceTree = "<group>"; };
-		33E46AF817C2B77600F70A14 /* txtMenu2b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2b.png; sourceTree = "<group>"; };
-		33E46AF917C2B77600F70A14 /* txtMenu2c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2c.png; sourceTree = "<group>"; };
-		33E46AFA17C2B77600F70A14 /* txtMenu3a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu3a.png; sourceTree = "<group>"; };
-		33E46AFB17C2B77600F70A14 /* txtMenu3b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu3b.png; sourceTree = "<group>"; };
-		33E46AFC17C2B77600F70A14 /* txtMenu3c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu3c.png; sourceTree = "<group>"; };
-		33E46AFD17C2B77600F70A14 /* txtMenu4a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu4a.png; sourceTree = "<group>"; };
-		33E46AFE17C2B77600F70A14 /* txtMenu4b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu4b.png; sourceTree = "<group>"; };
-		33E46AFF17C2B77600F70A14 /* txtMenu5a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu5a.png; sourceTree = "<group>"; };
-		33E46B0017C2B77600F70A14 /* txtMenu5b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu5b.png; sourceTree = "<group>"; };
-		33E46B0117C2B77600F70A14 /* txtMenu6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu6.png; sourceTree = "<group>"; };
-		33E46B0217C2B77600F70A14 /* txtMenu7a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7a.png; sourceTree = "<group>"; };
-		33E46B0317C2B77600F70A14 /* txtMenu7b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7b.png; sourceTree = "<group>"; };
-		33E46B0417C2B77600F70A14 /* txtMenu8a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8a.png; sourceTree = "<group>"; };
-		33E46B0517C2B77600F70A14 /* txtMenu8b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8b.png; sourceTree = "<group>"; };
-		33E46B0617C2B77600F70A14 /* txtMenu9.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu9.png; sourceTree = "<group>"; };
-		33E46B1F17C350B200F70A14 /* txtMenu10a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu10a.png; sourceTree = "<group>"; };
-		33E46B2017C350B200F70A14 /* txtMenu10b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu10b.png; sourceTree = "<group>"; };
-		33E46B2317C350C800F70A14 /* txtMenu11a.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11a.png; sourceTree = "<group>"; };
 		33EDF0EB145939850038C673 /* RootViewControllerHVSC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerHVSC.h; sourceTree = "<group>"; };
 		33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerHVSC.mm; sourceTree = "<group>"; };
 		33EDF0ED145939850038C673 /* RootViewControllerPlaylist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerPlaylist.h; sourceTree = "<group>"; };
@@ -1789,7 +1725,6 @@
 		50819A2414B3E06F0062FA86 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
-		CC03925117CAC8ED00062381 /* txtMenu11b.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11b.png; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -2659,21 +2594,15 @@
 		CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7e_2x.png; sourceTree = "<group>"; };
 		CCC6776F17F6B92500F16A54 /* CMPopTipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMPopTipView.h; sourceTree = "<group>"; };
 		CCC6777017F6B92500F16A54 /* CMPopTipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMPopTipView.m; sourceTree = "<group>"; };
-		CCC6777217F75AEA00F16A54 /* 2 good 2 b true.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "2 good 2 b true.mod"; path = "Resources/Samples2/Demoscene/2 good 2 b true.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6777317F75AEA00F16A54 /* 1999.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = 1999.xm; path = Resources/Samples2/Demoscene/1999.xm; sourceTree = SOURCE_ROOT; };
 		CCC6777417F75AEA00F16A54 /* ambrozia.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = ambrozia.xm; path = Resources/Samples2/Demoscene/ambrozia.xm; sourceTree = SOURCE_ROOT; };
 		CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = "beat to the pulp.sid"; path = "Resources/Samples2/Demoscene/beat to the pulp.sid"; sourceTree = SOURCE_ROOT; };
 		CCC6777617F75AEA00F16A54 /* beyond music.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "beyond music.mod"; path = "Resources/Samples2/Demoscene/beyond music.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6777717F75AEA00F16A54 /* celtic waves.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "celtic waves.xm"; path = "Resources/Samples2/Demoscene/celtic waves.xm"; sourceTree = SOURCE_ROOT; };
 		CCC6777817F75AEA00F16A54 /* cream of the earth.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "cream of the earth.mod"; path = "Resources/Samples2/Demoscene/cream of the earth.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6777917F75AEA00F16A54 /* crystal rain.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "crystal rain.mod"; path = "Resources/Samples2/Demoscene/crystal rain.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6777A17F75AEB00F16A54 /* desert dream.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "desert dream.mod"; path = "Resources/Samples2/Demoscene/desert dream.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6777B17F75AEB00F16A54 /* dope - onward ride.ft */ = {isa = PBXFileReference; lastKnownFileType = file; name = "dope - onward ride.ft"; path = "Resources/Samples2/Demoscene/dope - onward ride.ft"; sourceTree = SOURCE_ROOT; };
 		CCC6777C17F75AEB00F16A54 /* elysium.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = elysium.mod; path = Resources/Samples2/Demoscene/elysium.mod; sourceTree = SOURCE_ROOT; };
-		CCC6777D17F75AEB00F16A54 /* emotional landscape.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "emotional landscape.xm"; path = "Resources/Samples2/Demoscene/emotional landscape.xm"; sourceTree = SOURCE_ROOT; };
 		CCC6777E17F75AEB00F16A54 /* ghouls.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = ghouls.mod; path = Resources/Samples2/Demoscene/ghouls.mod; sourceTree = SOURCE_ROOT; };
-		CCC6777F17F75AEB00F16A54 /* god = martin galway.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "god = martin galway.xm"; path = "Resources/Samples2/Demoscene/god = martin galway.xm"; sourceTree = SOURCE_ROOT; };
-		CCC6778017F75AEB00F16A54 /* guitar slinger.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "guitar slinger.mod"; path = "Resources/Samples2/Demoscene/guitar slinger.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6778117F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "hyperbased (musiklinjen, enigma).mod"; path = "Resources/Samples2/Demoscene/hyperbased (musiklinjen, enigma).mod"; sourceTree = SOURCE_ROOT; };
 		CCC6778217F75AEB00F16A54 /* knulla kuk !!!.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "knulla kuk !!!.mod"; path = "Resources/Samples2/Demoscene/knulla kuk !!!.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6778317F75AEB00F16A54 /* livin' insanity.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "livin' insanity.mod"; path = "Resources/Samples2/Demoscene/livin' insanity.mod"; sourceTree = SOURCE_ROOT; };
@@ -2764,15 +2693,10 @@
 		CCC6782E17F75B1000F16A54 /* liszt_mazeppa.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = liszt_mazeppa.mid; path = Resources/Samples2/Classical/liszt_mazeppa.mid; sourceTree = SOURCE_ROOT; };
 		CCC6782F17F75B1000F16A54 /* liszt_pe3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = liszt_pe3.mid; path = Resources/Samples2/Classical/liszt_pe3.mid; sourceTree = SOURCE_ROOT; };
 		CCC6783017F75B1000F16A54 /* mozart_k331c.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = mozart_k331c.mid; path = Resources/Samples2/Classical/mozart_k331c.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783117F75B1000F16A54 /* rachmaninoff_op18_1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = rachmaninoff_op18_1.mid; path = Resources/Samples2/Classical/rachmaninoff_op18_1.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783217F75B1000F16A54 /* rachmaninoff_op18_2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = rachmaninoff_op18_2.mid; path = Resources/Samples2/Classical/rachmaninoff_op18_2.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783317F75B1000F16A54 /* rachmaninoff_op18_3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = rachmaninoff_op18_3.mid; path = Resources/Samples2/Classical/rachmaninoff_op18_3.mid; sourceTree = SOURCE_ROOT; };
 		CCC6783417F75B1000F16A54 /* rachmaninoff_pagvar18.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = rachmaninoff_pagvar18.mid; path = Resources/Samples2/Classical/rachmaninoff_pagvar18.mid; sourceTree = SOURCE_ROOT; };
 		CCC6783517F75B1000F16A54 /* ravel_pavane_orchestra.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = ravel_pavane_orchestra.mid; path = Resources/Samples2/Classical/ravel_pavane_orchestra.mid; sourceTree = SOURCE_ROOT; };
 		CCC6783617F75B1000F16A54 /* Ravel_PianoConcertoinG.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = Ravel_PianoConcertoinG.zip; path = Resources/Samples2/Classical/Ravel_PianoConcertoinG.zip; sourceTree = SOURCE_ROOT; };
 		CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = tchaikovski_Flowers.mid; path = Resources/Samples2/Classical/tchaikovski_Flowers.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783817F75B1000F16A54 /* tchaikovsky_1-1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "tchaikovsky_1-1.mid"; path = "Resources/Samples2/Classical/tchaikovsky_1-1.mid"; sourceTree = SOURCE_ROOT; };
-		CCC6783917F75B1000F16A54 /* tchaikovsky_1-2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "tchaikovsky_1-2.mid"; path = "Resources/Samples2/Classical/tchaikovsky_1-2.mid"; sourceTree = SOURCE_ROOT; };
 		CCC678CB17F76CA700F16A54 /* gr-b01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "gr-b01.jpg"; path = "Resources/Samples2/Games/gr-b01.jpg"; sourceTree = SOURCE_ROOT; };
 		CCC678CC17F76CA700F16A54 /* gr-b01.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gr-b01.mdx"; path = "Resources/Samples2/Games/gr-b01.mdx"; sourceTree = SOURCE_ROOT; };
 		CCC678CD17F76CA700F16A54 /* gr-b03.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "gr-b03.jpg"; path = "Resources/Samples2/Games/gr-b03.jpg"; sourceTree = SOURCE_ROOT; };
@@ -4284,27 +4208,6 @@
 				CCD791701219FC6B0063D0E7 /* unzoom.png */,
 				CCD791711219FC6B0063D0E7 /* zoom.png */,
 				33E46AF517C2B77600F70A14 /* txtMenu0.png */,
-				33E46AF617C2B77600F70A14 /* txtMenu1.png */,
-				33E46AF717C2B77600F70A14 /* txtMenu2a.png */,
-				33E46AF817C2B77600F70A14 /* txtMenu2b.png */,
-				33E46AF917C2B77600F70A14 /* txtMenu2c.png */,
-				33E46AFA17C2B77600F70A14 /* txtMenu3a.png */,
-				33E46AFB17C2B77600F70A14 /* txtMenu3b.png */,
-				33E46AFC17C2B77600F70A14 /* txtMenu3c.png */,
-				33E46AFD17C2B77600F70A14 /* txtMenu4a.png */,
-				33E46AFE17C2B77600F70A14 /* txtMenu4b.png */,
-				33E46AFF17C2B77600F70A14 /* txtMenu5a.png */,
-				33E46B0017C2B77600F70A14 /* txtMenu5b.png */,
-				33E46B0117C2B77600F70A14 /* txtMenu6.png */,
-				33E46B0217C2B77600F70A14 /* txtMenu7a.png */,
-				33E46B0317C2B77600F70A14 /* txtMenu7b.png */,
-				33E46B0417C2B77600F70A14 /* txtMenu8a.png */,
-				33E46B0517C2B77600F70A14 /* txtMenu8b.png */,
-				33E46B0617C2B77600F70A14 /* txtMenu9.png */,
-				33E46B1F17C350B200F70A14 /* txtMenu10a.png */,
-				33E46B2017C350B200F70A14 /* txtMenu10b.png */,
-				33E46B2317C350C800F70A14 /* txtMenu11a.png */,
-				CC03925117CAC8ED00062381 /* txtMenu11b.png */,
 				CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */,
 				CC03F2D612160FE000F2AC65 /* buttonB.png */,
 				CC03F2D712160FE000F2AC65 /* buttonR-highlight.png */,
@@ -4863,15 +4766,10 @@
 				CCC6782E17F75B1000F16A54 /* liszt_mazeppa.mid */,
 				CCC6782F17F75B1000F16A54 /* liszt_pe3.mid */,
 				CCC6783017F75B1000F16A54 /* mozart_k331c.mid */,
-				CCC6783117F75B1000F16A54 /* rachmaninoff_op18_1.mid */,
-				CCC6783217F75B1000F16A54 /* rachmaninoff_op18_2.mid */,
-				CCC6783317F75B1000F16A54 /* rachmaninoff_op18_3.mid */,
 				CCC6783417F75B1000F16A54 /* rachmaninoff_pagvar18.mid */,
 				CCC6783517F75B1000F16A54 /* ravel_pavane_orchestra.mid */,
 				CCC6783617F75B1000F16A54 /* Ravel_PianoConcertoinG.zip */,
 				CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */,
-				CCC6783817F75B1000F16A54 /* tchaikovsky_1-1.mid */,
-				CCC6783917F75B1000F16A54 /* tchaikovsky_1-2.mid */,
 			);
 			name = Classical;
 			sourceTree = "<group>";
@@ -4937,21 +4835,15 @@
 		CC9167F417EFA7380012E2C1 /* Demoscene */ = {
 			isa = PBXGroup;
 			children = (
-				CCC6777217F75AEA00F16A54 /* 2 good 2 b true.mod */,
 				CCC6777317F75AEA00F16A54 /* 1999.xm */,
 				CCC6777417F75AEA00F16A54 /* ambrozia.xm */,
 				CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */,
 				CCC6777617F75AEA00F16A54 /* beyond music.mod */,
-				CCC6777717F75AEA00F16A54 /* celtic waves.xm */,
 				CCC6777817F75AEA00F16A54 /* cream of the earth.mod */,
 				CCC6777917F75AEA00F16A54 /* crystal rain.mod */,
 				CCC6777A17F75AEB00F16A54 /* desert dream.mod */,
-				CCC6777B17F75AEB00F16A54 /* dope - onward ride.ft */,
 				CCC6777C17F75AEB00F16A54 /* elysium.mod */,
-				CCC6777D17F75AEB00F16A54 /* emotional landscape.xm */,
 				CCC6777E17F75AEB00F16A54 /* ghouls.mod */,
-				CCC6777F17F75AEB00F16A54 /* god = martin galway.xm */,
-				CCC6778017F75AEB00F16A54 /* guitar slinger.mod */,
 				CCC6778117F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod */,
 				CCC6778217F75AEB00F16A54 /* knulla kuk !!!.mod */,
 				CCC6778317F75AEB00F16A54 /* livin' insanity.mod */,
@@ -5924,7 +5816,6 @@
 				CCB8D97D17F62356008E6A45 /* txtMenu11b_2x.png in Resources */,
 				CC1E63A4120423E0000A8A4E /* Synth in Resources */,
 				CC1E63A5120423E0000A8A4E /* SynthDream in Resources */,
-				CCC677A417F75AEB00F16A54 /* dope - onward ride.ft in Resources */,
 				CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */,
 				CC1E63A6120423E0000A8A4E /* SynthPack in Resources */,
 				CC1E63A7120423E0000A8A4E /* SynTracker in Resources */,
@@ -6081,35 +5972,14 @@
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
-				33E46B0B17C2B77600F70A14 /* txtMenu1.png in Resources */,
-				33E46B0C17C2B77600F70A14 /* txtMenu2a.png in Resources */,
-				33E46B0D17C2B77600F70A14 /* txtMenu2b.png in Resources */,
-				33E46B0E17C2B77600F70A14 /* txtMenu2c.png in Resources */,
-				33E46B0F17C2B77600F70A14 /* txtMenu3a.png in Resources */,
-				33E46B1017C2B77600F70A14 /* txtMenu3b.png in Resources */,
 				CCDDA6FE1AC3E81E00AEA09F /* AppStore1024.png in Resources */,
-				33E46B1117C2B77600F70A14 /* txtMenu3c.png in Resources */,
-				33E46B1217C2B77600F70A14 /* txtMenu4a.png in Resources */,
-				33E46B1317C2B77600F70A14 /* txtMenu4b.png in Resources */,
-				33E46B1417C2B77600F70A14 /* txtMenu5a.png in Resources */,
-				33E46B1517C2B77600F70A14 /* txtMenu5b.png in Resources */,
-				33E46B1617C2B77600F70A14 /* txtMenu6.png in Resources */,
-				33E46B1717C2B77600F70A14 /* txtMenu7a.png in Resources */,
-				33E46B1817C2B77600F70A14 /* txtMenu7b.png in Resources */,
-				33E46B1917C2B77600F70A14 /* txtMenu8a.png in Resources */,
-				33E46B1A17C2B77600F70A14 /* txtMenu8b.png in Resources */,
 				CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */,
-				33E46B1B17C2B77600F70A14 /* txtMenu9.png in Resources */,
-				33E46B2117C350B200F70A14 /* txtMenu10a.png in Resources */,
-				33E46B2217C350B200F70A14 /* txtMenu10b.png in Resources */,
-				33E46B2417C350C800F70A14 /* txtMenu11a.png in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,
 				CCB8D97B17F62356008E6A45 /* txtMenu7d_2x.png in Resources */,
 				3317854A17C6255200929E8F /* tabview_gradient40@2x.png in Resources */,
 				3317854B17C6255200929E8F /* tabview_gradient50.png in Resources */,
 				3317854C17C6255200929E8F /* tabview_gradient50@2x.png in Resources */,
 				33B7AD0F17C75A8B00C1E404 /* MaintenanceViewController.xib in Resources */,
-				CC03925217CAC8ED00062381 /* txtMenu11b.png in Resources */,
 				CCFE183917EF586200C1682F /* MainWindow.xib in Resources */,
 				CC5C709717CC8EB000DC7197 /* txtMenu11c.png in Resources */,
 				CC5C709817CC8EB000DC7197 /* txtMenu11d.png in Resources */,
@@ -6573,7 +6443,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";

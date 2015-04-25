@@ -41,7 +41,7 @@
             <extendedEdge key="edgesForExtendedLayout"/>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
             <nil key="simulatedBottomBarMetrics"/>
-            <tabBar key="tabBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="10">
+            <tabBar key="tabBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" selectedItem="1906" id="10">
                 <rect key="frame" x="0.0" y="431" width="320" height="49"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -1194,6 +1194,7 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <size key="freeformSize" width="320" height="411"/>
             <connections>
+                <outlet property="barItem" destination="1906" id="EsO-S3-k3E"/>
                 <outlet property="btnCancel" destination="1394" id="1811"/>
                 <outlet property="btnClear" destination="1863" id="1865"/>
                 <outlet property="btnResume" destination="1862" id="1864"/>
