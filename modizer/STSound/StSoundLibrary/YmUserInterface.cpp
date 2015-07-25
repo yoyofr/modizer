@@ -121,7 +121,7 @@ ymbool		ymMusicIsSeekable(YMMUSIC *_pMus)
 	return pMusic->isSeekable() ? YMTRUE : YMFALSE;
 }
 
-unsigned long	ymMusicGetPos(YMMUSIC *_pMus)
+unsigned int	ymMusicGetPos(YMMUSIC *_pMus)
 {
 	CYmMusic *pMusic = (CYmMusic*)_pMus;
 	if (!pMusic->isSeekable())

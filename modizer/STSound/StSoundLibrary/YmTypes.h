@@ -70,11 +70,11 @@ typedef		float				ymfloat;
 #endif
 typedef		signed char			yms8;			//  8 bits signed integer
 typedef		signed short		yms16;			// 16 bits signed integer
-typedef		signed long			yms32;			// 32 bits signed integer
+typedef		signed int			yms32;			// 32 bits signed integer
 
 typedef		unsigned char		ymu8;			//  8 bits unsigned integer
 typedef		unsigned short		ymu16;			// 16 bits unsigned integer
-typedef		unsigned long		ymu32;			// 32 bits unsigned integer
+typedef		unsigned int		ymu32;			// 32 bits unsigned integer
 
 typedef		int					ymint;			// Native "int" for speed purpose. StSound suppose int is signed and at least 32bits. If not, change it to match to yms32
 
