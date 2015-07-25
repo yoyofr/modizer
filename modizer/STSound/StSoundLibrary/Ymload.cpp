@@ -152,7 +152,7 @@ unsigned char	*CYmMusic::depackFile(ymu32 checkOriginalSize)
 		ymu32		packedSize = ReadLittleEndian32((ymu8*)&pHeader->packed);
 
 
-		checkOriginalSize -= (ymu32(pSrc) - ymu32(pBigMalloc));
+		checkOriginalSize -= (ymu32(pSrc-pBigMalloc));
 
 		if (packedSize > checkOriginalSize)
 			packedSize = checkOriginalSize;

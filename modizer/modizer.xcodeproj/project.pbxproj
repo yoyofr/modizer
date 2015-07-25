@@ -6410,7 +6410,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6451,7 +6451,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6576,7 +6576,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6645,7 +6645,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6715,7 +6715,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
