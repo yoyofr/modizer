@@ -709,6 +709,7 @@
 		CC928DEA17D0037B0098696C /* txtMenu12b.png in Resources */ = {isa = PBXBuildFile; fileRef = CC928DE817D0037B0098696C /* txtMenu12b.png */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
+		CC9FB0521B64E2BF00345B1C /* liblibLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9FAF6F1B64DAE400345B1C /* liblibLazyusf.a */; };
 		CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */; };
 		CCAE594C17EAD8F6007638B9 /* txtMenu7c.png in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594B17EAD8F6007638B9 /* txtMenu7c.png */; };
 		CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = CCAE594E17ECABD2007638B9 /* Localizable.strings */; };
@@ -1087,6 +1088,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = libFileExtractor;
+		};
+		CC9FAF6E1B64DAE400345B1C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC9FAF6A1B64DAE200345B1C /* libLazyusf.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC9FAF631B64DAE200345B1C;
+			remoteInfo = libLazyusf;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2534,6 +2542,7 @@
 		CC9F0E94123DEFCC00D8EE6D /* vikingchild.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = vikingchild.bin; sourceTree = "<group>"; };
 		CC9F0E95123DEFCC00D8EE6D /* xbiossound.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = xbiossound.bin; sourceTree = "<group>"; };
 		CC9F0E96123DEFCC00D8EE6D /* zonewarrior.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = zonewarrior.bin; sourceTree = "<group>"; };
+		CC9FAF6A1B64DAE200345B1C /* libLazyusf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libLazyusf.xcodeproj; path = ../libLazyusf/libLazyusf/libLazyusf.xcodeproj; sourceTree = "<group>"; };
 		CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoogleAppHelper.h; sourceTree = "<group>"; };
 		CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GoogleAppHelper.mm; sourceTree = "<group>"; };
 		CCAE594B17EAD8F6007638B9 /* txtMenu7c.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7c.png; sourceTree = "<group>"; };
@@ -2886,6 +2895,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC9FB0521B64E2BF00345B1C /* liblibLazyusf.a in Frameworks */,
 				CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */,
 				CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */,
 				CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */,
@@ -4905,6 +4915,7 @@
 		CC9B193312FF0B9800985967 /* SndPlayers */ = {
 			isa = PBXGroup;
 			children = (
+				CC9FAF701B64DB0600345B1C /* libLazyusf */,
 				CC1343751AC17B4D00CAB284 /* libvgmplay */,
 				CC33B25F1AB81688009608E8 /* libopenmpt */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
@@ -5073,6 +5084,22 @@
 				CC9F0E96123DEFCC00D8EE6D /* zonewarrior.bin */,
 			);
 			path = Replay;
+			sourceTree = "<group>";
+		};
+		CC9FAF6B1B64DAE200345B1C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC9FAF6F1B64DAE400345B1C /* liblibLazyusf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CC9FAF701B64DB0600345B1C /* libLazyusf */ = {
+			isa = PBXGroup;
+			children = (
+				CC9FAF6A1B64DAE200345B1C /* libLazyusf.xcodeproj */,
+			);
+			name = libLazyusf;
 			sourceTree = "<group>";
 		};
 		CCB21D9C124690E000A30F62 /* Samples2 */ = {
@@ -5476,6 +5503,10 @@
 					ProjectRef = 33A961D01407F194007F22F5 /* libgsf.xcodeproj */;
 				},
 				{
+					ProductGroup = CC9FAF6B1B64DAE200345B1C /* Products */;
+					ProjectRef = CC9FAF6A1B64DAE200345B1C /* libLazyusf.xcodeproj */;
+				},
+				{
 					ProductGroup = CC33B2911AB8197E009608E8 /* Products */;
 					ProjectRef = CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */;
 				},
@@ -5583,6 +5614,13 @@
 			fileType = archive.ar;
 			path = liblibFileExtractor.a;
 			remoteRef = CC59B90A1AC4B882004FEEBA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC9FAF6F1B64DAE400345B1C /* liblibLazyusf.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibLazyusf.a;
+			remoteRef = CC9FAF6E1B64DAE400345B1C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -6467,6 +6505,10 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
+				OTHER_CFLAGS = (
+					"-DNS_BLOCK_ASSERTIONS=1",
+					"-mfpu=neon",
+				);
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
@@ -6591,6 +6633,10 @@
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
+				);
+				OTHER_CFLAGS = (
+					"-DNS_BLOCK_ASSERTIONS=1",
+					"-mfpu=neon",
 				);
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";

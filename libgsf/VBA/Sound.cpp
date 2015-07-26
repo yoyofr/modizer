@@ -1357,7 +1357,7 @@ void soundMix()
 }
 #endif
 
-extern "C" void DisplayError (char * Message, ...);
+extern "C" void gsfDisplayError (char * Message, ...);
 
 //int began_seek = 1;
 
@@ -1502,7 +1502,7 @@ void soundTick()
 				{
 					silencedetected++;
 				//	if((silencedetected%0x100)==81)
-				//	DisplayError("Silence Detected count = %d",silencedetected);
+				//	gsfDisplayError("Silence Detected count = %d",silencedetected);
 				}
 				else
 					silencedetected=0;
@@ -1518,7 +1518,7 @@ void soundTick()
 				//if((silencedetected>0)&&((decode_pos_ms - (mod.outMod->GetWrittenTime()-mod.outMod->GetOutputTime())-prevtime) > (silencelength*1000)))
 				if((silencedetected>0)&&((playtime-prevtime) > ((silencelength*1000)+buffertime)))
 				{
-				//	DisplayError("%d %d %d", silencedetected,silencelength*2*sndSamplesPerSec,sndSamplesPerSec);
+				//	gsfDisplayError("%d %d %d", silencedetected,silencelength*2*sndSamplesPerSec,sndSamplesPerSec);
 					outputtimeread=0;
 					silencedetected=0;
 					end_of_track();
@@ -1545,7 +1545,7 @@ void soundTick()
 					soundFinalWave[soundBufferIndex-2] = 0;
 					soundFinalWave[soundBufferIndex-1] = 0;
 					outputtimeread=0;
-					//DisplayError("playtime=%d, tracklength=%d, decode_pos_ms=%d\nGetOutputTime()=%d, GetWrittenTime=%d",(int)playtime,(int)TrackLength, (int)decode_pos_ms,mod.outMod->GetOutputTime(),mod.outMod->GetWrittenTime());
+					//gsfDisplayError("playtime=%d, tracklength=%d, decode_pos_ms=%d\nGetOutputTime()=%d, GetWrittenTime=%d",(int)playtime,(int)TrackLength, (int)decode_pos_ms,mod.outMod->GetOutputTime(),mod.outMod->GetWrittenTime());
 					end_of_track();
 				}
 			}

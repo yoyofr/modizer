@@ -5,7 +5,7 @@ typedef unsigned char BYTE;
 #endif
 
 
-extern void DisplayError (char *, ...);
+extern void gsfDisplayError (char *, ...);
 
 extern BOOL IsTagPresent (BYTE *);
 extern BOOL IsValidGSF (BYTE *);

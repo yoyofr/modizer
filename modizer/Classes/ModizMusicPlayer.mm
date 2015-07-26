@@ -364,6 +364,20 @@ void gsf_loop() {
 
 /*****************/
 
+//LAZY USF
+#ifdef ARCH_MIN_ARM_NEON
+#include <arm_neon.h>
+#endif
+
+#include "../../libLazyusf/misc.h"
+int32_t lzu_sample_rate;
+int16_t *lzu_sample_data;
+usf_loader_state * lzu_state;
+int lzu_sample_data_available,lzu_sample_data_offset;
+long long lzu_sample_scale_factor;
+
+
+
 extern "C" {
 	extern int sexypsf_missing_psflib;
 	extern char sexypsf_psflib_str[256];
@@ -2323,6 +2337,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             SeekVGM(false,mNeedSeekTime*441/10);
                             mNeedSeek=0;
                         }
+                        if (mPlayType==18) { //LAZYUSF : not supported
+                            mNeedSeek=0;
+                        }
 					}
 					if (moveToNextSubSong) {
 						if (mod_currentsub<mod_maxsub) {
@@ -2743,6 +2760,36 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         // render audio into sound buffer
                         // TODO does this work OK on mSlowDevices?
                         nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
+                    }
+                    if (mPlayType==18) { //LAZYUSF
+                        int buffer_ana_cpos=0;
+                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        while (buffer_ana_cpos<SOUND_BUFFER_SIZE_SAMPLE) {
+                        
+                            while (lzu_sample_data_available) {
+                                buffer_ana[buffer_ana_gen_ofs][buffer_ana_cpos*2+0]=lzu_sample_data[lzu_sample_data_offset*2+0];
+                                buffer_ana[buffer_ana_gen_ofs][buffer_ana_cpos*2+1]=lzu_sample_data[lzu_sample_data_offset*2+1];
+                                buffer_ana_cpos++;
+                                lzu_sample_scale_factor+=(long long)lzu_sample_rate*65536/44100;
+                                while (lzu_sample_scale_factor>=65536) {
+                                    lzu_sample_scale_factor-=65536;
+                                    lzu_sample_data_offset++;
+                                    lzu_sample_data_available--;
+                                }
+                            
+                                if (buffer_ana_cpos==SOUND_BUFFER_SIZE_SAMPLE) break;
+                            }
+                        
+                            if (!lzu_sample_data_available) {
+                                // render audio into sound buffer
+                                const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &lzu_sample_rate);
+                                lzu_sample_data_available=SOUND_BUFFER_SIZE_SAMPLE;
+                                lzu_sample_data_offset=0;
+//                                if (!result)
+                            }
+                        }
+                        
+
                     }
 					if (mPlayType==3) {  //ADPLUG
 						if (opl_towrite) {
@@ -3430,6 +3477,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
+    NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
 	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
@@ -3439,7 +3487,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
-								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+
+								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
 								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
 	
@@ -3461,6 +3509,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	[filetype_ext addObjectsFromArray:filetype_extGME];
 	[filetype_ext addObjectsFromArray:filetype_extADPLUG];
 	[filetype_ext addObjectsFromArray:filetype_extSEXYPSF];
+    [filetype_ext addObjectsFromArray:filetype_extLAZYUSF];
 	[filetype_ext addObjectsFromArray:filetype_extAOSDK];
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
 	[filetype_ext addObjectsFromArray:filetype_extGSF];
@@ -3542,6 +3591,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=(no_aux_file?[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SEXYPSF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extLAZYUSF=(no_aux_file?[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_LAZYUSF_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extAOSDK=(no_aux_file?[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_AOSDK_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
@@ -3652,6 +3702,27 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 found=5;break;
             }
 		}
+    if (!found)
+        for (int i=0;i<[filetype_extLAZYUSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_LAZYUSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=18;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_LAZYUSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        mSingleFileType=0;break;
+                    }
+                found=18;break;
+            }
+        }
 	if (!found)
 		for (int i=0;i<[filetype_extAOSDK count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
@@ -3767,6 +3838,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
+    NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
 	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
@@ -4039,6 +4111,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=5;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=5;break;}
 		}
+    if (!found)
+        for (int i=0;i<[filetype_extLAZYUSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=18;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=18;break;}
+        }
 	if (!found)
 		for (int i=0;i<[filetype_extAOSDK count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=4;break;}
@@ -4344,6 +4421,61 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 		
 		return 0;
 	}
+    
+    if (found==18) {  //LAZYUSF
+        mPlayType=18;
+        PSFINFO *pi;
+        FILE *f;
+        
+        f=fopen([filePath UTF8String],"rb");
+        if (f==NULL) {
+            NSLog(@"LAZYUSF Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        fseek(f,0L,SEEK_END);
+        mp_datasize=ftell(f);
+        fclose(f);
+        
+        NSString *fileDir=[filePath stringByDeletingLastPathComponent];
+        pathdir=[fileDir UTF8String];
+        
+        lzu_state = new usf_loader_state;
+        lzu_state->emu_state = malloc( usf_get_state_size() );
+        usf_clear( lzu_state->emu_state );
+        
+        if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x21, usf_loader, lzu_state, usf_info, lzu_state ) < 0 ) {
+            NSLog(@"Error loading USF");
+            mPlayType=0;
+            return -1;
+        }
+        usf_set_compare( lzu_state->emu_state, lzu_state->enable_compare );
+        usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );
+        
+        usf_render(lzu_state->emu_state, 0, 0, &lzu_sample_rate);
+        NSLog(@"init sr:%d",lzu_sample_rate);
+        
+        iModuleLength=-1;
+        
+        iCurrentTime=0;
+        numChannels=2;
+        sprintf(mod_name," %s",mod_filename);
+        
+        sprintf(mod_message,"toto");
+        
+        //Loop
+        if (mLoopMode==1) iModuleLength=-1;
+        
+        lzu_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        
+        lzu_sample_data_available=0;
+        lzu_sample_data_offset=0;
+        lzu_sample_scale_factor=0;
+
+        
+        return 0;
+    }
+    
     if (found==13) { //ASAP
         mPlayType=13;
         FILE *f;
@@ -5879,6 +6011,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
+        case 18: //LAZYUSF
+            if (startPos) [self Seek:startPos];
+            [self Play];
+            break;
 	}
 }
 -(void) Stop {
@@ -6005,6 +6141,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     if (mPlayType==17) { //VGM
         StopVGM();
     }
+    if (mPlayType==18) { //LAZYUSF
+        usf_shutdown(lzu_state->emu_state);
+        free(lzu_sample_data);
+    }
     
 }
 -(void) Pause:(BOOL) paused {
@@ -6021,7 +6161,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 //Playback infos
 -(NSString*) getModMessage {
 	NSString *modMessage;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)||(mPlayType==18)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
 	else {
 		modMessage=[NSString stringWithCString:mod_message encoding:NSUTF8StringEncoding];
 		if (modMessage==nil) modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -6031,7 +6171,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 -(NSString*) getModName {
 	NSString *modName;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)||(mPlayType==18)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
 	else {
 		modName=[NSString stringWithCString:mod_name encoding:NSUTF8StringEncoding];
 		if (modName==nil) modName=[NSString stringWithFormat:@"%s",mod_name];
@@ -6057,6 +6197,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     if (mPlayType==15) return @"Timidity";
     if (mPlayType==16) return @"PMDMini";
     if (mPlayType==17) return @"VGMPlay";
+    if (mPlayType==18) return @"LazyUSF";
 	return @"";
 }
 -(NSString*) getSubTitle:(int)subsong {
@@ -6138,6 +6279,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     if (mPlayType==15) return @"MIDI";
     if (mPlayType==16) return @"PMD";
     if (mPlayType==17) return @"VGM";
+    if (mPlayType==18) return @"USF";
 	return @" ";
 }
 -(BOOL) isPlaying {

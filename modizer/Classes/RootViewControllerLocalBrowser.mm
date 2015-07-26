@@ -604,15 +604,16 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
+    NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
 	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
-    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
-								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+
+								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
 								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
@@ -685,12 +686,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	[filetype_ext addObjectsFromArray:filetype_extGME];
 	[filetype_ext addObjectsFromArray:filetype_extADPLUG];
 	[filetype_ext addObjectsFromArray:filetype_extSEXYPSF];
+    [filetype_ext addObjectsFromArray:filetype_extLAZYUSF];
 	[filetype_ext addObjectsFromArray:filetype_extAOSDK];
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
 	[filetype_ext addObjectsFromArray:filetype_extGSF];
 	[filetype_ext addObjectsFromArray:filetype_extASAP];
-    [filetype_ext addObjectsFromArray:filetype_extVGM];
 	[filetype_ext addObjectsFromArray:filetype_extWMIDI];
+    [filetype_ext addObjectsFromArray:filetype_extVGM];
     
     [archivetype_ext addObjectsFromArray:filetype_extARCHIVEFILE];
     [gme_multisongstype_ext addObjectsFromArray:filetype_extGME_MULTISONGSFILE];

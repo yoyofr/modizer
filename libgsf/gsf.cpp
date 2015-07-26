@@ -76,7 +76,7 @@ bool systemCanChangeSoundQuality()
 extern "C"
 {
 
-void DisplayError (char * Message, ...) {
+void gsfDisplayError (char * Message, ...) {
 	char Msg[400];
 	va_list ap;
 
@@ -140,7 +140,7 @@ int GSFRun(char *filename)
  {
     //int size = CPULoadRom(theApp.szFile);
 	int size = CPULoadRom(filename);
-	//DisplayError("size = %X", size);
+	//gsfDisplayError("size = %X", size);
     if(!size)
       return false;
 

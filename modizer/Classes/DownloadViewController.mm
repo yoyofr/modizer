@@ -658,6 +658,7 @@ static NSFileManager *mFileMngr;
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+    NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
 	NSString *extension = [file pathExtension];
 	NSString *file_no_ext = [[file lastPathComponent] stringByDeletingPathExtension];
 	
@@ -711,6 +712,11 @@ static NSFileManager *mFileMngr;
 			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 		}
+    if (!found)
+        for (int i=0;i<[filetype_extLAZYUSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+        }
 	if (!found)
 		for (int i=0;i<[filetype_extAOSDK count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
