@@ -2,6 +2,9 @@
 // Prefix header for all source files of the 'modizer' target in the 'modizer' project
 //
 
+#import <Availability.h>
+#import <TargetConditionals.h>
+
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
     #import <UIKit/UIKit.h>
@@ -10,3 +13,12 @@
 #define LSB_FIRST 1
 //#define LINUX 1
 #define HAVE_CONFIG_H 1
+
+#if TARGET_IPHONE_SIMULATOR
+
+#else
+
+#define ARCH_MIN_ARM_NEON
+
+#endif
+

@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 /*
-void DisplayError (char * Message, ...) {
+void gsfDisplayError (char * Message, ...) {
 	char Msg[400];
 	va_list ap;
 
