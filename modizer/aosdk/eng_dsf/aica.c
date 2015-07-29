@@ -408,7 +408,7 @@ static INLINE signed short DecodeADPCM(int *PrevSignal, unsigned char Delta, int
 {
 	int x = *PrevQuant * quant_mul [Delta & 15];
         x = *PrevSignal + ((int)(x + ((UINT32)x >> 29)) >> 3);
-#if defined(TARGET_OS_IPHONE) && !TARGET_IPHONE_SIMULATOR
+#if 0 //defined(TARGET_OS_IPHONE) && !TARGET_IPHONE_SIMULATOR
 	__asm__("ssat %0, #16, %1\n\t" : "=r"(*PrevSignal) : "r"(x));
 #else
 	*PrevSignal=ICLIP16(x);
@@ -1417,7 +1417,7 @@ static void AICA_DoMasterSamples22khz(struct _AICA *AICA, int nsamples)
             }
             
         }
-#if defined(TARGET_OS_IPHONE) && !TARGET_IPHONE_SIMULATOR
+#if 0 //defined(TARGET_OS_IPHONE) && !TARGET_IPHONE_SIMULATOR
         __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufl++) : "r"(smpl>>2));
         __asm__("ssat %0, #16, %1\n\t" : "=r"(*bufr++) : "r"(smpr>>2));
 #else

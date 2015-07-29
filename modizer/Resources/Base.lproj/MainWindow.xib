@@ -1016,7 +1016,7 @@
                         <color key="highlightedColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </label>
                     <pickerView hidden="YES" contentMode="scaleToFill" id="1652" userLabel="ArcPicker">
-                        <rect key="frame" x="0.0" y="114" width="320" height="216"/>
+                        <rect key="frame" x="0.0" y="114" width="320" height="400"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="calibratedRGB"/>
                         <connections>

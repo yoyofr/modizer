@@ -371,12 +371,79 @@ void gsf_loop() {
 
 #include "../../libLazyusf/misc.h"
 int32_t lzu_sample_rate;
+#define LZU_SAMPLE_SIZE 1024
 int16_t *lzu_sample_data;
+float *lzu_sample_data_float;
+float *lzu_sample_converted_data_float;
 usf_loader_state * lzu_state;
-int lzu_sample_data_available,lzu_sample_data_offset;
-long long lzu_sample_scale_factor;
+
+//#include "corlett.h"
+extern corlett_t *usf_info_data;
+
+uint32 psfTimeToMS(char *str)
+{
+    int x, c=0;
+    uint32 acc=0;
+    char s[100];
+    
+    strncpy(s,str,100);
+    s[99]=0;
+    
+    for (x=strlen(s); x>=0; x--)
+    {
+        if (s[x]=='.' || s[x]==',')
+        {
+            acc=atoi(s+x+1);
+            s[x]=0;
+        }
+        else if (s[x]==':')
+        {
+            if(c==0)
+            {
+                acc+=atoi(s+x+1)*10;
+            }
+            else if(c==1)
+            {
+                acc+=atoi(s+x+(x?1:0))*10*60;
+            }
+            
+            c++;
+            s[x]=0;
+        }
+        else if (x==0)
+        {
+            if(c==0)
+            { 
+                acc+=atoi(s+x)*10;
+            }
+            else if(c==1) 
+            {
+                acc+=atoi(s+x)*10*60;
+            }
+            else if(c==2) 
+            {
+                acc+=atoi(s+x)*10*60*60;
+            }
+        }
+    }
+    
+    acc*=100;
+    return(acc);
+}
 
 
+////////////////////
+extern "C" {
+#include "../libresample/libsamplerate-0.1.8/src/samplerate.h"
+}
+#define SRC_DEFAULT_CONVERTER SRC_SINC_MEDIUM_QUALITY
+double src_ratio;
+SRC_STATE *src_state;
+SRC_DATA src_data;
+
+long src_callback(void *cb_data, float **data);
+
+////////////////////
 
 extern "C" {
 	extern int sexypsf_missing_psflib;
@@ -1692,7 +1759,6 @@ void sexyd_update(unsigned char* pSound,long lBytes) {
 	}
 }
 
-
 -(void)timThread {
     timThread_running=1;
     //    NSAutoreleasePool *pool =[[NSAutoreleasePool alloc] init];
@@ -2179,6 +2245,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	 } while (um->msgtype != UADE_COMMAND_TOKEN);*/
 	return 0;
 }
+
+long src_callback(void *cb_data, float **data) {
+    const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, LZU_SAMPLE_SIZE, &lzu_sample_rate);
+    if (result) return 0;
+    src_short_to_float_array (lzu_sample_data, lzu_sample_data_float,LZU_SAMPLE_SIZE*2);
+    *data=lzu_sample_data_float;
+    return LZU_SAMPLE_SIZE;
+}
+
 -(void) generateSoundThread {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
 	if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)]) [[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
@@ -2763,31 +2838,13 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     }
                     if (mPlayType==18) { //LAZYUSF
                         int buffer_ana_cpos=0;
+                        
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                        while (buffer_ana_cpos<SOUND_BUFFER_SIZE_SAMPLE) {
                         
-                            while (lzu_sample_data_available) {
-                                buffer_ana[buffer_ana_gen_ofs][buffer_ana_cpos*2+0]=lzu_sample_data[lzu_sample_data_offset*2+0];
-                                buffer_ana[buffer_ana_gen_ofs][buffer_ana_cpos*2+1]=lzu_sample_data[lzu_sample_data_offset*2+1];
-                                buffer_ana_cpos++;
-                                lzu_sample_scale_factor+=(long long)lzu_sample_rate*65536/44100;
-                                while (lzu_sample_scale_factor>=65536) {
-                                    lzu_sample_scale_factor-=65536;
-                                    lzu_sample_data_offset++;
-                                    lzu_sample_data_available--;
-                                }
-                            
-                                if (buffer_ana_cpos==SOUND_BUFFER_SIZE_SAMPLE) break;
-                            }
+                        nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, lzu_sample_converted_data_float)*2*2;
+                        src_float_to_short_array (lzu_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+//                        NSLog(@"nb: %d / %d",nbBytes,SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         
-                            if (!lzu_sample_data_available) {
-                                // render audio into sound buffer
-                                const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &lzu_sample_rate);
-                                lzu_sample_data_available=SOUND_BUFFER_SIZE_SAMPLE;
-                                lzu_sample_data_offset=0;
-//                                if (!result)
-                            }
-                        }
                         
 
                     }
@@ -4424,7 +4481,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     
     if (found==18) {  //LAZYUSF
         mPlayType=18;
-        PSFINFO *pi;
         FILE *f;
         
         f=fopen([filePath UTF8String],"rb");
@@ -4437,6 +4493,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         mp_datasize=ftell(f);
         fclose(f);
         
+        //Initi SRC samplerate converter
+        int error;
+        src_state=src_callback_new(src_callback,SRC_SINC_MEDIUM_QUALITY,2,&error,NULL);
+        if (!src_state) {
+            NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+            return -1;
+        }
+        /////////////////////////
+        
+        
         NSString *fileDir=[filePath stringByDeletingLastPathComponent];
         pathdir=[fileDir UTF8String];
         
@@ -4444,34 +4510,59 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         lzu_state->emu_state = malloc( usf_get_state_size() );
         usf_clear( lzu_state->emu_state );
         
+        usf_info_data=(corlett_t*)malloc(sizeof(corlett_t));
+        memset(usf_info_data,0,sizeof(corlett_t));
+        
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x21, usf_loader, lzu_state, usf_info, lzu_state ) < 0 ) {
             NSLog(@"Error loading USF");
             mPlayType=0;
+            src_delete(src_state);
             return -1;
         }
         usf_set_compare( lzu_state->emu_state, lzu_state->enable_compare );
         usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );
         
         usf_render(lzu_state->emu_state, 0, 0, &lzu_sample_rate);
-        NSLog(@"init sr:%d",lzu_sample_rate);
+        src_ratio=PLAYBACK_FREQ/(double)lzu_sample_rate;
+//        NSLog(@"init sr:%d %f",lzu_sample_rate,src_ratio);
+        
+        src_data.data_out=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
+        src_data.data_in=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
         
         iModuleLength=-1;
+        if (usf_info_data->inf_length) {
+            iModuleLength=psfTimeToMS(usf_info_data->inf_length);
+            FadeLength=psfTimeToMS(usf_info_data->inf_fade);
+        }
         
         iCurrentTime=0;
         numChannels=2;
+        
+        sprintf(mod_name,"");
+        if (usf_info_data->inf_title)
+            if (usf_info_data->inf_title[0]) sprintf(mod_name," %s",usf_info_data->inf_title);
+        
+        if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        
+        sprintf(mod_message,"Game:\t%s\nTitle:\t%s\nArtist:\t%s\nYear:\t%s\nGenre:\t%s\nUSF By:\t%s\nCopyright:\t%s\nTrack:\t%s\n",
+                (usf_info_data->inf_game?usf_info_data->inf_game:""),
+                (usf_info_data->inf_title?usf_info_data->inf_title:""),
+                (usf_info_data->inf_artist?usf_info_data->inf_artist:""),
+                (usf_info_data->inf_year?usf_info_data->inf_year:""),
+                (usf_info_data->inf_genre?usf_info_data->inf_genre:""),
+                (usf_info_data->inf_usfby?usf_info_data->inf_usfby:""),
+                (usf_info_data->inf_copy?usf_info_data->inf_copy:""),
+                (usf_info_data->inf_track?usf_info_data->inf_track:""));
+        
+        
         sprintf(mod_name," %s",mod_filename);
-        
-        sprintf(mod_message,"toto");
-        
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         
-        lzu_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        lzu_sample_data=(int16_t*)malloc(LZU_SAMPLE_SIZE*2*2);
+        lzu_sample_data_float=(float*)malloc(LZU_SAMPLE_SIZE*4*2);
+        lzu_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
         
-        lzu_sample_data_available=0;
-        lzu_sample_data_offset=0;
-        lzu_sample_scale_factor=0;
-
         
         return 0;
     }
@@ -6144,6 +6235,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     if (mPlayType==18) { //LAZYUSF
         usf_shutdown(lzu_state->emu_state);
         free(lzu_sample_data);
+        free(lzu_sample_data_float);
+        free(lzu_sample_converted_data_float);
+        free(usf_info_data);
+        src_delete(src_state);
     }
     
 }
@@ -6546,7 +6641,7 @@ extern "C" void adjust_amplification(void);
 }
 -(void) Seek:(int) seek_time {
 	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)
-        ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||mNeedSeek) return;
+        ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||mNeedSeek||(mPlayType==18)) return;
 	
 	if (mPlayType==9) {
 		if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;

@@ -942,6 +942,7 @@
 		CCDDA6F91AC3E6F000AEA09F /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */; };
 		CCDDA6FE1AC3E81E00AEA09F /* AppStore1024.png in Resources */ = {isa = PBXBuildFile; fileRef = CCDDA6FD1AC3E81D00AEA09F /* AppStore1024.png */; };
 		CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC59B90B1AC4B882004FEEBA /* liblibFileExtractor.a */; };
+		CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1962131B66BCD700778A3E /* liblibresample.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
@@ -1074,6 +1075,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC1343681AC17B3900CAB284;
 			remoteInfo = vgmplay;
+		};
+		CC1962121B66BCD700778A3E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC19620E1B66BCD600778A3E /* libresample.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC1962071B66BCD600778A3E;
+			remoteInfo = libresample;
 		};
 		CC33B2941AB8197F009608E8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1756,6 +1764,7 @@
 		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmplay.xcodeproj; path = ../vgmplay/vgmplay.xcodeproj; sourceTree = "<group>"; };
 		CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VGMPlay.ini; path = ../../vgmplay/vgm/VGMPlay.ini; sourceTree = "<group>"; };
 		CC17F07E1AC87866006C1E82 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = "Images-2.xcassets"; path = "modizer/Images-2.xcassets"; sourceTree = SOURCE_ROOT; };
+		CC19620E1B66BCD600778A3E /* libresample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libresample.xcodeproj; path = libresample/libresample.xcodeproj; sourceTree = "<group>"; };
 		CC1A553A17D5C0820009E78B /* BRGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BRGlobal.h; sourceTree = "<group>"; };
 		CC1A553B17D5C0820009E78B /* BRRequest+_UserData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "BRRequest+_UserData.h"; sourceTree = "<group>"; };
 		CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "BRRequest+_UserData.m"; sourceTree = "<group>"; };
@@ -2895,6 +2904,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */,
 				CC9FB0521B64E2BF00345B1C /* liblibLazyusf.a in Frameworks */,
 				CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */,
 				CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */,
@@ -3628,6 +3638,14 @@
 				CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */,
 			);
 			name = vgmplay;
+			sourceTree = "<group>";
+		};
+		CC19620F1B66BCD600778A3E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC1962131B66BCD700778A3E /* liblibresample.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		CC1A553917D5C0820009E78B /* BlackRaccoon */ = {
@@ -4942,6 +4960,7 @@
 		CC9B194012FF0BCA00985967 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				CC19620E1B66BCD600778A3E /* libresample.xcodeproj */,
 				CC13434A1ABFFF2A00CAB284 /* SWTableViewCell */,
 				CCC6776E17F6B92500F16A54 /* CMPopTipView */,
 				CCFDC4EB17DB105400C6692C /* NVDSP */,
@@ -5511,6 +5530,10 @@
 					ProjectRef = CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = CC19620F1B66BCD600778A3E /* Products */;
+					ProjectRef = CC19620E1B66BCD600778A3E /* libresample.xcodeproj */;
+				},
+				{
 					ProductGroup = 33236912125F8B790032223C /* Products */;
 					ProjectRef = 33236911125F8B790032223C /* libsidplay1.xcodeproj */;
 				},
@@ -5600,6 +5623,13 @@
 			fileType = archive.ar;
 			path = libvgmplay.a;
 			remoteRef = CC1343731AC17B3A00CAB284 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC1962131B66BCD700778A3E /* liblibresample.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibresample.a;
+			remoteRef = CC1962121B66BCD700778A3E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC33B2951AB8197F009608E8 /* liblibopenmpt.a */ = {
