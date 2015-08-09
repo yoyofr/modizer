@@ -7,14 +7,14 @@
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>764E301E-8E9A-4BC3-97A3-2BF6383CDD46</string>
 	<key>IDESourceControlProjectName</key>
-	<string>project</string>
+	<string>modizer</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>EA74B1461F5FBC9EC97688BB3AFCB02713DBA164</key>
 		<string>github.com:yoyofr/modizer.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>modizer/modizer.xcodeproj/project.xcworkspace</string>
+	<string>modizer/modizer.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>EA74B1461F5FBC9EC97688BB3AFCB02713DBA164</key>

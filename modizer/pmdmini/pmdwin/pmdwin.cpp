@@ -7454,7 +7454,9 @@ bool WINAPI PMDWIN::setpcmdir(char **path)
 {
 	int		i = 0;
 
-	while(*path[i] != '\0' && i < MAX_PCMDIR) {
+	while(path[i] && i < MAX_PCMDIR) {
+        if (*path[i] != '\0') break;
+        printf("i:%d path:%s\n",i,path[i]);
 		if(*path[i] == '\0') break;
 		strcpy(open_work.pcmdir[i], path[i]);
 
