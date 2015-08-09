@@ -2837,16 +2837,11 @@ long src_callback(void *cb_data, float **data) {
                         nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                     }
                     if (mPlayType==18) { //LAZYUSF
-                        int buffer_ana_cpos=0;
-                        
-                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                        
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, lzu_sample_converted_data_float)*2*2;
                         src_float_to_short_array (lzu_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
 //                        NSLog(@"nb: %d / %d",nbBytes,SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         
-                        
-
+                        if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
 					if (mPlayType==3) {  //ADPLUG
 						if (opl_towrite) {
@@ -4532,7 +4527,7 @@ long src_callback(void *cb_data, float **data) {
         iModuleLength=-1;
         if (usf_info_data->inf_length) {
             iModuleLength=psfTimeToMS(usf_info_data->inf_length);
-            FadeLength=psfTimeToMS(usf_info_data->inf_fade);
+            //psfTimeToMS(usf_info_data->inf_fade);
         }
         
         iCurrentTime=0;
@@ -4555,7 +4550,6 @@ long src_callback(void *cb_data, float **data) {
                 (usf_info_data->inf_track?usf_info_data->inf_track:""));
         
         
-        sprintf(mod_name," %s",mod_filename);
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         
