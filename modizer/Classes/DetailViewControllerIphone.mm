@@ -3325,13 +3325,18 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 -(void)showWaiting{
     //	waitingView.hidden=FALSE;
-    UIWindow *window=[[UIApplication sharedApplication] keyWindow];
-	[window addSubview:waitingView];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIWindow *window=[[UIApplication sharedApplication] keyWindow];
+        [window addSubview:waitingView];
+    });
+    
 }
 
 -(void)hideWaiting{
     //	waitingView.hidden=TRUE;
-    [waitingView removeFromSuperview];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [waitingView removeFromSuperview];
+    });
 }
 
 
