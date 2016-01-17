@@ -13,7 +13,6 @@
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
-
 NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;

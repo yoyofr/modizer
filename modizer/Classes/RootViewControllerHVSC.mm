@@ -1827,7 +1827,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
-                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                     
                 }
             }
         
@@ -1877,7 +1879,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
-                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                 }
             }    
     }
@@ -1970,13 +1973,19 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                                 mCurrentWinAskedDownload=1;
                                 if (first) {
-                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1]) {
+                                    if (
+                                        //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1]
+                                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1]
+                                        ) {
                                         tooMuch=1;
                                         break;
                                     }
                                     first=0;
                                 } else {
-                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:2]) {
+                                    if (
+                                        //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:2]
+                                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:2]
+                                        ) {
                                         tooMuch=1;
                                         break;
                                     }
@@ -2015,7 +2024,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     } else {
                         [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                         mCurrentWinAskedDownload=1;
-                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                        //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                     }
                 } else { //DIR
                     if (browse_depth==1) {//DIR1

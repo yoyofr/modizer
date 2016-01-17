@@ -681,6 +681,7 @@
 		CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B4181ABD827D009608E8 /* libc++.dylib */; };
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
+		CC3C52671BB9D0410080BA0F /* ParserModland.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC3C52651BB9D0410080BA0F /* ParserModland.cpp */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
 		CC5B03F91ACC9CCA0015A136 /* txtMenu12c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5B03F71ACC9CCA0015A136 /* txtMenu12c_2x.png */; };
 		CC5B03FA1ACC9CCA0015A136 /* txtMenu12c.png in Resources */ = {isa = PBXBuildFile; fileRef = CC5B03F81ACC9CCA0015A136 /* txtMenu12c.png */; };
@@ -1047,13 +1048,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = TapkuLibrary;
-		};
-		33C7397513A0AC220012221C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 3B45DDF1134C736600D24C1A;
-			remoteInfo = LogicTests;
 		};
 		33C7397A13A0ACEA0012221C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2418,6 +2412,8 @@
 		CC33B4181ABD827D009608E8 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
+		CC3C52651BB9D0410080BA0F /* ParserModland.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParserModland.cpp; sourceTree = "<group>"; };
+		CC3C52661BB9D0410080BA0F /* ParserModland.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ParserModland.hpp; sourceTree = "<group>"; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
 		CC59B9061AC4B882004FEEBA /* libFileExtractor.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libFileExtractor.xcodeproj; path = ../File_Extractor/libFileExtractor/libFileExtractor.xcodeproj; sourceTree = "<group>"; };
 		CC59B90C1AC4B91E004FEEBA /* fex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fex.h; path = ../File_Extractor/fex/fex.h; sourceTree = "<group>"; };
@@ -3514,7 +3510,6 @@
 			isa = PBXGroup;
 			children = (
 				33C7397413A0AC220012221C /* libTapkuLibrary.a */,
-				33C7397613A0AC220012221C /* LogicTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3984,6 +3979,8 @@
 				CC9B97161221739A007A156C /* ModizerConstants.h */,
 				33525D7B1222567600E6E517 /* DBHelper.h */,
 				33525D7C1222567600E6E517 /* DBHelper.mm */,
+				CC3C52651BB9D0410080BA0F /* ParserModland.cpp */,
+				CC3C52661BB9D0410080BA0F /* ParserModland.hpp */,
 				CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */,
 				CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */,
 				CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */,
@@ -5604,13 +5601,6 @@
 			remoteRef = 33C7397313A0AC220012221C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		33C7397613A0AC220012221C /* LogicTests.octest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = LogicTests.octest;
-			remoteRef = 33C7397513A0AC220012221C /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		33CA194414079ADC00CBEF9B /* liblibgme.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -6139,6 +6129,7 @@
 				CC1E5C3B1200B3B8000A8A4E /* CFtpServer.cpp in Sources */,
 				CC1E5C791200B3B8000A8A4E /* Font.cpp in Sources */,
 				CC1E5C7A1200B3B8000A8A4E /* FrameBuffer.mm in Sources */,
+				CC3C52671BB9D0410080BA0F /* ParserModland.cpp in Sources */,
 				CC1A555317D5C0820009E78B /* BRRequestDownload.m in Sources */,
 				CC1E5C7B1200B3B8000A8A4E /* GLString.cpp in Sources */,
 				CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */,
@@ -6709,8 +6700,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -6738,7 +6729,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				PRODUCT_NAME = modizer;
-				PROVISIONING_PROFILE = "ff39ba17-5e44-4615-917d-e1cfa340fa40";
+				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "ff39ba17-5e44-4615-917d-e1cfa340fa40";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

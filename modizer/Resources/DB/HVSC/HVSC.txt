@@ -2,9 +2,9 @@
                         T H E   H I G H   V O L T A G E
                           S I D   C O L L E C T I O N
 
-                                  Release 62
+                                  Release 64
 
-                              December 21, 2014
+                               December 23, 2015
 
 Compiled by:
 ------------
@@ -12,14 +12,14 @@ Current Members:
     Emiliano Peruch (Ian Coog) <iancoog (sid) alice.it> - ITALY
     Inge Høie Pedersen ("448") <ingehp (sid) outlook.com> - NORWAY
     Wilfred Bos <wilfred_hvsc (sid) xs4all.nl> - NETHERLANDS
-    Mariusz Rozwadowski (Ramos/Samar) <ramosc64 (sid) o2.pl> - POLAND
     Mariusz Mlynski - POLAND
     Sebastian Sprenger (Professor Chaos) - GERMANY
     Chris Abbott <chris (sid) c64audio.com> - ENGLAND
-    The Shark of INC <shark (sid) dhp.com> - USA
     Tobias Samuelsson (McLoaf) <dasforum_91 (sid) hotmail.com> - SWEDEN
+    Zack Thompson (Karmic) - CANADA
 
 Retired/Inactive Members:
+    The Shark of INC <shark (sid) dhp.com> - USA
     Michael Schwendt - GERMANY
     Darren (Bod/Talent) - ENGLAND
     Jan Krolzig - GERMANY
@@ -41,6 +41,7 @@ Retired/Inactive Members:
     Stefan Wolff (j0x/WOW) - DENMARK
     Rafal Szyja (Raf/Vulture Design) - POLAND
     Stephan Schmid (Steppe/Demodungeon) - GERMANY
+    Mariusz Rozwadowski (Ramos/Samar) - POLAND
 
           -> Members of the C64 Historical Preservation Society! <-
 -----------------------------------------------------------------------------

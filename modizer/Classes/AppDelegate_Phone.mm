@@ -82,6 +82,8 @@ BOOL is_ios7,is_retina;
 */
 
 
+#include "ParserModland.hpp"
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
 	// Override point for customization after application launch
@@ -91,6 +93,10 @@ BOOL is_ios7,is_retina;
     
     sprintf(bundledirectory,"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
     
+    char allmods_filepath[1024];
+    sprintf(allmods_filepath,"%s/allmods.txt",bundledirectory);
+    
+    //parseModland(allmods_filepath);
     
 	UIDevice* device = [UIDevice currentDevice];
 	backgroundSupported = NO;

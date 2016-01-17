@@ -46,8 +46,9 @@
 	volatile int mFTPAskCancel;
 	
 	NSString *mURL[MAX_DOWNLOAD_QUEUE];
-	NSString *mURLFilename[MAX_DOWNLOAD_QUEUE];
-	int mURLFilesize[MAX_DOWNLOAD_QUEUE];
+	NSString *mURLFilename[MAX_DOWNLOAD_QUEUE],*mURLFilePath[MAX_DOWNLOAD_QUEUE];
+    unsigned char mURLIsMODLAND[MAX_DOWNLOAD_QUEUE];
+	int mURLFilesize[MAX_DOWNLOAD_QUEUE],mURLUsePrimaryAction[MAX_DOWNLOAD_QUEUE];
     unsigned char mURLIsImage[MAX_DOWNLOAD_QUEUE];
     unsigned char mCurrentURLIsImage;
 	
@@ -71,6 +72,7 @@
 
 
 -(int) addURLToDownloadList:(NSString *)url fileName:(NSString *)fileName filesize:(long long)filesize;
+- (int)addURLToDownloadList:(NSString *)url fileName:(NSString *)fileName filePath:(NSString *)filePath filesize:(long long)filesize isMODLAND:(int)isMODLAND usePrimaryAction:(int)useDefaultAction;
 
 -(int) addURLImageToDownloadList:(NSString *)url fileName:(NSString *)fileName filesize:(long long)filesize;
 /****************/

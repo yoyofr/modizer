@@ -391,7 +391,7 @@ static float movePinchScale,movePinchScaleOld;
                 size_chan=4*6;
                 break;
         }
-        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
         if (startChan<0) startChan=0;
         
@@ -2557,7 +2557,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             size_chan=4*6;
             break;
     }
-	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
 	if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
 	if (startChan<0) startChan=0;
     tim_midifx_note_range=88;// //128notes max
@@ -3971,7 +3971,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             size_chan=4*6;
             break;
     }
-	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+	visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
 	mMoveStartChanLeft=mMoveStartChanRight=0;
 	
 	if ([self checkFlagOnStartup]) {
@@ -4544,7 +4544,7 @@ extern "C" int current_sample;
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=1;
                         size_chan=12*6;
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -4589,7 +4589,7 @@ extern "C" int current_sample;
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=2;
                         size_chan=6*6;
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -4628,7 +4628,7 @@ extern "C" int current_sample;
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
                         size_chan=4*6;
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -4645,7 +4645,7 @@ extern "C" int current_sample;
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
                         size_chan=12*6;
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -4659,7 +4659,7 @@ extern "C" int current_sample;
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
                         size_chan=6*6;
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
@@ -4670,7 +4670,7 @@ extern "C" int current_sample;
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
                         size_chan=4*6;
                         movePxMOD=movePyMOD=0;
-                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN)/size_chan;
+                        visibleChan=(m_oglView.frame.size.width-NOTES_DISPLAY_LEFTMARGIN+size_chan-1)/size_chan;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;

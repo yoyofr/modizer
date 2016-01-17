@@ -1377,7 +1377,8 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+			//[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+            [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
 		}
 	}
     if (indexPath.section==4) {//ASMA
@@ -1398,7 +1399,8 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+			//[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+            [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",ASMA_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
 		}
 	}
 }
@@ -1447,7 +1449,8 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+			//[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:HVSC_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+            [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",HVSC_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:0];
 		}
 	}
     if (indexPath.section==4) {//ASMA
@@ -1465,7 +1468,8 @@ static NSFileManager *mFileMngr;
 			NSError *err;
 			[mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 			
-			[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+			//[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+            [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",ASMA_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:0];
 		}
 	}
 }

@@ -5412,7 +5412,7 @@ long src_callback(void *cb_data, float **data) {
 			}
 			
 			
-			if (numInstr>0) {
+/*			if (numInstr>0) {
 				for (int i=1;i<=numInstr;i++) {
 					ModPlug_InstrumentName(mp_file,i,str_name);
 					sprintf(mod_message,"%s%s\n", mod_message,str_name);
@@ -5423,7 +5423,7 @@ long src_callback(void *cb_data, float **data) {
 					ModPlug_SampleName(mp_file,i,str_name);
 					sprintf(mod_message,"%s%s\n", mod_message,str_name);
 				};
-			}
+			}*/
 			
 			//Loop
 			if (mLoopMode==1) {
