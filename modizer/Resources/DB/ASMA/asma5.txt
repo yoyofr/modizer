@@ -1,7 +1,7 @@
 e13424499d79e1c90284df1605ba8f69;/Composers/Grayscale/Kwiatek_Grzegorz/Alive.sap
 626e08ced4de94efe627bdd767a7e9f5;/Composers/Grayscale/Kwiatek_Grzegorz/Alone.sap
 e051e57721a5060626c0c198503f4641;/Composers/Grayscale/Kwiatek_Grzegorz/Alpha.sap
-a55091f0fc1dcb3fe9526eba9db165cc;/Composers/Grayscale/Kwiatek_Grzegorz/Angel_of_Death.sap
+c81482109b4ee9d0c875c681cf3a5f48;/Composers/Grayscale/Kwiatek_Grzegorz/Angel_of_Death.sap
 4a08da5cae205e9106e8806c9256f33a;/Composers/Grayscale/Kwiatek_Grzegorz/Back_To_Life_2.sap
 8bc9ad6add11b64d5c4af8bba1e26528;/Composers/Grayscale/Kwiatek_Grzegorz/Bomb_Song.sap
 f4824b47224c3f0e545f55ff7919653c;/Composers/Grayscale/Kwiatek_Grzegorz/Cause_It_Hurts.sap
@@ -36,7 +36,7 @@ b0209a87d55571da2761755ad8853319;/Composers/Grayscale/Kwiatek_Grzegorz/Expressio
 847f66cc5839b776db4f6b83dada33c8;/Composers/Grayscale/Kwiatek_Grzegorz/Extreme.sap
 072d1c680ddb8673851d48ebe362550c;/Composers/Grayscale/Kwiatek_Grzegorz/Extremely_Flammable.sap
 93a81298143abaf40e33639cbcc6d9c4;/Composers/Grayscale/Kwiatek_Grzegorz/Failure_Dream.sap
-f37770f4a6346dce788599df056cf2cb;/Composers/Grayscale/Kwiatek_Grzegorz/Far_Away.sap
+192482d542765d851d67ba92208ad647;/Composers/Grayscale/Kwiatek_Grzegorz/Far_Away.sap
 f43cb714266ff5c96e4e5349be840596;/Composers/Grayscale/Kwiatek_Grzegorz/Final_Countdown.sap
 322212444ed0599ed5d7e93eb89f7ac6;/Composers/Grayscale/Kwiatek_Grzegorz/For_Replay.sap
 35a1a1dbd2f19d8de6f2b31e45e66c52;/Composers/Grayscale/Kwiatek_Grzegorz/Format_o.sap
@@ -111,11 +111,8 @@ ddd9691a07edc322b9ff942caf0e2718;/Composers/Grayscale/Sychowicz_Lukasz/Ala_ma_ko
 2b816bd4673fbca15482c903bade716a;/Composers/Grayscale/Sychowicz_Lukasz/Andal.sap
 0492ca672c329c3d3fda413b6689ac8d;/Composers/Grayscale/Sychowicz_Lukasz/Awari.sap
 ea10c93c50129f1269116de59ae185e8;/Composers/Grayscale/Sychowicz_Lukasz/Bach.sap
-7ffe40df68a3e4baafb2454c411fc03b;/Composers/Grayscale/Sychowicz_Lukasz/Barymag_2_4.sap
-10ac55e18719e6e16582048647bf791b;/Composers/Grayscale/Sychowicz_Lukasz/Barymag_2_5.sap
-a5ce4bf570b24803a87b5cc8b185b7c9;/Composers/Grayscale/Sychowicz_Lukasz/Barymag_2_8.sap
-4c8dbd67bf9bb090fd1510d632678c3f;/Composers/Grayscale/Sychowicz_Lukasz/Barymag_2_Intro.sap
 c939794ddb808da6db4e3081d8cd7c0a;/Composers/Grayscale/Sychowicz_Lukasz/Beer_Bibber.sap
+fa57e4468f70d235d40b04bd3650b7f7;/Composers/Grayscale/Sychowicz_Lukasz/Biedron.sap
 2168111c4681249fc4cbdbaa2e5e8ecf;/Composers/Grayscale/Sychowicz_Lukasz/Bitter_Relikty.sap
 ff8c47061531c2cae42805bbbc9ec7be;/Composers/Grayscale/Sychowicz_Lukasz/Bodek.sap
 248b873f353d69fa5f80c2bfb6474c37;/Composers/Grayscale/Sychowicz_Lukasz/Boremloza.sap
@@ -135,12 +132,13 @@ f8e16282eb79d76ad59799709bd19647;/Composers/Grayscale/Sychowicz_Lukasz/Czubek.sa
 9ab882db30767b4d19b03ebf5ef41848;/Composers/Grayscale/Sychowicz_Lukasz/Dred.sap
 be1e259e02304f409e8c738d52d27d41;/Composers/Grayscale/Sychowicz_Lukasz/Drunk_Chessboard.sap
 ddab93f450bd655abb50a57e0ff9a85e;/Composers/Grayscale/Sychowicz_Lukasz/Dynas.sap
-c48c68c77e25c3ad10082edece943187;/Composers/Grayscale/Sychowicz_Lukasz/Dziobaty.sap
+ecbe08a43c53bddc14be8746267ecedf;/Composers/Grayscale/Sychowicz_Lukasz/Dziobaty.sap
 c9c8a58342feaca1dc35fdacfbcd59c7;/Composers/Grayscale/Sychowicz_Lukasz/Explosive_Phlegm.sap
 2f4c49d12e9cec17e42e7ca720cc7559;/Composers/Grayscale/Sychowicz_Lukasz/Fagas.sap
 c0e7448b2a364238e6ac03f5a7c5d2f4;/Composers/Grayscale/Sychowicz_Lukasz/Falex.sap
 4b85b994d47a1d1acc642cda0b6801e8;/Composers/Grayscale/Sychowicz_Lukasz/Farba.sap
 5ea1c4e71ec04750207dc8fb71ea8cc4;/Composers/Grayscale/Sychowicz_Lukasz/Fate_of_Pig.sap
+a375b50a15f50c6bfb68234988844df6;/Composers/Grayscale/Sychowicz_Lukasz/Fifty_Shades_of_Grey.sap
 e14eae4463baba96106f305ef494152f;/Composers/Grayscale/Sychowicz_Lukasz/Fiucina.sap
 f0be78f73452b7282fa292da6de28976;/Composers/Grayscale/Sychowicz_Lukasz/Forsaken_Love.sap
 0ff3ad4862ec635087045b2f9e2786ef;/Composers/Grayscale/Sychowicz_Lukasz/Fujara.sap
@@ -174,6 +172,7 @@ ca9de3d4bf22443021641dcad24e1651;/Composers/Grayscale/Sychowicz_Lukasz/King_of_A
 748ec8272044381000f69d82b90c92fa;/Composers/Grayscale/Sychowicz_Lukasz/Kowip.sap
 41bd77c0779423413e54f47fef3e99cb;/Composers/Grayscale/Sychowicz_Lukasz/Kpina.sap
 9eb912ae716aec9a7f004ee2fe1a7ed9;/Composers/Grayscale/Sychowicz_Lukasz/Live.sap
+fe854a025eb173de7ce9c4424df42113;/Composers/Grayscale/Sychowicz_Lukasz/Look_Around.sap
 66479f44f442e1bbfa2af91f72261277;/Composers/Grayscale/Sychowicz_Lukasz/Loscz.sap
 9f494698b93e2cee368c096f3df37f08;/Composers/Grayscale/Sychowicz_Lukasz/Magic.sap
 4884a23984db480a612d1bc105112fab;/Composers/Grayscale/Sychowicz_Lukasz/Magic_of_Words_1.sap
@@ -184,6 +183,7 @@ b16b21025399caac17040a03b5d58d59;/Composers/Grayscale/Sychowicz_Lukasz/Magic_of_
 37f770212c23ff5b26c9627e942ba5f4;/Composers/Grayscale/Sychowicz_Lukasz/Magic_of_Words_6.sap
 5f05197ce0b942fe47a1378803afab97;/Composers/Grayscale/Sychowicz_Lukasz/Magic_of_Words_Ingame.sap
 bff35e59d56513895394bbb0504279f7;/Composers/Grayscale/Sychowicz_Lukasz/Mahna_Malysz.sap
+e105544b68376324368766be27a361d3;/Composers/Grayscale/Sychowicz_Lukasz/Marsz_hipochondrykow.sap
 77157377f48256b3efec98cd00b6c426;/Composers/Grayscale/Sychowicz_Lukasz/Maxi_2.sap
 6c063f950b875565ef55323017882d1d;/Composers/Grayscale/Sychowicz_Lukasz/Mc_ss.sap
 c45e153d1821f17c7cb1c70dfccda1b6;/Composers/Grayscale/Sychowicz_Lukasz/Mener.sap
@@ -193,6 +193,7 @@ bf026f864b6186f50eccbc76ff5f03b2;/Composers/Grayscale/Sychowicz_Lukasz/Mental_Ag
 bb0bd4269335dc69850e974ef590184d;/Composers/Grayscale/Sychowicz_Lukasz/Mepss.sap
 f47e52a23326b4980f91cd575da18700;/Composers/Grayscale/Sychowicz_Lukasz/Milos.sap
 6265dbb3d194705e0b097cf3f0ab46d4;/Composers/Grayscale/Sychowicz_Lukasz/Minii.sap
+6178535b21a2ad75e6945eaec45726fc;/Composers/Grayscale/Sychowicz_Lukasz/Miod_w_uszach.sap
 d1867371880c98681adebe1130cb8fd6;/Composers/Grayscale/Sychowicz_Lukasz/Mixer.sap
 0ceff001209ad834177fc6b4e12fc752;/Composers/Grayscale/Sychowicz_Lukasz/Mumin.sap
 b7e2dcdb33d4832ea82aea90617c303f;/Composers/Grayscale/Sychowicz_Lukasz/Nabial.sap
@@ -232,6 +233,7 @@ ff9c293630055742736d2025c717a0fb;/Composers/Grayscale/Sychowicz_Lukasz/Porazka_2
 64e1e4c8d60ea9807ea1fd070e3e60c1;/Composers/Grayscale/Sychowicz_Lukasz/Pozyn.sap
 4569fcff402fe9824bab2261edbdf018;/Composers/Grayscale/Sychowicz_Lukasz/Princ.sap
 daa96caefeaac8e8d1b50efd15eca1e2;/Composers/Grayscale/Sychowicz_Lukasz/Proko.sap
+d1756898f8ecfbe2e53a3cffac08c8ec;/Composers/Grayscale/Sychowicz_Lukasz/Psycho_Polo.sap
 a295d05bf671294e7f122eed792730bb;/Composers/Grayscale/Sychowicz_Lukasz/Rage_against_16_bit.sap
 c11c19145da4b0aee4cc91e262d113dc;/Composers/Grayscale/Sychowicz_Lukasz/Rake_in_Church.sap
 b9c0f2aafdd609e52ce505df9ef09193;/Composers/Grayscale/Sychowicz_Lukasz/Revenge_of_Bozon.sap
@@ -252,7 +254,7 @@ ce9b397b4a6217ecec8245cb70c0aebc;/Composers/Grayscale/Sychowicz_Lukasz/Squiffy_S
 757164756fdcac1e6f315d3621b0e475;/Composers/Grayscale/Sychowicz_Lukasz/Sraka.sap
 8800cb24665ff4418c2956a3fe6bd1a9;/Composers/Grayscale/Sychowicz_Lukasz/Srom.sap
 29c003088a185aa59bc32953ebbd9341;/Composers/Grayscale/Sychowicz_Lukasz/Stdem.sap
-d9858c72485ab46487cd3818cc4b1f58;/Composers/Grayscale/Sychowicz_Lukasz/Stickman.sap
+c326e2efcc75e5257a80d90c1d39f7a3;/Composers/Grayscale/Sychowicz_Lukasz/Stickman.sap
 72c7ef8ef8d089904cdf6b5b11938a73;/Composers/Grayscale/Sychowicz_Lukasz/Stolec.sap
 22475b8bca584524271984807782ba32;/Composers/Grayscale/Sychowicz_Lukasz/Stuczek.sap
 95ba71d582056113379eaa855165c1b6;/Composers/Grayscale/Sychowicz_Lukasz/Sutanna.sap
@@ -272,6 +274,8 @@ ea71415812218426b88960936304028e;/Composers/Grayscale/Sychowicz_Lukasz/Time.sap
 ac83d2a05b336c3e7c0b0382969ba718;/Composers/Grayscale/Sychowicz_Lukasz/Ucho.sap
 cdffabbfba9c1021c6ef833367867f8d;/Composers/Grayscale/Sychowicz_Lukasz/Unlimited_Zdechla_Ryba.sap
 cd2c9f8e15ef297d682f62ac91f474e1;/Composers/Grayscale/Sychowicz_Lukasz/Uran.sap
+77d416e6244410c1e62680a1f5c8bd0a;/Composers/Grayscale/Sychowicz_Lukasz/Wakacje_Misia_Kolabora.sap
+e82e2fef6d7a78060658dc1115016d7c;/Composers/Grayscale/Sychowicz_Lukasz/Wariacje_na_drutach.sap
 3aa80abb99f37a069955f2f3052770f7;/Composers/Grayscale/Sychowicz_Lukasz/Wroom.sap
 0da6e779d7d9b4b00e58913d9af5a256;/Composers/Grayscale/Sychowicz_Lukasz/X_Ray_2.sap
 3aa5a1833f22bb42eee25692e99a2218;/Composers/Grayscale/Sychowicz_Lukasz/Yoomp.sap
@@ -280,14 +284,21 @@ c0cef8013dc969442fdc1b55152e37f6;/Composers/Grayscale/Sychowicz_Lukasz/Zbig.sap
 78af1b1b96aec0425b6d06276141e0bb;/Composers/Grayscale/Sychowicz_Lukasz/Zip.sap
 c07ede02197a1dea6c13aecf0b96b551;/Composers/Grayscale/Sychowicz_Lukasz/Zizibum.sap
 8382c615e535ef82bd0757fdcfc670bb;/Composers/Grayscale/Sychowicz_Lukasz/Zynzel.sap
+211bd8cb98ef5118092a359e76ad1f30;/Composers/Grayscale/Wasiel_Bartek/Arsantica_part_1.sap
+d608f0442d54823dc9f291d0a6767b17;/Composers/Grayscale/Wasiel_Bartek/Arsantica_part_2.sap
 900dde0ee1fc31fca37abd57321387c9;/Composers/Grayscale/Wasiel_Bartek/Candy_Mountain.sap
 4bb06ca352e5bc819eb4afca01726373;/Composers/Grayscale/Wasiel_Bartek/Dark_Lamp.sap
 2ac7f6f25b5b8499931189abbd1909a2;/Composers/Grayscale/Wasiel_Bartek/Dropsy_King.sap
 00c49a2bd44a2aa4e1157c5f5ffe192b;/Composers/Grayscale/Wasiel_Bartek/Dzyngol.sap
 78879b83f7cc7ea820ef80bd46d2c69c;/Composers/Grayscale/Wasiel_Bartek/Forever.sap
+c48bc96db2e9f2a929b38836103ec04d;/Composers/Grayscale/Wasiel_Bartek/Heavy_Traffic.sap
+87467f78da4cf985beb4abb9612645cd;/Composers/Grayscale/Wasiel_Bartek/Illusive.sap
 1e2a5559d7fceb1ceb78182e51fe49c0;/Composers/Grayscale/Wasiel_Bartek/Rastan.sap
 d508ce8efdd0761a65a7d25055f18432;/Composers/Grayscale/Wasiel_Bartek/Simply_Tune.sap
+d74b31fe60187a9ec4c969f859181e3a;/Composers/Grayscale/Wasiel_Bartek/Slurkys_Tale.sap
 e7534089002dc572b8896afd4445626a;/Composers/Grayscale/Wasiel_Bartek/Too_Late.sap
+2ab622b0ffb4a6d4eecfa8b754aa0fc5;/Composers/Grayscale/Wasiel_Bartek/Triple_Threat.sap
+74a39657ddd1a116e3decbdc22cd68fc;/Composers/Grayscale/Wasiel_Bartek/Zorro_Has_A_Sister.sap
 079330ef243b899efb3e39417a708955;/Composers/Grayscale/Wasiel_Bartek/Zybex.sap
 d7082f41792bea56bf0dc0f881cc6d10;/Composers/Kuczek_Ireneusz/Worktunes/Back_in_USSR.sap
 4f70b414742d4d62cbbffa7b9f0feee7;/Composers/Kuczek_Ireneusz/Worktunes/Come_Together.sap

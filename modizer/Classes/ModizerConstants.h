@@ -64,11 +64,11 @@
 
 #define VERSION_MAJOR 2
 #define VERSION_MAJOR_STR "2"
-#define VERSION_MINOR 3
-#define VERSION_MINOR_STR "3"
+#define VERSION_MINOR 4
+#define VERSION_MINOR_STR "4"
 
 
-#define MAX_PL_ENTRIES 4096
+#define MAX_PL_ENTRIES 4096*4
 
 #define MAX_RANDFX_TIME 15   //max is in fact min + max (seconds)
 #define MIN_RANDFX_TIME 15
@@ -82,16 +82,18 @@
 #define DATABASENAME_USER @"database.modizerdb"
 #define DATABASENAME_TMP @"database.modizerdb.old"
 
-#define MODLAND_FTPHOST @"c64takeaway.com/"
+#define MODLAND_FTPHOST @"ftp.modland.com"
+//#define MODLAND_FTPHOST @"ftp.amigascne.org/mirrors/ftp.modland.com/"
+//#define MODLAND_FTPHOST @"aero.exotica.org.uk/pub/mirrors/modland/"
 
-/*#define MODLAND_FTPHOST1 @"ftp.amigascne.org/mirrors/ftp.modland.com/"
-#define MODLAND_FTPHOST2 @"hangar18.exotica.org.uk/modland/"
-#define MODLAND_FTPHOST3 @"modland.ziphoid.com/"
-*/
+//#define HVSC_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"
 
-#define HVSC_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"
+#define HVSC_HTTPHOST @"http://www.prg.dtu.dk/HVSC/C64Music"
 
-#define ASMA_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
+//#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
+#define ASMA_HTTPHOST @"http://asma.atari.org/asma"
+
+//#define ASMA_FTPHOST "aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
 
 #define SUPPORTED_FILETYPE_COVER @"GIF,JPEG,JPG,PNG"
 

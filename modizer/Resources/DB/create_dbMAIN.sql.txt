@@ -219,19 +219,19 @@ CREATE INDEX idx_asma_fileDirs on asma_file (dir1,dir2,dir3,dir4);
 
 
 CREATE TABLE stil (fullpath text,stil_info text);
-.separator ";;"
+.separator "\t"
 .import "./stilconverted" stil 
 CREATE INDEX idx_stil_fullpath on stil (fullpath);
 
 CREATE TABLE stil_asma (fullpath text,stil_info text);
-.separator ";;"
+.separator "\t"
 .import "./stilconverted_asma" stil_asma
 CREATE INDEX idx_stilasma_fullpath on stil_asma (fullpath);
 
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)
-VALUES (2,3);
+VALUES (2,4);
 
 
 

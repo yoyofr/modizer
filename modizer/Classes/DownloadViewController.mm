@@ -99,8 +99,10 @@ static NSFileManager *mFileMngr;
     for (int i=mGetURLInProgress;i<mURLDownloadQueueDepth;i++) {
         if (mURL[i]) {[mURL[i] release];mURL[i]=nil;}
         if (mURLFilename[i])  {[mURLFilename[i] release];mURLFilename[i]=nil;}
+        if (mURLFilePath[i])  {[mURLFilePath[i] release];mURLFilePath[i]=nil;}
         mURL[i]=nil;
         mURLFilename[i]=nil;
+        mURLFilePath[i]=nil;
     }
     mURLDownloadQueueDepth=mGetURLInProgress;
     
@@ -195,11 +197,14 @@ static NSFileManager *mFileMngr;
 		mFilePath[i]=nil;
 		mFTPFilename[i]=nil;
 		mURLFilename[i]=nil;
+        mURLFilePath[i]=nil;
 		mFTPpath[i]=nil;
 		mFTPhost[i]=nil;
 		mURL[i]=nil;
 		mFileSize[i]=0;
 		mURLFilesize[i]=0;
+        mURLIsMODLAND[i]=0;
+        mURLUsePrimaryAction[i]=0;
 		mIsMODLAND[i]=0;
         mStatus[i]=0;
 	}
@@ -261,6 +266,7 @@ static NSFileManager *mFileMngr;
 		
 		if (mURL[i]) {[mURL[i] release];mURL[i]=nil;}
 		if (mURLFilename[i]) {[mURLFilename[i] release];mURLFilename[i]=nil;}
+        if (mURLFilePath[i]) {[mURLFilePath[i] release];mURLFilePath[i]=nil;}
 	}
     
     [mFileMngr release];
@@ -552,6 +558,37 @@ static NSFileManager *mFileMngr;
 	} else return -1;
 }
 
+- (int)addURLToDownloadList:(NSString *)url fileName:(NSString *)fileName filePath:(NSString *)filePath filesize:(long long)filesize isMODLAND:(int)isMODLAND usePrimaryAction:(int)useDefaultAction {
+    if (mURLDownloadQueueDepth<MAX_DOWNLOAD_QUEUE) {
+        
+        //check it is not already in the list
+        pthread_mutex_lock(&download_mutex);
+        int duplicated=0;
+        for (int i=0;i<=mURLDownloadQueueDepth;i++) {
+            if (mURLFilename[i])
+                if ([mURLFilename[i] compare:fileName]==NSOrderedSame) {duplicated=1; break;}
+        }
+        if (!duplicated) {
+            if (fileName) mURLFilename[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:fileName];
+            else mURLFilename[mURLDownloadQueueDepth]=nil;
+            mURLFilesize[mURLDownloadQueueDepth]=filesize;
+            mURL[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:url];
+            mURLIsImage[mURLDownloadQueueDepth]=0;
+            
+            mURLIsMODLAND[mURLDownloadQueueDepth]=isMODLAND;
+            mURLFilePath[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:filePath];
+            mURLUsePrimaryAction[mURLDownloadQueueDepth]=useDefaultAction;
+            
+            mURLDownloadQueueDepth++;
+            [self checkNextQueuedItem];
+        }
+        
+        pthread_mutex_unlock(&download_mutex);
+        return 0;
+    } else return -1;
+}
+
+
 - (int)addURLToDownloadList:(NSString *)url fileName:(NSString *)fileName  filesize:(long long)filesize{
 	if (mURLDownloadQueueDepth<MAX_DOWNLOAD_QUEUE) {
 		
@@ -568,6 +605,11 @@ static NSFileManager *mFileMngr;
 			mURLFilesize[mURLDownloadQueueDepth]=filesize;
 			mURL[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:url];
             mURLIsImage[mURLDownloadQueueDepth]=0;
+            
+            mURLIsMODLAND[mURLDownloadQueueDepth]=0;
+            mURLFilePath[mURLDownloadQueueDepth]=nil;
+            mURLUsePrimaryAction[mURLDownloadQueueDepth]=0;
+            
 			mURLDownloadQueueDepth++;
 			[self checkNextQueuedItem];
 		}
@@ -815,17 +857,24 @@ static NSFileManager *mFileMngr;
 	pthread_mutex_lock(&download_mutex);
 	if (mURL[0]) {[mURL[0] release];mURL[0]=nil;}
 	if (mURLFilename[0]) {[mURLFilename[0] release];mURLFilename[0]=nil;}
+    if (mURLFilePath[0]) {[mURLFilePath[0] release];mURLFilePath[0]=nil;}
 	
 	for (int i=1;i<mURLDownloadQueueDepth;i++) {
 		mURL[i-1]=mURL[i];
 		mURLFilename[i-1]=mURLFilename[i];
 		mURLFilesize[i-1]=mURLFilesize[i];
         mURLIsImage[i-1]=mURLIsImage[i];
+        mURLFilePath[i-1]=mURLFilePath[i];
+        mURLIsMODLAND[i-1]=mURLIsMODLAND[i];
+        mURLUsePrimaryAction[i-1]=mURLUsePrimaryAction[i];
 	}
 	if (mURLDownloadQueueDepth) {
 		mURL[mURLDownloadQueueDepth-1]=nil;
 		mURLFilename[mURLDownloadQueueDepth-1]=nil;
         mURLIsImage[mURLDownloadQueueDepth-1]=0;
+        mURLFilePath[mURLDownloadQueueDepth-1]=nil;
+        mURLIsMODLAND[mURLDownloadQueueDepth-1]=0;
+        mURLUsePrimaryAction[mURLDownloadQueueDepth-1]=0;
 		mURLDownloadQueueDepth--;
 	}
 	pthread_mutex_unlock(&download_mutex);
@@ -883,13 +932,40 @@ static NSFileManager *mFileMngr;
 	NSString *localPath;
 	
     if (mCurrentURLIsImage) localPath=[[[NSString alloc] initWithFormat:@"%@/%s",NSHomeDirectory(),_strFilename] autorelease];
-    else localPath=[[[NSString alloc] initWithFormat:@"%@/%s",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],_strFilename] autorelease];
+    else {
+        if (mURLIsMODLAND[0]) {
+            localPath=[[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]] autorelease];
+        } else {
+            localPath=[[[NSString alloc] initWithFormat:@"%@/%s",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],_strFilename] autorelease];
+        }
+    }
 	[mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
 	[fileData writeToFile:localPath atomically:NO];
 	
     [self addSkipBackupAttributeToItemAtPath:localPath];
 	
-	[self checkIfShouldAddFile:localPath fileName:fileName];
+    if (mURLIsMODLAND[0]) {
+        if ([self isAllowedFile:mCurrentURLFilename]) {
+            if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
+                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                [array_label addObject:mCurrentURLFilename];
+                [array_path addObject:mURLFilePath[0]];
+                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                //[self goPlayer];
+            } else {
+                if (mURLIsMODLAND[0]==1) {
+                    [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
+                }
+            }
+        }
+        //refresh view which potentially list the file as not downloaded
+        [onlineVC refreshViewAfterDownload];
+        [searchViewController refreshViewAfterDownload];
+        [moreVC refreshViewAfterDownload];
+        [rootViewController refreshViewAfterDownload];
+        //TODO: playlist
+    } else [self checkIfShouldAddFile:localPath fileName:fileName];
 	//Remove file if it is not part of accepted one
 	
 	[self updateToNextURL];

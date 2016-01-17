@@ -6,7 +6,7 @@ BEGIN {
   if (readflag==1) {
      if (length($0)<=1) {
         readflag=0;
-        print title ";;" info;
+        print title "\t" info;
      } else {
         info= info substr($0,1,length($0)-1) "\\n";
      }

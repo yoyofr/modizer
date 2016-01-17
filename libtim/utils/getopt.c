@@ -195,7 +195,6 @@ _getopt_initialize (int argc, char *const*argv, const char *optstring)
 
    If LONG_ONLY is nonzero, '-' as well as '--' can introduce
    long-named options.  */
-
 static int
 _getopt_internal (int argc, char *const*argv, const char *optstring,
 		  const struct option *longopts, int *longind, int long_only)
