@@ -127,8 +127,17 @@
     CGRect _thumbRect = self.thumbRect;
     CGRect popupRect = CGRectOffset(_thumbRect, -40, 5-floorf(_thumbRect.size.height * 0.8));
     valuePopupView.frame = CGRectInset(popupRect, -20, 2);
-    if (integerMode) valuePopupView.value = (NSInteger)self.value;
-    else valuePopupView.value = self.value;
+    switch (integerMode) {
+        case 0://float
+            valuePopupView.value = self.value;
+            break;
+        case 1://int
+            valuePopupView.value = (NSInteger)self.value;;
+            break;
+        case 2://time
+            [valuePopupView setValue:self.value sValue:[NSString stringWithFormat:@"%02d:%02d",(NSInteger)(self.value/60),(NSInteger)(self.value)%60]];
+            break;
+    }
 }
 
 #pragma mark - Memory management
@@ -174,11 +183,13 @@
 }
 
 - (void)cancelTrackingWithEvent:(UIEvent *)event {
+    [self _positionAndUpdatePopupView];
     [super cancelTrackingWithEvent:event];
 }
 
 - (void)endTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
     // Fade out the popoup view
+    [self _positionAndUpdatePopupView];
     [self _fadePopupViewInAndOut:NO];
     [super endTrackingWithTouch:touch withEvent:event];
 }

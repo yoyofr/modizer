@@ -161,6 +161,7 @@ extern "C" char gsf_libfile[1024];
 
 extern "C" GD3_TAG VGMTag;
 extern "C" VGM_HEADER VGMHead;
+extern "C" UINT32 VGMMaxLoop;
 
 int PreferJapTag=0;
 static const wchar_t* GetTagStrEJ(const wchar_t* EngTag, const wchar_t* JapTag)
@@ -2481,7 +2482,7 @@ long src_callback(void *cb_data, float **data) {
 								}
 								iCurrentTime=0;
 								iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-								if (iModuleLength<=0) iModuleLength=SID_DEFAULT_LENGTH;
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
 								if (mLoopMode) iModuleLength=-1;
 								mod_message_updated=1;
 							}
@@ -2497,7 +2498,7 @@ long src_callback(void *cb_data, float **data) {
 								api68_play(sc68,mod_currentsub,1);
 								api68_music_info( sc68, &info, mod_currentsub, NULL );
 								iModuleLength=info.time_ms;
-								if (iModuleLength<=0) iModuleLength=SC68_DEFAULT_LENGTH;
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
 								if (mLoopMode) iModuleLength=-1;
 								//NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
 								iCurrentTime=0;
@@ -2570,7 +2571,7 @@ long src_callback(void *cb_data, float **data) {
                             }
                             iCurrentTime=0;
                             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-                            if (iModuleLength<=0) iModuleLength=SID_DEFAULT_LENGTH;
+                            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                             if (mLoopMode) iModuleLength=-1;
                             mod_message_updated=1;
                         }
@@ -2586,7 +2587,7 @@ long src_callback(void *cb_data, float **data) {
                             api68_play(sc68,mod_currentsub,1);
                             api68_music_info( sc68, &info, mod_currentsub, NULL );
                             iModuleLength=info.time_ms;
-                            if (iModuleLength<=0) iModuleLength=SC68_DEFAULT_LENGTH;
+                            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
                             if (mLoopMode) iModuleLength=-1;
                             //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                             iCurrentTime=0;
@@ -2651,7 +2652,7 @@ long src_callback(void *cb_data, float **data) {
 								[self iPhoneDrv_PlayStart];
 								iCurrentTime=0;
 								iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-								if (iModuleLength<=0) iModuleLength=SID_DEFAULT_LENGTH;
+								if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
 								if (mLoopMode) iModuleLength=-1;
 								mod_message_updated=1;
 							}
@@ -2662,7 +2663,7 @@ long src_callback(void *cb_data, float **data) {
 								api68_play(sc68,mod_currentsub,1);
 								api68_music_info( sc68, &info, mod_currentsub, NULL );
 								iModuleLength=info.time_ms;
-								if (iModuleLength<=0) iModuleLength=SC68_DEFAULT_LENGTH;
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
 								if (mLoopMode) iModuleLength=-1;
 								//NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
 								iCurrentTime=0;
@@ -2955,7 +2956,7 @@ long src_callback(void *cb_data, float **data) {
 									
 									mChangeOfSong=1;
 									mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-									if (mNewModuleLength<=0) mNewModuleLength=SID_DEFAULT_LENGTH;
+									if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
 									if (mLoopMode) mNewModuleLength=-1;
 								} else {
 									nbBytes=0;
@@ -2985,7 +2986,7 @@ long src_callback(void *cb_data, float **data) {
 									api68_music_info( sc68, &info, mod_currentsub, NULL );
 									mChangeOfSong=1;
 									mNewModuleLength=info.time_ms;
-									if (mNewModuleLength<=0) mNewModuleLength=SC68_DEFAULT_LENGTH;
+                                    if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
 									if (mLoopMode) mNewModuleLength=-1;
 								} else nbBytes=0;
 							}
@@ -4649,11 +4650,13 @@ long src_callback(void *cb_data, float **data) {
         }
         
         
-		sprintf(mod_message,"Author:%ls\nGame:%ls\nSystem:%ls\nTitle:%ls\nNotes:%ls\n",
+		sprintf(mod_message,"Author:%ls\nGame:%ls\nSystem:%ls\nTitle:%ls\nRelease Date:%ls\nCreator:%ls\nNotes:%ls\n",
                 GetTagStrEJ(VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ),
                 GetTagStrEJ(VGMTag.strGameNameE,VGMTag.strGameNameJ),
                 GetTagStrEJ(VGMTag.strSystemNameE,VGMTag.strSystemNameJ),
                 GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ),
+                VGMTag.strReleaseDate,
+                VGMTag.strCreator,
                 VGMTag.strNotes);
 		
         
@@ -4669,7 +4672,11 @@ long src_callback(void *cb_data, float **data) {
 		if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
         
 		//Loop
-		if (mLoopMode==1) iModuleLength=-1;
+        if (mLoopMode==1) {
+            iModuleLength=-1;
+            VGMMaxLoop=0;
+        }
+        
 		
 		return 0;
 	}
@@ -4710,7 +4717,9 @@ long src_callback(void *cb_data, float **data) {
 		
         
 		gsf_libfile[0]=0;
-		int res=GSFRun((char*)[filePath UTF8String]);
+        char tmp_file[2048];
+        strcpy(tmp_file,(char*)[filePath UTF8String]);
+		int res=GSFRun(tmp_file);
 		if (!res) {
 			NSLog(@"Error loading GSF file");
 			mPlayType=0;
@@ -5038,7 +5047,7 @@ long src_callback(void *cb_data, float **data) {
 				sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
 				mSid1Tune->getInfo(sidtune_info);
 				iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-				if (iModuleLength<=0) iModuleLength=SID_DEFAULT_LENGTH;
+				if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
 				
 				if ((sidtune_info.sidModel==SIDTUNE_SIDMODEL_6581)&&(sid_forceModel==0)) {
                     mSid1EmuEngine->getConfig(cfg);
@@ -5194,7 +5203,7 @@ long src_callback(void *cb_data, float **data) {
 				
 				mSidTune->selectSong(mod_currentsub);
 				iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-				if (!iModuleLength) iModuleLength=SID_DEFAULT_LENGTH;
+				if (!iModuleLength) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
 				
 				
 				
@@ -5578,7 +5587,7 @@ long src_callback(void *cb_data, float **data) {
 			mod_currentsub=1;
 			
 			iModuleLength=info.time_ms;
-			if (iModuleLength<=0) iModuleLength=SC68_DEFAULT_LENGTH;
+			if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
 			iCurrentTime=0;
 			
 			numChannels=2;
@@ -5618,7 +5627,7 @@ long src_callback(void *cb_data, float **data) {
 			mod_currentsub=1;
 			
 			iModuleLength=mdx_get_length( mdx,pdx);
-			if (iModuleLength<=0) iModuleLength=MDX_DEFAULT_LENGTH;
+			if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//MDX_DEFAULT_LENGTH;
 			iCurrentTime=0;
 			
 			numChannels=mdx->tracks;
@@ -5858,7 +5867,7 @@ long src_callback(void *cb_data, float **data) {
             // w/ loss of precision; use pmdwinimport.h's getlength for ms
             int loop_length;
             getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
-            if (iModuleLength<=0) iModuleLength=PMD_DEFAULT_LENGTH;
+            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//PMD_DEFAULT_LENGTH;
             iCurrentTime=0;
             
             // these strings are SJIS
@@ -6035,7 +6044,7 @@ long src_callback(void *cb_data, float **data) {
 				mSidEmuEngine->load(mSidTune);
 			}
 			iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-			if (iModuleLength<=0) iModuleLength=SID_DEFAULT_LENGTH;
+			if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
 			if (mLoopMode) iModuleLength=-1;
 			
 			mod_message_updated=1;
@@ -6056,7 +6065,7 @@ long src_callback(void *cb_data, float **data) {
 			api68_play( sc68, mod_currentsub, 1);
 			api68_music_info( sc68, &info, mod_currentsub, NULL );
 			iModuleLength=info.time_ms;
-			if (iModuleLength<=0) iModuleLength=SC68_DEFAULT_LENGTH;
+			if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
 			
 			//Loop
 			if (mLoopMode==1) iModuleLength=-1;
