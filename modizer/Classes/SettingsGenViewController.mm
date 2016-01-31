@@ -150,6 +150,10 @@ void optUADEChangedC(id param) {
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
                     break;
+                case MDZ_SLIDER_DISCRETE_TIME:
+                    valNb=[prefs objectForKey:str];
+                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    break;
                 case MDZ_SLIDER_CONTINUOUS:
                     valNb=[prefs objectForKey:str];
                     if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
@@ -196,6 +200,10 @@ void optUADEChangedC(id param) {
                     [prefs setObject:valNb forKey:str];[valNb autorelease];
                     break;
                 case MDZ_SLIDER_DISCRETE:
+                    valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
+                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    break;
+                case MDZ_SLIDER_DISCRETE_TIME:
                     valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
                     [prefs setObject:valNb forKey:str];[valNb autorelease];
                     break;
@@ -439,10 +447,10 @@ void optUADEChangedC(id param) {
     settings[GLOB_DefaultLength].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
     settings[GLOB_DefaultLength].callback=&optGLOBALChangedC;
-    settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_DefaultLength].type=MDZ_SLIDER_DISCRETE_TIME;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_min_value=10;
-    settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=1200;
+    settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=600;
     
     settings[GLOB_DefaultMODPlayer].type=MDZ_SWITCH;
     settings[GLOB_DefaultMODPlayer].label=(char*)"Default MOD player";
@@ -1657,6 +1665,18 @@ void optUADEChangedC(id param) {
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             sliderview.integerMode=1;
+            [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
+            [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
+            [sliderview setContinuous:true];
+            sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
+            [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            cell.accessoryView = sliderview;
+            [sliderview release];
+            break;
+        case MDZ_SLIDER_DISCRETE_TIME:
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+            sliderview.integerMode=2;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
             [sliderview setMinimumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_min_value];
             [sliderview setContinuous:true];

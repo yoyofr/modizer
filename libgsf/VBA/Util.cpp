@@ -592,9 +592,9 @@ static int fread_int(unsigned int *dst, FILE *f)
 	return r;
 }
 
-GSF_FILE decompressGSF(const char * file, int libnum=1)
+GSF_FILE *decompressGSF(const char * file, int libnum=1)
 {
-	GSF_FILE gsffile;
+	GSF_FILE *gsffile;
 	char libtag[0x40];
 	char libname[0x8];
 	unsigned int filesize;
@@ -605,11 +605,15 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
     unsigned long decompsize=12;
 	unsigned int tmpval;
 	FILE *f;
-	memset(gsffile.psftag,0,sizeof(gsffile.psftag));
-	gsffile.program=NULL;
-	gsffile.reserved=NULL;
-	memset(gsffile.libname,0,sizeof(gsffile.libname));
-	gsffile.gsfloaded = false;
+    
+    gsffile=(GSF_FILE*)malloc(sizeof(GSF_FILE));
+    if (!gsffile) return NULL;
+    
+	memset(gsffile->psftag,0,sizeof(gsffile->psftag));
+	gsffile->program=NULL;
+	gsffile->reserved=NULL;
+	memset(gsffile->libname,0,sizeof(gsffile->libname));
+	gsffile->gsfloaded = false;
 	
 	f=fopen(file,"rb");
 	 
@@ -658,8 +662,8 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 
 	  if(reserved>0)
 	  {
-		  gsffile.reserved = (Byte*) malloc(reserved);
-		  if(gsffile.reserved==NULL)
+		  gsffile->reserved = (Byte*) malloc(reserved);
+		  if(gsffile->reserved==NULL)
 		  {
 			  fclose(f);
 #ifdef LINUX
@@ -667,7 +671,7 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 #endif
 			  return gsffile;
 		  }
-		  fread(gsffile.reserved,1,reserved,f);
+		  fread(gsffile->reserved,1,reserved,f);
 	  }
 	
 	  if(program>0)
@@ -751,19 +755,19 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 				cpuIsMultiBoot = true;
 			uncompbuf-=3;
 			free(compbuf);
-			gsffile.program=uncompbuf;
+			gsffile->program=uncompbuf;
 	  }
-	  fread(gsffile.psftag,1,5,f);
+	  fread(gsffile->psftag,1,5,f);
 #ifdef LINUX
-	  if(!strcasecmp(gsffile.psftag,"[TAG]"))
+	  if(!strcasecmp(gsffile->psftag,"[TAG]"))
 	  {
-	    fread(gsffile.psftag,1,50000,f);
+	    fread(gsffile->psftag,1,50000,f);
 	  }
 	
 #else
-	  if(!stricmp(gsffile.psftag,"[TAG]"))
+	  if(!stricmp(gsffile->psftag,"[TAG]"))
 	  {
-	    fread(gsffile.psftag,1,50000,f);
+	    fread(gsffile->psftag,1,50000,f);
 	  }
 #endif
 
@@ -771,9 +775,9 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 		  sprintf(libname,"_lib");
 	  else
 		  sprintf(libname,"_lib%d",libnum);
-	  if(!psftag_raw_getvar(gsffile.psftag,libname,libtag,sizeof(libtag)-1))
+	  if(!psftag_raw_getvar(gsffile->psftag,libname,libtag,sizeof(libtag)-1))
 	  {
-		  memcpy(gsffile.libname,libtag,sizeof(gsffile.libname));
+		  memcpy(gsffile->libname,libtag,sizeof(gsffile->libname));
 	  }
 
 	  fclose(f);
@@ -782,7 +786,7 @@ GSF_FILE decompressGSF(const char * file, int libnum=1)
 		  return gsffile;
 	  }
 
-	gsffile.gsfloaded = true;
+	gsffile->gsfloaded = true;
 
 
 	return gsffile;
@@ -803,23 +807,30 @@ bool utildecompGSF(const char * file)
 
 	int i, j;
 
-	GSF_FILE gsffile, gsflib[MAX_GSFLIB];
-
+	GSF_FILE *gsffile, *gsflib[MAX_GSFLIB];
+    for (int ii=0;ii<MAX_GSFLIB;ii++) {
+        gsflib[ii]=NULL;
+        if (ii>=2) gsflib[ii]=(GSF_FILE*)malloc(sizeof(GSF_FILE));
+    }
 	TrackLength=0;
 	FadeLength=0;
 
 
 	gsffile = decompressGSF(file,1);
 	gsflib[0]=gsffile;
-	if(gsffile.gsfloaded == false) {
+	if(gsffile->gsfloaded == false) {
 		printf("Failed to load\n");
+        
+        for (int ii=0;ii<MAX_GSFLIB;ii++) {
+            if (gsflib[ii]) free(gsflib[ii]);
+        }
 		return false;
 	}
 
    
 	
 	//if(gsffile.libname[0]!=0) {
-	if(!psftag_raw_getvar(gsffile.psftag,"_lib",libtag,sizeof(libtag)-1)) {
+	if(!psftag_raw_getvar(gsffile->psftag,"_lib",libtag,sizeof(libtag)-1)) {
 
 		utilGetBasePath(file,tempname);
 #ifdef LINUX
@@ -829,23 +840,27 @@ bool utildecompGSF(const char * file)
 #endif        
 		gsflib[1] = decompressGSF(filename,2);
 
-		if(gsflib[1].gsfloaded == false)
+		if(gsflib[1]->gsfloaded == false)
 		{
 			printf("Failed to load library\n");
             strcpy(gsf_libfile,libtag);
 			free(uncompbuf);
+            
+            for (int ii=0;ii<MAX_GSFLIB;ii++) {
+                if (gsflib[ii]) free(gsflib[ii]);
+            }
 			return false;
 		}
 
-//		memcpy(&offset,gsffile.program+4,sizeof(offset));
-		copy_int(&offset, gsffile.program+4);
-//		memcpy(&size,gsffile.program+8,sizeof(size));
-		copy_int(&size, gsffile.program+8);
+//		memcpy(&offset,gsffile->program+4,sizeof(offset));
+		copy_int(&offset, gsffile->program+4);
+//		memcpy(&size,gsffile->program+8,sizeof(size));
+		copy_int(&size, gsffile->program+8);
 		
 		offset&=0x01FFFFFF;
-		memcpy(gsflib[1].program+12+offset,gsffile.program+12,size);
-		free(gsffile.program);
-		uncompbuf=gsflib[1].program;
+		memcpy(gsflib[1]->program+12+offset,gsffile->program+12,size);
+		free(gsffile->program);
+		uncompbuf=gsflib[1]->program;
 
 
 		for(i=2;i<MAX_GSFLIB;i++)
@@ -853,42 +868,46 @@ bool utildecompGSF(const char * file)
 			sprintf(libname,"_lib%d",i);
 			for(j=0;j<i;j++)
 			{
-				if(!psftag_raw_getvar(gsflib[j].psftag,libname,libtag,sizeof(libtag)-1)) {
+				if(!psftag_raw_getvar(gsflib[j]->psftag,libname,libtag,sizeof(libtag)-1)) {
 					sprintf(filename,"%s\\%s",tempname,libtag);
 					gsflib[i] = decompressGSF(filename,i+1);
-					if(gsflib[i].gsfloaded == false)
+					if(gsflib[i]->gsfloaded == false)
 					{
 						free(uncompbuf);
+                        
+                        for (int ii=0;ii<MAX_GSFLIB;ii++) {
+                            if (gsflib[ii]) free(gsflib[ii]);
+                        }
 						return false;
 					}
-//					memcpy(&offset,gsflib[i].program+4,sizeof(offset));
-					copy_int(&offset, gsflib[i].program+4);
-					//memcpy(&size,gsflib[i].program+8,sizeof(size));
-					copy_int(&size, gsflib[i].program+8);
+//					memcpy(&offset,gsflib[i]->program+4,sizeof(offset));
+					copy_int(&offset, gsflib[i]->program+4);
+					//memcpy(&size,gsflib[i]->program+8,sizeof(size));
+					copy_int(&size, gsflib[i]->program+8);
 					offset&=0x01FFFFFF;
-					memcpy(gsflib[1].program+12+offset,gsflib[i].program+12,size);
-					free(gsflib[i].program);
+					memcpy(gsflib[1]->program+12+offset,gsflib[i]->program+12,size);
+					free(gsflib[i]->program);
 					break;
 				}
 			}
-			if(gsflib[i].program == NULL)
+			if(gsflib[i]->program == NULL)
 				break;
 		}
 
-		uncompbuf=gsflib[1].program;
+		uncompbuf=gsflib[1]->program;
 
 	}
 	else
-		uncompbuf=gsffile.program;
+		uncompbuf=gsffile->program;
 
-	psftag_raw_getvar(gsffile.psftag,"length",length,sizeof(length)-1);
+	psftag_raw_getvar(gsffile->psftag,"length",length,sizeof(length)-1);
 	if (/*!IgnoreTrackLength &&*/ strlen(length))
 		TrackLength=LengthFromString(length);
 	if (TrackLength <= 0) {
 	if (IgnoreTrackLength)
 		TrackLength=0;
 	}
-	psftag_raw_getvar(gsffile.psftag,"fade",fade,sizeof(fade)-1);
+	psftag_raw_getvar(gsffile->psftag,"fade",fade,sizeof(fade)-1);
 	if (/*!IgnoreTrackLength &&*/ strlen(fade)) {
 		FadeLength=LengthFromString(fade);
 		TrackLength+=FadeLength; // comply with PSF standard timing:
@@ -900,7 +919,7 @@ bool utildecompGSF(const char * file)
 	}
 	relvolume=0;
 
-	psftag_raw_getvar(gsffile.psftag,"volume",volume,sizeof(volume)-1);
+	psftag_raw_getvar(gsffile->psftag,"volume",volume,sizeof(volume)-1);
 	if(strlen(volume))
 		relvolume=VolumeFromString(volume);
 	if(relvolume==0) {
@@ -908,7 +927,9 @@ bool utildecompGSF(const char * file)
 	}
 	  
 
-
+    for (int ii=0;ii<MAX_GSFLIB;ii++) {
+        if (gsflib[ii]) free(gsflib[ii]);
+    }
 	return true;
 
 }
@@ -1059,7 +1080,7 @@ void utilGetBasePath(const char *file, char *buffer)
 
 IMAGE_TYPE utilFindType(const char *file)
 {
-  char buffer[2048];
+    char buffer[2048];
   
   //if(utilIsZipFile(file)) {
   //  unzFile unz = unzOpen(file);
@@ -1150,7 +1171,7 @@ IMAGE_TYPE utilFindType(const char *file)
 */    //if(utilIsGzipFile(file))
     //  utilGetBaseName(file, buffer);
     //else
-      strcpy(buffer, file);
+    strcpy(buffer, file);
     
     if(utilIsGBAImage(buffer))
       return IMAGE_GBA;
