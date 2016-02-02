@@ -83,6 +83,7 @@ extern "C" {
 	float mUADE_OptGAINValue,mUADE_OptPANValue;
 	//GME
 	int optGMEFadeOut;
+    double optGMERatio;
 	//Modplug
 	ModPlug_Settings mp_settings;
     int mPatternDataAvail;
@@ -240,6 +241,8 @@ extern "C" {
 -(void) optGLOB_PanningValue:(float)value;
 
 -(void) optGME_Fade:(int)fade;
+-(void) optGME_Ratio:(double)ratio;
+
 -(void) optGME_EQ:(double)treble bass:(double)bass;
 -(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo;
 
