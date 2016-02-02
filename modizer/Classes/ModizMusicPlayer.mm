@@ -6554,12 +6554,26 @@ extern "C" void adjust_amplification(void);
 // GME
 ///////////////////////////
 -(void) optGME_Fade:(int)fade {
+    optGMEFadeOut = fade;
 }
 
--(void) optGME_Ratio:(double)ratio{
+
+-(void) optGME_Ratio_Enable:(bool)enable
+{
+    optGMEEnableRatio= enable;
+    [self optGME_Ratio:optGMERatio];
+    if(!enable)
+    {
+        optGMEEnableRatio = true;
+        [self optGME_Ratio:1];
+        optGMEEnableRatio=false;
+    }
+}
+
+-(void) optGME_Ratio:(float)ratio{
     optGMERatio = ratio;
     
-    if(gme_emu)
+    if(gme_emu &&  optGMEEnableRatio)
     {
         gme_set_tempo(gme_emu, optGMERatio);
     }
