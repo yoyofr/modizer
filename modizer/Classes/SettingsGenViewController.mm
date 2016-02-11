@@ -329,6 +329,9 @@ void optUADEChangedC(id param) {
     //GME
     /////////////////////////////////////
     settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
+    settings[GME_RATIO].detail.mdz_slider.slider_value=1;
+    settings[GME_RATIO_ONOFF].detail.mdz_slider.slider_value=1;
+    
     settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value=-14;
     settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value=0;
@@ -996,6 +999,26 @@ void optUADEChangedC(id param) {
     settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
     settings[GME_FADEOUT].detail.mdz_slider.slider_min_value=0;
     settings[GME_FADEOUT].detail.mdz_slider.slider_max_value=5;
+    
+    
+    
+    settings[GME_RATIO_ONOFF].type=MDZ_BOOLSWITCH;
+    settings[GME_RATIO_ONOFF].label=(char*)"Enable Playback Ratio";
+    settings[GME_RATIO_ONOFF].description=NULL;
+    settings[GME_RATIO_ONOFF].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_RATIO_ONOFF].sub_family=0;
+    settings[GME_RATIO_ONOFF].callback=&optGMEChangedC;
+    settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GME_RATIO].label=(char*)"Playback Ratio";
+    settings[GME_RATIO].description=NULL;
+    settings[GME_RATIO].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_RATIO].sub_family=0;
+    settings[GME_RATIO].callback=&optGMEChangedC;
+    settings[GME_RATIO].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GME_RATIO].detail.mdz_slider.slider_value=1;
+    settings[GME_RATIO].detail.mdz_slider.slider_min_value=0.1;
+    settings[GME_RATIO].detail.mdz_slider.slider_max_value=5;
     
     settings[GME_EQ_BASS].label=(char*)"Bass";
     settings[GME_EQ_BASS].description=NULL;
