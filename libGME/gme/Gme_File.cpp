@@ -172,12 +172,11 @@ blargg_err_t Gme_File::track_info( track_info_t* out, int track ) const
 	
 	// play_length
 	out->play_length = out->length;
-	if ( out->play_length <= 0 )
+/*	if ( out->play_length <= 0 )
 	{
 		out->play_length = out->intro_length + 2 * out->loop_length; // intro + 2 loops
-		if ( out->play_length <= 0 )
-			out->play_length = 150 * 1000; // 2.5 minutes
-	}
+		if ( out->play_length <= 0 ) out->play_length = 150 * 1000; // 2.5 minutes
+	}*/
 	
 	return blargg_ok;
 }

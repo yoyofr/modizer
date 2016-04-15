@@ -105,6 +105,8 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_GME,
         GME_FADEOUT,
+        GME_RATIO_ONOFF,
+        GME_RATIO,
         GME_EQ_BASS,
         GME_EQ_TREBLE,
         GME_FX_ONOFF,
