@@ -485,6 +485,8 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {
         [mplayer optGME_Fade:settings[GME_FADEOUT].detail.mdz_slider.slider_value*1000];
+        [mplayer optGME_Ratio:settings[GME_RATIO].detail.mdz_slider.slider_value
+                    isEnabled:settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value];
         [mplayer optGME_EQ:settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value bass:settings[GME_EQ_BASS].detail.mdz_slider.slider_value];
         [mplayer optGME_FX:settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value
                   surround:settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value

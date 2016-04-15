@@ -33,9 +33,9 @@
 
 //#include "emu.h"
 #include "mamedef.h"
-#ifdef _DEBUG
+//#ifdef _DEBUG
 #include <stdio.h>
-#endif
+//#endif
 #include <memory.h>
 #include <malloc.h>
 #include <math.h>

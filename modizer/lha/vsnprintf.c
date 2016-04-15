@@ -110,6 +110,8 @@
 
 #include <stddef.h>
 
+#include <string.h>
+
 #ifndef NULL
 #define	NULL	0
 #endif

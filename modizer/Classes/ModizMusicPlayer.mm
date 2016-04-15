@@ -6557,6 +6557,14 @@ extern "C" void adjust_amplification(void);
     optGMEFadeOut=fade;
 }
 
+-(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled {
+    optGMERatio = ratio;
+    if(gme_emu) {
+        if(!enabled) optGMERatio = 1;
+        gme_set_tempo(gme_emu, optGMERatio);
+    }
+}
+
 -(void) optGME_EQ:(double)treble bass:(double)bass {
     if (gme_emu) {
         gme_equalizer( gme_emu, &gme_eq );

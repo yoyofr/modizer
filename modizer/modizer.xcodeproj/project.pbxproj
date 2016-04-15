@@ -762,7 +762,6 @@
 		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CCC677C217F75AEB00F16A54 /* virtual escape.sndh in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779917F75AEB00F16A54 /* virtual escape.sndh */; };
 		CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777317F75AEA00F16A54 /* 1999.xm */; };
-		CCC6785A17F75B9500F16A54 /* ambrozia.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777417F75AEA00F16A54 /* ambrozia.xm */; };
 		CCC6785B17F75B9500F16A54 /* beat to the pulp.sid in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */; };
 		CCC6785C17F75B9500F16A54 /* beyond music.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777617F75AEA00F16A54 /* beyond music.mod */; };
 		CCC6785E17F75B9500F16A54 /* cream of the earth.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777817F75AEA00F16A54 /* cream of the earth.mod */; };
@@ -775,7 +774,6 @@
 		CCC6786917F75B9500F16A54 /* livin' insanity.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778317F75AEB00F16A54 /* livin' insanity.mod */; };
 		CCC6786A17F75B9500F16A54 /* nearly there.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778417F75AEB00F16A54 /* nearly there.mod */; };
 		CCC6786B17F75B9500F16A54 /* nebulos.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778517F75AEB00F16A54 /* nebulos.mod */; };
-		CCC6786C17F75B9500F16A54 /* nine one one.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778617F75AEB00F16A54 /* nine one one.xm */; };
 		CCC6786D17F75B9500F16A54 /* now what 3.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778717F75AEB00F16A54 /* now what 3.mod */; };
 		CCC6786E17F75B9500F16A54 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778817F75AEB00F16A54 /* odyssey-part5.jpg */; };
 		CCC6786F17F75B9500F16A54 /* odyssey-part5.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778917F75AEB00F16A54 /* odyssey-part5.mod */; };
@@ -1219,7 +1217,6 @@
 			dstSubfolderSpec = 7;
 			files = (
 				CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */,
-				CCC6785A17F75B9500F16A54 /* ambrozia.xm in Copy Files-Samples Demoscene */,
 				CCC6785B17F75B9500F16A54 /* beat to the pulp.sid in Copy Files-Samples Demoscene */,
 				CCC6785C17F75B9500F16A54 /* beyond music.mod in Copy Files-Samples Demoscene */,
 				CCC6785E17F75B9500F16A54 /* cream of the earth.mod in Copy Files-Samples Demoscene */,
@@ -1232,7 +1229,6 @@
 				CCC6786917F75B9500F16A54 /* livin' insanity.mod in Copy Files-Samples Demoscene */,
 				CCC6786A17F75B9500F16A54 /* nearly there.mod in Copy Files-Samples Demoscene */,
 				CCC6786B17F75B9500F16A54 /* nebulos.mod in Copy Files-Samples Demoscene */,
-				CCC6786C17F75B9500F16A54 /* nine one one.xm in Copy Files-Samples Demoscene */,
 				CCC6786D17F75B9500F16A54 /* now what 3.mod in Copy Files-Samples Demoscene */,
 				CCC6786E17F75B9500F16A54 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */,
 				CCC6786F17F75B9500F16A54 /* odyssey-part5.mod in Copy Files-Samples Demoscene */,
@@ -2609,7 +2605,6 @@
 		CCC6776F17F6B92500F16A54 /* CMPopTipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMPopTipView.h; sourceTree = "<group>"; };
 		CCC6777017F6B92500F16A54 /* CMPopTipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMPopTipView.m; sourceTree = "<group>"; };
 		CCC6777317F75AEA00F16A54 /* 1999.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = 1999.xm; path = Resources/Samples2/Demoscene/1999.xm; sourceTree = SOURCE_ROOT; };
-		CCC6777417F75AEA00F16A54 /* ambrozia.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = ambrozia.xm; path = Resources/Samples2/Demoscene/ambrozia.xm; sourceTree = SOURCE_ROOT; };
 		CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = "beat to the pulp.sid"; path = "Resources/Samples2/Demoscene/beat to the pulp.sid"; sourceTree = SOURCE_ROOT; };
 		CCC6777617F75AEA00F16A54 /* beyond music.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "beyond music.mod"; path = "Resources/Samples2/Demoscene/beyond music.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6777817F75AEA00F16A54 /* cream of the earth.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "cream of the earth.mod"; path = "Resources/Samples2/Demoscene/cream of the earth.mod"; sourceTree = SOURCE_ROOT; };
@@ -2622,7 +2617,6 @@
 		CCC6778317F75AEB00F16A54 /* livin' insanity.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "livin' insanity.mod"; path = "Resources/Samples2/Demoscene/livin' insanity.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6778417F75AEB00F16A54 /* nearly there.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "nearly there.mod"; path = "Resources/Samples2/Demoscene/nearly there.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6778517F75AEB00F16A54 /* nebulos.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = nebulos.mod; path = Resources/Samples2/Demoscene/nebulos.mod; sourceTree = SOURCE_ROOT; };
-		CCC6778617F75AEB00F16A54 /* nine one one.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "nine one one.xm"; path = "Resources/Samples2/Demoscene/nine one one.xm"; sourceTree = SOURCE_ROOT; };
 		CCC6778717F75AEB00F16A54 /* now what 3.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "now what 3.mod"; path = "Resources/Samples2/Demoscene/now what 3.mod"; sourceTree = SOURCE_ROOT; };
 		CCC6778817F75AEB00F16A54 /* odyssey-part5.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "odyssey-part5.jpg"; path = "Resources/Samples2/Demoscene/odyssey-part5.jpg"; sourceTree = SOURCE_ROOT; };
 		CCC6778917F75AEB00F16A54 /* odyssey-part5.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "odyssey-part5.mod"; path = "Resources/Samples2/Demoscene/odyssey-part5.mod"; sourceTree = SOURCE_ROOT; };
@@ -4861,7 +4855,6 @@
 			isa = PBXGroup;
 			children = (
 				CCC6777317F75AEA00F16A54 /* 1999.xm */,
-				CCC6777417F75AEA00F16A54 /* ambrozia.xm */,
 				CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */,
 				CCC6777617F75AEA00F16A54 /* beyond music.mod */,
 				CCC6777817F75AEA00F16A54 /* cream of the earth.mod */,
@@ -4874,7 +4867,6 @@
 				CCC6778317F75AEB00F16A54 /* livin' insanity.mod */,
 				CCC6778417F75AEB00F16A54 /* nearly there.mod */,
 				CCC6778517F75AEB00F16A54 /* nebulos.mod */,
-				CCC6778617F75AEB00F16A54 /* nine one one.xm */,
 				CCC6778717F75AEB00F16A54 /* now what 3.mod */,
 				CCC6778817F75AEB00F16A54 /* odyssey-part5.jpg */,
 				CCC6778917F75AEB00F16A54 /* odyssey-part5.mod */,
@@ -6558,7 +6550,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
@@ -6584,7 +6576,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
@@ -6612,7 +6604,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
@@ -6688,7 +6680,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
@@ -6763,7 +6755,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";

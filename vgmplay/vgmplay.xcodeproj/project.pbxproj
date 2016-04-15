@@ -733,7 +733,7 @@
 					"-DADDITIONAL_FORMATS",
 					"-Dchip_reg_write=VGMchip_reg_write",
 				);
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -774,7 +774,7 @@
 					"-DADDITIONAL_FORMATS",
 					"-Dchip_reg_write=VGMchip_reg_write",
 				);
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
