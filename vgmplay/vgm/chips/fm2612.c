@@ -129,13 +129,12 @@
 /************************************************************************/
 
 //#include "emu.h"
-#include <malloc.h>
-#include <memory.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
+#include <stddef.h>	// for NULL
 #include <math.h>
 #include "mamedef.h"
 #include "fm.h"
-
-#define NULL	((void *)0)
 
 /* shared function building option */
 #define BUILD_OPN (BUILD_YM2203||BUILD_YM2608||BUILD_YM2610||BUILD_YM2610B||BUILD_YM2612||BUILD_YM3438)
@@ -936,49 +935,28 @@ INLINE void set_timers( FM_OPN *OPN, FM_ST *ST, void *n, int v )
 		}
 	}
 
-	/* reset Timer b flag */
+	// reset Timer b flag
 	if( v & 0x20 )
 		FM_STATUS_RESET(ST,0x02);
-	/* reset Timer a flag */
+	// reset Timer a flag
 	if( v & 0x10 )
 		FM_STATUS_RESET(ST,0x01);
-	/* load b */
-	if( v & 0x02 )
+	// load b
+	if ((v&2) && !(ST->mode&2))
 	{
-		if( ST->TBC == 0 )
-		{
-			ST->TBC = ( 256-ST->TB)<<4;
-			/* External timer handler */
-			if (ST->timer_handler) (ST->timer_handler)(n,1,ST->TBC * ST->timer_prescaler,ST->clock);
-		}
+		ST->TBC = ( 256-ST->TB)<<4;
+		/* External timer handler */
+		if (ST->timer_handler) (ST->timer_handler)(n,1,ST->TBC * ST->timer_prescaler,ST->clock);
 	}
-	else
-	{	/* stop timer b */
-		if( ST->TBC != 0 )
-		{
-			ST->TBC = 0;
-			if (ST->timer_handler) (ST->timer_handler)(n,1,0,ST->clock);
-		}
-	}
-	/* load a */
-	if( v & 0x01 )
+	// load a
+	if ((v&1) && !(ST->mode&1))
 	{
-		if( ST->TAC == 0 )
-		{
-			ST->TAC = (1024-ST->TA);
-			/* External timer handler */
-			if (ST->timer_handler) (ST->timer_handler)(n,0,ST->TAC * ST->timer_prescaler,ST->clock);
-			ST->TAC *= 4096;
-		}
+		ST->TAC = (1024-ST->TA);
+		/* External timer handler */
+		if (ST->timer_handler) (ST->timer_handler)(n,0,ST->TAC * ST->timer_prescaler,ST->clock);
+		ST->TAC *= 4096;
 	}
-	else
-	{	/* stop timer a */
-		if( ST->TAC != 0 )
-		{
-			ST->TAC = 0;
-			if (ST->timer_handler) (ST->timer_handler)(n,0,0,ST->clock);
-		}
-	}
+
 	ST->mode = v;
 }
 
@@ -1984,6 +1962,8 @@ static void OPNWriteReg(FM_OPN *OPN, int r, int v)
 		switch( OPN_SLOT(r) )
 		{
 		case 0:		/* 0xa0-0xa2 : FNUM1 */
+			if (IsVGMInit)
+				OPN->ST.fn_h = CH->block_fnum >> 8;
 			{
 				UINT32 fn = (((UINT32)( (OPN->ST.fn_h)&7))<<8) + v;
 				UINT8 blk = OPN->ST.fn_h>>3;
@@ -2000,8 +1980,12 @@ static void OPNWriteReg(FM_OPN *OPN, int r, int v)
 			break;
 		case 1:		/* 0xa4-0xa6 : FNUM2,BLK */
 			OPN->ST.fn_h = v&0x3f;
+			if (IsVGMInit)	// workaround for stupid Kega Fusion init block
+				CH->block_fnum = (OPN->ST.fn_h << 8) | (CH->block_fnum & 0xFF);
 			break;
 		case 2:		/* 0xa8-0xaa : 3CH FNUM1 */
+			if (IsVGMInit)
+				OPN->SL3.fn_h = OPN->SL3.block_fnum[c] >> 8;
 			if(r < 0x100)
 			{
 				UINT32 fn = (((UINT32)(OPN->SL3.fn_h&7))<<8) + v;
@@ -2016,7 +2000,11 @@ static void OPNWriteReg(FM_OPN *OPN, int r, int v)
 			break;
 		case 3:		/* 0xac-0xae : 3CH FNUM2,BLK */
 			if(r < 0x100)
+			{
 				OPN->SL3.fn_h = v&0x3f;
+				if (IsVGMInit)
+					OPN->SL3.block_fnum[c] = (OPN->SL3.fn_h << 8) | (OPN->SL3.block_fnum[c] & 0xFF);
+			}
 			break;
 		}
 		break;

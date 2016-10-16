@@ -102,12 +102,11 @@
 #ifdef _DEBUG
 #include <stdio.h>
 #endif
-#include <memory.h>
-#include <malloc.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
+#include <stddef.h>	// for NULL
 #include "mamedef.h"
 #include "upd7759.h"
-
-#define NULL	((void *)0)
 
 
 #define DEBUG_STATES	(0)
@@ -171,7 +170,7 @@ struct _upd7759_state
 	UINT8		start;						/* current state of the START line */
 	UINT8		drq;						/* current state of the DRQ line */
 	//void (*drqcallback)(running_device *device, int param);			/* drq callback */
-	void (*drqcallback)(int param);			/* drq callback */
+	//void (*drqcallback)(int param);			/* drq callback */
 
 	/* internal state machine */
 	INT8		state;						/* current overall chip state */
@@ -199,6 +198,11 @@ struct _upd7759_state
 	UINT8 *		rombase;					/* pointer to ROM data or NULL for slave mode */
 	UINT32		romoffset;					/* ROM offset to make save/restore easier */
 	UINT8		ChipMode;					// 0 - Master, 1 - Slave
+	
+	// Valley Bell: Added a FIFO buffer based on Sega Pico.
+	UINT8 data_buf[0x40];
+	UINT8 dbuf_pos_read;
+	UINT8 dbuf_pos_write;
 };
 
 
@@ -271,6 +275,21 @@ INLINE void update_adpcm(upd7759_state *chip, int data)
 
 *************************************************************/
 
+static void get_fifo_data(upd7759_state *chip)
+{
+	if (chip->dbuf_pos_read == chip->dbuf_pos_write)
+	{
+		logerror("Warning: UPD7759 reading empty FIFO!\n");
+		return;
+	}
+	
+	chip->fifo_in = chip->data_buf[chip->dbuf_pos_read];
+	chip->dbuf_pos_read ++;
+	chip->dbuf_pos_read &= 0x3F;
+	
+	return;
+}
+
 static void advance_state(upd7759_state *chip)
 {
 	switch (chip->state)
@@ -284,6 +303,8 @@ static void advance_state(upd7759_state *chip)
 		case STATE_DROP_DRQ:
 			chip->drq = 0;
 
+			if (chip->ChipMode)
+				get_fifo_data(chip);	// Slave Mode only
 			chip->clocks_left = chip->post_drq_clocks;
 			chip->state = chip->post_drq_state;
 			break;
@@ -627,6 +648,11 @@ static void upd7759_reset(upd7759_state *chip)
 	chip->adpcm_data         = 0;
 	chip->sample             = 0;
 
+	// Valley Bell: reset buffer
+	chip->data_buf[0] = chip->data_buf[1] = 0x00;
+	chip->dbuf_pos_read = 0x00;
+	chip->dbuf_pos_write = 0x00;
+
 	/* turn off any timer */
 	//if (chip->timer)
 	//	timer_adjust_oneshot(chip->timer, attotime_never, 0);
@@ -645,11 +671,11 @@ void device_reset_upd7759(UINT8 ChipID)
 
 
 //static STATE_POSTLOAD( upd7759_postload )
-static void upd7759_postload(void* param)
+/*static void upd7759_postload(void* param)
 {
 	upd7759_state *chip = (upd7759_state *)param;
 	chip->rom = chip->rombase + chip->romoffset;
-}
+}*/
 
 
 /*static void register_for_save(upd7759_state *chip, running_device *device)
@@ -723,7 +749,7 @@ int device_start_upd7759(UINT8 ChipID, int clock)
 	chip->romoffset = 0x00;
 
 	/* set the DRQ callback */
-	chip->drqcallback = intf->drqcallback;
+	//chip->drqcallback = intf->drqcallback;
 
 	/* assume /RESET and /START are both high */
 	chip->reset = 1;
@@ -804,7 +830,18 @@ void upd7759_port_w(UINT8 ChipID, offs_t offset, UINT8 data)
 	/* update the FIFO value */
 	//upd7759_state *chip = get_safe_token(device);
 	upd7759_state *chip = &UPD7759Data[ChipID];
-	chip->fifo_in = data;
+	
+	if (! chip->ChipMode)
+	{
+		chip->fifo_in = data;
+	}
+	else
+	{
+		// Valley Bell: added FIFO buffer for Slave mode
+		chip->data_buf[chip->dbuf_pos_write] = data;
+		chip->dbuf_pos_write ++;
+		chip->dbuf_pos_write &= 0x3F;
+	}
 }
 
 

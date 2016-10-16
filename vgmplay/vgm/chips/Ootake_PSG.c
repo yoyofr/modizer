@@ -49,8 +49,8 @@ Copyright(C)2006-2012 Kitao Nakamura.
     GNU General Public License for more details.
 ******************************************************************************/
 #include <stdio.h>
-#include <malloc.h>
-#include <memory.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
 #include <math.h>
 #include "mamedef.h"
 #include "Ootake_PSG.h"

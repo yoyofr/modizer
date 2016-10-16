@@ -8,16 +8,15 @@
 *********************************************************/
 
 //#include "emu.h"
-#include <malloc.h>
-#include <memory.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
+#include <stddef.h>	// for NULL
 #include <math.h>
 #include "mamedef.h"
 #ifdef _DEBUG
 #include <stdio.h>
 #endif
 #include "k054539.h"
-
-#define NULL	((void *)0)
 
 #define VERBOSE 0
 #define LOG(x) do { if (VERBOSE) logerror x; } while (0)

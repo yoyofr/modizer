@@ -1,3 +1,4 @@
+#include <stddef.h>	// for NULL
 #include "mamedef.h"
 #ifdef ENABLE_ALL_CORES
 #include "c6280.h"
@@ -8,8 +9,6 @@
 #define EC_MAME		0x01
 #endif
 #define EC_OOTAKE	0x00
-
-#define NULL	((void *)0)
 
 typedef struct _c6280_state
 {
@@ -43,7 +42,7 @@ void c6280_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 int device_start_c6280(UINT8 ChipID, int clock)
 {
 	c6280_state* info;
-	int rate;
+	int rate = 0;
 	
 	if (ChipID >= MAX_CHIPS)
 		return 0;

@@ -116,7 +116,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
-#include <malloc.h>
 
 #include "mamedef.h"
 //#ifndef __RAINE__
@@ -3966,7 +3965,7 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 	if( FM_KEY_IS(&F2610->CH[0].SLOT[3]) )
 	{
 		LOG(LOG_WAR,(FM_MSG_YM2610B,F2610->OPN.ST.param,0));
-		FM_KEY_IS(&F2610->CH[3].SLOT[3]) = 0;
+		FM_KEY_IS(&F2610->CH[0].SLOT[3]) = 0;
 	}
 	if( FM_KEY_IS(&F2610->CH[3].SLOT[3]) )
 	{
@@ -4425,11 +4424,6 @@ void ym2610_reset_chip(void *chip)
 	}
 	else
 		F2610->deltaT.memory_size = dev->machine->region(name)->bytes();*/
-	F2610->pcmbuf   = NULL;
-	F2610->pcm_size = 0x00;
-	F2610->deltaT.memory = NULL;
-	F2610->deltaT.memory_size = 0x00;
-	F2610->deltaT.memory_mask = 0x00;
 
 	/* Reset Prescaler */
 	OPNSetPres( OPN, 6*24, 6*24, 4*2); /* OPN 1/6 , SSG 1/4 */
