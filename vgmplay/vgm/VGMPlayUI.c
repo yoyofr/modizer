@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <wchar.h>
+#include <ctype.h>	// for toupper
 #include <locale.h>	// for setlocale
 #include "stdbool.h"
 #include <math.h>
@@ -20,6 +21,7 @@
 #include <limits.h>	// for PATH_MAX
 #include <termios.h>
 #include <unistd.h>	// for STDIN_FILENO and usleep()
+#include <sys/time.h>	// for struct timeval in _kbhit()
 
 #define	Sleep(msec)	usleep(msec * 1000)
 #define _vsnwprintf	vswprintf
@@ -35,6 +37,9 @@
 
 #ifdef XMAS_EXTRA
 #include "XMasFiles/XMasBonus.h"
+#endif
+#ifdef WS_DEMO
+#include "XMasFiles/SWJ-SQRC01_1C.h"
 #endif
 
 #ifndef WIN32
@@ -63,6 +68,10 @@ void WaveOutLinuxCallBack(void);
 int main(int argc, char* argv[]);
 static void RemoveNewLines(char* String);
 static void RemoveQuotationMarks(char* String);
+static char* GetLastDirSeparator(const char* FilePath);
+static bool IsAbsolutePath(const char* FilePath);
+static char* GetFileExtention(const char* FilePath);
+static void StandardizeDirSeparators(char* FilePath);
 #ifdef WIN32
 static void WinNT_Check(void);
 #endif
@@ -77,7 +86,7 @@ static INT8 stricmp_u(const char *string1, const char *string2);
 static INT8 strnicmp_u(const char *string1, const char *string2, size_t count);
 static void ReadOptions(const char* AppName);
 static bool GetBoolFromStr(const char* TextStr);
-#if defined(XMAS_EXTRA)
+#if defined(XMAS_EXTRA) || defined(WS_DEMO)
 static bool XMas_Extra(char* FileName, bool Mode);
 #endif
 #ifndef WIN32
@@ -88,24 +97,16 @@ static bool OpenMusicFile(const char* FileName);
 extern bool OpenVGMFile(const char* FileName);
 extern bool OpenOtherFile(const char* FileName);
 
-#ifdef WIN32
-static void printc(const char* format, ...);
-#else
-#define	printc	printf
-#endif
 static void wprintc(const wchar_t* format, ...);
 static void PrintChipStr(UINT8 ChipID, UINT8 SubType, UINT32 Clock);
 static const wchar_t* GetTagStrEJ(const wchar_t* EngTag, const wchar_t* JapTag);
 static void ShowVGMTag(void);
 
 static void PlayVGM_UI(void);
-static INT8 sign(double Value);
-static long int Round(double Value);
-static double RoundSpecial(double Value, double RoundTo);
+INLINE INT8 sign(double Value);
+INLINE long int Round(double Value);
+INLINE double RoundSpecial(double Value, double RoundTo);
 static void PrintMinSec(UINT32 SamplePos, UINT32 SmplRate);
-
-INLINE INT32 SampleVGM2Playback(INT32 SampleVal);
-INLINE INT32 SamplePlayback2VGM(INT32 SampleVal);
 
 
 // Options Variables
@@ -125,6 +126,7 @@ static UINT8 Show95Cmds;
 
 extern float VolumeLevel;
 extern bool SurroundSound;
+extern UINT8 HardStopOldVGMs;
 extern bool FadeRAWLog;
 static UINT8 LogToWave;
 //extern bool FullBufFill;
@@ -167,6 +169,7 @@ static UINT32 PLFileCount;
 static char** PlayListFile;
 static UINT32 CurPLFile;
 static UINT8 NextPLCmd;
+static UINT8 PLMode;	// set to 1 to show Playlist text
 static bool FirstInit;
 extern bool AutoStopSkip;
 
@@ -176,7 +179,7 @@ extern VGM_HEADER VGMHead;
 extern UINT32 VGMDataLen;
 extern UINT8* VGMData;
 extern GD3_TAG VGMTag;
-static PreferJapTag;
+static bool PreferJapTag;
 
 extern volatile bool PauseThread;
 static bool StreamStarted;
@@ -226,10 +229,11 @@ int main(int argc, char* argv[])
 	int argbase;
 	int ErrRet;
 	char* AppName;
-#if defined(XMAS_EXTRA)
+#if defined(XMAS_EXTRA) || defined(WS_DEMO)
 	bool XMasEnable;
 #endif
 	char* AppPathPtr;
+	const char* StrPtr;
 	const char* FileExt;
 	UINT8 CurPath;
 	UINT32 ChrPos;
@@ -292,10 +296,11 @@ int main(int argc, char* argv[])
 	
 	// Path 2: exe's directory
 	AppName = GetAppFileName();	// "C:\VGMPlay\VGMPlay.exe"
-	FileExt = strrchr(AppName, DIR_CHR);
-	if (FileExt != NULL)
+	// Note: GetAppFileName always returns native directory separators.
+	StrPtr = strrchr(AppName, DIR_CHR);
+	if (StrPtr != NULL)
 	{
-		ChrPos = FileExt + 1 - AppName;
+		ChrPos = StrPtr + 1 - AppName;
 		strncpy(AppPathPtr, AppName, ChrPos);
 		AppPathPtr[ChrPos] = 0x00;	// "C:\VGMPlay\"
 		AppPaths[CurPath] = AppPathPtr;
@@ -305,16 +310,16 @@ int main(int argc, char* argv[])
 	
 #ifndef WIN32
 	// Path 3: home directory
-	FileExt = getenv("XDG_CONFIG_HOME");
-	if (FileExt != NULL && FileExt[0] == '\0')
+	StrPtr = getenv("XDG_CONFIG_HOME");
+	if (StrPtr != NULL && StrPtr[0] == '\0')
 	{
-		strcpy(AppPathPtr, FileExt);
+		strcpy(AppPathPtr, StrPtr);
 	}
 	else
 	{
-		FileExt = getenv("HOME");
-		if (FileExt != NULL)
-			strcpy(AppPathPtr, FileExt);
+		StrPtr = getenv("HOME");
+		if (StrPtr != NULL)
+			strcpy(AppPathPtr, StrPtr);
 		else
 			strcpy(AppPathPtr, "");
 		strcat(AppPathPtr, "/.config");
@@ -357,20 +362,50 @@ int main(int argc, char* argv[])
 	if (argc <= argbase)
 	{
 #ifdef WIN32
+		INT32 OldCP;
+		
+		OldCP = GetConsoleCP();
+		
 		// Set the Console Input Codepage to ANSI.
 		// The Output Codepage must be left at OEM, else the displayed characters are wrong.
 		ChrPos = GetACP();
 		ErrRet = SetConsoleCP(ChrPos);			// set input codepage
 		//ErrRet = SetConsoleOutputCP(ChrPos);	// set output codepage (would be a bad idea)
 		
-		fgets(VgmFileName, MAX_PATH, stdin);
+		StrPtr = fgets(VgmFileName, MAX_PATH, stdin);
+		if (StrPtr == NULL)
+			VgmFileName[0] = '\0';
 		
 		// Playing with the console font resets the Console Codepage to OEM, so I have to
 		// convert the file name in this case.
 		if (GetConsoleCP() == GetOEMCP())
 			OemToChar(VgmFileName, VgmFileName);	// OEM -> ANSI conversion
+		
+		// This fixes the display of non-ANSI characters.
+		ErrRet = SetConsoleCP(OldCP);
+		
+		// This codepage stuff drives me insane.
+		// Debug and Release build behave differently - WHAT??
+		//
+		// There a list of behaviours.
+		// Debug and Release were tested by dropping a file on it and via Visual Studio.
+		//
+		// Input CP 850, Output CP 850
+		//	Debug build:	Dynamite D³x
+		//	Release build:	Dynamite Düx
+		// Input CP 1252, Output CP 850
+		//	Debug build:	Dynamite D³x
+		//	Release build:	Dynamite D³x
+		// Input CP 850, Output CP 1252
+		//	Debug build:	Dynamite D³x [tag display wrong]
+		//	Release build:	Dynamite Düx [tag display wrong]
+		// Input CP 1252, Output CP 1252
+		//	Debug build:	Dynamite D³x [tag display wrong]
+		//	Release build:	Dynamite D³x [tag display wrong]
 #else
-		fgets(VgmFileName, MAX_PATH, stdin);
+		StrPtr = fgets(VgmFileName, MAX_PATH, stdin);
+		if (StrPtr == NULL)
+			VgmFileName[0] = '\0';
 #endif
 		
 		RemoveNewLines(VgmFileName);
@@ -380,22 +415,23 @@ int main(int argc, char* argv[])
 	{
 		// The argument should already use the ANSI codepage.
 		strcpy(VgmFileName, argv[argbase]);
-		printc("%s\n", VgmFileName);
+		printf("%s\n", VgmFileName);
 	}
 	if (! strlen(VgmFileName))
 		goto ExitProgram;
+	StandardizeDirSeparators(VgmFileName);
 	
-#if defined(XMAS_EXTRA)
+#if defined(XMAS_EXTRA) || defined(WS_DEMO)
 	XMasEnable = XMas_Extra(VgmFileName, 0x00);
 #endif
-	FileExt = strrchr(VgmFileName, '.');
-	FirstInit = true;
-	StreamStarted = false;
 	
 #if 0
 	{	// Print hex characters of file name (for vgm-player script debugging)
 		const char* CurChr;
 		
+#ifdef WIN32
+		printf("Input CP: %d, Output CP: %d\n", GetConsoleCP(), GetConsoleOutputCP());
+#endif
 		printf("VgmFileName: ");
 		
 		CurChr = VgmFileName;
@@ -405,6 +441,7 @@ int main(int argc, char* argv[])
 			CurChr ++;
 		}
 		printf("%02X\n", (UINT8)*CurChr);
+		_getch();
 	}
 #endif
 #if 0
@@ -421,7 +458,15 @@ int main(int argc, char* argv[])
 	}
 #endif
 	
-	if (FileExt == NULL || stricmp_u(FileExt + 1, "m3u"))
+	FirstInit = true;
+	StreamStarted = false;
+	FileExt = GetFileExtention(VgmFileName);
+	if (FileExt == NULL || stricmp_u(FileExt, "m3u"))
+		PLMode = 0x00;
+	else
+		PLMode = 0x01;
+	
+	if (! PLMode)
 	{
 		PLFileCount = 0x00;
 		CurPLFile = 0x00;
@@ -460,15 +505,25 @@ int main(int argc, char* argv[])
 		
 		for (CurPLFile = 0x00; CurPLFile < PLFileCount; CurPLFile ++)
 		{
-			cls();
-			printf(APP_NAME);
-			printf("\n----------\n");
-			printf("\nPlaylist File:\t%s\n", PLFileName);
-			printf("Playlist Entry:\t%u / %u\t", CurPLFile + 1, PLFileCount);
-			printc("\nFile Name:\t%s\n", PlayListFile[CurPLFile]);
+			if (PLMode)
+			{
+				cls();
+				printf(APP_NAME);
+				printf("\n----------\n");
+				printf("\nPlaylist File:\t%s\n", PLFileName);
+				printf("Playlist Entry:\t%u / %u\n", CurPLFile + 1, PLFileCount);
+				printf("File Name:\t%s\n", PlayListFile[CurPLFile]);
+			}
 			
-			strcpy(VgmFileName, PLFileBase);
-			strcat(VgmFileName, PlayListFile[CurPLFile]);
+			if (IsAbsolutePath(PlayListFile[CurPLFile]))
+			{
+				strcpy(VgmFileName, PlayListFile[CurPLFile]);
+			}
+			else
+			{
+				strcpy(VgmFileName, PLFileBase);
+				strcat(VgmFileName, PlayListFile[CurPLFile]);
+			}
 			
 			if (! OpenMusicFile(VgmFileName))
 			{
@@ -520,12 +575,15 @@ int main(int argc, char* argv[])
 #endif
 	
 ExitProgram:
-#if defined(XMAS_EXTRA)
+#if defined(XMAS_EXTRA) || defined(WS_DEMO)
 	if (XMasEnable)
 		XMas_Extra(VgmFileName, 0x01);
 #endif
 #ifndef WIN32
 	changemode(false);
+#ifdef SET_CONSOLE_TITLE
+//	printf("\x1B]0;${USER}@${HOSTNAME}: ${PWD/$HOME/~}\x07", APP_NAME);	// Reset xterm/rxvt Terminal Title
+#endif
 #endif
 	VGMPlay_Deinit();
 	free(AppName);
@@ -560,6 +618,65 @@ static void RemoveQuotationMarks(char* String)
 	EndQMark = strrchr(String, QMARK_CHR);
 	if (EndQMark != NULL)
 		*EndQMark = 0x00;	// Remove last Quot.-Mark
+	
+	return;
+}
+
+static char* GetLastDirSeparator(const char* FilePath)
+{
+	char* SepPos1;
+	char* SepPos2;
+	
+	SepPos1 = strrchr(FilePath, '/');
+	SepPos2 = strrchr(FilePath, '\\');
+	if (SepPos1 < SepPos2)
+		return SepPos2;
+	else
+		return SepPos1;
+}
+
+static bool IsAbsolutePath(const char* FilePath)
+{
+#ifdef WIN32
+	if (FilePath[0] == '\0')
+		return false;	// empty string
+	if (FilePath[1] == ':')
+		return true;	// Device Path: C:\path
+	if (! strncmp(FilePath, "\\\\", 2))
+		return true;	// Network Path: \\computername\path
+#else
+	if (FilePath[0] == '/')
+		return true;	// absolute UNIX path
+#endif
+	return false;
+}
+
+static char* GetFileExtention(const char* FilePath)
+{
+	char* DirSepPos;
+	char* ExtDotPos;
+	
+	DirSepPos = GetLastDirSeparator(FilePath);
+	if (DirSepPos == NULL)
+		DirSepPos = (char*)FilePath;
+	ExtDotPos = strrchr(DirSepPos, '.');
+	if (ExtDotPos == NULL)
+		return NULL;
+	else
+		return ExtDotPos + 1;
+}
+
+static void StandardizeDirSeparators(char* FilePath)
+{
+	char* CurChr;
+	
+	CurChr = FilePath;
+	while(*CurChr != '\0')
+	{
+		if (*CurChr == '\\' || *CurChr == '/')
+			*CurChr = DIR_CHR;
+		CurChr ++;
+	}
 	
 	return;
 }
@@ -604,12 +721,17 @@ static void WinNT_Check(void)
 static char* GetAppFileName(void)
 {
 	char* AppPath;
+	int RetVal;
 	
 	AppPath = (char*)malloc(MAX_PATH * sizeof(char));
 #ifdef WIN32
-	GetModuleFileName(NULL, AppPath, MAX_PATH);
+	RetVal = GetModuleFileName(NULL, AppPath, MAX_PATH);
+	if (! RetVal)
+		AppPath[0] = '\0';
 #else
-	readlink("/proc/self/exe", AppPath, PATH_MAX);
+	RetVal = readlink("/proc/self/exe", AppPath, MAX_PATH);
+	if (RetVal == -1)
+		AppPath[0] = '\0';
 #endif
 	
 	return AppPath;
@@ -785,15 +907,18 @@ static void ReadOptions(const char* AppName)
 		0x00, 0x09, 0x09, 0x09, 0x12, 0x00, 0x0C, 0x08,
 		0x08, 0x00, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
 		0x04, 0x05, 0x08, 0x08, 0x18, 0x04, 0x04, 0x10,
-		0x20
+		0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
+		0x04
 	};
 	const UINT8 CHN_MASK_CNT[CHIP_COUNT] =
-	{	0x04, 0x0E, 0x06, 0x08, 0x10, 0x08, 0x03, 0x06,
+	{	0x04, 0x0E, 0x07, 0x08, 0x10, 0x08, 0x03, 0x06,
 		0x06, 0x0E, 0x0E, 0x0E, 0x17, 0x18, 0x0C, 0x08,
 		0x08, 0x00, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
 		0x04, 0x05, 0x08, 0x08, 0x18, 0x04, 0x04, 0x10,
-		0x20
+		0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
+		0x04
 	};
+	const char* FNList[3];
 	char* FileName;
 	FILE* hFile;
 	char TempStr[0x40];
@@ -834,24 +959,24 @@ static void ReadOptions(const char* AppName)
 	strcpy(FileName, RStr);
 	// FileName: "VGMPlay.exe"
 	
-	RStr = strrchr(FileName, '.');
+	RStr = GetFileExtention(FileName);
 	if (RStr == NULL)
 	{
 		RStr = FileName + strlen(FileName);
 		*RStr = '.';
+		RStr ++;
 	}
-	strcpy(RStr + 0x01, "ini");
-	// FileName: "VGMPlay.ini"
+	strcpy(RStr, "ini");
+	// FileName: "VGMPlay.ini" or "vgmplay.ini"
 	
+	// on Linux platforms, it searches for "vgmplay.ini" first and
+	// file names are case sensitive
+	FNList[0] = FileName;
+	FNList[1] = "VGMPlay.ini";
+	FNList[2] = NULL;
 	LStr = FileName;
-	FileName = FindFile(LStr);
+	FileName = FindFile_List(FNList);
 	free(LStr);
-	if (FileName == NULL)
-	{
-		// on Linux platforms, it searches for "vgmplay.ini" first and
-		// file names are case sensitive
-		FileName = FindFile("VGMPlay.ini");
-	}
 	if (FileName == NULL)
 	{
 		printerr("Failed to load INI.\n");
@@ -977,6 +1102,12 @@ static void ReadOptions(const char* AppName)
 				{
 					PauseTimeJ = strtoul(RStr, NULL, 0);
 				}
+				else if (! stricmp_u(LStr, "HardStopOld"))
+				{
+					HardStopOldVGMs = (UINT8)strtoul(RStr, &TempPnt, 0);
+					if (TempPnt == RStr)
+						HardStopOldVGMs = GetBoolFromStr(RStr) ? 0x01 : 0x00;
+				}
 				else if (! stricmp_u(LStr, "FadeRAWLogs"))
 				{
 					FadeRAWLog = GetBoolFromStr(RStr);
@@ -1082,6 +1213,14 @@ static void ReadOptions(const char* AppName)
 			case 0x9E:	// Pokey
 			case 0x9F:	// QSound
 			case 0xA0:	// SCSP
+			case 0xA1:	// WonderSwan
+			case 0xA2:	// VSU
+			case 0xA3:	// SAA1099
+			case 0xA4:	// ES5503
+			case 0xA5:	// ES5506
+			case 0xA6:	// X1_010
+			case 0xA7:	// C352
+			case 0xA8:	// GA20
 				CurChip = IniSection & 0x7F;
 				TempCOpt = (CHIP_OPTS*)&ChipOpts[0x00] + CurChip;
 				
@@ -1173,7 +1312,7 @@ static void ReadOptions(const char* AppName)
 						else if (! stricmp_u(LStr, "MuteMask_PCM"))
 						{
 							TempCOpt->ChnMute2 = strtoul(RStr, NULL, 0);
-							TempCOpt->ChnMute2 &= (1 << CHN_MASK_CNT[CurChip]) - 1;
+							TempCOpt->ChnMute2 &= (1 << (CHN_MASK_CNT[CurChip] + 1)) - 1;
 						}
 						else if (! strnicmp_u(LStr, "MuteFMCh", 0x08))
 						{
@@ -1258,15 +1397,16 @@ static void ReadOptions(const char* AppName)
 						}
 						else if (! strnicmp_u(LStr, "MuteFM", 0x06))
 						{
-							if (! stricmp_u(LStr + 4, "BD"))
+							CurChn = 0xFF;
+							if (! stricmp_u(LStr + 6, "BD"))
 								CurChn = 0x00;
-							else if (! stricmp_u(LStr + 4, "SD"))
+							else if (! stricmp_u(LStr + 6, "SD"))
 								CurChn = 0x01;
-							else if (! stricmp_u(LStr + 4, "TOM"))
+							else if (! stricmp_u(LStr + 6, "TOM"))
 								CurChn = 0x02;
-							else if (! stricmp_u(LStr + 4, "TC"))
+							else if (! stricmp_u(LStr + 6, "TC"))
 								CurChn = 0x03;
-							else if (! stricmp_u(LStr + 4, "HH"))
+							else if (! stricmp_u(LStr + 6, "HH"))
 								CurChn = 0x04;
 							if (CurChn != 0xFF)
 							{
@@ -1281,7 +1421,7 @@ static void ReadOptions(const char* AppName)
 							CurChn = (UINT8)strtol(LStr + 0x08, &TempPnt, 0);
 							if (TempPnt == NULL || *TempPnt)
 								break;
-							if (CurChn >= CHN_COUNT[CurChip])
+							if (CurChn >= CHN_MASK_CNT[CurChip])
 								break;
 							TempFlag = GetBoolFromStr(RStr);
 							TempCOpt->ChnMute2 &= ~(0x01 << CurChn);
@@ -1348,8 +1488,24 @@ static void ReadOptions(const char* AppName)
 							TempCOpt->SpecialFlags |= TempLng << 12;
 						}
 						break;
+					case 0x17:	// OKIM6258
+						if (! stricmp_u(LStr, "Enable10Bit"))
+						{
+							TempFlag = GetBoolFromStr(RStr);
+							TempCOpt->SpecialFlags &= ~(0x01 << 0);
+							TempCOpt->SpecialFlags |= TempFlag << 0;
+						}
+						break;
 					case 0x20:	// SCSP
 						if (! stricmp_u(LStr, "BypassDSP"))
+						{
+							TempFlag = GetBoolFromStr(RStr);
+							TempCOpt->SpecialFlags &= ~(0x01 << 0);
+							TempCOpt->SpecialFlags |= TempFlag << 0;
+						}
+						break;
+					case 0x27:	// C352
+						if (! stricmp_u(LStr, "DisableRear"))
 						{
 							TempFlag = GetBoolFromStr(RStr);
 							TempCOpt->SpecialFlags &= ~(0x01 << 0);
@@ -1398,7 +1554,7 @@ static bool GetBoolFromStr(const char* TextStr)
 		return strtol(TextStr, NULL, 0) ? true : false;
 }
 
-#if defined(XMAS_EXTRA)
+#if defined(XMAS_EXTRA) || defined(WS_DEMO)
 static bool XMas_Extra(char* FileName, bool Mode)
 {
 	char* FileTitle;
@@ -1440,6 +1596,13 @@ static bool XMas_Extra(char* FileName, bool Mode)
 			FileTitle = "clyde1_1.dro";
 			XMasSize = sizeof(clyde1_1_dro);
 			XMasData = clyde1_1_dro;
+		}
+#elif defined(WS_DEMO)
+		if (! stricmp_u(FileName, "wswan"))
+		{
+			FileTitle = "SWJ-SQRC01_1C.vgz";
+			XMasSize = sizeof(FF1ws_1C);
+			XMasData = FF1ws_1C;
 		}
 #endif
 		
@@ -1553,6 +1716,7 @@ static bool OpenPlayListFile(const char* FileName)
 	const char M3UV2_META[] = "#EXTINF:";
 	const UINT8 UTF8_SIG[] = {0xEF, 0xBB, 0xBF};
 	UINT32 METASTR_LEN;
+	size_t RetVal;
 	
 	FILE* hFile;
 	UINT32 LineNo;
@@ -1566,8 +1730,11 @@ static bool OpenPlayListFile(const char* FileName)
 	if (hFile == NULL)
 		return false;
 	
-	fread(TempStr, 0x01, 0x03, hFile);
-	IsUTF8 = ! memcmp(TempStr, UTF8_SIG, 0x03);
+	RetVal = fread(TempStr, 0x01, 0x03, hFile);
+	if (RetVal >= 0x03)
+		IsUTF8 = ! memcmp(TempStr, UTF8_SIG, 0x03);
+	else
+		IsUTF8 = false;
 	
 	rewind(hFile);
 	
@@ -1638,26 +1805,20 @@ static bool OpenPlayListFile(const char* FileName)
 			strcpy(PlayListFile[PLFileCount], TempStr);
 		}
 #endif
+		StandardizeDirSeparators(PlayListFile[PLFileCount]);
 		PLFileCount ++;
 		LineNo ++;
 	}
 	
 	fclose(hFile);
 	
-	RetStr = strrchr(FileName, DIR_CHR);
+	RetStr = GetLastDirSeparator(FileName);
 	if (RetStr != NULL)
 	{
 		RetStr ++;
-		strncpy(TempStr, FileName, RetStr - FileName);
-		TempStr[RetStr - FileName] = 0x00;
-/*#ifdef WIN32
-		SetCurrentDirectory(TempStr);
-#else
-		LineNo = chdir(TempStr);
-printf("Dir Change to: %s, Result %u\n", TempStr, LineNo);
-_getch();
-#endif*/
-		strcpy(PLFileBase, TempStr);
+		strncpy(PLFileBase, FileName, RetStr - FileName);
+		PLFileBase[RetStr - FileName] = '\0';
+		StandardizeDirSeparators(PLFileBase);
 	}
 	else
 	{
@@ -1677,37 +1838,6 @@ static bool OpenMusicFile(const char* FileName)
 	return false;
 }
 
-#ifdef WIN32
-// "printc" initially meant "print correct, though "print console" would also make sense ;)
-static void printc(const char* format, ...)
-{
-	int RetVal;
-	UINT32 BufSize;
-	char* printbuf;
-	va_list arg_list;
-	
-	va_start(arg_list, format);
-	
-	BufSize = 0x00;
-	printbuf = NULL;
-	do
-	{
-		BufSize += 0x100;
-		printbuf = (char*)realloc(printbuf, BufSize);
-		RetVal = _vsnprintf(printbuf, BufSize - 0x01, format, arg_list);
-	} while(RetVal == -1 && BufSize < 0x1000);
-	
-	CharToOem(printbuf, printbuf);
-	
-	printf("%s", printbuf);
-	
-	free(printbuf);
-	va_end(arg_list);
-	
-	return;
-}
-#endif
-
 static void wprintc(const wchar_t* format, ...)
 {
 	va_list arg_list;
@@ -1720,15 +1850,18 @@ static void wprintc(const wchar_t* format, ...)
 	DWORD CPMode;
 #endif
 	
-	va_start(arg_list, format);
-	
 	BufSize = 0x00;
 	printbuf = NULL;
 	do
 	{
 		BufSize += 0x100;
-		printbuf = (wchar_t*)realloc(printbuf, BufSize * 2);
+		printbuf = (wchar_t*)realloc(printbuf, BufSize * sizeof(wchar_t));
+		
+		// Note: On Linux every vprintf call needs its own set of va_start/va_end commands.
+		//       Under Windows (with VC6) one only one block for all calls works, too.
+		va_start(arg_list, format);
 		RetVal = _vsnwprintf(printbuf, BufSize - 0x01, format, arg_list);
+		va_end(arg_list);
 	} while(RetVal == -1 && BufSize < 0x1000);
 #ifdef WIN32
 	StrLen = wcslen(printbuf);
@@ -1736,25 +1869,26 @@ static void wprintc(const wchar_t* format, ...)
 	// This is the only way to print Unicode stuff to the Windows console.
 	// No, wprintf doesn't work.
 	RetVal = WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), printbuf, StrLen, &CPMode, NULL);
-	if (! RetVal)	// call failed (maybe not as ERROR_CALL_NOT_IMPLEMENTED on Win95?)
+	if (! RetVal)	// call failed (e.g. with ERROR_CALL_NOT_IMPLEMENTED on Win95)
 	{
 		// fallback to printf with OEM codepage
 		oembuf = (char*)malloc(BufSize);
-		if (GetConsoleOutputCP() == GetOEMCP())
+		/*if (GetConsoleOutputCP() == GetOEMCP())
 			CPMode = CP_OEMCP;
 		else
-			CPMode = CP_ACP;
-		WideCharToMultiByte(CP_OEMCP, 0x00, printbuf, StrLen, oembuf, BufSize, NULL, NULL);
+			CPMode = CP_ACP;*/
+		CPMode = GetConsoleOutputCP();
+		WideCharToMultiByte(CPMode, 0x00, printbuf, StrLen + 1, oembuf, BufSize, NULL, NULL);
 		
 		printf("%s", oembuf);
 		free(oembuf);
 	}
 #else
+	// on Linux, it's easy
 	printf("%ls", printbuf);
 #endif
 	
 	free(printbuf);
-	va_end(arg_list);
 	
 	return;
 }
@@ -1846,7 +1980,7 @@ static void ShowVGMTag(void)
 	}
 	else
 	{
-#if (defined(_MSC_VER) && _MSC_VER < 1400) || defined(__MINGW32__)
+#if (defined(_MSC_VER) && _MSC_VER < 1400) || defined(OLD_SWPRINTF)
 		swprintf(TitleStr, L"%.*ls", 0x70, TitleTag);
 #else
 		swprintf(TitleStr, 0x80, L"%.*ls", 0x70, TitleTag);
@@ -1856,7 +1990,7 @@ static void ShowVGMTag(void)
 	
 	if (wcslen(GameTag) && StrLen < 0x6C)
 	{
-#if (defined(_MSC_VER) && _MSC_VER < 1400) || defined(__MINGW32__)
+#if (defined(_MSC_VER) && _MSC_VER < 1400) || defined(OLD_SWPRINTF)
 		swprintf(TitleStr + StrLen, L" (%.*ls)", 0x70 - 3 - StrLen, GameTag);
 #else
 		swprintf(TitleStr + StrLen, 0x80, L" (%.*ls)", 0x70 - 3 - StrLen, GameTag);
@@ -1890,8 +2024,25 @@ static void ShowVGMTag(void)
 	printf("Loop: ");
 	if (VGMHead.lngLoopOffset)
 	{
+		UINT32 PbRateMul;
+		UINT32 PbRateDiv;
+		UINT32 PbSamples;
+		
+		// calculate samples for correct display with changed playback rate
+		if (! VGMPbRate || ! VGMHead.lngRate)
+		{
+			PbRateMul = 1;
+			PbRateDiv = 1;
+		}
+		else
+		{
+			PbRateMul = VGMHead.lngRate;
+			PbRateDiv = VGMPbRate;
+		}
+		PbSamples = (UINT32)((UINT64)VGMHead.lngLoopSamples * PbRateMul / PbRateDiv);
+		
 		printf("Yes (");
-		PrintMinSec(VGMHead.lngLoopSamples, VGMSampleRate);
+		PrintMinSec(PbSamples, VGMSampleRate);
 		printf(")\n");
 	}
 	else
@@ -1918,7 +2069,6 @@ static void ShowVGMTag(void)
 
 
 #define LOG_SAMPLES	(SampleRate / 5)
-UINT8 multipcm_get_channels(UINT8 ChipID, UINT32* ChannelMask);
 static void PlayVGM_UI(void)
 {
 	INT32 VGMPbSmplCount;
@@ -1998,9 +2148,11 @@ static void PlayVGM_UI(void)
 		if (LogToWave)
 		{
 			strcpy(WavFileName, VgmFileName);
-			TempStr = strrchr(WavFileName, '.');
+			TempStr = GetFileExtention(WavFileName);
 			if (TempStr == NULL)
 				TempStr = WavFileName + strlen(WavFileName);
+			else
+				TempStr --;
 			strcpy(TempStr, ".wav");
 			
 			strcpy(SoundLogFile, WavFileName);
@@ -2121,7 +2273,7 @@ static void PlayVGM_UI(void)
 			
 			if (LogToWave == 0x01 && ! PausePlay)
 			{
-				TempLng = FillBuffer(TempBuf, LOG_SAMPLES);
+				TempLng = VGMFillBuffer(TempBuf, LOG_SAMPLES);
 				if (TempLng)
 					SaveFile(TempLng, TempBuf);
 				if (EndPlay)
@@ -2450,7 +2602,7 @@ static void PlayVGM_UI(void)
 	return;
 }
 
-static INT8 sign(double Value)
+INLINE INT8 sign(double Value)
 {
 	if (Value > 0.0)
 		return 1;
@@ -2460,13 +2612,13 @@ static INT8 sign(double Value)
 		return 0;
 }
 
-static long int Round(double Value)
+INLINE long int Round(double Value)
 {
 	// Alternative:	(fabs(Value) + 0.5) * sign(Value);
 	return (long int)(Value + 0.5 * sign(Value));
 }
 
-static double RoundSpecial(double Value, double RoundTo)
+INLINE double RoundSpecial(double Value, double RoundTo)
 {
 	return (long int)(Value / RoundTo + 0.5 * sign(Value)) * RoundTo;
 }
@@ -2493,14 +2645,4 @@ static void PrintMinSec(UINT32 SamplePos, UINT32 SmplRate)
 	}
 	
 	return;
-}
-
-INLINE INT32 SampleVGM2Playback(INT32 SampleVal)
-{
-	return (INT32)((INT64)SampleVal * SampleRate / VGMSampleRate);
-}
-
-INLINE INT32 SamplePlayback2VGM(INT32 SampleVal)
-{
-	return (INT32)((INT64)SampleVal * VGMSampleRate / SampleRate);
 }

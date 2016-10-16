@@ -3,9 +3,9 @@
 // Updated to NSFPlay 2.3 on 26 September 2013
 // (Note: Encoding is UTF-8)
 
-#include <stdlib.h>	// for rand()
-#include <malloc.h>
-#include <memory.h>	// for memset()
+#include <stdlib.h>	// for rand
+#include <stdlib.h>
+#include <string.h>	// for memset
 #include <stddef.h>	// for NULL
 #include "mamedef.h"
 #include "../stdbool.h"
@@ -318,7 +318,7 @@ UINT32 calc_tri(NES_DMC* dmc, UINT32 clocks)
 		{
 			// Finish the Triangle wave to prevent clicks.
 			dmc->counter[0] += clocks;
-			while (dmc->counter[0] > dmc->tri_freq)
+			while(dmc->counter[0] > dmc->tri_freq && dmc->tphase)
 			{
 				dmc->tphase = (dmc->tphase + 1) & 31;
 				dmc->counter[0] -= (dmc->tri_freq + 1);

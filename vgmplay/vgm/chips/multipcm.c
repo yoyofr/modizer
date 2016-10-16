@@ -35,11 +35,10 @@
 //#include "streams.h"
 #include "mamedef.h"
 #include <math.h>
-#include <memory.h>
-#include <malloc.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
+#include <stddef.h>	// for NULL
 #include "multipcm.h"
-
-#define NULL	((void *)0)
 
 //????
 #define MULTIPCM_CLOCKDIV   	(180.0)
@@ -108,6 +107,7 @@ struct _MultiPCM
 	unsigned int Address;
 	unsigned int BankR,BankL;
 	float Rate;
+	UINT32 ROMMask;
 	UINT32 ROMSize;
 	INT8 *ROM;
 	//I include these in the chip because they depend on the chip clock
@@ -463,7 +463,7 @@ void MultiPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 				unsigned int adr=slot->offset>>SHIFT;
 				signed int sample;
 				unsigned int step=slot->step;
-				signed int csample=(signed short) (ptChip->ROM[slot->Base+adr]<<8);
+				signed int csample=(signed short) (ptChip->ROM[(slot->Base+adr) & ptChip->ROMMask]<<8);
 				signed int fpart=slot->offset&((1<<SHIFT)-1);
 				sample=(csample*fpart+slot->Prev*((1<<SHIFT)-fpart))>>SHIFT;
 
@@ -527,6 +527,7 @@ int device_start_multipcm(UINT8 ChipID, int clock)
 	ptChip = &MultiPCMData[ChipID];
 	
 	//ptChip->ROM=*device->region();
+	ptChip->ROMMask = 0x00;
 	ptChip->ROMSize = 0x00;
 	ptChip->ROM = NULL;
 	//ptChip->Rate=(float) device->clock() / MULTIPCM_CLOCKDIV;
@@ -762,8 +763,13 @@ void multipcm_write_rom(UINT8 ChipID, offs_t ROMSize, offs_t DataStart, offs_t D
 	
 	if (ptChip->ROMSize != ROMSize)
 	{
-		ptChip->ROM = (UINT8*)realloc(ptChip->ROM, ROMSize);
+		ptChip->ROM = (INT8*)realloc(ptChip->ROM, ROMSize);
 		ptChip->ROMSize = ROMSize;
+		
+		for (ptChip->ROMMask = 1; ptChip->ROMMask < ROMSize; ptChip->ROMMask <<= 1)
+			;
+		ptChip->ROMMask --;
+		
 		memset(ptChip->ROM, 0xFF, ROMSize);
 	}
 	if (DataStart > ROMSize)
@@ -809,6 +815,7 @@ void multipcm_set_mute_mask(UINT8 ChipID, UINT32 MuteMask)
 	return;
 }
 
+#if 0	// for debugging only
 UINT8 multipcm_get_channels(UINT8 ChipID, UINT32* ChannelMask)
 {
 	MultiPCM* ptChip = &MultiPCMData[ChipID];
@@ -831,6 +838,7 @@ UINT8 multipcm_get_channels(UINT8 ChipID, UINT32* ChannelMask)
 	
 	return UsedChns;
 }
+#endif
 
 
 

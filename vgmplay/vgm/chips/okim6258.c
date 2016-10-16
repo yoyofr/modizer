@@ -10,6 +10,7 @@
 
 
 //#include "emu.h"
+#include <stddef.h>	// for NULL
 #include "mamedef.h"
 #ifdef _DEBUG
 #include <stdio.h>
@@ -45,7 +46,8 @@ struct _okim6258_state
 	INT32 output_mask;
 
 	// Valley Bell: Added a small queue to prevent race conditions.
-	UINT8 data_buf[2];
+	UINT8 data_buf[8];
+	UINT8 data_in_last;
 	UINT8 data_buf_pos;
 	// Data Empty Values:
 	//	00 - data written, but not read yet
@@ -62,6 +64,9 @@ struct _okim6258_state
 	UINT8 clock_buffer[0x04];
 	UINT32 initial_clock;
 	UINT8 initial_div;
+	
+	SRATE_CALLBACK SmpRateFunc;
+	void* SmpRateData;
 };
 
 /* step size index shift table */
@@ -132,7 +137,12 @@ static INT16 clock_adpcm(okim6258_state *chip, UINT8 nibble)
 	INT32 max = chip->output_mask - 1;
 	INT32 min = -chip->output_mask;
 
-	chip->signal += diff_lookup[chip->step * 16 + (nibble & 15)];
+	// original MAME algorithm (causes a DC offset over time)
+	//chip->signal += diff_lookup[chip->step * 16 + (nibble & 15)];
+
+	// awesome algorithm ported from XM6 - it works PERFECTLY
+	int sample = diff_lookup[chip->step * 16 + (nibble & 15)];
+	chip->signal = ((sample << 8) + (chip->signal * 245)) >> 8;
 
 	/* clamp to the maximum */
 	if (chip->signal > max)
@@ -185,13 +195,14 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 				if (! chip->data_empty)
 				{
 					chip->data_in = chip->data_buf[chip->data_buf_pos >> 4];
-					chip->data_buf_pos ^= 0x10;
+					chip->data_buf_pos += 0x10;
+					chip->data_buf_pos &= 0x7F;
 					if ((chip->data_buf_pos >> 4) == (chip->data_buf_pos & 0x0F))
 						chip->data_empty ++;
 				}
 				else
 				{
-					chip->data_in = 0x80;
+					//chip->data_in = chip->data_in_last;
 					if (chip->data_empty < 0x80)
 						chip->data_empty ++;
 				}
@@ -270,6 +281,15 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 
 ***********************************************************************************************/
 
+static int get_vclk(okim6258_state* info)
+{
+	int clk_rnd;
+	
+	clk_rnd = info->master_clock;
+	clk_rnd += info->divider / 2;	 // for better rounding - should help some of the streams
+	return clk_rnd / info->divider;
+}
+
 //static DEVICE_START( okim6258 )
 int device_start_okim6258(UINT8 ChipID, int clock, int divider, int adpcm_type, int output_12bits)
 {
@@ -293,6 +313,7 @@ int device_start_okim6258(UINT8 ChipID, int clock, int divider, int adpcm_type, 
 	info->clock_buffer[0x01] = (clock & 0x0000FF00) >>  8;
 	info->clock_buffer[0x02] = (clock & 0x00FF0000) >> 16;
 	info->clock_buffer[0x03] = (clock & 0xFF000000) >> 24;
+	info->SmpRateFunc = NULL;
 
 	/* D/A precision is 10-bits but 12-bit data can be output serially to an external DAC */
 	info->output_bits = /*intf->*/output_12bits ? 12 : 10;
@@ -309,7 +330,7 @@ int device_start_okim6258(UINT8 ChipID, int clock, int divider, int adpcm_type, 
 
 	//okim6258_state_save_register(info, device);
 	
-	return info->master_clock / info->divider;
+	return get_vclk(info);
 }
 
 
@@ -340,6 +361,8 @@ void device_reset_okim6258(UINT8 ChipID)
 	info->clock_buffer[0x02] = (info->initial_clock & 0x00FF0000) >> 16;
 	info->clock_buffer[0x03] = (info->initial_clock & 0xFF000000) >> 24;
 	info->divider = dividers[info->initial_div];
+	if (info->SmpRateFunc != NULL)
+		info->SmpRateFunc(info->SmpRateData, get_vclk(info));
 	
 	
 	info->signal = -2;
@@ -370,6 +393,8 @@ void okim6258_set_divider(UINT8 ChipID, int val)
 
 	info->divider = dividers[val];
 	//stream_set_sample_rate(info->stream, info->master_clock / divider);
+	if (info->SmpRateFunc != NULL)
+		info->SmpRateFunc(info->SmpRateData, get_vclk(info));
 }
 
 
@@ -397,6 +422,8 @@ void okim6258_set_clock(UINT8 ChipID, int val)
 								(info->clock_buffer[0x03] << 24);
 	}
 	//stream_set_sample_rate(info->stream, info->master_clock / info->divider);
+	if (info->SmpRateFunc != NULL)
+		info->SmpRateFunc(info->SmpRateData, get_vclk(info));
 }
 
 
@@ -412,7 +439,7 @@ int okim6258_get_vclk(UINT8 ChipID)
 	//okim6258_state *info = get_safe_token(device);
 	okim6258_state *info = &OKIM6258Data[ChipID];
 
-	return (info->master_clock / info->divider);
+	return get_vclk(info);
 }
 
 
@@ -452,12 +479,16 @@ static void okim6258_data_w(UINT8 ChipID, /*offs_t offset, */UINT8 data)
 	//info->nibble_shift = 0;
 	
 	if (info->data_empty >= 0x02)
-	{
 		info->data_buf_pos = 0x00;
-		info->data_buf[info->data_buf_pos & 0x0F] = 0x80;
-	}
+	info->data_in_last = data;
 	info->data_buf[info->data_buf_pos & 0x0F] = data;
-	info->data_buf_pos ^= 0x01;
+	info->data_buf_pos += 0x01;
+	info->data_buf_pos &= 0xF7;
+	if ((info->data_buf_pos >> 4) == (info->data_buf_pos & 0x0F))
+	{
+		logerror("Warning: FIFO full!\n");
+		info->data_buf_pos = (info->data_buf_pos & 0xF0) | ((info->data_buf_pos-1) & 0x07);
+	}
 	info->data_empty = 0x00;
 }
 
@@ -489,15 +520,15 @@ static void okim6258_ctrl_w(UINT8 ChipID, /*offs_t offset, */UINT8 data)
 			info->status |= STATUS_PLAYING;
 
 			/* Also reset the ADPCM parameters */
-			info->signal = -2;
+			info->signal = -2;	// Note: XM6 lets this fade to 0 when nothing is going on
 			info->step = 0;
 			info->nibble_shift = 0;
+			
+			info->data_buf[0x00] = data;
+			info->data_buf_pos = 0x01;	// write pos 01, read pos 00
+			info->data_empty = 0x00;
 		}
-		// Resetting the ADPCM sample always seems to reduce the clicks and improves the waveform.
-		// For games that don't use the Multichannel ADPCM driver (whose waveform looks horrible anyway),
-		// this causes additional clicks though.
-		//info->signal = -2;
-		info->step = 0;	// this was verified with the source of XM6
+		info->step = 0;	// this line was verified with the source of XM6
 		info->nibble_shift = 0;
 	}
 	else
@@ -569,6 +600,17 @@ void okim6258_write(UINT8 ChipID, UINT8 Port, UINT8 Data)
 void okim6258_set_options(UINT16 Options)
 {
 	Iternal10Bit = (Options >> 0) & 0x01;
+	
+	return;
+}
+
+void okim6258_set_srchg_cb(UINT8 ChipID, SRATE_CALLBACK CallbackFunc, void* DataPtr)
+{
+	okim6258_state *info = &OKIM6258Data[ChipID];
+	
+	// set Sample Rate Change Callback routine
+	info->SmpRateFunc = CallbackFunc;
+	info->SmpRateData = DataPtr;
 	
 	return;
 }

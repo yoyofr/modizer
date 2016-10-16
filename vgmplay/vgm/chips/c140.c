@@ -44,12 +44,11 @@ Unmapped registers:
 
 
 //#include "emu.h"
-#include <malloc.h>
-#include <memory.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
+#include <stddef.h>	// for NULL
 #include "mamedef.h"
 #include "c140.h"
-
-#define NULL	((void *)0)
 
 #define MAX_VOICE 24
 
@@ -171,7 +170,13 @@ static long find_sample(c140_state *info, long adrs, long bank, int voice)
 			newadr = ((adrs&0x200000)>>2)|(adrs&0x7ffff);
 			break;
 
-		case C140_TYPE_SYSTEM21_A:
+		case C140_TYPE_SYSTEM21:
+			// System 21 banking.
+			// similar to System 2's.
+			newadr = ((adrs&0x300000)>>1)+(adrs&0x7ffff);
+			break;
+
+		/*case C140_TYPE_SYSTEM21_A:
 			// System 21 type A (simple) banking.
 			// similar to System 2's.
 			newadr = ((adrs&0x300000)>>1)+(adrs&0x7ffff);
@@ -196,7 +201,7 @@ static long find_sample(c140_state *info, long adrs, long bank, int voice)
 			{
 				newadr += 0x100000;
 			}
-			break;
+			break;*/
 
 		case C140_TYPE_ASIC219:
 			// ASIC219's banking is fairly simple
@@ -502,7 +507,11 @@ int device_start_c140(UINT8 ChipID, int clock, int banking_type)
 	info = &C140Data[ChipID];
 	
 	//info->sample_rate=info->baserate=device->clock();
-	info->sample_rate = info->baserate = clock;
+	if (clock < 1000000)
+		info->baserate = clock;
+	else
+		info->baserate = clock / 384;	// based on MAME's notes on Namco System II
+	info->sample_rate = info->baserate;
 	if (((CHIP_SAMPLING_MODE & 0x01) && info->sample_rate < CHIP_SAMPLE_RATE) ||
 		CHIP_SAMPLING_MODE == 0x02)
 		info->sample_rate = CHIP_SAMPLE_RATE;

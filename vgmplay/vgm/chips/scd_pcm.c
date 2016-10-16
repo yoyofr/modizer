@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #include "mamedef.h"
 #include "scd_pcm.h"
@@ -455,7 +455,7 @@ int device_start_rf5c164(UINT8 ChipID, int clock)
 		rate = CHIP_SAMPLE_RATE;
 	
 	PCM_Init(ChipID, rate);
-	PCM_Chip[ChipID].Smpl0Patch = (clock & 0x80000000) >> 31;
+	chip->Smpl0Patch = (clock & 0x80000000) >> 31;
 	
 	/* allocate the stream */
 	//chip->stream = stream_create(device, 0, 2, device->clock / 384, chip, rf5c68_update);
@@ -493,12 +493,13 @@ void rf5c164_write_ram(UINT8 ChipID, offs_t DataStart, offs_t DataLength, const 
 {
 	struct pcm_chip_ *chip = &PCM_Chip[ChipID];
 	
+	DataStart |= chip->Bank;
 	if (DataStart >= chip->RAMSize)
 		return;
 	if (DataStart + DataLength > chip->RAMSize)
 		DataLength = chip->RAMSize - DataStart;
 	
-	memcpy(chip->RAM + (chip->Bank | DataStart), RAMData, DataLength);
+	memcpy(chip->RAM + DataStart, RAMData, DataLength);
 	
 	return;
 }

@@ -7,6 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		59782E741D8F38A400C0F8C7 /* c352.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E631D8F38A300C0F8C7 /* c352.c */; };
+		59782E751D8F38A400C0F8C7 /* c352.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E641D8F38A300C0F8C7 /* c352.h */; };
+		59782E761D8F38A400C0F8C7 /* es5503.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E651D8F38A300C0F8C7 /* es5503.c */; };
+		59782E771D8F38A400C0F8C7 /* es5503.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E661D8F38A300C0F8C7 /* es5503.h */; };
+		59782E781D8F38A400C0F8C7 /* es5506.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E671D8F38A300C0F8C7 /* es5506.c */; };
+		59782E791D8F38A400C0F8C7 /* es5506.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E681D8F38A300C0F8C7 /* es5506.h */; };
+		59782E7A1D8F38A400C0F8C7 /* iremga20.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E691D8F38A400C0F8C7 /* iremga20.c */; };
+		59782E7B1D8F38A400C0F8C7 /* iremga20.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E6A1D8F38A400C0F8C7 /* iremga20.h */; };
+		59782E7C1D8F38A400C0F8C7 /* saa1099.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E6B1D8F38A400C0F8C7 /* saa1099.c */; };
+		59782E7D1D8F38A400C0F8C7 /* saa1099.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E6C1D8F38A400C0F8C7 /* saa1099.h */; };
+		59782E7E1D8F38A400C0F8C7 /* vsu.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E6D1D8F38A400C0F8C7 /* vsu.c */; };
+		59782E7F1D8F38A400C0F8C7 /* vsu.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E6E1D8F38A400C0F8C7 /* vsu.h */; };
+		59782E801D8F38A400C0F8C7 /* ws_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E6F1D8F38A400C0F8C7 /* ws_audio.c */; };
+		59782E811D8F38A400C0F8C7 /* ws_audio.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E701D8F38A400C0F8C7 /* ws_audio.h */; };
+		59782E821D8F38A400C0F8C7 /* ws_initialIo.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E711D8F38A400C0F8C7 /* ws_initialIo.h */; };
+		59782E831D8F38A400C0F8C7 /* x1_010.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E721D8F38A400C0F8C7 /* x1_010.c */; };
+		59782E841D8F38A400C0F8C7 /* x1_010.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E731D8F38A400C0F8C7 /* x1_010.h */; };
 		CC13440D1AC17C8500CAB284 /* ChipMapper.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1343771AC17C8400CAB284 /* ChipMapper.c */; };
 		CC13440E1AC17C8500CAB284 /* ChipMapper.h in Headers */ = {isa = PBXBuildFile; fileRef = CC1343781AC17C8400CAB284 /* ChipMapper.h */; };
 		CC13440F1AC17C8500CAB284 /* 2151intf.c in Sources */ = {isa = PBXBuildFile; fileRef = CC13437A1AC17C8400CAB284 /* 2151intf.c */; };
@@ -139,13 +156,29 @@
 		CC1344951AC17C8500CAB284 /* VGMPlay_AddFmts.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1344011AC17C8500CAB284 /* VGMPlay_AddFmts.c */; };
 		CC1344961AC17C8500CAB284 /* VGMPlay_Intf.h in Headers */ = {isa = PBXBuildFile; fileRef = CC1344021AC17C8500CAB284 /* VGMPlay_Intf.h */; };
 		CC1344981AC17C8500CAB284 /* VGMPlay.h in Headers */ = {isa = PBXBuildFile; fileRef = CC1344061AC17C8500CAB284 /* VGMPlay.h */; };
-		CC13449A1AC17C8500CAB284 /* XMasBonus.h in Headers */ = {isa = PBXBuildFile; fileRef = CC13440C1AC17C8500CAB284 /* XMasBonus.h */; };
 		CC1344A11AC1B4EC00CAB284 /* VGMPlay.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1344051AC17C8500CAB284 /* VGMPlay.c */; };
 		CC1344A31AC1B6BB00CAB284 /* ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1343E61AC17C8400CAB284 /* ym2151.c */; };
 		CC2D2A241AC2F450007C5296 /* malloc.h in Headers */ = {isa = PBXBuildFile; fileRef = CC2D2A231AC2F450007C5296 /* malloc.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		59782E631D8F38A300C0F8C7 /* c352.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = c352.c; sourceTree = "<group>"; };
+		59782E641D8F38A300C0F8C7 /* c352.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = c352.h; sourceTree = "<group>"; };
+		59782E651D8F38A300C0F8C7 /* es5503.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = es5503.c; sourceTree = "<group>"; };
+		59782E661D8F38A300C0F8C7 /* es5503.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = es5503.h; sourceTree = "<group>"; };
+		59782E671D8F38A300C0F8C7 /* es5506.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = es5506.c; sourceTree = "<group>"; };
+		59782E681D8F38A300C0F8C7 /* es5506.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = es5506.h; sourceTree = "<group>"; };
+		59782E691D8F38A400C0F8C7 /* iremga20.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = iremga20.c; sourceTree = "<group>"; };
+		59782E6A1D8F38A400C0F8C7 /* iremga20.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iremga20.h; sourceTree = "<group>"; };
+		59782E6B1D8F38A400C0F8C7 /* saa1099.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = saa1099.c; sourceTree = "<group>"; };
+		59782E6C1D8F38A400C0F8C7 /* saa1099.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = saa1099.h; sourceTree = "<group>"; };
+		59782E6D1D8F38A400C0F8C7 /* vsu.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vsu.c; sourceTree = "<group>"; };
+		59782E6E1D8F38A400C0F8C7 /* vsu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsu.h; sourceTree = "<group>"; };
+		59782E6F1D8F38A400C0F8C7 /* ws_audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ws_audio.c; sourceTree = "<group>"; };
+		59782E701D8F38A400C0F8C7 /* ws_audio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ws_audio.h; sourceTree = "<group>"; };
+		59782E711D8F38A400C0F8C7 /* ws_initialIo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ws_initialIo.h; sourceTree = "<group>"; };
+		59782E721D8F38A400C0F8C7 /* x1_010.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = x1_010.c; sourceTree = "<group>"; };
+		59782E731D8F38A400C0F8C7 /* x1_010.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x1_010.h; sourceTree = "<group>"; };
 		CC1343681AC17B3900CAB284 /* libvgmplay.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libvgmplay.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC1343771AC17C8400CAB284 /* ChipMapper.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ChipMapper.c; path = vgm/ChipMapper.c; sourceTree = "<group>"; };
 		CC1343781AC17C8400CAB284 /* ChipMapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChipMapper.h; path = vgm/ChipMapper.h; sourceTree = "<group>"; };
@@ -340,6 +373,23 @@
 		CC1343791AC17C8400CAB284 /* chips */ = {
 			isa = PBXGroup;
 			children = (
+				59782E631D8F38A300C0F8C7 /* c352.c */,
+				59782E641D8F38A300C0F8C7 /* c352.h */,
+				59782E651D8F38A300C0F8C7 /* es5503.c */,
+				59782E661D8F38A300C0F8C7 /* es5503.h */,
+				59782E671D8F38A300C0F8C7 /* es5506.c */,
+				59782E681D8F38A300C0F8C7 /* es5506.h */,
+				59782E691D8F38A400C0F8C7 /* iremga20.c */,
+				59782E6A1D8F38A400C0F8C7 /* iremga20.h */,
+				59782E6B1D8F38A400C0F8C7 /* saa1099.c */,
+				59782E6C1D8F38A400C0F8C7 /* saa1099.h */,
+				59782E6D1D8F38A400C0F8C7 /* vsu.c */,
+				59782E6E1D8F38A400C0F8C7 /* vsu.h */,
+				59782E6F1D8F38A400C0F8C7 /* ws_audio.c */,
+				59782E701D8F38A400C0F8C7 /* ws_audio.h */,
+				59782E711D8F38A400C0F8C7 /* ws_initialIo.h */,
+				59782E721D8F38A400C0F8C7 /* x1_010.c */,
+				59782E731D8F38A400C0F8C7 /* x1_010.h */,
 				CC13437A1AC17C8400CAB284 /* 2151intf.c */,
 				CC13437B1AC17C8400CAB284 /* 2151intf.h */,
 				CC13437C1AC17C8400CAB284 /* 2203intf.c */,
@@ -492,12 +542,14 @@
 				CC13445D1AC17C8500CAB284 /* opl.h in Headers */,
 				CC13444F1AC17C8500CAB284 /* nes_intf.h in Headers */,
 				CC1344471AC17C8500CAB284 /* k054539.h in Headers */,
+				59782E7B1D8F38A400C0F8C7 /* iremga20.h in Headers */,
 				CC1344101AC17C8500CAB284 /* 2151intf.h in Headers */,
 				CC13445B1AC17C8500CAB284 /* Ootake_PSG.h in Headers */,
 				CC1344251AC17C8500CAB284 /* adlibemu.h in Headers */,
 				CC13441E1AC17C8500CAB284 /* 281btone.h in Headers */,
 				CC13448D1AC17C8500CAB284 /* ymz280b.h in Headers */,
 				CC13443F1AC17C8500CAB284 /* fmopl.h in Headers */,
+				59782E7F1D8F38A400C0F8C7 /* vsu.h in Headers */,
 				CC1344871AC17C8500CAB284 /* ymf262.h in Headers */,
 				CC13444D1AC17C8500CAB284 /* nes_defs.h in Headers */,
 				CC13442E1AC17C8500CAB284 /* c140.h in Headers */,
@@ -509,11 +561,12 @@
 				CC13444C1AC17C8500CAB284 /* nes_apu.h in Headers */,
 				CC1344121AC17C8500CAB284 /* 2203intf.h in Headers */,
 				CC1344891AC17C8500CAB284 /* ymf271.h in Headers */,
+				59782E841D8F38A400C0F8C7 /* x1_010.h in Headers */,
 				CC1344701AC17C8500CAB284 /* segapcm.h in Headers */,
+				59782E7D1D8F38A400C0F8C7 /* saa1099.h in Headers */,
 				CC13441D1AC17C8500CAB284 /* 262intf.h in Headers */,
 				CC13444A1AC17C8500CAB284 /* multipcm.h in Headers */,
 				CC1344851AC17C8500CAB284 /* ymdeltat.h in Headers */,
-				CC13449A1AC17C8500CAB284 /* XMasBonus.h in Headers */,
 				CC1344411AC17C8500CAB284 /* gb.h in Headers */,
 				CC1344481AC17C8500CAB284 /* mamedef.h in Headers */,
 				CC1344931AC17C8500CAB284 /* Stream.h in Headers */,
@@ -521,7 +574,9 @@
 				CC2D2A241AC2F450007C5296 /* malloc.h in Headers */,
 				CC1344201AC17C8500CAB284 /* 3526intf.h in Headers */,
 				CC13446B1AC17C8500CAB284 /* scsp.h in Headers */,
+				59782E811D8F38A400C0F8C7 /* ws_audio.h in Headers */,
 				CC1344551AC17C8500CAB284 /* np_nes_fds.h in Headers */,
+				59782E771D8F38A400C0F8C7 /* es5503.h in Headers */,
 				CC13445F1AC17C8500CAB284 /* panning.h in Headers */,
 				CC13442C1AC17C8500CAB284 /* ay_intf.h in Headers */,
 				CC1344721AC17C8500CAB284 /* sn76489.h in Headers */,
@@ -530,6 +585,7 @@
 				CC1344651AC17C8500CAB284 /* qsound.h in Headers */,
 				CC13443A1AC17C8500CAB284 /* emutypes.h in Headers */,
 				CC1344771AC17C8500CAB284 /* sn764intf.h in Headers */,
+				59782E751D8F38A400C0F8C7 /* c352.h in Headers */,
 				CC1344301AC17C8500CAB284 /* c6280.h in Headers */,
 				CC1344241AC17C8500CAB284 /* 8950intf.h in Headers */,
 				CC1344351AC17C8500CAB284 /* dac_control.h in Headers */,
@@ -551,10 +607,12 @@
 				CC1344691AC17C8500CAB284 /* scd_pcm.h in Headers */,
 				CC1344451AC17C8500CAB284 /* k053260.h in Headers */,
 				CC13447A1AC17C8500CAB284 /* vrc7tone.h in Headers */,
+				59782E821D8F38A400C0F8C7 /* ws_initialIo.h in Headers */,
 				CC1344291AC17C8500CAB284 /* ay8910.h in Headers */,
 				CC1344391AC17C8500CAB284 /* emu2413.h in Headers */,
 				CC1344331AC17C8500CAB284 /* ChipIncl.h in Headers */,
 				CC13447C1AC17C8500CAB284 /* ym2151.h in Headers */,
+				59782E791D8F38A400C0F8C7 /* es5506.h in Headers */,
 				CC1344611AC17C8500CAB284 /* pokey.h in Headers */,
 				CC1344371AC17C8500CAB284 /* emu2149.h in Headers */,
 				CC1344171AC17C8500CAB284 /* 2608intf.h in Headers */,
@@ -619,13 +677,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59782E741D8F38A400C0F8C7 /* c352.c in Sources */,
 				CC1344861AC17C8500CAB284 /* ymf262.c in Sources */,
+				59782E7A1D8F38A400C0F8C7 /* iremga20.c in Sources */,
 				CC13446C1AC17C8500CAB284 /* scspdsp.c in Sources */,
 				CC1344751AC17C8500CAB284 /* sn76496_opl.c in Sources */,
 				CC13440D1AC17C8500CAB284 /* ChipMapper.c in Sources */,
 				CC1344641AC17C8500CAB284 /* qsound.c in Sources */,
 				CC1344381AC17C8500CAB284 /* emu2413.c in Sources */,
 				CC1344731AC17C8500CAB284 /* sn76496.c in Sources */,
+				59782E761D8F38A400C0F8C7 /* es5503.c in Sources */,
 				CC13442D1AC17C8500CAB284 /* c140.c in Sources */,
 				CC1344A31AC1B6BB00CAB284 /* ym2151.c in Sources */,
 				CC1344281AC17C8500CAB284 /* ay8910.c in Sources */,
@@ -658,11 +719,14 @@
 				CC1344541AC17C8500CAB284 /* np_nes_fds.c in Sources */,
 				CC13448A1AC17C8500CAB284 /* ymf278b.c in Sources */,
 				CC1344441AC17C8500CAB284 /* k053260.c in Sources */,
+				59782E831D8F38A400C0F8C7 /* x1_010.c in Sources */,
 				CC1344761AC17C8500CAB284 /* sn764intf.c in Sources */,
 				CC13443B1AC17C8500CAB284 /* fm.c in Sources */,
+				59782E801D8F38A400C0F8C7 /* ws_audio.c in Sources */,
 				CC1344581AC17C8500CAB284 /* okim6295.c in Sources */,
 				CC1344461AC17C8500CAB284 /* k054539.c in Sources */,
 				CC1344661AC17C8500CAB284 /* rf5c68.c in Sources */,
+				59782E7C1D8F38A400C0F8C7 /* saa1099.c in Sources */,
 				CC1344421AC17C8500CAB284 /* k051649.c in Sources */,
 				CC13440F1AC17C8500CAB284 /* 2151intf.c in Sources */,
 				CC1344231AC17C8500CAB284 /* 8950intf.c in Sources */,
@@ -671,8 +735,10 @@
 				CC13446F1AC17C8500CAB284 /* segapcm.c in Sources */,
 				CC1344841AC17C8500CAB284 /* ymdeltat.c in Sources */,
 				CC1344361AC17C8500CAB284 /* emu2149.c in Sources */,
+				59782E7E1D8F38A400C0F8C7 /* vsu.c in Sources */,
 				CC1344521AC17C8500CAB284 /* np_nes_dmc.c in Sources */,
 				CC13446A1AC17C8500CAB284 /* scsp.c in Sources */,
+				59782E781D8F38A400C0F8C7 /* es5506.c in Sources */,
 				CC13448C1AC17C8500CAB284 /* ymz280b.c in Sources */,
 				CC13442F1AC17C8500CAB284 /* c6280.c in Sources */,
 				CC1344601AC17C8500CAB284 /* pokey.c in Sources */,

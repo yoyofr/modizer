@@ -124,11 +124,10 @@
 #endif
 //#include "emu.h"
 //#include "streams.h"
-#include <memory.h>
-#include <malloc.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
+#include <stddef.h>	// for NULL
 #include "sn76496.h"
-
-#define NULL	((void *)0)
 
 
 //#define MAX_OUTPUT 0x7fff
@@ -294,8 +293,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 	INT32 ggst[2];
 
 	NGPMode = (R->NgpFlags >> 7) & 0x01;
-	if (NGPMode)
-		R2 = R->NgpChip2;
+	R2 = R->NgpChip2;
 
 	if (! NGPMode)
 	{
@@ -418,7 +416,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 					out += vol[i] * R->Volume[i] * ggst[0];
 					out2 += vol[i] * R->Volume[i] * ggst[1];
 				}
-				else
+				else if (R->MuteMsk[i])
 				{
 					// Make Bipolar Output with PCM possible
 					//out += (2 * R->Volume[i] - R->VolTable[5]) * ggst[0];
@@ -458,7 +456,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 						out += vol[i] * R->Volume[i] * ggst[0];
 						out2 += vol[i] * R2->Volume[i] * ggst[1];
 					}
-					else
+					else if (R->MuteMsk[i])
 					{
 						// Make Bipolar Output with PCM possible
 						out += R->Volume[i] * ggst[0];
@@ -472,7 +470,8 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 				// Bipolar output
 				vol[i] = R->Output[i] ? +1 : -1;
 				
-				vol[i] &= R->MuteMsk[i];
+				//vol[i] &= R->MuteMsk[i];
+				vol[i] &= R2->MuteMsk[i];	// use MuteMask from chip 0
 				// --- Preparation End ---
 				
 				// Noise Channel
@@ -869,7 +868,7 @@ DEVICE_GET_INFO( smsiii )
 		case DEVINFO_STR_NAME:							strcpy(info->s, "SMSIII PSG");					break;
 		default:										DEVICE_GET_INFO_CALL(sn76496);						break;
 	}
-}
+}*/
 
 
 /*DEFINE_LEGACY_SOUND_DEVICE(SN76496, sn76496);

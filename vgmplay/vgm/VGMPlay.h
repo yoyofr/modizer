@@ -2,13 +2,13 @@
 
 #include "VGMFile.h"
 
-#define VGMPLAY_VER_STR	"0.40.5"
+#define VGMPLAY_VER_STR	"0.40.7"
 //#define APLHA
 //#define BETA
-#define VGM_VER_STR		"1.70"
+#define VGM_VER_STR		"1.71b"
 #define VGM_VER_NUM		0x170
 
-#define CHIP_COUNT	0x21
+#define CHIP_COUNT	0x29
 typedef struct chip_options
 {
 	bool Disabled;
@@ -63,5 +63,13 @@ typedef struct chips_options
 	CHIP_OPTS Pokey;
 	CHIP_OPTS QSound;
 	CHIP_OPTS SCSP;
+	CHIP_OPTS WSwan;
+	CHIP_OPTS VSU;
+	CHIP_OPTS SAA1099;
+	CHIP_OPTS ES5503;
+	CHIP_OPTS ES5506;
+	CHIP_OPTS X1_010;
+	CHIP_OPTS C352;
+	CHIP_OPTS GA20;
 //	CHIP_OPTS OKIM6376;
 } CHIPS_OPTION;

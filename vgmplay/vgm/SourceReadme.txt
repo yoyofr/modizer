@@ -29,3 +29,15 @@ Compile VGMPlay under Linux
 1. [optional step] If you have libao installed, you can edit the Makefile to make VGMPlay use libao instead of OSS.
 2. run "make" in VGMPlay's folder
 3. Done.
+
+
+
+Compile VGMPlay under Mac OS X
+------------------------------
+1. install libao by executing the line
+   brew install libao
+2. run "make install MACOSX=1 DISABLE_HWOPL_SUPPORT=1 in VGMPlay's folder
+   (Alternatively edit the Makefile to set those constants and just run "make".)
+3. Done.
+
+Thanks to grauw for Mac OS X compilation instructions.

@@ -1,7 +1,7 @@
 // ChipMapper.c - Handles Chip Write (including OPL Hardware Support)
 
 #include <stdio.h>
-#include <memory.h>
+#include <string.h>
 #include <math.h>
 #include "stdbool.h"
 
@@ -12,14 +12,28 @@
 #endif
 
 #ifdef WIN32
+
 #include <conio.h>
 #include <windows.h>	// for QueryPerformance###
+
 #else
+
 #ifndef DISABLE_HW_SUPPORT
 #include <unistd.h>
+#ifdef __APPLE__
+#include <architecture/i386/io.h>
+#else
 #include <sys/io.h>
 #endif
+#endif	// DISABLE_HW_SUPPORT
+
 #include <time.h>
+#endif
+
+#ifdef __APPLE__
+#define ioperm(x,y,z)
+#define outb(x,y)
+#define inb(x)
 #endif
 
 #include "chips/mamedef.h"
@@ -84,7 +98,8 @@ extern float FinalVol;
 #define DELAY_OPL2_REG	 3.3f
 #define DELAY_OPL2_DATA	23.0f
 #define DELAY_OPL3_REG	 0.0f
-#define DELAY_OPL3_DATA	 0.28f
+//#define DELAY_OPL3_DATA	 0.28f	// fine for ISA cards (like SoundBlaster 16)
+#define DELAY_OPL3_DATA	 13.3f	// required for PCI cards (CMI8738)
 #ifdef WIN32
 INT64 HWusTime;
 #endif
@@ -649,6 +664,34 @@ void chip_reg_write(UINT8 ChipType, UINT8 ChipID,
 			break;
 		case 0x20:	// YMF292/SCSP
 			scsp_w(ChipID, (Port << 8) | (Offset << 0), Data);
+			break;
+		case 0x21:	// WonderSwan
+			ws_audio_port_write(ChipID, 0x80 | Offset, Data);
+			break;
+		case 0x22:	// VSU
+			VSU_Write(ChipID, (Port << 8) | (Offset << 0), Data);
+			break;
+		case 0x23:	// SAA1099
+			saa1099_control_w(ChipID, 0, Offset);
+			saa1099_data_w(ChipID, 0, Data);
+			break;
+		case 0x24:	// ES5503
+			es5503_w(ChipID, Offset, Data);
+			break;
+		case 0x25:	// ES5506
+			if (Port & 0x80)
+				es550x_w16(ChipID, Port & 0x7F, (Offset << 8) | (Data << 0));
+			else
+				es550x_w(ChipID, Port, Data);
+			break;
+		case 0x26:	// X1-010
+			seta_sound_w(ChipID, (Port << 8) | (Offset << 0), Data);
+			break;
+		case 0x27:	// C352
+			c352_w(ChipID, Port, (Offset << 8) | (Data << 0));
+			break;
+		case 0x28:	// GA20
+			irem_ga20_w(ChipID, Offset, Data);
 			break;
 //		case 0x##:	// OKIM6376
 //			break;

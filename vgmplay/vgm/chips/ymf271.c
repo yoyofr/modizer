@@ -33,21 +33,15 @@
 #ifdef _DEBUG
 #include <stdio.h>
 #endif
-#include <malloc.h>
-#include <memory.h>
+#include <stdlib.h>
+#include <string.h>	// for memset
+#include <stddef.h>	// for NULL
+#include "../stdbool.h"
 #include "ymf271.h"
 
-#ifndef __cplusplus	// C++ already has the bool-type
-#define	false	0x00
-#define	true	0x01
-typedef	unsigned char	bool;
-#endif // !__cplusplus
-
-#define NULL	((void *)0)
-
 //#define DEVCB_NULL							{ DEVCB_TYPE_NULL }
-#define DEVCB_NULL							DEVCB_TYPE_NULL
-#define DEVCB_TYPE_NULL				(0)
+//#define DEVCB_NULL							DEVCB_TYPE_NULL
+//#define DEVCB_TYPE_NULL				(0)
 
 #define VERBOSE		(1)
 
@@ -548,7 +542,9 @@ INLINE void update_lfo(YMF271Chip *chip, YMF271Slot *slot)
 
 INLINE int calculate_slot_volume(YMF271Chip *chip, YMF271Slot *slot)
 {
-	INT64 volume;
+	// Note: Actually everyone of these stores only INT32 (16.16 fixed point),
+	//       but the calculations need INT64.
+	INT32 volume;
 	INT64 env_volume;
 	INT64 lfo_volume = 65536;
 
