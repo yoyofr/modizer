@@ -869,7 +869,11 @@ bool utildecompGSF(const char * file)
 			for(j=0;j<i;j++)
 			{
 				if(!psftag_raw_getvar(gsflib[j]->psftag,libname,libtag,sizeof(libtag)-1)) {
+#ifdef LINUX
+                    sprintf(filename,"%s/%s",tempname,libtag);
+#else
 					sprintf(filename,"%s\\%s",tempname,libtag);
+#endif
 					gsflib[i] = decompressGSF(filename,i+1);
 					if(gsflib[i]->gsfloaded == false)
 					{

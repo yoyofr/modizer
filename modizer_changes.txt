@@ -1,7 +1,13 @@
+Requested:
+ÑÑÑÑÑÑÑÑÑ
+- mute button / channels & playback ratio (slower/faster)
+
+
 2.6
 ÑÑÑ
 - Screen layout issues fixed
-
+- VGMPlay 1.71b
+- Default length not being used in some cases
 
 
 2.1
