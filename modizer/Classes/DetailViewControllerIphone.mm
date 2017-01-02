@@ -5521,8 +5521,11 @@ extern "C" int current_sample;
 }
 
 -(IBAction)playSelectedSubSong{
-	[mplayer playGoToSub:[pvSubSongSel selectedRowInComponent:0]+mplayer.mod_minsub];
-	[self showSubSongSelector];
+    [self showSubSongSelector];
+    mPaused=0;
+    [self play_curEntry];
+    [mplayer playGoToSub:[pvSubSongSel selectedRowInComponent:0]+mplayer.mod_minsub];
+	
 }
 
 -(IBAction)playSelectedArc{
