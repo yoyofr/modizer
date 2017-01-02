@@ -46,7 +46,7 @@
 #include <pthread.h>	// for pthread functions
 
 // (suitable?) Apple substitute for clock_gettime()
-#ifdef __MACH__
+#ifdef yomodizer__MACH__
 #include <mach/mach_time.h>
 #define CLOCK_REALTIME	0
 #define CLOCK_MONOTONIC	0

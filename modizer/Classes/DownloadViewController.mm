@@ -1055,13 +1055,14 @@ static NSFileManager *mFileMngr;
 	[mFileMngr removeItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] error:&err];
     self.fileStream = [NSOutputStream outputStreamToFileAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] append:NO];
     assert(self.fileStream != nil);
+    [self.fileStream setDelegate:self];
     [self.fileStream open];
     
     [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME]];
 	
     // Open a FTP stream for the file to download
     self.networkStream = (NSInputStream *) ftpStream;
-    self.networkStream.delegate = self;
+    [self.networkStream setDelegate:self];
     [self.networkStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.networkStream open];
 	
