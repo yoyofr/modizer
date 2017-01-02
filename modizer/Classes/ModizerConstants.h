@@ -64,8 +64,8 @@
 
 #define VERSION_MAJOR 2
 #define VERSION_MAJOR_STR "2"
-#define VERSION_MINOR 5
-#define VERSION_MINOR_STR "5"
+#define VERSION_MINOR 6
+#define VERSION_MINOR_STR "6"
 
 
 #define MAX_PL_ENTRIES 4096
@@ -82,8 +82,8 @@
 #define DATABASENAME_USER @"database.modizerdb"
 #define DATABASENAME_TMP @"database.modizerdb.old"
 
-#define MODLAND_FTPHOST @"ftp.modland.com"
-//#define MODLAND_FTPHOST @"ftp.amigascne.org/mirrors/ftp.modland.com/"
+//#define MODLAND_FTPHOST @"ftp.modland.com"
+#define MODLAND_FTPHOST @"ftp.amigascne.org/mirrors/ftp.modland.com/"
 //#define MODLAND_FTPHOST @"aero.exotica.org.uk/pub/mirrors/modland/"
 
 //#define HVSC_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"

@@ -1,3 +1,9 @@
+2.6
+ÑÑÑ
+- Screen layout issues fixed
+
+
+
 2.1
 ÑÑÑ
 - updated HVSC to #62

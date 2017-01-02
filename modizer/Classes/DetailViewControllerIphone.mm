@@ -2223,7 +2223,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (BOOL)shouldAutorotate {
     //[self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
-    return TRUE;
+    return YES;
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    //[self updateLayoutsForCurrentOrientation:toInterfaceOrientation view:self.navigationController.view.superview.superview];
+    [self shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+    
 }
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
@@ -2456,6 +2464,26 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             
         } else {
+            
+            if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value==FALSE) {
+                coverflow.alpha=0;
+                lblMainCoverflow.alpha=0;
+                lblSecCoverflow.alpha=0;
+                lblCurrentSongCFlow.alpha=0;
+                lblTimeFCflow.alpha=0;
+                btnPlayCFlow.alpha=0;
+                btnPauseCFlow.alpha=0;
+                btnBackCFlow.alpha=0;
+                
+                coverflow.hidden=TRUE;
+                lblMainCoverflow.hidden=TRUE;
+                lblSecCoverflow.hidden=TRUE;
+                lblCurrentSongCFlow.hidden=TRUE;
+                lblTimeFCflow.hidden=TRUE;
+                btnPlayCFlow.hidden=TRUE;
+                btnPauseCFlow.hidden=TRUE;
+                btnBackCFlow.hidden=TRUE;
+            }
             
             
             if (oglViewFullscreen) {
@@ -3342,6 +3370,18 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 }
 
 
+-(void)OrientationDidChange:(NSNotification*)notification
+{
+    orientationHV=(int)[[UIDevice currentDevice]orientation];
+    
+    /*if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
+    {
+    }
+    else if(Orientation==UIDeviceOrientationPortrait)
+    {
+    }*/
+}
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	clock_t start_time,end_time;
@@ -3437,9 +3477,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
             mDevice_hh=mainscr.bounds.size.height;
             mDevice_ww=mainscr.bounds.size.width;
+            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
             mDevice_ww=mainscr.bounds.size.height;
             mDevice_hh=mainscr.bounds.size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
         
         mScaleFactor=mainscr.scale;
@@ -3457,15 +3499,19 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
             mDevice_hh=mainscr.bounds.size.height;
             mDevice_ww=mainscr.bounds.size.width;
+            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
             mDevice_ww=mainscr.bounds.size.height;
             mDevice_hh=mainscr.bounds.size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
         mScaleFactor=mainscr.scale;
         
         if (mScaleFactor>=2) mDeviceType=2;
         
 	}
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(OrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+
     
 //    NSLog(@"s %f w %d h %d",mScaleFactor,mDevice_ww,mDevice_hh);
 	/* iPhone Simulator == i386
@@ -3677,8 +3723,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     
 	
-	orientationHV=(int)UIInterfaceOrientationPortrait;
-	mPlaylist_size=0;
+    mPlaylist_size=0;
 	mIsPlaying=FALSE;
 	oglViewFullscreenChanged=0;
     mOglViewIsHidden=YES;
@@ -4125,12 +4170,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	[self updateBarPos];
 	//Hack to allow UIToolbar to be set up correctly
 	if (((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortrait) || ((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortraitUpsideDown) ) {
-		[self willAnimateRotationToInterfaceOrientation:UIInterfaceOrientationLandscapeLeft duration:0];
+		[self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
     } else {
         if (coverflow.hidden==FALSE) {
             [[self navigationController] setNavigationBarHidden:YES animated:NO];
         }
-        [self willAnimateRotationToInterfaceOrientation:UIInterfaceOrientationPortrait duration:0];
+        [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
     }
     CATransition *transition=[CATransition animation];
     transition.duration=0.2;

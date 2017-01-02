@@ -21,9 +21,10 @@
 }
 
 
+
 - (BOOL)shouldAutorotate {
     [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
