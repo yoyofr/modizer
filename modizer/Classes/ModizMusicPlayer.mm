@@ -2504,6 +2504,25 @@ long src_callback(void *cb_data, float **data) {
 								iCurrentTime=0;
 								mod_message_updated=1;
 							}
+                            if (mPlayType==13) {//ASAP
+                                iModuleLength=asap.moduleInfo.durations[mod_currentsub];
+                                ASAP_PlaySong(&asap, mod_currentsub, iModuleLength);
+                                
+                                
+                                iCurrentTime=0;
+                                numChannels=asap.moduleInfo.channels;
+                                
+                                if (moveToNextSubSong==2) {
+                                    //[self iPhoneDrv_PlayWaitStop];
+                                    //[self iPhoneDrv_PlayStart];
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
 						}
 						moveToNextSubSong=0;
 					}
@@ -2593,6 +2612,25 @@ long src_callback(void *cb_data, float **data) {
                             iCurrentTime=0;
                             mod_message_updated=1;
                         }
+                        if (mPlayType==13) {//ASAP
+                            iModuleLength=asap.moduleInfo.durations[mod_currentsub];
+                            ASAP_PlaySong(&asap, mod_currentsub, iModuleLength);
+                            
+                            
+                            iCurrentTime=0;
+                            numChannels=asap.moduleInfo.channels;
+                            
+                            if (moveToSubSong==2) {
+                                //[self iPhoneDrv_PlayWaitStop];
+                                //[self iPhoneDrv_PlayStart];
+                            } else {
+                                [self iPhoneDrv_PlayStop];
+                                [self iPhoneDrv_PlayStart];
+                            }
+                            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                            if (mLoopMode) iModuleLength=-1;
+                            mod_message_updated=1;
+                        }
 						moveToSubSong=0;
 					}
 					if (moveToPrevSubSong) {
@@ -2669,6 +2707,21 @@ long src_callback(void *cb_data, float **data) {
 								iCurrentTime=0;
 								mod_message_updated=1;
 							}
+                            if (mPlayType==13) {//ASAP
+                                iModuleLength=asap.moduleInfo.durations[mod_currentsub];
+                                ASAP_PlaySong(&asap, mod_currentsub, iModuleLength);
+                                
+                                
+                                iCurrentTime=0;
+                                numChannels=asap.moduleInfo.channels;
+                                
+                                [self iPhoneDrv_PlayStop];
+                                [self iPhoneDrv_PlayStart];
+                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                
+                                mod_message_updated=1;
+                            }
 						}
 					}
 					
@@ -4599,6 +4652,7 @@ long src_callback(void *cb_data, float **data) {
         song = asap.moduleInfo.defaultSong;
         duration = asap.moduleInfo.durations[song];
         ASAP_PlaySong(&asap, song, duration);
+        mod_currentsub=song;
         
         sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap.moduleInfo.author,asap.moduleInfo.title,asap.moduleInfo.songs,asap.moduleInfo.channels);
         
@@ -4662,7 +4716,7 @@ long src_callback(void *cb_data, float **data) {
         
 		iModuleLength=VGMHead.lngTotalSamples*10/441+2000;//ms
 		iCurrentTime=0;
-		numChannels=asap.moduleInfo.channels;
+        numChannels=2;//asap.moduleInfo.channels;
 		mod_minsub=0;
 		mod_maxsub=0;
 		mod_subsongs=1;
@@ -4674,7 +4728,7 @@ long src_callback(void *cb_data, float **data) {
 		//Loop
         if (mLoopMode==1) {
             iModuleLength=-1;
-            VGMMaxLoop=0;
+            VGMMaxLoop=2;
         }
         
 		
@@ -5347,7 +5401,8 @@ long src_callback(void *cb_data, float **data) {
 		
 		
 		// song info
-		sprintf(mod_name," %s",mod_filename);
+        strcpy(mod_filename,[[filePath lastPathComponent] UTF8String]);
+        sprintf(mod_name," %s",mod_filename);
 		sprintf(mod_message,"%s\n",mod_name);
 		numChannels=4;
 		iCurrentTime=0;

@@ -2,10 +2,6 @@
 #ifndef _ASAP_H_
 #define _ASAP_H_
 typedef int cibool;
-
-
-
-
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -15,7 +11,6 @@ typedef int cibool;
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
     
     typedef enum {
         ASAPModuleType_SAP_B,
@@ -63,6 +58,44 @@ extern "C" {
         NmiStatus_WAS_V_BLANK
     }
     NmiStatus;
+    typedef struct Pokey Pokey;
+    typedef struct PokeyPair PokeyPair;
+    
+    struct Cpu6502 {
+        int a;
+        int c;
+        int nz;
+        int pc;
+        int s;
+        int vdi;
+        int x;
+        int y;
+    };
+    
+    struct ASAPInfo {
+        int channels;
+        int covoxAddr;
+        int defaultSong;
+        int fastplay;
+        int headerLen;
+        int init;
+        int music;
+        cibool ntsc;
+        int player;
+        int songs;
+        ASAPModuleType type;
+        unsigned char songPos[32];
+        char author[128];
+        char date[128];
+        int durations[32];
+        char filename[128];
+        cibool loops[32];
+        char title[128];
+    };
+
+    
+    typedef struct ASAP ASAP;
+    typedef struct ASAPInfo ASAPInfo;
     
     struct Pokey {
         int audc1;
@@ -102,8 +135,7 @@ extern "C" {
         int tickCycle4;
         int deltaBuffer[888];
     };
-    typedef struct Pokey Pokey;
-    
+
     struct PokeyPair {
         int extraPokeyMask;
         int iirAccLeft;
@@ -122,43 +154,6 @@ extern "C" {
         unsigned char poly17Lookup[16385];
     };
 
-    
-    typedef struct PokeyPair PokeyPair;
-    
-    struct Cpu6502 {
-        int a;
-        int c;
-        int nz;
-        int pc;
-        int s;
-        int vdi;
-        int x;
-        int y;
-    };
-    
-    struct ASAPInfo {
-        int channels;
-        int covoxAddr;
-        int defaultSong;
-        int fastplay;
-        int headerLen;
-        int init;
-        int music;
-        cibool ntsc;
-        int player;
-        int songs;
-        ASAPModuleType type;
-        unsigned char songPos[32];
-        char author[128];
-        char date[128];
-        int durations[32];
-        char filename[128];
-        cibool loops[32];
-        char title[128];
-    };
-    
-    typedef struct ASAPInfo ASAPInfo;
-    
     struct ASAP {
         int blocksPlayed;
         int consol;
@@ -166,6 +161,7 @@ extern "C" {
         int currentDuration;
         int currentSong;
         int cycle;
+        cibool gtiaOrCovoxPlayedThisFrame;
         int nextEventCycle;
         int nextPlayerCycle;
         int nextScanlineCycle;
@@ -179,9 +175,6 @@ extern "C" {
         unsigned char memory[65536];
     };
 
-    
-    typedef struct ASAP ASAP;
-    
     
     /**
      * Format of output samples.
@@ -315,7 +308,7 @@ extern "C" {
     /**
      * Short credits for ASAP.
      */
-#define ASAPInfo_CREDITS  "Another Slight Atari Player (C) 2005-2013 Piotr Fusik\nCMC, MPT, TMC, TM2 players (C) 1994-2005 Marcin Lewandowski\nRMT player (C) 2002-2005 Radek Sterba\nDLT player (C) 2009 Marek Konopka\nCMS player (C) 1999 David Spilka\nFC player (C) 2011 Jerzy Kut\n"
+#define ASAPInfo_CREDITS  "Another Slight Atari Player (C) 2005-2014 Piotr Fusik\nCMC, MPT, TMC, TM2 players (C) 1994-2005 Marcin Lewandowski\nRMT player (C) 2002-2005 Radek Sterba\nDLT player (C) 2009 Marek Konopka\nCMS player (C) 1999 David Spilka\nFC player (C) 2011 Jerzy Kut\n"
     
     /**
      * Returns author's name.
@@ -505,6 +498,11 @@ extern "C" {
     cibool ASAPInfo_SetDate(ASAPInfo *self, const char *value);
     
     /**
+     * Sets the 0-based index of the "main" song.
+     */
+    cibool ASAPInfo_SetDefaultSong(ASAPInfo *self, int song);
+    
+    /**
      * Sets length of the specified song.
      * The length is specified in milliseconds. -1 means the length is indeterminate.
      */
@@ -536,7 +534,7 @@ extern "C" {
     /**
      * ASAP version as a string.
      */
-#define ASAPInfo_VERSION  "3.1.5"
+#define ASAPInfo_VERSION  "3.2.0"
     
     /**
      * ASAP version - major part.
@@ -546,17 +544,17 @@ extern "C" {
     /**
      * ASAP version - micro part.
      */
-#define ASAPInfo_VERSION_MICRO  5
+#define ASAPInfo_VERSION_MICRO  0
     
     /**
      * ASAP version - minor part.
      */
-#define ASAPInfo_VERSION_MINOR  1
+#define ASAPInfo_VERSION_MINOR  2
     
     /**
      * Years ASAP was created in.
      */
-#define ASAPInfo_YEARS  "2005-2013"
+#define ASAPInfo_YEARS  "2005-2014"
     
     /**
      * Writes text representation of the given duration.
