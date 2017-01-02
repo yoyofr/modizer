@@ -574,7 +574,7 @@ static UIAlertView *alertChooseName;
 	NSRange r;
 	NSString *endUrl=[[[request URL] absoluteString] lastPathComponent];
 	
-    //	NSLog(@"url : %d %@",navigationType,[[request URL] absoluteString]);
+    //NSLog(@"url : %d %@",navigationType,[[request URL] absoluteString]);
 	
 	if (endUrl==nil) return FALSE;
 	
@@ -612,8 +612,13 @@ static UIAlertView *alertChooseName;
 			int isHVSC=0;
 			NSRange rMODLAND;
 			rMODLAND.location=NSNotFound;
-			rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
+			rMODLAND=[ftpHost rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
 			if (rMODLAND.location!=NSNotFound) isModland++;
+            else {
+                rMODLAND.location=NSNotFound;
+                rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
+                if (rMODLAND.location!=NSNotFound) isModland++;
+            }
 			rMODLAND.location=NSNotFound;
 			rMODLAND=[ftpPath rangeOfString:@"/pub/modules/" options:NSCaseInsensitiveSearch];
 			if (rMODLAND.location!=NSNotFound) isModland++;
@@ -648,8 +653,7 @@ static UIAlertView *alertChooseName;
 					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
 					
 					
-					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
-														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
+					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1 filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
 				}
                 [fileManager release];
 				return NO;
