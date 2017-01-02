@@ -68,7 +68,7 @@
 #define VERSION_MINOR_STR "6"
 
 
-#define MAX_PL_ENTRIES 4096
+#define MAX_PL_ENTRIES 32768//4096
 
 #define MAX_RANDFX_TIME 15   //max is in fact min + max (seconds)
 #define MIN_RANDFX_TIME 15
@@ -82,8 +82,8 @@
 #define DATABASENAME_USER @"database.modizerdb"
 #define DATABASENAME_TMP @"database.modizerdb.old"
 
-//#define MODLAND_FTPHOST @"ftp.modland.com"
-#define MODLAND_FTPHOST @"ftp.amigascne.org/mirrors/ftp.modland.com/"
+#define MODLAND_FTPHOST @"ftp.modland.com"
+//#define MODLAND_FTPHOST @"ftp.amigascne.org/mirrors/ftp.modland.com/"
 //#define MODLAND_FTPHOST @"aero.exotica.org.uk/pub/mirrors/modland/"
 
 //#define HVSC_FTPHOST @"aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/High_Voltage_Sid_Collection/C64Music/"
