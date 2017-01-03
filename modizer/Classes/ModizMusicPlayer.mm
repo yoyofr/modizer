@@ -161,7 +161,7 @@ extern "C" char gsf_libfile[1024];
 
 extern "C" GD3_TAG VGMTag;
 extern "C" VGM_HEADER VGMHead;
-extern "C" UINT32 VGMMaxLoop;
+extern "C" UINT32 VGMMaxLoop,VGMMaxLoopM;
 
 int PreferJapTag=0;
 static const wchar_t* GetTagStrEJ(const wchar_t* EngTag, const wchar_t* JapTag)
@@ -938,7 +938,8 @@ void propertyListenerCallback (void                   *inUserData,              
 //AO stuff
 @synthesize ao_buffer;
 @synthesize ao_info;
-
+//VGMPLAY stuff
+@synthesize optVGMPLAY_maxloop;
 //Modplug stuff
 @synthesize mp_settings;
 @synthesize mp_file;
@@ -4696,6 +4697,9 @@ long src_callback(void *cb_data, float **data) {
         VGMPlay_Init();
         // load configuration file here
         VGMPlay_Init2();
+        
+        VGMMaxLoop=optVGMPLAY_maxloop;
+        
         if (!OpenVGMFile([filePath UTF8String]))
             if (!OpenOtherFile([filePath UTF8String])) {
                 NSLog(@"Cannot OpenVGMFile file %@",filePath);
@@ -4714,7 +4718,7 @@ long src_callback(void *cb_data, float **data) {
                 VGMTag.strNotes);
 		
         
-		iModuleLength=VGMHead.lngTotalSamples*10/441+2000;//ms
+		iModuleLength=(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
 		iCurrentTime=0;
         numChannels=2;//asap.moduleInfo.channels;
 		mod_minsub=0;
@@ -4728,7 +4732,6 @@ long src_callback(void *cb_data, float **data) {
 		//Loop
         if (mLoopMode==1) {
             iModuleLength=-1;
-            VGMMaxLoop=2;
         }
         
 		
@@ -6684,6 +6687,14 @@ extern "C" void adjust_amplification(void);
 	mUADE_OptPANValue=val;
 	uade_effect_pan_set_amount(&(UADEstate.effects), val);
 }
+
+///////////////////////////
+//VGMPLAY
+///////////////////////////
+-(void) optVGMPLAY_MaxLoop:(unsigned int)val {
+    optVGMPLAY_maxloop=val;
+}
+
 
 ///////////////////////////
 //MODPLUG

@@ -119,6 +119,13 @@ void optTIMIDITYChangedC(id param) {
 void optUADEChangedC(id param) {
     [param optUADEChanged];
 }
+//VGMPLAY
+-(void) optVGMPLAYChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_VGMPLAY];
+}
+void optVGMPLAYChangedC(id param) {
+    [param optVGMPLAYChanged];
+}
 
 #pragma mark - Load/Init default settings
 
@@ -380,6 +387,12 @@ void optUADEChangedC(id param) {
     //ADPLUG
     /////////////////////////////////////
     settings[ADPLUG_OplType].detail.mdz_switch.switch_value=0;
+    
+    /////////////////////////////////////
+    //VGMPLAY
+    /////////////////////////////////////
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
+    
     
 }
 
@@ -1141,6 +1154,26 @@ void optUADEChangedC(id param) {
     settings[TIM_Resample].detail.mdz_switch.switch_labels[2]=(char*)"Spli";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[3]=(char*)"Gaus";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[4]=(char*)"Newt";
+    
+    /////////////////////////////////////
+    //VGMPLAY
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].label=(char*)"VGMPlay";
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_VGMPLAY].sub_family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    
+    settings[VGMPLAY_Maxloop].label=(char*)"Max loop";
+    settings[VGMPLAY_Maxloop].description=NULL;
+    settings[VGMPLAY_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_Maxloop].sub_family=0;
+    settings[VGMPLAY_Maxloop].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=0;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=32;
+    
     
     /////////////////////////////////////
     //GME

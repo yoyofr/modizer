@@ -36,7 +36,8 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_SEXYPSF,
     SETTINGS_SID,
     SETTINGS_UADE,
-    SETTINGS_TIMIDITY
+    SETTINGS_TIMIDITY,
+    SETTINGS_VGMPLAY
 };
 
 /*
@@ -160,6 +161,9 @@ enum MDZ_SETTINGS {
         UADE_Gain,
             UADE_GainValue,
     
+        MDZ_SETTINGS_FAMILY_VGMPLAY,
+        VGMPLAY_Maxloop,
+    
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
     GLOB_FXAlpha,
@@ -199,7 +203,7 @@ typedef struct {
 typedef struct {
     //slider
     float slider_value;
-    unsigned int slider_value_nb;
+    //unsigned int slider_value_nb;
     float slider_min_value;
     float slider_max_value;
 } t_setting_slider;

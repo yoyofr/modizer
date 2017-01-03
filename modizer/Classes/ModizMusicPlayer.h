@@ -110,6 +110,9 @@ extern "C" {
 	unsigned char *ao_buffer;
 	ao_display_info ao_info;
 	//
+    //VGMPLAY stuff
+    unsigned int optVGMPLAY_maxloop;
+    //
 	//Modplug stuff
 	
 	ModPlugFile *mp_file;
@@ -138,6 +141,8 @@ extern "C" {
 //AO stuff
 @property unsigned char *ao_buffer;
 @property ao_display_info ao_info;
+//VGMPLAY
+@property unsigned int optVGMPLAY_maxloop;
 //Modplug stuff
 @property ModPlug_Settings mp_settings;
 @property ModPlugFile *mp_file;
@@ -215,7 +220,11 @@ extern "C" {
 -(void) optUADE_Gain:(int)isOn;
 -(void) optUADE_PanValue:(float_t)val;
 -(void) optUADE_GainValue:(float_t)val;
+
+-(void) optVGMPLAY_MaxLoop:(unsigned int)val;
+
 -(void) optGEN_DefaultLength:(float_t)val;
+
 -(void) optTIM_Poly:(int)val;
 -(void) optTIM_Reverb:(int)val;
 -(void) optTIM_Chorus:(int)val;
