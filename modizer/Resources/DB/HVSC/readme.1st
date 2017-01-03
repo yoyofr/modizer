@@ -1,0 +1,61 @@
+December 23, 2016
+
+(1) The new HVSC Update Tool only currently works on these platforms:
+
+     - Windows (95 through to Win8)
+     - Linux (Intel, ELF)
+
+    Note also that as of HVSC Update #63, you _must_ use Update Tool
+    2.8.7 upwards.  This is because the script relies on new directives
+    which are only specified in this new version and it's compatible with
+    the new v3 and v4 PSID specifications.
+
+    Note that the Windows executable is the only version included
+    with this Update.  Please see the HVSC web page for links to
+    all other operating system versions (URL at bottom).
+    It will also work on other UNIX systems, but you will have to
+    email <hvsc (sid) c64.org> for the source code.  Please
+    also do so if you would like to provide publicly available ports of
+    the Update Tool for any other popular operating system.
+
+    HVSC Update Tool 2.8.7 is backwards compatible with HVSC 2.0 upwards.
+    If you wish to apply an HVSC update older than this one, you are
+    advised to use the latest HVSC Update Tool included in this update.
+
+(2) The /update directory must reside directly within the HVSC
+    Collection. We recommend the following for unzipping:
+
+    Windows -> pkunzip -o -d HVSC_Update_??.zip
+    UNIX    -> unzip -o HVSC_Update_??.zip -d <destdir>
+
+    If the old Update Tool exists, choose overwrite. That is, always
+    use the newest Update Tool. Windows users make sure to use a
+    decompressor that can handle long file names (Winzip 6.0 and above
+    does the job nicely).
+
+    The updates are zipped two times in order to allow us to cram more
+    SIDs in.
+
+    More detailed information is given when you run the Update Tool.
+
+(3) Only run/unzip one update at a time. That is, don't unzip several
+    updates at the same time into the same directory. Unzip and run
+    each update separately, one after each other and in increasing
+    order.
+
+    Further, it is recommended that you delete the /update directory
+    after you are successful with the update. The reason is that the
+    Update Tool might not find the right update directory if two
+    /update directories that differ in case are present.
+
+(4) It is safe to run the update on your collection even if you have
+    unwisely modified the collection or if you only have a partial
+    collection. If any problems occur, an error file will be generated
+    which will list the errors. We recommend that you don't modify
+    HV SIDs.
+
+(5) DO NOT RUN THE SAME UPDATE ON YOUR COLLECTION MORE THAN ONCE!
+    You will damage some SIDs if you do!
+
+
+HVSC Web Page -> http://hvsc.c64.org/
