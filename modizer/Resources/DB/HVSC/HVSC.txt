@@ -2,9 +2,9 @@
                         T H E   H I G H   V O L T A G E
                           S I D   C O L L E C T I O N
 
-                                  Release 64
+                                  Release 66
 
-                               December 23, 2015
+                               December 23, 2016
 
 Compiled by:
 ------------
@@ -15,11 +15,10 @@ Current Members:
     Mariusz Mlynski - POLAND
     Sebastian Sprenger (Professor Chaos) - GERMANY
     Chris Abbott <chris (sid) c64audio.com> - ENGLAND
-    Tobias Samuelsson (McLoaf) <dasforum_91 (sid) hotmail.com> - SWEDEN
     Zack Thompson (Karmic) - CANADA
 
 Retired/Inactive Members:
-    The Shark of INC <shark (sid) dhp.com> - USA
+    The Shark of INC - USA
     Michael Schwendt - GERMANY
     Darren (Bod/Talent) - ENGLAND
     Jan Krolzig - GERMANY
@@ -42,6 +41,7 @@ Retired/Inactive Members:
     Rafal Szyja (Raf/Vulture Design) - POLAND
     Stephan Schmid (Steppe/Demodungeon) - GERMANY
     Mariusz Rozwadowski (Ramos/Samar) - POLAND
+    Tobias Samuelsson (McLoaf) - SWEDEN
 
           -> Members of the C64 Historical Preservation Society! <-
 -----------------------------------------------------------------------------
@@ -201,8 +201,7 @@ listen to perhaps the most accurate and comprehensive computer music
 collection in existence.
 
 * SID emulators are available for many operating systems such as Linux,
-  MacOS, BeOS, Atari Falcon, Windows (95 through to 7), MSDOS, AmigaOS,
-  OS/2, etc.
+  MacOS, BeOS, Atari Falcon, Windows, MSDOS, AmigaOS, OS/2, iOS, Android, etc.
 
   For a complete list of supported OSes with links see:
 
@@ -479,8 +478,7 @@ such as SIDedit.
    RELEASED  : <FOUR_DIGIT_YEAR> <COMPANY or AUTHOR or GROUP>
 
    Fill in any unknown field with a <?>, apart from the RELEASED (see below)
-   Place a maximum of 31 printable characters per field for compatibility
-   reasons.
+   Place a maximum of 32 printable characters per field.
    -----------------------------
 
    Examples:

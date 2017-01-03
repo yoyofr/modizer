@@ -329,18 +329,6 @@ ripping sids for HVSC and intros for intros.c64.org, hanging about in
 forums and once in a while on IRC chats.
 
 
-***********************************************************************
-* Tobias Samuelsson (McLoaf) <dasforum_91 (sid) hotmail.com> - SWEDEN *
-***********************************************************************
-
-Contributions
--------------
-Has always supported the HVSC crew by submitting numerous bug reports.
-Due to his great eye for details he has been invited to the HVSC crew's
-quality assurance team. He even sent his first rip in 2009 (and not a
-$1000/$1003 tune!), so there's great potential to be uncovered!  ;-)
-
-
 **************************************************
 * Sebastian Sprenger (Professor Chaos) - GERMANY *
 **************************************************
@@ -1056,4 +1044,15 @@ So I wanted to create my own archive, but after some time I came to the
 conclusion that it's better to join forces with HVSC rather than having two
 independent collections out there on the net.
 
+
+***********************************************************************
+* Tobias Samuelsson (McLoaf) <dasforum_91 (sid) hotmail.com> - SWEDEN *
+***********************************************************************
+
+Contributions
+-------------
+Has always supported the HVSC crew by submitting numerous bug reports.
+Due to his great eye for details he has been invited to the HVSC crew's
+quality assurance team. He even sent his first rip in 2009 (and not a
+$1000/$1003 tune!), so there's great potential to be uncovered!  ;-)
 

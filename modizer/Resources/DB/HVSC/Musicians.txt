@@ -8,48 +8,47 @@ Note: Only SID musicians who have made
 
 ****************************************
 
-SID Musicians in total - 1504
-
-ARGENTINA - 2
-AUSTRALIA - 34
-AUSTRIA - 18
-BELGIUM - 16
-BRAZIL - 1
-CANADA - 17
-CZECH REPUBLIC - 17
-DENMARK - 60
-FINLAND - 85
-FRANCE - 9
-GERMANY - 257
-GREECE - 1
-HUNGARY - 67
-ICELAND - 1
-IRAN - 2
-ISRAEL - 3
-ITALY - 29
-JAPAN - 2
-MACEDONIA - 1
-NEW ZEALAND - 2
-NETHERLANDS - 108
-NORWAY - 58
-POLAND - 158
-ROMANIA - 1
-RUSSIA - 4
-SERBIA - 6
-SLOVAKIA - 12
-SOUTH AFRICA - 1
-SPAIN - 9
-SWEDEN - 169
-SWITZERLAND - 5
-THAILAND - 1
-TURKEY - 14
-UNITED KINGDOM (ENGLAND) - 118
-UNITED KINGDOM (NORTHERN IRELAND)- 2
-UNITED KINGDOM (SCOTLAND) - 11
-UNITED KINGDOM (WALES) - 2
-UNITED KINGDOM - 25
-USA - 88
-Unknown Country : 88
+SID Musicians in total ........... 1555
+ARGENTINA.........................    3
+AUSTRALIA.........................   35
+AUSTRIA...........................   20
+BELGIUM...........................   16
+BRAZIL............................    1
+CANADA............................   17
+CZECH REPUBLIC....................   19
+DENMARK...........................   62
+FINLAND...........................   87
+FRANCE............................    8
+GERMANY...........................  269
+GREECE............................    1
+HUNGARY...........................   68
+ICELAND...........................    1
+IRAN  ............................    2
+ISRAEL............................    3
+ITALY ............................   29
+JAPAN ............................    3
+MACEDONIA.........................    1
+NEW ZEALAND.......................    2
+NETHERLANDS.......................  108
+NORWAY............................   59
+POLAND............................  159
+ROMANIA...........................    1
+RUSSIA............................    4
+SERBIA............................    6
+SLOVAKIA..........................   12
+SOUTH AFRICA......................    1
+SPAIN ............................    9
+SWEDEN............................  171
+SWITZERLAND.......................    5
+THAILAND..........................    1
+TURKEY............................   14
+UNITED KINGDOM (ENGLAND...........  118
+UNITED KINGDOM (NORTHERN IRELAND).    2
+UNITED KINGDOM (SCOTLAND).........   11
+UNITED KINGDOM (WALES) - .........    2
+UNITED KINGDOM ...................   27
+USA ..............................  102
+Unknown Country...................   96
 
 ****************************************
 $4753 Softcopy / The 2nd Society - GERMANY
@@ -83,6 +82,7 @@ Ajitek (Iadicicco, Alex) - USA
 Akadem (Kucharski, Andrzej) / Caution - POLAND
 Akira K / Kiken Corporation - ARGENTINA
 Albartus, Jan (LOGAN) / New Dimension Crew - NETHERLANDS
+Albert, Christoph (Judy {Sharky}) / Trinomic - GERMANY
 Alchemy (Bishop, Ben) / The Second Ring - AUSTRALIA
 Alex (Rebjonok, Alexander) / Citadel / Rush - CZECH REPUBLIC
 Alfatech (Lalic, Che) / Triad - SWEDEN
@@ -93,7 +93,6 @@ Alkie Soft (Guido {Turbo Sound}) / The New Dimension - GERMANY
 Almered, Per / Excellence In Art - SWEDEN
 Alpha (Tangen, Tobias) / The Golden Triangle - NORWAY
 Alsop, Mike - UNITED KINGDOM (ENGLAND)
-Alwyz (Desing, Christopher {AlwyzStnd, Nick Vivid}) / Underground Domain Inc. - USA
 Amadeus / Attic - POLAND
 Amadeus (Nyberg, Danjel) / Noice / Meka Design - SWEDEN
 Amadeus (Stockleben, Björn) / Slash Design - GERMANY
@@ -111,6 +110,7 @@ ant1 - UNITED KINGDOM
 Antitrack (Alex) / Legend - AUSTRIA
 Antoniak, Jarek - POLAND
 Anvil (Reiman, Petri {Usurper}) / Deathsector - FINLAND
+Aomeba (Viitalähde, Jaakko) / Siesta - FINLAND
 Apollo (Jansen, Peter) - NETHERLANDS
 Archmage (Repstad, Håkon) / Instinct - NORWAY
 Arenz, Bernhard - GERMANY
@@ -145,7 +145,8 @@ Bad (Knitter, Denis) / Equinoxe - GERMANY
 Baguley, Jim - UNITED KINGDOM
 Bain, David / Zeon Acoustics - UNITED KINGDOM (ENGLAND)
 Bak, Steve - UNITED KINGDOM (ENGLAND)
-Bakewell, Dwayne (Morbid) (DJB) (BAT) / Onslaught - AUSTRALIA
+Baker, Alan - USA
+Bakewell, Dwayne (Morbid {DJB, BAT}) / Onslaught - AUSTRALIA
 Bakker, Nantco (Beat, Ripper) / Warriors of Music - NETHERLANDS
 Balai, Rodney (Jungle Brother) / Audial Arts - NETHERLANDS
 Balboa (de Angelis, Vito) / Megahawks - ITALY
@@ -170,7 +171,7 @@ Beat Machine (Ammermüller, Chris) - GERMANY
 Beatbox (Polmans, Marc) / Digital Force / Europe Computer Software - NETHERLANDS
 Beben, Wally (Hagar) - UNITED KINGDOM (ENGLAND)
 Becher, Patrick (Bug) / NCI - GERMANY
-Behdad, Arman (Intensity) (Arman) (S.U.C.K.) (Snickers) / Role - IRAN
+Behdad, Arman (Intensity {Arman, S.U.C.K., Snickers}) / Role - IRAN
 Beliar (Czarnopolski, Pawel) / Gedeon - POLAND
 Bellamy, Paul - UNITED KINGDOM (ENGLAND)
 Benji (Wyszyñski, Marek) / Inflexion - POLAND
@@ -211,12 +212,12 @@ Booker (Kubica, Marcin) / Amorphis Group - POLAND
 Boray (Persson, Anders) - SWEDEN
 Bordeaux (Harris, Tim {Datrax, Dr. Schnuggels}) / Active - NETHERLANDS
 Bosch, Roel (TSC) / The Satanic Angels - NETHERLANDS
+Bouchard, Gary - USA
 Bowie / Final Frontiers 2019 - DENMARK
 Boyd / Nausea
 Brandis (Hölsken, Peter) / Shining 8 - GERMANY
 Brandon Walsh (Wressle, Daniel) / Genesis Project - SWEDEN
 Brandt, Georg - GERMANY
-Braun, Ryan (Intense) / Carcass
 Brennan, Neil - AUSTRALIA
 Brian (Farkas, Balázs) / Graffity - HUNGARY
 Briggs, Jason
@@ -225,7 +226,9 @@ Britelite (Halin, Peter) / Dekadence - FINLAND
 Brizz (Sebastian, Stefan) / Panic - GERMANY
 Brooke, Jason C. - UNITED KINGDOM (ENGLAND)
 Brown, Andy - UNITED KINGDOM
+Browning, Ken - USA
 Bruce (R., Petri) / Novasoft - FINLAND
+Buckley, Kevin - USA
 Buddha (Hasiak, Sylwester) / Camey / X-Vector - POLAND
 Bulka, Adam / FAME - GERMANY
 Bulldog (Herling, Alexander) / Padua - GERMANY
@@ -237,6 +240,7 @@ Butler, Paul - CANADA
 Butterfield, Jim - CANADA
 Byte Blaster (Kirsten, Kai) / International Cracking Company - GERMANY
 Bzyk (Baczkiewicz, Piotr {eXbee}) / Samar / Lepsi Developments - POLAND
+c0zmo (Jentsch, Markus {E.C.D}) / Bliss - GERMANY
 C.L.S. - GERMANY
 Cadaver (Öörni, Lasse) / Electric Harem - FINLAND
 Caine (Dafonseca, Caine) / Hype - AUSTRALIA
@@ -318,16 +322,18 @@ Crowther, Antony (Ratt) - UNITED KINGDOM (ENGLAND)
 Cruz, Debby
 !Cube (Lönnberg, Toni) / Trauma - FINLAND
 Cubaxd (Czinzoll, Christian) - GERMANY
-Cubehead (Qbhead) (Mucsányi, Gábor) / Onslaught - HUNGARY
+Cubehead (Mucsányi, Gábor {Qbhead}) / Onslaught - HUNGARY
+Cunningham, Steve - USA
 Cuomo, Jim - USA
 Curt Cool (Larsen, Frank E.) / Depth - DENMARK
 Cyberbrain (Laustsen, Bjarke Norgaard) / Noname - DENMARK
 Cyberdyne (Ewe, Ralf) / Trinomic - GERMANY
 Cycleburner (Scharning, Even {NOP}) / Contex - NORWAY
 Cyke (Karlsson, Robert) / Megaunit - SWEDEN
-D-Tract (Weber, Lars) / Insider - GERMANY
 Cyrion / Device
+D-Tract (Weber, Lars) / Insider - GERMANY
 da Blondie (Szõke, Attila) / Xymox / Resource - HUNGARY
+Da Phuture Kemist (Fekete, Zoltán) - HUNGARY
 Dabrowski, Janusz - POLAND
 Daddy Kool (Sørensen, Jakob) / GFB64 - DENMARK
 Daf (Relkowski, Michal) / 3Lux / Samar Productions - POLAND
@@ -338,7 +344,7 @@ Dalton (Stojanovic, Sasha) / Crime - SERBIA
 Damion / Arcane - USA
 Dane (Andersson, Stellan) / Crest - SWEDEN
 Darin, Mark
-Danko, Tomas (Gaunt) (Danko) - SWEDEN
+Danko, Tomas (Gaunt {Danko}) - SWEDEN
 Darling David & Richard
 Data (Staszak, Radoslaw) / Axelerate - POLAND
 Daudey, Oliver
@@ -361,7 +367,7 @@ Deazipan (Malmros, Dennis) - SWEDEN
 Dec (Benke Jr., László Benke Jr.) / Natural Beat - HUNGARY
 Decoder (Värn, Jesper) / Noice - SWEDEN
 Decoy (Leiers, Jens) / Excess - GERMANY
-Deek (Digital Syndicate) (Rinn, Richard) - UNITED KINGDOM (SCOTLAND)
+Deek (Rinn, Richard {Digital Syndicate}) - UNITED KINGDOM (SCOTLAND)
 Deenen, Charles (The Mercenary Cracker {TMC, TSS}) - NETHERLANDS
 Deetsay (Mäyränen, Tero) / Panic - FINLAND
 Defbeat (Sükür, Yavuz) / The Ruling Company - NETHERLANDS
@@ -369,8 +375,9 @@ deizi (Lehtimäki, Tommi) - FINLAND
 Del Duca, Ivan - ITALY
 Del Priore, Fabian - GERMANY
 DeMeo, Alex - USA
+Demux (Odland, Eric) - USA
 Denithor (Nysted, Jari) / Academy - NORWAY
-Deon (Martinkovic, Joraj) / Commo Bam - SLOVAKIA
+Deon (Martinkovic, Juraj) / Commo Bam - SLOVAKIA
 Derrett, Jay - UNITED KINGDOM (ENGLAND)
 Detert, Thomas (Stephen Taylor, B.U.C.K.) / X-Ample Architectures / Omega 8 - GERMANY
 Deutsch, Matthias - GERMANY
@@ -383,18 +390,20 @@ Diamond (Császár, David) / Muscle Soft Crew - GERMANY
 Digger (Augustyn, Tomasz {Gustek, Bufon}) / Atlantic / Pepito Original - POLAND
 Digiblaster (Zeilmaker, Hans) / World Wide Expressive - NETHERLANDS
 Dino (Nilsson, Erik) / Up Rough - SWEDEN
+Divertigo (Arms, Steve) / Atlantis - USA
 DJ (Kugel, Andreas) / Extreme - GERMANY
 DJ-Ice (Zerucha, Lukasz) / Voodoo - POLAND
 DJ Gruby (Krol, Pawel) / Dream - POLAND
 DJ Sharp (Kochan, Jacek {Sharp}) / Dream / Adequate - POLAND
 DJ Team / The Sharks
 Djinn (Degorski, Kamil) / Fraction - POLAND
+dLx (Falk, Joakim) / Insane - SWEDEN
 Dobromir (Stolarczyk, Dobromir) / Aen Seidhe/Dream Web - POLAND
 Doe, Brian - UNITED KINGDOM (ENGLAND)
 Doh (Desessart, Nicolas) / Cryptoburners / Dreamdealers - FRANCE
 Dokken (Stoner, Bob) / Elektron - USA
 Dokmatik (Göktay, Metin) - TURKEY
-Donovan (Madsen, Soren Trautner) / The Zad Team - DENMARK
+Donovan (Madsen, Soren Trautner) / The Zad Team / The ZeroBoys - DENMARK
 Doomdark (Cox, Gary) - UNITED KINGDOM
 Dooshek (Duszyñski, Piotr) / Street Children - POLAND
 DOS (Cseh, Andor) / ADSR - HUNGARY
@@ -426,12 +435,14 @@ Dune (Pietraszko, Rafal) / RP / Samar Productions - POLAND
 Dunkel Nielsen (Nielsen, Trygve Selnes) & Elektrond (Klykken, Trond) / Creators - NORWAY
 Dunn, David - UNITED KINGDOM (ENGLAND)
 Dunn, Jonathan (Choroid) - UNITED KINGDOM (ENGLAND)
+Duz (West, Daniel) / Vortex 42 - SWEDEN
 E.P. (Peters, Eelco) / Obituary - NETHERLANDS
 Eclipse (Földi, Zoltán F.) / Replay - HUNGARY
 Eco (Picheta, Raik) / Excess - GERMANY
 Ed (Svärd, Eddie {Hank, Bogdan Trance, Jack Spliff}) / Wrath Designs - SWEDEN
 Edgar, Dale
 Eeben, Aleksi / CNCD - FINLAND
+Ekaitis, Joe - USA
 Ela (Ardem, Eric Leslie) / Antimon - NORWAY
 Electronic Speech Systems - USA
 Elk (Gasecki, Tomasz) / Samar Productions - POLAND
@@ -455,7 +466,7 @@ Extern (Kozlowski, Slawomir) / Asphyxia - POLAND
 Eye (Wieczorek, Pawel) / Vermes - POLAND
 Fabbri, Franco - ITALY
 Faclaug (Laugel, Sebastien) / Yankees - FRANCE
-Factor6 (Witkowski, Alan Bastian) / Anubis / Phantasy / Role - CZECH REPUBLIC
+Factor6 (Petrik, Alan) / Anubis / Phantasy / Role - CZECH REPUBLIC
 Falciparum (Nukala, Lauri) - FINLAND
 Fancy (Szabadi, Gabor) / Tendance - HUNGARY
 Fanta (Rotzsch, Alexander) / Bass / Oxyron - GERMANY
@@ -466,7 +477,7 @@ Fantomas (Pawlak, Pawel) / Sunga - POLAND
 FCS (Granberg, Juha) / Finnish Gold - FINLAND
 Feekzoid (Hannay, Paul) - UNITED KINGDOM (SCOTLAND)
 Fegolhuzz (Wasberger, Figge) - SWEDEN
-Feiweier, Gösta (Circle) (Syenit) / Digital Excess - GERMANY
+Feiweier, Gösta (Circle {Syenit}) / Digital Excess - GERMANY
 Fellow (Pavel) / Rush - CZECH REPUBLIC
 Ferock / Xtremity
 Ferrara (Cavén, Toni) / PhObos team - FINLAND
@@ -495,8 +506,9 @@ Foreman, Gary - UNITED KINGDOM
 Fox (Mark) / More Knowledge in Software - NETHERLANDS
 Fozzie (Westling, Stefan) - SWEDEN
 François, Marc (Skywave) / Sonix Systems - UNITED KINGDOM (ENGLAND)
-Frantic / Hack n' Trade - SWEDEN
+Frantic (Mats) / Hack n' Trade - SWEDEN
 Franz_koopa (Sihvola, Jari) - FINLAND
+FrederikC1 - USA
 Fredrik - SWEDEN
 Freedom - ITALY
 Freeze (Frics, Balázs) / Faces - HUNGARY
@@ -518,7 +530,7 @@ G-Fellow (Flagge, Gerhard) / Civitas - GERMANY
 Galancy (Ukkola, Jari {Fadwell, Grozier}) / Atlantis - FINLAND
 Galaxy (Kiviranta, Jani) / Origo Dreamline - FINLAND
 Galimberti, Paolo - ITALY
-Gallefoss, Glenn Rune (GRG) (Shark) / Blues Muz' - NORWAY
+Gallefoss, Glenn Rune (GRG {Shark}) / Blues Muz' - NORWAY
 Galleon (Cassel, Kristofer {Slim}) / Sphinx - SWEDEN
 Galway, Martin - UNITED KINGDOM (NORTHERN IRELAND)
 Gangstar (Krefter, Thomas) / Plush - GERMANY
@@ -536,6 +548,7 @@ Gero (Kubiny, Gerard) / Abadion - CZECH REPUBLIC
 Gerpsnot (Davis, Sid) / Venom - USA
 Ghetto boy (van den Akker, Robert) / Project 7 Piltje - NETHERLANDS
 Ghormak (Slotte, Andreas)
+GI-Joe (I., Gero) - GERMANY
 Gibson, Tony - UNITED KINGDOM (ENGLAND)
 Gillgrass, Dan (Danny G) / Suicyco Industries - UNITED KINGDOM
 Gillies, Ewen (King R.A.T, Warlock Arkhinos Ratazmus, Trisect, ASL) / The Mosh Masters - UNITED KINGDOM (ENGLAND)
@@ -572,7 +585,7 @@ Grigg, Chris - USA
 Groepaz / Hitmen - GERMANY
 Groms (Gausdal, Rune) / Style Designs / Triad - NORWAY
 Groo (Gregersen, Claus Leth) / Mechanix - DENMARK
-Gummibeer (Dr A.A.) (Marczak, Konrad) / Respect - POLAND
+Gummibeer (Marczak, Konrad {Dr A.A.}) / Respect - POLAND
 Haldor (Piasecki, Dariusz) / Idlers - POLAND
 Hall, Jeremy
 Hallen (Boguniewicz, Witold {Agnus}) / Medium - POLAND
@@ -584,15 +597,15 @@ Hannula, Antti (Flex) / Artline Designs - FINLAND
 Hansford, Graham - UNITED KINGDOM (ENGLAND)
 Harlequin (Bokhoven, Arjen) / Silicon - NETHERLANDS
 Harmony Productions (Llorca, Ludovic) / Offence / Warriors of Time - FRANCE
-Harries, Jan Diabelez Arent (SIDwave) (rambones) / The Supply Team / Ancients - DENMARK
-Harris, Denis (Mole) (Moley) / Ariston Design - UNITED KINGDOM
+Harries, Jan Diabelez Arent (SIDwave {rambones}) / The Supply Team / Ancients - DENMARK
+Harris, Denis (Mole {Moley}) / Ariston Design - UNITED KINGDOM
 Harrison, Mark - UNITED KINGDOM (ENGLAND)
 Harti (Wieczorek, Adam) / Vermes - POLAND
 Hartshorne, Bob (Clever Music) - UNITED KINGDOM (ENGLAND)
 Hartwig, Stefan - GERMANY
 Hatlelid, Kris - CANADA
 Havoc (Mohr, Oliver) / Frontline - GERMANY
-Hawes, Chuck
+Hawes, Chuck - USA
 Hayes, Ben (Nutt '67) / Sonic Graffiti - UNITED KINGDOM (WALES)
 HCL (Malmborg, David) / Booze Design - SWEDEN
 Heatwave (Harju, Mikko) - FINLAND
@@ -611,6 +624,7 @@ Hevosenliha (Lindquist, Petter) / MuMu21 - SWEDEN
 HIC (Almási, John) / Quality - HUNGARY
 Higgie (Oltmann, Hergen {General}) / Kraze - GERMANY
 Higgins, Neil (NM156) - AUSTRALIA
+Highway Guy (Fay, Liam) - USA
 Hikl, Christian - GERMANY
 Hillebrand, Matthias / Modern Arts - SWITZERLAND
 Hilty, James C. - USA
@@ -654,6 +668,7 @@ Improve (Bukoviansky, Michal) / Explore - SLOVAKIA
 Input (Seifert, Hannes) / Pulsar - AUSTRIA
 Inside (Szalai, Zoltán) / Exile - HUNGARY
 Insider (Bengtsson, Anders) - SWEDEN
+Intense (Jolley, Corey) / Carcass - USA
 Invisible / The Famous Ones
 Iron Cat (Hertenstein, Alain) / The Ruling Company - SWITZERLAND
 Isildur (Szrama, Dominik) / Samar Productions - POLAND
@@ -668,6 +683,7 @@ Jakim (Szymañski. Mateusz) / Vulture Design - POLAND
 Jammer (Wolnikowski, Kamil) / MultiStyle Labs / Samar Productions - POLAND
 Jammic (Tittanen, Sami) / Skalaria - FINLAND
 Jane (Kozlowski, Witold) / Asphyxia - POLAND
+Jangler (Mulcahy, Brandon) - USA
 Janoff, Christian / Panzernacker Enterprises - GERMANY
 Japmaster (Potts, Julian) - UNITED KINGDOM (ENGLAND)
 Java / Rolex / Titan - BELGIUM
@@ -723,7 +739,7 @@ Kelly, Dave - UNITED KINGDOM (ENGLAND)
 Kelly, Tony - UNITED KINGDOM (ENGLAND)
 Ken (K., Pascal) / Yankees - FRANCE (Martinique)
 Kfaraday - UNITED KINGDOM
-Khugiani, Naveed (Crack) (Algorithm) / Fantasys - UNITED KINGDOM (ENGLAND)
+Khugiani, Naveed (Crack {Algorithm}) / Fantasys / Onslaught - UNITED KINGDOM (ENGLAND)
 Kidd, Clark
 Kidd, Kathy H.
 Killer (Kirsz, Michal) / Tengu - POLAND
@@ -743,8 +759,8 @@ Klink, Harold / Phenomena Technologies - NETHERLANDS
 Klose, Thorsten - GERMANY
 Knatter (Fogelberg, Björn) / Xakk - SWEDEN
 Knipping, Holger (Holly) / FAME - GERMANY
-Knoeki (Scharrenborg, Tim) / Digital Sounds System - NETHERLANDS
-Kochan, Maciej (Dave) (Quasi) / Nipson / Caution - POLAND
+Knoeki / Digital Sounds System - NETHERLANDS
+Kochan, Maciej (Dave {Quasi}) / Nipson / Caution - POLAND
 Kohal (The Ninja Cat) / The Silents
 Kolbe, Thomas - GERMANY
 Koloncsák, Zsolt - HUNGARY
@@ -755,6 +771,7 @@ Kosa (Kosiñski, Jakub) / Motiv 8 / Tridam - POLAND
 Koske, Erich
 Koytka, Thorsten (Agent Orange) / Digital Excess - GERMANY
 Kozaki Soft (Kozicki, Mateusz) - POLAND
+Kraetzig, Thomas - GERMANY
 Kramer, Cees - NETHERLANDS
 Kravin (Ericsson, Germund) / Triad - SWEDEN
 Kribust (Myklebust, Kristian) - NORWAY
@@ -762,12 +779,15 @@ Kriwanek, Mario (MOK) - GERMANY
 Krolzig, Jan / Zeroline - GERMANY
 Krugi (Staniek, Lukasz) / Apidya - POLAND
 Kruki 2003 - GERMANY
+Kruthers
 Krwiak (Filipowicz, Jaroslaw) / Undying - POLAND
 Kry (Dalmadi, Kornél) / Jóga Stúdió - HUNGARY
 Ksin (Wieczorek, Robert) / Tengu - POLAND
 Kubiszyn, Paul / XLCUS - UNITED KINGDOM (ENGLAND)
 Kuklux (Horcic, Jan) - CZECH REPUBLIC
+Kulor (Armijo, Richard J.) - USA
 Kurunsaari, Janne (Hidden) - FINLAND
+LaBatt, Darren - USA
 Lagace, Ken - USA
 Landwehr, Bob / Parabola - USA
 Larson, Egon
@@ -806,6 +826,7 @@ Logan (Heinrichs, Marek) / Mad Squad - POLAND
 Longhair (Ignatowski, Milosz) / Parados / Elysium - POLAND
 Lord SID (Perini, Giovanni) / Best Cracking Team - ITALY
 LordNikon (Dörfler, Robert) / Civitas - GERMANY
+Los Pat Moritas (Berneri, Nahuel {Naku}) / PVM - ARGENTINA
 Louie (Suvák, Lajos) / Chromance - HUNGARY
 Love, R.
 Lowe, Al - USA
@@ -835,6 +856,7 @@ Madaco (Gross, Marcel) / The Dreams - GERMANY
 Madhacker (David) / Ikon Visual - AUSTRALIA
 Madmax (Mannestig, Daniel) / Tronix - SWEDEN
 Maduplec (Arentoft, Martin) / NATO / BUDS - DENMARK
+Mafia Joe (Stefan) - GERMANY
 Magic Man (Schloepke, Stephan) / Crazy - GERMANY
 Mahoney (Tufvesson, Pex {Zax}) / Defiers / CCC - SWEDEN
 maktone (Nordell, Martin)/ FairLight - SWEDEN
@@ -844,10 +866,11 @@ Manex (Kratky, Petr) / Anubis - CZECH REPUBLIC
 Maniac (Marcel) / Genesis Project - DENMARK
 Manik / Commo Bam - SLOVAKIA
 Mankeli (Pyykkö, Markus) / Deep Presence - FINLAND
-Manske, Thomas (Peace) (Kasmo) / Oxyron / Xentax - GERMANY
+Manske, Thomas (Peace {Kasmo}) / Oxyron / Xentax - GERMANY
 Marc (Grimeissen, Marc) / Warriors of Darkness - GERMANY
 Marcy (Feldman, Márton) / Tendance / Smash Designs - HUNGARY
 Mare (Joost) / Yankees - NETHERLANDS
+Mario64 / F4CG - AUSTRIA
 Martens (Walczak, Marcin) / Fraction - POLAND
 Mass Murderer / Grimoire - USA
 Massiv Dansk Invasion (Ericsson, Niklas) - SWEDEN
@@ -911,6 +934,7 @@ Mortimer Twang (Nystrand, Lukas) / Disciples of Ageema Blues - SWEDEN
 Morton, Adam ({Anthrium, Coral}) / Bug! South Australia - AUSTRALIA
 Moughtin, Kevin A. - UNITED KINGDOM (ENGLAND)
 MovieMovies1 (Pettersen, Njål) - NORWAY
+Møllpauk (Sundby, Runar) / Hoaxers - NORWAY
 Mr. Bocky / Prosoft - SERBIA
 Mr. Bungle (Suriani, Phil {Apocalypse}) / Renegade Progamming Group - USA
 Mr. Crowley (Larsson, Håkan) / Tronix - SWEDEN
@@ -928,17 +952,18 @@ MRT (Thie, Martijn) / Red Brand - NETHERLANDS
 MSB / Uncle Ben's Soft
 MSK (Kristensen, Morten Sigaard {O'Neill}) / Crest - DENMARK
 Mühl, Ulrich - GERMANY
-Müller, Manuel (Rayne) (Trance) (Neve) / X-Stayle - GERMANY
-Müller, Markus (Hayes) (Superbrain) / Sidbusters / Hitech Studio Designs - GERMANY
+Müller, Manuel (Rayne {Trance, Neve}) / X-Stayle - GERMANY
+Müller, Markus (Hayes {Superbrain}) / Sidbusters / Hitech Studio Designs - GERMANY
 Muhmi (Kangas, Roope) / Extend - FINLAND
 Mule / Power Soft Crew - GERMANY
 Mudra, Paul
 Mushroom & Pickle
 Musicman / Speedfisters - SWEDEN
 Musikdusche - GERMANY
+Muson, Etienne - USA
 Mythus (Hardin, Benny) / Delysid - SWEDEN
 Nadira / Chronic Productions - UNITED KINGDOM (ENGLAND)
-Nagie, Sascha (celticdesign) (DJ3D) / Demons of Sound - GERMANY
+Nagie, Sascha (celticdesign {DJ3D}) / Demons of Sound - GERMANY
 Narciso (Varo Quintana, Narciso {Cyberdyne}) / The Blasters Incorporated - SPAIN
 Nata (Bamu) / Cenabyte / Samar Productions - ITALY
 Ne7 (Lemon, Andrew) / Napalm / Rebels - UNITED KINGDOM (ENGLAND)
@@ -955,16 +980,18 @@ Nilsen, Ronny (Snap) / Eternity - NORWAY
 NioByte (Bold, Nick) / svenonacid - AUSTRALIA
 Nitro Pulse (Kotlinski, Kiko) - USA
 Nvitia - RUSSIA
+Nick Vivid (Alwyz {AlwyzStnd}) / Underground Domain Inc. - USA
 Nizze (Nilsson-Stig, Anders) / Defiers - SWEDEN
 No Sync / Suicide / Havok - USA
 Noah (Nemeth, Thomas) / Futureline - SWITZERLAND
-Nobody (Micha) / mozArt - GERMANY
+Nobody (Michael) / mozArt - GERMANY
 Noise (Janota, Jaroslaw) / Exon / Exon /Street Children - POLAND
 Noise Of Victory (Meyer, Frank) / Kraze - GERMANY
-Noise of SID (Valdén, Kent) - SWEDEN
+Noise of SID (Valdén, Kent {PowerTrace}) / Hokuto Force - SWEDEN
 Noplanet - USA
 Nordbo, Kjell / Blues Muz' - NORWAY
 Norman, Paul - USA
+Noro (Grellneth, Norbert) - CZECH REPUBLIC
 Norvax (Demirer, Semih) / Aesrude - TURKEY
 No-XS (van den Bovenkamp, Marc) - NETHERLANDS
 Nula (Nedved, Vojtech {Nooly}) / Surprise! Productions - CZECH REPUBLIC
@@ -976,10 +1003,11 @@ Odi (Klee, Oliver) / MDG / Smash Designs - GERMANY
 Odo (de Haar, Marc) - NETHERLANDS
 Odysseus (Grahnert, Ron) / Eastgang - GERMANY
 Oedipus (Thorsteinsson, Borgar) - ICELAND
-Ogurlu, Bekir (Cody) (Slowhand) / Ascraeus / Bronx - TURKEY
+Ogurlu, Bekir (Cody {Slowhand}) / Ascraeus / Bronx - TURKEY
 Okieh (Zimmermann, Heiko) - GERMANY
 Olsen (Olkowski, Marcin) / Amorphis Group - POLAND
 Omoroca (Homann, Kim) - GERMANY
+Onebitman (Zerozillion) / Onslaught / Gheymaid Inc. - AUSTRIA
 OPM (Giesen, Oscar) / Dutch USA Team - NETHERLANDS
 Orc (Lind, Jörgen) / Genie - SWEDEN
 Orcan (Uram, Stefan) / React - SLOVAKIA
@@ -988,7 +1016,7 @@ Oxygen (Niemi, Olli-Pekka) / Browbeat - FINLAND
 Ozone (Burkacki, Jaroslaw) / Inflexion - POLAND
 Ozzy (Hubrech, Sven) / Argus - BELGIUM
 Ozzy Oldskool (Aarnio, Ossi) / Upstars - FINLAND
-Paasch, Jürgen
+Paasch, Jürgen - GERMANY
 Pace, Wayne
 Paco (Papp, Ádám) / MPC Digital - HUNGARY
 Page (Hilpinen, Toni) / Side B / Deathsector - FINLAND
@@ -1032,7 +1060,7 @@ Phreakis (Gorgenyi, Peter) / Coma - HUNGARY
 Phyton (Paczkowski, Marcin) / Scorn / Bzdet Design - POLAND
 Pick, Simon (Mini Spock) - UNITED KINGDOM
 Pievspie / Rubberland - UNITED KINGDOM (ENGLAND)
-Piirainen, Antti (Rolex) (Addict) / Topaz Beerline - FINLAND
+Piirainen, Antti (Rolex {Addict}) / Topaz Beerline - FINLAND
 Pilot (van Riezen, Pim {Pim}) / Squadron - NETHERLANDS
 Pina (Pilny, Martin) / Death - CZECH REPUBLIC
 Pingo (Lindström, Jesper) / Civitas / Dixn Riah - SWEDEN
@@ -1043,6 +1071,7 @@ PM - ITALY
 Poet / X-Rated - DENMARK
 Polonus (Soltysiñki, Pawel) / Quartet / Padua - POLAND
 Pontonius (Olsson, Pontus) - SWEDEN
+Poole, Chris - USA
 Poulsen Harald (Faith) / Epic - DENMARK
 Praiser (Wardyñski, Wojciech) / Samar Productions / Faith - POLAND
 Predonzani, Paolo - ITALY
@@ -1057,7 +1086,7 @@ Proxxon (Bakke, Rolf Runar) / Digital Designs - NORWAY
 Prowler64 - SWEDEN
 PseudoGrafx (Eisenhammer, Zdenek) / Unreal - CZECH REPUBLIC
 PST (Scholz, Christian) / Action - GERMANY
-Psycho (Majdzik, Marcin (Mr.Big)) / Vader / Keen Acid - POLAND
+Psycho (Majdzik, Marcin {Mr.Big, Psych858o}) / Vader / Keen Acid - POLAND
 Psylicium (Mortensen, Henrik) - DENMARK
 Puma (Czyrek, Oktawian) - POLAND
 Puterman (Åkerlund, Linus) / Civitas - SWEDEN
@@ -1077,16 +1106,17 @@ Raf (Szyja, Rafal) / Samar Productions - POLAND
 Raffi (Stañczyk, Rafal) / Oxygen - POLAND
 Rage (Rodahl, Anders) / Megastyle - NORWAY
 Rami, Jon
-Ramjam (Bartelt, Oliver {Pete) / Acrise - GERMANY
+Ramjam (Bartelt, Oliver {Pete}) / Acrise - GERMANY
 Ramos (Rozwadowski, Mariusz) / Samar Productions - POLAND
 Randall (Hoffmann, Michal {Smalltown Boy}) / MultiStyle Labs - POLAND
 Randy (Szymczak, Tomasz) / Fraction - POLAND
 Rantala, Tuomas (Thor) / Extend - FINLAND
 Rap (Bratkowski, Rafal) / Onslaught - POLAND
 Rashka (Baranowski, Krzysztof) / Alliance - POLAND
-Ratpoison (Andersson, Marcus) / Noice - SWEDEN
+Ratpoison (Andersson, Markus) / Noice - SWEDEN
 Raveguru (Ricci, Joel) / Instinct - SWEDEN
 Ray (Fischer, Marc) / V-Lucid / Cascade - GERMANY
+Ray Manta / Datadoor / Onslaught - AUSTRALIA
 Rayden (Zeh, Patrick) / Alpha Flight - GERMANY
 Raze (Fischer, Hans-Peter) / Padua - GERMANY
 Rea (Mach, Pawel) / Tropyx - POLAND
@@ -1106,7 +1136,7 @@ Remorhaz (Edwards, Martin {Rayden}) / Bad Karma - NEW ZEALAND
 Replay (Weekes, Ryan) / The Ruling Company / Carcass - CANADA
 Response (Vangsjordet, Kenneth) / Darklite - NORWAY
 Reverb (Mark) / Lords - USA
-Reynolds, Daryll
+Reynolds, Daryll - AUSTRALIA
 Rhodan (Höller, Oliver) / Warriors of Time -  GERMANY
 Rio (Kühn, Sebastian) / Rattenrudel - GERMANY
 Riot (Dewar, David) / Entropy - UNITED KINGDOM (ENGLAND)
@@ -1126,7 +1156,7 @@ Rosenstiel, Jörg (Han Solo) / Sharon Soundworks - GERMANY
 Ross, Mark Thomas (Funkscientist, MTR1975) / FunkScientist Productions - UNITED KINGDOM (SCOTLAND)
 Rostoen, Kristian (Stormbringer) / Blues Muz' - NORWAY
 Rounsaville, Charles / Spartanburg C= User Group
-Rousseau, Marcus (Shinobi) (Triton) - GERMANY
+Rousseau, Marcus (Shinobi {Triton}) - GERMANY
 Rowlands, Steve - UNITED KINGDOM (ENGLAND)
 Roy Batty (Flynn, Terry) - USA
 RSS / Array - GERMANY
@@ -1136,31 +1166,34 @@ Rura (Grabowski, Robert) / Acheron / Tubular Jobs - POLAND
 Rusty46 (Hildingsson, Dennis) - SWEDEN
 ruuvari - (Immonen, Mikko) / Aspekt - FINLAND
 Rygar (Sobas, Mieczyslaw) / Amnesty - POLAND
+Sabin, Gary J. - UNITED KINGDOM
 Sabre (Folkens, Norbert) / Evil / Storm - CANADA
-Sack (Cousin Walter) (Hay, Adam) / Cosine - UNITED KINGDOM (ENGLAND)
+Sack (Hay, Adam {Cousin Walter}) / Cosine - UNITED KINGDOM (ENGLAND)
 Sad (Cwik, David) / Anubis - CZECH REPUBLIC
 Safavy, Mehdi - IRAN
 Sage (Paliga, Dariusz {Scottie}) / Fraction / Elysium / Exon - POLAND
-Salomonsson, Tobias (Artic) (Too Bad) / JAM - SWEDEN
+Salomonsson, Tobias (Artic {Too Bad}) / JAM - SWEDEN
 Saltkjelvik, Thomas (Thomas) / Creators - NORWAY
 Sam (Steinseifer, Michael) / Matrix - GERMANY
 Sam (Ahlm, Samuel) / SCCS / Fatboys - SWEDEN
 Samael (Szeliga, Grzegorz) / Undying / Alchemy - POLAND
 Sampox (Kuusi, Sampo {Humppa}) / Axion 1999 - FINLAND
-Sandén, Peter (Panda) (Yodelking) / Defiers - SWEDEN
+Sandén, Peter (Yodelking {Panda}) / Defiers - SWEDEN
 Sandén, Richard (Zap) / Commodore Cracking Crew - SWEDEN
 Sandman (Johansson, Mattias) / Megaunit - SWEDEN
 Sane (Watkins, Mark) / Nitros Developments - AUSTRALIA
 Santen, Edwin van / 20th Century Composers - NETHERLANDS
 Sanyo (Martel, Stephane) / Optic Vision - CANADA
+Sarratou, Pierre
 Sauron / The Atomic Force - AUSTRALIA
 Sax (Ajvazic, Sasko {Bombuzal}) / T.P.F.C. - SERBIA
+Saxxon (Konzel, Tony) / Atlantis - USA
 Scan (Loerakker, Richard {Navigator}) / House Designs - NETHERLANDS
 Scanpjucka / Sukhebauhe Ink - SWEDEN
 Scales, Neil (Neil) / Ariston Design / N.W.C.U.G - UNITED KINGDOM
 Scarim, Nick - USA
 Scarlet (Pupiec, Tomasz {Toudi}) / Samar Productions - POLAND
-Scarzix (Berggreen, Carsten) / Micro - DENMARK
+Scarzix (Berggreen, Carsten) / Micro / Offence - DENMARK
 Scheepers, Marco (Brain) / The Supersonics / The Terrible Two - NETHERLANDS
 Schliesser, Jörg - GERMANY
 Schlünzen, Sven / Sharon Soundworks - GERMANY
@@ -1182,8 +1215,9 @@ Scout (van Oorschot, Roland) / Silicon Limited - NETHERLANDS
 Scrap (Malms, Oliver) / Scrap Systems - GERMANY
 Scroll (Spaans, Ruben) / Megastyle - NORWAY
 Sebuko (Skutecki, Peter) - GERMANY
-Sellberg, Rasmus (Dr. Squat) (Deep) / Hack n' Trade - SWEDEN
+Sellberg, Rasmus (Dr. Squat {Deep}) / Hack n' Trade - SWEDEN
 Selles, Ward (Quard) / Prime / Quasar Soft - NETHERLANDS
+Selwood, David - UNITED KINGDOM
 Sentinel / Cherubs - HUNGARY
 Sentinel (Ehrenbrink, Sascha) / Excess - GERMANY
 Sequencer (Voss, Neil) / Arcana - USA
@@ -1209,13 +1243,15 @@ Siebold, Markus (Vogue) / Steel Productions - GERMANY
 Siegert, Stefan (Zieg) / Amok - GERMANY
 Siemons, Hans / The Leading Vocal - NETHERLANDS
 Sieslack, Jörg
+SigmaZeven (Lars) / Atlantis - GERMANY
 Signor (Maslowski, Dariusz) / Fraction - POLAND
 Silc (Beleznai, Szabolcs) / Lethargy / Natural Beat - HUNGARY
 Slimex / Sidrapers - FINLAND
 SilverFox (Hinzmann, Marcus) / Arts of Darkness - GERMANY
 Simmons, Jim - USA
-Simon, László (Roy) (SLD) / Replay - HUNGARY
+Simon, László (Roy {SLD}) / Replay - HUNGARY
 Simon, Michael
+Sir (Helmut) / The Ancient Temple - AUSTRIA
 Six (VonBrucke, Oliver) / Dark Lords of Chaos - USA
 Skam - SWEDEN
 Skull (Kramer, Bouke) / Atlantis - NETHERLANDS
@@ -1232,6 +1268,8 @@ SLO (Mäki, Teemu) - FINLAND
 Slumgud (Lian, Tommy H.) / Depth - NORWAY
 Smart Monkey (Zych, Arkadiusz) / Padua - POLAND
 SMC (Choe, Sanke Michael {Sanke 3003}) / Mnemonic Designs - SWEDEN
+SOS
+Snabel (Martins, Flemming) / Hokuto Force - DENMARK
 Sniper (Puskás, Tibor) - HUNGARY
 Snork (Horner, Gary {Gaz the Snork}) / Hawk & Snork - UNITED KINGDOM (ENGLAND)
 Snowball (Sobczyk, Sebastian) / Therapy - POLAND
@@ -1240,6 +1278,7 @@ SoedeSoft (Jeroen and Michiel Soede) / Fire Eagle - NETHERLANDS
 Soft-Ice (Rob) / Anti MSX Group - NETHERLANDS
 SoNiC (Uysal, Tufan {UnPro 7}) / Smash Designs - GERMANY
 Sonix (Nydahl, Robert) - SWEDEN
+Sonki (Dörge, Zong Hoa Matthias) / C64 Club Berlin / Special Software Service - GERMANY
 Sony (Raab, Markus) / Gloom - GERMANY
 Sommersten, Eivind / SHAPE / Blues Muz' - NORWAY
 Sorex (Verschueren, Geert) / Warriors of the Wasteland - BELGIUM
@@ -1250,7 +1289,7 @@ Source / The Software House
 Southern, Shaun - UNITED KINGDOM (ENGLAND)
 Soya (Malm Nilsson, Fredrik) / Odious - SWEDEN
 Spandex / Dinasours - SWEDEN
-Spang, Jesper (Vernest) (Jesper) / X-Factor - DENMARK
+Spang, Jesper (Vernest {Jesper}) / X-Factor - DENMARK
 Speed Demon / Fucked Beyond Repair - USA
 Speedball (Carlsén, Reine) / Cyber Design - SWEDEN
 Speedcracker (Biermann, Michael {Izeyestop, Synthetic Vortex}) / SPC Sound Manufacture - GERMANY
@@ -1258,6 +1297,7 @@ Sphere / Chromance - USA
 Sphere (Kugel, Michael {Kopkilla}) / Success - GERMANY
 Spicer, David - UNITED KINGDOM (ENGLAND)
 Spider Jerusalem / svenonacid - GERMANY
+Spiikki / Dekadence - FINLAND
 Spike (Rawa, Dariusz) / Amorphis Group - POLAND
 Spiked-maniac (van der Schans, Niels) / Edge of Panic - NETHERLANDS
 Spino2006 - GERMANY
@@ -1308,6 +1348,7 @@ T.M.R. (Kelk, Jason {The Magic Roundabout}) / Cosine Systems - UNITED KINGDOM (E
 Tait, Mark - UNITED KINGDOM (SCOTLAND)
 Tadpole (Barker, Joe) - USA
 Taki (Takács, Balázs) / Natural Beat - HUNGARY
+Tamanegi-itame - JAPAN
 Tango (Öberg, Johan) / Triad - SWEDEN
 Tankard, Paul - UNITED KINGDOM
 Tape (Viitanen, Tapio) / Extend - FINLAND
@@ -1333,7 +1374,7 @@ THCM (Anfang, Uwe) / Masters' Design Group - GERMANY
 The Bellows (Aambo, Ragnar) / Creators - NORWAY
 The Big Dada (Mordant, Daniel) / New Formula Crew / Oneway - BELGIUM
 The Blue Ninja (Hutzelmann, Lars) / Demons of Sound - GERMANY
-The Dream Maker (Claessens, Manolito {Motor Man}) / HCS 5005 - NETHERLANDS
+The Dream Maker (Claessens, Manolito) / HCS 5005 / The Last Science - NETHERLANDS
 The Dungeon Master (Axelsson, Hans {TDM}) / Triad - SWEDEN
 The Dynamic Junk (van der Veen, Richard) / Fashion - NETHERLANDS
 The Fox (Jakobsson, Stefan) / Trigon - SWEDEN
@@ -1341,6 +1382,7 @@ The Flying Dutchman (Stremler, Andreas) / Orion - NETHERLANDS
 The Gee (van den Akker, Emile) / Xentax - NETHERLANDS
 The Golden Dragon (Anjam, Raza {Orb}) / Royalty - SWEDEN
 The Great Flash (Ware, Michael) / S-Xpress - UNITED KINGDOM
+The I.R.Q.
 The Invincible Cracker (Nooteboom, Rolf) /The Artworx - NETHERLANDS
 The Italian Stallion / Panda Lovers
 The Last Dragon (Synder, Tim) - USA
@@ -1408,13 +1450,14 @@ Tschögl, Michael - GERMANY
 TSM (Migliaccio, Carmine) - ITALY
 Turner, Steve - UNITED KINGDOM (ENGLAND)
 Turtle (Gartke, Daniel M.) / The Demented - GERMANY
+Twilight (Michel, Uwe) / Arcade - GERMANY
 Twoflower (Backlund, Mikael) / Triad - SWEDEN
 Twynn (den Bekker, Ruud) / Acrise - NETHERLANDS
 Ubik (Korn, Dave) - UNITED KINGDOM (ENGLAND)
 Uctumi (Palladino, Esteban) / Hokuto Force - ARGENTINA
 ukimenustah - THAILAND
 UL-Tomten (Bolmstedt, Per) - SWEDEN
-Ultrasyd (Sydney) - FRANCE
+Ultrasyd (Plumey, Sydney) - FRANCE
 Ulysses (Gabriele) / Starship - ITALY
 Uneksija (Pitkämäki, Antti) - FINLAND
 Uzzy (Collis, Simon) / Entropy - UNITED KINGDOM (ENGLAND)
@@ -1437,12 +1480,14 @@ Vellinga, Maarten (Warrior) / Warlords / TMB Group - NETHERLANDS
 Venom / Dynamix - USA
 Verdict (Skar, Bjarne) / Fluid - NORWAY
 Vessby, Johan - SWEDEN
+Vic / The Warriors - GERMANY
 Vieira, Bob - USA
 Vincent, Merken (Vip), (_V_) / Padua / Role / Warriors of the Wasteland - BELGIUM
 Vincenzo (Vincze, László) / Molecoola / Singular Crew - HUNGARY
 Vindholmen, Preben (Preben, Trasher) / Offence - NORWAY
 Vintaque (Räsänen, Vili) - FINLAND
 Vinzz (Lossveld, Vincent) / Warriors of the Wasteland - BELGIUM
+Visac (Soucek, Josef) / Cult - CZECH REPUBLIC
 Viznut (Heikkilä, Ville) / Pers' Wastaiset Produktiot - FINLAND
 Vizz (Vezina, Francois) / Empire - CANADA
 Vogel, James
@@ -1465,7 +1510,7 @@ Wayne / Ideal - HUNGARY
 Waz (Pilkington, Warren) / Zaw Productions / Padua - UNITED KINGDOM (ENGLAND)
 Weber, Markus (Hyperforce Crack {HFC}) - GERMANY
 Weber, Matthias - GERMANY
-Weber, Michael
+Weber, Michael - USA
 Wedge (Janson, Anders) / FairLight - SWEDEN
 Weinert, Stefan (Mob) / The Dreams - GERMANY
 Welli (Bloch, Anders) / Anubis / Noname / Voodoo - DENMARK
@@ -1478,15 +1523,17 @@ Wheeler, Martin - UNITED KINGDOM (ENGLAND)
 Whiplash (Richter, Reiner) / The Dark Realm - AUSTRALIA
 Whittaker, David - UNITED KINGDOM (ENGLAND)
 Whizz (van de Laarm Ramon) / Audial Revolution - NETHERLANDS
-Widding, Roy Johan (Crockett) (Space-Roy) (Rotteroy) / Megastyle - NORWAY
+Widding, Roy Johan (Crockett {Space-Roy, Rotteroy}) / Megastyle - NORWAY
 Wide, (Wiiala, Juha) / Extend - FINLAND
 Wijnhoven, Joachim (Yogibear) / Dragon-Fly Soft - NETHERLANDS
+Wikholm, Daniel (Nemesis, I.Q., Rockon) / Whoop - SWEDEN
 Wiklund (Wiklund, Alexander {Winks}) / Fairlight - SWEDEN
 Wild Kefir (Prochocki, Jakub {Krypton}) / Sunga - POLAND
 Willi (Wilberg, Dirk) / Presence - GERMANY
 Williams, Don
 Williams, Nick (Madwolf) / Linear Productions - UNITED KINGDOM (ENGLAND)
 Williams, Tony (Tiny) - UNITED KINGDOM (ENGLAND)
+Wilson, Brian - USA
 Wilson, Mark - UNITED KINGDOM (ENGLAND)
 Winterberg, Michael - GERMANY
 Wisdom (Kilic, Huseyin) / Crescent - TURKEY
@@ -1496,6 +1543,7 @@ Wodnik (Brzostek, Wojciech) / Atest - POLAND
 Wolfgang (Davis, Stephen) / Second Dimension - USA
 Wolk (Strandberg, Daniel) / Software of Sweden - SWEDEN
 Wood, Keith (Rita Jay) - UNITED KINGDOM
+Wood, Steve (Syonyde) - USA
 Worthley, Rich
 WORR (White, Roger) - UNITED KINGDOM (ENGLAND)
 Wotnau / DMAgic - CZECH REPUBLIC
@@ -1533,9 +1581,10 @@ Zardax (Paljakka, Ari-Pekka) - FINLAND
 Zbyti (Zbytniewski, Bartosz) / Proxima - POLAND
 Zeb / The Boys From Uncle - UNITED KINGDOM (SCOTLAND)
 Zenox (Thilo, Nicolai) / Starion - DENMARK
-Zerozillion (Onebitman) / Gheymaid Inc. - AUSTRIA
+ZeHa (Gleinser, Christian) - GERMANY
 Zeta (Zetterlund, Fredrik) / Digital Crackers - SWEDEN
 Zeus (Bovbjerg, Soren) / Anzac / X-Ray / Vision - DENMARK
+Zeus (Madsen, Soren) / The Danish Circle - DENMARK
 Zeux (Molnár, László) / Chaos / CCF - HUNGARY
 Zicchi, Giulio (Zed) - ITALY
 Zimmermann, Jan - GERMANY
@@ -1544,6 +1593,7 @@ Zipper (Pedersen, Egil) / Collision - NORWAY
 Zirias (Palmen, Felix) - GERMANY
 Zirco (Bloom, Jeff) / Storm - USA
 Zizyphus (Hederstierna, Fredrik) / Lamex - SWEDEN
+Zlew (Machnio, Jakub) - POLAND
 Zoci-Joe (Brosowski, Renato) / Zenobits - GERMANY
 Zod (Trento, Massimo) / Orion - BELGIUM
 Zonix (Oland, Anders) / Bonzai - DENMARK
