@@ -20,12 +20,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import <AudioToolbox/AudioToolbox.h>
 #include <sys/xattr.h>
 
+char* strlower(char *Str);
+
 static BOOL backgroundSupported;
 
 char homedirectory[512];
 char bundledirectory[512];
 
-char* strlower(char *Str);
+
 extern "C" {
 
 #include <pthread.h>
@@ -39,7 +41,6 @@ BOOL is_ios7,is_retina;
 @implementation AppDelegate_Phone
 
 @synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC;
-
 
 - (BOOL)addSkipBackupAttributeToItemAtURL
 {
@@ -81,11 +82,9 @@ BOOL is_ios7,is_retina;
 *  System Versioning Preprocessor Macros
 */
 
+//#include "ParserModland.hpp"
 
-#include "ParserModland.hpp"
-
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch
 	//
     

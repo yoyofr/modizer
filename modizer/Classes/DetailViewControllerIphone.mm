@@ -462,6 +462,13 @@ static float movePinchScale,movePinchScaleOld;
     }
     
     /////////////////////
+    //VGMPLAY
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMPLAY)) {
+        [mplayer optVGMPLAY_MaxLoop:(unsigned int)settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value];
+    }
+    
+    /////////////////////
     //SID
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_SID)) {
