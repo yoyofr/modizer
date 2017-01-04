@@ -4863,14 +4863,10 @@ static void InterpretVGM(UINT32 SampleCount)
 #ifndef CONSOLE_MODE
 						if (! FadePlay)
 						{
-                            printf("fadestart0: %d %d\n",VGMCurLoop,VGMHead.lngLoopSamples);
                             FadeStart=SampleVGM2Pbk_I(VGMCurLoop * VGMHead.lngLoopSamples);
-                            printf("fadestart1: %d\n",FadeStart);
                             FadeStart-=(int)((float)FadeTime*(float)SampleRate*0.001f);
-                            printf("fadestart2: %d\n",FadeStart);
                             if (FadeStart<0) FadeStart=0;
-                            FadeStart += SampleVGM2Pbk_I(VGMHead.lngTotalSamples);                            						}
-                        printf("fadestart3: %d\n",FadeStart);
+                            FadeStart += SampleVGM2Pbk_I(VGMHead.lngTotalSamples);                            						}                        
 #endif
 						FadePlay = true;
 					}

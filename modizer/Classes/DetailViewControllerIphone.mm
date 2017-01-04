@@ -5606,7 +5606,6 @@ extern "C" int current_sample;
     } else {  //No cover available, take default one
         //            NSLog(@"using default");
         cover.image = [UIImage imageNamed:@"default_art.png"];//covers[0];
-     
     }
     
     if (mScaleFactor!=1) cover.image = [[[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp] autorelease];

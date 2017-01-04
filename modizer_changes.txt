@@ -3,6 +3,9 @@ Requested:
 - Mute button / channels & playback ratio (slower/faster)
 - Cloud synchro
 
+-(void) PlaySeek:(int)startPos subsong:(int)subsong {
+=> subsong pour differentes lib (asap ?)
+
 2.6
 ÑÑÑ
 - [Bugfix] Screen layout issues fixed
