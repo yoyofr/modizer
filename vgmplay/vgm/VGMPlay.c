@@ -434,7 +434,7 @@ void VGMPlay_Init(void)
 	CAUD_ATTR* TempCAud;
 	
 	SampleRate = 44100;
-	FadeTime = 5000;
+	FadeTime = 2000;
 	PauseTime = 0;
 	
 	HardStopOldVGMs = 0x00;
@@ -4863,9 +4863,14 @@ static void InterpretVGM(UINT32 SampleCount)
 #ifndef CONSOLE_MODE
 						if (! FadePlay)
 						{
-							FadeStart = SampleVGM2Pbk_I(VGMHead.lngTotalSamples +
-															(VGMCurLoop - 1) * VGMHead.lngLoopSamples);
-						}
+                            printf("fadestart0: %d %d\n",VGMCurLoop,VGMHead.lngLoopSamples);
+                            FadeStart=SampleVGM2Pbk_I(VGMCurLoop * VGMHead.lngLoopSamples);
+                            printf("fadestart1: %d\n",FadeStart);
+                            FadeStart-=(int)((float)FadeTime*(float)SampleRate*0.001f);
+                            printf("fadestart2: %d\n",FadeStart);
+                            if (FadeStart<0) FadeStart=0;
+                            FadeStart += SampleVGM2Pbk_I(VGMHead.lngTotalSamples);                            						}
+                        printf("fadestart3: %d\n",FadeStart);
 #endif
 						FadePlay = true;
 					}
@@ -6110,6 +6115,7 @@ static INT32 RecalcFadeVolume(void)
 	
 	if (FadePlay)
 	{
+        if (PlayingTime<FadeStart) return (INT32)(0x100 * VolumeLevelM + 0.5f);
 		if (! FadeStart)
 			FadeStart = PlayingTime;
 		
