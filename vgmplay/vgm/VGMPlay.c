@@ -4866,7 +4866,7 @@ static void InterpretVGM(UINT32 SampleCount)
                             FadeStart=SampleVGM2Pbk_I(VGMCurLoop * VGMHead.lngLoopSamples);
                             FadeStart-=(int)((float)FadeTime*(float)SampleRate*0.001f);
                             if (FadeStart<0) FadeStart=0;
-                            FadeStart += SampleVGM2Pbk_I(VGMHead.lngTotalSamples);                            						}                        
+                            FadeStart += SampleVGM2Pbk_I(VGMHead.lngTotalSamples);                            						}
 #endif
 						FadePlay = true;
 					}
