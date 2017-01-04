@@ -1154,6 +1154,10 @@ void propertyListenerCallback (void                   *inUserData,              
 		sc68 = [self setupSc68];
 		//
         
+        //VGMPLAY
+        optVGMPLAY_maxloop = 2;
+        //
+        
         
         // NVDSP
         //
@@ -4694,11 +4698,12 @@ long src_callback(void *cb_data, float **data) {
 		mp_datasize=ftell(f);
 		fclose(f);
         
+        VGMMaxLoop=optVGMPLAY_maxloop;
+        
         VGMPlay_Init();
         // load configuration file here
         VGMPlay_Init2();
         
-        VGMMaxLoop=optVGMPLAY_maxloop;
         
         if (!OpenVGMFile([filePath UTF8String]))
             if (!OpenOtherFile([filePath UTF8String])) {
@@ -4706,7 +4711,7 @@ long src_callback(void *cb_data, float **data) {
                 mPlayType=0;
                 return -2;
         }
-        
+        PlayVGM();
         
 		sprintf(mod_message,"Author:%ls\nGame:%ls\nSystem:%ls\nTitle:%ls\nRelease Date:%ls\nCreator:%ls\nNotes:%ls\n",
                 GetTagStrEJ(VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ),
@@ -4719,6 +4724,7 @@ long src_callback(void *cb_data, float **data) {
 		
         
 		iModuleLength=(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
+        NSLog(@"VGM length %d",iModuleLength);
 		iCurrentTime=0;
         numChannels=2;//asap.moduleInfo.channels;
 		mod_minsub=0;
@@ -4733,8 +4739,7 @@ long src_callback(void *cb_data, float **data) {
         if (mLoopMode==1) {
             iModuleLength=-1;
         }
-        
-		
+        		
 		return 0;
 	}
 	if (found==12) {  //GSF
@@ -6159,7 +6164,6 @@ long src_callback(void *cb_data, float **data) {
 			[self Play];
 			break;
         case 17: //VGM
-            PlayVGM();
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
