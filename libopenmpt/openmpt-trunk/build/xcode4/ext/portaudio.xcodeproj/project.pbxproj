@@ -1,0 +1,630 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2A196FFDE752B600C5B02A53E6F5980060E8A82B214A4C00 /* pa_win_wmme.c in Sources */ = {isa = PBXBuildFile; fileRef = AA6D0A472D0398004A5714C384690800C36EAB3C36772000 /* pa_win_wmme.c */; };
+		2D90C46243B474004DBF67A6E19574005A54D474B913B800 /* pa_win_wasapi.c in Sources */ = {isa = PBXBuildFile; fileRef = B55174F0E09B40004697F85CA35B9C00DF5EC4F800907800 /* pa_win_wasapi.c */; };
+		5B134AEEF4939C00152A3BD30F600A00C6CA9BDA1330A000 /* pa_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = C7CADCB76E9AA000FA02CA63DBC2B00046FE1C55DD55A000 /* pa_allocation.c */; };
+		5C94632F1AA34C09B333F1B89F71800636D4436B83E1C00 /* pa_win_util.c in Sources */ = {isa = PBXBuildFile; fileRef = AB85724225B36000F32DF65D6A020000AD1665B8AC293800 /* pa_win_util.c */; };
+		5F636800F9D62800197A58E514A29600CB1AB8EC18733000 /* pa_debugprint.c in Sources */ = {isa = PBXBuildFile; fileRef = 623F38369B38F800947725E308610800E17277D509F3F800 /* pa_debugprint.c */; };
+		5FB5696155B85C00AECE611139FF68003CC67AD2BDEC9200 /* pa_trace.c in Sources */ = {isa = PBXBuildFile; fileRef = BD7A64529B09D8009680E0D7CBEDD000A42096A6DF060000 /* pa_trace.c */; };
+		6B0898FE4FEF3800833F30594030800A43E589487D49000 /* pa_cpuload.c in Sources */ = {isa = PBXBuildFile; fileRef = 13ADE1C99B6C9900CCFC8D840C8F38006C11EC5AC255E800 /* pa_cpuload.c */; };
+		6F24F06FC74F7C00FC932E0FB4B7100039D3E80C51B10000 /* pa_win_ds_dynlink.c in Sources */ = {isa = PBXBuildFile; fileRef = 622C258553E8880053A1EC6860733C003CBDB966DB580800 /* pa_win_ds_dynlink.c */; };
+		701269244557C4008F48F10CA0A3100087F7DDAF8ED4F800 /* pa_hostapi_skeleton.c in Sources */ = {isa = PBXBuildFile; fileRef = FB37C9906BA6200041135E197D5D600040147EB1F2CB5000 /* pa_hostapi_skeleton.c */; };
+		711EDF81CD687000D32281E4BE5FE000885BE4582A636000 /* pa_win_wdmks.c in Sources */ = {isa = PBXBuildFile; fileRef = A041C39CD2C9800035ABBC856B166A00FDE5C1A0995D6800 /* pa_win_wdmks.c */; };
+		76989B1D268D400096C73E61C46E4000A35CAB2F9BEC8800 /* pa_win_waveformat.c in Sources */ = {isa = PBXBuildFile; fileRef = A89CA15E03D9780039E324C9C699D800D2A9F16523CEB800 /* pa_win_waveformat.c */; };
+		7D588F392B31640810B2C2DA4DCF0006D70BC5FD8CDDC00 /* pa_dither.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E6AC2FF5853000167E5EC4EF46E900AE2C4A52945EA80 /* pa_dither.c */; };
+		82B8085A21E7900C2427169BCEAE80073E2D170C0BB8000 /* pa_ringbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = BA5ED12217DBB803DDDDABE8EA5CA008AD92CB09038B800 /* pa_ringbuffer.c */; };
+		8EBE1EDC95F6B00048D50FC0B0C31C00FA756FC7B493B000 /* pa_win_ds.c in Sources */ = {isa = PBXBuildFile; fileRef = B4DF0DE9B887E000E716FB9625AFF00034124D882742DE00 /* pa_win_ds.c */; };
+		9384C617AC167000A526944A5F0C7800A51EDB18B02ED800 /* pa_win_coinitialize.c in Sources */ = {isa = PBXBuildFile; fileRef = 563D5036949D200064AB554C889C6C0066F38E0B0D878000 /* pa_win_coinitialize.c */; };
+		A4C8B5170675E00080F75CEB7A5E5800CC46AD7A9CAC0800 /* pa_win_hostapis.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BA7EF7F895390007E3E8A6F4FE188009B95A1DCBDE3B000 /* pa_win_hostapis.c */; };
+		A8E51FBDCD7D2000221AC2F7DFA70000E80532A1397E900 /* pa_stream.c in Sources */ = {isa = PBXBuildFile; fileRef = 5C47D48DF59A700090DF8722EF5C28008543ED03295B3000 /* pa_stream.c */; };
+		A9A4D1B72F55200063BBC29B4A219000155C22A24DF22800 /* pa_converters.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B49A809A0385000BD8195B60D606000A7CE7A80EF35200 /* pa_converters.c */; };
+		BA1D5F3F239C48005748B94667B01C00F3531ED55B81A000 /* pa_process.c in Sources */ = {isa = PBXBuildFile; fileRef = 623CD21E620E7C001B8B7DD8D3311B00BAA0DCAF88F7C800 /* pa_process.c */; };
+		CE9335FFE8305000B4F7BCE3825448003C9B9485327A2800 /* pa_win_wdmks_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = BDA986ECB8D90000BA9E94542D334800A04AF53BAB16D000 /* pa_win_wdmks_utils.c */; };
+		DA15BCBB88420000292EB46B6C890600B726CE2CF0763000 /* pa_front.c in Sources */ = {isa = PBXBuildFile; fileRef = 6F640179CE614400486A7DFEFF453C00560A33CE125D7400 /* pa_front.c */; };
+		F79F5A2C73C8A000E732174D1B3E4000EA0287E2C4034800 /* pa_x86_plain_converters.c in Sources */ = {isa = PBXBuildFile; fileRef = FB63C487D02EF800AE5927DEAED198002A77F3B663B39800 /* pa_x86_plain_converters.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		10ED3ADD9B631900E9F3B762CC471000F7936D31DF5F4800 /* pa_trace.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_trace.h; path = ../../../include/portaudio/src/common/pa_trace.h; sourceTree = "<group>"; };
+		13ADE1C99B6C9900CCFC8D840C8F38006C11EC5AC255E800 /* pa_cpuload.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_cpuload.c; path = ../../../include/portaudio/src/common/pa_cpuload.c; sourceTree = "<group>"; };
+		1E157C78F5CCF80052AD2F0DEF8EB400471194EE298DB800 /* pa_stream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_stream.h; path = ../../../include/portaudio/src/common/pa_stream.h; sourceTree = "<group>"; };
+		2124DACED2AF5A00535CC87B3FD76800A0581A6D416A5800 /* pa_debugprint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_debugprint.h; path = ../../../include/portaudio/src/common/pa_debugprint.h; sourceTree = "<group>"; };
+		350CB0925DE0D80048867753B9222C002DBD26A08C7C7600 /* libopenmpt-portaudio.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libopenmpt-portaudio.a"; path = "libopenmpt-portaudio.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3BA7EF7F895390007E3E8A6F4FE188009B95A1DCBDE3B000 /* pa_win_hostapis.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_hostapis.c; path = ../../../include/portaudio/src/os/win/pa_win_hostapis.c; sourceTree = "<group>"; };
+		3D99648B3681C40080427A86D86B60004FBD2307CF927400 /* pa_memorybarrier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_memorybarrier.h; path = ../../../include/portaudio/src/common/pa_memorybarrier.h; sourceTree = "<group>"; };
+		41AE81099237C400C4611FF655A38800506DB8DD94472C00 /* portaudio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = portaudio.h; path = ../../../include/portaudio/include/portaudio.h; sourceTree = "<group>"; };
+		479595B11D6E1800DCFF8E99B5BB0000A53993B4E4020000 /* pa_win_waveformat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_waveformat.h; path = ../../../include/portaudio/include/pa_win_waveformat.h; sourceTree = "<group>"; };
+		4A2F4AA1D7AEB8007C67384E44D6C800C9628A404669B800 /* pa_converters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_converters.h; path = ../../../include/portaudio/src/common/pa_converters.h; sourceTree = "<group>"; };
+		563D5036949D200064AB554C889C6C0066F38E0B0D878000 /* pa_win_coinitialize.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_coinitialize.c; path = ../../../include/portaudio/src/os/win/pa_win_coinitialize.c; sourceTree = "<group>"; };
+		5C47D48DF59A700090DF8722EF5C28008543ED03295B3000 /* pa_stream.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_stream.c; path = ../../../include/portaudio/src/common/pa_stream.c; sourceTree = "<group>"; };
+		5DBF77695D42DC00170E2323CE657D00B62381FA842C2800 /* pa_process.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_process.h; path = ../../../include/portaudio/src/common/pa_process.h; sourceTree = "<group>"; };
+		622C258553E8880053A1EC6860733C003CBDB966DB580800 /* pa_win_ds_dynlink.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_ds_dynlink.c; path = ../../../include/portaudio/src/hostapi/dsound/pa_win_ds_dynlink.c; sourceTree = "<group>"; };
+		623CD21E620E7C001B8B7DD8D3311B00BAA0DCAF88F7C800 /* pa_process.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_process.c; path = ../../../include/portaudio/src/common/pa_process.c; sourceTree = "<group>"; };
+		623F38369B38F800947725E308610800E17277D509F3F800 /* pa_debugprint.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_debugprint.c; path = ../../../include/portaudio/src/common/pa_debugprint.c; sourceTree = "<group>"; };
+		65D25C6E1B820C00A28B63F1E9A560009981BEB570B3B800 /* pa_linux_alsa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_linux_alsa.h; path = ../../../include/portaudio/include/pa_linux_alsa.h; sourceTree = "<group>"; };
+		6F640179CE614400486A7DFEFF453C00560A33CE125D7400 /* pa_front.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_front.c; path = ../../../include/portaudio/src/common/pa_front.c; sourceTree = "<group>"; };
+		73ACDA8499E1E400A17AF876C21C980084AA2C43A9B82800 /* pa_asio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_asio.h; path = ../../../include/portaudio/include/pa_asio.h; sourceTree = "<group>"; };
+		7BC38FD78262EC00B87C975B50864000AF72F21ED7949000 /* pa_win_wasapi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_wasapi.h; path = ../../../include/portaudio/include/pa_win_wasapi.h; sourceTree = "<group>"; };
+		862FC7C5D2EF58008E266B2965B1A8094EEFF99D4FEC000 /* pa_win_ds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_ds.h; path = ../../../include/portaudio/include/pa_win_ds.h; sourceTree = "<group>"; };
+		86B07F4FA6110800B8E86CFC133918005E3BEEE14CC0480 /* pa_allocation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_allocation.h; path = ../../../include/portaudio/src/common/pa_allocation.h; sourceTree = "<group>"; };
+		8B49A809A0385000BD8195B60D606000A7CE7A80EF35200 /* pa_converters.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_converters.c; path = ../../../include/portaudio/src/common/pa_converters.c; sourceTree = "<group>"; };
+		A041C39CD2C9800035ABBC856B166A00FDE5C1A0995D6800 /* pa_win_wdmks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_wdmks.c; path = ../../../include/portaudio/src/hostapi/wdmks/pa_win_wdmks.c; sourceTree = "<group>"; };
+		A2E0B013F2227800B65A76D54D63C8009B91262220BE1000 /* pa_util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_util.h; path = ../../../include/portaudio/src/common/pa_util.h; sourceTree = "<group>"; };
+		A3B4541AF5B7B800D84C06AFEF797000CCB06C9029787000 /* pa_dither.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_dither.h; path = ../../../include/portaudio/src/common/pa_dither.h; sourceTree = "<group>"; };
+		A89CA15E03D9780039E324C9C699D800D2A9F16523CEB800 /* pa_win_waveformat.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_waveformat.c; path = ../../../include/portaudio/src/os/win/pa_win_waveformat.c; sourceTree = "<group>"; };
+		AA6D0A472D0398004A5714C384690800C36EAB3C36772000 /* pa_win_wmme.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_wmme.c; path = ../../../include/portaudio/src/hostapi/wmme/pa_win_wmme.c; sourceTree = "<group>"; };
+		AB85724225B36000F32DF65D6A020000AD1665B8AC293800 /* pa_win_util.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_util.c; path = ../../../include/portaudio/src/os/win/pa_win_util.c; sourceTree = "<group>"; };
+		B39ADBF66C52200096BEFEFF01C8E000188038AC70653900 /* pa_win_wdmks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_wdmks.h; path = ../../../include/portaudio/include/pa_win_wdmks.h; sourceTree = "<group>"; };
+		B4DF0DE9B887E000E716FB9625AFF00034124D882742DE00 /* pa_win_ds.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_ds.c; path = ../../../include/portaudio/src/hostapi/dsound/pa_win_ds.c; sourceTree = "<group>"; };
+		B55174F0E09B40004697F85CA35B9C00DF5EC4F800907800 /* pa_win_wasapi.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_wasapi.c; path = ../../../include/portaudio/src/hostapi/wasapi/pa_win_wasapi.c; sourceTree = "<group>"; };
+		BA5ED12217DBB803DDDDABE8EA5CA008AD92CB09038B800 /* pa_ringbuffer.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_ringbuffer.c; path = ../../../include/portaudio/src/common/pa_ringbuffer.c; sourceTree = "<group>"; };
+		BB144BC0EDD1A00082A250F51FCAE80039372DC99AA2760 /* pa_mac_core.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_mac_core.h; path = ../../../include/portaudio/include/pa_mac_core.h; sourceTree = "<group>"; };
+		BBD0E69D452A980094D76322760E9000A27718F18926C800 /* pa_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_types.h; path = ../../../include/portaudio/src/common/pa_types.h; sourceTree = "<group>"; };
+		BD7A64529B09D8009680E0D7CBEDD000A42096A6DF060000 /* pa_trace.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_trace.c; path = ../../../include/portaudio/src/common/pa_trace.c; sourceTree = "<group>"; };
+		BDA986ECB8D90000BA9E94542D334800A04AF53BAB16D000 /* pa_win_wdmks_utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_win_wdmks_utils.c; path = ../../../include/portaudio/src/os/win/pa_win_wdmks_utils.c; sourceTree = "<group>"; };
+		C0FD9FAEF12498007A4C4B69624738001961AA40180DE600 /* pa_hostapi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_hostapi.h; path = ../../../include/portaudio/src/common/pa_hostapi.h; sourceTree = "<group>"; };
+		C3652AB38597700BF2BB60216FC10003B4A81D9CBDE1600 /* pa_x86_plain_converters.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_x86_plain_converters.h; path = ../../../include/portaudio/src/os/win/pa_x86_plain_converters.h; sourceTree = "<group>"; };
+		C3FBB24D8419180063E5BCC9DB7E8C00DCFD53428D8CA800 /* pa_gitrevision.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_gitrevision.h; path = ../../../include/portaudio/src/common/pa_gitrevision.h; sourceTree = "<group>"; };
+		C7AAC64F510A5801AE8B17AE90FEF001D30EA396DFB0400 /* pa_win_coinitialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_coinitialize.h; path = ../../../include/portaudio/src/os/win/pa_win_coinitialize.h; sourceTree = "<group>"; };
+		C7CADCB76E9AA000FA02CA63DBC2B00046FE1C55DD55A000 /* pa_allocation.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_allocation.c; path = ../../../include/portaudio/src/common/pa_allocation.c; sourceTree = "<group>"; };
+		CA8B8FAA58F42000FCC37D56C61C300049BECF48C7AF1C00 /* pa_ringbuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_ringbuffer.h; path = ../../../include/portaudio/src/common/pa_ringbuffer.h; sourceTree = "<group>"; };
+		CB3B0E6A584F800012E392859C9E2500CCCC01E0DEC56000 /* portaudio.def */ = {isa = PBXFileReference; lastKnownFileType = text; name = portaudio.def; path = ../../../include/portaudio/build/msvc/portaudio.def; sourceTree = "<group>"; };
+		D27A9137DB1AA8009A08966C0D13F8001AF9B85386F33200 /* pa_win_wmme.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_wmme.h; path = ../../../include/portaudio/include/pa_win_wmme.h; sourceTree = "<group>"; };
+		DA75155ABC1CF800D76A22C230774000BD1683A9AE5AC800 /* pa_win_wdmks_utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_wdmks_utils.h; path = ../../../include/portaudio/src/os/win/pa_win_wdmks_utils.h; sourceTree = "<group>"; };
+		E1E6AC2FF5853000167E5EC4EF46E900AE2C4A52945EA80 /* pa_dither.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_dither.c; path = ../../../include/portaudio/src/common/pa_dither.c; sourceTree = "<group>"; };
+		E2EE8D9E2718780010BCAB904F532D00F3EBDF5D36EEB800 /* pa_jack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_jack.h; path = ../../../include/portaudio/include/pa_jack.h; sourceTree = "<group>"; };
+		EB4C7F158C5960001D846CC1F98172006A7FBEB3FB146400 /* pa_endianness.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_endianness.h; path = ../../../include/portaudio/src/common/pa_endianness.h; sourceTree = "<group>"; };
+		F1DACA21F0220000E3509104FCACB000CC6C5E0377917800 /* pa_win_ds_dynlink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_win_ds_dynlink.h; path = ../../../include/portaudio/src/hostapi/dsound/pa_win_ds_dynlink.h; sourceTree = "<group>"; };
+		F30871496A0FB00C87F32CF07C39800679491A5BD8A4800 /* pa_cpuload.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = pa_cpuload.h; path = ../../../include/portaudio/src/common/pa_cpuload.h; sourceTree = "<group>"; };
+		FB37C9906BA6200041135E197D5D600040147EB1F2CB5000 /* pa_hostapi_skeleton.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_hostapi_skeleton.c; path = ../../../include/portaudio/src/hostapi/skeleton/pa_hostapi_skeleton.c; sourceTree = "<group>"; };
+		FB63C487D02EF800AE5927DEAED198002A77F3B663B39800 /* pa_x86_plain_converters.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = pa_x86_plain_converters.c; path = ../../../include/portaudio/src/os/win/pa_x86_plain_converters.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8F9A13E84DC1F000FD9890EFA44F6000B6E792817CC87000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		140A13FB629DA200EDD777188469500059A2D1BDC11E7800 /* skeleton */ = {
+			isa = PBXGroup;
+			children = (
+				FB37C9906BA6200041135E197D5D600040147EB1F2CB5000 /* pa_hostapi_skeleton.c */,
+			);
+			name = skeleton;
+			sourceTree = "<group>";
+		};
+		38087D2254F450001F8C405EF946EE005C2EADC20B7F3800 /* msvc */ = {
+			isa = PBXGroup;
+			children = (
+				CB3B0E6A584F800012E392859C9E2500CCCC01E0DEC56000 /* portaudio.def */,
+			);
+			name = msvc;
+			sourceTree = "<group>";
+		};
+		4522FFCD741460003199E93170288807C2B4F29A6286800 /* hostapi */ = {
+			isa = PBXGroup;
+			children = (
+				7828D70E0B2FF80C50662AF2923E0005646D7186DC2B400 /* dsound */,
+				140A13FB629DA200EDD777188469500059A2D1BDC11E7800 /* skeleton */,
+				99FEE020E239E8005782B55F2AAACC00E8C329C86F49A000 /* wasapi */,
+				A17917986229B800A3871534884FE800B8953F27EF56E000 /* wdmks */,
+				E8F8238767E3F800FF118A417EF69800351BAB86F129080 /* wmme */,
+			);
+			name = hostapi;
+			sourceTree = "<group>";
+		};
+		7806C7175E8C74005F8A8A5402DF10009C2CF7B715175800 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				73ACDA8499E1E400A17AF876C21C980084AA2C43A9B82800 /* pa_asio.h */,
+				E2EE8D9E2718780010BCAB904F532D00F3EBDF5D36EEB800 /* pa_jack.h */,
+				65D25C6E1B820C00A28B63F1E9A560009981BEB570B3B800 /* pa_linux_alsa.h */,
+				BB144BC0EDD1A00082A250F51FCAE80039372DC99AA2760 /* pa_mac_core.h */,
+				862FC7C5D2EF58008E266B2965B1A8094EEFF99D4FEC000 /* pa_win_ds.h */,
+				7BC38FD78262EC00B87C975B50864000AF72F21ED7949000 /* pa_win_wasapi.h */,
+				479595B11D6E1800DCFF8E99B5BB0000A53993B4E4020000 /* pa_win_waveformat.h */,
+				B39ADBF66C52200096BEFEFF01C8E000188038AC70653900 /* pa_win_wdmks.h */,
+				D27A9137DB1AA8009A08966C0D13F8001AF9B85386F33200 /* pa_win_wmme.h */,
+				41AE81099237C400C4611FF655A38800506DB8DD94472C00 /* portaudio.h */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		7828D70E0B2FF80C50662AF2923E0005646D7186DC2B400 /* dsound */ = {
+			isa = PBXGroup;
+			children = (
+				B4DF0DE9B887E000E716FB9625AFF00034124D882742DE00 /* pa_win_ds.c */,
+				622C258553E8880053A1EC6860733C003CBDB966DB580800 /* pa_win_ds_dynlink.c */,
+				F1DACA21F0220000E3509104FCACB000CC6C5E0377917800 /* pa_win_ds_dynlink.h */,
+			);
+			name = dsound;
+			sourceTree = "<group>";
+		};
+		86D3C7574A87B00033263AB1CDCD1000DFC0752BF7149000 /* portaudio */ = {
+			isa = PBXGroup;
+			children = (
+				F10C1F3BE75CE8003500F06E37707A003A051174B9EEAC00 /* build */,
+				7806C7175E8C74005F8A8A5402DF10009C2CF7B715175800 /* include */,
+				8E1F9F995775D800C4C07E444366E0004A20803959E7A40 /* src */,
+				DE2FD571A6C938008E134D4D9B3FB000BA17F9BDEA135000 /* Products */,
+			);
+			name = portaudio;
+			sourceTree = "<group>";
+		};
+		8E1F9F995775D800C4C07E444366E0004A20803959E7A40 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				B9A9660C29731800912AEB032CE3E800801E3D73AE509000 /* common */,
+				4522FFCD741460003199E93170288807C2B4F29A6286800 /* hostapi */,
+				C894D64F2B5550002AE80B64D7B81200E953024196408800 /* os */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		99FEE020E239E8005782B55F2AAACC00E8C329C86F49A000 /* wasapi */ = {
+			isa = PBXGroup;
+			children = (
+				B55174F0E09B40004697F85CA35B9C00DF5EC4F800907800 /* pa_win_wasapi.c */,
+			);
+			name = wasapi;
+			sourceTree = "<group>";
+		};
+		A17917986229B800A3871534884FE800B8953F27EF56E000 /* wdmks */ = {
+			isa = PBXGroup;
+			children = (
+				A041C39CD2C9800035ABBC856B166A00FDE5C1A0995D6800 /* pa_win_wdmks.c */,
+			);
+			name = wdmks;
+			sourceTree = "<group>";
+		};
+		B9A9660C29731800912AEB032CE3E800801E3D73AE509000 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				C7CADCB76E9AA000FA02CA63DBC2B00046FE1C55DD55A000 /* pa_allocation.c */,
+				86B07F4FA6110800B8E86CFC133918005E3BEEE14CC0480 /* pa_allocation.h */,
+				8B49A809A0385000BD8195B60D606000A7CE7A80EF35200 /* pa_converters.c */,
+				4A2F4AA1D7AEB8007C67384E44D6C800C9628A404669B800 /* pa_converters.h */,
+				13ADE1C99B6C9900CCFC8D840C8F38006C11EC5AC255E800 /* pa_cpuload.c */,
+				F30871496A0FB00C87F32CF07C39800679491A5BD8A4800 /* pa_cpuload.h */,
+				623F38369B38F800947725E308610800E17277D509F3F800 /* pa_debugprint.c */,
+				2124DACED2AF5A00535CC87B3FD76800A0581A6D416A5800 /* pa_debugprint.h */,
+				E1E6AC2FF5853000167E5EC4EF46E900AE2C4A52945EA80 /* pa_dither.c */,
+				A3B4541AF5B7B800D84C06AFEF797000CCB06C9029787000 /* pa_dither.h */,
+				EB4C7F158C5960001D846CC1F98172006A7FBEB3FB146400 /* pa_endianness.h */,
+				6F640179CE614400486A7DFEFF453C00560A33CE125D7400 /* pa_front.c */,
+				C3FBB24D8419180063E5BCC9DB7E8C00DCFD53428D8CA800 /* pa_gitrevision.h */,
+				C0FD9FAEF12498007A4C4B69624738001961AA40180DE600 /* pa_hostapi.h */,
+				3D99648B3681C40080427A86D86B60004FBD2307CF927400 /* pa_memorybarrier.h */,
+				623CD21E620E7C001B8B7DD8D3311B00BAA0DCAF88F7C800 /* pa_process.c */,
+				5DBF77695D42DC00170E2323CE657D00B62381FA842C2800 /* pa_process.h */,
+				BA5ED12217DBB803DDDDABE8EA5CA008AD92CB09038B800 /* pa_ringbuffer.c */,
+				CA8B8FAA58F42000FCC37D56C61C300049BECF48C7AF1C00 /* pa_ringbuffer.h */,
+				5C47D48DF59A700090DF8722EF5C28008543ED03295B3000 /* pa_stream.c */,
+				1E157C78F5CCF80052AD2F0DEF8EB400471194EE298DB800 /* pa_stream.h */,
+				BD7A64529B09D8009680E0D7CBEDD000A42096A6DF060000 /* pa_trace.c */,
+				10ED3ADD9B631900E9F3B762CC471000F7936D31DF5F4800 /* pa_trace.h */,
+				BBD0E69D452A980094D76322760E9000A27718F18926C800 /* pa_types.h */,
+				A2E0B013F2227800B65A76D54D63C8009B91262220BE1000 /* pa_util.h */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+		C894D64F2B5550002AE80B64D7B81200E953024196408800 /* os */ = {
+			isa = PBXGroup;
+			children = (
+				DA4DBE66680D30007C78864174C9E000A5189915E9B45000 /* win */,
+			);
+			name = os;
+			sourceTree = "<group>";
+		};
+		DA4DBE66680D30007C78864174C9E000A5189915E9B45000 /* win */ = {
+			isa = PBXGroup;
+			children = (
+				563D5036949D200064AB554C889C6C0066F38E0B0D878000 /* pa_win_coinitialize.c */,
+				C7AAC64F510A5801AE8B17AE90FEF001D30EA396DFB0400 /* pa_win_coinitialize.h */,
+				3BA7EF7F895390007E3E8A6F4FE188009B95A1DCBDE3B000 /* pa_win_hostapis.c */,
+				AB85724225B36000F32DF65D6A020000AD1665B8AC293800 /* pa_win_util.c */,
+				A89CA15E03D9780039E324C9C699D800D2A9F16523CEB800 /* pa_win_waveformat.c */,
+				BDA986ECB8D90000BA9E94542D334800A04AF53BAB16D000 /* pa_win_wdmks_utils.c */,
+				DA75155ABC1CF800D76A22C230774000BD1683A9AE5AC800 /* pa_win_wdmks_utils.h */,
+				FB63C487D02EF800AE5927DEAED198002A77F3B663B39800 /* pa_x86_plain_converters.c */,
+				C3652AB38597700BF2BB60216FC10003B4A81D9CBDE1600 /* pa_x86_plain_converters.h */,
+			);
+			name = win;
+			sourceTree = "<group>";
+		};
+		DE2FD571A6C938008E134D4D9B3FB000BA17F9BDEA135000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				350CB0925DE0D80048867753B9222C002DBD26A08C7C7600 /* libopenmpt-portaudio.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E8F8238767E3F800FF118A417EF69800351BAB86F129080 /* wmme */ = {
+			isa = PBXGroup;
+			children = (
+				AA6D0A472D0398004A5714C384690800C36EAB3C36772000 /* pa_win_wmme.c */,
+			);
+			name = wmme;
+			sourceTree = "<group>";
+		};
+		F10C1F3BE75CE8003500F06E37707A003A051174B9EEAC00 /* build */ = {
+			isa = PBXGroup;
+			children = (
+				38087D2254F450001F8C405EF946EE005C2EADC20B7F3800 /* msvc */,
+			);
+			name = build;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AC46C71D4304F80086142A3A64D0A000F1DF84DFA185C800 /* portaudio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8F9A13E73BFD3800FD9890EE928AA800B6E792806B03B800 /* Build configuration list for PBXNativeTarget "portaudio" */;
+			buildPhases = (
+				8F9A13EBBDA97000FD9890F31436E000B6E79284ECAFF000 /* Resources */,
+				8F9A13EC27569000FD9890F37DE3F800B6E79285565D0800 /* Sources */,
+				8F9A13E84DC1F000FD9890EFA44F6000B6E792817CC87000 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = portaudio;
+			productName = portaudio;
+			productReference = 350CB0925DE0D80048867753B9222C002DBD26A08C7C7600 /* libopenmpt-portaudio.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "portaudio" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = 86D3C7574A87B00033263AB1CDCD1000DFC0752BF7149000 /* portaudio */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AC46C71D4304F80086142A3A64D0A000F1DF84DFA185C800 /* libopenmpt-portaudio.a */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8F9A13EBBDA97000FD9890F31436E000B6E79284ECAFF000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8F9A13EC27569000FD9890F37DE3F800B6E79285565D0800 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B134AEEF4939C00152A3BD30F600A00C6CA9BDA1330A000 /* pa_allocation.c in Sources */,
+				A9A4D1B72F55200063BBC29B4A219000155C22A24DF22800 /* pa_converters.c in Sources */,
+				6B0898FE4FEF3800833F30594030800A43E589487D49000 /* pa_cpuload.c in Sources */,
+				5F636800F9D62800197A58E514A29600CB1AB8EC18733000 /* pa_debugprint.c in Sources */,
+				7D588F392B31640810B2C2DA4DCF0006D70BC5FD8CDDC00 /* pa_dither.c in Sources */,
+				DA15BCBB88420000292EB46B6C890600B726CE2CF0763000 /* pa_front.c in Sources */,
+				BA1D5F3F239C48005748B94667B01C00F3531ED55B81A000 /* pa_process.c in Sources */,
+				82B8085A21E7900C2427169BCEAE80073E2D170C0BB8000 /* pa_ringbuffer.c in Sources */,
+				A8E51FBDCD7D2000221AC2F7DFA70000E80532A1397E900 /* pa_stream.c in Sources */,
+				5FB5696155B85C00AECE611139FF68003CC67AD2BDEC9200 /* pa_trace.c in Sources */,
+				8EBE1EDC95F6B00048D50FC0B0C31C00FA756FC7B493B000 /* pa_win_ds.c in Sources */,
+				6F24F06FC74F7C00FC932E0FB4B7100039D3E80C51B10000 /* pa_win_ds_dynlink.c in Sources */,
+				701269244557C4008F48F10CA0A3100087F7DDAF8ED4F800 /* pa_hostapi_skeleton.c in Sources */,
+				2D90C46243B474004DBF67A6E19574005A54D474B913B800 /* pa_win_wasapi.c in Sources */,
+				711EDF81CD687000D32281E4BE5FE000885BE4582A636000 /* pa_win_wdmks.c in Sources */,
+				2A196FFDE752B600C5B02A53E6F5980060E8A82B214A4C00 /* pa_win_wmme.c in Sources */,
+				9384C617AC167000A526944A5F0C7800A51EDB18B02ED800 /* pa_win_coinitialize.c in Sources */,
+				A4C8B5170675E00080F75CEB7A5E5800CC46AD7A9CAC0800 /* pa_win_hostapis.c in Sources */,
+				5C94632F1AA34C09B333F1B89F71800636D4436B83E1C00 /* pa_win_util.c in Sources */,
+				76989B1D268D400096C73E61C46E4000A35CAB2F9BEC8800 /* pa_win_waveformat.c in Sources */,
+				CE9335FFE8305000B4F7BCE3825448003C9B9485327A2800 /* pa_win_wdmks_utils.c in Sources */,
+				F79F5A2C73C8A000E732174D1B3E4000EA0287E2C4034800 /* pa_x86_plain_converters.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		10B2E4BE64164100E48CDCBBF6A40800BA4E8FF05F7CB000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../lib/xcode4/x86_64/Release;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudio";
+			};
+			name = Release;
+		};
+		6F6913E99EF09000B7119804E33F380070FA076025666C00 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../lib/xcode4/x86_64/Debug;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudio";
+			};
+			name = Debug;
+		};
+		74B85382DD895C008AD1BA3CF49BF8008F11EAB3E4B7F000 /* DebugShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					MPT_BUILD_MSVC_SHARED,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+					PA_ENABLE_DEBUG_OUTPUT,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/src/common,
+					../../../include/portaudio/src/os/win,
+				);
+				OBJROOT = ../../obj/xcode4/portaudio/x86_64/DebugShared;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-std=c99",
+				);
+				OTHER_LDFLAGS = (
+					"-lksuser",
+					"-lwinmm",
+				);
+				SYMROOT = "../../../bin/debug/xcode4-shared/x86-64-win7";
+			};
+			name = DebugShared;
+		};
+		77D4A0EF8C95D4005F58642C30E874009BFAD18F4320C000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					MPT_BUILD_MSVC_STATIC,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+					PA_ENABLE_DEBUG_OUTPUT,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/src/common,
+					../../../include/portaudio/src/os/win,
+				);
+				OBJROOT = ../../obj/xcode4/portaudio/x86_64/Debug;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-std=c99",
+				);
+				OTHER_LDFLAGS = (
+					"-lksuser",
+					"-lwinmm",
+				);
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
+				SYMROOT = ../../lib/xcode4/x86_64/Debug;
+			};
+			name = Debug;
+		};
+		872726EC39E43000C9BDC1DC00722800E714D9496E745000 /* ReleaseShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "../../../bin/release/xcode4-shared/x86-64-win7";
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudio";
+			};
+			name = ReleaseShared;
+		};
+		873F20BBFB2DA00027292B3852931200A040C1B104A13000 /* DebugShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "../../../bin/debug/xcode4-shared/x86-64-win7";
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudio";
+			};
+			name = DebugShared;
+		};
+		BFCCD4AAFDCA3800974E59A2013B08008641AC1282A7B000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					MPT_BUILD_MSVC_STATIC,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/src/common,
+					../../../include/portaudio/src/os/win,
+				);
+				OBJROOT = ../../obj/xcode4/portaudio/x86_64/Release;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-std=c99",
+				);
+				OTHER_LDFLAGS = (
+					"-lksuser",
+					"-lwinmm",
+				);
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
+				SYMROOT = ../../lib/xcode4/x86_64/Release;
+			};
+			name = Release;
+		};
+		D9F5D20190C2280FAD5ABC3F32528024BB84AFA6394800 /* ReleaseShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					MPT_BUILD_MSVC_SHARED,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/src/common,
+					../../../include/portaudio/src/os/win,
+				);
+				OBJROOT = ../../obj/xcode4/portaudio/x86_64/ReleaseShared;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-std=c99",
+				);
+				OTHER_LDFLAGS = (
+					"-lksuser",
+					"-lwinmm",
+				);
+				SYMROOT = "../../../bin/release/xcode4-shared/x86-64-win7";
+			};
+			name = ReleaseShared;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "portaudio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				77D4A0EF8C95D4005F58642C30E874009BFAD18F4320C000 /* Debug */,
+				77D4A0EF8C95D4005F58642C30E874009BFAD18F4320C000 /* Debug */,
+				BFCCD4AAFDCA3800974E59A2013B08008641AC1282A7B000 /* Release */,
+				BFCCD4AAFDCA3800974E59A2013B08008641AC1282A7B000 /* Release */,
+				74B85382DD895C008AD1BA3CF49BF8008F11EAB3E4B7F000 /* DebugShared */,
+				74B85382DD895C008AD1BA3CF49BF8008F11EAB3E4B7F000 /* DebugShared */,
+				D9F5D20190C2280FAD5ABC3F32528024BB84AFA6394800 /* ReleaseShared */,
+				D9F5D20190C2280FAD5ABC3F32528024BB84AFA6394800 /* ReleaseShared */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8F9A13E73BFD3800FD9890EE928AA800B6E792806B03B800 /* Build configuration list for PBXNativeTarget "libopenmpt-portaudio.a" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6F6913E99EF09000B7119804E33F380070FA076025666C00 /* Debug */,
+				6F6913E99EF09000B7119804E33F380070FA076025666C00 /* Debug */,
+				10B2E4BE64164100E48CDCBBF6A40800BA4E8FF05F7CB000 /* Release */,
+				10B2E4BE64164100E48CDCBBF6A40800BA4E8FF05F7CB000 /* Release */,
+				873F20BBFB2DA00027292B3852931200A040C1B104A13000 /* DebugShared */,
+				873F20BBFB2DA00027292B3852931200A040C1B104A13000 /* DebugShared */,
+				872726EC39E43000C9BDC1DC00722800E714D9496E745000 /* ReleaseShared */,
+				872726EC39E43000C9BDC1DC00722800E714D9496E745000 /* ReleaseShared */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+};
+rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

@@ -1073,8 +1073,8 @@ void propertyListenerCallback (void                   *inUserData,              
 		playPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		playRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         
-        genVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*64);
-        playVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*64);
+        genVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
+        playVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
 		//playOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
 		//
 		//GME specific
@@ -1310,8 +1310,8 @@ void propertyListenerCallback (void                   *inUserData,              
 	for (int i=0;i<SOUND_BUFFER_NB;i++) {
 		buffer_ana_flag[i]=0;
 		playRow[i]=playPattern[i]=genRow[i]=genPattern[i]=0;//=genOffset[i]=playOffset[i]=0;
-        memset(playVolData+i*64,0,64);
-        memset(genVolData+i*64,0,64);
+        memset(playVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
+        memset(genVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
 		memset(buffer_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
 		memset(buffer_ana_cpy[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
         memset(tim_notes[i],0,DEFAULT_VOICES*4);
@@ -1388,7 +1388,7 @@ void propertyListenerCallback (void                   *inUserData,              
 			if (mPatternDataAvail) {//Modplug
 				playPattern[buffer_ana_play_ofs]=genPattern[buffer_ana_play_ofs];
 				playRow[buffer_ana_play_ofs]=genRow[buffer_ana_play_ofs];
-                memcpy(playVolData+buffer_ana_play_ofs*64,genVolData+buffer_ana_play_ofs*64,64);
+                memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
                 //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
 			}
             if (mPlayType==15) {//Timidity
@@ -2869,8 +2869,8 @@ long src_callback(void *cb_data, float **data) {
                         //						genOffset[buffer_ana_gen_ofs]=genCurOffset;
 						nbBytes = ModPlug_Read(mp_file,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         for (int i=0;i<numChannels;i++) {
-                            int v=ModPlug_GetChannelVolume(mp_file,i);
-                            genVolData[buffer_ana_gen_ofs*64+i]=(v>255?255:v);
+                            int v=0;//IOS_OPENMPT_TODO ModPlug_GetChannelVolume(mp_file,i);
+                            genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                         }
 
 					}
@@ -3079,7 +3079,7 @@ long src_callback(void *cb_data, float **data) {
                                 
                                 for (int i=0;i<numChannels;i++) {
                                     int v=dumb_it_sr_get_channel_volume(duh_itsr,i)*4;
-                                    genVolData[buffer_ana_gen_ofs*64+i]=(v>255?255:v);
+                                    genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                                 }
 
                                 
@@ -4698,11 +4698,13 @@ long src_callback(void *cb_data, float **data) {
 		mp_datasize=ftell(f);
 		fclose(f);
         
-        VGMMaxLoop=optVGMPLAY_maxloop;
         
         VGMPlay_Init();
         // load configuration file here
         VGMPlay_Init2();
+        
+        VGMMaxLoop=optVGMPLAY_maxloop;
+        
         
         
         if (!OpenVGMFile([filePath UTF8String]))
@@ -4724,7 +4726,7 @@ long src_callback(void *cb_data, float **data) {
 		
         
 		iModuleLength=(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
-        NSLog(@"VGM length %d",iModuleLength);
+        //NSLog(@"VGM length %d",iModuleLength);
 		iCurrentTime=0;
         numChannels=2;//asap.moduleInfo.channels;
 		mod_minsub=0;
@@ -6383,7 +6385,9 @@ long src_callback(void *cb_data, float **data) {
 		return [NSString stringWithFormat:@"%s",gmetype];
 	}
 	if (mPlayType==2) {
-		switch ((unsigned int)ModPlug_GetModuleType(mp_file)) {
+        return [NSString stringWithFormat:@"%s %s",ModPlug_GetModuleTypeLStr(mp_file),ModPlug_GetModuleContainerLStr(mp_file)];
+/*		switch ((unsigned int)ModPlug_GetModuleType(mp_file)) {
+                //IOS_OPENMPT_TODO
 			case MOD_TYPE_MOD:return @"Amiga MODule";
 			case MOD_TYPE_S3M:return @"Screamtracker 3";
 			case MOD_TYPE_XM:return @"Fastracker 2";
@@ -6410,7 +6414,7 @@ long src_callback(void *cb_data, float **data) {
 			case MOD_TYPE_PAT:return @"pat";
 			case MOD_TYPE_UMX:return @"umx";
 			default:return @"???";
-		}
+		}*/
 	}
 	if (mPlayType==3) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
 	if (mPlayType==4) return [NSString stringWithFormat:@"%s",ao_types[ao_type].name];
@@ -6461,8 +6465,10 @@ long src_callback(void *cb_data, float **data) {
 	datasize=sizeof(UInt32);
 	AudioQueueGetProperty(mAudioQueue,kAudioQueueProperty_IsRunning,&i,&datasize);
 	if (i==0) {
+        //NSLog(@"end reached");
 		return YES;
 	}
+    //NSLog(@"end not reached");
 	return NO;
 }
 //*****************************************
@@ -6709,7 +6715,8 @@ extern "C" void adjust_amplification(void);
 }
 -(void) updateMPSettings {
 	if (mPlayType==2) {
-		ModPlug_SetSettings(mp_file,&mp_settings);
+		//IOS_OPENMPT_TODO  ModPlug_SetSettings(mp_file,&mp_settings);
+        ModPlug_SetSettings(&mp_settings);
 	}
 }
 -(void) setModPlugMasterVol:(float) mstVol {
@@ -6778,7 +6785,7 @@ extern "C" void adjust_amplification(void);
     int res;
     switch (mPlayType){
         case 2://Modplug
-            res=ModPlug_GetChannelVolume( mp_file,channel);
+            res=0;////IOS_OPENMPT_TODO ModPlug_GetChannelVolume( mp_file,channel);
             break;
 
         case 14://DUMB

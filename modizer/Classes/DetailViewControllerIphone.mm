@@ -53,7 +53,8 @@ static int *fft_freqAvgCount;
 #import "EQViewController.h"
 
 //#import "modplug.h"
-#import "../../libopenmpt/libmodplug/modplug.h"
+//#import "../../libopenmpt/libmodplug/modplug.h"
+#import "../../libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 
 
 #import "gme.h"
@@ -79,8 +80,6 @@ extern int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
 int tim_midifx_note_range,tim_midifx_note_offset;
-static int mOnlyCurrentEntry;
-static int mOnlyCurrentSubEntry;
 
 extern volatile int db_checked;
 
@@ -135,6 +134,8 @@ static int display_length_mode=0;
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
 @synthesize mShuffle,mShouldUpdateInfos;
 @synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime,btnNextCFlow,btnPrevCFlow,btnNextSubCFlow,btnPrevSubCFlow;
+
+@synthesize mOnlyCurrentSubEntry,mOnlyCurrentEntry;
 
 @synthesize mDeviceType;
 @synthesize cover_view,cover_viewBG,gifAnimation;
@@ -803,7 +804,7 @@ static float movePinchScale,movePinchScaleOld;
 		else labelSeeking.text=NSLocalizedString(@"Seeking",@"");
 	} else labelSeeking.hidden=TRUE;
 	
-	if ((mPaused==0)&&(mplayer.bGlobalAudioPause==2)&&[mplayer isEndReached]) {//mod ended
+	if (/*(mPaused==0)&&*/(mplayer.bGlobalAudioPause==2)&&[mplayer isEndReached]) {//mod ended
 		//have to update the pause button
 		mSendStatTimer=0;
 		mIsPlaying=FALSE;
@@ -3377,9 +3378,27 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 }
 
 
--(void)OrientationDidChange:(NSNotification*)notification
+-(void)orientationDidChange:(NSNotification*)notification
 {
-    orientationHV=(int)[[UIDevice currentDevice]orientation];
+    //    orientationHV=(int)[[UIDevice currentDevice]orientation];
+    UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
+
+    
+    switch (o) {
+        case UIInterfaceOrientationLandscapeLeft:
+            orientationHV=(int)UIInterfaceOrientationLandscapeLeft;
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            orientationHV=(int)UIInterfaceOrientationLandscapeRight;
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            orientationHV=(int)UIInterfaceOrientationPortraitUpsideDown;
+            break;
+        default:
+            orientationHV=(int)UIInterfaceOrientationPortrait;
+            break;
+    }
+
     
     /*if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
     {
@@ -3517,8 +3536,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         if (mScaleFactor>=2) mDeviceType=2;
         
 	}
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(OrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
     
 //    NSLog(@"s %f w %d h %d",mScaleFactor,mDevice_ww,mDevice_hh);
 	/* iPhone Simulator == i386
@@ -5004,40 +5023,15 @@ extern "C" int current_sample;
                     
                     
                     
-                    /*
-                    //BUGGY
-                    if (mplayer.mPlayType==15) { //Timidity
-                        int currentPos;
-                        int tempo=ModPlug_GetCurrentTempo(mplayer.mp_file);
-                        int speed=ModPlug_GetCurrentSpeed(mplayer.mp_file);
-                        int numr;
-                        
-                        // compute length of current row
-                        int itime=[mplayer getCurrentTime];
-                        itime=current_sample*1000/44100;
-                        currentPos= itime*16/1000;
-                        if (currentPos<0) currentPos=0;
-                        
-                        currentPattern=currentPos/64;
-                        currentRow=currentPos&63;
-                        currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numr));
-                        NSLog(@"time: %d / pat: %d / pos:%d-%d / tempo:%d / speed:%d",itime/1000,currentPattern,currentRow,numr,tempo,speed);
-                        
-                    }
-                    */
-                    
-                    
-                    //            int currentYoffset=playerOffset[playerpos]*12/1000;
-                    
                     endChan=startChan+visibleChan;
                     if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
                     else if (endChan<mplayer.numChannels) endChan++;
                     startRow=currentRow-midline;
                     
-                    int channelVolumeData[64];
+                    int channelVolumeData[SOUND_MAXMOD_CHANNELS];
                     unsigned char *volData=[mplayer playVolData];
                     for (int i=0;i<endChan-startChan;i++) {
-                        channelVolumeData[i]=volData[playerpos*64+i+startChan];
+                        channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
                     }
                     
                     
@@ -5263,7 +5257,7 @@ extern "C" int current_sample;
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {
             renderFluid(ww, hh, real_beatDetectedL, real_beatDetectedR, real_spectrumL, real_spectrumR, nb_spectrum_bands, 0, (unsigned char)(fxalpha*255));
         } else if (settings[GLOB_FX5].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX5].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum3DSphere(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX5].detail.mdz_switch.switch_value,nb_spectrum_bands/2);
         }
         
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
@@ -5536,8 +5530,8 @@ extern "C" int current_sample;
 }
 
 -(IBAction)playSelectedArc{
+    [self showArcSelector];
 	[mplayer selectArcEntry:[pvArcSel selectedRowInComponent:0]];
-	[self showArcSelector];
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     [self play_loadArchiveModule];
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];

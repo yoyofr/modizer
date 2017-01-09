@@ -15,9 +15,9 @@
 #import "AppDelegate_Phone.h"
 
 //libopenmpt
-#import "../../libopenmpt/libopenmpt.h"
-#import "../../libopenmpt/libopenmpt_stream_callbacks_file.h"
-#import "../../libopenmpt/libmodplug/modplug.h"
+#import "../../libopenmpt/openmpt-trunk/libopenmpt/libopenmpt.h"
+#import "../../libopenmpt/openmpt-trunk/libopenmpt/libopenmpt_stream_callbacks_file.h"
+#import "../../libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 //MODPLUG
 //#import "modplug.h"
 

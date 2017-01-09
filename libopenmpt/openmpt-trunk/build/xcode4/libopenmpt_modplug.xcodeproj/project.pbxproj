@@ -1,0 +1,429 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A27F4DB9E1C0480E2263C941833200FF4C677958B8E800 /* libopenmpt_modplug_cpp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C11494B8C5B34001C8A18B924D32200B7C6B74950BA1000 /* libopenmpt_modplug_cpp.cpp */; };
+		DE37A99884A7F80073F53294E3358C006D41166571194000 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F33E5C5E039C7000BCE2896CB2276000148AB4A54E63B000 /* liblibopenmpt.a */; };
+		DE69785B188D40006BD7B5FB05F4D400A9186FF7A2EEC800 /* libopenmpt_modplug.c in Sources */ = {isa = PBXBuildFile; fileRef = A128311A0E1FD800929DF7FD1AAA90007BB9C4FB958F5800 /* libopenmpt_modplug.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DFBAA6EFBCC2E000B9880A0CDE8E9000255364B21B43BA00 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 68DEC85BD4AFF4003B2F7681A8407C00EAAB88C09B121000 /* libopenmpt.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D847E03F17A93800DA55DDDB3DCF6800EF6407CEA4D66000;
+			remoteInfo = liblibopenmpt.a;
+		};
+		E22CE8260EFD5800BBFA4B4330C9000027C5A5E86D7E2C00 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 68DEC85BD4AFF4003B2F7681A8407C00EAAB88C09B121000 /* libopenmpt.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 5421C88F1A1A8C002D68068C13808E00B9AE45E1071BE800;
+			remoteInfo = liblibopenmpt.a;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2961BE73720B6C002B6FBC0F98319C00407DE602FF389400 /* liblibmodplug.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = liblibmodplug.a; path = liblibmodplug.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C11494B8C5B34001C8A18B924D32200B7C6B74950BA1000 /* libopenmpt_modplug_cpp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = libopenmpt_modplug_cpp.cpp; path = ../../libopenmpt/libopenmpt_modplug_cpp.cpp; sourceTree = "<group>"; };
+		68DEC85BD4AFF4003B2F7681A8407C00EAAB88C09B121000 /* liblibopenmpt.a */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt.xcodeproj"; path = libopenmpt.xcodeproj; sourceTree = SOURCE_ROOT; };
+		A128311A0E1FD800929DF7FD1AAA90007BB9C4FB958F5800 /* libopenmpt_modplug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = libopenmpt_modplug.c; path = ../../libopenmpt/libopenmpt_modplug.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4B29E89FF369E400920876596580980823237FC257DE800 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE37A99884A7F80073F53294E3358C006D41166571194000 /* liblibopenmpt.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		82E6A0331A85F0006A787C6A4A17C000B38E29D425250000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F33E5C5E039C7000BCE2896CB2276000148AB4A54E63B000 /* liblibopenmpt.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B8D5924F771F7800A059558C1B721800DCFBC2EF2DAA6000 /* libopenmpt_modplug */ = {
+			isa = PBXGroup;
+			children = (
+				A128311A0E1FD800929DF7FD1AAA90007BB9C4FB958F5800 /* libopenmpt_modplug.c */,
+				3C11494B8C5B34001C8A18B924D32200B7C6B74950BA1000 /* libopenmpt_modplug_cpp.cpp */,
+				DE2FD571A6C938008E134D4D9B3FB000BA17F9BDEA135000 /* Products */,
+				DE2FDC7F9D9690008E13545B920D0800BA1800CBE0E0A800 /* Projects */,
+			);
+			name = libopenmpt_modplug;
+			sourceTree = "<group>";
+		};
+		DE2FD571A6C938008E134D4D9B3FB000BA17F9BDEA135000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2961BE73720B6C002B6FBC0F98319C00407DE602FF389400 /* liblibmodplug.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DE2FDC7F9D9690008E13545B920D0800BA1800CBE0E0A800 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				68DEC85BD4AFF4003B2F7681A8407C00EAAB88C09B121000 /* libopenmpt.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		661ACF4ADEC830003F610D47D82E3200CBA74C9CCBC99000 /* libopenmpt_modplug */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4B29E89EE1A52C00920876484935200823237FB13B93000 /* Build configuration list for PBXNativeTarget "libopenmpt_modplug" */;
+			buildPhases = (
+				9607AE1010C857E500CD1376 /* Prebuild */,
+				4B29E8A3635164009208769063F8A00823237FF95656800 /* Resources */,
+				4B29E8A3CCFE7C0092087696FECA380823237FFFF128000 /* Sources */,
+				4B29E89FF369E400920876596580980823237FC257DE800 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				82F99A6A083E30006A8B76A137CFFC00B3A1240B12DD4000 /* PBXTargetDependency */,
+			);
+			name = libopenmpt_modplug;
+			productName = libopenmpt_modplug;
+			productReference = 2961BE73720B6C002B6FBC0F98319C00407DE602FF389400 /* liblibmodplug.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "libopenmpt_modplug" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = B8D5924F771F7800A059558C1B721800DCFBC2EF2DAA6000 /* libopenmpt_modplug */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 82E6A0331A85F0006A787C6A4A17C000B38E29D425250000 /* Products */;
+					ProjectRef = 68DEC85BD4AFF4003B2F7681A8407C00EAAB88C09B121000 /* libopenmpt.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				661ACF4ADEC830003F610D47D82E3200CBA74C9CCBC99000 /* liblibmodplug.a */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		F33E5C5E039C7000BCE2896CB2276000148AB4A54E63B000 /* liblibopenmpt.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibopenmpt.a;
+			remoteRef = DFBAA6EFBCC2E000B9880A0CDE8E9000255364B21B43BA00 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4B29E8A3635164009208769063F8A00823237FF95656800 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9607AE1010C857E500CD1376 /* Prebuild */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = Prebuild;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "..\\..\\build\\svn_version\\update_svn_version_vs_premake.cmd $(IntDir)";
+		};
+/* End PBXShellScriptBuildPhase section */
+/* Begin PBXSourcesBuildPhase section */
+		4B29E8A3CCFE7C0092087696FECA380823237FFFF128000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE69785B188D40006BD7B5FB05F4D400A9186FF7A2EEC800 /* libopenmpt_modplug.c in Sources */,
+				A27F4DB9E1C0480E2263C941833200FF4C677958B8E800 /* libopenmpt_modplug_cpp.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		82F99A6A083E30006A8B76A137CFFC00B3A1240B12DD4000 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = liblibopenmpt.a;
+			targetProxy = E22CE8260EFD5800BBFA4B4330C9000027C5A5E86D7E2C00 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		676A4FBFB3366C00EA1CEEAC76A2300076298793B545D000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../lib/xcode4/x86_64/Debug;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = libmodplug;
+			};
+			name = Debug;
+		};
+		AFE5AF2EC5585804ECC0C13D741AC0059F74741F2773C0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					MPT_BUILD_MSVC_STATIC,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../..,
+					"\"$(IntDir)/svn_version\"",
+					../svn_version,
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk",
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/modplug/include",
+				);
+				OBJROOT = ../obj/xcode4/libopenmpt_modplug/x86_64/Debug;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
+				SYMROOT = ../lib/xcode4/x86_64/Debug;
+			};
+			name = Debug;
+		};
+		C44D1D054C34C000324B9A0CA2C22A00EB9A9B9E7B3B4000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					MPT_BUILD_MSVC_STATIC,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../..,
+					"\"$(IntDir)/svn_version\"",
+					../svn_version,
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk",
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/modplug/include",
+				);
+				OBJROOT = ../obj/xcode4/libopenmpt_modplug/x86_64/Release;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
+				SYMROOT = ../lib/xcode4/x86_64/Release;
+			};
+			name = Release;
+		};
+		C747F359A4AB3000AA6C16623A21F0002C2D500FA8BE4600 /* DebugShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "../../bin/debug/xcode4-shared/x86-64-win7";
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = libmodplug;
+			};
+			name = DebugShared;
+		};
+		D67EC3DBCDE07000E9F88A9D2921C000CF2F39E9FC7C1000 /* DebugShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					MPT_BUILD_MSVC_SHARED,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					LIBOPENMPT_USE_DLL,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../..,
+					"\"$(IntDir)/svn_version\"",
+					../svn_version,
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk",
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/modplug/include",
+				);
+				OBJROOT = ../obj/xcode4/libopenmpt_modplug/x86_64/DebugShared;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				SYMROOT = "../../bin/debug/xcode4-shared/x86-64-win7";
+			};
+			name = DebugShared;
+		};
+		DF26E6AA1422F007C87B95EEA52540C95EEB4764C42800 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../lib/xcode4/x86_64/Release;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = libmodplug;
+			};
+			name = Release;
+		};
+		ECAF179A390D580029681F1E0730AC00205E79E18E3EFE00 /* ReleaseShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = "../../bin/release/xcode4-shared/x86-64-win7";
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = libmodplug;
+			};
+			name = ReleaseShared;
+		};
+		FAC347767B74F000D3C9C3FBAC58E800E16979CABF711800 /* ReleaseShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					MPT_BUILD_MSVC_SHARED,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					LIBOPENMPT_USE_DLL,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../..,
+					"\"$(IntDir)/svn_version\"",
+					../svn_version,
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk",
+					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/modplug/include",
+				);
+				OBJROOT = ../obj/xcode4/libopenmpt_modplug/x86_64/ReleaseShared;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				SYMROOT = "../../bin/release/xcode4-shared/x86-64-win7";
+			};
+			name = ReleaseShared;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "libopenmpt_modplug" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AFE5AF2EC5585804ECC0C13D741AC0059F74741F2773C0 /* Debug */,
+				AFE5AF2EC5585804ECC0C13D741AC0059F74741F2773C0 /* Debug */,
+				C44D1D054C34C000324B9A0CA2C22A00EB9A9B9E7B3B4000 /* Release */,
+				C44D1D054C34C000324B9A0CA2C22A00EB9A9B9E7B3B4000 /* Release */,
+				D67EC3DBCDE07000E9F88A9D2921C000CF2F39E9FC7C1000 /* DebugShared */,
+				D67EC3DBCDE07000E9F88A9D2921C000CF2F39E9FC7C1000 /* DebugShared */,
+				FAC347767B74F000D3C9C3FBAC58E800E16979CABF711800 /* ReleaseShared */,
+				FAC347767B74F000D3C9C3FBAC58E800E16979CABF711800 /* ReleaseShared */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4B29E89EE1A52C00920876484935200823237FB13B93000 /* Build configuration list for PBXNativeTarget "liblibmodplug.a" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				676A4FBFB3366C00EA1CEEAC76A2300076298793B545D000 /* Debug */,
+				676A4FBFB3366C00EA1CEEAC76A2300076298793B545D000 /* Debug */,
+				DF26E6AA1422F007C87B95EEA52540C95EEB4764C42800 /* Release */,
+				DF26E6AA1422F007C87B95EEA52540C95EEB4764C42800 /* Release */,
+				C747F359A4AB3000AA6C16623A21F0002C2D500FA8BE4600 /* DebugShared */,
+				C747F359A4AB3000AA6C16623A21F0002C2D500FA8BE4600 /* DebugShared */,
+				ECAF179A390D580029681F1E0730AC00205E79E18E3EFE00 /* ReleaseShared */,
+				ECAF179A390D580029681F1E0730AC00205E79E18E3EFE00 /* ReleaseShared */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+};
+rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

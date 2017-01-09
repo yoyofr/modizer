@@ -1,0 +1,25 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "F5CDFD7F-E44C-4A49-80DC-878B90BB2106",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499" : "openmpt-trunk\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "libopenmpt",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "build\/xcode4\/libopenmpt.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/source.openmpt.org\/svn\/openmpt",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "EA74B1461F5FBC9EC97688BB3AFCB02713DBA164",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "EA74B1461F5FBC9EC97688BB3AFCB02713DBA164" : 0,
+    "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "764E301E-8E9A-4BC3-97A3-2BF6383CDD46",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "EA74B1461F5FBC9EC97688BB3AFCB02713DBA164" : "modizer\/",
+    "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499" : "modizer\/libopenmpt\/openmpt-trunk\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "modizer",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "modizer\/modizer.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/source.openmpt.org\/svn\/openmpt",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "56274372-70c3-4bfc-bfc3-4c3a0b034d27++6499"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:yoyofr\/modizer.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "EA74B1461F5FBC9EC97688BB3AFCB02713DBA164"
+    }
+  ]
+}
