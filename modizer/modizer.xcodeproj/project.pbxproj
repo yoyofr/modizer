@@ -288,6 +288,7 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
+		590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
@@ -677,7 +678,6 @@
 		CC1E63BA120423E0000A8A4E /* uaerc in Resources */ = {isa = PBXBuildFile; fileRef = CC1E630F120423DF000A8A4E /* uaerc */; };
 		CC1E641912043064000A8A4E /* uadeipc.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5FEB1202F24F000A8A4E /* uadeipc.c */; };
 		CC2DE0A41217EF2900CF9CFF /* ModizerWin.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */; };
-		CC33B3C81ABAC193009608E8 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B2951AB8197F009608E8 /* liblibopenmpt.a */; };
 		CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CC33B4181ABD827D009608E8 /* libc++.dylib */; };
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
@@ -1061,6 +1061,13 @@
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = libgme;
 		};
+		590ED7101E22CDDE00802D4C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 590ED7081E22CDDD00802D4C /* libopenmpt.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D847E03F17A93800DA55DDDB3DCF6800EF6407CEA4D66000;
+			remoteInfo = libopenmpt;
+		};
 		CC1343731AC17B3A00CAB284 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
@@ -1074,13 +1081,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC1962071B66BCD600778A3E;
 			remoteInfo = libresample;
-		};
-		CC33B2941AB8197F009608E8 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CC33B2891AB8197E009608E8;
-			remoteInfo = libopenmpt;
 		};
 		CC59B90A1AC4B882004FEEBA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1731,6 +1731,7 @@
 		50819A2414B3E06F0062FA86 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
+		590ED7081E22CDDD00802D4C /* libopenmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libopenmpt.xcodeproj; path = "../libopenmpt/openmpt-trunk/build/xcode4/libopenmpt.xcodeproj"; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -2404,7 +2405,6 @@
 		CC1E630F120423DF000A8A4E /* uaerc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uaerc; sourceTree = "<group>"; };
 		CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizerWin.h; sourceTree = "<group>"; };
 		CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizerWin.mm; sourceTree = "<group>"; };
-		CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libopenmpt.xcodeproj; path = ../libopenmpt/libopenmpt/libopenmpt.xcodeproj; sourceTree = "<group>"; };
 		CC33B4181ABD827D009608E8 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
@@ -2894,12 +2894,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */,
 				CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */,
 				CC9FB0521B64E2BF00345B1C /* liblibLazyusf.a in Frameworks */,
 				CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */,
 				CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */,
 				CC33B4191ABD827D009608E8 /* libc++.dylib in Frameworks */,
-				CC33B3C81ABAC193009608E8 /* liblibopenmpt.a in Frameworks */,
 				3397DC90179C792400607236 /* liblibgme.a in Frameworks */,
 				33F60A8C14D1D719009ABA8F /* libdumb.a in Frameworks */,
 				33F60A8B14D1D711009ABA8F /* libTapkuLibrary.a in Frameworks */,
@@ -3584,6 +3584,14 @@
 				50819A2614B3E06F0062FA86 /* util.h */,
 			);
 			path = pmdwin;
+			sourceTree = "<group>";
+		};
+		590ED7091E22CDDD00802D4C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				590ED7111E22CDDE00802D4C /* liblibopenmpt.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		CC13434A1ABFFF2A00CAB284 /* SWTableViewCell */ = {
@@ -4731,17 +4739,9 @@
 		CC33B25F1AB81688009608E8 /* libopenmpt */ = {
 			isa = PBXGroup;
 			children = (
-				CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */,
+				590ED7081E22CDDD00802D4C /* libopenmpt.xcodeproj */,
 			);
 			name = libopenmpt;
-			sourceTree = "<group>";
-		};
-		CC33B2911AB8197E009608E8 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				CC33B2951AB8197F009608E8 /* liblibopenmpt.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		CC59B9071AC4B882004FEEBA /* Products */ = {
@@ -5516,8 +5516,8 @@
 					ProjectRef = CC9FAF6A1B64DAE200345B1C /* libLazyusf.xcodeproj */;
 				},
 				{
-					ProductGroup = CC33B2911AB8197E009608E8 /* Products */;
-					ProjectRef = CC33B2901AB8197E009608E8 /* libopenmpt.xcodeproj */;
+					ProductGroup = 590ED7091E22CDDD00802D4C /* Products */;
+					ProjectRef = 590ED7081E22CDDD00802D4C /* libopenmpt.xcodeproj */;
 				},
 				{
 					ProductGroup = CC19620F1B66BCD600778A3E /* Products */;
@@ -5601,6 +5601,13 @@
 			remoteRef = 33CA194314079ADC00CBEF9B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		590ED7111E22CDDE00802D4C /* liblibopenmpt.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibopenmpt.a;
+			remoteRef = 590ED7101E22CDDE00802D4C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		CC1343741AC17B3A00CAB284 /* libvgmplay.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -5613,13 +5620,6 @@
 			fileType = archive.ar;
 			path = liblibresample.a;
 			remoteRef = CC1962121B66BCD700778A3E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		CC33B2951AB8197F009608E8 /* liblibopenmpt.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = liblibopenmpt.a;
-			remoteRef = CC33B2941AB8197F009608E8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC59B90B1AC4B882004FEEBA /* liblibFileExtractor.a */ = {

@@ -74,7 +74,9 @@ class CGLString;
 	ModizMusicPlayer *mplayer;
 	
 	NSString *ratingImg[6];
-	
+    
+    int mOnlyCurrentEntry;
+    int mOnlyCurrentSubEntry;
 
 	int oglViewFullscreen,oglViewFullscreenChanged;
 	int orientationHV;
@@ -288,6 +290,9 @@ class CGLString;
 
 @property (nonatomic, retain) IBOutlet UIImageView *cover_view,*cover_viewBG;
 @property (nonatomic, retain) UIImageView *gifAnimation;
+
+@property int mOnlyCurrentEntry;
+@property int mOnlyCurrentSubEntry;
 
 -(IBAction) changeTimeDisplay;
 

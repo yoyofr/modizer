@@ -1517,6 +1517,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [super viewWillAppear:animated];	
     
     [self hideWaiting];
+    
+    
+    //[tableView reloadData];
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
 }
 
 -(void) refreshViewAfterDownload {
@@ -1548,6 +1553,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 - (void)viewDidAppear:(BOOL)animated {
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    
+    
+    /*[self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+    [tableView reloadData];*/
+    
     [super viewDidAppear:animated];
     
 }

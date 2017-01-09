@@ -1,0 +1,562 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2240A4D1EE71DE004D537FE64AF8E400111F2871D39B9D00 /* CallbackStream.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 7B544189B65FC40AA2D32D9AB4B2800692E3BA97BEB280 /* CallbackStream.cxx */; };
+		2BE582C56D23D400434A30CCA0A31400D63BF2D9B89CF000 /* SystemDeviceIterator.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 3A37224441F02600DC2B4795278730006C82732CEACC3C00 /* SystemDeviceIterator.cxx */; };
+		2D3A7B9832A9649173BDE75AF308002A3A8A82B827E800 /* Stream.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 3297E9921784660081B0E141FBCB7000FA8FB037FB89C00 /* Stream.cxx */; };
+		30E2DBAF9FD6CA00B42B2851B023B000CA95A204AE107800 /* SystemHostApiIterator.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 4BF9A33C8F37E80F452575470691800F722C7EA192E2800 /* SystemHostApiIterator.cxx */; };
+		3226DBB9F25C0E00382E60ADB711640046BAE1AE6B800C00 /* CFunCallbackStream.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 3A27BA2CB7465E003B75DFD7FFE59C001A9B137F23115400 /* CFunCallbackStream.cxx */; };
+		33E85A45F6677800C52EDDB1B927D8005DF5AA4D165CB800 /* System.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 550E6D431853DC00A42764F2FC9AE800321F7EB480881200 /* System.cxx */; };
+		34AF90A9A4345C001699F1DF3A5D6F0073787529FBC3CC00 /* AsioDeviceAdapter.cxx in Sources */ = {isa = PBXBuildFile; fileRef = D28233C72F40F800E42401F9E2370000E41C48C833596000 /* AsioDeviceAdapter.cxx */; };
+		5DB212E962ED04003F9C741EF91616009C7AF769BA7C7000 /* CallbackInterface.cxx in Sources */ = {isa = PBXBuildFile; fileRef = DEC905B689B65800F06AD3E93CAC6000F0631AB78DCEC000 /* CallbackInterface.cxx */; };
+		6E5F9FBFF280280017FEF314E7648400899C41ED0A389800 /* DirectionSpecificStreamParameters.cxx in Sources */ = {isa = PBXBuildFile; fileRef = EA39F3FA68F59000CD78B2566295E0007D0564A65316F400 /* DirectionSpecificStreamParameters.cxx */; };
+		71ADD7951E53A400C3B0CC2E917530009956C1D4F23A7000 /* InterfaceCallbackStream.cxx in Sources */ = {isa = PBXBuildFile; fileRef = F208BF200FF4C800B900E28C6B54E800991D83A3AD989000 /* InterfaceCallbackStream.cxx */; };
+		822FDCCF48F900001376603B0BB96300AC3D2CD668EE4000 /* Device.cxx in Sources */ = {isa = PBXBuildFile; fileRef = E8EE266DB5DCE00038071E1D9A23EA00C5FF37DF1E111800 /* Device.cxx */; };
+		8C9A730A3E9FE000A3FF2111721F200036F0E31E8A18FC00 /* MemFunCallbackStream.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 21E91AE539C12400C3DD40361F58280054346BCDE29D3C00 /* MemFunCallbackStream.cxx */; };
+		A4F8EE23972D8800BC5D9C2ACAACC8004F4F5E37E2A6A400 /* CppFunCallbackStream.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 1351AB16B5E83B00B545D0679B7F4000459CFBFF5EC45000 /* CppFunCallbackStream.cxx */; };
+		CBB2FB3C48AFD000AC2BCAA9E127C0004768693A0D0EB000 /* StreamParameters.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 39B5433DC2EFDE002019CA215D13D400A7BDA1C30D39B800 /* StreamParameters.cxx */; };
+		E655D85E90663800E34AE5C604C07800C8F746AD82A40800 /* HostApi.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2B4F5091F3AECA00A484F3CC05D8A80090EA83FE39C99000 /* HostApi.cxx */; };
+		EB3C2C052B97C000164F0719881EC700DA1AAFA510C18000 /* BlockingStream.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 2518FA46F9811000C790E9080966400023F699E8F5D9C600 /* BlockingStream.cxx */; };
+		EB43A7ECF21C80004D474A4FE313F000280ACC34F1771A0 /* Exception.cxx in Sources */ = {isa = PBXBuildFile; fileRef = 258D8F03D3EE7C00BAF787EC6C3B600083318D079A826000 /* Exception.cxx */; };
+		F0464415FB81B806D448847666BFC006F93A21117C75000 /* libopenmpt-portaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C8B5008B8C5C800DAAE65A8BD839800C45C2603F23CF800 /* libopenmpt-portaudio.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		23963B3067465A00B28176796D82880543DC4D171E56800 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 47E4C0A6B48F1000F1198F8FAE5F40006FE32D569BF1C000 /* portaudio.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 350CB0925DE0D80048867753B9222C002DBD26A08C7C7600;
+			remoteInfo = "libopenmpt-portaudio.a";
+		};
+		26087C66B980CC00D9A589DE9129B0056B00607C41FDC00 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 47E4C0A6B48F1000F1198F8FAE5F40006FE32D569BF1C000 /* portaudio.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = AC46C71D4304F80086142A3A64D0A000F1DF84DFA185C800;
+			remoteInfo = "libopenmpt-portaudio.a";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1351AB16B5E83B00B545D0679B7F4000459CFBFF5EC45000 /* CppFunCallbackStream.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CppFunCallbackStream.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/CppFunCallbackStream.cxx; sourceTree = "<group>"; };
+		1C5607E373FC8700162C150EC15F7D00D7C284C0377E8000 /* libopenmpt-portaudiocpp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libopenmpt-portaudiocpp.a"; path = "libopenmpt-portaudiocpp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		21E91AE539C12400C3DD40361F58280054346BCDE29D3C00 /* MemFunCallbackStream.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MemFunCallbackStream.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/MemFunCallbackStream.cxx; sourceTree = "<group>"; };
+		2518FA46F9811000C790E9080966400023F699E8F5D9C600 /* BlockingStream.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BlockingStream.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/BlockingStream.cxx; sourceTree = "<group>"; };
+		258D8F03D3EE7C00BAF787EC6C3B600083318D079A826000 /* Exception.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Exception.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/Exception.cxx; sourceTree = "<group>"; };
+		27DD67CE88BD3C00C7C7724AE022B00040DF08C39230C800 /* HostApi.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = HostApi.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/HostApi.hxx; sourceTree = "<group>"; };
+		2B4F5091F3AECA00A484F3CC05D8A80090EA83FE39C99000 /* HostApi.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = HostApi.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/HostApi.cxx; sourceTree = "<group>"; };
+		2B82B50F41137C00BFB847CD98B6880A738230D05725800 /* SystemDeviceIterator.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = SystemDeviceIterator.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/SystemDeviceIterator.hxx; sourceTree = "<group>"; };
+		2DE80AACE68DB40073C39F35F844F40072C4BFCE6DB2E000 /* CallbackInterface.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = CallbackInterface.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/CallbackInterface.hxx; sourceTree = "<group>"; };
+		3297E9921784660081B0E141FBCB7000FA8FB037FB89C00 /* Stream.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Stream.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/Stream.cxx; sourceTree = "<group>"; };
+		330C3409DF624E00E6019760BE04E8006220633872E6EC00 /* SampleDataFormat.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = SampleDataFormat.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/SampleDataFormat.hxx; sourceTree = "<group>"; };
+		34913886B6629600DA8DC97E7DC75000BE3E8D7E087F2800 /* InterfaceCallbackStream.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = InterfaceCallbackStream.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/InterfaceCallbackStream.hxx; sourceTree = "<group>"; };
+		39B5433DC2EFDE002019CA215D13D400A7BDA1C30D39B800 /* StreamParameters.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StreamParameters.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/StreamParameters.cxx; sourceTree = "<group>"; };
+		3A27BA2CB7465E003B75DFD7FFE59C001A9B137F23115400 /* CFunCallbackStream.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CFunCallbackStream.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/CFunCallbackStream.cxx; sourceTree = "<group>"; };
+		3A37224441F02600DC2B4795278730006C82732CEACC3C00 /* SystemDeviceIterator.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SystemDeviceIterator.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/SystemDeviceIterator.cxx; sourceTree = "<group>"; };
+		47E4C0A6B48F1000F1198F8FAE5F40006FE32D569BF1C000 /* libopenmpt-portaudio.a */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "portaudio.xcodeproj"; path = portaudio.xcodeproj; sourceTree = SOURCE_ROOT; };
+		4BF9A33C8F37E80F452575470691800F722C7EA192E2800 /* SystemHostApiIterator.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SystemHostApiIterator.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/SystemHostApiIterator.cxx; sourceTree = "<group>"; };
+		550E6D431853DC00A42764F2FC9AE800321F7EB480881200 /* System.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = System.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/System.cxx; sourceTree = "<group>"; };
+		5596CF7D3DAB8400470C96604A3634003028635EC51B0000 /* BlockingStream.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = BlockingStream.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/BlockingStream.hxx; sourceTree = "<group>"; };
+		5B3F33376F8AF8008D7720E3DCB30800DA7272D5DE45F800 /* Device.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = Device.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/Device.hxx; sourceTree = "<group>"; };
+		6AE9CF23D18F0C00FC30528F944F700094F71F2AF1844800 /* AutoSystem.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = AutoSystem.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/AutoSystem.hxx; sourceTree = "<group>"; };
+		71AA0D665D635C00B785A1EF6F1AA000B686C287E4888800 /* AsioDeviceAdapter.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = AsioDeviceAdapter.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/AsioDeviceAdapter.hxx; sourceTree = "<group>"; };
+		73B0E2CC84C25000B659F8C826ABF00085D4A1491DD30000 /* Exception.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = Exception.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/Exception.hxx; sourceTree = "<group>"; };
+		76F882A91791E800A930705584B9F800F62BC247864CE800 /* System.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = System.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/System.hxx; sourceTree = "<group>"; };
+		7B544189B65FC40AA2D32D9AB4B2800692E3BA97BEB280 /* CallbackStream.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CallbackStream.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/CallbackStream.cxx; sourceTree = "<group>"; };
+		853488B2B1F22000B04763C70E79200074130C52971BDC00 /* CFunCallbackStream.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = CFunCallbackStream.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/CFunCallbackStream.hxx; sourceTree = "<group>"; };
+		9B1670EA332120007B8F4057CB99100016CBDEE7F7800000 /* MemFunCallbackStream.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = MemFunCallbackStream.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/MemFunCallbackStream.hxx; sourceTree = "<group>"; };
+		9DE1D74BC9C1A000D019C4F836E9B0001D1516EA387CA100 /* Stream.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = Stream.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/Stream.hxx; sourceTree = "<group>"; };
+		A05CB34C72948800535216A351372400CF70E27B06192800 /* StreamParameters.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = StreamParameters.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/StreamParameters.hxx; sourceTree = "<group>"; };
+		AA40AFA7A9A0F8009BB6768AB62BB00084D2438931107800 /* CallbackStream.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = CallbackStream.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/CallbackStream.hxx; sourceTree = "<group>"; };
+		BBC5B30203A728009C3E826F9C1F1000377B20FFC8060400 /* CppFunCallbackStream.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = CppFunCallbackStream.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/CppFunCallbackStream.hxx; sourceTree = "<group>"; };
+		C6354DA51FE52000114BD7804D8FA800B26ED3CE4E335000 /* DirectionSpecificStreamParameters.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = DirectionSpecificStreamParameters.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/DirectionSpecificStreamParameters.hxx; sourceTree = "<group>"; };
+		C75DEC8ACB50C800D5CBF1A0BF501000D8142A5F443B2800 /* PortAudioCpp.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = PortAudioCpp.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/PortAudioCpp.hxx; sourceTree = "<group>"; };
+		CD188258BBF90000AF02E38E52221000BE166D913886E00 /* SystemHostApiIterator.hxx */ = {isa = PBXFileReference; lastKnownFileType = text; name = SystemHostApiIterator.hxx; path = ../../../include/portaudio/bindings/cpp/include/portaudiocpp/SystemHostApiIterator.hxx; sourceTree = "<group>"; };
+		D28233C72F40F800E42401F9E2370000E41C48C833596000 /* AsioDeviceAdapter.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = AsioDeviceAdapter.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/AsioDeviceAdapter.cxx; sourceTree = "<group>"; };
+		DEC905B689B65800F06AD3E93CAC6000F0631AB78DCEC000 /* CallbackInterface.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = CallbackInterface.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/CallbackInterface.cxx; sourceTree = "<group>"; };
+		E8EE266DB5DCE00038071E1D9A23EA00C5FF37DF1E111800 /* Device.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Device.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/Device.cxx; sourceTree = "<group>"; };
+		EA39F3FA68F59000CD78B2566295E0007D0564A65316F400 /* DirectionSpecificStreamParameters.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = DirectionSpecificStreamParameters.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/DirectionSpecificStreamParameters.cxx; sourceTree = "<group>"; };
+		F208BF200FF4C800B900E28C6B54E800991D83A3AD989000 /* InterfaceCallbackStream.cxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = InterfaceCallbackStream.cxx; path = ../../../include/portaudio/bindings/cpp/source/portaudiocpp/InterfaceCallbackStream.cxx; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BA50D0538B81C800941E3370AD4D7800FFE98E15EA02A000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0464415FB81B806D448847666BFC006F93A21117C75000 /* libopenmpt-portaudio.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		19384ABECABF3100130E57EA18222700D4A4C79B8E412800 /* portaudiocpp */ = {
+			isa = PBXGroup;
+			children = (
+				71AA0D665D635C00B785A1EF6F1AA000B686C287E4888800 /* AsioDeviceAdapter.hxx */,
+				6AE9CF23D18F0C00FC30528F944F700094F71F2AF1844800 /* AutoSystem.hxx */,
+				5596CF7D3DAB8400470C96604A3634003028635EC51B0000 /* BlockingStream.hxx */,
+				853488B2B1F22000B04763C70E79200074130C52971BDC00 /* CFunCallbackStream.hxx */,
+				2DE80AACE68DB40073C39F35F844F40072C4BFCE6DB2E000 /* CallbackInterface.hxx */,
+				AA40AFA7A9A0F8009BB6768AB62BB00084D2438931107800 /* CallbackStream.hxx */,
+				BBC5B30203A728009C3E826F9C1F1000377B20FFC8060400 /* CppFunCallbackStream.hxx */,
+				5B3F33376F8AF8008D7720E3DCB30800DA7272D5DE45F800 /* Device.hxx */,
+				C6354DA51FE52000114BD7804D8FA800B26ED3CE4E335000 /* DirectionSpecificStreamParameters.hxx */,
+				73B0E2CC84C25000B659F8C826ABF00085D4A1491DD30000 /* Exception.hxx */,
+				27DD67CE88BD3C00C7C7724AE022B00040DF08C39230C800 /* HostApi.hxx */,
+				34913886B6629600DA8DC97E7DC75000BE3E8D7E087F2800 /* InterfaceCallbackStream.hxx */,
+				9B1670EA332120007B8F4057CB99100016CBDEE7F7800000 /* MemFunCallbackStream.hxx */,
+				C75DEC8ACB50C800D5CBF1A0BF501000D8142A5F443B2800 /* PortAudioCpp.hxx */,
+				330C3409DF624E00E6019760BE04E8006220633872E6EC00 /* SampleDataFormat.hxx */,
+				9DE1D74BC9C1A000D019C4F836E9B0001D1516EA387CA100 /* Stream.hxx */,
+				A05CB34C72948800535216A351372400CF70E27B06192800 /* StreamParameters.hxx */,
+				76F882A91791E800A930705584B9F800F62BC247864CE800 /* System.hxx */,
+				2B82B50F41137C00BFB847CD98B6880A738230D05725800 /* SystemDeviceIterator.hxx */,
+				CD188258BBF90000AF02E38E52221000BE166D913886E00 /* SystemHostApiIterator.hxx */,
+			);
+			name = portaudiocpp;
+			sourceTree = "<group>";
+		};
+		46E585A96D441C0074B3A39B957ED40057E2D7687D1A6000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9C8B5008B8C5C800DAAE65A8BD839800C45C2603F23CF800 /* libopenmpt-portaudio.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7806C7175E8C74005F8A8A5402DF10009C2CF7B715175800 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				19384ABECABF3100130E57EA18222700D4A4C79B8E412800 /* portaudiocpp */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		C68CBEBB5EBF2000DAFAA5C2020AA800318B22731CDB7400 /* source */ = {
+			isa = PBXGroup;
+			children = (
+				EC9835F536B24000C59EB27A67963800D33E68497AAE6800 /* portaudiocpp */,
+			);
+			name = source;
+			sourceTree = "<group>";
+		};
+		DE2FD571A6C938008E134D4D9B3FB000BA17F9BDEA135000 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1C5607E373FC8700162C150EC15F7D00D7C284C0377E8000 /* libopenmpt-portaudiocpp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DE2FDC7F9D9690008E13545B920D0800BA1800CBE0E0A800 /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				47E4C0A6B48F1000F1198F8FAE5F40006FE32D569BF1C000 /* portaudio.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		E74244E73F729800499579FCEBD5580080070D9AA5DCC80 /* portaudiocpp */ = {
+			isa = PBXGroup;
+			children = (
+				7806C7175E8C74005F8A8A5402DF10009C2CF7B715175800 /* include */,
+				C68CBEBB5EBF2000DAFAA5C2020AA800318B22731CDB7400 /* source */,
+				DE2FD571A6C938008E134D4D9B3FB000BA17F9BDEA135000 /* Products */,
+				DE2FDC7F9D9690008E13545B920D0800BA1800CBE0E0A800 /* Projects */,
+			);
+			name = portaudiocpp;
+			sourceTree = "<group>";
+		};
+		EC9835F536B24000C59EB27A67963800D33E68497AAE6800 /* portaudiocpp */ = {
+			isa = PBXGroup;
+			children = (
+				D28233C72F40F800E42401F9E2370000E41C48C833596000 /* AsioDeviceAdapter.cxx */,
+				2518FA46F9811000C790E9080966400023F699E8F5D9C600 /* BlockingStream.cxx */,
+				3A27BA2CB7465E003B75DFD7FFE59C001A9B137F23115400 /* CFunCallbackStream.cxx */,
+				DEC905B689B65800F06AD3E93CAC6000F0631AB78DCEC000 /* CallbackInterface.cxx */,
+				7B544189B65FC40AA2D32D9AB4B2800692E3BA97BEB280 /* CallbackStream.cxx */,
+				1351AB16B5E83B00B545D0679B7F4000459CFBFF5EC45000 /* CppFunCallbackStream.cxx */,
+				E8EE266DB5DCE00038071E1D9A23EA00C5FF37DF1E111800 /* Device.cxx */,
+				EA39F3FA68F59000CD78B2566295E0007D0564A65316F400 /* DirectionSpecificStreamParameters.cxx */,
+				258D8F03D3EE7C00BAF787EC6C3B600083318D079A826000 /* Exception.cxx */,
+				2B4F5091F3AECA00A484F3CC05D8A80090EA83FE39C99000 /* HostApi.cxx */,
+				F208BF200FF4C800B900E28C6B54E800991D83A3AD989000 /* InterfaceCallbackStream.cxx */,
+				21E91AE539C12400C3DD40361F58280054346BCDE29D3C00 /* MemFunCallbackStream.cxx */,
+				3297E9921784660081B0E141FBCB7000FA8FB037FB89C00 /* Stream.cxx */,
+				39B5433DC2EFDE002019CA215D13D400A7BDA1C30D39B800 /* StreamParameters.cxx */,
+				550E6D431853DC00A42764F2FC9AE800321F7EB480881200 /* System.cxx */,
+				3A37224441F02600DC2B4795278730006C82732CEACC3C00 /* SystemDeviceIterator.cxx */,
+				4BF9A33C8F37E80F452575470691800F722C7EA192E2800 /* SystemHostApiIterator.cxx */,
+			);
+			name = portaudiocpp;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CA8ED1849143D800A3954E09C227D000B13503D8D5400800 /* portaudiocpp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BA50D05279BD1000941E336F9B88C000FFE98E14D83DE800 /* Build configuration list for PBXNativeTarget "portaudiocpp" */;
+			buildPhases = (
+				BA50D056FB694800941E33741D34F800FFE98E1959EA2000 /* Resources */,
+				BA50D05765166000941E337486E21000FFE98E19C3973800 /* Sources */,
+				BA50D0538B81C800941E3370AD4D7800FFE98E15EA02A000 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				46F87FE05AFC580074C69DD28337100057F5D19F6AD2A000 /* PBXTargetDependency */,
+			);
+			name = portaudiocpp;
+			productName = portaudiocpp;
+			productReference = 1C5607E373FC8700162C150EC15F7D00D7C284C0377E8000 /* libopenmpt-portaudiocpp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "portaudiocpp" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = E74244E73F729800499579FCEBD5580080070D9AA5DCC80 /* portaudiocpp */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 46E585A96D441C0074B3A39B957ED40057E2D7687D1A6000 /* Products */;
+					ProjectRef = 47E4C0A6B48F1000F1198F8FAE5F40006FE32D569BF1C000 /* portaudio.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				CA8ED1849143D800A3954E09C227D000B13503D8D5400800 /* libopenmpt-portaudiocpp.a */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		9C8B5008B8C5C800DAAE65A8BD839800C45C2603F23CF800 /* libopenmpt-portaudio.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libopenmpt-portaudio.a";
+			remoteRef = 23963B3067465A00B28176796D82880543DC4D171E56800 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BA50D056FB694800941E33741D34F800FFE98E1959EA2000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BA50D05765166000941E337486E21000FFE98E19C3973800 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				34AF90A9A4345C001699F1DF3A5D6F0073787529FBC3CC00 /* AsioDeviceAdapter.cxx in Sources */,
+				EB3C2C052B97C000164F0719881EC700DA1AAFA510C18000 /* BlockingStream.cxx in Sources */,
+				3226DBB9F25C0E00382E60ADB711640046BAE1AE6B800C00 /* CFunCallbackStream.cxx in Sources */,
+				5DB212E962ED04003F9C741EF91616009C7AF769BA7C7000 /* CallbackInterface.cxx in Sources */,
+				2240A4D1EE71DE004D537FE64AF8E400111F2871D39B9D00 /* CallbackStream.cxx in Sources */,
+				A4F8EE23972D8800BC5D9C2ACAACC8004F4F5E37E2A6A400 /* CppFunCallbackStream.cxx in Sources */,
+				822FDCCF48F900001376603B0BB96300AC3D2CD668EE4000 /* Device.cxx in Sources */,
+				6E5F9FBFF280280017FEF314E7648400899C41ED0A389800 /* DirectionSpecificStreamParameters.cxx in Sources */,
+				EB43A7ECF21C80004D474A4FE313F000280ACC34F1771A0 /* Exception.cxx in Sources */,
+				E655D85E90663800E34AE5C604C07800C8F746AD82A40800 /* HostApi.cxx in Sources */,
+				71ADD7951E53A400C3B0CC2E917530009956C1D4F23A7000 /* InterfaceCallbackStream.cxx in Sources */,
+				8C9A730A3E9FE000A3FF2111721F200036F0E31E8A18FC00 /* MemFunCallbackStream.cxx in Sources */,
+				2D3A7B9832A9649173BDE75AF308002A3A8A82B827E800 /* Stream.cxx in Sources */,
+				CBB2FB3C48AFD000AC2BCAA9E127C0004768693A0D0EB000 /* StreamParameters.cxx in Sources */,
+				33E85A45F6677800C52EDDB1B927D8005DF5AA4D165CB800 /* System.cxx in Sources */,
+				2BE582C56D23D400434A30CCA0A31400D63BF2D9B89CF000 /* SystemDeviceIterator.cxx in Sources */,
+				30E2DBAF9FD6CA00B42B2851B023B000CA95A204AE107800 /* SystemHostApiIterator.cxx in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		46F87FE05AFC580074C69DD28337100057F5D19F6AD2A000 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "libopenmpt-portaudio.a";
+			targetProxy = 26087C66B980CC00D9A589DE9129B0056B00607C41FDC00 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		3C956F1498700C08093CE6B4A3A00001BDB91D3BE1BCF00 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					MPT_BUILD_MSVC_STATIC,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					"_WIN32_WINNT=0x0601",
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/bindings/cpp/include,
+				);
+				OBJROOT = ../../obj/xcode4/portaudiocpp/x86_64/Release;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
+				SYMROOT = ../../lib/xcode4/x86_64/Release;
+			};
+			name = Release;
+		};
+		5FDFB5ADBE56C800F7AB8B1D9D73E000B67B43BD797D4000 /* ReleaseShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../lib/xcode4/x86_64/ReleaseShared;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudiocpp";
+			};
+			name = ReleaseShared;
+		};
+		8C1DE34EBD0E1000CFEB946FA7FA300086BEFCCFEFDFF800 /* DebugShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					MPT_BUILD_MSVC_SHARED,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					"_WIN32_WINNT=0x0601",
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+					PA_ENABLE_DEBUG_OUTPUT,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/bindings/cpp/include,
+				);
+				OBJROOT = ../../obj/xcode4/portaudiocpp/x86_64/DebugShared;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				SYMROOT = ../../lib/xcode4/x86_64/DebugShared;
+			};
+			name = DebugShared;
+		};
+		94A80F61EC8010002A68C69430D7AA0BBF58DFB1B869000 /* ReleaseShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NDEBUG,
+					MPT_BUILD_MSVC_SHARED,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					"_WIN32_WINNT=0x0601",
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/bindings/cpp/include,
+				);
+				OBJROOT = ../../obj/xcode4/portaudiocpp/x86_64/ReleaseShared;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				SYMROOT = ../../lib/xcode4/x86_64/ReleaseShared;
+			};
+			name = ReleaseShared;
+		};
+		C7DB63A0A79CB0005D455C893FE99400257F61A46E309400 /* DebugShared */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../lib/xcode4/x86_64/DebugShared;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudiocpp";
+			};
+			name = DebugShared;
+		};
+		D5743E5294E1F0009D26622A066D08006A8402AAB56E3000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = x86_64;
+				CONFIGURATION_BUILD_DIR = "$(SYMROOT)";
+				CONFIGURATION_TEMP_DIR = "$(OBJROOT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_OPTIMIZATION_LEVEL = 1;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					DEBUG,
+					MPT_BUILD_MSVC_STATIC,
+					WIN32,
+					_CRT_SECURE_NO_WARNINGS,
+					_CRT_NONSTDC_NO_DEPRECATE,
+					_CRT_SECURE_NO_DEPRECATE,
+					_CRT_NONSTDC_NO_WARNINGS,
+					"_WIN32_WINNT=0x0601",
+					PAWIN_USE_WDMKS_DEVICE_INFO,
+					PA_WDMKS_NO_KSGUID_LIB,
+					"PA_USE_ASIO=0",
+					"PA_USE_DS=1",
+					"PA_USE_WMME=1",
+					"PA_USE_WASAPI=1",
+					"PA_USE_WDMKS=1",
+					PA_ENABLE_DEBUG_OUTPUT,
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../include/portaudio/include,
+					../../../include/portaudio/bindings/cpp/include,
+				);
+				OBJROOT = ../../obj/xcode4/portaudiocpp/x86_64/Debug;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-std=c++11",
+				);
+				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
+				SYMROOT = ../../lib/xcode4/x86_64/Debug;
+			};
+			name = Debug;
+		};
+		EADED946052AD80064147C801754B400507A0CB24B45A000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../lib/xcode4/x86_64/Release;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudiocpp";
+			};
+			name = Release;
+		};
+		FCE488BC601630004BFD806C445D3800D9F59A2DC84A6800 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CONFIGURATION_BUILD_DIR = ../../lib/xcode4/x86_64/Debug;
+				GCC_DYNAMIC_NO_PIC = NO;
+				INSTALL_PATH = /usr/local/lib;
+				PRODUCT_NAME = "openmpt-portaudiocpp";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "portaudiocpp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D5743E5294E1F0009D26622A066D08006A8402AAB56E3000 /* Debug */,
+				D5743E5294E1F0009D26622A066D08006A8402AAB56E3000 /* Debug */,
+				3C956F1498700C08093CE6B4A3A00001BDB91D3BE1BCF00 /* Release */,
+				3C956F1498700C08093CE6B4A3A00001BDB91D3BE1BCF00 /* Release */,
+				8C1DE34EBD0E1000CFEB946FA7FA300086BEFCCFEFDFF800 /* DebugShared */,
+				8C1DE34EBD0E1000CFEB946FA7FA300086BEFCCFEFDFF800 /* DebugShared */,
+				94A80F61EC8010002A68C69430D7AA0BBF58DFB1B869000 /* ReleaseShared */,
+				94A80F61EC8010002A68C69430D7AA0BBF58DFB1B869000 /* ReleaseShared */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BA50D05279BD1000941E336F9B88C000FFE98E14D83DE800 /* Build configuration list for PBXNativeTarget "libopenmpt-portaudiocpp.a" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FCE488BC601630004BFD806C445D3800D9F59A2DC84A6800 /* Debug */,
+				FCE488BC601630004BFD806C445D3800D9F59A2DC84A6800 /* Debug */,
+				EADED946052AD80064147C801754B400507A0CB24B45A000 /* Release */,
+				EADED946052AD80064147C801754B400507A0CB24B45A000 /* Release */,
+				C7DB63A0A79CB0005D455C893FE99400257F61A46E309400 /* DebugShared */,
+				C7DB63A0A79CB0005D455C893FE99400257F61A46E309400 /* DebugShared */,
+				5FDFB5ADBE56C800F7AB8B1D9D73E000B67B43BD797D4000 /* ReleaseShared */,
+				5FDFB5ADBE56C800F7AB8B1D9D73E000B67B43BD797D4000 /* ReleaseShared */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+};
+rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

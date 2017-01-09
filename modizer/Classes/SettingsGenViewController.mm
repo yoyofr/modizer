@@ -1172,7 +1172,7 @@ void optVGMPLAYChangedC(id param) {
     settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=0;
-    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=32;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
     
     
     /////////////////////////////////////
@@ -1715,7 +1715,7 @@ void optVGMPLAYChangedC(id param) {
             [sliderview release];
             break;
         case MDZ_SLIDER_DISCRETE:
-            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
+            sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0+32,tabView.bounds.size.width*5.5f/10,30)];
             sliderview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             sliderview.integerMode=1;
             [sliderview setMaximumValue:settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_max_value];
