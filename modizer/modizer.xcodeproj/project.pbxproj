@@ -289,6 +289,7 @@
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
 		590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
+		59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59321DD61E2560B300020079 /* libvgmstream.a */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
@@ -1068,6 +1069,13 @@
 			remoteGlobalIDString = D847E03F17A93800DA55DDDB3DCF6800EF6407CEA4D66000;
 			remoteInfo = libopenmpt;
 		};
+		59321DD51E2560B300020079 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 59321DD01E2560B200020079 /* vgmstream.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 59321B451E24CB8B00020079;
+			remoteInfo = vgmstream;
+		};
 		CC1343731AC17B3A00CAB284 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
@@ -1732,6 +1740,7 @@
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		590ED7081E22CDDD00802D4C /* libopenmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libopenmpt.xcodeproj; path = "../libopenmpt/openmpt-trunk/build/xcode4/libopenmpt.xcodeproj"; sourceTree = "<group>"; };
+		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = ../vgmstream/vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -2894,6 +2903,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */,
 				590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */,
 				CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */,
 				CC9FB0521B64E2BF00345B1C /* liblibLazyusf.a in Frameworks */,
@@ -3590,6 +3600,22 @@
 			isa = PBXGroup;
 			children = (
 				590ED7111E22CDDE00802D4C /* liblibopenmpt.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		59321DCA1E25609F00020079 /* libvgmstream */ = {
+			isa = PBXGroup;
+			children = (
+				59321DD01E2560B200020079 /* vgmstream.xcodeproj */,
+			);
+			name = libvgmstream;
+			sourceTree = "<group>";
+		};
+		59321DD11E2560B200020079 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				59321DD61E2560B300020079 /* libvgmstream.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4922,6 +4948,7 @@
 		CC9B193312FF0B9800985967 /* SndPlayers */ = {
 			isa = PBXGroup;
 			children = (
+				59321DCA1E25609F00020079 /* libvgmstream */,
 				CC9FAF701B64DB0600345B1C /* libLazyusf */,
 				CC1343751AC17B4D00CAB284 /* libvgmplay */,
 				CC33B25F1AB81688009608E8 /* libopenmpt */,
@@ -5543,6 +5570,10 @@
 					ProductGroup = CC1343701AC17B3900CAB284 /* Products */;
 					ProjectRef = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
 				},
+				{
+					ProductGroup = 59321DD11E2560B200020079 /* Products */;
+					ProjectRef = 59321DD01E2560B200020079 /* vgmstream.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -5606,6 +5637,13 @@
 			fileType = archive.ar;
 			path = liblibopenmpt.a;
 			remoteRef = 590ED7101E22CDDE00802D4C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		59321DD61E2560B300020079 /* libvgmstream.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libvgmstream.a;
+			remoteRef = 59321DD51E2560B300020079 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC1343741AC17B3A00CAB284 /* libvgmplay.a */ = {
@@ -6560,7 +6598,7 @@
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -6587,7 +6625,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6616,7 +6654,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6692,7 +6730,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -6768,7 +6806,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/**";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";

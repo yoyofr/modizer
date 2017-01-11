@@ -1077,10 +1077,10 @@
 					../../soundlib,
 					"\"$(IntDir)/svn_version\"",
 					../svn_version,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/zlib",
+					../../include,
+					../../include/ogg/include,
+					../../include/vorbis/include,
+					../../include/zlib,
 				);
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/DebugShared;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1146,10 +1146,10 @@
 					../../soundlib,
 					"\"$(IntDir)/svn_version\"",
 					../svn_version,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/zlib",
+					../../include,
+					../../include/ogg/include,
+					../../include/vorbis/include,
+					../../include/zlib,
 				);
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/ReleaseShared;
 				ONLY_ACTIVE_ARCH = NO;
@@ -1215,10 +1215,10 @@
 					../../soundlib,
 					"\"$(IntDir)/svn_version\"",
 					../svn_version,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/zlib",
+					../../include,
+					../../include/ogg/include,
+					../../include/vorbis/include,
+					../../include/zlib,
 				);
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/Debug;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1312,10 +1312,10 @@
 					../../soundlib,
 					"\"$(IntDir)/svn_version\"",
 					../svn_version,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/zlib",
+					../../include,
+					../../include/ogg/include,
+					../../include/vorbis/include,
+					../../include/zlib,
 				);
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/Release;
 				ONLY_ACTIVE_ARCH = NO;

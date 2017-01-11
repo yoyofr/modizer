@@ -11,8 +11,6 @@ modizer/Resources/DB/databaseMAIN.modizerdb
 
 *.xcscheme
 
-*.xcscheme
-
 modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/UserInterfaceState.xcuserstate
 
 modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
@@ -116,3 +114,5 @@ modizer/Resources/DB/d.zip
 modizer/Resources/DB/database.modizerdb
 
 modizer/Resources/DB/databaseMAIN.modizerdb.bak
+
+libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/*

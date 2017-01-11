@@ -473,6 +473,7 @@
 		A6BA4B3A675C40006E6C6F11D8E758003BCA0F9287E87E00 /* DebugShared */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -511,7 +512,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../include/vorbis/include,
 					../../../include/vorbis/lib,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
+					../../../include/ogg/include,
 				);
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/DebugShared;
 				ONLY_ACTIVE_ARCH = YES;
@@ -524,6 +525,7 @@
 		C7FE20E1632C400044C8985B63DF3C00E0105BC3D7C11000 /* ReleaseShared */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -561,7 +563,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../include/vorbis/include,
 					../../../include/vorbis/lib,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
+					../../../include/ogg/include,
 				);
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/ReleaseShared;
 				ONLY_ACTIVE_ARCH = NO;
@@ -574,6 +576,7 @@
 		CE5E3B656BA65000708903407863000099291614ED4D7000 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -611,7 +614,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../include/vorbis/include,
 					../../../include/vorbis/lib,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
+					../../../include/ogg/include,
 				);
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/Release;
 				ONLY_ACTIVE_ARCH = NO;
@@ -636,6 +639,7 @@
 		E0B053381FD85800A33F4AB4725E800048C78C8B44A2E400 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -674,7 +678,7 @@
 				HEADER_SEARCH_PATHS = (
 					../../../include/vorbis/include,
 					../../../include/vorbis/lib,
-					"/Users/yohannmagnien/Downloads/libopenmpt/openmpt-trunk/include/ogg/include",
+					../../../include/ogg/include,
 				);
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/Debug;
 				ONLY_ACTIVE_ARCH = YES;
