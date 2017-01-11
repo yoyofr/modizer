@@ -100,6 +100,18 @@ static NSFileManager *mFileMngr;
 //GENERAL
 static int mPanning,mPanningValue;
 
+extern "C" {
+//VGMSTREAM
+#import "../../vgmstream/vgmstream.h"
+
+static VGMSTREAM* vgmStream = NULL;
+static STREAMFILE* vgmFile = NULL;
+static bool optVGMSTREAM_loopmode = false;
+static double optVGMSTREAM_loop_count = 2.0f;
+static bool mVGMSTREAM_force_loop;
+static volatile int mVGMSTREAM_total_samples;
+}
+
 //DUMB
 static float dumb_MastVol;
 
@@ -378,6 +390,12 @@ float *lzu_sample_data_float;
 float *lzu_sample_converted_data_float;
 usf_loader_state * lzu_state;
 
+static int16_t *vgm_sample_data;
+static float *vgm_sample_data_float;
+static float *vgm_sample_converted_data_float;
+static char vgm_fileext[8];
+
+
 //#include "corlett.h"
 extern corlett_t *usf_info_data;
 
@@ -442,7 +460,8 @@ double src_ratio;
 SRC_STATE *src_state;
 SRC_DATA src_data;
 
-long src_callback(void *cb_data, float **data);
+long src_callback_lazyusf(void *cb_data, float **data);
+long src_callback_vgmstream(void *cb_data, float **data);
 
 ////////////////////
 
@@ -2252,13 +2271,56 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 	return 0;
 }
 
-long src_callback(void *cb_data, float **data) {
+long src_callback_lazyusf(void *cb_data, float **data) {
     const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, LZU_SAMPLE_SIZE, &lzu_sample_rate);
     if (result) return 0;
     src_short_to_float_array (lzu_sample_data, lzu_sample_data_float,LZU_SAMPLE_SIZE*2);
     *data=lzu_sample_data_float;
     return LZU_SAMPLE_SIZE;
 }
+
+long src_callback_vgmstream(void *cb_data, float **data) {
+    // render audio into sound buffer
+    int nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
+    if (mVGMSTREAM_total_samples - SOUND_BUFFER_SIZE_SAMPLE < 0)
+    {
+        nbSamplesToRender = mVGMSTREAM_total_samples;
+    }
+    
+    short int *snd_ptr;
+    switch (vgmStream->channels) {
+        case 1:
+            render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
+            snd_ptr=vgm_sample_data;
+            for (int i=nbSamplesToRender-1;i>=0;i--) {
+                snd_ptr[i*2]=snd_ptr[i];
+                snd_ptr[i*2+1]=snd_ptr[i];
+            }
+            break;
+        case 2:
+            render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
+        case 7:
+            break;
+        default:
+            break;
+    }
+    if (!mVGMSTREAM_force_loop) mVGMSTREAM_total_samples -= nbSamplesToRender;
+    
+    src_short_to_float_array (vgm_sample_data, vgm_sample_data_float,nbSamplesToRender*2);
+    *data=vgm_sample_data_float;
+    
+    return nbSamplesToRender;
+}
+
 
 -(void) generateSoundThread {
 	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
@@ -2419,6 +2481,9 @@ long src_callback(void *cb_data, float **data) {
                             mNeedSeek=0;
                         }
                         if (mPlayType==18) { //LAZYUSF : not supported
+                            mNeedSeek=0;
+                        }
+                        if (mPlayType==19) { //VGMSTREAM : not supported
                             mNeedSeek=0;
                         }
 					}
@@ -2895,10 +2960,19 @@ long src_callback(void *cb_data, float **data) {
                         // TODO does this work OK on mSlowDevices?
                         nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                     }
+                    if (mPlayType==19) { //VGMSTREAM
+                        
+                        nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
+                        src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                        if (! mVGMSTREAM_total_samples) nbBytes=0;
+                        if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
+                        if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
+                        
+                        //NSLog(@"remaining samples: %d",mVGMSTREAM_total_samples);
+                    }
                     if (mPlayType==18) { //LAZYUSF
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, lzu_sample_converted_data_float)*2*2;
                         src_float_to_short_array (lzu_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
-//                        NSLog(@"nb: %d / %d",nbBytes,SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
@@ -3589,6 +3663,7 @@ long src_callback(void *cb_data, float **data) {
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
 	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
@@ -3598,7 +3673,7 @@ long src_callback(void *cb_data, float **data) {
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
-								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+
+								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extVGMSTREAM count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
 								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
 	
@@ -3621,6 +3696,7 @@ long src_callback(void *cb_data, float **data) {
 	[filetype_ext addObjectsFromArray:filetype_extADPLUG];
 	[filetype_ext addObjectsFromArray:filetype_extSEXYPSF];
     [filetype_ext addObjectsFromArray:filetype_extLAZYUSF];
+    [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
 	[filetype_ext addObjectsFromArray:filetype_extAOSDK];
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
 	[filetype_ext addObjectsFromArray:filetype_extGSF];
@@ -3707,6 +3783,7 @@ long src_callback(void *cb_data, float **data) {
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSArray *filetype_extCOVER=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
@@ -3723,7 +3800,11 @@ long src_callback(void *cb_data, float **data) {
     //    NSLog(@"check: %@",_filePath);
     mSingleFileType=1; //used to identify file which relies or not on another file (sample, psflib, ...)
 	
-    
+    if (!found)
+        for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
+        }
 	if (!found)
 		for (int i=0;i<[filetype_extVGM count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
@@ -3950,6 +4031,7 @@ long src_callback(void *cb_data, float **data) {
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
 	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
@@ -4232,6 +4314,11 @@ long src_callback(void *cb_data, float **data) {
 			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=4;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=4;break;}
 		}
+    if (!found)
+    for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
+    }
 	if (!found)
 		for (int i=0;i<[filetype_extGSF count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {found=12;break;}
@@ -4549,7 +4636,7 @@ long src_callback(void *cb_data, float **data) {
         
         //Initi SRC samplerate converter
         int error;
-        src_state=src_callback_new(src_callback,SRC_SINC_MEDIUM_QUALITY,2,&error,NULL);
+        src_state=src_callback_new(src_callback_lazyusf,SRC_SINC_MEDIUM_QUALITY,2,&error,NULL);
         if (!src_state) {
             NSLog(@"Error while initializing SRC samplerate converter: %d",error);
             return -1;
@@ -4615,6 +4702,98 @@ long src_callback(void *cb_data, float **data) {
         lzu_sample_data=(int16_t*)malloc(LZU_SAMPLE_SIZE*2*2);
         lzu_sample_data_float=(float*)malloc(LZU_SAMPLE_SIZE*4*2);
         lzu_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+        
+        
+        
+        return 0;
+    }
+    
+    if (found==19) {  //VGMSTREAM
+        mPlayType=19;
+        FILE *f;
+        
+        f=fopen([filePath UTF8String],"rb");
+        if (f==NULL) {
+            NSLog(@"VGMSTREAM Cannot open file %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        fseek(f,0L,SEEK_END);
+        mp_datasize=ftell(f);
+        fclose(f);
+        
+        //Initi SRC samplerate converter
+        int error;
+        src_state=src_callback_new(src_callback_vgmstream,SRC_SINC_MEDIUM_QUALITY,2,&error,NULL);
+        if (!src_state) {
+            NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+            return -1;
+        }
+        
+        mVGMSTREAM_force_loop = false;
+        
+        if ( optVGMSTREAM_loopmode)
+        {
+            mVGMSTREAM_force_loop = true;
+            NSLog(@"VGMStreamPlugin Force Loop");
+        }
+
+        
+        vgmFile = open_stdio_streamfile([filePath UTF8String]);
+        if (!vgmFile) {
+            NSLog(@"Error open_stdio_streamfile %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
+        
+        if (!vgmStream) {
+            NSLog(@"Error init_vgmstream_from_STREAMFILE %@",filePath);
+            mPlayType=0;
+            return -1;
+        }
+        /////////////////////////
+        
+        
+        src_ratio=PLAYBACK_FREQ/(double)(vgmStream->sample_rate);
+        
+        if (vgmStream->channels <= 0)
+        {
+            close_vgmstream(vgmStream);
+            vgmStream = NULL;
+            NSLog(@"Error vgmStream->channels: %d",vgmStream->channels);
+            return -1;
+        }
+        
+        mVGMSTREAM_total_samples = get_vgmstream_play_samples(optVGMSTREAM_loop_count, 0.0f, 0.0f, vgmStream);
+        close_streamfile(vgmFile);
+        
+        iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
+        iCurrentTime=0;
+        
+        
+        NSLog(@"VGMSTream: rate %d channels %d samples:%d length:%ds %dms",vgmStream->sample_rate,vgmStream->channels,mVGMSTREAM_total_samples,mVGMSTREAM_total_samples/vgmStream->sample_rate,iModuleLength);
+        
+        numChannels=vgmStream->channels;
+        if (numChannels>2) {
+            NSLog(@"not managed yet, more than 2 channels (%d)",numChannels);
+        }
+        
+        
+        sprintf(mod_name," %s",mod_filename);
+        
+        sprintf(mod_message,"%s\n",
+                mod_name);
+        
+        
+        //Loop
+        if (mLoopMode==1) iModuleLength=-1;
+        
+        vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        vgm_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+        vgm_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+        
+        sprintf(vgm_fileext,"%s",[extension UTF8String] );
         
         
         return 0;
@@ -6173,6 +6352,10 @@ long src_callback(void *cb_data, float **data) {
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
+        case 19: //VGMSTREAM
+            if (startPos) [self Seek:startPos];
+            [self Play];
+            break;
 	}
 }
 -(void) Stop {
@@ -6307,6 +6490,17 @@ long src_callback(void *cb_data, float **data) {
         free(usf_info_data);
         src_delete(src_state);
     }
+    if (mPlayType==19) { //VGMSTREAM
+        if (vgmStream != NULL)
+        {
+            close_vgmstream(vgmStream);
+        }
+        vgmStream = NULL;
+        free(vgm_sample_data);
+        free(vgm_sample_data_float);
+        free(vgm_sample_converted_data_float);
+        src_delete(src_state);
+    }
     
 }
 -(void) Pause:(BOOL) paused {
@@ -6360,6 +6554,7 @@ long src_callback(void *cb_data, float **data) {
     if (mPlayType==16) return @"PMDMini";
     if (mPlayType==17) return @"VGMPlay";
     if (mPlayType==18) return @"LazyUSF";
+    if (mPlayType==19) return @"VGMSTREAM";
 	return @"";
 }
 -(NSString*) getSubTitle:(int)subsong {
@@ -6386,35 +6581,6 @@ long src_callback(void *cb_data, float **data) {
 	}
 	if (mPlayType==2) {
         return [NSString stringWithFormat:@"%s %s",ModPlug_GetModuleTypeLStr(mp_file),ModPlug_GetModuleContainerLStr(mp_file)];
-/*		switch ((unsigned int)ModPlug_GetModuleType(mp_file)) {
-                //IOS_OPENMPT_TODO
-			case MOD_TYPE_MOD:return @"Amiga MODule";
-			case MOD_TYPE_S3M:return @"Screamtracker 3";
-			case MOD_TYPE_XM:return @"Fastracker 2";
-			case MOD_TYPE_MED:return @"OctaMED";
-			case MOD_TYPE_IT:return @"Impulse Tracker";
-			case MOD_TYPE_669:return @"Composer/Unis 669";
-			case MOD_TYPE_ULT:return @"UltraTracker";
-			case MOD_TYPE_STM:return @"Screamtracker";
-			case MOD_TYPE_FAR:return @"Farandole Composer";
-			case MOD_TYPE_WAV:return @"wav";
-			case MOD_TYPE_AMF:return @"amf";
-			case MOD_TYPE_AMS:return @"ams";
-			case MOD_TYPE_DSM:return @"dsm";
-			case MOD_TYPE_MDL:return @"mdl";
-			case MOD_TYPE_OKT:return @"OctaMED";
-			case MOD_TYPE_MID:return @"mid";
-			case MOD_TYPE_DMF:return @"dmf";
-			case MOD_TYPE_DBM:return @"dbm";
-			case MOD_TYPE_MT2:return @"mt2";
-			case MOD_TYPE_AMF0:return @"amf0";
-			case MOD_TYPE_PSM:return @"psm";
-			case MOD_TYPE_J2B:return @"j2b";
-			case MOD_TYPE_ABC:return @"abc";
-			case MOD_TYPE_PAT:return @"pat";
-			case MOD_TYPE_UMX:return @"umx";
-			default:return @"???";
-		}*/
 	}
 	if (mPlayType==3) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
 	if (mPlayType==4) return [NSString stringWithFormat:@"%s",ao_types[ao_type].name];
@@ -6444,6 +6610,7 @@ long src_callback(void *cb_data, float **data) {
     if (mPlayType==16) return @"PMD";
     if (mPlayType==17) return @"VGM";
     if (mPlayType==18) return @"USF";
+    if (mPlayType==19) return [NSString stringWithFormat:@"%s",vgm_fileext];
 	return @" ";
 }
 -(BOOL) isPlaying {
@@ -6729,7 +6896,7 @@ extern "C" void adjust_amplification(void);
 }
 -(void) Seek:(int) seek_time {
 	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)
-        ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||mNeedSeek||(mPlayType==18)) return;
+        ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==18)||(mPlayType==19)||mNeedSeek) return;
 	
 	if (mPlayType==9) {
 		if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
