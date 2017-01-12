@@ -2,12 +2,14 @@ Requested:
 ÑÑÑÑÑÑÑÑÑ
 - Mute button / channels & playback ratio (slower/faster)
 - Cloud synchro
+- MPG123: optim ARM Neon only supporting 32bits mode -> cannot compile for 64bits
 
 -(void) PlaySeek:(int)startPos subsong:(int)subsong {
 => subsong pour differentes lib (asap ?)
 
 2.6
 ÑÑÑ
+- [New] VGMStream
 - [Update] VGMPlay 1.71b
 - [Update] ASAP 3.2
 - [Update] Libopenmpt update (2017/01/07) + MO3 support

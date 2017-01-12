@@ -6579,11 +6579,13 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
@@ -6591,14 +6593,20 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -6606,10 +6614,12 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
@@ -6617,15 +6627,21 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6633,10 +6649,12 @@
 		CC17F0781AC82BD0006C1E82 /* Release_No64 */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -6645,16 +6663,22 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6711,10 +6735,12 @@
 		CC1E56AA1200B2B2000A8A4E /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
@@ -6722,15 +6748,21 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -6787,10 +6819,12 @@
 		CCAF10E912BB48A200F4262D /* Distribution Beta */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
@@ -6798,15 +6832,21 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = /usr/include/libxml2;
+				HEADER_SEARCH_PATHS = (
+					/usr/include/libxml2,
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";

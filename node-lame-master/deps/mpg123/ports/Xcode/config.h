@@ -37,7 +37,8 @@
 	#define SIZEOF_OFF_T 8
 	#define SIZEOF_SIZE_T 4
 	#define SIZEOF_SSIZE_T 4
-    #define OPT_NEON
+    //#define OPT_NEON
+    #define OPT_GENERIC
 #elif TARGET_OS_MAC
 	#define DEFAULT_OUTPUT_MODULE "coreaudio"
 	#define HAVE_AUDIOTOOLBOX_AUDIOTOOLBOX_H 1

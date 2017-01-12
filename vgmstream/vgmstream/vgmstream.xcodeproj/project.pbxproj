@@ -1430,7 +1430,9 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../node-lame-master/deps/mpg123/ports/Xcode",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1476,7 +1478,9 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../node-lame-master/deps/mpg123/ports/Xcode",
+					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
