@@ -10,7 +10,7 @@
  * If someone wants to do a standalone build, they can do it by simply
  * removing these defines (and the references to the libraries in the
  * Makefile) */
-//#define VGM_USE_VORBIS
+#define VGM_USE_VORBIS
 #define VGM_USE_MPEG
 /* disabled by default, defined for builds that support it */
 //#define VGM_USE_G7221
@@ -18,7 +18,7 @@
 #include "streamfile.h"
 #include "coding/g72x_state.h"
 #ifdef VGM_USE_VORBIS
-#include <vorbis/vorbisfile.h>
+#include "vorbis/vorbisfile.h"
 #endif
 #ifdef VGM_USE_MPEG
 #include "mpg123.h"

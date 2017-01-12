@@ -62,14 +62,6 @@
 		CD132CCA152A4E7000B4F5A8 /* synth_s32.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB0152A4E7000B4F5A8 /* synth_s32.c */; };
 		CD132CCB152A4E7000B4F5A8 /* synth.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB1152A4E7000B4F5A8 /* synth.c */; };
 		CD132CCC152A4E7000B4F5A8 /* tabinit.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB2152A4E7000B4F5A8 /* tabinit.c */; };
-		CD132CD6152A511C00B4F5A8 /* dct64_neon_float.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CCD152A511800B4F5A8 /* dct64_neon_float.S */; };
-		CD132CD7152A511C00B4F5A8 /* dct64_neon.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CCE152A511900B4F5A8 /* dct64_neon.S */; };
-		CD132CD9152A511C00B4F5A8 /* synth_neon_float.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CD0152A511A00B4F5A8 /* synth_neon_float.S */; };
-		CD132CDA152A511C00B4F5A8 /* synth_neon_s32.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CD1152A511A00B4F5A8 /* synth_neon_s32.S */; };
-		CD132CDB152A511C00B4F5A8 /* synth_neon.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CD2152A511A00B4F5A8 /* synth_neon.S */; };
-		CD132CDC152A511C00B4F5A8 /* synth_stereo_neon_float.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CD3152A511B00B4F5A8 /* synth_stereo_neon_float.S */; };
-		CD132CDD152A511C00B4F5A8 /* synth_stereo_neon_s32.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CD4152A511B00B4F5A8 /* synth_stereo_neon_s32.S */; };
-		CD132CDE152A511C00B4F5A8 /* synth_stereo_neon.S in Sources */ = {isa = PBXBuildFile; fileRef = CD132CD5152A511C00B4F5A8 /* synth_stereo_neon.S */; };
 		CDB0288C152B760700B01410 /* compat.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C99152A4E7000B4F5A8 /* compat.c */; };
 		CDB0288D152B760700B01410 /* compat.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C62152A4D7E00B4F5A8 /* compat.h */; };
 		CDB0288E152B760700B01410 /* dct64.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C9A152A4E7000B4F5A8 /* dct64.c */; };
@@ -488,14 +480,6 @@
 				CD132CCA152A4E7000B4F5A8 /* synth_s32.c in Sources */,
 				CD132CCB152A4E7000B4F5A8 /* synth.c in Sources */,
 				CD132CCC152A4E7000B4F5A8 /* tabinit.c in Sources */,
-				CD132CD6152A511C00B4F5A8 /* dct64_neon_float.S in Sources */,
-				CD132CD7152A511C00B4F5A8 /* dct64_neon.S in Sources */,
-				CD132CD9152A511C00B4F5A8 /* synth_neon_float.S in Sources */,
-				CD132CDA152A511C00B4F5A8 /* synth_neon_s32.S in Sources */,
-				CD132CDB152A511C00B4F5A8 /* synth_neon.S in Sources */,
-				CD132CDC152A511C00B4F5A8 /* synth_stereo_neon_float.S in Sources */,
-				CD132CDD152A511C00B4F5A8 /* synth_stereo_neon_s32.S in Sources */,
-				CD132CDE152A511C00B4F5A8 /* synth_stereo_neon.S in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -612,6 +596,7 @@
 		CD132C1C152A48C200B4F5A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				DSTROOT = /tmp/libmpg123.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				OTHER_LDFLAGS = "-ObjC";
@@ -623,6 +608,7 @@
 		CD132C1D152A48C200B4F5A8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				DSTROOT = /tmp/libmpg123.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				OTHER_LDFLAGS = "-ObjC";
