@@ -9,8 +9,8 @@
 VGMSTREAM * init_vgmstream_ngc_dsp_sth_str1(STREAMFILE *streamFile) {
   	VGMSTREAM * vgmstream = NULL;
     STREAMFILE * streamFileSTR = NULL;
-    char filename[260];
-	  char filenameSTR[260];
+    char filename[1024];
+	  char filenameSTR[1024];
   	int i, j;
 	  int channel_count;
 	  int loop_flag;
@@ -115,8 +115,8 @@ fail:
 VGMSTREAM * init_vgmstream_ngc_dsp_sth_str2(STREAMFILE *streamFile) {
   	VGMSTREAM * vgmstream = NULL;
     STREAMFILE * streamFileSTR = NULL;
-    char filename[260];
-	  char filenameSTR[260];
+    char filename[1024];
+	  char filenameSTR[1024];
   	int i, j;
 	  int channel_count;
 	  int loop_flag;
@@ -221,8 +221,8 @@ fail:
 VGMSTREAM * init_vgmstream_ngc_dsp_sth_str3(STREAMFILE *streamFile) {
   	VGMSTREAM * vgmstream = NULL;
     STREAMFILE * streamFileSTR = NULL;
-    char filename[260];
-	  char filenameSTR[260];
+    char filename[1024];
+	  char filenameSTR[1024];
   	int i, j;
 	  int channel_count;
 	  int loop_flag;

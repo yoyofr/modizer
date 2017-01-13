@@ -201,8 +201,8 @@
 		333B159213955AF300F2F613 /* playmidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = playmidi.h; sourceTree = "<group>"; };
 		333B159413955AF300F2F613 /* quantity.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = quantity.c; sourceTree = "<group>"; };
 		333B159513955AF300F2F613 /* quantity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quantity.h; sourceTree = "<group>"; };
-		333B159713955AF300F2F613 /* rcp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rcp.c; sourceTree = "<group>"; };
-		333B159813955AF300F2F613 /* readmidi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = readmidi.c; sourceTree = "<group>"; };
+		333B159713955AF300F2F613 /* rcp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = rcp.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
+		333B159813955AF300F2F613 /* readmidi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 0; path = readmidi.c; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.c; };
 		333B159913955AF300F2F613 /* readmidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = readmidi.h; sourceTree = "<group>"; };
 		333B159A13955AF300F2F613 /* recache.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = recache.c; sourceTree = "<group>"; };
 		333B159B13955AF300F2F613 /* recache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = recache.h; sourceTree = "<group>"; };
