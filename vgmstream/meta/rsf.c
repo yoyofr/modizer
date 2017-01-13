@@ -6,7 +6,7 @@
 
 VGMSTREAM * init_vgmstream_rsf(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[260];
+    char filename[1024];
 
     size_t file_size;
 

@@ -9,7 +9,7 @@
 VGMSTREAM * init_vgmstream_ps2_wmus(STREAMFILE *streamFile) 
 {
     VGMSTREAM * vgmstream = NULL;
-    char filename[260];
+    char filename[1024];
 
     int loop_flag = 1;
 	int channel_count;
@@ -20,7 +20,7 @@ VGMSTREAM * init_vgmstream_ps2_wmus(STREAMFILE *streamFile)
 	int shortBlockSize;
 	int lastBlockLocation;
 
-	char	filenameWHED[260];
+	char	filenameWHED[1024];
 	STREAMFILE * streamFileWHED = NULL;
 
 	//_TCHAR szBuffer[100];

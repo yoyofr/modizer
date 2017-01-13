@@ -11,7 +11,7 @@ typedef struct {
     size_t validsize;
     uint8_t * buffer;
     size_t buffersize;
-    char name[260];
+    char name[1024];
 #ifdef PROFILE_STREAMFILE
     size_t bytes_read;
     int error_count;
