@@ -12,7 +12,7 @@ VGMSTREAM * init_vgmstream_ahx(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
     off_t stream_offset;
     size_t filesize;
-    char filename[260];
+    char filename[1024];
     int channel_count = 1;
     int loop_flag = 0;
     mpeg_codec_data *data = NULL;
