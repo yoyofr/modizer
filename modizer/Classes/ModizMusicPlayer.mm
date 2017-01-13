@@ -6,6 +6,29 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
+enum MMP_PLAYER_TYPE {
+    MMP_NONE=0,
+    MMP_TIMIDITY,
+    MMP_VGMSTREAM,
+    MMP_LAZYUSF,
+    MMP_VGMPLAY,
+    MMP_PMDMINI,
+    MMP_DUMB,
+    MMP_ASAP,
+    MMP_GSF,
+    MMP_MDXPDX,
+    MMP_SC68,
+    MMP_STSOUND,
+    MMP_SIDPLAY,
+    MMP_HVL,
+    MMP_UADE,
+    MMP_SEXYPSF,
+    MMP_AOSDK,
+    MMP_ADPLUG,
+    MMP_OPENMPT,
+    MMP_GME
+};
+
 #include <pthread.h>
 #include <sqlite3.h>
 #include <sys/xattr.h>
@@ -109,7 +132,7 @@ static STREAMFILE* vgmFile = NULL;
 static bool optVGMSTREAM_loopmode = false;
 static double optVGMSTREAM_loop_count = 2.0f;
 static bool mVGMSTREAM_force_loop;
-static volatile int mVGMSTREAM_total_samples;
+    static volatile int mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples;
 }
 
 //DUMB
@@ -942,7 +965,7 @@ void propertyListenerCallback (void                   *inUserData,              
 
 @implementation ModizMusicPlayer
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
-@synthesize mPlayType; //1:GME, 2:libmodplug, 3:Adplug, 4:AO, 5:SexyPSF, 6:UADE
+@synthesize mPlayType;
 @synthesize mp_datasize;
 @synthesize optForceMono;
 //Adplug stuff
@@ -1410,14 +1433,14 @@ void propertyListenerCallback (void                   *inUserData,              
                 memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
                 //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
 			}
-            if (mPlayType==15) {//Timidity
+            if (mPlayType==MMP_TIMIDITY) {//Timidity
                 memcpy(tim_notes_cpy[buffer_ana_play_ofs],tim_notes[buffer_ana_play_ofs],DEFAULT_VOICES*4);
                 tim_voicenb_cpy[buffer_ana_play_ofs]=tim_voicenb[buffer_ana_play_ofs];
             }
 			
 			iCurrentTime+=1000.0f*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
 			
-			if (mPlayType==10) {//SC68
+			if (mPlayType==MMP_SC68) {//SC68
 				iCurrentTime=api68_seek(sc68, -1,NULL);
 			}
 			
@@ -2281,10 +2304,10 @@ long src_callback_lazyusf(void *cb_data, float **data) {
 
 long src_callback_vgmstream(void *cb_data, float **data) {
     // render audio into sound buffer
-    int nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
-    if (mVGMSTREAM_total_samples - SOUND_BUFFER_SIZE_SAMPLE < 0)
+    int nbSamplesToRender=mVGMSTREAM_total_samples - mVGMSTREAM_decode_pos_samples;
+    if (nbSamplesToRender >SOUND_BUFFER_SIZE_SAMPLE)
     {
-        nbSamplesToRender = mVGMSTREAM_total_samples;
+        nbSamplesToRender = SOUND_BUFFER_SIZE_SAMPLE;
     }
     
     short int *snd_ptr;
@@ -2313,7 +2336,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         default:
             break;
     }
-    if (!mVGMSTREAM_force_loop) mVGMSTREAM_total_samples -= nbSamplesToRender;
+    mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
     
     src_short_to_float_array (vgm_sample_data, vgm_sample_data_float,nbSamplesToRender*2);
     *data=vgm_sample_data_float;
@@ -2334,7 +2357,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			if ( !bGlobalEndReached && mPlayType) {
 				int nbBytes=0;
                 
-                if (mPlayType==15) { //Special case : Timidity
+                if (mPlayType==MMP_TIMIDITY) { //Special case : Timidity
                     int counter=0;
                     intr = 0;
                     [self timThread];
@@ -2351,7 +2374,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 					bGlobalAudioPause=2;
                 }
 				
-				if (mPlayType==12) {  //Special case : GSF
+				if (mPlayType==MMP_GSF) {  //Special case : GSF
 					int counter=0;
 					[NSThread sleepForTimeInterval:0.1];  //TODO : check why it crashes in "release" target without this...
 					gsf_loop();
@@ -2366,7 +2389,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 					mQueueIsBeingStopped = FALSE;
 					bGlobalEndReached=1;
 					bGlobalAudioPause=2;
-				} else if (mPlayType==5) {  //Special case : SexyPSF
+				} else if (mPlayType==MMP_SEXYPSF) {  //Special case : SexyPSF
 					int counter=0;
 					[NSThread sleepForTimeInterval:0.1];  //TODO : check why it crashes in "release" target without this...
 					sexy_execute();
@@ -2388,7 +2411,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 					//[self iPhoneDrv_PlayWaitStop];
 					//AudioQueueStop( mAudioQueue, TRUE );
 					
-				} else if (mPlayType==6) {  //Special case : UADE
+				} else if (mPlayType==MMP_UADE) {  //Special case : UADE
 					int counter=0;
 					[self uade_playloop];
 					
@@ -2405,7 +2428,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 					bGlobalAudioPause=2;
 					//[self iPhoneDrv_PlayWaitStop];
 					//AudioQueueStop( mAudioQueue, TRUE );
-				} else if (mPlayType==11) {  //Special case : MDX
+				} else if (mPlayType==MMP_MDXPDX) {  //Special case : MDX
 					int counter=0;
 					mdx_play(mdx,pdx);
 					
@@ -2423,44 +2446,44 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 				} else if (buffer_ana_flag[buffer_ana_gen_ofs]==0) {
 					if (mNeedSeek==1) { //SEEK
 						mNeedSeek=2;  //taken into account
-						if (mPlayType==1) {   //GME
+						if (mPlayType==MMP_GME) {   //GME
 							bGlobalSeekProgress=-1;
 							gme_seek(gme_emu,mNeedSeekTime);
 							//gme_set_fade( gme_emu, iModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 2s before end
 						}
-						if (mPlayType==2) { //MODPLUG
+						if (mPlayType==MMP_OPENMPT) { //MODPLUG
 							bGlobalSeekProgress=-1;
 							ModPlug_Seek(mp_file,mNeedSeekTime);
 						}
-						if (mPlayType==3) { //ADPLUG
+						if (mPlayType==MMP_ADPLUG) { //ADPLUG
 							bGlobalSeekProgress=-1;
 							adPlugPlayer->seek(mNeedSeekTime);
 						}
-						if (mPlayType==4) { //AOSDK : not supported
+						if (mPlayType==MMP_AOSDK) { //AOSDK : not supported
 							mNeedSeek=0;
 						}
-						if (mPlayType==7) { //HVL
+						if (mPlayType==MMP_HVL) { //HVL
 							bGlobalSeekProgress=-1;
 							mNeedSeekTime=hvl_Seek(hvl_song,mNeedSeekTime);
 						}
-						if (mPlayType==8) { //SID : not supported
+						if (mPlayType==MMP_SIDPLAY) { //SID : not supported
 							mNeedSeek=0;
 						}
-						if (mPlayType==9) {//STSOUND
+						if (mPlayType==MMP_STSOUND) {//STSOUND
 							if (ymMusicIsSeekable(ymMusic)==YMTRUE) {
 								bGlobalSeekProgress=-1;
 								ymMusicSeek(ymMusic,mNeedSeekTime);
 							} else mNeedSeek=0;
 						}
-						if (mPlayType==10) {//SC68
+						if (mPlayType==MMP_SC68) {//SC68
 							bGlobalSeekProgress=-1;
 							api68_seek(sc68, mNeedSeekTime, NULL);
 						}
-						if (mPlayType==13) { //ASAP
+						if (mPlayType==MMP_ASAP) { //ASAP
 							bGlobalSeekProgress=-1;
 							ASAP_Seek(&asap, mNeedSeekTime);
 						}
-                        if (mPlayType==14) {
+                        if (mPlayType==MMP_DUMB) {//DUMB
                             bGlobalSeekProgress=-1;
                             duh_end_sigrenderer(duh_player->dr);
                             duh_player->dr = duh_start_sigrenderer(duh, 0, 2/*nb channels*/, ((long long)mNeedSeekTime<<16)/1000);
@@ -2473,17 +2496,30 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);
                             }
                         }
-                        if (mPlayType==16) { //PMDMini : not supported
+                        if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
                             mNeedSeek=0;
                         }
-                        if (mPlayType==17) { //VGM
+                        if (mPlayType==MMP_VGMPLAY) { //VGM
                             SeekVGM(false,mNeedSeekTime*441/10);
                             mNeedSeek=0;
                         }
-                        if (mPlayType==18) { //LAZYUSF : not supported
+                        if (mPlayType==MMP_LAZYUSF) { //LAZYUSF : not supported
                             mNeedSeek=0;
                         }
-                        if (mPlayType==19) { //VGMSTREAM : not supported
+                        if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
+                            mVGMSTREAM_seek_needed_samples=(double)mNeedSeekTime*(double)(vgmStream->sample_rate)/1000.0f;
+                            
+                            if (mVGMSTREAM_decode_pos_samples>mVGMSTREAM_seek_needed_samples) {
+                                reset_vgmstream(vgmStream);
+                                mVGMSTREAM_decode_pos_samples=0;
+                            }
+                            while (mVGMSTREAM_decode_pos_samples<mVGMSTREAM_seek_needed_samples) {
+                                int nbSamplesToRender=mVGMSTREAM_seek_needed_samples-mVGMSTREAM_decode_pos_samples;
+                                if (nbSamplesToRender>SOUND_BUFFER_SIZE_SAMPLE) nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
+                                render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
+                                mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
+                            }
+                            
                             mNeedSeek=0;
                         }
 					}
@@ -2491,7 +2527,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 						if (mod_currentsub<mod_maxsub) {
 							mod_currentsub++;
 							mod_message_updated=1;
-							if (mPlayType==1) {//GME
+							if (mPlayType==MMP_GME) {//GME
 								gme_start_track(gme_emu,mod_currentsub);
 								sprintf(mod_name," %s",mod_filename);
 								if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
@@ -2535,7 +2571,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 								}
 								iCurrentTime=0;
 							}
-							if (mPlayType==8) { //SID
+							if (mPlayType==MMP_SIDPLAY) { //SID
 								if (mSidEngineType==1) {
 									sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
 								} else {
@@ -2556,7 +2592,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 								if (mLoopMode) iModuleLength=-1;
 								mod_message_updated=1;
 							}
-							if (mPlayType==10) {//SC68
+							if (mPlayType==MMP_SC68) {//SC68
 								api68_music_info_t info;
 								if (moveToNextSubSong==2) {
 									//[self iPhoneDrv_PlayWaitStop];
@@ -2574,7 +2610,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 								iCurrentTime=0;
 								mod_message_updated=1;
 							}
-                            if (mPlayType==13) {//ASAP
+                            if (mPlayType==MMP_ASAP) {//ASAP
                                 iModuleLength=asap.moduleInfo.durations[mod_currentsub];
                                 ASAP_PlaySong(&asap, mod_currentsub, iModuleLength);
                                 
@@ -2599,7 +2635,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 					if (moveToSubSong) {
                         mod_currentsub=moveToSubSongIndex;
                         mod_message_updated=1;
-                        if (mPlayType==1) {//GME
+                        if (mPlayType==MMP_GME) {//GME
                             gme_start_track(gme_emu,mod_currentsub);
                             sprintf(mod_name," %s",mod_filename);
                             if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
@@ -2643,7 +2679,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             iCurrentTime=0;
                         }
-                        if (mPlayType==8) { //SID
+                        if (mPlayType==MMP_SIDPLAY) { //SID
                             if (mSidEngineType==1) {
                                 sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
                             } else {
@@ -2664,7 +2700,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             if (mLoopMode) iModuleLength=-1;
                             mod_message_updated=1;
                         }
-                        if (mPlayType==10) {//SC68
+                        if (mPlayType==MMP_SC68) {//SC68
                             api68_music_info_t info;
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
@@ -2682,7 +2718,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             iCurrentTime=0;
                             mod_message_updated=1;
                         }
-                        if (mPlayType==13) {//ASAP
+                        if (mPlayType==MMP_ASAP) {//ASAP
                             iModuleLength=asap.moduleInfo.durations[mod_currentsub];
                             ASAP_PlaySong(&asap, mod_currentsub, iModuleLength);
                             
@@ -2708,7 +2744,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 						if (mod_currentsub>mod_minsub) {
 							mod_currentsub--;
 							mod_message_updated=1;
-							if (mPlayType==1) {//GME
+							if (mPlayType==MMP_GME) {//GME
 								gme_start_track(gme_emu,mod_currentsub);
 								sprintf(mod_name," %s",mod_filename);
 								if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
@@ -2748,7 +2784,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 								[self iPhoneDrv_PlayStart];
 								iCurrentTime=0;
 							}
-							if (mPlayType==8) { //SID
+							if (mPlayType==MMP_SIDPLAY) { //SID
 								if (mSidEngineType==1) {
 									sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
 								} else {
@@ -2764,7 +2800,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 								if (mLoopMode) iModuleLength=-1;
 								mod_message_updated=1;
 							}
-							if (mPlayType==10) {//SC68
+							if (mPlayType==MMP_SC68) {//SC68
 								api68_music_info_t info;
 								[self iPhoneDrv_PlayStop];
 								[self iPhoneDrv_PlayStart];
@@ -2777,7 +2813,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 								iCurrentTime=0;
 								mod_message_updated=1;
 							}
-                            if (mPlayType==13) {//ASAP
+                            if (mPlayType==MMP_ASAP) {//ASAP
                                 iModuleLength=asap.moduleInfo.durations[mod_currentsub];
                                 ASAP_PlaySong(&asap, mod_currentsub, iModuleLength);
                                 
@@ -2795,7 +2831,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 						}
 					}
 					
-					if (mPlayType==1) {  //GME
+					if (mPlayType==MMP_GME) {  //GME
 						if (gme_track_ended(gme_emu)) {
 							//NSLog(@"Track ended : %d",iCurrentTime);
 							if (mLoopMode==1) {
@@ -2901,7 +2937,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 							nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
 						}
 					}
-					if (mPlayType==4) { //AOSDK
+					if (mPlayType==MMP_AOSDK) { //AOSDK
 						if ((*ao_types[ao_type].gen)((int16*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)==AO_FAIL) {
 							nbBytes=0;
 							/*if ((*ao_types[ao_type].gen)((int16*)(&(buffer_ana[buffer_ana_gen_ofs][SOUND_BUFFER_SIZE_SAMPLE])), SOUND_BUFFER_SIZE_SAMPLE)==AO_FAIL) nbBytes=0;
@@ -2915,7 +2951,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 						}
                         //                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
 					}
-					if (mPlayType==2) {  //MODPLUG
+					if (mPlayType==MMP_OPENMPT) {  //MODPLUG
 						int prev_ofs=buffer_ana_gen_ofs-1;
 						if (prev_ofs<0) prev_ofs=SOUND_BUFFER_NB-1;
 						genPattern[buffer_ana_gen_ofs]=ModPlug_GetCurrentPattern(mp_file);
@@ -2939,7 +2975,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         }
 
 					}
-                    if (mPlayType==16) { //PMD
+                    if (mPlayType==MMP_PMDMINI) { //PMD
                         // render audio into sound buffer
                         // TODO does this work OK on mSlowDevices?
                         pmd_renderer(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
@@ -2955,28 +2991,26 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             bGlobalAudioPause=2;
                         }
                     }
-                    if (mPlayType==17) { //VGM
+                    if (mPlayType==MMP_VGMPLAY) { //VGM
                         // render audio into sound buffer
                         // TODO does this work OK on mSlowDevices?
                         nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                     }
-                    if (mPlayType==19) { //VGMSTREAM
+                    if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
                         
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
                         src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
-                        if (! mVGMSTREAM_total_samples) nbBytes=0;
+                        if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
                         if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
-                        
-                        //NSLog(@"remaining samples: %d",mVGMSTREAM_total_samples);
                     }
-                    if (mPlayType==18) { //LAZYUSF
+                    if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, lzu_sample_converted_data_float)*2*2;
                         src_float_to_short_array (lzu_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
-					if (mPlayType==3) {  //ADPLUG
+					if (mPlayType==MMP_ADPLUG) {  //ADPLUG
 						if (opl_towrite) {
 							int written=0;
 							nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -3021,7 +3055,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 							}
 						} else nbBytes=0;
 					}
-					if (mPlayType==7) {  //HVL
+					if (mPlayType==MMP_HVL) {  //HVL
 						if (hvl_sample_to_write) {
 							int written=0;
 							nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -3068,7 +3102,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 						} else nbBytes=0;
 						
 					}
-					if (mPlayType==8) { //SID
+					if (mPlayType==MMP_SIDPLAY) { //SID
 						if (mSidEngineType==1) {
 							sidEmuFillBuffer(*mSid1EmuEngine,*mSid1Tune,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
 							nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -3096,12 +3130,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 							}
 						}
 					}
-					if (mPlayType==9) { //STSOUND
+					if (mPlayType==MMP_STSOUND) { //STSOUND
 						int nbSample = SOUND_BUFFER_SIZE_SAMPLE;
 						if (ymMusicComputeStereo((void*)ymMusic,(ymsample*)buffer_ana[buffer_ana_gen_ofs],nbSample)==YMTRUE) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
 						else nbBytes=0;
 					}
-					if (mPlayType==10) {//SC68
+					if (mPlayType==MMP_SC68) {//SC68
 						nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
 						int code = api68_process( sc68, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE );
 						if (code & API68_END) nbBytes=0;
@@ -3125,7 +3159,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 						}
 						if (code==API68_MIX_ERROR) nbBytes=0;
 					}
-					if (mPlayType==13) { //ASAP
+					if (mPlayType==MMP_ASAP) { //ASAP
 						if (asap.moduleInfo.channels==2) {
 							nbBytes= ASAP_Generate(&asap, (unsigned char *)buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, ASAPSampleFormat_S16_L_E);
 						} else {
@@ -3137,7 +3171,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 							nbBytes*=2;
 						}
 					}
-                    if (mPlayType==14) {//DUMB
+                    if (mPlayType==MMP_DUMB) {//DUMB
                         if (duh_player->dr) {
                             
                             if (mPatternDataAvail){
@@ -3802,18 +3836,18 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	
     if (!found)
         for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
         }
 	if (!found)
 		for (int i=0;i<[filetype_extVGM count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMPLAY;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMPLAY;break;}
 		}
     if (!found)
         for (int i=0;i<[filetype_extASAP count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=MMP_ASAP;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=MMP_ASAP;break;}
         }
 	if (!found)
 		for (int i=0;i<[filetype_extGME count];i++) {
@@ -3824,7 +3858,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=1;break;
+                found=MMP_GME;break;
             }
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
@@ -3833,45 +3867,45 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=1;break;
+                found=MMP_GME;break;
             }
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSID count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=8;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=8;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extMDX count];i++) { //PDX might be required
 			if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
                 mSingleFileType=0;
-                found=11;break;
+                found=MMP_MDXPDX;break;
             }
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
                 mSingleFileType=0;
-                found=11;break;
+                found=MMP_MDXPDX;break;
             }
 		}
     if (!found)
 		for (int i=0;i<[filetype_extPMD count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=MMP_PMDMINI;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=MMP_PMDMINI;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extADPLUG count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
 		}
 	
 	if (!found)
 		for (int i=0;i<[filetype_extSTSOUND count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=9;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=9;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=MMP_STSOUND;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=MMP_STSOUND;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSC68 count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=10;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=10;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSEXYPSF count];i++) {
@@ -3882,7 +3916,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=5;break;
+                found=MMP_SEXYPSF;break;
             }
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
@@ -3891,7 +3925,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=5;break;
+                found=MMP_SEXYPSF;break;
             }
 		}
     if (!found)
@@ -3903,7 +3937,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=18;break;
+                found=MMP_LAZYUSF;break;
             }
             if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
@@ -3912,7 +3946,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=18;break;
+                found=MMP_LAZYUSF;break;
             }
         }
 	if (!found)
@@ -3924,7 +3958,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=4;break;
+                found=MMP_AOSDK;break;
             }
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
@@ -3933,7 +3967,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=4;break;
+                found=MMP_AOSDK;break;
             }
 		}
 	if (!found)
@@ -3945,7 +3979,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=12;break;
+                found=MMP_GSF;break;
             }
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
@@ -3954,14 +3988,14 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=12;break;
+                found=MMP_GSF;break;
             }
 		}
     //tmp hack => redirect to timidity
 	if (!found)
 		for (int i=0;i<[filetype_extWMIDI count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=15;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=15;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=MMP_TIMIDITY;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=MMP_TIMIDITY;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extUADE count];i++) {
@@ -3973,7 +4007,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         mSingleFileType=0;break;
                     }
                 
-                found=6;break;
+                found=MMP_UADE;break;
             }
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
                 //check if require second file
@@ -3982,23 +4016,23 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
-                found=6;break;
+                found=MMP_UADE;break;
             }
 		}
 	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_MODPLUG))
 		for (int i=0;i<[filetype_extMODPLUG count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
 		}
 	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_DUMB))
         for (int i=0;i<[filetype_extDUMB count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
         }
     if (!found) {
         for (int i=0;i<[filetype_extHVL count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
         }
     }
     
@@ -4255,109 +4289,109 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	found=0;
 	if (!found)
 		for (int i=0;i<[filetype_extVGM count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=17;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMPLAY;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMPLAY;break;}
 		}
     if (!found)
         for (int i=0;i<[filetype_extASAP count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=13;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=MMP_ASAP;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=MMP_ASAP;break;}
         }
-	if (!found||((mdz_defaultSAPPLAYER==DEFAULT_SAPGME)&&found==13)||((mdz_defaultVGMPLAYER==DEFAULT_VGMGME)&&found==17))
+	if (!found||((mdz_defaultSAPPLAYER==DEFAULT_SAPGME)&&found==MMP_ASAP)||((mdz_defaultVGMPLAYER==DEFAULT_VGMGME)&&found==MMP_VGMPLAY))
 		for (int i=0;i<[filetype_extGME count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=MMP_GME;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {found=MMP_GME;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSID count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=8;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=8;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extMDX count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=11;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=MMP_MDXPDX;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {found=MMP_MDXPDX;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extPMD count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=16;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=MMP_PMDMINI;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=MMP_PMDMINI;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extADPLUG count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
 		}
 	
 	if (!found)
 		for (int i=0;i<[filetype_extSTSOUND count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=9;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=9;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=MMP_STSOUND;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=MMP_STSOUND;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSC68 count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=10;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=10;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extSEXYPSF count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=5;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=5;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=MMP_SEXYPSF;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=MMP_SEXYPSF;break;}
 		}
     if (!found)
         for (int i=0;i<[filetype_extLAZYUSF count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=18;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=18;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=MMP_LAZYUSF;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=MMP_LAZYUSF;break;}
         }
 	if (!found)
 		for (int i=0;i<[filetype_extAOSDK count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=4;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=4;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=MMP_AOSDK;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=MMP_AOSDK;break;}
 		}
     if (!found)
     for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=19;break;}
+        if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
     }
 	if (!found)
 		for (int i=0;i<[filetype_extGSF count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {found=12;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {found=12;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {found=MMP_GSF;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {found=MMP_GSF;break;}
 		}
     //tmp hack => redirect to timidity
 	if (!found)
 		for (int i=0;i<[filetype_extWMIDI count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=15;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=15;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=MMP_TIMIDITY;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=MMP_TIMIDITY;break;}
 		}
 	if (!found)
 		for (int i=0;i<[filetype_extUADE count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=MMP_UADE;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=MMP_UADE;break;}
 		}
 	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_DUMB))
         for (int i=0;i<[filetype_extDUMB count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
         }
 	if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_MODPLUG))
 		for (int i=0;i<[filetype_extMODPLUG count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=2;break;}
+			if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+			if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
 		}
     if (!found)
         for (int i=0;i<[filetype_extHVL count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=7;break;}
+            if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
         }
 	
     //    NSLog(@"file : %@\nfound:%d",filePath,found);
 	
-	if (found==1) {  //GME
+	if (found==MMP_GME) {  //GME
 		long sample_rate = (mSlowDevice?PLAYBACK_FREQ/2:PLAYBACK_FREQ); /* number of samples per second */
 		int track = 0; /* index of track to play (0 = first) */
 		gme_err_t err;
-		mPlayType=1;
+		mPlayType=MMP_GME;
         
         gSpcSlowAPU=1;
         
@@ -4469,8 +4503,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			return 0;
 		}
 	}
-	if (found==3) {   //ADPLUG
-		mPlayType=3;
+	if (found==MMP_ADPLUG) {   //ADPLUG
+		mPlayType=MMP_ADPLUG;
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
 			NSLog(@"ADplug Cannot open file %@",filePath);
@@ -4513,12 +4547,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             opl=NULL;
 			mPlayType=0;
 			for (int i=0;i<[filetype_extDUMB count];i++) { //Try Dumb if applicable
-				if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
-				if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=14;break;}
+				if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
+				if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
 			}
 			for (int i=0;i<[filetype_extUADE count];i++) { //Try UADE if applicable
-				if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
-				if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=6;break;}
+				if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=MMP_UADE;break;}
+				if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=MMP_UADE;break;}
 			}
 		} else {
 			if (adPlugPlayer->update()) {
@@ -4553,8 +4587,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 		}
 	}
 	
-	if (found==5) {  //SexyPSF
-		mPlayType=5;
+	if (found==MMP_SEXYPSF) {  //SexyPSF
+		mPlayType=MMP_SEXYPSF;
 		PSFINFO *pi;
 		FILE *f;
 		
@@ -4620,8 +4654,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 		return 0;
 	}
     
-    if (found==18) {  //LAZYUSF
-        mPlayType=18;
+    if (found==MMP_LAZYUSF) {  //LAZYUSF
+        mPlayType=MMP_LAZYUSF;
         FILE *f;
         
         f=fopen([filePath UTF8String],"rb");
@@ -4708,9 +4742,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         return 0;
     }
     
-    if (found==19) {  //VGMSTREAM
-        mPlayType=19;
+    if (found==MMP_VGMSTREAM) {  //VGMSTREAM
+        mPlayType=MMP_VGMSTREAM;
         FILE *f;
+        
+        //NSLog(@"yo: %@",filePath);
         
         f=fopen([filePath UTF8String],"rb");
         if (f==NULL) {
@@ -4743,6 +4779,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         if (!vgmFile) {
             NSLog(@"Error open_stdio_streamfile %@",filePath);
             mPlayType=0;
+            src_delete(src_state);
             return -1;
         }
         vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
@@ -4750,6 +4787,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         if (!vgmStream) {
             NSLog(@"Error init_vgmstream_from_STREAMFILE %@",filePath);
             mPlayType=0;
+            close_streamfile(vgmFile);
+            src_delete(src_state);
             return -1;
         }
         /////////////////////////
@@ -4762,6 +4801,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             close_vgmstream(vgmStream);
             vgmStream = NULL;
             NSLog(@"Error vgmStream->channels: %d",vgmStream->channels);
+            close_streamfile(vgmFile);
+            src_delete(src_state);
             return -1;
         }
         
@@ -4770,9 +4811,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         
         iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
         iCurrentTime=0;
-        
-        
-        NSLog(@"VGMSTream: rate %d channels %d samples:%d length:%ds %dms",vgmStream->sample_rate,vgmStream->channels,mVGMSTREAM_total_samples,mVGMSTREAM_total_samples/vgmStream->sample_rate,iModuleLength);
+        mVGMSTREAM_seek_needed_samples=-1;
+        mVGMSTREAM_decode_pos_samples=0;
         
         numChannels=vgmStream->channels;
         if (numChannels>2) {
@@ -4782,8 +4822,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         
         sprintf(mod_name," %s",mod_filename);
         
-        sprintf(mod_message,"%s\n",
-                mod_name);
+        
+        mod_message[0]=0;
+        describe_vgmstream(vgmStream,mod_message,8192+MAX_STIL_DATA_LENGTH);
         
         
         //Loop
@@ -4799,8 +4840,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         return 0;
     }
     
-    if (found==13) { //ASAP
-        mPlayType=13;
+    if (found==MMP_ASAP) { //ASAP
+        mPlayType=MMP_ASAP;
         FILE *f;
         int song,duration;
         
@@ -4862,8 +4903,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         return 0;
     }
     
-	if (found==17) { //VGM
-		mPlayType=17;
+	if (found==MMP_VGMPLAY) { //VGM
+		mPlayType=MMP_VGMPLAY;
 		FILE *f;
 		int song,duration;
 		
@@ -4923,8 +4964,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         		
 		return 0;
 	}
-	if (found==12) {  //GSF
-		mPlayType=12;
+	if (found==MMP_GSF) {  //GSF
+		mPlayType=MMP_GSF;
 		FILE *f;
 		char length_str[256], fade_str[256], title_str[256];
 		char tmp_str[256];
@@ -5085,8 +5126,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 		
 		return 0;
 	}
-	if (found==4) {  //AOSDK
-		mPlayType=4;
+	if (found==MMP_AOSDK) {  //AOSDK
+		mPlayType=MMP_AOSDK;
 		uint32 filesig;
         
         
@@ -5171,8 +5212,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 		
 		return 0;
 	}
-	if (found==8) {  //SID
-		mPlayType=8;
+	if (found==MMP_SIDPLAY) {  //SID
+		mPlayType=MMP_SIDPLAY;
 		
 		//First check that the file is available and get size
 		FILE *f=fopen([filePath UTF8String],"rb");
@@ -5233,7 +5274,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 				if (mSid1Tune) {delete mSid1Tune;mSid1Tune=NULL;}
 				mPlayType=0;
 				//try UADE	:sidmon1 or sidmon2
-				found=6;
+				found=MMP_UADE;
 			} else {
 				struct sidTuneInfo sidtune_info;
 				mSid1Tune->getInfo(sidtune_info);
@@ -5390,7 +5431,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 				if (mSidTune) {delete mSidTune;mSidTune=NULL;}
 				mPlayType=0;
 				//try UADE	:sidmon1 or sidmon2
-				found=6;
+				found=MMP_UADE;
 			} else {
 				SidTuneInfo sidtune_info;
 				sidtune_info=mSidTune->getInfo();
@@ -5479,10 +5520,10 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			}
 		}
 	}
-	if (found==6) {  //UADE
+	if (found==MMP_UADE) {  //UADE
 		int ret;
 		
-		mPlayType=6;
+		mPlayType=MMP_UADE;
 		// First check that the file is accessible and get the size
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
@@ -5607,10 +5648,10 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 		return 0;
 	}
 	
-	if (found==2) {  //MODPLUG
+	if (found==MMP_OPENMPT) {  //MODPLUG
 		const char *modName;
 		char *modMessage;
-		mPlayType=2;
+		mPlayType=MMP_OPENMPT;
 		
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
@@ -5686,8 +5727,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			return 0;
 		}
 	}
-	if (found==7) {  //HVL
-		mPlayType=7;
+	if (found==MMP_HVL) {  //HVL
+		mPlayType=MMP_HVL;
 		
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
@@ -5751,8 +5792,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			return 0;
 		}
 	}
-	if (found==9) {  //STSOUND
-		mPlayType=9;
+	if (found==MMP_STSOUND) {  //STSOUND
+		mPlayType=MMP_STSOUND;
 		
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
@@ -5801,8 +5842,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			return 0;
 		}
 	}
-	if (found==10) {  //SC68
-		mPlayType=10;
+	if (found==MMP_SC68) {  //SC68
+		mPlayType=MMP_SC68;
 		
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
@@ -5842,8 +5883,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			return 0;
 		}
 	}
-	if (found==11) {  //MDX
-		mPlayType=11;
+	if (found==MMP_MDXPDX) {  //MDX
+		mPlayType=MMP_MDXPDX;
 		
 		FILE *f=fopen([filePath UTF8String],"rb");
 		if (f==NULL) {
@@ -5897,8 +5938,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			return 0;
 		}
 	}
-    if (found==14) { //DUMB
-        mPlayType=14;
+    if (found==MMP_DUMB) { //DUMB
+        mPlayType=MMP_DUMB;
         it_max_channels=0;
         
         FILE *f=fopen([filePath UTF8String],"rb");
@@ -6028,8 +6069,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         
 		return 0;
     }
-    if (found==15) { //timidity
-		mPlayType=15;
+    if (found==MMP_TIMIDITY) { //timidity
+		mPlayType=MMP_TIMIDITY;
         max_voices = voices = tim_max_voices;  //polyphony : MOVE TO SETTINGS
         set_current_resampler(tim_resampler);
         opt_reverb_control=tim_reverb;
@@ -6075,13 +6116,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 		      
 		return 0;
 	}
-    if (found==16) { //PMD
+    if (found==MMP_PMDMINI) { //PMD
         char tmp_mod_name[1024];
         tmp_mod_name[0] = 0;
         char tmp_mod_message[1024];
         tmp_mod_message[0] = 0;
         
-        mPlayType=16;
+        mPlayType=MMP_PMDMINI;
         pmd_init();
         pmd_setrate(mSlowDevice?PLAYBACK_FREQ/2:PLAYBACK_FREQ); // 22kHz or 44.1kHz?
         
@@ -6099,8 +6140,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         if (!pmd_is_pmd((char*)[filePath UTF8String])) {
             // not PMD; try AdPlug instead
             for (int i=0;i<[filetype_extADPLUG count];i++) {
-                if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
-                if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=3;break;}
+                if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
+                if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
 			}
         } else {
             // doesn't actually play, just loads file into RAM & extracts data
@@ -6202,7 +6243,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	pthread_mutex_unlock(&play_mutex);
 }
 -(void) PlaySeek:(int)startPos subsong:(int)subsong {
-    if (mPlayType!=15) { //hack for timidity : iModuleLength is unknown at this stage
+    if (mPlayType!=MMP_TIMIDITY) { //hack for timidity : iModuleLength is unknown at this stage
         if (startPos>iModuleLength-SEEK_START_MARGIN_FROM_END) {
             startPos=iModuleLength-SEEK_START_MARGIN_FROM_END;
         }
@@ -6210,7 +6251,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	if (startPos<0) startPos=0;
 	
 	switch (mPlayType) {
-		case 1:  //GME
+		case MMP_GME:  //GME
 			if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
 				
 				gme_start_track(gme_emu,subsong);
@@ -6249,35 +6290,35 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			[self Play];
 			iCurrentTime=startPos;
 			break;
-		case 2:  //MODPLUG
+		case MMP_OPENMPT:  //MODPLUG
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			iCurrentTime=startPos;
 			break;
-		case 3:  //ADPLUG
+		case MMP_ADPLUG:  //ADPLUG
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			iCurrentTime=startPos;
 			break;
-		case 4:  //AOSDK
+		case MMP_AOSDK:  //AOSDK
 			[self Play];
 			if (startPos) [self Seek:startPos];
 			break;
-		case 5: //SexyPSF
+		case MMP_SEXYPSF: //SexyPSF
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			break;
-		case 6:  //UADE
+		case MMP_UADE:  //UADE
 			mod_wantedcurrentsub=subsong;
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			break;
-		case 7://HVL/AHX
+		case MMP_HVL://HVL/AHX
 			mod_wantedcurrentsub=subsong;
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			break;
-		case 8: //SID
+		case MMP_SIDPLAY: //SID
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
 				mod_currentsub=subsong;
 			}
@@ -6296,11 +6337,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			[self Play];
 			
 			break;
-		case 9:  //YM
+		case MMP_STSOUND:  //YM
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			break;
-		case 10: //SC68
+		case MMP_SC68: //SC68
 			if (startPos) [self Seek:startPos];
 			if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
 				mod_currentsub=subsong;
@@ -6318,22 +6359,22 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			//NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
 			[self Play];
 			break;
-		case 11: //MDX
+		case MMP_MDXPDX: //MDX
 			[self Play];
 			break;
-		case 12: //GSF
+		case MMP_GSF: //GSF
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			break;
-		case 13: //ASAP
+		case MMP_ASAP: //ASAP
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			break;
-        case 14: //DUMB
+        case MMP_DUMB: //DUMB
 			if (startPos) [self Seek:startPos];
 			[self Play];
 			break;
-        case 15: //Timidity
+        case MMP_TIMIDITY: //Timidity
 			if (startPos) {
                 //hack because midi length is unknow at this stage, preventing seek to work
                 iCurrentTime=mNeedSeekTime=startPos;
@@ -6341,18 +6382,18 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             }//[self Seek:startPos];
 			[self Play];
 			break;
-        case 16: //PMD
+        case MMP_PMDMINI: //PMD
 			[self Play];
 			break;
-        case 17: //VGM
+        case MMP_VGMPLAY: //VGM
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
-        case 18: //LAZYUSF
+        case MMP_LAZYUSF: //LAZYUSF
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
-        case 19: //VGMSTREAM
+        case MMP_VGMSTREAM: //VGMSTREAM
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -6360,7 +6401,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 }
 -(void) Stop {
     
-    if (mPlayType==15) { //Timidity
+    if (mPlayType==MMP_TIMIDITY) { //Timidity
         intr = 1;
     }
     
@@ -6375,18 +6416,18 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	bGlobalSeekProgress=0;
 	bGlobalAudioPause=0;
 	
-	if (mPlayType==1) {
+	if (mPlayType==MMP_GME) {
 		gme_delete( gme_emu );
         gme_emu=NULL;
 	}
-	if (mPlayType==2) {
+	if (mPlayType==MMP_OPENMPT) {
 		if (mp_file) {
 			ModPlug_Unload(mp_file);
 		}
 		if (mp_data) free(mp_data);
 		mp_file=NULL;
 	}
-	if (mPlayType==3) {
+	if (mPlayType==MMP_ADPLUG) {
 		delete adPlugPlayer;
 		adPlugPlayer=NULL;
 		delete opl;
@@ -6394,13 +6435,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         delete adplugDB;
         adplugDB=NULL;
 	}
-	if (mPlayType==4) {
+	if (mPlayType==MMP_AOSDK) {
 		(*ao_types[ao_type].stop)();
 		if (ao_buffer) free(ao_buffer);
 	}
-	if (mPlayType==5) { //SexyPSF
+	if (mPlayType==MMP_SEXYPSF) { //SexyPSF
 	}
-	if (mPlayType==6) {  //UADE
+	if (mPlayType==MMP_UADE) {  //UADE
 		//		NSLog(@"Wait for end of UADE thread");
 		while (uadeThread_running) {
 			[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
@@ -6409,11 +6450,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 		//		NSLog(@"ok");
 		uade_unalloc_song(&UADEstate);
 	}
-	if (mPlayType==7) { //HVL
+	if (mPlayType==MMP_HVL) { //HVL
 		hvl_FreeTune(hvl_song);
 		hvl_song=NULL;
 	}
-	if (mPlayType==8) { //SID
+	if (mPlayType==MMP_SIDPLAY) { //SID
 		if (mSidTune) {
 			delete mSidTune;
 			mSidTune = NULL;
@@ -6438,24 +6479,24 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 			mSid1EmuEngine = NULL;
 		}
 	}
-	if (mPlayType==9) { //STSOUND
+	if (mPlayType==MMP_STSOUND) { //STSOUND
 		ymMusicStop(ymMusic);
 		ymMusicDestroy(ymMusic);
 	}
-	if (mPlayType==10) {//SC68
+	if (mPlayType==MMP_SC68) {//SC68
 		api68_stop( sc68 );
 		api68_close(sc68);
 	}
-	if (mPlayType==11) { //MDX
+	if (mPlayType==MMP_MDXPDX) { //MDX
 		mdx_close(mdx,pdx);
 	}
-	if (mPlayType==12) { //GSF
+	if (mPlayType==MMP_GSF) { //GSF
 		GSFClose();
 	}
-	if (mPlayType==13) { //ASAP
+	if (mPlayType==MMP_ASAP) { //ASAP
         free(ASAP_module);
 	}
-    if (mPlayType==14) {
+    if (mPlayType==MMP_DUMB) {
         if (mPatternDataAvail) {
             mPatternDataAvail=0;
             if (mp_file) {
@@ -6472,17 +6513,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             unload_duh(duh); duh=NULL;
         }
     }
-    if (mPlayType==15) { //VGM
+    if (mPlayType==MMP_TIMIDITY) { //VGM
         CloseVGMFile();
         VGMPlay_Deinit();
     }
-    if (mPlayType==16) { //PMD
+    if (mPlayType==MMP_PMDMINI) { //PMD
         pmd_stop();
     }
-    if (mPlayType==17) { //VGM
+    if (mPlayType==MMP_VGMPLAY) { //VGM
         StopVGM();
     }
-    if (mPlayType==18) { //LAZYUSF
+    if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
         usf_shutdown(lzu_state->emu_state);
         free(lzu_sample_data);
         free(lzu_sample_data_float);
@@ -6490,7 +6531,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         free(usf_info_data);
         src_delete(src_state);
     }
-    if (mPlayType==19) { //VGMSTREAM
+    if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
         if (vgmStream != NULL)
         {
             close_vgmstream(vgmStream);
@@ -6517,7 +6558,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 //Playback infos
 -(NSString*) getModMessage {
 	NSString *modMessage;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)||(mPlayType==18)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
 	else {
 		modMessage=[NSString stringWithCString:mod_message encoding:NSUTF8StringEncoding];
 		if (modMessage==nil) modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -6527,7 +6568,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 }
 -(NSString*) getModName {
 	NSString *modName;
-	if ((mPlayType==1)||(mPlayType==4)||(mPlayType==5)||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==17)||(mPlayType==18)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
+	if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
 	else {
 		modName=[NSString stringWithCString:mod_name encoding:NSUTF8StringEncoding];
 		if (modName==nil) modName=[NSString stringWithFormat:@"%s",mod_name];
@@ -6536,31 +6577,31 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	return modName;
 }
 -(NSString*) getPlayerName {
-	if (mPlayType==1) return @"Game Music Emulator";
-	if (mPlayType==2) return @"OpenMPT";
-	if (mPlayType==3) return @"Adplug";
-	if (mPlayType==4) return @"Audio Overload";
-	if (mPlayType==5) return @"SexyPSF";
-	if (mPlayType==6) return @"UADE";
-	if (mPlayType==7) return @"HVL";
-	if (mPlayType==8) return (mSidEngineType==1?@"SIDPLAY1":@"SIDPLAY2/RESID");
-	if (mPlayType==9) return @"STSOUND";
-	if (mPlayType==10) return @"SC68";
-	if (mPlayType==11) return @"MDX";
-	if (mPlayType==12) return @"GSF";
-	if (mPlayType==13) return @"ASAP";
-    if (mPlayType==14) return @"DUMB";
-    if (mPlayType==15) return @"Timidity";
-    if (mPlayType==16) return @"PMDMini";
-    if (mPlayType==17) return @"VGMPlay";
-    if (mPlayType==18) return @"LazyUSF";
-    if (mPlayType==19) return @"VGMSTREAM";
+	if (mPlayType==MMP_GME) return @"Game Music Emulator";
+	if (mPlayType==MMP_OPENMPT) return @"OpenMPT";
+	if (mPlayType==MMP_ADPLUG) return @"Adplug";
+	if (mPlayType==MMP_AOSDK) return @"Audio Overload";
+	if (mPlayType==MMP_SEXYPSF) return @"SexyPSF";
+	if (mPlayType==MMP_UADE) return @"UADE";
+	if (mPlayType==MMP_HVL) return @"HVL";
+	if (mPlayType==MMP_SIDPLAY) return (mSidEngineType==1?@"SIDPLAY1":@"SIDPLAY2/RESID");
+	if (mPlayType==MMP_STSOUND) return @"STSOUND";
+	if (mPlayType==MMP_SC68) return @"SC68";
+	if (mPlayType==MMP_MDXPDX) return @"MDX";
+	if (mPlayType==MMP_GSF) return @"GSF";
+	if (mPlayType==MMP_ASAP) return @"ASAP";
+    if (mPlayType==MMP_DUMB) return @"DUMB";
+    if (mPlayType==MMP_TIMIDITY) return @"Timidity";
+    if (mPlayType==MMP_PMDMINI) return @"PMDMini";
+    if (mPlayType==MMP_VGMPLAY) return @"VGMPlay";
+    if (mPlayType==MMP_LAZYUSF) return @"LazyUSF";
+    if (mPlayType==MMP_VGMSTREAM) return @"VGMSTREAM";
 	return @"";
 }
 -(NSString*) getSubTitle:(int)subsong {
     NSString *result;
 	if ((subsong<mod_minsub)||(subsong>mod_maxsub)) return @"";
-	if (mPlayType==1) {
+	if (mPlayType==MMP_GME) {
 		if (gme_track_info( gme_emu, &gme_info, subsong )==0) {
 			int sublen=gme_info->play_length;
 			if (sublen<=0) sublen=optGENDefaultLength;
@@ -6575,42 +6616,42 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	return [NSString stringWithFormat:@"%d",subsong];
 }
 -(NSString*) getModType {
-	if (mPlayType==1) {
+	if (mPlayType==MMP_GME) {
 		
 		return [NSString stringWithFormat:@"%s",gmetype];
 	}
-	if (mPlayType==2) {
+	if (mPlayType==MMP_OPENMPT) {
         return [NSString stringWithFormat:@"%s %s",ModPlug_GetModuleTypeLStr(mp_file),ModPlug_GetModuleContainerLStr(mp_file)];
 	}
-	if (mPlayType==3) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
-	if (mPlayType==4) return [NSString stringWithFormat:@"%s",ao_types[ao_type].name];
-	if (mPlayType==5) return @"PSF";
-	if (mPlayType==6) return [NSString stringWithFormat:@"%s",UADEstate.ep->playername];
-	if (mPlayType==7) return (hvl_song->ht_ModType?@"HVL":@"AHX");
-	if (mPlayType==8) return @"SID";
-	if (mPlayType==9) return @"YM";
-	if (mPlayType==10) {
+	if (mPlayType==MMP_ADPLUG) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
+	if (mPlayType==MMP_AOSDK) return [NSString stringWithFormat:@"%s",ao_types[ao_type].name];
+	if (mPlayType==MMP_SEXYPSF) return @"PSF";
+	if (mPlayType==MMP_UADE) return [NSString stringWithFormat:@"%s",UADEstate.ep->playername];
+	if (mPlayType==MMP_HVL) return (hvl_song->ht_ModType?@"HVL":@"AHX");
+	if (mPlayType==MMP_SIDPLAY) return @"SID";
+	if (mPlayType==MMP_STSOUND) return @"YM";
+	if (mPlayType==MMP_SC68) {
 		api68_music_info_t info;
 		api68_music_info( sc68, &info, 1, NULL );
 		
 		return [NSString stringWithFormat:@"%s",info.replay];
 	}
-	if (mPlayType==11) {
+	if (mPlayType==MMP_MDXPDX) {
 		if (mdx->haspdx) return @"MDX/PDX";
 		else return @"MDX";
 	}
-	if (mPlayType==12) return @"GSF";
-	if (mPlayType==13) return @"ASAP";
-	if (mPlayType==14) {
+	if (mPlayType==MMP_GSF) return @"GSF";
+	if (mPlayType==MMP_ASAP) return @"ASAP";
+	if (mPlayType==MMP_DUMB) {
         const char * tag = duh_get_tag(duh, "FORMAT");
         if (tag && *tag) return [NSString stringWithFormat:@"%s",tag];
         else return @"mod?";
     }
-    if (mPlayType==15) return @"MIDI";
-    if (mPlayType==16) return @"PMD";
-    if (mPlayType==17) return @"VGM";
-    if (mPlayType==18) return @"USF";
-    if (mPlayType==19) return [NSString stringWithFormat:@"%s",vgm_fileext];
+    if (mPlayType==MMP_TIMIDITY) return @"MIDI";
+    if (mPlayType==MMP_PMDMINI) return @"PMD";
+    if (mPlayType==MMP_VGMPLAY) return @"VGM";
+    if (mPlayType==MMP_LAZYUSF) return @"USF";
+    if (mPlayType==MMP_VGMSTREAM) return [NSString stringWithFormat:@"%s",vgm_fileext];
 	return @" ";
 }
 -(BOOL) isPlaying {
@@ -6624,7 +6665,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 	return bGlobalSeekProgress;
 }
 -(int) isPlayingTrackedMusic {
-	if ((mPlayType==2)||(mPlayType==15)/*&&(bGlobalIsPlaying)*/) return 1;
+	if ((mPlayType==MMP_OPENMPT)||(mPlayType==MMP_TIMIDITY)/*&&(bGlobalIsPlaying)*/) return 1;
 	return 0;
 }
 -(BOOL) isEndReached{
@@ -6877,17 +6918,17 @@ extern "C" void adjust_amplification(void);
 //MODPLUG
 ///////////////////////////
 -(ModPlug_Settings*) getMPSettings {
-	if (mPlayType==2) ModPlug_GetSettings(&mp_settings);
+	if (mPlayType==MMP_OPENMPT) ModPlug_GetSettings(&mp_settings);
 	return &mp_settings;
 }
 -(void) updateMPSettings {
-	if (mPlayType==2) {
+	if (mPlayType==MMP_OPENMPT) {
 		//IOS_OPENMPT_TODO  ModPlug_SetSettings(mp_file,&mp_settings);
         ModPlug_SetSettings(&mp_settings);
 	}
 }
 -(void) setModPlugMasterVol:(float) mstVol {
-	if ((mPlayType==2)&&(mp_file)) ModPlug_SetMasterVolume(mp_file,(int )(mstVol*256));
+	if ((mPlayType==MMP_OPENMPT)&&(mp_file)) ModPlug_SetMasterVolume(mp_file,(int )(mstVol*256));
 }
 
 ///////////////////////////
@@ -6895,10 +6936,10 @@ extern "C" void adjust_amplification(void);
 	mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-	if ((mPlayType==4)||(mPlayType==6)||(mPlayType==8)
-        ||(mPlayType==11)||(mPlayType==12)||(mPlayType==16)||(mPlayType==18)||(mPlayType==19)||mNeedSeek) return;
+	if ((mPlayType==MMP_AOSDK)||(mPlayType==MMP_UADE)||(mPlayType==MMP_SIDPLAY)
+        ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_LAZYUSF)||mNeedSeek) return;
 	
-	if (mPlayType==9) {
+	if (mPlayType==MMP_STSOUND) {
 		if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
 	}
 	
@@ -6951,11 +6992,11 @@ extern "C" void adjust_amplification(void);
 -(int) getChannelVolume:(int)channel {
     int res;
     switch (mPlayType){
-        case 2://Modplug
+        case MMP_OPENMPT://Modplug
             res=0;////IOS_OPENMPT_TODO ModPlug_GetChannelVolume( mp_file,channel);
             break;
 
-        case 14://DUMB
+        case MMP_DUMB://DUMB
         {
             DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
             res=dumb_it_sr_get_channel_volume(itsr,channel)*4;

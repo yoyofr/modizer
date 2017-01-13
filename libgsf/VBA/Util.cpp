@@ -799,8 +799,8 @@ bool utildecompGSF(const char * file)
 //	unsigned int decompsize=12;
 	unsigned int offset;
 	unsigned int size;
-	char filename[260];
-	char tempname[260];
+	char filename[1024];
+	char tempname[1024];
 	char libtag[0x40];
 	char libname[8];
 	char length[256],fade[256],volume[256];

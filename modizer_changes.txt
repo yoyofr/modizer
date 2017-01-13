@@ -2,7 +2,9 @@ Requested:
 ÑÑÑÑÑÑÑÑÑ
 - Mute button / channels & playback ratio (slower/faster)
 - Cloud synchro
-- MPG123: optim ARM Neon only supporting 32bits mode -> cannot compile for 64bits
+
+- make ftp & http sources for DB editable
+- MPG123: optim ARM Neon only supporting 32bits mode -> cannot compile for 64bits (require rewrite of all .S neon assembly code)
 
 -(void) PlaySeek:(int)startPos subsong:(int)subsong {
 => subsong pour differentes lib (asap ?)
