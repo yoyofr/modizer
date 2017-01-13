@@ -9,7 +9,7 @@
 
 VGMSTREAM * init_vgmstream_wii_sts(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[260];
+    char filename[1024];
 
     int loop_flag=0;
 	int channel_count;

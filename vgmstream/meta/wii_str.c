@@ -5,7 +5,7 @@ VGMSTREAM * init_vgmstream_wii_str(STREAMFILE *streamFile) {
     
 	VGMSTREAM * vgmstream = NULL;
 	STREAMFILE * infileSTH = NULL;
-	char filename[260];
+	char filename[1024];
 
 	char * filenameSTH = NULL;
 

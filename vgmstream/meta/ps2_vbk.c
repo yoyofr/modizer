@@ -9,7 +9,7 @@
 VGMSTREAM * init_vgmstream_ps2_vbk(STREAMFILE *streamFile) 
 {
     VGMSTREAM * vgmstream = NULL;
-	char filename[260];
+	char filename[1024];
 	off_t start_offset;
 	uint8_t	testBuffer[0x10];
 	off_t	loopStart = 0;

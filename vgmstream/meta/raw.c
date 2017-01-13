@@ -11,7 +11,7 @@
 
 VGMSTREAM * init_vgmstream_raw(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[260];
+    char filename[1024];
 	int i;
 
     /* check extension, case insensitive */

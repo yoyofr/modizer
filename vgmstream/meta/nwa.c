@@ -14,7 +14,7 @@
 
 VGMSTREAM * init_vgmstream_nwa(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[260];
+    char filename[1024];
 	int i;
     int channel_count;
     int loop_flag = 0;
@@ -57,9 +57,9 @@ VGMSTREAM * init_vgmstream_nwa(STREAMFILE *streamFile) {
 
     /* try to locate NWAINFO.INI in the same directory */
     {
-        char ininame[260];
+        char ininame[1024];
         char * ini_lastslash;
-        char namebase_array[260];
+        char namebase_array[1024];
         char *namebase;
         STREAMFILE *inistreamfile;
 
@@ -134,9 +134,9 @@ VGMSTREAM * init_vgmstream_nwa(STREAMFILE *streamFile) {
 
     /* try to locate Gameexe.ini in the same directory */
     {
-        char ininame[260];
+        char ininame[1024];
         char * ini_lastslash;
-        char namebase_array[260];
+        char namebase_array[1024];
         char * namebase;
         STREAMFILE *inistreamfile;
 
