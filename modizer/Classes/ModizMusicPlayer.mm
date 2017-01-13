@@ -6529,7 +6529,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         free(lzu_sample_data_float);
         free(lzu_sample_converted_data_float);
         free(usf_info_data);
-        src_delete(src_state);
+        if (src_state) src_delete(src_state);
+        src_state=NULL;
     }
     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
         if (vgmStream != NULL)
@@ -6540,7 +6541,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         free(vgm_sample_data);
         free(vgm_sample_data_float);
         free(vgm_sample_converted_data_float);
-        src_delete(src_state);
+        if (src_state) src_delete(src_state);
+        src_state=NULL;
     }
     
 }
