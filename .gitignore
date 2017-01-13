@@ -117,7 +117,7 @@ modizer/Resources/DB/databaseMAIN.modizerdb.bak
 
 libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/*
 
-libopenmpt/openmpt-trunk/.svn/wc.db
+libopenmpt/openmpt-trunk/.svn/*
 
 libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-zlib.a
 
