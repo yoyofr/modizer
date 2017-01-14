@@ -58,11 +58,35 @@ extern "C" {
 
 }
 
+enum MMP_PLAYER_TYPE {
+    MMP_NONE=0,
+    MMP_TIMIDITY,
+    MMP_VGMSTREAM,
+    MMP_LAZYUSF,
+    MMP_VGMPLAY,
+    MMP_PMDMINI,
+    MMP_DUMB,
+    MMP_ASAP,
+    MMP_GSF,
+    MMP_MDXPDX,
+    MMP_SC68,
+    MMP_STSOUND,
+    MMP_SIDPLAY,
+    MMP_HVL,
+    MMP_UADE,
+    MMP_SEXYPSF,
+    MMP_AOSDK,
+    MMP_ADPLUG,
+    MMP_OPENMPT,
+    MMP_GME
+};
+
+
 @interface ModizMusicPlayer : NSObject {
 	//General infos
 	int mod_subsongs;
 	int mod_currentsub,mod_minsub,mod_maxsub;
-	unsigned int mPlayType; //1:GME, 2:libmodplug, 3:Adplug, 4:AO, 5:SexyPSF, 6:UADE, 7:HVL
+	unsigned int mPlayType;
 	int mp_datasize,numChannels;
 	int mLoopMode; //0:off, 1:infinite
 
@@ -128,7 +152,7 @@ extern "C" {
 };
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @property int optForceMono;
-@property unsigned int mPlayType; //1:GME, 2:libmodplug, 3:Adplug
+@property unsigned int mPlayType;
 @property int mp_datasize,mPatternDataAvail;
 //Adplug stuff
 @property CPlayer	*adPlugPlayer;

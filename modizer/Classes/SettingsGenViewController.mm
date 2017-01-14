@@ -1402,8 +1402,8 @@ void optVGMPLAYChangedC(id param) {
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=1;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb=2;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[0]=(char*)"22Khz";
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[1]=(char*)"44Khz";
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[0]=(char*)"44Khz";
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[1]=(char*)"22Khz";
     
     settings[AOSDK_DSFDSP].type=MDZ_BOOLSWITCH;
     settings[AOSDK_DSFDSP].label=(char*)"DSF DSP";

@@ -6502,7 +6502,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6546,7 +6546,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6599,7 +6599,7 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
@@ -6633,7 +6633,7 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
@@ -6669,7 +6669,7 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
@@ -6703,7 +6703,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6754,7 +6754,7 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
@@ -6786,7 +6786,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6838,7 +6838,7 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
@@ -6870,7 +6870,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
