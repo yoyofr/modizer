@@ -128,13 +128,13 @@ mpeg_codec_data *init_mpeg_codec_data(STREAMFILE *streamfile, off_t start_offset
         struct mpg123_frameinfo mi;
         rc = mpg123_getformat(data->m,&rate,&channels,&encoding);
         if (rc != MPG123_OK) goto mpeg_fail;
-        //fprintf(stderr,"getformat ok, sr=%ld (%ld) ch=%d (%d) enc=%d (%d)\n",rate,given_sample_rate,channels,vgmstream->channels,encoding,MPG123_ENC_SIGNED_16);
-        if ((given_sample_rate != -1 && rate != given_sample_rate) ||
+        //printf("getformat ok, sr=%ld (%ld) ch=%d (%d) enc=%d (%d)\n",rate,given_sample_rate,channels,given_channels,encoding,MPG123_ENC_SIGNED_16);
+        if ((given_sample_rate != -1 && (rate/1000) != (given_sample_rate/1000)) ||
             (given_channels != -1 && channels != given_channels) ||
             encoding != MPG123_ENC_SIGNED_16) goto mpeg_fail;
         mpg123_info(data->m,&mi);
         if (given_sample_rate != -1 &&
-            mi.rate != given_sample_rate) goto mpeg_fail;
+            (mi.rate/1000) != (given_sample_rate/1000)) goto mpeg_fail;
 
         //fprintf(stderr,"mi.version=%d, mi.layer=%d\n",mi.version,mi.layer);
 

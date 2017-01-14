@@ -6,29 +6,6 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
-enum MMP_PLAYER_TYPE {
-    MMP_NONE=0,
-    MMP_TIMIDITY,
-    MMP_VGMSTREAM,
-    MMP_LAZYUSF,
-    MMP_VGMPLAY,
-    MMP_PMDMINI,
-    MMP_DUMB,
-    MMP_ASAP,
-    MMP_GSF,
-    MMP_MDXPDX,
-    MMP_SC68,
-    MMP_STSOUND,
-    MMP_SIDPLAY,
-    MMP_HVL,
-    MMP_UADE,
-    MMP_SEXYPSF,
-    MMP_AOSDK,
-    MMP_ADPLUG,
-    MMP_OPENMPT,
-    MMP_GME
-};
-
 #include <pthread.h>
 #include <sqlite3.h>
 #include <sys/xattr.h>
@@ -1547,7 +1524,7 @@ void propertyListenerCallback (void                   *inUserData,              
     return 0;
 }
 -(int) getCurrentPlayedBufferIdx {
-	return buffer_ana_play_ofs;
+	return (buffer_ana_play_ofs+1)%SOUND_BUFFER_NB;
 }
 void mdx_update(unsigned char *data,int len,int end_reached) {
     if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
@@ -2970,7 +2947,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         //						genOffset[buffer_ana_gen_ofs]=genCurOffset;
 						nbBytes = ModPlug_Read(mp_file,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         for (int i=0;i<numChannels;i++) {
-                            int v=0;//IOS_OPENMPT_TODO ModPlug_GetChannelVolume(mp_file,i);
+                            int v=ModPlug_GetChannelVolume(mp_file,i);
                             genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                         }
 
@@ -6995,7 +6972,7 @@ extern "C" void adjust_amplification(void);
     int res;
     switch (mPlayType){
         case MMP_OPENMPT://Modplug
-            res=0;////IOS_OPENMPT_TODO ModPlug_GetChannelVolume( mp_file,channel);
+            res=ModPlug_GetChannelVolume( mp_file,channel);
             break;
 
         case MMP_DUMB://DUMB

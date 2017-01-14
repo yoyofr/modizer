@@ -513,6 +513,10 @@ LIBOPENMPT_MODPLUG_API unsigned int ModPlug_InstrumentName(ModPlugFile* file, un
 	return retval;
 }
 
+LIBOPENMPT_MODPLUG_API int ModPlug_GetChannelVolume(ModPlugFile *file,int channel) {
+    return (int)(openmpt_module_get_current_channel_vu_mono(file->mod,channel)*255);
+}
+
 LIBOPENMPT_MODPLUG_API ModPlugNote* ModPlug_GetPattern(ModPlugFile* file, int pattern, unsigned int* numrows)
 {
 	int c;

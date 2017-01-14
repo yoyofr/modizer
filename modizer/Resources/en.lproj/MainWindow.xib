@@ -982,72 +982,6 @@
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0058736313869999996" blue="0.25806911500000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
-                    <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Select a subsong" textAlignment="center" lineBreakMode="middleTruncation" minimumFontSize="10" id="1634" userLabel="SubsongPickerLabel">
-                        <rect key="frame" x="0.0" y="80" width="320" height="35"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-                        <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="24"/>
-                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    </label>
-                    <pickerView hidden="YES" contentMode="scaleToFill" misplaced="YES" id="1629" userLabel="SubSongPicker">
-                        <rect key="frame" x="0.0" y="114" width="320" height="250"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <connections>
-                            <outlet property="dataSource" destination="11" id="1630"/>
-                            <outlet property="delegate" destination="11" id="1631"/>
-                        </connections>
-                    </pickerView>
-                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1672" userLabel="SubsongPickerBtn">
-                        <rect key="frame" x="7" y="219" width="305" height="44"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                        <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
-                        <state key="normal">
-                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        </state>
-                        <state key="highlighted">
-                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        </state>
-                        <connections>
-                            <action selector="playSelectedSubSong" destination="11" eventType="touchUpInside" id="1674"/>
-                        </connections>
-                    </button>
-                    <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Select a file" textAlignment="center" lineBreakMode="middleTruncation" minimumFontSize="10" id="1651" userLabel="ArcPickerLabel">
-                        <rect key="frame" x="0.0" y="80" width="320" height="35"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
-                        <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="24"/>
-                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <color key="highlightedColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    </label>
-                    <pickerView hidden="YES" contentMode="scaleToFill" misplaced="YES" id="1652" userLabel="ArcPicker">
-                        <rect key="frame" x="0.0" y="114" width="320" height="250"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <connections>
-                            <outlet property="dataSource" destination="11" id="1654"/>
-                            <outlet property="delegate" destination="11" id="1655"/>
-                        </connections>
-                    </pickerView>
-                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="wordWrap" id="1669" userLabel="ArcPickerBtn">
-                        <rect key="frame" x="7" y="219" width="305" height="44"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                        <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
-                        <state key="normal">
-                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        </state>
-                        <state key="highlighted">
-                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        </state>
-                        <connections>
-                            <action selector="playSelectedArc" destination="11" eventType="touchUpInside" id="1671"/>
-                        </connections>
-                    </button>
                 </subviews>
                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
             </view>
@@ -1105,12 +1039,6 @@
                 <outlet property="playBar" destination="375" id="440"/>
                 <outlet property="playBarSub" destination="1208" id="1245"/>
                 <outlet property="playlistPos" destination="223" id="225"/>
-                <outlet property="pvArcLabel" destination="1651" id="1657"/>
-                <outlet property="pvArcSel" destination="1652" id="1656"/>
-                <outlet property="pvArcValidate" destination="1669" id="1676"/>
-                <outlet property="pvSubSongLabel" destination="1634" id="1636"/>
-                <outlet property="pvSubSongSel" destination="1629" id="1632"/>
-                <outlet property="pvSubSongValidate" destination="1672" id="1675"/>
                 <outlet property="sliderProgressModule" destination="23" id="64"/>
                 <outlet property="textMessage" destination="300" id="301"/>
                 <outlet property="volWin" destination="388" id="399"/>

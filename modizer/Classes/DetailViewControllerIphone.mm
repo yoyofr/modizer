@@ -156,53 +156,92 @@ static int display_length_mode=0;
 
 @synthesize oglButton;
 
-@synthesize pvSubSongSel,pvSubSongLabel,pvSubSongValidate,btnShowSubSong;
-@synthesize pvArcSel,pvArcLabel,pvArcValidate,btnShowArcList;
+@synthesize btnShowSubSong,btnShowArcList;
+@synthesize alertArcSel,alertSubSongSel;
 
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
 @synthesize mSlowDevice;
 
+-(void)didSelectRowInAlertSubController:(NSInteger)row {
+    mPaused=0;
+    [self play_curEntry];
+    [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
+}
+
+
 -(IBAction)showSubSongSelector {
-	if (pvSubSongSel.hidden) {
+	/*if (pvSubSongSel.hidden) {
 		pvSubSongSel.hidden=false;
 		pvSubSongLabel.hidden=false;
 		pvSubSongValidate.hidden=false;
 		[pvSubSongSel selectRow:mplayer.mod_currentsub-mplayer.mod_minsub inComponent:0 animated:TRUE];
-		
-        /*		[UIView beginAnimations:nil context:nil];
-         [UIView setAnimationDelay:0.2];
-         [UIView setAnimationDuration:0.70];
-         [UIView setAnimationDelegate:self];
-         [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.pvSubSongValidate cache:YES];
-         [UIView commitAnimations];*/
+     
 	}
 	else {
 		pvSubSongSel.hidden=true;
 		pvSubSongLabel.hidden=true;
 		pvSubSongValidate.hidden=true;
-	}
+	}*/
+    alertSubSongSel = [UIAlertController
+                   alertControllerWithTitle:@"Choose a subsong"
+                   message:@""
+                   preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *cancelAction = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel action")
+                                   style:UIAlertActionStyleCancel
+                                   handler:^(UIAlertAction *action)
+                                   {
+                                   }];
+    [alertSubSongSel addAction:cancelAction];
+    
+    for (int i=0;i<mplayer.mod_subsongs;i++) {
+        UIAlertAction* defaultAction =
+        [UIAlertAction actionWithTitle:[mplayer getSubTitle:i]
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action) {
+                                   [self didSelectRowInAlertSubController:i];
+                               }];
+        
+        [alertSubSongSel addAction:defaultAction];
+    }
+    [self presentViewController:alertSubSongSel animated:YES completion:nil];
+}
+
+-(void)didSelectRowInAlertArcController:(NSInteger)row {
+    [mplayer selectArcEntry:(int)row];
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self play_loadArchiveModule];
+    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    //self.outputLabel.text = [self.data objectAtIndex:row];
 }
 
 -(IBAction)showArcSelector {
-	if (pvArcSel.hidden) {
-		pvArcSel.hidden=false;
-		pvArcLabel.hidden=false;
-		pvArcValidate.hidden=false;
-		[pvArcSel selectRow:[mplayer getArcIndex] inComponent:0 animated:TRUE];
-		
-        /*		[UIView beginAnimations:nil context:nil];
-         [UIView setAnimationDelay:0.2];
-         [UIView setAnimationDuration:0.70];
-         [UIView setAnimationDelegate:self];
-         [UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:self.pvArcValidate cache:YES];
-         [UIView commitAnimations];*/
-	}
-	else {
-		pvArcSel.hidden=true;
-		pvArcLabel.hidden=true;
-		pvArcValidate.hidden=true;
-	}
+	alertArcSel = [UIAlertController
+                                alertControllerWithTitle:@"Choose a song"
+                                message:@""
+                                preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *cancelAction = [UIAlertAction
+                                   actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel action")
+                                   style:UIAlertActionStyleCancel
+                                   handler:^(UIAlertAction *action)
+                                   {
+                                   }];
+    [alertArcSel addAction:cancelAction];
+    
+    for (int i=0;i<[mplayer getArcEntriesCnt];i++) {
+        UIAlertAction* defaultAction =
+        [UIAlertAction actionWithTitle:[mplayer getArcEntryTitle:i]
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action) {
+                                   [self didSelectRowInAlertArcController:i];
+                               }];
+        
+        [alertArcSel addAction:defaultAction];
+    }
+    [self presentViewController:alertArcSel animated:YES completion:nil];
 }
 
 -(IBAction)pushedLoopInf {
@@ -738,7 +777,8 @@ static float movePinchScale,movePinchScaleOld;
             } else {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,mplayer.mod_currentsub,mplayer.mod_minsub,mplayer.mod_maxsub];
             }
-			[pvSubSongSel reloadAllComponents];
+			//[pvSubSongSel reloadAllComponents];
+            [self dismissViewControllerAnimated:YES completion:nil];
 			
 			if (btnShowSubSong.hidden==true) {
 				btnShowSubSong.hidden=false;
@@ -1676,18 +1716,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [self settingsChanged:(int)SETTINGS_ALL];
     
     [self checkForCover:filePath];
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
 	
-	pvSubSongSel.hidden=true;
-	pvSubSongLabel.hidden=true;
-	pvSubSongValidate.hidden=true;
-	[pvSubSongSel reloadAllComponents];
 	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
 	else btnShowSubSong.hidden=true;
     
-    pvArcSel.hidden=true,
-    pvArcLabel.hidden=true;
-    pvArcValidate.hidden=true;
-    [pvArcSel reloadAllComponents];
     if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) btnShowArcList.hidden=false;
 	else btnShowArcList.hidden=true;
     
@@ -2014,18 +2048,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //[self checkAvailableCovers:mPlaylist_pos];
     mPlaylist[mPlaylist_pos].cover_flag=-1;
     
-	pvSubSongSel.hidden=true;
-	pvSubSongLabel.hidden=true;
-	pvSubSongValidate.hidden=true;
-	[pvSubSongSel reloadAllComponents];
+    [self dismissViewControllerAnimated:YES completion:nil];
+    
 	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
 	else btnShowSubSong.hidden=true;
-    
-    
-    pvArcSel.hidden=true,
-    pvArcLabel.hidden=true;
-    pvArcValidate.hidden=true;
-    [pvArcSel reloadAllComponents];
     if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) btnShowArcList.hidden=false;
 	else btnShowArcList.hidden=true;
     
@@ -3415,6 +3441,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     [super viewDidLoad];
     
+    alertArcSel=nil;
+    alertSubSongSel=nil;
+    
     default_cover=[UIImage imageNamed:@"AppStore512.png"];
     [default_cover retain];
     artwork=nil;
@@ -3743,12 +3772,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	
 	mShouldHaveFocus=0;
     
-    //Init pickerview linebreakmode
-    //    pvArcSel.inputView.
-    //    .lineBreakMode
-    
-    
-	
     mPlaylist_size=0;
 	mIsPlaying=FALSE;
 	oglViewFullscreenChanged=0;
@@ -4401,7 +4424,7 @@ extern "C" int current_sample;
     }
     
     
-    if (((mplayer.mPatternDataAvail)||(mplayer.mPlayType==15))&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
+    if (((mplayer.mPatternDataAvail)||(mplayer.mPlayType==MMP_TIMIDITY))&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
         int moveRPx,moveRPy;
         int note_fx_linewidth;
         
@@ -4947,7 +4970,7 @@ extern "C" int current_sample;
             int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
             if (display_note_mode>=3) display_note_mode-=3;
             
-            if ((mplayer.mPlayType==15)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
+            if ((mplayer.mPlayType==MMP_TIMIDITY)&&(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) { //Timidity
                 playerpos=(playerpos+MIDIFX_OFS)%SOUND_BUFFER_NB;
                 RenderUtils::DrawMidiFX(tim_notes_cpy[playerpos],ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,MIDIFX_OFS*4,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                 
@@ -5021,8 +5044,6 @@ extern "C" int current_sample;
                     currentPattern=pat[playerpos];
                     currentRow=row[playerpos];
                     
-                    
-                    
                     endChan=startChan+visibleChan;
                     if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
                     else if (endChan<mplayer.numChannels) endChan++;
@@ -5033,7 +5054,6 @@ extern "C" int current_sample;
                     for (int i=0;i<endChan-startChan;i++) {
                         channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
                     }
-                    
                     
                     currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
                     if (currentPattern>0) prevNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern-1,(unsigned int*)(&numRowsP));
@@ -5471,71 +5491,6 @@ extern "C" int current_sample;
 	[UIView commitAnimations];
 }
 
-#pragma mark -
-#pragma mark UIPickerViewDataSource methods
-
-- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
-    return 1;
-}
-
-- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
-	if (mplayer==nil) return 0;
-	else {
-        if (pickerView==pvSubSongSel) return (mplayer.mod_subsongs);
-        if (pickerView==pvArcSel) return [mplayer getArcEntriesCnt];
-    }
-    return 0;
-}
-
-/*- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
- if (pickerView==pvSubSongSel) return [mplayer getSubTitle:row+mplayer.mod_minsub];
- if (pickerView==pvArcSel) return [mplayer getArcEntryTitle:row];
- return nil;
- }*/
-- (UIView *)pickerView:(UIPickerView *)pickerView
-            viewForRow:(NSInteger)row
-          forComponent:(NSInteger)component
-           reusingView:(UIView *)view {
-    
-    UILabel *pickerLabel = (UILabel *)view;
-    
-    if (pickerLabel == nil) {
-        CGRect frame = CGRectMake(0.0, 0.0, pickerView.frame.size.width-32, 32);
-        pickerLabel = [[[UILabel alloc] initWithFrame:frame] autorelease];
-        pickerLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
-        [pickerLabel setTextAlignment:NSTextAlignmentLeft];
-        [pickerLabel setBackgroundColor:[UIColor clearColor]];
-        [pickerLabel setFont:[UIFont boldSystemFontOfSize:15]];
-    }
-    
-    if (pickerView==pvSubSongSel) [pickerLabel setText:[mplayer getSubTitle:row+mplayer.mod_minsub]];
-    if (pickerView==pvArcSel) [pickerLabel setText:[mplayer getArcEntryTitle:row]];
-    
-    
-    
-    
-    return pickerLabel;
-    
-}
-
-- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-}
-
--(IBAction)playSelectedSubSong{
-    [self showSubSongSelector];
-    mPaused=0;
-    [self play_curEntry];
-    [mplayer playGoToSub:[pvSubSongSel selectedRowInComponent:0]+mplayer.mod_minsub];
-	
-}
-
--(IBAction)playSelectedArc{
-    [self showArcSelector];
-	[mplayer selectArcEntry:[pvArcSel selectedRowInComponent:0]];
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-    [self play_loadArchiveModule];
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-}
 
 #pragma mark -
 #pragma mark TKCoverflowViewDelegate methods

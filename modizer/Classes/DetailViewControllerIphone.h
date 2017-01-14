@@ -50,7 +50,7 @@ struct Resources;
 class CFont;
 class CGLString;
 
-@interface DetailViewControllerIphone : UIViewController <UIPickerViewDataSource, UIPickerViewDelegate,  UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
     
     
@@ -80,7 +80,7 @@ class CGLString;
 
 	int oglViewFullscreen,oglViewFullscreenChanged;
 	int orientationHV;
-	IBOutlet UIPickerView *pvSubSongSel,*pvArcSel;
+    UIAlertController *alertArcSel,*alertSubSongSel;
 	IBOutlet OGLView* m_oglView;
 	EAGLContext* m_oglContext;
 	st::HardwareClock m_clock;
@@ -93,8 +93,7 @@ class CGLString;
 	IBOutlet RRSGlowLabel *labelModuleName;
 
     //Subsongs and Archive entries picker
-	IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
-	IBOutlet UIButton *pvSubSongValidate,*pvArcValidate,*btnChangeTime;
+	IBOutlet UIButton *btnChangeTime;
     IBOutlet BButton *btnShowArcList,*btnShowSubSong;
 
 	
@@ -266,7 +265,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet BButton *infoButton;
 @property (nonatomic, retain) IBOutlet UIButton *oglButton;
 
-@property (nonatomic, retain) IBOutlet UIPickerView *pvSubSongSel,*pvArcSel;
+@property (nonatomic, retain) UIAlertController *alertArcSel,*alertSubSongSel;
 
 @property (nonatomic, retain) NSTimer *repeatingTimer;
 
@@ -277,8 +276,6 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
-@property (nonatomic, retain) IBOutlet UILabel *pvSubSongLabel,*pvArcLabel;
-@property (nonatomic, retain) IBOutlet UIButton *pvSubSongValidate,*pvArcValidate;
 @property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;

@@ -144,6 +144,7 @@ int ModPlug_GetCurrentOrder(ModPlugFile* file);
 int ModPlug_GetCurrentPattern(ModPlugFile* file);
 int ModPlug_GetCurrentRow(ModPlugFile* file);
 int ModPlug_GetPlayingChannels(ModPlugFile* file);
+int ModPlug_GetChannelVolume(ModPlugFile *file,int channel);
 
 void ModPlug_SeekOrder(ModPlugFile* file,int order);
 int ModPlug_GetModuleType(ModPlugFile* file);
