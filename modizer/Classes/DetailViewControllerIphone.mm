@@ -1769,7 +1769,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		
 		
 		//UPDATE Google Application
-		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=15;//Wait 15 updateInfos call => 15*0.33 => 15seconds
+		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
 		
 	}
 	[self showRating:mRating];
@@ -1831,7 +1831,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	[textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
 	//Activate timer for play infos
-	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.33 target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //3 times/second
+	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.10f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
 	
     if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
         if (coverflow.hidden==FALSE) {
@@ -2101,7 +2101,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,(mOnlyCurrentEntry==0?([mplayer isArchive]?-[mplayer getArcEntriesCnt]:mplayer.mod_subsongs):-1));
 		
 		//UPDATE Google Application
-		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=15;//Wait 15 updateInfos call => 15*0.33 => 15seconds
+		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
 		
 	}
 	[self showRating:mRating];
@@ -2231,7 +2231,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
     
 	//Activate timer for play infos
-	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.33 target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //3 times/second
+	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
 	
 	return TRUE;
 }
@@ -2472,14 +2472,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 lblCurrentSongCFlow.frame=CGRectMake(0,0,mDevice_hh*2/3,12);
                 lblTimeFCflow.frame=CGRectMake(mDevice_hh*2/3,0,mDevice_hh/3,12);
                 
-                btnPrevCFlow.frame=CGRectMake((mDevice_hh-32)/2-160,mDevice_ww-22-24,16,16);
-                btnPrevSubCFlow.frame=CGRectMake((mDevice_hh-32)/2-80,mDevice_ww-22-24-2,16,16);
-                btnPlayCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-24,16,16);
-                btnPauseCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-24,16,16);
-                btnNextSubCFlow.frame=CGRectMake((mDevice_hh-32)/2+80,mDevice_ww-22-24-2,16,16);
-                btnNextCFlow.frame=CGRectMake((mDevice_hh-32)/2+160,mDevice_ww-22-24,16,16);
+                btnPrevCFlow.frame=CGRectMake((mDevice_hh-32)/2-160,mDevice_ww-22-24,32,32);
+                btnPrevSubCFlow.frame=CGRectMake((mDevice_hh-32)/2-80,mDevice_ww-22-24-2,32,32);
+                btnPlayCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-24,32,32);
+                btnPauseCFlow.frame=CGRectMake((mDevice_hh-32)/2,mDevice_ww-22-24,32,32);
+                btnNextSubCFlow.frame=CGRectMake((mDevice_hh-32)/2+80,mDevice_ww-22-24-2,32,32);
+                btnNextCFlow.frame=CGRectMake((mDevice_hh-32)/2+160,mDevice_ww-22-24,32,32);
                 
-                btnBackCFlow.frame=CGRectMake(4,16,32,32);
+                btnBackCFlow.frame=CGRectMake(8,32,32,32);
             }
             
             lblMainCoverflow.hidden=FALSE;
