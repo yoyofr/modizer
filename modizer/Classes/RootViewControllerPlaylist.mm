@@ -2483,6 +2483,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
 }
 
+-(void) shortWait {
+    [NSThread sleepForTimeInterval:0.1f];
+}
+
+
 #pragma mark -
 #pragma mark Table view delegate
 - (void) primaryActionTapped: (UIButton*) sender {
@@ -2492,6 +2497,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
 
     if (browse_depth==0) {
         if (indexPath.row>=2) { //start selected playlist
@@ -2587,6 +2593,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     
     
     int section=indexPath.section-1;
@@ -2900,6 +2907,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 shouldFillKeys=1;
                 
                 [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                [self shortWait];
                 
                 [self fillKeys];
                 [tabView reloadData];
@@ -2929,6 +2937,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
                     
                     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                    [self shortWait];
                     
                     NSString *newPath;
                     //                    NSLog(@"currentPath:%@\ncellValue:%@\nfullpath:%@",currentPath,cellValue,cur_local_entries[section][indexPath.row].fullpath);

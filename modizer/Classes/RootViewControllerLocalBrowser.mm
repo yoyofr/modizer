@@ -2090,8 +2090,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-    
-    [NSThread sleepForTimeInterval:0.5f];
+    [self shortWait];
     
     int section=indexPath.section-2;
     
@@ -2150,7 +2149,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     
     
     //local  browser & favorites
@@ -2237,7 +2237,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [tableView reloadData];
 }
 
--(void) testyo {
+-(void) shortWait {
     [NSThread sleepForTimeInterval:0.1f];
 }
 
@@ -2260,7 +2260,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             shouldFillKeys=1;
             
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-            [self testyo];
+            [self shortWait];
             
             
             int old_mSearch=mSearch;
@@ -2284,7 +2284,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         if (cur_local_entries[section][indexPath.row].type==0) { //Directory selected : change current directory
             
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-            [self testyo];
+            [self shortWait];
             
             
             NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
@@ -2306,9 +2306,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             //				[childController autorelease];
         } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
             
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-            
-            [self testyo];
+            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];            
+            [self shortWait];
             
             
             NSString *newPath;
@@ -2334,7 +2333,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         } else {  //File selected
             
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
-            [self testyo];
+            [self shortWait];
             
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
