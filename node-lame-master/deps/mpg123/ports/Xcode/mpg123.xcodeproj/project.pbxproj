@@ -62,61 +62,6 @@
 		CD132CCA152A4E7000B4F5A8 /* synth_s32.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB0152A4E7000B4F5A8 /* synth_s32.c */; };
 		CD132CCB152A4E7000B4F5A8 /* synth.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB1152A4E7000B4F5A8 /* synth.c */; };
 		CD132CCC152A4E7000B4F5A8 /* tabinit.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB2152A4E7000B4F5A8 /* tabinit.c */; };
-		CDB0288C152B760700B01410 /* compat.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C99152A4E7000B4F5A8 /* compat.c */; };
-		CDB0288D152B760700B01410 /* compat.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C62152A4D7E00B4F5A8 /* compat.h */; };
-		CDB0288E152B760700B01410 /* dct64.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C9A152A4E7000B4F5A8 /* dct64.c */; };
-		CDB02890152B760D00B01410 /* decode.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C63152A4D7E00B4F5A8 /* decode.h */; };
-		CDB02891152B760D00B01410 /* dither.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C64152A4D7E00B4F5A8 /* dither.h */; };
-		CDB02892152B760D00B01410 /* dither.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C9B152A4E7000B4F5A8 /* dither.c */; };
-		CDB02893152B760D00B01410 /* equalizer.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C9C152A4E7000B4F5A8 /* equalizer.c */; };
-		CDB02894152B760D00B01410 /* feature.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C9D152A4E7000B4F5A8 /* feature.c */; };
-		CDB02895152B760D00B01410 /* format.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C9E152A4E7000B4F5A8 /* format.c */; };
-		CDB02896152B761300B01410 /* frame.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C65152A4D7E00B4F5A8 /* frame.h */; };
-		CDB02897152B761300B01410 /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132C9F152A4E7000B4F5A8 /* frame.c */; };
-		CDB02898152B761300B01410 /* getbits.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C66152A4D7E00B4F5A8 /* getbits.h */; };
-		CDB02899152B761300B01410 /* getcpuflags.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C67152A4D7E00B4F5A8 /* getcpuflags.h */; };
-		CDB0289A152B761300B01410 /* huffman.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C68152A4D7E00B4F5A8 /* huffman.h */; };
-		CDB0289B152B761300B01410 /* icy.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C69152A4D7E00B4F5A8 /* icy.h */; };
-		CDB0289C152B761300B01410 /* icy.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA0152A4E7000B4F5A8 /* icy.c */; };
-		CDB0289D152B761300B01410 /* icy2utf8.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C6A152A4D7E00B4F5A8 /* icy2utf8.h */; };
-		CDB0289E152B761300B01410 /* icy2utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA1152A4E7000B4F5A8 /* icy2utf8.c */; };
-		CDB0289F152B761C00B01410 /* id3.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C6B152A4D7E00B4F5A8 /* id3.h */; };
-		CDB028A0152B761C00B01410 /* id3.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA2152A4E7000B4F5A8 /* id3.c */; };
-		CDB028A1152B761C00B01410 /* index.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C6C152A4D7E00B4F5A8 /* index.h */; };
-		CDB028A2152B761C00B01410 /* index.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA3152A4E7000B4F5A8 /* index.c */; };
-		CDB028A3152B761C00B01410 /* intsym.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C6D152A4D7E00B4F5A8 /* intsym.h */; };
-		CDB028A4152B761C00B01410 /* l2tables.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C6E152A4D7E00B4F5A8 /* l2tables.h */; };
-		CDB028A5152B761C00B01410 /* l3_integer_tables.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C6F152A4D7E00B4F5A8 /* l3_integer_tables.h */; };
-		CDB028A6152B761C00B01410 /* l12_integer_tables.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C70152A4D7E00B4F5A8 /* l12_integer_tables.h */; };
-		CDB028A7152B761C00B01410 /* layer1.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA4152A4E7000B4F5A8 /* layer1.c */; };
-		CDB028A8152B762E00B01410 /* layer2.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA5152A4E7000B4F5A8 /* layer2.c */; };
-		CDB028A9152B763500B01410 /* layer3.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA6152A4E7000B4F5A8 /* layer3.c */; };
-		CDB028AA152B763500B01410 /* lfs_alias.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA7152A4E7000B4F5A8 /* lfs_alias.c */; };
-		CDB028AB152B763500B01410 /* libmpg123.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA8152A4E7000B4F5A8 /* libmpg123.c */; };
-		CDB028AC152B763500B01410 /* mangle.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C71152A4D7E00B4F5A8 /* mangle.h */; };
-		CDB028AD152B764100B01410 /* mpg123lib_intern.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C73152A4D7E00B4F5A8 /* mpg123lib_intern.h */; };
-		CDB028AE152B764100B01410 /* ntom.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CA9152A4E7000B4F5A8 /* ntom.c */; };
-		CDB028AF152B764100B01410 /* optimize.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C74152A4D7E00B4F5A8 /* optimize.h */; };
-		CDB028B0152B764100B01410 /* optimize.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CAA152A4E7000B4F5A8 /* optimize.c */; };
-		CDB028B1152B764100B01410 /* parse.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C75152A4D7E00B4F5A8 /* parse.h */; };
-		CDB028B2152B764100B01410 /* parse.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CAB152A4E7000B4F5A8 /* parse.c */; };
-		CDB028B3152B764100B01410 /* reader.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C76152A4D7E00B4F5A8 /* reader.h */; };
-		CDB028B4152B764100B01410 /* readers.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CAC152A4E7000B4F5A8 /* readers.c */; };
-		CDB028B5152B764900B01410 /* sample.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C77152A4D7E00B4F5A8 /* sample.h */; };
-		CDB028B6152B764900B01410 /* stringbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CAD152A4E7000B4F5A8 /* stringbuf.c */; };
-		CDB028B7152B764900B01410 /* synth.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB1152A4E7000B4F5A8 /* synth.c */; };
-		CDB028B8152B764900B01410 /* synth_8bit.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C78152A4D7E00B4F5A8 /* synth_8bit.h */; };
-		CDB028B9152B764900B01410 /* synth_8bit.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CAE152A4E7000B4F5A8 /* synth_8bit.c */; };
-		CDB028BA152B764900B01410 /* synth_mono.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C79152A4D7E00B4F5A8 /* synth_mono.h */; };
-		CDB028BB152B764900B01410 /* synth_ntom.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C7A152A4D7E00B4F5A8 /* synth_ntom.h */; };
-		CDB028BC152B764900B01410 /* synth_real.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CAF152A4E7000B4F5A8 /* synth_real.c */; };
-		CDB028BD152B764900B01410 /* synth_s32.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB0152A4E7000B4F5A8 /* synth_s32.c */; };
-		CDB028BE152B765000B01410 /* synth.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C7B152A4D7E00B4F5A8 /* synth.h */; };
-		CDB028BF152B765000B01410 /* synths.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C7C152A4D7E00B4F5A8 /* synths.h */; };
-		CDB028C0152B765000B01410 /* tabinit.c in Sources */ = {isa = PBXBuildFile; fileRef = CD132CB2152A4E7000B4F5A8 /* tabinit.c */; };
-		CDB028C1152B765000B01410 /* true.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C7D152A4D7E00B4F5A8 /* true.h */; };
-		CDB028C2152B765900B01410 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C21152A4B8000B4F5A8 /* config.h */; };
-		CDB028C3152B765900B01410 /* mpg123.h in Headers */ = {isa = PBXBuildFile; fileRef = CD132C22152A4B8000B4F5A8 /* mpg123.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -185,18 +130,10 @@
 		CD132CD3152A511B00B4F5A8 /* synth_stereo_neon_float.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = synth_stereo_neon_float.S; sourceTree = "<group>"; };
 		CD132CD4152A511B00B4F5A8 /* synth_stereo_neon_s32.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = synth_stereo_neon_s32.S; sourceTree = "<group>"; };
 		CD132CD5152A511C00B4F5A8 /* synth_stereo_neon.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = synth_stereo_neon.S; sourceTree = "<group>"; };
-		CD6D72D1152B748200CF4285 /* libmpg123-mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libmpg123-mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		CD132C0B152A48C200B4F5A8 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CD6D72CE152B748200CF4285 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -219,7 +156,6 @@
 			isa = PBXGroup;
 			children = (
 				CD132C0E152A48C200B4F5A8 /* libmpg123-ios.a */,
-				CD6D72D1152B748200CF4285 /* libmpg123-mac.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -350,42 +286,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CD6D72CF152B748200CF4285 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CDB0288D152B760700B01410 /* compat.h in Headers */,
-				CDB02890152B760D00B01410 /* decode.h in Headers */,
-				CDB02891152B760D00B01410 /* dither.h in Headers */,
-				CDB02896152B761300B01410 /* frame.h in Headers */,
-				CDB02898152B761300B01410 /* getbits.h in Headers */,
-				CDB02899152B761300B01410 /* getcpuflags.h in Headers */,
-				CDB0289A152B761300B01410 /* huffman.h in Headers */,
-				CDB0289B152B761300B01410 /* icy.h in Headers */,
-				CDB0289D152B761300B01410 /* icy2utf8.h in Headers */,
-				CDB0289F152B761C00B01410 /* id3.h in Headers */,
-				CDB028A1152B761C00B01410 /* index.h in Headers */,
-				CDB028A3152B761C00B01410 /* intsym.h in Headers */,
-				CDB028A4152B761C00B01410 /* l2tables.h in Headers */,
-				CDB028A5152B761C00B01410 /* l3_integer_tables.h in Headers */,
-				CDB028A6152B761C00B01410 /* l12_integer_tables.h in Headers */,
-				CDB028AC152B763500B01410 /* mangle.h in Headers */,
-				CDB028AD152B764100B01410 /* mpg123lib_intern.h in Headers */,
-				CDB028AF152B764100B01410 /* optimize.h in Headers */,
-				CDB028B1152B764100B01410 /* parse.h in Headers */,
-				CDB028B3152B764100B01410 /* reader.h in Headers */,
-				CDB028B5152B764900B01410 /* sample.h in Headers */,
-				CDB028B8152B764900B01410 /* synth_8bit.h in Headers */,
-				CDB028BA152B764900B01410 /* synth_mono.h in Headers */,
-				CDB028BB152B764900B01410 /* synth_ntom.h in Headers */,
-				CDB028BE152B765000B01410 /* synth.h in Headers */,
-				CDB028BF152B765000B01410 /* synths.h in Headers */,
-				CDB028C1152B765000B01410 /* true.h in Headers */,
-				CDB028C2152B765900B01410 /* config.h in Headers */,
-				CDB028C3152B765900B01410 /* mpg123.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -404,23 +304,6 @@
 			name = "mpg123-ios";
 			productName = libmpg123;
 			productReference = CD132C0E152A48C200B4F5A8 /* libmpg123-ios.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		CD6D72D0152B748200CF4285 /* mpg123-mac */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = CD6D72D4152B748200CF4285 /* Build configuration list for PBXNativeTarget "mpg123-mac" */;
-			buildPhases = (
-				CD6D72CD152B748200CF4285 /* Sources */,
-				CD6D72CE152B748200CF4285 /* Frameworks */,
-				CD6D72CF152B748200CF4285 /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "mpg123-mac";
-			productName = "mpg123-mac";
-			productReference = CD6D72D1152B748200CF4285 /* libmpg123-mac.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -444,7 +327,6 @@
 			projectRoot = "";
 			targets = (
 				CD132C0D152A48C200B4F5A8 /* mpg123-ios */,
-				CD6D72D0152B748200CF4285 /* mpg123-mac */,
 			);
 		};
 /* End PBXProject section */
@@ -480,39 +362,6 @@
 				CD132CCA152A4E7000B4F5A8 /* synth_s32.c in Sources */,
 				CD132CCB152A4E7000B4F5A8 /* synth.c in Sources */,
 				CD132CCC152A4E7000B4F5A8 /* tabinit.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CD6D72CD152B748200CF4285 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CDB0288C152B760700B01410 /* compat.c in Sources */,
-				CDB0288E152B760700B01410 /* dct64.c in Sources */,
-				CDB02892152B760D00B01410 /* dither.c in Sources */,
-				CDB02893152B760D00B01410 /* equalizer.c in Sources */,
-				CDB02894152B760D00B01410 /* feature.c in Sources */,
-				CDB02895152B760D00B01410 /* format.c in Sources */,
-				CDB02897152B761300B01410 /* frame.c in Sources */,
-				CDB0289C152B761300B01410 /* icy.c in Sources */,
-				CDB0289E152B761300B01410 /* icy2utf8.c in Sources */,
-				CDB028A0152B761C00B01410 /* id3.c in Sources */,
-				CDB028A2152B761C00B01410 /* index.c in Sources */,
-				CDB028A7152B761C00B01410 /* layer1.c in Sources */,
-				CDB028A8152B762E00B01410 /* layer2.c in Sources */,
-				CDB028A9152B763500B01410 /* layer3.c in Sources */,
-				CDB028AA152B763500B01410 /* lfs_alias.c in Sources */,
-				CDB028AB152B763500B01410 /* libmpg123.c in Sources */,
-				CDB028AE152B764100B01410 /* ntom.c in Sources */,
-				CDB028B0152B764100B01410 /* optimize.c in Sources */,
-				CDB028B2152B764100B01410 /* parse.c in Sources */,
-				CDB028B4152B764100B01410 /* readers.c in Sources */,
-				CDB028B6152B764900B01410 /* stringbuf.c in Sources */,
-				CDB028B7152B764900B01410 /* synth.c in Sources */,
-				CDB028B9152B764900B01410 /* synth_8bit.c in Sources */,
-				CDB028BC152B764900B01410 /* synth_real.c in Sources */,
-				CDB028BD152B764900B01410 /* synth_s32.c in Sources */,
-				CDB028C0152B765000B01410 /* tabinit.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -617,35 +466,6 @@
 			};
 			name = Release;
 		};
-		CD6D72D2152B748200CF4285 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		CD6D72D3152B748200CF4285 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = lib;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -663,15 +483,6 @@
 			buildConfigurations = (
 				CD132C1C152A48C200B4F5A8 /* Debug */,
 				CD132C1D152A48C200B4F5A8 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		CD6D72D4152B748200CF4285 /* Build configuration list for PBXNativeTarget "mpg123-mac" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CD6D72D2152B748200CF4285 /* Debug */,
-				CD6D72D3152B748200CF4285 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

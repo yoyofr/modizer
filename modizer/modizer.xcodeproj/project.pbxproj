@@ -286,6 +286,8 @@
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
 		590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
+		5928624A1E2D3BD500A08A4E /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 592862491E2D3BD500A08A4E /* AppStore512.png */; };
+		592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59321DD61E2560B300020079 /* libvgmstream.a */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
@@ -933,7 +935,6 @@
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
 		CCDCFFBC121FD47300B89B19 /* MIMETYPES.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCDCFFB1121FD3A400B89B19 /* MIMETYPES.plist */; };
 		CCDDA6F91AC3E6F000AEA09F /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */; };
-		CCDDA6FE1AC3E81E00AEA09F /* AppStore1024.png in Resources */ = {isa = PBXBuildFile; fileRef = CCDDA6FD1AC3E81D00AEA09F /* AppStore1024.png */; };
 		CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC59B90B1AC4B882004FEEBA /* liblibFileExtractor.a */; };
 		CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1962131B66BCD700778A3E /* liblibresample.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
@@ -1061,6 +1062,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = D847E03F17A93800DA55DDDB3DCF6800EF6407CEA4D66000;
 			remoteInfo = libopenmpt;
+		};
+		592862BE1E2D4D7A00A08A4E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 592862691E2D4A5A00A08A4E;
+			remoteInfo = libxsf;
 		};
 		59321DD51E2560B300020079 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1730,6 +1738,8 @@
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		590ED7081E22CDDD00802D4C /* libopenmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libopenmpt.xcodeproj; path = "../libopenmpt/openmpt-trunk/build/xcode4/libopenmpt.xcodeproj"; sourceTree = "<group>"; };
+		592862491E2D3BD500A08A4E /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
+		592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxsf.xcodeproj; path = ../libxsf/libxsf/libxsf.xcodeproj; sourceTree = "<group>"; };
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = ../vgmstream/vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
@@ -2848,7 +2858,6 @@
 		CCD791711219FC6B0063D0E7 /* zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoom.png; sourceTree = "<group>"; };
 		CCDCFFB1121FD3A400B89B19 /* MIMETYPES.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = MIMETYPES.plist; sourceTree = "<group>"; };
 		CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
-		CCDDA6FD1AC3E81D00AEA09F /* AppStore1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore1024.png; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
@@ -2893,6 +2902,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */,
 				59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */,
 				590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */,
 				CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */,
@@ -2941,7 +2951,6 @@
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
 				CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */,
 				3371987E1692053C00163CA3 /* modizer.entitlements */,
-				CCDDA6FD1AC3E81D00AEA09F /* AppStore1024.png */,
 				CC9B194812FF0C1E00985967 /* Splashscreens */,
 				CC9B194112FF0BD700985967 /* Archives */,
 				CC9B194012FF0BCA00985967 /* Utils */,
@@ -3591,6 +3600,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		592862B91E2D4D6800A08A4E /* libxsf */ = {
+			isa = PBXGroup;
+			children = (
+				592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */,
+			);
+			name = libxsf;
+			sourceTree = "<group>";
+		};
+		592862BB1E2D4D7A00A08A4E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				592862BF1E2D4D7A00A08A4E /* liblibxsf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		59321DCA1E25609F00020079 /* libvgmstream */ = {
 			isa = PBXGroup;
 			children = (
@@ -4093,6 +4118,7 @@
 			isa = PBXGroup;
 			children = (
 				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
+				592862491E2D3BD500A08A4E /* AppStore512.png */,
 				CCFA9ADC1AC75830007C658A /* WebTools */,
 				CC13449B1AC17CC200CAB284 /* vgmplay */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
@@ -4935,6 +4961,7 @@
 		CC9B193312FF0B9800985967 /* SndPlayers */ = {
 			isa = PBXGroup;
 			children = (
+				592862B91E2D4D6800A08A4E /* libxsf */,
 				59321DCA1E25609F00020079 /* libvgmstream */,
 				CC9FAF701B64DB0600345B1C /* libLazyusf */,
 				CC1343751AC17B4D00CAB284 /* libvgmplay */,
@@ -5546,6 +5573,10 @@
 					ProjectRef = 33BA705E1407A12F0099E943 /* libtim.xcodeproj */;
 				},
 				{
+					ProductGroup = 592862BB1E2D4D7A00A08A4E /* Products */;
+					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
+				},
+				{
 					ProductGroup = 33A96580140E1283007F22F5 /* Products */;
 					ProjectRef = 33A9657F140E1283007F22F5 /* sidplayfp.xcodeproj */;
 				},
@@ -5624,6 +5655,13 @@
 			fileType = archive.ar;
 			path = liblibopenmpt.a;
 			remoteRef = 590ED7101E22CDDE00802D4C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		592862BF1E2D4D7A00A08A4E /* liblibxsf.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibxsf.a;
+			remoteRef = 592862BE1E2D4D7A00A08A4E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		59321DD61E2560B300020079 /* libvgmstream.a */ = {
@@ -5996,6 +6034,7 @@
 				336D450E15FC9D8B00F0DC00 /* video_pause_h@2x.png in Resources */,
 				336D451115FC9DAE00F0DC00 /* video_play_h.png in Resources */,
 				336D451215FC9DAE00F0DC00 /* video_play_h@2x.png in Resources */,
+				5928624A1E2D3BD500A08A4E /* AppStore512.png in Resources */,
 				336D451515FC9DF200F0DC00 /* arrow_left_h.png in Resources */,
 				336D451615FC9DF200F0DC00 /* arrow_left_h@2x.png in Resources */,
 				336D451915FC9E1400F0DC00 /* video_previous_h.png in Resources */,
@@ -6041,7 +6080,6 @@
 				33ABD4F017BCC49000D50393 /* bb_stop@2x.png in Resources */,
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
-				CCDDA6FE1AC3E81E00AEA09F /* AppStore1024.png in Resources */,
 				CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,
 				CCB8D97B17F62356008E6A45 /* txtMenu7d_2x.png in Resources */,
@@ -6578,6 +6616,10 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6586,7 +6628,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -6612,6 +6654,10 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6621,7 +6667,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6648,6 +6694,10 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6658,7 +6708,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6733,6 +6783,10 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6742,7 +6796,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -6817,6 +6871,10 @@
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
 					"/Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6826,7 +6884,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";

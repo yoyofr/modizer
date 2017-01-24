@@ -33,7 +33,6 @@
 	
 	ASIHTTPRequest *mASIrequest;
     
-	
 	NSInputStream *networkStream;
 	NSOutputStream *fileStream;
 	

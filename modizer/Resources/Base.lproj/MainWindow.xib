@@ -432,7 +432,7 @@
                                             <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
-                                            <action selector="showSubSongSelector" destination="11" eventType="touchUpInside" id="1628"/>
+                                            <action selector="showSubSongSelector:" destination="11" eventType="touchUpInside" id="ofi-0z-c5H"/>
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1647" userLabel="ArcSelector" customClass="BButton">
@@ -444,7 +444,7 @@
                                             <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
-                                            <action selector="showArcSelector" destination="11" eventType="touchUpInside" id="1649"/>
+                                            <action selector="showArcSelector:" destination="11" eventType="touchUpInside" id="TMW-lO-G1R"/>
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1584" userLabel="Main Rating 1">

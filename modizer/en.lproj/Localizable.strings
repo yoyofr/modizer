@@ -161,3 +161,6 @@
 
 "Issue %d while trying to delete entry.\n%@"="Issue %d while trying to delete entry.\n%@";
 "Issue %d while trying to renamefile.\n%@"="Issue %d while trying to renamefile.\n%@";
+
+"Choose a subsong"="Choose a subsong";
+"Choose a song"="Choose a song";

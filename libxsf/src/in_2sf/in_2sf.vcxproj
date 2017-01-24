@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1927E848-5CFF-4462-A5AB-2768A390C5F3}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>in_2sf</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\in_xsf_framework\common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\in_xsf_framework\common.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;IN_2SF_EXPORTS;_CRT_SECURE_NO_WARNINGS;WINAMP_PLUGIN;HAVE_LIBZ;_DEBUG;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\in_xsf_framework;$(zlibRootDir)\include;$(WinampSDKDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4065;4100;4127;4146;4189;4201;4244;4245;4512;4706;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(zlibRootDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;IN_2SF_EXPORTS;_CRT_SECURE_NO_WARNINGS;WINAMP_PLUGIN;HAVE_LIBZ;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\in_xsf_framework;$(zlibRootDir)\include;$(WinampSDKDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4065;4100;4127;4146;4189;4201;4244;4245;4512;4706;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(zlibRootDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="desmume\arm_jit.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\mmx_optimized.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\assembler.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\codegen.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\compiler.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\constpool.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\containers.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\context.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\cpuinfo.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\cputicks.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\error.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\globals.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\logger.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\operand.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\runtime.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\string.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\vmem.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\base\zone.cpp" />
+    <ClCompile Include="desmume\addons\slot1_retail.cpp" />
+    <ClCompile Include="desmume\armcpu.cpp" />
+    <ClCompile Include="desmume\arm_instructions.cpp" />
+    <ClCompile Include="desmume\bios.cpp" />
+    <ClCompile Include="desmume\cp15.cpp" />
+    <ClCompile Include="desmume\emufile.cpp" />
+    <ClCompile Include="desmume\FIFO.cpp" />
+    <ClCompile Include="desmume\firmware.cpp" />
+    <ClCompile Include="desmume\mc.cpp" />
+    <ClCompile Include="desmume\metaspu\metaspu.cpp" />
+    <ClCompile Include="desmume\metaspu\SndOut.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\AAFilter.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\cpu_detect_x86_win.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\FIFOSampleBuffer.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\FIRFilter.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\RateTransposer.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\SoundTouch.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\sse_optimized.cpp" />
+    <ClCompile Include="desmume\metaspu\SoundTouch\TDStretch.cpp" />
+    <ClCompile Include="desmume\metaspu\Timestretcher.cpp" />
+    <ClCompile Include="desmume\MMU.cpp" />
+    <ClCompile Include="desmume\NDSSystem.cpp" />
+    <ClCompile Include="desmume\readwrite.cpp" />
+    <ClCompile Include="desmume\slot1.cpp" />
+    <ClCompile Include="desmume\SPU.cpp" />
+    <ClCompile Include="desmume\thumb_instructions.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86assembler.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86compiler.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86context.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86cpuinfo.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86inst.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86operand.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86operand_regs.cpp" />
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86scheduler.cpp" />
+    <ClCompile Include="desmume\utils\dlditool.cpp" />
+    <ClCompile Include="desmume\utils\xstring.cpp" />
+    <ClCompile Include="desmume\version.cpp" />
+    <ClCompile Include="XSFConfig_2SF.cpp" />
+    <ClCompile Include="XSFPlayer_2SF.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="desmume\arm_jit.h" />
+    <ClInclude Include="desmume\instructions.h" />
+    <ClInclude Include="desmume\instruction_attributes.h" />
+    <ClInclude Include="desmume\utils\AsmJit\apibegin.h" />
+    <ClInclude Include="desmume\utils\AsmJit\apiend.h" />
+    <ClInclude Include="desmume\utils\AsmJit\asmjit.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\assembler.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\codegen.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\compiler.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\constpool.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\containers.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\context_p.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\cpuinfo.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\cputicks.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\error.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\globals.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\intutil.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\lock.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\logger.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\operand.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\runtime.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\string.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\vectypes.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\vmem.h" />
+    <ClInclude Include="desmume\utils\AsmJit\base\zone.h" />
+    <ClInclude Include="desmume\utils\AsmJit\build.h" />
+    <ClInclude Include="desmume\utils\AsmJit\config.h" />
+    <ClInclude Include="desmume\utils\AsmJit\host.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86.h" />
+    <ClInclude Include="desmume\armcpu.h" />
+    <ClInclude Include="desmume\bios.h" />
+    <ClInclude Include="desmume\bits.h" />
+    <ClInclude Include="desmume\cp15.h" />
+    <ClInclude Include="desmume\emufile.h" />
+    <ClInclude Include="desmume\FIFO.h" />
+    <ClInclude Include="desmume\firmware.h" />
+    <ClInclude Include="desmume\matrix.h" />
+    <ClInclude Include="desmume\mc.h" />
+    <ClInclude Include="desmume\mem.h" />
+    <ClInclude Include="desmume\metaspu\metaspu.h" />
+    <ClInclude Include="desmume\metaspu\SndOut.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\AAFilter.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\cpu_detect.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\FIFOSampleBuffer.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\FIFOSamplePipe.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\FIRFilter.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\RateTransposer.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\SoundTouch.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\STTypes.h" />
+    <ClInclude Include="desmume\metaspu\SoundTouch\TDStretch.h" />
+    <ClInclude Include="desmume\MMU.h" />
+    <ClInclude Include="desmume\MMU_timing.h" />
+    <ClInclude Include="desmume\NDSSystem.h" />
+    <ClInclude Include="desmume\PACKED.h" />
+    <ClInclude Include="desmume\PACKED_END.h" />
+    <ClInclude Include="desmume\readwrite.h" />
+    <ClInclude Include="desmume\registers.h" />
+    <ClInclude Include="desmume\slot1.h" />
+    <ClInclude Include="desmume\SPU.h" />
+    <ClInclude Include="desmume\types.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86assembler.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86compiler.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86context_p.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86cpuinfo.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86inst.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86operand.h" />
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86scheduler_p.h" />
+    <ClInclude Include="desmume\utils\xstring.h" />
+    <ClInclude Include="desmume\version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="desmume\instruction_tabdef.inc" />
+    <None Include="desmume\thumb_tabdef.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\in_xsf_framework\in_xsf_framework.vcxproj">
+      <Project>{9d6d2540-b3dc-462b-bbc0-5b7c32a4d581}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

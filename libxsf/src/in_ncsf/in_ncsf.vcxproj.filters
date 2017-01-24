@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\SSEQPlayer">
+      <UniqueIdentifier>{0e5fd286-3748-4d06-8a34-95c0805e5aad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SSEQPlayer">
+      <UniqueIdentifier>{c3c329f2-ffad-4199-838b-0bee17d5aa4a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XSFPlayer_NCSF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XSFConfig_NCSF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\Channel.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\FATSection.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\INFOEntry.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\INFOSection.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\NDSStdHeader.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\Player.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\SBNK.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\SDAT.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\SSEQ.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\SWAR.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\SWAV.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\SYMBSection.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="SSEQPlayer\Track.cpp">
+      <Filter>Source Files\SSEQPlayer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SSEQPlayer\Channel.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\common.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\consts.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\FATSection.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\INFOEntry.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\INFOSection.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\NDSStdHeader.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\Player.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\SBNK.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\SDAT.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\SSEQ.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\SWAR.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\SWAV.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\SYMBSection.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="SSEQPlayer\Track.h">
+      <Filter>Header Files\SSEQPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XSFConfig_NCSF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XSFPlayer_NCSF.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="in_ncsf.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

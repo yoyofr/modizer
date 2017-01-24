@@ -19,7 +19,6 @@ extern BOOL is_ios7;
 //SID2
 #import "SidTune.h"
 
-
 #include "unzip.h"
 
 #include <pthread.h>
@@ -48,8 +47,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize popTipView;
 @synthesize alertRename;
 
-
-
 #include <sys/types.h>
 #include <sys/sysctl.h>
 #include <sys/xattr.h>
@@ -57,7 +54,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 static volatile int mUpdateToNewDB;
 static volatile int mDatabaseCreationInProgress;
 static volatile int db_checked=0;
-
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
 {
@@ -71,7 +67,6 @@ static volatile int db_checked=0;
     int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
     return result == 0;
 }
-
 
 -(void) getDBVersion:(int*)major minor:(int*)minor {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
@@ -395,7 +390,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     }
 }
 
-
 - (NSString *)machine {
 	size_t size;
 	
@@ -453,7 +447,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	ratingImg[3] = @"rating3.png";
 	ratingImg[4] = @"rating4.png";
 	ratingImg[5] = @"rating5.png";
-	
+    
 	//self.tableView.pagingEnabled;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.tableView.sectionHeaderHeight = 18;
@@ -588,8 +582,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	}
 }
 
-
-
 -(void)listLocalFiles {
 	NSString *file,*cpath;
 	NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -605,6 +597,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
+    NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
 	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
@@ -614,7 +608,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
-								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extVGMSTREAM count]+
+								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extXSF count]+[filetype_ext2SF count]+[filetype_extVGMSTREAM count]+
 								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
 								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
@@ -688,6 +682,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	[filetype_ext addObjectsFromArray:filetype_extADPLUG];
 	[filetype_ext addObjectsFromArray:filetype_extSEXYPSF];
     [filetype_ext addObjectsFromArray:filetype_extLAZYUSF];
+    [filetype_ext addObjectsFromArray:filetype_extXSF];
+    [filetype_ext addObjectsFromArray:filetype_ext2SF];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
 	[filetype_ext addObjectsFromArray:filetype_extAOSDK];
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
@@ -1516,14 +1512,16 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         [tableView reloadData];
         [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     }
-    [super viewWillAppear:animated];	
     
+    [super viewWillAppear:animated];
     [self hideWaiting];
     
     
     //[tableView reloadData];
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
+    //[self.view setNeedsLayout];
+    //[self.view layoutIfNeeded];
+    //[tableView reloadData];
+    //[self shortWait];
 }
 
 -(void) refreshViewAfterDownload {
@@ -1557,12 +1555,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
     
     
-    /*[self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
+    /*[tableView setNeedsLayout];
+    [tableView layoutSubviews];
+    [tableView layoutIfNeeded];
     [tableView reloadData];*/
     
     [super viewDidAppear:animated];
-    
+    //[tableView reloadData];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -1582,7 +1581,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [tableView reloadData];
     return YES;
 }
-
 
 #pragma mark - SWTableViewDelegate
 
@@ -1706,7 +1704,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return leftUtilityButtons;
 }
 
-
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
     NSString *cellValue;
@@ -1733,7 +1730,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         } else {
             cell = (SWTableViewCell*)[[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
         }
-        
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
@@ -1795,6 +1791,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         cell.accessoryView=nil;
 //        cell.selectionStyle=UITableViewCellSelectionStyleGray;
     } else {
+        cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
@@ -1804,6 +1801,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     
+    [cell layoutIfNeeded];
     
     topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
     topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
@@ -2071,7 +2069,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [searchBar resignFirstResponder];
 }
 
-
 -(IBAction)goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
     else {
@@ -2143,6 +2140,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     
 }
+
 - (void) secondaryActionTapped: (UIButton*) sender {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
@@ -2207,7 +2205,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
 }
 
-
 - (void) accessoryActionTapped: (UIButton*) sender {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
@@ -2215,7 +2212,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     mAccessoryButton=1;
     [self tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
-
 
 -(void) fillKeysSearchWithPopup {
     int old_mSearch=mSearch;
@@ -2238,7 +2234,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 -(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
+    [NSThread sleepForTimeInterval:0.01f];
 }
 
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -2367,7 +2363,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     mAccessoryButton=0;
 }
-
 
 /* POPUP functions */
 -(void) hidePopup {

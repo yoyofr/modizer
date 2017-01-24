@@ -1,0 +1,455 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\desmume">
+      <UniqueIdentifier>{3f08fcb7-f21e-4d78-8187-283de601babd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\desmume">
+      <UniqueIdentifier>{b095111f-eb58-4f46-bead-1e3bc4d8cfc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\desmume\addons">
+      <UniqueIdentifier>{a857857a-ba63-4ce8-b1c8-28c87c56e491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\desmume\metaspu">
+      <UniqueIdentifier>{dc6fd0ee-7f92-4ca4-ba15-663dfc03d9d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\desmume\metaspu">
+      <UniqueIdentifier>{2e480556-28dd-4cf7-a818-ac973f0bdef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\desmume\metaspu\SoundTouch">
+      <UniqueIdentifier>{81492340-404e-4695-9649-bb4e89ed2693}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\desmume\metaspu\SoundTouch">
+      <UniqueIdentifier>{4f7fbac4-f0a6-43ac-8c61-657966ea5660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\desmume\utils">
+      <UniqueIdentifier>{1a3eb159-8c0f-49aa-ac30-2bc578078bac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\desmume\utils">
+      <UniqueIdentifier>{4a81d59f-7d41-4b9f-9d1c-cbf58a44369a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\desmume\utils\AsmJit">
+      <UniqueIdentifier>{d5d55f5d-549c-4b4a-b2d6-bffdc147e106}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\desmume\utils\AsmJit\x86">
+      <UniqueIdentifier>{1468db50-bcab-4c3c-82d1-657d4398655f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\desmume\utils\AsmJit">
+      <UniqueIdentifier>{72c389f1-eb07-4364-b4b6-5410b9afd4f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\desmume\utils\AsmJit\x86">
+      <UniqueIdentifier>{3e71aea6-b686-4c96-b397-85ada17e6a4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\desmume\utils\AsmJit\base">
+      <UniqueIdentifier>{2245a91d-b729-4c29-9eb2-3d7807cf454a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\desmume\utils\AsmJit\base">
+      <UniqueIdentifier>{3ca7e13f-394b-4d27-bdbf-135feb26480f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XSFPlayer_2SF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\arm_instructions.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\armcpu.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\bios.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\cp15.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\emufile.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\FIFO.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\firmware.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\mc.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\MMU.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\NDSSystem.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\readwrite.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\slot1.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\SPU.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\thumb_instructions.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\version.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\addons\slot1_retail.cpp">
+      <Filter>Source Files\desmume\addons</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\metaspu.cpp">
+      <Filter>Source Files\desmume\metaspu</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SndOut.cpp">
+      <Filter>Source Files\desmume\metaspu</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\Timestretcher.cpp">
+      <Filter>Source Files\desmume\metaspu</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\AAFilter.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\cpu_detect_x86_win.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\FIFOSampleBuffer.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\FIRFilter.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\RateTransposer.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\SoundTouch.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\sse_optimized.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\TDStretch.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\dlditool.cpp">
+      <Filter>Source Files\desmume\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\xstring.cpp">
+      <Filter>Source Files\desmume\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="XSFConfig_2SF.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\arm_jit.cpp">
+      <Filter>Source Files\desmume</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\metaspu\SoundTouch\mmx_optimized.cpp">
+      <Filter>Source Files\desmume\metaspu\SoundTouch</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\assembler.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\codegen.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\compiler.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\constpool.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\containers.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\context.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\cpuinfo.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\cputicks.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\error.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\globals.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\logger.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\operand.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\runtime.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\string.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\vmem.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\base\zone.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\base</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86assembler.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86compiler.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86context.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86cpuinfo.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86inst.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86operand.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86operand_regs.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+    <ClCompile Include="desmume\utils\AsmJit\x86\x86scheduler.cpp">
+      <Filter>Source Files\desmume\utils\AsmJit\x86</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="desmume\armcpu.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\bios.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\bits.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\cp15.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\emufile.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\FIFO.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\firmware.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\matrix.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\mc.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\mem.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\MMU.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\MMU_timing.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\NDSSystem.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\PACKED.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\PACKED_END.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\readwrite.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\registers.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\slot1.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\SPU.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\types.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\version.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\metaspu.h">
+      <Filter>Header Files\desmume\metaspu</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SndOut.h">
+      <Filter>Header Files\desmume\metaspu</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\AAFilter.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\cpu_detect.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\FIFOSampleBuffer.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\FIFOSamplePipe.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\FIRFilter.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\RateTransposer.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\SoundTouch.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\STTypes.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\metaspu\SoundTouch\TDStretch.h">
+      <Filter>Header Files\desmume\metaspu\SoundTouch</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\xstring.h">
+      <Filter>Header Files\desmume\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\instructions.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\arm_jit.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\instruction_attributes.h">
+      <Filter>Header Files\desmume</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\apibegin.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\apiend.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\asmjit.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\build.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\config.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\host.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86.h">
+      <Filter>Header Files\desmume\utils\AsmJit</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\assembler.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\codegen.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\compiler.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\constpool.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\containers.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\context_p.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\cpuinfo.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\cputicks.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\error.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\globals.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\intutil.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\lock.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\logger.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\operand.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\runtime.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\string.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\vectypes.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\vmem.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\base\zone.h">
+      <Filter>Header Files\desmume\utils\AsmJit\base</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86assembler.h">
+      <Filter>Header Files\desmume\utils\AsmJit\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86compiler.h">
+      <Filter>Header Files\desmume\utils\AsmJit\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86context_p.h">
+      <Filter>Header Files\desmume\utils\AsmJit\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86cpuinfo.h">
+      <Filter>Header Files\desmume\utils\AsmJit\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86inst.h">
+      <Filter>Header Files\desmume\utils\AsmJit\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86operand.h">
+      <Filter>Header Files\desmume\utils\AsmJit\x86</Filter>
+    </ClInclude>
+    <ClInclude Include="desmume\utils\AsmJit\x86\x86scheduler_p.h">
+      <Filter>Header Files\desmume\utils\AsmJit\x86</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="desmume\instruction_tabdef.inc">
+      <Filter>Header Files\desmume</Filter>
+    </None>
+    <None Include="desmume\thumb_tabdef.inc">
+      <Filter>Header Files\desmume</Filter>
+    </None>
+  </ItemGroup>
+</Project>
