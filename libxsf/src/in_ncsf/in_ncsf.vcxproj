@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{4EDC9B55-39BE-4D36-8819-F414FC77ED1E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>in_ncsf</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\in_xsf_framework\common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\in_xsf_framework\common.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;IN_NCSF_EXPORTS;_CRT_SECURE_NO_WARNINGS;WINAMP_PLUGIN;_DEBUG;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\in_xsf_framework;$(zlibRootDir)\include;$(WinampSDKDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(zlibRootDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;IN_NCSF_EXPORTS;_CRT_SECURE_NO_WARNINGS;WINAMP_PLUGIN;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\in_xsf_framework;$(zlibRootDir)\include;$(WinampSDKDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(zlibRootDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="SSEQPlayer\Channel.cpp" />
+    <ClCompile Include="SSEQPlayer\FATSection.cpp" />
+    <ClCompile Include="SSEQPlayer\INFOEntry.cpp" />
+    <ClCompile Include="SSEQPlayer\INFOSection.cpp" />
+    <ClCompile Include="SSEQPlayer\NDSStdHeader.cpp" />
+    <ClCompile Include="SSEQPlayer\Player.cpp" />
+    <ClCompile Include="SSEQPlayer\SBNK.cpp" />
+    <ClCompile Include="SSEQPlayer\SDAT.cpp" />
+    <ClCompile Include="SSEQPlayer\SSEQ.cpp" />
+    <ClCompile Include="SSEQPlayer\SWAR.cpp" />
+    <ClCompile Include="SSEQPlayer\SWAV.cpp" />
+    <ClCompile Include="SSEQPlayer\SYMBSection.cpp" />
+    <ClCompile Include="SSEQPlayer\Track.cpp" />
+    <ClCompile Include="XSFConfig_NCSF.cpp" />
+    <ClCompile Include="XSFPlayer_NCSF.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SSEQPlayer\Channel.h" />
+    <ClInclude Include="SSEQPlayer\common.h" />
+    <ClInclude Include="SSEQPlayer\consts.h" />
+    <ClInclude Include="SSEQPlayer\FATSection.h" />
+    <ClInclude Include="SSEQPlayer\INFOEntry.h" />
+    <ClInclude Include="SSEQPlayer\INFOSection.h" />
+    <ClInclude Include="SSEQPlayer\NDSStdHeader.h" />
+    <ClInclude Include="SSEQPlayer\Player.h" />
+    <ClInclude Include="SSEQPlayer\SBNK.h" />
+    <ClInclude Include="SSEQPlayer\SDAT.h" />
+    <ClInclude Include="SSEQPlayer\SSEQ.h" />
+    <ClInclude Include="SSEQPlayer\SWAR.h" />
+    <ClInclude Include="SSEQPlayer\SWAV.h" />
+    <ClInclude Include="SSEQPlayer\SYMBSection.h" />
+    <ClInclude Include="SSEQPlayer\Track.h" />
+    <ClInclude Include="XSFConfig_NCSF.h" />
+    <ClInclude Include="XSFPlayer_NCSF.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\in_xsf_framework\in_xsf_framework.vcxproj">
+      <Project>{9d6d2540-b3dc-462b-bbc0-5b7c32a4d581}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="in_ncsf.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ResourceCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

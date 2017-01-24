@@ -45,8 +45,8 @@
             <extendedEdge key="edgesForExtendedLayout"/>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
             <nil key="simulatedBottomBarMetrics"/>
-            <tabBar key="tabBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="10">
-                <rect key="frame" x="0.0" y="431" width="320" height="49"/>
+            <tabBar key="tabBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" selectedItem="53" id="10">
+                <rect key="frame" x="0.0" y="618" width="375" height="49"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
             </tabBar>
@@ -432,7 +432,7 @@
                                             <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
-                                            <action selector="showSubSongSelector" destination="11" eventType="touchUpInside" id="1628"/>
+                                            <action selector="showSubSongSelector:" destination="11" eventType="touchUpInside" id="5GV-iX-z14"/>
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1647" userLabel="ArcSelector" customClass="BButton">
@@ -444,7 +444,7 @@
                                             <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
-                                            <action selector="showArcSelector" destination="11" eventType="touchUpInside" id="1649"/>
+                                            <action selector="showArcSelector:" destination="11" eventType="touchUpInside" id="PkW-K4-zEh"/>
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1584" userLabel="Main Rating 1">

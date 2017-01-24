@@ -6,6 +6,12 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define SELECTOR_TABVIEWCELL_HEIGHT 50
+#define ARCSUB_MODE_NONE 0
+#define ARCSUB_MODE_ARC 1
+#define ARCSUB_MODE_SUB 2
+static int current_selmode;
+
 extern BOOL is_ios7;
 extern BOOL nvdsp_EQ;
 
@@ -170,7 +176,7 @@ static int display_length_mode=0;
 }
 
 
--(IBAction)showSubSongSelector {
+-(IBAction)showSubSongSelector:(id)sender {
 	/*if (pvSubSongSel.hidden) {
 		pvSubSongSel.hidden=false;
 		pvSubSongLabel.hidden=false;
@@ -184,7 +190,7 @@ static int display_length_mode=0;
 		pvSubSongValidate.hidden=true;
 	}*/
     alertSubSongSel = [UIAlertController
-                   alertControllerWithTitle:@"Choose a subsong"
+                   alertControllerWithTitle:NSLocalizedString(@"Choose a subsong",@"Choose a subsong")
                    message:@""
                    preferredStyle:UIAlertControllerStyleActionSheet];
     
@@ -217,31 +223,119 @@ static int display_length_mode=0;
     //self.outputLabel.text = [self.data objectAtIndex:row];
 }
 
--(IBAction)showArcSelector {
-	alertArcSel = [UIAlertController
-                                alertControllerWithTitle:@"Choose a song"
-                                message:@""
-                                preferredStyle:UIAlertControllerStyleActionSheet];
+-(void) cancelArcSel {
+    current_selmode=ARCSUB_MODE_NONE;
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(IBAction)showArcSelector:(id)sender {
+    UIViewController *controller = [[UIViewController alloc]init];
+    UITableView *alertTableView;
+    CGRect rect,recttv;
+    const NSInteger kAlertTableViewTag = 10001;
     
-    UIAlertAction *cancelAction = [UIAlertAction
-                                   actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel action")
-                                   style:UIAlertActionStyleCancel
-                                   handler:^(UIAlertAction *action)
-                                   {
-                                   }];
-    [alertArcSel addAction:cancelAction];
+    current_selmode=ARCSUB_MODE_ARC;
     
-    for (int i=0;i<[mplayer getArcEntriesCnt];i++) {
-        UIAlertAction* defaultAction =
-        [UIAlertAction actionWithTitle:[mplayer getArcEntryTitle:i]
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * action) {
-                                   [self didSelectRowInAlertArcController:i];
-                               }];
+    float rw,rh,rx,ry;
+    if (self.view.traitCollection.horizontalSizeClass==UIUserInterfaceSizeClassCompact) {
+        float estimated_height=SELECTOR_TABVIEWCELL_HEIGHT*[mplayer getArcEntriesCnt]+32;
+        rx=0;
+        ry=32;
+        rw=self.view.frame.size.width;
         
-        [alertArcSel addAction:defaultAction];
+        if (estimated_height<self.view.frame.size.height-50-ry) rh=estimated_height;
+        else rh=self.view.frame.size.height-50-ry;
+        rect = CGRectMake(rx, ry,rw,rh+50);
+        recttv = CGRectMake(rx, ry,rw,rh);
+        
+    } else {
+        float estimated_height=SELECTOR_TABVIEWCELL_HEIGHT*[mplayer getArcEntriesCnt]+16;
+        
+        rw=self.view.frame.size.width;
+        if (estimated_height<self.view.frame.size.height*0.8f-100) rh=estimated_height;
+        else rh=self.view.frame.size.height*0.8f-100;
+        rect = CGRectMake(rw*0.15f, 0,rw*0.7f,rh+100);
+        recttv = CGRectMake(0, 16,rw*0.7f,rh);
+        
     }
-    [self presentViewController:alertArcSel animated:YES completion:nil];
+    [controller setPreferredContentSize:rect.size];
+    
+    controller.modalPresentationStyle=UIModalPresentationPopover;
+    
+    //alertTableView  = [[UITableView alloc] initWithFrame:recttv];
+    
+    UIView *containerView=[[UIView alloc] initWithFrame:recttv];
+    //self.tableView = UITableView(frame: containerView.bounds, style: .plain)
+    alertTableView  = [[UITableView alloc] initWithFrame:containerView.bounds];
+    containerView.backgroundColor = [UIColor clearColor];
+    //containerView.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
+    //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
+    //containerView.layer.shadowOpacity = 1.0;
+    //containerView.layer.shadowRadius = 2;
+    
+    alertTableView.layer.cornerRadius = 10;
+    alertTableView.layer.masksToBounds = true;
+    [containerView addSubview:alertTableView];
+    
+    alertTableView.delegate = self;
+    alertTableView.dataSource = self;
+    alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
+    alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
+    alertTableView.sectionHeaderHeight=32;
+    
+    [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+    [alertTableView setTag:kAlertTableViewTag];
+    [controller.view addSubview:containerView];// alertTableView];
+    [controller.view bringSubviewToFront:containerView];//alertTableView];
+    [controller.view setUserInteractionEnabled:YES];
+    [alertTableView setUserInteractionEnabled:YES];
+    [alertTableView setAllowsSelection:YES];
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[mplayer getArcIndex] inSection:0];
+    [alertTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    
+    BButton *cancel_btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
+                                                    10,
+                                                    200,
+                                                    
+                                                    30)] autorelease];
+    [cancel_btn setType:BButtonTypePrimary];
+    [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+    [cancel_btn addTarget:self action:@selector(cancelArcSel) forControlEvents:UIControlEventTouchUpInside];
+    [cancel_btn setTitle:NSLocalizedString(@"Cancel", @"Cancel Action") forState:UIControlStateNormal];
+    [controller.view addSubview:cancel_btn];
+    
+    NSDictionary * buttonDic = NSDictionaryOfVariableBindings(cancel_btn);
+    cancel_btn.translatesAutoresizingMaskIntoConstraints = NO;
+    NSArray * hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-50-[cancel_btn]-50-|"
+                                                                     options:0
+                                                                     metrics:nil
+                                                                       views:buttonDic];
+    [controller.view addConstraints:hConstraints];
+    
+    NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[cancel_btn(50)]-16-|"
+                                                                     options:0
+                                                                     metrics:nil
+                                                                       views:buttonDic];
+    [controller.view addConstraints:vConstraints];
+    
+    [self presentViewController:controller animated:YES completion:nil];
+    
+    UIButton *btn=(UIButton*)sender;
+    UIPopoverPresentationController *popoverctrl=controller.popoverPresentationController;
+    popoverctrl.sourceView = btn;
+    popoverctrl.sourceRect = CGRectMake(0, 0, btn.frame.size.width, btn.frame.size.height);
+    if (self.view.traitCollection.horizontalSizeClass==UIUserInterfaceSizeClassCompact) {
+        popoverctrl.backgroundColor=[UIColor blackColor];
+    } else {
+        popoverctrl.backgroundColor=[UIColor clearColor];
+    }
+    
+    popoverctrl.delegate=self;
+    
+    //popoverctrl.permittedArrowDirections=UIPopoverArrowDirectionUp;
+    
+    
 }
 
 -(IBAction)pushedLoopInf {
@@ -778,6 +872,7 @@ static float movePinchScale,movePinchScaleOld;
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,mplayer.mod_currentsub,mplayer.mod_minsub,mplayer.mod_maxsub];
             }
 			//[pvSubSongSel reloadAllComponents];
+            current_selmode=ARCSUB_MODE_NONE;
             [self dismissViewControllerAnimated:YES completion:nil];
 			
 			if (btnShowSubSong.hidden==true) {
@@ -1717,6 +1812,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     [self checkForCover:filePath];
     
+    current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
 	
 	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
@@ -2048,6 +2144,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //[self checkAvailableCovers:mPlaylist_pos];
     mPlaylist[mPlaylist_pos].cover_flag=-1;
     
+    current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
     
 	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
@@ -5651,6 +5748,168 @@ extern "C" int current_sample;
         [UIView commitAnimations];
     }
 }
+
+#pragma mark - Table view data source
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    UILabel *myLabel = [[UILabel alloc] init];
+    NSString *lbl;
+    switch (current_selmode) {
+        case ARCSUB_MODE_ARC:
+            lbl=NSLocalizedString(@"Choose a song",@"Choose a song");
+            break;
+        case ARCSUB_MODE_SUB:
+            lbl=NSLocalizedString(@"Choose a subsong",@"Choose a subsong");
+            break;
+    }
+    
+    
+    [myLabel setText:lbl];
+    [myLabel setTextAlignment:NSTextAlignmentCenter];
+    
+    myLabel.backgroundColor = [UIColor blackColor];
+    myLabel.textColor = [UIColor whiteColor];
+    myLabel.font = [UIFont fontWithName:@"Gotham-Bold" size:17.0f];
+    return myLabel;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    switch (current_selmode) {
+        case ARCSUB_MODE_ARC:
+            return NSLocalizedString(@"Choose a song",@"Choose a song");
+        case ARCSUB_MODE_SUB:
+            return NSLocalizedString(@"Choose a subsong",@"Choose a subsong");
+    }
+    return 0;
+}
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    switch (current_selmode) {
+        case ARCSUB_MODE_ARC:
+            return [mplayer getArcEntriesCnt];
+        case ARCSUB_MODE_SUB:
+            return mplayer.mod_subsongs;
+    }
+    return 0;
+}
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
+    return nil;
+}
+
+- (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title {
+    return NSNotFound;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *CellIdentifier = @"Cell";
+    const NSInteger TOP_LABEL_TAG = 1001;
+    UILabel *topLabel;
+    
+    
+    
+    UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        
+        cell.frame=CGRectMake(0,0,tabView.frame.size.width,SELECTOR_TABVIEWCELL_HEIGHT);
+        
+        [cell setBackgroundColor:[UIColor clearColor]];
+        
+        UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+        imageView.contentMode = UIViewContentModeScaleToFill;
+        cell.backgroundView = imageView;
+        [imageView release];
+        
+        //
+        // Create the label for the top row of text
+        //
+        topLabel = [[[UILabel alloc] init] autorelease];
+        [cell.contentView addSubview:topLabel];
+        //
+        // Configure the properties for the text that are the same on every row
+        //
+        topLabel.tag = TOP_LABEL_TAG;
+        topLabel.backgroundColor = [UIColor clearColor];
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+        topLabel.font = [UIFont boldSystemFontOfSize:14];
+        topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        topLabel.opaque=TRUE;
+        topLabel.numberOfLines=0;
+        
+        cell.accessoryView=nil;
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    } else {
+        topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+    }
+    topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+    topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+    
+    topLabel.frame= CGRectMake(4,
+                               0,
+                               tabView.bounds.size.width-8,
+                               SELECTOR_TABVIEWCELL_HEIGHT);
+    
+    
+    switch (current_selmode) {
+        case ARCSUB_MODE_ARC:
+            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getArcEntryTitle:indexPath.row]];
+            break;
+        case ARCSUB_MODE_SUB:
+            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getSubTitle:indexPath.row]];
+            break;
+        default:
+            topLabel.text=@"N/A";
+            break;
+    }
+    
+    return cell;
+}
+
+// Override to support editing the table view.
+- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+}
+/*- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
+ return proposedDestinationIndexPath;
+ }*/
+// Override to support rearranging the table view.
+/*- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+ 
+ }*/
+// Override to support conditional rearranging of the table view.
+- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Return NO if you do not want the item to be re-orderable.
+    return NO;
+}
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Return NO if you do not want the item to be re-orderable.
+    return NO;
+}
+
+
+
+#pragma mark Table view delegate
+
+- (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // Navigation logic may go here. Create and push another view controller.
+    switch (current_selmode) {
+        case ARCSUB_MODE_ARC:
+            [self didSelectRowInAlertArcController:indexPath.row];
+            break;
+        case ARCSUB_MODE_SUB:
+            [self didSelectRowInAlertSubController:indexPath.row];
+            break;
+        default:
+            break;
+    }
+    current_selmode=ARCSUB_MODE_NONE;
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 
 
 

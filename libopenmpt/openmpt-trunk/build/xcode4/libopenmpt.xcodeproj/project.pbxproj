@@ -1082,6 +1082,7 @@
 					../../include/vorbis/include,
 					../../include/zlib,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/DebugShared;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
@@ -1151,6 +1152,7 @@
 					../../include/vorbis/include,
 					../../include/zlib,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/ReleaseShared;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
@@ -1220,6 +1222,7 @@
 					../../include/vorbis/include,
 					../../include/zlib,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/Debug;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
@@ -1317,6 +1320,7 @@
 					../../include/vorbis/include,
 					../../include/zlib,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OBJROOT = ../obj/xcode4/libopenmpt/x86_64/Release;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";

@@ -21,6 +21,14 @@
 //MODPLUG
 //#import "modplug.h"
 
+
+//XSF
+#import "XSFPlayer.h"
+#import "XSFPlayer_NCSF.h"
+#import "XSFPlayer_2SF.h"
+#import "XSFConfig.h"
+
+
 //GME
 #import "gme.h"
 
@@ -55,30 +63,61 @@ extern "C" {
 #import "../../vgmplay/vgm/chips/mamedef.h"
 #import "../../vgmplay/vgm/VGMFile.h"
 #import "../../vgmplay/vgm/VGMPlay_Intf.h"
+    
+    //2SF
+//#import "nds/vio2sf/vio2sf.h"
+
 
 }
 
 enum MMP_PLAYER_TYPE {
     MMP_NONE=0,
+    MMP_PMDMINI,
+    MMP_ADPLUG,
+    MMP_SIDPLAY,
+    MMP_OPENMPT,
+    MMP_DUMB,
+    MMP_UADE,
     MMP_TIMIDITY,
     MMP_VGMSTREAM,
     MMP_LAZYUSF,
     MMP_VGMPLAY,
-    MMP_PMDMINI,
-    MMP_DUMB,
+    MMP_GME,
     MMP_ASAP,
     MMP_GSF,
     MMP_MDXPDX,
     MMP_SC68,
     MMP_STSOUND,
-    MMP_SIDPLAY,
     MMP_HVL,
-    MMP_UADE,
     MMP_SEXYPSF,
     MMP_AOSDK,
-    MMP_ADPLUG,
-    MMP_OPENMPT,
-    MMP_GME
+    MMP_XSF,
+    MMP_2SF
+};
+
+static const char *mmp_player_name[]={
+    "none",
+    "pmdmini",
+    "adplug",
+    "sidplay",
+    "openmpt",
+    "dumb",
+    "uade",
+    "timidity",
+    "vgmstream",
+    "lazyusf",
+    "vgmplay",
+    "gme",
+    "asap",
+    "gsf",
+    "mdxpdx",
+    "sc68",
+    "stsound",
+    "hvl",
+    "sexypsf",
+    "aosdk",
+    "xsf",
+    "2sf"
 };
 
 
@@ -296,5 +335,30 @@ enum MMP_PLAYER_TYPE {
 -(int) shouldUpdateInfos;
 -(void) setInfosUpdated;
 -(int) getChannelVolume:(int)channel;
+
+//loaders
+-(int) mmp_gsfLoad:(NSString*)filePath;
+-(int) mmp_mdxpdxLoad:(NSString*)filePath;
+-(int) mmp_sc68Load:(NSString*)filePath;
+-(int) mmp_stsoundLoad:(NSString*)filePath;
+-(int) mmp_sidplayLoad:(NSString*)filePath;
+-(int) mmp_hvlLoad:(NSString*)filePath;
+-(int) mmp_uadeLoad:(NSString*)filePath;
+-(int) mmp_sexypsfLoad:(NSString*)filePath;
+-(int) mmp_aosdkLoad:(NSString*)filePath;
+-(int) mmp_openmptLoad:(NSString*)filePath;
+-(int) mmp_timidityLoad:(NSString*)filePath;
+-(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension;
+-(int) mmp_lazyusfLoad:(NSString*)filePath;
+-(int) mmp_xsfLoad:(NSString*)filePath;
+-(int) mmp_vgmplayLoad:(NSString*)filePath;
+-(int) mmp_pmdminiLoad:(NSString*)filePath;
+-(int) mmp_dumbLoad:(NSString*)filePath;
+-(int) mmp_asapLoad:(NSString*)filePath;
+-(int) mmp_adplugLoad:(NSString*)filePath;
+-(int) mmp_gmeLoad:(NSString*)filePath;
+-(int) mmp_2sfLoad:(NSString*)filePath;
+
+
 
 @end

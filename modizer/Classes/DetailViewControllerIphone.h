@@ -50,18 +50,15 @@ struct Resources;
 class CFont;
 class CGLString;
 
-@interface DetailViewControllerIphone : UIViewController <UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate > { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
-    
     
     //EQ
     EQViewController *eqVC;
     
-    
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;
 	///////////////////////
-    
     
     //CoverFlow
     TKCoverflowView *coverflow; 
@@ -89,13 +86,11 @@ class CGLString;
 	UIView *mInWasView;
 	BOOL mInWasViewHidden;
 
-
 	IBOutlet RRSGlowLabel *labelModuleName;
 
     //Subsongs and Archive entries picker
 	IBOutlet UIButton *btnChangeTime;
     IBOutlet BButton *btnShowArcList,*btnShowSubSong;
-
 	
 	IBOutlet UILabel *labelTime,*labelModuleLength;
 	IBOutlet UILabel *labelSeeking;
@@ -112,8 +107,6 @@ class CGLString;
 	IBOutlet UIView *infoMsgView;
 	IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
 	IBOutlet UIView *detailView,*commandViewU,*mainView,*infoView;
-    
-    
 	
 	IBOutlet UIButton *oglButton;
 
@@ -121,9 +114,6 @@ class CGLString;
     
     IBOutlet UIImageView *cover_view,*cover_viewBG;
     UIImageView *gifAnimation;
-
-	
-    
     
 	int sliderProgressModuleEdit;
 	int sliderProgressModuleChanged;
@@ -150,7 +140,6 @@ class CGLString;
 	
 	t_plPlaylist_entry *mPlaylist;
 	int	mPlaylist_pos,mPlaylist_size;
-	
 	
 	BOOL mShuffle;
     int mShouldUpdateInfos;
@@ -293,9 +282,9 @@ class CGLString;
 
 -(IBAction) changeTimeDisplay;
 
--(IBAction)showSubSongSelector;
+-(IBAction)showSubSongSelector:(id)sender;
 -(IBAction)playSelectedSubSong;
--(IBAction)showArcSelector;
+-(IBAction)showArcSelector:(id)sender;
 -(IBAction)playSelectedArc;
 
 
