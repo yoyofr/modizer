@@ -391,7 +391,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     if (mDetailPlayerMode) self.navigationItem.rightBarButtonItem = nil;
     else {
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
@@ -1898,6 +1898,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (childController) {
         [childController viewDidDisappear:FALSE];
     }
+        
     [super viewDidDisappear:animated];
     
 }
@@ -3056,6 +3057,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
 }
 - (void)dealloc {
+    
     [waitingView removeFromSuperview];
     [waitingView release];
     

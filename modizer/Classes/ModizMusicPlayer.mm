@@ -3522,7 +3522,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         } else{
             while ( !fex_done( fex ) ) {
                 if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
-                    if (!idx) return [NSString stringWithFormat:@"%s",fex_name(fex)];
+                    if (!idx) {
+                        NSString *result=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                        fex_close( fex );
+                        return result;
+                    }
                     idx--;
                 }
                 if (fex_next( fex )) {
@@ -5549,6 +5553,11 @@ static const unsigned BitsPerSample = 16;*/
         if (!OpenOtherFile([filePath UTF8String])) {
             NSLog(@"Cannot OpenVGMFile file %@",filePath);
             mPlayType=0;
+            
+            //StopVGM();
+            //CloseVGMFile();
+            VGMPlay_Deinit();
+            
             return -2;
         }
     PlayVGM();
@@ -6548,10 +6557,11 @@ static const unsigned BitsPerSample = 16;*/
     
     //NSLog(@"Loading file:%@ ",filePath);
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
+    
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];
         int successful_loading=0;
-        
+        //NSLog(@"pl_idx: %d",i);
         switch (pl_idx) {
             case MMP_TIMIDITY:
                 if ([self mmp_timidityLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
@@ -7082,7 +7092,12 @@ static const unsigned BitsPerSample = 16;*/
         return [NSString stringWithFormat:@"%s",gmetype];
     }
     if (mPlayType==MMP_OPENMPT) {
-        return [NSString stringWithFormat:@"%s %s",ModPlug_GetModuleTypeLStr(mp_file),ModPlug_GetModuleContainerLStr(mp_file)];
+        char *str_type=(char*)ModPlug_GetModuleTypeLStr(mp_file);
+        char *str_cont=(char*)ModPlug_GetModuleContainerLStr(mp_file);
+        NSString *result=[NSString stringWithFormat:@"%s %s",str_type,str_cont];
+        if (str_type) free(str_type);
+        if (str_cont) free(str_cont);
+        return result;
     }
     if (mPlayType==MMP_ADPLUG) return [NSString stringWithFormat:@"%s",(adPlugPlayer->gettype()).c_str()];
     if (mPlayType==MMP_AOSDK) return [NSString stringWithFormat:@"%s",ao_types[ao_type].name];

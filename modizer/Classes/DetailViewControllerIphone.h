@@ -77,8 +77,7 @@ class CGLString;
 
 	int oglViewFullscreen,oglViewFullscreenChanged;
 	int orientationHV;
-    UIAlertController *alertArcSel,*alertSubSongSel;
-	IBOutlet OGLView* m_oglView;
+    IBOutlet OGLView* m_oglView;
 	EAGLContext* m_oglContext;
 	st::HardwareClock m_clock;
 	CADisplayLink* m_displayLink;
@@ -253,8 +252,6 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
 @property (nonatomic, retain) IBOutlet BButton *infoButton;
 @property (nonatomic, retain) IBOutlet UIButton *oglButton;
-
-@property (nonatomic, retain) UIAlertController *alertArcSel,*alertSubSongSel;
 
 @property (nonatomic, retain) NSTimer *repeatingTimer;
 

@@ -79,6 +79,7 @@ static int *fft_freqAvgCount;
     int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
 }*/
 
+static t_playlist* temp_playlist;
 
 extern volatile t_settings settings[MAX_SETTINGS];
 
@@ -163,7 +164,6 @@ static int display_length_mode=0;
 @synthesize oglButton;
 
 @synthesize btnShowSubSong,btnShowArcList;
-@synthesize alertArcSel,alertSubSongSel;
 
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
@@ -175,44 +175,117 @@ static int display_length_mode=0;
     [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
 }
 
+-(void) cancelSubSel {
+    current_selmode=ARCSUB_MODE_NONE;
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+
 
 -(IBAction)showSubSongSelector:(id)sender {
-	/*if (pvSubSongSel.hidden) {
-		pvSubSongSel.hidden=false;
-		pvSubSongLabel.hidden=false;
-		pvSubSongValidate.hidden=false;
-		[pvSubSongSel selectRow:mplayer.mod_currentsub-mplayer.mod_minsub inComponent:0 animated:TRUE];
-     
-	}
-	else {
-		pvSubSongSel.hidden=true;
-		pvSubSongLabel.hidden=true;
-		pvSubSongValidate.hidden=true;
-	}*/
-    alertSubSongSel = [UIAlertController
-                   alertControllerWithTitle:NSLocalizedString(@"Choose a subsong",@"Choose a subsong")
-                   message:@""
-                   preferredStyle:UIAlertControllerStyleActionSheet];
+    UIViewController *controller = [[[UIViewController alloc]init] autorelease];
+    UITableView *alertTableView;
+    CGRect rect,recttv;
+    const NSInteger kAlertTableViewTag = 10001;
     
-    UIAlertAction *cancelAction = [UIAlertAction
-                                   actionWithTitle:NSLocalizedString(@"Cancel", @"Cancel action")
-                                   style:UIAlertActionStyleCancel
-                                   handler:^(UIAlertAction *action)
-                                   {
-                                   }];
-    [alertSubSongSel addAction:cancelAction];
+    current_selmode=ARCSUB_MODE_SUB;
     
-    for (int i=0;i<mplayer.mod_subsongs;i++) {
-        UIAlertAction* defaultAction =
-        [UIAlertAction actionWithTitle:[mplayer getSubTitle:i]
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * action) {
-                                   [self didSelectRowInAlertSubController:i];
-                               }];
+    float rw,rh,rx,ry;
+    if (self.view.traitCollection.horizontalSizeClass==UIUserInterfaceSizeClassCompact) {
+        float estimated_height=SELECTOR_TABVIEWCELL_HEIGHT*mplayer.mod_subsongs+32;
+        rx=0;
+        ry=32;
+        rw=self.view.frame.size.width;
         
-        [alertSubSongSel addAction:defaultAction];
+        if (estimated_height<self.view.frame.size.height-50-ry) rh=estimated_height;
+        else rh=self.view.frame.size.height-50-ry;
+        rect = CGRectMake(rx, ry,rw,rh+50);
+        recttv = CGRectMake(rx, ry,rw,rh);
+        
+    } else {
+        float estimated_height=SELECTOR_TABVIEWCELL_HEIGHT*mplayer.mod_subsongs+16;
+        
+        rw=self.view.frame.size.width;
+        if (estimated_height<self.view.frame.size.height*0.8f-100) rh=estimated_height;
+        else rh=self.view.frame.size.height*0.8f-100;
+        rect = CGRectMake(rw*0.15f, 0,rw*0.7f,rh+100);
+        recttv = CGRectMake(0, 16,rw*0.7f,rh);
+        
     }
-    [self presentViewController:alertSubSongSel animated:YES completion:nil];
+    [controller setPreferredContentSize:rect.size];
+    
+    controller.modalPresentationStyle=UIModalPresentationPopover;
+    
+    UIView *containerView=[[[UIView alloc] initWithFrame:recttv] autorelease];
+    alertTableView  = [[[UITableView alloc] initWithFrame:containerView.bounds] autorelease];
+    containerView.backgroundColor = [UIColor clearColor];
+    //containerView.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
+    //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
+    //containerView.layer.shadowOpacity = 1.0;
+    //containerView.layer.shadowRadius = 2;
+
+    alertTableView.layer.cornerRadius = 10;
+    alertTableView.layer.masksToBounds = true;
+    [containerView addSubview:alertTableView];
+    
+    alertTableView.delegate = self;
+    alertTableView.dataSource = self;
+    alertTableView.tableFooterView = [[[UIView alloc]initWithFrame:CGRectZero] autorelease];
+    alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
+    alertTableView.sectionHeaderHeight=32;
+    
+    [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+    [alertTableView setTag:kAlertTableViewTag];
+    [controller.view addSubview:containerView];// alertTableView];
+    
+    
+    [controller.view bringSubviewToFront:containerView];//alertTableView];
+    [controller.view setUserInteractionEnabled:YES];
+    [alertTableView setUserInteractionEnabled:YES];
+    [alertTableView setAllowsSelection:YES];
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:mplayer.mod_currentsub inSection:0];
+    [alertTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    
+    BButton *cancel_btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
+                                                                    10,
+                                                                    200,
+                                                                    
+                                                                    30)] autorelease];
+    [cancel_btn setType:BButtonTypePrimary];
+    [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+    [cancel_btn addTarget:self action:@selector(cancelSubSel) forControlEvents:UIControlEventTouchUpInside];
+    [cancel_btn setTitle:NSLocalizedString(@"Cancel", @"Cancel Action") forState:UIControlStateNormal];
+    [controller.view addSubview:cancel_btn];
+    
+    NSDictionary * buttonDic = NSDictionaryOfVariableBindings(cancel_btn);
+    cancel_btn.translatesAutoresizingMaskIntoConstraints = NO;
+    NSArray * hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-50-[cancel_btn]-50-|"
+                                                                     options:0
+                                                                     metrics:nil
+                                                                       views:buttonDic];
+    [controller.view addConstraints:hConstraints];
+    
+    NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[cancel_btn(50)]-16-|"
+                                                                     options:0
+                                                                     metrics:nil
+                                                                       views:buttonDic];
+    [controller.view addConstraints:vConstraints];
+    
+    [self presentViewController:controller animated:YES completion:nil];
+    
+    UIButton *btn=(UIButton*)sender;
+    UIPopoverPresentationController *popoverctrl=controller.popoverPresentationController;
+    popoverctrl.sourceView = btn;
+    popoverctrl.sourceRect = CGRectMake(0, 0, btn.frame.size.width, btn.frame.size.height);
+    if (self.view.traitCollection.horizontalSizeClass==UIUserInterfaceSizeClassCompact) {
+        popoverctrl.backgroundColor=[UIColor blackColor];
+    } else {
+        popoverctrl.backgroundColor=[UIColor clearColor];
+    }
+    
+    popoverctrl.delegate=self;
+    //popoverctrl.permittedArrowDirections=UIPopoverArrowDirectionUp;
 }
 
 -(void)didSelectRowInAlertArcController:(NSInteger)row {
@@ -229,7 +302,7 @@ static int display_length_mode=0;
 }
 
 -(IBAction)showArcSelector:(id)sender {
-    UIViewController *controller = [[UIViewController alloc]init];
+    UIViewController *controller = [[[UIViewController alloc]init] autorelease];
     UITableView *alertTableView;
     CGRect rect,recttv;
     const NSInteger kAlertTableViewTag = 10001;
@@ -264,9 +337,9 @@ static int display_length_mode=0;
     
     //alertTableView  = [[UITableView alloc] initWithFrame:recttv];
     
-    UIView *containerView=[[UIView alloc] initWithFrame:recttv];
+    UIView *containerView=[[[UIView alloc] initWithFrame:recttv] autorelease];
     //self.tableView = UITableView(frame: containerView.bounds, style: .plain)
-    alertTableView  = [[UITableView alloc] initWithFrame:containerView.bounds];
+    alertTableView  = [[[UITableView alloc] initWithFrame:containerView.bounds] autorelease];
     containerView.backgroundColor = [UIColor clearColor];
     //containerView.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
@@ -279,13 +352,15 @@ static int display_length_mode=0;
     
     alertTableView.delegate = self;
     alertTableView.dataSource = self;
-    alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
+    alertTableView.tableFooterView = [[[UIView alloc]initWithFrame:CGRectZero] autorelease];
     alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
     alertTableView.sectionHeaderHeight=32;
     
     [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
     [alertTableView setTag:kAlertTableViewTag];
     [controller.view addSubview:containerView];// alertTableView];
+    
+    
     [controller.view bringSubviewToFront:containerView];//alertTableView];
     [controller.view setUserInteractionEnabled:YES];
     [alertTableView setUserInteractionEnabled:YES];
@@ -1121,30 +1196,30 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)showPlaylist {
     
-    t_playlist* playlist=(t_playlist*)malloc(sizeof(t_playlist));
-    memset(playlist,0,sizeof(t_playlist));
+    temp_playlist=(t_playlist*)malloc(sizeof(t_playlist));
+    memset(temp_playlist,0,sizeof(t_playlist));
     
     if (mPlaylist_size) { //display current queue
         for (int i=0;i<mPlaylist_size;i++) {
-            playlist->entries[i].label=[[NSString alloc] initWithString:mPlaylist[i].mPlaylistFilename];
-            playlist->entries[i].fullpath=[[NSString alloc ] initWithString:mPlaylist[i].mPlaylistFilepath];
+            temp_playlist->entries[i].label=[[NSString alloc] initWithString:mPlaylist[i].mPlaylistFilename];
+            temp_playlist->entries[i].fullpath=[[NSString alloc ] initWithString:mPlaylist[i].mPlaylistFilepath];
             
-            playlist->entries[i].ratings=mPlaylist[i].mPlaylistRating;
-            playlist->entries[i].playcounts=-1;
+            temp_playlist->entries[i].ratings=mPlaylist[i].mPlaylistRating;
+            temp_playlist->entries[i].playcounts=-1;
         }
-        playlist->nb_entries=mPlaylist_size;
-        playlist->playlist_name=[[NSString alloc] initWithString:@"Now playing"];
-        playlist->playlist_id=nil;
+        temp_playlist->nb_entries=mPlaylist_size;
+        temp_playlist->playlist_name=[[NSString alloc] initWithString:@"Now playing"];
+        temp_playlist->playlist_id=nil;
         
-        RootViewControllerPlaylist *childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        RootViewControllerPlaylist *childController = [[[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
         //set new title
-        childController.title = playlist->playlist_name;
+        childController.title = temp_playlist->playlist_name;
         ((RootViewControllerPlaylist*)childController)->show_playlist=1;
         
         // Set new directory
         ((RootViewControllerPlaylist*)childController)->browse_depth = 1;
         ((RootViewControllerPlaylist*)childController)->detailViewController=self;
-        ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+        ((RootViewControllerPlaylist*)childController)->playlist=temp_playlist;
         ((RootViewControllerPlaylist*)childController)->mFreePlaylist=1;
         ((RootViewControllerPlaylist*)childController)->mDetailPlayerMode=1;
         ((RootViewControllerPlaylist*)childController)->integrated_playlist=1;
@@ -1794,6 +1869,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (mShuffle) {
         if ([mplayer isArchive]) {
 //            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
                 //error while loading
@@ -1951,12 +2027,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 
 -(void) checkForCover:(NSString *)filePath {
-    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF;
+    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF;
     pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
+    pathFolderImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
     pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
     pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
+    pathFileImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
     pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
     
     
@@ -1968,7 +2046,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     gifAnimation=nil;
     
     cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
-    
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPEG];
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
     if (cover_img==nil) {
         cover_img=[UIImage imageWithContentsOfFile:pathFileImgGIF];
@@ -1982,6 +2060,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPG];
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPEG];
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgPNG];
     if (cover_img==nil) {
         cover_img=[UIImage imageWithContentsOfFile:pathFolderImgGIF];
@@ -2121,6 +2200,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (mShuffle) {
         if ([mplayer isArchive]) {
 //            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
                 //error while loading
@@ -3226,7 +3306,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	[self changeLoopMode];
     [mplayer setLoopInf:mplayer.mLoopMode^1];
     [self pushedLoopInf];
-	mShuffle^=1;
+    if (mShuffle) mShuffle=NO;
+    else mShuffle=YES;
 	[self shuffle];
 	
 	//update settings according toi what was loaded
@@ -3455,8 +3536,128 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
  }
  */
 
+-(UIImage*) fexGetArchiveCover:(NSString *)filepath {
+    UIImage *res_image=nil;
+    
+    fex_type_t type;
+    fex_t* fex;
+    const char *path=[filepath UTF8String];
+    
+    //NSLog(@"%s",path);
+    
+    /* Determine file's type */
+    if (fex_identify_file( &type, path )) {
+        NSLog(@"fex cannot determine type of %s",path);
+    }
+    /* Only open files that fex can handle */
+    if ( type != NULL ) {
+        if (fex_open_type( &fex, path, type )) {
+            NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
+        } else{
+            while ( !fex_done( fex ) ) {
+                NSString *strFilename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                //NSLog(@"%@",strFilename);
+                bool found_img=false;
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
+                    //PNG detected
+                    found_img=true;
+                }
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPG"]==NSOrderedSame) {
+                    //JPG detected
+                    found_img=true;
+                }
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPEG"]==NSOrderedSame) {
+                    //JPEG detected
+                    found_img=true;
+                }
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
+                    //GIF detected
+                    found_img=true;
+                }
+                
+                if (found_img) {
+                    char *data_ptr;
+                    fex_data(fex,(const void**)&data_ptr);
+                    if (data_ptr) {
+                        long long size_data=fex_size(fex);
+                        //NSLog(@"read img data, size: %d",size_data);
+                        res_image=[UIImage imageWithData:[NSData dataWithBytes:data_ptr length:size_data]];
+                        break;
+                    }
+                }
+
+                
+                if (fex_next( fex )) {
+                    NSLog(@"Error during fex scanning");
+                    break;
+                }
+            }
+            fex_close( fex );
+        }
+        fex=NULL;
+    }
+    
+    //res_image=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
+    
+    return res_image;
+}
+
+-(int) fexScanArchiveForCover:(const char *)path {
+    fex_type_t type;
+    fex_t* fex;
+    
+    //NSLog(@"%s",path);
+    
+    /* Determine file's type */
+    if (fex_identify_file( &type, path )) {
+        NSLog(@"fex cannot determine type of %s",path);
+    }
+    /* Only open files that fex can handle */
+    if ( type != NULL ) {
+        if (fex_open_type( &fex, path, type )) {
+            NSLog(@"cannot fex open : %s",path);// / type : %s",path,type.extension);
+        } else{
+            while ( !fex_done( fex ) ) {
+                NSString *strFilename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                //NSLog(@"%@",strFilename);
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
+                    //PNG detected
+                    fex_close(fex);
+                    return 1;
+                }
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPG"]==NSOrderedSame) {
+                    //JPG detected
+                    fex_close(fex);
+                    return 2;
+                }
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"JPEG"]==NSOrderedSame) {
+                    //JPEG detected
+                    fex_close(fex);
+                    return 3;
+                }
+                if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
+                    //GIF detected
+                    fex_close(fex);
+                    return 4;
+                }
+                
+                if (fex_next( fex )) {
+                    NSLog(@"Error during fex scanning");
+                    break;
+                }
+            }
+            fex_close( fex );
+        }
+        fex = NULL;
+    } else {
+        //NSLog( @"Skipping unsupported archive: %s\n", path );
+    }
+    return 0;
+}
+
+
 - (void) checkAvailableCovers:(int)index {
-    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFileImgJPG,*pathFolderImgGIF,*pathFileImgGIF,*filePath,*basePath;
+    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF,*fullFilepath,*filePath,*basePath;
     NSFileManager *fileMngr=[[NSFileManager alloc] init];
     
 //    NSLog(@"look for %d",index);
@@ -3464,22 +3665,28 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     mPlaylist[index].cover_flag=0; //used for cover flag
     filePath=mPlaylist[index].mPlaylistFilepath;
     basePath=[filePath stringByDeletingLastPathComponent];
+    
+    fullFilepath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath];
+    
     pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",basePath];
     pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",basePath];
+    pathFolderImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",basePath];
     pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",basePath];
     basePath=[filePath stringByDeletingPathExtension];
     pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",basePath];
     pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",basePath];
+    pathFileImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpeg",basePath];
     pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",basePath];
     //isReadableFileAtPath
     if ([fileMngr fileExistsAtPath:pathFileImgJPG]) mPlaylist[index].cover_flag=1;
-    else if ([fileMngr fileExistsAtPath:pathFileImgPNG]) mPlaylist[index].cover_flag=2;
+    else if ([fileMngr fileExistsAtPath:pathFileImgJPEG]) mPlaylist[index].cover_flag=2;
+    else if ([fileMngr fileExistsAtPath:pathFileImgPNG]) mPlaylist[index].cover_flag=3;
     else if ([fileMngr fileExistsAtPath:pathFileImgGIF]) mPlaylist[index].cover_flag=4;
-    else if ([fileMngr fileExistsAtPath:pathFolderImgJPG]) mPlaylist[index].cover_flag=8;
-    else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[index].cover_flag=16;
-    else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=32;
-    else { //TODO: check if it is an archive and if it contains an image file
-    }
+    else if ([fileMngr fileExistsAtPath:pathFolderImgJPG]) mPlaylist[index].cover_flag=5;
+    else if ([fileMngr fileExistsAtPath:pathFolderImgJPEG]) mPlaylist[index].cover_flag=6;
+    else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[index].cover_flag=7;
+    else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=8;
+    else if ([self fexScanArchiveForCover:[fullFilepath UTF8String] ]) mPlaylist[index].cover_flag=9;
     
     [fileMngr release];
 }
@@ -3522,7 +3729,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             break;
     }
 
-    
     /*if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
     {
     }
@@ -3538,8 +3744,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     [super viewDidLoad];
     
-    alertArcSel=nil;
-    alertSubSongSel=nil;
+    temp_playlist=NULL;
+    
     
     default_cover=[UIImage imageNamed:@"AppStore512.png"];
     [default_cover retain];
@@ -4364,6 +4570,23 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 - (void)viewDidAppear:(BOOL)animated {
 	mHasFocus=1;
+    
+    // if temp_playlist, free it
+    if (temp_playlist) {
+        
+        if (mPlaylist_size) { //display current queue
+            for (int i=0;i<mPlaylist_size;i++) {
+                [temp_playlist->entries[i].label release];
+                [temp_playlist->entries[i].fullpath release];
+            }
+            [temp_playlist->playlist_name release];
+        }
+        free(temp_playlist);
+        
+        temp_playlist=NULL;
+    }
+    //
+    
     [super viewDidAppear:animated];
 }
 /*
@@ -5613,15 +5836,23 @@ extern "C" int current_sample;
         NSString *filePath,*coverFilePath;
         filePath=mPlaylist[index].mPlaylistFilepath;
         
-        if (mPlaylist[index].cover_flag&1) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
-        else if (mPlaylist[index].cover_flag&2) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
-        else if (mPlaylist[index].cover_flag&4) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
-        else if (mPlaylist[index].cover_flag&8) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
-        else if (mPlaylist[index].cover_flag&16) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
-        else if (mPlaylist[index].cover_flag&32) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+        UIImage *img=nil;
         
+        coverFilePath=nil;
+        if (mPlaylist[index].cover_flag==1) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
+        else if (mPlaylist[index].cover_flag==2) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
+        else if (mPlaylist[index].cover_flag==3) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
+        else if (mPlaylist[index].cover_flag==4) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
+        else if (mPlaylist[index].cover_flag==5) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
+        else if (mPlaylist[index].cover_flag==6) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
+        else if (mPlaylist[index].cover_flag==7) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
+        else if (mPlaylist[index].cover_flag==8) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+        else if (mPlaylist[index].cover_flag==9) {
+            //NSLog(@"embedded img in archive");
+            img=[self fexGetArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
+        }
         //            NSLog(@"got %d %@",mPlaylist[index].cover_flag,coverFilePath);
-        UIImage *img=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
+        if (coverFilePath) [UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
         
         if (img==nil) { //file not available anymore
             mPlaylist[index].cover_flag=0;
@@ -5752,7 +5983,7 @@ extern "C" int current_sample;
 #pragma mark - Table view data source
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    UILabel *myLabel = [[UILabel alloc] init];
+    UILabel *myLabel = [[[UILabel alloc] init] autorelease];
     NSString *lbl;
     switch (current_selmode) {
         case ARCSUB_MODE_ARC:
@@ -5773,7 +6004,7 @@ extern "C" int current_sample;
     return myLabel;
 }
 
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+/*- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     switch (current_selmode) {
         case ARCSUB_MODE_ARC:
             return NSLocalizedString(@"Choose a song",@"Choose a song");
@@ -5781,7 +6012,8 @@ extern "C" int current_sample;
             return NSLocalizedString(@"Choose a subsong",@"Choose a subsong");
     }
     return 0;
-}
+}*/
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
@@ -5909,8 +6141,6 @@ extern "C" int current_sample;
     current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
-
-
 
 
 @end

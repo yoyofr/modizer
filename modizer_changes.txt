@@ -4,10 +4,14 @@ Requested:
 - Cloud synchro
 
 - make ftp & http sources for DB editable
-- MPG123: optim ARM Neon only supporting 32bits mode -> cannot compile for 64bits (require rewrite of all .S neon assembly code)
+- modland auto update / db creation
+- hvsc auto update / db creation
+- asma auto update / db creation
+- joshw links integration
 
 -(void) PlaySeek:(int)startPos subsong:(int)subsong {
 => subsong pour differentes lib (asap ?)
+
 
 2.6
 ÑÑÑ
@@ -17,7 +21,9 @@ Requested:
 - [Update] Libopenmpt update (2017/01/07) + MO3 support
 - [Update] HSVC #66
 - [Update] Modland DB (2017/01/01)
-- [Bugfix] Screen layout issues fixed
+- [Update] Stability improved
+- [Update] Improved UI
+- [Bugfix] Screen layouts
 - [Bugfix] Subsong management issue with ASAP
 - [Bugfix] Default length not being used in some cases
 - [Bugfix] Extension instead of filename for some amiga files
