@@ -55,6 +55,8 @@ void binfbase::seek(long pos, Offset offs)
   }
 
   if(error == -1) err |= Fatal;
+    
+    if (error == 0) err = err & ~(Eof);
 }
 
 long binfbase::pos()

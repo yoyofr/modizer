@@ -7,7 +7,6 @@ Requested:
 - modland auto update / db creation
 - hvsc auto update / db creation
 - asma auto update / db creation
-- joshw links integration
 
 -(void) PlaySeek:(int)startPos subsong:(int)subsong {
 => subsong pour differentes lib (asap ?)

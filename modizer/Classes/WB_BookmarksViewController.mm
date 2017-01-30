@@ -75,7 +75,7 @@
 }
 -(void) loadBuiltinBookmarks {
     builtin_url_count=0;
-    [self addbuiltinURL:@"http://www.exotica.org.uk/" name:@"Exotica"];
+    /*[self addbuiltinURL:@"http://www.exotica.org.uk/" name:@"Exotica"];
     [self addbuiltinURL:@"http://amp.dascene.net/" name:@"Amiga Music Preservation"];
     [self addbuiltinURL:@"http://modarchive.org/" name:@"MOD Archive"];
     [self addbuiltinURL:@"http://sndh.atari.org/sndh/browser/index.php?dir=sndh_lf%2F" name:@"Atari ST SNDH Archive"];    
@@ -91,20 +91,27 @@
     [self addbuiltinURL:@"http://www.mirsoft.info/gamemids-archive.php" name:@"Mirsoft Midis"];
     [self addbuiltinURL:@"http://www.midishrine.com/" name:@"Midishrine"];
     [self addbuiltinURL:@"http://www.lvbeethoven.com/Midi/index.html" name:@"Beethoven Midis"];
-    
+    */
 }
 -(void) loadBookmarks {
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
 	
 	valNb=[prefs objectForKey:@"Bookmarks_count"];
-	if (valNb == nil) custom_url_count = 0;
-	custom_url_count = [valNb intValue];
-	for (int i=0;i<custom_url_count;i++) {
-		custom_URL[i]=[[NSString alloc] initWithString:[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]]];
-		custom_URL_name[i]=[[NSString alloc] initWithString:[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]]];
-	}
-	
+    if (valNb == nil) custom_url_count = 0;
+    else custom_url_count = [valNb intValue];
+    int custom_url_count_tmp=0;
+    for (int i=0;i<custom_url_count;i++) {
+        NSString *tmpstr1,*tmpstr2;
+        tmpstr1=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
+        tmpstr2=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
+        if (tmpstr1 && tmpstr2) {
+            custom_URL[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr1];
+            custom_URL_name[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr2];
+            custom_url_count_tmp++;
+        }
+    }
+    custom_url_count=custom_url_count_tmp;
 }
 
 
@@ -189,7 +196,7 @@
 {
     // Return the number of rows in the section.
     if (list_builtin) return builtin_url_count;
-    return custom_url_count+1;
+    return custom_url_count;//+1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -327,15 +334,15 @@
         topLabel.text=builtin_URL_name[indexPath.row];
         bottomLabel.text=builtin_URL[indexPath.row];
     } else {
-        if (indexPath.row==0) {
+        /*if (indexPath.row==0) {
             topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             topLabel.text=NSLocalizedString(@"Builtin URLs", @"");
             bottomLabel.text=NSLocalizedString(@"Mods, spc, vgm, midis, ...", @"");
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        } else {
-            topLabel.text=custom_URL_name[indexPath.row-1];
-            bottomLabel.text=custom_URL[indexPath.row-1];
-        }
+        } else {*/
+            topLabel.text=custom_URL_name[indexPath.row];//-1];
+            bottomLabel.text=custom_URL[indexPath.row];//-1];
+        //}
     }
     
     return cell;
@@ -346,6 +353,7 @@
 {
     // Return NO if you do not want the specified item to be editable.
     if (list_builtin) return NO;
+    //if (indexPath.row==0) return NO;
     return YES;
 }
 
@@ -355,7 +363,8 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
         
-        for (int i=indexPath.row-1;i<custom_url_count-1;i++) {
+        //for (int i=indexPath.row-1;i<custom_url_count-1;i++) {
+         for (int i=indexPath.row;i<custom_url_count-1;i++) {
             custom_URL_name[i]=custom_URL_name[i+1];
             custom_URL[i]=custom_URL[i+1];
         }
@@ -376,13 +385,21 @@
 
 // Override to support rearranging the table view.
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-    NSString *tmpStr=custom_URL_name[fromIndexPath.row-1];
+    /*NSString *tmpStr=custom_URL_name[fromIndexPath.row-1];
     custom_URL_name[fromIndexPath.row-1]=custom_URL_name[toIndexPath.row-1];
     custom_URL_name[toIndexPath.row-1]=tmpStr;
     
     tmpStr=custom_URL[fromIndexPath.row-1];
     custom_URL[fromIndexPath.row-1]=custom_URL[toIndexPath.row-1];
-    custom_URL[toIndexPath.row-1]=tmpStr;
+    custom_URL[toIndexPath.row-1]=tmpStr;*/
+    
+    NSString *tmpStr=custom_URL_name[fromIndexPath.row];
+    custom_URL_name[fromIndexPath.row]=custom_URL_name[toIndexPath.row];
+    custom_URL_name[toIndexPath.row]=tmpStr;
+    
+    tmpStr=custom_URL[fromIndexPath.row];
+    custom_URL[fromIndexPath.row]=custom_URL[toIndexPath.row];
+    custom_URL[toIndexPath.row]=tmpStr;
     
     [self saveBookmarks];
 }
@@ -396,11 +413,11 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (list_builtin) {
+    /*if (list_builtin) {
         [webBrowser goToURL:builtin_URL[indexPath.row]];
         [self closeBookmarks];
-    } else {
-        if (indexPath.row==0) {
+    } else {*/
+        /*if (indexPath.row==0) {
             //display builtin
             WB_BookmarksViewController *bookmarksVC = [[[WB_BookmarksViewController alloc]  initWithNibName:@"BookmarksViewController" bundle:[NSBundle mainBundle]] autorelease];
             //set new title
@@ -410,11 +427,11 @@
             bookmarksVC->list_builtin=1;
             [self.navigationController pushViewController:bookmarksVC animated:YES];
         }
-        if (indexPath.row>=1) {
-            [webBrowser goToURL:custom_URL[indexPath.row-1]];
-            [self closeBookmarks];
-        }
-    }
+        if (indexPath.row>=1) {*/
+        [webBrowser goToURL:custom_URL[indexPath.row]];//-1]];
+        [self closeBookmarks];
+      //  }
+    //}
 }
 
 @end

@@ -365,7 +365,7 @@ void optVGMPLAYChangedC(id param) {
     settings[UADE_GainValue].detail.mdz_slider.slider_value=0.5;
     settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
     settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
-    
+    settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
     /////////////////////////////////////
     //SEXYPSF
     /////////////////////////////////////
@@ -1326,6 +1326,14 @@ void optVGMPLAYChangedC(id param) {
     settings[UADE_PanValue].detail.mdz_slider.slider_min_value=0;
     settings[UADE_PanValue].detail.mdz_slider.slider_max_value=1;
     
+    settings[UADE_NTSC].type=MDZ_BOOLSWITCH;
+    settings[UADE_NTSC].label=(char*)"Force NTSC";
+    settings[UADE_NTSC].description=NULL;
+    settings[UADE_NTSC].family=MDZ_SETTINGS_FAMILY_UADE;
+    settings[UADE_NTSC].sub_family=0;
+    settings[UADE_NTSC].callback=&optUADEChangedC;
+    settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
+    
     /////////////////////////////////////
     //SEXYPSF
     /////////////////////////////////////
@@ -1488,7 +1496,7 @@ void optVGMPLAYChangedC(id param) {
 {
     [super viewDidLoad];
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];

@@ -462,7 +462,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [self.tableView addGestureRecognizer:lpgr];
     [lpgr release];
     
-	
 	shouldFillKeys=1;
 	mSearch=0;
 	
@@ -476,15 +475,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 	mClickedPrimAction=0;
 	list=nil;
 	keys=nil;
-    
-    
 	
 	if (browse_depth==0) { //Local mode
 		currentPath = @"Documents";
 		[currentPath retain];
 	}
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];

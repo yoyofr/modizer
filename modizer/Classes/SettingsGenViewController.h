@@ -160,6 +160,7 @@ enum MDZ_SETTINGS {
             UADE_PanValue,
         UADE_Gain,
             UADE_GainValue,
+        UADE_NTSC,
     
         MDZ_SETTINGS_FAMILY_VGMPLAY,
         VGMPLAY_Maxloop,

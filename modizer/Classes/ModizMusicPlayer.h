@@ -143,7 +143,7 @@ static const char *mmp_player_name[]={
 	struct hvl_tune *hvl_song;
 	//UADE
 	int mUADE_OptChange;
-	int mUADE_OptLED,mUADE_OptNORM,mUADE_OptPOSTFX,mUADE_OptPAN,mUADE_OptHEAD,mUADE_OptGAIN;
+	int mUADE_OptLED,mUADE_OptNORM,mUADE_OptPOSTFX,mUADE_OptPAN,mUADE_OptHEAD,mUADE_OptGAIN,mUADE_OptNTSC;
 	float mUADE_OptGAINValue,mUADE_OptPANValue;
 	//GME
 	int optGMEFadeOut;
@@ -281,6 +281,7 @@ static const char *mmp_player_name[]={
 -(void) optUADE_Pan:(int)isOn;
 -(void) optUADE_PanValue:(float_t)val;
 -(void) optUADE_Head:(int)isOn;
+-(void) optUADE_NTSC:(int)isOn;
 -(void) optUADE_Gain:(int)isOn;
 -(void) optUADE_PanValue:(float_t)val;
 -(void) optUADE_GainValue:(float_t)val;

@@ -1129,6 +1129,7 @@ void propertyListenerCallback (void                   *inUserData,              
         //UADE specific
         mUADE_OptLED=0;
         mUADE_OptNORM=0;
+        mUADE_OptNTSC=0;
         mUADE_OptPOSTFX=1;
         mUADE_OptPAN=0;
         mUADE_OptPANValue=0.7f;
@@ -4834,6 +4835,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     free(tmp_md5_data);
     fclose(f);
     
+    //printf("loading md5=%s\n",song_md5);
+    
     uadeThread_running=0;
     [NSThread detachNewThreadSelector:@selector(uadeThread) toTarget:self withObject:NULL];
     
@@ -4858,7 +4861,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         return -3;
     }
     
-    //		printf("Player candidate: %s\n", UADEstate.ep->playername);
+    		//printf("Player candidate: %s\n", UADEstate.ep->playername);
     
     if (strcmp(UADEstate.ep->playername, "custom") == 0) {
         strcpy(UADEplayername, modulename);
@@ -4867,7 +4870,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         sprintf(UADEplayername, "%s/%s", UADEstate.config.basedir.name, UADEstate.ep->playername);
     }
     
-    //		printf("Player name: %s\n", UADEplayername);
+    		//printf("Player name: %s\n", UADEplayername);
     
     if (strlen(UADEplayername) == 0) {
         printf("Error: an empty player name given\n");
@@ -4895,7 +4898,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     UADEstate.config.panning_enable=mUADE_OptPAN;
     UADEstate.config.panning=mUADE_OptPANValue;
     UADEstate.config.no_ep_end=(mLoopMode==1?1:0);
-    //        UADEstate.config.use_ntsc=1;
+    
+    UADEstate.config.use_ntsc=mUADE_OptNTSC;
+    
+    if (strcasecmp(song_md5,"a39585c86c7a521ba28075a102f32396")==0) { //Indianapolis 500 (cust)
+        UADEstate.config.use_ntsc=1;
+    }
     
     uade_set_effects(&UADEstate);
     
@@ -4933,8 +4941,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-    
-    
+
     //		NSLog(@"playtime : %d",UADEstate.song->playtime);
     
     return 0;
@@ -6766,7 +6773,8 @@ static const unsigned BitsPerSample = 16;*/
             [self Play];
             break;
         case MMP_HVL://HVL/AHX
-            mod_wantedcurrentsub=subsong;
+            moveToSubSongIndex=1;
+            moveToSubSongIndex=subsong;
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -6819,6 +6827,8 @@ static const unsigned BitsPerSample = 16;*/
             [self Play];
             break;
         case MMP_ASAP: //ASAP
+            moveToSubSong=1;
+            moveToSubSongIndex=subsong;
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -7354,6 +7364,11 @@ extern "C" void adjust_amplification(void);
     mUADE_OptNORM=isOn;
     if (isOn) uade_effect_enable(&(UADEstate.effects), UADE_EFFECT_NORMALISE);
     else uade_effect_disable(&(UADEstate.effects), UADE_EFFECT_NORMALISE);
+}
+-(void) optUADE_NTSC:(int)isOn {
+    mUADE_OptNTSC=isOn;
+    //if (isOn) uade_effect_enable(&(UADEstate.effects), UADE_EFFECT_NORMALISE);
+    //else uade_effect_disable(&(UADEstate.effects), UADE_EFFECT_NORMALISE);
 }
 -(void) optUADE_PostFX:(int)isOn {
     mUADE_OptPOSTFX=isOn;

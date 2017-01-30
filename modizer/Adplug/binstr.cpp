@@ -35,12 +35,12 @@ void binsbase::seek(long p, Offset offs)
   switch(offs) {
   case Set: spos = data + p; break;
   case Add: spos += p; break;
-  case End: spos = data + length - 1 + p; break;
+  case End: spos = data + length + p; break;
   }
 
   // Seek before start of data
   if(spos < data) {
-    err |= Eof;
+    //err |= Eof;
     spos = data;
     return;
   }
@@ -48,7 +48,7 @@ void binsbase::seek(long p, Offset offs)
   // Seek after end of data
   if(spos - data >= length) {
     err |= Eof;
-    spos = data + length - 1;
+    spos = data + length ;
   }
 }
 
@@ -95,11 +95,12 @@ binosstream::~binosstream()
 
 void binosstream::putByte(Byte b)
 {
-  *spos = b;
-  spos++;
-
-  if(spos - data >= length)
-    spos = data + length - 1;
+    if(spos - data >= length) {
+        err |= Eof;
+    } else {
+        *spos = b;
+        spos++;
+    }
 }
 
 /***** binsstream *****/

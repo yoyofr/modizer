@@ -55,6 +55,7 @@
 -(IBAction) refresh:(id)sender;
 
 -(void)goToURL:(NSString*)address;
+-(void)goToURLwithLoad:(NSString*)address;
 -(void)loadWorldCharts;
 -(void)loadUserGuide;
 -(void)loadLastURL;
