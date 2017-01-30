@@ -28,6 +28,10 @@
 "Browser_Web_MainKey"="Web";
 "Browser_Web_SubKey"="Naviguer et télécharger des fichiers.";
 
+"Browser_WebVGM_MainKey"="VGMRips";
+"Browser_WebVGM_SubKey"="Video game music rips";
+
+
 "Browser_WorldCharts_MainKey"="Classements mondial";
 "Browser_WorldCharts_SubKey"="Top listes & liens.";
 

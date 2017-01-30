@@ -187,8 +187,29 @@ float CimfPlayer::getrate(const std::string &filename, const CFileProvider &fp, 
     f->seek(0, binio::Set);
     CClockRecord *record = (CClockRecord *)db->search(CAdPlugDatabase::CKey(*f));
       if (record && record->type == CAdPlugDatabase::CRecord::ClockSpeed) {
-//          printf("speed:%f\n",record->clock);
+          //printf("speed:%f\n",record->clock);
           return record->clock;
+      }
+      
+      CAdPlugDatabase::CRecord *cur_record;
+      db->goto_begin();
+      char *fname=(char*)(filename.c_str());
+      fname=strrchr(fname,'/')+1;
+      while (cur_record=db->get_record()) {
+          int res=strncasecmp(fname,cur_record->comment.c_str(),strlen(fname)-3);
+          //printf("%s | %s | %d\n",fname,cur_record->comment.c_str(),res);
+          if (res==0) {
+              //printf("%s %s\n",cur_record->comment.c_str(),cur_record->filetype.c_str());
+              if (cur_record->type == CAdPlugDatabase::CRecord::ClockSpeed) {
+                  CClockRecord *clockrecord=(CClockRecord *)cur_record;
+                  //printf("speed:%f\n",clockrecord->clock);
+                  return clockrecord->clock;
+              }
+          }
+          
+          if (db->go_forward()==false) break;
+          
+          
       }
   }
 

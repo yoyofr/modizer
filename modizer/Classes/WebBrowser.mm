@@ -20,6 +20,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #define WEB_MODE 0
 #define WCHARTS_MODE 1
 #define GUIDE_MODE 2
+#define WEB_MODE_WITH_LOAD 3
 
 #define TO_LOAD 1
 #define LOADED 2
@@ -129,11 +130,19 @@ static UIAlertView *alertChooseName;
 	
 	valNb=[prefs objectForKey:@"Bookmarks_count"];
 	if (valNb == nil) custom_url_count = 0;
-	custom_url_count = [valNb intValue];
-	for (int i=0;i<custom_url_count;i++) {
-		custom_URL[i]=[[NSString alloc] initWithString:[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]]];
-		custom_URL_name[i]=[[NSString alloc] initWithString:[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]]];
+	else custom_url_count = [valNb intValue];
+    int custom_url_count_tmp=0;
+    for (int i=0;i<custom_url_count;i++) {
+        NSString *tmpstr1,*tmpstr2;
+        tmpstr1=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
+        tmpstr2=[prefs objectForKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
+        if (tmpstr1 && tmpstr2) {
+            custom_URL[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr1];
+            custom_URL_name[custom_url_count_tmp]=[[NSString alloc] initWithString:tmpstr2];
+            custom_url_count_tmp++;
+        }
 	}
+    custom_url_count=custom_url_count_tmp;
 	
 }
 
@@ -143,7 +152,8 @@ static UIAlertView *alertChooseName;
         case WCHARTS_MODE:[self loadWorldCharts];break;
         case GUIDE_MODE:[self loadUserGuide];break;
         default:
-        case WEB_MODE:[self loadHome];break;
+        case WEB_MODE:
+            [self loadHome];break;
     }
 }
 
@@ -219,6 +229,7 @@ static UIAlertView *alertChooseName;
     if ((currentMode==WCHARTS_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
         if (lastURL) [lastURL release];
+        lastURL=nil;
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];        
     }
@@ -235,6 +246,7 @@ static UIAlertView *alertChooseName;
 	if ((currentMode==GUIDE_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
         if (lastURL) [lastURL release];
+        lastURL=nil;
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];
     }
@@ -278,6 +290,21 @@ static UIAlertView *alertChooseName;
     
     [self textFieldShouldReturn:addressTestField];
 }
+
+-(void)goToURLwithLoad:(NSString*)address {
+    loadStatus=TO_LOAD;
+    currentMode=WEB_MODE;
+    addressTestField.text=address;
+    
+    [self textFieldShouldReturn:addressTestField];
+    
+    //    toolBar.hidden=FALSE;
+    CGSize cursize=[self currentSize];
+    //    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
+    
+    [webView loadHTMLString:EMPTY_PAGE baseURL:nil];
+}
+
 
 - (void)loadHome {
     CGSize cursize=[self currentSize];
@@ -744,7 +771,7 @@ static UIAlertView *alertChooseName;
 - (void)webViewDidFinishLoad:(UIWebView*)webV {
     
     //update addressfield indicator
-    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
+    UIButton *button = [[[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)] autorelease];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
@@ -786,6 +813,7 @@ static UIAlertView *alertChooseName;
 				}
 			}
             if (lastURL) [lastURL release];
+            lastURL=nil;
             lastURL=[[NSString alloc] initWithString:addressTestField.text];
 			[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
 		}
@@ -899,7 +927,7 @@ static UIAlertView *alertChooseName;
     
 	self.hidesBottomBarWhenPushed = YES;
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
+    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
@@ -985,6 +1013,8 @@ static UIAlertView *alertChooseName;
 
 - (void)dealloc {
 	[self saveBookmarks];
+    if (lastURL) [lastURL release];
+    lastURL=nil;
 	for (int i=0;i<custom_url_count;i++) {
 		[custom_URL[i] release];
 		[custom_URL_name[i] release];

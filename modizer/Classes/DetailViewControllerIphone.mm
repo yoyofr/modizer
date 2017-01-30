@@ -180,8 +180,6 @@ static int display_length_mode=0;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-
-
 -(IBAction)showSubSongSelector:(id)sender {
     UIViewController *controller = [[[UIViewController alloc]init] autorelease];
     UITableView *alertTableView;
@@ -417,11 +415,11 @@ static int display_length_mode=0;
 	if (mplayer.mLoopMode==0) {
 		[mplayer setLoopInf:1];
 		[btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.5f blue:1.0f alpha:1.0f] forState:UIControlStateNormal];
-		if (mPaused==0) [self play_curEntry];
+		if ([mplayer isPlaying]) [self play_curEntry];
 	} else  {
 		[mplayer setLoopInf:0];
 		[btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.3f blue:0.3f alpha:1.0f] forState:UIControlStateNormal];
-		if (mPaused==0) [self play_curEntry];
+		if ([mplayer isPlaying]) [self play_curEntry];
 	}
 }
 
@@ -668,6 +666,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optUADE_Gain:settings[UADE_Gain].detail.mdz_boolswitch.switch_value];
         [mplayer optUADE_PanValue:settings[UADE_PanValue].detail.mdz_slider.slider_value];
         [mplayer optUADE_GainValue:settings[UADE_GainValue].detail.mdz_slider.slider_value];
+        [mplayer optUADE_NTSC:settings[UADE_NTSC].detail.mdz_boolswitch.switch_value];
     }
     
     /////////////////////
@@ -1344,7 +1343,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
         [self play_loadArchiveModule];
         [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-    } else [mplayer playPrevSub];
+    } else {
+        [mplayer playPrevSub];
+        if (mPaused) [self playPushed:nil];
+    }
 }
 - (IBAction)playNextSub {
     //if archive and no subsongs => change archive index
@@ -1353,7 +1355,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
         [self play_loadArchiveModule];
         [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-    } else [mplayer playNextSub];
+    } else {
+        [mplayer playNextSub];
+        if (mPaused) [self playPushed:nil];
+    }
 }
 
 -(void) longPressNextSubArc:(UIGestureRecognizer *)gestureRecognizer {
@@ -5851,8 +5856,8 @@ extern "C" int current_sample;
             //NSLog(@"embedded img in archive");
             img=[self fexGetArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
         }
-        //            NSLog(@"got %d %@",mPlaylist[index].cover_flag,coverFilePath);
-        if (coverFilePath) [UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
+                    //NSLog(@"got idx %d %d %@",index,mPlaylist[index].cover_flag,coverFilePath);
+        if (coverFilePath) img=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
         
         if (img==nil) { //file not available anymore
             mPlaylist[index].cover_flag=0;
