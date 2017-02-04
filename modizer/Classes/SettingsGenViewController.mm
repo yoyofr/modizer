@@ -1944,6 +1944,16 @@ void optVGMPLAYChangedC(id param) {
 					UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
 					[alert show];
 					settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
+                    
+                    ftpserver->StopListening();
+                    // Delete users
+                    ftpserver->DeleteUser(pAnonymousUser);
+                    ftpserver->DeleteUser(pUser);
+                    if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
+                        free(settings[FTP_STATUS].detail.mdz_msgbox.text);
+                    }
+                    settings[FTP_STATUS].detail.mdz_msgbox.text=(char*)malloc(strlen("Inactive")+1);
+                    strcpy(settings[FTP_STATUS].detail.mdz_msgbox.text,"Inactive");
 				}
 			}
 			
@@ -1976,6 +1986,25 @@ void optVGMPLAYChangedC(id param) {
 	[tableView reloadData];
 }
 
-
+-(void) dealloc {
+    if (bServerRunning) { // Stop FTP server
+        // Stop the server
+        ftpserver->StopListening();
+        // Delete users
+        ftpserver->DeleteUser(pAnonymousUser);
+        ftpserver->DeleteUser(pUser);
+        bServerRunning = false;
+        if (settings[FTP_STATUS].detail.mdz_msgbox.text) {
+            free(settings[FTP_STATUS].detail.mdz_msgbox.text);
+        }
+    }
+    
+    if (ftpserver) {
+        delete ftpserver;
+        ftpserver=NULL;
+    }
+    
+    [super dealloc];
+}
 
 @end

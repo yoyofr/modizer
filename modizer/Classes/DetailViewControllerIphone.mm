@@ -2460,6 +2460,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
         waitingView.frame=CGRectMake(mDevice_ww/2-60,mDevice_hh/2-60,120,110);
         
+        if (coverflow) {
         if (coverflow.hidden==FALSE) {
             
             [UIView beginAnimations:@"cflow_out" context:nil];
@@ -2481,7 +2482,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [UIView commitAnimations];
             [[self navigationController] setNavigationBarHidden:NO animated:NO];
         }
-        
+        }
 		if (oglViewFullscreen) {
             if (mHasFocus) {
                 [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
@@ -3552,7 +3553,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     /* Determine file's type */
     if (fex_identify_file( &type, path )) {
-        NSLog(@"fex cannot determine type of %s",path);
+        //NSLog(@"fex cannot determine type of %s",path);
     }
     /* Only open files that fex can handle */
     if ( type != NULL ) {
@@ -4467,6 +4468,27 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     if (is_ios7) {
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+    }
+    
+    //coverflow
+    if (coverflow && (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value==FALSE)) {
+        coverflow.alpha=0;
+        lblMainCoverflow.alpha=0;
+        lblSecCoverflow.alpha=0;
+        lblCurrentSongCFlow.alpha=0;
+        lblTimeFCflow.alpha=0;
+        btnPlayCFlow.alpha=0;
+        btnPauseCFlow.alpha=0;
+        btnBackCFlow.alpha=0;
+        
+        coverflow.hidden=TRUE;
+        lblMainCoverflow.hidden=TRUE;
+        lblSecCoverflow.hidden=TRUE;
+        lblCurrentSongCFlow.hidden=TRUE;
+        lblTimeFCflow.hidden=TRUE;
+        btnPlayCFlow.hidden=TRUE;
+        btnPauseCFlow.hidden=TRUE;
+        btnBackCFlow.hidden=TRUE;
     }
     
     //eq

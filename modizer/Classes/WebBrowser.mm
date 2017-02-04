@@ -933,7 +933,6 @@ static UIAlertView *alertChooseName;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
-    [btn release];
 
 	
 	webView.scalesPageToFit = YES;

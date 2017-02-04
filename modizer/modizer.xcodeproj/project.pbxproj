@@ -289,6 +289,7 @@
 		5928624A1E2D3BD500A08A4E /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 592862491E2D3BD500A08A4E /* AppStore512.png */; };
 		592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59321DD61E2560B300020079 /* libvgmstream.a */; };
+		59517DED1E40782700FAA0BF /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B431E3D103100C629AA /* tabview_gradient40Blue.png */; };
 		59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */; };
 		59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */; };
@@ -313,12 +314,6 @@
 		CC03F2DE12160FE000F2AC65 /* buttonR.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D812160FE000F2AC65 /* buttonR.png */; };
 		CC03F2DF12160FE000F2AC65 /* buttonY-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */; };
 		CC03F2E012160FE000F2AC65 /* buttonY.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2DA12160FE000F2AC65 /* buttonY.png */; };
-		CC1343571ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m in Sources */ = {isa = PBXBuildFile; fileRef = CC13434C1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1343581ABFFF2A00CAB284 /* SWCellScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC13434E1ABFFF2A00CAB284 /* SWCellScrollView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1343591ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343501ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC13435A1ABFFF2A00CAB284 /* SWTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343521ABFFF2A00CAB284 /* SWTableViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC13435B1ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC13435C1ABFFF2A00CAB284 /* SWUtilityButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */; };
 		CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1343741AC17B3A00CAB284 /* libvgmplay.a */; };
 		CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC17F07E1AC87866006C1E82 /* Images-2.xcassets */; };
@@ -1755,6 +1750,8 @@
 		592862491E2D3BD500A08A4E /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
 		592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxsf.xcodeproj; path = ../libxsf/libxsf/libxsf.xcodeproj; sourceTree = "<group>"; };
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = ../vgmstream/vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
+		59517DEB1E40782700FAA0BF /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = SESlideTableViewCell/lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
+		59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = SESlideTableViewCell/lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
 		59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Orange.png; sourceTree = "<group>"; };
@@ -1777,18 +1774,6 @@
 		CC03F2D812160FE000F2AC65 /* buttonR.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonR.png; sourceTree = "<group>"; };
 		CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonY-highlight.png"; sourceTree = "<group>"; };
 		CC03F2DA12160FE000F2AC65 /* buttonY.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonY.png; sourceTree = "<group>"; };
-		CC13434B1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+SWUtilityButtons.h"; sourceTree = "<group>"; };
-		CC13434C1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+SWUtilityButtons.m"; sourceTree = "<group>"; };
-		CC13434D1ABFFF2A00CAB284 /* SWCellScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWCellScrollView.h; sourceTree = "<group>"; };
-		CC13434E1ABFFF2A00CAB284 /* SWCellScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWCellScrollView.m; sourceTree = "<group>"; };
-		CC13434F1ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWLongPressGestureRecognizer.h; sourceTree = "<group>"; };
-		CC1343501ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWLongPressGestureRecognizer.m; sourceTree = "<group>"; };
-		CC1343511ABFFF2A00CAB284 /* SWTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWTableViewCell.h; sourceTree = "<group>"; };
-		CC1343521ABFFF2A00CAB284 /* SWTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWTableViewCell.m; sourceTree = "<group>"; };
-		CC1343531ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWUtilityButtonTapGestureRecognizer.h; sourceTree = "<group>"; };
-		CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUtilityButtonTapGestureRecognizer.m; sourceTree = "<group>"; };
-		CC1343551ABFFF2A00CAB284 /* SWUtilityButtonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWUtilityButtonView.h; sourceTree = "<group>"; };
-		CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWUtilityButtonView.m; sourceTree = "<group>"; };
 		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmplay.xcodeproj; path = ../vgmplay/vgmplay.xcodeproj; sourceTree = "<group>"; };
 		CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VGMPlay.ini; path = ../../vgmplay/vgm/VGMPlay.ini; sourceTree = "<group>"; };
 		CC17F07E1AC87866006C1E82 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = "Images-2.xcassets"; path = "modizer/Images-2.xcassets"; sourceTree = SOURCE_ROOT; };
@@ -3660,23 +3645,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		CC13434A1ABFFF2A00CAB284 /* SWTableViewCell */ = {
+		59517DE61E40778D00FAA0BF /* SESlideTableViewCell */ = {
 			isa = PBXGroup;
 			children = (
-				CC13434B1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.h */,
-				CC13434C1ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m */,
-				CC13434D1ABFFF2A00CAB284 /* SWCellScrollView.h */,
-				CC13434E1ABFFF2A00CAB284 /* SWCellScrollView.m */,
-				CC13434F1ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.h */,
-				CC1343501ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m */,
-				CC1343511ABFFF2A00CAB284 /* SWTableViewCell.h */,
-				CC1343521ABFFF2A00CAB284 /* SWTableViewCell.m */,
-				CC1343531ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.h */,
-				CC1343541ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m */,
-				CC1343551ABFFF2A00CAB284 /* SWUtilityButtonView.h */,
-				CC1343561ABFFF2A00CAB284 /* SWUtilityButtonView.m */,
+				59517DEB1E40782700FAA0BF /* SESlideTableViewCell.h */,
+				59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */,
 			);
-			path = SWTableViewCell;
+			name = SESlideTableViewCell;
 			sourceTree = "<group>";
 		};
 		CC1343701AC17B3900CAB284 /* Products */ = {
@@ -5032,8 +5007,8 @@
 		CC9B194012FF0BCA00985967 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				59517DE61E40778D00FAA0BF /* SESlideTableViewCell */,
 				CC19620E1B66BCD600778A3E /* libresample.xcodeproj */,
-				CC13434A1ABFFF2A00CAB284 /* SWTableViewCell */,
 				CCC6776E17F6B92500F16A54 /* CMPopTipView */,
 				CCFDC4EB17DB105400C6692C /* NVDSP */,
 				CC1A553917D5C0820009E78B /* BlackRaccoon */,
@@ -6227,7 +6202,6 @@
 				CC1E5BB71200B3B8000A8A4E /* ASIDownloadCache.m in Sources */,
 				CC1E5BB81200B3B8000A8A4E /* ASIFormDataRequest.m in Sources */,
 				CC1E5BB91200B3B8000A8A4E /* ASIHTTPRequest.m in Sources */,
-				CC1343571ABFFF2A00CAB284 /* NSMutableArray+SWUtilityButtons.m in Sources */,
 				CC1E5BBA1200B3B8000A8A4E /* ASIInputStream.m in Sources */,
 				CC1E5BBB1200B3B8000A8A4E /* ASINetworkQueue.m in Sources */,
 				CC1E5BC31200B3B8000A8A4E /* Reachability.m in Sources */,
@@ -6242,7 +6216,6 @@
 				CC1E5C7F1200B3B8000A8A4E /* RenderUtils.mm in Sources */,
 				CC1E5C801200B3B8000A8A4E /* TextureUtils.mm in Sources */,
 				CC1E5CC81200B3B8000A8A4E /* Misc.c in Sources */,
-				CC13435B1ABFFF2A00CAB284 /* SWUtilityButtonTapGestureRecognizer.m in Sources */,
 				CC1E5CC91200B3B8000A8A4E /* PsxBios.c in Sources */,
 				CC1E5CCA1200B3B8000A8A4E /* PsxCounters.c in Sources */,
 				CC1E5CCB1200B3B8000A8A4E /* PsxDma.c in Sources */,
@@ -6254,7 +6227,6 @@
 				CC1E5CD71200B3B8000A8A4E /* spu.c in Sources */,
 				CC1E5CDA1200B3B8000A8A4E /* Spu.c in Sources */,
 				CC1E5D241200B3B8000A8A4E /* ioapi.c in Sources */,
-				CC13435C1ABFFF2A00CAB284 /* SWUtilityButtonView.m in Sources */,
 				CC1E5D251200B3B8000A8A4E /* unzip.c in Sources */,
 				CC1E5D261200B3F3000A8A4E /* spu.c in Sources */,
 				CC1E5D281200B405000A8A4E /* eng_psf2.c in Sources */,
@@ -6367,6 +6339,7 @@
 				CC1A555217D5C0820009E78B /* BRRequestDelete.m in Sources */,
 				CCCE9CE7123D807A007D9462 /* init68.c in Sources */,
 				CCCE9CE8123D807A007D9462 /* istream68.c in Sources */,
+				59517DED1E40782700FAA0BF /* SESlideTableViewCell.m in Sources */,
 				CCCE9CE9123D807A007D9462 /* istream68_fd.c in Sources */,
 				CCCE9CEA123D807A007D9462 /* istream68_file.m in Sources */,
 				CCCE9CEB123D807A007D9462 /* istream68_mem.c in Sources */,
@@ -6399,7 +6372,6 @@
 				3370BC4B124A891500691400 /* mdxmain.c in Sources */,
 				CCB8D96D17F5F1E4008E6A45 /* MDZUIImageView.m in Sources */,
 				3370BC8E124A8B7D00691400 /* pcm8.c in Sources */,
-				CC1343591ABFFF2A00CAB284 /* SWLongPressGestureRecognizer.m in Sources */,
 				33D1BD89126C31B700B06781 /* eng_psf.c in Sources */,
 				CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */,
 				33114CF813430A0B00C7CC19 /* append.c in Sources */,
@@ -6410,14 +6382,12 @@
 				33114CFC13430A0B00C7CC19 /* extract.c in Sources */,
 				33114CFF13430A0B00C7CC19 /* header.c in Sources */,
 				33114D0013430A0B00C7CC19 /* huf.c in Sources */,
-				CC1343581ABFFF2A00CAB284 /* SWCellScrollView.m in Sources */,
 				33114D0113430A0B00C7CC19 /* indicator.c in Sources */,
 				33114D0213430A0B00C7CC19 /* larc.c in Sources */,
 				33114D0313430A0B00C7CC19 /* lhadd.c in Sources */,
 				33114D0413430A0B00C7CC19 /* lharc.c in Sources */,
 				33114D0613430A0B00C7CC19 /* lhext.c in Sources */,
 				33114D0713430A0B00C7CC19 /* lhlist.c in Sources */,
-				CC13435A1ABFFF2A00CAB284 /* SWTableViewCell.m in Sources */,
 				33114D0B13430A0B00C7CC19 /* maketbl.c in Sources */,
 				33114D0C13430A0B00C7CC19 /* maketree.c in Sources */,
 				33114D0D13430A0B00C7CC19 /* patmatch.c in Sources */,
@@ -6684,7 +6654,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -6723,7 +6693,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6764,7 +6734,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6852,7 +6822,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -6940,7 +6910,7 @@
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";

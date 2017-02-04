@@ -134,44 +134,6 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 #pragma mark - Table view data source
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    /*UILabel *myLabel = [[[UILabel alloc] init] autorelease];
-    NSString *lbl;
-    
-    UIImage *image;
-            image = [UIImage imageNamed:@"tabview_gradient40Pink.png"];
-            
-     myLabel.backgroundColor = [UIColor colorWithPatternImage:image];
-    
-    switch (section) {
-        case 0:
-            lbl= NSLocalizedString(@"Collections", @"");
-            break;
-        case 1:
-            lbl= NSLocalizedString(@"Browse Internet", @"");
-            break;
-        case 2:
-            lbl= NSLocalizedString(@"Games Music", @"");
-            break;
-        case 3:
-            lbl= NSLocalizedString(@"Mods & chiptunes", @"");
-            break;
-        case 4:
-            lbl= NSLocalizedString(@"Other", @"");
-            break;
-        default:
-            lbl= nil;
-            break;
-    }
-
-    
-    [myLabel setText:lbl];
-    [myLabel setTextAlignment:NSTextAlignmentCenter];
-    
-    //myLabel.backgroundColor = [UIColor blackColor];
-    myLabel.textColor = [UIColor whiteColor];
-    myLabel.font = [UIFont fontWithName:@"Gotham-Bold" size:17.0f];
-    return myLabel;*/
-    
     UIView *customView = [[[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)] autorelease];
     customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
     
@@ -192,7 +154,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     [customView.layer insertSublayer:layerD atIndex:0];
     
     UIButton *buttonLabel                  = [UIButton buttonWithType: UIButtonTypeCustom];
-    buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
+    buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 20];
     buttonLabel.titleLabel.shadowOffset    = CGSizeMake (0.0, 1.0);
     buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
     //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);

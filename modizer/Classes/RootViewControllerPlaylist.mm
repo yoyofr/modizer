@@ -2837,12 +2837,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     NSString *other5 = NSLocalizedString(@"Sort Z->A",@"");
                     NSString *destructiveTitle = NSLocalizedString(@"Delete",@"");
                     NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
-                    UIActionSheet *actionSheet = [[UIActionSheet alloc]
+                    UIActionSheet *actionSheet = [[[UIActionSheet alloc]
                                                   initWithTitle:nil
                                                   delegate:self
                                                   cancelButtonTitle:nil
                                                   destructiveButtonTitle:nil
-                                                  otherButtonTitles:other1, other2, other3, other4, other5, nil];
+                                                  otherButtonTitles:other1, other2, other3, other4, other5, nil] autorelease];
                     [actionSheet addButtonWithTitle:destructiveTitle];
                     [actionSheet addButtonWithTitle:cancelTitle];
                     [actionSheet setDestructiveButtonIndex:5];
@@ -2865,12 +2865,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
                         
                         
-                    actionSheet = [[UIActionSheet alloc]
+                    actionSheet = [[[UIActionSheet alloc]
                                                   initWithTitle:nil
                                                   delegate:self
                                                   cancelButtonTitle:nil
                                                   destructiveButtonTitle:nil
-                                                  otherButtonTitles:other1, other2, other3, other4, other5, nil];
+                                                  otherButtonTitles:other1, other2, other3, other4, other5, nil] autorelease];
                     [actionSheet addButtonWithTitle:cancelTitle];
                     [actionSheet setCancelButtonIndex:5];
                     } else if ((integrated_playlist==2)||(integrated_playlist==3)) {
@@ -2881,12 +2881,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
 
                         
-                        actionSheet = [[UIActionSheet alloc]
+                        actionSheet = [[[UIActionSheet alloc]
                                                       initWithTitle:nil
                                                       delegate:self
                                                       cancelButtonTitle:nil
                                                       destructiveButtonTitle:nil
-                                                      otherButtonTitles:other1, other2, other3, nil];
+                                                      otherButtonTitles:other1, other2, other3, nil] autorelease];
                         [actionSheet addButtonWithTitle:cancelTitle];
                         [actionSheet setCancelButtonIndex:3];
                         

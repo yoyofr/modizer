@@ -1,15 +1,19 @@
-Requested:
+Todo/Requested:
 ÑÑÑÑÑÑÑÑÑ
-- Mute button / channels & playback ratio (slower/faster)
-- Cloud synchro
+- update about (add vgmstream, ...)
+- improve download resilience (keep track of queue in case of crash, auto restart, ...)
+- settings => when value available (not combo list or on/off switch), display it below label
 
 - make ftp & http sources for DB editable
 - modland auto update / db creation
 - hvsc auto update / db creation
 - asma auto update / db creation
 
--(void) PlaySeek:(int)startPos subsong:(int)subsong {
-=> subsong pour differentes lib (asap ?)
+
+- Mute button / channels & playback ratio (slower/faster)
+- Cloud synchro
+
+
 
 
 2.6
