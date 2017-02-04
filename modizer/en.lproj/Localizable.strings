@@ -164,6 +164,17 @@
 
 "Issue %d while trying to delete entry.\n%@"="Issue %d while trying to delete entry.\n%@";
 "Issue %d while trying to renamefile.\n%@"="Issue %d while trying to renamefile.\n%@";
+"Issue %d while moving: %@.\n%@"="Issue %d while moving: %@.\n%@";
+"Issue %d while creating folder\n%@"="Issue %d while creating folder\n%@";
 
 "Choose a subsong"="Choose a subsong";
 "Choose a song"="Choose a song";
+
+"Rename" = "Rename";
+"Delete" = "Delete";
+"Cut" = "Cut";
+"Paste" = "Paste";
+"New folder" = "New folder";
+
+"Nothing to paste"="Nothing to paste";
+"Enter folder name"="Enter folder name";

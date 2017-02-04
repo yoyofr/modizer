@@ -185,6 +185,8 @@
 
 "Issue %d while trying to delete entry.\n%@"="Erreur %d lors de la tentative de suppression.\n%@";
 "Issue %d while trying to renamefile.\n%@"="Erreur %d lors de la tentative de renommage.\n%@";
+"Issue %d while moving: %@.\n%@"="Erreur %d lors de la tentative de déplacement: %@.\n%@";
+"Issue %d while creating folder\n%@"="Erreur %d lors de la tentative de création du dossier\n%@";
 
 "Filter"="Filtre";
 
@@ -231,3 +233,12 @@
 
 "Choose a subsong"="Liste des subsongs";
 "Choose a song"="Liste des morceaux";
+
+"Rename" = "Renommer";
+"Delete" = "Effacer";
+"Cut" = "Couper";
+"Paste" = "Coller";
+"New folder" = "Nv.dossier";
+
+"Nothing to paste"="Rien à coller";
+"Enter folder name"="Entrez le nom du dossier";

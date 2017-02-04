@@ -96,12 +96,12 @@ int uade_time_critical;
 static int disable_modulechange;
 static int old_ledstate;
 static int uade_big_endian;
-static int uade_dmawait;
+static int uade_dmawait=0;
 static int uade_execdebugboolean;
 static int uade_highmem;
 static char uade_player_dir[PATH_MAX];
 static struct uade_song song;
-static int uade_speed_hack;
+static int uade_speed_hack=0;
 static int voltestboolean;
 
 static char epoptions[256];

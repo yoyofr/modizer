@@ -14,11 +14,12 @@
 #import "fex.h"
 #import "CMPopTipView.h"
 
-#import "SWTableViewCell.h"
+//#import "SWTableViewCell.h"
+#import "SESlideTableViewCell.h"
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SWTableViewCellDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
@@ -31,6 +32,7 @@
     
     UIAlertView *alertRename;
     int renameFile,renameSec,renameIdx;
+    int createFolder;
 
 	
 	IBOutlet UISearchBar *sBar;
