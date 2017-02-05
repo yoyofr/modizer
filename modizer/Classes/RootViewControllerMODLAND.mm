@@ -2263,7 +2263,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
             } else {
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                 mCurrentWinAskedDownload=1;
-                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1];
+                
+                NSString *modland_url=[NSString stringWithFormat:@"%s",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text];
+                NSRange nsr=[modland_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                if (nsr.location==NSNotFound) {
+                    //HTTP
+                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",modland_url,ftpPath] fileName:modFilename filePath:localPath filesize:cur_db_entries[section][indexPath.row].filesize isMODLAND:1 usePrimaryAction:1];
+                } else {
+                    //FTP
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[modland_url substringFromIndex:6] filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1];
+                }
+                
+                
             }
     }
     
@@ -2307,7 +2318,19 @@ extern volatile t_settings settings[MAX_SETTINGS];
             } else {
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                 mCurrentWinAskedDownload=1;
-                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:2];
+                
+                NSString *modland_url=[NSString stringWithFormat:@"%s",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text];
+                NSRange nsr=[modland_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                if (nsr.location==NSNotFound) {
+                    //HTTP
+                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",modland_url,ftpPath] fileName:modFilename filePath:localPath filesize:cur_db_entries[section][indexPath.row].filesize isMODLAND:1 usePrimaryAction:2];
+                    
+                } else {
+                    //FTP
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[modland_url substringFromIndex:6] filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:2];
+                }
+                
+                
             }
         }
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
@@ -2494,17 +2517,36 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                         mCurrentWinAskedDownload=1;
                                         [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                                         
+                                        
+                                        NSString *modland_url=[NSString stringWithFormat:@"%s",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text];
+                                        NSRange nsr=[modland_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
                                         if (first) {
-                                            if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[i][j].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1]) {
-                                                tooMuch=1;
-                                                break;
+                                            if (nsr.location==NSNotFound) {
+                                                //HTTP
+                                                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",modland_url,ftpPath] fileName:modFilename filePath:localPath filesize:cur_db_entries[i][j].filesize isMODLAND:1 usePrimaryAction:1];
+                                                
+                                            } else {
+                                                //FTP
+                                                if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[modland_url substringFromIndex:6] filesize:cur_db_entries[i][j].filesize filename:modFilename isMODLAND:1 usePrimaryAction:1]) {
+                                                    tooMuch=1;
+                                                    break;
+                                                }
                                             }
                                             first=0;
                                         } else {
-                                            if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[i][j].filesize filename:modFilename isMODLAND:1 usePrimaryAction:2]) {
-                                                tooMuch=1;
-                                                break;
+                                            if (nsr.location==NSNotFound) {
+                                                //HTTP
+                                                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",modland_url,ftpPath] fileName:modFilename filePath:localPath filesize:cur_db_entries[i][j].filesize isMODLAND:1 usePrimaryAction:2];
+                                                
+                                            } else {
+                                                //FTP
+                                                if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[modland_url substringFromIndex:6] filesize:cur_db_entries[i][j].filesize filename:modFilename isMODLAND:1 usePrimaryAction:2]) {
+                                                    tooMuch=1;
+                                                    break;
+                                                }
                                             }
+                                            
+                                            
                                         }
                                     }
                                 }
@@ -2563,7 +2605,19 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             } else {
                                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                                 mCurrentWinAskedDownload=1;
-                                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:MODLAND_FTPHOST filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                                
+                                NSString *modland_url=[NSString stringWithFormat:@"%s",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text];
+                                NSRange nsr=[modland_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                                if (nsr.location==NSNotFound) {
+                                    //HTTP
+                                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",modland_url,ftpPath] fileName:modFilename filePath:localPath filesize:cur_db_entries[section][indexPath.row].filesize isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                                    
+                                } else {
+                                    //FTP
+                                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[modland_url substringFromIndex:6] filesize:cur_db_entries[section][indexPath.row].filesize filename:modFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                                }
+                                
+                                
                             }
                         }
                     }

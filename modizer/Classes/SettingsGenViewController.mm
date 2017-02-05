@@ -45,7 +45,7 @@ void optFTPSwitchChanged(id param) {
 
 //ONLINE
 void optONLINESwitchChanged(id param) {
-    [param ONLINEswitchChanged];
+    [SettingsGenViewController ONLINEswitchChanged];
 }
 
 
@@ -187,6 +187,7 @@ void optVGMPLAYChangedC(id param) {
                     break;
             }
         }
+    [SettingsGenViewController ONLINEswitchChanged];
 }
 
 + (void) backupSettings {
@@ -282,6 +283,18 @@ void optVGMPLAYChangedC(id param) {
     /////////////////////////////////////
     //GLOBAL ONLINE
     /////////////////////////////////////
+    if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+    settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_DEFAULT)+1);
+    strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_DEFAULT);
+    
+    if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+    settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_DEFAULT)+1);
+    strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_DEFAULT);
+    
+    if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+    settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_DEFAULT)+1);
+    strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_DEFAULT);
+    
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value=0;
     settings[ONLINE_HVSC_URL].detail.mdz_boolswitch.switch_value=0;
     settings[ONLINE_ASMA_URL].detail.mdz_boolswitch.switch_value=0;
@@ -673,8 +686,32 @@ void optVGMPLAYChangedC(id param) {
     /////////////////////////////////////
     //GLOBAL ONLINE
     /////////////////////////////////////
+    settings[ONLINE_MODLAND_CURRENT_URL].label=(char*)"MODLAND URL";
+    settings[ONLINE_MODLAND_CURRENT_URL].description=NULL;
+    settings[ONLINE_MODLAND_CURRENT_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_MODLAND_CURRENT_URL].sub_family=0;
+    settings[ONLINE_MODLAND_CURRENT_URL].type=MDZ_MSGBOX;
+    settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen("N/A")+1);
+    strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
+    
+    settings[ONLINE_HVSC_CURRENT_URL].label=(char*)"HVSC URL";
+    settings[ONLINE_HVSC_CURRENT_URL].description=NULL;
+    settings[ONLINE_HVSC_CURRENT_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_HVSC_CURRENT_URL].sub_family=0;
+    settings[ONLINE_HVSC_CURRENT_URL].type=MDZ_MSGBOX;
+    settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen("N/A")+1);
+    strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
+    
+    settings[ONLINE_ASMA_CURRENT_URL].label=(char*)"ASMA URL";
+    settings[ONLINE_ASMA_CURRENT_URL].description=NULL;
+    settings[ONLINE_ASMA_CURRENT_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_ASMA_CURRENT_URL].sub_family=0;
+    settings[ONLINE_ASMA_CURRENT_URL].type=MDZ_MSGBOX;
+    settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen("N/A")+1);
+    strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
+    
     settings[ONLINE_MODLAND_URL].type=MDZ_SWITCH;
-    settings[ONLINE_MODLAND_URL].label=(char*)"MODLAND URL";
+    settings[ONLINE_MODLAND_URL].label=(char*)"MODLAND Server";
     settings[ONLINE_MODLAND_URL].description=NULL;
     settings[ONLINE_MODLAND_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_MODLAND_URL].callback=&optONLINESwitchChanged;
@@ -687,15 +724,16 @@ void optVGMPLAYChangedC(id param) {
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
     
-    settings[ONLINE_MODLAND_URL_CUSTOM].label=(char*)"Current URL";
+    settings[ONLINE_MODLAND_URL_CUSTOM].label=(char*)"Custom URL";
     settings[ONLINE_MODLAND_URL_CUSTOM].description=NULL;
     settings[ONLINE_MODLAND_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_MODLAND_URL_CUSTOM].callback=&optONLINESwitchChanged;
     settings[ONLINE_MODLAND_URL_CUSTOM].sub_family=0;
     settings[ONLINE_MODLAND_URL_CUSTOM].type=MDZ_TEXTBOX;
     settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_textbox.text=NULL;
     
     settings[ONLINE_HVSC_URL].type=MDZ_SWITCH;
-    settings[ONLINE_HVSC_URL].label=(char*)"HVSC URL";
+    settings[ONLINE_HVSC_URL].label=(char*)"HVSC Server";
     settings[ONLINE_HVSC_URL].description=NULL;
     settings[ONLINE_HVSC_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_HVSC_URL].callback=&optONLINESwitchChanged;
@@ -708,7 +746,7 @@ void optVGMPLAYChangedC(id param) {
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
     
-    settings[ONLINE_HVSC_URL_CUSTOM].label=(char*)"Current URL";
+    settings[ONLINE_HVSC_URL_CUSTOM].label=(char*)"Custom URL";
     settings[ONLINE_HVSC_URL_CUSTOM].description=NULL;
     settings[ONLINE_HVSC_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_HVSC_URL_CUSTOM].sub_family=0;
@@ -716,7 +754,7 @@ void optVGMPLAYChangedC(id param) {
     settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.text=NULL;
     
     settings[ONLINE_ASMA_URL].type=MDZ_SWITCH;
-    settings[ONLINE_ASMA_URL].label=(char*)"ASMA URL";
+    settings[ONLINE_ASMA_URL].label=(char*)"ASMA Server";
     settings[ONLINE_ASMA_URL].description=NULL;
     settings[ONLINE_ASMA_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_ASMA_URL].callback=&optONLINESwitchChanged;
@@ -729,13 +767,14 @@ void optVGMPLAYChangedC(id param) {
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
     
-    settings[ONLINE_ASMA_URL_CUSTOM].label=(char*)"Current URL";
+    settings[ONLINE_ASMA_URL_CUSTOM].label=(char*)"Custom URL";
     settings[ONLINE_ASMA_URL_CUSTOM].description=NULL;
     settings[ONLINE_ASMA_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_ASMA_URL_CUSTOM].sub_family=0;
     settings[ONLINE_ASMA_URL_CUSTOM].type=MDZ_TEXTBOX;
     settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.text=NULL;
     
+    [SettingsGenViewController ONLINEswitchChanged];
     
     /////////////////////////////////////
     //Visualizers
@@ -1699,11 +1738,36 @@ void optVGMPLAYChangedC(id param) {
     if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
         free(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text);
     }
+    settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=NULL;
+    
     if ([textField.text length]) {
         settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=(char*)malloc(strlen([textField.text UTF8String]+1));
         strcpy(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,[textField.text UTF8String]);
     }
+    
+    
+    switch (cur_settings_idx[textField.tag]) {
+        case ONLINE_MODLAND_URL_CUSTOM:
+            case ONLINE_HVSC_URL_CUSTOM:
+            case ONLINE_ASMA_URL_CUSTOM:
+            if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
+                if (strncasecmp(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,"HTTP://",7)==0) break; //HTTP
+                if (strncasecmp(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,"FTP://",6)==0) break; //FTP
+                free(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text);
+                settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=NULL;
+                textField.text=@"";
+                
+                UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"URL have to start with ftp:// or http://","") delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
+                [alert show];
+            }
+    }
+    
     [textField resignFirstResponder];
+    
+    if (settings[cur_settings_idx[textField.tag]].callback) {
+        settings[cur_settings_idx[textField.tag]].callback(self);
+        [self.tableView reloadData];
+    }
     return YES;
 }
 
@@ -2017,11 +2081,98 @@ void optVGMPLAYChangedC(id param) {
     return true;
 }
 
--(void) ONLINEswitchChanged {
++(void) ONLINEswitchChanged {
+    //MODLAND
+    switch (settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_value) {
+        case 0://default
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_DEFAULT)+1);
+            strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_DEFAULT);
+            
+            break;
+        case 1://alt1
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_ALT1)+1);
+            strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_ALT1);
+            
+            break;
+        case 2://alt2
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(MODLAND_HOST_ALT2)+1);
+            strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,MODLAND_HOST_ALT2);
+            
+            break;
+        case 3://custom
+            if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text);
+            if (settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_msgbox.text) {
+                settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_msgbox.text)+1);
+                strcpy(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,settings[ONLINE_MODLAND_URL_CUSTOM].detail.mdz_msgbox.text);
+            } else settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text=NULL;
+            
+            break;
+    }
+    //HVSC
+    switch (settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_value) {
+        case 0://default
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_DEFAULT)+1);
+            strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_DEFAULT);
+            
+            break;
+        case 1://alt1
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_ALT1)+1);
+            strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_ALT1);
+            
+            break;
+        case 2://alt2
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(HVSC_HOST_ALT2)+1);
+            strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,HVSC_HOST_ALT2);
+            
+            break;
+        case 3://custom
+            if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text);
+            if (settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_msgbox.text) {
+                settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_msgbox.text)+1);
+                strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_msgbox.text);
+            } else settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=NULL;
+            
+            break;
+    }
+    //ASMA
+    switch (settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value) {
+        case 0://default
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_DEFAULT)+1);
+            strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_DEFAULT);
+            
+            break;
+        case 1://alt1
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_ALT1)+1);
+            strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_ALT1);
+            
+            break;
+        case 2://alt2
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(ASMA_HOST_ALT2)+1);
+            strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,ASMA_HOST_ALT2);
+            
+            break;
+        case 3://custom
+            if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text);
+            if (settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_msgbox.text) {
+                settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=(char*)malloc(strlen(settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_msgbox.text)+1);
+                strcpy(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_msgbox.text);
+            } else settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text=NULL;
+            
+            break;
+    }
 }
 
 -(void) FTPswitchChanged {
-	if (settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value) {
+	if (settings[FTP_ONOFF].detail.mdz_switch.switch_value) {
 		if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==kReachableViaWiFi) {
 			if (!bServerRunning) { // Start the FTP Server
 				if ([self startFTPServer]) {

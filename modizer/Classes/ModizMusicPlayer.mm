@@ -2491,9 +2491,6 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         if (mPlayType==MMP_LAZYUSF) { //LAZYUSF : not supported
                             mNeedSeek=0;
                         }
-                        if (mPlayType==MMP_2SF) { //2SF : not supported
-                            mNeedSeek=0;
-                        }
                         if (mPlayType==MMP_XSF) { //XSF
                             
                             int seekSample=(double)mNeedSeekTime*(double)(xSFPlayer->GetSampleRate())/1000.0f;
@@ -3028,13 +3025,6 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         if (done) nbBytes=0;
                         else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),reinterpret_cast<char *>(&xsfSampleBuffer[0]),SOUND_BUFFER_SIZE_SAMPLE*2*2);
-                        
-                        //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
-                        
-                    }
-                    if (mPlayType==MMP_2SF) { //2SF
-                        
-                        //nbBytes=xsf_gen(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                         
                         //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                         
@@ -3731,7 +3721,6 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
-    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
@@ -3742,7 +3731,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
                                   [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extXSF count]+[filetype_ext2SF count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extXSF count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     
@@ -3766,7 +3755,6 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extSEXYPSF];
     [filetype_ext addObjectsFromArray:filetype_extLAZYUSF];
     [filetype_ext addObjectsFromArray:filetype_extXSF];
-    [filetype_ext addObjectsFromArray:filetype_ext2SF];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extAOSDK];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
@@ -3851,7 +3839,6 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSEXYPSF=(no_aux_file?[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SEXYPSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extLAZYUSF=(no_aux_file?[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_LAZYUSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extXSF=(no_aux_file?[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_XSF_EXT componentsSeparatedByString:@","]);
-    NSArray *filetype_ext2SF=(no_aux_file?[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extAOSDK=(no_aux_file?[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_AOSDK_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
@@ -4007,27 +3994,6 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         mSingleFileType=0;break;
                     }
                 found=MMP_XSF;break;
-            }
-        }
-    if (!found)
-        for (int i=0;i<[filetype_ext2SF count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
-                //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_2SF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;j<[singlefile count];j++)
-                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
-                        mSingleFileType=0;break;
-                    }
-                found=MMP_2SF;break;
-            }
-            if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
-                //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_2SF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;j<[singlefile count];j++)
-                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
-                        mSingleFileType=0;break;
-                    }
-                found=MMP_2SF;break;
             }
         }
     if (!found)
@@ -5330,38 +5296,6 @@ static bool killThread = false;
 static const unsigned NumChannels = 2;
 static const unsigned BitsPerSample = 16;*/
 
--(int) mmp_2sfLoad:(NSString*)filePath {  //XSF
-    mPlayType=MMP_2SF;
-    FILE *f;
-    
-    f=fopen([filePath UTF8String],"rb");
-    if (f==NULL) {
-        NSLog(@"2SF Cannot open file %@",filePath);
-        mPlayType=0;
-        return -1;
-    }
-    fseek(f,0L,SEEK_END);
-    mp_datasize=ftell(f);
-    fclose(f);
-/*
-    if (!xsf_start((char*)[filePath UTF8String])) {
-        NSLog(@"2SF Cannot initialize file %@",filePath);
-        mPlayType=0;
-        return -1;
-    }
-    
-    sprintf(mod_name," %s",mod_filename);
-    
-    sprintf(mod_message,"");
-    
-    iCurrentTime=0;
-    numChannels=2;
-    iModuleLength=-1;//
-    //Loop
-    if (mLoopMode==1) iModuleLength=-1;
-*/
-    return 0;
-}
 
 -(int) mmp_xsfLoad:(NSString*)filePath extension:(NSString*)extension {  //XSF
     mPlayType=MMP_XSF;
@@ -6070,7 +6004,6 @@ static const unsigned BitsPerSample = 16;*/
     NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
-    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
@@ -6465,16 +6398,6 @@ static const unsigned BitsPerSample = 16;*/
             break;
         }
     }
-    for (int i=0;i<[filetype_ext2SF count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
-            break;
-        }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
-            break;
-        }
-    }
     for (int i=0;i<[filetype_extAOSDK count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_AOSDK]];
@@ -6578,9 +6501,6 @@ static const unsigned BitsPerSample = 16;*/
                 break;
             case MMP_LAZYUSF:
                 if ([self mmp_lazyusfLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
-                break;
-            case MMP_2SF:
-                if ([self mmp_2sfLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
                 break;
             case MMP_XSF:
                 if ([self mmp_xsfLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
@@ -6855,10 +6775,6 @@ static const unsigned BitsPerSample = 16;*/
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
-        case MMP_2SF: //2SF
-            if (startPos) [self Seek:startPos];
-            [self Play];
-            break;
         case MMP_XSF: //XSF
             if (startPos) [self Seek:startPos];
             [self Play];
@@ -7002,9 +6918,6 @@ static const unsigned BitsPerSample = 16;*/
         if (src_state) src_delete(src_state);
         src_state=NULL;
     }
-    if (mPlayType==MMP_2SF) { //2SF
-        //xsf_term();
-    }
     if (mPlayType==MMP_XSF) { //XSF
         delete xSFPlayer;
         delete xSFConfig;
@@ -7037,7 +6950,7 @@ static const unsigned BitsPerSample = 16;*/
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage;
-    if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_XSF)||(mPlayType==MMP_2SF)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_XSF)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     else {
         modMessage=[NSString stringWithCString:mod_message encoding:NSUTF8StringEncoding];
         if (modMessage==nil) modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -7047,7 +6960,7 @@ static const unsigned BitsPerSample = 16;*/
 }
 -(NSString*) getModName {
     NSString *modName;
-    if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_XSF)||(mPlayType==MMP_2SF)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
+    if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_XSF)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
     else {
         modName=[NSString stringWithCString:mod_name encoding:NSUTF8StringEncoding];
         if (modName==nil) modName=[NSString stringWithFormat:@"%s",mod_name];
@@ -7075,7 +6988,6 @@ static const unsigned BitsPerSample = 16;*/
     if (mPlayType==MMP_VGMPLAY) return @"VGMPlay";
     if (mPlayType==MMP_LAZYUSF) return @"LazyUSF";
     if (mPlayType==MMP_XSF) return @"XSF";
-    if (mPlayType==MMP_2SF) return @"2SF";
     if (mPlayType==MMP_VGMSTREAM) return @"VGMSTREAM";
     return @"";
 }
@@ -7138,7 +7050,6 @@ static const unsigned BitsPerSample = 16;*/
     if (mPlayType==MMP_VGMPLAY) return @"VGM";
     if (mPlayType==MMP_LAZYUSF) return @"USF";
     if (mPlayType==MMP_XSF) return [NSString stringWithFormat:@"%s",mmp_fileext];
-    if (mPlayType==MMP_2SF) return @"2SF";
     if (mPlayType==MMP_VGMSTREAM) return [NSString stringWithFormat:@"%s",mmp_fileext];
     return @" ";
 }
@@ -7430,7 +7341,7 @@ extern "C" void adjust_amplification(void);
 }
 -(void) Seek:(int) seek_time {
     if ((mPlayType==MMP_AOSDK)||(mPlayType==MMP_UADE)||(mPlayType==MMP_SIDPLAY)
-        ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_2SF)||mNeedSeek) return;
+        ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_LAZYUSF)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
