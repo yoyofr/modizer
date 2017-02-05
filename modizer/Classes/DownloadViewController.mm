@@ -702,7 +702,6 @@ static NSFileManager *mFileMngr;
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
-    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
 	NSString *extension = [file pathExtension];
 	NSString *file_no_ext = [[file lastPathComponent] stringByDeletingPathExtension];
@@ -766,11 +765,6 @@ static NSFileManager *mFileMngr;
         for (int i=0;i<[filetype_extXSF count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extXSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extXSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-        }
-    if (!found)
-        for (int i=0;i<[filetype_ext2SF count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
         }
     if (!found)
         for (int i=0;i<[filetype_extVGMSTREAM count];i++) {

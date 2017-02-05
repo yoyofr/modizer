@@ -58,33 +58,33 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 - (NSString *)machine {
-	size_t size;
-	
-	// Set 'oldp' parameter to NULL to get the size of the data
-	// returned so we can allocate appropriate amount of space
-	sysctlbyname("hw.machine", NULL, &size, NULL, 0); 
-	
-	// Allocate the space to store name
-	char *name = (char*)malloc(size);
-	
-	// Get the platform name
-	sysctlbyname("hw.machine", name, &size, NULL, 0);
-	
-	// Place name into a string
-	NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
-	
-	// Done with this
-	free(name);
-	
-	return machine;
+    size_t size;
+    
+    // Set 'oldp' parameter to NULL to get the size of the data
+    // returned so we can allocate appropriate amount of space
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    
+    // Allocate the space to store name
+    char *name = (char*)malloc(size);
+    
+    // Get the platform name
+    sysctlbyname("hw.machine", name, &size, NULL, 0);
+    
+    // Place name into a string
+    NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
+    
+    // Done with this
+    free(name);
+    
+    return machine;
 }
 
 -(void)showWaiting{
-	waitingView.hidden=FALSE;
+    waitingView.hidden=FALSE;
 }
 
 -(void)hideWaiting{
-	waitingView.hidden=TRUE;
+    waitingView.hidden=TRUE;
 }
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
@@ -149,41 +149,41 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 
 - (void)viewDidLoad {
-	clock_t start_time,end_time;	
-	start_time=clock();	
-	childController=NULL;
+    clock_t start_time,end_time;
+    start_time=clock();
+    childController=NULL;
     
     mFileMngr=[[NSFileManager alloc] init];
-	
-	NSString *strMachine=[self machine];
-	mSlowDevice=0;
-	NSRange r = [strMachine rangeOfString:@"iPhone1," options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {
-		mSlowDevice=1;
-	}
-	r.location=NSNotFound;
-	r = [strMachine rangeOfString:@"iPod1," options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {
-		mSlowDevice=1;
-	}
-	
-	ratingImg[0] = @"rating0.png";
+    
+    NSString *strMachine=[self machine];
+    mSlowDevice=0;
+    NSRange r = [strMachine rangeOfString:@"iPhone1," options:NSCaseInsensitiveSearch];
+    if (r.location != NSNotFound) {
+        mSlowDevice=1;
+    }
+    r.location=NSNotFound;
+    r = [strMachine rangeOfString:@"iPod1," options:NSCaseInsensitiveSearch];
+    if (r.location != NSNotFound) {
+        mSlowDevice=1;
+    }
+    
+    ratingImg[0] = @"rating0.png";
     ratingImg[1] = @"rating1.png";
-	ratingImg[2] = @"rating2.png";
-	ratingImg[3] = @"rating3.png";
-	ratingImg[4] = @"rating4.png";
-	ratingImg[5] = @"rating5.png";
-	
-	/* Init popup view*/
-	/**/
-	
-	//self.tableView.pagingEnabled;
-	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-	self.tableView.sectionHeaderHeight = 18;
-	//self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-	self.tableView.rowHeight = 40;
+    ratingImg[2] = @"rating2.png";
+    ratingImg[3] = @"rating3.png";
+    ratingImg[4] = @"rating4.png";
+    ratingImg[5] = @"rating5.png";
+    
+    /* Init popup view*/
+    /**/
+    
+    //self.tableView.pagingEnabled;
+    self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.tableView.sectionHeaderHeight = 18;
+    //self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.tableView.rowHeight = 40;
     //self.tableView.backgroundColor = [UIColor clearColor];
-//	self.tableView.backgroundColor = [UIColor blackColor];
+    //	self.tableView.backgroundColor = [UIColor blackColor];
     
     popTipViewRow=-1;
     popTipViewSection=-1;
@@ -193,763 +193,763 @@ extern volatile t_settings settings[MAX_SETTINGS];
     lpgr.delegate = self;
     [self.tableView addGestureRecognizer:lpgr];
     [lpgr release];
-	
-	shouldFillKeys=1;
-	mSearch=0;
-	
-	search_dbASMA=0;  //reset to ensure search_dbASMA is not used by default
-	
-	dbASMA_nb_entries=0;
-	search_dbASMA_nb_entries=0;
-	
-	search_dbASMA_hasFiles=0;
-	dbASMA_hasFiles=0;
-	
-	mSearchText=nil;
-	mCurrentWinAskedDownload=0;
-	mClickedPrimAction=0;
-	list=nil;
-	keys=nil;
-	
-	if (browse_depth==0) {
+    
+    shouldFillKeys=1;
+    mSearch=0;
+    
+    search_dbASMA=0;  //reset to ensure search_dbASMA is not used by default
+    
+    dbASMA_nb_entries=0;
+    search_dbASMA_nb_entries=0;
+    
+    search_dbASMA_hasFiles=0;
+    dbASMA_hasFiles=0;
+    
+    mSearchText=nil;
+    mCurrentWinAskedDownload=0;
+    mClickedPrimAction=0;
+    list=nil;
+    keys=nil;
+    
+    if (browse_depth==0) {
 #ifdef GET_NB_ENTRIES
-		mNbASMAFileEntries=DBHelper::getNbASMAFilesEntries();
+        mNbASMAFileEntries=DBHelper::getNbASMAFilesEntries();
 #else
-		mNbASMAFileEntries=NB_ASMA_ENTRIES;
+        mNbASMAFileEntries=NB_ASMA_ENTRIES;
 #endif
-	}
-	
+    }
+    
     UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
-	
-	indexTitles = [[NSMutableArray alloc] init];
-	[indexTitles addObject:@"{search}"];
-	[indexTitles addObject:@"#"];
-	[indexTitles addObject:@"A"];
-	[indexTitles addObject:@"B"];
-	[indexTitles addObject:@"C"];
-	[indexTitles addObject:@"D"];
-	[indexTitles addObject:@"E"];
-	[indexTitles addObject:@"F"];
-	[indexTitles addObject:@"G"];
-	[indexTitles addObject:@"H"];	
-	[indexTitles addObject:@"I"];
-	[indexTitles addObject:@"J"];
-	[indexTitles addObject:@"K"];
-	[indexTitles addObject:@"L"];
-	[indexTitles addObject:@"M"];
-	[indexTitles addObject:@"N"];
-	[indexTitles addObject:@"O"];
-	[indexTitles addObject:@"P"];
-	[indexTitles addObject:@"Q"];
-	[indexTitles addObject:@"R"];
-	[indexTitles addObject:@"S"];
-	[indexTitles addObject:@"T"];
-	[indexTitles addObject:@"U"];
-	[indexTitles addObject:@"V"];
-	[indexTitles addObject:@"W"];
-	[indexTitles addObject:@"X"];
-	[indexTitles addObject:@"Y"];
-	[indexTitles addObject:@"Z"];
-	
-	indexTitlesDownload = [[NSMutableArray alloc] init];
-	[indexTitlesDownload addObject:@"{search}"];
-	[indexTitlesDownload addObject:@" "];
-	[indexTitlesDownload addObject:@"#"];
-	[indexTitlesDownload addObject:@"A"];
-	[indexTitlesDownload addObject:@"B"];
-	[indexTitlesDownload addObject:@"C"];
-	[indexTitlesDownload addObject:@"D"];
-	[indexTitlesDownload addObject:@"E"];
-	[indexTitlesDownload addObject:@"F"];
-	[indexTitlesDownload addObject:@"G"];
-	[indexTitlesDownload addObject:@"H"];	
-	[indexTitlesDownload addObject:@"I"];
-	[indexTitlesDownload addObject:@"J"];
-	[indexTitlesDownload addObject:@"K"];
-	[indexTitlesDownload addObject:@"L"];
-	[indexTitlesDownload addObject:@"M"];
-	[indexTitlesDownload addObject:@"N"];
-	[indexTitlesDownload addObject:@"O"];
-	[indexTitlesDownload addObject:@"P"];
-	[indexTitlesDownload addObject:@"Q"];
-	[indexTitlesDownload addObject:@"R"];
-	[indexTitlesDownload addObject:@"S"];
-	[indexTitlesDownload addObject:@"T"];
-	[indexTitlesDownload addObject:@"U"];
-	[indexTitlesDownload addObject:@"V"];
-	[indexTitlesDownload addObject:@"W"];
-	[indexTitlesDownload addObject:@"X"];
-	[indexTitlesDownload addObject:@"Y"];
-	[indexTitlesDownload addObject:@"Z"];
-	
+    
+    indexTitles = [[NSMutableArray alloc] init];
+    [indexTitles addObject:@"{search}"];
+    [indexTitles addObject:@"#"];
+    [indexTitles addObject:@"A"];
+    [indexTitles addObject:@"B"];
+    [indexTitles addObject:@"C"];
+    [indexTitles addObject:@"D"];
+    [indexTitles addObject:@"E"];
+    [indexTitles addObject:@"F"];
+    [indexTitles addObject:@"G"];
+    [indexTitles addObject:@"H"];
+    [indexTitles addObject:@"I"];
+    [indexTitles addObject:@"J"];
+    [indexTitles addObject:@"K"];
+    [indexTitles addObject:@"L"];
+    [indexTitles addObject:@"M"];
+    [indexTitles addObject:@"N"];
+    [indexTitles addObject:@"O"];
+    [indexTitles addObject:@"P"];
+    [indexTitles addObject:@"Q"];
+    [indexTitles addObject:@"R"];
+    [indexTitles addObject:@"S"];
+    [indexTitles addObject:@"T"];
+    [indexTitles addObject:@"U"];
+    [indexTitles addObject:@"V"];
+    [indexTitles addObject:@"W"];
+    [indexTitles addObject:@"X"];
+    [indexTitles addObject:@"Y"];
+    [indexTitles addObject:@"Z"];
+    
+    indexTitlesDownload = [[NSMutableArray alloc] init];
+    [indexTitlesDownload addObject:@"{search}"];
+    [indexTitlesDownload addObject:@" "];
+    [indexTitlesDownload addObject:@"#"];
+    [indexTitlesDownload addObject:@"A"];
+    [indexTitlesDownload addObject:@"B"];
+    [indexTitlesDownload addObject:@"C"];
+    [indexTitlesDownload addObject:@"D"];
+    [indexTitlesDownload addObject:@"E"];
+    [indexTitlesDownload addObject:@"F"];
+    [indexTitlesDownload addObject:@"G"];
+    [indexTitlesDownload addObject:@"H"];
+    [indexTitlesDownload addObject:@"I"];
+    [indexTitlesDownload addObject:@"J"];
+    [indexTitlesDownload addObject:@"K"];
+    [indexTitlesDownload addObject:@"L"];
+    [indexTitlesDownload addObject:@"M"];
+    [indexTitlesDownload addObject:@"N"];
+    [indexTitlesDownload addObject:@"O"];
+    [indexTitlesDownload addObject:@"P"];
+    [indexTitlesDownload addObject:@"Q"];
+    [indexTitlesDownload addObject:@"R"];
+    [indexTitlesDownload addObject:@"S"];
+    [indexTitlesDownload addObject:@"T"];
+    [indexTitlesDownload addObject:@"U"];
+    [indexTitlesDownload addObject:@"V"];
+    [indexTitlesDownload addObject:@"W"];
+    [indexTitlesDownload addObject:@"X"];
+    [indexTitlesDownload addObject:@"Y"];
+    [indexTitlesDownload addObject:@"Z"];
+    
     waitingView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2-40,self.view.bounds.size.height/2-40,80,80)];
-	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-	waitingView.opaque=TRUE;
-	waitingView.hidden=TRUE;
-	waitingView.layer.cornerRadius=20;
-	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
-	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-	[waitingView addSubview:indView];
-	[indView startAnimating];
-	[indView autorelease];
-	[self.view addSubview:waitingView];
-	
-	[super viewDidLoad];
-	
-	end_time=clock();	
+    waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
+    waitingView.opaque=TRUE;
+    waitingView.hidden=TRUE;
+    waitingView.layer.cornerRadius=20;
+    UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
+    indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
+    [waitingView addSubview:indView];
+    [indView startAnimating];
+    [indView autorelease];
+    [self.view addSubview:waitingView];
+    
+    [super viewDidLoad];
+    
+    end_time=clock();
 #ifdef LOAD_PROFILE
-	NSLog(@"rootview : %d",end_time-start_time);
+    NSLog(@"rootview : %d",end_time-start_time);
 #endif
 }
 
 -(void) fillKeys {
-	
-	
-		if (shouldFillKeys) {
-			shouldFillKeys=0;
-			if (browse_depth==1) [self fillKeysWithASMADB_Dir1];
-			else if (browse_depth==2) [self fillKeysWithASMADB_Dir2:mDir1];
-			else if (browse_depth==3) [self fillKeysWithASMADB_Dir3:mDir1 dir2:mDir2];
-			else if (browse_depth==4) [self fillKeysWithASMADB_AllDirs:mDir1 dir2:mDir2 dir3:mDir3];
-		} else { //reset downloaded, rating & playcount flags
-			for (int i=0;i<dbASMA_nb_entries;i++) {
-				dbASMA_entries_data[i].downloaded=-1;
-				dbASMA_entries_data[i].rating=-1;
-				dbASMA_entries_data[i].playcount=-1;
-			}
-		}	
+    
+    
+    if (shouldFillKeys) {
+        shouldFillKeys=0;
+        if (browse_depth==1) [self fillKeysWithASMADB_Dir1];
+        else if (browse_depth==2) [self fillKeysWithASMADB_Dir2:mDir1];
+        else if (browse_depth==3) [self fillKeysWithASMADB_Dir3:mDir1 dir2:mDir2];
+        else if (browse_depth==4) [self fillKeysWithASMADB_AllDirs:mDir1 dir2:mDir2 dir3:mDir3];
+    } else { //reset downloaded, rating & playcount flags
+        for (int i=0;i<dbASMA_nb_entries;i++) {
+            dbASMA_entries_data[i].downloaded=-1;
+            dbASMA_entries_data[i].rating=-1;
+            dbASMA_entries_data[i].playcount=-1;
+        }
+    }
 }
 
 -(void) fillKeysWithASMADB_Dir1 {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	int dbASMA_entries_index;
-	int index,previndex;
-	
-	NSRange r;
-	
-	dbASMA_hasFiles=search_dbASMA_hasFiles=0;
-	// in case of search, do not ask DB again => duplicate already found entries & filter them
-	if (mSearch) {
-		search_dbASMA=1;
-		
-		if (search_dbASMA_nb_entries) {
-			search_dbASMA_nb_entries=0;
-			free(search_dbASMA_entries_data);
-		}
-		search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-		
-		for (int i=0;i<27;i++) {
-			search_dbASMA_entries_count[i]=0;
-			if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
-			for (int j=0;j<dbASMA_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
-					
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
-					
-					search_dbASMA_entries_count[i]++;
-					search_dbASMA_nb_entries++;
-				}
-			}
-		}
-		return;
-	}
-	pthread_mutex_lock(&db_mutex);
-	if (dbASMA_nb_entries) {
-		for (int i=0;i<dbASMA_nb_entries;i++) {
-			if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-			if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-			if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-			if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-			if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-			if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
-		}
-		free(dbASMA_entries_data);dbASMA_entries_data=NULL;
-		dbASMA_nb_entries=0;
-	}
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;
-		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\"",[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM asma_file");
-		
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				dbASMA_nb_entries=sqlite3_column_int(stmt, 0);
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		if (dbASMA_nb_entries) {
-			//2nd initialize array to receive entries
-			dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			dbASMA_entries_index=0;
-			for (int i=0;i<27;i++) {
-				dbASMA_entries_count[i]=0;
-				dbASMA_entries[i]=NULL;
-			}
-			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT dir1,COUNT(1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\" GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE",[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT dir1,COUNT(1) FROM asma_file GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE");
-			
-			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			if (err==SQLITE_OK){
-				index=-1;
-				while (sqlite3_step(stmt) == SQLITE_ROW) {
-					char *str=(char*)sqlite3_column_text(stmt, 0);
-					previndex=index;
-					index=0;
-					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-					//sections are determined 'on the fly' since result set is already sorted
-					if (previndex!=index) {
-						if (previndex>index) {
-							NSLog(@"********* %s",str);
-						} else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
-					}
-					dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-					dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-					dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
-					
-					dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
-					dbASMA_entries_count[index]++;
-					dbASMA_entries_index++;
-				}
-				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int dbASMA_entries_index;
+    int index,previndex;
+    
+    NSRange r;
+    
+    dbASMA_hasFiles=search_dbASMA_hasFiles=0;
+    // in case of search, do not ask DB again => duplicate already found entries & filter them
+    if (mSearch) {
+        search_dbASMA=1;
+        
+        if (search_dbASMA_nb_entries) {
+            search_dbASMA_nb_entries=0;
+            free(search_dbASMA_entries_data);
+        }
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        
+        for (int i=0;i<27;i++) {
+            search_dbASMA_entries_count[i]=0;
+            if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
+            for (int j=0;j<dbASMA_entries_count[i];j++)  {
+                r.location=NSNotFound;
+                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
+                    
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
+                    
+                    search_dbASMA_entries_count[i]++;
+                    search_dbASMA_nb_entries++;
+                }
+            }
+        }
+        return;
+    }
+    pthread_mutex_lock(&db_mutex);
+    if (dbASMA_nb_entries) {
+        for (int i=0;i<dbASMA_nb_entries;i++) {
+            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
+            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
+            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
+            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
+            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
+            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+        }
+        free(dbASMA_entries_data);dbASMA_entries_data=NULL;
+        dbASMA_nb_entries=0;
+    }
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        //1st : count how many entries we'll have
+        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\"",[mSearchText UTF8String]);
+        else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM asma_file");
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbASMA_nb_entries=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        if (dbASMA_nb_entries) {
+            //2nd initialize array to receive entries
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_index=0;
+            for (int i=0;i<27;i++) {
+                dbASMA_entries_count[i]=0;
+                dbASMA_entries[i]=NULL;
+            }
+            //3rd get the entries
+            if (mSearch) sprintf(sqlStatement,"SELECT dir1,COUNT(1) FROM asma_file WHERE dir1 LIKE \"%%%s%%\" GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE",[mSearchText UTF8String]);
+            else sprintf(sqlStatement,"SELECT dir1,COUNT(1) FROM asma_file GROUP BY dir1 ORDER BY dir1 COLLATE NOCASE");
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                index=-1;
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    char *str=(char*)sqlite3_column_text(stmt, 0);
+                    previndex=index;
+                    index=0;
+                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                    //sections are determined 'on the fly' since result set is already sorted
+                    if (previndex!=index) {
+                        if (previndex>index) {
+                            NSLog(@"********* %s",str);
+                        } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
+                    }
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
+                    
+                    dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
+                    dbASMA_entries_count[index]++;
+                    dbASMA_entries_index++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
 }
 -(void) fillKeysWithASMADB_Dir2:(NSString*)dir1 {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	int dbASMA_entries_index;
-	int index,previndex;
-	
-	NSRange r;
-	// in case of search, do not ask DB again => duplicate already found entries & filter them
-	if (mSearch) {
-		search_dbASMA=1;
-		
-		if (search_dbASMA_nb_entries) {
-			search_dbASMA_nb_entries=0;
-			free(search_dbASMA_entries_data);
-		}
-		search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-		search_dbASMA_hasFiles=0;
-		for (int i=0;i<27;i++) {
-			search_dbASMA_entries_count[i]=0;
-			if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
-			for (int j=0;j<dbASMA_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
-					
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
-					
-					if (dbASMA_entries[i][j].id_md5) search_dbASMA_hasFiles++;
-					
-					search_dbASMA_entries_count[i]++;
-					search_dbASMA_nb_entries++;
-				}
-			}
-		}
-		return;
-	}
-	pthread_mutex_lock(&db_mutex);
-	if (dbASMA_nb_entries) {
-		for (int i=0;i<dbASMA_nb_entries;i++) {
-			if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-			if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-			if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-			if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-			if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-			if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
-		}
-		free(dbASMA_entries_data);dbASMA_entries_data=NULL;
-		dbASMA_nb_entries=0;
-	}
-	dbASMA_hasFiles=0;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;
-		//1st : count how many entries we'll have
-		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\"\
-							 UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null\
-					 UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2 is null",[dir1 UTF8String],[dir1 UTF8String]);
-		
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				dbASMA_nb_entries+=sqlite3_column_int(stmt, 0);
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-		
-		
-		if (dbASMA_nb_entries) {
-			//2nd initialize array to receive entries
-			dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			dbASMA_entries_index=0;
-			for (int i=0;i<27;i++) {
-				dbASMA_entries_count[i]=0;
-				dbASMA_entries[i]=NULL;
-			}
-			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\" GROUP BY dir2 \
-								 UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2 is null AND filename LIKE \"%%%s%%\" \
-								 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null GROUP BY dir2\
-						 UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2 is null \
-						 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir1 UTF8String]);
-			
-			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			if (err==SQLITE_OK){
-				index=-1;
-				while (sqlite3_step(stmt) == SQLITE_ROW) {
-					char *str=(char*)sqlite3_column_text(stmt, 0);
-					previndex=index;
-					index=0;
-					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-					//sections are determined 'on the fly' since result set is already sorted
-					if (previndex!=index) {
-						if (previndex>index) {
-							NSLog(@"********* %s",str);
-						} else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
-					}
-					dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-					dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
-					
-					if (sqlite3_column_int(stmt, 4)==0) {
-						dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-						dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
-					} else {
-						dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-						dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
-						dbASMA_hasFiles++;
-					}
-					
-					dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
-					dbASMA_entries_count[index]++;
-					dbASMA_entries_index++;
-				}
-				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
-			
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int dbASMA_entries_index;
+    int index,previndex;
+    
+    NSRange r;
+    // in case of search, do not ask DB again => duplicate already found entries & filter them
+    if (mSearch) {
+        search_dbASMA=1;
+        
+        if (search_dbASMA_nb_entries) {
+            search_dbASMA_nb_entries=0;
+            free(search_dbASMA_entries_data);
+        }
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        search_dbASMA_hasFiles=0;
+        for (int i=0;i<27;i++) {
+            search_dbASMA_entries_count[i]=0;
+            if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
+            for (int j=0;j<dbASMA_entries_count[i];j++)  {
+                r.location=NSNotFound;
+                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
+                    
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
+                    
+                    if (dbASMA_entries[i][j].id_md5) search_dbASMA_hasFiles++;
+                    
+                    search_dbASMA_entries_count[i]++;
+                    search_dbASMA_nb_entries++;
+                }
+            }
+        }
+        return;
+    }
+    pthread_mutex_lock(&db_mutex);
+    if (dbASMA_nb_entries) {
+        for (int i=0;i<dbASMA_nb_entries;i++) {
+            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
+            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
+            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
+            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
+            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
+            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+        }
+        free(dbASMA_entries_data);dbASMA_entries_data=NULL;
+        dbASMA_nb_entries=0;
+    }
+    dbASMA_hasFiles=0;
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        //1st : count how many entries we'll have
+        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\"\
+                             UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[mSearchText UTF8String]);
+        else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null\
+                     UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2 is null",[dir1 UTF8String],[dir1 UTF8String]);
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbASMA_nb_entries+=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        
+        
+        if (dbASMA_nb_entries) {
+            //2nd initialize array to receive entries
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_index=0;
+            for (int i=0;i<27;i++) {
+                dbASMA_entries_count[i]=0;
+                dbASMA_entries[i]=NULL;
+            }
+            //3rd get the entries
+            if (mSearch) sprintf(sqlStatement,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null AND dir2 LIKE \"%%%s%%\" GROUP BY dir2 \
+                                 UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2 is null AND filename LIKE \"%%%s%%\" \
+                                 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[mSearchText UTF8String]);
+            else sprintf(sqlStatement,"SELECT dir2,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2 is not null GROUP BY dir2\
+                         UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2 is null \
+                         ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir1 UTF8String]);
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                index=-1;
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    char *str=(char*)sqlite3_column_text(stmt, 0);
+                    previndex=index;
+                    index=0;
+                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                    //sections are determined 'on the fly' since result set is already sorted
+                    if (previndex!=index) {
+                        if (previndex>index) {
+                            NSLog(@"********* %s",str);
+                        } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
+                    }
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
+                    
+                    if (sqlite3_column_int(stmt, 4)==0) {
+                        dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
+                    } else {
+                        dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                        dbASMA_hasFiles++;
+                    }
+                    
+                    dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
+                    dbASMA_entries_count[index]++;
+                    dbASMA_entries_index++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+            
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
 }
 -(void) fillKeysWithASMADB_Dir3:(NSString*)dir1 dir2:(NSString*)dir2 {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	int dbASMA_entries_index;
-	int index,previndex;
-	
-	NSRange r;
-	// in case of search, do not ask DB again => duplicate already found entries & filter them
-	if (mSearch) {
-		search_dbASMA=1;
-		
-		if (search_dbASMA_nb_entries) {
-			search_dbASMA_nb_entries=0;
-			free(search_dbASMA_entries_data);
-		}
-		search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-		search_dbASMA_hasFiles=0;
-		for (int i=0;i<27;i++) {
-			search_dbASMA_entries_count[i]=0;
-			if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
-			for (int j=0;j<dbASMA_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
-					
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
-					
-					if (dbASMA_entries[i][j].id_md5) search_dbASMA_hasFiles++;
-					
-					search_dbASMA_entries_count[i]++;
-					search_dbASMA_nb_entries++;
-				}
-			}
-		}
-		return;
-	}
-	pthread_mutex_lock(&db_mutex);
-	if (dbASMA_nb_entries) {
-		for (int i=0;i<dbASMA_nb_entries;i++) {
-			if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-			if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-			if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-			if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-			if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-			if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
-		}
-		free(dbASMA_entries_data);dbASMA_entries_data=NULL;
-		dbASMA_nb_entries=0;
-	}
-	dbASMA_hasFiles=0;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;
-		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\"\
-							 UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null\
-					 UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null",[dir1 UTF8String],[dir2 UTF8String],[dir1 UTF8String],[dir2 UTF8String]);
-		
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				dbASMA_nb_entries+=sqlite3_column_int(stmt, 0);
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-		
-		
-		if (dbASMA_nb_entries) {
-			//2nd initialize array to receive entries
-			dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			dbASMA_entries_index=0;
-			for (int i=0;i<27;i++) {
-				dbASMA_entries_count[i]=0;
-				dbASMA_entries[i]=NULL;
-			}
-			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\" GROUP BY dir3 \
-								 UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null AND filename LIKE \"%%%s%%\" \
-								 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null GROUP BY dir3\
-						 UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null \
-						 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir1 UTF8String],[dir2 UTF8String]);
-			
-			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			if (err==SQLITE_OK){
-				index=-1;
-				while (sqlite3_step(stmt) == SQLITE_ROW) {
-					char *str=(char*)sqlite3_column_text(stmt, 0);
-					previndex=index;
-					index=0;
-					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-					//sections are determined 'on the fly' since result set is already sorted
-					if (previndex!=index) {
-						if (previndex>index) {
-							NSLog(@"********* %s",str);
-						} else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
-					}
-					dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-					dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
-					dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
-					
-					if (sqlite3_column_int(stmt, 4)==0) {
-						dbASMA_entries[index][dbASMA_entries_count[index]].dir3=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-						dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
-					} else {
-						dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-						dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
-						dbASMA_hasFiles++;
-					}
-					
-					dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
-					dbASMA_entries_count[index]++;
-					dbASMA_entries_index++;
-				}
-				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
-			
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int dbASMA_entries_index;
+    int index,previndex;
+    
+    NSRange r;
+    // in case of search, do not ask DB again => duplicate already found entries & filter them
+    if (mSearch) {
+        search_dbASMA=1;
+        
+        if (search_dbASMA_nb_entries) {
+            search_dbASMA_nb_entries=0;
+            free(search_dbASMA_entries_data);
+        }
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        search_dbASMA_hasFiles=0;
+        for (int i=0;i<27;i++) {
+            search_dbASMA_entries_count[i]=0;
+            if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
+            for (int j=0;j<dbASMA_entries_count[i];j++)  {
+                r.location=NSNotFound;
+                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
+                    
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
+                    
+                    if (dbASMA_entries[i][j].id_md5) search_dbASMA_hasFiles++;
+                    
+                    search_dbASMA_entries_count[i]++;
+                    search_dbASMA_nb_entries++;
+                }
+            }
+        }
+        return;
+    }
+    pthread_mutex_lock(&db_mutex);
+    if (dbASMA_nb_entries) {
+        for (int i=0;i<dbASMA_nb_entries;i++) {
+            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
+            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
+            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
+            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
+            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
+            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+        }
+        free(dbASMA_entries_data);dbASMA_entries_data=NULL;
+        dbASMA_nb_entries=0;
+    }
+    dbASMA_hasFiles=0;
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        //1st : count how many entries we'll have
+        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\"\
+                             UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String]);
+        else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir3) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null\
+                     UNION SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null",[dir1 UTF8String],[dir2 UTF8String],[dir1 UTF8String],[dir2 UTF8String]);
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbASMA_nb_entries+=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        
+        
+        if (dbASMA_nb_entries) {
+            //2nd initialize array to receive entries
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_index=0;
+            for (int i=0;i<27;i++) {
+                dbASMA_entries_count[i]=0;
+                dbASMA_entries[i]=NULL;
+            }
+            //3rd get the entries
+            if (mSearch) sprintf(sqlStatement,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\" GROUP BY dir3 \
+                                 UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null AND filename LIKE \"%%%s%%\" \
+                                 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String]);
+            else sprintf(sqlStatement,"SELECT dir3,NULL,NULL,COUNT(1),0 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null GROUP BY dir3\
+                         UNION SELECT filename,fullpath,id_md5,NULL,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null \
+                         ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir1 UTF8String],[dir2 UTF8String]);
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                index=-1;
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    char *str=(char*)sqlite3_column_text(stmt, 0);
+                    previndex=index;
+                    index=0;
+                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                    //sections are determined 'on the fly' since result set is already sorted
+                    if (previndex!=index) {
+                        if (previndex>index) {
+                            NSLog(@"********* %s",str);
+                        } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
+                    }
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
+                    
+                    if (sqlite3_column_int(stmt, 4)==0) {
+                        dbASMA_entries[index][dbASMA_entries_count[index]].dir3=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].filesize=sqlite3_column_int(stmt, 3);
+                    } else {
+                        dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
+                        dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                        dbASMA_hasFiles++;
+                    }
+                    
+                    dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
+                    dbASMA_entries_count[index]++;
+                    dbASMA_entries_index++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+            
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
 }
 
 -(void) fillKeysWithASMADB_AllDirs:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	int dbASMA_entries_index;
-	int index,previndex;
-	
-	NSRange r;
-	// in case of search, do not ask DB again => duplicate already found entries & filter them
-	if (mSearch) {
-		search_dbASMA=1;
-		
-		if (search_dbASMA_nb_entries) {
-			search_dbASMA_nb_entries=0;
-			free(search_dbASMA_entries_data);
-		}
-		search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-		search_dbASMA_hasFiles=0;
-		for (int i=0;i<27;i++) {
-			search_dbASMA_entries_count[i]=0;
-			if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
-			for (int j=0;j<dbASMA_entries_count[i];j++)  {
-				r.location=NSNotFound;
-				r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-				if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
-					
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
-					search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
-					
-					if (dbASMA_entries[i][j].id_md5) search_dbASMA_hasFiles++;
-					
-					search_dbASMA_entries_count[i]++;
-					search_dbASMA_nb_entries++;
-				}
-			}
-		}
-		return;
-	}
-	pthread_mutex_lock(&db_mutex);
-	if (dbASMA_nb_entries) {
-		for (int i=0;i<dbASMA_nb_entries;i++) {
-			if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-			if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-			if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-			if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-			if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-			if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
-		}
-		free(dbASMA_entries_data);dbASMA_entries_data=NULL;
-		dbASMA_nb_entries=0;
-	}
-	dbASMA_hasFiles=0;
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;
-		//1st : count how many entries we'll have		
-		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
-		else sprintf(sqlStatement,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String]);
-		
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				dbASMA_nb_entries+=sqlite3_column_int(stmt, 0);
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-		
-		
-		
-		if (dbASMA_nb_entries) {
-			//2nd initialize array to receive entries
-			dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			dbASMA_entries_index=0;
-			for (int i=0;i<27;i++) {
-				dbASMA_entries_count[i]=0;
-				dbASMA_entries[i]=NULL;
-			}
-			//3rd get the entries
-			if (mSearch) sprintf(sqlStatement,"SELECT filename,fullpath,id_md5,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\" \
-								 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
-			else sprintf(sqlStatement,"SELECT filename,fullpath,id_md5,1 FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"\
-						 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String]);
-			
-			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-			if (err==SQLITE_OK){
-				index=-1;
-				while (sqlite3_step(stmt) == SQLITE_ROW) {
-					char *str=(char*)sqlite3_column_text(stmt, 0);
-					previndex=index;
-					index=0;
-					if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-					if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-					//sections are determined 'on the fly' since result set is already sorted
-					if (previndex!=index) {
-						if (previndex>index) {
-							NSLog(@"********* %s",str);
-						} else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
-					}
-					dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
-					dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
-					dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
-					dbASMA_entries[index][dbASMA_entries_count[index]].dir3=[[NSString alloc] initWithString:dir3];
-					
-					dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
-					dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
-					dbASMA_hasFiles++;
-					
-					dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
-					dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
-					dbASMA_entries_count[index]++;
-					dbASMA_entries_index++;
-				}
-				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
-			
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int dbASMA_entries_index;
+    int index,previndex;
+    
+    NSRange r;
+    // in case of search, do not ask DB again => duplicate already found entries & filter them
+    if (mSearch) {
+        search_dbASMA=1;
+        
+        if (search_dbASMA_nb_entries) {
+            search_dbASMA_nb_entries=0;
+            free(search_dbASMA_entries_data);
+        }
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        search_dbASMA_hasFiles=0;
+        for (int i=0;i<27;i++) {
+            search_dbASMA_entries_count[i]=0;
+            if (dbASMA_entries_count[i]) search_dbASMA_entries[i]=&(search_dbASMA_entries_data[search_dbASMA_nb_entries]);
+            for (int j=0;j<dbASMA_entries_count[i];j++)  {
+                r.location=NSNotFound;
+                r = [dbASMA_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].label=dbASMA_entries[i][j].label;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].downloaded=dbASMA_entries[i][j].downloaded;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].rating=dbASMA_entries[i][j].rating;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].playcount=dbASMA_entries[i][j].playcount;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].filesize=dbASMA_entries[i][j].filesize;
+                    
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].id_md5=dbASMA_entries[i][j].id_md5;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].fullpath=dbASMA_entries[i][j].fullpath;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir1=dbASMA_entries[i][j].dir1;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir2=dbASMA_entries[i][j].dir2;
+                    search_dbASMA_entries[i][search_dbASMA_entries_count[i]].dir3=dbASMA_entries[i][j].dir3;
+                    
+                    if (dbASMA_entries[i][j].id_md5) search_dbASMA_hasFiles++;
+                    
+                    search_dbASMA_entries_count[i]++;
+                    search_dbASMA_nb_entries++;
+                }
+            }
+        }
+        return;
+    }
+    pthread_mutex_lock(&db_mutex);
+    if (dbASMA_nb_entries) {
+        for (int i=0;i<dbASMA_nb_entries;i++) {
+            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
+            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
+            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
+            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
+            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
+            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+        }
+        free(dbASMA_entries_data);dbASMA_entries_data=NULL;
+        dbASMA_nb_entries=0;
+    }
+    dbASMA_hasFiles=0;
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        //1st : count how many entries we'll have
+        if (mSearch) sprintf(sqlStatement,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
+        else sprintf(sqlStatement,"SELECT COUNT(filename) FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String]);
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbASMA_nb_entries+=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        
+        
+        if (dbASMA_nb_entries) {
+            //2nd initialize array to receive entries
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_index=0;
+            for (int i=0;i<27;i++) {
+                dbASMA_entries_count[i]=0;
+                dbASMA_entries[i]=NULL;
+            }
+            //3rd get the entries
+            if (mSearch) sprintf(sqlStatement,"SELECT filename,fullpath,id_md5,1 FROM asma_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND filename LIKE \"%%%s%%\" \
+                                 ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
+            else sprintf(sqlStatement,"SELECT filename,fullpath,id_md5,1 FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\"\
+                         ORDER BY 1 COLLATE NOCASE",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String]);
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                index=-1;
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    char *str=(char*)sqlite3_column_text(stmt, 0);
+                    previndex=index;
+                    index=0;
+                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                    //sections are determined 'on the fly' since result set is already sorted
+                    if (previndex!=index) {
+                        if (previndex>index) {
+                            NSLog(@"********* %s",str);
+                        } else dbASMA_entries[index]=&(dbASMA_entries_data[dbASMA_entries_index]);
+                    }
+                    dbASMA_entries[index][dbASMA_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 0)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir1=[[NSString alloc] initWithString:dir1];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir2=[[NSString alloc] initWithString:dir2];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].dir3=[[NSString alloc] initWithString:dir3];
+                    
+                    dbASMA_entries[index][dbASMA_entries_count[index]].id_md5=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 2)];
+                    dbASMA_entries[index][dbASMA_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%s",sqlite3_column_text(stmt, 1)];
+                    dbASMA_hasFiles++;
+                    
+                    dbASMA_entries[index][dbASMA_entries_count[index]].downloaded=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].rating=-1;
+                    dbASMA_entries[index][dbASMA_entries_count[index]].playcount=-1;
+                    dbASMA_entries_count[index]++;
+                    dbASMA_entries_index++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+            
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
 }
 
 -(NSString*) getCompletePath:(int)id_mod {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	NSString *fullpath=nil;
-	
-	pthread_mutex_lock(&db_mutex);
-	
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;		
-		
-		sprintf(sqlStatement,"select fullpath from mod_file where id=%d",id_mod);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);		
-	}
-	
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return fullpath;
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSString *fullpath=nil;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"select fullpath from mod_file where id=%d",id_mod);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    }
+    
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return fullpath;
 }
 -(NSString*) getCompleteLocalPath:(int)id_mod {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	NSString *localpath=nil;
-	
-	pthread_mutex_lock(&db_mutex);
-	
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;		
-		
-		sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				localpath=[NSString  stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);		
-	}
-	
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return localpath;
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSString *localpath=nil;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                localpath=[NSString  stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    }
+    
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return localpath;
 }
 -(int) getFileSize:(NSString*)fileName {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	int iFileSize;
-	
-	pthread_mutex_lock(&db_mutex);
-	
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;		
-		
-		sprintf(sqlStatement,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				iFileSize=(int)sqlite3_column_int(stmt, 0);
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return iFileSize;
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int iFileSize;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                iFileSize=(int)sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return iFileSize;
 }
 -(NSString *) getModFilename:(int)idmod {
-	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
-	sqlite3 *db;
-	NSString *fileName;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		sqlite3_stmt *stmt;
-		int err;		
-		
-		sprintf(sqlStatement,"select filename from mod_file where id=%d",idmod);
-		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-		if (err==SQLITE_OK){
-			while (sqlite3_step(stmt) == SQLITE_ROW) {
-				fileName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-			}
-			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return fileName;
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSString *fileName;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sprintf(sqlStatement,"select filename from mod_file where id=%d",idmod);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                fileName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return fileName;
 }
 
 
@@ -962,38 +962,38 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [self.sBar setBarStyle:UIBarStyleDefault];
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     }
-
+    
     
     if (keys) {
-        [keys release]; 
+        [keys release];
         keys=nil;
     }
     if (list) {
-        [list release]; 
+        [list release];
         list=nil;
     }
     if (childController) {
         [childController release];
         childController = NULL;
-    } 
+    }
     
     //Reset rating if applicable (ensure updated value)
-        if (dbASMA_nb_entries) {
-            for (int i=0;i<dbASMA_nb_entries;i++) {
-                dbASMA_entries_data[i].rating=-1;
-            }            
+    if (dbASMA_nb_entries) {
+        for (int i=0;i<dbASMA_nb_entries;i++) {
+            dbASMA_entries_data[i].rating=-1;
         }
-        if (search_dbASMA_nb_entries) {
-            for (int i=0;i<search_dbASMA_nb_entries;i++) {
-                search_dbASMA_entries_data[i].rating=-1;
-            }            
+    }
+    if (search_dbASMA_nb_entries) {
+        for (int i=0;i<search_dbASMA_nb_entries;i++) {
+            search_dbASMA_entries_data[i].rating=-1;
         }
+    }
     /////////////
     
     if (detailViewController.mShouldHaveFocus) {
         detailViewController.mShouldHaveFocus=0;
         [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
-    } else {				
+    } else {
         if (shouldFillKeys&&(browse_depth>0)) {
             
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
@@ -1006,7 +1006,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             [tableView reloadData];
         }
     }
-    [super viewWillAppear:animated];	
+    [super viewWillAppear:animated];
     
 }
 -(void) refreshViewAfterDownload {
@@ -1021,13 +1021,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (void)checkCreate:(NSString *)filePath {
     NSString *completePath=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),filePath];
     NSError *err;
-    [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];	
+    [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 }
 
-- (void)viewDidAppear:(BOOL)animated {        
+- (void)viewDidAppear:(BOOL)animated {
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
-
-    [super viewDidAppear:animated];		
+    
+    [super viewDidAppear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -1053,76 +1053,76 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     if (browse_depth==0) return nil;
-    if (mSearch) return nil;	
-        if (section==0) return 0;
-        //Check if "Get all entries" has to be displayed
-        if (search_dbASMA) {
-            if (search_dbASMA_hasFiles) {
-                if (section==1) return @"";
-                if (search_dbASMA_entries_count[section-2]) return [indexTitlesDownload objectAtIndex:section];
-                return nil;
-            }
-            if (search_dbASMA_entries_count[section-1]) return [indexTitles objectAtIndex:section];
-            return nil;
-        } else {
-            if (dbASMA_hasFiles) {
-                if (section==1) return @"";
-                if (dbASMA_entries_count[section-2]) return [indexTitlesDownload objectAtIndex:section];
-                return nil;
-            }
-            if (dbASMA_entries_count[section-1]) return [indexTitles objectAtIndex:section];
+    if (mSearch) return nil;
+    if (section==0) return 0;
+    //Check if "Get all entries" has to be displayed
+    if (search_dbASMA) {
+        if (search_dbASMA_hasFiles) {
+            if (section==1) return @"";
+            if (search_dbASMA_entries_count[section-2]) return [indexTitlesDownload objectAtIndex:section];
             return nil;
         }
+        if (search_dbASMA_entries_count[section-1]) return [indexTitles objectAtIndex:section];
         return nil;
+    } else {
+        if (dbASMA_hasFiles) {
+            if (section==1) return @"";
+            if (dbASMA_entries_count[section-2]) return [indexTitlesDownload objectAtIndex:section];
+            return nil;
+        }
+        if (dbASMA_entries_count[section-1]) return [indexTitles objectAtIndex:section];
+        return nil;
+    }
+    return nil;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     local_flag=0;
     
     if (browse_depth==0) return [keys count];
-        //Check if "Get all entries" has to be displayed
-        if (search_dbASMA) {
-            if (search_dbASMA_hasFiles) return 28+1;
-            return 28;
-        } else {
-            if (dbASMA_hasFiles) return 28+1;
-            return 28;
-        }
+    //Check if "Get all entries" has to be displayed
+    if (search_dbASMA) {
+        if (search_dbASMA_hasFiles) return 28+1;
+        return 28;
+    } else {
+        if (dbASMA_hasFiles) return 28+1;
+        return 28;
+    }
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-        if (section==0) return 0;
-        //Check if "Get all entries" has to be displayed
-        if (search_dbASMA) {
-            if (search_dbASMA_hasFiles) {
-                if (section==1) return 1;
-                return search_dbASMA_entries_count[section-2];
-            }
-            return search_dbASMA_entries_count[section-1];
-        } else {
-            if (dbASMA_hasFiles) {
-                if (section==1) return 1;
-                return dbASMA_entries_count[section-2];
-            }
-            return dbASMA_entries_count[section-1];
+    if (section==0) return 0;
+    //Check if "Get all entries" has to be displayed
+    if (search_dbASMA) {
+        if (search_dbASMA_hasFiles) {
+            if (section==1) return 1;
+            return search_dbASMA_entries_count[section-2];
         }
+        return search_dbASMA_entries_count[section-1];
+    } else {
+        if (dbASMA_hasFiles) {
+            if (section==1) return 1;
+            return dbASMA_entries_count[section-2];
+        }
+        return dbASMA_entries_count[section-1];
+    }
 }
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
     if (browse_depth==0) return nil;
-    if (mSearch) return nil;	
-        if (search_dbASMA) {
-            if (search_dbASMA_hasFiles) return indexTitlesDownload;
-        } else {
-            if (dbASMA_hasFiles) return indexTitlesDownload;
-        }
-        return indexTitles;
+    if (mSearch) return nil;
+    if (search_dbASMA) {
+        if (search_dbASMA_hasFiles) return indexTitlesDownload;
+    } else {
+        if (dbASMA_hasFiles) return indexTitlesDownload;
+    }
+    return indexTitles;
 }
 
 - (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
     if (mSearch) return -1;
-        if (index == 0) {
-            [tabView setContentOffset:CGPointZero animated:NO];
-            return NSNotFound;
-        }
-        return index;
+    if (index == 0) {
+        [tabView setContentOffset:CGPointZero animated:NO];
+        return NSNotFound;
+    }
+    return index;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -1138,7 +1138,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
     NSString *nbFiles=NSLocalizedString(@"%d files.",@"");
-    NSString *nb1File=NSLocalizedString(@"1 file.",@"");	
+    NSString *nb1File=NSLocalizedString(@"1 file.",@"");
     
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -1149,48 +1149,48 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [cell setBackgroundColor:[UIColor clearColor]];
         
         /*CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = cell.bounds;
-        gradient.colors = [NSArray arrayWithObjects:
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-                           nil];
-        gradient.locations = [NSArray arrayWithObjects:
-                              (id)[NSNumber numberWithFloat:0.00f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.03f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:0.97f],
-                              (id)[NSNumber numberWithFloat:1.00f],
-                              nil];
-        [cell setBackgroundView:[[UIView alloc] init]];
-        [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-        
-        CAGradientLayer *selgrad = [CAGradientLayer layer];
-        selgrad.frame = cell.bounds;
-        float rev_col_adj=1.2f;
-        selgrad.colors = [NSArray arrayWithObjects:
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-                          nil];
-        selgrad.locations = [NSArray arrayWithObjects:
-                             (id)[NSNumber numberWithFloat:0.00f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.03f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:0.97f],
-                             (id)[NSNumber numberWithFloat:1.00f],
-                             nil];
-        
-        [cell setSelectedBackgroundView:[[UIView alloc] init]];
-        [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
+         gradient.frame = cell.bounds;
+         gradient.colors = [NSArray arrayWithObjects:
+         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
+         nil];
+         gradient.locations = [NSArray arrayWithObjects:
+         (id)[NSNumber numberWithFloat:0.00f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:1.00f],
+         nil];
+         [cell setBackgroundView:[[UIView alloc] init]];
+         [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
+         
+         CAGradientLayer *selgrad = [CAGradientLayer layer];
+         selgrad.frame = cell.bounds;
+         float rev_col_adj=1.2f;
+         selgrad.colors = [NSArray arrayWithObjects:
+         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
+         nil];
+         selgrad.locations = [NSArray arrayWithObjects:
+         (id)[NSNumber numberWithFloat:0.00f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.03f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:0.97f],
+         (id)[NSNumber numberWithFloat:1.00f],
+         nil];
+         
+         [cell setSelectedBackgroundView:[[UIView alloc] init]];
+         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
          */
         UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
@@ -1241,7 +1241,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         actionView                = [UIButton buttonWithType: UIButtonTypeCustom];
         [cell.contentView addSubview:actionView];
-        actionView.tag = ACT_IMAGE_TAG;        
+        actionView.tag = ACT_IMAGE_TAG;
         
         secActionView                = [UIButton buttonWithType: UIButtonTypeCustom];
         [cell.contentView addSubview:secActionView];
@@ -1264,7 +1264,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
     bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     
-
+    
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
@@ -1334,22 +1334,22 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     }
                     if (cur_db_entries[section][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_db_entries[section][indexPath.row].rating]];
                     
-                    /*if (!cur_db_entries[section][indexPath.row].playcount) bottomLabel.text = [NSString stringWithString:played0time]; 
+                    /*if (!cur_db_entries[section][indexPath.row].playcount) bottomLabel.text = [NSString stringWithString:played0time];
                      else if (cur_db_entries[section][indexPath.row].playcount==1) bottomLabel.text = [NSString stringWithString:played1time];
                      else bottomLabel.text = [NSString stringWithFormat:playedXtimes,cur_db_entries[section][indexPath.row].playcount];*/
                     
                     NSString *bottomStr;
                     if (cur_db_entries[section][indexPath.row].song_length>0)
                         bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_db_entries[section][indexPath.row].song_length/1000/60,(cur_db_entries[section][indexPath.row].song_length/1000)%60];
-                    else bottomStr=@"--:--";						
+                    else bottomStr=@"--:--";
                     if (cur_db_entries[section][indexPath.row].channels_nb)
                         bottomStr=[NSString stringWithFormat:@"%@ / %02dch",bottomStr,cur_db_entries[section][indexPath.row].channels_nb];
-                    else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];						
+                    else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];
                     if (cur_db_entries[section][indexPath.row].songs) {
                         if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@ / 1 song",bottomStr];
                         else bottomStr=[NSString stringWithFormat:@"%@ / %d songs",bottomStr,cur_db_entries[section][indexPath.row].songs];
                     }
-                    else bottomStr=[NSString stringWithFormat:@"%@ / - song",bottomStr];		   						
+                    else bottomStr=[NSString stringWithFormat:@"%@ / - song",bottomStr];
                     bottomStr=[NSString stringWithFormat:@"%@ / Pl:%d",bottomStr,cur_db_entries[section][indexPath.row].playcount];
                     
                     bottomLabel.text=bottomStr;
@@ -1405,28 +1405,28 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source        
+        // Delete the row from the data source
         //delete entry
-            t_dbHVSC_browse_entry **cur_db_entries;
-            cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
-            int section = indexPath.section-1;
-            int download_all=0;
-            if (search_dbASMA) {
-                if (search_dbASMA_hasFiles) download_all=1;
-            } else {
-                if (dbASMA_hasFiles) download_all=1;
-            }
-            section-=download_all;
-            //delete file
-            NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath]];
-            NSError *err;
-            //			NSLog(@"%@",fullpath);
-            DBHelper::deleteStatsFileDB(fullpath);
-            cur_db_entries[section][indexPath.row].downloaded=0;
-            //delete local file
-            [mFileMngr removeItemAtPath:fullpath error:&err];
-            //ask for a reload/redraw
-            [tabView reloadData];
+        t_dbHVSC_browse_entry **cur_db_entries;
+        cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
+        int section = indexPath.section-1;
+        int download_all=0;
+        if (search_dbASMA) {
+            if (search_dbASMA_hasFiles) download_all=1;
+        } else {
+            if (dbASMA_hasFiles) download_all=1;
+        }
+        section-=download_all;
+        //delete file
+        NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath]];
+        NSError *err;
+        //			NSLog(@"%@",fullpath);
+        DBHelper::deleteStatsFileDB(fullpath);
+        cur_db_entries[section][indexPath.row].downloaded=0;
+        //delete local file
+        [mFileMngr removeItemAtPath:fullpath error:&err];
+        //ask for a reload/redraw
+        [tabView reloadData];
         
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -1435,16 +1435,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 - (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-        t_dbHVSC_browse_entry **cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
-        int section =indexPath.section-1;
-        if (search_dbASMA) {
-            if (search_dbASMA_hasFiles) section--;
-        } else {
-            if (dbASMA_hasFiles) section--;
-        }
-        if (section>=0) {
-            if (cur_db_entries[section][indexPath.row].downloaded==1) return YES;
-        }
+    t_dbHVSC_browse_entry **cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
+    int section =indexPath.section-1;
+    if (search_dbASMA) {
+        if (search_dbASMA_hasFiles) section--;
+    } else {
+        if (dbASMA_hasFiles) section--;
+    }
+    if (section>=0) {
+        if (cur_db_entries[section][indexPath.row].downloaded==1) return YES;
+    }
     return NO;
 }
 
@@ -1501,45 +1501,53 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     
     
     if (browse_depth==0) {
         
     } else {
-            t_dbHVSC_browse_entry **cur_db_entries;
-            cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
-            int section = indexPath.section-1;
-            int download_all=0;
-            if (search_dbASMA) {
-                if (search_dbASMA_hasFiles) download_all=1;
-            } else {
-                if (dbASMA_hasFiles) download_all=1;
-            }
-            section-=download_all;
+        t_dbHVSC_browse_entry **cur_db_entries;
+        cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
+        int section = indexPath.section-1;
+        int download_all=0;
+        if (search_dbASMA) {
+            if (search_dbASMA_hasFiles) download_all=1;
+        } else {
+            if (dbASMA_hasFiles) download_all=1;
+        }
+        section-=download_all;
+        
+        if (cur_db_entries[section][indexPath.row].id_md5) { //FILE
+            //File selected, start download is needed
+            NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].label];
+            NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].fullpath];
+            NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
             
-            if (cur_db_entries[section][indexPath.row].id_md5) { //FILE
-                //File selected, start download is needed
-                NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].label];
-                NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].fullpath];				
-                NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
+            if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                [array_label addObject:sidFilename];
+                [array_path addObject:localPath];
+                cur_db_entries[section][indexPath.row].rating=-1;
+                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                else [tableView reloadData];
+            } else {
+                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                mCurrentWinAskedDownload=1;
                 
-                if (cur_db_entries[section][indexPath.row].downloaded==1) {
-                    NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                    NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                    [array_label addObject:sidFilename];
-                    [array_path addObject:localPath];
-                    cur_db_entries[section][indexPath.row].rating=-1;
-                    [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                    else [tableView reloadData];
+                NSString *asma_url=[NSString stringWithFormat:@"%s",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text];
+                NSRange nsr=[asma_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                if (nsr.location==NSNotFound) {
+                    //HTTP
+                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",asma_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
                 } else {
-                    [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-                    mCurrentWinAskedDownload=1;
-                    //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",ASMA_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    //FTP
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
                 }
             }
+        }
         
     }
     
@@ -1552,45 +1560,53 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];                
+    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     
     
     if (browse_depth==0) {
     } else {
-            t_dbHVSC_browse_entry **cur_db_entries;
-            cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
-            int download_all=0;
-            int section=indexPath.section-1;
-            if (search_dbASMA) {
-                if (search_dbASMA_hasFiles) download_all=1;
-            } else {
-                if (dbASMA_hasFiles) download_all=1;
-            }
-            section-=download_all;
+        t_dbHVSC_browse_entry **cur_db_entries;
+        cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
+        int download_all=0;
+        int section=indexPath.section-1;
+        if (search_dbASMA) {
+            if (search_dbASMA_hasFiles) download_all=1;
+        } else {
+            if (dbASMA_hasFiles) download_all=1;
+        }
+        section-=download_all;
+        
+        if (cur_db_entries[section][indexPath.row].id_md5) { //FILE
+            //File selected, start download is needed
+            NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].label];
+            NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].fullpath];
+            NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
+            mClickedPrimAction=2;
             
-            if (cur_db_entries[section][indexPath.row].id_md5) { //FILE
-                //File selected, start download is needed
-                NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].label];
-                NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].fullpath];				
-                NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
-                mClickedPrimAction=2;
+            if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                [array_label addObject:sidFilename];
+                [array_path addObject:localPath];
+                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                cur_db_entries[section][indexPath.row].rating=-1;
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                else [tableView reloadData];
+            } else {
+                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                mCurrentWinAskedDownload=1;
                 
-                if (cur_db_entries[section][indexPath.row].downloaded==1) {
-                    NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                    NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                    [array_label addObject:sidFilename];
-                    [array_path addObject:localPath];
-                    [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                    cur_db_entries[section][indexPath.row].rating=-1;
-                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                    else [tableView reloadData];
+                NSString *asma_url=[NSString stringWithFormat:@"%s",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text];
+                NSRange nsr=[asma_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                if (nsr.location==NSNotFound) {
+                    //HTTP
+                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",asma_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                 } else {
-                    [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-                    mCurrentWinAskedDownload=1;
-                    //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",ASMA_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                    //FTP
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                 }
-            }    
+            }
+        }
     }
     [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
 }
@@ -1630,70 +1646,87 @@ extern volatile t_settings settings[MAX_SETTINGS];
     // Navigation logic may go here. Create and push another view controller.
     //First get the dictionary object
     
-    if (browse_depth==0) {        
+    if (browse_depth==0) {
     } else {
-            t_dbHVSC_browse_entry **cur_db_entries;
-            cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
-            int section = indexPath.section-1;
-            int download_all=0;
-            if (search_dbASMA) {
-                if (search_dbASMA_hasFiles) download_all=1;
-            } else {
-                if (dbASMA_hasFiles) download_all=1;
-            }
-            section-=download_all;
+        t_dbHVSC_browse_entry **cur_db_entries;
+        cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
+        int section = indexPath.section-1;
+        int download_all=0;
+        if (search_dbASMA) {
+            if (search_dbASMA_hasFiles) download_all=1;
+        } else {
+            if (dbASMA_hasFiles) download_all=1;
+        }
+        section-=download_all;
+        
+        if ((indexPath.section==1)&&(download_all)) {
+            //download all dir
+            NSString *sidFilename;
+            NSString *ftpPath;
+            NSString *localPath;
+            int first=0; //1;  Do not play even first file => TODO : add a setting for this
+            int existing;
+            int tooMuch=0;
+            if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2) first=0;//enqueue only
             
-            if ((indexPath.section==1)&&(download_all)) {
-                //download all dir
-                NSString *sidFilename;
-                NSString *ftpPath;
-                NSString *localPath;
-                int first=0; //1;  Do not play even first file => TODO : add a setting for this
-                int existing;
-                int tooMuch=0;
-                if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2) first=0;//enqueue only
-                
-                int *cur_db_entries_count=(search_dbASMA?search_dbASMA_entries_count:dbASMA_entries_count);
-                
-                for (int i=0;i<27;i++) {
-                    for (int j=0;j<cur_db_entries_count[i];j++) {
-                        if (cur_db_entries[i][j].id_md5) {//mod found
+            int *cur_db_entries_count=(search_dbASMA?search_dbASMA_entries_count:dbASMA_entries_count);
+            
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<cur_db_entries_count[i];j++) {
+                    if (cur_db_entries[i][j].id_md5) {//mod found
+                        
+                        existing=cur_db_entries[i][j].downloaded;
+                        if (existing==-1) {
+                            NSString *pathToCheck=nil;
                             
-                            existing=cur_db_entries[i][j].downloaded;
-                            if (existing==-1) {
-                                NSString *pathToCheck=nil;
-                                
-                                if (cur_db_entries[i][j].fullpath)
-                                    pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",NSHomeDirectory(),ASMA_BASEDIR,cur_db_entries[i][j].fullpath];
-                                if (pathToCheck) {
-                                    if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[i][j].downloaded=1;
-                                    else existing=cur_db_entries[i][j].downloaded=0;
-                                } else existing=cur_db_entries[i][j].downloaded=1;								
-                            }
-                            if (existing==0) {
-                                
-                                //File selected, start download is needed
-                                sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[i][j].label];
-                                ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[i][j].fullpath];				
-                                localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[i][j].fullpath];
-                                mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
-                                
-                                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-                                mCurrentWinAskedDownload=1;
-                                if (first) {
-                                    if (
-                                        //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1]
-                                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",ASMA_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1]
+                            if (cur_db_entries[i][j].fullpath)
+                                pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",NSHomeDirectory(),ASMA_BASEDIR,cur_db_entries[i][j].fullpath];
+                            if (pathToCheck) {
+                                if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[i][j].downloaded=1;
+                                else existing=cur_db_entries[i][j].downloaded=0;
+                            } else existing=cur_db_entries[i][j].downloaded=1;
+                        }
+                        if (existing==0) {
+                            
+                            //File selected, start download is needed
+                            sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[i][j].label];
+                            ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[i][j].fullpath];
+                            localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[i][j].fullpath];
+                            mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
+                            
+                            [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                            mCurrentWinAskedDownload=1;
+                            
+                            NSString *asma_url=[NSString stringWithFormat:@"%s",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text];
+                            NSRange nsr=[asma_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                            
+                            if (first) {
+                                if (nsr.location==NSNotFound) {
+                                    //HTTP
+                                    if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",asma_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1]
                                         ) {
                                         tooMuch=1;
                                         break;
                                     }
-                                    first=0;
                                 } else {
-                                    if (
-                                        //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:2]
-                                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",ASMA_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:2]
-                                        ) {
+                                    //FTP
+                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1]) {
+                                        tooMuch=1;
+                                        break;
+                                    }
+                                }
+                                first=0;
+                            } else {
+                                
+                                if (nsr.location==NSNotFound) {
+                                    //HTTP
+                                    if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",asma_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:2] ) {
+                                        tooMuch=1;
+                                        break;
+                                    }
+                                } else {
+                                    //FTP
+                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:2]) {
                                         tooMuch=1;
                                         break;
                                     }
@@ -1701,67 +1734,77 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             }
                         }
                     }
-                    if (tooMuch) break;
                 }
-            } else {
+                if (tooMuch) break;
+            }
+        } else {
+            
+            if (cur_db_entries[section][indexPath.row].id_md5) { //FILE
+                //File selected, start download is needed
+                NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].label];
+                NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].fullpath];
+                NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
+                mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
                 
-                if (cur_db_entries[section][indexPath.row].id_md5) { //FILE
-                    //File selected, start download is needed
-                    NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].label];
-                    NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].fullpath];				
-                    NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
-                    mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
-                    
-                    if (cur_db_entries[section][indexPath.row].downloaded==1) {
-                        if (mClickedPrimAction) {
-                            NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                            NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-                            [array_label addObject:sidFilename];
-                            [array_path addObject:localPath];
+                if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                    if (mClickedPrimAction) {
+                        NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
+                        NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                        [array_label addObject:sidFilename];
+                        [array_path addObject:localPath];
+                        cur_db_entries[section][indexPath.row].rating=-1;
+                        [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                        if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                        else [tabView reloadData];
+                    } else {
+                        if ([detailViewController add_to_playlist:localPath fileName:sidFilename forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                             cur_db_entries[section][indexPath.row].rating=-1;
-                            [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                             if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                             else [tabView reloadData];
-                        } else {
-                            if ([detailViewController add_to_playlist:localPath fileName:sidFilename forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
-                                cur_db_entries[section][indexPath.row].rating=-1;
-                                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                                else [tabView reloadData];
-                            }
                         }
+                    }
+                } else {
+                    [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                    mCurrentWinAskedDownload=1;
+                    
+                    NSString *asma_url=[NSString stringWithFormat:@"%s",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text];
+                    NSRange nsr=[asma_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+                    if (nsr.location==NSNotFound) {
+                        //HTTP
+                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",asma_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                     } else {
-                        [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-                        mCurrentWinAskedDownload=1;
-                        //[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ASMA_FTPHOST filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",ASMA_HTTPHOST,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-                    }
-                } else { //DIR
-                    if (browse_depth==1) {//DIR1
-                        mDir1=cur_db_entries[section][indexPath.row].dir1;
-                    } else if (browse_depth==2) {//DIR2
-                        mDir2=cur_db_entries[section][indexPath.row].dir2;
-                    } else if (browse_depth==3) {//DIR3
-                        mDir3=cur_db_entries[section][indexPath.row].dir3;
+                        //FTP
+                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                     }
                     
-                    if (childController == nil) childController = [[RootViewControllerASMA alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                    else {// Don't cache childviews
-                    }
-                    
-                    childController.title = cur_db_entries[section][indexPath.row].label;
-                    // Set new depth
-                    ((RootViewControllerASMA*)childController)->browse_depth = browse_depth+1;
-                    ((RootViewControllerASMA*)childController)->detailViewController=detailViewController;
-                    ((RootViewControllerASMA*)childController)->downloadViewController=downloadViewController;
-                    
-                    ((RootViewControllerASMA*)childController)->mDir1 = mDir1;
-                    ((RootViewControllerASMA*)childController)->mDir2 = mDir2;
-                    ((RootViewControllerASMA*)childController)->mDir3 = mDir3;
-                    
-                    // And push the window
-                    [self.navigationController pushViewController:childController animated:YES];
                 }
+            } else { //DIR
+                if (browse_depth==1) {//DIR1
+                    mDir1=cur_db_entries[section][indexPath.row].dir1;
+                } else if (browse_depth==2) {//DIR2
+                    mDir2=cur_db_entries[section][indexPath.row].dir2;
+                } else if (browse_depth==3) {//DIR3
+                    mDir3=cur_db_entries[section][indexPath.row].dir3;
+                }
+                
+                if (childController == nil) childController = [[RootViewControllerASMA alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                else {// Don't cache childviews
+                }
+                
+                childController.title = cur_db_entries[section][indexPath.row].label;
+                // Set new depth
+                ((RootViewControllerASMA*)childController)->browse_depth = browse_depth+1;
+                ((RootViewControllerASMA*)childController)->detailViewController=detailViewController;
+                ((RootViewControllerASMA*)childController)->downloadViewController=downloadViewController;
+                
+                ((RootViewControllerASMA*)childController)->mDir1 = mDir1;
+                ((RootViewControllerASMA*)childController)->mDir2 = mDir2;
+                ((RootViewControllerASMA*)childController)->mDir3 = mDir3;
+                
+                // And push the window
+                [self.navigationController pushViewController:childController animated:YES];
             }
+        }
     }
     mAccessoryButton=0;
 }
@@ -1861,7 +1904,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [indexTitlesDownload release];
         indexTitlesDownload=nil;
     }
-
+    
     
     if (mFileMngr) {
         [mFileMngr release];

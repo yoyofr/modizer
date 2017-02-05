@@ -107,6 +107,7 @@
 "Cannot download from this URL."="Cannot download from this URL.";
 "Yes"="Yes";
 "No"="No";
+"Error"="Error";
 "Warning"="Warning";
 "Close"="Close";
 "First launch or issue encountered last time Modizer was running. Apply default settings?"="First launch or issue encountered last time Modizer was running. Apply default settings?";
@@ -115,6 +116,8 @@
 "Seeking"="Seeking";
 "Too much entries! Playlist will be limited to %d first entries."="Too much entries! Playlist will be limited to %d first entries.";
 "Size: %dKB"="Size: %dKB";
+
+"URL have to start with ftp:// or http://"="URL have to start with ftp:// or http://";
 
 "Settings_General"="General";
 "Settings_Player"="Player";

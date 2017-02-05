@@ -111,6 +111,7 @@
 
 "Yes"="Oui";
 "No"="Non";
+"Error"="Erreur";
 "Warning"="Attention";
 "Close"="Fermer";
 "First launch or issue encountered last time Modizer was running. Apply default settings ?"="Premier lancement ou problème lors du dernier. Appliquer les réglages par défaut ?";
@@ -119,6 +120,8 @@
 "Seeking"="Recherche";
 "Too much entries! Playlist will be limited to %d first entries."="Trop d'entrées! La liste est limitée à %d entrées.";
 "Size: %dKB"="Taille: %dKB";
+
+"URL have to start with ftp:// or http://"="L'URL doit commencer par ftp:// ou http://";
 
 "Settings_General"="General";
 "Settings_Player"="Lecteur";

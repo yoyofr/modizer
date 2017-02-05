@@ -4,11 +4,11 @@ Todo/Requested:
 - improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - settings => when value available (not combo list or on/off switch), display it below label
 
-- make ftp & http sources for DB editable
 - modland auto update / db creation
 - hvsc auto update / db creation
 - asma auto update / db creation
 
+- integrate pxtone
 
 - Mute button / channels & playback ratio (slower/faster)
 - Cloud synchro

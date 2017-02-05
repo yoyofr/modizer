@@ -2033,6 +2033,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void) checkForCover:(NSString *)filePath {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF;
+    
+    NSLog(@"check yo: %@",filePath);
+    
     pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
@@ -2106,6 +2109,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             }
         }
         [fileMngr release];
+    }
+    
+    if (cover_img==nil) {
+        cover_img=[self fexGetArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
     }
     
     if (cover_img) {

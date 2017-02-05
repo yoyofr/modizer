@@ -64,10 +64,7 @@ extern "C" {
 #import "../../vgmplay/vgm/VGMFile.h"
 #import "../../vgmplay/vgm/VGMPlay_Intf.h"
     
-    //2SF
-//#import "nds/vio2sf/vio2sf.h"
-
-
+    
 }
 
 enum MMP_PLAYER_TYPE {
@@ -91,8 +88,7 @@ enum MMP_PLAYER_TYPE {
     MMP_HVL,
     MMP_SEXYPSF,
     MMP_AOSDK,
-    MMP_XSF,
-    MMP_2SF
+    MMP_XSF
 };
 
 static const char *mmp_player_name[]={
