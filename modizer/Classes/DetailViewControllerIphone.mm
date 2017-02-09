@@ -6,6 +6,8 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+
+
 #define SELECTOR_TABVIEWCELL_HEIGHT 50
 #define ARCSUB_MODE_NONE 0
 #define ARCSUB_MODE_ARC 1
@@ -109,7 +111,7 @@ static UIImage *cover_img,*default_cover;
 static MPMediaItemArtwork *artwork;
 
 static int txtMenuHandle[16];
-static int txtSubMenuHandle[36];
+static int txtSubMenuHandle[38];
 
 //int texturePiano;
 
@@ -1078,7 +1080,7 @@ static float movePinchScale,movePinchScaleOld;
 					settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=1;
 					break;
 				case 4:
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
 					break;
 				case 5:
 					settings[GLOB_FX3].detail.mdz_switch.switch_value=(arc4random()%3)+1;
@@ -1097,7 +1099,7 @@ static float movePinchScale,movePinchScaleOld;
 					break;
 				case 9:
 					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
 					break;
 				case 10:
 					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
@@ -1109,7 +1111,7 @@ static float movePinchScale,movePinchScaleOld;
 					break;
 				case 12:
 					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
 					break;
 				case 13:
 					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
@@ -1132,7 +1134,7 @@ static float movePinchScale,movePinchScaleOld;
 				case 17:
 					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
 					settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=(arc4random()&1)+1;
-					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%3)+1;
+					settings[GLOB_FX2].detail.mdz_switch.switch_value=(arc4random()%5)+1;
 					break;
 				case 18:
 					settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=1;
@@ -2034,8 +2036,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 -(void) checkForCover:(NSString *)filePath {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF;
     
-    NSLog(@"check yo: %@",filePath);
-    
     pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
@@ -2044,9 +2044,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
     pathFileImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
     pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
-    
-    
-    
     
     cover_img=nil;
     //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
@@ -4252,7 +4249,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	txtMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4a_2x.png"]);
 	txtMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5a_2x.png"]);
 	txtMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu6_2x.png"]);
-	//txtMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
     txtMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7a_2x.png"]);
     txtMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8a_2x.png"]);
     txtMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu9_2x.png"]);
@@ -4264,55 +4260,70 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     memset(txtSubMenuHandle,0,sizeof(txtSubMenuHandle));
     
+#define SUBMENU0_START 0
+#define SUBMENU0_SIZE 6
 	txtSubMenuHandle[0]=0;
     txtSubMenuHandle[1]=txtMenuHandle[1];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
 	txtSubMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
 	txtSubMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
+    txtSubMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
+    txtSubMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
     
+#define SUBMENU1_START 6
+#define SUBMENU1_SIZE 4
+    txtSubMenuHandle[6]=0;
+	txtSubMenuHandle[7]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
+	txtSubMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
+	txtSubMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
     
-    txtSubMenuHandle[4]=0;
-	txtSubMenuHandle[5]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
-	txtSubMenuHandle[6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
-	txtSubMenuHandle[7]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
+#define SUBMENU2_START 10
+#define SUBMENU2_SIZE 3
+    txtSubMenuHandle[10]=0;
+	txtSubMenuHandle[11]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
+    txtSubMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
     
+#define SUBMENU3_START 13
+#define SUBMENU3_SIZE 3
+    txtSubMenuHandle[13]=0;
+    txtSubMenuHandle[14]=txtMenuHandle[4];//TextureUtils::Create([UIImage imageNamed:@"txtMenu5a.png"]);
+    txtSubMenuHandle[15]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
     
-    txtSubMenuHandle[8]=0;
-	txtSubMenuHandle[9]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
-    txtSubMenuHandle[10]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
+#define SUBMENU4_START 16
+#define SUBMENU4_SIZE 7
+    txtSubMenuHandle[16]=0;
+    txtSubMenuHandle[17]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
+    txtSubMenuHandle[18]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
+    txtSubMenuHandle[19]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
+    txtSubMenuHandle[20]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
+    txtSubMenuHandle[21]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
+    txtSubMenuHandle[22]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
     
+#define SUBMENU5_START 23
+#define SUBMENU5_SIZE 3
+    txtSubMenuHandle[23]=0;
+    txtSubMenuHandle[24]=txtMenuHandle[7];
+    txtSubMenuHandle[25]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b_2x.png"]);
     
-    txtSubMenuHandle[11]=0;
-    txtSubMenuHandle[12]=txtMenuHandle[4];//TextureUtils::Create([UIImage imageNamed:@"txtMenu5a.png"]);
-    txtSubMenuHandle[13]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
-    
-    
-    txtSubMenuHandle[14]=0;
-    txtSubMenuHandle[15]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
-    txtSubMenuHandle[16]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
-    txtSubMenuHandle[17]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
-    txtSubMenuHandle[18]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
-    txtSubMenuHandle[19]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
-    txtSubMenuHandle[20]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
-    
-    
-    txtSubMenuHandle[21]=0;
-    txtSubMenuHandle[22]=txtMenuHandle[7];
-    txtSubMenuHandle[23]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b_2x.png"]);
-    
-	txtSubMenuHandle[24]=0;
-    txtSubMenuHandle[25]=txtMenuHandle[9];
-    txtSubMenuHandle[26]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b_2x.png"]);
-    
-    txtSubMenuHandle[27]=0;
-    txtSubMenuHandle[28]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
-    txtSubMenuHandle[29]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
-    txtSubMenuHandle[30]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
-    txtSubMenuHandle[31]=txtMenuHandle[10];
-    
-	txtSubMenuHandle[32]=0;
-    txtSubMenuHandle[33]=txtMenuHandle[11];
-    txtSubMenuHandle[34]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
-    txtSubMenuHandle[35]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
+#define SUBMENU6_START 26
+#define SUBMENU6_SIZE 3
+	txtSubMenuHandle[26]=0;
+    txtSubMenuHandle[27]=txtMenuHandle[9];
+    txtSubMenuHandle[28]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b_2x.png"]);
+
+#define SUBMENU7_START 29
+#define SUBMENU7_SIZE 5
+    txtSubMenuHandle[29]=0;
+    txtSubMenuHandle[30]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
+    txtSubMenuHandle[31]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
+    txtSubMenuHandle[32]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
+    txtSubMenuHandle[33]=txtMenuHandle[10];
+
+#define SUBMENU8_START 34
+#define SUBMENU8_SIZE 4
+	txtSubMenuHandle[34]=0;
+    txtSubMenuHandle[35]=txtMenuHandle[11];
+    txtSubMenuHandle[36]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
+    txtSubMenuHandle[37]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
     
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -4550,7 +4561,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	
     //	self.navigationController.navigationBar.hidden = YES;
     m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
-    m_displayLink.frameInterval = (mSlowDevice?4:2); //15 or 30 fps depending on device speed iPhone
+    m_displayLink.frameInterval = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?1:2); //30 or 60 fps depending on device speed iPhone
 	[m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
 	
 	[self updateBarPos];
@@ -4721,7 +4732,7 @@ extern "C" int current_sample;
             break;
     }
     
-    framecpt++;
+    framecpt++;  //TODO: check dependency / FPS (30, 60)
     
 	
 	if (self.mainView.hidden) return;
@@ -4858,23 +4869,23 @@ extern "C" int current_sample;
 			} else if (touched_coord==0x10) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=0;
-                viewTapHelpShow_SubNb=4;
+                viewTapHelpShow_SubStart=SUBMENU0_START;
+                viewTapHelpShow_SubNb=SUBMENU0_SIZE;
 			} else if (touched_coord==0x20) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=4;
-                viewTapHelpShow_SubNb=4;
+                viewTapHelpShow_SubStart=SUBMENU1_START;
+                viewTapHelpShow_SubNb=SUBMENU1_SIZE;
 			} else if (touched_coord==0x30) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=8;
-                viewTapHelpShow_SubNb=3;
+                viewTapHelpShow_SubStart=SUBMENU2_START;
+                viewTapHelpShow_SubNb=SUBMENU2_SIZE;
 			} else if (touched_coord==0x01) {
 				viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=11;
-                viewTapHelpShow_SubNb=3;
+                viewTapHelpShow_SubStart=SUBMENU3_START;
+                viewTapHelpShow_SubNb=SUBMENU3_SIZE;
 			} else if (touched_coord==0x11) {
 				int val=settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value;
 				val++;
@@ -4883,13 +4894,13 @@ extern "C" int current_sample;
 			} else if (touched_coord==0x21) {
 				viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=14;
-                viewTapHelpShow_SubNb=7;
+                viewTapHelpShow_SubStart=SUBMENU4_START;
+                viewTapHelpShow_SubNb=SUBMENU4_SIZE;
 			} else if (touched_coord==0x31) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=21;
-                viewTapHelpShow_SubNb=3;
+                viewTapHelpShow_SubStart=SUBMENU5_START;
+                viewTapHelpShow_SubNb=SUBMENU5_SIZE;
 			} else if (touched_coord==0x02) {
 				int val=settings[GLOB_FX4].detail.mdz_boolswitch.switch_value;
 				val++;
@@ -4901,18 +4912,18 @@ extern "C" int current_sample;
 			} else if (touched_coord==0x12) {
 				viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=24;
-                viewTapHelpShow_SubNb=3;
+                viewTapHelpShow_SubStart=SUBMENU6_START;
+                viewTapHelpShow_SubNb=SUBMENU6_SIZE;
 			} else if (touched_coord==0x22) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=27;
-                viewTapHelpShow_SubNb=5;
+                viewTapHelpShow_SubStart=SUBMENU7_START;
+                viewTapHelpShow_SubNb=SUBMENU7_SIZE;
 			} else if (touched_coord==0x32) {
                 viewTapHelpShow=2;
                 viewTapHelpShowMode=2;
-                viewTapHelpShow_SubStart=32;
-                viewTapHelpShow_SubNb=4;
+                viewTapHelpShow_SubStart=SUBMENU8_START;
+                viewTapHelpShow_SubNb=SUBMENU8_SIZE;
 			} else if (touched_coord==0x03) {
                 shouldhide=1;
 			} else if (touched_coord==0x23) {
@@ -4940,57 +4951,57 @@ extern "C" int current_sample;
             int touched_coord=(touched_cellX<<4)|(touched_cellY);
             if (touched_coord==0x00) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 0: //FX2
+                    case SUBMENU0_START: //FX2
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         break;
-                    case 4: //FX3
+                    case SUBMENU1_START://4: //FX3
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         break;
-                    case 8: //Spectrum
+                    case SUBMENU2_START://8: //Spectrum
                         settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
                         break;
-                    case 11: //Oscillo
+                    case SUBMENU3_START://11: //Oscillo
                         settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
                         break;
-                    case 14: //MOD Pattern
+                    case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
                         movePxMOD=movePyMOD=0;
                         break;
-                    case 21: //MIDI Pattern
+                    case SUBMENU5_START://21: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
                         movePxMID=movePyMID=0;
                         break;
-                    case 24: //3D Sphere/Torus
+                    case SUBMENU6_START://24: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 27: //Piano
+                    case SUBMENU7_START://27: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                         break;
-                    case 32: //Spectrum3D
+                    case SUBMENU8_START://32: //Spectrum3D
                         settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                         break;
                 }
 			} else if (touched_coord==0x10) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 0: //FX2
+                    case SUBMENU0_START://0: //FX2
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=1;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 4: //FX3
+                    case SUBMENU1_START://4: //FX3
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=1;
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 8: //Spectrum
+                    case SUBMENU2_START://8: //Spectrum
                         settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
                         break;
-                    case 11: //Oscillo
+                    case SUBMENU3_START://11: //Oscillo
                         settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
                         break;
-                    case 14: //MOD Pattern
+                    case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=1;
                         size_chan=12*6;
                         movePxMOD=movePyMOD=0;
@@ -4998,44 +5009,44 @@ extern "C" int current_sample;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
-                    case 21: //MIDI Pattern
+                    case SUBMENU5_START://21: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=1;
                         movePxMID=movePyMID=0;
                         break;
-                    case 24: //3D Sphere/Torus
+                    case SUBMENU6_START://24: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=1;
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         break;
-                    case 27: //Piano
+                    case SUBMENU7_START://27: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
                         break;
-                    case 32: //Spectrum3D
+                    case SUBMENU8_START://32: //Spectrum3D
                         settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
                         break;
                 }
             } else if (touched_coord==0x20) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 0: //FX2
+                    case SUBMENU0_START://0: //FX2
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=2;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 4: //FX3
+                    case SUBMENU1_START://4: //FX3
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=2;
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 8: //Spectrum
+                    case SUBMENU2_START://8: //Spectrum
                         settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
                         break;
-                    case 11: //Oscillo
+                    case SUBMENU3_START://11: //Oscillo
                         settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=2;
                         break;
-                    case 14: //MOD Pattern
+                    case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=2;
                         size_chan=6*6;
                         movePxMOD=movePyMOD=0;
@@ -5043,38 +5054,38 @@ extern "C" int current_sample;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
-                    case 21: //MIDI Pattern
+                    case SUBMENU5_START://21: //MIDI Pattern
                         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=2;
                         movePxMID=movePyMID=0;
                         break;
-                    case 24: //3D Sphere/Torus
+                    case SUBMENU6_START://24: //3D Sphere/Torus
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=2;
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         break;
-                    case 27: //Piano
+                    case SUBMENU7_START://27: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
                         break;
-                    case 32: //Spectrum3D
+                    case SUBMENU8_START://32: //Spectrum3D
                         settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=2;
                         break;
                 }
             } else if (touched_coord==0x30) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 0: //FX2
+                    case SUBMENU0_START://0: //FX2
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=3;
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 4: //FX3
+                    case SUBMENU1_START://4: //FX3
                         settings[GLOB_FX3].detail.mdz_switch.switch_value=3;
                         settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
-                    case 14: //MOD Pattern
+                    case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
                         size_chan=4*6;
                         movePxMOD=movePyMOD=0;
@@ -5083,15 +5094,21 @@ extern "C" int current_sample;
                         if (startChan<0) startChan=0;
                         break;
                         
-                    case 27: //Piano
+                    case SUBMENU7_START://27: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
                         break;
-                    case 32: //Spectrum3D
+                    case SUBMENU8_START://32: //Spectrum3D
                         settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=3;
                 }
             } else if (touched_coord==0x01) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 14: //MOD Pattern
+                    case SUBMENU0_START://0: //FX2
+                        settings[GLOB_FX2].detail.mdz_switch.switch_value=4;
+                        settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                        settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                        settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+                        break;
+                    case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
                         size_chan=12*6;
                         movePxMOD=movePyMOD=0;
@@ -5099,13 +5116,19 @@ extern "C" int current_sample;
                         if (startChan>mplayer.numChannels-visibleChan) startChan=mplayer.numChannels-visibleChan;
                         if (startChan<0) startChan=0;
                         break;
-                    case 27: //Piano
+                    case SUBMENU7_START://27: //Piano
                         settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
                         break;
                 }
             } else if (touched_coord==0x11) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 14: //MOD Pattern
+                    case SUBMENU0_START://0: //FX2
+                        settings[GLOB_FX2].detail.mdz_switch.switch_value=5;
+                        settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
+                        settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
+                        settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
+                        break;
+                    case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
                         size_chan=6*6;
                         movePxMOD=movePyMOD=0;
@@ -5116,7 +5139,7 @@ extern "C" int current_sample;
                 }
             } else if (touched_coord==0x21) {
                 switch (viewTapHelpShow_SubStart) {
-                    case 14: //MOD Pattern
+                    case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
                         size_chan=4*6;
                         movePxMOD=movePyMOD=0;
@@ -5166,14 +5189,14 @@ extern "C" int current_sample;
 			cur_pos=[mplayer getCurrentPlayedBufferIdx];
 			short int *curBuffer=snd_buffer[cur_pos];
             // COMPUTE FFT
-            
+#define SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM 1024
     /////////////////////////////////////////            
             //Number of Samples for input(time domain)/output(frequency domain)
-            int numSamples = SOUND_BUFFER_SIZE_SAMPLE;
+            int numSamples = SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM;
             int idx;
             //Fill Input Array with Left channel
             for (int i=0; i<numSamples; i++) {
-                fft_time[i]=(float)curBuffer[i*2]/32768.0;;
+                fft_time[i]=(float)curBuffer[i*2]/32768.0f;
             }
             memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
             memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
@@ -5190,57 +5213,99 @@ extern "C" int current_sample;
                     fft_freqAvgCount[idx]++;
                 }
             }*/
-            int lowfreq,highfreq;
+            int lowfreq,highfreq,tmpfreq;
             float sum;
+            
+            double Xfactor=powl(10.l,log10l(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM/2)/(double)(SPECTRUM_BANDS-1));
+            highfreq=1;
             for (int i=0;i<SPECTRUM_BANDS;i++) {
-                lowfreq=(float)numSamples/2/powf(2.f,log2FrameSize-i*log2FrameSize/SPECTRUM_BANDS)+1;
-                highfreq=(float)numSamples/2/powf(2.f,log2FrameSize-(i+1)*log2FrameSize/SPECTRUM_BANDS)+1;
+                //lowfreq=1.l*powl(Xfactor,i+6);
+                lowfreq=highfreq;
+                //highfreq=1.l*powl(Xfactor,i+1+6);
+                highfreq+=1.0;
+                tmpfreq=1.l*powl(Xfactor,i);
+                if (highfreq<tmpfreq) highfreq=tmpfreq;
+                
                 if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
-                if (lowfreq<numSamples/2) {
-                    sum=0;
-                    for (int k=lowfreq;k<=highfreq;k++) {
-                            //fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
-                        sum=sum+fft_frequency[k];
-                    }
-                    sum=sum/(float)(highfreq-lowfreq+1);
-                    sum*=(float)powf(i,1.5f)+1;
-                    fft_frequencyAvg[i]=sum;
+            
+                //sum=0;
+                for (int k=lowfreq;k<highfreq;k++) {
+                    fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+                    //sum+=fft_frequency[k];
                 }
+                
+                fft_frequencyAvg[i]=20.0f*log10(fft_frequencyAvg[i])+60;
+                
+                //fft_frequencyAvg[i]=20.0f*log10(sum)+60;
+                
+                if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
+                    
+                //NSLog(@"/idx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
             }
             
             for (int i=0;i<SPECTRUM_BANDS;i++) {
-                float t=512.0f*fft_frequencyAvg[i];
-                if (t>oreal_spectrumL[i]) oreal_spectrumL[i]=t;
-                else oreal_spectrumL[i]=oreal_spectrumL[i]*SPECTRUM_DECREASE_RATE;
+                float t=64.0f*fft_frequencyAvg[i];
+                //if (t>oreal_spectrumL[i]) oreal_spectrumL[i]=t;
+                //else oreal_spectrumL[i]=oreal_spectrumL[i]*SPECTRUM_DECREASE_RATE;
+                oreal_spectrumL[i]=t;
             }
             //Fill Input Array with Right channel
             for (int i=0; i<numSamples; i++) {
-                fft_time[i]=(float)curBuffer[i*2+1]/32768.0;
+                fft_time[i]=(float)curBuffer[i*2+1]/32768.0f;
             }
             memset(fft_frequencyAvg,0,sizeof(float)*SPECTRUM_BANDS);
             memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
             fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
             
-            for (int i=0;i<SPECTRUM_BANDS;i++) {
+            /*for (int i=0;i<SPECTRUM_BANDS;i++) {
                 lowfreq=(float)numSamples/2/powf(2.f,log2FrameSize-i*log2FrameSize/SPECTRUM_BANDS)+1;
                 highfreq=(float)numSamples/2/powf(2.f,log2FrameSize-(i+1)*log2FrameSize/SPECTRUM_BANDS)+1;
                 if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
                 if (lowfreq<numSamples/2) {
                     sum=0;
-                    for (int k=lowfreq;k<=highfreq;k++) {
-                        //fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
-                        sum=sum+fft_frequency[k];
+                    for (int k=lowfreq;k<highfreq;k++) {
+                        fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+                        //sum=sum+fft_frequency[k];
                     }
-                    sum=sum/(float)(highfreq-lowfreq+1);
-                    sum*=(float)powf(i,1.5f)+1;
-                    fft_frequencyAvg[i]=sum;
+                    //sum=sum/(float)(highfreq-lowfreq+1);
+                    //sum*=(float)powf(i,1.5f)+1;
+                    //fft_frequencyAvg[i]=sum;
+                    fft_frequencyAvg[i]*=(float)powf(i,1.5f)+1;
                 }
+            }*/
+            
+            highfreq=1;
+            for (int i=0;i<SPECTRUM_BANDS;i++) {
+                //lowfreq=1.l*powl(Xfactor,i+6);
+                lowfreq=highfreq;
+                //highfreq=1.l*powl(Xfactor,i+1+6);
+                highfreq+=1.0;
+                tmpfreq=1.l*powl(Xfactor,i);
+                if (highfreq<tmpfreq) highfreq=tmpfreq;
+                
+                
+                if (highfreq>=numSamples/2) highfreq=numSamples/2-1;
+                
+                //sum=0;
+                for (int k=lowfreq;k<highfreq;k++) {
+                    fft_frequencyAvg[i]=max(fft_frequencyAvg[i],fft_frequency[k]);
+                    //sum+=fft_frequency[k];
+                }
+                
+                fft_frequencyAvg[i]=20.0f*log10(fft_frequencyAvg[i])+60;
+                
+                //fft_frequencyAvg[i]=20.0f*log10(sum)+60;
+                
+                if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
+                
+                //NSLog(@"Ridx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
             }
             
             for (int i=0;i<SPECTRUM_BANDS;i++) {
-                float t=512.0f*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
-                if (t>oreal_spectrumR[i]) oreal_spectrumR[i]=t;
-                else oreal_spectrumR[i]=oreal_spectrumR[i]*SPECTRUM_DECREASE_RATE;
+                float t=64.0f*(fft_frequencyAvg[i]);///fft_freqAvgCount[idx];
+                //if (t>oreal_spectrumR[i]) oreal_spectrumR[i]=t;
+                //else oreal_spectrumR[i]=oreal_spectrumR[i]*SPECTRUM_DECREASE_RATE;
+                oreal_spectrumR[i]=t;
             }
             
             
@@ -5618,14 +5683,17 @@ extern "C" int current_sample;
 		if (hasdrawnotes) pos_fx=1;
 		if (settings[GLOB_FX1].detail.mdz_boolswitch.switch_value) pos_fx=1;
 		
-		if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) RenderUtils::DrawSpectrum(real_spectrumL,real_spectrumR,ww,hh,hasdrawnotes,settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value-1,pos_fx,nb_spectrum_bands);
+		if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) //RenderUtils::DrawSpectrum(real_spectrumL,real_spectrumR,ww,hh,hasdrawnotes,settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value-1,pos_fx,nb_spectrum_bands);
+            RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
+                                  settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
 		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
 		if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
 	}
     
 	if ([mplayer isPlaying]){
 		if (settings[GLOB_FX2].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            if (settings[GLOB_FX2].detail.mdz_switch.switch_value<4) RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            else RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX2].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
         } else if (settings[GLOB_FX3].detail.mdz_switch.switch_value) {
             RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3].detail.mdz_switch.switch_value,nb_spectrum_bands);
         } else if (settings[GLOB_FX4].detail.mdz_boolswitch.switch_value) {

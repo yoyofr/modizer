@@ -115,8 +115,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Shuffle & Play",@"")]) {
         if (playlist->nb_entries) {
             int pos=0;
-            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-            else [tableView reloadData];
+            /*if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+            else*/ [tableView reloadData];
             
             pos=arc4random()%(playlist->nb_entries);
             detailViewController.mShuffle=0; //force shuffle

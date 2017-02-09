@@ -330,6 +330,9 @@ void optVGMPLAYChangedC(id param) {
     if (mSlowDevice) settings[GLOB_FXLOD].detail.mdz_switch.switch_value=1;
     else settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     
+    if (mSlowDevice) settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
+    else settings[GLOB_FXFPS].detail.mdz_switch.switch_value=1;
+    
     settings[GLOB_FXMSAA].detail.mdz_switch.switch_value=0;
     
     /////////////////////////////////////
@@ -961,6 +964,17 @@ void optVGMPLAYChangedC(id param) {
     settings[GLOB_FXMSAA].sub_family=0;
     settings[GLOB_FXMSAA].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GLOB_FXFPS].type=MDZ_SWITCH;
+    settings[GLOB_FXFPS].label=(char*)"FX FPS";
+    settings[GLOB_FXFPS].description=NULL;
+    settings[GLOB_FXFPS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXFPS].sub_family=0;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[0]=(char*)"30";
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[1]=(char*)"60";
     
     
     /////////////////////////////////////
