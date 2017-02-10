@@ -802,6 +802,7 @@
 					"-Dchip_reg_write=VGMchip_reg_write",
 				);
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -845,6 +846,7 @@
 					"-Dchip_reg_write=VGMchip_reg_write",
 				);
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};

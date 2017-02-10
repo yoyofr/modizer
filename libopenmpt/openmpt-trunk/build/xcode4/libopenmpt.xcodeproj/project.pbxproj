@@ -150,13 +150,6 @@
 			remoteGlobalIDString = CD132C0E152A48C200B4F5A8;
 			remoteInfo = "mpg123-ios";
 		};
-		590ED72D1E2375B900802D4C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 590ED7261E2375B900802D4C /* mpg123.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CD6D72D1152B748200CF4285;
-			remoteInfo = "mpg123-mac";
-		};
 		9B740EB2EAF3580074BA4CAFE4595C001008C04D7F4B9A0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 938C089DE0E65000383D42556F977E007001C134CB219C00 /* ogg.xcodeproj */;
@@ -524,7 +517,6 @@
 			isa = PBXGroup;
 			children = (
 				590ED72C1E2375B900802D4C /* libmpg123-ios.a */,
-				590ED72E1E2375B900802D4C /* libmpg123-mac.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -836,13 +828,6 @@
 			remoteRef = 590ED72B1E2375B900802D4C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		590ED72E1E2375B900802D4C /* libmpg123-mac.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libmpg123-mac.a";
-			remoteRef = 590ED72D1E2375B900802D4C /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		841B360DD926B800334F8005FB0BF800ED4A0ACE3D683000 /* libopenmpt-vorbis.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1094,6 +1079,7 @@
 					"/DELAYLOAD:propsys.dll",
 				);
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = "../../bin/debug/xcode4-shared/x86-64-win7";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1164,6 +1150,7 @@
 					"/DELAYLOAD:propsys.dll",
 				);
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = "../../bin/release/xcode4-shared/x86-64-win7";
 				WARNING_CFLAGS = (
 					"-Wall",
@@ -1227,6 +1214,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				SYMROOT = ../lib/xcode4/x86_64/Debug;
 				WARNING_CFLAGS = (
@@ -1325,6 +1313,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				SYMROOT = ../lib/xcode4/x86_64/Release;
 				WARNING_CFLAGS = (

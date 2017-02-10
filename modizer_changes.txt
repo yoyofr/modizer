@@ -1,6 +1,5 @@
 Todo/Requested:
 ÑÑÑÑÑÑÑÑÑ
-- update about (add vgmstream, ...)
 - improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - settings => when value available (not combo list or on/off switch), display it below label
 
@@ -18,19 +17,23 @@ Todo/Requested:
 
 2.6
 ÑÑÑ
-- [New] VGMStream
+- [New] VGMStream (Consoles streaming formats)
+- [New] 2SF & NCSF (NDS)
+- [New] Cut/Paste & New Folder features in file browser (slide left/right)
 - [Update] VGMPlay 1.71b
 - [Update] ASAP 3.2
-- [Update] Libopenmpt update (2017/01/07) + MO3 support
+- [Update] updated Libopenmpt (2017/01/07) + MO3 support (Ogg&MP3)
 - [Update] HSVC #66
-- [Update] Modland DB (2017/01/01)
+- [Update] Modland DB updated
 - [Update] Stability improved
-- [Update] Improved UI
+- [Update] UI improved
+- [Update] Improved Spectrum(FFT) 
+- [Update] Modland, HVSC & ASMA server's address are customizable
 - [Bugfix] Screen layouts
 - [Bugfix] Subsong management issue with ASAP
 - [Bugfix] Default length not being used in some cases
 - [Bugfix] Extension instead of filename for some amiga files
-
+- [Bugfix] Lots of small fixes
 
 
 2.1

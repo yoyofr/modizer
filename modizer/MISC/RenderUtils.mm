@@ -1331,9 +1331,6 @@ void RenderUtils::DrawSpectrum3DBarFlat(short int *spectrumDataL,short int *spec
             drawbar3(x,y,z,sx,sy,sz,crt,cgt,cbt);
         }
         
-        
-        
-        
         /////////////////
         //RIGHT
         spR=barSpectrumDataR[i];

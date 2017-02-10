@@ -206,6 +206,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-std=c99";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = "../../../bin/release/xcode4-shared/x86-64-win7";
 			};
 			name = ReleaseShared;
@@ -254,6 +255,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-std=c99";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				SYMROOT = ../../lib/xcode4/x86_64/Debug;
 			};
@@ -303,6 +305,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-std=c99";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = "../../../bin/debug/xcode4-shared/x86-64-win7";
 			};
 			name = DebugShared;
@@ -350,6 +353,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-std=c99";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 				SYMROOT = ../../lib/xcode4/x86_64/Release;
 			};

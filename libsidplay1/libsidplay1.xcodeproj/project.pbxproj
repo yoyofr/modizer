@@ -379,6 +379,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -396,6 +397,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
