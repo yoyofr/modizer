@@ -310,13 +310,6 @@
 			remoteGlobalIDString = CD132C0E152A48C200B4F5A8;
 			remoteInfo = "mpg123-ios";
 		};
-		59321B651E24CC2600020079 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 59321B5E1E24CC2600020079 /* mpg123.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = CD6D72D1152B748200CF4285;
-			remoteInfo = "mpg123-mac";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -688,7 +681,6 @@
 			isa = PBXGroup;
 			children = (
 				59321B641E24CC2600020079 /* libmpg123-ios.a */,
-				59321B661E24CC2600020079 /* libmpg123-mac.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1076,13 +1068,6 @@
 			remoteRef = 59321B631E24CC2600020079 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		59321B661E24CC2600020079 /* libmpg123-mac.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libmpg123-mac.a";
-			remoteRef = 59321B651E24CC2600020079 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1438,6 +1423,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
 			name = Debug;
@@ -1485,6 +1471,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALIDATE_PRODUCT = YES;
 			};

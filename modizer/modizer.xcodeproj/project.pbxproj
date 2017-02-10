@@ -6550,6 +6550,7 @@
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -6599,6 +6600,7 @@
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6637,6 +6639,7 @@
 				PROVISIONING_PROFILE = "";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
@@ -6676,6 +6679,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
@@ -6717,6 +6721,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
@@ -6767,6 +6772,7 @@
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6805,6 +6811,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
@@ -6855,6 +6862,7 @@
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6893,6 +6901,7 @@
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/iphone/modizer/lib2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib";
 				VALIDATE_PRODUCT = YES;
@@ -6943,6 +6952,7 @@
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

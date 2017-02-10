@@ -2452,11 +2452,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //[self updateLayoutsForCurrentOrientation:toInterfaceOrientation view:self.navigationController.view.superview.superview];
     [self shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
     
+    NSLog(@"willAnimateRotationToInterfaceOrientation: %d",toInterfaceOrientation);
+    
 }
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	orientationHV=interfaceOrientation;
+    //NSLog(@"should rotate to : %d",orientationHV);
     
     if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
     
@@ -3720,10 +3723,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 -(void)orientationDidChange:(NSNotification*)notification
 {
-    //    orientationHV=(int)[[UIDevice currentDevice]orientation];
+    UIDeviceOrientation op=[[UIDevice currentDevice]orientation];
     UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
+    //NSLog(@"change orientation: %d / %d",o,op);
+    /*o = [[UIApplication sharedApplication] statusBarOrientation];
 
-    
     switch (o) {
         case UIInterfaceOrientationLandscapeLeft:
             orientationHV=(int)UIInterfaceOrientationLandscapeLeft;
@@ -3737,6 +3741,29 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         default:
             orientationHV=(int)UIInterfaceOrientationPortrait;
             break;
+    }
+    */
+    switch (op) {
+        case UIDeviceOrientationPortrait:            // Device oriented vertically, home button on the bottom
+            orientationHV=(int)UIInterfaceOrientationPortrait;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:  // Device oriented vertically, home button on the top
+            orientationHV=(int)UIInterfaceOrientationPortraitUpsideDown;
+            break;
+        case UIDeviceOrientationLandscapeLeft:       // Device oriented horizontally, home button on the right
+            orientationHV=(int)UIInterfaceOrientationLandscapeRight;
+            break;
+        case UIDeviceOrientationLandscapeRight:      // Device oriented horizontally, home button on the left
+            orientationHV=(int)UIInterfaceOrientationLandscapeLeft;
+            break;
+        case UIDeviceOrientationFaceUp:              // Device oriented flat, face up
+            orientationHV=(int)UIInterfaceOrientationPortrait;
+            break;
+        case UIDeviceOrientationFaceDown:             // Device oriented flat, face down
+            orientationHV=(int)UIInterfaceOrientationPortrait;
+            break;
+        default:
+            orientationHV=(int)UIInterfaceOrientationPortrait;
     }
 
     /*if(Orientation==UIDeviceOrientationLandscapeLeft || Orientation==UIDeviceOrientationLandscapeRight)
