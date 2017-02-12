@@ -285,7 +285,7 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
-		590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
+		591FF53D1E5057D600D401D5 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
 		5928624A1E2D3BD500A08A4E /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 592862491E2D3BD500A08A4E /* AppStore512.png */; };
 		592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59321DD61E2560B300020079 /* libvgmstream.a */; };
@@ -1742,6 +1742,10 @@
 		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		590ED7081E22CDDD00802D4C /* libopenmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libopenmpt.xcodeproj; path = "../libopenmpt/openmpt-trunk/build/xcode4/libopenmpt.xcodeproj"; sourceTree = "<group>"; };
+		591FF53E1E5057E400D401D5 /* libmpg123-ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libmpg123-ios.a"; path = "../../../../../Library/Developer/Xcode/DerivedData/modizer-dttbdzihcururxdhsdqkyrwkkhzx/Build/Products/Release-iphonesimulator/libmpg123-ios.a"; sourceTree = "<group>"; };
+		591FF53F1E5057E400D401D5 /* libopenmpt-ogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-ogg.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-ogg.a"; sourceTree = "<group>"; };
+		591FF5401E5057E400D401D5 /* libopenmpt-vorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-vorbis.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-vorbis.a"; sourceTree = "<group>"; };
+		591FF5411E5057E400D401D5 /* libopenmpt-zlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-zlib.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-zlib.a"; sourceTree = "<group>"; };
 		592862491E2D3BD500A08A4E /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
 		592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxsf.xcodeproj; path = ../libxsf/libxsf/libxsf.xcodeproj; sourceTree = "<group>"; };
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = ../vgmstream/vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
@@ -2906,9 +2910,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				591FF53D1E5057D600D401D5 /* liblibopenmpt.a in Frameworks */,
 				592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */,
 				59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */,
-				590ED7191E22D6A500802D4C /* liblibopenmpt.a in Frameworks */,
 				CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */,
 				CC9FB0521B64E2BF00345B1C /* liblibLazyusf.a in Frameworks */,
 				CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */,
@@ -2975,6 +2979,10 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				591FF53E1E5057E400D401D5 /* libmpg123-ios.a */,
+				591FF53F1E5057E400D401D5 /* libopenmpt-ogg.a */,
+				591FF5401E5057E400D401D5 /* libopenmpt-vorbis.a */,
+				591FF5411E5057E400D401D5 /* libopenmpt-zlib.a */,
 				CC5C709C17CD1D7900DC7197 /* Accelerate.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
