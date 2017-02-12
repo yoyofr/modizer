@@ -330,8 +330,7 @@ void optVGMPLAYChangedC(id param) {
     if (mSlowDevice) settings[GLOB_FXLOD].detail.mdz_switch.switch_value=1;
     else settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     
-    if (mSlowDevice) settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
-    else settings[GLOB_FXFPS].detail.mdz_switch.switch_value=1;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
     
     settings[GLOB_FXMSAA].detail.mdz_switch.switch_value=0;
     

@@ -924,7 +924,6 @@ static UIAlertView *alertChooseName;
     
     bookmarksVC=nil;
     
-    
 	self.hidesBottomBarWhenPushed = YES;
     
     UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
@@ -933,7 +932,6 @@ static UIAlertView *alertChooseName;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
     self.navigationItem.rightBarButtonItem = item;
-
 	
 	webView.scalesPageToFit = YES;
 	webView.autoresizesSubviews = YES;

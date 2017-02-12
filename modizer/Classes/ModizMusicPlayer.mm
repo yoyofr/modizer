@@ -2485,8 +2485,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             mNeedSeek=0;
                         }
                         if (mPlayType==MMP_VGMPLAY) { //VGM
+                            bGlobalSeekProgress=-1;
                             SeekVGM(false,mNeedSeekTime*441/10);
-                            mNeedSeek=0;
+                            //mNeedSeek=0;
                         }
                         if (mPlayType==MMP_LAZYUSF) { //LAZYUSF : not supported
                             mNeedSeek=0;
@@ -2494,7 +2495,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         if (mPlayType==MMP_XSF) { //XSF
                             
                             int seekSample=(double)mNeedSeekTime*(double)(xSFPlayer->GetSampleRate())/1000.0f;
-                            
+                            bGlobalSeekProgress=-1;
                             if (xSFPlayer->currentSample >seekSample) {
                                 xSFPlayer->Terminate();
                                 xSFPlayer->Load();
@@ -2511,11 +2512,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 xSFPlayer->currentSample = seekSample;
                             }
                             
-                            mNeedSeek=0;
+                            //mNeedSeek=0;
                         }
                         if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
                             mVGMSTREAM_seek_needed_samples=(double)mNeedSeekTime*(double)(vgmStream->sample_rate)/1000.0f;
-                            
+                            bGlobalSeekProgress=-1;
                             if (mVGMSTREAM_decode_pos_samples>mVGMSTREAM_seek_needed_samples) {
                                 reset_vgmstream(vgmStream);
                                 mVGMSTREAM_decode_pos_samples=0;
@@ -2527,7 +2528,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
                             }
                             
-                            mNeedSeek=0;
+                            //mNeedSeek=0;
                         }
                     }
                     if (moveToNextSubSong) {

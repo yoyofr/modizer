@@ -781,8 +781,8 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		right *= gb->snd_control.vol_right;
 
 		/* pump up the volume */
-		left <<= 6;
-		right <<= 6;
+        left <<= 5;//6;
+		right <<= 5;//6;
 
 		/* Update the buffers */
 		*(outl++) = left;
@@ -907,8 +907,6 @@ void gameboy_sound_set_options(UINT8 Flags)
 	
 	return;
 }
-
-
 
 /*DEVICE_GET_INFO( gameboy_sound )
 {
