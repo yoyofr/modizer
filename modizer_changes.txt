@@ -12,9 +12,6 @@ Todo/Requested:
 - Mute button / channels & playback ratio (slower/faster)
 - Cloud synchro
 
-
-
-
 2.6
 ÑÑÑ
 - [New] VGMStream (Consoles streaming formats)
@@ -34,7 +31,6 @@ Todo/Requested:
 - [Bugfix] Default length not being used in some cases
 - [Bugfix] Extension instead of filename for some amiga files
 - [Bugfix] Lots of small fixes
-
 
 2.1
 ÑÑÑ

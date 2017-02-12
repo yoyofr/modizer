@@ -707,7 +707,6 @@
 		CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */; };
 		CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */; };
 		CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */; };
-		CC8D41B01801E26F00533682 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8D41AF1801E26F00533682 /* AppStore512.png */; };
 		CC91689517F01F560012E2C1 /* james_bond.jpg in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682B17F01EC80012E2C1 /* james_bond.jpg */; };
 		CC91689617F01F560012E2C1 /* james_bond.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682C17F01EC80012E2C1 /* james_bond.mid */; };
 		CC91689717F01F560012E2C1 /* Live_And_Let_Die.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */; };
@@ -6004,7 +6003,6 @@
 				3370BC14124A853F00691400 /* sin_tab.dat in Resources */,
 				3370BC15124A853F00691400 /* tl_tab.dat in Resources */,
 				CCCE26D612588EA100741F5A /* rating0.png in Resources */,
-				CC8D41B01801E26F00533682 /* AppStore512.png in Resources */,
 				CC7E810212698C29006EF083 /* previous.png in Resources */,
 				CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */,
 				CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */,
@@ -6549,6 +6547,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -6567,7 +6566,7 @@
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
@@ -6599,6 +6598,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -6771,6 +6771,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -6861,6 +6862,7 @@
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -6951,6 +6953,7 @@
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";

@@ -2452,7 +2452,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //[self updateLayoutsForCurrentOrientation:toInterfaceOrientation view:self.navigationController.view.superview.superview];
     [self shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
     
-    NSLog(@"willAnimateRotationToInterfaceOrientation: %d",toInterfaceOrientation);
+    //NSLog(@"willAnimateRotationToInterfaceOrientation: %d",toInterfaceOrientation);
     
 }
 
@@ -5817,31 +5817,31 @@ extern "C" int current_sample;
         if (viewTapHelpShowMode==2) {
             
             switch (viewTapHelpShow_SubStart) {
-                case 0: //FX2
+                case SUBMENU0_START: //FX2
                     active_idx=1<<settings[GLOB_FX2].detail.mdz_switch.switch_value;
                     break;
-                case 4: //FX3
+                case SUBMENU1_START: //FX3
                     active_idx=1<<settings[GLOB_FX3].detail.mdz_switch.switch_value;
                     break;
-                case 8: //Spectrum
+                case SUBMENU2_START: //Spectrum
                     active_idx=1<<settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value;
                     break;
-                case 11: //Oscillo
+                case SUBMENU3_START: //Oscillo
                     active_idx=1<<settings[GLOB_FXOscillo].detail.mdz_switch.switch_value;
                     break;
-                case 14: //MOD Pattern
+                case SUBMENU4_START: //MOD Pattern
                     active_idx=1<<settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value;
                     break;
-                case 21: //MIDI Pattern
+                case SUBMENU5_START: //MIDI Pattern
                     active_idx=1<<settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value;
                     break;
-                case 24: //3D Sphere/Torus
+                case SUBMENU6_START: //3D Sphere/Torus
                     active_idx=1<<settings[GLOB_FX5].detail.mdz_switch.switch_value;
                     break;
-                case 27: //Piano
+                case SUBMENU7_START: //Piano
                     active_idx=1<<settings[GLOB_FXPiano].detail.mdz_switch.switch_value;
                     break;
-                case 32:
+                case SUBMENU8_START:
                     active_idx=1<<settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value;
                     break;
             }
