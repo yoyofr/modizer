@@ -1081,6 +1081,13 @@
 			remoteGlobalIDString = 59321B451E24CB8B00020079;
 			remoteInfo = vgmstream;
 		};
+		595F9C171E54B907009DBEED /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 595F9C081E54B906009DBEED;
+			remoteInfo = libxmp;
+		};
 		CC1343731AC17B3A00CAB284 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
@@ -1751,6 +1758,7 @@
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = ../vgmstream/vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
 		59517DEB1E40782700FAA0BF /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = SESlideTableViewCell/lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
 		59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = SESlideTableViewCell/lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
+		595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxmp.xcodeproj; path = libxmp/libxmp.xcodeproj; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
 		59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Orange.png; sourceTree = "<group>"; };
@@ -3653,6 +3661,22 @@
 			name = SESlideTableViewCell;
 			sourceTree = "<group>";
 		};
+		595F9C101E54B906009DBEED /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				595F9C181E54B907009DBEED /* liblibxmp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		595F9C1C1E54B90D009DBEED /* libxmp */ = {
+			isa = PBXGroup;
+			children = (
+				595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */,
+			);
+			name = libxmp;
+			sourceTree = "<group>";
+		};
 		CC1343701AC17B3900CAB284 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -4973,6 +4997,7 @@
 		CC9B193312FF0B9800985967 /* SndPlayers */ = {
 			isa = PBXGroup;
 			children = (
+				595F9C1C1E54B90D009DBEED /* libxmp */,
 				592862B91E2D4D6800A08A4E /* libxsf */,
 				59321DCA1E25609F00020079 /* libvgmstream */,
 				CC9FAF701B64DB0600345B1C /* libLazyusf */,
@@ -5585,6 +5610,10 @@
 					ProjectRef = 33BA705E1407A12F0099E943 /* libtim.xcodeproj */;
 				},
 				{
+					ProductGroup = 595F9C101E54B906009DBEED /* Products */;
+					ProjectRef = 595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */;
+				},
+				{
 					ProductGroup = 592862BB1E2D4D7A00A08A4E /* Products */;
 					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
 				},
@@ -5681,6 +5710,13 @@
 			fileType = archive.ar;
 			path = libvgmstream.a;
 			remoteRef = 59321DD51E2560B300020079 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		595F9C181E54B907009DBEED /* liblibxmp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibxmp.a;
+			remoteRef = 595F9C171E54B907009DBEED /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC1343741AC17B3A00CAB284 /* libvgmplay.a */ = {

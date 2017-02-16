@@ -1111,8 +1111,10 @@ void uade_song_end(char *reason, int kill_it)
   um->msgtype = UADE_REPLY_SONG_END;
   ((uint32_t *) um->data)[0] = htonl(((intptr_t) sndbufpt) - ((intptr_t) sndbuffer));
   ((uint32_t *) um->data)[1] = htonl(kill_it);
-  strlcpy((char *) um->data + 8, reason, 256);
-  um->size = 8 + strlen(reason) + 1;
+  
+    strlcpy((char *) um->data + 8, reason, 256);
+    
+    um->size = 8 + strlen(reason) + 1;
   if (uade_send_message(um, &uadeipc)) {
     fprintf(stderr, "uadecore: Could not send song end message.\n");
     exit(-1);
