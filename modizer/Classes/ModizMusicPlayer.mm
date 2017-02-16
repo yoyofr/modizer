@@ -2214,7 +2214,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         printf("\nbroken reason string with song end notice\n");
                         exit(-1);
                     }
-                    //					printf("\nSong end (%s)\n", reason);
+                    printf("UADE: Song end (%s)\n", reason);
                     break;
                     
                 case UADE_REPLY_SUBSONG_INFO:
@@ -3185,7 +3185,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         } else {
                             nbBytes= ASAP_Generate(&asap, (unsigned char *)buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2, ASAPSampleFormat_S16_L_E);
                             short int *buff=(short int*)(buffer_ana[buffer_ana_gen_ofs]);
-                            for (int i=nbBytes*2-1;i>0;i--) {
+                            for (int i=nbBytes-1;i>0;i--) {
                                 buff[i]=buff[i>>1];
                             }
                             nbBytes*=2;
@@ -4246,7 +4246,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     
     iCurrentTime=0;
     numChannels=sndNumChannels;
-    sprintf(mod_name,"");
+    mod_name[0]=0;
     if (title_str)
         if (title_str[0]) sprintf(mod_name," %s",title_str);
     
@@ -5772,9 +5772,8 @@ static const unsigned BitsPerSample = 16;*/
     mod_maxsub=asap.moduleInfo.songs-1;
     mod_subsongs=asap.moduleInfo.songs;
     
-    sprintf(mod_name,"");
     if (asap.moduleInfo.title[0]) sprintf(mod_name," %s",asap.moduleInfo.title);
-    if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+    else sprintf(mod_name," %s",mod_filename);
     
     stil_info[0]=0;
     [self getStilAsmaInfo:(char*)[filePath UTF8String]];
