@@ -72,6 +72,7 @@ enum MMP_PLAYER_TYPE {
     MMP_PMDMINI,
     MMP_ADPLUG,
     MMP_SIDPLAY,
+    MMP_XMP,
     MMP_OPENMPT,
     MMP_DUMB,
     MMP_UADE,
