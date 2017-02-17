@@ -9,7 +9,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 void Depack_PP30 (FILE * in, FILE * out)
 {

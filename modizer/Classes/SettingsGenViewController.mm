@@ -518,11 +518,12 @@ void optVGMPLAYChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[3]=(char*)"XMP";
     
     settings[GLOB_DefaultSAPPlayer].type=MDZ_SWITCH;
     settings[GLOB_DefaultSAPPlayer].label=(char*)"Default SAP player";

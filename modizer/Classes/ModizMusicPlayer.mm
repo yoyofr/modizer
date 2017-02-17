@@ -83,6 +83,7 @@ static int mSingleSubMode;
 #define DEFAULT_MODPLUG 0
 #define DEFAULT_DUMB 1
 #define DEFAULT_UADE 2
+#define DEFAULT_XMP 3
 
 #define DEFAULT_SAPASAP 0
 #define DEFAULT_SAPGME 1
@@ -117,6 +118,11 @@ extern "C" {
     static double optVGMSTREAM_loop_count = 2.0f;
     static bool mVGMSTREAM_force_loop;
     static volatile int mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples;
+    
+    //xmp
+#include "xmp.h"
+    static xmp_context xmp_ctx;
+    static struct xmp_module_info mi;
 }
 
 //DUMB
@@ -1103,6 +1109,8 @@ void propertyListenerCallback (void                   *inUserData,              
         playVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
         //playOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         //
+        
+        
         //GME specific
         optGMEFadeOut=1000;
         if (mSlowDevice) {
@@ -2440,6 +2448,10 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             bGlobalSeekProgress=-1;
                             ModPlug_Seek(mp_file,mNeedSeekTime);
                         }
+                        if (mPlayType==MMP_XMP) { //XMP
+                            bGlobalSeekProgress=-1;
+                            xmp_seek_time(xmp_ctx,mNeedSeekTime);
+                        }
                         if (mPlayType==MMP_ADPLUG) { //ADPLUG
                             bGlobalSeekProgress=-1;
                             adPlugPlayer->seek(mNeedSeekTime);
@@ -2958,6 +2970,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             else nbBytes=0;
                         }
                         //                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                    }
+                    if (mPlayType==MMP_XMP) {  //XMP
+                        if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
+                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        } else nbBytes=0;
+                        
                     }
                     if (mPlayType==MMP_OPENMPT) {  //MODPLUG
                         int prev_ofs=buffer_ana_gen_ofs-1;
@@ -3716,6 +3734,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -3731,7 +3750,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
-                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extDUMB count]+
+                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+[filetype_extDUMB count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extXSF count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
@@ -3750,6 +3769,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
     [filetype_ext addObjectsFromArray:filetype_extUADE];
     [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
+    [filetype_ext addObjectsFromArray:filetype_extXMP];
     [filetype_ext addObjectsFromArray:filetype_extDUMB];
     [filetype_ext addObjectsFromArray:filetype_extGME];
     [filetype_ext addObjectsFromArray:filetype_extADPLUG];
@@ -3834,6 +3854,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
     NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -4071,6 +4092,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         for (int i=0;i<[filetype_extMODPLUG count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+        }
+    if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_XMP))
+        for (int i=0;i<[filetype_extXMP count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
         }
     if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_DUMB))
         for (int i=0;i<[filetype_extDUMB count];i++) {
@@ -5066,6 +5092,81 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     return 0;
 }
 
+-(int) mmp_xmpLoad:(NSString*)filePath {  //XMP
+    mPlayType=MMP_XMP;
+    
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"XMP Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+    
+    xmp_ctx = xmp_create_context();
+    if (xmp_ctx==NULL) {
+        NSLog(@"XMP: Cannot create context");
+        return 1;
+    }
+    
+    if (xmp_load_module(xmp_ctx, (char*)[filePath UTF8String]) < 0) {
+        NSLog(@"XMP: error loading %s\n", [filePath UTF8String]);
+        xmp_free_context(xmp_ctx);
+        return 2;
+    }
+    
+    if (xmp_start_player(xmp_ctx, 44100, 0) != 0) {
+        NSLog(@"XMP: error loading %s\n", [filePath UTF8String]);
+        xmp_release_module(xmp_ctx);
+        xmp_free_context(xmp_ctx);
+        return 3;
+    }
+    
+    /* Show module data */
+    
+    xmp_get_module_info(xmp_ctx, &mi);
+    
+    sprintf(mod_name," %s",mi.mod->name);
+    if (mi.mod->name[0]==0) {
+        sprintf(mod_name," %s",mod_filename);
+    }
+    
+    if (mi.comment) sprintf(mod_message,"%s\n", mi.comment);
+    else {
+        mod_message[0]=0;
+        if (mi.mod->ins) {
+            for (int i=0;i<mi.mod->ins;i++) {
+                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,mi.mod->xxi[i].name);
+                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
+            }
+        }
+        if (mi.mod->smp) {
+            for (int i=0;i<mi.mod->smp;i++) {
+                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,mi.mod->xxs[i].name);
+                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
+            }
+        }
+    }
+
+    NSLog(@"XMP num sequence: %d",mi.num_sequences);
+    for (int i=0;i<mi.num_sequences;i++) {
+        NSLog(@"XMP sequence %d duration: %d",i,mi.seq_data[i].duration);
+    }
+    iModuleLength=mi.seq_data[0].duration;
+    
+    iCurrentTime=0;
+    numChannels=mi.mod->chn;
+    //Loop
+    if (mLoopMode==1) iModuleLength=-1;
+
+    
+    
+    return 0;
+}
+
 -(int) mmp_openmptLoad:(NSString*)filePath {  //MODPLUG
     const char *modName;
     char *modMessage;
@@ -5998,6 +6099,7 @@ static const unsigned BitsPerSample = 16;*/
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -6436,6 +6538,21 @@ static const unsigned BitsPerSample = 16;*/
             [available_player addObject:[NSNumber numberWithInt:MMP_TIMIDITY]];break;
         }
     }
+    for (int i=0;i<[filetype_extXMP count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {
+            if (mdz_defaultMODPLAYER==DEFAULT_XMP) [available_player insertObject:[NSNumber numberWithInt:MMP_XMP] atIndex:0];
+            else [available_player addObject:[NSNumber numberWithInt:MMP_XMP]];
+            found=MMP_XMP;
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {
+            if (mdz_defaultMODPLAYER==DEFAULT_XMP) [available_player insertObject:[NSNumber numberWithInt:MMP_XMP] atIndex:0];
+            else [available_player addObject:[NSNumber numberWithInt:MMP_XMP]];
+            found=MMP_XMP;
+            break;
+        }
+    }
+    
     for (int i=0;i<[filetype_extUADE count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_UADE]];
@@ -6535,6 +6652,9 @@ static const unsigned BitsPerSample = 16;*/
             case MMP_HVL:
                 if ([self mmp_hvlLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
                 break;
+            case MMP_XMP:
+                if ([self mmp_xmpLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                break;                
             case MMP_UADE:
                 if ([self mmp_uadeLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
                 break;
@@ -6666,6 +6786,11 @@ static const unsigned BitsPerSample = 16;*/
             gme_seek(gme_emu,startPos);
             if (startPos) [self Seek:startPos];
             
+            [self Play];
+            iCurrentTime=startPos;
+            break;
+        case MMP_XMP:  //XMP
+            if (startPos) [self Seek:startPos];
             [self Play];
             iCurrentTime=startPos;
             break;
@@ -6805,6 +6930,12 @@ static const unsigned BitsPerSample = 16;*/
     if (mPlayType==MMP_GME) {
         gme_delete( gme_emu );
         gme_emu=NULL;
+    }
+    if (mPlayType==MMP_XMP) {
+        xmp_end_player(xmp_ctx);
+        xmp_release_module(xmp_ctx);
+        xmp_free_context(xmp_ctx);
+        xmp_ctx=NULL;
     }
     if (mPlayType==MMP_OPENMPT) {
         if (mp_file) {
@@ -6971,6 +7102,7 @@ static const unsigned BitsPerSample = 16;*/
 -(NSString*) getPlayerName {
     if (mPlayType==MMP_GME) return @"Game Music Emulator";
     if (mPlayType==MMP_OPENMPT) return @"OpenMPT";
+    if (mPlayType==MMP_XMP) return @"XMP";
     if (mPlayType==MMP_ADPLUG) return @"Adplug";
     if (mPlayType==MMP_AOSDK) return @"Audio Overload";
     if (mPlayType==MMP_SEXYPSF) return @"SexyPSF";
@@ -7012,6 +7144,9 @@ static const unsigned BitsPerSample = 16;*/
     if (mPlayType==MMP_GME) {
         
         return [NSString stringWithFormat:@"%s",gmetype];
+    }
+    if (mPlayType==MMP_XMP) {
+        return [NSString stringWithFormat:@"%s",mi.mod->type];
     }
     if (mPlayType==MMP_OPENMPT) {
         char *str_type=(char*)ModPlug_GetModuleTypeLStr(mp_file);
@@ -7399,7 +7534,9 @@ extern "C" void adjust_amplification(void);
         case MMP_OPENMPT://Modplug
             res=ModPlug_GetChannelVolume( mp_file,channel);
             break;
-            
+        case MMP_XMP://XMP
+            res=xmp_channel_vol(xmp_ctx, channel,-1);
+            break;
         case MMP_DUMB://DUMB
         {
             DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
