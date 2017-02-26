@@ -855,11 +855,6 @@
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				OTHER_CFLAGS = (
-					"-DDISABLE_HW_SUPPORT",
-					"-DENABLE_ALL_CORES",
-					"-DADDITIONAL_FORMATS",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -897,11 +892,6 @@
 					"ym2612_update_one=VGMym2612_update_one",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				OTHER_CFLAGS = (
-					"-DDISABLE_HW_SUPPORT",
-					"-DENABLE_ALL_CORES",
-					"-DADDITIONAL_FORMATS",
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

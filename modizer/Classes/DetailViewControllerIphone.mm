@@ -19,7 +19,6 @@ extern BOOL nvdsp_EQ;
 
 #import <mach/mach.h>
 #import <mach/mach_host.h>
-
 #import "FFTAccelerate.h"
 static FFTAccelerate *fftAccel;
 static float *fft_frequency,*fft_time,*fft_frequencyAvg;
@@ -80,6 +79,9 @@ static int *fft_freqAvgCount;
     int fix_fftr(short int f[], int m, int inverse);
     int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
 }*/
+
+static RootViewControllerPlaylist *nowplayingPL;
+
 
 static t_playlist* temp_playlist;
 
@@ -244,8 +246,7 @@ static int display_length_mode=0;
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
     
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:mplayer.mod_currentsub inSection:0];
-    [alertTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    
     
     BButton *cancel_btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                                     10,
@@ -272,7 +273,10 @@ static int display_length_mode=0;
                                                                        views:buttonDic];
     [controller.view addConstraints:vConstraints];
     
-    [self presentViewController:controller animated:YES completion:nil];
+    [self presentViewController:controller animated:YES completion:^{
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:mplayer.mod_currentsub inSection:0];
+        [alertTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+    }];
     
     UIButton *btn=(UIButton*)sender;
     UIPopoverPresentationController *popoverctrl=controller.popoverPresentationController;
@@ -285,14 +289,17 @@ static int display_length_mode=0;
     }
     
     popoverctrl.delegate=self;
+    
+
     //popoverctrl.permittedArrowDirections=UIPopoverArrowDirectionUp;
 }
 
 -(void)didSelectRowInAlertArcController:(NSInteger)row {
     [mplayer selectArcEntry:(int)row];
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     [self play_loadArchiveModule];
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
     //self.outputLabel.text = [self.data objectAtIndex:row];
 }
 
@@ -366,8 +373,7 @@ static int display_length_mode=0;
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
     
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[mplayer getArcIndex] inSection:0];
-    [alertTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    
     
     BButton *cancel_btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                     10,
@@ -394,7 +400,10 @@ static int display_length_mode=0;
                                                                        views:buttonDic];
     [controller.view addConstraints:vConstraints];
     
-    [self presentViewController:controller animated:YES completion:nil];
+    [self presentViewController:controller animated:YES completion:^{
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[mplayer getArcIndex] inSection:0];
+        [alertTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+    }];
     
     UIButton *btn=(UIButton*)sender;
     UIPopoverPresentationController *popoverctrl=controller.popoverPresentationController;
@@ -409,8 +418,6 @@ static int display_length_mode=0;
     popoverctrl.delegate=self;
     
     //popoverctrl.permittedArrowDirections=UIPopoverArrowDirectionUp;
-    
-    
 }
 
 -(IBAction)pushedLoopInf {
@@ -709,6 +716,31 @@ static float movePinchScale,movePinchScaleOld;
                   surround:settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value
                       echo:settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value
                     stereo:settings[GME_FX_PANNING].detail.mdz_slider.slider_value];
+        [mplayer optGME_IgnoreSilence:settings[GME_IGNORESILENCE].detail.mdz_boolswitch.switch_value];
+    }
+    
+    /////////////////////
+    //GSF
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GSF)) {
+        switch (settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value) {
+            case 0:
+                mplayer.optGSFsoundQuality=4; //11Khz
+                break;
+            case 1:
+                mplayer.optGSFsoundQuality=2; //22Khz
+                break;
+            case 2:
+                mplayer.optGSFsoundQuality=1; //44Khz
+                break;
+            default:
+                mplayer.optGSFsoundQuality=1; //44Khz
+                break;
+        }
+        mplayer.optGSFsoundInterpolation=settings[GSF_INTERPOLATION].detail.mdz_boolswitch.switch_value;
+        mplayer.optGSFsoundLowPass =settings[GSF_LOWPASSFILTER].detail.mdz_boolswitch.switch_value;
+        mplayer.optGSFsoundEcho=settings[GSF_ECHO].detail.mdz_boolswitch.switch_value;
+        [mplayer optGSF_UpdateParam];
     }
     
     /////////////////////
@@ -918,11 +950,62 @@ static float movePinchScale,movePinchScaleOld;
 	if (mpl_upd||mShouldUpdateInfos) {
         if ((mpl_upd!=3)||(mShouldUpdateInfos)) {
             short int playcount=0;
+            signed char tmp_rating;
             NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
             NSString *filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+            //NSLog(@"should update: \n%@\n%@",fileName,filePath);
+            //
             
-            DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
-            DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,(mOnlyCurrentEntry==0?([mplayer isArchive]?-[mplayer getArcEntriesCnt]:mplayer.mod_subsongs):-1));
+            if ([mplayer isArchive]) {  //Archive
+                if (mOnlyCurrentEntry) { //Only one entry
+                    //Update rating info for playlist view
+                    mRating=0;
+                    DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&tmp_rating);
+                    
+                    //Update archive entry stats
+                    DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+                    
+                } else { //All entries
+                    //Update rating info for playlist view
+                    DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
+                    
+                    //Update Global file stats
+                    DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getGlobalLength],mplayer.numChannels,-[mplayer getArcEntriesCnt]);
+                    
+                    //Update current entry stats
+                    DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&tmp_rating);
+                    DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+                }
+                
+            } else if ([mplayer isMultiSongs]) { //Multisubsongs
+                if (mOnlyCurrentSubEntry) { // only one subsong
+                    //Update rating info for playlist view
+                    DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,&playcount,&tmp_rating);
+                    mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+                    
+                    //Update subsong stats
+                    DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+                } else { // all subsongs
+                    //Update rating info for playlist view
+                    DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
+                    
+                    //Update Global file stats
+                    DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getGlobalLength],mplayer.numChannels,mplayer.mod_subsongs);
+                    
+                    //Update subsong stats
+                    DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],&playcount,&tmp_rating);
+                    if (!mRestart) playcount++;
+                    DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+                }
+            } else { //No archive, no multisongs
+                //Update rating info for playlist view
+                DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
+                
+                //Update file stats
+                DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+                
+            }
+            
             mShouldUpdateInfos=0;
         }
 		if (mpl_upd>=2) {
@@ -952,7 +1035,7 @@ static float movePinchScale,movePinchScaleOld;
             [self dismissViewControllerAnimated:YES completion:nil];
 			
 			if (btnShowSubSong.hidden==true) {
-				btnShowSubSong.hidden=false;
+				if (mOnlyCurrentSubEntry==0) btnShowSubSong.hidden=false;
 			}
 			
 			
@@ -1034,8 +1117,9 @@ static float movePinchScale,movePinchScaleOld;
             if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1)&&(mOnlyCurrentEntry==0)) {
                 [mplayer selectNextArcEntry];
                 [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                [self shortWait];
                 [self play_loadArchiveModule];
-                [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+                [self hideWaiting];
             } else [self play_nextEntry];
         }
 		
@@ -1212,22 +1296,22 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         temp_playlist->playlist_name=[[NSString alloc] initWithString:@"Now playing"];
         temp_playlist->playlist_id=nil;
         
-        RootViewControllerPlaylist *childController = [[[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
+        nowplayingPL = [[[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
         //set new title
-        childController.title = temp_playlist->playlist_name;
-        ((RootViewControllerPlaylist*)childController)->show_playlist=1;
+        nowplayingPL.title = temp_playlist->playlist_name;
+        ((RootViewControllerPlaylist*)nowplayingPL)->show_playlist=1;
         
         // Set new directory
-        ((RootViewControllerPlaylist*)childController)->browse_depth = 1;
-        ((RootViewControllerPlaylist*)childController)->detailViewController=self;
-        ((RootViewControllerPlaylist*)childController)->playlist=temp_playlist;
-        ((RootViewControllerPlaylist*)childController)->mFreePlaylist=1;
-        ((RootViewControllerPlaylist*)childController)->mDetailPlayerMode=1;
-        ((RootViewControllerPlaylist*)childController)->integrated_playlist=1;
-        ((RootViewControllerPlaylist*)childController)->currentPlayedEntry=mPlaylist_pos+1;
+        ((RootViewControllerPlaylist*)nowplayingPL)->browse_depth = 1;
+        ((RootViewControllerPlaylist*)nowplayingPL)->detailViewController=self;
+        ((RootViewControllerPlaylist*)nowplayingPL)->playlist=temp_playlist;
+        ((RootViewControllerPlaylist*)nowplayingPL)->mFreePlaylist=1;
+        ((RootViewControllerPlaylist*)nowplayingPL)->mDetailPlayerMode=1;
+        ((RootViewControllerPlaylist*)nowplayingPL)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
+        ((RootViewControllerPlaylist*)nowplayingPL)->currentPlayedEntry=mPlaylist_pos+1;
         
         // And push the window
-        [self.navigationController pushViewController:childController animated:YES];
+        [self.navigationController pushViewController:nowplayingPL animated:YES];
         
 /*        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
         [((RootViewControllerPlaylist*)childController)->tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
@@ -1343,8 +1427,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([mplayer isArchive]&&(mplayer.mod_subsongs==1)) {
         [mplayer selectPrevArcEntry];
         [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        [self shortWait];
         [self play_loadArchiveModule];
-        [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        [self hideWaiting];
     } else {
         [mplayer playPrevSub];
         if (mPaused) [self playPushed:nil];
@@ -1355,8 +1440,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([mplayer isArchive]&&(mplayer.mod_subsongs==1)) {
         [mplayer selectNextArcEntry];
         [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        [self shortWait];
         [self play_loadArchiveModule];
-        [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        [self hideWaiting];
     } else {
         [mplayer playNextSub];
         if (mPaused) [self playPushed:nil];
@@ -1368,8 +1454,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         if ([mplayer isArchive]) {
             [mplayer selectNextArcEntry];
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self shortWait];
             [self play_loadArchiveModule];
-            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            [self hideWaiting];
         }
     }
 }
@@ -1379,8 +1466,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         if ([mplayer isArchive]) {
             [mplayer selectPrevArcEntry];
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self shortWait];
             [self play_loadArchiveModule];
-            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            [self hideWaiting];
         }
     }
 }
@@ -1415,6 +1503,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	mPlaylist[mPlaylist_pos].mPlaylistCount++;
     
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     
 	if ([self play_module:filePath fname:fileName]==FALSE) {
 		[self remove_from_playlist:mPlaylist_pos];
@@ -1436,12 +1525,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		//remove
         
         
-        [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        [self hideWaiting];
 		
 		return FALSE;
 	}
     
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
     
 	return TRUE;
 }
@@ -1876,6 +1965,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (mShuffle) {
         if ([mplayer isArchive]) {
 //            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            //[self shortWait];
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
@@ -1913,6 +2003,34 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     movePinchScale=movePinchScaleOld=0;
 	sliderProgressModuleEdit=0;
 	sliderProgressModuleChanged=0;
+    
+    
+    //Is OGLView visible ?
+    [self checkGLViewCanDisplay];
+    
+    //update playback buttons
+    self.pauseBarSub.hidden=YES;
+    self.playBarSub.hidden=YES;
+    self.pauseBar.hidden=YES;
+    self.playBar.hidden=YES;
+    if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
+    else self.pauseBar.hidden=NO;
+    [self updateBarPos];
+    
+    
+    //random mode & mutli song ?
+    if (mShuffle) {
+        if ([mplayer isMultiSongs]) {
+            mOnlyCurrentSubEntry=1;
+            mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
+        }
+        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
+    } else {
+        [mplayer PlaySeek:mPlayingPosRestart subsong:0];
+    }
+    sliderProgressModule.value=0;
+    mIsPlaying=YES;
+    mPaused=0;
 	
 	//Update song info if required
 	labelModuleName.hidden=NO;
@@ -1937,48 +2055,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		sliderProgressModule.enabled=FALSE;
         labelModuleLength.text=@"--:--";
 	}
-	//Update rating info for playlist view
-	mRating=0;
-	DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
-    mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
     
-	if (!mRestart) { //if not resuming, update playcount
-		playcount++;
-        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,(mOnlyCurrentEntry==0?([mplayer isArchive]?-[mplayer getArcEntriesCnt]:mplayer.mod_subsongs):-1));
-		
-		
-		//UPDATE Google Application
-		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
-		
-	}
+    //Update current entry stats
+    DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&mRating);
+    if (!mRestart) playcount++;
+    mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+    DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+    
 	[self showRating:mRating];
 	
-	//Is OGLView visible ?
-	[self checkGLViewCanDisplay];
 	
-    //update playback buttons
-	self.pauseBarSub.hidden=YES;
-	self.playBarSub.hidden=YES;
-	self.pauseBar.hidden=YES;
-	self.playBar.hidden=YES;
-	if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
-    else self.pauseBar.hidden=NO;
-	[self updateBarPos];
-    
-    
-    //random mode & mutli song ?
-    if (mShuffle) {
-        if ([mplayer isMultiSongs]) {
-            mOnlyCurrentSubEntry=1;
-            mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
-        }
-        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
-    } else {
-        [mplayer PlaySeek:mPlayingPosRestart subsong:0];
-    }
-	sliderProgressModule.value=0;
-	mIsPlaying=YES;
-	mPaused=0;
     
     if (coverflow.hidden==NO) {
         btnPlayCFlow.hidden=YES;
@@ -2021,6 +2107,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //[coverflow  bringCoverAtIndexToFront:mPlaylist_pos animated:YES];
             }
         } else coverflow_needredraw=1;
+    }
+    
+    
+    if (nowplayingPL) {
+        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        [nowplayingPL.tableView reloadData];
+        nowplayingPL.currentPlayedEntry=mPlaylist_pos;
+        [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }
     
     
@@ -2180,6 +2274,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         i++;
     }
     if ((found_arc==0)&&(found_sub==0)) filePathTmp=[NSString stringWithString:filePath];
+    
     if (mRestart) {
         
     } else {
@@ -2252,6 +2347,72 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	sliderProgressModuleEdit=0;
 	sliderProgressModuleChanged=0;
     
+    
+    
+    //Is OGLView visible ?
+    [self checkGLViewCanDisplay];
+    
+    //Restart management
+    if (mRestart) {
+        mRestart=0;
+        self.pauseBarSub.hidden=YES;
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
+        else self.playBar.hidden=NO;
+        
+        [self updateBarPos];
+        //		NSLog(@"yo %d",mRestart_sub);
+        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
+        //		NSLog(@"yo1");
+        if (mPlayingPosRestart) {
+            mPlayingPosRestart=0;
+        } else sliderProgressModule.value=0;
+        //		NSLog(@"yo2");
+        [mplayer Pause:YES];
+        //		NSLog(@"yo3");
+        mIsPlaying=YES;
+        mPaused=1;
+    } else {
+        //random mode & mutli song ?
+        if (mShuffle) {
+            /*            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
+             mOnlyCurrentSubEntry=1;
+             }*/
+            if ([mplayer isMultiSongs]) {
+                mOnlyCurrentSubEntry=1;
+                mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
+            }
+        }
+        
+        self.pauseBarSub.hidden=YES;
+        self.playBarSub.hidden=YES;
+        self.pauseBar.hidden=YES;
+        self.playBar.hidden=YES;
+        if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
+        else self.pauseBar.hidden=NO;
+        [self updateBarPos];
+        mRestart=0;
+        [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
+        if (mPlayingPosRestart) {
+            mPlayingPosRestart=0;
+        } else sliderProgressModule.value=0;
+        mIsPlaying=YES;
+        mPaused=0;
+        
+    }
+    
+    mRestart_sub=0;
+    mRestart_arc=0;
+    //set volume (if applicable)
+    [mplayer setModPlugMasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
+    
+    
+    
+    
+    
 	//Update song info if required
     labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
@@ -2277,81 +2438,90 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		sliderProgressModule.enabled=FALSE;
         labelModuleLength.text=@"--:--";
 	}
-	//Update rating info for playlist view
-	mRating=0;
-	DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
-    mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+	
+    if ([mplayer isArchive]) {  //Archive
+        if (mOnlyCurrentEntry) { //Only one entry
+            //Update rating info for playlist view
+            mRating=0;
+            DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&mRating);
+            mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+            
+            //Not restarting app, update playcount
+            if (!mRestart) playcount++;
+            
+            //Update archive entry stats
+            DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+            
+        } else { //All entries
+            //Update rating info for playlist view
+            mRating=0;
+            DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
+            mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+            
+            //Not restarting app, update playcount
+            if (!mRestart) playcount++;
+            
+            //Update Global file stats
+            DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getGlobalLength],mplayer.numChannels,-[mplayer getArcEntriesCnt]);
+            
+            //Update 1st entry stats
+            signed char tmp_rating;
+            DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&tmp_rating);
+            if (!mRestart) playcount++;
+            DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+        }
+        
+    } else if ([mplayer isMultiSongs]) { //Multisubsongs
+        if (mOnlyCurrentSubEntry) { // only one subsong
+            //Update rating info for playlist view
+            mRating=0;
+            DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,&playcount,&mRating);
+            mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+            
+            //Not restarting app, update playcount
+            if (!mRestart) playcount++;
+            
+            //Update subsong stats
+            DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+        } else { // all subsongs
+            //Update rating info for playlist view
+            mRating=0;
+            DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
+            mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+            
+            //Not restarting app, update playcount
+            if (!mRestart) playcount++;
+            
+            //Update Global file stats
+            DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getGlobalLength],mplayer.numChannels,mplayer.mod_subsongs);
+            
+            //Update subsong stats
+            signed char tmp_rating;
+            DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],&playcount,&tmp_rating);
+            if (!mRestart) playcount++;
+            DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+        }
+    } else { //No archive, no multisongs
+        //Update rating info for playlist view
+        mRating=0;
+        DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
+        mPlaylist[mPlaylist_pos].mPlaylistRating=mRating;
+        
+        //Not restarting app, update playcount
+        if (!mRestart) playcount++;
+        
+        //Update file stats
+        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+        
+    }
     
-	if (!mRestart) { //if not resuming, update playcount
-		playcount++;
-		DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,(mOnlyCurrentEntry==0?([mplayer isArchive]?-[mplayer getArcEntriesCnt]:mplayer.mod_subsongs):-1));
-		
-		//UPDATE Google Application
+    if (!mRestart) {//UPDATE Google Application
 		if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) mSendStatTimer=5*10;//Wait 5s
 		
 	}
 	[self showRating:mRating];
 	
-	//Is OGLView visible ?
-	[self checkGLViewCanDisplay];
-    
-	//Restart management
-	if (mRestart) {
-		mRestart=0;
-		self.pauseBarSub.hidden=YES;
-		self.playBarSub.hidden=YES;
-		self.pauseBar.hidden=YES;
-		self.playBar.hidden=YES;
-		
-		if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.playBarSub.hidden=NO;
-		else self.playBar.hidden=NO;
-        
-		[self updateBarPos];
-        //		NSLog(@"yo %d",mRestart_sub);
-		[mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
-        //		NSLog(@"yo1");
-		if (mPlayingPosRestart) {
-			mPlayingPosRestart=0;
-		} else sliderProgressModule.value=0;
-        //		NSLog(@"yo2");
-		[mplayer Pause:YES];
-        //		NSLog(@"yo3");
-		mIsPlaying=YES;
-		mPaused=1;
-	} else {
-        //random mode & mutli song ?
-        if (mShuffle) {
-/*            if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
-                mOnlyCurrentSubEntry=1;
-            }*/
-            if ([mplayer isMultiSongs]) {
-                mOnlyCurrentSubEntry=1;
-                mRestart_sub=arc4random()%(mplayer.mod_subsongs)+mplayer.mod_minsub;
-            }
-        }
-        
-		self.pauseBarSub.hidden=YES;
-		self.playBarSub.hidden=YES;
-		self.pauseBar.hidden=YES;
-		self.playBar.hidden=YES;
-		if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
-		else self.pauseBar.hidden=NO;
-		[self updateBarPos];
-		mRestart=0;
-		[mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
-		if (mPlayingPosRestart) {
-			mPlayingPosRestart=0;
-		} else sliderProgressModule.value=0;
-		mIsPlaying=YES;
-		mPaused=0;
-        
-	}
-    
-	mRestart_sub=0;
-    mRestart_arc=0;
-	//set volume (if applicable)
-	[mplayer setModPlugMasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
-    
+	
     if (coverflow.hidden==NO) {
         btnPlayCFlow.hidden=YES;
         btnPauseCFlow.hidden=NO;
@@ -2418,6 +2588,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	//Activate timer for play infos
 	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
+    
+    if (nowplayingPL) {
+        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        [nowplayingPL.tableView reloadData];
+        nowplayingPL.currentPlayedEntry=mPlaylist_pos;
+        [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+    }
 	
 	return TRUE;
 }
@@ -2465,7 +2642,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	if ((interfaceOrientation==UIInterfaceOrientationPortrait)||(interfaceOrientation==UIInterfaceOrientationPortraitUpsideDown)) {
 //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
-        waitingView.frame=CGRectMake(mDevice_ww/2-60,mDevice_hh/2-60,120,110);
+        //waitingView.frame=CGRectMake(mDevice_ww/2-60,mDevice_hh/2-60,120,110);
         
         if (coverflow) {
         if (coverflow.hidden==FALSE) {
@@ -2560,7 +2737,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		}
 	} else{
 //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
-        waitingView.frame=CGRectMake(mDevice_hh/2-60,mDevice_ww/2-60,120,110);
+        //waitingView.frame=CGRectMake(mDevice_hh/2-60,mDevice_ww/2-60,120,110);
         if ((mPlaylist_size>0)&&(settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value)) {
             if (mHasFocus) {
                 [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
@@ -3704,20 +3881,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [fileMngr release];
 }
 
+-(void) shortWait {
+    [NSThread sleepForTimeInterval:0.1f];
+}
+
 -(void)showWaiting{
-    //	waitingView.hidden=FALSE;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIWindow *window=[[UIApplication sharedApplication] keyWindow];
-        [window addSubview:waitingView];
-    });
-    
+    waitingView.hidden=FALSE;
 }
 
 -(void)hideWaiting{
-    //	waitingView.hidden=TRUE;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [waitingView removeFromSuperview];
-    });
+    waitingView.hidden=TRUE;
 }
 
 
@@ -4143,27 +4316,39 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
-    waitingView = [[UIView alloc] initWithFrame:CGRectMake(mDevice_ww/2-60,mDevice_hh/2-60,120,110)];
+    waitingView = [[UIView alloc] init];
 	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
 	waitingView.opaque=YES;
 	waitingView.hidden=FALSE;
 	waitingView.layer.cornerRadius=20;
 	
-	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(40,20,37,37)];
+	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-30,40,40)];
 	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
 	[waitingView addSubview:indView];
-    UILabel *lblLoading=[[UILabel alloc] initWithFrame:CGRectMake(10,70,100,20)];
+    UILabel *lblLoading=[[UILabel alloc] initWithFrame:CGRectMake(10,70,80,20)];
     lblLoading.text=@"Loading";
     lblLoading.backgroundColor=[UIColor blackColor];
     lblLoading.opaque=YES;
     lblLoading.textColor=[UIColor whiteColor];
     lblLoading.textAlignment=NSTextAlignmentCenter;
-    lblLoading.font=[UIFont italicSystemFontOfSize:18];
+    lblLoading.font=[UIFont italicSystemFontOfSize:16];
     [waitingView addSubview:lblLoading];
     [lblLoading autorelease];
     
 	[indView startAnimating];
 	[indView autorelease];
+    
+    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     
 	//init pattern notes buffer
@@ -4558,7 +4743,28 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         /*		NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
          [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:FALSE scrollPosition:UITableViewScrollPositionMiddle];*/
         
-        [self checkForCover:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
+        
+        NSString *filePathTmp=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+        const char *tmp_str=[mPlaylist[mPlaylist_pos].mPlaylistFilepath UTF8String];
+        char tmp_str_copy[1024];
+        int i=0;
+        while (tmp_str[i]) {
+            if (tmp_str[i]=='@') {
+                memcpy(tmp_str_copy,tmp_str,i);
+                tmp_str_copy[i]=0;
+                filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
+                break;
+            }
+            if (tmp_str[i]=='?') {
+                memcpy(tmp_str_copy,tmp_str,i);
+                tmp_str_copy[i]=0;
+                filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
+                break;
+            }
+            i++;
+        }
+        
+        [self checkForCover:filePathTmp];
 	}
     
     if (shouldRestart) {
@@ -4642,6 +4848,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 - (void)viewDidAppear:(BOOL)animated {
 	mHasFocus=1;
+    
+    nowplayingPL=nil;
     
     // if temp_playlist, free it
     if (temp_playlist) {

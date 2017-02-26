@@ -21,7 +21,7 @@
 #define VBA_GBA_H
 
 #define C_CORE 1
-#define NO_INTERPOLATION 1
+//#define NO_INTERPOLATION 1
 
 #include "System.h"
 

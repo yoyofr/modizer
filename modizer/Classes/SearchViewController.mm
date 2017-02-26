@@ -41,7 +41,33 @@ static NSFileManager *mFileMngr;
 @synthesize popTipView;
 
 -(IBAction)goPlayer {
-    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) {
+        if (detailViewController) {
+            @try {
+                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+            } @catch (NSException * ex) {
+                //“Pushing the same view controller instance more than once is not supported”
+                //NSInvalidArgumentException
+                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
+                NSLog(@"ex.name:'%@'", ex.name);
+                NSLog(@"ex.reason:'%@'", ex.reason);
+                //Full error includes class pointer address so only care if it starts with this error
+                NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
+                
+                if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
+                    range.location != NSNotFound) {
+                    //view controller already exists in the stack - just pop back to it
+                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                } else {
+                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                }
+            } @finally {
+                //NSLog(@"finally");
+            }
+        } else {
+            NSLog(@"ERROR:pushViewController: viewController is nil");
+        }
+    }
     else {
         UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];

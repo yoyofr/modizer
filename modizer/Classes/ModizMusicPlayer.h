@@ -144,8 +144,14 @@ static const char *mmp_player_name[]={
 	float mUADE_OptGAINValue,mUADE_OptPANValue;
 	//GME
 	int optGMEFadeOut;
+    int optGMEIgnoreSilence;
     float optGMERatio;
     bool optGMEEnableRatio;
+    //GSF
+    char optGSFsoundLowPass;
+    char optGSFsoundEcho;
+    char optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
+    char optGSFsoundInterpolation;
 	//Modplug
 	ModPlug_Settings mp_settings;
     int mPatternDataAvail;
@@ -212,6 +218,11 @@ static const char *mmp_player_name[]={
 @property unsigned char *genVolData,*playVolData;
 @property float mVolume;
 @property int numChannels,numPatterns,numSamples,numInstr;
+//GSF stuff
+@property char optGSFsoundLowPass;
+@property char optGSFsoundEcho;
+@property char optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
+@property char optGSFsoundInterpolation;
 //Player status
 @property int bGlobalAudioPause;
 //for spectrum analyzer
@@ -283,6 +294,8 @@ static const char *mmp_player_name[]={
 -(void) optUADE_PanValue:(float_t)val;
 -(void) optUADE_GainValue:(float_t)val;
 
+
+
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val;
 
 -(void) optGEN_DefaultLength:(float_t)val;
@@ -313,9 +326,12 @@ static const char *mmp_player_name[]={
 -(void) optGLOB_PanningValue:(float)value;
 
 -(void) optGME_Fade:(int)fade;
+-(void) optGME_IgnoreSilence:(int)ignoreSilence;
 -(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled;
 -(void) optGME_EQ:(double)treble bass:(double)bass;
 -(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo;
+
+-(void) optGSF_UpdateParam;
 
 -(void) setLoopInf:(int)val;
 
@@ -329,6 +345,7 @@ static const char *mmp_player_name[]={
 -(NSString*) getSubTitle:(int)subsong;
 
 -(int) getSongLength;
+-(int) getGlobalLength;
 -(int) getCurrentTime;
 -(int) shouldUpdateInfos;
 -(void) setInfosUpdated;
