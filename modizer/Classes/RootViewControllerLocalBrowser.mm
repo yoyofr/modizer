@@ -25,6 +25,7 @@ NSString *cutpaste_filesrcpath=nil;
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
+pthread_mutex_t db_mutexHVSCSTIL;
 //static int shouldFillKeys;
 static int local_flag;
 static volatile int mPopupAnimation=0;
@@ -56,6 +57,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
 static volatile int mUpdateToNewDB;
 static volatile int mDatabaseCreationInProgress;
 static volatile int db_checked=0;
+
+extern "C" {
+#include "md5.h"
+}
+
+static char browser_stil_info[MAX_STIL_DATA_LENGTH];
+static char browser_song_md5[33];
+static char **browser_sidtune_title,**browser_sidtune_name;
+
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
 {
@@ -439,6 +449,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return machine;
 }
 
+-(void) shortWait {
+    [NSThread sleepForTimeInterval:0.1f];
+}
+
 -(void)showWaiting{
     waitingView.hidden=FALSE;
 }
@@ -578,14 +592,19 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [indexTitlesSpace addObject:@"Z"];
     
     
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
     waitingView = [[UIView alloc] init];
     waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-    waitingView.opaque=TRUE;
-    waitingView.hidden=TRUE;
+    waitingView.opaque=YES;
+    waitingView.hidden=FALSE;
     waitingView.layer.cornerRadius=20;
+    
     UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-20,40,40)];
     indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
     [waitingView addSubview:indView];
+    
     [indView startAnimating];
     [indView autorelease];
     
@@ -593,19 +612,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
-    
     // width constraint
-    
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
-    
     // height constraint
-    
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
-    
     // center align
-    
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    /////////////////////////////////////////
     
     
     [super viewDidLoad];
@@ -624,6 +638,203 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         [self listLocalFiles];
     }
 }
+
+
+-(void) getStilInfo:(char*)fullPath {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int err;
+    
+    strcpy(browser_stil_info,"");
+    pthread_mutex_lock(&db_mutexHVSCSTIL);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        char tmppath[256];
+        sqlite3_stmt *stmt;
+        char *realPath=strstr(fullPath,"/HVSC");
+        
+        if (!realPath) {
+            //try to find realPath with md5
+            sprintf(sqlStatement,"SELECT filepath FROM hvsc_path WHERE id_md5=\"%s\"",browser_song_md5);
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    strcpy(tmppath,(const char*)sqlite3_column_text(stmt, 0));
+                    realPath=tmppath;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+        } else realPath+=5;
+        if (realPath) {
+            sprintf(sqlStatement,"SELECT stil_info FROM stil WHERE fullpath=\"%s\"",realPath);
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    strcpy(browser_stil_info,(const char*)sqlite3_column_text(stmt, 0));
+                    while ((realPath=strstr(browser_stil_info,"\\n"))) {
+                        *realPath='\n';
+                        realPath++;
+                        memmove(realPath,realPath+1,strlen(realPath));
+                    }
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+        }
+    };
+    sqlite3_close(db);
+    
+    pthread_mutex_unlock(&db_mutexHVSCSTIL);
+}
+
+
+-(void) sid_parseStilInfo:(int)subsongs_nb {
+    
+    int idx=0;
+    int parser_status=0;
+    int parser_track_nb=0;
+    int stil_info_len=strlen(browser_stil_info);
+    char tmp_str[1024];
+    int tmp_str_idx;
+    
+    browser_sidtune_name=(char**)malloc(subsongs_nb*sizeof(char*));
+    memset(browser_sidtune_name,0,sizeof(char*)*subsongs_nb);
+    browser_sidtune_title=(char**)malloc(subsongs_nb*sizeof(char*));
+    memset(browser_sidtune_title,0,sizeof(char*)*subsongs_nb);
+    
+    while (browser_stil_info[idx]) {
+        if ((browser_stil_info[idx]=='(')&&(browser_stil_info[idx+1]=='#')) {
+            parser_status=1;
+            parser_track_nb=0;
+        }
+        else {
+            switch (parser_status) {
+                case 1: // got a "(" before
+                    if (browser_stil_info[idx]=='#') parser_status=2;
+                    else parser_status=0;
+                    break;
+                case 2: // got a "(#" before
+                    if ((browser_stil_info[idx]>='0')&&(browser_stil_info[idx]<='9')) {
+                        parser_track_nb=parser_track_nb*10+(browser_stil_info[idx]-'0');
+                        parser_status=2;
+                    } else if (browser_stil_info[idx]==')') {
+                        parser_status=3;
+                    }
+                    break;
+                case 3: // got a "(#<track_nb>)" before
+                    if (browser_stil_info[idx]=='N') parser_status=4;
+                    if (browser_stil_info[idx]=='T') parser_status=10;
+                    break;
+                    ///////////////////////////////////////////////
+                    //"NAME: "
+                    ///////////////////////////////////////////////
+                case 4: // "N"
+                    if (browser_stil_info[idx]=='A') parser_status=5;
+                    break;
+                case 5: // "NA"
+                    if (browser_stil_info[idx]=='M') parser_status=6;
+                    break;
+                case 6: // "NAM"
+                    if (browser_stil_info[idx]=='E') parser_status=7;
+                    break;
+                case 7: // "NAME"
+                    if (browser_stil_info[idx]==':') parser_status=8;
+                    break;
+                case 8: // "NAME:"
+                    if (browser_stil_info[idx]==' ') {
+                        parser_status=9;
+                        tmp_str[0]=0;
+                        tmp_str_idx=0;
+                    }
+                    break;
+                case 9: // "NAME: "
+                    if (browser_stil_info[idx]==0x0A) {
+                        parser_status=0;
+                        if (parser_track_nb<=subsongs_nb) {
+                            browser_sidtune_name[parser_track_nb-1]=(char*)malloc(tmp_str_idx+1);
+                            strcpy(browser_sidtune_name[parser_track_nb-1],tmp_str);
+                        }
+                    } else {
+                        tmp_str[tmp_str_idx]=browser_stil_info[idx];
+                        if (tmp_str_idx<1024) tmp_str_idx++;
+                        tmp_str[tmp_str_idx]=0;
+                    }
+                    break;
+                    ///////////////////////////////////////////////
+                    //"TITLE: "
+                    ///////////////////////////////////////////////
+                case 10: // "T"
+                    if (browser_stil_info[idx]=='I') parser_status=11;
+                    break;
+                case 11: // "TI"
+                    if (browser_stil_info[idx]=='T') parser_status=12;
+                    break;
+                case 12: // "TIT"
+                    if (browser_stil_info[idx]=='L') parser_status=13;
+                    break;
+                case 13: // "TITL"
+                    if (browser_stil_info[idx]=='E') parser_status=14;
+                    break;
+                case 14: // "TITLE"
+                    if (browser_stil_info[idx]==':') parser_status=15;
+                    break;
+                case 15: // "TITLE:"
+                    if (browser_stil_info[idx]==' ') {
+                        parser_status=16;
+                        tmp_str[0]=0;
+                        tmp_str_idx=0;
+                    }
+                    break;
+                case 16: // "TITLE: "
+                    if (browser_stil_info[idx]==0x0A) {
+                        parser_status=0;
+                        if (parser_track_nb<=subsongs_nb) {
+                            browser_sidtune_title[parser_track_nb-1]=(char*)malloc(tmp_str_idx+1);
+                            strcpy(browser_sidtune_title[parser_track_nb-1],tmp_str);
+                        }
+                    } else {
+                        tmp_str[tmp_str_idx]=browser_stil_info[idx];
+                        if (tmp_str_idx<1024) tmp_str_idx++;
+                        tmp_str[tmp_str_idx]=0;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        idx++;
+        
+    }
+}
+
+static void writeLEword(unsigned char ptr[2], int someWord) {
+    ptr[0] = (someWord & 0xFF);
+    ptr[1] = (someWord >> 8);
+}
+
+
+
+static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsize)
+{
+    uint8_t md5[16];
+    int ret;
+    MD5_CTX ctx;
+    MD5Init(&ctx);
+    MD5Update(&ctx, (const unsigned char*)buf, bufsize);
+    MD5Final(md5, &ctx);
+    ret =
+    snprintf(dest, destlen,
+             "%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x",
+             md5[0], md5[1], md5[2], md5[3], md5[4], md5[5], md5[6],
+             md5[7], md5[8], md5[9], md5[10], md5[11], md5[12], md5[13],
+             md5[14], md5[15]);
+    if (ret >= destlen || ret != 32) {
+        fprintf(stderr, "md5 buffer error (%d/%zd)\n", ret, destlen);
+        exit(1);
+    }
+}
+
+
 
 -(void)listLocalFiles {
     NSString *file,*cpath;
@@ -779,17 +990,67 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             SidTuneInfo sidtune_info;
             sidtune_info=mSidTune->getInfo();
             
+            
+            
+            //Compute MD5
+            memset(browser_song_md5,0,33);
+            int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
+            char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
+            memset(tmp_md5_data,0,tmp_md5_data_size);
+            int ofs_md5_data=0;
+            unsigned char tmp[2];
+            memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info.c64dataLen);
+            ofs_md5_data+=sidtune_info.c64dataLen;
+            // Include INIT and PLAY address.
+            writeLEword(tmp,sidtune_info.initAddr);
+            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
+            ofs_md5_data+=2;
+            writeLEword(tmp,sidtune_info.playAddr);
+            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
+            ofs_md5_data+=2;
+            // Include number of songs.
+            writeLEword(tmp,sidtune_info.songs);
+            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
+            ofs_md5_data+=2;
+            
+            // Include song speed for each song.
+            for (unsigned int s = 1; s <= sidtune_info.songs; s++)
+            {
+                mSidTune->selectSong(s);
+                memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
+                //NSLog(@"sp : %d %d %d",s,mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
+                ofs_md5_data+=sizeof(mSidTune->info.songSpeed);
+            }
+            // Deal with PSID v2NG clock speed flags: Let only NTSC
+            // clock speed change the MD5 fingerprint. That way the
+            // fingerprint of a PAL-speed sidtune in PSID v1, v2, and
+            // PSID v2NG format is the same.
+            if ( mSidTune->info.clockSpeed == SIDTUNE_CLOCK_NTSC ) {
+                memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.clockSpeed,sizeof(mSidTune->info.clockSpeed));
+                ofs_md5_data+=sizeof(mSidTune->info.clockSpeed);
+                //myMD5.append(&info.clockSpeed,sizeof(info.clockSpeed));
+            }
+            md5_from_buffer(browser_song_md5,33,tmp_md5_data,tmp_md5_data_size);
+            browser_song_md5[32]=0;
+            free(tmp_md5_data);
+            
+            //Get STIL info
+            browser_stil_info[0]=0;
+            [self getStilInfo:(char*)[cpath UTF8String]];
+            
+            [self sid_parseStilInfo:sidtune_info.songs];
+            
             for (int i=0;i<sidtune_info.songs;i++){
                 SidTuneInfo s_info;
                 file=nil;
                 mSidTune->selectSong(i);
                 s_info=mSidTune->getInfo();
                 
-                if (s_info.infoString[0][0]) {
-                    file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
-                } else {
-                    file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
-                }
+                if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_name[i]];
+                else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_title[i]];
+                else if (s_info.infoString[0][0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                else file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                
                 int filtered=0;
                 if ((mSearch)&&([mSearchText length]>0)) {
                     filtered=1;
@@ -808,6 +1069,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     local_nb_entries++;
                 }
             }
+            
+            
+
+            
             if (local_nb_entries) {
                 //2nd initialize array to receive entries
                 local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
@@ -851,11 +1116,16 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         mSidTune->selectSong(i);
                         s_info=mSidTune->getInfo();
                         
-                        if (s_info.infoString[0][0]) {
+                        if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_name[i]];
+                        else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_title[i]];
+                        else if (s_info.infoString[0][0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                        else file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                        
+                        /*if (s_info.infoString[0][0]) {
                             file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
                         } else {
                             file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
-                        }
+                        }*/
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
@@ -910,6 +1180,18 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 }
             }
             if (mSidTune) {delete mSidTune;mSidTune=NULL;}
+            if (browser_sidtune_title) {
+                for (int i=0;i<sidtune_info.songs;i++)
+                    if (browser_sidtune_title[i]) free(browser_sidtune_title[i]);
+                free(browser_sidtune_title);
+                browser_sidtune_title=NULL;
+            }
+            if (browser_sidtune_name) {
+                for (int i=0;i<sidtune_info.songs;i++)
+                    if (browser_sidtune_name[i]) free(browser_sidtune_name[i]);
+                free(browser_sidtune_name);
+                browser_sidtune_name=NULL;
+            }
         }
     } else if (browseType==2) { //GME Multisongs
         // Open music file in new emulator
@@ -924,7 +1206,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 if (gme_track_info( gme_emu, &gme_info, i )==0) {
                     file=nil;
                     if (gme_info->song) {
-                        if (gme_info->song[0]) file=[NSString stringWithFormat:@"%s",gme_info->song];
+                        if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->song];
                     }
                     if (!file) {
                         if (gme_info->game) {
@@ -1004,7 +1286,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         if (gme_track_info( gme_emu, &gme_info, i )==0) {
                             file=nil;
                             if (gme_info->song) {
-                                if (gme_info->song[0]) file=[NSString stringWithFormat:@"%s",gme_info->song];
+                                if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->song];
                             }
                             if (!file) {
                                 if (gme_info->game) {
@@ -1091,8 +1373,15 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 
                 while ( !fex_done( fex ) ) {
                     file=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                    NSString *extension = [[file pathExtension] uppercaseString];
-                    NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                    NSString *extension;// = [[file pathExtension] uppercaseString];
+                    NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                    
+                    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                    extension = (NSString *)[temparray_filepath lastObject];
+                    [temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    
+                    
                     
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
@@ -1172,8 +1461,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     int arc_counter=0;
                     while ( !fex_done( fex ) ) {
                         file=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                        NSString *extension = [[file pathExtension] uppercaseString];
-                        NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                        NSString *extension;// = [[file pathExtension] uppercaseString];
+                        NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                        
+                        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                        extension = (NSString *)[temparray_filepath lastObject];
+                        [temparray_filepath removeLastObject];
+                        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                        
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
@@ -1300,8 +1595,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 rdir.location=NSNotFound;
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                    NSString *extension = [[file pathExtension] uppercaseString];
-                    NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                    NSString *extension;// = [[file pathExtension] uppercaseString];
+                    NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                    extension = (NSString *)[temparray_filepath lastObject];
+                    [temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    
                     
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
@@ -1416,8 +1716,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         rdir.location=NSNotFound;
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                            NSString *extension = [[file pathExtension] uppercaseString];
-                            NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                            NSString *extension;// = [[file pathExtension] uppercaseString];
+                            NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                            
+                            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                            extension = (NSString *)[temparray_filepath lastObject];
+                            [temparray_filepath removeLastObject];
+                            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                            
                             
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {
@@ -1469,11 +1775,17 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                     
                                     sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s/%s\"",[[file lastPathComponent] UTF8String],[currentPath UTF8String],[file UTF8String]);
                                     err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+                                    
+                                    //printf("%s\n",sqlStatement);
+                                    
                                     if (err==SQLITE_OK){
                                         while (sqlite3_step(stmt) == SQLITE_ROW) {
                                             signed char rating=(signed char)sqlite3_column_int(stmt, 1);
                                             if (rating<0) rating=0;
                                             if (rating>5) rating=5;
+                                            
+                                            //printf("ch: %d - sl: %d\n",(int)sqlite3_column_int(stmt, 3),(int)sqlite3_column_int(stmt, 2));
+                                            
                                             local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
                                             local_entries[index][local_entries_count[index]].rating=rating;
                                             local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
@@ -1551,9 +1863,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         if (mShowSubdir==0) shouldFillKeys=1; //performance limit-> no update if listing all files
         
         [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        [self shortWait];
         [self fillKeys];
         [tableView reloadData];
-        [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        [self hideWaiting];
     }
     
     [super viewWillAppear:animated];
@@ -1575,6 +1888,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         
         shouldFillKeys=1;
         [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        [self shortWait];
         
         int old_mSearch=mSearch;
         NSString *old_mSearchText=mSearchText;
@@ -1589,13 +1903,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         }
         [tableView reloadData];
         
-        [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+        [self hideWaiting];
     }
     //}
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
     
     
     /*[tableView setNeedsLayout];
@@ -1608,7 +1922,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
     if (childController) {
         [childController viewDidDisappear:FALSE];
     }
@@ -2204,30 +2518,23 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             
             NSString *bottomStr;
             int isMonoSong=cur_local_entries[section][indexPath.row].songs==1;
-            if (isMonoSong) {
-                if (cur_local_entries[section][indexPath.row].song_length>0)
+            if (cur_local_entries[section][indexPath.row].song_length>0)
                     bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_local_entries[section][indexPath.row].song_length/1000/60,(cur_local_entries[section][indexPath.row].song_length/1000)%60];
-                else bottomStr=@"--:--";
-            } else bottomStr=@"--:--";
+            else bottomStr=@"--:--";
+            
+            if (cur_local_entries[section][indexPath.row].channels_nb) bottomStr=[NSString stringWithFormat:@"%@|%02dch",bottomStr,cur_local_entries[section][indexPath.row].channels_nb];
+            else bottomStr=[NSString stringWithFormat:@"%@|--ch",bottomStr];
             
             if (isMonoSong) {
-                if (cur_local_entries[section][indexPath.row].channels_nb)
-                    bottomStr=[NSString stringWithFormat:@"%@ / %02dch",bottomStr,cur_local_entries[section][indexPath.row].channels_nb];
-                else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];
-            } else bottomStr=[NSString stringWithFormat:@"%@ / --ch",bottomStr];
-            
-            if (isMonoSong) {
-                if (cur_local_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@ / 1 song",bottomStr];
-                else bottomStr=[NSString stringWithFormat:@"%@ / - song",bottomStr];
+                bottomStr=[NSString stringWithFormat:@"%@|1 sg",bottomStr];
             } else {
-                if (cur_local_entries[section][indexPath.row].songs>0)
-                    bottomStr=[NSString stringWithFormat:@"%@ / %d songs",bottomStr,cur_local_entries[section][indexPath.row].songs];
-                else
-                    bottomStr=[NSString stringWithFormat:@"%@ / %d files",bottomStr,-cur_local_entries[section][indexPath.row].songs];
+                if (cur_local_entries[section][indexPath.row].songs==0) bottomStr=[NSString stringWithFormat:@"%@",bottomStr,-cur_local_entries[section][indexPath.row].songs];
+                else if (cur_local_entries[section][indexPath.row].songs>0) bottomStr=[NSString stringWithFormat:@"%@|%d sg",bottomStr,cur_local_entries[section][indexPath.row].songs];
+                else bottomStr=[NSString stringWithFormat:@"%@|%d f",bottomStr,-cur_local_entries[section][indexPath.row].songs];
             }
             
             
-            bottomStr=[NSString stringWithFormat:@"%@ / Pl:%d",bottomStr,cur_local_entries[section][indexPath.row].playcount];
+            bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_local_entries[section][indexPath.row].playcount];
             
             
             /*if (!cur_local_entries[section][indexPath.row].playcount)
@@ -2350,7 +2657,33 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 -(IBAction)goPlayer {
-    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) {
+        if (detailViewController) {
+            @try {
+                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+            } @catch (NSException * ex) {
+                //“Pushing the same view controller instance more than once is not supported”
+                //NSInvalidArgumentException
+                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
+                NSLog(@"ex.name:'%@'", ex.name);
+                NSLog(@"ex.reason:'%@'", ex.reason);
+                //Full error includes class pointer address so only care if it starts with this error
+                NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
+                
+                if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
+                    range.location != NSNotFound) {
+                    //view controller already exists in the stack - just pop back to it
+                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                } else {
+                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                }
+            } @finally {
+                //NSLog(@"finally");
+            }
+        } else {
+            NSLog(@"ERROR:pushViewController: viewController is nil");
+        }
+    }
     else {
         UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
@@ -2416,7 +2749,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         }
     }
     
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
     
     
 }
@@ -2482,7 +2815,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             }
         }
     }
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
 }
 
 - (void) accessoryActionTapped: (UIButton*) sender {
@@ -2513,9 +2846,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [tableView reloadData];
 }
 
--(void) shortWait {
-    [NSThread sleepForTimeInterval:0.01f];
-}
 
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
@@ -2535,6 +2865,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             mShowSubdir^=1;
             shouldFillKeys=1;
             
+            //[self showWaiting];
             [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
             [self shortWait];
             
@@ -2552,7 +2883,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             }
             [tabView reloadData];
             
-            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            [self hideWaiting];
         }
     } else {
         cellValue=cur_local_entries[section][indexPath.row].label;
@@ -2578,7 +2909,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             [self.navigationController pushViewController:childController animated:YES];
             
             
-            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            [self hideWaiting];
             //				[childController autorelease];
         } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
             
@@ -2604,7 +2935,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             [self.navigationController pushViewController:childController animated:YES];
             
             
-            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            [self hideWaiting];
             //				[childController autorelease];
         } else {  //File selected
             
@@ -2635,7 +2966,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 }
             }
             
-            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+            [self hideWaiting];
             
             
         }
@@ -2700,11 +3031,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 NSDictionary *dict;
                 NSFileManager *fileManager=[[NSFileManager alloc] init];
                 
-                NSString *str=cur_local_entries[csection][crow].fullpath;
-                dict=[fileManager attributesOfItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:  str] error:&err];
+                NSString *str=[NSString stringWithFormat:@"%@\n%@",cur_local_entries[csection][crow].label,cur_local_entries[csection][crow].fullpath];
+                dict=[fileManager attributesOfItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[csection][crow].fullpath] error:&err];
                 if (dict) {
                     str=[str stringByAppendingFormat:@"\n%lluKo",[dict fileSize]/1024];
                 }
+                
                 [fileManager release];
                 
                 

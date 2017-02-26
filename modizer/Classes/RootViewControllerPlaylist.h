@@ -94,7 +94,7 @@
 
 @property (nonatomic, retain) CMPopTipView *popTipView;
 
-@property int mDetailPlayerMode;
+@property int mDetailPlayerMode,currentPlayedEntry;
 
 -(IBAction)goPlayer;
 

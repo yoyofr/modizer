@@ -19,6 +19,7 @@ int iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
 
+int mod_total_length;
 
 
 #import "ModizMusicPlayer.h"
@@ -53,6 +54,8 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 #import "sidplay2.h"
 #import "resid.h"
 //#import "residfp.h"
+
+static char **sidtune_title,**sidtune_name;
 
 
 
@@ -122,7 +125,7 @@ extern "C" {
     //xmp
 #include "xmp.h"
     static xmp_context xmp_ctx;
-    static struct xmp_module_info mi;
+    static struct xmp_module_info xmp_mi;
 }
 
 //DUMB
@@ -331,8 +334,8 @@ extern int soundBufferLen;
 
 extern char soundEcho;
 extern char soundLowPass;
-extern char soundReverse;
 extern char soundQuality;
+extern int soundInterpolation;
 
 float decode_pos_ms; // current decoding position, in milliseconds
 int seek_needed; // if != -1, it is the point that the decode thread should seek to, in ms.
@@ -980,6 +983,11 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize numChannels,numPatterns,numSamples,numInstr,mPatternDataAvail;
 @synthesize genRow,genPattern,/*genOffset,*/playRow,playPattern;//,playOffset;
 @synthesize genVolData,playVolData;
+//GSF
+@synthesize optGSFsoundLowPass;
+@synthesize optGSFsoundEcho;
+@synthesize optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
+@synthesize optGSFsoundInterpolation;
 //Player status
 @synthesize bGlobalAudioPause;
 //for spectrum analyzer
@@ -1112,6 +1120,7 @@ void propertyListenerCallback (void                   *inUserData,              
         
         
         //GME specific
+        optGMEIgnoreSilence=0;
         optGMEFadeOut=1000;
         if (mSlowDevice) {
             gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
@@ -2565,7 +2574,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                             (gme_info->comment?gme_info->comment:" "));
                                     
                                     if (gme_info->song){
-                                        if (gme_info->song[0]) sprintf(mod_name," %s/%s",(gme_info->game?gme_info->game:""),gme_info->song);
+                                        if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
                                     }
                                     gme_free_info(gme_info);
                                 } else {
@@ -2593,9 +2602,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
                                 if (mSidEngineType==1) {
-                                    sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
+                                    sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
                                 } else {
-                                    mSidTune->selectSong(mod_currentsub);
+                                    mSidTune->selectSong(mod_currentsub+1);
                                     mSidEmuEngine->load(mSidTune);
                                 }
                                 
@@ -2673,7 +2682,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                         (gme_info->comment?gme_info->comment:" "));
                                 
                                 if (gme_info->song){
-                                    if (gme_info->song[0]) sprintf(mod_name," %s/%s",(gme_info->game?gme_info->game:""),gme_info->song);
+                                    if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
                                 }
                                 gme_free_info(gme_info);
                             } else {
@@ -2701,9 +2710,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         }
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             if (mSidEngineType==1) {
-                                sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
+                                sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
                             } else {
-                                mSidTune->selectSong(mod_currentsub);
+                                mSidTune->selectSong(mod_currentsub+1);
                                 mSidEmuEngine->load(mSidTune);
                             }
                             
@@ -2781,7 +2790,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                             (gme_info->comment?gme_info->comment:" "));
                                     
                                     if (gme_info->song){
-                                        if (gme_info->song[0]) sprintf(mod_name," %s/%s",(gme_info->game?gme_info->game:""),gme_info->song);
+                                        if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
                                     }
                                     
                                     
@@ -2806,9 +2815,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
                                 if (mSidEngineType==1) {
-                                    sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
+                                    sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
                                 } else {
-                                    mSidTune->selectSong(mod_currentsub);
+                                    mSidTune->selectSong(mod_currentsub+1);
                                     mSidEmuEngine->load(mSidTune);
                                 }
                                 
@@ -2900,7 +2909,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                                 (gme_info->comment?gme_info->comment:" "));
                                         
                                         if (gme_info->song){
-                                            if (gme_info->song[0]) sprintf(mod_name," %s/%s",(gme_info->game?gme_info->game:""),gme_info->song);										}
+                                            if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);										}
                                         gme_free_info(gme_info);
                                     } else {
                                         strcpy(gmetype,"N/A");
@@ -2972,8 +2981,20 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         //                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                     }
                     if (mPlayType==MMP_XMP) {  //XMP
-                        if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
+                        if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 0) == 0) {
+                            struct xmp_frame_info xmp_fi;
+                            xmp_get_frame_info(xmp_ctx, &xmp_fi);
+                            
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            
+                            genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
+                            genRow[buffer_ana_gen_ofs]=xmp_fi.row;
+                            
+                            for (int i=0;i<numChannels;i++) {
+                                int v=xmp_channel_vol(xmp_ctx, i,-1);
+                                genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
+                            }
+                            
                         } else nbBytes=0;
                         
                     }
@@ -3152,9 +3173,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                     mod_currentsub++;
                                     
                                     if (mSidEngineType==1) {
-                                        sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
+                                        sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
                                     } else {
-                                        mSidTune->selectSong(mod_currentsub);
+                                        mSidTune->selectSong(mod_currentsub+1);
                                         mSidEmuEngine->load(mSidTune);
                                     }
                                     
@@ -3793,9 +3814,15 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         }
         if ([fileAttributes objectForKey:NSFileType]==NSFileTypeRegular) {
             //File : check if playable (looking at ext)
-            NSString *extension = [[file pathExtension] uppercaseString];
-            NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+            NSString *extension;// = [[file pathExtension] uppercaseString];
+            NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
             int found=0;
+            
+            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+            extension = (NSString *)[temparray_filepath lastObject];
+            [temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+            
             
             if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
             else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
@@ -3821,10 +3848,15 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             }
             if ([fileAttributes objectForKey:NSFileType]==NSFileTypeRegular) {
                 //File : add to the list if playable
-                NSString *extension = [[file pathExtension] uppercaseString];
-                NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
-                
+                NSString *extension;// = [[file pathExtension] uppercaseString];
+                NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
                 int found=0;
+                
+                NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+                extension = (NSString *)[temparray_filepath lastObject];
+                [temparray_filepath removeLastObject];
+                file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                
                 
                 if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
                 else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
@@ -3876,8 +3908,14 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     int found=0;
     
     
-    extension = [_filePath pathExtension];
-    file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+    //extension = [_filePath pathExtension];
+    //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+    extension = (NSString *)[temparray_filepath lastObject];
+    [temparray_filepath removeLastObject];
+    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+    
+    
     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
     
     mSingleFileType=1; //used to identify file which relies or not on another file (sample, psflib, ...)
@@ -4132,9 +4170,10 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     char *tag;
     
     
-    soundLowPass = 1;
-    soundEcho = 0;
-    soundQuality = 2;//1:44Khz, 2:22Khz, 4:11Khz
+    soundLowPass = optGSFsoundLowPass;
+    soundEcho = optGSFsoundEcho;
+    soundQuality = optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
+    soundInterpolation = optGSFsoundInterpolation;
     
     DetectSilence=1;
     silencelength=5;
@@ -4434,6 +4473,125 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     }
     return 1;
 }
+
+-(void) sid_parseStilInfo {
+    int idx=0;
+    int parser_status=0;
+    int parser_track_nb=0;
+    int stil_info_len=strlen(stil_info);
+    char tmp_str[1024];
+    int tmp_str_idx;
+    
+    sidtune_name=(char**)malloc(mod_subsongs*sizeof(char*));
+    memset(sidtune_name,0,sizeof(char*)*mod_subsongs);
+    sidtune_title=(char**)malloc(mod_subsongs*sizeof(char*));
+    memset(sidtune_title,0,sizeof(char*)*mod_subsongs);
+    
+    while (stil_info[idx]) {
+        if ((stil_info[idx]=='(')&&(stil_info[idx+1]=='#')) {
+            parser_status=1;
+            parser_track_nb=0;
+        }
+        else {
+            switch (parser_status) {
+                case 1: // got a "(" before
+                    if (stil_info[idx]=='#') parser_status=2;
+                    else parser_status=0;
+                    break;
+                case 2: // got a "(#" before
+                    if ((stil_info[idx]>='0')&&(stil_info[idx]<='9')) {
+                        parser_track_nb=parser_track_nb*10+(stil_info[idx]-'0');
+                        parser_status=2;
+                    } else if (stil_info[idx]==')') {
+                        parser_status=3;
+                    }
+                    break;
+                case 3: // got a "(#<track_nb>)" before
+                    if (stil_info[idx]=='N') parser_status=4;
+                    if (stil_info[idx]=='T') parser_status=10;
+                    break;
+                    ///////////////////////////////////////////////
+                    //"NAME: "
+                    ///////////////////////////////////////////////
+                case 4: // "N"
+                    if (stil_info[idx]=='A') parser_status=5;
+                    break;
+                case 5: // "NA"
+                    if (stil_info[idx]=='M') parser_status=6;
+                    break;
+                case 6: // "NAM"
+                    if (stil_info[idx]=='E') parser_status=7;
+                    break;
+                case 7: // "NAME"
+                    if (stil_info[idx]==':') parser_status=8;
+                    break;
+                case 8: // "NAME:"
+                    if (stil_info[idx]==' ') {
+                        parser_status=9;
+                        tmp_str[0]=0;
+                        tmp_str_idx=0;
+                    }
+                    break;
+                case 9: // "NAME: "
+                    if (stil_info[idx]==0x0A) {
+                        parser_status=0;
+                        if (parser_track_nb<=mod_subsongs) {
+                            sidtune_name[parser_track_nb-1]=(char*)malloc(tmp_str_idx+1);
+                            strcpy(sidtune_name[parser_track_nb-1],tmp_str);
+                        }
+                    } else {
+                        tmp_str[tmp_str_idx]=stil_info[idx];
+                        if (tmp_str_idx<1024) tmp_str_idx++;
+                        tmp_str[tmp_str_idx]=0;
+                    }
+                    break;
+                    ///////////////////////////////////////////////
+                    //"TITLE: "
+                    ///////////////////////////////////////////////
+                case 10: // "T"
+                    if (stil_info[idx]=='I') parser_status=11;
+                    break;
+                case 11: // "TI"
+                    if (stil_info[idx]=='T') parser_status=12;
+                    break;
+                case 12: // "TIT"
+                    if (stil_info[idx]=='L') parser_status=13;
+                    break;
+                case 13: // "TITL"
+                    if (stil_info[idx]=='E') parser_status=14;
+                    break;
+                case 14: // "TITLE"
+                    if (stil_info[idx]==':') parser_status=15;
+                    break;
+                case 15: // "TITLE:"
+                    if (stil_info[idx]==' ') {
+                        parser_status=16;
+                        tmp_str[0]=0;
+                        tmp_str_idx=0;
+                    }
+                    break;
+                case 16: // "TITLE: "
+                    if (stil_info[idx]==0x0A) {
+                        parser_status=0;
+                        if (parser_track_nb<=mod_subsongs) {
+                            sidtune_title[parser_track_nb-1]=(char*)malloc(tmp_str_idx+1);
+                            strcpy(sidtune_title[parser_track_nb-1],tmp_str);
+                        }
+                    } else {
+                        tmp_str[tmp_str_idx]=stil_info[idx];
+                        if (tmp_str_idx<1024) tmp_str_idx++;
+                        tmp_str[tmp_str_idx]=0;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        idx++;
+        
+    }
+}
+
 -(int) mmp_sidplayLoad:(NSString*)filePath {  //SID
     mPlayType=MMP_SIDPLAY;
     
@@ -4502,9 +4660,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             if (sidtune_info.infoString[0][0]) sprintf(mod_name," %s",sidtune_info.infoString[0]);
             else sprintf(mod_name," %s",mod_filename);
             mod_subsongs=sidtune_info.songs;
-            mod_minsub=1;//sidtune_info.startSong;
-            mod_maxsub=sidtune_info.songs;
-            mod_currentsub=sidtune_info.startSong;
+            mod_minsub=0;
+            mod_maxsub=sidtune_info.songs-1;
+            mod_currentsub=sidtune_info.startSong-1;
             
             int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
             char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
@@ -4548,8 +4706,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             free(tmp_md5_data);
             //NSLog(@"MD5: %s",song_md5);
             
-            sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
+            sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
             mSid1Tune->getInfo(sidtune_info);
+            
+            
+            
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
             
@@ -4585,6 +4746,10 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                 sprintf(mod_message,"%s%s\n",mod_message,sidtune_info.infoString[i]);
             
             sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
+            
+            //Parse STIL INFO for subsongs info
+            [self sid_parseStilInfo];
+            
             
             return 0;
         }
@@ -4657,9 +4822,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             if (sidtune_info.infoString[0][0]) sprintf(mod_name," %s",sidtune_info.infoString[0]);
             else sprintf(mod_name," %s",mod_filename);
             mod_subsongs=sidtune_info.songs;
-            mod_minsub=1;//sidtune_info.startSong;
-            mod_maxsub=sidtune_info.songs;
-            mod_currentsub=sidtune_info.startSong;
+            mod_minsub=0;//sidtune_info.startSong;
+            mod_maxsub=sidtune_info.songs-1;
+            mod_currentsub=sidtune_info.startSong-1;
             
             int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
             char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
@@ -4703,7 +4868,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             //NSLog(@"MD5: %s",song_md5);
             
             
-            mSidTune->selectSong(mod_currentsub);
+            mSidTune->selectSong(mod_currentsub+1);
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
             if (!iModuleLength) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
             
@@ -4733,9 +4898,63 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                 sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
                 //Loop
                 if (mLoopMode==1) iModuleLength=-1;
+                
+                
+                //Parse STIL INFO for subsongs info
+                [self sid_parseStilInfo];
+                
+                
+                //////////////////////////////////
+                //update DB with songlength
+                //////////////////////////////////
+                mod_total_length=0;
+                for (int i=0;i<sidtune_info.songs; i++) {
+                    int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
+                    if (!sid_subsong_length) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                    mod_total_length+=sid_subsong_length;
+                    
+                    short int playcount;
+                    signed char rating;
+                    int song_length;
+                    char channels_nb;
+                    int songs;
+                    NSString *filePathSid;
+                    NSString *fileName=[self getSubTitle:i];
+                    
+                    
+                    NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+                    for (;;) {
+                        if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                            break;
+                        }
+                        [tmp_path removeObjectAtIndex:0];
+                        if ([tmp_path count]==0) break;
+                    }
+                    filePathSid=[tmp_path componentsJoinedByString:@"/"];
+                    
+                    NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
+                    
+                    DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+                    //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,sid_subsong_length,rating);
+                    
+                    DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,mSidEmuEngine->info().channels,sidtune_info.songs);
+                    
+                    if (i==sidtune_info.songs-1) {// Global file stats update
+                        fileName=[filePath lastPathComponent];
+                        DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&song_length,&channels_nb,&songs);
+                        
+                        //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSid,mod_total_length,rating);
+                        
+                        DBHelper::updateFileStatsDBmod(fileName,filePathSid,playcount,rating,mod_total_length,mSidEmuEngine->info().channels,sidtune_info.songs);
+                    }
+                }
+                
+                
                 return 0;
             }
         }
+        
+        
     }
     return 1;
 }
@@ -4854,7 +5073,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         return -3;
     }
     
-    		//printf("Player candidate: %s\n", UADEstate.ep->playername);
+    //printf("Player candidate: %s\n", UADEstate.ep->playername);
     
     if (strcmp(UADEstate.ep->playername, "custom") == 0) {
         strcpy(UADEplayername, modulename);
@@ -4863,7 +5082,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         sprintf(UADEplayername, "%s/%s", UADEstate.config.basedir.name, UADEstate.ep->playername);
     }
     
-    		//printf("Player name: %s\n", UADEplayername);
+    //printf("Player name: %s\n", UADEplayername);
     
     if (strlen(UADEplayername) == 0) {
         printf("Error: an empty player name given\n");
@@ -4934,7 +5153,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-
+    
     //		NSLog(@"playtime : %d",UADEstate.song->playtime);
     
     return 0;
@@ -5127,41 +5346,42 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     
     /* Show module data */
     
-    xmp_get_module_info(xmp_ctx, &mi);
+    xmp_get_module_info(xmp_ctx, &xmp_mi);
     
-    sprintf(mod_name," %s",mi.mod->name);
-    if (mi.mod->name[0]==0) {
+    sprintf(mod_name," %s",xmp_mi.mod->name);
+    if (xmp_mi.mod->name[0]==0) {
         sprintf(mod_name," %s",mod_filename);
     }
     
-    if (mi.comment) sprintf(mod_message,"%s\n", mi.comment);
+    if (xmp_mi.comment) sprintf(mod_message,"%s\n", xmp_mi.comment);
     else {
         mod_message[0]=0;
-        if (mi.mod->ins) {
-            for (int i=0;i<mi.mod->ins;i++) {
-                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,mi.mod->xxi[i].name);
+        if (xmp_mi.mod->ins) {
+            for (int i=0;i<xmp_mi.mod->ins;i++) {
+                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,xmp_mi.mod->xxi[i].name);
                 concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
             }
         }
-        if (mi.mod->smp) {
-            for (int i=0;i<mi.mod->smp;i++) {
-                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,mi.mod->xxs[i].name);
+        if (xmp_mi.mod->smp) {
+            for (int i=0;i<xmp_mi.mod->smp;i++) {
+                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,xmp_mi.mod->xxs[i].name);
                 concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
             }
         }
     }
-
-    NSLog(@"XMP num sequence: %d",mi.num_sequences);
-    for (int i=0;i<mi.num_sequences;i++) {
-        NSLog(@"XMP sequence %d duration: %d",i,mi.seq_data[i].duration);
-    }
-    iModuleLength=mi.seq_data[0].duration;
+    
+    /*NSLog(@"XMP num sequence: %d",xmp_mi.num_sequences);
+     for (int i=0;i<xmp_mi.num_sequences;i++) {
+     NSLog(@"XMP sequence %d duration: %d",i,xmp_mi.seq_data[i].duration);
+     }
+     */
+    iModuleLength=xmp_mi.seq_data[0].duration;
     
     iCurrentTime=0;
-    numChannels=mi.mod->chn;
+    numChannels=xmp_mi.mod->chn;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-
+    
     
     
     return 0;
@@ -5392,11 +5612,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 
 
 /*static int seek_needed;
-static double decode_pos_ms;
-static bool killThread = false;
-
-static const unsigned NumChannels = 2;
-static const unsigned BitsPerSample = 16;*/
+ static double decode_pos_ms;
+ static bool killThread = false;
+ 
+ static const unsigned NumChannels = 2;
+ static const unsigned BitsPerSample = 16;*/
 
 
 -(int) mmp_xsfLoad:(NSString*)filePath extension:(NSString*)extension {  //XSF
@@ -6021,9 +6241,7 @@ static const unsigned BitsPerSample = 16;*/
         gme_set_effects( gme_emu, &gme_fx);
         
         /**/
-        int ignore_silence = strcmp(gmetype,"PC Engine") ? 1 : 0;
-        //TODO: make it an option
-        gme_ignore_silence(gme_emu,0);//ignore_silence);
+        gme_ignore_silence(gme_emu,optGMEIgnoreSilence);
         
         track=0;
         mod_subsongs=gme_track_count( gme_emu );
@@ -6040,6 +6258,59 @@ static const unsigned BitsPerSample = 16;*/
             mPlayType=0;
             return -4;
         }
+        
+        //////////////////////////////////
+        //update DB with songlength
+        //////////////////////////////////
+        mod_total_length=0;
+        for (int i=0;i<mod_subsongs; i++) {
+            if (gme_track_info( gme_emu, &gme_info, i )==0) {
+                short int playcount;
+                signed char rating;
+                int song_length;
+                char channels_nb;
+                int songs;
+                NSString *filePathGME;
+                NSString *fileName;
+                NSMutableArray *tmp_path;
+                int gme_subsong_length=gme_info->play_length;
+                if (gme_info->play_length<=0) gme_info->play_length=optGENDefaultLength;
+                mod_total_length+=gme_info->play_length;
+                
+                channels_nb=gme_voice_count( gme_emu );
+                
+                gme_free_info(gme_info);
+                
+                fileName=[self getSubTitle:i];
+                
+                tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+                for (;;) {
+                    if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                        break;
+                    }
+                    [tmp_path removeObjectAtIndex:0];
+                    if ([tmp_path count]==0) break;
+                }
+                filePathGME=[tmp_path componentsJoinedByString:@"/"];
+                
+                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathGME,i];
+                
+                DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+                //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,gme_subsong_length,rating);
+                
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
+                
+                if (i==mod_subsongs-1) {// Global file stats update
+                    fileName=[filePath lastPathComponent];
+                    DBHelper::getFileStatsDBmod(fileName,filePathGME,&playcount,&rating,&song_length,&channels_nb,&songs);
+                    
+                    //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathGME,mod_total_length,rating);
+                    
+                    DBHelper::updateFileStatsDBmod(fileName,filePathGME,playcount,rating,mod_total_length,gme_voice_count( gme_emu ),mod_subsongs);
+                }
+            }
+        }
+        
         
         sprintf(mod_name," %s",mod_filename);
         if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
@@ -6062,9 +6333,9 @@ static const unsigned BitsPerSample = 16;*/
                     gme_track_count( gme_emu ),
                     (gme_info->comment?gme_info->comment:" "));
             
-            
+            sprintf(mod_name," %s",mod_filename);
             if (gme_info->song){
-                if (gme_info->song[0]) sprintf(mod_name," %s/%s",(gme_info->game?gme_info->game:""),gme_info->song);
+                if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
             }
             
             
@@ -6127,8 +6398,15 @@ static const unsigned BitsPerSample = 16;*/
     [self iPhoneDrv_LittlePlayStart];
     
     if (archiveMode==0) {
-        extension = [_filePath pathExtension];
-        file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+        //extension = [_filePath pathExtension];
+        //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+        
+        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+        extension = (NSString *)[temparray_filepath lastObject];
+        [temparray_filepath removeLastObject];
+        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+        
+        
         filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
         
         mdz_IsArchive=0;
@@ -6147,6 +6425,7 @@ static const unsigned BitsPerSample = 16;*/
         mSidEngineType=mAskedSidEngineType;
         iModuleLength=0;
         mPatternDataAvail=0;
+        
         sprintf(mod_filename,"%s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
         
         
@@ -6219,8 +6498,14 @@ static const unsigned BitsPerSample = 16;*/
                     mdz_currentArchiveIndex=0;
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
-                    extension = [_filePath pathExtension];
-                    file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+                    //extension = [_filePath pathExtension];
+                    //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+                    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+                    extension = (NSString *)[temparray_filepath lastObject];
+                    [temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    
+                    
                     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
                     
@@ -6285,8 +6570,14 @@ static const unsigned BitsPerSample = 16;*/
                     mdz_IsArchive=1;
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
-                    extension = [_filePath pathExtension];
-                    file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+                    //extension = [_filePath pathExtension];
+                    //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+                    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+                    extension = (NSString *)[temparray_filepath lastObject];
+                    [temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    
+                    
                     filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
                 } else {
@@ -6313,8 +6604,14 @@ static const unsigned BitsPerSample = 16;*/
         if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
         
         _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
-        extension = [_filePath pathExtension];
-        file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+        //extension = [_filePath pathExtension];
+        //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+        extension = (NSString *)[temparray_filepath lastObject];
+        [temparray_filepath removeLastObject];
+        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+        
+        
         filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
     }
@@ -6323,8 +6620,14 @@ static const unsigned BitsPerSample = 16;*/
         if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
         
         _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
-        extension = [_filePath pathExtension];
-        file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+        //extension = [_filePath pathExtension];
+        //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+        extension = (NSString *)[temparray_filepath lastObject];
+        [temparray_filepath removeLastObject];
+        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+        
+        
         filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
     }
@@ -6605,6 +6908,8 @@ static const unsigned BitsPerSample = 16;*/
     //NSLog(@"Loading file:%@ ",filePath);
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
     
+    mod_total_length=0;
+    
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];
         int successful_loading=0;
@@ -6654,7 +6959,7 @@ static const unsigned BitsPerSample = 16;*/
                 break;
             case MMP_XMP:
                 if ([self mmp_xmpLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
-                break;                
+                break;
             case MMP_UADE:
                 if ([self mmp_uadeLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
                 break;
@@ -6769,7 +7074,7 @@ static const unsigned BitsPerSample = 16;*/
                             gme_track_count( gme_emu ),
                             (gme_info->comment?gme_info->comment:" "));
                     if (gme_info->song){
-                        if (gme_info->song[0]) sprintf(mod_name," %s/%s",(gme_info->game?gme_info->game:""),gme_info->song);
+                        if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
                     }
                     gme_free_info(gme_info);
                 } else {
@@ -6828,9 +7133,9 @@ static const unsigned BitsPerSample = 16;*/
                 mod_currentsub=subsong;
             }
             if (mSidEngineType==1) {
-                sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub);
+                sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
             } else {
-                mSidTune->selectSong(mod_currentsub);
+                mSidTune->selectSong(mod_currentsub+1);
                 mSidEmuEngine->load(mSidTune);
             }
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
@@ -6995,6 +7300,19 @@ static const unsigned BitsPerSample = 16;*/
             delete mSid1EmuEngine;
             mSid1EmuEngine = NULL;
         }
+        
+        if (sidtune_title) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_title[i]) free(sidtune_title[i]);
+            free(sidtune_title);
+            sidtune_title=NULL;
+        }
+        if (sidtune_name) {
+            for (int i=0;i<mod_subsongs;i++)
+                if (sidtune_name[i]) free(sidtune_name[i]);
+            free(sidtune_name);
+            sidtune_name=NULL;
+        }
     }
     if (mPlayType==MMP_STSOUND) { //STSOUND
         ymMusicStop(ymMusic);
@@ -7131,14 +7449,33 @@ static const unsigned BitsPerSample = 16;*/
             int sublen=gme_info->play_length;
             if (sublen<=0) sublen=optGENDefaultLength;
             
+            result=nil;
             if (gme_info->song){
-                result=[NSString stringWithFormat:@"%d-%s %02d:%02d",subsong,gme_info->song,sublen/60000,(sublen/1000)%60];
-            } else result=[NSString stringWithFormat:@"%d-%02d:%02d",subsong,gme_info->song,sublen/60000,(sublen/1000)%60];
+                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong,gme_info->song];
+            }
+            if ((!result)&&(gme_info->game)) {
+                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong,gme_info->game];
+            }
+            if (!result) result=[NSString stringWithFormat:@"%.3d",subsong];
             gme_free_info(gme_info);
             return result;
         }
     }
-    return [NSString stringWithFormat:@"%d",subsong];
+    if (mPlayType==MMP_SIDPLAY) {
+        if (sidtune_name) {
+            if (sidtune_name[subsong]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_name[subsong]];
+        }
+        if (sidtune_title) {
+            if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_title[subsong]];
+        }
+        SidTuneInfo sidtune_info;
+        sidtune_info=mSidTune->getInfo();
+        
+        if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_info.infoString[0]];
+        
+        return [NSString stringWithFormat:@"%.3d",subsong];
+    }
+    return [NSString stringWithFormat:@"%.3d",subsong];
 }
 -(NSString*) getModType {
     if (mPlayType==MMP_GME) {
@@ -7146,7 +7483,7 @@ static const unsigned BitsPerSample = 16;*/
         return [NSString stringWithFormat:@"%s",gmetype];
     }
     if (mPlayType==MMP_XMP) {
-        return [NSString stringWithFormat:@"%s",mi.mod->type];
+        return [NSString stringWithFormat:@"%s",xmp_mi.mod->type];
     }
     if (mPlayType==MMP_OPENMPT) {
         char *str_type=(char*)ModPlug_GetModuleTypeLStr(mp_file);
@@ -7248,6 +7585,17 @@ static const unsigned BitsPerSample = 16;*/
 -(void) optGLOB_PanningValue:(float)value {
     mPanningValue=(int)(value*128.0f);
 }
+
+///////////////////////////
+//GSF
+///////////////////////////
+-(void) optGSF_UpdateParam {
+    soundLowPass = optGSFsoundLowPass;
+    soundEcho = optGSFsoundEcho;
+    //soundQuality = optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
+    //soundInterpolation = optGSFsoundInterpolation;
+}
+
 
 ///////////////////////////
 //DUMB
@@ -7366,7 +7714,9 @@ extern "C" void adjust_amplification(void);
 -(void) optGME_Fade:(int)fade {
     optGMEFadeOut=fade;
 }
-
+-(void) optGME_IgnoreSilence:(int)ignoreSilence {
+    optGMEIgnoreSilence=ignoreSilence;
+}
 -(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled {
     optGMERatio = ratio;
     if(gme_emu) {
@@ -7514,6 +7864,11 @@ extern "C" void adjust_amplification(void);
         return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
     } else return @"";
     
+}
+
+-(int) getGlobalLength {
+    if (mod_total_length) return mod_total_length;
+    return -1;
 }
 -(int) getSongLength {
     return iModuleLength;

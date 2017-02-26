@@ -133,6 +133,13 @@ void optUADEChangedC(id param) {
 void optVGMPLAYChangedC(id param) {
     [param optVGMPLAYChanged];
 }
+//GSF
+-(void) optGSFChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_GSF];
+}
+void optGSFChangedC(id param) {
+    [param optGSFChanged];
+}
 
 #pragma mark - Load/Init default settings
 
@@ -376,12 +383,21 @@ void optVGMPLAYChangedC(id param) {
     settings[GME_FADEOUT].detail.mdz_slider.slider_value=1;
     settings[GME_RATIO].detail.mdz_slider.slider_value=1;
     settings[GME_RATIO_ONOFF].detail.mdz_slider.slider_value=1;
+    settings[GME_IGNORESILENCE].detail.mdz_slider.slider_value=0;
     settings[GME_EQ_BASS].detail.mdz_slider.slider_value=4.2-1.9;
     settings[GME_EQ_TREBLE].detail.mdz_slider.slider_value=-14;
     settings[GME_FX_ONOFF].detail.mdz_boolswitch.switch_value=0;
     settings[GME_FX_SURROUND].detail.mdz_boolswitch.switch_value=0;
     settings[GME_FX_ECHO].detail.mdz_boolswitch.switch_value=0;
     settings[GME_FX_PANNING].detail.mdz_slider.slider_value=0;
+    
+    /////////////////////////////////////
+    //GSF
+    /////////////////////////////////////
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value=2;
+    settings[GSF_INTERPOLATION].detail.mdz_boolswitch.switch_value=1;
+    settings[GSF_LOWPASSFILTER].detail.mdz_boolswitch.switch_value=1;
+    settings[GSF_ECHO].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
     //SID
@@ -1169,6 +1185,14 @@ void optVGMPLAYChangedC(id param) {
     settings[GME_RATIO_ONOFF].callback=&optGMEChangedC;
     settings[GME_RATIO_ONOFF].detail.mdz_boolswitch.switch_value=0;
     
+    settings[GME_IGNORESILENCE].type=MDZ_BOOLSWITCH;
+    settings[GME_IGNORESILENCE].label=(char*)"Ignore Silence";
+    settings[GME_IGNORESILENCE].description=NULL;
+    settings[GME_IGNORESILENCE].family=MDZ_SETTINGS_FAMILY_GME;
+    settings[GME_IGNORESILENCE].sub_family=0;
+    settings[GME_IGNORESILENCE].callback=&optGMEChangedC;
+    settings[GME_IGNORESILENCE].detail.mdz_boolswitch.switch_value=0;
+    
     settings[GME_RATIO].label=(char*)"Playback Ratio";
     settings[GME_RATIO].description=NULL;
     settings[GME_RATIO].family=MDZ_SETTINGS_FAMILY_GME;
@@ -1233,7 +1257,52 @@ void optVGMPLAYChangedC(id param) {
     settings[GME_FX_PANNING].detail.mdz_slider.slider_min_value=0;
     settings[GME_FX_PANNING].detail.mdz_slider.slider_max_value=1;
     
+    /////////////////////////////////////
+    //GSF
+    /////////////////////////////////////
     
+    settings[MDZ_SETTINGS_FAMILY_GSF].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_GSF].label=(char*)"GSF";
+    settings[MDZ_SETTINGS_FAMILY_GSF].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_GSF].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_GSF].sub_family=MDZ_SETTINGS_FAMILY_GSF;
+    
+    settings[GSF_SOUNDQUALITY].type=MDZ_SWITCH;
+    settings[GSF_SOUNDQUALITY].label=(char*)"Sound Quality";
+    settings[GSF_SOUNDQUALITY].description=NULL;
+    settings[GSF_SOUNDQUALITY].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_SOUNDQUALITY].sub_family=0;
+    settings[GSF_SOUNDQUALITY].callback=&optGSFChangedC;
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value=2;
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value_nb=3;
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[0]=(char*)"11Khz";
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[1]=(char*)"22Khz";
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[2]=(char*)"44Khz";
+    
+    settings[GSF_INTERPOLATION].type=MDZ_BOOLSWITCH;
+    settings[GSF_INTERPOLATION].label=(char*)"Interpolation";
+    settings[GSF_INTERPOLATION].description=NULL;
+    settings[GSF_INTERPOLATION].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_INTERPOLATION].sub_family=0;
+    settings[GSF_INTERPOLATION].callback=&optGSFChangedC;
+    settings[GSF_INTERPOLATION].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[GSF_LOWPASSFILTER].type=MDZ_BOOLSWITCH;
+    settings[GSF_LOWPASSFILTER].label=(char*)"Lowpass Filter";
+    settings[GSF_LOWPASSFILTER].description=NULL;
+    settings[GSF_LOWPASSFILTER].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_LOWPASSFILTER].sub_family=0;
+    settings[GSF_LOWPASSFILTER].callback=&optGSFChangedC;
+    settings[GSF_LOWPASSFILTER].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[GSF_ECHO].type=MDZ_BOOLSWITCH;
+    settings[GSF_ECHO].label=(char*)"Echo";
+    settings[GSF_ECHO].description=NULL;
+    settings[GSF_ECHO].family=MDZ_SETTINGS_FAMILY_GSF;
+    settings[GSF_ECHO].sub_family=0;
+    settings[GSF_ECHO].callback=&optGSFChangedC;
+    settings[GSF_ECHO].detail.mdz_boolswitch.switch_value=0;
     
     
     /////////////////////////////////////

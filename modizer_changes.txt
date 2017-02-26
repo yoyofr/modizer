@@ -12,6 +12,41 @@ Todo/Requested:
 - Mute button / channels & playback ratio (slower/faster)
 - Cloud synchro
 
+- BUG: SID with subsongs -> global length not computed on file browser
+- BUG: SID with subsongs -> sub menu (browser) displays wrong info for subsongs (length, subsongs, ...)
+- HVSC: Add "released" (Date / company) in DB. -> will require to parse all HVSC sid file
+
+
+- BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
+
+- GME: add "ignore_silence" as option
+
+Cases:
+1. Standard file (no subsong, no archive)
+   
+2. Subsong file
+	2.1. All subsongs
+	2.2. One subsong
+3. Archive file / no subsong
+    3.1 All entries
+    3.2 One entry
+4. Archive file / subsong
+	4.1. All entries / all subsongs
+	4.2. One entry / all subsongs
+	
+
+2.7
+ÑÑÑ
+- [New] Display SID Subsongs name or title (when available from STIL DB)
+- [New] GSF plugin settings now available
+- [Update] "Shuffle & Play" will now really shuffle playlist
+- [BugFix] "Loading" popup not always displayed
+- [Bugfix] Crashes when 'Player view on play' option is activated
+- [Bugfix] SID subsongs not correctly mananged
+- [Bugfix] Random crashes when pushing the subsong/archive entries buttons
+- [Bugfix] Some files from AMP not recognized (filename pattern issue)
+- [BugFix] General stability improvement
+
 2.6
 ÑÑÑ
 - [New] VGMStream (Consoles streaming formats)

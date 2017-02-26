@@ -29,6 +29,10 @@ extern BOOL is_ios7;
     }
 }
 
+-(void) shortWait {
+    [NSThread sleepForTimeInterval:0.1f];
+}
+
 -(void)showWaiting{
 	waitingView.hidden=FALSE;
 }
@@ -38,7 +42,7 @@ extern BOOL is_ios7;
 }
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+    [self hideWaiting];
 }
 
 
@@ -69,17 +73,34 @@ extern BOOL is_ios7;
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
-    waitingView = [[UIView alloc] initWithFrame:CGRectMake(self.view.bounds.size.width/2-40,self.view.bounds.size.height/2-40,80,80)];
-	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-	waitingView.opaque=TRUE;
-	waitingView.hidden=TRUE;
-	waitingView.layer.cornerRadius=20;
-	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(20,20,37,37)];
-	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-	[waitingView addSubview:indView];
-	[indView startAnimating];
-	[indView autorelease];
-	[self.view addSubview:waitingView];
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[UIView alloc] init];
+    waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
+    waitingView.opaque=YES;
+    waitingView.hidden=TRUE;
+    waitingView.layer.cornerRadius=20;
+    
+    UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-20,40,40)];
+    indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
+    [waitingView addSubview:indView];
+    
+    [indView startAnimating];
+    [indView autorelease];
+    
+    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    /////////////////////////////////////////
 
 }
 
@@ -106,6 +127,7 @@ extern BOOL is_ios7;
 
 -(void) resetSettings {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     [SettingsGenViewController applyDefaultSettings];
     UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
@@ -114,6 +136,7 @@ extern BOOL is_ios7;
 
 -(bool) resetRatingsDB {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -136,6 +159,7 @@ extern BOOL is_ios7;
 
 -(bool) resetPlaycountDB {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -158,6 +182,7 @@ extern BOOL is_ios7;
 
 -(bool) cleanDB {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -231,6 +256,7 @@ extern BOOL is_ios7;
 
 -(void) recreateSamplesFolder {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     
     [rootVC createSamplesFromPackage:TRUE];
     UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Samples folder created",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
@@ -239,6 +265,7 @@ extern BOOL is_ios7;
 
 -(void) resetDB {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     [rootVC createEditableCopyOfDatabaseIfNeeded:TRUE quiet:TRUE];
     UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
     [alert show];
@@ -246,6 +273,7 @@ extern BOOL is_ios7;
 
 -(void) removeCurrentCover {
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self shortWait];
     NSError *err;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSString *currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
