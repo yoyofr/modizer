@@ -287,7 +287,7 @@ class CGLString;
 
 - (void)titleTap:(UITapGestureRecognizer *)sender;
 
--(void) pushedRatingCommon:(short int)playcount;
+-(void) pushedRatingCommon:(signed char)rating;
 -(void) hidePopup;
 -(void) openPopup:(NSString *)msg secmsg:(NSString *)secmsg;
 -(void) closePopup;

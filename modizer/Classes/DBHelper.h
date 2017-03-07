@@ -28,6 +28,7 @@ namespace DBHelper
     
 	NSString *getLocalPathFromFullPath(NSString *fullPath);
 	NSString *getFullPathFromLocalPath(NSString *localPath);
+    void updateFileStatsAvgRatingDBmod(NSString *fullpath);
 	void updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating);
 	void updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating,int song_length,char channels_nb,int songs);
 	

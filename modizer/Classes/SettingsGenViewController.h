@@ -39,6 +39,8 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_UADE,
     SETTINGS_TIMIDITY,
     SETTINGS_VGMPLAY,
+    SETTINGS_VGMSTREAM,
+    SETTINGS_LAZYUSF,
     SETTINGS_ONLINE
 };
 
@@ -184,6 +186,14 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_VGMPLAY,
         VGMPLAY_Maxloop,
+    
+        MDZ_SETTINGS_FAMILY_VGMSTREAM,
+        VGMSTREAM_ResampleQuality,
+        VGMSTREAM_Forceloop,
+        VGMSTREAM_Maxloop,
+    
+        MDZ_SETTINGS_FAMILY_LAZYUSF,
+        LAZYUSF_ResampleQuality,
     
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
