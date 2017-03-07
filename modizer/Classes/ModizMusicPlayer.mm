@@ -111,14 +111,18 @@ static XSFPlayer *xSFPlayer = nullptr;
 XSFConfig *xSFConfig = nullptr;
 auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 
+int optLAZYUSF_ResampleQuality=1;
+
 extern "C" {
     //VGMSTREAM
 #import "../../vgmstream/vgmstream.h"
     
     static VGMSTREAM* vgmStream = NULL;
     static STREAMFILE* vgmFile = NULL;
-    static bool optVGMSTREAM_loopmode = false;
-    static double optVGMSTREAM_loop_count = 2.0f;
+    bool optVGMSTREAM_loopmode = false;
+    double optVGMSTREAM_loop_count = 2.0f;
+    int optVGMSTREAM_resampleQuality=1;
+    
     static bool mVGMSTREAM_force_loop;
     static volatile int mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples;
     
@@ -3048,7 +3052,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
                         src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
-                        if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
+                        //if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
                     if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
@@ -5532,18 +5536,19 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     
     //Initi SRC samplerate converter
     int error;
-    src_state=src_callback_new(src_callback_vgmstream,SRC_SINC_MEDIUM_QUALITY,2,&error,NULL);
+    src_state=src_callback_new(src_callback_vgmstream,optVGMSTREAM_resampleQuality,2,&error,NULL);
     if (!src_state) {
         NSLog(@"Error while initializing SRC samplerate converter: %d",error);
         return -1;
     }
     
-    mVGMSTREAM_force_loop = false;
+    if (mLoopMode==1) mVGMSTREAM_force_loop = true;
+    else mVGMSTREAM_force_loop = false;
     
     if ( optVGMSTREAM_loopmode)
     {
         mVGMSTREAM_force_loop = true;
-        NSLog(@"VGMStreamPlugin Force Loop");
+        //NSLog(@"VGMStreamPlugin Force Loop");
     }
     
     
@@ -5578,7 +5583,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         return -1;
     }
     
-    mVGMSTREAM_total_samples = get_vgmstream_play_samples(optVGMSTREAM_loop_count, 0.0f, 0.0f, vgmStream);
+    if (mLoopMode==1) {
+        mVGMSTREAM_total_samples = get_vgmstream_play_samples(0, 0.0f, 0.0f, vgmStream);
+    } else mVGMSTREAM_total_samples = get_vgmstream_play_samples(optVGMSTREAM_loop_count, 0.0f, 0.0f, vgmStream);
     close_streamfile(vgmFile);
     
     iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
@@ -5716,7 +5723,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     
     //Initi SRC samplerate converter
     int error;
-    src_state=src_callback_new(src_callback_lazyusf,SRC_SINC_MEDIUM_QUALITY,2,&error,NULL);
+    src_state=src_callback_new(src_callback_lazyusf,optLAZYUSF_ResampleQuality,2,&error,NULL);
     if (!src_state) {
         NSLog(@"Error while initializing SRC samplerate converter: %d",error);
         return -1;
@@ -6858,11 +6865,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     
     for (int i=0;i<[filetype_extUADE count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_UADE]];
+            if (mdz_defaultMODPLAYER==DEFAULT_UADE) [available_player insertObject:[NSNumber numberWithInt:MMP_UADE] atIndex:0];
+            else [available_player addObject:[NSNumber numberWithInt:MMP_UADE]];
             break;
         }
         if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_UADE]];
+            if (mdz_defaultMODPLAYER==DEFAULT_UADE) [available_player insertObject:[NSNumber numberWithInt:MMP_UADE] atIndex:0];
+            else [available_player addObject:[NSNumber numberWithInt:MMP_UADE]];
             break;
         }
     }
@@ -7468,10 +7477,19 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         if (sidtune_title) {
             if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_title[subsong]];
         }
-        SidTuneInfo sidtune_info;
-        sidtune_info=mSidTune->getInfo();
         
-        if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_info.infoString[0]];
+        if (mSidEngineType==1) {
+            struct sidTuneInfo sidtune_info;
+            mSid1Tune->getInfo(sidtune_info);
+            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_info.infoString[0]];
+        }
+        else {
+            SidTuneInfo sidtune_info;
+            sidtune_info=mSidTune->getInfo();
+            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_info.infoString[0]];
+        }
+        
+        
         
         return [NSString stringWithFormat:@"%.3d",subsong];
     }
@@ -7802,6 +7820,25 @@ extern "C" void adjust_amplification(void);
     optVGMPLAY_maxloop=val;
 }
 
+///////////////////////////
+//VGMSTREAM
+///////////////////////////
+-(void) optVGMSTREAM_MaxLoop:(double)val {
+    optVGMSTREAM_loop_count=val;
+}
+-(void) optVGMSTREAM_ForceLoop:(unsigned int)val {
+    optVGMSTREAM_loopmode=val;
+}
+-(void) optVGMSTREAM_ResampleQuality:(unsigned int)val {
+    optVGMSTREAM_resampleQuality=val;
+}
+
+///////////////////////////
+//LAZYUSF
+///////////////////////////
+-(void) optLAZYUSF_ResampleQuality:(unsigned int)val {
+    optLAZYUSF_ResampleQuality=val;
+}
 
 ///////////////////////////
 //MODPLUG

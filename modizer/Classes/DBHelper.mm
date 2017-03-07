@@ -40,7 +40,7 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
 			}
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -85,7 +85,7 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 			}
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -131,7 +131,7 @@ void DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pl
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -182,7 +182,7 @@ void DBHelper::getFilesStatsDBmod(NSMutableArray *names,NSMutableArray *fullpath
 			}
 		}
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -205,7 +205,7 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
 		if (err==SQLITE_OK){
 		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
 		
-	};
+	}
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
 	return ret;
@@ -227,7 +227,7 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
 		if (err==SQLITE_OK){
 		} else {ret=0;NSLog(@"ErrSQL : %d",err);}
 		
-	};
+	}
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
 	return ret;
@@ -270,7 +270,7 @@ void DBHelper::getFilesStatsDBmod(t_plPlaylist_entry *playlist,int nb_entries) {
 			}
 		}
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -297,7 +297,7 @@ int DBHelper::getNbFormatEntries() {
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -324,7 +324,7 @@ int DBHelper::getNbAuthorEntries() {
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -351,7 +351,7 @@ int DBHelper::getNbHVSCFilesEntries() {
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -378,7 +378,7 @@ int DBHelper::getNbASMAFilesEntries() {
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -405,11 +405,84 @@ int DBHelper::getNbMODLANDFilesEntries() {
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
 	return ret_int;
+}
+
+void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int err;
+    int avg_rating;
+    int entries_nb;
+    int playcount;
+    
+    if (fullpath==nil) return;
+    
+    avg_rating=0;
+    entries_nb=0;
+    playcount=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    //1st get all related entries (archive entries & subsongs)
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        
+        sprintf(sqlStatement,"SELECT fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
+        
+        //printf("req: %s\n",sqlStatement);
+        
+        int fullpath_len=[fullpath length];
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int tmp_rating;
+                char *tmp_fullpath;
+                tmp_fullpath=(char*)sqlite3_column_text(stmt,0);
+                
+                if (strlen(tmp_fullpath)>fullpath_len) {
+                
+                    tmp_rating=(signed char)sqlite3_column_int(stmt, 2);
+                
+                    //printf("entry #%d, name: %s, rating: %d\n",entries_nb,tmp_fullpath,tmp_rating);
+                
+                    if (tmp_rating<0) tmp_rating=0;
+                    if (tmp_rating>5) tmp_rating=5;
+                    avg_rating+=tmp_rating;
+                    if (tmp_rating>0) entries_nb++;
+                } else {
+                    //printf("skipping: %s\n",tmp_fullpath);
+                    playcount=(short int)sqlite3_column_int(stmt, 1);
+                }
+            }
+            if (entries_nb) avg_rating=avg_rating/entries_nb;
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+        
+    //2nd update rating based on average
+    
+    sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+    err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+    if (err==SQLITE_OK){
+    } else NSLog(@"ErrSQL : %d",err);
+        
+    sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",[[fullpath lastPathComponent] UTF8String],[fullpath UTF8String],playcount,avg_rating);
+    err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+    if (err==SQLITE_OK){
+    } else NSLog(@"ErrSQL : %d",err);
+        
+    }
+    sqlite3_close(db);
+    
+    pthread_mutex_unlock(&db_mutex);
+    
 }
 
 void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount,signed char rating) {
@@ -434,7 +507,7 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 			if (err==SQLITE_OK){
 			} else NSLog(@"ErrSQL : %d",err);
 				
-				};
+				}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);
@@ -462,7 +535,7 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
 		
-	};
+	}
 	sqlite3_close(db);
 	
 	pthread_mutex_unlock(&db_mutex);

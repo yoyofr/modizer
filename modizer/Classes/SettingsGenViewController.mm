@@ -133,6 +133,21 @@ void optUADEChangedC(id param) {
 void optVGMPLAYChangedC(id param) {
     [param optVGMPLAYChanged];
 }
+//VGMSTREAM
+-(void) optVGMSTREAMChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_VGMSTREAM];
+}
+void optVGMSTREAMChangedC(id param) {
+    [param optVGMSTREAMChanged];
+}
+
+//LAZYUSF
+-(void) optLAZYUSFChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_LAZYUSF];
+}
+void optLAZYUSFChangedC(id param) {
+    [param optLAZYUSFChanged];
+}
 //GSF
 -(void) optGSFChanged {
     [detailViewController settingsChanged:(int)SETTINGS_GSF];
@@ -446,6 +461,18 @@ void optGSFChangedC(id param) {
     //VGMPLAY
     /////////////////////////////////////
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
+    
+    /////////////////////////////////////
+    //VGMSTREAM
+    /////////////////////////////////////
+    settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_slider.slider_value=1;
+    
+    /////////////////////////////////////
+    //LAZYUSF
+    /////////////////////////////////////
+    settings[LAZYUSF_ResampleQuality].detail.mdz_slider.slider_value=1;
     
     
 }
@@ -1382,6 +1409,7 @@ void optGSFChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].sub_family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     
+    
     settings[VGMPLAY_Maxloop].label=(char*)"Max loop";
     settings[VGMPLAY_Maxloop].description=NULL;
     settings[VGMPLAY_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
@@ -1391,6 +1419,74 @@ void optGSFChangedC(id param) {
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=0;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
+    
+    /////////////////////////////////////
+    //VGMSTREAM
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].label=(char*)"VGMStream";
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].sub_family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    
+    settings[VGMSTREAM_Forceloop].type=MDZ_BOOLSWITCH;
+    settings[VGMSTREAM_Forceloop].label=(char*)"Force loop";
+    settings[VGMSTREAM_Forceloop].description=NULL;
+    settings[VGMSTREAM_Forceloop].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    settings[VGMSTREAM_Forceloop].sub_family=0;
+    settings[VGMSTREAM_Forceloop].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
+    
+    
+    settings[VGMSTREAM_Maxloop].label=(char*)"Max loop";
+    settings[VGMSTREAM_Maxloop].description=NULL;
+    settings[VGMSTREAM_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    settings[VGMSTREAM_Maxloop].sub_family=0;
+    settings[VGMSTREAM_Maxloop].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_Maxloop].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=0;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=16;
+    
+    settings[VGMSTREAM_ResampleQuality].type=MDZ_SWITCH;
+    settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";
+    settings[VGMSTREAM_ResampleQuality].description=NULL;
+    settings[VGMSTREAM_ResampleQuality].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    settings[VGMSTREAM_ResampleQuality].sub_family=0;
+    settings[VGMSTREAM_ResampleQuality].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value=1;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[1]=(char*)"Med.";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[3]=(char*)"ZOH";
+    settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
+    
+    
+    /////////////////////////////////////
+    //LAZYUSF
+    /////////////////////////////////////
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].label=(char*)"LAZYUSF";
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].sub_family=MDZ_SETTINGS_FAMILY_LAZYUSF;
+
+    settings[LAZYUSF_ResampleQuality].type=MDZ_SWITCH;
+    settings[LAZYUSF_ResampleQuality].label=(char*)"Resampling";
+    settings[LAZYUSF_ResampleQuality].description=NULL;
+    settings[LAZYUSF_ResampleQuality].family=MDZ_SETTINGS_FAMILY_LAZYUSF;
+    settings[LAZYUSF_ResampleQuality].sub_family=0;
+    settings[LAZYUSF_ResampleQuality].callback=&optLAZYUSFChangedC;
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value=1;
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[1]=(char*)"Med.";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[3]=(char*)"ZOH";
+    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
     
     
     /////////////////////////////////////

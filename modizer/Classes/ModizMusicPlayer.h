@@ -325,6 +325,13 @@ static const char *mmp_player_name[]={
 -(void) optGLOB_Panning:(int)onoff;
 -(void) optGLOB_PanningValue:(float)value;
 
+
+-(void) optVGMSTREAM_MaxLoop:(double)val;
+-(void) optVGMSTREAM_ForceLoop:(unsigned int)val;
+-(void) optVGMSTREAM_ResampleQuality:(unsigned int)val;
+
+-(void) optLAZYUSF_ResampleQuality:(unsigned int)val;
+
 -(void) optGME_Fade:(int)fade;
 -(void) optGME_IgnoreSilence:(int)ignoreSilence;
 -(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled;
