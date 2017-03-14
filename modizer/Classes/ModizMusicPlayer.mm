@@ -97,7 +97,7 @@ static int mSingleSubMode;
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER;
 static char **mdz_ArchiveFilesList;
-static char **mdz_ArchiveFilesListAlias;
+//static char **mdz_ArchiveFilesListAlias;
 
 static NSFileManager *mFileMngr;
 
@@ -1096,7 +1096,7 @@ void propertyListenerCallback (void                   *inUserData,              
         mPanningValue=64; //75%
         
         mdz_ArchiveFilesList=NULL;
-        mdz_ArchiveFilesListAlias=NULL;
+//        mdz_ArchiveFilesListAlias=NULL;
         mdz_ArchiveFilesCnt=0;
         mdz_IsArchive=0;
         mdz_currentArchiveIndex=0;
@@ -3330,7 +3330,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             NSLog(@"cannot fex open : %s / type : %d",archivePath,type);
         } else{
             mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
-            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
+//            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
             idx=0;
             while ( !fex_done( fex ) ) {
                 
@@ -3375,7 +3375,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
                             
-                            NSRange r;
+/*                            NSRange r;
                             r.location=NSNotFound;
                             r = [tmp_filename rangeOfString:@".spc" options:NSCaseInsensitiveSearch];
                             if (r.location != NSNotFound) {
@@ -3394,17 +3394,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 mdz_ArchiveFilesListAlias[idx][1]=((idx/10)%10)+'0';
                                 mdz_ArchiveFilesListAlias[idx][2]=((idx/1)%10)+'0';
                                 mdz_ArchiveFilesListAlias[idx][3]='-';
-                                /*                                } else {
-                                 mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
-                                 strcpy(mdz_ArchiveFilesListAlias[idx],[tmp_filename fileSystemRepresentation]);
-                                 }*/
                                 //                                NSLog(@"name: %s",mdz_ArchiveFilesListAlias[idx]);
                                 free(archive_data);
-                            } else {
-                                mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([[tmp_filename lastPathComponent] UTF8String])+1);
-                                strcpy(mdz_ArchiveFilesListAlias[idx],[[tmp_filename lastPathComponent] UTF8String]);
+                            } else {*/
+//                                mdz_ArchiveFilesListAlias[idx]=(char*)malloc(strlen([[tmp_filename lastPathComponent] UTF8String])+1);
+//                                strcpy(mdz_ArchiveFilesListAlias[idx],[[tmp_filename lastPathComponent] UTF8String]);
                                 //                                NSLog(@"name def: %s",mdz_ArchiveFilesListAlias[idx]);
-                            }
+//                            }
                             
                             
                             idx++;
@@ -3447,7 +3443,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             NSLog(@"cannot fex open : %s / type : %d",archivePath,type);
         } else{
             mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
-            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
+//            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
             idx=0;
             while ( !fex_done( fex ) ) {
                 
@@ -3487,8 +3483,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             
                             mdz_ArchiveFilesList[0]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[0],[tmp_filename fileSystemRepresentation]);
-                            mdz_ArchiveFilesListAlias[0]=(char*)malloc(strlen([[tmp_filename lastPathComponent] UTF8String])+1);
-                            strcpy(mdz_ArchiveFilesListAlias[0],[[tmp_filename lastPathComponent] UTF8String]);
+//                            mdz_ArchiveFilesListAlias[0]=(char*)malloc(strlen([[tmp_filename lastPathComponent] UTF8String])+1);
+//                            strcpy(mdz_ArchiveFilesListAlias[0],[[tmp_filename lastPathComponent] UTF8String]);
                             break;
                         }
                     } else idx++;
@@ -3841,7 +3837,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         mdz_ArchiveFilesCnt=local_nb_entries;
         mdz_currentArchiveIndex=0;
         mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
-        mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
+//        mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
         
         // Second check count for each section
         dirEnum = [mFileMngr enumeratorAtPath:pathToScan];
@@ -3870,8 +3866,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     mdz_ArchiveFilesList[mdz_currentArchiveIndex]=(char*)malloc([file length]+1);
                     strcpy(mdz_ArchiveFilesList[mdz_currentArchiveIndex],[file UTF8String]);
                     
-                    mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex]=(char*)malloc([file length]+1);
-                    strcpy(mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex],[file UTF8String]);
+                    //mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex]=(char*)malloc([file length]+1);
+                    //strcpy(mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex],[file UTF8String]);
                     
                     mdz_currentArchiveIndex++;
                 }
@@ -6367,6 +6363,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     }
 }
 
+static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
+    return strcasecmp((char*)e1,(char*)e2);
+}
+
+
+
 -(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
@@ -6442,9 +6444,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesList[i]);
             free(mdz_ArchiveFilesList);
             mdz_ArchiveFilesList=NULL;
-            for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesListAlias[i]);
-            free(mdz_ArchiveFilesListAlias);
-            mdz_ArchiveFilesListAlias=NULL;
+            //for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesListAlias[i]);
+            //free(mdz_ArchiveFilesListAlias);
+            //mdz_ArchiveFilesListAlias=NULL;
             mdz_ArchiveFilesCnt=0;
         }
         
@@ -6593,6 +6595,14 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                 
                 //NSLog(@"%@",_filePath);
             }
+            
+            //sort the file list
+            
+            if (mdz_ArchiveFilesCnt>1) {
+                //sort mdz_ArchiveFilesList
+                qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
+            }
+            
         }
     } else {//archiveMode
         mNeedSeek=0;
@@ -7897,8 +7907,8 @@ extern "C" void adjust_amplification(void);
 }
 -(NSString*) getArcEntryTitle:(int)arc_index {
     if ((arc_index>=0)&&(arc_index<mdz_ArchiveFilesCnt)) {
-        //		return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesList[arc_index]];
-        return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
+        return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesList[arc_index]];
+        //return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
     } else return @"";
     
 }

@@ -5094,7 +5094,7 @@ extern "C" int current_sample;
     if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
         if (visibleChan<mplayer.numChannels) {
             if (movePxMOD>0) movePxMOD=0;
-            if (movePxMOD<-(mplayer.numChannels-visibleChan)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan)*size_chan;
+            if (movePxMOD<-(mplayer.numChannels-visibleChan+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1)*size_chan;
             startChan=-movePxMOD/size_chan;
             
         } else movePxMOD=0;
