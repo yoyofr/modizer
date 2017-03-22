@@ -6364,7 +6364,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
 }
 
 static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
-    return strcasecmp((char*)e1,(char*)e2);
+    
+    const char **pa = (const char**)e1;
+    const char **pb = (const char**)e2;
+    
+    return strcasecmp(*pa,*pb);
 }
 
 
@@ -6505,6 +6509,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     } else {
                     }
                     mdz_currentArchiveIndex=0;
+                    
+                    //sort the file list
+                    if (mdz_ArchiveFilesCnt>1) qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
+
+                    
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
                     //extension = [_filePath pathExtension];
@@ -6577,6 +6586,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 
                 if (mdz_ArchiveFilesCnt) {
                     mdz_IsArchive=1;
+                    
+                    //sort the file list
+                    if (mdz_ArchiveFilesCnt>1) qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
+
+                    
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
                     //extension = [_filePath pathExtension];
@@ -6594,13 +6608,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 }
                 
                 //NSLog(@"%@",_filePath);
-            }
-            
-            //sort the file list
-            
-            if (mdz_ArchiveFilesCnt>1) {
-                //sort mdz_ArchiveFilesList
-                qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
             }
             
         }

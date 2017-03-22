@@ -72,8 +72,8 @@
 
 #define VERSION_MAJOR 2
 #define VERSION_MAJOR_STR "2"
-#define VERSION_MINOR 7
-#define VERSION_MINOR_STR "7"
+#define VERSION_MINOR 8
+#define VERSION_MINOR_STR "8"
 
 
 #define MAX_PL_ENTRIES 4096
