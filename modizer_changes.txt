@@ -18,6 +18,10 @@ Todo/Requested:
 
 - BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
 
+2.8
+ÑÑÑ
+- [Bugfix] Archives/multisongs entries list randomized
+
 2.7
 ÑÑÑ
 - [New] XMP plugin (mostly useful for Octamed formats)
