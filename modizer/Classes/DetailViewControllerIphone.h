@@ -98,7 +98,9 @@ class CGLString;
 	IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
     IBOutlet BButton *infoButton,*eqButton;
 	IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
-	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;	
+	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
+    IBOutlet UIBarButtonItem *playBarRewind,*playBarFFwd;
+    IBOutlet UIBarButtonItem *pauseBarRewind,*pauseBarFFwd;
     
     IBOutlet OBSlider *sliderProgressModule;
     
@@ -265,6 +267,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *playBarRewind,*playBarFFwd,*pauseBarRewind,*pauseBarFFwd;
 @property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 

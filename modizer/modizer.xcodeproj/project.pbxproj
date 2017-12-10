@@ -1760,6 +1760,8 @@
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = ../vgmstream/vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
 		59517DEB1E40782700FAA0BF /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = SESlideTableViewCell/lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
 		59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = SESlideTableViewCell/lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
+		595221241FDD69150079E76D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainWindow.strings; sourceTree = "<group>"; };
+		595221251FDD69190079E76D /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MainWindow.strings; sourceTree = "<group>"; };
 		595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxmp.xcodeproj; path = libxmp/libxmp.xcodeproj; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
@@ -1777,6 +1779,7 @@
 		59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Gray@2x.png"; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
+		59E478B71E84FBBD00E94FC2 /* libopenmpt-vorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-vorbis.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-vorbis.a"; sourceTree = "<group>"; };
 		59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Castlevania 3.nsfe"; path = "Resources/Samples2/Games/Castlevania 3.nsfe"; sourceTree = SOURCE_ROOT; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
@@ -2474,9 +2477,7 @@
 		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		CC9A0AAB1ACA7BF70002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
-		CC9A0AAD1ACAB2CA0002C995 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		CC9A0AAE1ACAB3A50002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainWindow.xib; sourceTree = "<group>"; };
-		CC9A0AB01ACAB4480002C995 /* fr */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = fr; path = fr.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		CC9B180F12FF026700985967 /* gsf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gsf.h; path = ../libgsf/gsf.h; sourceTree = SOURCE_ROOT; };
 		CC9B183112FF048700985967 /* psftag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = psftag.h; path = ../libgsf/VBA/psftag.h; sourceTree = SOURCE_ROOT; };
 		CC9B97161221739A007A156C /* ModizerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizerConstants.h; sourceTree = "<group>"; };
@@ -2990,6 +2991,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				59E478B71E84FBBD00E94FC2 /* libopenmpt-vorbis.a */,
 				591FF53E1E5057E400D401D5 /* libmpg123-ios.a */,
 				591FF53F1E5057E400D401D5 /* libopenmpt-ogg.a */,
 				591FF5401E5057E400D401D5 /* libopenmpt-vorbis.a */,
@@ -6545,9 +6547,9 @@
 		CCFE183B17EF586200C1682F /* MainWindow.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				CC9A0AAD1ACAB2CA0002C995 /* en */,
 				CC9A0AAE1ACAB3A50002C995 /* Base */,
-				CC9A0AB01ACAB4480002C995 /* fr */,
+				595221241FDD69150079E76D /* en */,
+				595221251FDD69190079E76D /* fr */,
 			);
 			name = MainWindow.xib;
 			sourceTree = "<group>";
