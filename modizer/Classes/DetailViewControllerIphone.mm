@@ -159,6 +159,7 @@ static int display_length_mode=0;
 @synthesize sliderProgressModule;
 @synthesize detailView,commandViewU,volWin,playlistPos;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
+@synthesize playBarRewind,playBarFFwd,pauseBarRewind,pauseBarFFwd;
 @synthesize mainView,infoView;
 @synthesize mainRating1,mainRating1off,mainRating2,mainRating2off,mainRating3,mainRating3off,mainRating4,mainRating4off,mainRating5,mainRating5off;
 @synthesize mShouldHaveFocus,mHasFocus,mScaleFactor;
@@ -4073,16 +4074,29 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                                                               initWithTarget:self
                                                               action:@selector(longPressNextSubArc:)] autorelease];
     
+    [pauseBarSub layoutIfNeeded];
+    [playBarSub layoutIfNeeded];
     
-    [[[pauseBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPaPrevSGesture];
+    
+    
+    /*[[[pauseBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPaPrevSGesture];
     [[[pauseBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPaNextSGesture];
     [[[playBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPlPrevSGesture];
-    [[[playBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPlNextSGesture];
+    [[[playBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPlNextSGesture];*/
     
-    /*    for (int i=0;i<[[pauseBarSub subviews] count];i++) {
-     UIView *v=[[pauseBarSub subviews] objectAtIndex:i];
-     NSLog(@"idx:%d - x:%f",i,v.frame.origin.x);
-     }*/
+    if ([[playBarRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[playBarRewind valueForKey:@"view"] addGestureRecognizer:longPressPlPrevSGesture];
+    }
+    if ([[playBarFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[playBarFFwd valueForKey:@"view"] addGestureRecognizer:longPressPlNextSGesture];
+    }
+    if ([[pauseBarRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[pauseBarRewind valueForKey:@"view"] addGestureRecognizer:longPressPaPrevSGesture];
+    }
+    if ([[pauseBarFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[pauseBarFFwd valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
+    }
+    
     
     labelModuleName.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =

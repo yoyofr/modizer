@@ -28,7 +28,7 @@
 static void _splitpath (const char *path, char *drive, char *dir, char *fname,
 						char *ext)
 {
-	char *slash, *dot;
+	const char *slash, *dot;
 
 	if (*path && *(path + 1) == ':') {
 		if (drive) *drive = toupper(*path);

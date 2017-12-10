@@ -945,7 +945,7 @@ bool utilIsGSF(const char * file)
   
 
   if(strlen(file) > 4) {
-    char *p = strrchr(file,'.');
+    const char *p = strrchr(file,'.');
 
 	if(p != NULL) {
 	  if(_stricmp(p, ".gsf") == 0)
@@ -962,7 +962,7 @@ bool utilIsGBAImage(const char * file)
 {
   cpuIsMultiBoot = false;
   if(strlen(file) > 4) {
-    char * p = strrchr(file,'.');
+    const char * p = strrchr(file,'.');
 
     if(p != NULL) {
       //if(_stricmp(p, ".gba") == 0)

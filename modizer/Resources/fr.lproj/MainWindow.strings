@@ -1,0 +1,126 @@
+
+/* Class = "UIViewController"; title = "File"; ObjectID = "11"; */
+"11.title" = "File";
+
+/* Class = "UILabel"; text = "00:00"; ObjectID = "27"; */
+"27.text" = "00:00";
+
+/* Class = "UITabBarItem"; title = "Bibliothèque"; ObjectID = "53"; */
+"53.title" = "Bibliothèque";
+
+/* Class = "UILabel"; text = "Downloading : xxxxxxx"; ObjectID = "333"; */
+"333.text" = "Downloading : xxxxxxx";
+
+/* Class = "UILabel"; text = "1234Ko/1234Ko"; ObjectID = "336"; */
+"336.text" = "1234Ko/1234Ko";
+
+/* Class = "UIViewController"; title = "web browser"; ObjectID = "444"; */
+"444.title" = "web browser";
+
+/* Class = "UINavigationItem"; title = "Downloads"; ObjectID = "643"; */
+"643.title" = "Downloads";
+
+/* Class = "UINavigationController"; title = "Search"; ObjectID = "682"; */
+"682.title" = "Search";
+
+/* Class = "UINavigationItem"; title = "Recherche"; ObjectID = "685"; */
+"685.title" = "Recherche";
+
+/* Class = "UILabel"; text = "Search in progress..."; ObjectID = "748"; */
+"748.text" = "Search in progress...";
+
+/* Class = "UIBarButtonItem"; title = "<"; ObjectID = "1230"; */
+"1230.title" = "<";
+
+/* Class = "UIBarButtonItem"; title = ">"; ObjectID = "1236"; */
+"1236.title" = ">";
+
+/* Class = "UIBarButtonItem"; title = "<"; ObjectID = "1240"; */
+"1240.title" = "<";
+
+/* Class = "UIBarButtonItem"; title = ">"; ObjectID = "1242"; */
+"1242.title" = ">";
+
+/* Class = "UIButton"; normalTitle = "Annuler"; ObjectID = "1394"; */
+"1394.normalTitle" = "Annuler";
+
+/* Class = "UINavigationItem"; title = "About"; ObjectID = "1467"; */
+"1467.title" = "About";
+
+/* Class = "UITextView"; text = "v2.8 © Yohann Magnien / YoyoFR\n\nWeb: http://yoyofr.blogspot.com/p/modizer.html\nForum: http://modizer.988727.n3.nabble.com/\nContact: mailto:ymagnien@gmail.com\n\nLogo de Modizer par Steve Miele: http://stevemiel.com\n\nAjout de Pmdmini par Misty De Meo.\n\nFormats supportés:\n- Adplug: A2M, ADL, AMD, AS3M, BAM, BMF, CFF, CMF, D00, DFM, DM0, DMO, DR0, DRO, DTM, HSC, HSP, IMF, KSM, LAA, LDS, M, MAD, MID, MKJ, MSC, MTK, RAD, RAW, RIX, ROL, S3M, SA2, SAT, SCI, SNG, XAD, XMS, XSM (Adlib music)\n- Another Slight Atari Player(ASAP): SAP, CMC, CM3, CMR, CMS, DMC, DLT, MPT, MPD, RMT, TMC, TM8, TM2\n- AudioOverload SDK (AOSDK): PSF2, MINIPSF2, SPU, MINISPU (Sony PS1, PS2), DSF, MINIDSF (Sega Dreamcast), QSF, MINIQSF (Capcom Q Sound), SSF, MINISSF (Sega Saturn)\n- DUMB (Kode54 version): MOD,MDZ,FT,S3M,S3Z,STM,STZ,IT,ITZ,XM,XMZ,PTM,PTZ,MTM,MTZ,669,PSM,UMX,AM,J2B,DSM,AMF,OKT,OKTA\n- Game Music Emu (Kode54 version): AY, GBS, GYM, HES, KSS, NSF, NSFE, SAP, SPC, VGM, VGZ (Nntendo, Sega, Nec, ...)\n- Hively tracker: AHX, HVL\n- LazyUSF: USF, MINIUSF\n- Mdxplay: MDX (Sharp X68000)\n- OpenMPT: FT, MOD, S3M, XM, MED, MMD0, MMD1, MMD2, MMD3, MMD4, MMDC, MTM, IT, 669, ULT, STM, FAR, WAV, AMF, AMS, DSM, MDL, OKT, MID, DMF, PTM, DBM, MT2, AMF0, PSM, J2B, ABC, PAT, UMX\n- PlayGSF: GSF, MINIGSF\n- Pmdmini: M, M2, MZ\n- SC68: SC68, SNDH (Atari ST, Amiga)\n- Sidplay2/resid, Sidplay1: SID (C64)\n- ST-Sound: YM (Atari ST, Amstrad CPC)\n- SexyPSF: PSF, MINIPSF (Sony PS1)\n- Timidity: MID (using Merlin_gold SF2 soundfont)\n- UADE: AST, AHX, THX, ADPCM, AMC, ABK, AAM, ALP, AON, AON4, AON8, ADSC, MOD_ADSC4, BSS, BD, BDS, UDS, KRIS, CIN, CORE, CUS, CUST, CUSTOM, CM, RK, RKB, DZ, MKIIO, DL, DL_DELI, DLN, DH, DW, DWOLD, DLM2, DM2, DLM1, DM1, DSR, DB, DIGI, DSC, DSS, DNS, EMS, EMSV6, EX, FC13, FC3, FC, FC14, FC4, FRED, GRAY, BFC, BSI, FC-BSI, FP, FW, GLUE, GM, EA, MG, HD, HIPC, SOC, EMOD, QC, IMS, DUM, IS, IS20, JAM, JC, JMF, JCB, JCBO, JPN, JPND, JP, JT, MON_OLD, JO, HIP, MCMD, SOG, HIP7, S7G, HST, KH, POWT, PT, LME, MON, MFP, HN, MTP2, THN, MC, MCR, MCO, MK2, MKII, AVP, MW, MAX, MCMD_ORG, MED, MMD0, MMD1, MMD2, MSO, MIDI, MD, MMDC, DMU, MUG, DMU2, MUG2, MA, MM4, MM8, MMS, NTP, TWO, OCTAMED, OKT, ONE, DAT, PS, SNK, PVP, PAP, PSA, MOD_DOC, MOD15, MOD15_MST, MOD_NTK, MOD_NTK1, MOD_NTK2, MOD_NTKAMP, MOD_FLT4, MOD, MOD_COMP, !PM!, 40A, 40B, 41A, 50A, 60A, 61A, AC1, AC1D, AVAL, CHAN, CP, CPLX, CRB, DI, EU, FC-M, FCM, FT, FUZ, FUZZ, GMC, GV, HMC, HRT, HRT!, ICE, IT1, KEF, KEF7, KRS, KSM, LAX, MEXXMP, MPRO, NP, NP1, NP2, NOISEPACKER2, NP3, NOISEPACKER3, NR, NRU, NTPK, P10, P21, P30, P40A, P40B, P41A, P4X, P50A, P5A, P5X, P60, P60A, P61, P61A, P6X, PHA, PIN, PM, PM0, PM01, PM1, PM10C, PM18A, PM2, PM20, PM4, PM40, PMZ, POLK, PP10, PP20, PP21, PP30, PPK, PR1, PR2, PROM, PRU, PRU1, PRU2, PRUN, PRUN1, PRUN2, PWR, PYG, PYGM, PYGMY, SKT, SKYT, SNT, SNT!, ST2, ST26, ST30, STAR, STPK, TP, TP1, TP2, TP3, UN2, UNIC, UNIC2, WN, XAN, XANN, ZEN, PUMA, RJP, SNG, RIFF, RH, RHO, SA-P, SCUMM, S-C, SCN, SCR, SID1, SMN, SID2, MOK, SA, SONIC, SA_OLD, SMUS, SNX, TINY, SPL, SC, SCT, PSF, SFX, SFX13, TW, SM, SM1, SM2, SM3, SMPRO, BP, SNDMON, BP3, SJS, JD, DODA, SAS, SS, SB, JPO, JPOLD, SUN, SYN, SDR, OSP, ST, SYNMOD, TFMX1.5, TFHD1.5, TFMX7V, TFHD7V, MDAT, TFMXPRO, TFHDPRO, TFMX, MDST, THM, TF, TME, SG, DP, TRC, TRO, TRONIC, MOD15_UST, VSS, WB, ML, MOD15_ST-IV, AGI, TPU, QPA, SQT, QTS\n(Amiga)\n- XSF: NCSF, 2SF, MININCSF, MINI2SF\n- XMP: multiple formats dérivés des MOD \n- VGMPlay: VGM,VGZ\n- VGMStream: AAAP,AAX,ACM,ADX,ADP,ADPCM,AFC,AGSC,AHX,AIX,AIFC,AIFF,AMTS,ASS,ASF,ASR,AST,AUS,BAF,BAR,BG00,BAKA,BMDX,BGW,BNS,BRSTM,CAF,CAPDSP,CCC,CFN,CNK,BCWAV,DE2,DSP,DXH,DVI,EAM,EMFF,ENTH,EXST,FAG,FILP,FSB,GCA,GCM,GCSW,GCW,GENH,GMS,GSB,HGC1,HIS,HPS,HWAS,IDSP,IKM,IDVI,IVAUD,ILD,INT,ISD,IVB,JOE,KCES,KCEY,KHV,KRAW,LEG,LSF,LOGG,MATX,MCG,MIB,MIHB,MIC,MPDSP,MSA,MSF,MSS,MSVP,MUSC,MUSX,MWV,MYSPD,NPSF,NWA,PDT,P3D,PNB,PSH,PSW,RAW,RIFF,RKV,RND,RRDS,RSD,RSF,RSTM,RWS,RWAR,RWAV,RWSD,RXW,RWX,SAB,SAD,SAP,SC,SCD,SD9,SEG,SFS,SL3,SPM,SPW,SPS,SS2,SSM,STMA,STR,STS,STRM,STER,STX,STS,SVAG,SVS,SWAV,TEC,THP,TYDSP,VJDSP,NDP,UM3,VAS,VAG,VIG,VOI,VPK,VSF,WAA,WAM,WAVM,WB,WP2,WSI,WVS,XMU,XA,XA2,XSS,XWB,WVAS,WWAV,YMF\n\nModizer utilise les logiciels suivants:\n- minizip\n- lha\n- RAR (unrar)\n- ASIHTTPRequest\n- FEX (FileExtractor)\n- Tapkulibrary\n- AnimatedGIF\n- FFTAccelerate\n- SESlideTableViewCell\n- TPKeyboardAvoidingTableView\n- MNEValueTrackingSlider\n- TapkuLibrary\n- OBSlider\n- BButton\n- BlackRaccoon FTP\n- NVDSP\n- CMPopTipView\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk."; ObjectID = "1468"; */
+"1468.text" = "v2.8 © Yohann Magnien / YoyoFR\n\nWeb: http://yoyofr.blogspot.com/p/modizer.html\nForum: http://modizer.988727.n3.nabble.com/\nContact: mailto:ymagnien@gmail.com\n\nLogo de Modizer par Steve Miele: http://stevemiel.com\n\nAjout de Pmdmini par Misty De Meo.\n\nFormats supportés:\n- Adplug: A2M, ADL, AMD, AS3M, BAM, BMF, CFF, CMF, D00, DFM, DM0, DMO, DR0, DRO, DTM, HSC, HSP, IMF, KSM, LAA, LDS, M, MAD, MID, MKJ, MSC, MTK, RAD, RAW, RIX, ROL, S3M, SA2, SAT, SCI, SNG, XAD, XMS, XSM (Adlib music)\n- Another Slight Atari Player(ASAP): SAP, CMC, CM3, CMR, CMS, DMC, DLT, MPT, MPD, RMT, TMC, TM8, TM2\n- AudioOverload SDK (AOSDK): PSF2, MINIPSF2, SPU, MINISPU (Sony PS1, PS2), DSF, MINIDSF (Sega Dreamcast), QSF, MINIQSF (Capcom Q Sound), SSF, MINISSF (Sega Saturn)\n- DUMB (Kode54 version): MOD,MDZ,FT,S3M,S3Z,STM,STZ,IT,ITZ,XM,XMZ,PTM,PTZ,MTM,MTZ,669,PSM,UMX,AM,J2B,DSM,AMF,OKT,OKTA\n- Game Music Emu (Kode54 version): AY, GBS, GYM, HES, KSS, NSF, NSFE, SAP, SPC, VGM, VGZ (Nntendo, Sega, Nec, ...)\n- Hively tracker: AHX, HVL\n- LazyUSF: USF, MINIUSF\n- Mdxplay: MDX (Sharp X68000)\n- OpenMPT: FT, MOD, S3M, XM, MED, MMD0, MMD1, MMD2, MMD3, MMD4, MMDC, MTM, IT, 669, ULT, STM, FAR, WAV, AMF, AMS, DSM, MDL, OKT, MID, DMF, PTM, DBM, MT2, AMF0, PSM, J2B, ABC, PAT, UMX\n- PlayGSF: GSF, MINIGSF\n- Pmdmini: M, M2, MZ\n- SC68: SC68, SNDH (Atari ST, Amiga)\n- Sidplay2/resid, Sidplay1: SID (C64)\n- ST-Sound: YM (Atari ST, Amstrad CPC)\n- SexyPSF: PSF, MINIPSF (Sony PS1)\n- Timidity: MID (using Merlin_gold SF2 soundfont)\n- UADE: AST, AHX, THX, ADPCM, AMC, ABK, AAM, ALP, AON, AON4, AON8, ADSC, MOD_ADSC4, BSS, BD, BDS, UDS, KRIS, CIN, CORE, CUS, CUST, CUSTOM, CM, RK, RKB, DZ, MKIIO, DL, DL_DELI, DLN, DH, DW, DWOLD, DLM2, DM2, DLM1, DM1, DSR, DB, DIGI, DSC, DSS, DNS, EMS, EMSV6, EX, FC13, FC3, FC, FC14, FC4, FRED, GRAY, BFC, BSI, FC-BSI, FP, FW, GLUE, GM, EA, MG, HD, HIPC, SOC, EMOD, QC, IMS, DUM, IS, IS20, JAM, JC, JMF, JCB, JCBO, JPN, JPND, JP, JT, MON_OLD, JO, HIP, MCMD, SOG, HIP7, S7G, HST, KH, POWT, PT, LME, MON, MFP, HN, MTP2, THN, MC, MCR, MCO, MK2, MKII, AVP, MW, MAX, MCMD_ORG, MED, MMD0, MMD1, MMD2, MSO, MIDI, MD, MMDC, DMU, MUG, DMU2, MUG2, MA, MM4, MM8, MMS, NTP, TWO, OCTAMED, OKT, ONE, DAT, PS, SNK, PVP, PAP, PSA, MOD_DOC, MOD15, MOD15_MST, MOD_NTK, MOD_NTK1, MOD_NTK2, MOD_NTKAMP, MOD_FLT4, MOD, MOD_COMP, !PM!, 40A, 40B, 41A, 50A, 60A, 61A, AC1, AC1D, AVAL, CHAN, CP, CPLX, CRB, DI, EU, FC-M, FCM, FT, FUZ, FUZZ, GMC, GV, HMC, HRT, HRT!, ICE, IT1, KEF, KEF7, KRS, KSM, LAX, MEXXMP, MPRO, NP, NP1, NP2, NOISEPACKER2, NP3, NOISEPACKER3, NR, NRU, NTPK, P10, P21, P30, P40A, P40B, P41A, P4X, P50A, P5A, P5X, P60, P60A, P61, P61A, P6X, PHA, PIN, PM, PM0, PM01, PM1, PM10C, PM18A, PM2, PM20, PM4, PM40, PMZ, POLK, PP10, PP20, PP21, PP30, PPK, PR1, PR2, PROM, PRU, PRU1, PRU2, PRUN, PRUN1, PRUN2, PWR, PYG, PYGM, PYGMY, SKT, SKYT, SNT, SNT!, ST2, ST26, ST30, STAR, STPK, TP, TP1, TP2, TP3, UN2, UNIC, UNIC2, WN, XAN, XANN, ZEN, PUMA, RJP, SNG, RIFF, RH, RHO, SA-P, SCUMM, S-C, SCN, SCR, SID1, SMN, SID2, MOK, SA, SONIC, SA_OLD, SMUS, SNX, TINY, SPL, SC, SCT, PSF, SFX, SFX13, TW, SM, SM1, SM2, SM3, SMPRO, BP, SNDMON, BP3, SJS, JD, DODA, SAS, SS, SB, JPO, JPOLD, SUN, SYN, SDR, OSP, ST, SYNMOD, TFMX1.5, TFHD1.5, TFMX7V, TFHD7V, MDAT, TFMXPRO, TFHDPRO, TFMX, MDST, THM, TF, TME, SG, DP, TRC, TRO, TRONIC, MOD15_UST, VSS, WB, ML, MOD15_ST-IV, AGI, TPU, QPA, SQT, QTS\n(Amiga)\n- XSF: NCSF, 2SF, MININCSF, MINI2SF\n- XMP: multiple formats dérivés des MOD \n- VGMPlay: VGM,VGZ\n- VGMStream: AAAP,AAX,ACM,ADX,ADP,ADPCM,AFC,AGSC,AHX,AIX,AIFC,AIFF,AMTS,ASS,ASF,ASR,AST,AUS,BAF,BAR,BG00,BAKA,BMDX,BGW,BNS,BRSTM,CAF,CAPDSP,CCC,CFN,CNK,BCWAV,DE2,DSP,DXH,DVI,EAM,EMFF,ENTH,EXST,FAG,FILP,FSB,GCA,GCM,GCSW,GCW,GENH,GMS,GSB,HGC1,HIS,HPS,HWAS,IDSP,IKM,IDVI,IVAUD,ILD,INT,ISD,IVB,JOE,KCES,KCEY,KHV,KRAW,LEG,LSF,LOGG,MATX,MCG,MIB,MIHB,MIC,MPDSP,MSA,MSF,MSS,MSVP,MUSC,MUSX,MWV,MYSPD,NPSF,NWA,PDT,P3D,PNB,PSH,PSW,RAW,RIFF,RKV,RND,RRDS,RSD,RSF,RSTM,RWS,RWAR,RWAV,RWSD,RXW,RWX,SAB,SAD,SAP,SC,SCD,SD9,SEG,SFS,SL3,SPM,SPW,SPS,SS2,SSM,STMA,STR,STS,STRM,STER,STX,STS,SVAG,SVS,SWAV,TEC,THP,TYDSP,VJDSP,NDP,UM3,VAS,VAG,VIG,VOI,VPK,VSF,WAA,WAM,WAVM,WB,WP2,WSI,WVS,XMU,XA,XA2,XSS,XWB,WVAS,WWAV,YMF\n\nModizer utilise les logiciels suivants:\n- minizip\n- lha\n- RAR (unrar)\n- ASIHTTPRequest\n- FEX (FileExtractor)\n- Tapkulibrary\n- AnimatedGIF\n- FFTAccelerate\n- SESlideTableViewCell\n- TPKeyboardAvoidingTableView\n- MNEValueTrackingSlider\n- TapkuLibrary\n- OBSlider\n- BButton\n- BlackRaccoon FTP\n- NVDSP\n- CMPopTipView\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.";
+
+/* Class = "UIButton"; normalTitle = "∞"; ObjectID = "1544"; */
+"1544.normalTitle" = "∞";
+
+/* Class = "UIButton"; normalTitle = "-"; ObjectID = "1585"; */
+"1585.normalTitle" = "-";
+
+/* Class = "UIButton"; normalTitle = "-"; ObjectID = "1587"; */
+"1587.normalTitle" = "-";
+
+/* Class = "UIButton"; normalTitle = "-"; ObjectID = "1589"; */
+"1589.normalTitle" = "-";
+
+/* Class = "UIButton"; normalTitle = "-"; ObjectID = "1590"; */
+"1590.normalTitle" = "-";
+
+/* Class = "UIButton"; normalTitle = "-"; ObjectID = "1591"; */
+"1591.normalTitle" = "-";
+
+/* Class = "UILabel"; text = "Label...................."; ObjectID = "1614"; */
+"1614.text" = "Label....................";
+
+/* Class = "UILabel"; text = "Label...................."; ObjectID = "1621"; */
+"1621.text" = "Label....................";
+
+/* Class = "UIButton"; normalTitle = "Reprendre"; ObjectID = "1862"; */
+"1862.normalTitle" = "Reprendre";
+
+/* Class = "UIButton"; normalTitle = "Annuler tout"; ObjectID = "1863"; */
+"1863.normalTitle" = "Annuler tout";
+
+/* Class = "UILabel"; text = "Label...................."; ObjectID = "1888"; */
+"1888.text" = "Label....................";
+
+/* Class = "UILabel"; text = "00:00"; ObjectID = "1890"; */
+"1890.text" = "00:00";
+
+/* Class = "UITabBarItem"; title = "Playlists"; ObjectID = "1896"; */
+"1896.title" = "Playlists";
+
+/* Class = "UINavigationController"; title = "Online"; ObjectID = "1897"; */
+"1897.title" = "Online";
+
+/* Class = "UITabBarItem"; title = "Online"; ObjectID = "1901"; */
+"1901.title" = "Online";
+
+/* Class = "UINavigationItem"; title = "Internet"; ObjectID = "1921"; */
+"1921.title" = "Internet";
+
+/* Class = "UINavigationItem"; title = "Online"; ObjectID = "1935"; */
+"1935.title" = "Online";
+
+/* Class = "UIViewController"; title = "Playlists"; ObjectID = "1954"; */
+"1954.title" = "Playlists";
+
+/* Class = "UINavigationItem"; title = "Playlists"; ObjectID = "1955"; */
+"1955.title" = "Playlists";
+
+/* Class = "UIViewController"; title = "Browse"; ObjectID = "1979"; */
+"1979.title" = "Browse";
+
+/* Class = "UINavigationItem"; title = "Bibliothèque"; ObjectID = "1980"; */
+"1980.title" = "Bibliothèque";
+
+/* Class = "UIButton"; normalTitle = "Suspendre"; ObjectID = "2000"; */
+"2000.normalTitle" = "Suspendre";
+
+/* Class = "UIViewController"; title = "More"; ObjectID = "2018"; */
+"2018.title" = "More";
+
+/* Class = "UINavigationItem"; title = "Autre"; ObjectID = "2019"; */
+"2019.title" = "Autre";
+
+/* Class = "UIButton"; normalTitle = "EQ"; ObjectID = "3H3-zP-yu3"; */
+"3H3-zP-yu3.normalTitle" = "EQ";
