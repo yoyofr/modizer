@@ -53,6 +53,7 @@
 	
 	NSString *mCurrentFilePath,*mCurrentFilename,*mCurrentFTPpath,*mCurrentURLFilename;
 	int mCurrentFileSize,mCurrentUsePrimaryAction;
+    unsigned char mCurrentIsMODLAND;
 	int mCurrentDownloadedBytes;
 	
 	IBOutlet UILabel *downloadLabelName,*downloadLabelSize;

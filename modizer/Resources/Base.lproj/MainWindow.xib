@@ -1041,13 +1041,13 @@
                 <outlet property="mainView" destination="442" id="443"/>
                 <outlet property="oglButton" destination="1456" id="1458"/>
                 <outlet property="pauseBar" destination="426" id="439"/>
-                <outlet property="pauseBarFFwd" destination="1213" id="qQ9-Sv-WDg"/>
-                <outlet property="pauseBarRewind" destination="1216" id="oue-6s-78c"/>
                 <outlet property="pauseBarSub" destination="1209" id="1244"/>
+                <outlet property="pauseBarSubFFwd" destination="1242" id="saB-Ot-YyC"/>
+                <outlet property="pauseBarSubRewind" destination="1240" id="Pvh-Gs-puS"/>
                 <outlet property="playBar" destination="375" id="440"/>
-                <outlet property="playBarFFwd" destination="1219" id="fe1-8f-lTm"/>
-                <outlet property="playBarRewind" destination="1217" id="mCp-dN-na4"/>
                 <outlet property="playBarSub" destination="1208" id="1245"/>
+                <outlet property="playBarSubFFwd" destination="1236" id="66Q-hS-cNU"/>
+                <outlet property="playBarSubRewind" destination="1230" id="pVS-em-nZA"/>
                 <outlet property="playlistPos" destination="223" id="225"/>
                 <outlet property="sliderProgressModule" destination="23" id="64"/>
                 <outlet property="textMessage" destination="300" id="301"/>

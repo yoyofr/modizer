@@ -199,8 +199,8 @@ static int uade_calc_reloc_size(uae_u32 *src, uae_u32 *end)
 /* last part of the audio system pipeline */
 void uade_check_sound_buffers(int bytes)
 {
-  uint8_t space[UADE_MAX_MESSAGE_SIZE];
-  struct uade_msg *um = (struct uade_msg *) space;
+  uint8_t uade_message_space[UADE_MAX_MESSAGE_SIZE];
+  struct uade_msg *um = (struct uade_msg *) uade_message_space;
 
 //YOYO optimization : no swap since I'm using no network but only buffers
 	
@@ -265,8 +265,8 @@ void uade_get_amiga_message(void)
   char *srcstr, *dststr;
 
   uint32_t *u32ptr;
-  uint8_t space[256];
-  struct uade_msg *um = (struct uade_msg *) space;
+  uint8_t uade_message_space[256];
+  struct uade_msg *um = (struct uade_msg *) uade_message_space;
 
   x = uade_get_u32(SCORE_INPUT_MSG);  /* message type from amiga */
 
@@ -443,7 +443,7 @@ void uade_get_amiga_message(void)
     /* Send printable debug */
     do {
       size_t i;
-      size_t maxspace = sizeof space;
+      size_t maxspace = sizeof uade_message_space;
       if (len <= 0) {
 	maxspace = 1;
       } else {
@@ -451,16 +451,16 @@ void uade_get_amiga_message(void)
 	  maxspace = len;
       }
       for (i = 0; i < maxspace; i++) {
-	space[i] = dststr[i];
-	if (space[i] == 0)
-	  space[i] = ' ';
+	uade_message_space[i] = dststr[i];
+	if (uade_message_space[i] == 0)
+	  uade_message_space[i] = ' ';
       }
       if (i < maxspace) {
-	space[i] = 0;
+	uade_message_space[i] = 0;
       } else {
-	space[maxspace - 1] = 0;
+	uade_message_space[maxspace - 1] = 0;
       }
-      uade_send_debug("reply to score: %s (total len %d)\n", space, len);
+      uade_send_debug("reply to score: %s (total len %d)\n", uade_message_space, len);
     } while (0);
     uade_put_long(0x20C, len);
     break;
@@ -479,14 +479,14 @@ void uade_get_amiga_message(void)
 
 void uade_handle_r_state(void)
 {
-  uint8_t space[UADE_MAX_MESSAGE_SIZE];
-  struct uade_msg *um = (struct uade_msg *) space;
+  uint8_t uade_message_space[UADE_MAX_MESSAGE_SIZE];
+  struct uade_msg *um = (struct uade_msg *) uade_message_space;
   int ret;
   uint32_t x, y;
 
   while (1) {
 
-    ret = uade_receive_message(um, sizeof(space), &uadeipc);
+    ret = uade_receive_message(um, sizeof(uade_message_space), &uadeipc);
     if (ret == 0) {
       fprintf(stderr, "uadecore: No more input. Exiting succesfully.\n");
 		exit(0);
@@ -1106,13 +1106,13 @@ void uade_set_automatic_song_end(int song_end_possible)
    uade will always switch to next song (if any) */
 void uade_song_end(char *reason, int kill_it)
 {
-  uint8_t space[sizeof(struct uade_msg) + 4 + 256];
-  struct uade_msg *um = (struct uade_msg *) space;
+  static uint8_t uade_message_space[sizeof(struct uade_msg) + 8 + 256];
+  struct uade_msg *um = (struct uade_msg *) uade_message_space;
   um->msgtype = UADE_REPLY_SONG_END;
   ((uint32_t *) um->data)[0] = htonl(((intptr_t) sndbufpt) - ((intptr_t) sndbuffer));
   ((uint32_t *) um->data)[1] = htonl(kill_it);
   
-    strlcpy((char *) um->data + 8, reason, 256);
+    strlcpy(&(((uint32_t *) um->data)[2]), reason, 256);
     
     um->size = 8 + strlen(reason) + 1;
   if (uade_send_message(um, &uadeipc)) {

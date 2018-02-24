@@ -1,5 +1,14 @@
 Todo/Requested:
 ÑÑÑÑÑÑÑÑÑ
+- HVSC 67
+- Modland update
+- option to keep subsong/subfiles selection screen opened
+- libopenmpt update
+- vgmstream update ?
+- vgmplay update ?
+- other cores updates ?
+
+
 - improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - settings => when value available (not combo list or on/off switch), display it below label
 
@@ -17,6 +26,11 @@ Todo/Requested:
 - HVSC: Add "released" (Date / company) in DB. -> will require to parse all HVSC sid file
 
 - BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
+
+2.9
+ÑÑÑ
+- [Bugfix] UADE / Kris Hatlelid format (require to redownload files from modland)
+- [Bugfix] UADE playback on iOS 11
 
 2.8
 ÑÑÑ
