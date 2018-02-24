@@ -159,7 +159,7 @@ static int display_length_mode=0;
 @synthesize sliderProgressModule;
 @synthesize detailView,commandViewU,volWin,playlistPos;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
-@synthesize playBarRewind,playBarFFwd,pauseBarRewind,pauseBarFFwd;
+@synthesize playBarSubRewind,playBarSubFFwd,pauseBarSubRewind,pauseBarSubFFwd;
 @synthesize mainView,infoView;
 @synthesize mainRating1,mainRating1off,mainRating2,mainRating2off,mainRating3,mainRating3off,mainRating4,mainRating4off,mainRating5,mainRating5off;
 @synthesize mShouldHaveFocus,mHasFocus,mScaleFactor;
@@ -4084,17 +4084,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [[[playBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPlPrevSGesture];
     [[[playBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPlNextSGesture];*/
     
-    if ([[playBarRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[playBarRewind valueForKey:@"view"] addGestureRecognizer:longPressPlPrevSGesture];
+    if ([[playBarSubRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[playBarSubRewind valueForKey:@"view"] addGestureRecognizer:longPressPlPrevSGesture];
     }
-    if ([[playBarFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[playBarFFwd valueForKey:@"view"] addGestureRecognizer:longPressPlNextSGesture];
+    if ([[playBarSubFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[playBarSubFFwd valueForKey:@"view"] addGestureRecognizer:longPressPlNextSGesture];
     }
-    if ([[pauseBarRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[pauseBarRewind valueForKey:@"view"] addGestureRecognizer:longPressPaPrevSGesture];
+    if ([[pauseBarSubRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[pauseBarSubRewind valueForKey:@"view"] addGestureRecognizer:longPressPaPrevSGesture];
     }
-    if ([[pauseBarFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[pauseBarFFwd valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
+    if ([[pauseBarSubFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[pauseBarSubFFwd valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
     }
     
     

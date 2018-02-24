@@ -306,6 +306,7 @@
 		59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */; };
 		59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */; };
 		59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A665311E4B04E700EB110E /* txtMenu2e_2x.png */; };
+		59BE94B0203C1350009F0255 /* Castlevania 3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59BE94A7203C134F009F0255 /* Castlevania 3.jpg */; };
 		59F2813A1E578BA6000B7A4C /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 595F9C181E54B907009DBEED /* liblibxmp.a */; };
 		59F281451E5B5A1A000B7A4C /* Castlevania 3.nsfe in Resources */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
 		59F281461E5B6051000B7A4C /* Castlevania 3.nsfe in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
@@ -799,7 +800,6 @@
 		CCC6788017F75B9500F16A54 /* we're the devils.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779A17F75AEB00F16A54 /* we're the devils.mod */; };
 		CCC6788117F75C3600F16A54 /* bubble bobble.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C417F75AFB00F16A54 /* bubble bobble.jpg */; };
 		CCC6788217F75C3600F16A54 /* bubble bobble.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C517F75AFB00F16A54 /* bubble bobble.mod */; };
-		CCC6788317F75C3600F16A54 /* Castlevania3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C617F75AFB00F16A54 /* Castlevania3.jpg */; };
 		CCC6788517F75C3600F16A54 /* Doom2-Stage01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C817F75AFB00F16A54 /* Doom2-Stage01.jpg */; };
 		CCC6788617F75C3600F16A54 /* Doom2-Stage01.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C917F75AFB00F16A54 /* Doom2-Stage01.mid */; };
 		CCC6788717F75C3600F16A54 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677CA17F75AFB00F16A54 /* DukeNukem_Level1.jpg */; };
@@ -1292,7 +1292,6 @@
 				CCC678DF17F76CC600F16A54 /* gr-pcm.pdx in Copy Files-Samples Games */,
 				CCC6788117F75C3600F16A54 /* bubble bobble.jpg in Copy Files-Samples Games */,
 				CCC6788217F75C3600F16A54 /* bubble bobble.mod in Copy Files-Samples Games */,
-				CCC6788317F75C3600F16A54 /* Castlevania3.jpg in Copy Files-Samples Games */,
 				CCC6788517F75C3600F16A54 /* Doom2-Stage01.jpg in Copy Files-Samples Games */,
 				CCC6788617F75C3600F16A54 /* Doom2-Stage01.mid in Copy Files-Samples Games */,
 				CCC6788717F75C3600F16A54 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */,
@@ -1779,6 +1778,7 @@
 		59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Gray@2x.png"; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
+		59BE94A7203C134F009F0255 /* Castlevania 3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Castlevania 3.jpg"; path = "Resources/Samples2/Games/Castlevania 3.jpg"; sourceTree = SOURCE_ROOT; };
 		59E478B71E84FBBD00E94FC2 /* libopenmpt-vorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-vorbis.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-vorbis.a"; sourceTree = "<group>"; };
 		59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Castlevania 3.nsfe"; path = "Resources/Samples2/Games/Castlevania 3.nsfe"; sourceTree = SOURCE_ROOT; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
@@ -2668,7 +2668,6 @@
 		CCC6779A17F75AEB00F16A54 /* we're the devils.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "we're the devils.mod"; path = "Resources/Samples2/Demoscene/we're the devils.mod"; sourceTree = SOURCE_ROOT; };
 		CCC677C417F75AFB00F16A54 /* bubble bobble.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "bubble bobble.jpg"; path = "Resources/Samples2/Games/bubble bobble.jpg"; sourceTree = SOURCE_ROOT; };
 		CCC677C517F75AFB00F16A54 /* bubble bobble.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "bubble bobble.mod"; path = "Resources/Samples2/Games/bubble bobble.mod"; sourceTree = SOURCE_ROOT; };
-		CCC677C617F75AFB00F16A54 /* Castlevania3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Castlevania3.jpg; path = Resources/Samples2/Games/Castlevania3.jpg; sourceTree = SOURCE_ROOT; };
 		CCC677C817F75AFB00F16A54 /* Doom2-Stage01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Doom2-Stage01.jpg"; path = "Resources/Samples2/Games/Doom2-Stage01.jpg"; sourceTree = SOURCE_ROOT; };
 		CCC677C917F75AFB00F16A54 /* Doom2-Stage01.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "Doom2-Stage01.mid"; path = "Resources/Samples2/Games/Doom2-Stage01.mid"; sourceTree = SOURCE_ROOT; };
 		CCC677CA17F75AFB00F16A54 /* DukeNukem_Level1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DukeNukem_Level1.jpg; path = Resources/Samples2/Games/DukeNukem_Level1.jpg; sourceTree = SOURCE_ROOT; };
@@ -4878,7 +4877,7 @@
 			children = (
 				CCC677C417F75AFB00F16A54 /* bubble bobble.jpg */,
 				CCC677C517F75AFB00F16A54 /* bubble bobble.mod */,
-				CCC677C617F75AFB00F16A54 /* Castlevania3.jpg */,
+				59BE94A7203C134F009F0255 /* Castlevania 3.jpg */,
 				59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */,
 				CCC678CB17F76CA700F16A54 /* gr-b01.jpg */,
 				CCC678CC17F76CA700F16A54 /* gr-b01.mdx */,
@@ -5959,6 +5958,7 @@
 				CC1E638B120423E0000A8A4E /* SeanConran in Resources */,
 				CC1E638C120423E0000A8A4E /* SIDMon1.0 in Resources */,
 				CC1E638D120423E0000A8A4E /* SIDMon2.0 in Resources */,
+				59BE94B0203C1350009F0255 /* Castlevania 3.jpg in Resources */,
 				CC1E638E120423E0000A8A4E /* Sierra-AGI in Resources */,
 				CC1E638F120423E0000A8A4E /* Silmarils in Resources */,
 				CCB8D9A017F62A18008E6A45 /* txtMenu9_2x.png in Resources */,

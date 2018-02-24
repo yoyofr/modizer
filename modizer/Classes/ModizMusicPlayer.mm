@@ -2985,7 +2985,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         //                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                     }
                     if (mPlayType==MMP_XMP) {  //XMP
-                        if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 0) == 0) {
+                        if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
                             struct xmp_frame_info xmp_fi;
                             xmp_get_frame_info(xmp_ctx, &xmp_fi);
                             
@@ -2999,7 +2999,10 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                             }
                             
-                        } else nbBytes=0;
+                        } else {
+                            NSLog(@"XMP: end of song");
+                            nbBytes=0;
+                        }
                         
                     }
                     if (mPlayType==MMP_OPENMPT) {  //MODPLUG
@@ -6991,6 +6994,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 break;
             case MMP_SEXYPSF:
                 if ([self mmp_sexypsfLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                else return 1;
                 break;
             case MMP_AOSDK:
                 if ([self mmp_aosdkLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED

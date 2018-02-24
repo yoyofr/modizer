@@ -461,8 +461,8 @@ static NSFileManager *mFileMngr;
         } break;
         case NSStreamEventErrorOccurred: {
             //connection error
-            [self suspend];
-			//[self _stopReceiveWithStatus:@"Connection error." status:3];
+            if (mCurrentIsMODLAND!=2) [self suspend];
+			else [self _stopReceiveWithStatus:@"Connection error." status:3];
         } break;
         case NSStreamEventEndEncountered: {
             // ignore
@@ -541,6 +541,34 @@ static NSFileManager *mFileMngr;
 					mFTPDownloadQueueDepth++;
 					
 				}
+                //3/KH => if .kh the songplay file should be downloaded as well
+                r.location=NSNotFound;
+                r = [fileName rangeOfString:@".kh" options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    NSString *newPath,*newName;
+                    
+                    //                    NSLog(@"FILENAME: %@",filePath);
+                    //                    NSLog(@"FILENAME: %@",[filePath stringByDeletingLastPathComponent]);
+                    
+                    newPath=[NSString stringWithFormat:@"%@/songplay",[filePath stringByDeletingLastPathComponent]];
+                    mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:newPath];
+                    
+                    newPath=[NSString stringWithFormat:@"%@/songplay",[ftpPath stringByDeletingLastPathComponent]];
+                    mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:newPath];
+                    
+                    mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                    
+                    mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:@"songplay"];
+                    
+                    mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                    mFileSize[mFTPDownloadQueueDepth]=-1;
+                    mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                    
+                    mFTPDownloadQueueDepth++;
+                    
+                }
 			}
 			
 			mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:filePath];
@@ -1052,6 +1080,7 @@ static NSFileManager *mFileMngr;
 	mCurrentFilePath=mFilePath[0];
 	mCurrentFileSize=mFileSize[0];
 	mCurrentUsePrimaryAction=mUsePrimaryAction[0];
+    mCurrentIsMODLAND=mIsMODLAND[0];
 	mCurrentDownloadedBytes=0;
 	mCurrentFilename=[[NSString stringWithString:mFTPFilename[0]] stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
 	downloadLabelName.text=[NSString stringWithFormat:NSLocalizedString(@"Downloading %@",@""),mFTPFilename[0]];
