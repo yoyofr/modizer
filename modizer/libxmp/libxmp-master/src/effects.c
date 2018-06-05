@@ -586,8 +586,11 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		xc->vol.fslide2 = -fxp;
 		break;
 	case FX_IT_BREAK:	/* Pattern break with hex parameter */
-		p->flow.pbreak = 1;
-		p->flow.jumpline = fxp;
+		if (!f->loop_chn)
+		{
+			p->flow.pbreak = 1;
+			p->flow.jumpline = fxp;
+		}
 		break;
 
 #endif
@@ -684,10 +687,10 @@ void libxmp_process_fx(struct context_data *ctx, struct channel_data *xc, int ch
 		EFFECT_MEMORY_S3M(fxp);
 		if (fxp) {
 			xc->retrig.val = fxp;
+			xc->retrig.type = MSN(xc->retrig.val);
 		}
 		if (note) {
 			xc->retrig.count = LSN(xc->retrig.val) + 1;
-			xc->retrig.type = MSN(xc->retrig.val);
 		}
 		SET(RETRIG);
 		break;

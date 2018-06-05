@@ -1,12 +1,11 @@
 Todo/Requested:
 ÑÑÑÑÑÑÑÑÑ
-- HVSC 67
-- Modland update
 - option to keep subsong/subfiles selection screen opened
 - libopenmpt update
 - vgmstream update ?
 - vgmplay update ?
 - other cores updates ?
+- xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
 
 
 - improve download resilience (keep track of queue in case of crash, auto restart, ...)
@@ -27,10 +26,20 @@ Todo/Requested:
 
 - BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
 
+- BUG: when in random mode, back button does not play previous file
+
+- BUG: when not playing file, if download & exit => should not empty download queue
+
 2.9
 ÑÑÑ
+- XMP updated to last version
+- MODLAND DB updated to 2018/02/20 snapshot
+- HVSC updated to #68 and mirrors updated
+- Updated to use latest XCode & iOS devices
 - [Bugfix] UADE / Kris Hatlelid format (require to redownload files from modland)
 - [Bugfix] UADE playback on iOS 11
+- [Bugfix] XMP infinite loop
+
 
 2.8
 ÑÑÑ

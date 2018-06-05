@@ -268,32 +268,28 @@ static void fix_name(uint8 *s, int l)
 }
 
 
-static void read_envelope(struct xmp_envelope *ei, struct it_envelope *env,
+static int read_envelope(struct xmp_envelope *ei, struct it_envelope *env,
 			  HIO_HANDLE *f)
 {
-	int j;
+	int i;
+	uint8 buf[82];
 
-	env->flg = hio_read8(f);
-	env->num = hio_read8(f);
-
-	/* Sanity check */
-	if (env->num >= XMP_MAX_ENV_POINTS) {
-		env->flg = 0;
-		env->num = 0;
-		return;
+	if (hio_read(buf, 1, 82, f) != 82) {
+		return -1;
 	}
 
-	env->lpb = hio_read8(f);
-	env->lpe = hio_read8(f);
-	env->slb = hio_read8(f);
-	env->sle = hio_read8(f);
+	env->flg = buf[0];
+	env->num = MIN(buf[1], 25); /* Clamp to IT max */
 
-	for (j = 0; j < 25; j++) {
-		env->node[j].y = hio_read8(f);
-		env->node[j].x = hio_read16l(f);
+	env->lpb = buf[2];
+	env->lpe = buf[3];
+	env->slb = buf[4];
+	env->sle = buf[5];
+
+	for (i = 0; i < 25; i++) {
+		env->node[i].y = buf[6 + i * 3];
+		env->node[i].x = readmem16l(buf + 7 + i * 3);
 	}
-
-	env->unused = hio_read8(f);
 
 	ei->flg = env->flg & IT_ENV_ON ? XMP_ENVELOPE_ON : 0;
 
@@ -316,13 +312,15 @@ static void read_envelope(struct xmp_envelope *ei, struct it_envelope *env,
 	ei->lpe = env->lpe;
 
 	if (ei->npt > 0 && ei->npt <= 25 /* XMP_MAX_ENV_POINTS */ ) {
-		for (j = 0; j < ei->npt; j++) {
-			ei->data[j * 2] = env->node[j].x;
-			ei->data[j * 2 + 1] = env->node[j].y;
+		for (i = 0; i < ei->npt; i++) {
+			ei->data[i * 2] = env->node[i].x;
+			ei->data[i * 2 + 1] = env->node[i].y;
 		}
 	} else {
 		ei->flg &= ~XMP_ENVELOPE_ON;
 	}
+
+	return 0;
 }
 
 static void identify_tracker(struct module_data *m, struct it_file_header *ifh)
@@ -418,43 +416,42 @@ static int load_old_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	int inst_map[120], inst_rmap[XMP_MAX_KEYS];
 	struct it_instrument1_header i1h;
 	int c, k, j;
+	uint8 buf[64];
 
-	i1h.magic = hio_read32b(f);
-	hio_read(&i1h.dosname, 12, 1, f);
-
-	i1h.zero = hio_read8(f);
-	i1h.flags = hio_read8(f);
-	i1h.vls = hio_read8(f);
-	i1h.vle = hio_read8(f);
-	i1h.sls = hio_read8(f);
-	i1h.sle = hio_read8(f);
-	i1h.rsvd1 = hio_read16l(f);
-	i1h.fadeout = hio_read16l(f);
-
-	i1h.nna = hio_read8(f);
-	i1h.dnc = hio_read8(f);
-	i1h.trkvers = hio_read16l(f);
-	i1h.nos = hio_read8(f);
-	i1h.rsvd2 = hio_read8(f);
-
-	if (hio_error(f)) {
+	if (hio_read(buf, 1, 64, f) != 64) {
 		return -1;
 	}
 
-	if (hio_read(&i1h.name, 1, 26, f) != 26) {
+	i1h.magic = readmem32b(buf);
+	if (i1h.magic != MAGIC_IMPI) {
+		D_(D_CRIT "bad instrument magic");
 		return -1;
 	}
+	memcpy(i1h.dosname, buf + 4, 12);
+	i1h.zero = buf[16];
+	i1h.flags = buf[17];
+	i1h.vls = buf[18];
+	i1h.vle = buf[19];
+	i1h.sls = buf[20];
+	i1h.sle = buf[21];
+	i1h.fadeout = readmem16l(buf + 24);
+	i1h.nna = buf[26];
+	i1h.dnc = buf[27];
+	i1h.trkvers = readmem16l(buf + 28);
+	i1h.nos = buf[30];
 
+	memcpy(i1h.name, buf + 32, 26);
 	fix_name(i1h.name, 26);
 
-	if (hio_read(&i1h.rsvd3, 1, 6, f) != 6)
+	if (hio_read(&i1h.keys, 1, 240, f) != 240) {
 		return -1;
-	if (hio_read(&i1h.keys, 1, 240, f) != 240)
+	}
+	if (hio_read(&i1h.epoint, 1, 200, f) != 200) {
 		return -1;
-	if (hio_read(&i1h.epoint, 1, 200, f) != 200)
+	}
+	if (hio_read(&i1h.enode, 1, 50, f) != 50) {
 		return -1;
-	if (hio_read(&i1h.enode, 1, 50, f) != 50)
-		return -1;
+	}
 
 	libxmp_copy_adjust(xxi->name, i1h.name, 25);
 
@@ -551,17 +548,22 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 	struct it_envelope env;
 	int dca2nna[] = { 0, 2, 3 };
 	int c, k, j;
+	uint8 buf[64];
 
-	i2h.magic = hio_read32b(f);
+	if (hio_read(buf, 1, 64, f) != 64) {
+		return -1;
+	}
+
+	i2h.magic = readmem32b(buf);
 	if (i2h.magic != MAGIC_IMPI) {
 		D_(D_CRIT "bad instrument magic");
 		return -1;
 	}
-	hio_read(&i2h.dosname, 12, 1, f);
-	i2h.zero = hio_read8(f);
-	i2h.nna = hio_read8(f);
-	i2h.dct = hio_read8(f);
-	i2h.dca = hio_read8(f);
+	memcpy(i2h.dosname, buf + 4, 12);
+	i2h.zero = buf[16];
+	i2h.nna = buf[17];
+	i2h.dct = buf[18];
+	i2h.dca = buf[19];
 
 	/* Sanity check */
 	if (i2h.dca > 3) {
@@ -570,36 +572,24 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 		i2h.dca = 0;
 	}
 
-	i2h.fadeout = hio_read16l(f);
+	i2h.fadeout = readmem16l(buf + 20);
+	i2h.pps = buf[22];
+	i2h.ppc = buf[23];
+	i2h.gbv = buf[24];
+	i2h.dfp = buf[25];
+	i2h.rv = buf[26];
+	i2h.rp = buf[27];
+	i2h.trkvers = readmem16l(buf + 28);
+	i2h.nos = buf[30];
 
-	i2h.pps = hio_read8(f);
-	i2h.ppc = hio_read8(f);
-	i2h.gbv = hio_read8(f);
-	i2h.dfp = hio_read8(f);
-	i2h.rv = hio_read8(f);
-	i2h.rp = hio_read8(f);
-	i2h.trkvers = hio_read16l(f);
-
-	i2h.nos = hio_read8(f);
-	i2h.rsvd1 = hio_read8(f);
-
-	if (hio_error(f)) {
-		D_(D_CRIT "read error");
-		return -1;
-	}
-
-	if (hio_read(&i2h.name, 1, 26, f) != 26) {
-		D_(D_CRIT "name read error");
-		return -1;
-	}
-
+	memcpy(i2h.name, buf + 32, 26);
 	fix_name(i2h.name, 26);
 
-	i2h.ifc = hio_read8(f);
-	i2h.ifr = hio_read8(f);
-	i2h.mch = hio_read8(f);
-	i2h.mpr = hio_read8(f);
-	i2h.mbnk = hio_read16l(f);
+	i2h.ifc = buf[58];
+	i2h.ifr = buf[59];
+	i2h.mch = buf[60];
+	i2h.mpr = buf[61];
+	i2h.mbnk = readmem16l(buf + 62);
 
 	if (hio_read(&i2h.keys, 1, 240, f) != 240) {
 		D_(D_CRIT "key map read error");
@@ -611,21 +601,30 @@ static int load_new_it_instrument(struct xmp_instrument *xxi, HIO_HANDLE *f)
 
 	/* Envelopes */
 
-	read_envelope(&xxi->aei, &env, f);
-	read_envelope(&xxi->pei, &env, f);
-	read_envelope(&xxi->fei, &env, f);
+	if (read_envelope(&xxi->aei, &env, f) < 0) {
+		return -1;
+	}
+	if (read_envelope(&xxi->pei, &env, f) < 0) {
+		return -1;
+	}
+	if (read_envelope(&xxi->fei, &env, f) < 0) {
+		return -1;
+	}
 
 	if (xxi->pei.flg & XMP_ENVELOPE_ON) {
 		for (j = 0; j < xxi->pei.npt; j++)
 			xxi->pei.data[j * 2 + 1] += 32;
 	}
 
-	if (xxi->aei.flg & XMP_ENVELOPE_ON && xxi->aei.npt == 0)
+	if (xxi->aei.flg & XMP_ENVELOPE_ON && xxi->aei.npt == 0) {
 		xxi->aei.npt = 1;
-	if (xxi->pei.flg & XMP_ENVELOPE_ON && xxi->pei.npt == 0)
+	}
+	if (xxi->pei.flg & XMP_ENVELOPE_ON && xxi->pei.npt == 0) {
 		xxi->pei.npt = 1;
-	if (xxi->fei.flg & XMP_ENVELOPE_ON && xxi->fei.npt == 0)
+	}
+	if (xxi->fei.flg & XMP_ENVELOPE_ON && xxi->fei.npt == 0) {
 		xxi->fei.npt = 1;
+	}
 
 	if (env.flg & IT_ENV_FILTER) {
 		xxi->fei.flg |= XMP_ENVELOPE_FLT;
@@ -704,6 +703,7 @@ static int load_it_sample(struct module_data *m, int i, int start,
 	struct xmp_module *mod = &m->mod;
 	struct xmp_sample *xxs, *xsmp;
 	int j, k;
+	uint8 buf[80];
 
 	if (sample_mode) {
 		mod->xxi[i].sub = calloc(sizeof(struct xmp_subinstrument), 1);
@@ -712,50 +712,43 @@ static int load_it_sample(struct module_data *m, int i, int start,
 		}
 	}
 
-	ish.magic = hio_read32b(f);
-	if (ish.magic != MAGIC_IMPS) {
+	if (hio_read(buf, 1, 80, f) != 80) {
 		return -1;
+	}
+
+	ish.magic = readmem32b(buf);
+	/* Changed to continue to allow use-brdg.it and use-funk.it to
+	 * load correctly (both IT 2.04)
+	 */
+	if (ish.magic != MAGIC_IMPS) {
+		return 0;
 	}
 
 	xxs = &mod->xxs[i];
 	xsmp = &m->xsmp[i];
 
-	hio_read(&ish.dosname, 12, 1, f);
-	ish.zero = hio_read8(f);
-	ish.gvl = hio_read8(f);
-	ish.flags = hio_read8(f);
-	ish.vol = hio_read8(f);
+	memcpy(ish.dosname, buf + 4, 12);
+	ish.zero = buf[16];
+	ish.gvl = buf[17];
+	ish.flags = buf[18];
+	ish.vol = buf[19];
 
-	if (hio_error(f)) {
-		return -1;
-	}
-
-	if (hio_read(&ish.name, 1, 26, f) != 26) {
-		return -1;
-	}
-
+	memcpy(ish.name, buf + 20, 26);
 	fix_name(ish.name, 26);
 
-	ish.convert = hio_read8(f);
-	ish.dfp = hio_read8(f);
-	ish.length = hio_read32l(f);
-	ish.loopbeg = hio_read32l(f);
-	ish.loopend = hio_read32l(f);
-	ish.c5spd = hio_read32l(f);
-	ish.sloopbeg = hio_read32l(f);
-	ish.sloopend = hio_read32l(f);
-	ish.sample_ptr = hio_read32l(f);
-
-	ish.vis = hio_read8(f);
-	ish.vid = hio_read8(f);
-	ish.vir = hio_read8(f);
-	ish.vit = hio_read8(f);
-
-	/* Changed to continue to allow use-brdg.it and use-funk.it to
-	 * load correctly (both IT 2.04)
-	 */
-	if (ish.magic != MAGIC_IMPS)
-		return 0;
+	ish.convert = buf[46];
+	ish.dfp = buf[47];
+	ish.length = readmem32l(buf + 48);
+	ish.loopbeg = readmem32l(buf + 52);
+	ish.loopend = readmem32l(buf + 56);
+	ish.c5spd = readmem32l(buf + 60);
+	ish.sloopbeg = readmem32l(buf + 64);
+	ish.sloopend = readmem32l(buf + 68);
+	ish.sample_ptr = readmem32l(buf + 72);
+	ish.vis = buf[76];
+	ish.vid = buf[77];
+	ish.vir = buf[78];
+	ish.vit = buf[79];
 
 	if (ish.flags & IT_SMP_16BIT) {
 		xxs->flg = XMP_SAMPLE_16BIT;
@@ -935,8 +928,9 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 	pat_len = hio_read16l(f) /* - 4 */ ;
 	mod->xxp[i]->rows = hio_read16l(f);
 
-	if (libxmp_alloc_tracks_in_pattern(mod, i) < 0)
+	if (libxmp_alloc_tracks_in_pattern(mod, i) < 0) {
 		return -1;
+	}
 
 	memset(mask, 0, L_CHANNELS);
 	hio_read16l(f);
@@ -1005,14 +999,18 @@ static int load_it_pattern(struct module_data *m, int i, int new_fx,
 		}
 		if (mask[c] & 0x08) {
 			b = hio_read8(f);
-			if (b > 26) {
-				return -1;
+			if (b > 31) {
+				D_(D_WARN "invalid effect %#02x", b);
+				hio_read8(f);
+				
+			} else {
+				event->fxt = b;
+				event->fxp = hio_read8(f);
+		
+				xlat_fx(c, event, last_fxp, new_fx);
+				lastevent[c].fxt = event->fxt;
+				lastevent[c].fxp = event->fxp;
 			}
-			event->fxt = b;
-			event->fxp = hio_read8(f);
-			xlat_fx(c, event, last_fxp, new_fx);
-			lastevent[c].fxt = event->fxt;
-			lastevent[c].fxp = event->fxp;
 			pat_len -= 2;
 		}
 		if (mask[c] & 0x10) {
@@ -1235,7 +1233,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 	}
 
-	D_(D_INFO "Stored Patterns: %d", mod->pat);
+	D_(D_INFO "Stored patterns: %d", mod->pat);
 
 	/* Effects in muted channels are processed, so scan patterns first to
 	 * see the real number of channels
@@ -1296,14 +1294,16 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->chn = max_ch + 1;
 	mod->trk = mod->pat * mod->chn;
 
-	if (libxmp_init_pattern(mod) < 0)
+	if (libxmp_init_pattern(mod) < 0) {
 		goto err4;
+	}
 
 	/* Read patterns */
 	for (i = 0; i < mod->pat; i++) {
 
-		if (libxmp_alloc_pattern(mod, i) < 0)
+		if (libxmp_alloc_pattern(mod, i) < 0) {
 			goto err4;
+		}
 
 		/* If the offset to a pattern is 0, the pattern is empty */
 		if (pp_pat[i] == 0) {
@@ -1318,10 +1318,12 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (hio_seek(f, start + pp_pat[i], SEEK_SET) < 0) {
+			D_(D_CRIT "error seeking to %d", start + pp_pat[i]);
 			goto err4;
 		}
 
 		if (load_it_pattern(m, i, new_fx, f) < 0) {
+			D_(D_CRIT "error loading pattern %d", i);
 			goto err4;
 		}
 	}
@@ -1338,7 +1340,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 			D_(D_INFO "Message length : %d", ifh.msglen);
 
-			for (j = 0; j < ifh.msglen - 1; j++) {
+			for (j = 0; j + 1 < ifh.msglen; j++) {
 				int b = hio_read8(f);
 				if (b == '\r') {
 					b = '\n';
@@ -1350,7 +1352,7 @@ static int it_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			}
 
 			if (ifh.msglen > 0) {
-				m->comment[j-1] = 0;
+				m->comment[j] = 0;
 			}
 		}
 	}

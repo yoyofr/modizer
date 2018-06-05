@@ -285,10 +285,11 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
-		591FF53D1E5057D600D401D5 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
-		5928624A1E2D3BD500A08A4E /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 592862491E2D3BD500A08A4E /* AppStore512.png */; };
 		592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59321DD61E2560B300020079 /* libvgmstream.a */; };
+		59387AE720C71C7F001F0C20 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
+		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
+		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
 		59517DED1E40782700FAA0BF /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B431E3D103100C629AA /* tabview_gradient40Blue.png */; };
 		59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */; };
@@ -307,6 +308,7 @@
 		59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */; };
 		59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A665311E4B04E700EB110E /* txtMenu2e_2x.png */; };
 		59BE94B0203C1350009F0255 /* Castlevania 3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59BE94A7203C134F009F0255 /* Castlevania 3.jpg */; };
+		59BE94B1204186DD009F0255 /* Castlevania 3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 59BE94A7203C134F009F0255 /* Castlevania 3.jpg */; };
 		59F2813A1E578BA6000B7A4C /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 595F9C181E54B907009DBEED /* liblibxmp.a */; };
 		59F281451E5B5A1A000B7A4C /* Castlevania 3.nsfe in Resources */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
 		59F281461E5B6051000B7A4C /* Castlevania 3.nsfe in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
@@ -1281,6 +1283,7 @@
 			dstPath = Samples/Games;
 			dstSubfolderSpec = 7;
 			files = (
+				59BE94B1204186DD009F0255 /* Castlevania 3.jpg in Copy Files-Samples Games */,
 				59F281461E5B6051000B7A4C /* Castlevania 3.nsfe in Copy Files-Samples Games */,
 				CCC678E217F76F0100F16A54 /* ij4 - end credits1.png in Copy Files-Samples Games */,
 				CCC678D917F76CC600F16A54 /* gr-b01.jpg in Copy Files-Samples Games */,
@@ -1754,9 +1757,10 @@
 		591FF53F1E5057E400D401D5 /* libopenmpt-ogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-ogg.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-ogg.a"; sourceTree = "<group>"; };
 		591FF5401E5057E400D401D5 /* libopenmpt-vorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-vorbis.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-vorbis.a"; sourceTree = "<group>"; };
 		591FF5411E5057E400D401D5 /* libopenmpt-zlib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-zlib.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-zlib.a"; sourceTree = "<group>"; };
-		592862491E2D3BD500A08A4E /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
 		592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxsf.xcodeproj; path = ../libxsf/libxsf/libxsf.xcodeproj; sourceTree = "<group>"; };
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = ../vgmstream/vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
+		59387AED20C745BB001F0C20 /* LaunchLogo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = LaunchLogo.jpg; sourceTree = "<group>"; };
+		59387AEF20C746D3001F0C20 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
 		59517DEB1E40782700FAA0BF /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = SESlideTableViewCell/lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
 		59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = SESlideTableViewCell/lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
 		595221241FDD69150079E76D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainWindow.strings; sourceTree = "<group>"; };
@@ -2920,8 +2924,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59387AE720C71C7F001F0C20 /* liblibopenmpt.a in Frameworks */,
 				59F2813A1E578BA6000B7A4C /* liblibxmp.a in Frameworks */,
-				591FF53D1E5057D600D401D5 /* liblibopenmpt.a in Frameworks */,
 				592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */,
 				59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */,
 				CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */,
@@ -4148,7 +4152,8 @@
 			isa = PBXGroup;
 			children = (
 				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
-				592862491E2D3BD500A08A4E /* AppStore512.png */,
+				59387AED20C745BB001F0C20 /* LaunchLogo.jpg */,
+				59387AEF20C746D3001F0C20 /* AppStore512.png */,
 				CCFA9ADC1AC75830007C658A /* WebTools */,
 				CC13449B1AC17CC200CAB284 /* vgmplay */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
@@ -5821,6 +5826,7 @@
 				CC1E6316120423DF000A8A4E /* AMOS in Resources */,
 				CC1E6317120423DF000A8A4E /* ArtAndMagic in Resources */,
 				CC1E6318120423DF000A8A4E /* ArtOfNoise-4V in Resources */,
+				59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */,
 				CC1E6319120423DF000A8A4E /* ArtOfNoise-8V in Resources */,
 				CCC678EE17F88AF900F16A54 /* star5@2x.png in Resources */,
 				CCB8D99617F62A18008E6A45 /* txtMenu3a_2x.png in Resources */,
@@ -5929,6 +5935,7 @@
 				CC1E6370120423DF000A8A4E /* MusicMaker-4V in Resources */,
 				CC1E6371120423DF000A8A4E /* MusicMaker-8V in Resources */,
 				59909B641E3E81AD00C629AA /* tabview_gradient40Gray.png in Resources */,
+				59387AF020C746D4001F0C20 /* AppStore512.png in Resources */,
 				CC1E6372120423DF000A8A4E /* NovoTradePacker in Resources */,
 				CC1E6373120423DF000A8A4E /* NTSP-system in Resources */,
 				CC1E6374120423DF000A8A4E /* Octa-MED in Resources */,
@@ -6096,7 +6103,6 @@
 				336D450E15FC9D8B00F0DC00 /* video_pause_h@2x.png in Resources */,
 				336D451115FC9DAE00F0DC00 /* video_play_h.png in Resources */,
 				336D451215FC9DAE00F0DC00 /* video_play_h@2x.png in Resources */,
-				5928624A1E2D3BD500A08A4E /* AppStore512.png in Resources */,
 				336D451515FC9DF200F0DC00 /* arrow_left_h.png in Resources */,
 				336D451615FC9DF200F0DC00 /* arrow_left_h@2x.png in Resources */,
 				336D451915FC9E1400F0DC00 /* video_previous_h.png in Resources */,

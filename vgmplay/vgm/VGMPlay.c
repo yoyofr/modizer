@@ -20,8 +20,8 @@
 //	CONSOLE_MODE switches between VGMPlay and in_vgm mode.
 //	in_vgm mode can also be used for custom players.
 //
-//#define ADDITIONAL_FORMATS
-//#define CONSOLE_MODE
+#define ADDITIONAL_FORMATS
+#define CONSOLE_MODE
 //#define VGM_LITTLE_ENDIAN	// enable optimizations for Little Endian systems
 //#define VGM_BIG_ENDIAN	// enable optimizations for Big Endian systems
 
@@ -46,7 +46,8 @@
 #include <pthread.h>	// for pthread functions
 
 // (suitable?) Apple substitute for clock_gettime()
-#ifdef yomodizer__MACH__
+//#ifdef __MACH__
+#if 0	// not required in Mac OS X 10.12 and later
 #include <mach/mach_time.h>
 #define CLOCK_REALTIME	0
 #define CLOCK_MONOTONIC	0
@@ -278,7 +279,7 @@ static void null_update(UINT8 ChipID, stream_sample_t **outputs, int samples);
 static void dual_opl2_stereo(UINT8 ChipID, stream_sample_t **outputs, int samples);
 static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Length);
 static INT32 RecalcFadeVolume(void);
-//UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize);
+//UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
 
 #ifdef WIN32
 DWORD WINAPI PlayingThread(void* Arg);
@@ -317,6 +318,7 @@ bool FMForce;
 //bool FMAccurate;
 bool FMBreakFade;
 float FMVol;
+bool FMOPL2Pan;
 
 CHIPS_OPTION ChipOpts[0x02];
 
@@ -413,12 +415,9 @@ bool ResetPBTimer;
 static bool Interpreting;
 
 #ifdef CONSOLE_MODE
-extern bool ErrorHappened;
-extern UINT8 CmdList[0x100];
+/*extern*/ bool ErrorHappened;
+/*extern*/ UINT8 CmdList[0x100];
 #endif
-
-UINT8 CmdList[0x100];
-bool ErrorHappened;
 
 UINT8 IsVGMInit;
 UINT16 Last95Drum;	// for optvgm debugging
@@ -434,7 +433,7 @@ void VGMPlay_Init(void)
 	CAUD_ATTR* TempCAud;
 	
 	SampleRate = 44100;
-	FadeTime = 2000;
+	FadeTime = 5000;
 	PauseTime = 0;
 	
 	HardStopOldVGMs = 0x00;
@@ -446,6 +445,7 @@ void VGMPlay_Init(void)
 	//FMAccurate = false;
 	FMBreakFade = false;
 	FMVol = 0.0f;
+	FMOPL2Pan = false;
 	SurroundSound = false;
 	VGMMaxLoop = 0x02;
 	VGMPbRate = 0;
@@ -521,13 +521,13 @@ void VGMPlay_Init(void)
 #ifdef _DEBUG
 	if (sizeof(CHIP_AUDIO) != sizeof(CAUD_ATTR) * CHIP_COUNT)
 	{
-		printf("Fatal Error! ChipAudio structure invalid!\n");
+		fprintf(stderr, "Fatal Error! ChipAudio structure invalid!\n");
 		getchar();
 		exit(-1);
 	}
 	if (sizeof(CHIPS_OPTION) != sizeof(CHIP_OPTS) * CHIP_COUNT)
 	{
-		printf("Fatal Error! ChipOpts structure invalid!\n");
+		fprintf(stderr, "Fatal Error! ChipOpts structure invalid!\n");
 		getchar();
 		exit(-1);
 	}
@@ -1039,11 +1039,11 @@ void PlayVGM(void)
 		ResetPBTimer = false;
 		if (StartThread())
 		{
-			printf("Error starting Playing Thread!\n");
+			fprintf(stderr, "Error starting Playing Thread!\n");
 			return;
 		}
 #ifdef CONSOLE_MODE
-		PauseStream(true);
+		//PauseStream(true);
 #endif
 		break;
 	case 0x02:	// like Mode 0x00, but Hardware is also controlled (not synced)
@@ -1132,7 +1132,7 @@ void PauseVGM(bool Pause)
 		{
 		case 0x00:
 #ifdef CONSOLE_MODE
-			PauseStream(Pause);
+			//PauseStream(Pause);
 #endif
 			break;
 		case 0x01:
@@ -1141,7 +1141,7 @@ void PauseVGM(bool Pause)
 			break;
 		case 0x02:
 #ifdef CONSOLE_MODE
-			PauseStream(Pause);
+			//PauseStream(Pause);
 #endif
 			SetMuteControl(Pause);
 			break;
@@ -1393,8 +1393,8 @@ static bool OpenVGMFile_Internal(gzFile hFile, UINT32 FileSize)
 	ReadVGMHeader(hFile, &VGMHead);
 	if (VGMHead.fccVGM != FCC_VGM)
 	{
-		printf("VGM signature matched on the first read, but not on the second one!\n");
-		printf("This is a known zlib bug where gzseek fails. Please install a fixed zlib.\n");
+		fprintf(stderr, "VGM signature matched on the first read, but not on the second one!\n");
+		fprintf(stderr, "This is a known zlib bug where gzseek fails. Please install a fixed zlib.\n");
 		return false;
 	}
 	
@@ -1403,19 +1403,19 @@ static bool OpenVGMFile_Internal(gzFile hFile, UINT32 FileSize)
 		VGMDataLen = VGMHead.lngEOFOffset;
 	if (! VGMHead.lngEOFOffset || VGMHead.lngEOFOffset > VGMDataLen)
 	{
-		printf("Warning! Invalid EOF Offset 0x%02X! (should be: 0x%02X)\n",
+		fprintf(stderr, "Warning! Invalid EOF Offset 0x%02X! (should be: 0x%02X)\n",
 				VGMHead.lngEOFOffset, VGMDataLen);
 		VGMHead.lngEOFOffset = VGMDataLen;
 	}
 	if (VGMHead.lngLoopOffset && ! VGMHead.lngLoopSamples)
 	{
 		// 0-Sample-Loops causes the program to hangs in the playback routine
-		printf("Warning! Ignored Zero-Sample-Loop!\n");
+		fprintf(stderr, "Warning! Ignored Zero-Sample-Loop!\n");
 		VGMHead.lngLoopOffset = 0x00000000;
 	}
 	if (VGMHead.lngDataOffset < 0x00000040)
 	{
-		printf("Warning! Invalid Data Offset 0x%02X!\n", VGMHead.lngDataOffset);
+		fprintf(stderr, "Warning! Invalid Data Offset 0x%02X!\n", VGMHead.lngDataOffset);
 		VGMHead.lngDataOffset = 0x00000040;
 	}
 	
@@ -2057,7 +2057,7 @@ const char* GetChipName(UINT8 ChipID)
 	const char* CHIP_STRS[CHIP_COUNT] = 
 	{	"SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
 		"YM2610", "YM3812", "YM3526", "Y8950", "YMF262", "YMF278B", "YMF271", "YMZ280B",
-		"RF5C164", "PWM", "AY8910", "GameBoy", "NES APU", "MultiPCM", "uPD7759", "OKIM6258",
+		"RF5C164", "PWM", "AY8910", "GameBoy", "NES APU", "YMW258", "uPD7759", "OKIM6258",
 		"OKIM6295", "K051649", "K054539", "HuC6280", "C140", "K053260", "Pokey", "QSound",
 		"SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
 		"GA20"};
@@ -2111,10 +2111,13 @@ const char* GetAccurateChipName(UINT8 ChipID, UINT8 SubType)
 				RetStr = "SN94624";
 				break;
 			case 0x06:
-				RetStr = "NCR7496";
+				RetStr = "SEGA PSG";
 				break;
 			case 0x07:
-				RetStr = "SEGA PSG";
+				RetStr = "NCR7496";
+				break;
+			case 0x08:
+				RetStr = "PSSJ-3";
 				break;
 			default:
 				RetStr = "SN76496";
@@ -2129,6 +2132,12 @@ const char* GetAccurateChipName(UINT8 ChipID, UINT8 SubType)
 	case 0x01:
 		if (ChipID & 0x80)
 			RetStr = "VRC7";
+		break;
+	case 0x02:
+		if (! (ChipID & 0x80))
+			RetStr = "YM2612";
+		else
+			RetStr = "YM3438";
 		break;
 	case 0x04:
 		RetStr = "Sega PCM";
@@ -2235,7 +2244,7 @@ UINT32 GetChipClock(VGM_HEADER* FileHead, UINT8 ChipID, UINT8* RetSubType)
 	case 0x00:
 		Clock = FileHead->lngHzPSG;
 		AllowBit31 = 0x01;	// T6W28 Mode
-		if (RetSubType != NULL && ! (Clock & 0x80000000))	// The T6W28 is handles differently.
+		if (RetSubType != NULL && ! (Clock & 0x80000000))	// The T6W28 is handled differently.
 		{
 			switch(FileHead->bytPSG_SRWidth)
 			{
@@ -2247,9 +2256,14 @@ UINT32 GetChipClock(VGM_HEADER* FileHead, UINT8 ChipID, UINT8* RetSubType)
 				break;
 			case 0x10:	//  0x8000
 				if (FileHead->shtPSG_Feedback == 0x0009)
-					SubType = 0x07;	// SEGA PSG
+					SubType = 0x06;	// SEGA PSG
 				else if (FileHead->shtPSG_Feedback == 0x0022)
-					SubType = 0x06;	// NCR7496
+				{
+					if (0)	// if Tandy noise mode enabled
+						SubType = (FileHead->bytPSG_Flags & 0x02) ? 0x07 : 0x08;	// NCR7496 / PSSJ-3
+					else
+						SubType = 0x07;	// NCR7496
+				}
 				break;
 			case 0x11:	// 0x10000
 				if (FileHead->bytPSG_Flags & 0x08)	// Clock Divider == 1?
@@ -2265,12 +2279,13 @@ UINT32 GetChipClock(VGM_HEADER* FileHead, UINT8 ChipID, UINT8* RetSubType)
 				03 SN76494		0x10000, 0x04, 0x08, FALSE, FALSE, 1, TRUE		0C	11	0D (00|04|08|01)
 				04 SN76496		0x10000, 0x04, 0x08, FALSE, FALSE, 8, TRUE		0C	11	05 (00|04|00|01) [same as SN76489A]
 				05 SN94624		 0x4000, 0x01, 0x02, TRUE,  FALSE, 1, TRUE		03	0F	0F (02|04|08|01) [unverified, SN76489A without /8]
-				06 NCR7496		 0x8000, 0x02, 0x20, FALSE, FALSE, 8, TRUE		22	10	05 (00|04|00|01) [unverified]
-				07 GameGear PSG	 0x8000, 0x01, 0x08, TRUE,  TRUE,  8, FALSE		09	10	02 (02|00|00|00)
-				07 SEGA VDP PSG	 0x8000, 0x01, 0x08, TRUE,  FALSE, 8, FALSE		09	10	06 (02|04|00|00)
+				06 GameGear PSG	 0x8000, 0x01, 0x08, TRUE,  TRUE,  8, FALSE		09	10	02 (02|00|00|00)
+				06 SEGA VDP PSG	 0x8000, 0x01, 0x08, TRUE,  FALSE, 8, FALSE		09	10	06 (02|04|00|00)
+				07 NCR7496		 0x8000, 0x02, 0x20, TRUE,  FALSE, 8, TRUE		22	10	07 (02|04|00|01)
+				08 PSSJ-3		 0x8000, 0x02, 0x20, FALSE, FALSE, 8, TRUE		22	10	05 (00|04|00|01)
 				01 U8106		 0x4000, 0x01, 0x02, TRUE,  FALSE, 8, TRUE		03	0F	07 (02|04|00|01) [unverified, same as SN76489]
 				02 Y2404		0x10000, 0x04, 0x08, FALSE, FALSE; 8, TRUE		0C	11	05 (00|04|00|01) [unverified, same as SN76489A]
-				-- T6W28		 0x4000, 0x01, 0x04, ????,  FALSE, 8, ????		05	0F	?? (??|??|00|01) [It IS stereo, but not in GameGear way].
+				-- T6W28		0x10000, 0x04, 0x08, ????,  FALSE, 8, ????		0C	11	?? (??|??|00|01) [It IS stereo, but not in GameGear way].
 			*/
 		}
 		break;
@@ -2280,6 +2295,7 @@ UINT32 GetChipClock(VGM_HEADER* FileHead, UINT8 ChipID, UINT8* RetSubType)
 		break;
 	case 0x02:
 		Clock = FileHead->lngHzYM2612;
+		AllowBit31 = 0x01;	// YM3438 Mode
 		break;
 	case 0x03:
 		Clock = FileHead->lngHzYM2151;
@@ -2705,7 +2721,6 @@ static void Chips_GeneralActions(UINT8 Mode)
 			ym2612_set_options((UINT8)ChipOpts[0x00].YM2612.SpecialFlags);
 			ChipOpts[0x01].YM2612.EmuCore = ChipOpts[0x00].YM2612.EmuCore;
 			ChipOpts[0x01].YM2612.SpecialFlags = ChipOpts[0x00].YM2612.SpecialFlags;
-			
 			ChipCnt = (VGMHead.lngHzYM2612 & 0x40000000) ? 0x02 : 0x01;
 			for (CurChip = 0x00; CurChip < ChipCnt; CurChip ++)
 			{
@@ -4257,7 +4272,7 @@ static void AddPCMData(UINT8 Type, UINT32 DataSize, const UINT8* Data)
 		}
 	}
 	if (BankSize != TempBnk->DataSize)
-		printf("Error reading Data Block! Data Size conflict!\n");
+		fprintf(stderr, "Error reading Data Block! Data Size conflict!\n");
 	TempPCM->DataSize += BankSize;
 	
 	// realloc may've moved the Bank block, so refresh all DAC Streams
@@ -4345,12 +4360,12 @@ static void DecompressDataBlk(VGM_PCM_DATA* Bank, UINT32 DataSize, const UINT8* 
 			Ent2B = (UINT16*)PCMTbl.Entries;
 			if (! PCMTbl.EntryCount)
 			{
-				printf("Error loading table-compressed data block! No table loaded!\n");
+				fprintf(stderr, "Error loading table-compressed data block! No table loaded!\n");
 				return;
 			}
 			else if (BitDec != PCMTbl.BitDec || BitCmp != PCMTbl.BitCmp)
 			{
-				printf("Warning! Data block and loaded value table incompatible!\n");
+				fprintf(stderr, "Warning! Data block and loaded value table incompatible!\n");
 				return;
 			}
 		}
@@ -4451,13 +4466,13 @@ static bool DecompressDataBlk(VGM_PCM_DATA* Bank, UINT32 DataSize, const UINT8* 
 			if (! PCMTbl.EntryCount)
 			{
 				Bank->DataSize = 0x00;
-				printf("Error loading table-compressed data block! No table loaded!\n");
+				fprintf(stderr, "Error loading table-compressed data block! No table loaded!\n");
 				return false;
 			}
 			else if (BitDec != PCMTbl.BitDec || BitCmp != PCMTbl.BitCmp)
 			{
 				Bank->DataSize = 0x00;
-				printf("Warning! Data block and loaded value table incompatible!\n");
+				fprintf(stderr, "Warning! Data block and loaded value table incompatible!\n");
 				return false;
 			}
 		}
@@ -4551,13 +4566,13 @@ static bool DecompressDataBlk(VGM_PCM_DATA* Bank, UINT32 DataSize, const UINT8* 
 		if (! PCMTbl.EntryCount)
 		{
 			Bank->DataSize = 0x00;
-			printf("Error loading table-compressed data block! No table loaded!\n");
+			fprintf(stderr, "Error loading table-compressed data block! No table loaded!\n");
 			return false;
 		}
 		else if (BitDec != PCMTbl.BitDec || BitCmp != PCMTbl.BitCmp)
 		{
 			Bank->DataSize = 0x00;
-			printf("Warning! Data block and loaded value table incompatible!\n");
+			fprintf(stderr, "Warning! Data block and loaded value table incompatible!\n");
 			return false;
 		}
 		
@@ -4623,13 +4638,13 @@ static bool DecompressDataBlk(VGM_PCM_DATA* Bank, UINT32 DataSize, const UINT8* 
 		}
 		break;
 	default:
-		printf("Error: Unknown data block compression!\n");
+		fprintf(stderr, "Error: Unknown data block compression!\n");
 		return false;
 	}
 	
 #if defined(_DEBUG) && defined(WIN32)
 	Time = GetTickCount() - Time;
-	printf("Decompression Time: %u\n", Time);
+	fprintf(stderr, "Decompression Time: %u\n", Time);
 #endif
 	
 	return true;
@@ -4693,7 +4708,7 @@ static void ReadPCMTable(UINT32 DataSize, const UINT8* Data)
 	memcpy(PCMTbl.Entries, &Data[0x06], TblSize);
 	
 	if (DataSize < 0x06 + TblSize)
-		printf("Warning! Bad PCM Table Length!\n");
+		fprintf(stderr, "Warning! Bad PCM Table Length!\n");
 	
 	return;
 }
@@ -4863,10 +4878,9 @@ static void InterpretVGM(UINT32 SampleCount)
 #ifndef CONSOLE_MODE
 						if (! FadePlay)
 						{
-                            FadeStart=SampleVGM2Pbk_I(VGMCurLoop * VGMHead.lngLoopSamples);
-                            FadeStart-=(int)((float)FadeTime*(float)SampleRate*0.001f);
-                            if (FadeStart<0) FadeStart=0;
-                            FadeStart += SampleVGM2Pbk_I(VGMHead.lngTotalSamples);                            						}
+							FadeStart = SampleVGM2Pbk_I(VGMHead.lngTotalSamples +
+															(VGMCurLoop - 1) * VGMHead.lngLoopSamples);
+						}
 #endif
 						FadePlay = true;
 					}
@@ -4878,7 +4892,7 @@ static void InterpretVGM(UINT32 SampleCount)
 					if (VGMHead.lngTotalSamples != (UINT32)VGMSmplPos)
 					{
 #ifdef CONSOLE_MODE
-						printf("Warning! Header Samples: %u\t Counted Samples: %u\n",
+						fprintf(stderr, "Warning! Header Samples: %u\t Counted Samples: %u\n",
 								VGMHead.lngTotalSamples, VGMSmplPos);
 						ErrorHappened = true;
 #endif
@@ -5001,7 +5015,7 @@ static void InterpretVGM(UINT32 SampleCount)
 					case 0x87:	// YMF278B RAM Image
 						if (! CHIP_CHECK(YMF278B))
 							break;
-						//ymf278b_write_ram(CurChip, ROMSize, DataStart, DataLen, ROMData);
+						ymf278b_write_ram(CurChip, DataStart, DataLen, ROMData);
 						break;
 					case 0x88:	// Y8950 DELTA-T ROM Image
 						if (! CHIP_CHECK(Y8950) || PlayingMode == 0x01)
@@ -5117,6 +5131,16 @@ static void InterpretVGM(UINT32 SampleCount)
 			case 0xE0:	// Seek to PCM Data Bank Pos
 				PCMBank[0x00].DataPos = ReadLE32(&VGMPnt[0x01]);
 				VGMPos += 0x05;
+				break;
+			case 0x31:	// Set AY8910 stereo mask
+				TempByt = VGMPnt[0x01];
+				TempLng = TempByt & 0x3F;
+				CurChip = (TempByt & 0x80)? 1: 0;
+				if (TempByt & 0x40)
+					ym2203_set_stereo_mask_ay(CurChip, TempLng);
+				else
+					ayxx_set_stereo_mask(CurChip, TempLng);
+				VGMPos += 0x02;
 				break;
 			case 0x4F:	// GG Stereo
 				if (CHIP_CHECK(SN76496))
@@ -5639,7 +5663,7 @@ static void InterpretVGM(UINT32 SampleCount)
 #ifdef CONSOLE_MODE
 				if (! CmdList[Command])
 				{
-					printf("Unknown command: %02hX\n", Command);
+					fprintf(stderr, "Unknown command: %02hX\n", Command);
 					CmdList[Command] = true;
 				}
 #endif
@@ -5955,7 +5979,7 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
 			InNow = (UINT32)fp2i_ceil(InPosL);
 			/*if (InNow - CAA->SmpNext >= SMPL_BUFSIZE)
 			{
-				printf("Sample Buffer Overflow!\n");
+				fprintf(stderr, "Sample Buffer Overflow!\n");
 #ifdef _DEBUG
 				*(char*)NULL = 0;
 #endif
@@ -5976,7 +6000,7 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
 			InBase = FIXPNT_FACT + (UINT32)(InPosL - (SLINT)CAA->SmpNext * FIXPNT_FACT);
 			/*if (fp2i_floor(InBase) >= SMPL_BUFSIZE)
 			{
-				printf("Sample Buffer Overflow!\n");
+				fprintf(stderr, "Sample Buffer Overflow!\n");
 #ifdef _DEBUG
 				*(char*)NULL = 0;
 #endif
@@ -6111,7 +6135,6 @@ static INT32 RecalcFadeVolume(void)
 	
 	if (FadePlay)
 	{
-        if (PlayingTime<FadeStart) return (INT32)(0x100 * VolumeLevelM + 0.5f);
 		if (! FadeStart)
 			FadeStart = PlayingTime;
 		

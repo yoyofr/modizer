@@ -1,101 +1,182 @@
 SONGLENGTH DATABASE
+===================
 
-  Newer implementations of the experimental songlength database use
-  MD5 fingerprints to lookup the playtimes for sidtunes. This
-  separates sidtune files from the fixed structure of the HVSC.
-  As of HVSC 5.0, a modified fingerprint calculation is required.
+Since HVSC#68 there are several ways to read the song lengths info of
+a SID, via:
 
-  In other words, you can install the songlength database file in a
-  place where your particular player finds it (provided that it
-  supports these kind of database files) and use it together with
-  files previously fetched from the HVSC but now stored at arbitrary
-  locations in your filesystem.
+- Song length database (old format)
+- Song length database (new format)
+- SSL files for players that run on C64 hardware
 
-  If you add sid files to a playlist and have the songlength
-  database enabled, the sidtune and its playtime will be identified
-  by its MD5 fingerprint.
+With HVSC both the old and new format of the song length database are
+included. One with hashes with a specific MD5 calculation and one with
+MD5 hashes based on the full content. The latter is the new way and is
+the easiest to implement.
 
-  If your particular sidtune file doesn't match any fingerprint in
-  the database, you are left with playlist defaults and need to
-  determine the playtime of the song yourself.
+SSL files are needed when you want song length info for sidplayers
+that run on a C64. A script is provided with HVSC which extracts the
+song length info and generates SSL files. See "SSL FILE FORMAT"
+section for more info.
 
-  If you fetch your sids from the HVSC usually, it is recommended
-  that you update your private collection of sidtunes with possibly
-  newer versions from the HVSC. Also check out for possibly newer
-  and improved releases of prebuilt songlength database files.
+The song length for each SID and sub tune can be found in:
 
-  The database contains only the playtimes for PAL emulation clock
-  speed and for PSID v2NG files either PAL or NTSC as defined in the
-  file, but not both. Make sure you configure your SID player for
-  PAL emulation.
-  
------------------------------------------------------------------------
+C64Music\DOCUMENTS\Songlengths.txt
+C64Music\DOCUMENTS\Songlengths.md5
 
-The file format is INI-style. One group/section called [Database] at
-the top and each line in key=value format. Unless specified
-otherwise, fields -- inparticular timestamps -- may be separated by
-one or more whitespace.
+Each SID has a unique MD5 hash that SID players can use to get the
+song lengths of a SID.
 
-  ini-identifier:
-        "[Database]"
+For every HVSC release a new Songlengths database is provided with
+updated and added hashes. Therefore, always ensure with each HVSC update
+that the latest Songlengths database is used.
 
-  entry-list:
-        entry
-        entry-list [entry]
+The song length of a SID is based on the PAL / NTSC emulation that the
+SID is made for. If you decide to play the SID on a different
+frequency than intended then the song length will not be correct.
 
-  entry:
-        md5-fingerprint=timestamp-list
 
-  md5-fingerprint:
-        16-character_hexadecimal_ASCII_representation_of_128-bit_fingerprint
-        
-  timestamp-list:
-        timestamp
-        timestamp-list [timestamp]
+THE NEW FORMAT
+==============
 
-  timestamp:
-        min:sec
-        min:sec(attribute)
-        -:--
+The new format of the song length is used in file:
 
-  min:
-        <integer out of [0,1,...)>
+C64Music\DOCUMENTS\Songlengths.md5
 
-  sec:
-        <integer out of [00,01,02,...,58,59]>
+The file format is INI-style. The first line of the file is always:
 
-  attribute:
-        G
-        B
-        M
-        Z
+[Database]
 
-Note, that there are just minutes and seconds but no hours in a
-timestamp. A -:-- timestamp is put where my tool was unable to
-detect a song-length. The reason most likely is a bad rip which
-reads entire memory (or arbitrary parts thereof) while it doesn't
-stop playing either. Below VARIOUS are only a very few sids where
-this has happened.
+Commented lines start with a semi colon.
 
-The ``attribute'' has diagnostic purposes only. Right now, you can
-skip it or do an inversion, i.e. add a (L) flag (song loops) to every
-timestamp that has no attribute, and erase the attribute of all other
-timestamps. The tool did not check whether a sub-song loops infinitely
-or whether it does end after it has looped for some time. This may
-need a second pass or additional code.
+Hashes are MD5 fingerprints (a 32 character string in HEX) and can be
+calculated based on the full content of the SID file (including the
+SID header).
 
-Timestamps with an attribute 0:00 (G) may need to be rounded up by
-one second. Sids touched in HVSC Update #22 _no longer_ need such a
-fix. For instance, sound effects which play less than one second
-have a timestamp 0:01 (G) from now on. Old entries will be updated
-some day. Right now it doesn't matter if the playtime of songs that
-stop is increased by one second.
+An example of a song length line:
 
-  (G) = all three SID voices have had GATE off...
-  (M) = Master Volume turned zero...
-  (Z) = all three SID voices have been silent...
+c4c5ff8cfefdf683c50e66775cfac1ee=3:57 1:02 0:06 0:02 0:01 0:01 0:02 0:04 0:03 0:02 0:03
 
-  ... for X seconds (where X is an internal parameter of siddiag).
+The line has the format:
 
+key=value
+
+Where key is the MD5 hash and the value includes the song lengths
+which are separated with a space.
+
+Each song length is of format:
+
+mm:ss
+
+where mm and ss are numbers and mm never starts with a 0. The minimum
+length of a SID tune is 1 second.
+
+Above every song length line, a comment is placed which includes the
+file path of the SID within HVSC.
+
+
+THE OLD FORMAT
+==============
+
+Most SID players will use the old format. For now, both song lengths
+databases are included in HVSC. Once sidplayers adopt the new format,
+only the new format will be included in future releases of HVSC.
+To make sure that you can always use old players and tools, we will
+provide a script so you can always generate the old song length file
+in the old format for the latest HVSC release.
+
+The old format has the same file structure as the new format, but
+differs in:
+
+- MD5 hash based on different reading of the content of the file
+- optional attributes (G, M, Z, B) after the song length
+
+The meaning of the attributes:
+  (G) = all three SID voices have had GATE off
+  (M) = master volume turned zero
+  (Z) = all three SID voices have been silent
   (B) = sidtune does bad things in memory / timestamp estimated
 
+An example:
+
+a08c08aa1c74990c7d753e8c1d2f023e=3:57 1:02 0:06(G) 0:02(G) 0:01(G) 0:01(G) 0:02(G) 0:04(G) 0:03(G) 0:02(G) 0:03(G)
+
+The calculation of the MD5 fingerprint is as follows:
+
+- Read all data starting from the data offset
+- Read init address (lo-byte first)
+- Read play address (lo-byte first)
+- Read number of songs (lo-byte first)
+- For each speed flag bit, calculate if the speed is CIA or VBI speed.
+  Then perform the following for all 32 bits:
+  - read 0 for VBI speed
+  - read 60 for CIA speed
+- When the SID is NTSC specific, read 2
+
+You can find a little Python script with test cases here:
+
+http://hvsc.de/download/files/tools/sid2md5_script_plus_test_cases.zip
+
+
+SSL FILE FORMAT
+===============
+
+SSL stands for SID Song Length. Since on a C64 the song lengths
+database is too big, we have defined a new file format so that
+players can read the song length info in an easy way on specific
+hardware where all HVSC files can be stored.
+
+You can use the following script to generate the files and folders:
+
+http://hvsc.de/download/files/tools/Generate_SSL_Files.zip
+
+This script will generate SSL files for each SID. The SSL files will
+be put in the SONGLENGTHS folders.
+
+To generate the files and folders, call the script like this:
+
+python Generate_SSL_Files.py <HVSC-PATH>
+
+To remove the files and folders, call the script like this:
+
+python Generate_SSL_Files.py -d <HVSC-PATH>
+
+Note that for every HVSC update, the SSL files and SONGLENGTHS folders
+need to be thrown away using the -d option of the tool before updating
+HVSC. After the update the script can be run again to create the
+folders with the SSL files.
+
+File format and HVSC structure:
+
+- Each folder in HVSC that includes one or more SID files will get
+  another folder called SONGLENGTHS (in uppercase).
+- The SONGLENGTHS folder gets all the filenames of the parent folder
+  but instead of the "sid" extension it will get the extension "ssl".
+- SSL files are binary files where the song length of each sub tune is
+  defined in BCD format (2 bytes per sub tune), minutes first then
+  seconds.
+- Maximum sub tunes in a SID is 256 and therefore the maximum length
+  of the SSL file is 512 bytes.
+- The SONGLENGTHS folders may be hidden on the file system (up to the
+  user to decide).
+
+An example:
+
+We have the following in Songlengths.md5 defined:
+
+; /MUSICIANS/H/Hubbard_Rob/Commando.sid
+c4c5ff8cfefdf683c50e66775cfac1ee=3:57 1:02 0:06 0:02 0:01 0:01 0:02 0:04 0:03 0:02 0:03
+
+The Commando.ssl file will look like this in HEX:
+03 57 01 02 00 06 00 02 00 01 00 01 00 02 00 04 00 03 00 02 00 03
+
+The file structure will look like this for files Chimera and Commando:
+
+SONGLENGTHS
+    Chimera.ssl
+    Commando.ssl
+Chimera.sid
+Commando.sid
+
+When a sidplayer reads e.g. Commando.sid, it should check if the
+SONGLENGTHS folder exists and then read the Commando.ssl file
+to read the song length info.

@@ -84,9 +84,71 @@ BOOL is_ios7,is_retina;
 
 //#include "ParserModland.hpp"
 
+-(void) getSupportedExtensionList {
+    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
+    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
+    NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
+    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
+    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
+    NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
+    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
+    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
+    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+    NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
+    NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    
+    NSMutableArray *supportedExtension=[[NSMutableArray alloc] init];
+    [supportedExtension addObjectsFromArray:filetype_extSID];
+    [supportedExtension addObjectsFromArray:filetype_extMDX];
+    [supportedExtension addObjectsFromArray:filetype_extSTSOUND];
+    [supportedExtension addObjectsFromArray:filetype_extSC68];
+    [supportedExtension addObjectsFromArray:filetype_extUADE];
+    [supportedExtension addObjectsFromArray:filetype_extMODPLUG];
+    [supportedExtension addObjectsFromArray:filetype_extXMP];
+    [supportedExtension addObjectsFromArray:filetype_extDUMB];
+    [supportedExtension addObjectsFromArray:filetype_extGME];
+    [supportedExtension addObjectsFromArray:filetype_extADPLUG];
+    [supportedExtension addObjectsFromArray:filetype_extSEXYPSF];
+    [supportedExtension addObjectsFromArray:filetype_extAOSDK];
+    [supportedExtension addObjectsFromArray:filetype_extHVL];
+    [supportedExtension addObjectsFromArray:filetype_extGSF];
+    [supportedExtension addObjectsFromArray:filetype_extASAP];
+    [supportedExtension addObjectsFromArray:filetype_extVGM];
+    [supportedExtension addObjectsFromArray:filetype_extWMIDI];
+    [supportedExtension addObjectsFromArray:filetype_extARCHIVE];
+    [supportedExtension addObjectsFromArray:filetype_extPMD];
+    [supportedExtension addObjectsFromArray:filetype_extLAZYUSF];
+    [supportedExtension addObjectsFromArray:filetype_extXSF];
+    [supportedExtension addObjectsFromArray:filetype_extVGMSTREAM];
+    
+    NSOrderedSet *orderedSet = [NSOrderedSet orderedSetWithArray:supportedExtension];
+    NSArray *arrayWithoutDuplicates = [orderedSet array];
+    
+    NSSortDescriptor *sd = [[NSSortDescriptor alloc] initWithKey:nil ascending:YES];
+    
+    for (id object in [arrayWithoutDuplicates sortedArrayUsingDescriptors:@[sd]]) {
+        printf("%s\n",[(NSString*)object UTF8String]);
+    }
+    
+    [supportedExtension release];
+}
+    
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch
 	//
+    //[self getSupportedExtensionList];
     
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     

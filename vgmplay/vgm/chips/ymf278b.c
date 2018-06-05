@@ -124,6 +124,8 @@ typedef struct
 	INT8 memmode;
 	INT32 memadr;
 
+	UINT8 exp;
+
 	INT32 fm_l, fm_r;
 	INT32 pcm_l, pcm_r;
 
@@ -191,7 +193,7 @@ const INT32 pan_right[16] = {
 
 // Mixing levels, units are -3dB, and add some marging to avoid clipping
 const INT32 mix_level[8] = {
-	8, 16, 24, 32, 40, 48, 56, 256
+	8, 16, 24, 32, 40, 48, 56, 256+8
 };
 
 // decay level table (3dB per step)
@@ -633,6 +635,16 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
 	{
 		/* memset is done by ymf262_update */
 		ymf262_update_one(chip->fmchip, outputs, samples);
+		// apply FM mixing level
+		vl = mix_level[chip->fm_l] - 8;	vl = chip->volume[vl];
+		vr = mix_level[chip->fm_r] - 8;	vr = chip->volume[vr];
+		// make FM softer by 3 db
+		vl = (vl * 0x16A) >> 8;	vr = (vr * 0x16A) >> 8;
+		for (j = 0; j < samples; j ++)
+		{
+			outputs[0][j] = (outputs[0][j] * vl) >> 15;
+			outputs[1][j] = (outputs[1][j] * vr) >> 15;
+		}
 	}
 	else
 	{
@@ -707,7 +719,7 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
 				sl->sample1 = sl->sample2;
 				
 				sl->sample2 = ymf278b_getSample(chip, sl);
-				if (sl->pos == sl->endaddr)
+				if (sl->pos >= sl->endaddr)
 					sl->pos = sl->pos - sl->endaddr + sl->loopaddr;
 				else
 					sl->pos ++;
@@ -787,7 +799,8 @@ static void ymf278b_B_w(YMF278BChip *chip, UINT8 reg, UINT8 data)
 	switch(reg)
 	{
 		case 0x05:	// OPL3/OPL4 Enable
-			// actually Bit 1 enables OPL4 WaveTable Synth
+			// Bit 1 enables OPL4 WaveTable Synth
+			chip->exp = data;
 			ymf262_write(chip->fmchip, 3, data & ~0x02);
 			break;
 		default:
@@ -1080,6 +1093,10 @@ void ymf278b_w(UINT8 ChipID, offs_t offset, UINT8 data)
 			break;
 
 		case 5:
+			// PCM regs are only accessible if NEW2 is set
+			if (~chip->exp & 2)
+				break;
+			
 			ymf278b_C_w(chip, chip->port_C, data);
 			break;
 
@@ -1124,11 +1141,11 @@ static void ymf278b_load_rom(YMF278BChip *chip)
 			RetVal = fread(ROMFile, 0x01, ROMFileSize, hFile);
 			fclose(hFile);
 			if (RetVal != ROMFileSize)
-				printf("Error while reading OPL4 Sample ROM (%s)!\n", ROM_FILENAME);
+				fprintf(stderr, "Error while reading OPL4 Sample ROM (%s)!\n", ROM_FILENAME);
 		}
 		else
 		{
-			printf("Warning! OPL4 Sample ROM (%s) not found!\n", ROM_FILENAME);
+			fprintf(stderr, "Warning! OPL4 Sample ROM (%s) not found!\n", ROM_FILENAME);
 		}
 	}
 	
@@ -1225,7 +1242,8 @@ void device_reset_ymf278b(UINT8 ChipID)
 		ymf278b_C_w(chip, i, 0);
 	
 	chip->wavetblhdr = chip->memmode = chip->memadr = 0;
-	chip->fm_l = chip->fm_r = chip->pcm_l = chip->pcm_r = 0;
+	chip->fm_l = chip->fm_r = 3;
+	chip->pcm_l = chip->pcm_r = 0;
 	//busyTime = time;
 	//loadTime = time;
 }
@@ -1247,6 +1265,20 @@ void ymf278b_write_rom(UINT8 ChipID, offs_t ROMSize, offs_t DataStart, offs_t Da
 		DataLength = ROMSize - DataStart;
 	
 	memcpy(chip->rom + DataStart, ROMData, DataLength);
+	
+	return;
+}
+
+void ymf278b_write_ram(UINT8 ChipID, offs_t DataStart, offs_t DataLength, const UINT8* RAMData)
+{
+	YMF278BChip *chip = &YMF278BData[ChipID];
+	
+	if (DataStart >= chip->RAMSize)
+		return;
+	if (DataStart + DataLength > chip->RAMSize)
+		DataLength = chip->RAMSize - DataStart;
+	
+	memcpy(chip->ram + DataStart, RAMData, DataLength);
 	
 	return;
 }

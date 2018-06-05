@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		59240F502042DB4C00F7553F /* ym3438.h in Headers */ = {isa = PBXBuildFile; fileRef = 59240F4E2042DB4B00F7553F /* ym3438.h */; };
+		59240F512042DB4C00F7553F /* ym3438.c in Sources */ = {isa = PBXBuildFile; fileRef = 59240F4F2042DB4C00F7553F /* ym3438.c */; };
 		59782E741D8F38A400C0F8C7 /* c352.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E631D8F38A300C0F8C7 /* c352.c */; };
 		59782E751D8F38A400C0F8C7 /* c352.h in Headers */ = {isa = PBXBuildFile; fileRef = 59782E641D8F38A300C0F8C7 /* c352.h */; };
 		59782E761D8F38A400C0F8C7 /* es5503.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E651D8F38A300C0F8C7 /* es5503.c */; };
@@ -162,6 +164,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		59240F4E2042DB4B00F7553F /* ym3438.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ym3438.h; sourceTree = "<group>"; };
+		59240F4F2042DB4C00F7553F /* ym3438.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ym3438.c; sourceTree = "<group>"; };
 		59782E631D8F38A300C0F8C7 /* c352.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = c352.c; sourceTree = "<group>"; };
 		59782E641D8F38A300C0F8C7 /* c352.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = c352.h; sourceTree = "<group>"; };
 		59782E651D8F38A300C0F8C7 /* es5503.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = es5503.c; sourceTree = "<group>"; };
@@ -318,7 +322,6 @@
 		CC1344051AC17C8500CAB284 /* VGMPlay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = VGMPlay.c; path = vgm/VGMPlay.c; sourceTree = "<group>"; };
 		CC1344061AC17C8500CAB284 /* VGMPlay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VGMPlay.h; path = vgm/VGMPlay.h; sourceTree = "<group>"; };
 		CC1344091AC17C8500CAB284 /* VGMPlayUI.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = VGMPlayUI.c; path = vgm/VGMPlayUI.c; sourceTree = "<group>"; };
-		CC13440C1AC17C8500CAB284 /* XMasBonus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMasBonus.h; sourceTree = "<group>"; };
 		CC2D2A231AC2F450007C5296 /* malloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = malloc.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -365,7 +368,6 @@
 				CC1344051AC17C8500CAB284 /* VGMPlay.c */,
 				CC1344061AC17C8500CAB284 /* VGMPlay.h */,
 				CC1344091AC17C8500CAB284 /* VGMPlayUI.c */,
-				CC13440B1AC17C8500CAB284 /* XMasFiles */,
 			);
 			name = vgm;
 			sourceTree = "<group>";
@@ -512,6 +514,8 @@
 				CC1343F11AC17C8400CAB284 /* ymf262.c */,
 				CC1343F21AC17C8400CAB284 /* ymf262.h */,
 				CC1343F31AC17C8400CAB284 /* ymf271.c */,
+				59240F4F2042DB4C00F7553F /* ym3438.c */,
+				59240F4E2042DB4B00F7553F /* ym3438.h */,
 				CC1343F41AC17C8400CAB284 /* ymf271.h */,
 				CC1343F51AC17C8400CAB284 /* ymf278b.c */,
 				CC1343F61AC17C8400CAB284 /* ymf278b.h */,
@@ -520,15 +524,6 @@
 			);
 			name = chips;
 			path = vgm/chips;
-			sourceTree = "<group>";
-		};
-		CC13440B1AC17C8500CAB284 /* XMasFiles */ = {
-			isa = PBXGroup;
-			children = (
-				CC13440C1AC17C8500CAB284 /* XMasBonus.h */,
-			);
-			name = XMasFiles;
-			path = vgm/XMasFiles;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -560,6 +555,7 @@
 				CC1344531AC17C8500CAB284 /* np_nes_dmc.h in Headers */,
 				CC13444C1AC17C8500CAB284 /* nes_apu.h in Headers */,
 				CC1344121AC17C8500CAB284 /* 2203intf.h in Headers */,
+				59240F502042DB4C00F7553F /* ym3438.h in Headers */,
 				CC1344891AC17C8500CAB284 /* ymf271.h in Headers */,
 				59782E841D8F38A400C0F8C7 /* x1_010.h in Headers */,
 				CC1344701AC17C8500CAB284 /* segapcm.h in Headers */,
@@ -740,6 +736,7 @@
 				CC13446A1AC17C8500CAB284 /* scsp.c in Sources */,
 				59782E781D8F38A400C0F8C7 /* es5506.c in Sources */,
 				CC13448C1AC17C8500CAB284 /* ymz280b.c in Sources */,
+				59240F512042DB4C00F7553F /* ym3438.c in Sources */,
 				CC13442F1AC17C8500CAB284 /* c6280.c in Sources */,
 				CC1344601AC17C8500CAB284 /* pokey.c in Sources */,
 				CC1344271AC17C8500CAB284 /* adlibemu_opl3.c in Sources */,

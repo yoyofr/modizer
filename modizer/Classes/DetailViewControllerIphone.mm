@@ -247,8 +247,6 @@ static int display_length_mode=0;
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
     
-    
-    
     BButton *cancel_btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                                     10,
                                                                     200,
@@ -290,8 +288,6 @@ static int display_length_mode=0;
     }
     
     popoverctrl.delegate=self;
-    
-
     //popoverctrl.permittedArrowDirections=UIPopoverArrowDirectionUp;
 }
 
@@ -1103,6 +1099,7 @@ static float movePinchScale,movePinchScaleOld;
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,mplayer.mod_currentsub,mplayer.mod_minsub,mplayer.mod_maxsub];
             }
 			//[pvSubSongSel reloadAllComponents];
+            
             current_selmode=ARCSUB_MODE_NONE;
             [self dismissViewControllerAnimated:YES completion:nil];
 			

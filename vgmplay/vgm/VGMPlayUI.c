@@ -144,6 +144,7 @@ extern bool FMForce;
 //extern bool FMAccurate;
 extern bool FMBreakFade;
 extern float FMVol;
+extern bool FMOPL2Pan;
 
 extern CHIPS_OPTION ChipOpts[0x02];
 
@@ -768,7 +769,9 @@ static void cls(void)
 	// put the cursor at (0, 0)
 	bSuccess = SetConsoleCursorPosition(hConsole, coordScreen);
 #else
-	system("clear");
+	int retVal;
+	
+	retVal = system("clear");
 #endif
 	
 	return;
@@ -1001,10 +1004,10 @@ static void ReadOptions(const char* AppName)
 		
 		StrLen = strlen(TempStr) - 0x01;
 		//if (TempStr[StrLen] == '\n')
-		//	TempStr[StrLen] = 0x00;
+		//	TempStr[StrLen] = '\0';
 		while(TempStr[StrLen] < 0x20)
 		{
-			TempStr[StrLen] = 0x00;
+			TempStr[StrLen] = '\0';
 			if (! StrLen)
 				break;
 			StrLen --;
@@ -1032,7 +1035,7 @@ static void ReadOptions(const char* AppName)
 			LStr ++;
 			RStr = strchr(TempStr, ']');
 			if (RStr != NULL)
-				RStr[0x00] = 0x00;
+				RStr[0x00] = '\0';
 			
 			if (! stricmp_u(LStr, "General"))
 			{
@@ -1057,16 +1060,16 @@ static void ReadOptions(const char* AppName)
 		{
 			// Line pattern: Option = Value
 			TempLng = RStr - TempStr;
-			TempStr[TempLng] = 0x00;
+			TempStr[TempLng] = '\0';
 			
 			// Prepare Strings (trim the spaces)
 			RStr = &TempStr[TempLng - 0x01];
 			while(*RStr == ' ')
-				*(RStr --) = 0x00;
+				*(RStr --) = '\0';
 			
 			RStr = &TempStr[StrLen - 0x01];
 			while(*RStr == ' ')
-				*(RStr --) = 0x00;
+				*(RStr --) = '\0';
 			RStr = &TempStr[TempLng + 0x01];
 			while(*RStr == ' ')
 				RStr ++;
@@ -1170,6 +1173,10 @@ static void ReadOptions(const char* AppName)
 				else if (! stricmp_u(LStr, "FMVolume"))
 				{
 					FMVol = (float)strtod(RStr, NULL);
+				}
+				else if (! stricmp_u(LStr, "FMOPL2Pan"))
+				{
+					FMOPL2Pan = GetBoolFromStr(RStr);
 				}
 				/*else if (! stricmp_u(LStr, "AccurateFM"))
 				{
@@ -1284,6 +1291,12 @@ static void ReadOptions(const char* AppName)
 							TempCOpt->SpecialFlags &= ~(0x01 << 2);
 							TempCOpt->SpecialFlags |= TempFlag << 2;
 						}
+						else if (! stricmp_u(LStr, "NukedType"))
+						{
+							TempLng = (UINT32)strtoul(RStr, NULL, 0) & 0x03;
+							TempCOpt->SpecialFlags &= ~(0x03 << 3);
+							TempCOpt->SpecialFlags |= TempLng << 3;
+						}
 						break;
 					//case 0x03:	// YM2151
 					//case 0x04:	// SegaPCM
@@ -1319,18 +1332,18 @@ static void ReadOptions(const char* AppName)
 							CurChn = (UINT8)strtol(LStr + 0x08, &TempPnt, 0);
 							if (TempPnt == NULL || *TempPnt)
 								break;
-							if (CurChn >= CHN_COUNT[CurChip])
+							if (CurChn >= CHN_MASK_CNT[CurChip])
 								break;
 							TempFlag = GetBoolFromStr(RStr);
 							TempCOpt->ChnMute1 &= ~(0x01 << CurChn);
 							TempCOpt->ChnMute1 |= TempFlag << CurChn;
 						}
-						else if (! strnicmp_u(LStr, "MutePCMCh", 0x08))
+						else if (! strnicmp_u(LStr, "MutePCMCh", 0x09))
 						{
-							CurChn = (UINT8)strtol(LStr + 0x08, &TempPnt, 0);
+							CurChn = (UINT8)strtol(LStr + 0x09, &TempPnt, 0);
 							if (TempPnt == NULL || *TempPnt)
 								break;
-							if (CurChn >= CHN_COUNT[CurChip])
+							if (CurChn >= CHN_MASK_CNT[CurChip])
 								break;
 							TempFlag = GetBoolFromStr(RStr);
 							TempCOpt->ChnMute2 &= ~(0x01 << CurChn);
@@ -1444,18 +1457,6 @@ static void ReadOptions(const char* AppName)
 							TempFlag = GetBoolFromStr(RStr);
 							TempCOpt->SpecialFlags &= ~(0x01 << 0);
 							TempCOpt->SpecialFlags |= TempFlag << 0;
-						}
-						else if (! stricmp_u(LStr, "LowerNoiseChn"))
-						{
-							TempFlag = GetBoolFromStr(RStr);
-							TempCOpt->SpecialFlags &= ~(0x01 << 1);
-							TempCOpt->SpecialFlags |= TempFlag << 1;
-						}
-						else if (! stricmp_u(LStr, "Inaccurate"))
-						{
-							TempFlag = GetBoolFromStr(RStr);
-							TempCOpt->SpecialFlags &= ~(0x01 << 2);
-							TempCOpt->SpecialFlags |= TempFlag << 2;
 						}
 						break;
 					case 0x14:	// NES
@@ -1621,7 +1622,7 @@ static bool XMas_Extra(char* FileName, bool Mode)
 			hFile = fopen(FileName, "wb");
 			if (hFile == NULL)
 			{
-				FileName[0x00] = 0x00;
+				FileName[0x00] = '\0';
 				printerr("Critical XMas-Error!\n");
 				return false;
 			}
@@ -1755,7 +1756,7 @@ static bool OpenPlayListFile(const char* FileName)
 		RetStr = TempStr + strlen(TempStr) - 0x01;
 		while(RetStr >= TempStr && *RetStr < 0x20)
 		{
-			*RetStr = 0x00;	// remove NewLine-Characters
+			*RetStr = '\0';	// remove NewLine-Characters
 			RetStr --;
 		}
 		if (! strlen(TempStr))
@@ -2273,7 +2274,7 @@ static void PlayVGM_UI(void)
 			
 			if (LogToWave == 0x01 && ! PausePlay)
 			{
-				TempLng = VGMFillBuffer(TempBuf, LOG_SAMPLES);
+				TempLng = FillBuffer(TempBuf, LOG_SAMPLES);
 				if (TempLng)
 					SaveFile(TempLng, TempBuf);
 				if (EndPlay)
@@ -2293,7 +2294,7 @@ static void PlayVGM_UI(void)
 #endif
 		}
 #ifndef WIN32
-		if (! PausePlay)
+		if (! PausePlay && PlayingMode != 0x01)
 			WaveOutLinuxCallBack();
 		else
 			Sleep(100);
