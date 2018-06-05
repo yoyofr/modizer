@@ -454,7 +454,7 @@ void PauseStream(bool PauseOn)
 	return;
 }
 
-//UINT32 VGMFillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
+//UINT32 FillBuffer(WAVE_16BS* Buffer, UINT32 BufferSize)
 // moved to VGMPlay.c
 
 #ifdef WIN32
@@ -506,7 +506,7 @@ static DWORD WINAPI WaveOutThread(void* Arg)
 				else
 					WaveHdrOut[CurBuf].dwUser |= 0x01;
 				
-				WrtSmpls = VGMFillBuffer(TempBuf, SMPL_P_BUFFER);
+				WrtSmpls = FillBuffer(TempBuf, SMPL_P_BUFFER);
 				
 				WaveHdrOut[CurBuf].dwBufferLength = WrtSmpls * SAMPLESIZE;
 				waveOutWrite(hWaveOut, &WaveHdrOut[CurBuf], sizeof(WAVEHDR));
@@ -563,7 +563,7 @@ void WaveOutLinuxCallBack(void)
 	CurBuf = BlocksSent % AUDIOBUFFERU;
 	TempBuf = (WAVE_16BS*)BufferOut[CurBuf];
 	
-	WrtSmpls = VGMFillBuffer(TempBuf, SMPL_P_BUFFER);
+	WrtSmpls = FillBuffer(TempBuf, SMPL_P_BUFFER);
 	
 #ifndef USE_LIBAO
 	RetVal = write(hWaveOut, TempBuf, WrtSmpls * SAMPLESIZE);

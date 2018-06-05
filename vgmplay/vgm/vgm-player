@@ -9,7 +9,7 @@
 # 7z support by Valley Bell
 
 trap '[ -n "$_tmpdir" ] && rm -rf "$_tmpdir"; [ -w "$_log_path/vgmplay.ini" ] && rm "$_log_path/vgmplay.ini"' EXIT
-trap '[ -n "$_tmpdir" ] && rm -rf "$_tmpdir"; [ -w "$_log_path/vgmplay.ini" ] && rm "$_log_path/vgmplay.ini"; reset' HUP INT QUIT TERM SEGV
+trap '[ -n "$_tmpdir" ] && rm -rf "$_tmpdir"; [ -w "$_log_path/vgmplay.ini" ] && rm "$_log_path/vgmplay.ini"' HUP INT QUIT TERM SEGV
 
 _set_output=
 _output=
@@ -17,11 +17,10 @@ _pulse_server=
 _log_path=
 _binary=
 _config=
-_unpacker=
 _pwd="$(pwd)"
 _host="$(hostname)"
 _ext=
-_unpacker=
+_unpack=false
 _tmpdir=
 _music_file=
 _m3u_stub=
@@ -69,7 +68,7 @@ exit 0
 }
 
 _to_stderr () {
-    echo "$0: $2" 1>&2
+    echo -e "$0: $2" 1>&2
     exit $1
 }
 
@@ -115,6 +114,10 @@ _die () {
             _to_stderr 69 "no usable otuput detected" ;;
         log_path_nowrite )
             _to_stderr 73 "log path unwriteable" ;;
+        no_music_file )
+            _to_stderr 64 "No music file specified." ;;
+        * )
+            _to_stderr 64 "Unhandled script error: $1" ;;
     esac
 }
 
@@ -139,7 +142,7 @@ _set_output () {
 # Set terminal title for xterm/rxvt
 case $TERM in
     xterm* | rxvt* )
-        printf '%b\n' '\033]2;VGM Player\007' ;;
+        printf '%b' '\033]2;VGM Player\007' ;;
     * )
         ;;
 esac
@@ -150,8 +153,8 @@ while :; do
     case $1 in
         --help )
             _help ;;
-        --version )
-            echo "VGMPlay 0.40.3 supporting VGM 1.70"
+        -v | --version )
+            echo "VGMPlay 0.40.8 player script"
             exit 0 ;;
         -a | --alsa )
             _set_output alsa
@@ -228,7 +231,7 @@ done
 #   Prefers vgmplay in working dir over any others
 if [ -n "$_binary" ]; then
     break
-elif [ -x "$_pwd/vgmplay" ]; then
+elif [ -x "$_pwd/vgmplay" ] && [ -f "$_pwd/vgmplay" ]; then
     _binary="$_pwd/vgmplay"
 else
     _binary="$(command -v vgmplay 2>/dev/null)"
@@ -238,8 +241,10 @@ fi
 # If a compressed pack, does a suitable unpacker exist?
 case $_ext in
     zip )
+        _unpack=true
         command -v unzip 2>/dev/null || _die no_unpacker ;;
     7z | vgm7z )
+        _unpack=true
         command -v 7z 2>/dev/null || _die no_unpacker ;;
     vgm | vgz | cmf | dro | m3u )
         break ;;
@@ -251,8 +256,10 @@ esac
 if [ -r "$_config" ]; then
     break
 else
-    for i in "$_pwd" "$XDG_CONFIG_HOME/vgmplay" "$HOME/.config/vgmplay" "$XDG_CONFIG_DIRS/vgmplay" "/etc/xdg/vgmplay" "/usr/local/share/vgmplay" "/usr/share/vgmplay"; do
+    for i in "$_pwd" "$XDG_CONFIG_HOME/vgmplay" "$HOME/.config/vgmplay" "$XDG_CONFIG_DIRS/vgmplay" "$HOME/.local/share/vgmplay" "/etc/xdg/vgmplay" "/usr/local/share/vgmplay" "/usr/share/vgmplay"; do
         _config="$i/vgmplay.ini"
+        [ -r "$_config" ] && break
+        _config="$i/VGMPlay.ini"
         [ -r "$_config" ] && break
     done
 fi
@@ -277,7 +284,7 @@ fi
 # Determine output to use if not forced
 # Also sets pulse-server if detected
 # PULSE_SERVER, oss, padsp, aoss, log set, error
-if [ -n $_set_output ]; then
+if [ -z "$_set_output" ]; then
     if [ -n "$PULSE_SERVER" ] && [ -x "$_padsp" ]; then
         _set_output="pulse-server"
     elif [ -w /dev/dsp ]; then
@@ -294,47 +301,27 @@ if [ -n $_set_output ]; then
 fi
 [ -n "$_pulse_server" ] && _set_output=pulse-server
 
-# Extract packs to tmpdir.
-if [ $_ext = "zip" ]; then
+if [ "$_unpack" = true ]; then
     if [ "$_set_output" = log ]; then
-        (   [ -d "$_log_path" ] && cd "$_log_path" || _die log_path_nowrite
-            command unzip "$_music_file" >"$_log_path/extractlog"
-        )
-        _m3u_stub="$(command grep < "$_log_path/extractlog" m3u | command sed 's/  inflating: \| extracting: //g')"
-        _music_file="$_log_path/${_m3u_stub%%  }"
-        command rm "$_log_path/extractlog"
+        [ -d "$_log_path" ] && cd "$_log_path" || _die log_path_nowrite
     else
-        (   [ -d "$_tmpdir" ] && cd "$_tmpdir" || _die tmpdir_failed
-            command unzip "$_music_file" >"$_tmpdir/extractlog"
-        )
-        _m3u_stub="$(command grep < "$_tmpdir/extractlog" m3u | command sed 's/  inflating: \| extracting: //g')"
-        _music_file="$_tmpdir/${_m3u_stub%%  }"
+        [ -d "$_tmpdir" ] && cd "$_tmpdir" || _die tmpdir_failed
     fi
-elif [ $_ext = "7z" ] || [ $_ext = "vgm7z" ]; then
-    if [ "$_set_output" = log ]; then
-        (   [ -d "$_log_path" ] && cd "$_log_path" || _die log_path_nowrite
-            command 7z x "$_music_file" >"$_log_path/extractlog"
-        )
-        _m3u_stub="$(command grep < "$_log_path/extractlog" m3u | command sed 's/Extracting  //g')"
-        _music_file="$_log_path/${_m3u_stub%%  }"
-        command rm "$_log_path/extractlog"
-    else
-        (   [ -d "$_tmpdir" ] && cd "$_tmpdir" || _die tmpdir_failed
-            command 7z x "$_music_file" >"$_tmpdir/extractlog"
-        )
-        _m3u_stub="$(command grep < "$_tmpdir/extractlog" m3u | command sed 's/Extracting  //g')"
-        _music_file="${_m3u_stub%%  }"
-		#echo "Test:$_music_file|"
-		if [ "$_music_file" == "" ]; then
-			_music_file="List.m3u"
-			#echo "Test:$_music_file|"
-	        command grep < "$_tmpdir/extractlog" vgm | command sed 's/Extracting  //g' >"$_tmpdir/$_music_file"
-			#exec cat "$_music_file"
-		fi
-		_music_file="$_tmpdir/$_music_file"
+    if [ $_ext = "zip" ]; then
+        command unzip "$_music_file" > /dev/null
+    elif [ $_ext = "7z" ] || [ $_ext = "vgm7z" ]; then
+        command 7z x "$_music_file" > /dev/null
     fi
+    # Notes:
+    #   - sed is used to remove the leading ./
+    #   - find is used to scan subfolders as well
+    _m3u_stub=$(command find . -iname '*.m3u' -print 2> /dev/null | head -n 1 | sed -e 's/^.\///')
+    if [ -z "$_m3u_stub" ]; then
+        _m3u_stub="List.m3u"
+        command find . -iname '*.vgm' -o -iname '*.vgz' -print | sed -e 's/^.\///' > "$_m3u_stub" 2> /dev/null
+    fi
+    _music_file="$PWD/$_m3u_stub"
 fi
-_music_file=`echo "$_music_file" | sed -e "s/\\s*$//g"`
 
 # Plays back song with specified everything
 case $_set_output in

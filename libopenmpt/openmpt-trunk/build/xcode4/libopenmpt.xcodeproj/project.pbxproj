@@ -1339,7 +1339,7 @@
 				D6D315FE1AF6A0001AA0C71F05E2C500D1742F7F4DC89000 /* ReleaseShared */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 		2F8612DED1433A00ED7CB1A474316000668E623B03574000 /* Build configuration list for PBXNativeTarget "libopenmpt" */ = {
 			isa = XCConfigurationList;
@@ -1354,7 +1354,7 @@
 				E12A8EB7E6C598001DE3963BB4E8EE0014D9F0FF3BF74100 /* ReleaseShared */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

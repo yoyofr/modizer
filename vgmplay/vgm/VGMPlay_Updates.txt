@@ -142,5 +142,22 @@ Updates since 0.4.0u6 (30.05.2015)
 - fixed bug with X1-010 PCM loops
 
 Updates since 0.4.0u7 (04.05.2016)
+- fixed looping samples in YMF278B (was broken since 0.4.0u7)
 - fixed OKIM6258 ADPCM algorithm (thanks, XM6 source code)
 - "fixed" some Project2612 VGMs (worked around incorrect register order in the initialization block of Kega Fusion logs)
+- [VGMPlay] fixed YM2608/YM2610 "MutePCMCh" option not working
+- fixed bug with YM2612 "PseudoStereo" option
+- fixed YMF278B FM<->Wavetable volume balance, added code to emulate the "FM mix" register
+- fixed YM2151 to use 10 bits per channel instead of 9 (improves Toms in Sharp X1 Space Harrier), thanks MovieMovies1
+- improved GameBoy emulation by porting current MAME core (ported from libvgm)
+- improved C352 emulation by porting ctr's updates from libvgm
+
+Updates since 0.4.0u8 (16.04.2017)
+- [in_vgm] fixed a crash and incorrect track times (thanks to NewRisingSun for the bug report)
+- fixed mid-sample frequency changes in DAC Stream Control (thanks NewRisingSun)
+- fixed SAA1099 sample rate and noise volume (thanks NewRisingSun)
+- [in_vgm] fixed being unable to mute 2nd MultiPCM chip (thanks to Alianger for the bug report)
+- added command for AY8910 panning (thanks NewRisingSun)
+- fixed YMF278B FM<->Wavetable volume balance again (thanks to ctr for a test VGM and thanks to l_oliveira for the hardware recording)
+- added (very basic) YMF278B RAM block support
+- slightly improved YMF271 emulation, thanks to GTheGuardian and kirishima

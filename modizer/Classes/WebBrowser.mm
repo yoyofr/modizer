@@ -414,7 +414,13 @@ static UIAlertView *alertChooseName;
             //			NSLog(@"%@",MIME);
 			asdf=YES;
 		}
-        
+        r.location=NSNotFound;
+        r=[MIME rangeOfString:@"image/"];
+        if (r.location!=NSNotFound) {
+            //            NSLog(@"unknown binary content, attempt to download");
+            //            NSLog(@"%@",MIME);
+            asdf=YES;
+        }        
 	}
 	if (asdf == NO) {
 	}

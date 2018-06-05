@@ -94,9 +94,9 @@
 #define MODLAND_HOST_ALT1 "ftp://ftp.amigascne.org/mirrors/ftp.modland.com"
 #define MODLAND_HOST_ALT2 "ftp://modland.ziphoid.com"
 
-#define HVSC_HOST_DEFAULT "http://www.prg.dtu.dk/HVSC/C64Music"
-#define HVSC_HOST_ALT1 "http://america.z80.guru/files/C64Music"
-#define HVSC_HOST_ALT2 "http://hvsc.perff.dk"
+#define HVSC_HOST_DEFAULT "http://hvsc.perff.dk"
+#define HVSC_HOST_ALT1 "https://hvsc.etv.cx/?path=C64Music"
+#define HVSC_HOST_ALT2 "http://www.prg.dtu.dk/HVSC/C64Music"
 
 
 //#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"

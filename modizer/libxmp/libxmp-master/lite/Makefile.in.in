@@ -1,7 +1,7 @@
 
 VERSION		= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
 
-# The dylib will support anything linked against COMPAT_VERSION through VERSION
+# This dylib will support anything linked against COMPAT_VERSION through VERSION
 COMPAT_VERSION	= $(VERSION_MAJOR)
 
 CC		= @CC@
@@ -25,7 +25,7 @@ SHELL		= /bin/sh
 DIST		= libxmp-lite-$(VERSION)
 DFILES		= README INSTALL Changelog install-sh configure configure.ac \
 		  config.sub config.guess Makefile.in libxmp-lite.pc.in \
-		  Makefile.vc libxmp.map
+		  Makefile.vc Makefile.os2 libxmp.map
 DDIRS		= include src loaders os2 test
 V		= 0
 LIB		= libxmp-lite.a
@@ -36,6 +36,16 @@ DLL		= libxmp-lite.dll
 IMPLIB		= libxmp-lite.dll.a
 DYLIB		= libxmp-lite.$(VERSION_MAJOR).dylib
 GCLIB		= libxmp-lite-gc.a
+DYLIB_COMPAT	= -compatibility_version,$(COMPAT_VERSION),
+
+DARWIN_VERSION	= @DARWIN_VERSION@
+
+# https://github.com/cmatsuoka/libxmp/issues/1
+ifneq ($(DARWIN_VERSION),)
+  ifeq ($(shell test $(DARWIN_VERSION) -lt 9 && echo true), true)
+    DYLIB_COMPAT=
+  endif
+endif
 
 all: @STATIC@ @SHARED@
 
@@ -106,7 +116,7 @@ lib/$(DLL): $(OBJS)
 
 lib/$(DYLIB): $(LOBJS)
 	@mkdir -p lib
-	@CMD='$(LD) $(LDFLAGS) -dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup,-compatibility_version,$(COMPAT_VERSION),-current_version,$(VERSION),-install_name,$(prefix)/lib/$(DYLIB) -o $@ $(LOBJS) $(LIBS)'; \
+	@CMD='$(LD) $(LDFLAGS) -dynamiclib -Wl,-headerpad_max_install_names,-undefined,dynamic_lookup,$(DYLIB_COMPAT)-current_version,$(VERSION),-install_name,$(prefix)/lib/$(DYLIB) -o $@ $(LOBJS) $(LIBS)'; \
 	if [ "$(V)" -gt 0 ]; then echo $$CMD; else echo LD $@ ; fi; \
 	eval $$CMD
 	ln -sf $(DYLIB) lib/libxmp-lite.dylib
@@ -159,15 +169,11 @@ depend:
 		sed "s!^.*\.o:!$$i $$l:!" >> $@ ; \
 	done
 	    
-dist: version-prepare dist-prepare vc-prepare dist-jni dist-os2x dist-subdirs
+dist: version-prepare dist-prepare vc-prepare os2-prepare dist-jni dist-subdirs
 
 dist-jni:
 	mkdir $(DIST)/jni
 	cp jni/Android.mk jni/Application.mk $(DIST)/jni
-
-dist-os2x:
-	mkdir $(DIST)/os2
-	cp os2/Makefile.os2 $(DIST)/os2
 
 dist-prepare:
 	./config.status
@@ -178,6 +184,10 @@ dist-prepare:
 vc-prepare:
 	@echo Generate Makefile.vc
 	@sed -e 's!@OBJS@!$(subst /,\\,$(OBJS:.o=.obj))!' Makefile.vc.in > Makefile.vc
+
+os2-prepare:
+	@echo Generate Makefile.os2
+	@sed -e 's!@OBJS@!$(OBJS:.o=.obj)!' Makefile.os2.in > Makefile.os2
 
 dist-subdirs: $(addprefix dist-,$(DDIRS))
 	chmod -R u+w $(DIST)/*

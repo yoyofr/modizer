@@ -117,7 +117,7 @@ extern INT32 VGMSmplPlayed;
 extern INT32 VGMSampleRate;
 extern UINT32 BlocksSent;
 extern UINT32 BlocksPlayed;
-extern bool VGMEnd;
+bool VGMEnd;
 extern bool EndPlay;
 extern bool PausePlay;
 extern bool FadePlay;

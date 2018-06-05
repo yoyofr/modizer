@@ -4,8 +4,9 @@ openMSX - GPL.txt
 Gens/GS - GPL.txt
 NSFPlay - [Google Code lists Apache License 2.0]
 Ootake - ?
-in_vgm - ?
+Gens - Cardware
 MEKA - ?
 zlib - see zlib.h
 in_wsr - ?
 vbjin/mednafen - GNU GPLv2
+EMU2149/EMU2413 - MIT License

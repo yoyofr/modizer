@@ -9,8 +9,6 @@
 extern BOOL is_ios7;
 
 #define GET_NB_ENTRIES 1
-#define NB_MODLAND_ENTRIES 319746
-
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define ROW_HEIGHT 40
