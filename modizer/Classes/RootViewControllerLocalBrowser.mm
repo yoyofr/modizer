@@ -1558,9 +1558,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         NSRange rdir;
         NSArray *dirContent;//
         BOOL isDir;
+        
+        
         if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
         else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
-        for (file in dirContent) {
+        
+        NSArray *sortedDirContent = [dirContent sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+        
+        for (file in sortedDirContent) {
             //NSLog(@"%@",file);
             //check if dir
             //rdir.location=NSNotFound;
@@ -1675,7 +1680,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 //                NSLog(@"detail2 : %d",end_time-start_time);
                 //                start_time=end_time;
                 // Second check count for each section
-                for (file in dirContent) {
+                for (file in sortedDirContent) {
                     if (shouldStop) break;
                     //rdir.location=NSNotFound;
                     // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
