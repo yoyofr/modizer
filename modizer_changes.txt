@@ -30,6 +30,14 @@ Todo/Requested:
 
 - BUG: when not playing file, if download & exit => should not empty download queue
 
+2.9.1
+ÑÑÑÑÑ
+- [Bugfix] HVSC #68
+- [Bugfix] About screen
+- [Bugfix] File browser sorting issue
+- [Bugfix] several minor fixes
+
+
 2.9
 ÑÑÑ
 - XMP updated to last version

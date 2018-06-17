@@ -148,7 +148,7 @@ static int display_length_mode=0;
 
 @synthesize mOnlyCurrentSubEntry,mOnlyCurrentEntry;
 
-@synthesize mDeviceType;
+@synthesize mDeviceType,mDeviceIPhoneX;
 @synthesize cover_view,cover_viewBG,gifAnimation;
 //@synthesize locManager;
 @synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
@@ -2757,15 +2757,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
             
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
-            cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10);
-            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44);
+			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
+            cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-(mDeviceIPhoneX?32:0));
+            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-(mDeviceIPhoneX?32:0));
             
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
+			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
             
             volWin.hidden=NO;
-			volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
+            volWin.frame= CGRectMake(0, mDevice_hh-64-42-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
 			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),
                                           volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
             //			volumeView.center = CGPointMake((mDevice_ww)/2,32);
@@ -2773,7 +2773,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 			
 			if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230);
+			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
 			
 			//commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
             commandViewU.frame = CGRectMake(0, 0, mDevice_ww, 32+48);
@@ -3076,10 +3076,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)updateBarPos {
 	if ((orientationHV==UIInterfaceOrientationPortrait)||(orientationHV==UIInterfaceOrientationPortraitUpsideDown)) {
-		playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42), mDevice_ww, 44);
-		pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42), mDevice_ww, 44);
-		playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42), mDevice_ww, 44);
-		pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42), mDevice_ww, 44);
+		playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
+		pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
+		playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
+		pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
 	} else {
         int xofs=24*5+32*2+10;
 		playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
@@ -4158,6 +4158,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             mDevice_hh=mainscr.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
+        if (mainscr.bounds.size.height==812) mDeviceIPhoneX=1;
         mScaleFactor=mainscr.scale;
         
         if (mScaleFactor>=2) mDeviceType=2;
@@ -4379,7 +4380,13 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	infoZoom.hidden=NO;
 	infoUnzoom.hidden=YES;
 	
-	volWin.frame= CGRectMake(0, mDevice_hh-64-42, mDevice_ww, 44);
+	volWin.frame= CGRectMake(0, mDevice_hh-64-42-32, mDevice_ww, 44);
+    //debug
+    /*[volWin setBackgroundColor:[UIColor colorWithRed:66
+                                               green:79
+                                                blue:91
+                                               alpha:1]];
+     */
 	volumeView = [[[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/] autorelease];
     //	volumeView.center = CGPointMake(mDevice_ww/2,32);
     //  [volumeView setShowsRouteButton:YES];
