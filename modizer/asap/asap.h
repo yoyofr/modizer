@@ -29,9 +29,6 @@ extern "C" {
         ASAPModuleType_FC
     }
     ASAPModuleType;
-    typedef struct Cpu6502 Cpu6502;
-    typedef struct FlashPack FlashPack;
-    typedef struct FlashPackItem FlashPackItem;
     
     typedef enum {
         FlashPackItemType_LITERAL,
@@ -58,8 +55,6 @@ extern "C" {
         NmiStatus_WAS_V_BLANK
     }
     NmiStatus;
-    typedef struct Pokey Pokey;
-    typedef struct PokeyPair PokeyPair;
     
     struct Cpu6502 {
         int a;
@@ -71,31 +66,11 @@ extern "C" {
         int x;
         int y;
     };
-    
-    struct ASAPInfo {
-        int channels;
-        int covoxAddr;
-        int defaultSong;
-        int fastplay;
-        int headerLen;
-        int init;
-        int music;
-        cibool ntsc;
-        int player;
-        int songs;
-        ASAPModuleType type;
-        unsigned char songPos[32];
-        char author[128];
-        char date[128];
-        int durations[32];
-        char filename[128];
-        cibool loops[32];
-        char title[128];
-    };
 
     
-    typedef struct ASAP ASAP;
-    typedef struct ASAPInfo ASAPInfo;
+    typedef struct Cpu6502 Cpu6502;
+    typedef struct FlashPack FlashPack;
+    typedef struct FlashPackItem FlashPackItem;
     
     struct Pokey {
         int audc1;
@@ -135,7 +110,7 @@ extern "C" {
         int tickCycle4;
         int deltaBuffer[888];
     };
-
+    typedef struct Pokey Pokey;
     struct PokeyPair {
         int extraPokeyMask;
         int iirAccLeft;
@@ -154,6 +129,32 @@ extern "C" {
         unsigned char poly17Lookup[16385];
     };
 
+    
+    typedef struct PokeyPair PokeyPair;
+    
+    
+    struct ASAPInfo {
+        int channels;
+        int covoxAddr;
+        int defaultSong;
+        int fastplay;
+        int headerLen;
+        int init;
+        int music;
+        cibool ntsc;
+        int player;
+        int songs;
+        ASAPModuleType type;
+        unsigned char songPos[32];
+        char author[128];
+        char date[128];
+        int durations[32];
+        char filename[128];
+        cibool loops[32];
+        char title[128];
+    };
+    typedef struct ASAPInfo ASAPInfo;
+    
     struct ASAP {
         int blocksPlayed;
         int consol;
@@ -174,7 +175,8 @@ extern "C" {
         PokeyPair pokeys;
         unsigned char memory[65536];
     };
-
+    typedef struct ASAP ASAP;
+    
     
     /**
      * Format of output samples.
