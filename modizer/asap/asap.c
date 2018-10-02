@@ -3,8 +3,29 @@
 #include <string.h>
 #include "asap.h"
 
+
 static void Cpu6502_DoFrame(Cpu6502 *self, ASAP *asap, int cycleLimit);
 
+/*struct ASAPInfo {
+    int channels;
+    int covoxAddr;
+    int defaultSong;
+    int fastplay;
+    int headerLen;
+    int init;
+    int music;
+    cibool ntsc;
+    int player;
+    int songs;
+    ASAPModuleType type;
+    unsigned char songPos[32];
+    char author[128];
+    char date[128];
+    int durations[32];
+    char filename[128];
+    cibool loops[32];
+    char title[128];
+};*/
 static void ASAPInfo_AddSong(ASAPInfo *self, int playerCalls);
 static int ASAPInfo_AfterFF(unsigned char const *module, int moduleLen, int currentOffset);
 static int ASAPInfo_CheckDate(ASAPInfo const *self);
@@ -53,6 +74,7 @@ static void Pokey_Initialize(Pokey *self);
 static cibool Pokey_IsSilent(Pokey const *self);
 static void Pokey_Mute(Pokey *self, int mask);
 
+
 static void PokeyPair_Construct(PokeyPair *self);
 static int PokeyPair_EndFrame(PokeyPair *self, int cycle);
 static int PokeyPair_Generate(PokeyPair *self, unsigned char *buffer, int bufferOffset, int blocks, ASAPSampleFormat format);
@@ -62,6 +84,26 @@ static cibool PokeyPair_IsSilent(PokeyPair const *self);
 static void PokeyPair_Poke(PokeyPair *self, int addr, int data, int cycle);
 static void PokeyPair_StartFrame(PokeyPair *self);
 
+/*struct ASAP {
+    int blocksPlayed;
+    int consol;
+    unsigned char covox[4];
+    int currentDuration;
+    int currentSong;
+    int cycle;
+    cibool gtiaOrCovoxPlayedThisFrame;
+    int nextEventCycle;
+    int nextPlayerCycle;
+    int nextScanlineCycle;
+    NmiStatus nmist;
+    int silenceCycles;
+    int silenceCyclesCounter;
+    int tmcPerFrameCounter;
+    Cpu6502 cpu;
+    ASAPInfo moduleInfo;
+    PokeyPair pokeys;
+    unsigned char memory[65536];
+};*/
 static void ASAP_Construct(ASAP *self);
 static void ASAP_Call6502(ASAP *self, int addr);
 static void ASAP_Call6502Player(ASAP *self);
@@ -1956,7 +1998,7 @@ int ASAP_GetPokeyChannelVolume(ASAP const *self, int channel)
             return self->pokeys.extraPokey.audc3 & 15;
         case 7:
             return self->pokeys.extraPokey.audc4 & 15;
-            default:
+        default:
             return 0;
     }
 }
@@ -2133,10 +2175,10 @@ static int ASAP_PeekHardware(ASAP const *self, int addr)
                     return 31;
                 case NmiStatus_WAS_V_BLANK:
                     return 95;
-                    default:
+                default:
                     return self->cycle < 28291 ? 31 : 95;
             }
-            default:
+        default:
             return self->memory[addr];
     }
 }
@@ -2371,7 +2413,7 @@ static unsigned char const *ASAP6502_GetPlayerRoutine(ASAPInfo const *info)
             return CiBinaryResource_tm2_obx;
         case ASAPModuleType_FC:
             return CiBinaryResource_fc_obx;
-            default:
+        default:
             return NULL;
     }
 }
@@ -2415,7 +2457,7 @@ static int ASAPInfo_CheckDate(ASAPInfo const *self)
             if (!ASAPInfo_CheckTwoDateDigits(self, n - 4) || !ASAPInfo_CheckTwoDateDigits(self, n - 2))
                 return -1;
             return n;
-            default:
+        default:
             return -1;
     }
 }
@@ -2518,7 +2560,7 @@ const char *ASAPInfo_GetExtDescription(const char *ext)
             return "Future Composer";
         case 7890296:
             return "Atari 8-bit executable";
-            default:
+        default:
             return NULL;
     }
 }
@@ -2612,7 +2654,7 @@ const char *ASAPInfo_GetOriginalModuleExt(ASAPInfo const *self, unsigned char co
             return "tm2";
         case ASAPModuleType_FC:
             return "fc";
-            default:
+        default:
             return NULL;
     }
 }
@@ -2770,7 +2812,7 @@ int ASAPInfo_GetTypeLetter(ASAPInfo const *self)
             return 68;
         case ASAPModuleType_SAP_S:
             return 83;
-            default:
+        default:
             return 0;
     }
 }
@@ -2845,7 +2887,7 @@ static cibool ASAPInfo_IsFcSongEnd(unsigned char const *module, int const *track
                     return TRUE;
                 case 255:
                     break;
-                    default:
+                default:
                     allLoop = FALSE;
                     break;
             }
@@ -2887,7 +2929,7 @@ static cibool ASAPInfo_IsOurPackedExt(int ext)
         case 3304820:
         case 2122598:
             return TRUE;
-            default:
+        default:
             return FALSE;
     }
 }
@@ -2980,7 +3022,7 @@ cibool ASAPInfo_Load(ASAPInfo *self, const char *filename, unsigned char const *
             return ASAPInfo_ParseTm2(self, module, moduleLen);
         case 2122598:
             return ASAPInfo_ParseFc(self, module, moduleLen);
-            default:
+        default:
             return FALSE;
     }
 }
@@ -3093,7 +3135,7 @@ static void ASAPInfo_ParseCmcSong(ASAPInfo *self, unsigned char const *module, i
                 self->loops[self->songs] = TRUE;
                 pos = -1;
                 break;
-                default:
+            default:
                 p2 = repTimes > 0 ? 3 : 2;
                 for (p1 = 0; p1 < 85; p1++)
                     if (seen[p1] == 1)
@@ -3538,7 +3580,7 @@ static cibool ASAPInfo_ParseRmt(ASAPInfo *self, unsigned char const *module, int
             self->channels = 2;
             posShift = 3;
             break;
-            default:
+        default:
             return FALSE;
     }
     perFrame = module[12];
@@ -3835,7 +3877,7 @@ static cibool ASAPInfo_ParseSap(ASAPInfo *self, unsigned char const *module, int
             if (self->fastplay < 0)
                 self->fastplay = 78;
             break;
-            default:
+        default:
             return FALSE;
     }
     if (self->fastplay < 0)
@@ -4133,7 +4175,7 @@ static int ASAPInfo_ParseTmcTitle(unsigned char *title, int titleLen, unsigned c
             case 26:
                 c = 122;
                 break;
-                default:
+            default:
                 if (!ASAPInfo_IsValidChar(c))
                     c = 32;
                 break;
@@ -4258,7 +4300,7 @@ void ASAPWriter_EnumSaveExts(StringConsumer output, ASAPInfo const *info, unsign
         case ASAPModuleType_SAP_S:
             output.func(output.obj, "sap");
             break;
-            default:
+        default:
             output.func(output.obj, ASAPInfo_GetOriginalModuleExt(info, module, moduleLen));
             output.func(output.obj, "sap");
             output.func(output.obj, "xex");
@@ -4362,7 +4404,7 @@ cibool ASAPWriter_Write(const char *targetFilename, ByteWriter w, ASAPInfo const
                     break;
                 case ASAPModuleType_SAP_S:
                     return FALSE;
-                    default:
+                default:
                     ASAPWriter_WriteBytes(w, CiBinaryResource_xexb_obx, 2, 183);
                     ASAPWriter_WriteWord(w, initAndPlayer[0]);
                     w.func(w.obj, 76);
@@ -4382,7 +4424,7 @@ cibool ASAPWriter_Write(const char *targetFilename, ByteWriter w, ASAPInfo const
             ASAPWriter_WriteWord(w, tag ? 256 : 292);
             return FlashPack_Compress(&flashPack, resultWriter);
         }
-            default:
+        default:
             possibleExt = ASAPInfo_GetOriginalModuleExt(info, module, moduleLen);
             if (possibleExt != NULL) {
                 int packedPossibleExt = (possibleExt[0] + (possibleExt[1] << 8) + (possibleExt[2] << 16)) | 2105376;
@@ -4811,7 +4853,7 @@ static cibool ASAPWriter_WriteNative(ByteWriter w, ASAPInfo const *info, unsigne
         case ASAPModuleType_FC:
             ASAPWriter_WriteBytes(w, module, 0, moduleLen);
             break;
-            default:
+        default:
             return FALSE;
     }
     return TRUE;
@@ -7835,7 +7877,7 @@ static void FlashPack_CompressMemoryArea(FlashPack *self, int startAddress, int 
                             FlashPack_PutItem(self, FlashPackItemType_COPY_THREE_BYTES, bestDistance);
                         }
                         break;
-                        default:
+                    default:
                         length = bestMatch;
                         if (bestDistance != lastDistance) {
                             if (FlashPack_IsLiteralPreferred(self) && length % 255 == 4) {
@@ -7863,7 +7905,7 @@ static void FlashPack_CompressMemoryArea(FlashPack *self, int startAddress, int 
                             case 3:
                                 FlashPack_PutItem(self, FlashPackItemType_COPY_THREE_BYTES, bestDistance);
                                 break;
-                                default:
+                            default:
                                 FlashPack_PutItem(self, FlashPackItemType_COPY_MANY_BYTES, length);
                                 break;
                         }
@@ -8002,7 +8044,7 @@ static int FlashPackItem_WriteValueTo(FlashPackItem const *self, unsigned char *
             buffer[index + 1] = (unsigned char) value;
             buffer[index + 2] = value >> 8;
             return 3;
-            default:
+        default:
             buffer[index] = 1;
             buffer[index + 1] = 0;
             return 2;
@@ -8067,7 +8109,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                         self->delta3 = -self->delta3;
                         Pokey_AddDelta(self, pokeys, cycle, self->delta3);
                         break;
-                        default:
+                    default:
                         break;
                 }
             }
@@ -8108,7 +8150,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                     case 12:
                         newOut = poly4Lookup[poly % 15];
                         break;
-                        default:
+                    default:
                         break;
                 }
                 if (newOut != self->out3) {
@@ -8134,7 +8176,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                         self->delta4 = -self->delta4;
                         Pokey_AddDelta(self, pokeys, cycle, self->delta4);
                         break;
-                        default:
+                    default:
                         break;
                 }
             }
@@ -8175,7 +8217,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                     case 12:
                         newOut = poly4Lookup[poly % 15];
                         break;
-                        default:
+                    default:
                         break;
                 }
                 if (newOut != self->out4) {
@@ -8197,7 +8239,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                         self->delta1 = -self->delta1;
                         Pokey_AddDelta(self, pokeys, cycle, self->delta1);
                         break;
-                        default:
+                    default:
                         break;
                 }
             }
@@ -8238,7 +8280,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                     case 12:
                         newOut = poly4Lookup[poly % 15];
                         break;
-                        default:
+                    default:
                         break;
                 }
                 if (newOut != self->out1) {
@@ -8262,7 +8304,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                         self->delta2 = -self->delta2;
                         Pokey_AddDelta(self, pokeys, cycle, self->delta2);
                         break;
-                        default:
+                    default:
                         break;
                 }
             }
@@ -8303,7 +8345,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
                     case 12:
                         newOut = poly4Lookup[poly % 15];
                         break;
-                        default:
+                    default:
                         break;
                 }
                 if (newOut != self->out2) {
@@ -9010,7 +9052,7 @@ static void PokeyPair_Poke(PokeyPair *self, int addr, int data, int cycle)
                     pokey->tickCycle4 = cycle;
             }
             break;
-            default:
+        default:
             break;
     }
 }
