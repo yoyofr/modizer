@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------------
                         SID Tune Information List (STIL)
                         -> Frequently Asked Questions <-
-                        Last Updated:  December 19, 2017
+                          Last Updated:  June 19, 2018
 -------------------------------------------------------------------------------
 
 General Questions
@@ -316,11 +316,12 @@ subtune.
 Length
 ------
 
-The whole field must be 79 characters long or less. If it doesn't fit into 79
+The whole field must be 90 characters long or less. If it doesn't fit into 90
 characters, try to abbreviate the tune's name.
 
 
         [ 4.4.2] Description of the AUTHOR field
+        -----------------------------------------------------------------------
 
 Purpose
 -------
@@ -403,7 +404,7 @@ subtune.
 Length
 ------
 
-The whole field must be 79 characters long or less. If it doesn't fit into 79
+The whole field must be 90 characters long or less. If it doesn't fit into 90
 characters, try to abbreviate the composer credits.
 
 
@@ -437,7 +438,7 @@ which album the given song is from.
 Length
 ------
 
-The whole field must be 79 characters long or less. If it doesn't fit into 79
+The whole field must be 90 characters long or less. If it doesn't fit into 90
 characters, try to abbreviate the album subfield. If that is still not enough,
 try to abbreviate the title information. In no case should you abbreviate the
 TIMESTAMP or the field name!
@@ -505,7 +506,7 @@ Length
 ------
 
 If the combination of the actual title of the tune and the album subfield is
-longer than the allowed maximum of 79 characters, try to provide the FULL title
+longer than the allowed maximum of 90 characters, try to provide the FULL title
 of the tune, and a shortened version of the album info with ellipses (... = 3
 dots) indicating that this is the shortened title. For example:
 
@@ -536,8 +537,8 @@ actual composer(s) of the tune that the given SID tune covers.
 Length
 ------
 
-The whole field must be less than 79 characters long. If it doesn't fit into
-79 characters, try to abbreviate the name of the composer(s). In no case should
+The whole field must be less than 90 characters long. If it doesn't fit into
+90 characters, try to abbreviate the name of the composer(s). In no case should
 you abbreviate the TIMESTAMP or the field name!
 
 Subfield
@@ -574,9 +575,9 @@ Length
 ------
 
 There is no restriction on the length of the comment, but if it's longer than
-79 characters (together with the COMMENT: field name), it must be broken up
+90 characters (together with the COMMENT: field name), it must be broken up
 into lines that are preceded by NINE (9) spaces, and which lines are also not
-longer than 79 characters (together with the leading spaces).
+longer than 90 characters (together with the leading spaces).
 
 Subfield
 --------
@@ -712,8 +713,8 @@ placed in STIL to indicate that STIL entries following that section header
 belong to a different directory than the previous entries. The section header
 line begins with 3 '#' characters, followed by a space, followed by the full
 name of the composer/group the directory belongs to, followed by a space, then
-as many '#' characters as it takes to fill out the maximum STIL line length of
-79 characters. Here's an example:
+as many '#' characters as it takes to fill out 79 characters.
+Here's an example:
 
 ### Jeroen Tel ################################################################
 
@@ -1154,60 +1155,59 @@ Top 15 Covered Artists:
 -----------------------
 
  1) Rob Hubbard ........................................................... 346
- 2) Jean Michel Jarre ..................................................... 284
- 3) Johann Sebastian Bach ................................................. 259
- 4) Jeroen Tel ............................................................ 212
- 5) Depeche Mode .......................................................... 195
- 6) The Beatles ........................................................... 175
- 7) Harold Faltermeyer .................................................... 143
- 8) James Lord Pierpont ................................................... 138
-    Chris Hülsbeck ........................................................ 138
-    Martin Galway ......................................................... 138
-11) John Williams ......................................................... 131
-12) Ludwig van Beethoven .................................................. 109
-13) Pet Shop Boys ......................................................... 107
-14) Madonna ............................................................... 106
-15) Scott Joplin .......................................................... 102
+ 2) Jean Michel Jarre ..................................................... 286
+ 3) Johann Sebastian Bach ................................................. 267
+ 4) Jeroen Tel ............................................................ 217
+ 5) Depeche Mode .......................................................... 200
+ 6) The Beatles ........................................................... 179
+ 7) Chris Hülsbeck ........................................................ 144
+    Harold Faltermeyer .................................................... 144
+ 9) Martin Galway ......................................................... 141
+10) James Lord Pierpont ................................................... 139
+11) John Williams ......................................................... 132
+12) Ludwig van Beethoven .................................................. 111
+13) Scott Joplin .......................................................... 109
+14) Pet Shop Boys ......................................................... 108
+15) Madonna ............................................................... 106
 
 Not taken into account as they are to be considered unknown artists, but for
-completeness of STIL statistics: "Traditional": 433, "<?>": 258, "Unknown": 42
+completeness of STIL statistics: "Traditional": 445, "<?>": 259, "Unknown": 43
 
 
 Top 15 Covered Tunes:
 ---------------------
 
- 1) One Horse Open Sleigh ................................................. 139
- 2) Axel F [from the movie Beverly Hills Cop] ............................. 126
- 3) Popcorn [from Music To Moog By] .......................................  77
- 4) Funeral March [from Sonate No. 2 in B flat minor Op. 35] ..............  62
+ 1) One Horse Open Sleigh ................................................. 140
+ 2) Axel F [from the movie Beverly Hills Cop] ............................. 127
+ 3) Popcorn [from Music To Moog By] .......................................  79
+ 4) Funeral March [from Sonate No. 2 in B flat minor Op. 35] ..............  65
  5) Living on Video [from Living on Video] ................................  56
- 6) Crockett's Theme [from the TV series Miami Vice] ......................  53
+ 6) Crockett's Theme [from the TV series Miami Vice] ......................  54
  7) Happy Birthday ........................................................  52
- 8) James Bond Theme [from the James Bond series of movies] ...............  49
-    Oxygene 4 [from Oxygene] ..............................................  49
+ 8) James Bond Theme [from the James Bond series of movies] ...............  50
+    Oxygene 4 [from Oxygene] ..............................................  50
 10) Blue Monday ...........................................................  48
 11) Airwolf Theme [from the TV series] ....................................  45
     In the Hall of the Mountain King [from Peer Gynt] .....................  45
+    The Entertainer .......................................................  45
     The X-Files [from the TV series] ......................................  45
-14) Thalamusik [from the game Sanxion] ....................................  44
-15) The Entertainer .......................................................  43
-    Toccata [from Toccata and Fugue in D Minor (BWV 565)] .................  43
+    Toccata [from Toccata and Fugue in D Minor (BWV 565)] .................  45
 
 Not taken into account as the covered tunes titles are unknown, but for
-completeness of STIL statistics: "<?>" (56)
+completeness of STIL statistics: "<?>" (57)
 
 
 Top 15 Covered C64 Artists:
 ---------------------------
 
  1) Rob Hubbard ........................................................... 346
- 2) Jeroen Tel ............................................................ 212
- 3) Chris Hülsbeck ........................................................ 138
-    Martin Galway ......................................................... 138
+ 2) Jeroen Tel ............................................................ 217
+ 3) Chris Hülsbeck ........................................................ 144
+ 4) Martin Galway ......................................................... 141
  5) David Whittaker .......................................................  70
- 6) Matt Gray .............................................................  58
- 7) Ben Daglish ...........................................................  57
-    Thomas Mogensen (DRAX) ................................................  57
+ 6) Ben Daglish ...........................................................  58
+    Matt Gray .............................................................  58
+ 8) Thomas Mogensen (DRAX) ................................................  57
  9) Reyn Ouwehand .........................................................  41
 10) David M. Hanlon .......................................................  34
 11) Mark Cooksey ..........................................................  33
@@ -1229,13 +1229,13 @@ Top 15 Covered C64 Tunes:
  7) Knucklebusters, Tune #1 ...............................................  18
     Delta, Tune #12 .......................................................  18
  9) Crazy Comets, Tune #1 .................................................  17
-10) The Last Ninja - The Wastelands .......................................  16
-    The Human Race, Tune #4 ...............................................  16
+    The Last Ninja - The Wastelands .......................................  17
+11) The Human Race, Tune #4 ...............................................  16
 12) Commando, Tune #2 .....................................................  15
     Noisy Pillars, Tune #1 ................................................  15
 14) Cybernoid II, Tune #1 .................................................  14
     Savage, Tune #3 .......................................................  14
-
+    Strike Force Introtune ................................................  14
 
 -------------------------------------------------------------------------------
 --- End of STIL FAQ ---
