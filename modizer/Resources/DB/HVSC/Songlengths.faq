@@ -67,7 +67,7 @@ Each song length is of format:
 
 mm:ss
 
-where mm and ss are numbers and mm never starts with a 0. The minimum
+where mm and ss are numbers and mm never has a leading zero. The minimum
 length of a SID tune is 1 second.
 
 Above every song length line, a comment is placed which includes the
@@ -180,3 +180,9 @@ Commando.sid
 When a sidplayer reads e.g. Commando.sid, it should check if the
 SONGLENGTHS folder exists and then read the Commando.ssl file
 to read the song length info.
+
+If you don't want to see the SONGLENGTHS folders in your SID player, then
+you can make the folders hidden on your device. The SID player can still
+read the folders but it will not show it. See the Generate_SSL_Files.zip
+readme file for info of how to make the folders hidden, depending on your
+operating system.

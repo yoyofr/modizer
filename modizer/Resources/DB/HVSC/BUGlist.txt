@@ -1,7 +1,7 @@
 #######################################################################
 #   The High Voltage SID Collection (HVSC) Bugged Tunes List          #
 #   Maintained by iAN CooG <hvsc@c64.org>                             #
-#   Last Updated:  June 24, 2017.                                     #
+#   Last Updated:  June 19, 2018.                                     #
 #######################################################################
 #                                                                     #
 # The purpose of this text document is to highlight all the tunes     #
@@ -171,11 +171,15 @@
     BUG: Falls out of synch at around 2:40. Happens the same in the original.
 (iAN CooG)
 
+/MUSICIANS/S/Sid_Time/Axel_Foley.sid
+    BUG: Falls out of sync after 1:01.
+(Wilfred)
+
 /MUSICIANS/W/Walker_Martin/Indiana_Jones_Fate_of_Atlantis.sid
     BUG: Falls out of synch at around 1:40. No bad reads.
 (Abaddon)
 
-/MUSICIANS/W/Wizard/Night.sid
+/MUSICIANS/W/Wizard_Oxygen/Night.sid
     BUG: Contains bad data and sounds bad at 1:15, one voice pitch up too much.
 (iAN CooG)
 
