@@ -65,10 +65,28 @@ which are separated with a space.
 
 Each song length is of format:
 
-mm:ss
+mm:ss[.SSS]
 
-where mm and ss are numbers and mm never has a leading zero. The minimum
-length of a SID tune is 1 second.
+where mm, ss and SSS are numbers and mm never has a leading zero. The
+.SSS is the number of milliseconds and this value is optional. The
+square brackets indicate that it is optional, they are not part of the
+real value. The number of digits of the value of SSS is minimal 1 and
+maximal 3. The ss.SSS value can be seen as the floating point number
+of the number of seconds.
+
+The minimum song length of a SID tune is 1 second when milliseconds
+are not provided.
+
+Examples of song length values:
+
+1:02
+
+1:02.5
+
+1:02.500
+
+The last two examples indicate that the song length is 1 minute and
+2.5 seconds.
 
 Above every song length line, a comment is placed which includes the
 file path of the SID within HVSC.
@@ -88,6 +106,7 @@ The old format has the same file structure as the new format, but
 differs in:
 
 - MD5 hash based on different reading of the content of the file
+- no milliseconds support, format of song length is mm:ss
 - optional attributes (G, M, Z, B) after the song length
 
 The meaning of the attributes:
@@ -153,7 +172,7 @@ File format and HVSC structure:
   but instead of the "sid" extension it will get the extension "ssl".
 - SSL files are binary files where the song length of each sub tune is
   defined in BCD format (2 bytes per sub tune), minutes first then
-  seconds.
+  seconds. Milliseconds are not supported.
 - Maximum sub tunes in a SID is 256 and therefore the maximum length
   of the SSL file is 512 bytes.
 - The SONGLENGTHS folders may be hidden on the file system (up to the

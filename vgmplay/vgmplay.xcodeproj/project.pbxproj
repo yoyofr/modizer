@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5921E3F821EB812200E168E1 /* qsound_intf.h in Headers */ = {isa = PBXBuildFile; fileRef = 5921E3F221EB812100E168E1 /* qsound_intf.h */; };
+		5921E3F921EB812200E168E1 /* qsound_mame.c in Sources */ = {isa = PBXBuildFile; fileRef = 5921E3F321EB812100E168E1 /* qsound_mame.c */; };
+		5921E3FA21EB812200E168E1 /* qsound_ctr.c in Sources */ = {isa = PBXBuildFile; fileRef = 5921E3F421EB812100E168E1 /* qsound_ctr.c */; };
+		5921E3FB21EB812200E168E1 /* qsound_intf.c in Sources */ = {isa = PBXBuildFile; fileRef = 5921E3F521EB812100E168E1 /* qsound_intf.c */; };
+		5921E3FC21EB812200E168E1 /* qsound_mame.h in Headers */ = {isa = PBXBuildFile; fileRef = 5921E3F621EB812200E168E1 /* qsound_mame.h */; };
+		5921E3FD21EB812200E168E1 /* qsound_ctr.h in Headers */ = {isa = PBXBuildFile; fileRef = 5921E3F721EB812200E168E1 /* qsound_ctr.h */; };
 		59240F502042DB4C00F7553F /* ym3438.h in Headers */ = {isa = PBXBuildFile; fileRef = 59240F4E2042DB4B00F7553F /* ym3438.h */; };
 		59240F512042DB4C00F7553F /* ym3438.c in Sources */ = {isa = PBXBuildFile; fileRef = 59240F4F2042DB4C00F7553F /* ym3438.c */; };
 		59782E741D8F38A400C0F8C7 /* c352.c in Sources */ = {isa = PBXBuildFile; fileRef = 59782E631D8F38A300C0F8C7 /* c352.c */; };
@@ -112,8 +118,6 @@
 		CC1344611AC17C8500CAB284 /* pokey.h in Headers */ = {isa = PBXBuildFile; fileRef = CC1343CC1AC17C8400CAB284 /* pokey.h */; };
 		CC1344621AC17C8500CAB284 /* pwm.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1343CD1AC17C8400CAB284 /* pwm.c */; };
 		CC1344631AC17C8500CAB284 /* pwm.h in Headers */ = {isa = PBXBuildFile; fileRef = CC1343CE1AC17C8400CAB284 /* pwm.h */; };
-		CC1344641AC17C8500CAB284 /* qsound.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1343CF1AC17C8400CAB284 /* qsound.c */; };
-		CC1344651AC17C8500CAB284 /* qsound.h in Headers */ = {isa = PBXBuildFile; fileRef = CC1343D01AC17C8400CAB284 /* qsound.h */; };
 		CC1344661AC17C8500CAB284 /* rf5c68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1343D11AC17C8400CAB284 /* rf5c68.c */; };
 		CC1344671AC17C8500CAB284 /* rf5c68.h in Headers */ = {isa = PBXBuildFile; fileRef = CC1343D21AC17C8400CAB284 /* rf5c68.h */; };
 		CC1344681AC17C8500CAB284 /* scd_pcm.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1343D31AC17C8400CAB284 /* scd_pcm.c */; };
@@ -164,6 +168,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5921E3F221EB812100E168E1 /* qsound_intf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qsound_intf.h; sourceTree = "<group>"; };
+		5921E3F321EB812100E168E1 /* qsound_mame.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsound_mame.c; sourceTree = "<group>"; };
+		5921E3F421EB812100E168E1 /* qsound_ctr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsound_ctr.c; sourceTree = "<group>"; };
+		5921E3F521EB812100E168E1 /* qsound_intf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsound_intf.c; sourceTree = "<group>"; };
+		5921E3F621EB812200E168E1 /* qsound_mame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qsound_mame.h; sourceTree = "<group>"; };
+		5921E3F721EB812200E168E1 /* qsound_ctr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qsound_ctr.h; sourceTree = "<group>"; };
 		59240F4E2042DB4B00F7553F /* ym3438.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ym3438.h; sourceTree = "<group>"; };
 		59240F4F2042DB4C00F7553F /* ym3438.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ym3438.c; sourceTree = "<group>"; };
 		59782E631D8F38A300C0F8C7 /* c352.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = c352.c; sourceTree = "<group>"; };
@@ -271,8 +281,6 @@
 		CC1343CC1AC17C8400CAB284 /* pokey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pokey.h; sourceTree = "<group>"; };
 		CC1343CD1AC17C8400CAB284 /* pwm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pwm.c; sourceTree = "<group>"; };
 		CC1343CE1AC17C8400CAB284 /* pwm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pwm.h; sourceTree = "<group>"; };
-		CC1343CF1AC17C8400CAB284 /* qsound.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsound.c; sourceTree = "<group>"; };
-		CC1343D01AC17C8400CAB284 /* qsound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qsound.h; sourceTree = "<group>"; };
 		CC1343D11AC17C8400CAB284 /* rf5c68.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rf5c68.c; sourceTree = "<group>"; };
 		CC1343D21AC17C8400CAB284 /* rf5c68.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rf5c68.h; sourceTree = "<group>"; };
 		CC1343D31AC17C8400CAB284 /* scd_pcm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scd_pcm.c; sourceTree = "<group>"; };
@@ -477,9 +485,13 @@
 				CC1343CC1AC17C8400CAB284 /* pokey.h */,
 				CC1343CD1AC17C8400CAB284 /* pwm.c */,
 				CC1343CE1AC17C8400CAB284 /* pwm.h */,
-				CC1343CF1AC17C8400CAB284 /* qsound.c */,
-				CC1343D01AC17C8400CAB284 /* qsound.h */,
 				CC1343D11AC17C8400CAB284 /* rf5c68.c */,
+				5921E3F421EB812100E168E1 /* qsound_ctr.c */,
+				5921E3F721EB812200E168E1 /* qsound_ctr.h */,
+				5921E3F521EB812100E168E1 /* qsound_intf.c */,
+				5921E3F221EB812100E168E1 /* qsound_intf.h */,
+				5921E3F321EB812100E168E1 /* qsound_mame.c */,
+				5921E3F621EB812200E168E1 /* qsound_mame.h */,
 				CC1343D21AC17C8400CAB284 /* rf5c68.h */,
 				CC1343D31AC17C8400CAB284 /* scd_pcm.c */,
 				CC1343D41AC17C8400CAB284 /* scd_pcm.h */,
@@ -561,6 +573,7 @@
 				CC1344701AC17C8500CAB284 /* segapcm.h in Headers */,
 				59782E7D1D8F38A400C0F8C7 /* saa1099.h in Headers */,
 				CC13441D1AC17C8500CAB284 /* 262intf.h in Headers */,
+				5921E3FD21EB812200E168E1 /* qsound_ctr.h in Headers */,
 				CC13444A1AC17C8500CAB284 /* multipcm.h in Headers */,
 				CC1344851AC17C8500CAB284 /* ymdeltat.h in Headers */,
 				CC1344411AC17C8500CAB284 /* gb.h in Headers */,
@@ -578,7 +591,6 @@
 				CC1344721AC17C8500CAB284 /* sn76489.h in Headers */,
 				CC13441B1AC17C8500CAB284 /* 2612intf.h in Headers */,
 				CC1344591AC17C8500CAB284 /* okim6295.h in Headers */,
-				CC1344651AC17C8500CAB284 /* qsound.h in Headers */,
 				CC13443A1AC17C8500CAB284 /* emutypes.h in Headers */,
 				CC1344771AC17C8500CAB284 /* sn764intf.h in Headers */,
 				59782E751D8F38A400C0F8C7 /* c352.h in Headers */,
@@ -594,6 +606,7 @@
 				CC1344191AC17C8500CAB284 /* 2610intf.h in Headers */,
 				CC13448B1AC17C8500CAB284 /* ymf278b.h in Headers */,
 				CC1344981AC17C8500CAB284 /* VGMPlay.h in Headers */,
+				5921E3FC21EB812200E168E1 /* qsound_mame.h in Headers */,
 				CC1344671AC17C8500CAB284 /* rf5c68.h in Headers */,
 				CC1344321AC17C8500CAB284 /* c6280intf.h in Headers */,
 				CC1344141AC17C8500CAB284 /* 2413intf.h in Headers */,
@@ -612,6 +625,7 @@
 				CC1344611AC17C8500CAB284 /* pokey.h in Headers */,
 				CC1344371AC17C8500CAB284 /* emu2149.h in Headers */,
 				CC1344171AC17C8500CAB284 /* 2608intf.h in Headers */,
+				5921E3F821EB812200E168E1 /* qsound_intf.h in Headers */,
 				CC13446D1AC17C8500CAB284 /* scspdsp.h in Headers */,
 				CC1344831AC17C8500CAB284 /* ym2612.h in Headers */,
 			);
@@ -679,7 +693,6 @@
 				CC13446C1AC17C8500CAB284 /* scspdsp.c in Sources */,
 				CC1344751AC17C8500CAB284 /* sn76496_opl.c in Sources */,
 				CC13440D1AC17C8500CAB284 /* ChipMapper.c in Sources */,
-				CC1344641AC17C8500CAB284 /* qsound.c in Sources */,
 				CC1344381AC17C8500CAB284 /* emu2413.c in Sources */,
 				CC1344731AC17C8500CAB284 /* sn76496.c in Sources */,
 				59782E761D8F38A400C0F8C7 /* es5503.c in Sources */,
@@ -688,6 +701,7 @@
 				CC1344281AC17C8500CAB284 /* ay8910.c in Sources */,
 				CC1344561AC17C8500CAB284 /* okim6258.c in Sources */,
 				CC1344491AC17C8500CAB284 /* multipcm.c in Sources */,
+				5921E3F921EB812200E168E1 /* qsound_mame.c in Sources */,
 				CC1344401AC17C8500CAB284 /* gb.c in Sources */,
 				CC1344181AC17C8500CAB284 /* 2610intf.c in Sources */,
 				CC13442A1AC17C8500CAB284 /* ay8910_opl.c in Sources */,
@@ -706,6 +720,7 @@
 				CC1344A11AC1B4EC00CAB284 /* VGMPlay.c in Sources */,
 				CC13447D1AC17C8500CAB284 /* ym2413.c in Sources */,
 				CC13444E1AC17C8500CAB284 /* nes_intf.c in Sources */,
+				5921E3FB21EB812200E168E1 /* qsound_intf.c in Sources */,
 				CC1344951AC17C8500CAB284 /* VGMPlay_AddFmts.c in Sources */,
 				CC1344881AC17C8500CAB284 /* ymf271.c in Sources */,
 				CC1344311AC17C8500CAB284 /* c6280intf.c in Sources */,
@@ -714,6 +729,7 @@
 				CC13441C1AC17C8500CAB284 /* 262intf.c in Sources */,
 				CC1344541AC17C8500CAB284 /* np_nes_fds.c in Sources */,
 				CC13448A1AC17C8500CAB284 /* ymf278b.c in Sources */,
+				5921E3FA21EB812200E168E1 /* qsound_ctr.c in Sources */,
 				CC1344441AC17C8500CAB284 /* k053260.c in Sources */,
 				59782E831D8F38A400C0F8C7 /* x1_010.c in Sources */,
 				CC1344761AC17C8500CAB284 /* sn764intf.c in Sources */,
