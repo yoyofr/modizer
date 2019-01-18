@@ -186,6 +186,7 @@ enum MDZ_SETTINGS {
     
         MDZ_SETTINGS_FAMILY_VGMPLAY,
         VGMPLAY_Maxloop,
+        VGMPLAY_YM2612Type,
     
         MDZ_SETTINGS_FAMILY_VGMSTREAM,
         VGMSTREAM_ResampleQuality,
