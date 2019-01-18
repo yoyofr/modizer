@@ -78,6 +78,7 @@ enum MMP_PLAYER_TYPE {
     MMP_UADE,
     MMP_TIMIDITY,
     MMP_VGMSTREAM,
+    MMP_MPG123,
     MMP_LAZYUSF,
     MMP_VGMPLAY,
     MMP_GME,
@@ -371,6 +372,7 @@ static const char *mmp_player_name[]={
 -(int) mmp_openmptLoad:(NSString*)filePath;
 -(int) mmp_timidityLoad:(NSString*)filePath;
 -(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension;
+-(int) mmp_mpg123Load:(NSString*)filePath extension:(NSString*)extension;
 -(int) mmp_lazyusfLoad:(NSString*)filePath;
 -(int) mmp_xsfLoad:(NSString*)filePath;
 -(int) mmp_vgmplayLoad:(NSString*)filePath;
