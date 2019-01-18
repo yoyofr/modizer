@@ -732,6 +732,7 @@ static NSFileManager *mFileMngr;
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
 	NSString *extension = [file pathExtension];
 	NSString *file_no_ext = [[file lastPathComponent] stringByDeletingPathExtension];
 	
@@ -805,6 +806,11 @@ static NSFileManager *mFileMngr;
             if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
         }
+    if (!found)
+    for (int i=0;i<[filetype_extMPG123 count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+    }
 	if (!found)
 		for (int i=0;i<[filetype_extAOSDK count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {found=1;break;}

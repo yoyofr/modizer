@@ -59,6 +59,7 @@ static char **sidtune_title,**sidtune_name;
 
 
 
+
 /* file types */
 static char gmetype[64];
 
@@ -116,6 +117,17 @@ int optLAZYUSF_ResampleQuality=1;
 extern "C" {
     //VGMSTREAM
 #import "../../vgmstream/vgmstream.h"
+    int mpg123_read(mpg123_handle *mh, unsigned char *out, size_t size, size_t *done);
+    
+    static mpg123_handle *mpg123h;
+    static long mpg123_rate;
+    static int mpg123_channel,mpg123_bytes;
+    int optMPG123_resampleQuality=1;
+    bool optMPG123_loopmode = false;
+    double optMPG123_loop_count = 2.0f;
+    static bool mMPG123_force_loop;
+    static volatile int mMPG123_total_samples,mMPG123_seek_needed_samples,mMPG123_decode_pos_samples;
+    
     
     static VGMSTREAM* vgmStream = NULL;
     static STREAMFILE* vgmFile = NULL;
@@ -415,6 +427,10 @@ static float *vgm_sample_data_float;
 static float *vgm_sample_converted_data_float;
 static char mmp_fileext[8];
 
+static int16_t *mpg123_sample_data;
+static float *mpg123_sample_data_float;
+static float *mpg123_sample_converted_data_float;
+
 
 //#include "corlett.h"
 extern corlett_t *usf_info_data;
@@ -482,6 +498,7 @@ SRC_DATA src_data;
 
 long src_callback_lazyusf(void *cb_data, float **data);
 long src_callback_vgmstream(void *cb_data, float **data);
+long src_callback_mpg123(void *cb_data, float **data);
 
 ////////////////////
 
@@ -2354,6 +2371,51 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     return nbSamplesToRender;
 }
 
+    
+long src_callback_mpg123(void *cb_data, float **data) {
+    size_t done;
+        // render audio into sound buffer
+        int nbSamplesToRender=mMPG123_total_samples - mMPG123_decode_pos_samples;
+        if (nbSamplesToRender >SOUND_BUFFER_SIZE_SAMPLE)
+        {
+            nbSamplesToRender = SOUND_BUFFER_SIZE_SAMPLE;
+        }
+        
+        short int *snd_ptr;
+        switch (mpg123_channel) {
+            case 1:
+                mpg123_read(mpg123h, (unsigned char *)mpg123_sample_data, nbSamplesToRender*mpg123_bytes, &done);
+                snd_ptr=mpg123_sample_data;
+                for (int i=nbSamplesToRender-1;i>=0;i--) {
+                    snd_ptr[i*2]=snd_ptr[i];
+                    snd_ptr[i*2+1]=snd_ptr[i];
+                }
+            break;
+            case 2:
+                mpg123_read(mpg123h, (unsigned char *)mpg123_sample_data, nbSamplesToRender*mpg123_bytes*2, &done);
+            break;
+            case 3:
+            break;
+            case 4:
+            break;
+            case 5:
+            break;
+            case 6:
+            break;
+            case 7:
+            break;
+            default:
+            break;
+        }
+        mMPG123_decode_pos_samples+=nbSamplesToRender;
+        
+        src_short_to_float_array (mpg123_sample_data, mpg123_sample_data_float,nbSamplesToRender*2);
+        *data=mpg123_sample_data_float;
+        
+        return nbSamplesToRender;
+    }
+
+    
 
 -(void) generateSoundThread {
     NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
@@ -2555,6 +2617,24 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 if (nbSamplesToRender>SOUND_BUFFER_SIZE_SAMPLE) nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
                                 render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
                                 mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
+                            }
+                            
+                            //mNeedSeek=0;
+                        }
+                        if (mPlayType==MMP_MPG123) { //MPG123
+                            mMPG123_seek_needed_samples=(double)mNeedSeekTime*(double)(mpg123_rate)/1000.0f;
+                            bGlobalSeekProgress=-1;
+                            if (mMPG123_decode_pos_samples>mMPG123_seek_needed_samples) {
+                                //reset_vgmstream(vgmStream);
+                                mpg123_seek(mpg123h,0,SEEK_SET);
+                                mMPG123_decode_pos_samples=0;
+                            }
+                            while (mMPG123_decode_pos_samples<mMPG123_seek_needed_samples) {
+                                int nbSamplesToRender=mMPG123_seek_needed_samples-mMPG123_decode_pos_samples;
+                                size_t done;
+                                if (nbSamplesToRender>SOUND_BUFFER_SIZE_SAMPLE) nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
+                                mpg123_read(mpg123h, (unsigned char *)mpg123_sample_data, nbSamplesToRender*mpg123_bytes*mpg123_channel, &done);
+                                mMPG123_decode_pos_samples+=nbSamplesToRender;
                             }
                             
                             //mNeedSeek=0;
@@ -3059,6 +3139,14 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
                         src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
+                        //if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
+                        if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
+                    }
+                    if (mPlayType==MMP_MPG123) { //MPG123
+                        
+                        nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, mpg123_sample_converted_data_float)*2*2;
+                        src_float_to_short_array (mpg123_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                        if (mMPG123_decode_pos_samples>=mMPG123_total_samples) nbBytes=0;
                         //if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
@@ -3770,6 +3858,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
@@ -3779,7 +3868,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
                                   [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+[filetype_extDUMB count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extXSF count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extXSF count]+[filetype_extVGMSTREAM count]+[filetype_extMPG123 count]+
                                   [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     
@@ -3805,6 +3894,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extLAZYUSF];
     [filetype_ext addObjectsFromArray:filetype_extXSF];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
+    [filetype_ext addObjectsFromArray:filetype_extMPG123];
     [filetype_ext addObjectsFromArray:filetype_extAOSDK];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
     [filetype_ext addObjectsFromArray:filetype_extGSF];
@@ -3905,6 +3995,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSArray *filetype_extCOVER=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
@@ -3932,6 +4023,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
         }
+    if (!found)
+    for (int i=0;i<[filetype_extMPG123 count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=MMP_MPG123;break;}
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=MMP_MPG123;break;}
+    }
     if (!found)
         for (int i=0;i<[filetype_extVGM count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMPLAY;break;}
@@ -5619,6 +5715,255 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
     return 0;
 }
+    
+    /* Helper for v1 printing, get these strings their zero byte. */
+    void safe_print(char *str_msg,char* name, char *data, size_t size)
+    {
+        char safe[31];
+        if(size>30) return;
+        
+        memcpy(safe, data, size);
+        safe[size] = 0;
+        sprintf("%s: %s\n",str_msg, name, safe);
+    }
+    
+    /* Print out ID3v1 info. */
+    void print_v1(char *str_msg,mpg123_id3v1 *v1)
+    {
+        safe_print(str_msg,"Title",   v1->title,   sizeof(v1->title));
+        safe_print(str_msg,"Artist",  v1->artist,  sizeof(v1->artist));
+        safe_print(str_msg,"Album",   v1->album,   sizeof(v1->album));
+        safe_print(str_msg,"Year",    v1->year,    sizeof(v1->year));
+        safe_print(str_msg,"Comment", v1->comment, sizeof(v1->comment));
+        sprintf(str_msg,"Genre: %i", v1->genre);
+    }
+    
+    /* Split up a number of lines separated by \n, \r, both or just zero byte
+     and print out each line with specified prefix. */
+    void print_lines(char *str_msg,const char* prefix, mpg123_string *inlines)
+    {
+        size_t i;
+        int hadcr = 0, hadlf = 0;
+        char *lines = NULL;
+        char *line  = NULL;
+        size_t len = 0;
+        
+        if(inlines != NULL && inlines->fill)
+        {
+            lines = inlines->p;
+            len   = inlines->fill;
+        }
+        else return;
+        
+        line = lines;
+        for(i=0; i<len; ++i)
+        {
+            if(lines[i] == '\n' || lines[i] == '\r' || lines[i] == 0)
+            {
+                char save = lines[i]; /* saving, changing, restoring a byte in the data */
+                if(save == '\n') ++hadlf;
+                if(save == '\r') ++hadcr;
+                if((hadcr || hadlf) && hadlf % 2 == 0 && hadcr % 2 == 0) line = "";
+                
+                if(line)
+                {
+                    lines[i] = 0;
+                    sprintf(str_msg,"%s%s\n", prefix, line);
+                    line = NULL;
+                    lines[i] = save;
+                }
+            }
+            else
+            {
+                hadlf = hadcr = 0;
+                if(line == NULL) line = lines+i;
+            }
+        }
+    }
+    
+    /* Print out the named ID3v2  fields. */
+    void print_v2(char *str_msg,mpg123_id3v2 *v2)
+    {
+        print_lines(str_msg,"Title: ",   v2->title);
+        print_lines(str_msg,"Artist: ",  v2->artist);
+        print_lines(str_msg,"Album: ",   v2->album);
+        print_lines(str_msg,"Year: ",    v2->year);
+        print_lines(str_msg,"Comment: ", v2->comment);
+        print_lines(str_msg,"Genre: ",   v2->genre);
+    }
+    
+    /* Print out all stored ID3v2 fields with their 4-character IDs. */
+    void print_raw_v2(char *str_msg,mpg123_id3v2 *v2)
+    {
+        size_t i;
+        for(i=0; i<v2->texts; ++i)
+        {
+            char id[5];
+            char lang[4];
+            memcpy(id, v2->text[i].id, 4);
+            id[4] = 0;
+            memcpy(lang, v2->text[i].lang, 3);
+            lang[3] = 0;
+            if(v2->text[i].description.fill)
+            sprintf(str_msg,"%s language(%s) description(%s)\n", id, lang, v2->text[i].description.p);
+            else sprintf(str_msg,"%s language(%s)\n", id, lang);
+            
+            print_lines(str_msg," ", &v2->text[i].text);
+        }
+        for(i=0; i<v2->extras; ++i)
+        {
+            char id[5];
+            memcpy(id, v2->extra[i].id, 4);
+            id[4] = 0;
+            sprintf(str_msg, "%s description(%s)\n",
+                   id,
+                   v2->extra[i].description.fill ? v2->extra[i].description.p : "" );
+            print_lines(str_msg," ", &v2->extra[i].text);
+        }
+        for(i=0; i<v2->comments; ++i)
+        {
+            char id[5];
+            char lang[4];
+            memcpy(id, v2->comment_list[i].id, 4);
+            id[4] = 0;
+            memcpy(lang, v2->comment_list[i].lang, 3);
+            lang[3] = 0;
+            sprintf(str_msg, "%s description(%s) language(%s): \n",
+                   id,
+                   v2->comment_list[i].description.fill ? v2->comment_list[i].description.p : "",
+                   lang );
+            print_lines(str_msg," ", &v2->comment_list[i].text);
+        }
+    }
+
+
+-(int) mmp_mpg123Load:(NSString*)filePath extension:(NSString*)extension{  //VGMSTREAM
+    int  encoding,err;
+    mPlayType=MMP_MPG123;
+    FILE *f;
+    
+    //NSLog(@"yo: %@",filePath);
+    
+    f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"MPG123 Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+
+    
+    //Initi SRC samplerate converter
+    int error;
+    src_state=src_callback_new(src_callback_mpg123,optMPG123_resampleQuality,2,&error,NULL);
+    if (!src_state) {
+        NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+        return -1;
+    }
+    
+    if (mLoopMode==1) mVGMSTREAM_force_loop = true;
+    else mVGMSTREAM_force_loop = false;
+    
+    if ( optVGMSTREAM_loopmode)
+    {
+        mVGMSTREAM_force_loop = true;
+        //NSLog(@"VGMStreamPlugin Force Loop");
+    }
+
+    
+    if (mpg123_init()) {
+        NSLog(@"Error mpg123_init");
+        mPlayType=0;
+        src_delete(src_state);
+        return -1;
+    }
+    mpg123h = mpg123_new(NULL, &err);
+    if (! mpg123h) {
+        NSLog(@"Error mpg123_new");
+        mPlayType=0;
+        src_delete(src_state);
+        mpg123_delete(mpg123h);
+        mpg123_exit();
+        return -1;
+    }
+    
+    /* open the file and get the decoding format */
+    if (mpg123_open(mpg123h, [filePath UTF8String])) {
+        NSLog(@"Error mpg123_open %@",filePath);
+        mPlayType=0;
+        src_delete(src_state);
+        mpg123_delete(mpg123h);
+        mpg123_exit();
+        return -1;
+    }
+    
+    mpg123_getformat(mpg123h, &mpg123_rate, &mpg123_channel, &encoding);
+    mpg123_bytes = mpg123_encsize(encoding);
+    
+    NSLog(@"mpg123 info: %d %d %d",mpg123_rate,mpg123_bytes,mpg123_channel);
+    
+    src_ratio=PLAYBACK_FREQ/(double)(mpg123_rate);
+        
+    if (mpg123_channel <= 0)
+        {
+            NSLog(@"Error mpg123_channel: %d",mpg123_channel);
+            src_delete(src_state);
+            mpg123_close(mpg123h);
+            mpg123_delete(mpg123h);
+            mpg123_exit();
+            return -1;
+        }
+    
+    mpg123_seek(mpg123h,0,SEEK_END);
+        /*if (mLoopMode==1) {
+            mMPG123_total_samples = 0;
+            //get_vgmstream_play_samples(0, 0.0f, 0.0f, vgmStream);
+        } else mVGMSTREAM_total_samples = 0;
+         */
+    mMPG123_total_samples=mpg123_tell(mpg123h);
+    mpg123_seek(mpg123h,0,SEEK_SET);
+    //get_vgmstream_play_samples(optVGMSTREAM_loop_count, 0.0f, 0.0f, vgmStream);
+    
+        
+    iModuleLength=(double)mMPG123_total_samples*1000.0f/(double)(mpg123_rate);
+    iCurrentTime=0;
+    mMPG123_seek_needed_samples=-1;
+    mMPG123_decode_pos_samples=0;
+        
+        numChannels=mpg123_channel;
+        if (numChannels>2) {
+            NSLog(@"not managed yet, more than 2 channels (%d)",numChannels);
+        }
+        sprintf(mod_name," %s",mod_filename);
+        mod_message[0]=0;
+    
+        mpg123_id3v1 *v1;
+        mpg123_id3v2 *v2;
+        int meta;
+        mpg123_scan(mpg123h);
+        meta = mpg123_meta_check(mpg123h);
+        if(meta & MPG123_ID3 && mpg123_id3(mpg123h, &v1, &v2) == MPG123_OK) {
+            //printf("\n====      ID3v1       ====\n");
+            if(v1 != NULL) print_v1(mod_message,v1);
+        
+            //printf("\n====      ID3v2       ====\n");
+            //if(v2 != NULL) print_v2(mod_message,v2);
+        
+            //printf("\n==== ID3v2 Raw frames ====\n");
+            if(v2 != NULL) print_raw_v2(mod_message,v2);
+        }
+        //Loop
+        if (mLoopMode==1) iModuleLength=-1;
+        
+        mpg123_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        mpg123_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+        mpg123_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+        
+        sprintf(mmp_fileext,"%s",[extension UTF8String] );
+        return 0;
+    }
 
 
 /*static int seek_needed;
@@ -6398,6 +6743,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
@@ -6854,6 +7200,16 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
+    for (int i=0;i<[filetype_extMPG123 count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_MPG123]];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_MPG123]];
+            break;
+        }
+    }
     for (int i=0;i<[filetype_extGSF count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_GSF]];
@@ -6953,6 +7309,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 break;
             case MMP_VGMSTREAM:
                 if ([self mmp_vgmstreamLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
+                break;
+            case MMP_MPG123:
+                if ([self mmp_mpg123Load:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
                 break;
             case MMP_LAZYUSF:
                 if ([self mmp_lazyusfLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
@@ -7247,6 +7606,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
+        case MMP_MPG123: //MPG123
+            if (startPos) [self Seek:startPos];
+            [self Play];
+            break;
     }
 }
 -(void) Stop {
@@ -7417,6 +7780,20 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         if (src_state) src_delete(src_state);
         src_state=NULL;
     }
+    if (mPlayType==MMP_MPG123) { //MPG123
+        if (mpg123h != NULL)
+        {
+            mpg123_close(mpg123h);
+            mpg123_delete(mpg123h);
+        }
+        mpg123_exit();
+        mpg123h = NULL;
+        free(mpg123_sample_data);
+        free(mpg123_sample_data_float);
+        free(mpg123_sample_converted_data_float);
+        if (src_state) src_delete(src_state);
+        src_state=NULL;
+    }
     
 }
 -(void) Pause:(BOOL) paused {
@@ -7473,6 +7850,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_LAZYUSF) return @"LazyUSF";
     if (mPlayType==MMP_XSF) return @"XSF";
     if (mPlayType==MMP_VGMSTREAM) return @"VGMSTREAM";
+    if (mPlayType==MMP_MPG123) return @"MPG123";
     return @"";
 }
 -(NSString*) getSubTitle:(int)subsong {
@@ -7566,6 +7944,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_LAZYUSF) return @"USF";
     if (mPlayType==MMP_XSF) return [NSString stringWithFormat:@"%s",mmp_fileext];
     if (mPlayType==MMP_VGMSTREAM) return [NSString stringWithFormat:@"%s",mmp_fileext];
+    if (mPlayType==MMP_MPG123) return [NSString stringWithFormat:@"%s",mmp_fileext];
     return @" ";
 }
 -(BOOL) isPlaying {
@@ -7858,6 +8237,21 @@ extern "C" void adjust_amplification(void);
     optVGMSTREAM_resampleQuality=val;
 }
 
+///////////////////////////
+//MPG123
+///////////////////////////
+-(void) optMPG123_MaxLoop:(double)val {
+    optMPG123_loop_count=val;
+}
+-(void) optMPG123_ForceLoop:(unsigned int)val {
+    optMPG123_loopmode=val;
+}
+-(void) optMPG123_ResampleQuality:(unsigned int)val {
+    optMPG123_resampleQuality=val;
+}
+    
+
+    
 ///////////////////////////
 //LAZYUSF
 ///////////////////////////

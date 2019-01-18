@@ -107,6 +107,7 @@ BOOL is_ios7,is_retina;
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     
     NSMutableArray *supportedExtension=[[NSMutableArray alloc] init];
     [supportedExtension addObjectsFromArray:filetype_extSID];
@@ -131,6 +132,7 @@ BOOL is_ios7,is_retina;
     [supportedExtension addObjectsFromArray:filetype_extLAZYUSF];
     [supportedExtension addObjectsFromArray:filetype_extXSF];
     [supportedExtension addObjectsFromArray:filetype_extVGMSTREAM];
+    [supportedExtension addObjectsFromArray:filetype_extMPG123];
     
     NSOrderedSet *orderedSet = [NSOrderedSet orderedSetWithArray:supportedExtension];
     NSArray *arrayWithoutDuplicates = [orderedSet array];
