@@ -63,7 +63,8 @@ extern "C" {
 #import "../../vgmplay/vgm/chips/mamedef.h"
 #import "../../vgmplay/vgm/VGMFile.h"
 #import "../../vgmplay/vgm/VGMPlay_Intf.h"
-    
+#import "../../vgmplay/vgm/VGMPlay.h"
+//CHIPS_OPTION ChipOpts[0x02];
     
 }
 
@@ -180,6 +181,7 @@ static const char *mmp_player_name[]={
 	//
     //VGMPLAY stuff
     unsigned int optVGMPLAY_maxloop;
+    unsigned char optVGMPLAY_ym2612emulator;
     //
 	//Modplug stuff
 	
@@ -211,6 +213,7 @@ static const char *mmp_player_name[]={
 @property ao_display_info ao_info;
 //VGMPLAY
 @property unsigned int optVGMPLAY_maxloop;
+@property unsigned char optVGMPLAY_ym2612emulator;
 //Modplug stuff
 @property ModPlug_Settings mp_settings;
 @property ModPlugFile *mp_file;
@@ -298,6 +301,7 @@ static const char *mmp_player_name[]={
 
 
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val;
+-(void) optVGMPLAY_YM2612emulator:(unsigned char)val;
 
 -(void) optGEN_DefaultLength:(float_t)val;
 

@@ -122,17 +122,29 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             else [tableView reloadData];
             
             //Shuffle playlist
+            srand(time(NULL));
             
             int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
             for (int from_idx=0;from_idx<playlist->nb_entries;from_idx++) {
-                int to_idx=arc4random()%(playlist->nb_entries);
+                int to_idx=rand()%(playlist->nb_entries);
                 if (from_idx!=to_idx) {
                 if (show_playlist) {
                     signed char tmpR=playlist->entries[from_idx].ratings;
                     short int tmpC=playlist->entries[from_idx].playcounts;
                     NSString *tmpF=playlist->entries[from_idx].fullpath;
                     NSString *tmpL=playlist->entries[from_idx].label;
-                if (to_idx<from_idx) {
+                    
+                    playlist->entries[from_idx].label=playlist->entries[to_idx].label;
+                    playlist->entries[from_idx].fullpath=playlist->entries[to_idx].fullpath;
+                    playlist->entries[from_idx].ratings=playlist->entries[to_idx].ratings;
+                    playlist->entries[from_idx].playcounts=playlist->entries[to_idx].playcounts;
+                
+                    playlist->entries[to_idx].label=tmpL;
+                    playlist->entries[to_idx].fullpath=tmpF;
+                    playlist->entries[to_idx].ratings=tmpR;
+                    playlist->entries[to_idx].playcounts=tmpC;
+                    
+                /*if (to_idx<from_idx) {
                     for (int i=from_idx;i>to_idx;i--) {
                         playlist->entries[i].label=playlist->entries[i-1].label;
                         playlist->entries[i].fullpath=playlist->entries[i-1].fullpath;
@@ -154,13 +166,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     playlist->entries[to_idx].fullpath=tmpF;
                     playlist->entries[to_idx].ratings=tmpR;
                     playlist->entries[to_idx].playcounts=tmpC;
-                }
+                }*/
                 
-                if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
-                else {
+                //if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
+                //else {
+                if (!(playlist->playlist_id)) {
                     t_plPlaylist_entry tmpF;
                     tmpF=detailViewController.mPlaylist[from_idx];
-                    if (to_idx<from_idx) {
+                    detailViewController.mPlaylist[from_idx]=detailViewController.mPlaylist[to_idx];
+                    detailViewController.mPlaylist[to_idx]=tmpF;
+                    /*if (to_idx<from_idx) {
                         for (int i=from_idx;i>to_idx;i--) {
                             detailViewController.mPlaylist[i]=detailViewController.mPlaylist[i-1];
                         }
@@ -170,7 +185,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             detailViewController.mPlaylist[i]=detailViewController.mPlaylist[i+1];
                         }
                         detailViewController.mPlaylist[to_idx]=tmpF;
-                    }
+                    }*/
+                    
                     if ((from_idx>detailViewController.mPlaylist_pos)&&(to_idx<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
                     else if ((from_idx<detailViewController.mPlaylist_pos)&&(to_idx>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
                     else if (from_idx==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=to_idx;
@@ -180,6 +196,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 }
             }
             }
+            
+            if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
             
             
             
@@ -615,6 +633,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		
 		sprintf(sqlStatement,"SELECT id,name,num_files FROM playlists ORDER BY name");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -641,6 +664,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		
 		//Get playlist name
 		sprintf(sqlStatement,"SELECT id,name,num_files FROM playlists WHERE id=%s",[_id_playlist UTF8String]);
@@ -684,6 +712,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		char sqlStatement[1024];
 		int err;
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"INSERT INTO playlists (name,num_files) SELECT \"%s\",0",[listName UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
@@ -706,6 +738,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		//Get playlist name
 		sprintf(sqlStatement,"SELECT name FROM playlists WHERE id=%s",[id_playlist UTF8String]);
@@ -731,7 +766,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		
-		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 				[id_playlist UTF8String],[label UTF8String],[fullPath UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
@@ -768,6 +806,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		for (int i=0;i<playlist->nb_entries;i++) {
 			sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 					[playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
@@ -807,6 +849,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		for (int i=0;i<nb_entries;i++) {
 			sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 					[id_playlist UTF8String],[pl_entries[i].mPlaylistFilename UTF8String],[pl_entries[i].mPlaylistFilepath UTF8String]);
@@ -846,6 +892,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"DELETE FROM playlists_entries WHERE id_playlist=\"%s\" AND fullpath=\"%s\"",
 				[id_playlist UTF8String],[fullpath UTF8String]);
@@ -868,14 +917,21 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	pthread_mutex_lock(&db_mutex);
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
-		
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"DELETE FROM playlists_entries WHERE id_playlist=%s",
 				[playlist->playlist_id UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
 		} else NSLog(@"ErrSQL : %d",err);
 		
-		
+		err=sqlite3_exec(db, "BEGIN TRANSACTION", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		for (int i=0;i<playlist->nb_entries;i++) {
 			sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
 					[playlist->playlist_id UTF8String],[playlist->entries[i].label UTF8String],[playlist->entries[i].fullpath UTF8String]);
@@ -883,6 +939,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 			if (err==SQLITE_OK){
 			} else NSLog(@"ErrSQL : %d",err);
 		}
+        
+        err=sqlite3_exec(db, "COMMIT", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"UPDATE playlists SET num_files=\
 				(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
@@ -905,6 +965,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"UPDATE playlists SET name=\"%s\" WHERE id=%s",[playlist_name UTF8String],[id_playlist UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
@@ -1028,6 +1092,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	
 	pthread_mutex_lock(&db_mutex);
 	if (sqlite3_open([pathToDB UTF8String], &db) != SQLITE_OK) db=NULL;
+    
+    err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+    if (err==SQLITE_OK){
+    } else NSLog(@"ErrSQL : %d",err);
 	
 	[filetype_ext addObjectsFromArray:filetype_extMDX];
     [filetype_ext addObjectsFromArray:filetype_extPMD];
@@ -1830,6 +1898,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         sqlite3_stmt *stmt;
         int err;
         
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
             sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE rating>0 ORDER BY rating DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
@@ -1861,6 +1933,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
         
             sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);

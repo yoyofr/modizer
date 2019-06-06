@@ -731,6 +731,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMPLAY)) {
         [mplayer optVGMPLAY_MaxLoop:(unsigned int)settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value];
+        [mplayer optVGMPLAY_YM2612emulator:(unsigned char)settings[VGMPLAY_YM2612Emulator].detail.mdz_slider.slider_value];
     }
     
     /////////////////////

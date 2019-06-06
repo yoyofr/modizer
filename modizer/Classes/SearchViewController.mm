@@ -327,6 +327,10 @@ static NSFileManager *mFileMngr;
 		sqlite3_stmt *stmt;
 		int err;
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
 				WHERE pe.id_playlist=p.id \
 				AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[mSearchText UTF8String]);
@@ -397,6 +401,10 @@ static NSFileManager *mFileMngr;
 		sqlite3_stmt *stmt;
 		int err;
 				
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		db_entries_count=MAX_SEARCH_RESULT;
 		if (db_entries_count) {
 			db_entries=(t_db_browse_entryS*)malloc(db_entries_count*sizeof(t_db_browse_entryS));
@@ -485,6 +493,10 @@ static NSFileManager *mFileMngr;
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		dbASMA_entries_count=MAX_SEARCH_RESULT;
 		if (dbASMA_entries_count) {
@@ -570,6 +582,10 @@ static NSFileManager *mFileMngr;
 		sqlite3_stmt *stmt;
 		int err;
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		dbHVSC_entries_count=MAX_SEARCH_RESULT;
 		if (dbHVSC_entries_count) {
 			dbHVSC_entries=(t_dbHVSC_browse_entryS*)malloc(dbHVSC_entries_count*sizeof(t_dbHVSC_browse_entryS));
@@ -1020,6 +1036,10 @@ static NSFileManager *mFileMngr;
 		sqlite3_stmt *stmt;
 		int err;		
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -1051,6 +1071,10 @@ static NSFileManager *mFileMngr;
 		sqlite3_stmt *stmt;
 		int err;
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -1311,6 +1335,10 @@ static NSFileManager *mFileMngr;
 		sqlite3_stmt *stmt;
 		int err;
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//Get playlist name
 		sprintf(sqlStatement,"SELECT id,name,num_files FROM playlists WHERE id=%s",[_id_playlist UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);

@@ -3,10 +3,8 @@ Todo/Requested:
 - option to keep subsong/subfiles selection screen opened
 - libopenmpt update
 - vgmstream update ?
-- vgmplay update ?
 - other cores updates ?
 - xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
-
 
 - improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - settings => when value available (not combo list or on/off switch), display it below label
@@ -30,9 +28,20 @@ Todo/Requested:
 
 - BUG: when not playing file, if download & exit => should not empty download queue
 
+2.9.2
+ÑÑÑÑÑ
+- HVSC #70
+- Modland 2019/16/01
+- ASAP 4.0
+- MP3 support
+- VGMPLAY update
+- GME update
+- Minor bugfixes
+
+
 2.9.1
 ÑÑÑÑÑ
-- [Bugfix] HVSC #68
+- HVSC #68
 - [Bugfix] About screen
 - [Bugfix] File browser sorting issue
 - [Bugfix] several minor fixes

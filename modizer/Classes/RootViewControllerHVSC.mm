@@ -416,6 +416,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM hvsc_file WHERE dir1 LIKE \"%%%s%%\"",[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir1) FROM hvsc_file");
@@ -539,6 +544,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM hvsc_file WHERE dir1=\"%s\" AND dir2 LIKE \"%%%s%%\"",[dir1 UTF8String],[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir2) FROM hvsc_file WHERE dir1=\"%s\"",[dir1 UTF8String]);
@@ -662,6 +672,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir3) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\"\
 							 UNION SELECT COUNT(filename) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[mSearchText UTF8String]);
@@ -805,6 +820,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir4) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4 is not null AND dir4 LIKE \"%%%s%%\"\
 							 UNION SELECT COUNT(filename) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[mSearchText UTF8String]);
@@ -948,6 +968,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(DISTINCT dir5) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4=\"%s\" AND dir5 is not null AND dir5 LIKE \"%%%s%%\"\
 							 UNION SELECT COUNT(filename) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4=\"%s\" AND dir5 is null AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[dir4 UTF8String],[mSearchText UTF8String],[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[dir4 UTF8String],[mSearchText UTF8String]);
@@ -1091,6 +1116,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(filename) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4=\"%s\" AND dir5=\"%s\" AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[dir4 UTF8String],[dir5 UTF8String],[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT COUNT(filename) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4=\"%s\" AND dir5=\"%s\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[dir4 UTF8String],[dir5 UTF8String]);
@@ -1171,7 +1201,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
-		int err;		
+		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"select fullpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1197,7 +1231,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
-		int err;		
+		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		
 		sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1225,6 +1264,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;		
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -1248,6 +1291,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;		
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"select filename from mod_file where id=%d",idmod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){

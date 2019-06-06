@@ -144,6 +144,10 @@ extern BOOL is_ios7;
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[256];
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"UPDATE user_stats SET rating=NULL");
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
@@ -167,6 +171,10 @@ extern BOOL is_ios7;
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[256];
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"UPDATE user_stats SET play_count=0");
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
@@ -196,7 +204,10 @@ extern BOOL is_ios7;
 		char sqlStatement2[256];
 		sqlite3_stmt *stmt;
 		
-		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//First check that user_stats entries still exist
 		sprintf(sqlStatement,"SELECT fullpath FROM user_stats");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);

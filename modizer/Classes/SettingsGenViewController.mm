@@ -461,7 +461,7 @@ void optGSFChangedC(id param) {
     //VGMPLAY
     /////////////////////////////////////
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
-    settings[VGMPLAY_YM2612Type].detail.mdz_slider.slider_value=2;
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_slider.slider_value=0;
     
     /////////////////////////////////////
     //VGMSTREAM
@@ -1421,18 +1421,18 @@ void optGSFChangedC(id param) {
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=0;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
     
-    settings[VGMPLAY_YM2612Type].type=MDZ_SWITCH;
-    settings[VGMPLAY_YM2612Type].label=(char*)"YM2612 Type";
-    settings[VGMPLAY_YM2612Type].description=NULL;
-    settings[VGMPLAY_YM2612Type].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
-    settings[VGMPLAY_YM2612Type].sub_family=0;
-    settings[VGMPLAY_YM2612Type].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_YM2612Type].detail.mdz_switch.switch_value=0;
-    settings[VGMPLAY_YM2612Type].detail.mdz_switch.switch_value_nb=3;
-    settings[VGMPLAY_YM2612Type].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YM2612Type].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[VGMPLAY_YM2612Type].detail.mdz_switch.switch_labels[0]=(char*)"MAME";
-    settings[VGMPLAY_YM2612Type].detail.mdz_switch.switch_labels[1]=(char*)"Nuked OPN2";
-    settings[VGMPLAY_YM2612Type].detail.mdz_switch.switch_labels[2]=(char*)"Gens";
+    settings[VGMPLAY_YM2612Emulator].type=MDZ_SWITCH;
+    settings[VGMPLAY_YM2612Emulator].label=(char*)"YM2612 Type";
+    settings[VGMPLAY_YM2612Emulator].description=NULL;
+    settings[VGMPLAY_YM2612Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_YM2612Emulator].sub_family=0;
+    settings[VGMPLAY_YM2612Emulator].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value_nb=3;
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[0]=(char*)"MAME";
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[1]=(char*)"Nuked OPN2";
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Gens";
     
     
     /////////////////////////////////////
