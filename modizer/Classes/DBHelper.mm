@@ -26,6 +26,10 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
 		char sqlStatement[1024],sqltmp[512];
 		int adjusted=0;
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqltmp,"%s",[localPath cStringUsingEncoding:NSUTF8StringEncoding]);
 //		printf("%s\n",sqltmp);
@@ -61,6 +65,10 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 		char sqlStatement[1024],sqltmp[512];
 		int adjusted=0;
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqltmp,"%s",[fullPath cStringUsingEncoding:NSNonLossyASCIIStringEncoding]);
 		
@@ -113,6 +121,10 @@ void DBHelper::getFileStatsDBmod(NSString *name,NSString *fullpath,short int *pl
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"SELECT play_count,rating,length,channels,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -159,6 +171,10 @@ void DBHelper::getFilesStatsDBmod(NSMutableArray *names,NSMutableArray *fullpath
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		for (int i=0;i<nb_entries;i++) {
 			sprintf(sqlStatement,"SELECT play_count,rating,length,channels_nb,songs FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[[names objectAtIndex:i] UTF8String],[[fullpaths objectAtIndex:i] UTF8String]);
@@ -199,6 +215,10 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
 	ret=1;
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
@@ -221,6 +241,10 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
 	ret=1;
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
@@ -252,6 +276,10 @@ void DBHelper::getFilesStatsDBmod(t_plPlaylist_entry *playlist,int nb_entries) {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		for (int i=0;i<nb_entries;i++) {
 			sprintf(sqlStatement,"SELECT play_count,rating FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[playlist[i].mPlaylistFilename UTF8String],[playlist[i].mPlaylistFilepath UTF8String]);
@@ -287,6 +315,10 @@ int DBHelper::getNbFormatEntries() {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"SELECT count(1) FROM mod_type");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -315,6 +347,10 @@ int DBHelper::getNbAuthorEntries() {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"SELECT count(1) FROM mod_author");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -341,6 +377,10 @@ int DBHelper::getNbHVSCFilesEntries() {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"SELECT count(1) FROM hvsc_file");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -368,6 +408,10 @@ int DBHelper::getNbASMAFilesEntries() {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"SELECT count(1) FROM asma_file");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -395,6 +439,10 @@ int DBHelper::getNbMODLANDFilesEntries() {
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"SELECT count(1) FROM mod_file");
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -432,6 +480,10 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
         
         sprintf(sqlStatement,"SELECT fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
         
@@ -496,6 +548,10 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"DELETE FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
@@ -525,6 +581,10 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"DELETE FROM user_stats WHERE name=\"%s\" and fullpath=\"%s\"",[name UTF8String],[fullpath UTF8String]);
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){

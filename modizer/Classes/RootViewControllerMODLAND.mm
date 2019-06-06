@@ -411,6 +411,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_type t,mod_type_author ta\
 							 WHERE ta.id_author=%d AND ta.id_type=t.id AND t.filetype like \"%%%s%%\"",authorID,[mSearchText UTF8String]);
@@ -520,6 +525,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type WHERE filetype LIKE \"%%%s%%\"",[mSearchText UTF8String]);
 		else  sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type");
@@ -626,6 +636,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_author WHERE author LIKE \"%%%s%%\"",[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT count(1) FROM mod_author");
@@ -739,6 +754,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\"",filetypeID,[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT COUNT(1) FROM mod_type_author m WHERE m.id_type=%d",filetypeID);
@@ -854,6 +874,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
 							 UNION SELECT count(1),1 FROM mod_author_album m,mod_album a WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
@@ -988,6 +1013,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1),0 FROM mod_file \
 							 WHERE id_author=%d AND id_type=%d id_album is null AND filename like \"%%%s%%\" \
@@ -1130,6 +1160,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename",authorID,albumID,[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename",authorID,albumID);
@@ -1243,6 +1278,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		//1st : count how many entries we'll have		
 		if (mSearch) sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\"",filetypeID,authorID,albumID,[mSearchText UTF8String]);
 		else sprintf(sqlStatement,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d",filetypeID,authorID,albumID);
@@ -1321,7 +1361,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
-		int err;		
+		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		
 		sprintf(sqlStatement,"select fullpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1347,7 +1392,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
-		int err;		
+		int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		
 		sprintf(sqlStatement,"select localpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1375,6 +1425,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;		
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -1398,6 +1452,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;		
 		
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
 		sprintf(sqlStatement,"select filename from mod_file where id=%d",idmod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
@@ -1528,6 +1586,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         sqlite3_stmt *stmt;
         int err;
         
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
         sprintf(sqlStatement,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -1564,6 +1626,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         sqlite3_stmt *stmt;
         int err;
         
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
         sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -1597,6 +1663,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
         
         sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1640,6 +1710,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
         
         sprintf(sqlStatement,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1692,6 +1766,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
         sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -1736,6 +1815,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
         
         sprintf(sqlStatement,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);

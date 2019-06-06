@@ -92,6 +92,11 @@ static char **browser_sidtune_title,**browser_sidtune_name;
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
         sprintf(sqlStatement,"SELECT major,minor FROM version");
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -141,6 +146,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 char sqlStatementW[1024];
                 sqlite3_stmt *stmt,*stmt2;
                 int err;
+                
+                err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+                if (err==SQLITE_OK){
+                } else NSLog(@"ErrSQL : %d",err);
                 
                 //Migrate DB user data : song length, ratings, playlists, ...
                 sprintf(sqlStatementR,"SELECT name,fullpath,play_count,rating FROM user_stats");
@@ -654,6 +663,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         sqlite3_stmt *stmt;
         char *realPath=strstr(fullPath,"/HVSC");
         
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
         if (!realPath) {
             //try to find realPath with md5
             sprintf(sqlStatement,"SELECT filepath FROM hvsc_path WHERE id_md5=\"%s\"",browser_song_md5);
@@ -923,6 +936,10 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     pthread_mutex_lock(&db_mutex);
     if (sqlite3_open([pathToDB UTF8String], &db) != SQLITE_OK) db=NULL;
+    
+    err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+    if (err==SQLITE_OK){
+    } else NSLog(@"ErrSQL : %d",err);
     
     [filetype_ext addObjectsFromArray:filetype_extMDX];
     [filetype_ext addObjectsFromArray:filetype_extPMD];

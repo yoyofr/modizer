@@ -115,6 +115,9 @@ auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 int optLAZYUSF_ResampleQuality=1;
 
 extern "C" {
+    //VGMPPLAY
+    CHIPS_OPTION ChipOpts[0x02];
+    
     //VGMSTREAM
 #import "../../vgmstream/vgmstream.h"
     int mpg123_read(mpg123_handle *mh, unsigned char *out, size_t size, size_t *done);
@@ -995,7 +998,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize ao_buffer;
 @synthesize ao_info;
 //VGMPLAY stuff
-@synthesize optVGMPLAY_maxloop;
+@synthesize optVGMPLAY_maxloop,optVGMPLAY_ym2612emulator;
 //Modplug stuff
 @synthesize mp_settings;
 @synthesize mp_file;
@@ -1225,6 +1228,7 @@ void propertyListenerCallback (void                   *inUserData,              
         
         //VGMPLAY
         optVGMPLAY_maxloop = 2;
+        optVGMPLAY_ym2612emulator=0;
         //
         
         
@@ -3449,15 +3453,15 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
                     } else {
                         char *archive_data;
-                        archive_data=(char*)malloc(32768); //32Ko buffer
+                        archive_data=(char*)malloc(512*1024*1024); //buffer
                         while (arc_size) {
-                            if (arc_size>32768) {
-                                fex_read( fex, archive_data, 32768);
-                                fwrite(archive_data,1,32768,f);
-                                arc_size-=32768;
+                            if (arc_size>512*1024*1024) {
+                                fex_read( fex, archive_data, 512*1024*1024);
+                                fwrite(archive_data,512*1024*1024,1,f);
+                                arc_size-=512*1024*1024;
                             } else {
                                 fex_read( fex, archive_data, arc_size );
-                                fwrite(archive_data,1,arc_size,f);
+                                fwrite(archive_data,arc_size,1,f);
                                 arc_size=0;
                             }
                         }
@@ -3560,15 +3564,15 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
                         } else {
                             char *archive_data;
-                            archive_data=(char*)malloc(32768); //32Ko buffer
+                            archive_data=(char*)malloc(32*1024*1024); //buffer
                             while (arc_size) {
-                                if (arc_size>32768) {
-                                    fex_read( fex, archive_data, 32768);
-                                    fwrite(archive_data,1,32768,f);
-                                    arc_size-=32768;
+                                if (arc_size>32*1024*1024) {
+                                    fex_read( fex, archive_data, 32*1024*1024);
+                                    fwrite(archive_data,32*1024*1024,1,f);
+                                    arc_size-=32*1024*1024;
                                 } else {
                                     fex_read( fex, archive_data, arc_size );
-                                    fwrite(archive_data,1,arc_size,f);
+                                    fwrite(archive_data,arc_size,1,f);
                                     arc_size=0;
                                 }
                             }
@@ -3682,6 +3686,14 @@ long src_callback_mpg123(void *cb_data, float **data) {
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
         sprintf(sqlStatement,"SELECT song_length FROM songlength WHERE id_md5=\"%s\" AND track_nb=%d",song_md5,track_nb);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -3728,6 +3740,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
         char sqlStatement[1024];
         
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
         sprintf(sqlStatement,"DELETE FROM songlength_user WHERE id_md5=\"%s\" AND track_nb=%d",song_md5,track_nb);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
@@ -3756,6 +3772,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
         char tmppath[256];
         sqlite3_stmt *stmt;
         char *realPath=strstr(fullPath,"/HVSC");
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
         
         if (!realPath) {
             //try to find realPath with md5
@@ -3803,6 +3823,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
         char tmppath[256];
         sqlite3_stmt *stmt;
         char *realPath=strstr(fullPath,"/ASMA");
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
         
         if (!realPath) {
             //try to find realPath with md5
@@ -5730,12 +5754,12 @@ long src_callback_mpg123(void *cb_data, float **data) {
     /* Print out ID3v1 info. */
     void print_v1(char *str_msg,mpg123_id3v1 *v1)
     {
-        safe_print(str_msg,"Title",   v1->title,   sizeof(v1->title));
-        safe_print(str_msg,"Artist",  v1->artist,  sizeof(v1->artist));
-        safe_print(str_msg,"Album",   v1->album,   sizeof(v1->album));
-        safe_print(str_msg,"Year",    v1->year,    sizeof(v1->year));
-        safe_print(str_msg,"Comment", v1->comment, sizeof(v1->comment));
-        sprintf(str_msg,"Genre: %i", v1->genre);
+        safe_print(str_msg+strlen(str_msg),"Title",   v1->title,   sizeof(v1->title));
+        safe_print(str_msg+strlen(str_msg),"Artist",  v1->artist,  sizeof(v1->artist));
+        safe_print(str_msg+strlen(str_msg),"Album",   v1->album,   sizeof(v1->album));
+        safe_print(str_msg+strlen(str_msg),"Year",    v1->year,    sizeof(v1->year));
+        safe_print(str_msg+strlen(str_msg),"Comment", v1->comment, sizeof(v1->comment));
+        sprintf(str_msg+strlen(str_msg),"Genre: %i", v1->genre);
     }
     
     /* Split up a number of lines separated by \n, \r, both or just zero byte
@@ -5768,7 +5792,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                 if(line)
                 {
                     lines[i] = 0;
-                    sprintf(str_msg,"%s%s\n", prefix, line);
+                    sprintf(str_msg+strlen(str_msg),"%s%s\n", prefix, line);
                     line = NULL;
                     lines[i] = save;
                 }
@@ -5784,12 +5808,12 @@ long src_callback_mpg123(void *cb_data, float **data) {
     /* Print out the named ID3v2  fields. */
     void print_v2(char *str_msg,mpg123_id3v2 *v2)
     {
-        print_lines(str_msg,"Title: ",   v2->title);
-        print_lines(str_msg,"Artist: ",  v2->artist);
-        print_lines(str_msg,"Album: ",   v2->album);
-        print_lines(str_msg,"Year: ",    v2->year);
-        print_lines(str_msg,"Comment: ", v2->comment);
-        print_lines(str_msg,"Genre: ",   v2->genre);
+        print_lines(str_msg+strlen(str_msg),"Title: ",   v2->title);
+        print_lines(str_msg+strlen(str_msg),"Artist: ",  v2->artist);
+        print_lines(str_msg+strlen(str_msg),"Album: ",   v2->album);
+        print_lines(str_msg+strlen(str_msg),"Year: ",    v2->year);
+        print_lines(str_msg+strlen(str_msg),"Comment: ", v2->comment);
+        print_lines(str_msg+strlen(str_msg),"Genre: ",   v2->genre);
     }
     
     /* Print out all stored ID3v2 fields with their 4-character IDs. */
@@ -5805,20 +5829,20 @@ long src_callback_mpg123(void *cb_data, float **data) {
             memcpy(lang, v2->text[i].lang, 3);
             lang[3] = 0;
             if(v2->text[i].description.fill)
-            sprintf(str_msg,"%s language(%s) description(%s)\n", id, lang, v2->text[i].description.p);
-            else sprintf(str_msg,"%s language(%s)\n", id, lang);
+            sprintf(str_msg+strlen(str_msg),"%s language(%s) description(%s)\n", id, lang, v2->text[i].description.p);
+            else sprintf(str_msg+strlen(str_msg),"%s language(%s)\n", id, lang);
             
-            print_lines(str_msg," ", &v2->text[i].text);
+            print_lines(str_msg+strlen(str_msg)," ", &v2->text[i].text);
         }
         for(i=0; i<v2->extras; ++i)
         {
             char id[5];
             memcpy(id, v2->extra[i].id, 4);
             id[4] = 0;
-            sprintf(str_msg, "%s description(%s)\n",
+            sprintf(str_msg+strlen(str_msg), "%s description(%s)\n",
                    id,
                    v2->extra[i].description.fill ? v2->extra[i].description.p : "" );
-            print_lines(str_msg," ", &v2->extra[i].text);
+            print_lines(str_msg+strlen(str_msg)," ", &v2->extra[i].text);
         }
         for(i=0; i<v2->comments; ++i)
         {
@@ -5828,11 +5852,11 @@ long src_callback_mpg123(void *cb_data, float **data) {
             id[4] = 0;
             memcpy(lang, v2->comment_list[i].lang, 3);
             lang[3] = 0;
-            sprintf(str_msg, "%s description(%s) language(%s): \n",
+            sprintf(str_msg+strlen(str_msg), "%s description(%s) language(%s): \n",
                    id,
                    v2->comment_list[i].description.fill ? v2->comment_list[i].description.p : "",
                    lang );
-            print_lines(str_msg," ", &v2->comment_list[i].text);
+            print_lines(str_msg+strlen(str_msg)," ", &v2->comment_list[i].text);
         }
     }
 
@@ -5945,14 +5969,17 @@ long src_callback_mpg123(void *cb_data, float **data) {
         mpg123_scan(mpg123h);
         meta = mpg123_meta_check(mpg123h);
         if(meta & MPG123_ID3 && mpg123_id3(mpg123h, &v1, &v2) == MPG123_OK) {
-            //printf("\n====      ID3v1       ====\n");
-            if(v1 != NULL) print_v1(mod_message,v1);
-        
+            if(v1 != NULL) {
+                sprintf(mod_message+strlen(mod_message),"\n====      ID3v1       ====\n");
+                print_v1(mod_message,v1);
+            }
             //printf("\n====      ID3v2       ====\n");
             //if(v2 != NULL) print_v2(mod_message,v2);
-        
-            //printf("\n==== ID3v2 Raw frames ====\n");
-            if(v2 != NULL) print_raw_v2(mod_message,v2);
+            
+            if(v2 != NULL) {
+                sprintf(mod_message+strlen(mod_message),"\n==== ID3v2 Raw frames ====\n");
+                print_raw_v2(mod_message,v2);
+            }
         }
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -6161,6 +6188,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     VGMPlay_Init();
     // load configuration file here
+    ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
+    ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
+    
     VGMPlay_Init2();
     
     VGMMaxLoop=optVGMPLAY_maxloop;
@@ -8222,6 +8252,9 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val {
     optVGMPLAY_maxloop=val;
+}
+-(void) optVGMPLAY_YM2612emulator:(unsigned char)val {
+    optVGMPLAY_ym2612emulator=val;
 }
 
 ///////////////////////////
