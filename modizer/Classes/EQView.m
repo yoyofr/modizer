@@ -3,7 +3,7 @@
 //  modizer
 //
 //  Created by Yohann Magnien on 08/09/13.
-//
+//  
 //
 
 #import "EQView.h"
