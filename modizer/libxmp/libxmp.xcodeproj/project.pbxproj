@@ -745,6 +745,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 595F9BFF1E54B906009DBEED;
@@ -955,6 +956,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -962,7 +964,7 @@
 				OTHER_CFLAGS = "-DHAVE_ROUND";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "/Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/src";
+				USER_HEADER_SEARCH_PATHS = "/Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/src";
 			};
 			name = Debug;
 		};
@@ -1000,13 +1002,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "-DHAVE_ROUND";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "/Users/yohannmagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/src";
+				USER_HEADER_SEARCH_PATHS = "/Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/src";
 			};
 			name = Release;
 		};

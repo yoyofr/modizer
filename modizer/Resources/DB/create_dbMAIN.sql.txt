@@ -137,9 +137,9 @@ CREATE TABLE hvsc_path (id_md5 text,filepath text);
 CREATE TABLE asma_path (id_md5 text,filepath text);
 
 .separator ';'
-.import "./hvsc_songl.txt" songlength
-.import "./hvsc_pathmd5.txt" hvsc_path
-.import "./asma_pathmd5.txt" asma_path
+.import "./HVSC/hvsc_songl.txt" songlength
+.import "./HVSC/hvsc_pathmd5.txt" hvsc_path
+.import "./ASMA/asma_pathmd5.txt" asma_path
 
 CREATE INDEX idx_songlengthMD5 on songlength (id_md5);
 CREATE INDEX idx_hvsc_pathMD5 on hvsc_path (id_md5);
@@ -154,24 +154,24 @@ CREATE TABLE import_7hvsc (id_md5 text,dir1 text,dir2 text,dir3 text,dir4 text,d
 
 .separator '/'
 
-.import "./hvsc4.txt" import_4hvsc
-.import "./hvsc5.txt" import_5hvsc
-.import "./hvsc6.txt" import_6hvsc
-.import "./hvsc7.txt" import_7hvsc
+.import "./HVSC/hvsc4.txt" import_4hvsc
+.import "./HVSC/hvsc5.txt" import_5hvsc
+.import "./HVSC/hvsc6.txt" import_6hvsc
+.import "./HVSC/hvsc7.txt" import_7hvsc
 
 CREATE TABLE hvsc_file (id_md5,dir1 text,dir2 text,dir3 text,dir4 text,dir5 text,filename text,fullpath text);
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,filename,fullpath)
-SELECT id_md5,dir1,dir2,filename,'/'||dir1||'/'||dir2||'/'||filename FROM import_4hvsc;
+SELECT Rtrim(id_md5,";"),dir1,dir2,filename,'/'||dir1||'/'||dir2||'/'||filename FROM import_4hvsc;
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,filename,fullpath)
-SELECT id_md5,dir1,dir2,dir3,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||filename FROM import_5hvsc;
+SELECT Rtrim(id_md5,";"),dir1,dir2,dir3,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||filename FROM import_5hvsc;
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,dir4,filename,fullpath)
-SELECT id_md5,dir1,dir2,dir3,dir4,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||filename FROM import_6hvsc;
+SELECT Rtrim(id_md5,";"),dir1,dir2,dir3,dir4,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||filename FROM import_6hvsc;
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,dir4,dir5,filename,fullpath)
-SELECT id_md5,dir1,dir2,dir3,dir4,dir5,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||dir5||'/'||filename FROM import_7hvsc;
+SELECT Rtrim(id_md5,";"),dir1,dir2,dir3,dir4,dir5,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||dir5||'/'||filename FROM import_7hvsc;
 
 DROP TABLE import_4hvsc;
 DROP TABLE import_5hvsc;
@@ -189,10 +189,10 @@ CREATE TABLE import_6asma (id_md5 text,dir1 text,dir2 text,dir3 text,dir4 text,f
 
 .separator '/'
 
-.import "./asma3.txt" import_3asma
-.import "./asma4.txt" import_4asma
-.import "./asma5.txt" import_5asma
-.import "./asma6.txt" import_6asma
+.import "./ASMA/asma3.txt" import_3asma
+.import "./ASMA/asma4.txt" import_4asma
+.import "./ASMA/asma5.txt" import_5asma
+.import "./ASMA/asma6.txt" import_6asma
 
 CREATE TABLE asma_file (id_md5,dir1 text,dir2 text,dir3 text,dir4 text,filename text,fullpath text);
 
@@ -220,18 +220,18 @@ CREATE INDEX idx_asma_fileDirs on asma_file (dir1,dir2,dir3,dir4);
 
 CREATE TABLE stil (fullpath text,stil_info text);
 .separator "\t"
-.import "./stilconverted" stil 
+.import "./HVSC/stilconverted" stil 
 CREATE INDEX idx_stil_fullpath on stil (fullpath);
 
 CREATE TABLE stil_asma (fullpath text,stil_info text);
 .separator "\t"
-.import "./stilconverted_asma" stil_asma
+.import "./ASMA/stilconverted_asma" stil_asma
 CREATE INDEX idx_stilasma_fullpath on stil_asma (fullpath);
 
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)
-VALUES (2,92);
+VALUES (2,93);
 
 
 

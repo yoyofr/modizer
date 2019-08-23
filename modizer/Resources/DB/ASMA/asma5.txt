@@ -155,7 +155,7 @@ cf4f42c277bc8edceef5d389b0632fbf;/Composers/Grayscale/Sychowicz_Lukasz/Gnilec.sa
 3bfb39588e77512f4afc037e9b919f00;/Composers/Grayscale/Sychowicz_Lukasz/Groch.sap
 ca8383aa1f7fa77acaddd2be77db9da9;/Composers/Grayscale/Sychowicz_Lukasz/Ground.sap
 7029d3c5b96c02e93c3fa39fb0e92a8a;/Composers/Grayscale/Sychowicz_Lukasz/Gwoopie_Yes_Them.sap
-7376d24aac0caa86df77e43bab9b2d58;/Composers/Grayscale/Sychowicz_Lukasz/Halo.sap
+75b3d9ce5d4ca5f5107b6303941358e9;/Composers/Grayscale/Sychowicz_Lukasz/Halo.sap
 511e5f4f9ebf2fa25e2ac0e6aff3fdce;/Composers/Grayscale/Sychowicz_Lukasz/Happy_Oriental_Kids.sap
 e8d8ece6489d32787d040e1fb79e3ba9;/Composers/Grayscale/Sychowicz_Lukasz/Hujoza.sap
 7aafbf77eee9f686d4ce9e33b75df57d;/Composers/Grayscale/Sychowicz_Lukasz/Hypnotic.sap
