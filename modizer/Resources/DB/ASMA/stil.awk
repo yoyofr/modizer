@@ -8,7 +8,7 @@ BEGIN {
         readflag=0;
         print title "\t" info;
      } else {
-        info= info substr($0,1,length($0)-1) "\\n";
+        info= info substr($0,1,length($0)) "\\n";
      }
   }
 }

@@ -3332,6 +3332,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             }
                             nbBytes*=2;
                         }
+                        
+                        if (mChangeOfSong==0) {
+                            if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
+                                if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    mod_currentsub++;
+                                    
+                                    mNewModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                                    ASAP_PlaySong(asap, mod_currentsub, mNewModuleLength);
+                                    
+                                    mChangeOfSong=1;
+                                    if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
+                                    if (mLoopMode) mNewModuleLength=-1;
+                                } else nbBytes=0;
+                            }
+                        }
+                        
                     }
                     if (mPlayType==MMP_DUMB) {//DUMB
                         if (duh_player->dr) {
@@ -4733,6 +4750,24 @@ long src_callback_mpg123(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     fclose(f);
     
+    /* new format: md5 on all file data*/
+    int tmp_md5_data_size=mp_datasize;
+    char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
+    
+    f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"SID Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    fread(tmp_md5_data,1,tmp_md5_data_size,f);
+    fclose(f);
+    
+    md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
+    song_md5[32]=0;
+    free(tmp_md5_data);
+    
+    
     if (mSidEngineType==1) {
         
         mSid1EmuEngine = new emuEngine;
@@ -4791,6 +4826,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
             mod_maxsub=sidtune_info.songs-1;
             mod_currentsub=sidtune_info.startSong-1;
             
+            /*old format
+            
             int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
             char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
             memset(tmp_md5_data,0,tmp_md5_data_size);
@@ -4831,8 +4868,13 @@ long src_callback_mpg123(void *cb_data, float **data) {
             md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
             song_md5[32]=0;
             free(tmp_md5_data);
-            //NSLog(@"MD5: %s",song_md5);
+             */
             
+            
+            
+             
+            NSLog(@"MD5: %s",song_md5);
+            //
             sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
             mSid1Tune->getInfo(sidtune_info);
             
@@ -4952,7 +4994,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
             mod_minsub=0;//sidtune_info.startSong;
             mod_maxsub=sidtune_info.songs-1;
             mod_currentsub=sidtune_info.startSong-1;
-            
+           
+            /* old format
             int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
             char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
             memset(tmp_md5_data,0,tmp_md5_data_size);
@@ -4992,7 +5035,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
             md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
             song_md5[32]=0;
             free(tmp_md5_data);
-            //NSLog(@"MD5: %s",song_md5);
+             */
+            NSLog(@"MD5: %s",song_md5);
             
             
             mSidTune->selectSong(mod_currentsub+1);

@@ -1,8 +1,8 @@
 ﻿##############################################################################
 #
-#  STIL v3.8 - SAP Tune Information List
+#  STIL v3.9 - SAP Tune Information List
 #  Maintained by Mariusz Rozwadowski (Ramos)
-#  Total number of entries: 1635
+#  Total number of entries: 1682
 #
 ##############################################################################
 #
@@ -70,6 +70,9 @@ COMMENT: 10th place at Shadows Party 1994 music compo.
 COMMENT: Last Party 1998 music compo entry.
 
 ### /Composers/Bendyk_Piotr ##################################################
+
+/Composers/Bendyk_Piotr/Fifth_Generation.sap
+COMMENT: 2nd place at Silly Venture 2016 music compo.
 
 /Composers/Bendyk_Piotr/Third.sap
 COMMENT: 1st place at Silly Venture 2014 music compo.
@@ -465,22 +468,22 @@ COMMENT: Music starts at 0:03.
 /Composers/Cierkonski_Michal/Yo.sap
 COMMENT: 21th place at QuaST party 1996 music compo.
 
-### /Composers/Cieslewicz_Tomasz #############################################
+### /Composers/Cieslewicz_Tomasz_and_Dombek_K ################################
 
-/Composers/Cieslewicz_Tomasz/Dom.sap
+/Composers/Cieslewicz_Tomasz_and_Dombek_K/Dom.sap
 (#1)
   TITLE: Dom w dolinie mgieł [from E=mc2]
  ARTIST: Marek Biliński
 
-/Composers/Cieslewicz_Tomasz/Koziol.sap
+/Composers/Cieslewicz_Tomasz_and_Dombek_K/Koziol.sap
   TITLE: Koziołek Matołek [from a cartoon series]
  ARTIST: Adam Markiewicz
 
-/Composers/Cieslewicz_Tomasz/Roxette.sap
+/Composers/Cieslewicz_Tomasz_and_Dombek_K/Roxette.sap
   TITLE: Listen to Your Heart [from Look Sharp!]
  ARTIST: Roxette
 
-/Composers/Cieslewicz_Tomasz/Roxette_2.sap
+/Composers/Cieslewicz_Tomasz_and_Dombek_K/Roxette_2.sap
   TITLE: The Look [from Look Sharp!]
  ARTIST: Roxette
 
@@ -567,7 +570,7 @@ COMMENT: Music from the game 'Grunwald 1410' released by L.K. Firebird in 1995.
 
 ### /Composers/Diaz_Esteban ##################################################
 
-/Composers/Diaz_Esteban/CWKND.sap
+/Composers/Diaz_Esteban/Computer_Weekend.sap
   TITLE: Computer Weekend [from Revolutions]
  ARTIST: Jean Michel Jarre
 
@@ -720,11 +723,24 @@ COMMENT: Also used in "GoldRunner" on the Atari ST.
 /Composers/Eisenhammer_Zdenek/
 COMMENT: PG is abbreviation of PseudoGrafx.
 
+/Composers/Eisenhammer_Zdenek/Atari_Goes_On.sap
+COMMENT: 4th place at Forever 19 music compo.
+
+/Composers/Eisenhammer_Zdenek/Atlantida.sap
+  TITLE: Atlantída [from Sezónne lásky]
+ ARTIST: Miro Žbirka
+COMMENT: 2nd place at Forever 19 music compo.
+
 /Composers/Eisenhammer_Zdenek/Aurora_rev_2.sap
   TITLE: Hymn to Aurora [from the Amiga MOD module]
  ARTIST: Horace Wimp
 
-/Composers/Eisenhammer_Zdenek/Comic_Bakery.sap
+/Composers/Eisenhammer_Zdenek/Blue_Sky_Action.sap
+  TITLE: Blue Sky Action
+ ARTIST: Above & Beyond [from We Are All We Need]
+COMMENT: 2nd place at Forever 18 music compo.
+
+/Composers/Eisenhammer_Zdenek/Comic_Squares.sap
   TITLE: Comic Bakery, Tune #1 [from the C64 game]
  ARTIST: Martin Galway
 
@@ -749,6 +765,14 @@ COMMENT: The intro part is cut off from this cover.
 /Composers/Eisenhammer_Zdenek/Diamondz_Title.sap
   TITLE: Abra1 [from the Amiga MOD module]
  ARTIST: Jogeir Liljedahl
+
+/Composers/Eisenhammer_Zdenek/Duck_Tales_The_Moon.sap
+  TITLE: Duck Tales - The Moon [from the Nintendo Entertainment System game]
+ ARTIST: Hiroshige Tonomura
+
+/Composers/Eisenhammer_Zdenek/Final_Fantasy_VI_Terras_Th.sap
+  TITLE: Final Fantasy VI - Terra's Theme [from the Super Nintendo Entertainment System game]
+ ARTIST: Nobuo Uematsu
 
 /Composers/Eisenhammer_Zdenek/Flop_magazin_53.sap
   TITLE: The Alibi [from the C64 SID]
@@ -788,6 +812,9 @@ COMMENT: Covers a version made by Martin Nordell (Makrone) on the Amiga.
   TITLE: Jozin z bazin [from Nashledanou]
  ARTIST: Ivan Mladek (music), performed by Banjo Band
 
+/Composers/Eisenhammer_Zdenek/Just_Be_Happy.sap
+COMMENT: 4th place at Forever 14 music compo.
+
 /Composers/Eisenhammer_Zdenek/Kaviar.sap
   TITLE: Kaviar [from the Amiga MOD module]
  ARTIST: Erno Zalka (Ern0)
@@ -800,9 +827,21 @@ COMMENT: Covers a version made by Martin Nordell (Makrone) on the Amiga.
   TITLE: fin [from the Amiga game Lotus III: The Ultimate Challenge]
  ARTIST: Patrick Phelan
 
+/Composers/Eisenhammer_Zdenek/Marble_Machine.sap
+  TITLE: Marble Machine
+ ARTIST: Wintergatan
+COMMENT: Used in a Forever 19 Realtime Compo entry, which won the competition.
+
 /Composers/Eisenhammer_Zdenek/Mashed_Turtles.sap
   TITLE: Zoolrave [from the Amiga game Zool]
  ARTIST: Patrick Phelan
+
+/Composers/Eisenhammer_Zdenek/Maze_Rush.sap
+COMMENT: 3rd place at Forever 13 music compo.
+
+/Composers/Eisenhammer_Zdenek/Mega_Man_2_Dr_Willys_Castl.sap
+  TITLE: Mega Man 2 - Dr. Willy's Castle [from the Nintendo Entertainment System game]
+ ARTIST: Takashi Tateishi
 
 /Composers/Eisenhammer_Zdenek/Mind_Blast_Ingame.sap
   TITLE: Stardust Memories [from the Amiga MOD module]
@@ -819,6 +858,9 @@ COMMENT: Covers a version made by Martin Nordell (Makrone) on the Amiga.
 /Composers/Eisenhammer_Zdenek/Phase_08.sap
 COMMENT: 2nd place at Forever 11 music compo.
 
+/Composers/Eisenhammer_Zdenek/POKEY_Forever.sap
+COMMENT: 2nd place at Forever 15 music compo.
+
 /Composers/Eisenhammer_Zdenek/Quest_for_Elvis.sap
   TITLE: Living Next Door to Alice
  ARTIST: New World
@@ -830,6 +872,9 @@ COMMENT: Covers the version arranged by Smokie
   TITLE: One Horse Open Sleigh (0:00-0:08)
  ARTIST: James Lord Pierpont
 
+/Composers/Eisenhammer_Zdenek/Rain_Bliss.sap
+COMMENT: 2nd place at Forever 17 music compo.
+
 /Composers/Eisenhammer_Zdenek/Rolltris_Game.sap
   TITLE: beyond music [from the Amiga MOD module]
  ARTIST: Markus Kaarlonen (Captain)
@@ -838,6 +883,10 @@ COMMENT: Covers the version arranged by Smokie
 (#1)
   TITLE: jazzberry juice.edit [from the Amiga MOD module]
  ARTIST: Reed Richards (Reed)
+
+/Composers/Eisenhammer_Zdenek/Sonic_the_Hedgehog_Green_H.sap
+  TITLE: Sonic the Hedgehog - Green Hill Zone [from the Sega Megadrive game]
+ ARTIST: Takashi Tateishi
 
 /Composers/Eisenhammer_Zdenek/Spellbound_Partial_Version.sap
   TITLE: Spellbound, Tune #1 [from the C64 game]
@@ -862,6 +911,15 @@ COMMENT: Covers the version arranged by Smokie
 /Composers/Eisenhammer_Zdenek/Swapz_Title.sap
   TITLE: Brainless 3 [from the Amiga MOD module]
  ARTIST: Jakob Svanholm (Radix)
+
+/Composers/Eisenhammer_Zdenek/Ten_Minutes_To_Deadline.sap
+COMMENT: 4th place at Forever 16 music compo.
+
+/Composers/Eisenhammer_Zdenek/Tronix.sap
+  TITLE: Clubbed to Death [from Furious Angels]
+ ARTIST: Rob Dougan
+COMMENT: The cover is incomplete, as featured in an unfinished entry for the
+         Realtime Compo at Forever 2015.
 
 /Composers/Eisenhammer_Zdenek/Turrican_2_Freedom.sap
   TITLE: Freedom [from the Amiga game Turrican II]
@@ -1319,6 +1377,100 @@ COMMENT: Cover version Those Were the Days, performed by Mary Hopkin.
 /Composers/Foerst_Kai/Downtown.sap
   TITLE: Downtown
  ARTIST: Tony Hatch (music), performed by Petula Clark
+
+### /Composers/Fragmare ######################################################
+
+/Composers/Fragmare/Batman_Intermission.sap
+  TITLE: Intermission [from the NES game Batman]
+ ARTIST: Naoki Kodaka
+
+/Composers/Fragmare/Batman_Laboratory_Ruins.sap
+  TITLE: Laboratory Ruins [from the NES game Batman]
+ ARTIST: Naoki Kodaka
+
+/Composers/Fragmare/Batman_Streets_of_Desolati.sap
+  TITLE: Gotham City Streets Stage [from the NES game Batman]
+ ARTIST: Naoki Kodaka
+
+/Composers/Fragmare/Castlevania_Cross_Your_Hea.sap
+  TITLE: Cross Your Heart [from the Arcade game Castlevania: Haunted Castle (Devil's Castle Dracula)]
+ ARTIST: Kenichi Matsubara
+
+/Composers/Fragmare/Castlevania_III_Demon_Seed.sap
+  TITLE: Demon Seed (Under Dracula Castle) [from the NES game Castlevania III: Dracula's Curse]
+ ARTIST: Jun Funahashi, Yoshinori Sasaki, Yukie Morimoto (as Konami Kukeiha Club)
+COMMENT: Also known as Luminescent Blues.
+
+/Composers/Fragmare/Double_Dragon_Industrial_A.sap
+  TITLE: Riot (Industrial Area), stage 2 [from the Arcade game Double Dragon]
+ ARTIST: Kazunaka Yamane
+
+/Composers/Fragmare/Gaiares_Mission_5.sap
+  TITLE: Mission 5 [from the Sega Genesis game Gaiares]
+ ARTIST: Shinobu Ogawa
+
+/Composers/Fragmare/Journey_to_Sillius_Undergr.sap
+  TITLE: Underground Concourse Stage [from the NES game Journey to Silius]
+ ARTIST: Naoki Kodaka
+
+/Composers/Fragmare/Mega_Man_2_Dr_Wily_1.sap
+  TITLE: Dr. Wily Stages 1-2 (Castle Song) [from the NES game Mega Man 2]
+ ARTIST: Takashi Tateishi
+
+/Composers/Fragmare/Mega_Man_2_Flash_Man.sap
+  TITLE: Flashman Stage [from the NES game Mega Man 2]
+ ARTIST: Takashi Tateishi
+
+/Composers/Fragmare/Ninja_Gaiden_Pushing_Onwar.sap
+  TITLE: Pushing Onward, stages 1-1, 5-2, 6-3 [from the NES game Ninja Gaiden]
+ ARTIST: Keiji Yamagishi, Ryuichi Nitta
+
+/Composers/Fragmare/Ninja_Gaiden_Unbreakable_D.sap
+  TITLE: Unbreakable Determination, stage 4-2 [from the NES game Ninja Gaiden]
+ ARTIST: Keiji Yamagishi, Ryuichi Nitta
+
+/Composers/Fragmare/Raiden_Gallantry.sap
+  TITLE: Gallantry, stage 1 [from the Arcade game Raiden (Thunder And Lightning)]
+ ARTIST: Akira Sato
+
+/Composers/Fragmare/Shadow_of_the_Ninja_Sea_Po.sap
+  TITLE: Sea Port, stage 1 [from the NES game Shadow of the Ninja]
+ ARTIST: Iku Mizutani, Kouichi Yamanishi
+
+/Composers/Fragmare/Star_Fox_Corneria.sap
+  TITLE: Corneria [from the Nintendo game Star Fox]
+ ARTIST: Hajime Hirasawa
+
+/Composers/Fragmare/Streets_of_Rage_2_Dreamer.sap
+  TITLE: Dreamer, stage 3 [from the NES game Streets Of Rage 2]
+ ARTIST: Yuzo Koshiro
+
+/Composers/Fragmare/Ys_Fountain_of_Love.sap
+  TITLE: Fountain of Love [from the NEC PC-8801 game Ys 1]
+ ARTIST: Yuzo Koshiro <?>
+
+/Composers/Fragmare/Ys_Last_Moment_of_the_Dark.sap
+  TITLE: The Last Moment of the Dark [from the NEC PC-8801 game Ys 1]
+ ARTIST: Yuzo Koshiro
+
+/Composers/Fragmare/Ys_Rest_in_Peace.sap
+  TITLE: Rest in Peace [from the NEC PC-8801 game Ys 1]
+ ARTIST: Yuzo Koshiro <?>
+
+/Composers/Fragmare/Ys_Tower_of_the_Shadow.sap
+  TITLE: Tower of the Shadow of Death [from the NEC PC-8801 game Ys 1]
+ ARTIST: Yuzo Koshiro
+
+### /Composers/Fusik_Piotr ###################################################
+
+/Composers/Fusik_Piotr/Falcon.sap
+COMMENT: 8th place at Silly Venture 2016 music compo.
+
+/Composers/Fusik_Piotr/Future.sap
+COMMENT: 3rd place at Forever 17 music compo.
+
+/Composers/Fusik_Piotr/New.sap
+COMMENT: 6th place at Forever 18 music compo.
 
 ### /Composers/Galinski_Adrian ###############################################
 
@@ -1967,6 +2119,16 @@ COMMENT: Music from the game 'Władcy Ciemności' released by L.K. Avalon in
 COMMENT: Music from the game 'Władcy Ciemności' released by L.K. Avalon in
          1993.
 
+### /Composers/Holik_Antonin #################################################
+
+/Composers/Holik_Antonin/Bad_Apple_stereo_version.sap
+  TITLE: Bad Apple [from Lovelight]
+ ARTIST: Alstroemeria Records
+
+/Composers/Holik_Antonin/Belegost.sap
+  TITLE: Belegost [from the ZX Spectrum game]
+ ARTIST: Frantisek Fuka
+
 ### /Composers/Hryn_Piotr ####################################################
 
 /Composers/Hryn_Piotr/Music_Compo_93.sap
@@ -2491,10 +2653,6 @@ COMMENT: Sadly, Jaroslaw Krasuski (Jaras) passed away in 2007, at the age
 
 ### /Composers/Krix_Mario ####################################################
 
-/Composers/Krix_Mario/Acidjazzed_Evening.sap
-  TITLE: Acidjazzed Evening [from the Amiga MOD module]
- ARTIST: Janne Suni (Tempest)
-
 /Composers/Krix_Mario/Alloy.sap
   TITLE: Alloyrun - Title tune [from the C64 game]
  ARTIST: Jeroen Tel
@@ -2568,6 +2726,11 @@ COMMENT: Covering from the C64 version game by Ben Daglish that appeared in
 /Composers/Krix_Mario/Stardust_Memories.sap
   TITLE: Stardust Memories [from the Amiga MOD module]
  ARTIST: Volker Tripp (Jester)
+
+/Composers/Krix_Mario/Zybex_Remix.sap
+  TITLE: Zybex, Tune #4
+ ARTIST: Adam Gilmore
+COMMENT: Heavily based on /Composers/Makary_Brauner/Zybex_Remix.sap.
 
 ### /Composers/Kucisz_Tomasz #################################################
 
@@ -3159,6 +3322,29 @@ COMMENT: 18th place at QuaST party 1996 music compo.
   TITLE: The Model [from The Man Machine]
  ARTIST: Kraftwerk
 
+### /Composers/Makary_Brauner ################################################
+
+/Composers/Makary_Brauner/Clubbed_to_Death.sap
+  TITLE: Clubbed to Death [from the movie Matrix]
+ ARTIST: Rob Dougan
+COMMENT: 1st place at Wapniak 2017 cover music compo.
+
+/Composers/Makary_Brauner/Fred_Main_Theme.sap
+  TITLE: A cover of the tune from Atari XE/XL POKEY Fred by Janusz Pelc
+ ARTIST: Janusz Pelc
+
+/Composers/Makary_Brauner/Life_after_Death.sap
+COMMENT: 1st place at Silly Venture 2016 music compo.
+
+/Composers/Makary_Brauner/Rob_Hubbards_Thalamusik.sap
+  TITLE: Thalamusik [from the C64 game Sanxion loader]
+ ARTIST: Rob Hubbard
+COMMENT: A cover of the tune from C64 SID Thalamusik by Rob Hubbard.
+
+/Composers/Makary_Brauner/Zybex_Remix.sap
+  TITLE: Zybex, Tune #4
+ ARTIST: Adam Gilmore
+
 ### /Composers/Makowski_Robert ###############################################
 
 /Composers/Makowski_Robert/Alfaboot_1.sap
@@ -3306,6 +3492,12 @@ COMMENT: Music from the game 'Magia' released by Mirage in 1993.
 /Composers/Mikolajczak_Pawel/Zbir.sap
 COMMENT: Music from the game 'Zbir' released by Mirage in 1993.
 
+### /Composers/MotionRide ####################################################
+
+/Composers/MotionRide/Monday.sap
+  TITLE: Monday [from the Amiga MOD module]
+ ARTIST: Edvin Fladen (Random Voice)
+
 ### /Composers/Mrozowski_Robert ##############################################
 
 /Composers/Mrozowski_Robert/Going_to_California.sap
@@ -3372,6 +3564,12 @@ COMMENT: Best known from as the title theme to the comedy TV series "The Benny
 
 /Composers/Nedved_Vojtech/Aoki.sap
 COMMENT: 5th place at Forever 9 music compo.
+
+### /Composers/Nieber_Christian ##############################################
+
+/Composers/Nieber_Christian/Over_the_Rainbow.sap
+  TITLE: Over The Rainbow [from the movie The Wizard of Oz]
+ ARTIST: Harold Arlen (music), E.Y.Harburg (lyrics), performed by Judy Garland
 
 ### /Composers/Niestegge_Stefan ##############################################
 
@@ -3601,6 +3799,9 @@ COMMENT: This SID covers the version by Jeroen Tel.
 /Composers/Pesout_Marek/Lotus_The_Ultimate_Challen.sap
   TITLE: Lotus3 [from the Amiga game Lotus III: The Ultimate Challenge]
  ARTIST: Patrick Phelan
+
+/Composers/Pesout_Marek/Master_of_Lost_Energy.sap
+COMMENT: Also known as Master of Evil Heaven.
 
 /Composers/Pesout_Marek/Morning_Coffe.sap
   TITLE: <?>
@@ -4174,6 +4375,11 @@ COMMENT: Another version of /Composers/Rymorz_Waldemar/Arkanoid_II.sap, tune 5.
   TITLE: One Horse Open Sleigh
  ARTIST: James Lord Pierpont
 COMMENT: Popular under name "Jingle Bells".
+
+### /Composers/Selector_Catalogue ############################################
+
+/Composers/Selector_Catalogue/Sap_Trap.sap
+COMMENT: 4th place at Winter Chip II (Best Pokey) music compo.
 
 ### /Composers/Sikorski_Pawel ################################################
 
@@ -5278,6 +5484,10 @@ COMMENT: This piece covers the version by Somebody Dance With Me by DJ Bobo.
   TITLE: Main Title [from all the Star Wars movies]
  ARTIST: John Williams
 
+/Composers/Vila_Jaime/Starshine.sap
+  TITLE: Starshine [from ScreamTracker S3M module]
+ ARTIST: Jonne Valtonen (Purple Motion)
+
 ### /Composers/Vogt_Dariusz ##################################################
 
 /Composers/Vogt_Dariusz/Ballada_O_Januszku.sap
@@ -6113,6 +6323,10 @@ COMMENT: Forever 2e3 music compo entry.
   TITLE: Do You See The Light (Looking For)
  ARTIST: Snap!
 
+/Misc/Dom_w_Dolinie_Mgiel.sap
+  TITLE: Dom w dolinie mgiel [from E=mc2]
+ ARTIST: Marek Biliński
+
 /Misc/Dyer_Maker.sap
   TITLE: D'yer Mak'er [from Houses of the Holy]
  ARTIST: Led Zeppelin
@@ -6165,20 +6379,12 @@ COMMENT: Also known as Nyan Cat Song, one of the most famous internet memes.
   TITLE: Main Title [from the TV series Janosik](1:09-1:33)
  ARTIST: Jerzy Matuszkiewicz
 
-/Misc/Over_the_Rainbow.sap
-  TITLE: Over The Rainbow [from the movie The Wizard of Oz]
- ARTIST: Harold Arlen (music), E.Y.Harburg (lyrics), performed by Judy Garland
-
 /Misc/Pizza_Margerita_Suxx.sap
 COMMENT: Lato Ludzików 2000 music compo entry.
 
 /Misc/Preludium_no_20.sap
   TITLE: Prelude No.20 in A minor (BWV 889)
  ARTIST: Johann Sebastian Bach
-
-/Misc/Purple_Motion.sap
-  TITLE: Starshine [from ScreamTracker S3M module]
- ARTIST: Jonne Valtonen (Purple Motion)
 
 /Misc/Pytaj.sap
   TITLE: Nie pytaj o Polskę
@@ -6195,9 +6401,6 @@ COMMENT: Lato Ludzików 2000 music compo entry.
 /Misc/Rhapsody_in_Blue.sap
   TITLE: Rhapsody in Blue
  ARTIST: George Gershwin
-
-/Misc/Sap_Trap.sap
-COMMENT: 4th place at Winter Chip II (Best Pokey) music compo.
 
 /Misc/Say_Why.sap
   TITLE: Powiedz [from Ad.4]
@@ -6293,10 +6496,6 @@ COMMENT: This song is converted from a C64 production made by Censor Design.
 /Unknown/Dla_Elizy.sap
   TITLE: Für Elise
  ARTIST: Ludwig van Beethoven
-
-/Unknown/Dom_w_Dolinie_Mgiel.sap
-  TITLE: Dom w dolinie mgiel [from E=mc2]
- ARTIST: Marek Biliński
 
 /Unknown/Fable.sap
   TITLE: Fable [from Dreamland]
