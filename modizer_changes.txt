@@ -28,6 +28,14 @@ Todo/Requested:
 
 - BUG: when not playing file, if download & exit => should not empty download queue
 
+2.9.3
+ÑÑÑÑÑ
+- HVSC #71
+- Modland 2019/08/23
+- ASMA 2019/08/23
+- Multiple bugfixes
+- Playlists performances & stability improvements
+
 2.9.2
 ÑÑÑÑÑ
 - HVSC #70
