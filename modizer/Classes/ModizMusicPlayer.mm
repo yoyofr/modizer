@@ -4873,7 +4873,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
             
             
              
-            NSLog(@"MD5: %s",song_md5);
+            //NSLog(@"MD5: %s",song_md5);
             //
             sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
             mSid1Tune->getInfo(sidtune_info);
@@ -5036,7 +5036,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
             song_md5[32]=0;
             free(tmp_md5_data);
              */
-            NSLog(@"MD5: %s",song_md5);
+            //NSLog(@"MD5: %s",song_md5);
             
             
             mSidTune->selectSong(mod_currentsub+1);
