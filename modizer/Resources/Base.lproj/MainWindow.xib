@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment version="1792" identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -28,7 +26,7 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="110">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" image="1237346308.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="110">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -40,6 +38,7 @@
             <connections>
                 <outlet property="detailViewControllerIphone" destination="11" id="1419"/>
             </connections>
+            <point key="canvasLocation" x="-70" y="31"/>
         </window>
         <tabBarController wantsFullScreenLayout="YES" modalTransitionStyle="flipHorizontal" id="9" customClass="myTabBarController">
             <extendedEdge key="edgesForExtendedLayout"/>
@@ -60,11 +59,15 @@
                     </navigationBar>
                     <viewControllers>
                         <viewController title="Browse" modalTransitionStyle="flipHorizontal" id="1979" customClass="RootViewControllerLocalBrowser">
+                            <layoutGuides>
+                                <viewControllerLayoutGuide type="top" id="g2S-MC-atv"/>
+                                <viewControllerLayoutGuide type="bottom" id="LlD-1b-KE0"/>
+                            </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1984">
                                 <rect key="frame" x="0.0" y="64" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" id="1985">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1985">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -108,11 +111,15 @@
                     </navigationBar>
                     <viewControllers>
                         <viewController title="Playlists" modalTransitionStyle="flipHorizontal" id="1954" customClass="RootViewControllerPlaylist">
+                            <layoutGuides>
+                                <viewControllerLayoutGuide type="top" id="byp-Ja-jNa"/>
+                                <viewControllerLayoutGuide type="bottom" id="cyz-3o-0H6"/>
+                            </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1956">
                                 <rect key="frame" x="0.0" y="64" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="1965">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1965">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -143,11 +150,15 @@
                     </navigationBar>
                     <viewControllers>
                         <viewController modalTransitionStyle="flipHorizontal" id="1934" customClass="OnlineViewController">
+                            <layoutGuides>
+                                <viewControllerLayoutGuide type="top" id="Tor-ia-UHZ"/>
+                                <viewControllerLayoutGuide type="bottom" id="SHc-ts-rSI"/>
+                            </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1936">
                                 <rect key="frame" x="0.0" y="64" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="1942">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1942">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -181,11 +192,15 @@
                     </navigationBar>
                     <viewControllers>
                         <viewController modalTransitionStyle="flipHorizontal" id="684" customClass="SearchViewController">
+                            <layoutGuides>
+                                <viewControllerLayoutGuide type="top" id="2TD-iG-vkE"/>
+                                <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
+                            </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="715">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="722">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
                                         <rect key="frame" x="0.0" y="44" width="375" height="623"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -194,7 +209,7 @@
                                             <outlet property="delegate" destination="684" id="726"/>
                                         </connections>
                                     </tableView>
-                                    <searchBar contentMode="redraw" barStyle="black" id="716">
+                                    <searchBar contentMode="redraw" fixedFrame="YES" barStyle="black" translatesAutoresizingMaskIntoConstraints="NO" id="716">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                         <textInputTraits key="textInputTraits"/>
@@ -202,15 +217,15 @@
                                             <outlet property="delegate" destination="684" id="727"/>
                                         </connections>
                                     </searchBar>
-                                    <view hidden="YES" contentMode="scaleToFill" id="747" userLabel="progress">
+                                    <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
-                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" animating="YES" style="whiteLarge" id="746">
+                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
                                                 <rect key="frame" x="137" y="97" width="37" height="37"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </activityIndicatorView>
-                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Search in progress..." lineBreakMode="tailTruncation" minimumFontSize="10" id="748" userLabel="searchLabel">
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Search in progress..." lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="748" userLabel="searchLabel">
                                                 <rect key="frame" x="36" y="142" width="240" height="41"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                                 <accessibility key="accessibilityConfiguration">
@@ -222,7 +237,7 @@
                                                 <color key="shadowColor" red="0.014335494488477707" green="0.0048280134797096252" blue="3.2104202546179295e-05" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <size key="shadowOffset" width="2" height="2"/>
                                             </label>
-                                            <progressView opaque="NO" contentMode="scaleToFill" id="752">
+                                            <progressView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="752">
                                                 <rect key="frame" x="81" y="212" width="205" height="2"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                             </progressView>
@@ -256,11 +271,15 @@
                     </navigationBar>
                     <viewControllers>
                         <viewController title="More" modalTransitionStyle="flipHorizontal" id="2018" customClass="MoreViewController">
+                            <layoutGuides>
+                                <viewControllerLayoutGuide type="top" id="ael-JD-Rvp"/>
+                                <viewControllerLayoutGuide type="bottom" id="9zf-eA-E19"/>
+                            </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="2020">
                                 <rect key="frame" x="0.0" y="64" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" id="2021">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -289,31 +308,36 @@
                 <outlet property="detailViewControlleriPhone" destination="11" id="282"/>
                 <outlet property="webBrowser" destination="444" id="464"/>
             </connections>
+            <point key="canvasLocation" x="593" y="31"/>
         </tabBarController>
         <viewController title="File" modalTransitionStyle="flipHorizontal" id="11" userLabel="Player Controller" customClass="DetailViewControllerIphone">
+            <layoutGuides>
+                <viewControllerLayoutGuide type="top" id="8f1-EX-jSA"/>
+                <viewControllerLayoutGuide type="bottom" id="xNg-gz-N0C"/>
+            </layoutGuides>
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="15" userLabel="PlayerView">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="416"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="1237346308.jpg" id="X7f-i5-f7a">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="416"/>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="1237346308.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="X7f-i5-f7a">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     </imageView>
-                    <view clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="442" userLabel="main view">
+                    <view clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="442" userLabel="main view">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" id="rCn-Qk-XfT" userLabel="CoverViewBG">
+                            <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rCn-Qk-XfT" userLabel="CoverViewBG">
                                 <rect key="frame" x="40" y="166" width="240" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                             </imageView>
-                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" id="1730" userLabel="CoverView">
+                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1730" userLabel="CoverView">
                                 <rect key="frame" x="40" y="166" width="240" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                             </imageView>
-                            <label hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="middleTruncation" minimumFontSize="12" id="22" customClass="RRSGlowLabel">
+                            <label hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="middleTruncation" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="22" customClass="RRSGlowLabel">
                                 <rect key="frame" x="40" y="0.0" width="243" height="30"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -323,11 +347,11 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <view clipsSubviews="YES" contentMode="scaleToFill" id="293" userLabel="Command view up">
+                            <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="293" userLabel="Command view up">
                                 <rect key="frame" x="2" y="46" width="316" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="255" userLabel="Loop title Sel">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="255" userLabel="Loop title Sel">
                                         <rect key="frame" x="10" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -343,7 +367,7 @@
                                             <action selector="changeLoopMode" destination="11" eventType="touchUpInside" id="307"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="247" userLabel="Loop List">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="247" userLabel="Loop List">
                                         <rect key="frame" x="10" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -359,7 +383,7 @@
                                             <action selector="changeLoopMode" destination="11" eventType="touchUpInside" id="309"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="263" userLabel="Loop List Sel">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="263" userLabel="Loop List Sel">
                                         <rect key="frame" x="10" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -375,7 +399,7 @@
                                             <action selector="changeLoopMode" destination="11" eventType="touchUpInside" id="308"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="248" userLabel="Shuffle">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="248" userLabel="Shuffle">
                                         <rect key="frame" x="50" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -391,7 +415,7 @@
                                             <action selector="shuffle" destination="11" eventType="touchUpInside" id="252"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="261" userLabel="Shuffle Sel">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="261" userLabel="Shuffle Sel">
                                         <rect key="frame" x="50" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -407,7 +431,7 @@
                                             <action selector="shuffle" destination="11" eventType="touchUpInside" id="262"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" id="1544" userLabel="Loop Inf">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1544" userLabel="Loop Inf">
                                         <rect key="frame" x="88" y="-12" width="35" height="57"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -423,7 +447,7 @@
                                             <action selector="pushedLoopInf" destination="11" eventType="touchUpInside" id="1548"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1626" userLabel="SubSelector" customClass="BButton">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1626" userLabel="SubSelector" customClass="BButton">
                                         <rect key="frame" x="284" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -435,7 +459,7 @@
                                             <action selector="showSubSongSelector:" destination="11" eventType="touchUpInside" id="ofi-0z-c5H"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1647" userLabel="ArcSelector" customClass="BButton">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1647" userLabel="ArcSelector" customClass="BButton">
                                         <rect key="frame" x="250" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -447,7 +471,7 @@
                                             <action selector="showArcSelector:" destination="11" eventType="touchUpInside" id="TMW-lO-G1R"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1584" userLabel="Main Rating 1">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1584" userLabel="Main Rating 1">
                                         <rect key="frame" x="130" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -463,7 +487,7 @@
                                             <action selector="pushedRating1" destination="11" eventType="touchUpInside" id="1593"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1589" userLabel="Main Rating 1 off">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1589" userLabel="Main Rating 1 off">
                                         <rect key="frame" x="130" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="18"/>
@@ -478,7 +502,7 @@
                                             <action selector="pushedRating1" destination="11" eventType="touchUpInside" id="1600"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1583" userLabel="Main Rating 2">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1583" userLabel="Main Rating 2">
                                         <rect key="frame" x="154" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.91108256578445435" green="0.88820159435272217" blue="0.9996877908706665" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -494,7 +518,7 @@
                                             <action selector="pushedRating2" destination="11" eventType="touchUpInside" id="1602"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1585" userLabel="Main Rating 2 off">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1585" userLabel="Main Rating 2 off">
                                         <rect key="frame" x="154" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
@@ -509,7 +533,7 @@
                                             <action selector="pushedRating2" destination="11" eventType="touchUpInside" id="1601"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1592" userLabel="Main Rating 3">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1592" userLabel="Main Rating 3">
                                         <rect key="frame" x="178" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
@@ -524,7 +548,7 @@
                                             <action selector="pushedRating3" destination="11" eventType="touchUpInside" id="1596"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1590" userLabel="Main Rating 3 off">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1590" userLabel="Main Rating 3 off">
                                         <rect key="frame" x="178" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
@@ -539,7 +563,7 @@
                                             <action selector="pushedRating3" destination="11" eventType="touchUpInside" id="1598"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1588" userLabel="Main Rating 4">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1588" userLabel="Main Rating 4">
                                         <rect key="frame" x="202" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
@@ -554,7 +578,7 @@
                                             <action selector="pushedRating4" destination="11" eventType="touchUpInside" id="1594"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1587" userLabel="Main Rating 4 off">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1587" userLabel="Main Rating 4 off">
                                         <rect key="frame" x="202" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
@@ -569,7 +593,7 @@
                                             <action selector="pushedRating4" destination="11" eventType="touchUpInside" id="1595"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1586" userLabel="Main Rating 5">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1586" userLabel="Main Rating 5">
                                         <rect key="frame" x="226" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.13495379686355591" green="1" blue="0.20789915323257446" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -585,7 +609,7 @@
                                             <action selector="pushedRating5" destination="11" eventType="touchUpInside" id="1597"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1591" userLabel="Main Rating 5 off">
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1591" userLabel="Main Rating 5 off">
                                         <rect key="frame" x="226" y="3" width="24" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
@@ -603,7 +627,7 @@
                                 </subviews>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="578" userLabel="Infos" customClass="BButton">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="578" userLabel="Infos" customClass="BButton">
                                 <rect key="frame" x="278" y="2" width="40" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
@@ -616,7 +640,7 @@
                                     <action selector="showInfo" destination="11" eventType="touchUpInside" id="636"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="3H3-zP-yu3" userLabel="EQ" customClass="BButton">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3H3-zP-yu3" userLabel="EQ" customClass="BButton">
                                 <rect key="frame" x="234" y="2" width="40" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
@@ -629,7 +653,7 @@
                                     <action selector="showEQ" destination="11" eventType="touchUpInside" id="J5H-Dp-Djp"/>
                                 </connections>
                             </button>
-                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" barStyle="blackTranslucent" id="426" userLabel="Pause_commands">
+                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" barStyle="blackTranslucent" translatesAutoresizingMaskIntoConstraints="NO" id="426" userLabel="Pause_commands">
                                 <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
@@ -654,7 +678,7 @@
                                     <barButtonItem enabled="NO" systemItem="flexibleSpace" id="427"/>
                                 </items>
                             </toolbar>
-                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" barStyle="blackTranslucent" id="375" userLabel="Play_commands">
+                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" barStyle="blackTranslucent" translatesAutoresizingMaskIntoConstraints="NO" id="375" userLabel="Play_commands">
                                 <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
@@ -679,7 +703,7 @@
                                     <barButtonItem enabled="NO" systemItem="flexibleSpace" id="403"/>
                                 </items>
                             </toolbar>
-                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" barStyle="blackTranslucent" id="1208" userLabel="Play_commands_subsongs">
+                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" barStyle="blackTranslucent" translatesAutoresizingMaskIntoConstraints="NO" id="1208" userLabel="Play_commands_subsongs">
                                 <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <items>
@@ -716,7 +740,7 @@
                                     <barButtonItem enabled="NO" systemItem="flexibleSpace" id="1223"/>
                                 </items>
                             </toolbar>
-                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" barStyle="blackTranslucent" id="1209" userLabel="Pause_commands_subsongs">
+                            <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" barStyle="blackTranslucent" translatesAutoresizingMaskIntoConstraints="NO" id="1209" userLabel="Pause_commands_subsongs">
                                 <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -754,12 +778,12 @@
                                     <barButtonItem enabled="NO" systemItem="flexibleSpace" id="1210"/>
                                 </items>
                             </toolbar>
-                            <view clipsSubviews="YES" contentMode="scaleToFill" id="388" userLabel="Vol win">
+                            <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="388" userLabel="Vol win">
                                 <rect key="frame" x="0.0" y="416" width="320" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="27" userLabel="Elpased time">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="27" userLabel="Elpased time">
                                 <rect key="frame" x="2" y="21" width="45" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="sRGB"/>
@@ -769,7 +793,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="1890" userLabel="Total time">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="1890" userLabel="Total time">
                                 <rect key="frame" x="2" y="0.0" width="45" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -779,7 +803,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1885" userLabel="Button Change time displayed">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1885" userLabel="Button Change time displayed">
                                 <rect key="frame" x="2" y="19" width="44" height="23"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -795,7 +819,7 @@
                                     <action selector="changeTimeDisplay" destination="11" eventType="touchUpInside" id="1886"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="223" userLabel="plalist pos">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="223" userLabel="plalist pos">
                                 <rect key="frame" x="70" y="0.0" width="180" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -805,7 +829,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" id="23" userLabel="Play Progress" customClass="OBSlider">
+                            <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="23" userLabel="Play Progress" customClass="OBSlider">
                                 <rect key="frame" x="48" y="20" width="180" height="29"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="sRGB"/>
@@ -816,7 +840,7 @@
                                     <action selector="sliderProgressModuleValueChanged:" destination="11" eventType="touchUpOutside" id="1879"/>
                                 </connections>
                             </slider>
-                            <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="10" id="475" userLabel="Seek info">
+                            <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="475" userLabel="Seek info">
                                 <rect key="frame" x="4" y="0.0" width="100" height="20"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
@@ -826,7 +850,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1456" userLabel="oglButton">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1456" userLabel="oglButton">
                                 <rect key="frame" x="0.0" y="82" width="320" height="246"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="15"/>
@@ -841,7 +865,7 @@
                                     <action selector="oglButtonPushed" destination="11" eventType="touchUpInside" id="1457"/>
                                 </connections>
                             </button>
-                            <view opaque="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" id="24" userLabel="openGL view" customClass="OGLView">
+                            <view opaque="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="24" userLabel="openGL view" customClass="OGLView">
                                 <rect key="frame" x="0.0" y="82" width="320" height="246"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -849,11 +873,11 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
-                    <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" id="299" userLabel="Infos view">
+                    <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="299" userLabel="Infos view">
                         <rect key="frame" x="0.0" y="124" width="320" height="246"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1439" userLabel="Fullscreen-zoom">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1439" userLabel="Fullscreen-zoom">
                                 <rect key="frame" x="234" y="0.0" width="32" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -870,7 +894,7 @@
                                     <action selector="infoFullscreen" destination="11" eventType="touchUpInside" id="1444"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="1442" userLabel="Fullscreen-unzoom">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1442" userLabel="Fullscreen-unzoom">
                                 <rect key="frame" x="234" y="0.0" width="32" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -887,7 +911,7 @@
                                     <action selector="infoNormal" destination="11" eventType="touchUpInside" id="1445"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="633" userLabel="Back">
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="633" userLabel="Back">
                                 <rect key="frame" x="280" y="0.0" width="32" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -904,7 +928,7 @@
                                     <action selector="hideInfo" destination="11" eventType="touchUpInside" id="637"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="10" id="31" userLabel="mod type">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="31" userLabel="mod type">
                                 <rect key="frame" x="10" y="0.0" width="200" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.01420286763459444" green="0.0" blue="2.4540675440221094e-05" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -914,7 +938,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="10" id="680" userLabel="player type">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="680" userLabel="player type">
                                 <rect key="frame" x="10" y="20" width="200" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.01420286763459444" green="0.0" blue="2.4540675440221094e-05" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -924,7 +948,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="10" id="30" userLabel="channels">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="30" userLabel="channels">
                                 <rect key="frame" x="220" y="40" width="90" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.01420286763459444" green="0.0" blue="2.4540675440221094e-05" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -934,7 +958,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" minimumFontSize="10" id="32" userLabel="filesize">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="32" userLabel="filesize">
                                 <rect key="frame" x="10" y="40" width="150" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.01420286763459444" green="0.0" blue="2.4540675440221094e-05" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -944,7 +968,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="1"/>
                             </label>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" id="300">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="300">
                                 <rect key="frame" x="0.0" y="60" width="320" height="184"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="0.17346938780000001" green="0.1092839401" blue="0.090279194480000005" alpha="0.25" colorSpace="custom" customColorSpace="sRGB"/>
@@ -955,11 +979,11 @@
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
-                    <view userInteractionEnabled="NO" alpha="0.69999999999999973" contentMode="scaleToFill" id="1620" userLabel="Info Msg Player">
-                        <rect key="frame" x="0.0" y="178" width="320" height="140"/>
+                    <view userInteractionEnabled="NO" alpha="0.69999999999999973" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1620" userLabel="Info Msg Player">
+                        <rect key="frame" x="0.0" y="190" width="320" height="140"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label...................." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" minimumFontSize="16" id="1621" userLabel="Pri Msg Label">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" minimumFontSize="16" translatesAutoresizingMaskIntoConstraints="NO" id="1621" userLabel="Pri Msg Label">
                                 <rect key="frame" x="10" y="4" width="300" height="56"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -969,7 +993,7 @@
                                 <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <size key="shadowOffset" width="1" height="2"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label...................." lineBreakMode="characterWrap" numberOfLines="4" minimumFontSize="8" id="1888" userLabel="Sec Msg Label">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." lineBreakMode="characterWrap" numberOfLines="4" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="1888" userLabel="Sec Msg Label">
                                 <rect key="frame" x="10" y="60" width="300" height="80"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1047,31 +1071,36 @@
                 <outlet property="textMessage" destination="300" id="301"/>
                 <outlet property="volWin" destination="388" id="399"/>
             </connections>
+            <point key="canvasLocation" x="-70" y="-460"/>
         </viewController>
         <viewController modalTransitionStyle="flipHorizontal" id="642" customClass="DownloadViewController">
+            <layoutGuides>
+                <viewControllerLayoutGuide type="top" id="Y4Y-L0-lBt"/>
+                <viewControllerLayoutGuide type="bottom" id="NPH-XI-Qyf"/>
+            </layoutGuides>
             <view key="view" contentMode="scaleToFill" id="331" userLabel="DownloadView">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="411"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Downloading : xxxxxxx" lineBreakMode="middleTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="10" id="333">
+                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Downloading : xxxxxxx" lineBreakMode="middleTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="333">
                         <rect key="frame" x="2" y="3" width="250" height="26"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="14"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="1234Ko/1234Ko" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="336">
+                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="1234Ko/1234Ko" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="336">
                         <rect key="frame" x="70" y="38" width="180" height="14"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="10"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <progressView opaque="NO" contentMode="scaleToFill" id="332">
+                    <progressView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="332">
                         <rect key="frame" x="70" y="53" width="180" height="2"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     </progressView>
-                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="758">
+                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="758">
                         <rect key="frame" x="0.0" y="74" width="320" height="337"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1080,7 +1109,7 @@
                             <outlet property="delegate" destination="642" id="761"/>
                         </connections>
                     </tableView>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1862" customClass="BButton">
+                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1862" customClass="BButton">
                         <rect key="frame" x="2" y="40" width="60" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
@@ -1091,7 +1120,7 @@
                             <action selector="resume" destination="642" eventType="touchUpInside" id="1868"/>
                         </connections>
                     </button>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="2000" customClass="BButton">
+                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2000" customClass="BButton">
                         <rect key="frame" x="2" y="40" width="60" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
@@ -1102,7 +1131,7 @@
                             <action selector="suspend" destination="642" eventType="touchUpInside" id="2003"/>
                         </connections>
                     </button>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1394" customClass="BButton">
+                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1394" customClass="BButton">
                         <rect key="frame" x="258" y="2" width="60" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
@@ -1113,7 +1142,7 @@
                             <action selector="cancelCurrent" destination="642" eventType="touchUpInside" id="1395"/>
                         </connections>
                     </button>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="1863" customClass="BButton">
+                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1863" customClass="BButton">
                         <rect key="frame" x="258" y="40" width="60" height="28"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                         <fontDescription key="fontDescription" type="boldSystem" pointSize="12"/>
@@ -1151,19 +1180,22 @@
             </connections>
         </viewController>
         <viewController title="web browser" modalTransitionStyle="flipHorizontal" id="444" customClass="WebBrowser">
+            <layoutGuides>
+                <viewControllerLayoutGuide type="top" id="eoL-iY-KFy"/>
+                <viewControllerLayoutGuide type="bottom" id="aGb-Vx-W6l"/>
+            </layoutGuides>
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="445" userLabel="WB View">
                 <rect key="frame" x="0.0" y="64" width="320" height="480"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <toolbar contentMode="scaleToFill" id="449" userLabel="Top Toolbar">
+                    <toolbar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="449" userLabel="Top Toolbar">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                         <items>
                             <barButtonItem style="plain" id="1161" userLabel="Address">
-                                <textField key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" clearButtonMode="whileEditing" id="1160">
-                                    <rect key="frame" x="16" y="6.5" width="244" height="31"/>
+                                <textField key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" clearButtonMode="whileEditing" id="1160">
+                                    <rect key="frame" x="16" y="5" width="244" height="34"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                    <nil key="textColor"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="alphabet" returnKeyType="go"/>
                                     <connections>
@@ -1178,7 +1210,7 @@
                             </barButtonItem>
                         </items>
                     </toolbar>
-                    <webView multipleTouchEnabled="YES" contentMode="scaleToFill" id="448">
+                    <webView multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="448">
                         <rect key="frame" x="0.0" y="44" width="320" height="392"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1187,12 +1219,12 @@
                             <outlet property="delegate" destination="444" id="463"/>
                         </connections>
                     </webView>
-                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" hidesWhenStopped="YES" style="gray" id="447">
+                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="447">
                         <rect key="frame" x="240" y="12" width="20" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                     </activityIndicatorView>
-                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="1925" userLabel="Bottom Toolbar">
+                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1925" userLabel="Bottom Toolbar">
                         <rect key="frame" x="0.0" y="436" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <items>
@@ -1226,11 +1258,11 @@
                             <barButtonItem style="plain" systemItem="flexibleSpace" id="2009"/>
                         </items>
                     </toolbar>
-                    <view userInteractionEnabled="NO" contentMode="scaleToFill" id="1613" userLabel="Info download">
+                    <view userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1613" userLabel="Info download">
                         <rect key="frame" x="0.0" y="420" width="320" height="60"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label...................." lineBreakMode="characterWrap" numberOfLines="2" minimumFontSize="18" id="1614" userLabel="Download Label">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." lineBreakMode="characterWrap" numberOfLines="2" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="1614" userLabel="Download Label">
                                 <rect key="frame" x="10" y="5" width="300" height="50"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
@@ -1267,19 +1299,23 @@
             </connections>
         </viewController>
         <viewController modalTransitionStyle="flipHorizontal" id="1466" userLabel="View Controller (About)" customClass="AboutViewController">
+            <layoutGuides>
+                <viewControllerLayoutGuide type="top" id="YGd-C0-33u"/>
+                <viewControllerLayoutGuide type="bottom" id="Spj-mO-qdP"/>
+            </layoutGuides>
             <view key="view" contentMode="scaleToFill" id="1471">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="modizer_logo.png" id="1472">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" image="modizer_logo.png" translatesAutoresizingMaskIntoConstraints="NO" id="1472">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </imageView>
-                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" id="1468" userLabel="Text View">
-                        <rect key="frame" x="0.0" y="81" width="320" height="355"/>
+                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1468" userLabel="Text View">
+                        <rect key="frame" x="0.0" y="81" width="320" height="399"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <mutableString key="text">v2.9.3 © Yohann Magnien / YoyoFR
+                        <string key="text">v2.9.3 © Yohann Magnien / YoyoFR
 
 Web: http://yoyofr.blogspot.com/p/modizer.html
 Forum: http://modizer.988727.n3.nabble.com/
@@ -1333,7 +1369,7 @@ Modizer also uses following software:
 - CMPopTipView
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>
                         <dataDetectorType key="dataDetectorTypes" link="YES"/>

@@ -111,6 +111,7 @@
 		337FA72A124288FA00DDD352 /* AboutViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 337FA729124288FA00DDD352 /* AboutViewController.mm */; };
 		337FA7D8124346F500DDD352 /* checkbox_single.png in Resources */ = {isa = PBXBuildFile; fileRef = 337FA7D6124346F500DDD352 /* checkbox_single.png */; };
 		337FA7D9124346F500DDD352 /* checkbox_unchecked.png in Resources */ = {isa = PBXBuildFile; fileRef = 337FA7D7124346F500DDD352 /* checkbox_unchecked.png */; };
+		337FE6A824A8D20800CEE44D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */; };
 		337FF18717A9D18900CE0A28 /* PlaylistViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */; };
 		33863E931240102600ECBA04 /* aenigmatica.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3C123DEFCC00D8EE6D /* aenigmatica.bin */; };
 		33863E941240102600ECBA04 /* alteredbeast.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3D123DEFCC00D8EE6D /* alteredbeast.bin */; };
@@ -1555,6 +1556,7 @@
 		337FA729124288FA00DDD352 /* AboutViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AboutViewController.mm; sourceTree = "<group>"; };
 		337FA7D6124346F500DDD352 /* checkbox_single.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_single.png; sourceTree = "<group>"; };
 		337FA7D7124346F500DDD352 /* checkbox_unchecked.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkbox_unchecked.png; sourceTree = "<group>"; };
+		337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PlaylistViewController.xib; sourceTree = "<group>"; };
 		33888AA112231EEA0030C82E /* 1237346308.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 1237346308.jpg; sourceTree = "<group>"; };
 		3388C3BA13842E9100DA8F05 /* playlist_del_all.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = playlist_del_all.png; sourceTree = "<group>"; };
@@ -4158,6 +4160,7 @@
 				CC13449B1AC17CC200CAB284 /* vgmplay */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
+				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
 				CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */,
 				CCFE183B17EF586200C1682F /* MainWindow.xib */,
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
@@ -5860,6 +5863,7 @@
 				CC1E6331120423DF000A8A4E /* EarAche in Resources */,
 				CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */,
 				CC1E6332120423DF000A8A4E /* EMS in Resources */,
+				337FE6A824A8D20800CEE44D /* Launch Screen.storyboard in Resources */,
 				CCB8D9A117F62A18008E6A45 /* txtMenu10a_2x.png in Resources */,
 				CC1E6333120423DF000A8A4E /* EMS-6 in Resources */,
 				CC1E6334120423DF000A8A4E /* ahx in Resources */,
@@ -6573,6 +6577,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 2.94.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -6585,7 +6590,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6601,6 +6606,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
+				MARKETING_VERSION = 2.94;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -6621,6 +6627,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 2.94.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -6632,7 +6639,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6648,6 +6655,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
+				MARKETING_VERSION = 2.94;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
@@ -6692,7 +6700,7 @@
 					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
 					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
@@ -6731,7 +6739,7 @@
 					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
 					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
@@ -6772,7 +6780,7 @@
 					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
 					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
@@ -6796,6 +6804,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 2.94.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -6807,7 +6816,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6823,6 +6832,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
+				MARKETING_VERSION = 2.94;
 				OTHER_CFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
@@ -6865,7 +6875,7 @@
 					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
 					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
@@ -6888,6 +6898,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 2.94.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -6898,7 +6909,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -6914,6 +6925,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
+				MARKETING_VERSION = 2.94;
 				OTHER_CFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
@@ -6957,7 +6969,7 @@
 					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
 					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
@@ -6980,6 +6992,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 2.94.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -6990,7 +7003,7 @@
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
@@ -7006,6 +7019,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
+				MARKETING_VERSION = 2.94;
 				OTHER_CFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
