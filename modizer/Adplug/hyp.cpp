@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * [xad] HYP player, by Riven the Mage <riven@ok.ru>
  */
@@ -107,7 +107,7 @@ void CxadhypPlayer::xadplayer_update()
 
   hyp.pointer += 3;
 
-  if (hyp.pointer >= tune_size)
+  if (hyp.pointer > tune_size - 9)
   {
     hyp.pointer = 0x69;
     plr.looping = 1;

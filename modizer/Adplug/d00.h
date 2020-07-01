@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * d00.h - D00 Player by Simon Peter <dn.tlp@gmx.net>
  */
@@ -97,6 +97,7 @@ class Cd00Player: public CPlayer
   d00header *header;
   d00header1 *header1;
   char *filedata;
+  unsigned long filesize;
 
  private:
   void setvolume(unsigned char chan);

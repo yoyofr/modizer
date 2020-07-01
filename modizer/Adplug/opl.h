@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * opl.h - OPL base class, by Simon Peter <dn.tlp@gmx.net>
  */
@@ -41,7 +41,7 @@ class Copl
   virtual void write(int reg, int val) = 0;	// combined register select + data write
   virtual void setchip(int n)			// select OPL chip
     {
-      if(n < 2)
+      if(n >= 0 && n < 2)
 	currChip = n;
     }
 
@@ -60,6 +60,9 @@ class Copl
 
   // Emulation only: fill buffer
   virtual void update(short *buf, int samples) {}
+  
+  // Set surroundopl offset
+  virtual void set_offset(double offset) {}
 
  protected:
   int		currChip;		// currently selected OPL chip number

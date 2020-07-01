@@ -14,7 +14,7 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
   cff.h - BoomTracker loader by Riven the Mage <riven@ok.ru>
 */
@@ -43,35 +43,36 @@ class CcffLoader: public CmodPlayer
     {
     public:
 
-      long unpack(unsigned char *ibuf, unsigned char *obuf);
+      size_t unpack(unsigned char *ibuf, unsigned char *obuf);
 
     private:
 
-      unsigned long get_code();
-      void translate_code(unsigned long code, unsigned char *string);
+      unsigned long get_code(unsigned char bitlength);
+      unsigned long get_code() { return get_code(code_length); }
 
-      void cleanup();
-      int startup();
+      void translate_code(unsigned long code, unsigned char *string);
+      bool put_string(unsigned char *string, size_t length);
+      bool put_string() { return put_string(&the_string[1], the_string[0]); }
+
+      bool start_block();
+      bool start_string();
 
       void expand_dictionary(unsigned char *string);
 
       unsigned char *input;
       unsigned char *output;
 
-      long output_length;
+      size_t output_length;
 
       unsigned char code_length;
-
+      unsigned char bits_left;
       unsigned long bits_buffer;
-      unsigned int bits_left;
 
       unsigned char *heap;
       unsigned char **dictionary;
 
       unsigned int heap_length;
       unsigned int dictionary_length;
-
-      unsigned long old_code,new_code;
 
       unsigned char the_string[256];
     };

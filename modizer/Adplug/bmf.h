@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * [xad] BMF player, by Riven the Mage <riven@ok.ru>
  */
@@ -80,6 +80,7 @@ protected:
   std::string     xadplayer_getauthor();
   std::string     xadplayer_getinstrument(unsigned int i);
   unsigned int    xadplayer_getinstruments();
+  unsigned int    xadplayer_getspeed();
   //
 private:
   static const unsigned char bmf_adlib_registers[117];
@@ -87,5 +88,6 @@ private:
   static const unsigned short bmf_notes_2[12];
   static const unsigned char bmf_default_instrument[13];
 
-  int             __bmf_convert_stream(unsigned char *stream, int channel);
+  long int        __bmf_convert_stream(const unsigned char *stream, int channel,
+                                       unsigned long stream_size);
 };

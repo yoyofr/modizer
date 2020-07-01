@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * imf.cpp - IMF Player by Simon Peter <dn.tlp@gmx.net>
  *
@@ -89,6 +89,10 @@ bool CimfPlayer::load(const std::string &filename, const CFileProvider &fp)
   else
     fsize = f->readInt(2);
   flsize = fp.filesize(f);
+  if (mfsize + 4 > flsize || fsize >= flsize - 2 - mfsize || fsize & 3) {
+    fp.close(f);        // truncated file or bad size record
+    return false;
+  }    
   if(!fsize) {		// footerless file (raw music data)
     if(mfsize)
       f->seek(-4, binio::Add);
@@ -186,31 +190,8 @@ float CimfPlayer::getrate(const std::string &filename, const CFileProvider &fp, 
   if(db) {	// Database available
     f->seek(0, binio::Set);
     CClockRecord *record = (CClockRecord *)db->search(CAdPlugDatabase::CKey(*f));
-      if (record && record->type == CAdPlugDatabase::CRecord::ClockSpeed) {
-          //printf("speed:%f\n",record->clock);
-          return record->clock;
-      }
-      
-      CAdPlugDatabase::CRecord *cur_record;
-      db->goto_begin();
-      char *fname=(char*)(filename.c_str());
-      fname=strrchr(fname,'/')+1;
-      while (cur_record=db->get_record()) {
-          int res=strncasecmp(fname,cur_record->comment.c_str(),strlen(fname)-3);
-          //printf("%s | %s | %d\n",fname,cur_record->comment.c_str(),res);
-          if (res==0) {
-              //printf("%s %s\n",cur_record->comment.c_str(),cur_record->filetype.c_str());
-              if (cur_record->type == CAdPlugDatabase::CRecord::ClockSpeed) {
-                  CClockRecord *clockrecord=(CClockRecord *)cur_record;
-                  //printf("speed:%f\n",clockrecord->clock);
-                  return clockrecord->clock;
-              }
-          }
-          
-          if (db->go_forward()==false) break;
-          
-          
-      }
+    if (record && record->type == CAdPlugDatabase::CRecord::ClockSpeed)
+      return record->clock;
   }
 
   // Otherwise the database is either unavailable, or there's no entry for this file

@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * jbm.h - JBM Player by Dennis Lindroos <lindroos@nls.fi>
  */
@@ -29,10 +29,10 @@ class CjbmPlayer: public CPlayer
  public:
   static CPlayer *factory(Copl *newopl);
 
-  CjbmPlayer(Copl *newopl) : CPlayer(newopl), m(0)
+  CjbmPlayer(Copl *newopl) : CPlayer(newopl), m(0), sequences(0)
     { }
   ~CjbmPlayer()
-    { if(m != NULL) delete [] m; }
+    { delete[] sequences; delete[] m; }
 
   bool load(const std::string &filename, const CFileProvider &fp);
   bool update();

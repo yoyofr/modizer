@@ -14,9 +14,14 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * dro2.cpp - DOSBox Raw OPL v2.0 player by Adam Nielsen <malvineous@shikadi.net>
+ */
+
+/*
+ * Copyright (c) 2017 Wraithverge <liam82067@yahoo.com>
+ * - Finalized support for displaying arbitrary Tag data.
  */
 
 #include <cstring>
@@ -54,13 +59,18 @@ bool Cdro2Player::load(const std::string &filename, const CFileProvider &fp)
 		return false;
 	}
 	int version = f->readInt(4);
-//    printf("dro2 version: %X\n",version);
-    if (version != 0x2) {
+	if (version != 0x2) {
 		fp.close(f);
 		return false;
 	}
 
-	this->iLength = f->readInt(4) * 2; // stored in file as number of byte pairs
+	this->iLength = f->readInt(4); // should better use an unsigned type
+	if (this->iLength <= 0 || this->iLength >= 1<<30 ||
+	    this->iLength > fp.filesize(f) - f->pos()) {
+		fp.close(f);
+		return false;
+	}
+	this->iLength *= 2; // stored in file as number of byte p
 	f->ignore(4);	// Length in milliseconds
 	f->ignore(1);	/// OPL type (0 == OPL2, 1 == Dual OPL2, 2 == OPL3)
 	int iFormat = f->readInt(1);
@@ -80,9 +90,48 @@ bool Cdro2Player::load(const std::string &filename, const CFileProvider &fp)
 	this->piConvTable = new uint8_t[this->iConvTableLen];
 	f->readString((char *)this->piConvTable, this->iConvTableLen);
 
+	// Read the OPL data.
 	this->data = new uint8_t[this->iLength];
 	f->readString((char *)this->data, this->iLength);
 
+	title[0] = 0;
+	author[0] = 0;
+	desc[0] = 0;
+	int tagsize = fp.filesize(f) - f->pos();
+	if (tagsize >= 3)
+	{
+		// The arbitrary Tag Data section begins here.
+		if ((uint8_t)f->readInt(1) != 0xFF ||
+			(uint8_t)f->readInt(1) != 0xFF ||
+			(uint8_t)f->readInt(1) != 0x1A)
+		{
+			// Tag data does not present or truncated.
+			goto end_section;
+		}
+
+		// "title" is maximum 40 characters long.
+		f->readString(title, 40, 0);
+
+		// Skip "author" if Tag marker byte is missing.
+		if (f->readInt(1) != 0x1B) {
+			f->seek(-1, binio::Add);
+			goto desc_section;
+		}
+
+		// "author" is maximum 40 characters long.
+		f->readString(author, 40, 0);
+
+	desc_section:
+		// Skip "desc" if Tag marker byte is missing.
+		if (f->readInt(1) != 0x1C) {
+			goto end_section;
+		}
+
+		// "desc" is now maximum 1023 characters long (it was 140).
+		f->readString(desc, 1023, 0);
+	}
+
+end_section:
 	fp.close(f);
 	rewind(0);
 
@@ -114,7 +163,7 @@ bool Cdro2Player::update()
 			} else {
 			  this->opl->setchip(0);
 			}
-			if (iIndex > this->iConvTableLen) {
+			if (iIndex >= this->iConvTableLen) {
 				printf("DRO2: Error - index beyond end of codemap table!  Corrupted .dro?\n");
 				return false; // EOF
 			}
@@ -126,14 +175,14 @@ bool Cdro2Player::update()
 
 	// This won't result in endless-play using Adplay, but IMHO that code belongs
 	// in Adplay itself, not here.
-  return this->iPos < this->iLength;
+	return this->iPos < this->iLength;
 }
 
 void Cdro2Player::rewind(int subsong)
 {
 	this->iDelay = 0;
 	this->iPos = 0;
-  opl->init(); 
+	opl->init(); 
 }
 
 float Cdro2Player::getrefresh()

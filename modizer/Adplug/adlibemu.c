@@ -15,7 +15,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /*
@@ -61,7 +61,7 @@ I'm not sure about a few things in my code:
 #define MAXCELLS 18
 #define WAVPREC 2048
 
-static float AMPSCALE=(4096.0);//(8192.0);
+static float AMPSCALE=(8192.0);
 #define FRQSCALE (49716/512.0)
 
 //Constants for Ken's Awe32, on a PII-266 (Ken says: Use these for KSM's!)
@@ -129,7 +129,7 @@ static void ftol(float f, long *a) {
 #endif
 
 #define ctc ((celltype *)c)      //A rare attempt to make code easier to read!
-void docell4 (void *c, float modulator) { }
+void docell4 (void *c, float modulator) { (void)c; (void)modulator; }
 void docell3 (void *c, float modulator)
 {
     long i;

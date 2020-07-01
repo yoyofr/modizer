@@ -7083,40 +7083,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
     }
     
-    //****************************************************************************************
-    //CONSTRAINTS
-    // s3m (modules) -> try ADPLUG first and then others (ex: .s3m with adlib instrument only)
-    // pmd -> try PMDMINI first and then ADPLUG
-    // sid -> try sidplay first and the UADE (some sidmon1 or sidmon2 files not well named (sid instead of sid1/sid2)
-    //
-    //CONSEQUENCES in terms of LOADING ORDER
-    // 1. PMDMINI
-    // 2. ADPLUG
-    // 3. SID
-    // 3. The rest
-    //****************************************************************************************
-    
-    for (int i=0;i<[filetype_extPMD count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_PMDMINI]];
-            break;
-        }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_PMDMINI]];
-            break;
-        }
-    }
-    
-    for (int i=0;i<[filetype_extADPLUG count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];
-            break;
-        }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];
-            break;
-        }
-    }
     
     for (int i=0;i<[filetype_extVGM count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {
@@ -7179,16 +7145,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if ( (is_vgm && (mdz_defaultVGMPLAYER==DEFAULT_VGMGME)) ||
                 (is_sap && (mdz_defaultSAPPLAYER==DEFAULT_SAPGME)) ) [available_player insertObject:[NSNumber numberWithInt:MMP_GME] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_GME]];
-            break;
-        }
-    }
-    for (int i=0;i<[filetype_extSID count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_SIDPLAY]];
-            break;
-        }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_SIDPLAY]];
             break;
         }
     }
@@ -7367,6 +7323,54 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
+    
+    //****************************************************************************************
+    //CONSTRAINTS
+    // s3m (modules) -> try ADPLUG first and then others (ex: .s3m with adlib instrument only)
+    // pmd -> try PMDMINI first and then ADPLUG
+    // sid -> try sidplay first and the UADE (some sidmon1 or sidmon2 files not well named (sid instead of sid1/sid2)
+    //
+    //CONSEQUENCES in terms of LOADING ORDER
+    // 1. PMDMINI
+    // 2. ADPLUG
+    // 3. SID
+    // 3. The rest
+    //****************************************************************************************
+    
+    for (int i=0;i<[filetype_extSID count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
+            [available_player insertObject:[NSNumber numberWithInt:MMP_SIDPLAY] atIndex:0];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {
+            [available_player insertObject:[NSNumber numberWithInt:MMP_SIDPLAY] atIndex:0];
+            break;
+        }
+    }
+    
+        
+    for (int i=0;i<[filetype_extADPLUG count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
+            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+            break;
+        }
+    }
+    
+    for (int i=0;i<[filetype_extPMD count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {
+            [available_player insertObject:[NSNumber numberWithInt:MMP_PMDMINI] atIndex:0];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {
+            [available_player insertObject:[NSNumber numberWithInt:MMP_PMDMINI] atIndex:0];
+            break;
+        }
+    }
+
     
     //NSLog(@"Loading file:%@ ",filePath);
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);

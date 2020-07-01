@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * adtrack.cpp - Adlib Tracker 1.0 Loader by Simon Peter <dn.tlp@gmx.net>
  *
@@ -62,7 +62,7 @@ bool CadtrackLoader::load(const std::string &filename, const CFileProvider &fp)
   AdPlug_LogWrite("CadtrackLoader::load(,\"%s\"): Checking for \"%s\"...\n",
 		  filename.c_str(), instfilename.c_str());
   instf = fp.open(instfilename);
-  if(!instf || fp.filesize(instf) != 468) { fp.close(f); return false; }
+  if(!instf || fp.filesize(instf) != 468) { if(instf) { fp.close(instf); } fp.close(f); return false; }
 
   // give CmodPlayer a hint on what we're up to
   realloc_patterns(1,1000,9); realloc_instruments(9); realloc_order(1);
