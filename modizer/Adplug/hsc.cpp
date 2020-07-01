@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * hsc.cpp - HSC Player by Simon Peter <dn.tlp@gmx.net>
  */
@@ -37,11 +37,18 @@ bool ChscPlayer::load(const std::string &filename, const CFileProvider &fp)
   int		i;
 
   // file validation section
-  if(!f || !fp.extension(filename, ".hsc") || fp.filesize(f) > 59187) {
+  if (
+    !f
+    || !fp.extension(filename, ".hsc")
+    || fp.filesize(f) > (59187 + 1)  // +1 is for some files that have a trailing 0x00 on the end
+    || fp.filesize(f) < (1587 + 1152) // no 0x00 byte here as this is the smallest possible size
+  ) {
     AdPlug_LogWrite("ChscPlayer::load(\"%s\"): Not a HSC file!\n", filename.c_str());
     fp.close(f);
     return false;
   }
+
+  int total_patterns_in_hsc = (fp.filesize(f) - 1587) / 1152;
 
   // load section
   for(i=0;i<128*12;i++)		// load instruments
@@ -51,7 +58,14 @@ bool ChscPlayer::load(const std::string &filename, const CFileProvider &fp)
     instr[i][3] ^= (instr[i][3] & 0x40) << 1;
     instr[i][11] >>= 4;			// slide
   }
-  for(i=0;i<51;i++) song[i] = f->readInt(1);	// load tracklist
+  for(i=0;i<51;i++) {	// load tracklist
+    song[i] = f->readInt(1);
+    // if out of range, song ends here
+    if (
+      ((song[i] & 0x7F) > 0x31)
+      || ((song[i] & 0x7F) >= total_patterns_in_hsc)
+    ) song[i] = 0xFF;
+  }
   for(i=0;i<50*64*9;i++)			// load patterns
     *((char *)patterns + i) = f->readInt(1);
 
@@ -75,7 +89,9 @@ bool ChscPlayer::update()
     fadein--;
 
   pattnr = song[songpos];
-  if(pattnr == 0xff) {			// arrangement handling
+  // 0xff indicates song end, but this prevents a crash for some songs that
+  // use other weird values, like 0xbf
+  if(pattnr >= 0xb2) {			// arrangement handling
     songend = 1;				// set end-flag
     songpos = 0;
     pattnr = song[songpos];

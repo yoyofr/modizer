@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * dfm.cpp - Digital-FM Loader by Simon Peter <dn.tlp@gmx.net>
  */
@@ -47,9 +47,16 @@ bool CdfmLoader::load(const std::string &filename, const CFileProvider &fp)
   restartpos = 0; flags = Standard; bpm = 0;
   init_trackord();
   f->readString(songinfo, 33);
+  if (*songinfo > 32 || *songinfo < 0) {
+    fp.close(f); return false;
+  }
   initspeed = f->readInt(1);
-  for(i = 0; i < 32; i++)
+  for(i = 0; i < 32; i++) {
     f->readString(instname[i], 12);
+    if (*instname[i] > 11 || *instname[i] < 0) {
+      fp.close(f); return false;
+    }
+  }
   for(i = 0; i < 32; i++) {
     inst[i].data[1] = f->readInt(1);
     inst[i].data[2] = f->readInt(1);
@@ -64,10 +71,18 @@ bool CdfmLoader::load(const std::string &filename, const CFileProvider &fp)
     inst[i].data[0] = f->readInt(1);
   }
   for(i = 0; i < 128; i++) order[i] = f->readInt(1);
-  for(i = 0; i < 128 && order[i] != 128; i++) ; length = i;
+  for(i = 0; i < 128 && order[i] != 128; i++)
+    ;
+  length = i;
   npats = f->readInt(1);
+  if (npats > 64) {
+    fp.close(f); return false;	// or: realloc_patterns(npats, 64, 9);
+  }
   for(i = 0; i < npats; i++) {
     n = f->readInt(1);
+    if (n >= npats) {
+      fp.close(f); return false;
+    }
     for(r = 0; r < 64; r++)
       for(c = 0; c < 9; c++) {
 	note = f->readInt(1);

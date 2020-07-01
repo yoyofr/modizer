@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * msc.c - MSC Player by Lubomir Bulej (pallas@kadan.cz)
  */
@@ -209,10 +209,10 @@ bool CmscPlayer::decode_octet(u8 * output)
     return false;
 		
   blk = msc_data [block_num];
+  u8	len_corr = 0;	// length correction
   while (1) {
     u8 	octet;		// decoded octet
-    u8	len_corr;	// length correction
-		
+
     // advance to next block if necessary
     if (block_pos >= blk.mb_length && dec_len == 0) {
       block_num++;

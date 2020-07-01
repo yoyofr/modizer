@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * debug.h - AdPlug Debug Logger
  * Copyright (c) 2002 Riven the Mage <riven@ok.ru>
@@ -50,21 +50,19 @@ void AdPlug_LogWrite(const char *fmt, ...)
 }
 
 #else
+#include <stdio.h>
+#include <stdarg.h>
 
-//#include <stdio.h>
-//#include <stdarg.h>
+void AdPlug_LogFile(char *filename) { (void)filename; }
+void AdPlug_LogWrite(char *fmt, ...) {
+    /*(void)fmt;*/
+    va_list argptr;
 
-
-void AdPlug_LogFile(char *filename) { }
-void AdPlug_LogWrite(char *fmt, ...) { }
-/*    va_list argptr;
-    
     va_start(argptr, fmt);
-    
-    vprintf(fmt, argptr);
-    
+
+      vfprintf(stdout, fmt, argptr);
+
     va_end(argptr);
-}*/
-//#define AdPlug_LogWrite printf
+}
 
 #endif

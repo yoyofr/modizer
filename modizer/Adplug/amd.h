@@ -14,12 +14,13 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * amd.h - AMD Loader by Simon Peter <dn.tlp@gmx.net>
  */
 
 #include "protrack.h"
+#include <string.h> // for strnlen
 
 class CamdLoader: public CmodPlayer
 {
@@ -34,16 +35,16 @@ public:
 	float getrefresh();
 
 	std::string gettype()
-	{ return std::string("AMUSIC Adlib Tracker"); };
+	{ return std::string("AMUSIC Adlib Tracker"); }
 	std::string gettitle()
-	{ return std::string(songname,0,24); };
+	{ return std::string(songname, strnlen(songname, sizeof(songname))); }
 	std::string getauthor()
-	{ return std::string(author,0,24); };
+	{ return std::string(author, strnlen(author, sizeof(author))); }
 	unsigned int getinstruments()
-	{ return 26; };
+	{ return 26; }
 	std::string getinstrument(unsigned int n)
-	{ return std::string(instname[n],0,23); };
+	{ return n < getinstruments() ? std::string(instname[n], strnlen(instname[n], sizeof(instname[n]))) : std::string(); }
 
 private:
-	char songname[24],author[24],instname[26][23];
+	char songname[24], author[24], instname[26][23];
 };

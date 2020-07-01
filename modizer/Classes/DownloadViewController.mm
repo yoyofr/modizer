@@ -569,6 +569,29 @@ static NSFileManager *mFileMngr;
                     mFTPDownloadQueueDepth++;
                     
                 }
+                //4/ Adlib tracker => if sng, ins should be downloaded too
+                r.location=NSNotFound;
+                r = [fileName rangeOfString:@".sng" options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    strcpy(tmp_str,[filePath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.ins",tmp_str];
+                    
+                    strcpy(tmp_str,[ftpPath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.ins",tmp_str];
+                    mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                    
+                    strcpy(tmp_str,[fileName UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.ins",tmp_str];
+                    
+                    mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                    mFileSize[mFTPDownloadQueueDepth]=-1;
+                    mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                    
+                    mFTPDownloadQueueDepth++;
+                    
+                }
 			}
 			
 			mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:filePath];

@@ -14,7 +14,7 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
   dmo.cpp - TwinTeam loader by Riven the Mage <riven@ok.ru>
 */
@@ -58,11 +58,18 @@ bool CdmoLoader::load(const std::string &filename, const CFileProvider &fp)
   dmo_unpacker *unpacker = new dmo_unpacker;
   unsigned char chkhdr[16];
 
-	if(!fp.extension(filename, ".dmo")) {
-		delete unpacker;
-		return false;
-	}
-  f = fp.open(filename); if(!f) return false;
+  if(!fp.extension(filename, ".dmo"))
+    {
+      delete unpacker;
+      return false;
+    }
+
+  f = fp.open(filename);
+  if(!f)
+    {
+      delete unpacker;
+      return false;
+    }
 
   f->readString((char *)chkhdr, 16);
 
@@ -104,7 +111,7 @@ bool CdmoLoader::load(const std::string &filename, const CFileProvider &fp)
   // "TwinTeam" - signed ?
   if (memcmp(module,"TwinTeam Module File""\x0D\x0A",22))
     {
-      delete module;
+      delete [] module;
       return false;
     }
 
@@ -236,8 +243,8 @@ unsigned short CdmoLoader::dmo_unpacker::brand(unsigned short range)
   ax = LOWORD(bseed);
   bx = HIWORD(bseed);
   cx = ax;
-  ax = LOWORD(cx * 0x8405);
-  dx = HIWORD(cx * 0x8405);
+  ax = LOWORD(cx * 0x8405U);
+  dx = HIWORD(cx * 0x8405U);
   cx <<= 3;
   cx = (((HIBYTE(cx) + LOBYTE(cx)) & 0xFF) << 8) + LOBYTE(cx);
   dx += cx;
@@ -320,7 +327,10 @@ short CdmoLoader::dmo_unpacker::unpack_block(unsigned char *ibuf, long ilen, uns
 	    return -1;
 
 	  for(int i=0;i<cx;i++)
-	    *opos++ = *(opos - ax);
+	  {
+	    *opos = *(opos - ax);
+	    opos++;
+	  }
 
 	  continue;
 	}
@@ -340,7 +350,10 @@ short CdmoLoader::dmo_unpacker::unpack_block(unsigned char *ibuf, long ilen, uns
 	    return -1;
 
 	  for(i=0;i<cx;i++)
-	    *opos++ = *(opos - ax);
+	  {
+	    *opos = *(opos - ax);
+	    opos++;
+	  }
 
 	  for (i=0;i<bx;i++)
 	    *opos++ = *ipos++;
@@ -364,7 +377,10 @@ short CdmoLoader::dmo_unpacker::unpack_block(unsigned char *ibuf, long ilen, uns
 	    return -1;
 
 	  for(i=0;i<cx;i++)
-	    *opos++ = *(opos - bx);
+	  {
+	    *opos = *(opos - bx);
+	    opos++;
+	  }
 
 	  for (i=0;i<ax;i++)
 	    *opos++ = *ipos++;

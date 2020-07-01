@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * protrack.cpp - Generic Protracker Player
  *
@@ -66,7 +66,7 @@ bool CmodPlayer::update()
   unsigned long		row;
 
   if(!speed)		// song full stop
-    return !songend;
+    return false;
 
   // effect handling (timer dependant)
   for(chan = 0; chan < nchans; chan++) {
@@ -202,7 +202,7 @@ bool CmodPlayer::update()
   for(chan = 0; chan < nchans; chan++) {
     oplchan = set_opl_chip(chan);
 
-    if(!(activechan >> (31 - chan)) & 1) {	// channel active?
+    if(!((activechan >> (31 - chan)) & 1)) {	// channel active?
       AdPlug_LogWrite("N/A|");
       continue;
     }
@@ -290,7 +290,11 @@ bool CmodPlayer::update()
       break;
 
     case 11: // position jump
-      pattbreak = 1; rw = 0; if(info < ord) songend = 1; ord = info; break;
+      pattbreak = 1;
+      rw = 0;
+      if (info <= ord) songend = 1;
+      ord = info;
+      break;
 
     case 12: // set volume
       channel[chan].vol1 = info;
@@ -303,7 +307,12 @@ bool CmodPlayer::update()
       break;
 
     case 13: // pattern break
-      if(!pattbreak) { pattbreak = 1; rw = info; ord++; } break;
+      if (!pattbreak) {
+        pattbreak = 1;
+        rw = info < nrows ? info : 0;
+        ord++;
+      }
+      break;
 
     case 14: // extended command
       switch(info1) {
@@ -680,22 +689,15 @@ void CmodPlayer::playnote(unsigned char chan)
 
 void CmodPlayer::setnote(unsigned char chan, int note)
 {
-  if(note > 96) {
-    if(note == 127) {	// key off
-      channel[chan].key = 0;
-      setfreq(chan);
-      return;
-    } else
-      note = 96;
+  if(note == 127) {	// key off
+    channel[chan].key = 0;
+    setfreq(chan);
+    return;
   }
+  if(note > 96) note = 96;
+  else if (note < 1) note = 1;
 
-  if(note < 13)
-    channel[chan].freq = notetable[note - 1];
-  else
-    if(note % 12 > 0)
-      channel[chan].freq = notetable[(note % 12) - 1];
-    else
-      channel[chan].freq = notetable[11];
+  channel[chan].freq = notetable[(note - 1) % 12];
   channel[chan].oct = (note - 1) / 12;
   channel[chan].freq += inst[channel[chan].inst].slide;	// apply pre-slide
 }

@@ -14,7 +14,7 @@
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
   dtm.h - DTM loader by Riven the Mage <riven@ok.ru>
 */
@@ -40,6 +40,15 @@ class CdtmLoader: public CmodPlayer
   unsigned int    getinstruments();
 
  private:
+  enum {
+    N_CHAN = 9,
+    N_ROW = 64,
+    N_ORD = 100,
+    MAX_INST = 128,
+    DESC_COLS = 80,
+    DESC_ROWS = 16,
+    DESC_SIZE = DESC_COLS * DESC_ROWS,
+  };
 
   struct dtm_header
   {
@@ -51,13 +60,13 @@ class CdtmLoader: public CmodPlayer
     unsigned char   numinst;
   } header;
 
-  char desc[80*16];
+  char desc[DESC_SIZE];
 
   struct dtm_instrument
   {
     char            name[13];
     unsigned char   data[12];
-  } instruments[128];
+  } instruments[MAX_INST];
 
   struct dtm_event
   {
@@ -65,5 +74,5 @@ class CdtmLoader: public CmodPlayer
     unsigned char	byte1;
   };
 
-  long unpack_pattern(unsigned char *ibuf, long ilen, unsigned char *obuf, long olen);
+  bool unpack_pattern(binistream *f, size_t ilen, void *obuf, size_t olen);
 };

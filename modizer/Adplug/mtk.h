@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * mtk.h - MPU-401 Trakker Loader by Simon Peter <dn.tlp@gmx.net>
  */
@@ -43,7 +43,7 @@ class CmtkLoader: public ChscPlayer
   unsigned int getinstruments()
     { return 128; };
   std::string getinstrument(unsigned int n)
-    { return std::string(instname[n]); };
+    { return n < 128 ? std::string(instname[n]) : std::string(); };
 
  private:
   char title[34],composer[34],instname[0x80][34];

@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * emuopl.h - Emulated OPL, by Simon Peter <dn.tlp@gmx.net>
  */
@@ -42,7 +42,7 @@ class CEmuopl: public Copl
  private:
   bool		use16bit, stereo;
   FM_OPL	*opl[2];				// OPL2 emulator data
-  short		*mixbuf0, *mixbuf1;
+  short		*mixbuf0, *mixbuf1, *mixbuf2;
   int		mixbufSamples;
 };
 

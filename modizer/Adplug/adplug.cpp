@@ -14,13 +14,16 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * adplug.cpp - CAdPlug utility class, by Simon Peter <dn.tlp@gmx.net>
  */
 
-
-#define VERSION "Adplug 2.2.1"
+/*
+ * Copyright (c) 2017 Wraithverge <liam82067@yahoo.com>
+ * - Added extension ".rac" for CrawPlayer.
+ * - Corrected 'type' string for CrawPlayer.
+ */
 
 #include <cstring>
 #include <string>
@@ -28,6 +31,7 @@
 
 #include "adplug.h"
 #include "debug.h"
+#include "version.h"
 
 /***** Replayer includes *****/
 
@@ -52,7 +56,7 @@
 #include "dtm.h"
 #include "fmc.h"
 #include "mtk.h"
-#include "rad.h"
+#include "rad2.h"
 #include "raw.h"
 #include "sa2.h"
 #include "bmf.h"
@@ -71,6 +75,13 @@
 #include "rix.h"
 #include "adl.h"
 #include "jbm.h"
+#include "got.h"
+#include "mus.h"
+#include "mdi.h"
+#include "cmfmcsop.h"
+#include "vgm.h"
+#include "sop.h"
+#include "herad.h"
 
 /***** CAdPlug *****/
 
@@ -89,6 +100,8 @@ const CPlayerDesc CAdPlug::allplayers[] = {
   CPlayerDesc(ChspLoader::factory, "HSC Packed", ".hsp\0"),
   CPlayerDesc(CksmPlayer::factory, "Ken Silverman Music", ".ksm\0"),
   CPlayerDesc(CmadLoader::factory, "Mlat Adlib Tracker", ".mad\0"),
+  CPlayerDesc(CmusPlayer::factory, "AdLib MIDI/IMS Format", ".mus\0.ims\0"),
+  CPlayerDesc(CmdiPlayer::factory, "AdLib MIDIPlay File", ".mdi\0"),
   CPlayerDesc(CmidPlayer::factory, "MIDI", ".mid\0.sci\0.laa\0"),
   CPlayerDesc(CmkjPlayer::factory, "MKJamz", ".mkj\0"),
   CPlayerDesc(CcffLoader::factory, "Boomtracker", ".cff\0"),
@@ -97,10 +110,10 @@ const CPlayerDesc CAdPlug::allplayers[] = {
   CPlayerDesc(CdtmLoader::factory, "DeFy Adlib Tracker", ".dtm\0"),
   CPlayerDesc(CfmcLoader::factory, "Faust Music Creator", ".sng\0"),
   CPlayerDesc(CmtkLoader::factory, "MPU-401 Trakker", ".mtk\0"),
-  CPlayerDesc(CradLoader::factory, "Reality Adlib Tracker", ".rad\0"),
-  CPlayerDesc(CrawPlayer::factory, "RdosPlay RAW", ".raw\0"),
+  CPlayerDesc(Crad2Player::factory, "Reality Adlib Tracker", ".rad\0"),
+  CPlayerDesc(CrawPlayer::factory, "Raw AdLib Capture", ".rac\0.raw\0"),
   CPlayerDesc(Csa2Loader::factory, "Surprise! Adlib Tracker", ".sat\0.sa2\0"),
-  CPlayerDesc(CxadbmfPlayer::factory, "BMF Adlib Tracker", ".xad\0"),
+  CPlayerDesc(CxadbmfPlayer::factory, "BMF Adlib Tracker", ".xad\0.bmf\0"),
   CPlayerDesc(CxadflashPlayer::factory, "Flash", ".xad\0"),
   CPlayerDesc(CxadhybridPlayer::factory, "Hybrid", ".xad\0"),
   CPlayerDesc(CxadhypPlayer::factory, "Hypnosis", ".xad\0"),
@@ -116,6 +129,11 @@ const CPlayerDesc CAdPlug::allplayers[] = {
   CPlayerDesc(CrixPlayer::factory, "Softstar RIX OPL Music", ".rix\0"),
   CPlayerDesc(CadlPlayer::factory, "Westwood ADL", ".adl\0"),
   CPlayerDesc(CjbmPlayer::factory, "JBM Adlib Music", ".jbm\0"),
+  CPlayerDesc(CgotPlayer::factory, "God of Thunder Music", ".got\0"),
+  CPlayerDesc(CcmfmacsoperaPlayer::factory, "SoundFX Macs Opera CMF", ".cmf\0"),
+  CPlayerDesc(CvgmPlayer::factory, "Video Game Music", ".vgm\0.vgz\0"),
+  CPlayerDesc(CsopPlayer::factory, "Note Sequencer by sopepos", ".sop\0"),
+  CPlayerDesc(CheradPlayer::factory, "Herbulot AdLib System", ".hsq\0.sqx\0.sdb\0.agd\0.ha2\0"),
   CPlayerDesc()
 };
 
@@ -183,7 +201,7 @@ void CAdPlug::set_database(CAdPlugDatabase *db)
 
 std::string CAdPlug::get_version()
 {
-  return std::string(VERSION);
+  return std::string(ADPLUG_VERSION);
 }
 
 void CAdPlug::debug_output(const std::string &filename)

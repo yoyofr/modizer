@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * kemuopl.h - Emulated OPL using Ken Silverman's emulator, by Simon Peter
  *             <dn.tlp@gmx.net>
@@ -32,7 +32,7 @@ class CKemuopl: public Copl
 {
 public:
   CKemuopl(int rate, bool bit16, bool usestereo)
-    : use16bit(bit16), stereo(usestereo)
+    : use16bit(bit16), stereo(usestereo), sampleerate(rate)
     {
       adlibinit(rate, usestereo ? 2 : 1, bit16 ? 2 : 1);
       currType = TYPE_OPL2;
@@ -52,10 +52,14 @@ public:
 	adlib0(reg, val);
     };
 
-  void init() {};
+  void init() {
+    adlibinit(sampleerate, stereo ? 2 : 1, use16bit ? 2 : 1);
+    currChip = 0;
+  };
 
 private:
   bool	use16bit,stereo;
+  int	sampleerate;
 };
 
 #endif
