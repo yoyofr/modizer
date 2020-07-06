@@ -149,7 +149,9 @@ static bool Map2SF(XSFFile *xSF)
 				uint32_t offset = Get32BitsLE(&reservedSection[reservedPosition + 8]);
 				if (size > 4 && loaderwork.sram.size() > offset)
 				{
-					auto len = std::min(size - 4, loaderwork.sram.size() - offset);
+					//auto len = std::min(size - 4, loaderwork.sram.size() - offset);
+                    auto len = loaderwork.sram.size() - offset;
+                    if (size - 4 < len) len=size - 4;
 					std::copy_n(&reservedSection[reservedPosition + 12], len, &loaderwork.sram[offset]);
 				}
 			}

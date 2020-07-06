@@ -26,6 +26,20 @@
 #import "XSFPlayer.h"
 #import "XSFPlayer_NCSF.h"
 #import "XSFPlayer_2SF.h"
+
+class XSFPlayer_SNSF : public XSFPlayer
+{
+public:
+    XSFPlayer_SNSF(const std::string &filename);
+#ifdef _WIN32
+    XSFPlayer_SNSF(const std::wstring &filename);
+#endif
+    ~XSFPlayer_SNSF() { this->Terminate(); }
+    bool Load();
+    void GenerateSamples(std::vector<uint8_t> &buf, unsigned offset, unsigned samples);
+    void Terminate();
+};
+
 #import "XSFConfig.h"
 
 
@@ -94,30 +108,6 @@ enum MMP_PLAYER_TYPE {
     MMP_XSF
 };
 
-static const char *mmp_player_name[]={
-    "none",
-    "pmdmini",
-    "adplug",
-    "sidplay",
-    "openmpt",
-    "dumb",
-    "uade",
-    "timidity",
-    "vgmstream",
-    "lazyusf",
-    "vgmplay",
-    "gme",
-    "asap",
-    "gsf",
-    "mdxpdx",
-    "sc68",
-    "stsound",
-    "hvl",
-    "sexypsf",
-    "aosdk",
-    "xsf",
-    "2sf"
-};
 
 
 @interface ModizMusicPlayer : NSObject {

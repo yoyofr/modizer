@@ -1,0 +1,102 @@
+ASMA Update #17
+Date: August 22, 2000
+
+These rips together with the original ASMA collection will make version 1.7
+of the ASMA (out of version 1.6).
+
+Number of new tunes: 50
+Better rips: 3
+Credits fixes: 8
+Filename and location changes: 13
+Removed tunes: 2
+
+New tunes
+---------
+Unsorted/Desease.sap
+Unsorted/Dupa.sap
+Unsorted/Piczka.sap
+Unsorted/Picca.sap
+Unsorted/Pizza_Margerita_Suxx.sap
+Unsorted/sEXTOn_Is_Come.sap
+Unsorted/Walec.sap
+Unsorted/Suprajs.sap
+Various/Golewski_Filip/Unknown_1.sap
+Various/Golewski_Filip/Unknown_2.sap
+Various/Karwacki_Jakub/Geotion.sap
+Various/Karwacki_Jakub/Shell.sap
+Various/Kucisz_Tomasz/Drumak.sap
+Various/Kucisz_Tomasz/Exodus.sap
+Various/Kucisz_Tomasz/Fonic.sap
+Various/Kucisz_Tomasz/Marzenia.sap
+Various/Kwiatek_Grzegorz/Detox.sap
+Various/Kwiatek_Grzegorz/Energy.sap
+Various/Kwiatek_Grzegorz/For_Replay.sap
+Various/Kwiatek_Grzegorz/Heartbreaker.sap
+Various/Kwiatek_Grzegorz/Hip.sap
+Various/Kwiatek_Grzegorz/Hope.sap
+Various/Kwiatek_Grzegorz/Millenium.sap
+Various/Kwiatek_Grzegorz/Misunderstanding.sap
+Various/Kwiatek_Grzegorz/Reborn.sap
+Various/Kwiatek_Grzegorz/Sabbath.sap
+Various/Kwiatek_Grzegorz/Szczur.sap
+Various/Makowski_Robert/Joshgoa.sap
+Various/Makowski_Robert/Unknown.sap
+Various/Padula_Jaroslaw/Trance_Feat_House.sap
+Various/Sterba_Radek/Android.sap
+Various/Sterba_Radek/Android_Tune_2.sap
+Various/Sterba_Radek/Android_Tune_3.sap
+Various/Sterba_Radek/Cityhawk.sap
+Various/Sterba_Radek/Cityhawk_Tune_2.sap
+Various/Sterba_Radek/J_M_Jarre_Remake.sap
+Various/Sterba_Radek/Od_Tater_k_Dunaju.sap
+Various/Sterba_Radek/Posthelper.sap
+Various/Sterba_Radek/Posthelper_Tune_2.sap
+Various/Sterba_Radek/Posthelper_Tune_3.sap
+Various/Sterba_Radek/Small_Stir.sap
+Various/Sterba_Radek/Videopoly.sap
+Various/Sterba_Radek/Videopoly_Tune_2.sap
+Various/Sterba_Radek/Videopoly_Tune_3.sap
+Various/Sterba_Radek/Volleyball.sap
+Various/Sterba_Radek/Volleyball_Tune_2.sap
+Various/Sterba_Radek/Yamahademo_Song_A.sap
+Various/Sterba_Radek/Yamahademo_Song_Q.sap
+Various/Szpilowski_Michal/Sej-mik.sap
+Various/Szpilowski_Michal/Sleepy_Passage.sap
+
+Better rips
+-----------
+Various/Husak_Jakub/Garfield_Part_2.sap (played ROM instead of sample data)
+Various/Kwiatek_Grzegorz/Alive.sap (stereo noise in the beginning sounds better)
+Various/Kwiatek_Grzegorz/Schizofrenia.sap (now plays in stereo)
+
+Credits fixes
+-------------
+Classics/Whittaker_David/Storm.sap : "DATE "1986"
+Demos/The_Top_1.sap : AUTHOR "<?> (J. M. Musicfreak)" DATE "1989"
+Games/Various/Bomb_Fusion.sap : DATE "1993"
+Various/Kwiatek_Grzegorz/Far_Away.sap : DATE "1998"
+Various/Szpilowski_Michal/Barymag_1_7.sap : DATE "1994"
+Various/Vogt_Dariusz/Ballada_O_Januszku.sap : DATE "1997"
+Various/Vogt_Dariusz/Maluchem_Na_Party.sap : DATE "1997"
+Various/Vogt_Dariusz/Najebany_Mikolajza.sap : DATE "1997"
+
+Filename and location changes (these may change also because of credits fix)
+-----------------------------
+Classics/Hubbard_Rob/Last_V8.sap > Games/Classic/
+Demos/Alpha.sap > Various/Vybostok_Marian/
+Games/Various/Dynakillers.sap > Various/Vybostok_Marian/
+Games/Various/Dynakillers_Demo.sap > Various/Vybostok_Marian/
+Games/Various/Numblines.sap > Various/Kucisz_Tomasz/
+Games/Various/SOS_Saturn.sap > Various/Top_Odin/SOS_Saturn_Intro.sap
+Various/Szpilowski_Michal/The_Misty_Day.sap > Misty_Day.sap
+Various/Swierszcz_Piotr/The_Pain.sap > Pain.sap
+Various/Kwiatek_Grzegorz/The_Power.sap > Power.sap
+Various/Pet/The_Troubles.sap > Troubles.sap
+Various/Sychowicz_Lukasz/X_Ray_1.sap > Gravestone.sap : NAME "Gravestone"
+Unsorted/Disk_Copy.sap > Various/Kucisz_Tomasz/
+Unsorted/Lark.sap > Various/Karwacki_Jakub/
+
+Removed files
+-------------
+Various/Kwiatek_Grzegorz/Angel.sap (same as Angel_of_Death.sap)
+Unsorted/Qwerty.sap (same as Various/Karwacki_Jakub/Lark.sap)

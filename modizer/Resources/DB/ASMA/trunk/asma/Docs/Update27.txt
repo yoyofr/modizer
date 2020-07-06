@@ -1,0 +1,160 @@
+ASMA Update #27
+Date: November 12, 2003
+
+These rips together with the original ASMA collection will make version 2.7
+of the ASMA (out of version 2.6).
+
+Number of new tunes: 124
+Credits fixes: 22
+
+New tunes
+---------
+Unsorted/Aura_30.sap
+Unsorted/Bach_Mix.sap
+Unsorted/Bitter.sap
+Unsorted/Capone.sap
+Unsorted/Comanche.sap
+Unsorted/Enigmatic_Man.sap
+Unsorted/Harold_II_Crack_Music.sap
+Unsorted/Hunter.sap
+Unsorted/Intro.sap
+Unsorted/Nemesis.sap
+Unsorted/Psychodela.sap
+Unsorted/Sadness.sap
+Unsorted/Serious_Magazine_2_3.sap
+Unsorted/Serious_Magazine_3_1.sap
+Unsorted/Serious_Magazine_3_2.sap
+Unsorted/Serious_Magazine_3_4.sap
+Unsorted/Serious_Magazine_5_1.sap
+Unsorted/Serious_Magazine_7_8.sap
+Unsorted/Serious_Magazine_9_Credits.sap
+Unsorted/Somemsx.sap
+Unsorted/Tragedy_Zine_1.sap
+Various/Badkowski_Marek/Vacares.sap
+Various/Bernasek_Jiri/Abbuc_54.sap
+Various/Bernasek_Jiri/Easy_Demo.sap
+Various/Bernasek_Jiri/Unfinished_Demo.sap
+Various/Czartynski_Marcin/Bardaszna_Rura.sap
+Various/Czartynski_Marcin/Fractals.sap
+Various/Czartynski_Marcin/Hope.sap
+Various/Czartynski_Marcin/Moskwa.sap
+Various/Czartynski_Marcin/Rave_2.sap
+Various/Czartynski_Marcin/Trackmo.sap
+Various/Duma_Dariusz/So_Close.sap
+Various/Galinski_Adrian/Mayday_2nd_part.sap
+Various/Golewski_Filip/Epic_Sage.sap
+Various/Grayscale/404_Error.sap
+Various/Grayscale/Dragon_Tale.sap
+Various/Grayscale/Running_Emu.sap
+Various/Grayscale/WooBooDoo.sap
+Various/Grayscale/Kwiatek_Grzegorz/Atarians.sap
+Various/Grayscale/Kwiatek_Grzegorz/Still_Alive.sap
+Various/Grayscale/Sychowicz_Lukasz/Accident.sap
+Various/Grayscale/Sychowicz_Lukasz/Beer_Bibber.sap
+Various/Grayscale/Sychowicz_Lukasz/Happy_Oriental_Kids.sap
+Various/Grayscale/Sychowicz_Lukasz/Wroom.sap
+Various/Hay_Adam/Freedom.sap
+Various/Hay_Adam/Mayonnaise.sap
+Various/Hay_Adam/Monty_on_the_Run_Game_Over.sap
+Various/Hay_Adam/Parallax_Mix.sap
+Various/Hay_Adam/Plastic_Pop.sap
+Various/Husak_Jakub/Do_You_Want_to_Dance_With.sap
+Various/Husak_Jakub/Kim_Wilde.sap
+Various/Husak_Jakub/Schlecht_Korrekt.sap
+Various/Johnson_Steve/Broons_Bane.sap
+Various/Johnson_Steve/Enemy_Within.sap
+Various/Johnson_Steve/Red_Barchetta.sap
+Various/Johnson_Steve/Red_Sector_A.sap
+Various/Kalinowski_Bartosz/Serious_Magazine_5_9.sap
+Various/Kalinowski_Bartosz/Serious_Magazine_6_5.sap
+Various/Karwoth_Torsten/Axel_F.sap
+Various/Karwoth_Torsten/Crystal_Hammer.sap
+Various/Karwoth_Torsten/Demo_1.sap
+Various/Karwoth_Torsten/Demo_2.sap
+Various/Karwoth_Torsten/Demo_3.sap
+Various/Karwoth_Torsten/FOFT.sap
+Various/Karwoth_Torsten/FOFT2.sap
+Various/Karwoth_Torsten/Shades.sap
+Various/Karwoth_Torsten/Sometime.sap
+Various/Karwoth_Torsten/Synthe.sap
+Various/Karwoth_Torsten/Synthy_1.sap
+Various/Karwoth_Torsten/Synthy_2.sap
+Various/Kociuba_Dariusz/By_Mistake.sap
+Various/Kociuba_Dariusz/Elroy.sap
+Various/Kociuba_Dariusz/Kobza_Roolz.sap
+Various/Kociuba_Dariusz/Lemmingi_Demo.sap
+Various/Kociuba_Dariusz/New_Kind_of_Franio.sap
+Various/Kociuba_Dariusz/Salcesonfix_Zine.sap
+Various/Kociuba_Dariusz/Vietkong.sap
+Various/Kucisz_Tomasz/MonoThem.sap
+Various/Kucisz_Tomasz/Network.sap
+Various/Lepkowski_Michal/Serious_Magazine_2_4.sap
+Various/Lepkowski_Michal/Sure_Shot.sap
+Various/Lepkowski_Michal/Torus.sap
+Various/Liebich_Tomasz/Fluid_Kha_Ingame.sap
+Various/Liebich_Tomasz/Fluid_Kha_Intro.sap
+Various/Liebich_Tomasz/Fluid_Kha_Title.sap
+Various/Majewski_Tomasz/Fog_in_the_Sky.sap
+Various/Majewski_Tomasz/Serious_Magazine_5_2.sap
+Various/Numan_Daniel/Demonic_Laughter_Menu.sap
+Various/Numan_Daniel/Dwuetyloamid.sap
+Various/Numan_Daniel/Raving_Pazda.sap
+Various/Numan_Daniel/Syzygy_Magazine_5_14.sap
+Various/Numan_Daniel/THC_Vibration.sap
+Various/Padula_Jaroslaw/Marry_Xmas.sap
+Various/Padula_Jaroslaw/Only_You.sap
+Various/Padula_Jaroslaw/Psh_three.sap
+Various/Padula_Jaroslaw/Serious_Magazine_1_Credits.sap
+Various/Radzikowski_Ireneusz/Another_Day_in_Paradise.sap
+Various/Radzikowski_Ireneusz/Christmas_mix.sap
+Various/Radzikowski_Ireneusz/Puzmania_1.sap
+Various/Radzikowski_Ireneusz/Puzmania_2.sap
+Various/Radzikowski_Ireneusz/Puzmania_3.sap
+Various/Radzikowski_Ireneusz/Puzmania_4.sap
+Various/Radzikowski_Ireneusz/Puzmania_Intro.sap
+Various/Radzikowski_Ireneusz/Swiateczny_Power_Max_Mix.sap
+Various/Radzikowski_Ireneusz/The_Great_Commandment.sap
+Various/Sterba_Radek/Aspiration_332.sap
+Various/Sterba_Radek/Delta.sap
+Various/Sterba_Radek/First.sap
+Various/Sterba_Radek/Horror.sap
+Various/Sterba_Radek/Hymn_to_Aurora.sap
+Various/Sterba_Radek/No_Promises.sap
+Various/Sterba_Radek/Turrican_II_Noise_3.sap
+Various/Swierszcz_Piotr/Lame_erooption.sap
+Various/Swierszcz_Piotr/Landscape.sap
+Various/Szpilowski_Michal/Bohun_oddaj_Helene.sap
+Various/Szpilowski_Michal/Brzdonc.sap
+Various/Szpilowski_Michal/Foreign_Sound.sap
+Various/Szpilowski_Michal/Gdzie_ja_to_slyszalem.sap
+Various/Szpilowski_Michal/Introduction_to_Yourself.sap
+Various/Szpilowski_Michal/Pasztet_z_lemminga.sap
+Various/Szpilowski_Michal/Saddams_Secret_Moonbase.sap
+Various/Szpilowski_Michal/Settlers.sap
+Various/Szpilowski_Michal/TC.sap
+Various/Szpilowski_Michal/Too_Hard_3.sap
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Demos/Asskicker_Hidden_Part.sap > Various/Bernasek_Jiri/
+Demos/Bitter_Reality_Dragon_Bobs.sap > Various/Karwoth_Torsten/
+Demos/Strange_Mountains_II.sap > Various/Bernasek_Jiri/
+Games/Various/Jurassic_Park.sap > Various/Gmurek_Konrad/ : AUTHOR "Konrad Gmurek (KeyG)" DATE "1994 <?>"
+Games/Various/Kosci.sap > Various/Gmurek_Konrad/ : AUTHOR "Konrad Gmurek (KeyG)" DATE "1994 <?>"
+Games/Various/Test_Drive.sap > Various/Gmurek_Konrad/ : AUTHOR "Konrad Gmurek (KeyG)" DATE "1994 <?>"
+Games/Various/Megablast.sap > Various/Karwoth_Torsten/
+Various/Kwiatek_Grzegorz/ > Various/Grayscale/Kwiatek_Grzegorz/ (all songs moved)
+Various/Sychowicz_Lukasz/ > Various/Grayscale/Sychowicz_Lukasz/ (all songs moved)
+Various/Grayscale/Kwiatek_Grzegorz/DrillDance.sap > Various/Grayscale/
+Various/Grayscale/Kwiatek_Grzegorz/Euglena_Zielona.sap > Various/Grayscale/
+Various/Grayscale/Kwiatek_Grzegorz/Pneumatic_Driller.sap > Various/Grayscale/
+Various/Kielczyk_Piotr/Convention.sap > Various/Martin_Aleksander/ : AUTHOR "Aleksander Martin (Alex)"
+Various/Kielczyk_Piotr/Orient.sap > Various/Martin_Aleksander/ : AUTHOR "Aleksander Martin (Alex)"
+Various/Kielczyk_Piotr/Troubles.sap > Various/Martin_Aleksander/ : AUTHOR "Aleksander Martin (Alex)"
+Various/Kociuba_Dariusz/Vioris.sap : AUTHOR "Dariusz Kociuba (Sherlock)"
+Various/Kociuba_Dariusz/Vioris_Ingame.sap : AUTHOR "Dariusz Kociuba (Sherlock)"
+Various/Martin_Aleksander/Nexus_Ingame_1.sap > Games/Various/ : AUTHOR "<?>"
+Various/Martin_Aleksander/Nexus_Ingame_2.sap > Games/Various/ : AUTHOR "<?>"
+Various/Martin_Aleksander/Nexus_Ingame_3.sap > Games/Various/ : AUTHOR "<?>"
+Various/Martin_Aleksander/Night_Mare.sap > Unsorted/ : AUTHOR "<?>"
+Various/Roszkowski_Marek/Kocie_Zaloty.sap > Various/Martin_Aleksander/ : AUTHOR "Aleksander Martin (Alex)"

@@ -1,14 +1,7 @@
 ﻿##############################################################################
 #
 #  STIL v3.9 - SAP Tune Information List
-#  Maintained by Mariusz Rozwadowski (Ramos)
-#  Total number of entries: 1682
-#
-##############################################################################
-#
-# ABOUT THIS VERSION OF THE STIL:
-#
-# - Huge increase of entries
+#  Total number of entries: 1731
 #
 ##############################################################################
 
@@ -358,6 +351,10 @@ COMMENT: Music from the game 'Octopus' released in 2011.
 /Composers/Brzezicki_Michal/Patrol_In_the_Space.sap
 COMMENT: Music from the game 'Patrol In The Space' released in 2011.
 
+/Composers/Brzezicki_Michal/Star_Vagrant_Intro.sap
+COMMENT: Music from the 'Star Vagrant' intro which took 6th place at Lost
+         Party 2019 wild compo.
+
 /Composers/Brzezicki_Michal/Vlong.sap
 COMMENT: Music from the game 'Spy Master' released by L.K. Avalon in 1993.
 
@@ -684,6 +681,10 @@ COMMENT: Popular folk song. Since 1971 the "Summer with Radio" broadcast
 
 ### /Composers/Duma_Dariusz ##################################################
 
+/Composers/Duma_Dariusz/Acid_Notes.sap
+COMMENT: Soundtrack from the intro 'W.Y.S.I.W.I.C.' which took 4th place at
+         Silly Venture 2k19.
+
 /Composers/Duma_Dariusz/Nonsense_Song.sap
 COMMENT: 5th place at Forever Reneg8 music compo.
 
@@ -794,6 +795,9 @@ COMMENT: The intro part is cut off from this cover.
   TITLE: Grand Prix Circuit, Tune #2 [from the C64 game]
  ARTIST: Kris Hatlelid
 
+/Composers/Eisenhammer_Zdenek/Greenfields.sap
+COMMENT: 2nd place at Forever 2019 Atari music compo.
+
 /Composers/Eisenhammer_Zdenek/Happy_Bars.sap
   TITLE: 2010 Survival [from the Amiga MOD module]
  ARTIST: Jostein Dahl Gjelsvik (Trixal) & Oddgeir Hvidsten (Vortex)
@@ -883,6 +887,9 @@ COMMENT: 2nd place at Forever 17 music compo.
 (#1)
   TITLE: jazzberry juice.edit [from the Amiga MOD module]
  ARTIST: Reed Richards (Reed)
+ 
+/Composers/Eisenhammer_Zdenek/Skyride.sap
+COMMENT: 1st place at Lost Party 2019 executable music compo. 
 
 /Composers/Eisenhammer_Zdenek/Sonic_the_Hedgehog_Green_H.sap
   TITLE: Sonic the Hedgehog - Green Hill Zone [from the Sega Megadrive game]
@@ -912,7 +919,7 @@ COMMENT: 2nd place at Forever 17 music compo.
   TITLE: Brainless 3 [from the Amiga MOD module]
  ARTIST: Jakob Svanholm (Radix)
 
-/Composers/Eisenhammer_Zdenek/Ten_Minutes_To_Deadline.sap
+/Composers/Eisenhammer_Zdenek/Ten_Minutes_to_Deadline.sap
 COMMENT: 4th place at Forever 16 music compo.
 
 /Composers/Eisenhammer_Zdenek/Tronix.sap
@@ -1539,6 +1546,10 @@ COMMENT: This tune takes 12 seconds to start.
 COMMENT: Same melody as /Composers/Golewski_Filip/Echo.sap,
          but with added digi drums.
 
+/Composers/Golewski_Filip/Przybysze_z_Matplanety.sap
+  TITLE: Przybysze z Matplanety
+ ARTIST: Rafal Blazejewski, Marceli Latoszek, Andrzej Zaucha
+
 ### /Composers/Gora_Jakub ####################################################
 
 /Composers/Gora_Jakub/Holiday.sap
@@ -1574,6 +1585,9 @@ COMMENT: A cover of the tune from Atari XE/XL POKEY Karriere by Kemal Ezcan.
  ARTIST: Glenn Miller and his Orchestra
 
 ### /Composers/Grabowski_Pawel ###############################################
+
+/Composers/Grabowski_Pawel/Fun_with_Atari.sap
+COMMENT: 2nd place at Silly Venture 2019 music compo.
 
 /Composers/Grabowski_Pawel/IQ_Master.sap
 COMMENT: Music from the game 'IQ Master' released by ASF in 1992.
@@ -1751,6 +1765,10 @@ COMMENT: Soundtrack from the demo 'Numen' which won at the Lato Ludzików
 
 /Composers/Grayscale/Sychowicz_Lukasz/Cabil.sap
 COMMENT: 1st place at Rush Hours 1997 music compo.
+
+/Composers/Grayscale/Sychowicz_Lukasz/COINV-20.sap
+COMMENT: Soundtrack from the 'COINV-20' intro which won at Atari Area 24h
+         'DIM WIRU$(6502)' compo.
 
 /Composers/Grayscale/Sychowicz_Lukasz/Czarna_dziura_w_dupie.sap
   TITLE: Greensleeves
@@ -2032,6 +2050,12 @@ COMMENT: The Atari version was made by Adam, with tweaks made by Sean.
 /Composers/Hay_Adam/Smells_Like_Teen_Spirit.sap
   TITLE: Smells Like Teen Spirit [from Nevermind]
  ARTIST: Nirvana
+
+### /Composers/Henning_Mario #################################################
+
+/Composers/Henning_Mario/ABBUC_139.sap
+  TITLE: Deck the Halls with Boughs of Holly
+ ARTIST: Welsh Traditional
 
 ### /Composers/Higgins_Robert ################################################
 
@@ -3130,11 +3154,20 @@ COMMENT: Music from the game 'Włóczykij' released by L.K. Avalon in 1993.
 
 ### /Composers/Lis_Piotr #####################################################
 
+/Composers/Lis_Piotr/6502_Problems_but_the_Compo.sap
+COMMENT: 2nd place at Atari Area 24h 'DIM WIRU$(6502)' compo.
+
 /Composers/Lis_Piotr/Egy_Lengyel.sap
 COMMENT: 1st place at Arok Party 2012 music compo.
 
 /Composers/Lis_Piotr/Gerappaaaaaa.sap
 COMMENT: 5th place at Forever 7 music compo.
+
+/Composers/Lis_Piotr/Happy_Birthday_Voicer.sap
+COMMENT: 3rd place at Decrunch 2019 executable music compo.
+
+/Composers/Lis_Piotr/I_forgot_the_melody_Again.sap
+COMMENT: 2nd place at Lost Party 2019 Atari music compo.
 
 /Composers/Lis_Piotr/I_Love_You_True_Story.sap
 COMMENT: 2nd place at Forever 13 music compo.
@@ -3142,11 +3175,17 @@ COMMENT: 2nd place at Forever 13 music compo.
 /Composers/Lis_Piotr/I_Presume_Its_Funny.sap
 COMMENT: 3rd place at Forever 9 music compo.
 
+/Composers/Lis_Piotr/January_The_4th_Be_With_Yo.sap
+COMMENT: 2nd place at MAGFest Demoparty 2020 chiptune music compo.
+
 /Composers/Lis_Piotr/Jest_Sprawa.sap
 COMMENT: 3rd place at Forever 11 music compo.
 
 /Composers/Lis_Piotr/Lampa.sap
 COMMENT: 2nd place at Atari Area 24h 'Black Lamp' music compo.
+
+/Composers/Lis_Piotr/Let_Somebody.sap
+COMMENT: 1st place at MAGFest Demoparty 2019 chiptune music compo.
 
 /Composers/Lis_Piotr/May_I_Win.sap
 COMMENT: 4th place at Forever 6 music compo.
@@ -3163,11 +3202,18 @@ COMMENT: 2nd place at Forever 12 music compo.
 /Composers/Lis_Piotr/Wyjasnijmy_to_sobie.sap
 COMMENT: 2nd place at Forever 10 music compo.
 
+/Composers/Lis_Piotr/Yo_Falcons.sap
+ ARTIST: Tomasz Padura
+COMMENT: 1st place at Wap-Niak 2018 cover compo.
+
+/Composers/Lis_Piotr/Zasluzene_tretie_miesto.sap
+COMMENT: 1st place at Forever 2019 Atari music compo.
+
 ### /Composers/Loos_Uwe ######################################################
 
 /Composers/Loos_Uwe/Das_Omen.sap
   TITLE: Das Omen - Teil 1 [from Omen - The Story]
- ARTIST: Mysterious Arts
+ ARTIST: Mysterious Art
 
 ### /Composers/Luberda_Michal ################################################
 
@@ -3494,9 +3540,18 @@ COMMENT: Music from the game 'Zbir' released by Mirage in 1993.
 
 ### /Composers/MotionRide ####################################################
 
+/Composers/MotionRide/JIL.sap
+COMMENT: 4th place at Silly Venture 2018 music compo.
+
 /Composers/MotionRide/Monday.sap
   TITLE: Monday [from the Amiga MOD module]
  ARTIST: Edvin Fladen (Random Voice)
+
+/Composers/MotionRide/Potato_Heart.sap
+COMMENT: 2nd place at 6502 Compo vol. 2.
+
+/Composers/MotionRide/Sound_of_Change.sap
+COMMENT: 2nd place at Silly Venture 2018 music compo.
 
 ### /Composers/Mrozowski_Robert ##############################################
 
@@ -3564,6 +3619,11 @@ COMMENT: Best known from as the title theme to the comedy TV series "The Benny
 
 /Composers/Nedved_Vojtech/Aoki.sap
 COMMENT: 5th place at Forever 9 music compo.
+
+### /Composers/Ness_Bryan ####################################################
+
+/Composers/Ness_Bryan/Saturn_Rings.sap
+COMMENT: 1st place at Silly Venture 2018 music compo.
 
 ### /Composers/Nieber_Christian ##############################################
 
@@ -3775,6 +3835,15 @@ COMMENT: One of the demo songs that came with Chaos Music Composer.
 COMMENT: Same as /Composers/Pesout_Marek/Blade_Runner.sap,
          but with second POKEY support (stereo version).
 
+/Composers/Pesout_Marek/Bol_Effects.sap
+COMMENT: Soundtrack from the part 7 ("Bol Effects) of "Top Secret Megademo"
+         which took first place at Forever 2019 Atari demo compo.
+
+/Composers/Pesout_Marek/Breathe.sap
+  TITLE: Breathe [from The Fat of the Land]
+ ARTIST: Prodigy
+COMMENT: 6th place at Forever 2019 Atari music compo.
+
 /Composers/Pesout_Marek/Countdown.sap
   TITLE: Final Countdown
  ARTIST: Torsten Gellrich
@@ -3782,6 +3851,21 @@ COMMENT: Same as /Composers/Pesout_Marek/Blade_Runner.sap,
 /Composers/Pesout_Marek/Desert_Dream_Part_2.sap
   TITLE: checknobankh [from the Amiga MOD module]
  ARTIST: Anders Emil Hansen (Merge)
+
+/Composers/Pesout_Marek/Drunk_Man.sap
+COMMENT: Second tune from the part 10 ("Credits") of "Top Secret Megademo"
+         which took first place at Forever 2019 Atari demo compo.
+
+/Composers/Pesout_Marek/Dynasty.sap
+COMMENT: Soundtrack from the part 2 ("Techno ?!") of "Top Secret Megademo"
+         which took first place at Forever 2019 Atari demo compo.
+
+/Composers/Pesout_Marek/F_King_8bit_Alien_Egg_Lost.sap
+COMMENT: 3rd place at Forever 2019 realtime compo.
+
+/Composers/Pesout_Marek/Genlog.sap
+COMMENT: First tune from the part 10 ("Credits") of "Top Secret Megademo"
+         which took first place at Forever 2019 Atari demo compo.
 
 /Composers/Pesout_Marek/Golden_Axe.sap
   TITLE: Wilderness [from the arcade game Golden Axe]
@@ -3792,9 +3876,16 @@ COMMENT: This SID covers the version by Jeroen Tel.
   TITLE: Gotham City Cathedral [from the C64 game Batman, the Movie]
  ARTIST: Matthew Cannon
 
+/Composers/Pesout_Marek/Groovin.sap
+COMMENT: Soundtrack from the part 1 ("Intro") of "Top Secret Megademo"
+         which took first place at Forever 2019 Atari demo compo.
+
 /Composers/Pesout_Marek/James_Bond.sap
   TITLE: James Bond Theme [from the James Bond series of movies]
  ARTIST: Monty Norman
+
+/Composers/Pesout_Marek/Lost_In_Time.sap
+COMMENT: 5th place at Forever 2019 realtime compo.
 
 /Composers/Pesout_Marek/Lotus_The_Ultimate_Challen.sap
   TITLE: Lotus3 [from the Amiga game Lotus III: The Ultimate Challenge]
@@ -3806,6 +3897,16 @@ COMMENT: Also known as Master of Evil Heaven.
 /Composers/Pesout_Marek/Morning_Coffe.sap
   TITLE: <?>
  ARTIST: Daft Punk
+
+/Composers/Pesout_Marek/No_Good_Start_The_Dance.sap
+  TITLE: No Good (Start The Dance) [from Music for the Jilted Generation]
+ ARTIST: The Prodigy
+COMMENT: 8th place at Forever 2019 realtime compo.
+
+/Composers/Pesout_Marek/Omen.sap
+  TITLE: Omen [Invaders Must Die]
+ ARTIST: The Prodigy
+COMMENT: 7th place at Forever 2019 realtime compo.
 
 /Composers/Pesout_Marek/Popcorn.sap
   TITLE: Popcorn [from Music To Moog By]
@@ -3820,6 +3921,13 @@ COMMENT: Covers Hypnosis' disco version, from the album "Hypnosis".
   TITLE: Second Reality (Part 2) [from the PC demo "Second Reality"]
  ARTIST: Jonne Valtonen (Purple Motion)
 
+/Composers/Pesout_Marek/Silent_Storm.sap
+COMMENT: 3rd place at Silly Venture 2019 music compo.
+
+/Composers/Pesout_Marek/SOS_Solaris.sap
+COMMENT: Soundtrack from the part 5 ("Poisons") of "Top Secret Megademo"
+         which took first place at Forever 2019 Atari demo compo.
+
 /Composers/Pesout_Marek/Switch_OFF_The_City.sap
   TITLE: <?>
  ARTIST: Harold Faltermeyer
@@ -3828,9 +3936,21 @@ COMMENT: Covers Hypnosis' disco version, from the album "Hypnosis".
   TITLE: The Pursuit of Vikings
  ARTIST: Amon Amarth
 
+/Composers/Pesout_Marek/Their_Law.sap
+  TITLE: Their Law [from Music for the Jilted Generation]
+ ARTIST: The Prodigy
+COMMENT: 10th place at Forever 2019 realtime compo. Almost same as
+         /Composers/Pesout_Marek/Theirlaw.sap, but with second POKEY support
+         (stereo version).
+
 /Composers/Pesout_Marek/Turrican_2.sap
   TITLE: Main Title [from the Amiga game Turrican 2]
  ARTIST: Chris Hülsbeck
+
+/Composers/Pesout_Marek/VooDoo_People.sap
+  TITLE: Voodoo People [from Music for the Jilted Generation]
+ ARTIST: The Prodigy
+COMMENT: 9th place at Forever 2019 realtime compo.
 
 /Composers/Pesout_Marek/Warhawk.sap
   TITLE: The Unknown Planet [from Space Experience](0:00)
@@ -3849,6 +3969,9 @@ COMMENT: Cover from the C64 game Warhawk, tune #1 by Rob Hubbard.
 
 /Composers/Petrik_Alan/Lokalna_porucha.sap
 COMMENT: 1st place at Forever 16 music compo.
+
+/Composers/Petrik_Alan/My_name_is_Andrea.sap
+COMMENT: 3rd place at Forever 2019 Atari music compo.
 
 /Composers/Petrik_Alan/Robots.sap
   TITLE: Die Roboter (The Robots) [from The Man Machine (Die Mensch-Maschine)]
@@ -3930,6 +4053,9 @@ COMMENT: Polish Christmas carol.The title translates from Polish as "In the
 
 ### /Composers/Poorten_Ivo ###################################################
 
+/Composers/Poorten_Ivo/Hallowed_by_the_name.sap
+COMMENT: 9th place at Silly Venture 2019 music compo.
+
 /Composers/Poorten_Ivo/Hi_Guys.sap
   TITLE: Symphony No.40, First Movement
  ARTIST: Wolfgang Amadeus Mozart
@@ -3960,6 +4086,11 @@ COMMENT: Polish Christmas carol.The title translates from Polish as "In the
 /Composers/Portelli_Jim/We_Will_Rock_You.sap
   TITLE: We Will Rock You [from News of the World]
  ARTIST: Queen
+
+### /Composers/Postava_Petr ##################################################
+
+/Composers/Postava_Petr/Train_3.sap
+COMMENT: The in-game music is a tribute to Stanislaw 'Stanley' Skwiot.
 
 ### /Composers/Przybyszewski_Krzysztof #######################################
 
@@ -4224,6 +4355,12 @@ COMMENT: 1st place at Głuchołazy 2012 music compo.
   TITLE: An End Once and For All [from the PC game Mass Effect 3]
  ARTIST: Clint Mansell
 
+/Composers/Radecki_Michal/Kotasekup.sap
+COMMENT: 8th place at Silly Venture 2019 music compo.
+
+/Composers/Radecki_Michal/My_Ears_in_Pain.sap
+COMMENT: 8th place at Silly Venture 2019 music compo.
+
 /Composers/Radecki_Michal/Neuroid.sap
 COMMENT: Music from the game 'Neuroid' released by Sikor Soft in 1996.
 
@@ -4246,6 +4383,9 @@ COMMENT: Same as /Composers/Radecki_Michal/Spark_Absorber.sap,
 /Composers/Radecki_Michal/Taniec_w_Zaczarowanym_Gaju.sap
   TITLE: Taniec W Zaczarowanym Gaju [from Ogród Króla Świtu]
  ARTIST: Marek Biliński
+
+/Composers/Radecki_Michal/To_sie_wytnie.sap
+COMMENT: 6th place at Silly Venture 2019 music compo.
 
 /Composers/Radecki_Michal/Tribute_to.sap
 COMMENT: 8th place at Silly Venture 2011 music compo.
@@ -4305,6 +4445,9 @@ COMMENT: 8th place at Silly Venture 2011 music compo.
 /Composers/Roemer_Markus/Biene_Maja.sap
   TITLE: Die Biene Maja [from the cartoon series]
  ARTIST: Karel Svoboda
+
+/Composers/Roemer_Markus/Regenbogen.sap
+COMMENT: Soundtrack from the ABBUC 138 intro.
 
 /Composers/Roemer_Markus/Way_You_Are.sap
 COMMENT: 6th place at Grayscale Music Competition II.
@@ -4428,12 +4571,20 @@ COMMENT: 11th place at Grayscale Music Competition II.
   TITLE: Marchewkowe pole [from O dwóch takich, co ukradli księżyc]
  ARTIST: Jan Borysewicz (music), Andrzej Mogielnicki (lyrics), performed by Lady Pank.
 (#4)
-  TITLE: Zaopiekuj się mna [from Serce]
+  TITLE: Zaopiekuj się mną [from Serce]
  ARTIST: Rezerwat
 
 /Composers/Skwiot_Stanislaw/Music_from_Poland_3.sap
   TITLE: Dom w dolinie mgieł [from E=mc2]
  ARTIST: Marek Biliński
+
+/Composers/Skwiot_Stanislaw/Music_from_Poland_II_p_1_2.sap
+(#1)
+  TITLE: Marchewkowe pole [from O dwóch takich, co ukradli księżyc]
+ ARTIST: Jan Borysewicz (music), Andrzej Mogielnicki (lyrics), performed by Lady Pank.
+(#2)
+  TITLE: Zaopiekuj się mną [from Serce]
+ ARTIST: Rezerwat
 
 /Composers/Skwiot_Stanislaw/Music_from_Poland_II_p_3_4.sap
 (#1)
@@ -4496,6 +4647,11 @@ COMMENT: 2nd place at Grayscale Music Competition I.
 /Composers/Spielmans_Martin/Stand_By_Me.sap
   TITLE: Stand by Me [from Don't Play That Song!]
  ARTIST: Ben E.King (written by Ben E. King, Jerry Leiber, Mike Stoller)
+
+### /Composers/Sporka_Adam ###################################################
+
+/Composers/Sporka_Adam/While_Kingdom_Was_Being_De.sap
+COMMENT: 4th place at Forever 2019 Atari music compo.
 
 ### /Composers/Stanik_Krzysztof ##############################################
 
@@ -4789,6 +4945,10 @@ COMMENT: Composed using Chaos Music Composer 4 times/VBL.
 /Composers/Szpilowski_Michal/Astaroth.sap
   TITLE: Title [from the Atari ST/Amiga game Astaroth]
  ARTIST: Jochen Hippel
+
+/Composers/Szpilowski_Michal/AutariIntro.sap
+COMMENT: Soundtrack from the 'AutariIntro' which took 7th place at Lost
+         Party 2019 wild compo.
 
 /Composers/Szpilowski_Michal/Baracco.sap
 COMMENT: Composed using Chaos Music Composer 4 times/VBL.
@@ -6281,6 +6441,9 @@ COMMENT: The notes in voice 2 at the beginning of the tune spell out "SOS" in
   TITLE: <?>
  ARTIST: Bajm
 
+/Misc/Baluf.sap
+COMMENT: 5th place at Silly Venture 2019 music compo.
+
 /Misc/Battle_Ships.sap
   TITLE: Battle Ships, Tune #1 [from the C64 game]
  ARTIST: Mark Cooksey
@@ -6288,6 +6451,12 @@ COMMENT: The notes in voice 2 at the beginning of the tune spell out "SOS" in
 /Misc/Beams_of_Light.sap
   TITLE: Beams of Light [from the Amiga MOD module]
  ARTIST: Tor Bernhard Gausen (Walkman)
+
+/Composers/Misc/Bitratte.sap
+  TITLE: Deck the Halls with Boughs of Holly
+ ARTIST: Welsh Traditional
+COMMENT: Soundtrack from the intro 'Bitratte' which took 7th place at
+         Under Construction 2019 combined oldskool demo compo.
 
 /Misc/Blowin_in_the_Wind.sap
   TITLE: Blowin' in the Wind [from The Freewheelin' Bob Dylan]
@@ -6346,6 +6515,9 @@ COMMENT: 2nd place at Winter Chip II (Best Pokey) music compo.
   TITLE: The Prelude [from Final Fantasy IV Piano Collections]
  ARTIST: Nobuo Uematsu
 
+/Misc/Gehehjsj.sap
+COMMENT: 1st place at Silly Venture 2019 music compo.
+
 /Misc/Grass_Slideshow_Intro.sap
   TITLE: Second Reality (Part 2) [from the PC demo "Second Reality"](0:00-1:01)
  ARTIST: Jonne Valtonen (Purple Motion)
@@ -6361,6 +6533,9 @@ COMMENT: 6th place at Winter Chip II (Best Pokey) music compo.
 /Misc/KevSoft.sap
   TITLE: Living on Video [from Living on Video]
  ARTIST: Trans-X
+
+/Misc/Kolector_Dream.sap
+COMMENT: 7th place at Silly Venture 2019 music compo.
 
 /Misc/Luzik.sap
   TITLE: Zepi [from the Atari XE/XL POKEY]
@@ -6378,6 +6553,9 @@ COMMENT: Also known as Nyan Cat Song, one of the most famous internet memes.
  ARTIST: Jerzy Matuszkiewicz
   TITLE: Main Title [from the TV series Janosik](1:09-1:33)
  ARTIST: Jerzy Matuszkiewicz
+
+/Misc/Ojcze_ojcze.sap
+COMMENT: 3rd place at Lost Party 2019 executable music compo.
 
 /Misc/Pizza_Margerita_Suxx.sap
 COMMENT: Lato Ludzików 2000 music compo entry.
@@ -6432,8 +6610,15 @@ COMMENT: Atari XL/XE official audio-visual test tune.
   TITLE: Strangers in The Night
  ARTIST: Frank Sinatra
 
+/Misc/Synk_Bass.sap
+COMMENT: 4th place at Silly Venture 2019 music compo.
+
 /Misc/Takie_Cos.sap
 COMMENT: Lato Ludzików 2001 music compo entry.
+
+/Misc/The_Revolte.sap
+COMMENT: Soundtrack from the part 3 ("Rick Part") of "Top Secret Megademo"
+         which took first place at Forever 2019 Atari demo compo.
 
 /Misc/The_Top_2_Digi_Part.sap
 COMMENT: This song is converted from a C64 production made by Censor Design.

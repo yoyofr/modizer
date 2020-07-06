@@ -1,0 +1,533 @@
+ASMA Update #32
+Date: August 23, 2007
+
+These rips together with the original ASMA collection will make version 3.2
+of the ASMA (out of version 3.1).
+
+Number of new tunes: 360
+Credits fixes: 119
+Better rips: 20
+Removed files: 12
+
+Removed files
+-------------
+Games/Various/Milligreen.sap (same as Niestegge_Stefan/Aggressive.sap)
+Games/Various/Spy_Games_Desert_Storm.sap (same as Spy_Games_Ingame.sap, subsong 4)
+Various/Bienias_Adam/Black_Flock.sap (an earlier version of Overmind_4.sap)
+Various/Bienias_Adam/Underhand.sap (an earlier version of Overmind_9.sap)
+Various/Galinski_Adrian/Classic_Secret.sap (reported to be a bad rip of sampled version)
+Various/Galinski_Adrian/Contribution.sap (reported to be a bad rip of sampled version)
+Various/Galinski_Adrian/Fuck_And_Roll.sap (reported to be a bad rip of sampled version)
+Various/Galinski_Adrian/Mayday_2nd_part.sap (same as Special_Forces.sap, subsong 2)
+Various/Grayscale/Sychowicz_Lukasz/Flood.sap (same as songs Awari.sap, Stdem.sap, Get.sap, subsong #2)
+Various/Numan_Daniel/Demonic_Laughter_Menu.sap (same as Pentagram_4_Killos.sap)
+Various/Vogt_Dariusz/Leiser.sap (same as Leiser_Intro.sap)
+Various/Vogt_Dariusz/Leiser_2.sap (same as Leiser_Ingame.sap)
+
+New tunes
+---------
+Classics/Daglish_Ben/Rampage.sap
+Classics/Potter_Mike/Chicken.sap
+Classics/Potter_Mike/Protector.sap
+Classics/Potter_Mike/Shadow_World.sap
+Demos/Spy_Master_Demo.sap
+Games/Classic/221B_Baker_Street.sap
+Games/Classic/Action_Biker.sap
+Games/Classic/Airline.sap
+Games/Classic/Alien_Ambush.sap
+Games/Classic/Andromeda.sap
+Games/Classic/Ballistic_Interceptor.sap
+Games/Classic/Banner_Catch.sap
+Games/Classic/Bilbo.sap
+Games/Classic/Bristles.sap
+Games/Classic/Carnival_Massacre.sap
+Games/Classic/Chimera.sap
+Games/Classic/Clowns_and_Balloons.sap
+Games/Classic/Darts.sap
+Games/Classic/Floor_Walker.sap
+Games/Classic/Game_of_Live.sap
+Games/Classic/Goonies.sap
+Games/Classic/Groove.sap
+Games/Classic/Gyruss.sap
+Games/Classic/HardBall.sap
+Games/Classic/Hazard_Run.sap
+Games/Classic/Jet_Boot_Jack.sap
+Games/Classic/Jigsaws.sap
+Games/Classic/Jump.sap
+Games/Classic/Jumping_Jacks_Big_Adventur.sap
+Games/Classic/Killa_Cycle.sap
+Games/Classic/King_of_the_Ring.sap
+Games/Classic/Mediator.sap
+Games/Classic/Nemos_Vault.sap
+Games/Classic/On_Track.sap
+Games/Classic/Pacific_Coast_Highway.sap
+Games/Classic/Paradise_Threat.sap
+Games/Classic/Pengon.sap
+Games/Classic/Poker_Sam.sap
+Games/Classic/Professor_IQ.sap
+Games/Classic/Sea_Chase.sap
+Games/Classic/Seawolf_II.sap
+Games/Classic/Seven_Cities_of_Gold.sap
+Games/Classic/Shamus.sap
+Games/Classic/Softoy.sap
+Games/Classic/Spelunker.sap
+Games/Classic/Star_Intruder.sap
+Games/Classic/Tumble_Bugs.sap
+Games/Various/Car_S_A.sap
+Games/Various/Civilization.sap
+Games/Various/Emil_Hilf.sap
+Games/Various/Mines.sap
+Games/Various/Miny.sap
+Games/Various/Osadnicy.sap
+Games/Various/Perly_Szeherezady.sap
+Games/Various/Spy_Games_Ingame.sap
+Games/Various/Strzyga.sap
+Unsorted/Debiut.sap
+Unsorted/Dintro2song.sap
+Unsorted/Colding.sap
+Unsorted/Epileptic_Duck.sap
+Unsorted/Funky_Atari.sap
+Unsorted/Huhi.sap
+Unsorted/Los_Osos_hablan_en_Marte.sap
+Unsorted/My_Break_Heart.sap
+Unsorted/Sap_Trap.sap
+Unsorted/Say_Why.sap
+Unsorted/Tajemnice_Atari_Intro.sap
+Unsorted/Town_of_Ui.sap
+Various/Bienias_Adam/Dimension_X.sap
+Various/Ce_Pumpkin/FrayerSmarker_Absent_Absyn.sap
+Various/Ce_Pumpkin/Life2Back_Credits.sap
+Various/Ce_Pumpkin/Life2Back_Main_Part.sap
+Various/Ce_Pumpkin/Makrela.sap
+Various/Ce_Pumpkin/Rolo_3.sap
+Various/Ce_Pumpkin/Rolo_6.sap
+Various/Ce_Pumpkin/TDC_Hack_Demou.sap
+Various/Ce_Pumpkin/Too_Hard_4_Pomyje.sap
+Various/Ce_Pumpkin/W_hole.sap
+Various/Checa_Funcke_Marco_Antonio/Kling_Gloeckchen.sap
+Various/Checa_Funcke_Marco_Antonio/Noche_de_paz.sap
+Various/Checa_Funcke_Marco_Antonio/O_Tannenbaum.sap
+Various/Checa_Funcke_Marco_Antonio/Oh_du_froehliche.sap
+Various/Dojwa_Jacek/Jumping_Jack.sap
+Various/Drozdowski_Marek/Shiny_Bubbles_64k.sap
+Various/Dudek_Krzysztof/Dziadek.sap
+Various/Dudek_Krzysztof/Leander.sap
+Various/Dudek_Krzysztof/Torvak.sap
+Various/Duma_Dariusz/Nonsense_Song.sap
+Various/Eisenhammer_Zdenek/Mind_Blast_Congratulations.sap
+Various/Eisenhammer_Zdenek/Mind_Blast_Ingame.sap
+Various/Eisenhammer_Zdenek/Mind_Blast_Title.sap
+Various/Esquivel_Sal/Atari_Intro.sap
+Various/Esquivel_Sal/Axel_F.sap
+Various/Esquivel_Sal/AXK8.sap
+Various/Esquivel_Sal/Baby_Elephant_Walk.sap
+Various/Esquivel_Sal/Battle_Squadron.sap
+Various/Esquivel_Sal/Battle_Squadron_Stereo.sap
+Various/Esquivel_Sal/Blaster_Master_Level_1.sap
+Various/Esquivel_Sal/Blaster_Master_Level_1_Ste.sap
+Various/Esquivel_Sal/Cybernoid_II.sap
+Various/Esquivel_Sal/Duke_Nuke_Em.sap
+Various/Esquivel_Sal/Elite.sap
+Various/Esquivel_Sal/Final_Fantasy.sap
+Various/Esquivel_Sal/Hybris_Title.sap
+Various/Esquivel_Sal/M_U_L_E.sap
+Various/Esquivel_Sal/M_U_L_E_Remix.sap
+Various/Esquivel_Sal/Magical_Sound_Shower.sap
+Various/Esquivel_Sal/Mega_Man_III_Title.sap
+Various/Esquivel_Sal/Obliterator.sap
+Various/Esquivel_Sal/Obliterator_Stereo.sap
+Various/Esquivel_Sal/Popcorn_Hot_Butter.sap
+Various/Esquivel_Sal/R_Type.sap
+Various/Esquivel_Sal/Space_Harrier_Game_Over.sap
+Various/Esquivel_Sal/Space_Harrier_Godarni.sap
+Various/Esquivel_Sal/Space_Harrier_Ida.sap
+Various/Esquivel_Sal/Space_Harrier_Intro.sap
+Various/Esquivel_Sal/Space_Harrier_Lakeside_Mem.sap
+Various/Esquivel_Sal/Space_Harrier_Main_Theme.sap
+Various/Esquivel_Sal/Space_Harrier_Squilla.sap
+Various/Esquivel_Sal/Space_Harrier_Stanray.sap
+Various/Esquivel_Sal/Space_Harrier_Syrua.sap
+Various/Esquivel_Sal/Space_Harrier_Uriah.sap
+Various/Esquivel_Sal/Space_Harrier_Valda.sap
+Various/Esquivel_Sal/Space_Harrier_White_Summer.sap
+Various/Esquivel_Sal/Space_Harrier_Wiwi_Jumbo.sap
+Various/Esquivel_Sal/Super_Mario_Bros_Level_1_1.sap
+Various/Esquivel_Sal/Toobin.sap
+Various/Esquivel_Sal/Toobin_Title.sap
+Various/Esquivel_Sal/Trans_Atlantic.sap
+Various/Grayscale/Kwiatek_Grzegorz/Escape.sap
+Various/Grayscale/Kwiatek_Grzegorz/Sunrise.sap
+Various/Grayscale/Sychowicz_Lukasz/Ninjax.sap
+Various/Grayscale/Sychowicz_Lukasz/Shake_Your_Ass.sap
+Various/Grayscale/Sychowicz_Lukasz/Zizibum.sap
+Various/Hay_Adam/Psilocybe_Mexicana.sap
+Various/Husak_Jakub/Scorpions_v2_0.sap
+Various/Husak_Jakub/Your_Body_My_Body.sap
+Various/Iwaszko_Krystian/Dyna_Blaster.sap
+Various/Iwaszko_Krystian/Konduktor_Przyjacielem_Jes.sap
+Various/Iwaszko_Krystian/Satan_Huj.sap
+Various/Iwaszko_Krystian/Satan_Rox.sap
+Various/Iwaszko_Krystian/THC_Kokot.sap
+Various/Iwaszko_Krystian/THC_TMC.sap
+Various/Iwaszko_Krystian/Yie_Ar_Kung_Fu.sap
+Various/Liebich_Tomasz/Master_Head_Ingame.sap
+Various/Lis_Piotr/Piczung_Do_Kurczaka_Na_Zac.sap
+Various/Loos_Uwe/Das_Omen_Intro.sap
+Various/Michalski_Krzysztof/Crown.sap
+Various/Michalski_Krzysztof/Mac.sap
+Various/Michalski_Krzysztof/Trans.sap
+Various/Mikolajczak_Pawel/Janosik.sap
+Various/Mrozowski_Robert/Kula_Demo.sap
+Various/Niestegge_Stefan/Fujiama_Run.sap
+Various/Numan_Daniel/Comp1.sap
+Various/Panopticum/11223344.sap
+Various/Panopticum/12345678.sap
+Various/Panopticum/Agata.sap
+Various/Panopticum/Alfred.sap
+Various/Panopticum/Alleluja.sap
+Various/Panopticum/Atari.sap
+Various/Panopticum/Autumn.sap
+Various/Panopticum/Avalon.sap
+Various/Panopticum/Balls.sap
+Various/Panopticum/Big_Song.sap
+Various/Panopticum/Bonanza.sap
+Various/Panopticum/Coma.sap
+Various/Panopticum/Copter.sap
+Various/Panopticum/Cos.sap
+Various/Panopticum/Cosik.sap
+Various/Panopticum/Cramer.sap
+Various/Panopticum/Echo.sap
+Various/Panopticum/English.sap
+Various/Panopticum/Engpol.sap
+Various/Panopticum/Engpol_1.sap
+Various/Panopticum/Enter.sap
+Various/Panopticum/Estrange.sap
+Various/Panopticum/Extra.sap
+Various/Panopticum/Freddy.sap
+Various/Panopticum/Game_Over.sap
+Various/Panopticum/Gladiator.sap
+Various/Panopticum/Great_Hit.sap
+Various/Panopticum/Guns.sap
+Various/Panopticum/Happy_End.sap
+Various/Panopticum/Helloween.sap
+Various/Panopticum/Hope.sap
+Various/Panopticum/Hymn.sap
+Various/Panopticum/Indy.sap
+Various/Panopticum/Intro.sap
+Various/Panopticum/Intro_2.sap
+Various/Panopticum/Jarola.sap
+Various/Panopticum/Kaszana.sap
+Various/Panopticum/Kaszana_2.sap
+Various/Panopticum/Khan.sap
+Various/Panopticum/Komar.sap
+Various/Panopticum/Maria.sap
+Various/Panopticum/Marsz.sap
+Various/Panopticum/Megacoma.sap
+Various/Panopticum/Megadeth.sap
+Various/Panopticum/Metal.sap
+Various/Panopticum/Metallic.sap
+Various/Panopticum/Minicoma.sap
+Various/Panopticum/Morze.sap
+Various/Panopticum/Motor.sap
+Various/Panopticum/Musiczka.sap
+Various/Panopticum/Nothing.sap
+Various/Panopticum/Ociec.sap
+Various/Panopticum/Panorama.sap
+Various/Panopticum/PC.sap
+Various/Panopticum/Perc.sap
+Various/Panopticum/Perkusja.sap
+Various/Panopticum/Purchel.sap
+Various/Panopticum/Queen.sap
+Various/Panopticum/Rain.sap
+Various/Panopticum/Rainbow.sap
+Various/Panopticum/Running.sap
+Various/Panopticum/Skidrow.sap
+Various/Panopticum/Slavery.sap
+Various/Panopticum/Song.sap
+Various/Panopticum/Spinal.sap
+Various/Panopticum/Stone.sap
+Various/Panopticum/Stonka.sap
+Various/Panopticum/Storm.sap
+Various/Panopticum/Storm_2.sap
+Various/Panopticum/Summer.sap
+Various/Panopticum/Supergit.sap
+Various/Panopticum/Syfol.sap
+Various/Panopticum/Track.sap
+Various/Panopticum/Unforgiven.sap
+Various/Panopticum/Warsong.sap
+Various/Pasiecznik_Michal/Anime_4ever_Intro.sap
+Various/Pasiecznik_Michal/Damned.sap
+Various/Pasiecznik_Michal/Damned_Remix.sap
+Various/Pasiecznik_Michal/Demo_34.sap
+Various/Pasiecznik_Michal/Demo_38.sap
+Various/Pasiecznik_Michal/Demo_40.sap
+Various/Pasiecznik_Michal/Hot_Tuna.sap
+Various/Pasiecznik_Michal/Lost_Scrotum.sap
+Various/Pasiecznik_Michal/Mix_WiLo.sap
+Various/Pasiecznik_Michal/New_born.sap
+Various/Pasiecznik_Michal/Rap.sap
+Various/Pasiecznik_Michal/Unknown_Destination.sap
+Various/Pelc_Janusz/Blue_Monday.sap
+Various/Pelc_Janusz/Song1.sap
+Various/Pelc_Janusz/Song2.sap
+Various/Pesout_Marek/Acid_1.sap
+Various/Pesout_Marek/Acid_2.sap
+Various/Pesout_Marek/Actived.sap
+Various/Pesout_Marek/Agony.sap
+Various/Pesout_Marek/Allstars.sap
+Various/Pesout_Marek/Alphaville.sap
+Various/Pesout_Marek/Anger.sap
+Various/Pesout_Marek/Antares.sap
+Various/Pesout_Marek/Asylum.sap
+Various/Pesout_Marek/Athol.sap
+Various/Pesout_Marek/Czech_Sound_1.sap
+Various/Pesout_Marek/Destruction.sap
+Various/Pesout_Marek/Dick_Tracy.sap
+Various/Pesout_Marek/Dream_2_1.sap
+Various/Pesout_Marek/Dream_2_2.sap
+Various/Pesout_Marek/Dream_3_Mayday.sap
+Various/Pesout_Marek/Fields.sap
+Various/Pesout_Marek/Gabber.sap
+Various/Pesout_Marek/Groovin.sap
+Various/Pesout_Marek/Heavy_Metal.sap
+Various/Pesout_Marek/House_of_Nause.sap
+Various/Pesout_Marek/Interdome_Break_Drum_Remix.sap
+Various/Pesout_Marek/Label_2.sap
+Various/Pesout_Marek/Lost_in_Space_Dark_Beat_Re.sap
+Various/Pesout_Marek/Maniacal.sap
+Various/Pesout_Marek/Master_of_Lost_Energy.sap
+Various/Pesout_Marek/Megamix.sap
+Various/Pesout_Marek/Molecula.sap
+Various/Pesout_Marek/My_Stress.sap
+Various/Pesout_Marek/Nostalgic.sap
+Various/Pesout_Marek/Paegas.sap
+Various/Pesout_Marek/Pagan.sap
+Various/Pesout_Marek/Paradise.sap
+Various/Pesout_Marek/Peach.sap
+Various/Pesout_Marek/Peepshow.sap
+Various/Pesout_Marek/Penetrator.sap
+Various/Pesout_Marek/Phone.sap
+Various/Pesout_Marek/Prodigy.sap
+Various/Pesout_Marek/Psycha.sap
+Various/Pesout_Marek/Solaris_Jungle_Remix.sap
+Various/Pesout_Marek/SOS_Nation.sap
+Various/Pesout_Marek/Storm.sap
+Various/Pesout_Marek/Swamp_Thing.sap
+Various/Pesout_Marek/T_Rex.sap
+Various/Pesout_Marek/Terror_X.sap
+Various/Pesout_Marek/The_Robot.sap
+Various/Pesout_Marek/The_Train.sap
+Various/Pesout_Marek/Trik.sap
+Various/Pesout_Marek/Warez.sap
+Various/Pesout_Marek/Who_1.sap
+Various/Pesout_Marek/Who_2.sap
+Various/Pesout_Marek/Who_3.sap
+Various/Podedworny_Wojtek/Krucjata.sap
+Various/Przybyszewski_Krzysztof/Spawik.sap
+Various/Przybyszewski_Krzysztof/The_Korbol_Demo_1.sap
+Various/Przybyszewski_Krzysztof/The_Korbol_Demo_2.sap
+Various/Radecki_Michal/Pokeymon.sap
+Various/Radecki_Michal/Sudoku_Sweep.sap
+Various/Rosolek_Maciej/Magia_Fortuny_Ingame.sap
+Various/Rosolek_Maciej/Magia_Fortuny_Intro.sap
+Various/Rosolek_Maciej/Magia_Fortuny_Title.sap
+Various/Skwiot_Stanislaw/Krucjata.sap
+Various/Skwiot_Stanislaw/Stanley_1.sap
+Various/Skwiot_Stanislaw/Stanley_2.sap
+Various/Skwiot_Stanislaw/Swiat_Olkiego.sap
+Various/Sledz_Slawek/Zybex.sap
+Various/Sterba_Radek/Gear_Up.sap
+Various/Sterba_Radek/L45t_M1nut3.sap
+Various/Szczesniak_Konrad/3d24_1.sap
+Various/Szczesniak_Konrad/3d24_2.sap
+Various/Szpilowski_Michal/Brzdonc_4.sap
+Various/Szpilowski_Michal/Count.sap
+Various/Szpilowski_Michal/Cyborg_Ingame.sap
+Various/Szpilowski_Michal/Disturbance.sap
+Various/Szpilowski_Michal/Lamer.sap
+Various/Szpilowski_Michal/Last_Ninja_2_Central_Park.sap
+Various/Szpilowski_Michal/Remix.sap
+Various/Szpilowski_Michal/Rzog_Joins_XE_Team_3.sap
+Various/Szpilowski_Michal/Rzog_Joins_XE_Team_4.sap
+Various/Szpilowski_Michal/Sexy_Six_Alfa_Ingame.sap
+Various/Szpilowski_Michal/Sexy_Six_Alfa_Title.sap
+Various/Szpilowski_Michal/Tempest_2000_Blue_Level.sap
+Various/Szpilowski_Michal/Tyrian_Zanac5.sap
+Various/Szpilowski_Michal/Wings_of_Death_Level_2.sap
+Various/Szpilowski_Michal/Yie_Ar_Kung_Fu_Title.sap
+Various/Takacs_Gabriel/Cappela.sap
+Various/Takacs_Gabriel/Draconus.sap
+Various/Takacs_Gabriel/Jurassic_Park_II_Ingame_1.sap
+Various/Takacs_Gabriel/Trash.sap
+Various/Vila_Jaime/Big_in_Japan.sap
+Various/Vila_Jaime/Brainies_Intro.sap
+Various/Vila_Jaime/Gminor_Song.sap
+Various/Vila_Jaime/Gyruss_Stereo.sap
+Various/Vila_Jaime/Jurassic_Polka.sap
+Various/Vila_Jaime/Oxygene_II.sap
+Various/Vila_Jaime/Short_Song.sap
+Various/Vila_Jaime/Star_Wars_Remix.sap
+Various/Vybostok_Marian/Bristly_Hedgehog.sap
+Various/Vybostok_Marian/Bristly_Hedgehog_Megamix.sap
+Various/Vybostok_Marian/Bristly_Hedgehog_Unlimited.sap
+Various/Vybostok_Marian/Bristly_Hedgehog_Wood.sap
+Various/Vybostok_Marian/Bristly_Hedgehog_Yeah.sap
+Various/Vybostok_Marian/Implosion_Credits.sap
+Various/Vybostok_Marian/Risa_Zla_1.sap
+Various/Vybostok_Marian/Risa_Zla_2.sap
+Various/Wasilewski_Dariusz/Technoid_2.sap
+Various/Witkiewicz_Dariusz/Dragon.sap
+Various/Witkiewicz_Dariusz/For_Bob.sap
+Various/Witkiewicz_Dariusz/Fspace.sap
+Various/Witkiewicz_Dariusz/Janek.sap
+Various/Witkiewicz_Dariusz/My_Life.sap
+Various/Witkiewicz_Dariusz/Power.sap
+Various/Witkiewicz_Dariusz/Rain.sap
+Various/Witkiewicz_Dariusz/Return.sap
+Various/Witkiewicz_Dariusz/Time.sap
+Various/Witkiewicz_Dariusz/Tolo.sap
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Classics/Brooke_Jason/Rockford.sap : DATE "1988"
+Classics/Whittaker_David/Elektra_Glide.sap > Games/Classic/ : AUTHOR "Adam Billyard <?>" DATE "1985"
+Demos/Lunatic.sap > Unsorted/
+Demos/Madintro.sap > Various/Michalski_Krzysztof/Madteam_Intro.sap
+Demos/Te_mod.sap > Various/Takacs_Gabriel/
+Games/Classic/Alley_Cat.sap : AUTHOR "Bill Williams <?>" DATE "1983"
+Games/Classic/Basil.sap > Classics/Daglish_Ben/Basil_the_Great_Mouse_Det.sap : NAME "Basil the Great Mouse Detective" DATE "1986"
+Games/Classic/Gauntlet.sap > Classics/Daglish_Ben/
+Games/Classic/Blue_Max.sap : DATE "1983"
+Games/Classic/Blue_Max_2001.sap : DATE "1984"
+Games/Classic/Chop_Suey.sap : AUTHOR "Adam Billyard" DATE "1985"
+Games/Classic/Claim_Jumper.sap : DATE "1982"
+Games/Classic/Conan.sap : DATE "1984"
+Games/Classic/Cosmic_Tunnels.sap > Classics/Gilbertson_Gary/ : AUTHOR "Gary Gilbertson" DATE "1983"
+Games/Classic/Dan_Strikes_Back.sap : DATE "1984"
+Games/Classic/Diamonds.sap : DATE "1983"
+Games/Classic/Domain_Of_The_Undead.sap : AUTHOR "A. Guilfoyle" DATE "1986"
+Games/Classic/Electrician.sap : DATE "1984"
+Games/Classic/Flip_and_Flop.sap : AUTHOR "Jerry White"
+Games/Classic/Frogger_II.sap : DATE "1984"
+Games/Classic/Ghost_Chaser.sap : DATE "1984"
+Games/Classic/Heavy_Metal.sap : DATE "1988"
+Games/Classic/James_Bond.sap : DATE "1984"
+Games/Classic/Jungle_Hunt.sap : DATE "1982"
+Games/Classic/Leggit.sap : DATE "1983"
+Games/Classic/Loco.sap : AUTHOR "<?>"
+Games/Classic/Moon_Patrol.sap : DATE "1982"
+Games/Classic/Mr_Do.sap : DATE "1984"
+Games/Classic/Mr_Robot_and_His_Robot_Fac.sap > Classics/Gilbertson_Gary/ : AUTHOR "Gary Gilbertson"
+Games/Classic/Mule.sap > M_U_L_E.sap : AUTHOR "Roy Glover" NAME "M.U.L.E." DATE "1983"
+Games/Classic/Ninja.sap : DATE "1986"
+Games/Classic/Olympic_Skier.sap : AUTHOR "Amin Hoque" DATE "1986"
+Games/Classic/One_Man_and_His_Droid.sap : DATE "1986"
+Games/Classic/Pitfall_II.sap : DATE "1984"
+Games/Classic/Plaque_Man.sap > Classics/Potter_Mike/ : AUTHOR "Mike Potter"
+Games/Classic/Protector_II.sap > Classics/Potter_Mike/ : AUTHOR "Mike Potter"
+Games/Classic/Special_Delivery.sap : DATE "1985"
+Games/Classic/Spy_Hunter.sap : DATE "1984"
+Games/Classic/Spy_vs_Spy.sap > Classics/Scarim_Nicholas/ : AUTHOR "Nicholas Scarim"
+Games/Classic/Spy_vs_Spy_Arctic_Antics.sap > Classics/Scarim_Nicholas/ : DATE "1986" AUTHOR "Nicholas Scarim"
+Games/Classic/Spy_vs_Spy_Island_Caper.sap > Classics/Scarim_Nicholas/ : AUTHOR "Nicholas Scarim"
+Games/Classic/Starquake.sap : DATE "1985"
+Games/Classic/Tarzan.sap > Tarzan_of_the_Apes.sap : NAME "Tarzan of the Apes" DATE "1984"
+Games/Classic/Vanguard.sap : DATE "1983"
+Games/Classic/Zeppelin.sap : DATE "1983"
+Games/Various/Bremspunkt.sap > Various/Niestegge_Stefan/ : AUTHOR "Stefan Niestegge (Beetle)"
+Games/Various/Deneb.sap : AUTHOR "Robert Drag"
+Games/Various/Herbert.sap > Games/Classic/ : DATE "1988" AUTHOR "Armin Stuermer"
+Games/Various/Kasiarz.sap : DATE "1994"
+Games/Various/Kult_Cover.sap > Unsorted/
+Games/Various/Sisyphos.sap : DATE "1993"
+Unsorted/ABBUC_19.sap : AUTHOR "Przemyslaw Osmanski (Immortal)"
+Unsorted/Duke_Nukem_4ever.sap > Various/Vila_Jaime/
+Unsorted/Aggressive.sap > Various/Niestegge_Stefan/ : AUTHOR "Stefan Niestegge (Beetle)" DATE "1995"
+Unsorted/Historia.sap > Historia_Polski_966_1992.sap : NAME "Historia Polski 966-1992"
+Unsorted/Immortal.sap : AUTHOR "Przemyslaw Osmanski (Immortal)"
+Unsorted/Sahara.sap > Various/Niestegge_Stefan/ : AUTHOR "Stefan Niestegge (Beetle)" DATE "1995"
+Unsorted/Tribal.sap > Various/Pesout_Marek/ : AUTHOR "Marek Pesout (Poison)"
+Unsorted/Vaxeen.sap > Various/Pesout_Marek/ : AUTHOR "Marek Pesout (Poison)"
+Various/Galinski_Adrian/Classic_Secret_Sampled.sap > Classic_Secret.sap : NAME "Classic Secret" DATE "1994"
+Various/Galinski_Adrian/Contribution_Sampled.sap > Contribution.sap : NAME "Contribution" DATE "1994"
+Various/Galinski_Adrian/Fuck_And_Roll_Sampled.sap > Fuck_And_Roll.sap : NAME "Fuck And Roll" DATE "1994"
+Various/Galinski_Adrian/Mayday_Demo.sap : DATE "199?"
+Various/Galinski_Adrian/Rockman_1.sap > Rockman_Game_Over.sap : NAME "Rockman - Game Over" DATE "1995"
+Various/Galinski_Adrian/Rockman_2.sap > Rockman.sap : NAME "Rockman" DATE "1995"
+Various/Gora_Jakub/I_Love_Somebody.sap : AUTHOR "Jakub Gora (Cubes)"
+Various/Grabowski_Pawel/KULT.sap > Kult.sap
+Various/Grayscale/Sychowicz_Lukasz/Nitro.sap > Smell_Illusion.sap : NAME "Smell Illusion"
+Various/Grayscale/Sychowicz_Lukasz/Relikty.sap > Bitter_Relikty.sap : NAME "Bitter Relikty"
+Various/Grayscale/Sychowicz_Lukasz/Timeis.sap > Time_Is_Get_Rid_of_Grandfa.sap : NAME "Time Is Get Rid of Grandfather"
+Various/Hay_Adam/Amegas.sap : AUTHOR "Adam Hay (Sack)" NAME "Amegas"
+Various/Husak_Jakub/Inspector.sap > Inspektor.sap : DATE "1993"
+Various/Kalinowski_Bartosz/Robin_1.sap > Robin_Wojownik_Czasu.sap : NAME "Robin Wojownik Czasu"
+Various/Kalinowski_Bartosz/Robin_2.sap > Robin_Wojownik_Czasu_Ingam.sap : NAME "Robin Wojownik Czasu - Ingame"
+Various/Kalinowski_Bartosz/Zeus.sap : DATE "1993"
+Various/Lepkowski_Michal/Tekblast_Ingame_1.sap : AUTHOR "Michal Lepkowski (Josh)"
+Various/Lepkowski_Michal/Tekblast_Ingame_2.sap : AUTHOR "Michal Lepkowski (Josh)"
+Various/Lepkowski_Michal/Tekblast_Ingame_3.sap : AUTHOR "Michal Lepkowski (Josh)"
+Various/Lepkowski_Michal/Tekblast_Ingame_4.sap : AUTHOR "Michal Lepkowski (Josh)"
+Various/Lepkowski_Michal/Tekblast_Menu.sap : AUTHOR "Michal Lepkowski (Josh)"
+Various/Lepkowski_Michal/Vengeance_Main_Part.sap : AUTHOR "Michal Lepkowski (Josh)"
+Various/Liebich_Tomasz/Master_Head.sap : DATE "1992"
+Various/Liebich_Tomasz/Vicky_1.sap > Vicky_Intro.sap : NAME "Vicky - Intro"
+Various/Liebich_Tomasz/Vicky_2.sap > Vicky_Title.sap : NAME "Vicky - Title"
+Various/Liebich_Tomasz/Vicky_3.sap > Vicky_Victory.sap : NAME "Vicky - Victory"
+Various/Liebich_Tomasz/Vicky_4.sap > Vicky_Game_Over.sap : NAME "Vicky - Game Over"
+Various/Lis_Piotr/Lampa.sap : AUTHOR "Piotr Lis (LiSU)"
+Various/Lis_Piotr/Lisex.sap : AUTHOR "Piotr Lis (LiSU)"
+Various/Lis_Piotr/May_I_Win.sap : AUTHOR "Piotr Lis (LiSU)"
+Various/Loos_Uwe/Das_Omen_Intro.sap > Das_Omen_Title.sap : NAME "Das Omen - Title"
+Various/Majchrzak_Marcin/Psychodela.sap : DATE "1997 <?>"
+Various/Majewski_Tomasz/Magic_Fly.sap : AUTHOR "Tomasz Majewski (Mayonez)"
+Various/Majewski_Tomasz/Mega_Player_151_Hidden_mus.sap > Mega_Player_151_Hidden_Mus.sap : NAME "Mega Player 1.51 - Hidden Music" AUTHOR "Tomasz Majewski (Mayonez)"
+Various/Martin_Aleksander/Convention.sap : DATE "1995"
+Various/Martin_Aleksander/Orient.sap : DATE "1995"
+Various/Martin_Aleksander/Troubles.sap : DATE "1995"
+Various/Matoga_Adrian/Public_Life_by_Epi.sap > Public_Life.sap : NAME "Public Life"
+Various/Szpilowski_Michal/WEIRD_TRIP.sap > Weird_Trip.sap : NAME "Weird Trip!"
+Various/Szpilowski_Michal/TC.sap > Techno_Collection_Info.sap : NAME "Techno Collection - Info"
+Various/Top_Odin/Film_Editor_Demo.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Flinstones.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Gallahad_Credits.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Gallahad_Ingame.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Gallahad_Intro.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Indiana_Jones.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Indiana_Jones_Ingame.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Picasso.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Renegade.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Riot.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/SOS_Saturn_Intro.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Terminator_Ingame.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Terminator_Intro.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Terminator_The_End.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Top_Odin/Terminator_Title.sap : AUTHOR "Bartek Selinger & Pawel Selinger & Andrzej Szczygiel (Top Odin)"
+Various/Pelc_Janusz/Mix.sap : NAME "Mix" DATE "<?>"
+Various/Pelc_Janusz/Winner.sap : NAME "Winner" DATE "<?>"
+Various/Przybyszewski_Krzysztof/*.* : AUTHOR "Krzysztof Przybyszewski (Bloody Butcher)"
+Various/Szpilowski_Michal/ABBUC_Sondernmagazine_19.sap > ABBUC_Sondernmagazine_17.sap : NAME "Abbuc Sondernmagazine #17 Intro"
+Various/Szpilowski_Michal/Pasztet_z_lemminga.sap > Pasztet_z_lamminga.sap : NAME "Pasztet z lamminga"
+
+Better rips
+-----------
+Games/Classic/Herbert.sap (subsong 7 did not play correctly under ASAP)
+Games/Various/Deathland.sap (subsongs added)
+Games/Various/Spy_Games_Ingame.sap (subsongs added)
+Various/Czlowiek_W_Atomizerze/The_One.sap (did not play correctly under ASAP)
+Various/Dojwa_Jacek/Micro_Man.sap (subsongs added)
+Various/Dojwa_Jacek/Micro_Man_Ingame.sap (subsongs added)
+Various/Drozdowski_Marek/Lemmings_Prevision.sap (subsongs added)
+Various/Eisenhammer_Zdenek/We_re_the_Devils.sap (newer version with fixed drums)
+Various/Grayscale/Kwiatek_Grzegorz/Desastre.sap (did not play correctly under ASAP)
+Various/Husak_Jakub/Thinker_1.sap (subsongs added)
+Various/Krawczyk_Adam/Turbican_1.sap (subsongs added)
+Various/Liebich_Tomasz/Perestroyka_Channel_1.sap (most subsongs did not play correctly under ASAP)
+Various/Loos_Uwe/Das_Omen.sap (did not play correctly under ASAP)
+Various/Oscadal_Filip/Vaxeen_Photographic.sap (did not play correctly under ASAP)
+Various/Oscadal_Filip/Vaxeen_Poison.sap (did not play correctly under ASAP)
+Various/Oscadal_Filip/Vaxeen_Star_Pawns.sap (did not play correctly under ASAP)
+Various/Sledz_Slawek/Lamaliza.sap (did not play correctly under ASAP)
+Various/Szpilowski_Michal/Pasztet_z_lamminga.sap (correct player appended)
+Various/Szymczuk_Daniel/Streets_Ingame.sap (subsongs added)
+Various/Wasilewski_Dariusz/Technoid.sap (subsongs added)

@@ -4,23 +4,25 @@ SONGLENGTH DATABASE
 Since HVSC#68 there are several ways to read the song lengths info of
 a SID, via:
 
-- Song length database (old format)
 - Song length database (new format)
+- Song length database (old format)
 - SSL files for players that run on C64 hardware
 
-With HVSC both the old and new format of the song length database are
-included. One with hashes with a specific MD5 calculation and one with
-MD5 hashes based on the full content. The latter is the new way and is
-the easiest to implement.
+Since HVSC#71 only the new format of the song length database is
+included in HVSC. The new format has MD5 hashes based on the full
+content and is easy to implement for SID Players and tooling.
+
+The old format has MD5 hashes with a specific MD5 calculation. If you
+need the old format for tooling/players that don't support the new
+format then you can generate the file with a conversion script. See
+section 'THE OLD FORMAT' for details on how to generate the file.
 
 SSL files are needed when you want song length info for sidplayers
-that run on a C64. A script is provided with HVSC which extracts the
-song length info and generates SSL files. See "SSL FILE FORMAT"
-section for more info.
+that run on a C64. A script can be used which extracts the song length
+info and generates SSL files. See "SSL FILE FORMAT" section for more info.
 
 The song length for each SID and sub tune can be found in:
 
-C64Music\DOCUMENTS\Songlengths.txt
 C64Music\DOCUMENTS\Songlengths.md5
 
 Each SID has a unique MD5 hash that SID players can use to get the
@@ -48,7 +50,7 @@ The file format is INI-style. The first line of the file is always:
 
 Commented lines start with a semi colon.
 
-Hashes are MD5 fingerprints (a 32 character string in HEX) and can be
+Hashes are MD5 fingerprints (a 32-character string in HEX) and can be
 calculated based on the full content of the SID file (including the
 SID header).
 
@@ -71,7 +73,7 @@ where mm, ss and SSS are numbers and mm never has a leading zero. The
 .SSS is the number of milliseconds and this value is optional. The
 square brackets indicate that it is optional, they are not part of the
 real value. The number of digits of the value of SSS is minimal 1 and
-maximal 3. The ss.SSS value can be seen as the floating point number
+maximal 3. The ss.SSS value can be seen as the floating-point number
 of the number of seconds.
 
 The minimum song length of a SID tune is 1 second when milliseconds
@@ -95,12 +97,31 @@ file path of the SID within HVSC.
 THE OLD FORMAT
 ==============
 
-Most SID players will use the old format. For now, both song lengths
-databases are included in HVSC. Once sidplayers adopt the new format,
-only the new format will be included in future releases of HVSC.
-To make sure that you can always use old players and tools, we will
-provide a script so you can always generate the old song length file
-in the old format for the latest HVSC release.
+Most SID players support the old format. Since HVSC#71 only the new
+format of the song lengths database is included in HVSC. Please make
+sure to update your favourite SID player or generate the file with the
+song lengths in the old format for each HVSC update.
+
+To make sure that you can always use old SID players and tools, we
+provide a script so you can generate the old song lengths file in the
+old format for the latest HVSC release. For each HVSC update you need
+to generate the file again.
+
+You can use the following script to generate the Songlengths.txt file:
+
+https://hvsc.de/download/files/tools/ConvertMd5ToSldbTxt.zip
+
+To generate the file, call the script like this:
+
+python ConvertMd5ToSldbTxt.py <HVSC-PATH>
+
+This will generate the file Songlengths.txt in the current folder where
+you execute the script. Once it is generated, please copy the file to
+the DOCUMENTS folder in HVSC:
+
+<HVSC-PATH>\DOCUMENTS\
+
+After this, old tooling/players can read the song lengths again.
 
 The old format has the same file structure as the new format, but
 differs in:
@@ -133,7 +154,7 @@ The calculation of the MD5 fingerprint is as follows:
 
 You can find a little Python script with test cases here:
 
-http://hvsc.de/download/files/tools/sid2md5_script_plus_test_cases.zip
+https://hvsc.de/download/files/tools/sid2md5_script_plus_test_cases.zip
 
 
 SSL FILE FORMAT
@@ -146,7 +167,7 @@ hardware where all HVSC files can be stored.
 
 You can use the following script to generate the files and folders:
 
-http://hvsc.de/download/files/tools/Generate_SSL_Files.zip
+https://hvsc.de/download/files/tools/Generate_SSL_Files.zip
 
 This script will generate SSL files for each SID. The SSL files will
 be put in the SONGLENGTHS folders.

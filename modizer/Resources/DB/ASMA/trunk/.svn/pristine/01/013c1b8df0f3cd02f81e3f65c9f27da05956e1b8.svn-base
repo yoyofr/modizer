@@ -1,0 +1,196 @@
+ASMA Update #21
+Date: August 31, 2001
+
+These rips together with the original ASMA collection will make version 2.1
+of the ASMA (out of version 2.0).
+
+Number of new tunes: 132
+Better rips: 2
+Credits fixes: 34
+Removed files: 6
+
+New tunes
+---------
+Demos/Digital_Trash.sap
+Demos/Running_Cow.sap
+Demos/Time_To_Enjoy_2.sap
+Games/Classic/Dan_Strikes_Back.sap
+Unsorted/Takie_Cos.sap
+Various/Bryla_Krzysztof/Ray_of_Hope_Display_List.sap
+Various/Bryla_Krzysztof/Ray_of_Hope_End.sap
+Various/Cierkonski_Michal/Ergo_Bibamus_Endpart.sap
+Various/Cierkonski_Michal/Ergo_Bibamus_Trackmo.sap
+Various/Galinski_Adrian/Crypts_of_Egypt.sap
+Various/Grzyb_Janusz/Around_the_Planet.sap
+Various/Grzyb_Janusz/Around_the_Planet_Ingame.sap
+Various/Grzyb_Janusz/Around_the_Planet_Intro.sap
+Various/Duma_Dariusz/Rotten_Juice_Credits.sap
+Various/Duma_Dariusz/Rotten_Juice_Dentro.sap
+Various/Duma_Dariusz/Rotten_Juice_Intro.sap
+Various/Duma_Dariusz/Rotten_Juice_Techno.sap
+Various/Golewski_Filip/Echo.sap
+Various/Karwacki_Jakub/Bug.sap
+Various/Karwacki_Jakub/Somemuz.sap
+Various/Kucisz_Tomasz/Scene_Register_4_0_Intro.sap
+Various/Kucharski_Konrad/Psychotropy.sap
+Various/Kucharski_Konrad/Sillent_But_Violent.sap
+Various/Kucharski_Konrad/Vanity.sap
+Various/Lepkowski_Michal/Bombtrack.sap
+Various/Lepkowski_Michal/Cool.sap
+Various/Lepkowski_Michal/Crash.sap
+Various/Lepkowski_Michal/Cypress.sap
+Various/Lepkowski_Michal/Dusk.sap
+Various/Lepkowski_Michal/Figment.sap
+Various/Lepkowski_Michal/Hobbit.sap
+Various/Lepkowski_Michal/Hot.sap
+Various/Lepkowski_Michal/Odyssey_of_the_Mind.sap
+Various/Lepkowski_Michal/Sight.sap
+Various/Lepkowski_Michal/Vent_1.sap
+Various/Lepkowski_Michal/Vent_2.sap
+Various/Lepkowski_Michal/Wolfmoon.sap
+Various/Liebich_Tomasz/Nemesis.sap
+Various/Majewski_Tomasz/Crocketts_Theme.sap
+Various/Makara_Grzegorz/Neron.sap
+Various/Makara_Grzegorz/Neron_Game_Over.sap
+Various/Martin_Aleksander/Sheol_side_A.sap
+Various/Martin_Aleksander/Sheol_side_B.sap
+Various/Martin_Aleksander/Sexquix_Ingame.sap
+Various/Martin_Aleksander/Sexquix.sap
+Various/Mrozowski_Robert/Going_to_California.sap
+Various/Mrozowski_Robert/Rock_And_Roll.sap
+Various/Mrozowski_Robert/Stairway_to_Heaven.sap
+Various/Numan_Daniel/Chistoria_Pewnego_Pecetofca.sap
+Various/Numan_Daniel/Demonic_Laughter_Intro.sap
+Various/Numan_Daniel/It_Means_War.sap
+Various/Numan_Daniel/Komercja.sap
+Various/Numan_Daniel/Pentagram_4_Axel_F.sap
+Various/Numan_Daniel/Pentagram_4_Bojkot.sap
+Various/Numan_Daniel/Pentagram_4_Croceth.sap
+Various/Numan_Daniel/Pentagram_4_Discopolo.sap
+Various/Numan_Daniel/Pentagram_4_Echoing.sap
+Various/Numan_Daniel/Pentagram_4_Error.sap
+Various/Numan_Daniel/Pentagram_4_Intro.sap
+Various/Numan_Daniel/Pentagram_4_Killos.sap
+Various/Numan_Daniel/Pentagram_4_Moonlight.sap
+Various/Numan_Daniel/Pentagram_4_Silence.sap
+Various/Numan_Daniel/Pentagram_4_Taki_Jusi.sap
+Various/Numan_Daniel/Pentagram_4_Techno.sap
+Various/Numan_Daniel/Psychodelic_Acied.sap
+Various/Numan_Daniel/Raving_Vieprz_1.sap
+Various/Numan_Daniel/Raving_Vieprz_2.sap
+Various/Numan_Daniel/Raving_Vieprz_3.sap
+Various/Numan_Daniel/Spirit_Vision_1.sap
+Various/Numan_Daniel/Vasco_Public_Domain_10_1.sap
+Various/Numan_Daniel/Vasco_Public_Domain_10_2.sap
+Various/Numan_Daniel/Vasco_Public_Domain_10_3.sap
+Various/Padula_Jaroslaw/Toy_Intro.sap
+Various/Pesout_Marek/Blade.sap
+Various/Pesout_Marek/Innov.sap
+Various/Pesout_Marek/Minos.sap
+Various/Pesout_Marek/Science.sap
+Various/Pesout_Marek/Shadow.sap
+Various/Pesout_Marek/Ticket.sap
+Various/Pesout_Marek/ZC2.sap
+Various/Pucimski_Rafal/Memory.sap
+Various/Radzikowski_Ireneusz/Accused.sap
+Various/Radzikowski_Ireneusz/Cyper_Space.sap
+Various/Radzikowski_Ireneusz/Electro_Based.sap
+Various/Radzikowski_Ireneusz/Escape_from_the_Orbit.sap
+Various/Radzikowski_Ireneusz/Galactics_Dream.sap
+Various/Radzikowski_Ireneusz/Power_Run.sap
+Various/Radzikowski_Ireneusz/Savage.sap
+Various/Radzikowski_Ireneusz/Savage_Intro.sap
+Various/Radzikowski_Ireneusz/Terra_Titanic_96.sap
+Various/Skowiniak_Krystian/Daze_4.sap
+Various/Skowiniak_Krystian/THC03.sap
+Various/Skowiniak_Krystian/THC10.sap
+Various/Skowiniak_Krystian/THC11.sap
+Various/Sychowicz_Lukasz/Andal.sap
+Various/Sychowicz_Lukasz/Awari.sap
+Various/Sychowicz_Lukasz/Bodek.sap
+Various/Sychowicz_Lukasz/Buum.sap
+Various/Sychowicz_Lukasz/Ciszi.sap
+Various/Sychowicz_Lukasz/Colka.sap
+Various/Sychowicz_Lukasz/Czary.sap
+Various/Sychowicz_Lukasz/Draka.sap
+Various/Sychowicz_Lukasz/Dred.sap
+Various/Sychowicz_Lukasz/Dynas.sap
+Various/Sychowicz_Lukasz/Falex.sap
+Various/Sychowicz_Lukasz/Genia.sap
+Various/Sychowicz_Lukasz/Get.sap
+Various/Sychowicz_Lukasz/Graba.sap
+Various/Sychowicz_Lukasz/Ground.sap
+Various/Sychowicz_Lukasz/Klita.sap
+Various/Sychowicz_Lukasz/Live.sap
+Various/Sychowicz_Lukasz/Loscz.sap
+Various/Sychowicz_Lukasz/Maxi_2.sap
+Various/Sychowicz_Lukasz/Mc_ss.sap
+Various/Sychowicz_Lukasz/Mener.sap
+Various/Sychowicz_Lukasz/Mepss.sap
+Various/Sychowicz_Lukasz/Milos.sap
+Various/Sychowicz_Lukasz/Minii.sap
+Various/Sychowicz_Lukasz/Orygo.sap
+Various/Sychowicz_Lukasz/Pepa.sap
+Various/Sychowicz_Lukasz/Piona.sap
+Various/Sychowicz_Lukasz/Pios_9.sap
+Various/Sychowicz_Lukasz/Pozyn.sap
+Various/Sychowicz_Lukasz/Princ.sap
+Various/Sychowicz_Lukasz/Proko.sap
+Various/Sychowicz_Lukasz/Smuty.sap
+Various/Sychowicz_Lukasz/Stdem.sap
+Various/Sychowicz_Lukasz/Traig.sap
+Various/Sychowicz_Lukasz/Uran.sap
+Various/Sychowicz_Lukasz/Zanos.sap
+Various/Szpilowski_Michal/Liga_Polska.sap
+Various/Szpilowski_Michal/Stallion.sap
+
+Better rips
+-----------
+Classics/Gilmore_Adam/Arcade_Fruit_Machine_Simul.sap (wrong init address in previous update)
+Various/Liebich_Tomasz/Smus.sap (includes subtunes)
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Unsorted/Atari_XC-12_tape_recorder.sap > Various/Numan_Daniel/Pentagram_4_Hidden_Part.sap
+Demos/Endless_Dream_2.sap > Various/Bryla_Krzysztof/
+Demos/Mortal_Kombat_Demo.sap > Various/Numan_Daniel/Pentagram_4_Requiem.sap
+Demos/Ray_of_Hope_1.sap > Ray_of_Hope_Intro.sap : AUTHOR "<?> (Jaro)" NAME "Ray of Hope - Intro"
+Demos/Ray_of_Hope_2.sap > Ray_of_Hope_Shade_Bobs.sap : AUTHOR "Krzysztof Swiecicki (Swiety)" NAME "Ray of Hope - Shade Bobs"
+Demos/Ray_of_Hope_3.sap > Ray_of_Hope_Plasma.sap : AUTHOR "Lukasz Pazera (Pazur)" NAME "Ray of Hope - Plasma"
+Demos/Ray_of_Hope_4.sap > Ray_of_Hope_Bars.sap : AUTHOR "Krzysztof Swiecicki (Swiety)" NAME "Ray of Hope - Bars"
+Games/Classic/Master_of_the_Lamps.sap : DATE "1985"
+Games/Classic/Quasimodo.sap : DATE "1984"
+Games/Classic/Shamus.sap > Shamus_Case_II.sap
+Games/Classic/Space_Ball.sap > Spaceball.sap : NAME "Spaceball"
+Games/Classic/Submission.sap : DATE "1985"
+Games/Various/Neron_Ingame.sap > Various/Makara_Grzegorz/ : NAME "Neron - Ingame"
+Unsorted/Avm.sap > Various/Skowiniak_Krystian/
+Unsorted/Old_Socks.sap > Various/Skowiniak_Krystian/
+Unsorted/Piczka.sap > Various/Kucharski_Konrad/
+Unsorted/Silent_But_Violent_Main.sap > Various/Lepkowski_Michal/Angry_Virus.sap
+Various/Czartynski_Marcin/Outer_Part_I.sap > Outer_1.sap (better rip of Outer_Part_1.sap, includes subtunes)
+Various/Flash/Grass_Slideshow_End.sap > Various/Witkiewicz_Dariusz/
+Various/Flash/Grass_Slideshow_Main.sap > Various/Witkiewicz_Dariusz/
+Various/Golewski_Filip/Echo.sap > Echo_Sampled.sap
+Various/Hard_Software/Cool_Emotion_Heal_the_World.sap > Cool_Emotion_Heal_the_Worl.sap
+Various/Hard_Software/Veronika_2.sap : AUTHOR "Antti Hannula / <?> (Hard Software)"
+Various/Hard_Software/Veronika_5.sap : AUTHOR "Chris Huelsbeck / <?> (Hard Software)" NAME "Veronika - 5"
+Various/Husak_Jakub/Wsrod_Gwiazd.Nadzieji.sap > Wsrod_Gwiazd.Nadziei.sap
+Various/Kucharski_Konrad/Piczka.sap : AUTHOR "Konrad Kucharski (Kuchara)"
+Various/Lepkowski_Michal/Silent_But_Violent_Intro.sap > Blackout.sap
+Various/Lepkowski_Michal/Silent_But_Violent_Risk.sap > Risk.sap
+Various/Loos_Uwe/Abbuc_25.sap : NAME "Abbuc 25"
+Various/Makowski_Robert/Alfaboot_Ingame.sap : AUTHOR "Robert Makowski (Gutek)"
+Various/Marcys/ > Various/Roszkowski_Marek/
+Various/Martin_Aleksander/Bobsland.sap : AUTHOR "Aleksander Martin (Alex)"
+Various/Pet/ > Various/Kielczyk_Piotr/
+Various/Swierszcz_Piotr/Overmind_TLB_546_Dots.sap : AUTHOR "Piotr Swierszcz (Samurai)"
+
+Removed files
+-------------
+Unsorted/Chip.sap (same as Various/Duesterhoeft_Stephan/Chiptune.sap)
+Various/Czartynski_Marcin/Barymag_1_3.sap (same as Outer.sap, subtune 4)
+Various/Czartynski_Marcin/Barymag_1_6.sap (same as Outer.sap, subtune 3)
+Various/Flash/Annael.sap (same as Various/Witkiewicz_Dariusz/Annael.sap)
+Various/Krawczyk_Adam/Euro_Demo_1.sap (same as Magic_Dimension_1.sap)
+Various/Numan_Daniel/Ascii_Art.sap (same as Pentagram_3_Info.sap, subtune 1)

@@ -1,0 +1,519 @@
+ASMA Update #33
+Date: May 29, 2009
+
+These rips together with the original ASMA collection will make version 3.3
+of the ASMA (out of version 3.2).
+
+Number of new tunes: 308
+Credits fixes: 175
+Better rips: 5
+Removed files: 5
+
+Removed files
+-------------
+Games/Various/Civilization.sap (same as Please_Forgive_Me.sap)
+Various/Esquivel_Sal/Magical_Sound_Shower.sap (older version of Outrun_Magical_Sound_Sho_S.sap)
+Various/Esquivel_Sal/Mega_Man_III_Title.sap (older version of Mega_Man_III_Title_Stereo.sap)
+Various/Kuczek_Ireneusz/Asecret.sap (same as Do_You_Want_to_Know_a_Secr.sap)
+Various/Padula_Jaroslaw/Apocalipse_Time_Info.sap (incomplete version of Techno_Collection_1.sap)
+
+New tunes
+---------
+Composers/B00daW/Clay_Horse_Meth_Soldier.sap
+Composers/B00daW/Sightosuckytofly.sap
+Composers/B00daW/Sloppyjones_Dead_On_Arriva.sap
+Composers/Brzezicki_Michal/4Tk35.sap
+Composers/Ce_Pumpkin/Revenge_of_Ce_Pumpkin.sap
+Composers/Cierkonski_Michal/Atari_Makes_Me_Sick_1.sap
+Composers/Cierkonski_Michal/Atari_Makes_Me_Sick_2.sap
+Composers/Cierkonski_Michal/Demon.sap
+Composers/Cierkonski_Michal/Ja_jo.sap
+Composers/Cierkonski_Michal/Msciciel.sap
+Composers/Cierkonski_Michal/Strzelanina.sap
+Composers/Cornelius_Orall/Shadow_of_the_Beast.sap
+Composers/Duma_Dariusz/Lay_Down_and_Enjoy_It.sap
+Composers/Duma_Dariusz/Shaft_of_Light.sap
+Composers/Duma_Dariusz/Shaft_of_Light_Intro.sap
+Composers/Duma_Dariusz/Unplugged_Demo.sap
+Composers/Eisenhammer_Zdenek/Deflektor.sap
+Composers/Eisenhammer_Zdenek/Grand_Prix_Circuit.sap
+Composers/Eisenhammer_Zdenek/Jozin_z_bazin.sap
+Composers/Eisenhammer_Zdenek/Kaviar.sap
+Composers/Eisenhammer_Zdenek/Radixex.sap
+Composers/Eisenhammer_Zdenek/Song.sap
+Composers/Eisenhammer_Zdenek/Summerdays.sap
+Composers/Eisenhammer_Zdenek/Swapz_Hall_of_Fame.sap
+Composers/Eisenhammer_Zdenek/Swapz_Ingame.sap
+Composers/Eisenhammer_Zdenek/Swapz_Title.sap
+Composers/Eisenhammer_Zdenek/Xmas_Mix.sap
+Composers/Esquivel_Sal/ActRaiser_Level_1_1.sap
+Composers/Esquivel_Sal/ActRaiser_Level_1_1_Stereo.sap
+Composers/Esquivel_Sal/Bubble_Bobble.sap
+Composers/Esquivel_Sal/Crocketts_Theme.sap
+Composers/Esquivel_Sal/Every_Breath_You_Take.sap
+Composers/Esquivel_Sal/Frogger.sap
+Composers/Esquivel_Sal/Mega_Man_III_Sparkman.sap
+Composers/Esquivel_Sal/Mega_Man_III_Title.sap
+Composers/Esquivel_Sal/Mega_Man_III_Title_Stereo.sap
+Composers/Esquivel_Sal/MetaGalactic_Llamas_Title.sap
+Composers/Esquivel_Sal/OutRun_Last_Wave_High_Scor.sap
+Composers/Esquivel_Sal/OutRun_Magical_Sound_Sho_S.sap
+Composers/Esquivel_Sal/OutRun_Magical_Sound_Showe.sap
+Composers/Esquivel_Sal/Outrun_Passing_Breeze.sap
+Composers/Esquivel_Sal/Outrun_Passing_Breeze_Ster.sap
+Composers/Esquivel_Sal/OutRun_Splash_Wave.sap
+Composers/Esquivel_Sal/OutRun_Splash_Wave_Stereo.sap
+Composers/Esquivel_Sal/Stardust_Memories.sap
+Composers/Esquivel_Sal/Tempest_Xtreem_Bonus_Song.sap
+Composers/Esquivel_Sal/Tempest_Xtreem_Song_One.sap
+Composers/Esquivel_Sal/Tempest_Xtreem_Song_Three.sap
+Composers/Esquivel_Sal/Tempest_Xtreem_Song_Two.sap
+Composers/Esquivel_Sal/Tempest_Xtreem_Title_Song.sap
+Composers/Esquivel_Sal/UnVeiled.sap
+Composers/Feske_Nils/Agent005.sap
+Composers/Feske_Nils/Ballad.sap
+Composers/Feske_Nils/Beatrik.sap
+Composers/Feske_Nils/Crystal.sap
+Composers/Feske_Nils/Delight.sap
+Composers/Feske_Nils/Disse.sap
+Composers/Feske_Nils/Duke.sap
+Composers/Feske_Nils/Faxen.sap
+Composers/Feske_Nils/Flum.sap
+Composers/Feske_Nils/Juanic.sap
+Composers/Feske_Nils/Loopy.sap
+Composers/Feske_Nils/Magical.sap
+Composers/Feske_Nils/Murks.sap
+Composers/Feske_Nils/Nothing.sap
+Composers/Feske_Nils/Numb.sap
+Composers/Feske_Nils/Pandora.sap
+Composers/Feske_Nils/Pattern.sap
+Composers/Feske_Nils/Raving.sap
+Composers/Feske_Nils/Running.sap
+Composers/Feske_Nils/Sparklin.sap
+Composers/Feske_Nils/Steps.sap
+Composers/Feske_Nils/Takeoff.sap
+Composers/Feske_Nils/Tambumbi.sap
+Composers/Feske_Nils/Those_Were_the_Days.sap
+Composers/Feske_Nils/Tristesse.sap
+Composers/Feske_Nils/Twista.sap
+Composers/Feske_Nils/Uncon04.sap
+Composers/Feske_Nils/UTurn.sap
+Composers/Gilbertson_Gary/Alternate_Reality_City_Gam.sap
+Composers/Gilbertson_Gary/Alternate_Reality_City_T_W.sap
+Composers/Goff_Mark/Me_and_Ui_Jumping_in_the_S.sap
+Composers/Grad_Jacek/Muff_3.sap
+Composers/Grayscale/Sychowicz_Lukasz/Ddk.sap
+Composers/Grayscale/Sychowicz_Lukasz/Farba.sap
+Composers/Grayscale/Sychowicz_Lukasz/Glina.sap
+Composers/Grayscale/Sychowicz_Lukasz/Gnida.sap
+Composers/Grayscale/Sychowicz_Lukasz/Gnilec.sap
+Composers/Grayscale/Sychowicz_Lukasz/Groch.sap
+Composers/Grayscale/Sychowicz_Lukasz/Kasz.sap
+Composers/Grayscale/Sychowicz_Lukasz/Magic.sap
+Composers/Grayscale/Sychowicz_Lukasz/Ofelia.sap
+Composers/Grayscale/Sychowicz_Lukasz/PM_09.sap
+Composers/Grayscale/Sychowicz_Lukasz/Seqritas.sap
+Composers/Grayscale/Sychowicz_Lukasz/Skwarki.sap
+Composers/Grayscale/Sychowicz_Lukasz/Stolec.sap
+Composers/Grayscale/Sychowicz_Lukasz/Yoomp.sap
+Composers/Grayscale/Sychowicz_Lukasz/Zbig.sap
+Composers/Grayscale/Sychowicz_Lukasz/Zip.sap
+Composers/Hard_Software/Cool_Emotion_Intro.sap
+Composers/Hudak_Matej/30_Minutes.sap
+Composers/Hudak_Matej/Shorty_Noises.sap
+Composers/Iwaszko_Krystian/IK_Crazy_Remix.sap
+Composers/Kidaj_Andrzej/Acces.sap
+Composers/Kidaj_Andrzej/Airwolf.sap
+Composers/Kidaj_Andrzej/And.sap
+Composers/Kidaj_Andrzej/Andy.sap
+Composers/Kidaj_Andrzej/Angels.sap
+Composers/Kidaj_Andrzej/Ania.sap
+Composers/Kidaj_Andrzej/Atari.sap
+Composers/Kidaj_Andrzej/Best.sap
+Composers/Kidaj_Andrzej/Beverly_Hills_Cop.sap
+Composers/Kidaj_Andrzej/Blinki.sap
+Composers/Kidaj_Andrzej/Bosch.sap
+Composers/Kidaj_Andrzej/Casio.sap
+Composers/Kidaj_Andrzej/Century.sap
+Composers/Kidaj_Andrzej/Cipa.sap
+Composers/Kidaj_Andrzej/Count.sap
+Composers/Kidaj_Andrzej/Cybo.sap
+Composers/Kidaj_Andrzej/D01.sap
+Composers/Kidaj_Andrzej/D02.sap
+Composers/Kidaj_Andrzej/D03.sap
+Composers/Kidaj_Andrzej/D18.sap
+Composers/Kidaj_Andrzej/Delta.sap
+Composers/Kidaj_Andrzej/Draconus_And_Zybex.sap
+Composers/Kidaj_Andrzej/End.sap
+Composers/Kidaj_Andrzej/Enigma.sap
+Composers/Kidaj_Andrzej/Figa.sap
+Composers/Kidaj_Andrzej/Furia.sap
+Composers/Kidaj_Andrzej/Fut.sap
+Composers/Kidaj_Andrzej/Ixer.sap
+Composers/Kidaj_Andrzej/Johnny_Intro.sap
+Composers/Kidaj_Andrzej/Kola.sap
+Composers/Kidaj_Andrzej/Kraftwerk_Das_Model.sap
+Composers/Kidaj_Andrzej/Kupa.sap
+Composers/Kidaj_Andrzej/Logoman.sap
+Composers/Kidaj_Andrzej/Lost_Patrol.sap
+Composers/Kidaj_Andrzej/Lover.sap
+Composers/Kidaj_Andrzej/Magic.sap
+Composers/Kidaj_Andrzej/Megademo_Capital.sap
+Composers/Kidaj_Andrzej/Minier.sap
+Composers/Kidaj_Andrzej/Moog.sap
+Composers/Kidaj_Andrzej/Mtv.sap
+Composers/Kidaj_Andrzej/Never.sap
+Composers/Kidaj_Andrzej/Night.sap
+Composers/Kidaj_Andrzej/Older.sap
+Composers/Kidaj_Andrzej/Petr.sap
+Composers/Kidaj_Andrzej/Phoenix.sap
+Composers/Kidaj_Andrzej/Piano.sap
+Composers/Kidaj_Andrzej/Piwo.sap
+Composers/Kidaj_Andrzej/Pocz.sap
+Composers/Kidaj_Andrzej/Rain.sap
+Composers/Kidaj_Andrzej/Robal.sap
+Composers/Kidaj_Andrzej/Rpg.sap
+Composers/Kidaj_Andrzej/Saper.sap
+Composers/Kidaj_Andrzej/Shit.sap
+Composers/Kidaj_Andrzej/St.sap
+Composers/Kidaj_Andrzej/Syndicat.sap
+Composers/Kidaj_Andrzej/Tech.sap
+Composers/Kidaj_Andrzej/Think.sap
+Composers/Kidaj_Andrzej/Tronic.sap
+Composers/Kidaj_Andrzej/Wstep.sap
+Composers/Kidaj_Andrzej/Yamaha.sap
+Composers/Kuczek_Ireneusz/Sunny.sap
+Composers/Armijo_Richard_J/Already_Obsolete.sap
+Composers/Armijo_Richard_J/An_Anthem_for_Winterchip.sap
+Composers/Armijo_Richard_J/Cipher_of_Moving_Compass.sap
+Composers/Armijo_Richard_J/Congrabalation.sap
+Composers/Armijo_Richard_J/Dot_Dot_Dot.sap
+Composers/Armijo_Richard_J/Generic_Battle.sap
+Composers/Armijo_Richard_J/Madness_Sky_Falling_Etc.sap
+Composers/Armijo_Richard_J/Pokey_Axel_Foley.sap
+Composers/Armijo_Richard_J/Severely_Overused_Christma.sap
+Composers/Armijo_Richard_J/Those_Were_the_Good_Old_Da.sap
+Composers/Liebich_Tomasz/Bilinski.sap
+Composers/Liebich_Tomasz/Hop_Muz.sap
+Composers/Liebich_Tomasz/Master_Head_The_End.sap
+Composers/Liebich_Tomasz/Master_Head_Winner.sap
+Composers/Liebich_Tomasz/Nowy_Syf_1.sap
+Composers/Lis_Piotr/I_Presume_Its_Funny.sap
+Composers/Lis_Piotr/Przyjacielska_rada.sap
+Composers/Lis_Piotr/Wyjasnijmy_to_sobie.sap
+Composers/Matoga_Adrian/m4700rK4.sap
+Composers/Nedved_Vojtech/Amelie.sap
+Composers/Nedved_Vojtech/Aoki.sap
+Composers/Nedved_Vojtech/Rudi_Extrudi_Goes_to_Pragu.sap
+Composers/Pesout_Marek/Alphaville_Big_in_Japan_St.sap
+Composers/Pesout_Marek/Atari_Intro.sap
+Composers/Pesout_Marek/Atom.sap
+Composers/Pesout_Marek/Bad_Drome.sap
+Composers/Pesout_Marek/Cannon.sap
+Composers/Pesout_Marek/Countdown.sap
+Composers/Pesout_Marek/CPU_on_Fire.sap
+Composers/Pesout_Marek/Czech_Sound_0.sap
+Composers/Pesout_Marek/Desert_Dream_Part_2.sap
+Composers/Pesout_Marek/Dirty_Begin.sap
+Composers/Pesout_Marek/Dream_Part_1.sap
+Composers/Pesout_Marek/Gangsters.sap
+Composers/Pesout_Marek/Helper_Part_B.sap
+Composers/Pesout_Marek/James_Bond.sap
+Composers/Pesout_Marek/Lemmblaster.sap
+Composers/Pesout_Marek/Liftboy.sap
+Composers/Pesout_Marek/Picture_H_I_P.sap
+Composers/Pesout_Marek/Plastic.sap
+Composers/Pesout_Marek/Poison_Effector.sap
+Composers/Pesout_Marek/Popcorn.sap
+Composers/Pesout_Marek/Rainbow_Art.sap
+Composers/Pesout_Marek/Rick_19.sap
+Composers/Pesout_Marek/Riper.sap
+Composers/Pesout_Marek/Semaphore.sap
+Composers/Pesout_Marek/Techwalk.sap
+Composers/Pesout_Marek/Tekk_Drums_1.sap
+Composers/Pesout_Marek/Tekk_Drums_2.sap
+Composers/Pesout_Marek/Tekk_Drums_3.sap
+Composers/Pesout_Marek/Tekkno_Experience_part_1_1.sap
+Composers/Pesout_Marek/Tekkno_Experience_part_1_2.sap
+Composers/Pesout_Marek/Tekkno_Experience_part_2_1.sap
+Composers/Pesout_Marek/Tekkno_Experience_part_2_2.sap
+Composers/Pesout_Marek/Tekkno_Experience_part_3_1.sap
+Composers/Pesout_Marek/Tekkno_Experience_part_3_2.sap
+Composers/Pesout_Marek/The_Fly.sap
+Composers/Pesout_Marek/TNT.sap
+Composers/Pesout_Marek/Trident.sap
+Composers/Pesout_Marek/Trident_II.sap
+Composers/Pesout_Marek/Turrican_2.sap
+Composers/Radecki_Michal/Ilusia.sap
+Composers/Radecki_Michal/Knight_Lore.sap
+Composers/Radecki_Michal/Naue.sap
+Composers/Roemer_Markus/Biene_Maja.sap
+Composers/Roemer_Markus/Das_Grauen.sap
+Composers/Roemer_Markus/Kaisers_Best.sap
+Composers/Roemer_Markus/Kettensaege.sap
+Composers/Roemer_Markus/No_Name_Song.sap
+Composers/Roemer_Markus/Oelligs_Song.sap
+Composers/Roemer_Markus/Ram_Intro.sap
+Composers/Roemer_Markus/Second_Dream.sap
+Composers/Roemer_Markus/Top_Mag_Demo.sap
+Composers/Sterba_Radek/3D.sap
+Composers/Sterba_Radek/Im_sure.sap
+Composers/Sterba_Radek/Indiana_Jones_4.sap
+Composers/Sterba_Radek/MAB.sap
+Composers/Sterba_Radek/Who_Knows.sap
+Composers/Strobe/Happy_Skydiver.sap
+Composers/Strobe/Robophobia_III.sap
+Composers/Strobe/Romantic_Squirrelwedding_i.sap
+Composers/Strobe/Star_Legend_Mainscreen_Int.sap
+Composers/Strzelec_Pawel/Osadnicy_Info.sap
+Composers/Strzelec_Pawel/Osadnicy_The_End.sap
+Composers/Szpilowski_Michal/7_Gates_of_Jambala.sap
+Composers/Szpilowski_Michal/Acidjazzed_Evening.sap
+Composers/Szpilowski_Michal/Astaroth.sap
+Composers/Szpilowski_Michal/Bomb_Jack.sap
+Composers/Szpilowski_Michal/Enchanted_Land.sap
+Composers/Szpilowski_Michal/Flimbos_Quest.sap
+Composers/Szpilowski_Michal/Ghosts_n_Goblins.sap
+Composers/Szpilowski_Michal/Jetboy.sap
+Composers/Szpilowski_Michal/Logical.sap
+Composers/Szpilowski_Michal/Menace_Song.sap
+Composers/Szpilowski_Michal/Rondell.sap
+Composers/Szpilowski_Michal/Thalion_Intro.sap
+Composers/Szpilowski_Michal/The_Duel.sap
+Composers/Szpilowski_Michal/Torvak.sap
+Composers/Ui/3_Joonkiz_Skullz.sap
+Composers/Ui/Juan_el_Come_Calabazas.sap
+Composers/Ui/Los_Osos_descubren_la_Gran.sap
+Composers/Ui/Just_Jump.sap
+Composers/Wisniewski_Mateusz/High_Tide.sap
+Games/Astro_Droid.sap
+Games/Creep.sap
+Games/Culmins_1.sap
+Games/Culmins_2.sap
+Games/Eidolon.sap
+Games/Jetix.sap
+Games/Loaded_Brain.sap
+Games/Perly_Orckyego.sap
+Games/Pharaohs_Curse.sap
+Games/Pooyan.sap
+Games/Popcorn.sap
+Games/Ruleta.sap
+Games/Spys_Demise.sap
+Games/Wyspa.sap
+Misc/Astrosphere.sap
+Misc/CWKND.sap
+Misc/Disc_Golf.sap
+Misc/Faded.sap
+Misc/Guns_n_Roses.sap
+Misc/Hujowy_Jak_Sto_Skurwysynuf.sap
+Misc/New_Song_1D.sap
+Misc/Only_Chipchop_Can_Save_Us.sap
+Misc/Portamento_Midget.sap
+Misc/Saturday_Demo.sap
+Misc/Star_Shot.sap
+Misc/Sunset_on_the_Moon.sap
+Misc/Warehouse_AM.sap
+Misc/Winter_Sports_Collection_B.sap
+Misc/Year_198x.sap
+Unknown/Axel.sap
+Unknown/Cellos.sap
+Unknown/Dajana.sap
+Unknown/Duke_3D.sap
+Unknown/Europa.sap
+Unknown/Funky.sap
+Unknown/Gdyby.sap
+Unknown/House_of_Rising_Sun.sap
+Unknown/Mambo.sap
+Unknown/Panorama.sap
+Unknown/Sibone.sap
+Unknown/Skladanka.sap
+
+Credits fixes (includes filename or location changes)
+------------------------------------------------------
+Demos/Axis_Intro.sap > Unknown/
+Demos/Bonanza_Digi.sap > Unknown/
+Demos/Carpe_Demo_3.sap > Unknown/
+Demos/Carpe_Demo_5.sap > Unknown/
+Demos/Digital_Trash.sap > Unknown/
+Demos/Grzyby.sap > Unknown/
+Demos/Grzyby_2.sap > Unknown/
+Demos/Halle_Project_Another_Part.sap > Unknown/
+Demos/Halle_Project_Bitplans.sap > Unknown/
+Demos/Halle_Project_CSS_Vector.sap > Unknown/
+Demos/Halle_Project_Greetz.sap > Unknown/
+Demos/Halle_Project_MCMXCII.sap > Unknown/
+Demos/Halle_Project_Visdom.sap > Unknown/
+Demos/Halle_Project_Waves.sap > Unknown/
+Demos/Hobbytronic_88_1.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hobbytronic_89_2.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hobbytronic_89_3.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hobbytronic_89_4.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hobbytronic_89_5.sap > Misc/ : AUTHOR "<?> (Spueli-Soft)"
+Demos/Hobbytronic_89_6.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hobbytronic_91_Vector_Ball.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy) <?>"
+Demos/Hobbytronic_91_Vector_Part.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy) <?>"
+Demos/Hobbytronic_92_1.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hobbytronic_92_2.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hobbytronic_92_3.sap > Composers/Duesterhoeft_Stephan/ : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Demos/Hotline_Intro.sap > Unknown/
+Demos/Magnetic_Fields.sap > Unknown/
+Demos/Robot_Demo.sap > Unknown/
+Demos/The_Top_2_Digi_Part.sap > Unknown/
+Demos/Time_To_Enjoy.sap > Unknown/
+Games/Classic/Reachout.sap > Arkanoid_II.sap : AUTHOR "W. Rymorz" NAME "Arkanoid II"
+Games/Various/Car_S_A.sap > Composers/Cierkonski_Michal/The_Car_SA.sap : AUTHOR "Michal Cierkonski (1993)"
+Games/Various/Miny.sap > Composers/Strzelec_Pawel/
+Games/Various/Spy_Master.sap > Composers/Brzezicki_Michal/ : AUTHOR "Michal Brzezicki (Caruso)"
+Unsorted/ABBUC_19.sap > Misc/
+Unsorted/ABBUC_39.sap > Misc/
+Unsorted/Absorb.sap > Misc/
+Unsorted/Aerobic_4.sap > Games/Aerobics_Legs.sap : AUTHOR "Bill Mauchly" NAME "Aerobics - Legs" DATE "1984"
+Unsorted/Capone.sap > Misc/
+Unsorted/Colding.sap > Composers/Armijo_Richard_J/
+Unsorted/Das_Teufel.sap > Misc/
+Unsorted/DCK_Demosong.sap > Misc/
+Unsorted/Deadline.sap > Misc/
+Unsorted/Debiut.sap > Misc/
+Unsorted/Delicate.sap > Misc/
+Unsorted/Desease.sap > Misc/
+Unsorted/Dintro2song.sap > Misc/
+Unsorted/Dragnet.sap > Misc/
+Unsorted/Dupa.sap > Composers/Feske_Nils/
+Unsorted/Epileptic_Duck.sap > Misc/
+Unsorted/Flatfish.sap > Misc/
+Unsorted/Funky_Atari.sap > Misc/
+Unsorted/Geometria.sap > Misc/
+Unsorted/Historia_Polski_966_1992.sap > Misc/
+Unsorted/Hits.sap > Misc/
+Unsorted/Huhi.sap > Misc/
+Unsorted/Immortal.sap > Misc/
+Unsorted/Inspiration_Comes_Again.sap > Misc/
+Unsorted/KevSoft.sap > Misc/
+Unsorted/Los_Osos_hablan_en_Marte.sap > Composers/Ui/
+Unsorted/Luzik.sap > Misc/
+Unsorted/Miksik.sap > Misc/
+Unsorted/My_Break_Heart.sap > Misc/
+Unsorted/New_Generation.sap > Misc/
+Unsorted/Nonsense_War.sap > Misc/
+Unsorted/Picca.sap > Misc/
+Unsorted/Pizza_Margerita_Suxx.sap > Misc/
+Unsorted/Pytaj.sap > Misc/
+Unsorted/Reksio_2001.sap > Misc/
+Unsorted/Sap_Trap.sap > Misc/
+Unsorted/Say_Why.sap > Misc/
+Unsorted/Self_Test.sap > Misc/
+Unsorted/sEXTOn_Is_Come.sap > Misc/
+Unsorted/Short.sap > Composers/Feske_Nils/
+Unsorted/Spejs_Invejder.sap > Misc/
+Demos/Spy_Master_Demo.sap > Composers/Brzezicki_Michal/ : AUTHOR "Michal Brzezicki (Caruso)"
+Unsorted/Suprajs.sap > Misc/
+Unsorted/T_H_R_U_S_T.sap > Misc/
+Unsorted/Tajemnice_Atari_Intro.sap > Misc/
+Unsorted/Takie_Cos.sap > Misc/
+Unsorted/Town_of_Ui.sap > Composers/Strobe/
+Unsorted/Tragedy_Zine_1.sap > Misc/
+Unsorted/Tragedy_Zine_2.sap > Misc/
+Unsorted/Walec.sap > Misc/
+Unsorted/Zybex_Stereo.sap > Misc/
+Classics/ > Composers/
+Demos/ > Misc/
+Games/Classic/ > Games/
+Games/Various/ > Games/
+Unsorted/ > Unknown/
+Various/ > Composers/
+Composers/Benoth_Sukkor/Ble_ble_ble.sap > Composers/Stanik_Krzysztof/ : AUTHOR "Krzysztof Stanik (Sukkor Benoth)"
+Composers/Benoth_Sukkor/Guitarous.sap > Composers/Stanik_Krzysztof/ : AUTHOR "Krzysztof Stanik (Sukkor Benoth)"
+Composers/Benoth_Sukkor/Mroczny.sap > Composers/Stanik_Krzysztof/ : AUTHOR "Krzysztof Stanik (Sukkor Benoth)"
+Composers/Benoth_Sukkor/Muza.sap > Composers/Stanik_Krzysztof/ : AUTHOR "Krzysztof Stanik (Sukkor Benoth)"
+Composers/Benoth_Sukkor/Strefa.sap > Composers/Stanik_Krzysztof/ : AUTHOR "Krzysztof Stanik (Sukkor Benoth)"
+Composers/Benoth_Sukkor/Stwoor.sap > Composers/Stanik_Krzysztof/ : AUTHOR "Krzysztof Stanik (Sukkor Benoth)"
+Composers/Cornelius_Orall/Speed_Hawk.sap : DATE "1988"
+Composers/Dojwa_Jacek/Hydraulik_ASF.sap > Hydraulik.sap
+Composers/Dojwa_Jacek/Hydraulik_ASF_Ingame.sap > Hydraulik_Ingame.sap
+Composers/Esquivel_Sal/Atari_Intro.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Axel_F.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/AXK8.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Baby_Elephant_Walk.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Battle_Squadron.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Battle_Squadron_Stereo.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Blaster_Master_Level_1.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Blaster_Master_Level_1_Ste.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Cybernoid_II.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Duke_Nuke_Em.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Elite.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Final_Fantasy.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Hybris_Title.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/M_U_L_E.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/M_U_L_E_Remix.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Obliterator.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Obliterator_Stereo.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Popcorn_Hot_Butter.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/R_Type.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Game_Over.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Godarni.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Ida.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Intro.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Lakeside_Mem.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Main_Theme.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Squilla.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Stanray.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Syrua.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Uriah.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Valda.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_White_Summer.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Space_Harrier_Wiwi_Jumbo.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Super_Mario_Bros_Level_1_1.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Toobin.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Toobin_Title.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Esquivel_Sal/Trans_Atlantic.sap : AUTHOR "Sal Esquivel (Kjmann)"
+Composers/Gilbertson_Gary/AR_City_Guild.sap > Alternate_Reality_City_Gui.sap : NAME "Alternate Reality: The City - Guild"
+Composers/Gilbertson_Gary/AR_City_Intro.sap > Alternate_Reality_City_Int.sap : NAME "Alternate Reality: The City - Intro"
+Composers/Gilbertson_Gary/AR_City_Smithy.sap > Alternate_Reality_City_Smi.sap : NAME "Alternate Reality: The City - Smithy"
+Composers/Gilbertson_Gary/AR_City_Tavern_Dance.sap > Alternate_Reality_City_Dan.sap : NAME "Alternate Reality: The City - Tavern Dance"
+Composers/Gilbertson_Gary/AR_City_Tavern_Dragon.sap > Alternate_Reality_City_Dra.sap : NAME "Alternate Reality: The City - Tavern Dragon"
+Composers/Gilbertson_Gary/AR_City_Tavern_Treasure.sap > Alternate_Reality_City_Tre.sap : NAME "Alternate Reality: The City - Treasure"
+Composers/Grad_Jacek/Muff_3.sap > Muff_3_Mix.sap : AUTHOR "Jacek Grad (Tabu) & Adam Bienias (SoTe)"
+Composers/Hubbard_Rob/Jet_Set_Willy.sap : DATE "1986"
+Composers/Karwacki_Jakub/Invitation_East_Intro_Musi.sap > Invitation_East_Intro_3_Mu.sap
+Composers/Karwacki_Jakub/Invitation_East_Main_Music.sap > Invitation_East_Intro_3_Ma.sap
+Composers/Kuczek_Ireneusz/Back_in_USSR.sap > Composers/Kuczek_Ireneusz/Worktunes/
+Composers/Kuczek_Ireneusz/Come_Together.sap > Composers/Kuczek_Ireneusz/Worktunes/
+Composers/Kuczek_Ireneusz/Hotel_California.sap > Composers/Kuczek_Ireneusz/Worktunes/
+Composers/Kuczek_Ireneusz/Imagine.sap : DATE "1995"
+Composers/Kuczek_Ireneusz/Please_Forgive_Me.sap : DATE "1995"
+Composers/Martin_Aleksander/Timeless_Announcemt_Load_1.sap : NAME "Timeless Announcement - Loading #1"
+Composers/Martin_Aleksander/Timeless_Announcemt_Load_5.sap : NAME "Timeless Announcement - Loading #5"
+Composers/Munns_Richard/Crumbles_Crisis.sap : DATE "1986"
+Composers/Numan_Daniel/Pentagram_2_Menu.sap : NAME "Pentagram #2 - Menu"
+Composers/Pasiecznik_Michal/Anime_4ever_Intro.sap : NAME "Anime 4ever!!! - Intro"
+Composers/Pasiecznik_Michal/Lost_Scrotum.sap : NAME "Lost Scrotum (Anime 4ever!!! - Credits)"
+Composers/Pesout_Marek/Blade.sap > Blade_Runner.sap : NAME "Blade Runner"
+Composers/Pesout_Marek/Darkevil.sap > Hard_Feet_Dark_Evil.sap : NAME "Hard Feet - Dark Evil"
+Composers/Pesout_Marek/Fields.sap > Hard_Feet_Fields.sap : NAME "Hard Feet - Fields"
+Composers/Pesout_Marek/Innov.sap > Innovative.sap : NAME "Innovative"
+Composers/Pesout_Marek/Intdome.sap > Interdome.sap : NAME "Interdome"
+Composers/Pesout_Marek/Maniacal.sap > Hard_Feet_Maniacal.sap : NAME "Hard Feet - Maniacal"
+Composers/Pesout_Marek/Mass.sap > Mass_Storage.sap : NAME "Mass Storage"
+Composers/Pesout_Marek/Messiah.sap > Messiah_from_Outer_Space.sap : NAME "Messiah from Outer Space"
+Composers/Pesout_Marek/ZC2.sap > Czech_Sound_2.sap : NAME "Czech Sound 2"
+Composers/Potter_Mike/Protector_II.sap : DATE "1982"
+Composers/Trokowicz_B/ > Composers/Trokowicz_Bartolomiej/ : AUTHOR "Bartolomiej Trokowicz"
+Composers/Whittaker_David/BMX_Simulator.sap : DATE "1986"
+Composers/Zur-soft/ > Composers/Zur_soft/
+Games/221B_Baker_Street.sap : DATE "1987"
+Games/Ballblaster.sap : AUTHOR "Peter Langston"
+Games/Ballblazer.sap : AUTHOR "Peter Langston"
+Games/Behind_Jaggi_Lines.sap : AUTHOR "Charlie Kellner & Peter Langston" NAME "Behind Jaggi Lines!"
+Games/Blue_Max.sap : AUTHOR "Bob Polin"
+Games/Blue_Max_2001.sap : AUTHOR "Ihor Wolosenko"
+Games/Olimpicon.sap > Track_n_Field.sap : TITLE "Track & Field" DATE "1984"
+Games/Osadnicy.sap > Composers/Strzelec_Pawel/
+Games/Perly_Szeherezady.sap : AUTHOR "Pawel Baran"
+
+Better rips
+-----------
+Composers/Duma_Dariusz/Murder.sap (fixed bad rip)
+Composers/Golewski_Filip/Memento_Mori.sap (did not play correctly in ASAP)
+Composers/Liebich_Tomasz/Drack.sap (did not play in ASAP)
+Games/Spy_Games_Ingame.sap (subsong 5 removed because of being the same as Composers/Drozdowski_Marek/Land.sap)
+Misc/Desease.sap (bug on repeating the song caused incorrect calculation of time)

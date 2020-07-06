@@ -1,0 +1,108 @@
+ASMA Update #25
+Date: November 7, 2002
+
+These rips together with the original ASMA collection will make version 2.5
+of the ASMA (out of version 2.4).
+
+Number of new tunes: 74
+Better rips: 1
+Credits fixes: 15
+
+New tunes
+---------
+Games/Classic/Cosmic_Tunnels.sap
+Games/Classic/Sargon_II.sap
+Demos/Bitter_Reality_Loader.sap
+Demos/Gunship.sap
+Demos/Impossible_But_Real_End.sap
+Unsorted/ElanLL02.sap
+Unsorted/Muzak.sap
+Unsorted/Saper_V1.sap
+Unsorted/Scream.sap
+Unsorted/Spejs_Invejder.sap
+Various/Badkowski_Marek/Sweet_Fantasy_Menu.sap
+Various/Ce_Pumpkin/Animkomials_Meets_Credits.sap
+Various/Ce_Pumpkin/Animkomials_Meets_Main.sap
+Various/Ce_Pumpkin/Skis.sap
+Various/Cierkonski_Michal/Tit.sap
+Various/Gora_Jakub/Return.sap
+Various/Majewski_Tomasz/Lunapark.sap
+Various/Martin_Aleksander/Night_Mare.sap
+Various/Kalinowski_Bartosz/Fanatic.sap
+Various/Karwacki_Jakub/Invitation_East_Intro_Music.sap
+Various/Karwacki_Jakub/Invitation_East_Main_Music.sap
+Various/Karwacki_Jakub/Uht03.sap
+Various/Karwacki_Jakub/Uht05.sap
+Various/Kazimierczak_Leszek/Megata_Zine_1_Intro.sap
+Various/Kazimierczak_Leszek/Megata_Zine_1_Main.sap
+Various/Kazimierczak_Leszek/Megata_Zine_1_Read_Article.sap
+Various/Kwiatek_Grzegorz/Pneumatic_Driller.sap
+Various/Oscadal_Filip/Balleantro.sap
+Various/Oscadal_Filip/Brutal_Recall_1.sap
+Various/Oscadal_Filip/Brutal_Recall_2.sap
+Various/Oscadal_Filip/Brutal_Recall_Demo.sap
+Various/Oscadal_Filip/Brutal_Recall_Demo_Bonus.sap
+Various/Oscadal_Filip/Brutal_Recall_Ingame.sap
+Various/Oscadal_Filip/Digi_Synth.sap
+Various/Oscadal_Filip/Rabbacan_The_Finale.sap
+Various/Oscadal_Filip/Rabbacan_Waterlands.sap
+Various/Oscadal_Filip/Rabbacan_Woodystone.sap
+Various/Oscadal_Filip/Tetris.sap
+Various/Oscadal_Filip/Vaxeen_Cygnus_Lyrae.sap
+Various/Oscadal_Filip/Vaxeen_Intro.sap
+Various/Oscadal_Filip/Vaxeen_Photographic.sap
+Various/Oscadal_Filip/Vaxeen_Poison.sap
+Various/Oscadal_Filip/Vaxeen_Star_Pawns.sap
+Various/Oscadal_Filip/Vaxeen_Vaxeen_4U.sap
+Various/Radzikowski_Ireneusz/Sweet_Fantasy.sap
+Various/Roszkowski_Marek/Babcia_Stefcia.sap
+Various/Roszkowski_Marek/Biszkopcik_Bez_Okresu.sap
+Various/Roszkowski_Marek/Kocie_Zaloty.sap
+Various/Roszkowski_Marek/Megata_Zine_2_Choose_Music.sap
+Various/Roszkowski_Marek/Megata_Zine_2_Game_Music.sap
+Various/Roszkowski_Marek/Megata_Zine_2_Staff_Info.sap
+Various/Roszkowski_Marek/Pneumatic_Mlot_Revenge.sap
+Various/Roszkowski_Marek/Potworniki.sap
+Various/Roszkowski_Marek/Radzieckie_Mrowkojady.sap
+Various/Skowiniak_Krystian/Osadnicy_2.sap
+Various/Swierszcz_Piotr/Begin_1.sap
+Various/Swierszcz_Piotr/New_2.sap
+Various/Swierszcz_Piotr/Roxette.sap
+Various/Swierszcz_Piotr/Samurai_1.sap
+Various/Swierszcz_Piotr/Samurai_2.sap
+Various/Swierszcz_Piotr/Samurai_3.sap
+Various/Swierszcz_Piotr/Samurai_4.sap
+Various/Sychowicz_Lukasz/Boremloza.sap
+Various/Sychowicz_Lukasz/Charts.sap
+Various/Sychowicz_Lukasz/Glikol.sap
+Various/Sychowicz_Lukasz/Komar.sap
+Various/Sychowicz_Lukasz/Porazka_3.sap
+Various/Sychowicz_Lukasz/Relikty.sap
+Various/Sychowicz_Lukasz/Siekacz.sap
+Various/Sychowicz_Lukasz/Timeis.sap
+Various/Szpilowski_Michal/Miker_1.sap
+Various/Szpilowski_Michal/Miker_2.sap
+Various/Szpilowski_Michal/Miker_3.sap
+Various/Szpilowski_Michal/Miker_4.sap
+
+Better rips
+-----------
+Various/Sychowicz_Lukasz/King_of_Agregat.sap (now plays in stereo)
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Games/Classic/Montezuma's_Revenge.sap > Montezumas_Revenge.sap
+Unsorted/Aggressive.sap : AUTHOR "Marcin Dubicki (MacGyver)"
+Unsorted/Digiloo-Digiley.sap > Digiloo_Digiley.sap
+Various/Czartynski_Marcin/Trans-X.sap > Trans_X.sap
+Various/Duesterhoeft_Stephan/A-Team_Theme.sap > A_TEAM_Theme.sap
+Various/Husak_Jakub/Wsrod_Gwiazd.Nadziei.sap > Wsrod_Gwiazd_Nadziei.sap : NAME "Wsrod Gwiazd Nadziei"
+Various/Kuczek_Ireneusz/A_Whiter_Shade_of_the_Snow.sap : NAME "A Whiter Shade of the Snow"
+Various/Lajciak_Pavol/R-Type.sap > R_Type.sap
+Various/Martin_Aleksander/Timeless_Announcement_First_Part.sap > Timeless_Announcement_1st.sap
+Various/Martin_Aleksander/Timeless_Announcement_Track_Scroll.sap > Timeless_Announcement_Trac.sap
+Various/Numan_Daniel/Chistoria_Pewnego_Pecetofca.sap > Chistoria_Pewnego_Pecetofc.sap
+Various/Padula_Jaroslaw/Alternative_Psychodelic_Trance.sap > Alternative_Psychodelic_Tr.sap
+Various/Sychowicz_Lukasz/Porazka.sap : NAME "Porazka"
+Various/Sychowicz_Lukasz/Rage_against_16-bit.sap > Rage_against_16_bit.sap
+Various/Szpilowski_Michal/Sej-mik.sap > Sej_mik.sap

@@ -68,13 +68,13 @@ the HVSID Player or through Winamp by connecting your PC with a C64 with a PC64
 cable.
 
 A list of SID players is available on the HVSC web page. See
-http://hvsc.c64.org/players.htm
+https://hvsc.c64.org/players
 
 As for additional hardware, you only need a sound card.
 
 In addition to using your home computer, there are hardware devices out there
 that utilize the SID chip itself in conjunction with your sound card.
-See http://www.hardsid.com for more information.
+See https://www.facebook.com/hardsidofficial/ for more information.
 
 [3] Isn't Commodore C64 music just silly beep-blop music?
 ---------------------------------------------------------
@@ -271,7 +271,7 @@ for Win95/98/ME/XP/Vista/7 and Linux.
 
 If you would like to port the Update tool to your OS, the source code to the
 tool and information about the format of the HVS data file can be obtained at
-http://hvsc.c64.org/download.htm#HVSC-tools
+https://hvsc.de/downloads
 
 [15] Why do the updates sometimes add SIDs that HVSC already had?
 -----------------------------------------------------------------
@@ -337,7 +337,7 @@ demo also played the SID tune the same way.
 Steppe wrote an excellent document about ripping SID tunes. You can download the
 document here:
 
-http://hvsc.c64.org/info.htm#dummies
+https://hvsc.c64.org/download/files/docs/Ripping_For_Dummies.zip
 
 This documentation gives a basic guide to the fundamentals of ripping. All rips
 should be C64 compliant.
@@ -373,12 +373,12 @@ looking for.
 If you still can't find it then try using the tool SID Known which is available
 here:
 
-http://csdb.dk/release/?id=109492
+https://csdb.dk/release/?id=192818
 
 SID Known can be used to identify music but it also helps to find out which
 tunes are not in the High Voltage SID Collection. If you find music not found
 by SID Known, it would be appreciated if you report this to the HVSC crew
-(http://hvsc.c64.org) or post it in one of the CSDb forums (http://csdb.dk) like
+(https://hvsc.c64.org) or post it in one of the CSDb forums (https://csdb.dk) like
 "SIDs that aren't in HVSC yet".
 
 [21] I can't find a tune in HVSC which was used in an intro/demo. Where is it?
@@ -401,7 +401,7 @@ For demos, you might wish to pay a visit to Stephan Schmid's excellent Demo
 Dungeon site at http://www.demodungeon.com/ - it has lots of demos, but also
 which tunes were used in each one. Very highly recommended.
 
-Also, at CSDb <http://noname.c64.org/csdb/> everyone who knows or finds the
+Also, at CSDb <https://noname.c64.org/csdb/> everyone who knows or finds the
 correct sids used in C64 production can add a link to the correct HVSC path.
 
 And if by all means you still can't locate a tune in HVSC, drop us a line at

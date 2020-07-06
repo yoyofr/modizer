@@ -69,6 +69,7 @@
 /Composers/Brzezicki_Michal/Cropky.sap	COMMENT: Music from the game 'Cropky' released in 2011.\n(#1)\n  TITLE: Cheri Cheri Lady [from Let's Talk About Love](0:00 - 0:15)\n ARTIST: Modern Talking\n  TITLE: Sweet Dreams (are made of this) [from Sweet Dreams](0:16 - 0:42)\n ARTIST: Eurythmics\n  TITLE: Only You (0:43 - 1:14)\n ARTIST: Roberto Zanetti (Savage)\n(#2)\n  TITLE: It's a Sin [from Actually](0:00 - 1:11)\n ARTIST: Pet Shop Boys\n(#3)\n  TITLE: Voyage Voyage [from Francois](0:00 - 1:55)\n ARTIST: Desireless\n(#4)\n  TITLE: Boys (Summertime Love) [from Sabrina](0:00 - 1:17)\n ARTIST: Sabrina Salerno\n(#5)\n  TITLE: Touch Me [from Samantha Fox](0:00 - 0:16)\n ARTIST: Samantha Fox\n
 /Composers/Brzezicki_Michal/Octopus.sap	COMMENT: Music from the game 'Octopus' released in 2011.\n
 /Composers/Brzezicki_Michal/Patrol_In_the_Space.sap	COMMENT: Music from the game 'Patrol In The Space' released in 2011.\n
+/Composers/Brzezicki_Michal/Star_Vagrant_Intro.sap	COMMENT: Music from the 'Star Vagrant' intro which took 6th place at Lost\n         Party 2019 wild compo.\n
 /Composers/Brzezicki_Michal/Vlong.sap	COMMENT: Music from the game 'Spy Master' released by L.K. Avalon in 1993.\n
 /Composers/Buettner_Falk/Adalmar_Bootup.sap	  TITLE: bootup [from the Amiga game Lotus Turbo Challenge II]\n ARTIST: Barry Leitch\n
 /Composers/Buettner_Falk/Adalmar_Huntmoon.sap	  TITLE: Hunter's Moon, Tune #3  [from the C64 SID]\n ARTIST: Matt Gray\n
@@ -139,6 +140,7 @@
 /Composers/Duesterhoeft_Stephan/Hobbytronic_89_2.sap	  TITLE: Neunundneunzig (99) Luftballons\n ARTIST: Nena\n
 /Composers/Duesterhoeft_Stephan/Hobbytronic_89_3.sap	  TITLE: Crockett's Theme [from the TV series Miami Vice]\n ARTIST: Jan Hammer\n
 /Composers/Duesterhoeft_Stephan/Hobbytronic_89_4.sap	  TITLE: The Great Giana Sisters, Tune #5 [from the C64 game]\n ARTIST: Chris Hülsbeck\n
+/Composers/Duma_Dariusz/Acid_Notes.sap	COMMENT: Soundtrack from the intro 'W.Y.S.I.W.I.C.' which took 4th place at\n         Silly Venture 2k19.\n
 /Composers/Duma_Dariusz/Nonsense_Song.sap	COMMENT: 5th place at Forever Reneg8 music compo.\n
 /Composers/Ebner_Christoph_von_Eschen/World_of_Wonders_Against_C.sap	  TITLE: The Hootchy Kootchy Dance\n ARTIST: Sol Bloom\n
 /Composers/Ebner_Christoph_von_Eschen/World_of_Wonders_Amiga_Meg.sap	  TITLE: Heart [from Actually](0:00-0:14)\n ARTIST: Pet Shop Boys\n  TITLE: Nodisco (0:15-0:30)\n ARTIST: Depeche Mode\n  TITLE: Gimme Gimme Gimme (A Man After Midnight) [from Voulez Vous](1:32-1:47)\n ARTIST: ABBA\n  TITLE: Oh L'amour [from Wonderland](2:03-2:18)\n ARTIST: Erasure\n  TITLE: Just Can't Get Enough [from Speak & Spell](2:49-3:04)\n ARTIST: Depeche Mode\n  TITLE: Photographic [from Speak & Spell](3:20-4:17)\n ARTIST: Depeche Mode\n  TITLE: Gimme Gimme Gimme (A Man After Midnight) [from Voulez Vous](5:38-5:53)\n ARTIST: ABBA\n  TITLE: Axel F [from the movie Beverly Hills Cop](6:09-6:25)\n ARTIST: Harold Faltermeyer\nCOMMENT: Possibly a conversion attempt of the Amiga SoundTracker module\n         "Papermix" by Enno & FDT.\n
@@ -161,6 +163,7 @@
 /Composers/Eisenhammer_Zdenek/Flop_magazin_55.sap	  TITLE: Polyester [from the Amiga MOD module]\n ARTIST: Radix\n
 /Composers/Eisenhammer_Zdenek/Flop_magazin_56.sap	  TITLE: Wish Me Luck [from the Amiga MOD module]\n ARTIST: Martin Wall (Mantronix)\n
 /Composers/Eisenhammer_Zdenek/Grand_Prix_Circuit.sap	  TITLE: Grand Prix Circuit, Tune #2 [from the C64 game]\n ARTIST: Kris Hatlelid\n
+/Composers/Eisenhammer_Zdenek/Greenfields.sap	COMMENT: 2nd place at Forever 2019 Atari music compo.\n
 /Composers/Eisenhammer_Zdenek/Happy_Bars.sap	  TITLE: 2010 Survival [from the Amiga MOD module]\n ARTIST: Jostein Dahl Gjelsvik (Trixal) & Oddgeir Hvidsten (Vortex)\n
 /Composers/Eisenhammer_Zdenek/Happy_Birthday_Fandal.sap	  TITLE: Happy Birthday\n ARTIST: Mildred J. Hill\nCOMMENT: Covers a version made by Jogeir Liljedahl on the Amiga.\n
 /Composers/Eisenhammer_Zdenek/Jingle_Bells.sap	  TITLE: One Horse Open Sleigh\n ARTIST: James Lord Pierpont\nCOMMENT: Covers a version made by Martin Nordell (Makrone) on the Amiga.\n
@@ -183,6 +186,7 @@
 /Composers/Eisenhammer_Zdenek/Rain_Bliss.sap	COMMENT: 2nd place at Forever 17 music compo.\n
 /Composers/Eisenhammer_Zdenek/Rolltris_Game.sap	  TITLE: beyond music [from the Amiga MOD module]\n ARTIST: Markus Kaarlonen (Captain)\n
 /Composers/Eisenhammer_Zdenek/Rolltris_Intro.sap	(#1)\n  TITLE: jazzberry juice.edit [from the Amiga MOD module]\n ARTIST: Reed Richards (Reed)\n
+/Composers/Eisenhammer_Zdenek/Skyride.sap	COMMENT: 1st place at Lost Party 2019 executable music compo. \n
 /Composers/Eisenhammer_Zdenek/Sonic_the_Hedgehog_Green_H.sap	  TITLE: Sonic the Hedgehog - Green Hill Zone [from the Sega Megadrive game]\n ARTIST: Takashi Tateishi\n
 /Composers/Eisenhammer_Zdenek/Spellbound_Partial_Version.sap	  TITLE: Spellbound, Tune #1 [from the C64 game]\n ARTIST: Rob Hubbard\n
 /Composers/Eisenhammer_Zdenek/Somewhere.sap	  TITLE: Somewhere [from the Amiga MOD module]\n ARTIST: Sami Vuorensola (Equalizer)\n
@@ -190,7 +194,7 @@
 /Composers/Eisenhammer_Zdenek/Swapz_Hall_of_Fame.sap	  TITLE: Hammastahna [from the Amiga MOD module]\n ARTIST: Jakob Svanholm (Radix)\n
 /Composers/Eisenhammer_Zdenek/Swapz_Ingame.sap	  TITLE: Happy Sundays [from the Amiga MOD module]\n ARTIST: Jakob Svanholm (Radix)\n
 /Composers/Eisenhammer_Zdenek/Swapz_Title.sap	  TITLE: Brainless 3 [from the Amiga MOD module]\n ARTIST: Jakob Svanholm (Radix)\n
-/Composers/Eisenhammer_Zdenek/Ten_Minutes_To_Deadline.sap	COMMENT: 4th place at Forever 16 music compo.\n
+/Composers/Eisenhammer_Zdenek/Ten_Minutes_to_Deadline.sap	COMMENT: 4th place at Forever 16 music compo.\n
 /Composers/Eisenhammer_Zdenek/Tronix.sap	  TITLE: Clubbed to Death [from Furious Angels]\n ARTIST: Rob Dougan\nCOMMENT: The cover is incomplete, as featured in an unfinished entry for the\n         Realtime Compo at Forever 2015.\n
 /Composers/Eisenhammer_Zdenek/Turrican_2_Freedom.sap	  TITLE: Freedom [from the Amiga game Turrican II]\n ARTIST: Chris Hülsbeck\n
 /Composers/Eisenhammer_Zdenek/Turrican_2_Level_1_Traps.sap	  TITLE: The Traps [from the Amiga game Turrican II]\n ARTIST: Chris Hülsbeck\n
@@ -325,6 +329,7 @@
 /Composers/Gilbertson_Gary/Alternate_Reality_City_T_W.sap	COMMENT: This tune takes 12 seconds to start.\n
 /Composers/Golewski_Filip/Another_Speedtro.sap	  TITLE: The Imperial March / Darth Vader's Theme [from Star Wars Episode V](0:00-0:06)\n ARTIST: John Williams\n
 /Composers/Golewski_Filip/Echo_Sampled.sap	  TITLE: Echo [from the Atari XE/XL POKEY]\n ARTIST: Filip Golewski (Zoltar X)\nCOMMENT: Same melody as /Composers/Golewski_Filip/Echo.sap,\n         but with added digi drums.\n
+/Composers/Golewski_Filip/Przybysze_z_Matplanety.sap	  TITLE: Przybysze z Matplanety\n ARTIST: Rafal Blazejewski, Marceli Latoszek, Andrzej Zaucha\n
 /Composers/Gora_Jakub/Holiday.sap	COMMENT: Scenery Copy Party 1998 music compo entry.\n
 /Composers/Gora_Jakub/I_Love_Somebody.sap	COMMENT: Last Party 2002 music compo entry.\n
 /Composers/Gora_Jakub/Kankan.sap	  TITLE: Can Can [from the Orpheus in the Underworld]\n ARTIST: Jacques Offenbach\n
@@ -332,6 +337,7 @@
 /Composers/Gora_Jakub/Return.sap	COMMENT: Lato Ludzików 2002 music compo entry.\n
 /Composers/Gorecki_Marek/Microdemo_4.sap	  TITLE: Diggi-Loo Diggi-Ley\n ARTIST: Herreys\nCOMMENT: A cover of the tune from Atari XE/XL POKEY Digiloo Digiley by Kemal Ezcan.\n
 /Composers/Gorecki_Marek/Microdemo_5.sap	(#3)\n  TITLE: Money, Money [from the movie Cabaret]\n ARTIST: John Kander (music), Fred Ebb (lyrics), performed Joel Grey & Liza Minnelli\nCOMMENT: A cover of the tune from Atari XE/XL POKEY Karriere by Kemal Ezcan.\n(#4)\n  TITLE: Chattanooga Choo Choo\n ARTIST: Glenn Miller and his Orchestra\n
+/Composers/Grabowski_Pawel/Fun_with_Atari.sap	COMMENT: 2nd place at Silly Venture 2019 music compo.\n
 /Composers/Grabowski_Pawel/IQ_Master.sap	COMMENT: Music from the game 'IQ Master' released by ASF in 1992.\n
 /Composers/Grabowski_Pawel/Kult.sap	COMMENT: Music from the game 'Kult' released by ASF in 1992.\n
 /Composers/Grabowski_Pawel/Monstrum.sap	COMMENT: Music from the game 'Monstrum' released by ASF in 1992.\n
@@ -378,6 +384,7 @@
 /Composers/Grayscale/Sychowicz_Lukasz/Ala_ma_kota.sap	  TITLE: Title Theme [from the cartoon series Reksio](0:56-1:12)\n ARTIST: Zenon Kowalowski\n  TITLE: End [from the cartoon series Bolek i Lolek](1:17-1:29)\n ARTIST: Tadeusz Kocyba\n  TITLE: Title Theme [from a cartoon series Koziołek Matołek](1:44-1:55)\n ARTIST: Adam Markiewicz\nCOMMENT: Inspired by musics from Polish cartoon series.\n
 /Composers/Grayscale/Sychowicz_Lukasz/Boremloza.sap	COMMENT: Soundtrack from the demo 'Numen' which won at the Lato Ludzików\n         Copy Party in 2002.\n
 /Composers/Grayscale/Sychowicz_Lukasz/Cabil.sap	COMMENT: 1st place at Rush Hours 1997 music compo.\n
+/Composers/Grayscale/Sychowicz_Lukasz/COINV-20.sap	COMMENT: Soundtrack from the 'COINV-20' intro which won at Atari Area 24h\n         'DIM WIRU$(6502)' compo.\n
 /Composers/Grayscale/Sychowicz_Lukasz/Czarna_dziura_w_dupie.sap	  TITLE: Greensleeves\n ARTIST: Unknown\nCOMMENT: 3rd place at Atari Area 24h 'Black Lamp' music compo.\n
 /Composers/Grayscale/Sychowicz_Lukasz/Drab.sap	COMMENT: Soundtrack from the one-kilobyte intro which won at the Forever Party\n         in 2003.\n
 /Composers/Grayscale/Sychowicz_Lukasz/Draka.sap	COMMENT: Inspired by /Composers/Adam_Gilmore/Draconus.sap\n
@@ -452,6 +459,7 @@
 /Composers/Hay_Adam/Reaxion_Ingame.sap	  TITLE: Reaxion, Tune #1 [from the C64 game]\n ARTIST: Sean Connoly (Odie)\nCOMMENT: The Atari version was made by Adam, with tweaks made by Sean.\n
 /Composers/Hay_Adam/Reaxion_Title.sap	  TITLE: Reaxion, Tune #2 [from the C64 game]\n ARTIST: Sean Connoly (Odie)\nCOMMENT: The Atari version was made by Adam, with tweaks made by Sean.\n
 /Composers/Hay_Adam/Smells_Like_Teen_Spirit.sap	  TITLE: Smells Like Teen Spirit [from Nevermind]\n ARTIST: Nirvana\n
+/Composers/Henning_Mario/ABBUC_139.sap	  TITLE: Deck the Halls with Boughs of Holly\n ARTIST: Welsh Traditional\n
 /Composers/Higgins_Robert/Brandenburg_Concerto_no_5.sap	  TITLE: Brandenburg Concerto No. 5 in D major, BWV 1050, 1st Movement: Allegro\n ARTIST: Johann Sebastian Bach\n
 /Composers/Higgins_Robert/Calliope.sap	  TITLE: Margie (My Little Margie)\n ARTIST: Con Conrad & J. Russel Robinson (music), Benny Davis (lyrics)\n
 /Composers/Higgins_Robert/Courante.sap	  TITLE: Courante from Terpsichore\n ARTIST: Michael Praetorius\n
@@ -724,18 +732,25 @@
 /Composers/Liebich_Tomasz/Vicky_Title.sap	COMMENT: Music from the game 'Vicky' released by L.K. Avalon in 1992.\n
 /Composers/Liebich_Tomasz/Vicky_Victory.sap	COMMENT: Music from the game 'Vicky' released by L.K. Avalon in 1992.\n
 /Composers/Liebich_Tomasz/Wloczykij.sap	COMMENT: Music from the game 'Włóczykij' released by L.K. Avalon in 1993.\n
+/Composers/Lis_Piotr/6502_Problems_but_the_Compo.sap	COMMENT: 2nd place at Atari Area 24h 'DIM WIRU$(6502)' compo.\n
 /Composers/Lis_Piotr/Egy_Lengyel.sap	COMMENT: 1st place at Arok Party 2012 music compo.\n
 /Composers/Lis_Piotr/Gerappaaaaaa.sap	COMMENT: 5th place at Forever 7 music compo.\n
+/Composers/Lis_Piotr/Happy_Birthday_Voicer.sap	COMMENT: 3rd place at Decrunch 2019 executable music compo.\n
+/Composers/Lis_Piotr/I_forgot_the_melody_Again.sap	COMMENT: 2nd place at Lost Party 2019 Atari music compo.\n
 /Composers/Lis_Piotr/I_Love_You_True_Story.sap	COMMENT: 2nd place at Forever 13 music compo.\n
 /Composers/Lis_Piotr/I_Presume_Its_Funny.sap	COMMENT: 3rd place at Forever 9 music compo.\n
+/Composers/Lis_Piotr/January_The_4th_Be_With_Yo.sap	COMMENT: 2nd place at MAGFest Demoparty 2020 chiptune music compo.\n
 /Composers/Lis_Piotr/Jest_Sprawa.sap	COMMENT: 3rd place at Forever 11 music compo.\n
 /Composers/Lis_Piotr/Lampa.sap	COMMENT: 2nd place at Atari Area 24h 'Black Lamp' music compo.\n
+/Composers/Lis_Piotr/Let_Somebody.sap	COMMENT: 1st place at MAGFest Demoparty 2019 chiptune music compo.\n
 /Composers/Lis_Piotr/May_I_Win.sap	COMMENT: 4th place at Forever 6 music compo.\n
 /Composers/Lis_Piotr/Nic_sie_nie_stalo.sap	COMMENT: 5th place at Silly Venture 2011 music compo.\n
 /Composers/Lis_Piotr/Piczung_Do_Kurczaka_Na_Zac.sap	COMMENT: 3rd place at Forever Reneg8 music compo.\n
 /Composers/Lis_Piotr/Przeszlem_Freda_w_lewo.sap	COMMENT: 2nd place at Forever 12 music compo.\n
 /Composers/Lis_Piotr/Wyjasnijmy_to_sobie.sap	COMMENT: 2nd place at Forever 10 music compo.\n
-/Composers/Loos_Uwe/Das_Omen.sap	  TITLE: Das Omen - Teil 1 [from Omen - The Story]\n ARTIST: Mysterious Arts\n
+/Composers/Lis_Piotr/Yo_Falcons.sap	 ARTIST: Tomasz Padura\nCOMMENT: 1st place at Wap-Niak 2018 cover compo.\n
+/Composers/Lis_Piotr/Zasluzene_tretie_miesto.sap	COMMENT: 1st place at Forever 2019 Atari music compo.\n
+/Composers/Loos_Uwe/Das_Omen.sap	  TITLE: Das Omen - Teil 1 [from Omen - The Story]\n ARTIST: Mysterious Art\n
 /Composers/Luberda_Michal/Alchemia.sap	COMMENT: Music from the game 'Alchemia' released by Mirage in 1993.\n
 /Composers/Luberda_Michal/Barahir.sap	COMMENT: Music from the game 'Barahir' released by L.K. Avalon in 1993.\n
 /Composers/Luberda_Michal/Barahir_Ingame.sap	  TITLE: baznewhero [from the Amiga game Hero Quest]\n ARTIST: Barry Leitch\nCOMMENT: Music from the game 'Barahir' released by L.K. Avalon in 1993.\n
@@ -816,7 +831,10 @@
 /Composers/Mikolajczak_Pawel/Janosik.sap	COMMENT: Music from the game 'Janosik' released by Mirage in 1994.\n(#1)\n  TITLE: Main Title [from the TV series Janosik]\n ARTIST: Jerzy Matuszkiewicz\n
 /Composers/Mikolajczak_Pawel/Magia.sap	COMMENT: Music from the game 'Magia' released by Mirage in 1993.\n
 /Composers/Mikolajczak_Pawel/Zbir.sap	COMMENT: Music from the game 'Zbir' released by Mirage in 1993.\n
+/Composers/MotionRide/JIL.sap	COMMENT: 4th place at Silly Venture 2018 music compo.\n
 /Composers/MotionRide/Monday.sap	  TITLE: Monday [from the Amiga MOD module]\n ARTIST: Edvin Fladen (Random Voice)\n
+/Composers/MotionRide/Potato_Heart.sap	COMMENT: 2nd place at 6502 Compo vol. 2.\n
+/Composers/MotionRide/Sound_of_Change.sap	COMMENT: 2nd place at Silly Venture 2018 music compo.\n
 /Composers/Mrozowski_Robert/Going_to_California.sap	  TITLE: Going to California\n ARTIST: Led Zeppelin\n
 /Composers/Mrozowski_Robert/Rock_And_Roll.sap	  TITLE: Rock And Roll [from Led Zeppelin IV]\n ARTIST: Led Zeppelin\n
 /Composers/Mrozowski_Robert/Stairway_to_Heaven.sap	  TITLE: Stairway To Heaven [from Led Zeppelin IV: Four Symbols]\n ARTIST: Led Zeppelin\n
@@ -829,6 +847,7 @@
 /Composers/MusicMarius/Monkey_Island_and_Saints.sap	(#1)\n  TITLE: Introduction [from the game The Secret of Monkey Island]\n ARTIST: Michael Z. Land, Barney Jones, Andy Newell, Patrick Mundy\n(#2)\n  TITLE: When the Saints Go Marching In\n ARTIST: American gospel hymn.\n
 /Composers/Nabialek_Dawid/Benny_Hill_Show_Theme.sap	  TITLE: Yakety Sax [from Yakety Sax]\n ARTIST: James Rich & Boots Randolph\nCOMMENT: Best known from as the title theme to the comedy TV series "The Benny\n         Hill Show". 8th place at Shadows Party 1994 music compo.\n
 /Composers/Nedved_Vojtech/Aoki.sap	COMMENT: 5th place at Forever 9 music compo.\n
+/Composers/Ness_Bryan/Saturn_Rings.sap	COMMENT: 1st place at Silly Venture 2018 music compo.\n
 /Composers/Nieber_Christian/Over_the_Rainbow.sap	  TITLE: Over The Rainbow [from the movie The Wizard of Oz]\n ARTIST: Harold Arlen (music), E.Y.Harburg (lyrics), performed by Judy Garland\n
 /Composers/Niestegge_Stefan/Aggressive.sap	COMMENT: From an unknown Atari ST demo.\n
 /Composers/Niestegge_Stefan/Fujiama_Run.sap	  TITLE: Titles [from Chariots of Fire]\n ARTIST: Vangelis\n
@@ -880,23 +899,38 @@
 /Composers/Pesout_Marek/Alphaville.sap	  TITLE: Big in Japan [from Forever Young]\n ARTIST: Alphaville\n
 /Composers/Pesout_Marek/Blade_Runner.sap	  TITLE: Blade Runner (End Titles) [from the movie]\n ARTIST: Vangelis\n
 /Composers/Pesout_Marek/Blade_Runner_Stereo.sap	  TITLE: Blade Runner (End Titles) [from the movie]\n ARTIST: Vangelis\nCOMMENT: Same as /Composers/Pesout_Marek/Blade_Runner.sap,\n         but with second POKEY support (stereo version).\n
+/Composers/Pesout_Marek/Bol_Effects.sap	COMMENT: Soundtrack from the part 7 ("Bol Effects) of "Top Secret Megademo"\n         which took first place at Forever 2019 Atari demo compo.\n
+/Composers/Pesout_Marek/Breathe.sap	  TITLE: Breathe [from The Fat of the Land]\n ARTIST: Prodigy\nCOMMENT: 6th place at Forever 2019 Atari music compo.\n
 /Composers/Pesout_Marek/Countdown.sap	  TITLE: Final Countdown\n ARTIST: Torsten Gellrich\n
 /Composers/Pesout_Marek/Desert_Dream_Part_2.sap	  TITLE: checknobankh [from the Amiga MOD module]\n ARTIST: Anders Emil Hansen (Merge)\n
+/Composers/Pesout_Marek/Drunk_Man.sap	COMMENT: Second tune from the part 10 ("Credits") of "Top Secret Megademo"\n         which took first place at Forever 2019 Atari demo compo.\n
+/Composers/Pesout_Marek/Dynasty.sap	COMMENT: Soundtrack from the part 2 ("Techno ?!") of "Top Secret Megademo"\n         which took first place at Forever 2019 Atari demo compo.\n
+/Composers/Pesout_Marek/F_King_8bit_Alien_Egg_Lost.sap	COMMENT: 3rd place at Forever 2019 realtime compo.\n
+/Composers/Pesout_Marek/Genlog.sap	COMMENT: First tune from the part 10 ("Credits") of "Top Secret Megademo"\n         which took first place at Forever 2019 Atari demo compo.\n
 /Composers/Pesout_Marek/Golden_Axe.sap	  TITLE: Wilderness [from the arcade game Golden Axe]\n ARTIST: SEGA Sound Team\nCOMMENT: This SID covers the version by Jeroen Tel.\n
 /Composers/Pesout_Marek/Gotham_City_Cathedral.sap	  TITLE: Gotham City Cathedral [from the C64 game Batman, the Movie]\n ARTIST: Matthew Cannon\n
+/Composers/Pesout_Marek/Groovin.sap	COMMENT: Soundtrack from the part 1 ("Intro") of "Top Secret Megademo"\n         which took first place at Forever 2019 Atari demo compo.\n
 /Composers/Pesout_Marek/James_Bond.sap	  TITLE: James Bond Theme [from the James Bond series of movies]\n ARTIST: Monty Norman\n
+/Composers/Pesout_Marek/Lost_In_Time.sap	COMMENT: 5th place at Forever 2019 realtime compo.\n
 /Composers/Pesout_Marek/Lotus_The_Ultimate_Challen.sap	  TITLE: Lotus3 [from the Amiga game Lotus III: The Ultimate Challenge]\n ARTIST: Patrick Phelan\n
 /Composers/Pesout_Marek/Master_of_Lost_Energy.sap	COMMENT: Also known as Master of Evil Heaven.\n
 /Composers/Pesout_Marek/Morning_Coffe.sap	  TITLE: <?>\n ARTIST: Daft Punk\n
+/Composers/Pesout_Marek/No_Good_Start_The_Dance.sap	  TITLE: No Good (Start The Dance) [from Music for the Jilted Generation]\n ARTIST: The Prodigy\nCOMMENT: 8th place at Forever 2019 realtime compo.\n
+/Composers/Pesout_Marek/Omen.sap	  TITLE: Omen [Invaders Must Die]\n ARTIST: The Prodigy\nCOMMENT: 7th place at Forever 2019 realtime compo.\n
 /Composers/Pesout_Marek/Popcorn.sap	  TITLE: Popcorn [from Music To Moog By]\n ARTIST: Gershon Kingsley\n
 /Composers/Pesout_Marek/Pulstar.sap	  TITLE: Pulstar [from Albedo 0.39]\n ARTIST: Vangelis\nCOMMENT: Covers Hypnosis' disco version, from the album "Hypnosis".\n
 /Composers/Pesout_Marek/Second_Reality.sap	  TITLE: Second Reality (Part 2) [from the PC demo "Second Reality"]\n ARTIST: Jonne Valtonen (Purple Motion)\n
+/Composers/Pesout_Marek/Silent_Storm.sap	COMMENT: 3rd place at Silly Venture 2019 music compo.\n
+/Composers/Pesout_Marek/SOS_Solaris.sap	COMMENT: Soundtrack from the part 5 ("Poisons") of "Top Secret Megademo"\n         which took first place at Forever 2019 Atari demo compo.\n
 /Composers/Pesout_Marek/Switch_OFF_The_City.sap	  TITLE: <?>\n ARTIST: Harold Faltermeyer\n
 /Composers/Pesout_Marek/The_Pursuit_of_Vikings.sap	  TITLE: The Pursuit of Vikings\n ARTIST: Amon Amarth\n
+/Composers/Pesout_Marek/Their_Law.sap	  TITLE: Their Law [from Music for the Jilted Generation]\n ARTIST: The Prodigy\nCOMMENT: 10th place at Forever 2019 realtime compo. Almost same as\n         /Composers/Pesout_Marek/Theirlaw.sap, but with second POKEY support\n         (stereo version).\n
 /Composers/Pesout_Marek/Turrican_2.sap	  TITLE: Main Title [from the Amiga game Turrican 2]\n ARTIST: Chris Hülsbeck\n
+/Composers/Pesout_Marek/VooDoo_People.sap	  TITLE: Voodoo People [from Music for the Jilted Generation]\n ARTIST: The Prodigy\nCOMMENT: 9th place at Forever 2019 realtime compo.\n
 /Composers/Pesout_Marek/Warhawk.sap	  TITLE: The Unknown Planet [from Space Experience](0:00)\n ARTIST: John Keating\n  TITLE: Space Agent [from Space Experience](0:41)\n ARTIST: John Keating\n  TITLE: The Unknown Planet [from Space Experience](0:53-1:16)\n ARTIST: John Keating\nCOMMENT: Cover from the C64 game Warhawk, tune #1 by Rob Hubbard.\n
 /Composers/Petrik_Alan/Atari_Style.sap	  TITLE: Gangnam Style (0:06)\n ARTIST: PSY\n
 /Composers/Petrik_Alan/Lokalna_porucha.sap	COMMENT: 1st place at Forever 16 music compo.\n
+/Composers/Petrik_Alan/My_name_is_Andrea.sap	COMMENT: 3rd place at Forever 2019 Atari music compo.\n
 /Composers/Petrik_Alan/Robots.sap	  TITLE: Die Roboter (The Robots) [from The Man Machine (Die Mensch-Maschine)]\n ARTIST: Kraftwerk\n
 /Composers/Potter_Mike/Nautilus.sap	  TITLE: Song of the Volga Boatmen\n ARTIST: Traditional\n
 /Composers/Petrik_Alan/Squeeker_4.sap	  TITLE: Oxygene (Part IV) [from Oxygene]\n ARTIST: Jean Michel Jarre\n
@@ -913,10 +947,12 @@
 /Composers/Polak_Krzysztof/Lulajze_Jezuniu.sap	  TITLE: Lulajże, Jezuniu\n ARTIST: Traditional\nCOMMENT: Polish Christmas carol.\n
 /Composers/Polak_Krzysztof/Przybiezeli_do_Betlejem.sap	  TITLE: Przybieżeli do Betlejem\n ARTIST: Traditional\nCOMMENT: Polish Christmas carol.The title translates from Polish as "They\n         Hastened to Bethlehem".\n
 /Composers/Polak_Krzysztof/Wsrod_Nocnej_Ciszy.sap	  TITLE: Wśrod Nocnej Ciszy\n ARTIST: Traditional\nCOMMENT: Polish Christmas carol.The title translates from Polish as "In the\n         Stillness of the night".\n
+/Composers/Poorten_Ivo/Hallowed_by_the_name.sap	COMMENT: 9th place at Silly Venture 2019 music compo.\n
 /Composers/Poorten_Ivo/Hi_Guys.sap	  TITLE: Symphony No.40, First Movement\n ARTIST: Wolfgang Amadeus Mozart\n
 /Composers/Poorten_Ivo/Stichting_Pokey_Expo_Demo.sap	(#1)\n  TITLE: Eye of the Tiger [from the movie Rocky III]\n ARTIST: Survivor\n(#2)\n  TITLE: The First Time [from the 1988 single]\n ARTIST: Robin Beck\n(#4)\n  TITLE: Beat It [from Thriller]\n ARTIST: Michael Jackson\n(#5)\n  TITLE: What a Feeling [from Flashdance]\n ARTIST: Irene Cara\n(#8)\n  TITLE: The Final Countdown [from The Final Countdown]\n ARTIST: Europe\n
 /Composers/Portelli_Jim/We_Can_Work_It_Out.sap	  TITLE: We Can Work It Out\n ARTIST: The Beatles\n
 /Composers/Portelli_Jim/We_Will_Rock_You.sap	  TITLE: We Will Rock You [from News of the World]\n ARTIST: Queen\n
+/Composers/Postava_Petr/Train_3.sap	COMMENT: The in-game music is a tribute to Stanislaw 'Stanley' Skwiot.\n
 /Composers/Przybyszewski_Krzysztof/	COMMENT: BLB is short for Bloody Butcher.\n
 /Composers/Przybyszewski_Krzysztof/Happy_New_Year.sap	COMMENT: 10th place at QuaST party 1996 music compo.\n
 /Composers/Pucinski_Rafal/Czarny_Alibaba.sap	  TITLE: Czarny Alibaba\n ARTIST: B. Klimczuk (music),T. Urgacz (lyrics),performed by Helena Majdaniec & Niebiesko-Czarni\nCOMMENT: Covers the version by Andrzej Zaucha.\n
@@ -981,6 +1017,8 @@
 /Composers/Radecki_Michal/Entrance_of_Dragon_Intro_2.sap	  TITLE: Imperial March [from the movie Star Wars]\n ARTIST: John Williams\n
 /Composers/Radecki_Michal/Error_in_Line_10.sap	COMMENT: 1st place at Głuchołazy 2012 music compo.\n
 /Composers/Radecki_Michal/Indoktrynacja.sap	  TITLE: An End Once and For All [from the PC game Mass Effect 3]\n ARTIST: Clint Mansell\n
+/Composers/Radecki_Michal/Kotasekup.sap	COMMENT: 8th place at Silly Venture 2019 music compo.\n
+/Composers/Radecki_Michal/My_Ears_in_Pain.sap	COMMENT: 8th place at Silly Venture 2019 music compo.\n
 /Composers/Radecki_Michal/Neuroid.sap	COMMENT: Music from the game 'Neuroid' released by Sikor Soft in 1996.\n
 /Composers/Radecki_Michal/Neuroid_Game_Over.sap	COMMENT: Music from the game 'Neuroid' released by Sikor Soft in 1996.\n
 /Composers/Radecki_Michal/Neuroid_Ingame.sap	COMMENT: Music from the game 'Neuroid' released by Sikor Soft in 1996.\n
@@ -988,6 +1026,7 @@
 /Composers/Radecki_Michal/Spark_Absorber.sap	COMMENT: 6th place at Silly Venture 2011 music compo.\n
 /Composers/Radecki_Michal/Spark_Absorber_Stereo.sap	COMMENT: Same as /Composers/Radecki_Michal/Spark_Absorber.sap,\n         but with second POKEY support (stereo version).\n
 /Composers/Radecki_Michal/Taniec_w_Zaczarowanym_Gaju.sap	  TITLE: Taniec W Zaczarowanym Gaju [from Ogród Króla Świtu]\n ARTIST: Marek Biliński\n
+/Composers/Radecki_Michal/To_sie_wytnie.sap	COMMENT: 6th place at Silly Venture 2019 music compo.\n
 /Composers/Radecki_Michal/Tribute_to.sap	COMMENT: 8th place at Silly Venture 2011 music compo.\n
 /Composers/Radecki_Michal/Zdzicho_z_Pola.sap	  TITLE: Co Ty mi dasz?\n ARTIST: Mig\n
 /Composers/Radzikowski_Ireneusz/Another_Day_in_Paradise.sap	  TITLE: Another Day in Paradise [from But Seriously]\n ARTIST: Phil Collins\n
@@ -1001,6 +1040,7 @@
 /Composers/Ristau_Chuck/Mash.sap	  TITLE: Theme from M*A*S*H (Suicide Is Painless) [from the movie]\n ARTIST: Johnny Mandel\n
 /Composers/Ristau_Chuck/Nights_in_White_Satin.sap	  TITLE: Nights in White Satin [from Days of Future Passed]\n ARTIST: The Moody Blues\n
 /Composers/Roemer_Markus/Biene_Maja.sap	  TITLE: Die Biene Maja [from the cartoon series]\n ARTIST: Karel Svoboda\n
+/Composers/Roemer_Markus/Regenbogen.sap	COMMENT: Soundtrack from the ABBUC 138 intro.\n
 /Composers/Roemer_Markus/Way_You_Are.sap	COMMENT: 6th place at Grayscale Music Competition II.\n
 /Composers/Rogers_Charles/Butterscotch_Drops_of_Lime.sap	  TITLE: Butterscotch Drops of Lime [from the Nintendo Entertainment System]\n ARTIST: Richard J. Armijo (Kulor)\n
 /Composers/Rogers_Charles/Rising_Up.sap	  TITLE: Rising Up\n ARTIST: Stepfilter\n
@@ -1025,8 +1065,9 @@
 /Composers/Simon_Scott_and_Ship_Howard/Yesterday.sap	  TITLE: Yesterday [from Help!]\n ARTIST: The Beatles\n
 /Composers/Skwiot_Stanislaw/Big_in_Japan.sap	  TITLE: Big in Japan [from Forever Young]\n ARTIST: Alphaville\n
 /Composers/Skwiot_Stanislaw/Fortuna.sap	(#1)\n  TITLE: Blue Stars [from the Amiga MOD module]\n ARTIST: Geir Rune Ladehaug (Time Traveller) & Oddgeir Hvidsten (Vortex)\n
-/Composers/Skwiot_Stanislaw/Magia_Krysztalu.sap	(#3)\n  TITLE: Marchewkowe pole [from O dwóch takich, co ukradli księżyc]\n ARTIST: Jan Borysewicz (music), Andrzej Mogielnicki (lyrics), performed by Lady Pank.\n(#4)\n  TITLE: Zaopiekuj się mna [from Serce]\n ARTIST: Rezerwat\n
+/Composers/Skwiot_Stanislaw/Magia_Krysztalu.sap	(#3)\n  TITLE: Marchewkowe pole [from O dwóch takich, co ukradli księżyc]\n ARTIST: Jan Borysewicz (music), Andrzej Mogielnicki (lyrics), performed by Lady Pank.\n(#4)\n  TITLE: Zaopiekuj się mną [from Serce]\n ARTIST: Rezerwat\n
 /Composers/Skwiot_Stanislaw/Music_from_Poland_3.sap	  TITLE: Dom w dolinie mgieł [from E=mc2]\n ARTIST: Marek Biliński\n
+/Composers/Skwiot_Stanislaw/Music_from_Poland_II_p_1_2.sap	(#1)\n  TITLE: Marchewkowe pole [from O dwóch takich, co ukradli księżyc]\n ARTIST: Jan Borysewicz (music), Andrzej Mogielnicki (lyrics), performed by Lady Pank.\n(#2)\n  TITLE: Zaopiekuj się mną [from Serce]\n ARTIST: Rezerwat\n
 /Composers/Skwiot_Stanislaw/Music_from_Poland_II_p_3_4.sap	(#1)\n  TITLE: Hit The Road Jack\n ARTIST: Ray Charles\n(#2)\n  TITLE: Main Title [from the TV series Dziewczyna i chlopak](0:00-1:17)\n ARTIST: Waldemar Kazanecki\n  TITLE: Dom w dolinie mgieł [from E=mc2](1:49-5:04)\n ARTIST: Marek Biliński\n
 /Composers/Skwiot_Stanislaw/Roxette.sap	  TITLE: Listen To Your Heart [from Look Sharp!]\n ARTIST: Roxette\n
 /Composers/Skwiot_Stanislaw/Stanley.sap	COMMENT: 7th place at Shadows Party 1994 music compo.\n
@@ -1041,6 +1082,7 @@
 /Composers/Soelbrandt_Stefan/Bright_Eyes.sap	  TITLE: Bright Eyes [from the movie Watership Down]\n ARTIST: Mike Batt (music), performed by Art Garfunkel\n
 /Composers/Soelbrandt_Stefan/Crillion.sap	  TITLE: Bridge Over Troubled Water [from Bridge Over Troubled Water]\n ARTIST: Simon & Garfunkel\n
 /Composers/Spielmans_Martin/Stand_By_Me.sap	  TITLE: Stand by Me [from Don't Play That Song!]\n ARTIST: Ben E.King (written by Ben E. King, Jerry Leiber, Mike Stoller)\n
+/Composers/Sporka_Adam/While_Kingdom_Was_Being_De.sap	COMMENT: 4th place at Forever 2019 Atari music compo.\n
 /Composers/Stanik_Krzysztof/Ble_ble_ble.sap	COMMENT: 10th place at Grayscale Music Competition II.\n
 /Composers/Stanik_Krzysztof/Guitarous.sap	  TITLE: Guitarous [from the Amiga MOD module]\n ARTIST: Jukka Aho (The Warlock)\n
 /Composers/Stanik_Krzysztof/Mroczny.sap	COMMENT: 9th place at Grayscale Music Competition II.\n
@@ -1111,6 +1153,7 @@
 /Composers/Szpilowski_Michal/Animal_Party_Ingame.sap	  TITLE: Flimbo's Quest, Tune #1 [from the C64 game]\n ARTIST: Reyn Ouwehand\n
 /Composers/Szpilowski_Michal/Asleep.sap	COMMENT: Composed using Chaos Music Composer 4 times/VBL.\n
 /Composers/Szpilowski_Michal/Astaroth.sap	  TITLE: Title [from the Atari ST/Amiga game Astaroth]\n ARTIST: Jochen Hippel\n
+/Composers/Szpilowski_Michal/AutariIntro.sap	COMMENT: Soundtrack from the 'AutariIntro' which took 7th place at Lost\n         Party 2019 wild compo.\n
 /Composers/Szpilowski_Michal/Baracco.sap	COMMENT: Composed using Chaos Music Composer 4 times/VBL.\n
 /Composers/Szpilowski_Michal/Bioptronid.sap	  TITLE: Noisy Pillars, Tune #2 [from the C64 SID]\n ARTIST: Jeroen Tel\n
 /Composers/Szpilowski_Michal/Blekitne_Nimfy.sap	(#1)\n  TITLE: Błękitne Nimfy [from Ogród Króla Świtu]\n ARTIST: Marek Biliński\n
@@ -1402,8 +1445,10 @@
 /Games/Zeppelin.sap	COMMENT: The notes in voice 2 at the beginning of the tune spell out "SOS" in\n         Morse code (...---...).\n
 /Misc/Ave_Maria.sap	  TITLE: Ave Maria\n ARTIST: Johanna S.Bacha & Charlesa Gounoda\n
 /Misc/Bajm.sap	  TITLE: <?>\n ARTIST: Bajm\n
+/Misc/Baluf.sap	COMMENT: 5th place at Silly Venture 2019 music compo.\n
 /Misc/Battle_Ships.sap	  TITLE: Battle Ships, Tune #1 [from the C64 game]\n ARTIST: Mark Cooksey\n
 /Misc/Beams_of_Light.sap	  TITLE: Beams of Light [from the Amiga MOD module]\n ARTIST: Tor Bernhard Gausen (Walkman)\n
+/Composers/Misc/Bitratte.sap	  TITLE: Deck the Halls with Boughs of Holly\n ARTIST: Welsh Traditional\nCOMMENT: Soundtrack from the intro 'Bitratte' which took 7th place at\n         Under Construction 2019 combined oldskool demo compo.\n
 /Misc/Blowin_in_the_Wind.sap	  TITLE: Blowin' in the Wind [from The Freewheelin' Bob Dylan]\n ARTIST: Bob Dylan\n
 /Misc/Bolero.sap	  TITLE: Bolero\n ARTIST: Maurice Ravel\n
 /Misc/Cantata.sap	  TITLE: Du wahrer Gott und Davids Sohn, BWV 23\n ARTIST: Johann Sebastian Bach\n
@@ -1419,13 +1464,16 @@
 /Misc/Epileptic_Duck.sap	COMMENT: 2nd place at Winter Chip II (Best Pokey) music compo.\n
 /Misc/Final_Fantasy_3.sap	  TITLE: The Prelude [from Final Fantasy IV Piano Collections]\n ARTIST: Nobuo Uematsu\n
 /Misc/Final_Fantasy_Prelude.sap	  TITLE: The Prelude [from Final Fantasy IV Piano Collections]\n ARTIST: Nobuo Uematsu\n
+/Misc/Gehehjsj.sap	COMMENT: 1st place at Silly Venture 2019 music compo.\n
 /Misc/Grass_Slideshow_Intro.sap	  TITLE: Second Reality (Part 2) [from the PC demo "Second Reality"](0:00-1:01)\n ARTIST: Jonne Valtonen (Purple Motion)\nCOMMENT: Uses only a fraction of the original song.\n
 /Misc/Huhi.sap	COMMENT: 6th place at Winter Chip II (Best Pokey) music compo.\n
 /Misc/Janosik.sap	  TITLE: Main Title [from the TV series Janosik]\n ARTIST: Jerzy Matuszkiewicz\n
 /Misc/KevSoft.sap	  TITLE: Living on Video [from Living on Video]\n ARTIST: Trans-X\n
+/Misc/Kolector_Dream.sap	COMMENT: 7th place at Silly Venture 2019 music compo.\n
 /Misc/Luzik.sap	  TITLE: Zepi [from the Atari XE/XL POKEY]\n ARTIST: Bartosz Kalinowski (Bartman)\nCOMMENT: Last Party 1998 music compo entry.\n         Cover /Composers/Kalinowski_Bartosz/Zepi.sap\n
 /Misc/Nyan_Cat.sap	  TITLE: Nyanyanyanyanyanyanya!\n ARTIST: DaniwellP featuring Hatsune Miku\nCOMMENT: Also known as Nyan Cat Song, one of the most famous internet memes.\n
 /Misc/Ogloszenie.sap	  TITLE: Main Title [from the TV series Janosik](0:23-0:45)\n ARTIST: Jerzy Matuszkiewicz\n  TITLE: Main Title [from the TV series Janosik](1:09-1:33)\n ARTIST: Jerzy Matuszkiewicz\n
+/Misc/Ojcze_ojcze.sap	COMMENT: 3rd place at Lost Party 2019 executable music compo.\n
 /Misc/Pizza_Margerita_Suxx.sap	COMMENT: Lato Ludzików 2000 music compo entry.\n
 /Misc/Preludium_no_20.sap	  TITLE: Prelude No.20 in A minor (BWV 889)\n ARTIST: Johann Sebastian Bach\n
 /Misc/Pytaj.sap	  TITLE: Nie pytaj o Polskę\n ARTIST: Obywatel G.C.\n
@@ -1438,7 +1486,9 @@
 /Misc/Spring.sap	  TITLE: Le Quattro Stagioni, Op.8 No.1 "La primavera" (Allegro)\n ARTIST: Antonio Vivaldi\n
 /Misc/Star_Wars.sap	  TITLE: Main Title [from all the Star Wars movies]\n ARTIST: John Williams\n
 /Misc/Strangers_in_the_Night.sap	  TITLE: Strangers in The Night\n ARTIST: Frank Sinatra\n
+/Misc/Synk_Bass.sap	COMMENT: 4th place at Silly Venture 2019 music compo.\n
 /Misc/Takie_Cos.sap	COMMENT: Lato Ludzików 2001 music compo entry.\n
+/Misc/The_Revolte.sap	COMMENT: Soundtrack from the part 3 ("Rick Part") of "Top Secret Megademo"\n         which took first place at Forever 2019 Atari demo compo.\n
 /Misc/The_Top_2_Digi_Part.sap	COMMENT: This song is converted from a C64 production made by Censor Design.\n
 /Misc/Traces_of_Love.sap	  TITLE: Traces of Love [from Miscellaneous]\n ARTIST: The Classics IV\n
 /Misc/What_Is_Love.sap	  TITLE: What Is Love\n ARTIST: Haddaway\n
