@@ -53,25 +53,25 @@ XSFConfig_SNSF::XSFConfig_SNSF() : XSFConfig(), /*sixteenBitSound(false), */reve
 void XSFConfig_SNSF::LoadSpecificConfig()
 {
 	//this->sixteenBitSound = this->configIO->GetValue("SixteenBitSound", XSFConfig_SNSF::initSixteenBitSound);
-	this->reverseStereo = this->configIO->GetValue("ReverseStereo", XSFConfig_SNSF::initReverseStereo);
-	this->resampler = this->configIO->GetValue("Resampler", XSFConfig_SNSF::initResampler);
-	std::stringstream mutesSS(this->configIO->GetValue("Mutes", XSFConfig_SNSF::initMutes));
-	mutesSS >> this->mutes;
+	//this->reverseStereo = this->configIO->GetValue("ReverseStereo", XSFConfig_SNSF::initReverseStereo);
+	//this->resampler = this->configIO->GetValue("Resampler", XSFConfig_SNSF::initResampler);
+	//std::stringstream mutesSS(this->configIO->GetValue("Mutes", XSFConfig_SNSF::initMutes));
+	//mutesSS >> this->mutes;
 }
 
 void XSFConfig_SNSF::SaveSpecificConfig()
 {
 	//this->configIO->SetValue("SixteenBitSound", this->sixteenBitSound);
-	this->configIO->SetValue("ReverseStereo", this->reverseStereo);
-	this->configIO->SetValue("Resampler", this->resampler);
-	this->configIO->SetValue("Mutes", this->mutes.to_string<char>());
+	//this->configIO->SetValue("ReverseStereo", this->reverseStereo);
+	//this->configIO->SetValue("Resampler", this->resampler);
+	//this->configIO->SetValue("Mutes", this->mutes.to_string<char>());
 }
 
 void XSFConfig_SNSF::GenerateSpecificDialogs()
 {
 	/*this->configDialog.AddCheckBoxControl(DialogCheckBoxBuilder(L"Sixteen-Bit Sound").WithSize(80, 10).InGroup(L"Output").WithRelativePositionToSibling(RelativePosition::FROM_BOTTOMLEFT, Point<short>(0, 7), 2).WithTabStop().
 		WithID(idSixteenBitSound));*/
-	this->configDialog.AddCheckBoxControl(DialogCheckBoxBuilder(L"Reverse Stereo").WithSize(80, 10).InGroup(L"Output").WithRelativePositionToSibling(RelativePosition::FROM_BOTTOMLEFT, Point<short>(0, 7), 2).WithTabStop().
+	/*this->configDialog.AddCheckBoxControl(DialogCheckBoxBuilder(L"Reverse Stereo").WithSize(80, 10).InGroup(L"Output").WithRelativePositionToSibling(RelativePosition::FROM_BOTTOMLEFT, Point<short>(0, 7), 2).WithTabStop().
 		WithID(idReverseStereo));
 	this->configDialog.AddLabelControl(DialogLabelBuilder(L"Resampler").WithSize(50, 8).InGroup(L"Output").WithRelativePositionToSibling(RelativePosition::FROM_BOTTOMLEFT, Point<short>(0, 10)).IsLeftJustified());
 	this->configDialog.AddComboBoxControl(DialogComboBoxBuilder().WithSize(78, 14).InGroup(L"Output").WithRelativePositionToSibling(RelativePosition::FROM_TOPRIGHT, Point<short>(5, -3)).WithTabStop().IsDropDownList().
@@ -79,8 +79,10 @@ void XSFConfig_SNSF::GenerateSpecificDialogs()
 	this->configDialog.AddLabelControl(DialogLabelBuilder(L"Mute").WithSize(50, 8).InGroup(L"Output").WithRelativePositionToSibling(RelativePosition::FROM_BOTTOMLEFT, Point<short>(0, 10), 2).IsLeftJustified());
 	this->configDialog.AddListBoxControl(DialogListBoxBuilder().WithSize(78, 45).WithExactHeight().InGroup(L"Output").WithRelativePositionToSibling(RelativePosition::FROM_TOPRIGHT, Point<short>(5, -3)).WithID(idMutes).WithBorder().
 		WithVerticalScrollbar().WithMultipleSelect().WithTabStop());
+     */
 }
 
+#if 0
 INT_PTR CALLBACK XSFConfig_SNSF::ConfigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -131,6 +133,7 @@ void XSFConfig_SNSF::SaveSpecificConfigDialog(HWND hwndDlg)
 	for (int x = 0, numMutes = this->mutes.size(); x < numMutes; ++x)
 		this->mutes[x] = !!SendMessageW(GetDlgItem(hwndDlg, idMutes), LB_GETSEL, x, 0);
 }
+#endif
 
 void XSFConfig_SNSF::CopySpecificConfigToMemory(XSFPlayer *, bool preLoad)
 {
@@ -144,8 +147,9 @@ void XSFConfig_SNSF::CopySpecificConfigToMemory(XSFPlayer *, bool preLoad)
 		S9xSetSoundControl(static_cast<uint8_t>(this->mutes.to_ulong()) ^ 0xFF);
 }
 
-void XSFConfig_SNSF::About(HWND parent)
+/*void XSFConfig_SNSF::About(HWND parent)
 {
 	MessageBoxW(parent, ConvertFuncs::StringToWString(XSFConfig::commonName + " v" + XSFConfig::versionNumber + ", using xSF Winamp plugin framework (based on the vio*sf plugins) by Naram Qashat (CyberBotX) [cyberbotx@cyberbotx.com]\n\n"
 		"Utilizes modified snes9x v1.53 for audio playback.").c_str(), ConvertFuncs::StringToWString(XSFConfig::commonName + " v" + XSFConfig::versionNumber).c_str(), MB_OK);
 }
+*/

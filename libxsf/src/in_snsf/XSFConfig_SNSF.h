@@ -31,12 +31,12 @@ protected:
 	void LoadSpecificConfig();
 	void SaveSpecificConfig();
 	void GenerateSpecificDialogs();
-	INT_PTR CALLBACK ConfigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+/*	INT_PTR CALLBACK ConfigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void ResetSpecificConfigDefaults(HWND hwndDlg);
-	void SaveSpecificConfigDialog(HWND hwndDlg);
+	void SaveSpecificConfigDialog(HWND hwndDlg);*/
 	void CopySpecificConfigToMemory(XSFPlayer *xSFPlayer, bool preLoad);
 public:
 	unsigned resampler;
 
-	void About(HWND parent);
+	//void About(HWND parent);
 };

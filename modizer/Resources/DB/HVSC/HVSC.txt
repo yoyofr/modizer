@@ -2,9 +2,9 @@
                         T H E   H I G H   V O L T A G E
                           S I D   C O L L E C T I O N
 
-                                  Release 71
+                                  Release 73
 
-                                 June 30, 2019
+                                June 27, 2020
 
 Compiled by:
 ------------
@@ -205,7 +205,7 @@ collection in existence.
 
   For a complete list of supported OSes with links see:
 
-    The HVSC Page: http://www.hvsc.c64.org/
+    The HVSC Page: https://hvsc.c64.org/
 
 [1-3] The HVSC Philosophy
 =========================
@@ -855,7 +855,7 @@ ANY
 =======================
 
     Much information about ripping is provided at our Help page.
-    http://hvsc.c64.org/Help/index.html
+    https://hvsc.c64.org/Help/index.html
 
     One rasterline has exactly 63 cycles on a PAL machine.
     Hence, the total amount of cycles available
@@ -901,7 +901,7 @@ and corrected information we receive.  The current rate of updating is every
 six months or thereabouts, but as we now have 41,200+ SID files, the
 likelyhood of finding more does diminish with every update.
 
-The HVSC Page:  http://www.hvsc.c64.org/
+The HVSC Page:  https://hvsc.c64.org/
 
 -------------------------------
 Chapter [5]: Included Documents

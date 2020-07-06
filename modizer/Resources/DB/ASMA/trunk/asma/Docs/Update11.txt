@@ -1,0 +1,77 @@
+ASMA Update #11
+
+These rips together with the original ASMA collection will make version 1.1
+of the ASMA (out of version 1.0).
+
+Number of new tunes: 49
+Credits fixes: 7
+Filename changes: 4
+
+New tunes
+---------
+Demos/Annael.sap
+Demos/Chip.sap
+Demos/Dead.sap
+Demos/Halle_Project_Another_Part.sap
+Demos/Halle_Project_Bitplans.sap
+Demos/Halle_Project_CSS_Vector.sap
+Demos/Halle_Project_Greetz.sap
+Demos/Halle_Project_MCMXCII.sap
+Demos/Halle_Project_Visdom.sap
+Demos/Halle_Project_Waves.sap
+Demos/Hobbytronic_90_Vector_Ball.sap
+Demos/Hobbytronic_90_Vector_Part.sap
+Demos/Hobbytronic_92_3.sap
+Demos/Logic.sap
+Demos/Small.sap
+Demos/Suspic.sap
+Demos/The_Top_1.sap
+Demos/Top_Crew_Part.sap
+Games/Various/Herbert.sap
+Games/Various/Hydraulik.sap
+Games/Various/Streets.sap
+Games/Various/Streets_Ingame.sap
+Unsorted/Abbuc_20.sap
+Unsorted/Abbuc_25.sap
+Unsorted/Abbuc_35.sap
+Various/Sterba_Radek/Flop_Magazin_30_Just_Now.sap
+Various/Sterba_Radek/Flop_Magazin_31.sap
+Various/Sterba_Radek/Flop_Magazin_31_Christmas.sap
+Various/Sterba_Radek/Flop_Magazin_32.sap
+Various/Sterba_Radek/Flop_Magazin_33.sap
+Various/Sterba_Radek/Flop_Magazin_34.sap
+Various/Sterba_Radek/Flop_Magazin_35_BH90210.sap
+Various/Sterba_Radek/Flop_Magazin_36_38.sap
+Various/Sterba_Radek/Flop_Magazin_37.sap
+Various/Sterba_Radek/Flop_Magazin_39.sap
+Various/Sterba_Radek/Flop_Magazin_40.sap
+Various/Sterba_Radek/Flop_Magazin_41.sap
+Various/Sterba_Radek/Gunhead.sap
+Various/Sterba_Radek/Illusion_2.sap
+Various/Sterba_Radek/Illusion_4.sap
+Various/Sterba_Radek/Imagine.sap
+Various/Sterba_Radek/Magnetit_Ingame.sap
+Various/Sterba_Radek/Naturix.sap
+Various/Sterba_Radek/Naturix_Demo.sap
+Various/Sterba_Radek/Naturix_Demo_Tune_2.sap
+Various/Sterba_Radek/Naturix_Tune_2.sap
+Various/Sterba_Radek/Naturix_Tune_3.sap
+Various/Sterba_Radek/Turrican_2_Experiment.sap
+Various/Witkiewicz_Dariusz/Annael.sap
+
+Credits fixes & updates
+-----------------------
+Classics/Munns_Richard/Plastron_Ingame.sap
+Demos/The_Top_2_Digi_Part.sap
+Games/Various/Magia_Krysztalu.sap
+Various/Galinski_Adrian/Drop_It.sap
+Various/Husak_Jakub/Bank_Bang_2.sap
+Various/Husak_Jakub/Bank_Bang_Title.sap
+Various/Trokowicz_B/Miecze_Valdgira_Title.sap
+
+Renamed files
+-------------
+Games/Various/U235_2.sap > U235_Ingame.sap
+Various/Husak_Jakub/Bank_Bang_2.sap > Bank_Bang_Ingame_Tunes.sap
+Various/Husak_Jakub/Bank_Bang_Title.sap > Bank_Bang.sap
+Various/Trokowicz_B/Miecze_Valdgira_Title.sap > Miecze_Valdgira.sap

@@ -1,0 +1,399 @@
+ASMA Update #30
+Date: January 3, 2006
+
+These rips together with the original ASMA collection will make version 3.0
+of the ASMA (out of version 2.9).
+
+Number of new tunes: 128
+Credits fixes: 221
+Better rips: 6
+Removed files: 22
+
+New tunes
+---------
+Demos/Madintro.sap
+Games/Various/Atomia.sap
+Games/Various/Spy_Fucker_Ingame.sap
+Unsorted/Immortal.sap
+Unsorted/Inspiration_Comes_Again.sap
+Unsorted/Rubbish.sap
+Various/Bienias_Adam/Haddaway.sap
+Various/Bienias_Adam/Moonlight_Shadow.sap
+Various/Bienias_Adam/Puzzlenoid_1.sap
+Various/Bienias_Adam/Puzzlenoid_5.sap
+Various/Ce_Pumpkin/R0l0_5_Rulu.sap
+Various/Ce_Pumpkin/Radyjo_M.sap
+Various/Ce_Pumpkin/Too_Hard_4_1.sap
+Various/Ce_Pumpkin/Too_Hard_4_2.sap
+Various/Cierkonski_Michal/Mission_Dupa.sap
+Various/Cierkonski_Michal/Mixer_1.sap
+Various/Cierkonski_Michal/Mixer_2.sap
+Various/Cierkonski_Michal/Qcyk_Intro.sap
+Various/Cierkonski_Michal/Schizophrenics_Vision.sap
+Various/Czlowiek_W_Atomizerze/p0maranCZ0WA_plAma.sap
+Various/Czlowiek_W_Atomizerze/PoCZWArka.sap
+Various/Drozdowski_Marek/Anim2.sap
+Various/Drozdowski_Marek/Polar.sap
+Various/Drozdowski_Marek/Story_2.sap
+Various/Eisenhammer_Zdenek/Retrovibes.sap
+Various/Galinski_Adrian/Crypts_of_Egypt_Ingame.sap
+Various/Grabowski_Pawel/IQ_Master.sap
+Various/Grabowski_Pawel/KULT.sap
+Various/Grabowski_Pawel/Skarbnik.sap
+Various/Grad_Jacek/Artefakt_Przodkow.sap
+Various/Grayscale/Wasiel_Bartek/Forever.sap
+Various/Hay_Adam/A642.sap
+Various/Hay_Adam/Commando.sap
+Various/Hay_Adam/Discozax.sap
+Various/Hay_Adam/Gyges_Will_You_Help_Me.sap
+Various/Jastrzemski_Marcin/Fox.sap
+Various/Kalinowski_Bartosz/End2.sap
+Various/Kalinowski_Bartosz/Fafik.sap
+Various/Kalinowski_Bartosz/Lufab.sap
+Various/Kalinowski_Bartosz/Hivmania_Ingame.sap
+Various/Kalinowski_Bartosz/Miuzik.sap
+Various/Kalinowski_Bartosz/My_Own_World.sap
+Various/Kalinowski_Bartosz/Orevuar.sap
+Various/Kalinowski_Bartosz/Piecyk.sap
+Various/Kalinowski_Bartosz/Politura.sap
+Various/Kalinowski_Bartosz/Pyrkanie.sap
+Various/Kalinowski_Bartosz/Rzaluzja.sap
+Various/Kalinowski_Bartosz/Sleep_Dream.sap
+Various/Kalinowski_Bartosz/Solitax.sap
+Various/Kalinowski_Bartosz/Vicary.sap
+Various/Kalinowski_Bartosz/We_Want_To_Learn_Assembler.sap
+Various/Karwacki_Jakub/Lanos.sap
+Various/Kucharski_Konrad/Fever.sap
+Various/Kucharski_Konrad/My_Ass.sap
+Various/Lepkowski_Michal/Since.sap
+Various/Lepkowski_Michal/The_Mercy.sap
+Various/Lepkowski_Michal/Zero_Sign.sap
+Various/Majewski_Tomasz/Convict.sap
+Various/Majewski_Tomasz/Magic_Fly.sap
+Various/Majewski_Tomasz/Ninja.sap
+Various/Martin_Aleksander/Alex_7.sap
+Various/Martin_Aleksander/Kit_14.sap
+Various/Martin_Aleksander/Waves.sap
+Various/Padula_Jaroslaw/Da_Bass.sap
+Various/Padula_Jaroslaw/Fuckcore.sap
+Various/Padula_Jaroslaw/Keczapek.sap
+Various/Padula_Jaroslaw/Kwas.sap
+Various/Padula_Jaroslaw/Martwa_Cisha.sap
+Various/Padula_Jaroslaw/Psh4_Remix.sap
+Various/Padula_Jaroslaw/Pszykowitz.sap
+Various/Padula_Jaroslaw/So_Old.sap
+Various/Padula_Jaroslaw/Strefa_Smierci.sap
+Various/Padula_Jaroslaw/Very_Very.sap
+Various/Padula_Jaroslaw/Wave_X.sap
+Various/Przybyszewski_Krzysztof/Tanguage.sap
+Various/Pucinski_Rafal/Czarny_Alibaba.sap
+Various/Pucinski_Rafal/Disk.sap
+Various/Pucinski_Rafal/Unknown_4.sap
+Various/Roemer_Markus/Stolen_by.sap
+Various/Sterba_Radek/Cervi2.sap
+Various/Sterba_Radek/Cubico.sap
+Various/Sterba_Radek/It_Doesnt_Matter.sap
+Various/Sterba_Radek/Paul_The_Penguin.sap
+Various/Swierszcz_Piotr/Monday_Song.sap
+Various/Swierszcz_Piotr/Ramaja.sap
+Various/Swierszcz_Piotr/Rapsody_for_Khihal_M.sap
+Various/Swierszcz_Piotr/TBL_TINT_Secondpart.sap
+Various/Szmatola_Krzysztof/Syn_Boga_Wiatru.sap
+Various/Szmatola_Krzysztof/Syn_Boga_Wiatru_Title.sap
+Various/Szpilowski_Michal/Asleep.sap
+Various/Szpilowski_Michal/Baracco.sap
+Various/Szpilowski_Michal/Cherry_Rave_Experimental.sap
+Various/Szpilowski_Michal/Clorox.sap
+Various/Szpilowski_Michal/Creature.sap
+Various/Szpilowski_Michal/Disco_Mix.sap
+Various/Szpilowski_Michal/Docent.sap
+Various/Szpilowski_Michal/Faza_2.sap
+Various/Szpilowski_Michal/Forsaken_Love_2_2.sap
+Various/Szpilowski_Michal/H2SO7.sap
+Various/Szpilowski_Michal/Herman_Ingame.sap
+Various/Szpilowski_Michal/Herman_Intro.sap
+Various/Szpilowski_Michal/Hitting.sap
+Various/Szpilowski_Michal/Intro_BB_2.sap
+Various/Szpilowski_Michal/It_s_Over.sap
+Various/Szpilowski_Michal/Kombi_Nietykalni.sap
+Various/Szpilowski_Michal/Lastmeet.sap
+Various/Szpilowski_Michal/Moscow_1993_Stage_1.sap
+Various/Szpilowski_Michal/Moscow_1993_Stage_2.sap
+Various/Szpilowski_Michal/Moscow_1993_Title.sap
+Various/Szpilowski_Michal/My_First_One_RMT.sap
+Various/Szpilowski_Michal/Oferma.sap
+Various/Szpilowski_Michal/Poseidon.sap
+Various/Szpilowski_Michal/Proper.sap
+Various/Szpilowski_Michal/rAmols_Revenge.sap
+Various/Szpilowski_Michal/Sexy_Six_Ingame_1.sap
+Various/Szpilowski_Michal/Sexy_Six_Ingame_2.sap
+Various/Szpilowski_Michal/Song_12.sap
+Various/Szpilowski_Michal/Song16.sap
+Various/Szpilowski_Michal/Song9.sap
+Various/Szpilowski_Michal/Teacher_Killer_End.sap
+Various/Szpilowski_Michal/Teacher_Killer_Intro.sap
+Various/Szpilowski_Michal/Techdrum.sap
+Various/Szpilowski_Michal/Wayne.sap
+Various/Szpilowski_Michal/Wyprawy_Kupca.sap
+Various/Szpilowski_Michal/X_Demo_Main_Part.sap
+Various/Wasilewski_Dariusz/Buu.sap
+Various/Wasilewski_Dariusz/Labirynt_Smierci.sap
+Various/Witkiewicz_Dariusz/Van_1.sap
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Classics/Ezcan_Kemal/Aquanaut.sap : AUTHOR "Kemal Ezcan (KE-SOFT)"
+Classics/Ezcan_Kemal/Cavehunt.sap : AUTHOR "Kemal Ezcan (KE-SOFT)"
+Classics/Ezcan_Kemal/Digiloo_Digiley.sap : AUTHOR "Kemal Ezcan (KE-SOFT)"
+Classics/Munns_Richard/Black_Lamp_Ingame.sap : AUTHOR "Richard Munns"
+Classics/Munns_Richard/Heart_Break.sap : AUTHOR "Richard Munns"
+Classics/Munns_Richard/Space_Lobsters.sap (Typo in header format - DATE tag)
+Classics/Whittaker_David/Living_Daylights.sap (Typo in header format - missing quotation mark)
+Classics/Whittaker_David/Red_Max.sap (Typo in header format - DATE tag)
+Demos/Another_Speedtro.sap > Various/Golewski_Filip/
+Demos/Bitter_Reality_Loader.sap > Various/Bienias_Adam/ : AUTHOR "Adam Bienias (SoTe)"
+Demos/Bitter_Reality_Rzog_Plazma.sap > Various/Bienias_Adam/ : AUTHOR "Adam Bienias (SoTe)"
+Demos/Elenium.sap > Various/Szpilowski_Michal/
+Demos/Endless_Dream_4.sap : NAME "Endless Dream - 4"
+Demos/Help_Me_Intro_3.sap > Various/Lepkowski_Michal/
+Demos/Invitro_Orneta_95.sap > Various/Bienias_Adam/
+Demos/Juzek.sap > Various/Czartynski_Marcin/
+Demos/Nemesis_2.sap > Various/Liebich_Tomasz/Nemesis_1.sap : DATE "1990"
+Demos/The_Top_2_Digi_Part.sap : AUTHOR "<?>"
+Demos/Time_To_Enjoy_2.sap > Various/Claas_Clever/ : AUTHOR "<?> (Claas Clever)"
+Demos/World_of_Wonders_1.sap > Various/Claas_Clever/World_of_Wonders_Against_C.sap : AUTHOR "<?> (Claas Clever)" NAME "World of Wonders - Against Commodore"
+Demos/World_of_Wonders_2.sap > Various/Claas_Clever/World_of_Wonders_Fantasy.sap : AUTHOR "<?> (Claas Clever)" NAME "World of Wonders - Fantasy"
+Demos/World_of_Wonders_3.sap > Various/Claas_Clever/World_of_Wonders_Amiga_Meg.sap : AUTHOR "<?> (Claas Clever)" NAME "World of Wonders - Amiga Mega Mix"
+Demos/World_of_Wonders_4.sap > Various/Claas_Clever/World_of_Wonders_Goldrunne.sap : AUTHOR "<?> (Claas Clever)" NAME "World of Wonders - Goldrunner"
+Demos/World_of_Wonders_5.sap > Various/Claas_Clever/World_of_Wonders_Anti_Comm.sap : AUTHOR "<?> (Claas Clever)" NAME "World of Wonders - Anti Commodore Soundtrack"
+Demos/World_of_Wonders_6.sap > Various/Claas_Clever/World_of_Wonders_Katakis.sap : AUTHOR "<?> (Claas Clever)" NAME "World of Wonders - Katakis"
+Demos/World_of_Wonders_7.sap > Various/Claas_Clever/World_of_Wonders_Atari_Fev.sap : AUTHOR "<?> (Claas Clever)" NAME "World of Wonders - Atari Fever"
+Demos/Windows95_1.sap : AUTHOR "Krzysztof Sieniawski"
+Demos/Windows95_2.sap : AUTHOR "Krzysztof Sieniawski"
+Games/Classic/Blue_Max_2000.sap > Blue_Max_2001.sap
+Games/Classic/Capt_Stickys_Gold.sap > Classics/Huntington_Glenys/
+Games/Classic/Crazy_Copter.sap > Classics/Huntington_Glenys/Krazy_Kopter.sap : DATE "1983"
+Games/Classic/Fire_Chief.sap > Classics/Huntington_Glenys/
+Games/Classic/Loco.sap : AUTHOR "<?> (WE M.U.S.I.C.)"
+Games/Classic/Robin_Hood.sap > Classics/Huntington_Glenys/
+Games/Classic/Schreckenstein.sap (Typo in header format - DATE tag)
+Games/Classic/Speed_Matter.sap > Various/Claas_Clever/ : AUTHOR "<?> (Claas Clever)"
+Games/Classic/Whistlers_Brothers.sap (Typo in header format - DATE tag)
+Games/Various/Deneb.sap : AUTHOR "<?>"
+Games/Various/Droga_Wojovnika_Preview.sap > Droga_Wojownika_Preview.sap
+Games/Various/Dziedzictwo_Gigantow.sap : AUTHOR "Tomasz Sadza"
+Games/Various/Hans_Kloss.sap : AUTHOR "Daniel Kleczynski (D.K.)"
+Games/Various/Kult.sap > Kult_Cover.sap : AUTHOR "<?>" NAME "Kult - Cover" DATE "<?>"
+Games/Various/Missile_Action.sap > Various/Swierszcz_Piotr/
+Games/Various/Monstrum.sap > Various/Grabowski_Pawel/ : DATE "1992"
+Games/Various/Nexus_Ingame_1.sap > Various/Szpilowski_Michal/ : NAME "Nexus - Ingame - 1"
+Games/Various/Nexus_Ingame_2.sap > Various/Szpilowski_Michal/ : NAME "Nexus - Ingame - 2"
+Games/Various/Nexus_Ingame_3.sap > Various/Szpilowski_Michal/ : NAME "Nexus - Ingame - 3"
+Games/Various/Raszyn.sap > Various/Husak_Jakub/Raszyn_1809.sap
+Games/Various/Super_Heart.sap > Various/Pelc_Janusz/Try.sap : NAME "Try"
+Games/Various/Cywilizacja_Intro.sap > Various/Witkowski_Przemyslaw/
+Games/Various/Upior.sap > Various/Witkowski_Przemyslaw/
+Unsorted/Czad.sap : AUTHOR "<?>"
+Unsorted/Debilizator_1_Music_2.sap > Various/Sledz_Slawek/
+Unsorted/Debilizator_1_Pytadlo_o_In.sap > Various/Sledz_Slawek/
+Unsorted/Dreamer.sap > Various/Majewski_Tomasz/
+Unsorted/Mega_Player_151_Hidden_mus.sap > Various/Majewski_Tomasz/
+Unsorted/Miksik.sap : AUTHOR "<?> (Kalu$)"
+Unsorted/Self_Test.sap : AUTHOR "<?> (Atari Corp.)"
+Unsorted/Serious_Magazine_3_1.sap > Various/Czartynski_Marcin/ : NAME "Serious Magazine 3 - 1"
+Unsorted/Serious_Magazine_9_Credits.sap > Various/Jastrzemski_Marcin/Slow.sap : AUTHOR "Marcin Jastrzemski (Fatman) & Tomasz Majewski (Mayonez)" DATE "1996 <?>"
+Unsorted/Small.sap > Various/Duesterhoeft_Stephan/
+Unsorted/That_Demo_1.sap > Various/Krawczyk_Adam/ : AUTHOR "Adam Krawczyk (Monti)
+Unsorted/The_Ramones_Would_Have_Lik.sap > Various/Roemer_Markus/
+Unsorted/The_way_you_are.sap > Various/Roemer_Markus/
+Various/Badkowski_Marek/Intel_Outside_4_Invitro.sap > Skyscraper.sap : AUTHOR "Marek Badkowski (Bac)"
+Various/Badkowski_Marek/Jade.sap : AUTHOR "Marek Badkowski (Bac)"
+Various/Bienias_Adam/Bitter_Reality.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Farewell.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Filet_Lazma.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Flexible_Sq.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Greetings_P.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Loader.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Partyland_1.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Partyland_2.sap : DATE "1994"
+Various/Bienias_Adam/Bitter_Reality_Rzog_Plazma.sap : DATE "1994"
+Various/Bienias_Adam/Enroll_Song.sap : NAME "Enroll Song"
+Various/Bienias_Adam/Overmind_9.sap : AUTHOR "Adam Bienias (SoTe) & Michal Szpilowski (Miker) & Lukasz Sychowicz (X-Ray)"
+Various/Bienias_Adam/Unknown.sap > Puzzlenoid_2.sap
+Various/Bryla_Krzysztof/Endless_Dream_2.sap : NAME "Endless Dream - 2"
+Various/Bryla_Krzysztof/Ray_of_Hope_Display_List.sap : DATE "1994"
+Various/Ce_Pumpkin/Too_Hard_3.sap : AUTHOR "<?> (Ce-Pumpkin)"
+Various/Cierkonski_Michal/Pruters.sap : AUTHOR "Michal Cierkonski (Morgoth)"
+Various/Czartynski_Marcin/Big_Mack.sap : AUTHOR "Marcin Czartynski (Cedyn)"
+Various/Czartynski_Marcin/Heretic_Crew_Limited_Dem_1.sap : AUTHOR "Marcin Czartynski (Cedyn)"
+Various/Czartynski_Marcin/Heretic_Crew_Limited_Dem_2.sap : AUTHOR "Marcin Czartynski (Cedyn)"
+Various/Czartynski_Marcin/Hlejnia.sap : AUTHOR "Marcin Czartynski (Cedyn)"
+Various/Czartynski_Marcin/Paczka_TNQ_3.sap : AUTHOR "Marcin Czartynski (Cedyn)"
+Various/Drozdowski_Marek/Help_Globus_Greetings.sap : AUTHOR "Marek Drozdowski (Marucha)"
+Various/Drozdowski_Marek/Sweet_Illusion_APC_Part.sap : AUTHOR "Marek Drozdowski (Marucha)"
+Various/Duesterhoeft_Stephan/Abbuc_8.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Big_Scroller_Song.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Drum_Power_I.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Drum_Power_II.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Funky_Rock.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Glide.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Hobbytronic_90_Title_Song.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Hobbytronic_91_Equalizer.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Monster_Song.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Morbit.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Point_Demo_Song.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Rythms.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Duesterhoeft_Stephan/Song.sap : AUTHOR "Stephan Duesterhoeft (Benjy)"
+Various/Galinski_Adrian/Crypts_of_Egypt.sap : AUTHOR "Adrian Galinski (Daxey)"
+Various/Galinski_Adrian/Intel_Outside_End_Scroll.sap : NAME "Intel Outside - End Scroll"
+Various/Galinski_Adrian/Intel_Outside_Scrollers.sap : NAME "Intel Outside - Scrollers"
+Various/Galinski_Adrian/Intel_Outside_The_Intro.sap > Intel_Outside_Intro.sap : NAME "Intel Outside - Intro"
+Various/Galinski_Adrian/Special_Forces_2.sap : AUTHOR "Adrian Galinski (Daxey)"
+Various/Grayscale/Sychowicz_Lukasz/Forsaken_Love.sap : DATE "2004"
+Various/Grayscale/Sychowicz_Lukasz/Mental_Age_2.sap : DATE "23/07/2003"
+Various/Grayscale/Sychowicz_Lukasz/Overmind_3.sap > Various/Szpilowski_Michal/
+Various/Hard_Software/Abbuc_36.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Cool_Emotion_Chessboard.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Cool_Emotion_End.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Cool_Emotion_First_Part.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Cool_Emotion_Ghostbusters.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Cool_Emotion_Heal_the_Worl.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Cool_Emotion_Plasma.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Cool_Emotion_Scrolls.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_End.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Info.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Juggler.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Landscape.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Plasma.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Scrolls.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Tunnel.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Turn_Disk.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Joyride_Twirl.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Veronika_1.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Veronika_2.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Veronika_3.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Veronika_4.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Veronika_5.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Veronika_6.sap : AUTHOR "<?> (Hard Software)"
+Various/Hard_Software/Veronika_Intro.sap : AUTHOR "<?> (Hard Software)"
+Various/Husak_Jakub/Do_You_Want_to_Dance_With.sap : AUTHOR "Jakub Husak"
+Various/Husak_Jakub/Problem_Jasia_1.sap > Problem_Jasia_Ingame.sap : NAME "Problem Jasia - Ingame" DATE "1993"
+Various/Husak_Jakub/Problem_Jasia_2.sap > Problem_Jasia_Signatures.sap : NAME "Problem Jasia - Signatures" DATE "1993"
+Various/Husak_Jakub/Problem_Jasia_3.sap > Problem_Jasia_Title.sap : NAME "Problem Jasia - Title" DATE "1993"
+Various/Jastrzebski_Dominik/ > Various/Jastrzemski_Marcin/ (All songs in this directory have credits fixed)
+Various/Jastrzemski_Marcin/China.sap > Various/Majewski_Tomasz/
+Various/Kalinowski_Bartosz/Move.sap : AUTHOR "Bartosz Kalinowski (Bartman)"
+Various/Karwacki_Jakub/Invitation_East_Intro_Music.sap > Invitation_East_Intro_Musi.sap (Filename too long)
+Various/Kociuba_Dariusz/Vioris_Ingame.sap > Vioris_Ingame_1.sap : NAME "Vioris - Ingame - 1"
+Various/Krawczyk_Adam/Antic.sap : AUTHOR "Adam Krawczyk (Monti)"
+Various/Krawczyk_Adam/Euro_Demo_2.sap : AUTHOR "Adam Krawczyk (Monti)"
+Various/Krawczyk_Adam/Magic_Dimension_1.sap : AUTHOR "Adam Krawczyk (Monti)"
+Various/Krawczyk_Adam/Magic_Dimension_2.sap : AUTHOR "Adam Krawczyk (Monti)"
+Various/Krawczyk_Adam/Tawerna.sap : AUTHOR "Adam Krawczyk (Monti)"
+Various/Krawczyk_Adam/Turbican_1.sap : AUTHOR "Adam Krawczyk (Monti)"
+Various/Krawczyk_Adam/Turbican_2.sap : AUTHOR "Adam Krawczyk (Monti)"
+Various/Lepkowski_Michal/Tekblast_Ingame_1.sap : NAME "Tekblast - Ingame - 1"
+Various/Lepkowski_Michal/Tekblast_Ingame_2.sap : NAME "Tekblast - Ingame - 2"
+Various/Lepkowski_Michal/Tekblast_Ingame_3.sap : NAME "Tekblast - Ingame - 3"
+Various/Lepkowski_Michal/Tekblast_Ingame_4.sap : NAME "Tekblast - Ingame - 4"
+Various/Liebich_Tomasz/Dracon.sap > Drack.sap : NAME "Drack"
+Various/Liebich_Tomasz/Nemesis.sap > Nemesis_2.sap : NAME "Nemesis #2"
+Various/Luberda_Michal/Barahir_Ingame.sap : NAME "Barahir - Ingame"
+Various/Luberda_Michal/Kernaw_2.sap > Kernaw_Intro.sap : NAME "Kernaw - Intro"
+Various/Luberda_Michal/U235.sap : AUTHOR "Michal Luberda & Daniel Kleczynski (D.K.)"
+Various/Luberda_Michal/U235_Ingame.sap : AUTHOR "Michal Luberda & Daniel Kleczynski (D.K.)"
+Various/Luszcz_Tomasz/Samurais_Game_Ingame.sap > Samurais_Game_Ingame_1.sap : NAME "Samurai's Game - Ingame - 1"
+Various/Majewski_Tomasz/BQL_Puzzle_Ingame.sap > BQL_Puzzle_Ingame_1.sap : NAME "BQL Puzzle - Ingame - 1"
+Various/Majewski_Tomasz/BQL_Puzzle_Ingame_2.sap : NAME "BQL Puzzle - Ingame - 2"
+Various/Makowski_Robert/Unknown.sap > Phone.sap : AUTHOR "Robert Makowski (Gutek) NAME "Phone" DATE "1994"
+Various/Martin_Aleksander/Timeless_Announcement_1st.sap : DATE "1995" AUTHOR "Aleksander Martin (Alex) <?>"
+Various/Martin_Aleksander/Timeless_Announcement_Trac.sap : DATE "1995" AUTHOR "Aleksander Martin (Alex)"
+Various/Matoga_Adrian/There_Will_Be_No_Beginning.sap > Various/Czlowiek_W_Atomizerze/ : AUTHOR "<?> (Czlowiek W Atomizerze)"
+Various/Matyasik_Krzysztof/Poledwiczka.sap : AUTHOR "Krzysztof Matyasik (Mateoos)"
+Various/Numan_Daniel/Vasco_Public_Domain_10_1.sap : AUTHOR "Daniel Numan (Zbx Virus)"
+Various/Oscadal_Filip/Brutal_Recall_Ingame.sap : NAME "Brutal Recall - Ingame"
+Various/Padula_Jaroslaw/Toy_Intro.sap : AUTHOR "Jaroslaw Padula (Solo)"
+Various/Pelc_Janusz/Captain_Gather_Ingame.sap : NAME "Captain Gather - Ingame"
+Various/Pelc_Janusz/Dagobar.sap : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)"
+Various/Pelc_Janusz/Dagobar_Game_Over.sap : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)"
+Various/Pelc_Janusz/Dagobar_Ingame_1.sap : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)" NAME "Dagobar - Ingame - 1"
+Various/Pelc_Janusz/Dagobar_Ingame_2.sap : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)" NAME "Dagobar - Ingame - 2"
+Various/Pelc_Janusz/Dagobar_Ingame_3.sap : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)" NAME "Dagobar - Ingame - 3"
+Various/Pelc_Janusz/Trix_Ingame.sap : NAME "Trix - Ingame"
+Various/Pucimski_Rafal/ > Various/Pucinski_Rafal/ (All songs in this directory have credits fixed)
+Various/Pucinski_Rafal/Kicha_5.sap : AUTHOR "Rafal Pucinski (Dex)"
+Various/Pucinski_Rafal/Magic.sap : AUTHOR "Rafal Pucinski (Dex)"
+Various/Pucinski_Rafal/Rama.sap : AUTHOR "Rafal Pucinski (Dex)"
+Various/Pucinski_Rafal/XQB.sap : AUTHOR "Rafal Pucinski (Dex)"
+Various/Radzikowski_Ireneusz/Cyper_Space.sap : AUTHOR "Ireneusz Radzikowski (Jager)"
+Various/Ramzes/Endless_Dream_1.sap : NAME "Endless Dream - 1"
+Various/Ramzes/Endless_Dream_3.sap : NAME "Endless Dream - 3"
+Various/Ramzes/Endless_Dream_5.sap : NAME "Endless Dream - 5"
+Various/Ramzes/Demos_End.sap : AUTHOR "<?> (Ramzes)"
+Various/Ramzes/Demos_End_II.sap : AUTHOR "<?> (Ramzes)"
+Various/Ramzes/Party_5.sap : AUTHOR "<?> (Ramzes)"
+Various/Skowiniak_Krystian/ > Various/Iwaszko_Krystian/ (All songs in this directory have credits fixed)
+Various/Skwiot_Stanislaw/Fortuna.sap : DATE "1992-1993"
+Various/Swiecicki_Krzysztof/Ray_of_Hope_Bars.sap > Various/Bryla_Krzysztof/ : AUTHOR "Krzysztof Bryla (Woppie) & Krzysztof Swiecicki (Swiety)"
+Various/Swiecicki_Krzysztof/Ray_of_Hope_Shade_Bobs.sap > Various/Bryla_Krzysztof/ : AUTHOR "Krzysztof Bryla (Woppie) & Krzysztof Swiecicki (Swiety)" DATE "1994"
+Various/Swierszcz_Piotr/Byzex.sap : AUTHOR "Piotr Swierszcz (Tatqoo)"
+Various/Szmatola_Krzysztof/Adax.sap > Various/Witkowski_Przemyslaw/ : AUTHOR "Przemyslaw Witkowski & Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Adax_Ingame.sap > Various/Witkowski_Przemyslaw/ : AUTHOR "Przemyslaw Witkowski & Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Change_1.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Change_2.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Change_3.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Change_4.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika_End.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika_Game.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika_Inga.sap : AUTHOR "Krzysztof Szmatola (Thor)"
+Various/Szpilowski_Michal/R0lo.sap : AUTHOR "Michal Szpilowski (Miker)"
+Various/Tegethoff_Sven/Abbuc_20_2.sap > Abbuc_21_1.sap : NAME "Abbuc 21 - 1"
+Various/Top_Odin/Film_Editor_Demo.sap : AUTHOR "<?> (Top Odin)"
+Various/Vogt_Dariusz/Arena_Bzdur.sap : AUTHOR "Dariusz Vogt (DJ V)"
+Various/Vogt_Dariusz/Leiser.sap : AUTHOR "Dariusz Vogt (DJ V)"
+Various/Vogt_Dariusz/Leiser_2.sap : AUTHOR "Dariusz Vogt (DJ V)"
+Various/Vybostok_Marian/Dynakillers_Demo.sap : DATE "1996-1997"
+Various/Wasilewski_Dariusz/Micro.sap > Various/Szpilowski_Michal/
+Various/Wasilewski_Dariusz/RSI_1.sap > Various/Szpilowski_Michal/
+Various/Wasilewski_Dariusz/Tank.sap > Various/Bienias_Adam/
+Various/Zaborowski_Robert/Bombay.sap : DATE "1993-1994"
+Various/Zaborowski_Robert/Bombay_2.sap : DATE "1993-1994"
+Various/Zaborowski_Robert/Magnex.sap : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.) & Robert Zaborowski"
+Various/Zaborowski_Robert/RA_1.sap > Various/Pelc_Janusz/ : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)"
+Various/Zaborowski_Robert/RA_2.sap > Various/Pelc_Janusz/ : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)"
+Various/Zur-soft/Tactic.sap : AUTHOR "Mirek Gwozdziej & Jerzy Majewski (Zur-soft)"
+
+Better rips
+-----------
+Unsorted/Dupa.sap (song got corrupted after repeating)
+Various/Grad_Jacek/Dwie_Wieze.sap (includes subsongs)
+Various/Grayscale/Sychowicz_Lukasz/Gravestone.sap (song became buggy at some point)
+Various/Krawczyk_Adam/That_Demo_1.sap > That_Demo.sap (includes subsongs)
+Various/Pucinski_Rafal/Rama.sap (includes samples)
+Various/Sikorski_Pawel/One_Instrument.sap (should not play in stereo)
+
+Removed files
+-------------
+Demos/Carpe_Demo_4.sap (same as Various/Krawczyk_Adam/Antic.sap)
+Unsorted/Dead.sap (same as Various/Duesterhoeft_Stephan/Toadead.sap)
+Unsorted/Intro.sap (same as Various/Kalinowski_Bartosz/Miuzik.sap)
+Unsorted/Phone.sap (same as Various/Makowski_Robert/Unknown.sap)
+Unsorted/Serious_Magazine_2_3.sap (same as Various/Kucisz_Tomasz/Fonic.sap)
+Unsorted/Serious_Magazine_7_8.sap (same as Various/Drozdowski_Marek/Land.sap)
+Unsorted/Somemsx.sap (same as Various/Grayscale/Sychowicz_Lukasz/Out_of_Bag.sap)
+Unsorted/Suspic.sap (same as Various/Duesterhoeft_Stephan/Suspicus.sap)
+Various/Cierkonski_Michal/Scene_Register_5_Intro.sap (same as Various/Karwacki_Jakub/Shell.sap)
+Various/Czartynski_Marcin/Rave.sap (same as Various/Numan_Daniel/Raving_Vieprz_1.sap)
+Various/Czartynski_Marcin/Rave_01.sap (incomplete version of Bardaszna_Rura.sap)
+Various/Golewski_Filip/Help_Me_Intro_2.sap (same as Walenie_W_Stolek.sap)
+Various/Gora_Jakub/Rape_Rulz_Intro.sap (same as Kotek.sap)
+Various/Kalinowski_Bartosz/Serious_Magazine_5_9.sap (same as Robin_1.sap)
+Various/Kalinowski_Bartosz/Sweet_Illusions_Intro.sap (same as Infinity.sap)
+Various/Kociuba_Dariusz/Sex_Logic.sap (same as Various/Drozdowski_Marek/Polar.sap, subsong 2)
+Various/Liebich_Tomasz/Tank_vs_Tank.sap (same as Various/Husak_Jakub/Thinker_1.sap subsong 4)
+Various/Martin_Aleksander/Kocie_Zaloty.sap (same as Timeless_Announcement_Trac.sap)
+Various/Matyasik_Krzysztof/Flaczki.sap (same as Bad_Flaczkis.sap)
+Various/Numan_Daniel/Chistoria_Pewnego_Pecetofc.sap (same as Dwuetyloamid.sap)
+Various/Swiecicki_Krzysztof/T_E_C_H.sap (same as Ray_of_Hope_Bars.sap)
+Various/Szpilowski_Michal/Hunter.sap (same as Nexus_Ingame_2.sap)

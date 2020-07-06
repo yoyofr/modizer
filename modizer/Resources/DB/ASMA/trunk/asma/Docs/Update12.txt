@@ -1,0 +1,175 @@
+ASMA Update #12
+
+These rips together with the original ASMA collection will make version 1.2
+of the ASMA (out of version 1.1).
+
+Number of new tunes: 87
+Better rips: 3
+Credits fixes: 38
+Filename and location changes: 20
+Removed files: 2
+
+New tunes
+---------
+Classics/Gilmore_Adam/Arcade_Fruit_Machine_Simul.sap
+Classics/Munns_Richard/Tagalon.sap
+Demos/Bitter_Reality_Dragon_Bobs.sap
+Demos/Bitter_Reality_Rzog_Plazma.sap
+Demos/Bonanza_Digi.sap
+Demos/Elenium.sap
+Demos/Ray_of_Hope_1.sap
+Demos/Ray_of_Hope_2.sap
+Demos/Ray_of_Hope_3.sap
+Demos/Ray_of_Hope_4.sap
+Demos/Twarze_i_Cienie.sap
+Games/Classic/Axis_Slotmachine.sap
+Games/Classic/Ball_Blaster.sap
+Games/Classic/Behind_Jaggi_Lines.sap
+Games/Classic/Boulder_Dash_2.sap
+Games/Classic/Chop_Suey.sap
+Games/Classic/Drol.sap
+Games/Classic/Getaway.sap
+Games/Classic/Heavy_Metal.sap
+Games/Classic/Master_of_the_Lamps.sap
+Games/Classic/Olympic_Skier.sap
+Games/Classic/Spy_vs_Spy_2.sap
+Games/Classic/Star_Raiders_II.sap
+Unsorted/Aerobic_4.sap
+Unsorted/Atari_XC-12_tape_recorder.sap
+Unsorted/Barymag_1_3.sap
+Unsorted/Barymag_1_5.sap
+Unsorted/Barymag_1_6.sap
+Unsorted/Barymag_1_7.sap
+Unsorted/Barymag_1_8.sap
+Unsorted/Digiloo-Digiley.sap
+Unsorted/Electrician.sap
+Unsorted/Extra.sap
+Unsorted/Globetrotter.sap
+Unsorted/Hits.sap
+Unsorted/KevSoft.sap
+Unsorted/Zrebak_3.sap
+Various/Bienias_Adam/Black_Flock.sap
+Various/Bienias_Adam/Enroll_Song.sap
+Various/Bienias_Adam/Impression.sap
+Various/Bienias_Adam/Techno_Florid.sap
+Various/Bienias_Adam/The_Intros.sap
+Various/Bienias_Adam/Underhand.sap
+Various/Holda_Leszek/Klatwa.sap
+Various/Holda_Leszek/Klatwa_Ingame.sap
+Various/Holda_Leszek/Wladcy_Ciemnosci.sap
+Various/Holda_Leszek/Wladcy_Ciemnosci_Ingame.sap
+Various/Husak_Jakub/Battle_Ships.sap
+Various/Husak_Jakub/Starball.sap
+Various/Kalinowski_Bartosz/Operation_Blood.sap
+Various/Kalinowski_Bartosz/Operation_Blood_Ingame.sap
+Various/Kalinowski_Bartosz/Self_Test_2.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Credits.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Effects_1.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Effects_2.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Infos.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Shadebobs.sap
+Various/Luberda_Michal/Frank_and_Mark.sap
+Various/Luberda_Michal/Frank_and_Mark_Ingame.sap
+Various/Marcys/Miracel.sap
+Various/Marcys/Mockheroic.sap
+Various/Marcys/Space_Fix.sap
+Various/Marcys/Transfer_II.sap
+Various/Martin_Aleksander/Putty_Piece.sap
+Various/Martin_Aleksander/Temptation.sap
+Various/Pucimski_Rafal/Zrebak.sap
+Various/Radecki_Michal/Entrance_of_Dragon.sap
+Various/Radecki_Michal/Entrance_of_Dragon_The_End.sap
+Various/Radecki_Michal/High_Voltage_Intro.sap
+Various/Sychowicz_Lukasz/Nice_Noter.sap
+Various/Szpilowski_Michal/Extract_Collection.sap
+Various/Szpilowski_Michal/Extract_End.sap
+Various/Szpilowski_Michal/Extract_Intro.sap
+Various/Szpilowski_Michal/Full_Logic.sap
+Various/Szpilowski_Michal/Game_Over.sap
+Various/Szpilowski_Michal/K_O_T_O.sap
+Various/Szpilowski_Michal/Mobility.sap
+Various/Szpilowski_Michal/Rubicon.sap
+Various/Szpilowski_Michal/Snow_Ball.sap
+Various/Szpilowski_Michal/The_Misty_Day.sap
+Various/Swierszcz_Piotr/Resal.sap
+Various/Wasilewski_Dariusz/Forest.sap
+Various/Wasilewski_Dariusz/Koto.sap
+Various/Zur-soft/Tactic.sap
+Various/Zur-soft/Humanoid.sap
+Various/Zur-soft/Humanoid_Ingame.sap
+Various/Zur-soft/Humanoid_The_End.sap
+
+Better rips
+-----------
+Demos/Delirium_Tremens.sap
+Games/Various/Barahir.sap
+Various/Luberda_Michal/Alchemia.sap
+
+Credits fixes
+-------------
+Demos/Annael.sap
+Demos/Endless_Dream_2.sap
+Demos/Endless_Dream_4.sap
+Games/Various/Dynakillers_Demo.sap
+Unsorted/Abbuc_20.sap
+Various/Bienias_Adam/Zdzisio_1.sap
+Various/Bienias_Adam/Zdzisio_2.sap
+Various/Czartynski_Marcin/Exodus.sap
+Various/Galinski_Adrian/Guard.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Plot_Maste.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Tracing.sap
+Various/Martin_Aleksander/Extract_Note.sap
+Various/Ramzes/Endless_Dream_1.sap
+Various/Ramzes/Endless_Dream_3.sap
+Various/Ramzes/Endless_Dream_5.sap
+Various/Sterba_Radek/Flop_Magazin_30_Just_Now.sap
+Various/Sterba_Radek/Flop_Magazin_31.sap
+Various/Sterba_Radek/Flop_Magazin_31_Christmas.sap
+Various/Sterba_Radek/Flop_Magazin_32.sap
+Various/Sterba_Radek/Flop_Magazin_33.sap
+Various/Sterba_Radek/Flop_Magazin_34.sap
+Various/Sterba_Radek/Flop_Magazin_35_BH90210.sap
+Various/Sterba_Radek/Flop_Magazin_36_38.sap
+Various/Sterba_Radek/Flop_Magazin_37.sap
+Various/Sterba_Radek/Flop_Magazin_39.sap
+Various/Sterba_Radek/Flop_Magazin_40.sap
+Various/Sterba_Radek/Flop_Magazin_41.sap
+Various/Sterba_Radek/Gunhead.sap
+Various/Sterba_Radek/Illusion_2.sap
+Various/Sterba_Radek/Illusion_4.sap
+Various/Sterba_Radek/Imagine.sap
+Various/Sterba_Radek/Magnetit_Ingame.sap 
+Various/Sterba_Radek/Naturix.sap
+Various/Sterba_Radek/Naturix_Demo.sap
+Various/Sterba_Radek/Naturix_Demo_Tune_2.sap
+Various/Sterba_Radek/Naturix_Tune_2.sap
+Various/Sterba_Radek/Naturix_Tune_3.sap
+Various/Sterba_Radek/Turrican_2_Experiment.sap
+
+Filename and location changes
+-----------------------------
+Unsorted/Alchemia.sap > Various/Luberda_Michal/Alchemia.sap
+Demos/Chip.sap > Unsorted/Chip.sap
+Demos/Dead.sap > Unsorted/Dead.sap
+Demos/Logic.sap > Unsorted/Logic.sap
+Demos/Small.sap > Unsorted/Small.sap
+Demos/Suspic.sap > Unsorted/Suspic.sap
+Unsorted/Axis.sap > Demos/Axis_Intro.sap
+Unsorted/Endless2.sap > Demos/Endless_Dream_2.sap
+Unsorted/Endless5.sap > Demos/Endless_Dream_4.sap
+Unsorted/Endless1.sap > Various/Ramzes/Endless_Dream_1.sap
+Unsorted/Endless3.sap > Various/Ramzes/Endless_Dream_3.sap
+Unsorted/Endless4.sap > Various/Ramzes/Endless_Dream_5.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_3.sap > Various/Kalinowski_Bartosz/Sweet_Illusions_Plot_Maste.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_2.sap > Various/Kalinowski_Bartosz/Sweet_Illusions_Tracing.sap
+Unsorted/Big_Zine_1_Invitro.sap > Various/Pucimski_Rafal/Big_Zine_1_Invitro.sap
+Demos/Intro_97.sap > Various/Pucimski_Rafal/Intro_97.sap                          
+Games/Various/Technoid.sap > Various/Wasilewski_Dariusz/Technoid.sap
+Games/Various/U235.sap > Various/Luberda_Michal/
+Games/Various/U235_Ingame.sap > Various/Luberda_Michal/
+Various/Martin_Aleksander/Extract.sap > Various/Martin_Aleksander/Extract_Note.sap
+
+Removed files
+-------------
+Unsorted/Dracon1.sap
+Unsorted/New1.sap

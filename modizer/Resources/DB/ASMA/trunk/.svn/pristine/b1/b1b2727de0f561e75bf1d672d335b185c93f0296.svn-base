@@ -1,0 +1,150 @@
+﻿##############################################################################
+#
+#  STIL Extras v3.8 - SAP Tune Information List at Extras
+#  Maintained (as is) by Marok
+#  Total number of entries: 39
+#
+##############################################################################
+
+### /Extras/anoth_music/not_fixed ############################################
+
+/anoth_music/not_fixed/Ace_of_Aces.sap
+COMMENT: Not finished (e.g. sap type).
+
+/anoth_music/not_fixed/Advanced_Pinball_Simulator.sap
+COMMENT: Not finished - to remove 1st subsong, doublet and eventually similar,
+         or optionally even all sfx, then add time.
+         Default subsong time is 00:25.71 LOOP.
+
+/anoth_music/not_fixed/Bugrunner.sap
+COMMENT: 2nd & 3rd subsongs end to start play 1st subsong. Miss TIME tags.
+
+/anoth_music/not_fixed/D-Bug.sap
+COMMENT: Miss some TIME tags.
+
+/not_fixed/Decision_in_the_Desert.sap
+COMMENT: Not finished (e.g. sap type).
+
+/not_fixed/Racing_Destruction_Set.sap
+COMMENT: The routine wrong loops the music, miss TIME tag.
+
+/anoth_music/not_fixed/Teenage_Mutant_Ninja_Turtles.sap
+COMMENT: Needs rebuild.
+
+### /Extras/oth_version ######################################################
+
+/oth_version/AD_2044_Sexmisja_a1.sap
+COMMENT: All sfx from game in subsongs.
+
+/oth_version/Arcade_Fruit_Machine_Simul_a1.sap
+COMMENT: Consists only main 16 song/efx. (Gains data reduction).
+
+/oth_version/Arcade_Fruit_Machine_Simul_a2.sap
+COMMENT: Consists the game's no. 17-47 sfx (exclusively).
+
+/oth_version/Ducks_Ahoy_a1.sap
+COMMENT: Ver. with music only.
+
+/oth_version/Fidget_a1.sap
+COMMENT: Add sfx as 2nd subsong.
+
+/oth_version/Floyd_of_the_Jungle_a1.sap
+COMMENT: Ver. with music only.
+
+/oth_version/Hcl5_2_a1.sap
+COMMENT: Seems later and longer version second song of /Composers/Kalinowski_Bartosz/Hcl5.sap
+
+/oth_version/Intro_xxl_atari_pl_r1.sap
+COMMENT: Special version of /Composers/Radecki_Michal/Intro.sap.
+
+/oth_version/Jumpman_Junior_a1.sap
+COMMENT: All game sfx in subsongs.
+
+/oth_version/Multi_Dash_a1.sap
+COMMENT: All game sfx in subsongs.
+
+/oth_version/Pengo_a1.sap
+COMMENT: All game sfx in subsongs.
+
+/oth_version/Plattermania_a1.sap
+COMMENT: Add sfx as 2nd subsong.
+
+/oth_version/Q_Bert_a1.sap
+COMMENT: All game sfx in subsongs.
+
+/oth_version/Rescue_on_Fractalus.sap
+COMMENT: ~ 97% same as /Composers/Langston_Peter/Behind_Jaggi_Lines.sap
+
+/oth_version/Seahorses_a1.sap
+COMMENT: All game sfx in subsongs.
+
+/oth_version/Shake_r1.sap
+COMMENT: Based on /Composers/Drozdowski_Marek/Shake.sap.
+
+### /Extras/oth_version/authors/Kwiatek_Grzegorz #############################
+
+/oth_version/authors/Kwiatek_Grzegorz/Escape_a1.sap
+COMMENT: A slight newer version.
+         ModPat: 1; NewIns: 1 (in the edited pat.).
+
+/oth_version/authors/Kwiatek_Grzegorz/Illusion_a1.sap
+COMMENT: A slight newer version.
+         ModSoL (+1); ModPat up to 3, ModIst: 2.
+
+/oth_version/authors/Kwiatek_Grzegorz/Light_a1.sap
+COMMENT: A slight newer version.
+         ModSon, ModPat up to 4, ModIns: 3.
+
+### /Extras/oth_version/authors/Pesout_Marek #################################
+
+/oth_version/authors/Pesout_Marek/Imperial.sap
+COMMENT: Same as /Composers/Pesout_Marek/House_in_Nause.sap
+         but in CMS format (and it's looped).
+
+/oth_version/authors/Pesout_Marek/Nemezyro_a1.sap
+COMMENT: Clean rip from the game.
+         Songs #1 & #3 are the same (but played in differ set D Mode in CMS).
+
+/oth_version/authors/Pesout_Marek/Quarrion_p1.sap
+COMMENT: Clean rip from the game (means with it's orginal player).
+
+/oth_version/authors/Pesout_Marek/Trident_a1.sap
+COMMENT: Ver. to play in CMS Double Mode.
+
+/oth_version/authors/Pesout_Marek/Who_1.sap
+COMMENT: Almost 100% same as /Composers/Pesout_Marek/Czech_Sound_1.sap
+
+### /Extras/oth_version/authors/Spilka_David #################################
+
+/oth_version/authors/Spilka_David/Jumping_Jack_Ingame_r1.sap
+COMMENT: Based on /Composers/Dojwa_Jacek/Jumping_Jack_Ingame.sap.
+         From the game "Brutal Karate".
+
+/oth_version/authors/Spilka_David/Ray_of_Hope_Shade_Bobs_r1.sap
+COMMENT: From the game "Worms".
+(#2)
+COMMENT: Based on /Composers/Bryla_Krzysztof/Ray_of_Hope_Shade_Bobs.sap.
+
+/oth_version/authors/Spilka_David/Song2_r1.sap
+COMMENT: Based on /Composers/Pelc_Janusz/Song2.sap.
+         From the demo "Frish - Part II".
+
+/oth_version/authors/Spilka_David/Unlimited_r1.sap
+COMMENT: Based on /Composers/Takacs_Gabriel/Unlimited.sap.
+         From the demo of game "Pyromania".
+
+/oth_version/authors/Spilka_David/Zbir_r1.sap
+COMMENT: Based on /Composers/Mikolajczak_Pawel/Zbir.sap.
+         From the demo "Fire".
+
+### /Extras/anoth_music ######################################################
+
+/anoth_music/Drelbs_ext1.sap
+COMMENT: Sfx extract from the game.
+
+/anoth_music/Drelbs_ext2.sap
+COMMENT: Sfx extract from the game.
+
+/anoth_music/Spark_Bugs.sap
+COMMENT: Not 'quality' tune.
+

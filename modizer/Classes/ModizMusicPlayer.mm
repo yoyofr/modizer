@@ -6076,9 +6076,12 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     if (([extension caseInsensitiveCompare:@"2SF"]==NSOrderedSame)||
         ([extension caseInsensitiveCompare:@"MINI2SF"]==NSOrderedSame)) xSFPlayer=new XSFPlayer_2SF([filePath UTF8String]);
+        
+    if (([extension caseInsensitiveCompare:@"SNSF"]==NSOrderedSame)||
+    ([extension caseInsensitiveCompare:@"MINISNSF"]==NSOrderedSame)) xSFPlayer=new XSFPlayer_SNSF([filePath UTF8String]);
     
     if (!xSFPlayer) {
-        NSLog(@"XSF Cannot initiate ncsf player");
+        NSLog(@"XSF Cannot initiate player");
         delete xSFConfig;
         mPlayType=0;
         return -2;

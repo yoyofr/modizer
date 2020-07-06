@@ -1,0 +1,100 @@
+ASMA Update #15
+
+These rips together with the original ASMA collection will make version 1.5
+of the ASMA (out of version 1.4).
+
+Number of new tunes: 78
+Filename and location changes: 4
+Removed tunes: 1
+
+New tunes
+---------
+Demos/Grzyby.sap
+Demos/Grzyby_2.sap
+Demos/Lemmings_Intro.sap
+Demos/Sweet_Illusions_Zoom_Rotat.sap
+Games/Classic/Ghostbusters.sap
+Games/Classic/Pitfall_II.sap
+Games/Various/Upior.sap
+Unsorted/Special_Forces.sap
+Various/Czartynski_Marcin/Out_of_Time_Intro.sap
+Various/Dhor/Day_Without_Idea.sap
+Various/Dhor/Murder.sap
+Various/Dhor/Murder_Intro.sap
+Various/Dhor/Official_Madness.sap
+Various/Dhor/One_Fast_Day.sap
+Various/Dhor/Pain_In_My_Brain.sap
+Various/Dhor/Smooth_Loop.sap
+Various/Dhor/Stoned_Shit.sap
+Various/Dhor/Sunny_Morgue.sap
+Various/Drozdowski_Marek/Barymag_1_2.sap
+Various/Drozdowski_Marek/Out_of_Time_Vectors.sap
+Various/Golewski_Filip/Memento_Mori.sap
+Various/Golewski_Filip/Street_Walker.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Drutty.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Giga_Asm.sap
+Various/Kwiatek_Grzegorz/Alpha.sap
+Various/Kwiatek_Grzegorz/Angel_Of_Death.sap
+Various/Kwiatek_Grzegorz/BombSong.sap
+Various/Kwiatek_Grzegorz/Cause_It_Hurts.sap
+Various/Kwiatek_Grzegorz/Czubeck_Parejd.sap
+Various/Kwiatek_Grzegorz/Deep_Kick.sap
+Various/Kwiatek_Grzegorz/Dreams1.sap
+Various/Kwiatek_Grzegorz/Dreams2.sap
+Various/Kwiatek_Grzegorz/Energy_1_Loader.sap
+Various/Kwiatek_Grzegorz/Expectancy.sap
+Various/Kwiatek_Grzegorz/Expression1.sap
+Various/Kwiatek_Grzegorz/Expression10.sap
+Various/Kwiatek_Grzegorz/Expression2.sap
+Various/Kwiatek_Grzegorz/Expression4.sap
+Various/Kwiatek_Grzegorz/Expression6.sap
+Various/Kwiatek_Grzegorz/Expression7.sap
+Various/Kwiatek_Grzegorz/Expression9.sap
+Various/Kwiatek_Grzegorz/Extase.sap
+Various/Kwiatek_Grzegorz/Extreme.sap
+Various/Kwiatek_Grzegorz/Extremely_Flammable.sap
+Various/Kwiatek_Grzegorz/Freezer.sap
+Various/Kwiatek_Grzegorz/GoodBye.sap
+Various/Kwiatek_Grzegorz/HopeLess.sap
+Various/Kwiatek_Grzegorz/InSanity.sap
+Various/Kwiatek_Grzegorz/IntroSpection.sap
+Various/Kwiatek_Grzegorz/LightNess.sap
+Various/Kwiatek_Grzegorz/New_Life.sap
+Various/Kwiatek_Grzegorz/New_Wave.sap
+Various/Kwiatek_Grzegorz/No_Breakes.sap
+Various/Kwiatek_Grzegorz/No_limit.sap
+Various/Kwiatek_Grzegorz/One_Little_Step.sap
+Various/Kwiatek_Grzegorz/Sedition.sap
+Various/Kwiatek_Grzegorz/Short_Reflex.sap
+Various/Kwiatek_Grzegorz/SomeOne.sap
+Various/Kwiatek_Grzegorz/Sweet.sap
+Various/Kwiatek_Grzegorz/Sweet_Remake.sap
+Various/Kwiatek_Grzegorz/Sweet_Voice.sap
+Various/Kwiatek_Grzegorz/Syndrom.sap
+Various/Kwiatek_Grzegorz/Transmission_Into_Your_H.sap
+Various/Kwiatek_Grzegorz/Tribute_To.sap
+Various/Kwiatek_Grzegorz/Unknown.sap
+Various/Kwiatek_Grzegorz/Voice_Of_Silence4.sap
+Various/Kwiatek_Grzegorz/Voice_Preview.sap
+Various/Liebich_Tomasz/Rucu.sap
+Various/Liebich_Tomasz/Technus_2.sap
+Various/Luberda_Michal/Barahir1.sap
+Various/Marcys/Liga_Polska.sap
+Various/Padula_Jaroslaw/Newtek.sap
+Various/Padula_Jaroslaw/Red_Heart.sap
+Various/Padula_Jaroslaw/Some_Nice_AB.sap
+Various/Padula_Jaroslaw/Trans.sap
+Various/Padula_Jaroslaw/Xc9012.sap
+Various/Pelc_Janusz/Captain_Gather.sap
+Various/Szpilowski_Michal/Barymag_1_1.sap
+
+Filename and location changes (location may change also because of credits fix)
+-----------------------------
+Unsorted/Pmix.sap > Various/Padula_Jaroslaw/Pmix.sap
+Unsorted/Przepraszam.sap > Various/Padula_Jaroslaw/Przepraszam.sap
+Various/Pelc_Janusz/Captain_Gather.sap > Various/Pelc_Janusz/Captain_Gather_Ingame.sap
+Various/Makowski_Robert/Phone.sap > Unsorted/Phone.sap
+
+Removed files
+-------------
+Games/Classic/Ball_Blaster.sap

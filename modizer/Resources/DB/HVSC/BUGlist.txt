@@ -1,7 +1,7 @@
 #######################################################################
 #   The High Voltage SID Collection (HVSC) Bugged Tunes List          #
 #   Maintained by iAN CooG <hvsc@c64.org>                             #
-#   Last Updated:  December 16, 2018.                                 #
+#   Last Updated: December 15, 2019.                                  #
 #######################################################################
 #                                                                     #
 # The purpose of this text document is to highlight all the tunes     #
@@ -34,7 +34,7 @@
 #######################################################################
 
 ##############################
-# Bugged tunes as of HVSC 70 #
+# Bugged tunes as of HVSC 71 #
 ##############################
 
 /DEMOS/A-F/Digital_II.sid
@@ -122,6 +122,9 @@
          Sounds bad from 1:23
 (Stello Doussis)
 
+/MUSICIANS/F/Faclaug/Lets_Drink.sid
+    BUG: Falls out of synch at 2:50.
+
 /MUSICIANS/F/Feekzoid/Comfortably_Numb.sid
     BUG: Falls out of synch after around 5:10.
          Feekzoid confirmed that this tune was never finished:
@@ -173,6 +176,10 @@
 
 /MUSICIANS/S/Sid_Time/Axel_Foley.sid
     BUG: Falls out of sync after 1:01.
+(Wilfred)
+
+/MUSICIANS/S/Svensson_Roger/Walliball.sid
+    BUG: Subtune #5 falls out of sync upon looping
 (Wilfred)
 
 /MUSICIANS/W/Wizard_Oxygen/Night.sid

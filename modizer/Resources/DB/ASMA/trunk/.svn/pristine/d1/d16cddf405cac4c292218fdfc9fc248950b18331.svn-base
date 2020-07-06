@@ -1,0 +1,103 @@
+ASMA Update #28
+Date: July 15, 2004
+
+These rips together with the original ASMA collection will make version 2.8
+of the ASMA (out of version 2.7).
+
+Number of new tunes: 70
+Better rips: 1
+Credits fixes: 9
+Removed files: 1
+
+New tunes
+---------
+Unsorted/Flatfish.sap
+Unsorted/Just_Crazy.sap
+Unsorted/Lampa.sap
+Unsorted/One_Instrument.sap
+Unsorted/Stwoor.sap
+Various/Grayscale/Chromaluma.sap
+Various/Grayscale/Gray_Set_Willy.sap
+Various/Grayscale/Irish_Wood.sap
+Various/Grayscale/Jam_Session.sap
+Various/Grayscale/Let_It_Roll.sap
+Various/Grayscale/Windy_Mind.sap
+Various/Grayscale/Kwiatek_Grzegorz/Szwindel.sap
+Various/Grayscale/Sychowicz_Lukasz/Czarna_dziura_w_dupie.sap
+Various/Grayscale/Sychowicz_Lukasz/Is_Bored.sap
+Various/Grayscale/Sychowicz_Lukasz/Magic_of_Words_1.sap
+Various/Grayscale/Sychowicz_Lukasz/Magic_of_Words_2.sap
+Various/Grayscale/Sychowicz_Lukasz/Magic_of_Words_3.sap
+Various/Grayscale/Sychowicz_Lukasz/Magic_of_Words_4.sap
+Various/Grayscale/Sychowicz_Lukasz/Magic_of_Words_5.sap
+Various/Grayscale/Sychowicz_Lukasz/Magic_of_Words_6.sap
+Various/Grayscale/Sychowicz_Lukasz/Magic_of_Words_Ingame.sap
+Various/Grayscale/Sychowicz_Lukasz/Mental_Age_1.sap
+Various/Grayscale/Sychowicz_Lukasz/Mental_Age_2.sap
+Various/Grayscale/Sychowicz_Lukasz/Pacman_1.sap
+Various/Grayscale/Sychowicz_Lukasz/Pacman_2.sap
+Various/Grayscale/Sychowicz_Lukasz/Pacman_3.sap
+Various/Grayscale/Sychowicz_Lukasz/Pilkarski_poker.sap
+Various/Grayscale/Sychowicz_Lukasz/Pokrak.sap
+Various/Grayscale/Sychowicz_Lukasz/Ride.sap
+Various/Grayscale/Sychowicz_Lukasz/Swift_Ray.sap
+Various/Grayscale/Sychowicz_Lukasz/Trep_1.sap
+Various/Grayscale/Sychowicz_Lukasz/Trep_2.sap
+Various/Grayscale/Sychowicz_Lukasz/Trep_3.sap
+Various/Grayscale/Sychowicz_Lukasz/Trep_4.sap
+Various/Grayscale/Sychowicz_Lukasz/Zynzel.sap
+Various/Grayscale/Wasiel_Bartek/Dark_Lamp.sap
+Various/Grayscale/Wasiel_Bartek/Dropsy_King.sap
+Various/Grayscale/Wasiel_Bartek/Dzyngol.sap
+Various/Grayscale/Wasiel_Bartek/Rastan.sap
+Various/Hay_Adam/Heart_Shaped_Box.sap
+Various/Hay_Adam/Smells_Like_Teen_Spirit.sap
+Various/Hudak_Matej/Null_Cubic.sap
+Various/Sterba_Radek/Enigma_part_2.sap
+Various/Sterba_Radek/Time_to_Turn.sap
+Various/Swierszcz_Piotr/Anarchy_Menu_3.sap
+Various/Swierszcz_Piotr/Deluxe_Dream.sap
+Various/Swierszcz_Piotr/Forgotten_Sounds.sap
+Various/Swierszcz_Piotr/Greatest_Fun.sap
+Various/Swierszcz_Piotr/Gary_and_Denise.sap
+Various/Swierszcz_Piotr/Ninja_Starts_School.sap
+Various/Swierszcz_Piotr/Thermostat_7.sap
+Various/Swierszcz_Piotr/White_Lamp.sap
+Various/Zaborowski_Robert/Bombay_2.sap
+Various/Zaborowski_Robert/Classic_1.sap
+Various/Zaborowski_Robert/Classic_2.sap
+Various/Zaborowski_Robert/Crix_1.sap
+Various/Zaborowski_Robert/Crix_2.sap
+Various/Zaborowski_Robert/Magnex.sap
+Various/Zaborowski_Robert/Mixtrood.sap
+Various/Zaborowski_Robert/RA_1.sap
+Various/Zaborowski_Robert/RA_2.sap
+Various/Zaborowski_Robert/RA_3.sap
+Various/Zaborowski_Robert/Static.sap
+Various/Zaborowski_Robert/Triumph_1.sap
+Various/Zaborowski_Robert/Triumph_2.sap
+Various/Zaborowski_Robert/Triumph_3.sap
+Various/Zaborowski_Robert/Triumph_4.sap
+Various/Zaborowski_Robert/Triumph_5.sap
+Various/Zaborowski_Robert/Triumph_6.sap
+Various/Zaborowski_Robert/Triumph_7.sap
+
+Better rips
+-----------
+Various/Gora_Jakub/I_Love_Somebody.sap (previous version "I_Love_Somebody.sap" was wrongly transposed)
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Demos/Hobbytronic_90_2.sap > Various/Tegethoff_Sven/
+Unsorted/Aquanaut.sap > Classics/Ezcan_Kemal/
+Unsorted/CompyShop_Magazin_09_88.sap > Classics/Ezcan_Kemal/Its_a_Sin.sap
+Unsorted/Digiloo_Digiley.sap > Classics/Ezcan_Kemal/
+Unsorted/Globetrotter.sap > Classics/Ezcan_Kemal/
+Unsorted/Unknown.sap > Classics/Ezcan_Kemal/Cavehunt.sap
+Unsorted/Color.sap > Various/Hudak_Matej/
+Unsorted/ElanLL02.sap > Various/Hudak_Matej/
+Various/Gora_Jakub/Love_Somebody.sap > I_Love_Somebody.sap
+
+Removed files
+-------------
+Unsorted/Aura_30.sap (same as Various/Tegethoff_Sven/Hobbytronic_90_2.sap, without samples)

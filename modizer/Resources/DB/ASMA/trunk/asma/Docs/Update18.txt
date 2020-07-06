@@ -1,0 +1,118 @@
+ASMA Update #18
+Date: November 27, 2000
+
+These rips together with the original ASMA collection will make version 1.8
+of the ASMA (out of version 1.7).
+
+Number of new tunes: 61
+Better rips: 6
+Credits fixes: 11
+Filename and location changes: 12
+Removed tunes: 2
+
+New tunes
+---------
+Games/Classic/Schreckenstein.sap
+Games/Various/Czaszki.sap
+Games/Various/Deneb.sap
+Games/Various/Electra.sap
+Games/Various/Electra_Ingame.sap
+Games/Various/Fire_Power.sap
+Games/Various/Kosci.sap
+Games/Various/Magic_Dimension.sap
+Games/Various/Simple_Minds.sap
+Games/Various/Test_Drive.sap
+Games/Various/Vioris.sap
+Games/Various/Vioris_Ingame.sap
+Unsorted/Debilizator_1_Music_2.sap
+Unsorted/Debilizator_1_Pytadlo_o_In.sap
+Unsorted/Silent_But_Violent_Main.sap
+Various/Bienias_Adam/Train_Sampled_version.sap
+Various/Czartynski_Marcin/Top_Secret.sap
+Various/Dojwa_Jacek/Hydraulik_Ingame.sap
+Various/Duma_Dariusz/Debilizator_1_Intro.sap
+Various/Galinski_Adrian/Mayday_Demo.sap
+Various/Karwacki_Jakub/East_Party_2000_Invitation.sap
+Various/Lepkowski_Michal/Debilizator_1_Music_5.sap
+Various/Lepkowski_Michal/Silent_But_Violent_Risk.sap
+Various/Liebich_Tomasz/Blood_Fighter_3.sap
+Various/Liebich_Tomasz/Master_Head.sap
+Various/Liebich_Tomasz/Ucieczka.sap
+Various/Luszcz_Tomasz/Najemnik_2_Powrot.sap
+Various/Majewski_Tomasz/BQL_Puzzle.sap
+Various/Majewski_Tomasz/BQL_Puzzle_Ingame.sap
+Various/Majewski_Tomasz/BQL_Puzzle_Ingame_2.sap
+Various/Majewski_Tomasz/BQL_Puzzle_The_End.sap
+Various/Majewski_Tomasz/Riders_From_The_Stars.sap
+Various/Majewski_Tomasz/The_Truth_Is_Out_There.sap
+Various/Martin_Aleksander/Bobsland.sap
+Various/Martin_Aleksander/Nexus.sap
+Various/Martin_Aleksander/Nexus_Ingame_1.sap
+Various/Martin_Aleksander/Nexus_Ingame_2.sap
+Various/Martin_Aleksander/Nexus_Ingame_3.sap
+Various/Matyasik_Krzysztof/Aids_Info.sap
+Various/Matyasik_Krzysztof/Debilizator_1_Music_1.sap
+Various/Matyasik_Krzysztof/Debilizator_2_Intro.sap
+Various/Matyasik_Krzysztof/Debilizator_3_Music_1.sap
+Various/Matyasik_Krzysztof/Dupex.sap
+Various/Matyasik_Krzysztof/Ogluszacz_Intro.sap
+Various/Matyasik_Krzysztof/Spox.sap
+Various/Matyasik_Krzysztof/Wolowinka.sap
+Various/Numan_Daniel/Pentagram_1_Intro.sap
+Various/Numan_Daniel/Pentagram_2_Intro.sap
+Various/Numan_Daniel/Pentagram_3_Info.sap
+Various/Numan_Daniel/Pentagram_3_Music_1.sap
+Various/Numan_Daniel/Pentagram_3_Music_2.sap
+Various/Numan_Daniel/Pentagram_3_Music_3.sap
+Various/Numan_Daniel/Pentagram_3_Music_4.sap
+Various/Padula_Jaroslaw/Apocalipse_Time_Info.sap
+Various/Podedworny_Wojtek/Pandemonium.sap
+Various/Szpilowski_Michal/Banzai.sap
+Various/Sychowicz_Lukasz/ABC.sap
+Various/Sychowicz_Lukasz/ABC_Ingame.sap
+Various/Sychowicz_Lukasz/Debilizator_1_Music_4.sap
+Various/Sychowicz_Lukasz/Ketchup.sap
+Various/Top_Odin/Flinstones.sap
+
+Better rips
+-----------
+Classics/Whittaker_David/Red_Max.sap (subtunes added)
+Games/Classic/Whistlers_Brothers.sap (subtunes added)
+Various/Top_Odin/SOS_Saturn_Intro.sap (damaged file replaced)
+Classics/Munns_Richard/Space_Lobsters.sap (shorter rip, better play method)
+Various/Szpilowski_Michal/Overmind_2.sap (now plays in stereo)
+Various/Szpilowski_Michal/Overmind_3.sap (now plays in stereo)
+
+Credits fixes
+-------------
+Demos/Hobbytronic_89_1.sap : AUTHOR "Peter Sabath"
+Games/Classic/Last_V8.sap : AUTHOR "<?>"
+Unsorted/Dupa.sap : AUTHOR "Nils Feske (505)"
+Unsorted/Happy_New_Year.sap : DATE "1996"
+Various/Sychowicz_Lukasz/Overmind_Final.sap : AUTHOR "Lukasz Sychowicz (X-Ray)"
+Various/Sychowicz_Lukasz/Overmind_1.sap : DATE "1995"
+Various/Sychowicz_Lukasz/Overmind_4.sap : DATE "1995"
+Various/Sychowicz_Lukasz/Overmind_End.sap : DATE "1995"
+Various/Vogt_Dariusz/DJ_V_1.sap : DATE "1996"
+Various/Vogt_Dariusz/DJ_V_2.sap : DATE "1996"
+Various/Vogt_Dariusz/DJ_V_3.sap : DATE "1996"
+
+Filename and location changes (these may change also because of credits fix)
+-----------------------------
+Demos/Vengeance_End.sap > Various/Lepkowski_Michal/
+Games/Classic/Whistler_Brothers.sap > Whistlers_Brothers.sap
+Games/Various/Incydent.sap > Various/Makowski_Robert/Incydent_Ingame.sap
+Games/Various/Micro_Man.sap > Various/Dojwa_Jacek/
+Games/Various/Micro_Man_Ingame.sap > Various/Dojwa_Jacek/
+Games/Various/Najemnik.sap > Various/Luszcz_Tomasz/
+Games/Various/Wladca.sap > Various/Luszcz_Tomasz/
+Unsorted/CompyShop_Magazine_Intro_1.sap > CompyShop_Magazin_07_88.sap
+Unsorted/CompyShop_Magazine_Intro_2.sap > CompyShop_Magazin_09_88.sap
+Unsorted/CompyShop_Magazine_Intro_3.sap > CompyShop_Magazin_10_88.sap
+Unsorted/CompyShop_Magazine_Intro_4.sap > CompyShop_Magazin_Inside_B.sap
+Unsorted/Silent_But_Violent_Intro.sap > Various/Lepkowski_Michal/
+
+Removed files
+-------------
+Unsorted/Teacher1.sap (same as Various/Szpilowski_Michal/Teacher_Killer.sap)
+Various/Kwiatek_Grzegorz/Professional_Copy_2_1.sap (same as Hope.sap)

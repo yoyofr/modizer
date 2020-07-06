@@ -15,7 +15,7 @@ INTRODUCTION
 ============
 
 This document describes the SID file format used for SID tunes in the HVSC
-(High Voltage SID Collection - http://hvsc.de). It is based mostly on
+(High Voltage SID Collection - https://hvsc.c64.org). It is based mostly on
 Michael Schwendt's document that describes the file format and the PSID v2NG
 extensions described by Simon White and Dag Lem.
 
@@ -31,19 +31,37 @@ The information presented here targets programmers or other people with
 reasonable background. It is not suitable for newbies who have never before
 used a machine code monitor, a disassembler, or a hexadecimal editor.
 
+LEGEND
+======
+
++xx - The hexadecimal offset of the field from the beginning of the SID file.
+
+BYTE - 8-bit binary value
+
+WORD - 16-bit big endian encoded binary value
+
+LONGWORD - 32-bit big endian encoded binary value
+
+STRING - Extended ASCII encoded string using the Windows-1252 code page
+         (see: https://en.wikipedia.org/wiki/Windows-1252 )
+
+Hexadecimal values may appear either with the `0x` or with `$` (Commodore-style)
+prefix in the document depending on context.
+
+Other values are decimal unless explicitly marked otherwise.
+
 
 The SID file header v1
 ======================
 
-The detailed structure of the SID header looks like the following. Header
-offsets are in hexadecimal notation. Other integer values are decimal unless
-explicitly marked otherwise. Any stored integer values are in big-endian
-format:
++00    STRING magicID: 'PSID' or 'RSID'
 
-+00    magicID: 'PSID' or 'RSID'
+Valid values:
+- PSID (0x50534944)
+- RSID (0x52534944)
 
-This is a four byte long ASCII character string containing the value
-0x50534944 or 0x52534944. 'RSID' (Real SID) denotes that the file strictly
+This is a four byte long ASCII character string containing the value 0x50534944
+(PSID) or 0x52534944 (RSID). 'RSID' (Real SID) denotes that the file strictly
 requires a true Commodore-64 environment to run properly. 'PSID' files will
 generally run trouble-free on older PlaySID and libsidplay1 based emulators,
 too.
@@ -83,17 +101,31 @@ default C64 power-on environment for each SID file format.
 
 +04    WORD version
 
+Valid values:
+- 0x0001
+- 0x0002 (PSID V2NG, RSID)
+- 0x0003 (PSID V2NG, RSID)
+- 0x0004 (PSID V2NG, RSID)
+
 Available version number can be 0001, 0002, 0003 or 0004. Headers of version 2,
 3 and 4 provide additional fields. RSID and PSID v2NG files must have 0002,
 0003 or 0004 here.
 
 +06    WORD dataOffset
 
+Valid values:
+- 0x0076 (Version 1)
+- 0x007C (Version 2+)
+
 This is the offset from the start of the file to the C64 binary data area.
 Because of the fixed size of the header, this is either 0x0076 for version 1
 and 0x007C for version 2, 3 and 4.
 
 +08    WORD loadAddress
+
+Valid values:
+- $0000 - $FFFF
+- $07E8 - $FFFF (RSID)
 
 The C64 memory location where to put the C64 data. 0 means the data are in
 original C64 binary file format, i.e. the first two bytes of the data contain
@@ -128,6 +160,10 @@ memory buffer.
 
 +0A    WORD initAddress
 
+Valid values:
+- $0000 - $FFFF
+- $07E8 - $9FFF, $C000 - $CFFF (RSID)
+
 The start address of the machine code subroutine that initializes a song,
 accepting the contents of the 8-bit 6510 Accumulator as the song number
 parameter. 0 means the address is equal to the effective load address.
@@ -138,6 +174,10 @@ initAddress must be 0.
 
 +0C    WORD playAddress
 
+Valid values:
+- $0000 - $FFFF
+- $0000 (RSID)
+
 The start address of the machine code subroutine that can be called frequently
 to produce a continuous sound. 0 means the initialization subroutine is
 expected to install an interrupt handler, which then calls the music player at
@@ -145,16 +185,26 @@ some place. This must always be true for RSID files.
 
 +0E    WORD songs
 
+Valid values:
+- 0x0001 - 0x0100
+
 The number of songs (or sound effects) that can be initialized by calling the
 init address. The minimum is 1. The maximum is 256.
 
 +10    WORD startSong
+
+Valid values:
+- 1 - songs
 
 The song number to be played by default. This value is optional. It often
 specifies the first song you would hear upon starting the program is has been
 taken from. It has a default of 1.
 
 +12    LONGWORD speed
+
+Valid values:
+- 0x00000000 - 0xFFFFFFFF
+- 0x00000000 (RSID)
 
 This is a 32 bit big endian number.
 
@@ -190,14 +240,15 @@ WARNING: This field does not work in PlaySID for Amiga like it was intended,
 therefore the above is a redefinition of the original 'speed' field in SID
 v2NG! See also the 'clock' (video standard) field described below for 'flags'.
 
-+16    ``<name>''
-+36    ``<author>''
-+56    ``<released>'' (once known as ``<copyright>'')
++16    STRING ``<name>''
++36    STRING ``<author>''
++56    STRING ``<released>'' (once known as ``<copyright>'')
 
-These are 32 byte long ASCII character strings. Upon evaluating the header,
-these fields may hold a character string of 32 bytes which is not zero
-terminated. For less than 32 characters the string should be zero terminated.
-The maximum number of available free characters is 32.
+These are 32 byte long Extended ASCII encoded (Windows-1252 code page) character
+strings. Upon evaluating the header, these fields may hold a character string of
+32 bytes which is not zero terminated. For less than 32 characters the string
+should be zero terminated. The maximum number of available free characters is
+32.
 
 +76    <data>
 
@@ -213,6 +264,9 @@ additional fields. Some of these are actually v2NG, v3 or v4 specific - those
 are noted below.
 
 +76    WORD flags
+
+Valid values:
+- 0x0000 - 0x03FF
 
 This is a 16 bit big endian number containing the following bitfields:
 
@@ -319,6 +373,9 @@ be played back correctly, bits 4-9 in 'flags' are used as stated above.
 
 +78    BYTE startPage (relocStartPage)
 
+Valid values:
+- 0x00 - 0xFF
+
 This is a v2NG specific field.
 
 This is an 8 bit number. If 'startPage' is 0, the SID file is clean, i.e. it
@@ -331,6 +388,9 @@ within the driver ranges. For example, if 'startPage' is 0x1E, this free
 memory range starts at $1E00.
 
 +79    BYTE pageLength (relocPages)
+
+Valid values:
+- 0x00 - 0xFF
 
 This is a v2NG specific field.
 
@@ -346,6 +406,10 @@ relocation range should also not overlap or encompass any of the ROM areas
 
 +7A    BYTE secondSIDAddress
 
+Valid values:
+- 0x00 (PSID V2NG)
+- 0x42 - 0x7F, 0xE0 - 0xFE Even values only (Version 3+)
+
 This is a v3 specific field. For v2NG, it should be set to 0.
 
 This is an 8 bit number indicating the address of the second SID. It specifies
@@ -355,6 +419,10 @@ the middle part of the address, $Dxx0, starting from value 0x42 for $D420 to
 is used, like 0x00.
 
 +7B    BYTE thirdSIDAddress
+
+Valid values:
+- 0x00 (PSID V2NG, Version 3)
+- 0x42 - 0x7F, 0xE0 - 0xFE Even values only (Version 4)
 
 This is a v4 specific field. For v2NG and v3, it should be set to 0.
 
@@ -378,6 +446,9 @@ The SID file environment
 Before the data of a SID file is loaded in memory of a C64, certain addresses
 and chips must be initialized in order to play the SID tune correctly.
 
+For RSID and PSID Files
+-----------------------
+
 For RSID and PSID files the following address must be set for an emulated
 environment:
 
@@ -395,6 +466,9 @@ The following CIA timer values can be used for:
 NTSC tune on PAL machine: 0x3FFB (312 * 63 * 50 / 60 - 1)
 PAL tune on NTSC machine: 0x5021 (263 * 65 * 60 / 50 - 1)
 
+For PSID Files
+--------------
+
 The default C64 environment for PSID files is as follows:
 
 VIC           : IRQ set to any raster value less than 0x100. Enabled when
@@ -407,10 +481,13 @@ Other timers  : disabled and loaded with 0xFFFF.
 When the init and play addresses are called the bank register value must be
 written for every call and the value is calculated as follows:
 
-if   address < $A000  -> 0x37 // I/O, Kernal-ROM, Basic-ROM 
-else address < $D000  -> 0x36 // I/O, Kernal-ROM
+if   address <  $A000 -> 0x37 // I/O, Kernal-ROM, Basic-ROM
+else address <  $D000 -> 0x36 // I/O, Kernal-ROM
 else address >= $E000 -> 0x35 // I/O only
 else                  -> 0x34 // RAM only
+
+For RSID Files
+--------------
 
 The default C64 environment for RSID files is as follows:
 
