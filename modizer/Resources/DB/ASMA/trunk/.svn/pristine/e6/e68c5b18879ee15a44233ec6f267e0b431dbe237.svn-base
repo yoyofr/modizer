@@ -1,1 +1,0 @@
-grep -zrlP --include=*.sap "\nTIME (0?[5-9]|[1-9]\d):" ../asma >long-time.m3u
