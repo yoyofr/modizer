@@ -101,6 +101,8 @@ modizer/Resources/Images/slider@2x - copie.png
 
 modizer/Resources/DB/ASMA/Asma.txt
 
+modizer/Resources/DB/ASMA/trunk/*
+
 modizer/Resources/DB/ASMA/Composers.txt
 
 modizer/Resources/DB/ASMA/Update38.txt
