@@ -20,3 +20,5 @@ awk -F '/' '// {if (NF==8) printf("%s\\%s\\%s\\%s\\%s\\%s\\%s\\%s\\%s/%s/%s/%s/%
 awk -F '/' '// {if ((NF<=1)||(NF>9)) printf("%d\\%s\n",NF,$0);}' conv.tmp > comp_exception.txt
 rm conv.tmp
 rm conv1.tmp
+rm conv2.tmp
+rm awk.cmd
