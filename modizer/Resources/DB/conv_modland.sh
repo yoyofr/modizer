@@ -3,9 +3,12 @@ rm conv.tmp
 for line in `cat ext.txt` 
 do
   echo $line
-  echo "// {if (tolower(\$NF)==tolower(\"$line\")) print \$0;}" > awk.cmd
-  awk -F '.' -f awk.cmd conv1.tmp >> conv.tmp
+  grep -i "$line" conv1.tmp > conv2.tmp
+  echo "// {if ( (tolower(\$NF)==tolower(\"$line\")) || (index(tolower(\$0),sprintf(\"/%s.\",tolower(\"$line\")))>0) )  print \$0;}" > awk.cmd
+  awk -F '.' -f awk.cmd conv2.tmp >> conv.tmp
 done
+sort conv.tmp | uniq  > conv3.tmp
+mv conv3.tmp conv.tmp
 awk -F '/' '// {if (NF==2) printf("%s\\%s\\%s\\%s/%s\n",$1,$2,$2);}' conv.tmp > comp2.txt
 awk -F '/' '// {if (NF==3) printf("%s\\%s\\%s\\%s/%s\n",$1,$2,$3,$2,$3);}' conv.tmp > comp3.txt
 awk -F '/' '// {if (NF==4) printf("%s\\%s\\%s\\%s\\%s/%s/%s\n",$1,$2,$3,$4,$2,$3,$4);}' conv.tmp > comp4.txt

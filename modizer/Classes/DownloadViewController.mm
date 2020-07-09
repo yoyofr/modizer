@@ -302,7 +302,6 @@ static NSFileManager *mFileMngr;
 		[mFileMngr createDirectoryAtPath:[[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] stringByDeletingLastPathComponent]
              withIntermediateDirectories:TRUE attributes:nil error:&err];
 		
-		
 		[mFileMngr moveItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME]
                            toPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] error:&err];
 		
@@ -513,6 +512,36 @@ static NSFileManager *mFileMngr;
 					mFTPDownloadQueueDepth++;
 					
 				}
+                r = [fileName rangeOfString:@"mdat." options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    strcpy(tmp_str,[filePath UTF8String]);
+                    tmp_str_ptr=strrchr(tmp_str,'/');tmp_str_ptr++;
+                    *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
+                    mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
+                    
+                    strcpy(tmp_str,[ftpPath UTF8String]);
+                    tmp_str_ptr=strrchr(tmp_str,'/');tmp_str_ptr++;
+                    *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
+                    mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
+                    
+                    mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                    
+                    strcpy(tmp_str,[fileName UTF8String]);
+                    tmp_str_ptr=strrchr(tmp_str,'/');
+                    if (!tmp_str_ptr) tmp_str_ptr=tmp_str;
+                    else tmp_str_ptr++;
+                    *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
+                    mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
+                    
+                    mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                    mFileSize[mFTPDownloadQueueDepth]=-1;
+                    mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                    
+                    mFTPDownloadQueueDepth++;
+                    
+                }
                 //2/SCI => if .sci the .003 patch file should be downloaded as well
                 r.location=NSNotFound;
 				r = [fileName rangeOfString:@".sci" options:NSCaseInsensitiveSearch];
@@ -756,8 +785,13 @@ static NSFileManager *mFileMngr;
     NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
-	NSString *extension = [file pathExtension];
-	NSString *file_no_ext = [[file lastPathComponent] stringByDeletingPathExtension];
+    NSString *extension;// = [file pathExtension];
+    NSString *file_no_ext;// = [[file lastPathComponent] stringByDeletingPathExtension];
+    
+    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[file lastPathComponent] componentsSeparatedByString:@"."]];
+    extension = (NSString *)[temparray_filepath lastObject];
+    [temparray_filepath removeLastObject];
+    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
 	
 	int found=0;
 	for (int i=0;i<[filetype_extUADE count];i++) {
