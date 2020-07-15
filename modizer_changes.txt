@@ -28,6 +28,16 @@ Todo/Requested:
 
 - BUG: when not playing file, if download & exit => should not empty download queue
 
+2.9.4
+ÑÑÑÑÑ
+- HVSC #73
+- ASMA 2020/07/06
+- Modland 2020/07/04
+- Adplug 2.3.4 beta
+- VGMPlay last version
+- snes snsf playback implemented
+- code improvements & bugfixes
+
 2.9.3
 ÑÑÑÑÑ
 - HVSC #71

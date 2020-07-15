@@ -5,16 +5,19 @@
 ****************************************************************/
 
 #include "mamedef.h"
+#include <stdlib.h>
 #include <stddef.h>	// for NULL
 //#include "sndintrf.h"
 //#include "streams.h"
 #ifdef ENABLE_ALL_CORES
 #include "ym2413.h"
+#include "opll.h"
 #endif
 #include "emu2413.h"
 #include "2413intf.h"
 
 #ifdef ENABLE_ALL_CORES
+#define EC_NUKED	0x02	// Nuked OPLL
 #define EC_MAME		0x01	// YM2413 core from MAME
 #endif
 #define EC_EMU2413	0x00	// EMU2413 core from in_vgm, value 0 because it's better than MAME
@@ -63,6 +66,65 @@ void YM2413DAC_update(int chip,stream_sample_t **inputs, stream_sample_t **_buff
 }
 #endif
 
+static void _emu2413_calc_stereo(OPLL *opll, INT32 **out, int samples)
+{
+	INT32 *bufL = out[0];
+	INT32 *bufR = out[1];
+	INT32 buffers[2];
+	int i;
+
+	for (i = 0; i < samples; i++)
+	{
+		OPLL_calcStereo(opll, buffers);
+		bufL[i] = buffers[0];
+		bufR[i] = buffers[1];
+	}
+}
+
+static void _emu2413_set_mute_mask(OPLL *opll, UINT32 MuteMask)
+{
+	unsigned char CurChn;
+	UINT32 ChnMsk;
+
+	for (CurChn = 0; CurChn < 14; CurChn++)
+	{
+		if (CurChn < 9)
+		{
+			ChnMsk = OPLL_MASK_CH(CurChn);
+		}
+		else
+		{
+			switch (CurChn)
+			{
+			case 9:
+				ChnMsk = OPLL_MASK_BD;
+				break;
+			case 10:
+				ChnMsk = OPLL_MASK_SD;
+				break;
+			case 11:
+				ChnMsk = OPLL_MASK_TOM;
+				break;
+			case 12:
+				ChnMsk = OPLL_MASK_CYM;
+				break;
+			case 13:
+				ChnMsk = OPLL_MASK_HH;
+				break;
+			default:
+				ChnMsk = 0;
+				break;
+			}
+		}
+		if ((MuteMask >> CurChn) & 0x01)
+			opll->mask |= ChnMsk;
+		else
+			opll->mask &= ~ChnMsk;
+	}
+
+	return;
+}
+
 //static STREAM_UPDATE( ym2413_stream_update )
 void ym2413_stream_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
@@ -73,9 +135,12 @@ void ym2413_stream_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	case EC_MAME:
 		ym2413_update_one(info->chip, outputs, samples);
 		break;
+	case EC_NUKED:
+		OPLL_GenerateStream(info->chip, outputs, samples);
+		break;
 #endif
 	case EC_EMU2413:
-		OPLL_calc_stereo(info->chip, outputs, samples);
+		_emu2413_calc_stereo(info->chip, outputs, samples);
 		break;
 	}
 }
@@ -91,9 +156,12 @@ static void _stream_update(void *param, int interval)
 	case EC_MAME:
 		ym2413_update_one(info->chip, DUMMYBUF, 0);
 		break;
+	case EC_NUKED:
+		// OPLL_GenerateStream(info->chip, DUMMYBUF, 0);
+		break;
 #endif
 	case EC_EMU2413:
-		OPLL_calc_stereo(info->chip, DUMMYBUF, 0);
+		_emu2413_calc_stereo(info->chip, DUMMYBUF, 0);
 		break;
 	}
 }
@@ -103,6 +171,7 @@ int device_start_ym2413(UINT8 ChipID, int clock)
 {
 	//ym2413_state *info = get_safe_token(device);
 	ym2413_state *info;
+	int type;
 	int rate;
 	
 	if (ChipID >= MAX_CHIPS)
@@ -132,13 +201,20 @@ int device_start_ym2413(UINT8 ChipID, int clock)
 
 		ym2413_set_update_handler(info->chip, _stream_update, info);
 		break;
+	case EC_NUKED:
+		info->chip = malloc(sizeof(opll_t));
+		//if(chiptype)
+		//	OPN2_SetChipType(ym3438_type_discrete);
+		type = info->Mode ? opll_type_ds1001 : opll_type_ym2413;
+		OPLL_Reset(info->chip, type, rate, clock);
+		break;
 #endif
 	case EC_EMU2413:
 		info->chip = OPLL_new(clock, rate);
 		if (info->chip == NULL)
 			return 0;
 		
-		OPLL_SetChipMode(info->chip, info->Mode);
+		OPLL_setChipMode(info->chip, info->Mode);
 		if (info->Mode)
 			OPLL_setPatch(info->chip, vrc7_inst);
 		break;
@@ -182,6 +258,9 @@ void device_stop_ym2413(UINT8 ChipID)
 	case EC_MAME:
 		ym2413_shutdown(info->chip);
 		break;
+	case EC_NUKED:
+		free(info->chip);
+		break;
 #endif
 	case EC_EMU2413:
 		OPLL_delete(info->chip);
@@ -194,6 +273,7 @@ void device_reset_ym2413(UINT8 ChipID)
 {
 	//ym2413_state *info = get_safe_token(device);
 	ym2413_state *info = &YM2413Data[ChipID];
+	int type;
 	switch(EMU_CORE)
 	{
 #ifdef ENABLE_ALL_CORES
@@ -201,6 +281,10 @@ void device_reset_ym2413(UINT8 ChipID)
 		ym2413_reset_chip(info->chip);
 		if (info->Mode)
 			ym2413_override_patches(info->chip, vrc7_inst);
+		break;
+	case EC_NUKED:
+		type = info->Mode ? opll_type_ds1001 : opll_type_ym2413;
+		OPLL_Reset(info->chip, type, 0, 0);
 		break;
 #endif
 	case EC_EMU2413:
@@ -224,6 +308,9 @@ void ym2413_w(UINT8 ChipID, offs_t offset, UINT8 data)
 	case EC_MAME:
 		ym2413_write(info->chip, offset & 1, data);
 		break;
+	case EC_NUKED:
+		OPLL_WriteBuffered(info->chip, offset, data);
+		break;
 #endif
 	case EC_EMU2413:
 		OPLL_writeIO(info->chip, offset & 1, data);
@@ -246,7 +333,7 @@ void ym2413_data_port_w(UINT8 ChipID, offs_t offset, UINT8 data)
 void ym2413_set_emu_core(UINT8 Emulator)
 {
 #ifdef ENABLE_ALL_CORES
-	EMU_CORE = (Emulator < 0x02) ? Emulator : 0x00;
+	EMU_CORE = (Emulator < 0x03) ? Emulator : 0x00;
 #else
 	EMU_CORE = EC_EMU2413;
 #endif
@@ -263,9 +350,12 @@ void ym2413_set_mute_mask(UINT8 ChipID, UINT32 MuteMask)
 	case EC_MAME:
 		ym2413_set_mutemask(info->chip, MuteMask);
 		break;
+	case EC_NUKED:
+		OPLL_SetMute(info->chip, MuteMask);
+		break;
 #endif
 	case EC_EMU2413:
-		OPLL_SetMuteMask(info->chip, MuteMask);
+		_emu2413_set_mute_mask(info->chip, MuteMask);
 		break;
 	}
 	
@@ -276,15 +366,28 @@ void ym2413_set_panning(UINT8 ChipID, INT16* PanVals)
 {
 	ym2413_state *info = &YM2413Data[ChipID];
 	UINT8 CurChn;
+	UINT8 EmuChn;
 	switch(EMU_CORE)
 	{
 #ifdef ENABLE_ALL_CORES
 	case EC_MAME:
 		break;
+	case EC_NUKED:
+		break;
 #endif
 	case EC_EMU2413:
 		for (CurChn = 0x00; CurChn < 0x0E; CurChn ++)
-			OPLL_set_pan(info->chip, CurChn, PanVals[CurChn]);
+		{
+			// input:  0..8, BD, SD, TOM, CYM, HH
+			// output: 0..8, BD, HH, SD, TOM, CYM
+			if (CurChn < 10)
+				EmuChn = CurChn;
+			else if (CurChn < 13)
+				EmuChn = CurChn + 1;
+			else
+				EmuChn = 10;
+			OPLL_setPanEx(info->chip, EmuChn, PanVals[CurChn]);
+		}
 		break;
 	}
 	
