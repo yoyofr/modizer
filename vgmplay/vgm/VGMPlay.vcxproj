@@ -23,12 +23,10 @@
     <ClInclude Include="chips\2151intf.h" />
     <ClInclude Include="chips\2203intf.h" />
     <ClInclude Include="chips\2413intf.h" />
-    <ClInclude Include="chips\2413tone.h" />
     <ClInclude Include="chips\2608intf.h" />
     <ClInclude Include="chips\2610intf.h" />
     <ClInclude Include="chips\2612intf.h" />
     <ClInclude Include="chips\262intf.h" />
-    <ClInclude Include="chips\281btone.h" />
     <ClInclude Include="chips\3526intf.h" />
     <ClInclude Include="chips\3812intf.h" />
     <ClInclude Include="chips\8950intf.h" />
@@ -65,10 +63,13 @@
     <ClInclude Include="chips\okim6295.h" />
     <ClInclude Include="chips\Ootake_PSG.h" />
     <ClInclude Include="chips\opl.h" />
+    <ClInclude Include="chips\opll.h" />
     <ClInclude Include="chips\panning.h" />
     <ClInclude Include="chips\pokey.h" />
     <ClInclude Include="chips\pwm.h" />
-    <ClInclude Include="chips\qsound.h" />
+    <ClInclude Include="chips\qsound_ctr.h" />
+    <ClInclude Include="chips\qsound_intf.h" />
+    <ClInclude Include="chips\qsound_mame.h" />
     <ClInclude Include="chips\rf5c68.h" />
     <ClInclude Include="chips\saa1099.h" />
     <ClInclude Include="chips\scd_pcm.h" />
@@ -88,11 +89,14 @@
     <ClInclude Include="chips\ym2413.h" />
     <ClInclude Include="chips\ym2413hd.h" />
     <ClInclude Include="chips\ym2612.h" />
+    <ClInclude Include="chips\ym3438.h" />
     <ClInclude Include="chips\ymdeltat.h" />
     <ClInclude Include="chips\ymf262.h" />
     <ClInclude Include="chips\ymf271.h" />
     <ClInclude Include="chips\ymf278b.h" />
     <ClInclude Include="chips\ymz280b.h" />
+    <ClInclude Include="dbus.h" />
+    <ClInclude Include="mmkeys.h" />
     <ClInclude Include="PortTalk_IOCTL.h" />
     <ClInclude Include="Stream.h" />
     <ClInclude Include="VGMFile.h" />
@@ -150,10 +154,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="chips\opll.c" />
     <ClCompile Include="chips\panning.c" />
     <ClCompile Include="chips\pokey.c" />
     <ClCompile Include="chips\pwm.c" />
-    <ClCompile Include="chips\qsound.c" />
+    <ClCompile Include="chips\qsound_ctr.c" />
+    <ClCompile Include="chips\qsound_intf.c" />
+    <ClCompile Include="chips\qsound_mame.c" />
     <ClCompile Include="chips\rf5c68.c" />
     <ClCompile Include="chips\saa1099.c" />
     <ClCompile Include="chips\scd_pcm.c" />
@@ -179,11 +186,14 @@
     <ClCompile Include="chips\ym2413hd.c" />
     <ClCompile Include="chips\ym2413_opl.c" />
     <ClCompile Include="chips\ym2612.c" />
+    <ClCompile Include="chips\ym3438.c" />
     <ClCompile Include="chips\ymdeltat.c" />
     <ClCompile Include="chips\ymf262.c" />
     <ClCompile Include="chips\ymf271.c" />
     <ClCompile Include="chips\ymf278b.c" />
     <ClCompile Include="chips\ymz280b.c" />
+    <ClCompile Include="dbus_stub.c" />
+    <ClCompile Include="mmkeys_Win.c" />
     <ClCompile Include="pt_ioctl.c" />
     <ClCompile Include="Stream.c" />
     <ClCompile Include="VGMPlay.c" />
