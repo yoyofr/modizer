@@ -15,8 +15,8 @@
 
 #include <memory>
 #include <zlib.h>
-#include "convert.h"
-#include "XSFPlayer.h"
+#include "../in_xsf_framework/convert.h"
+#include "../in_xsf_framework/XSFPlayer.h"
 #include "desmume/NDSSystem.h"
 
 class XSFPlayer_2SF : public XSFPlayer

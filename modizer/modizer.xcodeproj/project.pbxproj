@@ -5628,7 +5628,7 @@
 				LastUpgradeCheck = 0720;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
-						DevelopmentTeam = ZV46EUY73C;
+						DevelopmentTeam = VE7YM5VVJB;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -6650,7 +6650,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 2.94.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
+				DEVELOPMENT_TEAM = VE7YM5VVJB;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -6679,7 +6679,7 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				MARKETING_VERSION = 2.94;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tarasis.others.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6700,7 +6700,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 2.94.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
+				DEVELOPMENT_TEAM = VE7YM5VVJB;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -6733,7 +6733,7 @@
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tarasis.others.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6877,7 +6877,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 2.94.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
+				DEVELOPMENT_TEAM = VE7YM5VVJB;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
@@ -6909,7 +6909,7 @@
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tarasis.others.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -6971,7 +6971,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 2.94.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
+				DEVELOPMENT_TEAM = VE7YM5VVJB;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -7002,7 +7002,7 @@
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tarasis.others.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -7065,7 +7065,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 2.94.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
+				DEVELOPMENT_TEAM = VE7YM5VVJB;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -7096,7 +7096,7 @@
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = net.tarasis.others.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

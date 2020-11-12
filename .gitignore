@@ -17,6 +17,8 @@ modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcsc
 
 modizer/Resources/DB/allmods.txt
 
+modizer/Resources/DB/allmods 2.txt
+
 modizer/Resources/DB/BUGlist.txt
 
 modizer/Resources/DB/Creators.txt

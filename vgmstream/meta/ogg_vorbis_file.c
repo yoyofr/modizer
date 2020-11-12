@@ -6,8 +6,8 @@
 #include <string.h>
 #include "meta.h"
 #include "../util.h"
-#include <vorbis/vorbisfile.h>
-
+//#include <vorbis/vorbisfile.h>
+#include "../../libopenmpt/openmpt-trunk/include/vorbis/include/vorbis/vorbisfile.h"
 
 #define DEFAULT_BITSTREAM 0
 

@@ -208,12 +208,8 @@
 # define strcasecmp stricmp
 #endif
 
-#if defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(__x86_64__) || defined(__alpha__) || defined(__MIPSEL__) || defined(_M_IX86) || defined(_M_X64)
 # define LSB_FIRST
 # define FAST_LSB_WORD_ACCESS
-#else
-# define MSB_FIRST
-#endif
 
 #ifdef FAST_LSB_WORD_ACCESS
 inline uint16_t READ_WORD(const uint8_t *s) { return *reinterpret_cast<const uint16_t *>(s); }
@@ -221,6 +217,6 @@ inline uint32_t READ_3WORD(const uint8_t *s) { return *reinterpret_cast<const ui
 inline void WRITE_WORD(uint8_t *s, uint16_t d) { *reinterpret_cast<uint16_t *>(s) = d; }
 #else
 inline uint16_t READ_WORD(const uint8_t *s) { return s | ((s + 1) << 8); }
-inline uint32-t READ_3WORD(const uint8_t *s) { return s | ((s + 1) << 8) | ((s + 2) << 16); }
+inline uint32_t READ_3WORD(const uint8_t *s) { return s | ((s + 1) << 8) | ((s + 2) << 16); }
 inline void WRITE_WORD(uint8_t *s, uint16_t d) { *s = static_cast<uint8_t>(d); *(s + 1) = static_cast<uint8_t>(d >> 8); }
 #endif

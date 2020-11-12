@@ -23,9 +23,9 @@
 
 
 //XSF
-#import "XSFPlayer.h"
-#import "XSFPlayer_NCSF.h"
-#import "XSFPlayer_2SF.h"
+#import "../../libxsf/src/in_xsf_framework/XSFPlayer.h"
+#import "../../libxsf/src/in_ncsf/XSFPlayer_NCSF.h"
+#import "../../libxsf/src/in_2sf/XSFPlayer_2SF.h"
 
 class XSFPlayer_SNSF : public XSFPlayer
 {
@@ -40,7 +40,7 @@ public:
     void Terminate();
 };
 
-#import "XSFConfig.h"
+#import "../../libxsf/src/in_xsf_framework/XSFConfig.h"
 
 
 //GME

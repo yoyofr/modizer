@@ -1,7 +1,7 @@
 #include "../vgmstream.h"
 
 #ifdef VGM_USE_VORBIS
-#include <vorbis/vorbisfile.h>
+#include "../../libopenmpt/openmpt-trunk/include/vorbis/include/vorbis/vorbisfile.h"
 #include "coding.h"
 #include "../util.h"
 

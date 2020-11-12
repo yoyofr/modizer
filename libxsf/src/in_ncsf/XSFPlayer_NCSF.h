@@ -13,7 +13,7 @@
 
 #include <memory>
 #include <bitset>
-#include "XSFPlayer.h"
+#import "../in_xsf_framework/XSFPlayer.h"
 #include "SSEQPlayer/SDAT.h"
 #include "SSEQPlayer/Player.h"
 

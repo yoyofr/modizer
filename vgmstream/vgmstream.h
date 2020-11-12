@@ -18,10 +18,10 @@
 #include "streamfile.h"
 #include "coding/g72x_state.h"
 #ifdef VGM_USE_VORBIS
-#include "vorbis/vorbisfile.h"
+#include "../libopenmpt/openmpt-trunk/include/vorbis/include/vorbis/vorbisfile.h"
 #endif
 #ifdef VGM_USE_MPEG
-#include "mpg123.h"
+#include "../node-lame-master/deps/mpg123/ports/Xcode/mpg123.h"
 #endif
 #ifdef VGM_USE_G7221
 #include "g7221.h"

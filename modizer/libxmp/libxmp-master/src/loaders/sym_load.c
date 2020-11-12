@@ -21,8 +21,7 @@
  */
 
 #include "loader.h"
-#include "depackers/readlzw.h"
-
+#include "../depackers/readlzw.h"
 
 static int sym_test(HIO_HANDLE *, char *, const int);
 static int sym_load (struct module_data *, HIO_HANDLE *, const int);
