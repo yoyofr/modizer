@@ -6686,7 +6686,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 			};
 			name = Debug;
 		};
@@ -6740,7 +6740,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6764,13 +6764,13 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
-					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6780,7 +6780,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -6803,13 +6803,13 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
-					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6820,7 +6820,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6844,13 +6844,13 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
-					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6862,7 +6862,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6916,7 +6916,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6939,13 +6939,13 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
-					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -6956,7 +6956,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -7010,7 +7010,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -7033,13 +7033,13 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					/usr/include/libxml2,
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
-					"/Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework,
-					/Users/ymagnien/Documents/dev/iphone/modizer/lib2sf,
-					/Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf,
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -7050,7 +7050,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";
@@ -7104,7 +7104,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/ymagnien/Documents/dev/iphone/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/ymagnien/Documents/dev/iphone/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_xsf_framework /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_ncsf /Users/ymagnien/Documents/dev/iphone/modizer/lib2sf /Users/ymagnien/Documents/dev/iphone/modizer/libxsf/src/in_2sf /Users/ymagnien/Documents/dev/iphone/modizer/modizer/SESlideTableViewCell/lib /Users/ymagnien/Documents/dev/iphone/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";

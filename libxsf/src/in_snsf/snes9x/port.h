@@ -220,7 +220,7 @@ inline uint16_t READ_WORD(const uint8_t *s) { return *reinterpret_cast<const uin
 inline uint32_t READ_3WORD(const uint8_t *s) { return *reinterpret_cast<const uint32_t *>(s) & 0x00FFFFFF; }
 inline void WRITE_WORD(uint8_t *s, uint16_t d) { *reinterpret_cast<uint16_t *>(s) = d; }
 #else
-inline uint16_t READ_WORD(const uint8_t *s) { return s | ((s + 1) << 8); }
-inline uint32-t READ_3WORD(const uint8_t *s) { return s | ((s + 1) << 8) | ((s + 2) << 16); }
+inline uint16_t READ_WORD(const uint8_t *s) { return *s | (*(s + 1) << 8); }
+inline uint32_t READ_3WORD(const uint8_t *s) { return *s | (*(s + 1) << 8) | (*(s + 2) << 16); }
 inline void WRITE_WORD(uint8_t *s, uint16_t d) { *s = static_cast<uint8_t>(d); *(s + 1) = static_cast<uint8_t>(d >> 8); }
 #endif

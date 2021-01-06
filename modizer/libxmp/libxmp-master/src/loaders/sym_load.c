@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "depackers/readlzw.h"
+#include "../depackers/readlzw.h"
 
 
 static int sym_test(HIO_HANDLE *, char *, const int);
