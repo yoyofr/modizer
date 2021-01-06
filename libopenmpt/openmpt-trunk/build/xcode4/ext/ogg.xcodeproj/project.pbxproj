@@ -117,6 +117,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = A073489A078B48015022F34ABA965001BA741BB054BE300 /* ogg */;
@@ -201,7 +202,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../../include/ogg/include;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/ogg/x86_64/ReleaseShared;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-std=c99";
@@ -250,7 +251,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../../include/ogg/include;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/ogg/x86_64/Debug;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-std=c99";
@@ -300,7 +301,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../../include/ogg/include;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/ogg/x86_64/DebugShared;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-std=c99";
@@ -348,7 +349,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = ../../../include/ogg/include;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/ogg/x86_64/Release;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-std=c99";

@@ -368,6 +368,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = BD775E1C2671800027A5E30A041C7E00F25360F6D7C10000 /* vorbis */;
@@ -513,7 +514,7 @@
 					../../../include/vorbis/lib,
 					../../../include/ogg/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/DebugShared;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-std=c99";
@@ -565,7 +566,7 @@
 					../../../include/vorbis/lib,
 					../../../include/ogg/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/ReleaseShared;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-std=c99";
@@ -617,7 +618,7 @@
 					../../../include/vorbis/lib,
 					../../../include/ogg/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/Release;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "-std=c99";
@@ -682,7 +683,7 @@
 					../../../include/vorbis/lib,
 					../../../include/ogg/include,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				OBJROOT = ../../obj/xcode4/vorbis/x86_64/Debug;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-std=c99";
