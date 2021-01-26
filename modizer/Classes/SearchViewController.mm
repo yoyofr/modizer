@@ -69,8 +69,8 @@ static NSFileManager *mFileMngr;
         }
     }
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -106,7 +106,7 @@ static NSFileManager *mFileMngr;
             if (str) {
                 //display popup
                 if (self.popTipView == nil) {
-                    self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
+                    self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
                     self.popTipView.delegate = self;
                     self.popTipView.backgroundColor = [UIColor lightGrayColor];
                     self.popTipView.textColor = [UIColor darkTextColor];
@@ -147,11 +147,11 @@ static NSFileManager *mFileMngr;
     
     lastSelectedSearch=0;
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
 
     mFileMngr=[[NSFileManager alloc] init];
@@ -175,7 +175,7 @@ static NSFileManager *mFileMngr;
     lpgr.minimumPressDuration = 1.0; //seconds
     lpgr.delegate = self;
     [self.searchResultTabView addGestureRecognizer:lpgr];
-    [lpgr release];
+    //[lpgr release];
     
 	
 	
@@ -246,15 +246,22 @@ static NSFileManager *mFileMngr;
 - (void)dealloc {
 	if (dbHVSC_entries_count) {
 		for (int i=0;i<dbHVSC_entries_count;i++) {
-			if (dbHVSC_entries[i].label) [dbHVSC_entries[i].label release];
+			/*if (dbHVSC_entries[i].label) [dbHVSC_entries[i].label release];
 			if (dbHVSC_entries[i].fullpath) [dbHVSC_entries[i].fullpath release];
 			if (dbHVSC_entries[i].id_md5) [dbHVSC_entries[i].id_md5 release];
 			if (dbHVSC_entries[i].dir1) [dbHVSC_entries[i].dir1 release];
 			if (dbHVSC_entries[i].dir2) [dbHVSC_entries[i].dir2 release];
 			if (dbHVSC_entries[i].dir3) [dbHVSC_entries[i].dir3 release];
 			if (dbHVSC_entries[i].dir4) [dbHVSC_entries[i].dir4 release];
-			if (dbHVSC_entries[i].dir5) [dbHVSC_entries[i].dir5 release];
-			
+			if (dbHVSC_entries[i].dir5) [dbHVSC_entries[i].dir5 release];*/
+            dbHVSC_entries[i].label=nil;
+            dbHVSC_entries[i].fullpath=nil;
+            dbHVSC_entries[i].id_md5=nil;
+            dbHVSC_entries[i].dir1=nil;
+            dbHVSC_entries[i].dir2=nil;
+            dbHVSC_entries[i].dir3=nil;
+            dbHVSC_entries[i].dir4=nil;
+            dbHVSC_entries[i].dir5=nil;
 		}
 		free(dbHVSC_entries);
 		dbHVSC_entries=NULL;
@@ -262,14 +269,21 @@ static NSFileManager *mFileMngr;
 	}
     if (dbASMA_entries_count) {
 		for (int i=0;i<dbASMA_entries_count;i++) {
-			if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
+			/*if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
 			if (dbASMA_entries[i].fullpath) [dbASMA_entries[i].fullpath release];
 			if (dbASMA_entries[i].id_md5) [dbASMA_entries[i].id_md5 release];
 			if (dbASMA_entries[i].dir1) [dbASMA_entries[i].dir1 release];
 			if (dbASMA_entries[i].dir2) [dbASMA_entries[i].dir2 release];
 			if (dbASMA_entries[i].dir3) [dbASMA_entries[i].dir3 release];
 			if (dbASMA_entries[i].dir4) [dbASMA_entries[i].dir4 release];
-			
+			*/
+            dbASMA_entries[i].label=nil;
+            dbASMA_entries[i].fullpath=nil;
+            dbASMA_entries[i].id_md5=nil;
+            dbASMA_entries[i].dir1=nil;
+            dbASMA_entries[i].dir2=nil;
+            dbASMA_entries[i].dir3=nil;
+            dbASMA_entries[i].dir4=nil;
 		}
 		free(dbASMA_entries);
 		dbASMA_entries=NULL;
@@ -277,8 +291,8 @@ static NSFileManager *mFileMngr;
 	}
 	if (db_entries_count) {
 		for (int j=0;j<db_entries_count;j++) {
-			[db_entries[j].label release];
-			[db_entries[j].fullpath release];
+			//[db_entries[j].label release];
+			//[db_entries[j].fullpath release];
 		}
 		free(db_entries);
 		db_entries=NULL;
@@ -286,23 +300,23 @@ static NSFileManager *mFileMngr;
 	}
 	if (playlist_entries_count) {
 		for (int j=0;j<playlist_entries_count;j++) {
-			[playlist_entries[j].playlist_name release];
-			[playlist_entries[j].playlist_id release];
-			[playlist_entries[j].filename release];
-			[playlist_entries[j].fullpath release];
+            playlist_entries[j].playlist_name=nil;
+            playlist_entries[j].playlist_id=nil;
+            playlist_entries[j].filename=nil;
+            playlist_entries[j].fullpath=nil;
 		}
 		playlist_entries_count=0;
 	}
 	if (local_entries_count) {
 		for (int j=0;j<local_entries_count;j++) {
-			[local_entries[j].label release];
-			[local_entries[j].fullpath release];
+            local_entries[j].label=nil;
+            local_entries[j].fullpath=nil;
 		}
 		free(local_entries);
 		local_entries=NULL;
 		local_entries_count=0;
 	}
-    [super dealloc];
+    //[super dealloc];
 }
 
 -(int) searchPlaylist {
@@ -312,10 +326,10 @@ static NSFileManager *mFileMngr;
 	
 	if (playlist_entries_count) {
 		for (int j=0;j<playlist_entries_count;j++) {
-			[playlist_entries[j].playlist_name release];
-			[playlist_entries[j].playlist_id release];
-			[playlist_entries[j].filename release];
-			[playlist_entries[j].fullpath release];
+            playlist_entries[j].playlist_name=nil;
+            playlist_entries[j].playlist_id=nil;
+            playlist_entries[j].filename=nil;
+            playlist_entries[j].fullpath=nil;
 
 		}
 		playlist_entries_count=0;
@@ -348,7 +362,7 @@ static NSFileManager *mFileMngr;
 		}
 		
 		if (playlist_entries_count) {
-			playlist_entries=(t_playlist_entryS*)malloc(playlist_entries_count*sizeof(t_playlist_entryS));
+			playlist_entries=(t_playlist_entryS*)calloc(playlist_entries_count,sizeof(t_playlist_entryS));
 			sprintf(sqlStatement,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
 					WHERE pe.id_playlist=p.id \
 					AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[mSearchText UTF8String]);
@@ -387,8 +401,8 @@ static NSFileManager *mFileMngr;
 	
 	if (db_entries_count) {
 		for (int j=0;j<db_entries_count;j++) {
-			[db_entries[j].label release];
-			[db_entries[j].fullpath release];
+            db_entries[j].label=nil;
+            db_entries[j].fullpath=nil;
 		}
 		free(db_entries);
 		db_entries=NULL;
@@ -407,7 +421,7 @@ static NSFileManager *mFileMngr;
         
 		db_entries_count=MAX_SEARCH_RESULT;
 		if (db_entries_count) {
-			db_entries=(t_db_browse_entryS*)malloc(db_entries_count*sizeof(t_db_browse_entryS));
+			db_entries=(t_db_browse_entryS*)calloc(db_entries_count,sizeof(t_db_browse_entryS));
 			for (int j=0;j<db_entries_count;j++) {
 				db_entries[j].id_mod=-1;
 			}
@@ -475,13 +489,13 @@ static NSFileManager *mFileMngr;
 	
 	if (dbASMA_entries_count) {
 		for (int i=0;i<dbASMA_entries_count;i++) {
-			if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
-			if (dbASMA_entries[i].fullpath) [dbASMA_entries[i].fullpath release];
-			if (dbASMA_entries[i].id_md5) [dbASMA_entries[i].id_md5 release];
-			if (dbASMA_entries[i].dir1) [dbASMA_entries[i].dir1 release];
-			if (dbASMA_entries[i].dir2) [dbASMA_entries[i].dir2 release];
-			if (dbASMA_entries[i].dir3) [dbASMA_entries[i].dir3 release];
-			if (dbASMA_entries[i].dir4) [dbASMA_entries[i].dir4 release];
+            dbASMA_entries[i].label=nil;
+            dbASMA_entries[i].fullpath=nil;
+            dbASMA_entries[i].id_md5=nil;
+            dbASMA_entries[i].dir1=nil;
+            dbASMA_entries[i].dir2=nil;
+            dbASMA_entries[i].dir3=nil;
+            dbASMA_entries[i].dir4=nil;
 		}
 		free(dbASMA_entries);
 		dbASMA_entries=NULL;
@@ -500,7 +514,7 @@ static NSFileManager *mFileMngr;
 		
 		dbASMA_entries_count=MAX_SEARCH_RESULT;
 		if (dbASMA_entries_count) {
-			dbASMA_entries=(t_dbASMA_browse_entryS*)malloc(dbASMA_entries_count*sizeof(t_dbASMA_browse_entryS));
+			dbASMA_entries=(t_dbASMA_browse_entryS*)calloc(dbASMA_entries_count,sizeof(t_dbASMA_browse_entryS));
 			memset(dbASMA_entries,0,dbASMA_entries_count*sizeof(t_dbASMA_browse_entryS));
 			
 			sprintf(sqlStatement,"SELECT filename,id_md5,fullpath FROM asma_file \
@@ -562,14 +576,14 @@ static NSFileManager *mFileMngr;
 	
 	if (dbHVSC_entries_count) {
 		for (int i=0;i<dbHVSC_entries_count;i++) {
-			if (dbHVSC_entries[i].label) [dbHVSC_entries[i].label release];
-			if (dbHVSC_entries[i].fullpath) [dbHVSC_entries[i].fullpath release];
-			if (dbHVSC_entries[i].id_md5) [dbHVSC_entries[i].id_md5 release];
-			if (dbHVSC_entries[i].dir1) [dbHVSC_entries[i].dir1 release];
-			if (dbHVSC_entries[i].dir2) [dbHVSC_entries[i].dir2 release];
-			if (dbHVSC_entries[i].dir3) [dbHVSC_entries[i].dir3 release];
-			if (dbHVSC_entries[i].dir4) [dbHVSC_entries[i].dir4 release];
-			if (dbHVSC_entries[i].dir5) [dbHVSC_entries[i].dir5 release];
+            dbHVSC_entries[i].label=nil;
+            dbHVSC_entries[i].fullpath=nil;
+            dbHVSC_entries[i].id_md5=nil;
+            dbHVSC_entries[i].dir1=nil;
+            dbHVSC_entries[i].dir2=nil;
+            dbHVSC_entries[i].dir3=nil;
+            dbHVSC_entries[i].dir4=nil;
+            dbHVSC_entries[i].dir5=nil;
 		}
 		free(dbHVSC_entries);
 		dbHVSC_entries=NULL;
@@ -588,7 +602,7 @@ static NSFileManager *mFileMngr;
         
 		dbHVSC_entries_count=MAX_SEARCH_RESULT;
 		if (dbHVSC_entries_count) {
-			dbHVSC_entries=(t_dbHVSC_browse_entryS*)malloc(dbHVSC_entries_count*sizeof(t_dbHVSC_browse_entryS));
+			dbHVSC_entries=(t_dbHVSC_browse_entryS*)calloc(dbHVSC_entries_count,sizeof(t_dbHVSC_browse_entryS));
 			memset(dbHVSC_entries,0,dbHVSC_entries_count*sizeof(t_dbHVSC_browse_entryS));
 			
 			sprintf(sqlStatement,"SELECT filename,id_md5,fullpath FROM hvsc_file \
@@ -657,8 +671,8 @@ static NSFileManager *mFileMngr;
 	
 	if (local_entries_count) {
 		for (int j=0;j<local_entries_count;j++) {
-			[local_entries[j].label release];
-			[local_entries[j].fullpath release];
+            local_entries[j].label=nil;
+            local_entries[j].fullpath=nil;
 		}
 		free(local_entries);
 		local_entries=NULL;
@@ -666,10 +680,10 @@ static NSFileManager *mFileMngr;
 	}
 	
 	local_entries_idx=0;
-	dirToSearch = [[[NSMutableArray alloc] init] autorelease];
+	dirToSearch = [[NSMutableArray alloc] init];
 	
 	local_entries_count=MAX_SEARCH_RESULT;
-	local_entries=(t_local_browse_entryS*)malloc(local_entries_count*sizeof(t_local_browse_entryS));
+	local_entries=(t_local_browse_entryS*)calloc(local_entries_count,sizeof(t_local_browse_entryS));
 	
 	cpath=[NSHomeDirectory() stringByAppendingPathComponent: @"Documents"];
 	prefix_length=[cpath length]+1;
@@ -730,22 +744,22 @@ static NSFileManager *mFileMngr;
 }
 
 -(void) searchThread {
-	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
-	
-	mSearchProgress=0;
-	mSearchProgressVal=0;
-	if (playlist_searchOn&&(mSearchMode&1)) [self searchPlaylist];
-	mSearchProgress=1;
-	if (local_searchOn&&(mSearchMode&2)) [self searchLocal];
-	mSearchProgress=2;
-	if (modland_searchOn&&(mSearchMode&4)) [self searchModland];
-	mSearchProgress=3;
-	if (HVSC_searchOn&&(mSearchMode&8)) [self searchHVSC];
-    mSearchProgress=4;
-	if (ASMA_searchOn&&(mSearchMode&8)) [self searchASMA];
-	searchPrgView.hidden=YES;
-	
-	[pool release];
+	//NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
+        mSearchProgress=0;
+        mSearchProgressVal=0;
+        if (playlist_searchOn&&(mSearchMode&1)) [self searchPlaylist];
+        mSearchProgress=1;
+        if (local_searchOn&&(mSearchMode&2)) [self searchLocal];
+        mSearchProgress=2;
+        if (modland_searchOn&&(mSearchMode&4)) [self searchModland];
+        mSearchProgress=3;
+        if (HVSC_searchOn&&(mSearchMode&8)) [self searchHVSC];
+        mSearchProgress=4;
+        if (ASMA_searchOn&&(mSearchMode&8)) [self searchASMA];
+        searchPrgView.hidden=YES;
+    }
+	//[pool release];
 }
 
 -(void) updateSearchInfos: (NSTimer *) theTimer {
@@ -794,11 +808,11 @@ static NSFileManager *mFileMngr;
 
 -(void) doSearch:(int)search_mode {
 	if ([mSearchText length]<2) {
-		UIAlertView *alertSearchMinChar = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please enter at least 2 characters for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+		UIAlertView *alertSearchMinChar = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please enter at least 2 characters for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
 		[alertSearchMinChar show];
 
 	} if (!(modland_searchOn+playlist_searchOn+local_searchOn+HVSC_searchOn+ASMA_searchOn)) {
-		UIAlertView *alertSearchMinChar = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please activate at least 1 section for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+		UIAlertView *alertSearchMinChar = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please activate at least 1 section for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
 		[alertSearchMinChar show];
 		
 	} else {
@@ -834,12 +848,12 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-	if (mSearchText) [mSearchText release];
+	//if (mSearchText) [mSearchText release];
 	mSearchText=[[NSString alloc] initWithString:searchText];
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
-	if (mSearchText) [mSearchText release];
+	//if (mSearchText) [mSearchText release];
 	mSearchText=nil;
 	sBar.text=nil;
 	mSearch=0;
@@ -904,10 +918,10 @@ static NSFileManager *mFileMngr;
 	if (!playlist_searchOn) {
 		if (playlist_entries_count) {
 			for (int j=0;j<playlist_entries_count;j++) {
-				[playlist_entries[j].playlist_name release];
-				[playlist_entries[j].playlist_id release];
-				[playlist_entries[j].filename release];
-				[playlist_entries[j].fullpath release];
+                playlist_entries[j].playlist_name=nil;
+                playlist_entries[j].playlist_id=nil;
+                playlist_entries[j].filename=nil;
+                playlist_entries[j].fullpath=nil;
 			}
 			playlist_entries_count=0;
 		}
@@ -928,8 +942,8 @@ static NSFileManager *mFileMngr;
 	if (!local_searchOn) {
 		if (local_entries_count) {
 			for (int j=0;j<local_entries_count;j++) {
-				[local_entries[j].label release];
-				[local_entries[j].fullpath release];
+				local_entries[j].label=nil;
+				local_entries[j].fullpath=nil;
 			}
 			free(local_entries);
 			local_entries=NULL;
@@ -952,8 +966,8 @@ static NSFileManager *mFileMngr;
 	if (!modland_searchOn) {
 		if (db_entries_count) {
 			for (int j=0;j<db_entries_count;j++) {
-				[db_entries[j].label release];
-				[db_entries[j].fullpath release];
+                db_entries[j].label=nil;
+                db_entries[j].fullpath=nil;
 			}
 			free(db_entries);
 			db_entries=NULL;
@@ -976,14 +990,14 @@ static NSFileManager *mFileMngr;
 	if (!HVSC_searchOn) {
 		if (dbHVSC_entries_count) {
 			for (int i=0;i<dbHVSC_entries_count;i++) {
-				if (dbHVSC_entries[i].label) [dbHVSC_entries[i].label release];
-				if (dbHVSC_entries[i].fullpath) [dbHVSC_entries[i].fullpath release];
-				if (dbHVSC_entries[i].id_md5) [dbHVSC_entries[i].id_md5 release];
-				if (dbHVSC_entries[i].dir1) [dbHVSC_entries[i].dir1 release];
-				if (dbHVSC_entries[i].dir2) [dbHVSC_entries[i].dir2 release];
-				if (dbHVSC_entries[i].dir3) [dbHVSC_entries[i].dir3 release];
-				if (dbHVSC_entries[i].dir4) [dbHVSC_entries[i].dir4 release];
-				if (dbHVSC_entries[i].dir5) [dbHVSC_entries[i].dir5 release];
+                dbHVSC_entries[i].label=nil;
+                dbHVSC_entries[i].fullpath=nil;
+                dbHVSC_entries[i].id_md5=nil;
+                dbHVSC_entries[i].dir1=nil;
+                dbHVSC_entries[i].dir2=nil;
+                dbHVSC_entries[i].dir3=nil;
+                dbHVSC_entries[i].dir4=nil;
+                dbHVSC_entries[i].dir5=nil;
 				
 			}
 			free(dbHVSC_entries);
@@ -1007,13 +1021,13 @@ static NSFileManager *mFileMngr;
 	if (!ASMA_searchOn) {
 		if (dbASMA_entries_count) {
 			for (int i=0;i<dbASMA_entries_count;i++) {
-				if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
-				if (dbASMA_entries[i].fullpath) [dbASMA_entries[i].fullpath release];
-				if (dbASMA_entries[i].id_md5) [dbASMA_entries[i].id_md5 release];
-				if (dbASMA_entries[i].dir1) [dbASMA_entries[i].dir1 release];
-				if (dbASMA_entries[i].dir2) [dbASMA_entries[i].dir2 release];
-				if (dbASMA_entries[i].dir3) [dbASMA_entries[i].dir3 release];
-				if (dbASMA_entries[i].dir4) [dbASMA_entries[i].dir4 release];
+                dbASMA_entries[i].label=nil;
+                dbASMA_entries[i].fullpath=nil;
+                dbASMA_entries[i].id_md5=nil;
+                dbASMA_entries[i].dir1=nil;
+                dbASMA_entries[i].dir2=nil;
+                dbASMA_entries[i].dir3=nil;
+                dbASMA_entries[i].dir4=nil;
 			}
 			free(dbASMA_entries);
 			dbASMA_entries=NULL;
@@ -1095,7 +1109,7 @@ static NSFileManager *mFileMngr;
 }
 
 - (UIView*) tableView:(UITableView*)tableView viewForHeaderInSection: (NSInteger) section {
-	UIView *customView = [[[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 32.0)] autorelease];
+	UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 32.0)];
 	customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
 
 	CALayer *layerU = [CALayer layer];
@@ -1114,8 +1128,8 @@ static NSFileManager *mFileMngr;
 	layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
 	[customView.layer insertSublayer:layerD atIndex:0];
 	
-	UIButton *buttonLeft = [[[UIButton alloc] initWithFrame: CGRectMake(0.0, 0.0, 32, 32)] autorelease];
-	UIButton *buttonRight = [[[UIButton alloc] initWithFrame: CGRectMake(tableView.bounds.size.width-32, 0.0, 32, 32)] autorelease];
+	UIButton *buttonLeft = [[UIButton alloc] initWithFrame: CGRectMake(0.0, 0.0, 32, 32)];
+	UIButton *buttonRight = [[UIButton alloc] initWithFrame: CGRectMake(tableView.bounds.size.width-32, 0.0, 32, 32)];
 	// Prepare target-action
 	
 	UIButton *buttonLabel                  = [UIButton buttonWithType: UIButtonTypeCustom];
@@ -1370,24 +1384,27 @@ static NSFileManager *mFileMngr;
 
 -(void) doPrimAction:(NSIndexPath *)indexPath {
 	if (indexPath.section==0) {//playlist
-		[self loadPlayListsFromDB:playlist_entries[indexPath.row].playlist_id intoPlaylist:&playlist];
+        playlist=(t_playlistS*)calloc(1,sizeof(t_playlistS));
+		[self loadPlayListsFromDB:playlist_entries[indexPath.row].playlist_id intoPlaylist:playlist];
 		int pos=0,flag=0;
 		
-		NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-		NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
-		for (int j=0;j<playlist.nb_entries;j++) {
-			[array_label addObject:playlist.label[j]];
-			[array_path addObject:playlist.fullpath[j]];
-			if ([playlist.fullpath[j] compare:playlist_entries[indexPath.row].fullpath]==NSOrderedSame) flag=1;
+		NSMutableArray *array_label = [[NSMutableArray alloc] init];
+		NSMutableArray *array_path = [[NSMutableArray alloc] init];
+		for (int j=0;j<playlist->nb_entries;j++) {
+			[array_label addObject:playlist->label[j]];
+			[array_path addObject:playlist->fullpath[j]];
+			if ([playlist->fullpath[j] compare:playlist_entries[indexPath.row].fullpath]==NSOrderedSame) flag=1;
 			if (flag==0) pos++;
 		}
 
 		[detailViewController play_listmodules:array_label start_index:pos path:array_path];
 		if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+        
+        free(playlist);
 	}
 	if (indexPath.section==1) {//local files
-		NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-		NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+		NSMutableArray *array_label = [[NSMutableArray alloc] init];
+		NSMutableArray *array_path = [[NSMutableArray alloc] init];
 		[array_label addObject:local_entries[indexPath.row].label];
 		[array_path addObject:[NSString stringWithFormat:@"Documents/%@",local_entries[indexPath.row].fullpath]];
 		[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -1400,8 +1417,8 @@ static NSFileManager *mFileMngr;
 		NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:db_entries[indexPath.row].id_mod]];
 		
 		if (db_entries[indexPath.row].downloaded==1) {  //file already downloaded
-			NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-			NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+			NSMutableArray *array_label = [[NSMutableArray alloc] init];
+			NSMutableArray *array_path = [[NSMutableArray alloc] init];
 			[array_label addObject:db_entries[indexPath.row].label];
 			[array_path addObject:localPath];
 			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -1432,8 +1449,8 @@ static NSFileManager *mFileMngr;
 		NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",HVSC_BASEDIR,dbHVSC_entries[indexPath.row].fullpath];
 		
 		if (dbHVSC_entries[indexPath.row].downloaded==1) {
-			NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-			NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+			NSMutableArray *array_label = [[NSMutableArray alloc] init];
+			NSMutableArray *array_path = [[NSMutableArray alloc] init ];
 			[array_label addObject:sidFilename];
 			[array_path addObject:localPath];
 			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -1464,8 +1481,8 @@ static NSFileManager *mFileMngr;
 		NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,dbASMA_entries[indexPath.row].fullpath];
 		
 		if (dbASMA_entries[indexPath.row].downloaded==1) {
-			NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-			NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+			NSMutableArray *array_label = [[NSMutableArray alloc] init];
+			NSMutableArray *array_path = [[NSMutableArray alloc] init];
 			[array_label addObject:sidFilename];
 			[array_path addObject:localPath];
 			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -1618,7 +1635,7 @@ static NSFileManager *mFileMngr;
 
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
@@ -1626,12 +1643,12 @@ static NSFileManager *mFileMngr;
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -1647,7 +1664,7 @@ static NSFileManager *mFileMngr;
         //
         // Create the label for the top row of text
         //
-        bottomLabel = [[[UILabel alloc] init] autorelease];
+        bottomLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:bottomLabel];
         //
         // Configure the properties for the text that are the same on every row

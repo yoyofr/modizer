@@ -60,7 +60,7 @@ so you can see at a glance which C64 tunes people like:
  39. /MUSICIANS/H/Hubbard_Rob/Spellbound.sid
  40. /MUSICIANS/D/Daglish_Ben/Trap.sid
  41. /MUSICIANS/B/Bjerregaard_Johannes/Sweet.sid
- 42. /MUSICIANS/H/Huelsbeck_Chris/Dulcedo_Cogitationis.sid
+ 42. /MUSICIANS/H/Huelsbeck_Chris/Antics_Dulcedo_Cogitationis.sid
  43. /MUSICIANS/H/Hubbard_Rob/IK_plus.sid
  44. /MUSICIANS/D/Daglish_Ben/Thing_Bounces_Back.sid
  45. /MUSICIANS/D/Dunn_Jonathan/RoboCop.sid
@@ -77,7 +77,7 @@ so you can see at a glance which C64 tunes people like:
  56. /MUSICIANS/Y/Yip/Scroll_Machine.sid
  57. /MUSICIANS/H/Huelsbeck_Chris/Baby_Of_Can_Guru.sid
  58. /MUSICIANS/H/Huelsbeck_Chris/To_Be_on_Top.sid
- 59. /GAMES/S-Z/Wizardry.sid
+ 59. /MUSICIANS/C/Clever_Music/Wizardry.sid
  60. /MUSICIANS/W/Walker_Martin/Armalyte.sid
  61. /MUSICIANS/F/Follin_Tim/Gauntlet_III.sid
  62. /MUSICIANS/H/Hatlelid_Kris/Grand_Prix_Circuit.sid
@@ -114,7 +114,7 @@ so you can see at a glance which C64 tunes people like:
  93. /MUSICIANS/B/Bjerregaard_Johannes/Crazy_Comets_remix.sid
  94. /MUSICIANS/C/Clarke_Peter/Mission_of_Mercy.sid
  95. /MUSICIANS/T/Tel_Jeroen/Afterburner.sid
- 96. /MUSICIANS/B/Baldwin_Neil/Another_Tune_for_Joanna.sid
+ 96. /MUSICIANS/B/Baldwin_Neil/Another_Tune_for_Joanne.sid
  97. /MUSICIANS/G/Galway_Martin/Neverending_Story.sid
  98. /MUSICIANS/G/Galway_Martin/Ocean_Loader_2.sid
  99. /MUSICIANS/W/Walker_Martin/Snare.sid

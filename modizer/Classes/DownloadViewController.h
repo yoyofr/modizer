@@ -9,8 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerLocalBrowser.h"
+#import "SearchViewController.h"
 #import "MoreViewController.h"
 #import "ASIHTTPRequest.h"
+//#import "AFNetworking.h"
 #import "BButton.h"
 
 #define MAX_DOWNLOAD_QUEUE 256
@@ -32,6 +34,7 @@
 	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
 	
 	ASIHTTPRequest *mASIrequest;
+    //AFHTTPSessionManager *AFmanager;
     
 	NSInputStream *networkStream;
 	NSOutputStream *fileStream;

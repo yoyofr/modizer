@@ -52,7 +52,7 @@
 
 - (NSString*) URLEncode{
 	NSString* encodedString = (NSString*)CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault, (CFStringRef)self, NULL,(CFStringRef)@":/=,!$&'()*+;[]@#?",  kCFStringEncodingUTF8);
-	return [NSMakeCollectable(encodedString) autorelease];
+	return NSMakeCollectable(encodedString);
 }
 
 
@@ -102,7 +102,7 @@
 
 - (NSString *) unescapeHTML{
 	NSMutableString *s = [NSMutableString string];
-	NSMutableString *target = [[self mutableCopy] autorelease];
+	NSMutableString *target = [self mutableCopy];
 	NSCharacterSet *chs = [NSCharacterSet characterSetWithCharactersInString:@"&"];
 	
 	while ([target length] > 0) {

@@ -1,7 +1,7 @@
 #######################################################################
 #   The High Voltage SID Collection (HVSC) Bugged Tunes List          #
 #   Maintained by iAN CooG <hvsc@c64.org>                             #
-#   Last Updated: December 15, 2019.                                  #
+#   Last Updated: December 20, 2020.                                  #
 #######################################################################
 #                                                                     #
 # The purpose of this text document is to highlight all the tunes     #
@@ -34,7 +34,7 @@
 #######################################################################
 
 ##############################
-# Bugged tunes as of HVSC 71 #
+# Bugged tunes as of HVSC 74 #
 ##############################
 
 /DEMOS/A-F/Digital_II.sid
@@ -121,6 +121,10 @@
     BUG: Has a lot of wrong sounds inside, obviously a bad rip.
          Sounds bad from 1:23
 (Stello Doussis)
+
+/MUSICIANS/D/Dr_Ali_and_Joker/Compu_Demo_2_tune_3.sid
+    BUG: Falls out of synch on loop.
+(Wilfred)
 
 /MUSICIANS/F/Faclaug/Lets_Drink.sid
     BUG: Falls out of synch at 2:50.

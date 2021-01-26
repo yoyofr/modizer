@@ -27,7 +27,7 @@ extern BOOL is_ios7;
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetStrokeColorWithColor(context, [UIColor blackColor].CGColor);
     
-    float dashPattern[] = {1,1}; //make your pattern here
+    const CGFloat dashPattern[] = {1,1}; //make your pattern here
     CGContextSetLineDash(context,0, dashPattern,4);
     
     CGContextSetLineWidth(context, 0.5);

@@ -23,8 +23,8 @@ extern BOOL is_ios7;
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -60,11 +60,11 @@ extern BOOL is_ios7;
 {
     [super viewDidLoad];
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
     // Uncomment the following line to preserve selection between presentations.
@@ -87,7 +87,7 @@ extern BOOL is_ios7;
     [waitingView addSubview:indView];
     
     [indView startAnimating];
-    [indView autorelease];
+    //[indView autorelease];
     
     waitingView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:waitingView];
@@ -129,7 +129,7 @@ extern BOOL is_ios7;
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     [self shortWait];
     [SettingsGenViewController applyDefaultSettings];
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
     
 }
@@ -155,7 +155,7 @@ extern BOOL is_ios7;
 	};
 	sqlite3_close(db);
 
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Ratings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Ratings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
     
 	return TRUE;
@@ -182,7 +182,7 @@ extern BOOL is_ios7;
 	};
 	sqlite3_close(db);
     
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Played Counters reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Played Counters reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
     
 	return TRUE;
@@ -257,9 +257,9 @@ extern BOOL is_ios7;
 	
 	
 	pthread_mutex_unlock(&db_mutex);
-    [fileManager release];
+    fileManager=nil;
 	
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database cleaned",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database cleaned",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
     
 	return TRUE;
@@ -270,7 +270,7 @@ extern BOOL is_ios7;
     [self shortWait];
     
     [rootVC createSamplesFromPackage:TRUE];
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Samples folder created",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Samples folder created",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
 }
 
@@ -278,7 +278,7 @@ extern BOOL is_ios7;
     [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
     [self shortWait];
     [rootVC createEditableCopyOfDatabaseIfNeeded:TRUE quiet:TRUE];
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
 }
 
@@ -289,7 +289,7 @@ extern BOOL is_ios7;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSString *currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
     if (currentPlayFilepath==nil) {
-        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"No cover to remove",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"No cover to remove",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [alert show];
         return;
     }
@@ -299,9 +299,9 @@ extern BOOL is_ios7;
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-    [mFileMngr release];
+    mFileMngr=nil;
     
-    UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Cover removed",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Cover removed",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
 }
 
@@ -340,7 +340,7 @@ extern BOOL is_ios7;
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,self.view.frame.size.width,50);
         cell.autoresizingMask=UIViewAutoresizingFlexibleWidth;
@@ -350,14 +350,14 @@ extern BOOL is_ios7;
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         
-        btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
+        btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                       10,
                                                       200,
           
-                                                       30)] autorelease];
+                                                       30)];
         btn.tag=TOP_LABEL_TAG;
         [cell.contentView addSubview:btn];
         btn.autoresizingMask=UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin;

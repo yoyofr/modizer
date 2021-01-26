@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ASIHTTPRequest.h"
+#import "AFNetworking.h"
+#import "AFHTTPSessionManager.h"
 #import "ModizerConstants.h"
 
 @interface GoogleAppHelper : NSObject {

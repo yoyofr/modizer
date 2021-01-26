@@ -30,8 +30,8 @@ volatile t_settings settings[MAX_SETTINGS];
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -230,23 +230,23 @@ void optGSFChangedC(id param) {
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
                     valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_boolswitch.switch_value];
-                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SWITCH:
                     valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_switch.switch_value];
-                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SLIDER_DISCRETE:
                     valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
-                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SLIDER_DISCRETE_TIME:
                     valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
-                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SLIDER_CONTINUOUS:
                     valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
-                    [prefs setObject:valNb forKey:str];[valNb autorelease];
+                    [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_TEXTBOX:
                     if (settings[i].detail.mdz_textbox.text) [prefs setObject:[NSString stringWithFormat:@"%s",settings[i].detail.mdz_textbox.text] forKey:str];
@@ -1825,11 +1825,11 @@ void optGSFChangedC(id param) {
 {
     [super viewDidLoad];
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
     //TODO: a faire dans le delegate
@@ -1951,7 +1951,7 @@ void optGSFChangedC(id param) {
                 settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text=NULL;
                 textField.text=@"";
                 
-                UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"URL have to start with ftp:// or http://","") delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle: NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"URL have to start with ftp:// or http://","") delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
                 [alert show];
             }
     }
@@ -1984,7 +1984,7 @@ void optGSFChangedC(id param) {
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,50);
         
@@ -1994,12 +1994,12 @@ void optGSFChangedC(id param) {
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -2040,11 +2040,11 @@ void optGSFChangedC(id param) {
             [switchview addTarget:self action:@selector(boolswitchChanged:) forControlEvents:UIControlEventValueChanged];
             switchview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             cell.accessoryView = switchview;
-            [switchview release];
+            //[switchview release];
             switchview.on=settings[cur_settings_idx[indexPath.section]].detail.mdz_boolswitch.switch_value;
             break;
         case MDZ_SWITCH:{
-            tmpArray=[[[NSMutableArray alloc] init] autorelease];
+            tmpArray=[[NSMutableArray alloc] init];
             for (int i=0;i<settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value_nb;i++) {
                 [tmpArray addObject:[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]];
             }
@@ -2060,7 +2060,7 @@ void optGSFChangedC(id param) {
             
             [segconview addTarget:self action:@selector(segconChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = segconview;
-            [segconview release];
+            //[segconview release];
             segconview.selectedSegmentIndex=settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value;
         }
             break;
@@ -2074,7 +2074,7 @@ void optGSFChangedC(id param) {
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = sliderview;
-            [sliderview release];
+            //[sliderview release];
             break;
         case MDZ_SLIDER_DISCRETE:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0+32,tabView.bounds.size.width*5.5f/10,30)];
@@ -2086,7 +2086,7 @@ void optGSFChangedC(id param) {
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = sliderview;
-            [sliderview release];
+            //[sliderview release];
             break;
         case MDZ_SLIDER_DISCRETE_TIME:
             sliderview = [[MNEValueTrackingSlider alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2098,7 +2098,7 @@ void optGSFChangedC(id param) {
             sliderview.value=settings[cur_settings_idx[indexPath.section]].detail.mdz_slider.slider_value;
             [sliderview addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
             cell.accessoryView = sliderview;
-            [sliderview release];
+            //[sliderview release];
             break;
         case MDZ_TEXTBOX:
             txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2116,7 +2116,7 @@ void optGSFChangedC(id param) {
             if (settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text) txtfield.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
             else txtfield.text=@"";
             cell.accessoryView = txtfield;
-            [txtfield release];
+            //[txtfield release];
             break;
         case MDZ_MSGBOX:
             msgLabel = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
@@ -2137,7 +2137,7 @@ void optGSFChangedC(id param) {
             if (settings[cur_settings_idx[indexPath.section]].detail.mdz_msgbox.text) msgLabel.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
             else msgLabel.text=@"";
             cell.accessoryView = msgLabel;
-            [msgLabel release];
+            //[msgLabel release];
             break;
     }
     
@@ -2190,7 +2190,7 @@ void optGSFChangedC(id param) {
     SettingsGenViewController *settingsVC;
     
     if (settings[cur_settings_idx[indexPath.section]].type==MDZ_FAMILY) {
-        settingsVC=[[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]] autorelease];
+        settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
         settingsVC->detailViewController=detailViewController;
         settingsVC.title=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
         settingsVC->current_family=settings[cur_settings_idx[indexPath.section]].sub_family;
@@ -2367,7 +2367,7 @@ void optGSFChangedC(id param) {
 
 -(void) FTPswitchChanged {
 	if (settings[FTP_ONOFF].detail.mdz_switch.switch_value) {
-		if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==kReachableViaWiFi) {
+		if ([[Reachability reachabilityForLocalWiFi] currentReachabilityStatus]==ReachableViaWiFi) {
 			if (!bServerRunning) { // Start the FTP Server
 				if ([self startFTPServer]) {
 					bServerRunning = true;
@@ -2385,7 +2385,7 @@ void optGSFChangedC(id param) {
                     [UIApplication sharedApplication].idleTimerDisabled=YES;
 				} else {
 					bServerRunning = false;
-					UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] autorelease];
+					UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Error" message:@"Warning: Unable to start FTP Server." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 					[alert show];
 					settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
                     
@@ -2402,7 +2402,7 @@ void optGSFChangedC(id param) {
 			}
 			
 		} else {
-			UIAlertView *alert = [[[UIAlertView alloc] initWithTitle: @"Warning" message:@"FTP server can only run on a WIFI connection." delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+			UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Warning" message:@"FTP server can only run on a WIFI connection." delegate:nil cancelButtonTitle:@"Close" otherButtonTitles:nil];
 			[alert show];
 			settings[FTP_ONOFF].detail.mdz_switch.switch_value=0;
 		}
@@ -2448,7 +2448,7 @@ void optGSFChangedC(id param) {
         ftpserver=NULL;
     }
     
-    [super dealloc];
+    //[super dealloc];
 }
 
 @end

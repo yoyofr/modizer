@@ -52,7 +52,7 @@
 {
 
 	FrameBufferUtils::Destroy(m_frameBuffer);
-    [super dealloc];
+    //[super dealloc];
 }
 
 

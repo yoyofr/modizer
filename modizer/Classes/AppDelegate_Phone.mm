@@ -24,8 +24,8 @@ char* strlower(char *Str);
 
 static BOOL backgroundSupported;
 
-char homedirectory[512];
-char bundledirectory[512];
+char homedirectory[512*4];
+char bundledirectory[512*4];
 
 
 extern "C" {
@@ -38,9 +38,11 @@ pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
 BOOL is_ios7,is_retina;
 
+
 @implementation AppDelegate_Phone
 
 @synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC;
+
 
 - (BOOL)addSkipBackupAttributeToItemAtURL
 {
@@ -105,7 +107,8 @@ BOOL is_ios7,is_retina;
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
-    NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
+    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     
@@ -130,7 +133,8 @@ BOOL is_ios7,is_retina;
     [supportedExtension addObjectsFromArray:filetype_extARCHIVE];
     [supportedExtension addObjectsFromArray:filetype_extPMD];
     [supportedExtension addObjectsFromArray:filetype_extLAZYUSF];
-    [supportedExtension addObjectsFromArray:filetype_extXSF];
+    [supportedExtension addObjectsFromArray:filetype_ext2SF];
+    [supportedExtension addObjectsFromArray:filetype_extSNSF];
     [supportedExtension addObjectsFromArray:filetype_extVGMSTREAM];
     [supportedExtension addObjectsFromArray:filetype_extMPG123];
     
@@ -143,19 +147,37 @@ BOOL is_ios7,is_retina;
         printf("%s\n",[(NSString*)object UTF8String]);
     }
     
-    [supportedExtension release];
+    //[supportedExtension release];
+    supportedExtension=nil;
 }
     
+
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch
 	//
     //[self getSupportedExtensionList];
     
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+    if (@available(iOS 14.0, *)) {
+        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+            for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
+                if ([scene isKindOfClass:[UIWindowScene class]]) {
+                    UIWindowScene* windowScene = (UIWindowScene*) scene;
+                    windowScene.sizeRestrictions.minimumSize = CGSizeMake(480*1.5f, 480*1.5f);
+                    windowScene.sizeRestrictions.maximumSize = CGSizeMake(480*1.5f, 480*1.5f);
+                }
+            }
+        }else{
+            //not on macos
+        }
+    }
+ 
+    
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     
     sprintf(bundledirectory,"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
-    
     char allmods_filepath[1024];
     sprintf(allmods_filepath,"%s/allmods.txt",bundledirectory);
     
@@ -175,11 +197,11 @@ BOOL is_ios7,is_retina;
         is_retina=TRUE;
     } else is_retina=FALSE;
     
-    if (!is_ios7) {
+    /*if (!is_ios7) {
         [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleBlackOpaque];
     } else {
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
+    }*/
     
 	if (pthread_mutex_init(&uade_mutex,NULL)) {
 		printf("cannot create uade mutex");
@@ -204,7 +226,19 @@ BOOL is_ios7,is_retina;
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];    
     [self batteryChanged:nil];
     
-    [rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];  
+    [rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
+    
+   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+    if (@available(iOS 14.0, *)) {
+        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+            CGRect frame = [modizerWin frame];
+            frame.size.height = 480*1.5f;
+            frame.size.width = 480*1.5f;
+            [modizerWin setFrame: frame];
+            [modizerWin setBounds:frame];
+        }
+    }
+    
     
     modizerWin.rootViewController=tabBarController;
 	[modizerWin addSubview:[tabBarController view]];
@@ -222,8 +256,10 @@ BOOL is_ios7,is_retina;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryLevelDidChangeNotification" object:[UIDevice currentDevice]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryStateDidChangeNotification" object:[UIDevice currentDevice]];
         
-
+    
+    if (launchOptions) {
     NSURL *url = (NSURL *)[launchOptions valueForKey:UIApplicationLaunchOptionsURLKey];
+        if (url) {
     if ([url isFileURL]) {
         NSString *filepath;
         filepath=[url path];
@@ -232,13 +268,17 @@ BOOL is_ios7,is_retina;
         if (r.location!=NSNotFound) {
             NSString *shortfilepath=[filepath substringFromIndex:r.location];
             
-            t_playlist pl;
-            pl.nb_entries=1;
-            pl.entries[0].label=[shortfilepath lastPathComponent];
-            pl.entries[0].fullpath=shortfilepath;
-            pl.entries[0].ratings=-1;
-            pl.entries[0].playcounts=0;
-            [detailViewControlleriPhone play_listmodules:&pl start_index:0];
+            t_playlist *pl;
+            pl=(t_playlist*)calloc(1,sizeof(t_playlist));
+            pl->nb_entries=1;
+            pl->entries[0].label=[shortfilepath lastPathComponent];
+            pl->entries[0].fullpath=shortfilepath;
+            pl->entries[0].ratings=-1;
+            pl->entries[0].playcounts=0;
+            [detailViewControlleriPhone play_listmodules:pl start_index:0];
+            free(pl);
+        }
+    }
         }
     }
 
@@ -250,6 +290,34 @@ BOOL is_ios7,is_retina;
 	
 	return YES;
 }
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    if ([url isFileURL]) {
+        NSString *filepath;
+        filepath=[url path];
+        NSRange r;
+        r=[filepath rangeOfString:@"Documents/"];
+        NSString *shortfilepath;
+        if (r.location!=NSNotFound) shortfilepath=[filepath substringFromIndex:r.location];
+        else {
+            shortfilepath=[NSString stringWithFormat:@"//%@",filepath];
+        }
+        t_playlist *pl;
+        pl=(t_playlist*)calloc(1,sizeof(t_playlist));
+        
+        pl->nb_entries=1;
+        pl->entries[0].label=[shortfilepath lastPathComponent];
+        pl->entries[0].fullpath=shortfilepath;
+        pl->entries[0].ratings=-1;
+        pl->entries[0].playcounts=0;
+        [detailViewControlleriPhone play_listmodules:pl start_index:0];
+        free(pl);
+        return YES;
+        
+    }
+    return NO;
+}
+
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
     if ([url isFileURL]) {
         NSString *filepath;
@@ -258,13 +326,16 @@ BOOL is_ios7,is_retina;
         r=[filepath rangeOfString:@"Documents/"];
         if (r.location!=NSNotFound) {
             NSString *shortfilepath=[filepath substringFromIndex:r.location];
-            t_playlist pl;
-            pl.nb_entries=1;
-            pl.entries[0].label=[shortfilepath lastPathComponent];
-            pl.entries[0].fullpath=shortfilepath;
-            pl.entries[0].ratings=-1;
-            pl.entries[0].playcounts=0;
-            [detailViewControlleriPhone play_listmodules:&pl start_index:0];
+            t_playlist *pl;
+            pl=(t_playlist*)calloc(1,sizeof(t_playlist));
+            
+            pl->nb_entries=1;
+            pl->entries[0].label=[shortfilepath lastPathComponent];
+            pl->entries[0].fullpath=shortfilepath;
+            pl->entries[0].ratings=-1;
+            pl->entries[0].playcounts=0;
+            [detailViewControlleriPhone play_listmodules:pl start_index:0];
+            free(pl);
             return YES;
         }
     }
@@ -382,8 +453,9 @@ BOOL is_ios7,is_retina;
 }
 
 - (void)dealloc {
-    [modizerWin release];
-    [super dealloc];
+    //[modizerWin release];
+    modizerWin=nil;
+    //[super dealloc];
 }
 
 

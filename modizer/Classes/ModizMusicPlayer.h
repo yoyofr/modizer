@@ -22,25 +22,17 @@
 //#import "modplug.h"
 
 
-//XSF
+//2SF
+
 #import "XSFPlayer.h"
 #import "XSFPlayer_NCSF.h"
 #import "XSFPlayer_2SF.h"
-
-class XSFPlayer_SNSF : public XSFPlayer
-{
-public:
-    XSFPlayer_SNSF(const std::string &filename);
-#ifdef _WIN32
-    XSFPlayer_SNSF(const std::wstring &filename);
-#endif
-    ~XSFPlayer_SNSF() { this->Terminate(); }
-    bool Load();
-    void GenerateSamples(std::vector<uint8_t> &buf, unsigned offset, unsigned samples);
-    void Terminate();
-};
-
 #import "XSFConfig.h"
+
+//SNSF
+#import "XSFPlayerSNSF.h"
+#import "XSFPlayer_SNSF.h"
+#import "XSFConfigSNSF.h"
 
 
 //GME
@@ -105,7 +97,8 @@ enum MMP_PLAYER_TYPE {
     MMP_HVL,
     MMP_SEXYPSF,
     MMP_AOSDK,
-    MMP_XSF
+    MMP_2SF,
+    MMP_SNSF
 };
 
 
@@ -368,7 +361,8 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension;
 -(int) mmp_mpg123Load:(NSString*)filePath extension:(NSString*)extension;
 -(int) mmp_lazyusfLoad:(NSString*)filePath;
--(int) mmp_xsfLoad:(NSString*)filePath;
+-(int) mmp_2sfLoad:(NSString*)filePath;
+-(int) mmp_snsfLoad:(NSString*)filePath;
 -(int) mmp_vgmplayLoad:(NSString*)filePath;
 -(int) mmp_pmdminiLoad:(NSString*)filePath;
 -(int) mmp_dumbLoad:(NSString*)filePath;
@@ -377,6 +371,6 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_gmeLoad:(NSString*)filePath;
 -(int) mmp_2sfLoad:(NSString*)filePath;
 
-
+-(NSString*) getFullFilePath:(NSString *)_filePath;
 
 @end

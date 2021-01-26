@@ -148,6 +148,7 @@ b59ac1540a32c06b403b5df66ed97181;/Misc/ABBUC_39.sap
 23bccf6fada21d4a8004f0402a213566;/Misc/Mayday_Demo.sap
 f810c0ca142ac54c8e62c9b3a469144d;/Misc/Golgiquest.sap
 5920a6469f0e460e7e0a83fd1037640c;/Misc/Old_Thunder_Part_1.sap
+a2d3815d2696af9414587bfea65e839d;/Misc/The_X_Files_Main_2.sap
 ad78d824ac0c86b19cf150a87cabf32c;/Misc/Slowwwww.sap
 27a49c9edde1064e3b5f4fda8a7a66f0;/Misc/Noname.sap
 aaaa6e8b404dce2251f9bbe2ac2ba1ad;/Misc/Final_Fantasy_3.sap
@@ -222,6 +223,7 @@ ecb2cc07b0f2cfaaff3e737f734cb312;/Unknown/Noname_Song.sap
 0e86422732c539b8f69cb32fee7714c4;/Unknown/Bumboog.sap
 0978aaf9fbcc7ebe42cf02eddf26f5d2;/Unknown/Dracon1.sap
 6066ed29f89257c2c732a0f17880edbd;/Unknown/Saper_V1.sap
+1d0db338f717a41611fe3ddde6631d4a;/Unknown/The_Muppet_Movie.sap
 5caf400138695a895a97c21852caab3f;/Unknown/By_the_Way.sap
 45bfebefefc8353f2c2feb762ee06206;/Unknown/Sokoban_2.sap
 4bbf7bcda076d89666186a9710657cce;/Unknown/Bee.sap
@@ -242,6 +244,7 @@ edeaa6825de5cb6f73c095fc0b0e7169;/Unknown/Wonder_2.sap
 8c2c2ae9a23008056a5ffa14ff5095a1;/Unknown/Manger.sap
 b13770e31626effedbcde66d71e43034;/Unknown/4mat_Chip.sap
 08c73daa7627d213a20ca21c6e76aaa8;/Unknown/LSD.sap
+51754fe47d71ef356bb7cacde9317843;/Unknown/Vasco.sap
 465597190a1d27717fca626b887365d7;/Unknown/Streets_of_London.sap
 97dd890a985956e6c6334576d4d9921f;/Unknown/Ranger7.sap
 c93cf1bb4b022684cca336c86384ee81;/Unknown/Europa.sap
@@ -287,6 +290,7 @@ a53c2d74721539359404d7fd4b6f0a7a;/Unknown/Jacobs.sap
 92423ec5aa5ef2ceb6abe17898ce7ea1;/Unknown/Mega_Magazine_3.sap
 1ed927644e884baaf7bc812a73635a89;/Unknown/Star.sap
 0e274127bbc9f7c3334c8554eb9dd322;/Unknown/God_Save_the_Queen_2.sap
+788dcc968925ad597566ed3716eb3ecf;/Unknown/Unknown_from_a_Tight_membe.sap
 c1879e98f66cd25d02cd938b74f0d908;/Unknown/Trash.sap
 196516c64220404372e4b43782eb165b;/Unknown/Rumad.sap
 be6489c51a48e8e545a05317ed98a20f;/Unknown/Young_Ones.sap
@@ -322,6 +326,7 @@ a723c72d849747b942bbbc764e7aaf66;/Unknown/Uplywa.sap
 ca124bed116718e7b33dafa7522d4880;/Unknown/Montezumas_Revenge.sap
 03990acc4c936784d05c22ac3bfecb0c;/Unknown/JHV_Demo_97_Intro.sap
 4064c44a289cd962ffac03e1f5c9583f;/Unknown/Carpe_Demo_3.sap
+b03c1ede53f666dad2947cb3f2460f97;/Unknown/Tetrys.sap
 e5085933cd0c16ecafb06ae8f3424619;/Unknown/Cellos.sap
 d50c6f78a28cc22f24af9beaa4809fef;/Unknown/Ode_an_die_Freude.sap
 f245e4f37d8f9bc1e68ab1652d770189;/Unknown/Autum.sap
@@ -376,6 +381,7 @@ a129e5428ae70d74e1c937b2f757a9f7;/Games/Jawbreaker.sap
 c4e6719aa921c7a4926a3c11ec7b3ba6;/Games/Saper.sap
 5601ae35aadc01b924f9b7c692040c14;/Games/Sea_Chase.sap
 1f53792bd2a858b539efbb1f453900a1;/Games/Planet_Attack.sap
+f2432f90e9b0e694e24ae5eaf55b0396;/Games/Druidarium.sap
 f5174a3c3a3c7617196626e9cd1fb4f8;/Games/Callisto.sap
 bf1b77ff6cbc423ecb163ae2a7d9c3d6;/Games/BR_032_Constellation.sap
 bb1269871e5d9cb92d4820ac1e2e9959;/Games/Mad_Marble_Maze.sap
@@ -483,6 +489,7 @@ a5ea7264b9916c573ec2d2aec9bcb7da;/Games/Killa_Cycle.sap
 4dad298883de3646054288bf54300af9;/Games/Astro_Chase.sap
 0a027475d5bdd8a3904b7117d11d9389;/Games/Spy_Games_Ingame.sap
 10c323e657b31841c171ebe56c0e8822;/Games/Return_of_Heracles.sap
+bd90009c969682d992bc52afa744f66d;/Games/Muminki.sap
 f40b8d1b7921efa784613aa494a7ab66;/Games/Flip_and_Flop.sap
 9eef0ca91eeedeb662a461ed95384fe0;/Games/Olde_Gold.sap
 92245a4beed9cb27bd7f60670841868f;/Games/Same_Game.sap

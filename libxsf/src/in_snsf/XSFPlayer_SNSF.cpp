@@ -16,6 +16,7 @@
 #include "convert.h"
 #include "XSFPlayer.h"
 #include "XSFConfig_SNSF.h"
+#include "XSFPlayer_SNSF.h"
 #include "XSFCommon.h"
 
 #undef min
@@ -29,21 +30,9 @@
 #include "snes9x/apu/sinc_resampler.h"
 #include "snes9x/memmap.h"
 
-class XSFPlayer_SNSF : public XSFPlayer
-{
-public:
-	XSFPlayer_SNSF(const std::string &filename);
-#ifdef _WIN32
-	XSFPlayer_SNSF(const std::wstring &filename);
-#endif
-	~XSFPlayer_SNSF() { this->Terminate(); }
-	bool Load();
-	void GenerateSamples(std::vector<uint8_t> &buf, unsigned offset, unsigned samples);
-	void Terminate();
-};
 
-const char *XSFPlayer::WinampDescription = "SNSF Decoder";
-const char *XSFPlayer::WinampExts = "snsf;minisnsf\0SNES Sound Format files (*.snsf;*.minisnsf)\0";
+//const char *XSFPlayer::WinampDescription = "SNSF Decoder";
+//const char *XSFPlayer::WinampExts = "snsf;minisnsf\0SNES Sound Format files (*.snsf;*.minisnsf)\0";
 
 extern XSFConfig *xSFConfig;
 

@@ -23,8 +23,8 @@
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -60,7 +60,7 @@
 	NSNumber *valNb;
     
 	valNb=[[NSNumber alloc] initWithInt:custom_url_count];
-	[prefs setObject:valNb forKey:@"Bookmarks_count"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"Bookmarks_count"];
 	for (int i=0;i<custom_url_count;i++) {
 		[prefs setObject:custom_URL[i] forKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
 		[prefs setObject:custom_URL_name[i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
@@ -131,7 +131,7 @@
     
     //    UIBarButtonItem *btnBar=[toolBar.items objectAtIndex:0];
     if( list_builtin==0) {
-        NSMutableArray *toolBarItems=[[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *toolBarItems=[[NSMutableArray alloc] init];
         [toolBarItems addObject:self.editButtonItem];
         [toolBar setItems:toolBarItems animated:NO];
     }
@@ -140,7 +140,7 @@
 	NSNumber *valNb;
     
 	valNb=[[NSNumber alloc] initWithInt:custom_url_count];
-	[prefs setObject:valNb forKey:@"Bookmarks_count"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"Bookmarks_count"];
 	for (int i=0;i<custom_url_count;i++) {
 		[prefs setObject:custom_URL[i] forKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
 		[prefs setObject:custom_URL_name[i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
@@ -171,10 +171,10 @@
 - (void)dealloc {
 	[self saveBookmarks];
 	for (int i=0;i<custom_url_count;i++) {
-		[custom_URL[i] release];
-		[custom_URL_name[i] release];
+        custom_URL[i]=nil;//[custom_URL[i] release];
+        custom_URL_name[i]=nil;//[custom_URL_name[i] release];
 	}
-    [super dealloc];
+    //[super dealloc];
 }
 
 
@@ -212,7 +212,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         //        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         
@@ -272,12 +272,12 @@
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        
         
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -293,7 +293,7 @@
         //
         // Create the label for the top row of text
         //
-        bottomLabel = [[[UILabel alloc] init] autorelease];
+        bottomLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:bottomLabel];
         //
         // Configure the properties for the text that are the same on every row

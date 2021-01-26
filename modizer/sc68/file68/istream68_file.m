@@ -68,7 +68,8 @@ static int isf_open(istream_t * istream)
     isf->fileHandle = [NSFileHandle fileHandleForWritingAtPath:isf->name];
   }
   if (isf->fileHandle) {
-    [isf->fileHandle retain];
+    //[isf->fileHandle retain];
+      isf->fileHandle=nil;
     return 0;
   }
   return -1; 
@@ -83,7 +84,7 @@ static int isf_close(istream_t * istream)
   }
   if (isf->fileHandle) {
   	[isf->fileHandle closeFile];
-    [isf->fileHandle release];
+    //[isf->fileHandle release];
     isf->fileHandle = nil;
   }
   return 0;
@@ -172,7 +173,7 @@ static void isf_destroy(istream_t * istream)
   istream_file_t * isf = (istream_file_t *)istream;
 	if (isf->fileHandle) {
   	[isf->fileHandle closeFile];
-    [isf->fileHandle release];
+    //[isf->fileHandle release];
     isf->fileHandle = nil;
   }
   SC68free(istream);
@@ -202,7 +203,7 @@ istream_t * istream_file_create(const char * fname, int mode)
     return 0;
   }
 
-	isf->name = [[[NSString alloc] initWithCString:fname encoding:NSUTF8StringEncoding] autorelease];
+	isf->name = [[NSString alloc] initWithCString:fname encoding:NSUTF8StringEncoding];
 
   /* Copy istream functions. */
   memcpy(&isf->istream, &istream_file, sizeof(istream_file));

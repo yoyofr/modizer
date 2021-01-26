@@ -128,6 +128,7 @@ class CGLString;
 	CGLString *mHeader;
 	
 	int mDeviceType,mSlowDevice,mDeviceIPhoneX;
+    char is_macOS;
 	
 	short int real_spectrumL[SPECTRUM_BANDS*2],oreal_spectrumL[SPECTRUM_BANDS];
     int real_spectrumIL[SPECTRUM_BANDS];
@@ -235,8 +236,9 @@ class CGLString;
 
 -(IBAction) oglButtonPushed;
 
-@property 	int mShouldHaveFocus,mHasFocus,mPaused;
-@property 	int mPlaylist_size,mPlaylist_pos,mSlowDevice,mDeviceType,mDeviceIPhoneX;
+@property int mShouldHaveFocus,mHasFocus,mPaused;
+@property int mPlaylist_size,mPlaylist_pos,mSlowDevice,mDeviceType,mDeviceIPhoneX;
+@property char is_macOS;
 @property BOOL mIsPlaying;
 @property float mScaleFactor;
 @property (nonatomic, retain) ModizMusicPlayer *mplayer;

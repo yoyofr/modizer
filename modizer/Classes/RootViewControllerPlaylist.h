@@ -112,7 +112,7 @@
 
 -(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath;
 -(bool) addListToPlaylistDB;
--(NSString *) initNewPlaylistDB:(NSString *)listName;
+-(NSString *) minitNewPlaylistDB:(NSString *)listName;
 
 -(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries;
 

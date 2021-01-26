@@ -103,19 +103,19 @@ extern BOOL nvdsp_EQ;
 	for (int i=0;i<EQUALIZER_NB_BANDS;i++) {
         str=[NSString stringWithFormat:@"eq_centerFrequencies_%d",i];
         valNb=[[NSNumber alloc] initWithFloat:nvdsp_PEQ[i].centerFrequency];
-        [prefs setObject:valNb forKey:str];[valNb autorelease];
+        [prefs setObject:valNb forKey:str];
     
         str=[NSString stringWithFormat:@"eq_Q_%d",i];
         valNb=[[NSNumber alloc] initWithFloat:nvdsp_PEQ[i].Q];
-        [prefs setObject:valNb forKey:str];[valNb autorelease];
+        [prefs setObject:valNb forKey:str];
     
         str=[NSString stringWithFormat:@"eq_G_%d",i];
         valNb=[[NSNumber alloc] initWithFloat:nvdsp_PEQ[i].G];
-        [prefs setObject:valNb forKey:str];[valNb autorelease];
+        [prefs setObject:valNb forKey:str];
     }
     
     valNb=[[NSNumber alloc] initWithBool:nvdsp_EQ];
-    [prefs setObject:valNb forKey:@"nvdsp_EQ"];[valNb autorelease];
+    [prefs setObject:valNb forKey:@"nvdsp_EQ"];
     
     [prefs synchronize];
 }
@@ -142,7 +142,7 @@ extern BOOL nvdsp_EQ;
         eqSlider[i].transform=sliderRotation;
         eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/2);
         [self.view addSubview:eqSlider[i]];
-        [eqSlider[i] release];
+        //[eqSlider[i] release];
         
         eqLabelFreq[i]=[[UILabel alloc] initWithFrame:CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),16,32,16)];
         eqLabelFreq[i].font=[UIFont boldSystemFontOfSize:8];
@@ -150,7 +150,7 @@ extern BOOL nvdsp_EQ;
         eqLabelFreq[i].textColor=[UIColor whiteColor];
         
         [self.view addSubview:eqLabelFreq[i]];
-        [eqLabelFreq[i] release];
+        //[eqLabelFreq[i] release];
         
         eqLabelValue[i]=[[UILabel alloc] initWithFrame:CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/2+32,32,16)];
         eqLabelValue[i].font=[UIFont systemFontOfSize:7];
@@ -158,7 +158,7 @@ extern BOOL nvdsp_EQ;
         eqLabelValue[i].textColor=[UIColor whiteColor];
         
         [self.view addSubview:eqLabelValue[i]];
-        [eqLabelValue[i] release];
+        //[eqLabelValue[i] release];
     }
     
     eqGlobalGain=[[UISlider alloc] init];
@@ -174,7 +174,7 @@ extern BOOL nvdsp_EQ;
     eqGlobalGain.transform=sliderRotation;
     eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/2);
     [self.view addSubview:eqGlobalGain];
-    [eqGlobalGain release];
+    //[eqGlobalGain release];
     
     minus12DB=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/2+32,28,20)];
     minus12DB.font=[UIFont boldSystemFontOfSize:8];
@@ -183,7 +183,7 @@ extern BOOL nvdsp_EQ;
     minus12DB.textColor=[UIColor whiteColor];
     
     [self.view addSubview:minus12DB];
-    [minus12DB release];
+    //[minus12DB release];
     
     plus12DB=[[UILabel alloc] initWithFrame:CGRectMake(4,32,28,20)];
     plus12DB.font=[UIFont boldSystemFontOfSize:8];
@@ -192,7 +192,7 @@ extern BOOL nvdsp_EQ;
     plus12DB.textColor=[UIColor whiteColor];
     
     [self.view addSubview:plus12DB];
-    [plus12DB release];
+    //[plus12DB release];
     
     zeroDB=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/4+32-10,28,20)];
     zeroDB.font=[UIFont boldSystemFontOfSize:8];
@@ -201,7 +201,7 @@ extern BOOL nvdsp_EQ;
     zeroDB.textColor=[UIColor whiteColor];
     
     [self.view addSubview:zeroDB];
-    [zeroDB release];
+    //[zeroDB release];
     
     globalGain=[[UILabel alloc] initWithFrame:CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/2+32,32,16)];
     globalGain.font=[UIFont systemFontOfSize:8];
@@ -209,14 +209,14 @@ extern BOOL nvdsp_EQ;
     globalGain.backgroundColor=[UIColor clearColor];
     globalGain.textColor=[UIColor whiteColor];
     [self.view addSubview:globalGain];
-    [globalGain release];
+    //[globalGain release];
     
     eqOnOff=[[UISwitch alloc] init];
     eqOnOff.frame=CGRectMake(10,self.view.frame.size.height/2+32,32,32);
     [eqOnOff addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
     eqOnOff.on=nvdsp_EQ;
     [self.view addSubview:eqOnOff];
-    [eqOnOff release];
+    //[eqOnOff release];
     
     eqOnOffLbl=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/2+64,100,20)];
     eqOnOffLbl.font=[UIFont boldSystemFontOfSize:10];
@@ -225,7 +225,7 @@ extern BOOL nvdsp_EQ;
     eqOnOffLbl.textColor=[UIColor whiteColor];
     
     [self.view addSubview:eqOnOffLbl];
-    [eqOnOffLbl release];
+    //[eqOnOffLbl release];
     
 }
 
@@ -293,7 +293,7 @@ extern BOOL nvdsp_EQ;
 }
 
 - (void)dealloc {
-    [super dealloc];
+    //[super dealloc];
 }
 
 

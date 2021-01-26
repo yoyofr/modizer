@@ -75,7 +75,7 @@
 }
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
-@property (nonatomic, retain) IBOutlet UIViewController *childController;
+@property (nonatomic, retain) UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 

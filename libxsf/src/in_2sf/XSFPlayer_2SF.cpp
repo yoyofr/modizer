@@ -14,8 +14,8 @@
 #include "XSFPlayer_2SF.h"
 #include "XSFCommon.h"
 
-const char *XSFPlayer::WinampDescription = "2SF Decoder";
-const char *XSFPlayer::WinampExts = "2sf;mini2sf\0DS Sound Format files (*.2sf;*.mini2sf)\0";
+//const char *XSFPlayer::WinampDescription = "2SF Decoder";
+//const char *XSFPlayer::WinampExts = "2sf;mini2sf\0DS Sound Format files (*.2sf;*.mini2sf)\0";
 
 XSFPlayer *XSFPlayer::Create(const std::string &fn)
 {

@@ -67,8 +67,8 @@ static NSFileManager *mFileMngr;
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -80,6 +80,7 @@ static NSFileManager *mFileMngr;
 	} else if (mGetURLInProgress) {//HTTP
 		lCancelURL=1;
 		[mASIrequest cancel];
+        //[AFmanager.session invalidateAndCancel];
 	}
 }
 
@@ -88,18 +89,18 @@ static NSFileManager *mFileMngr;
 	
     //FTP
     for (int i=mGetFTPInProgress;i<mFTPDownloadQueueDepth;i++) {
-		if (mFilePath[i]) {[mFilePath[i] release];mFilePath[i]=nil;}
-		if (mFTPpath[i])  {[mFTPpath[i] release];mFTPpath[i]=nil;}
-		if (mFTPhost[i])  {[mFTPhost[i] release];mFTPhost[i]=nil;}
-		if (mFTPFilename[i]) {[mFTPFilename[i] release];mFTPFilename[i]=nil;}
+		if (mFilePath[i]) {mFilePath[i]=nil;}
+		if (mFTPpath[i])  {mFTPpath[i]=nil;}
+		if (mFTPhost[i])  {mFTPhost[i]=nil;}
+		if (mFTPFilename[i]) {mFTPFilename[i]=nil;}
 	}
     mFTPDownloadQueueDepth=mGetFTPInProgress;
     
     //HTTP URL
     for (int i=mGetURLInProgress;i<mURLDownloadQueueDepth;i++) {
-        if (mURL[i]) {[mURL[i] release];mURL[i]=nil;}
-        if (mURLFilename[i])  {[mURLFilename[i] release];mURLFilename[i]=nil;}
-        if (mURLFilePath[i])  {[mURLFilePath[i] release];mURLFilePath[i]=nil;}
+        if (mURL[i]) {mURL[i]=nil;}
+        if (mURLFilename[i])  {mURLFilename[i]=nil;}
+        if (mURLFilePath[i])  {mURLFilePath[i]=nil;}
         mURL[i]=nil;
         mURLFilename[i]=nil;
         mURLFilePath[i]=nil;
@@ -124,6 +125,7 @@ static NSFileManager *mFileMngr;
 	} else if (mGetURLInProgress) {//HTTP
 		lCancelURL=2;
 		[mASIrequest cancel];
+        //[AFmanager.session invalidateAndCancel];
 	}
 	downloadLabelName.text=NSLocalizedString(@"No download in progress",@"");
 	downloadLabelSize.text=@"";
@@ -209,11 +211,11 @@ static NSFileManager *mFileMngr;
         mStatus[i]=0;
 	}
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
     self.downloadTabView.editing=TRUE;
@@ -259,19 +261,19 @@ static NSFileManager *mFileMngr;
 
 - (void)dealloc {
 	for (int i=0;i<MAX_DOWNLOAD_QUEUE;i++) {
-		if (mFilePath[i]) {[mFilePath[i] release];mFilePath[i]=nil;}
-		if (mFTPpath[i])  {[mFTPpath[i] release];mFTPpath[i]=nil;}
-		if (mFTPhost[i])  {[mFTPhost[i] release];mFTPhost[i]=nil;}
-		if (mFTPFilename[i]) {[mFTPFilename[i] release];mFTPFilename[i]=nil;}
+		if (mFilePath[i]) {mFilePath[i]=nil;}
+		if (mFTPpath[i])  {mFTPpath[i]=nil;}
+		if (mFTPhost[i])  {mFTPhost[i]=nil;}
+		if (mFTPFilename[i]) {mFTPFilename[i]=nil;}
 		
-		if (mURL[i]) {[mURL[i] release];mURL[i]=nil;}
-		if (mURLFilename[i]) {[mURLFilename[i] release];mURLFilename[i]=nil;}
-        if (mURLFilePath[i]) {[mURLFilePath[i] release];mURLFilePath[i]=nil;}
+		if (mURL[i]) {mURL[i]=nil;}
+		if (mURLFilename[i]) {mURLFilename[i]=nil;}
+        if (mURLFilePath[i]) {mURLFilePath[i]=nil;}
 	}
     
-    [mFileMngr release];
+    //[mFileMngr release];
     
-    [super dealloc];
+    ////[super dealloc];
 }
 
 
@@ -311,8 +313,8 @@ static NSFileManager *mFileMngr;
 		else {  //MODLAND
 			if ([self isAllowedFile:mCurrentFilename]) {
                 if ((mCurrentUsePrimaryAction==1)&&(mIsMODLAND[0]==1)) {
-                    NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                    NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                    NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                    NSMutableArray *array_path = [[NSMutableArray alloc] init];
                     [array_label addObject:mCurrentFilename];
                     [array_path addObject:mCurrentFilePath];
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -333,7 +335,7 @@ static NSFileManager *mFileMngr;
     } else if (mFTPAskCancel==0) {
 		if (mConnectionIssue==0) {
 			mConnectionIssue=1;
-			UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:statusString delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+			UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Warning" message:statusString delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
 			[alert show];
 		}
 	}
@@ -366,10 +368,10 @@ static NSFileManager *mFileMngr;
     if (status==-2) {//Suspended
     } else { //move to next entry
         pthread_mutex_lock(&download_mutex);
-        if (mFilePath[0]) {[mFilePath[0] release];mFilePath[0]=nil;}
-        if (mFTPpath[0])  {[mFTPpath[0] release];mFTPpath[0]=nil;}
-        if (mFTPhost[0])  {[mFTPhost[0] release];mFTPhost[0]=nil;}
-        if (mFTPFilename[0]) {[mFTPFilename[0] release];mFTPFilename[0]=nil;}
+        if (mFilePath[0]) {mFilePath[0]=nil;}
+        if (mFTPpath[0])  {mFTPpath[0]=nil;}
+        if (mFTPhost[0])  {mFTPhost[0]=nil;}
+        if (mFTPFilename[0]) {mFTPFilename[0]=nil;}
         
         for (int i=1;i<mFTPDownloadQueueDepth;i++) {
             mFilePath[i-1]=mFilePath[i];
@@ -751,8 +753,8 @@ static NSFileManager *mFileMngr;
 			[detailViewController add_to_playlist:_filepath fileName:_filename forcenoplay:fnp];
 			break;
 		case 2://Play
-			NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-			NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+			NSMutableArray *array_label = [[NSMutableArray alloc] init];
+			NSMutableArray *array_path = [[NSMutableArray alloc] init];
 			[array_label addObject:_filename];
 			[array_path addObject:_filepath];
 			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -782,7 +784,8 @@ static NSFileManager *mFileMngr;
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
-    NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
+    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     NSString *extension;// = [file pathExtension];
@@ -854,9 +857,14 @@ static NSFileManager *mFileMngr;
             if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
         }
     if (!found)
-        for (int i=0;i<[filetype_extXSF count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extXSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extXSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+        for (int i=0;i<[filetype_ext2SF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extSNSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
         }
     if (!found)
         for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
@@ -942,8 +950,8 @@ static NSFileManager *mFileMngr;
 	}
 	
 	if (nb_added==0) {
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Info"
-                                                         message:[NSString stringWithString:NSLocalizedString(@"Could not add files. Please check manually with file browser (Local Browsing/Downloads).",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Info"
+                                                         message:[NSString stringWithString:NSLocalizedString(@"Could not add files. Please check manually with file browser (Local Browsing/Downloads).",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
 		[alert show];
 	} else {
 		switch ((int)(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value)) {
@@ -958,15 +966,14 @@ static NSFileManager *mFileMngr;
 				break;
 		}
 	}
-	[filePaths autorelease];
-	[fileNames autorelease];
+	
 }
 
 - (void)updateToNextURL{
 	pthread_mutex_lock(&download_mutex);
-	if (mURL[0]) {[mURL[0] release];mURL[0]=nil;}
-	if (mURLFilename[0]) {[mURLFilename[0] release];mURLFilename[0]=nil;}
-    if (mURLFilePath[0]) {[mURLFilePath[0] release];mURLFilePath[0]=nil;}
+	if (mURL[0]) {mURL[0]=nil;}
+	if (mURLFilename[0]) {mURLFilename[0]=nil;}
+    if (mURLFilePath[0]) {mURLFilePath[0]=nil;}
 	
 	for (int i=1;i<mURLDownloadQueueDepth;i++) {
 		mURL[i-1]=mURL[i];
@@ -1040,12 +1047,12 @@ static NSFileManager *mFileMngr;
 	fileData = [request responseData];
 	NSString *localPath;
 	
-    if (mCurrentURLIsImage) localPath=[[[NSString alloc] initWithFormat:@"%@/%s",NSHomeDirectory(),_strFilename] autorelease];
+    if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%s",NSHomeDirectory(),_strFilename];
     else {
         if (mURLIsMODLAND[0]) {
-            localPath=[[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]] autorelease];
+            localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]];
         } else {
-            localPath=[[[NSString alloc] initWithFormat:@"%@/%s",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],_strFilename] autorelease];
+            localPath=[[NSString alloc] initWithFormat:@"%@/%s",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],_strFilename];
         }
     }
 	[mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
@@ -1056,8 +1063,8 @@ static NSFileManager *mFileMngr;
     if (mURLIsMODLAND[0]) {
         if ([self isAllowedFile:mCurrentURLFilename]) {
             if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
-                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                NSMutableArray *array_path = [[NSMutableArray alloc] init];
                 [array_label addObject:mCurrentURLFilename];
                 [array_path addObject:mURLFilePath[0]];
                 [detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -1088,7 +1095,7 @@ static NSFileManager *mFileMngr;
 		lCancelURL=0;
 		//alert = [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"Cannot download from this URL."] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
 	} else {
-		alert = [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithString:NSLocalizedString(@"Cannot download from this URL.",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+		alert = [[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithString:NSLocalizedString(@"Cannot download from this URL.",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
 		[alert show];
 	}
 	[self updateToNextURL];
@@ -1112,10 +1119,14 @@ static NSFileManager *mFileMngr;
 	
 	mCurrentURLFilename=mURLFilename[0];
     mCurrentURLIsImage=mURLIsImage[0];
-	mASIrequest = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:mURL[0]]];
+        
+    
+    mASIrequest = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:mURL[0]]];
 	[mASIrequest setDownloadProgressDelegate:downloadPrgView];
 	[mASIrequest setDelegate:self];
 	[mASIrequest startAsynchronous];
+        
+    
 }
 
 - (void)startReceiveCurrentFTPEntry {
@@ -1155,9 +1166,9 @@ static NSFileManager *mFileMngr;
 	//url=[[[NSURL alloc] initWithScheme:@"ftp" host:mFTPhost[0] path:[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]] autorelease];
     
 	url=[NSURL URLWithString:[NSString stringWithFormat:@"ftp://%@%@",mFTPhost[0],[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]]];
-    ftpStream = CFReadStreamCreateWithFTPURL(NULL, (CFURLRef) url);
+    ftpStream = CFReadStreamCreateWithFTPURL(NULL, (__bridge CFURLRef) url);
     if (ftpStream == NULL) {
-		alert = [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"Cannot connect to FTP."] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+		alert = [[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"Cannot connect to FTP."] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
 		[alert show];
 		return;
 	}
@@ -1171,7 +1182,7 @@ static NSFileManager *mFileMngr;
     [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME]];
 	
     // Open a FTP stream for the file to download
-    self.networkStream = (NSInputStream *) ftpStream;
+    self.networkStream = (__bridge NSInputStream *) ftpStream;
     [self.networkStream setDelegate:self];
     [self.networkStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.networkStream open];
@@ -1218,10 +1229,10 @@ static NSFileManager *mFileMngr;
 	int pos=indexPath.row;
 	if (indexPath.section==0) {//FTP
         if (mGetFTPInProgress) pos++;
-		if (mFilePath[pos]) {[mFilePath[pos] release];mFilePath[pos]=nil;}
-		if (mFTPpath[pos])  {[mFTPpath[pos] release];mFTPpath[pos]=nil;}
-		if (mFTPhost[pos])  {[mFTPhost[pos] release];mFTPhost[pos]=nil;}
-		if (mFTPFilename[pos]) {[mFTPFilename[pos] release];mFTPFilename[pos]=nil;}
+		if (mFilePath[pos]) {mFilePath[pos]=nil;}
+		if (mFTPpath[pos])  {mFTPpath[pos]=nil;}
+		if (mFTPhost[pos])  {mFTPhost[pos]=nil;}
+		if (mFTPFilename[pos]) {mFTPFilename[pos]=nil;}
 		
 		for (int i=pos;i<mFTPDownloadQueueDepth-1;i++) {
 			mFilePath[i]=mFilePath[i+1];
@@ -1243,8 +1254,8 @@ static NSFileManager *mFileMngr;
 	}
 	if (indexPath.section==1) {//URL
 		if (mGetURLInProgress) pos++;
-		if (mURL[pos]) {[mURL[pos] release];mURL[pos]=nil;}
-		if (mURLFilename[pos]) {[mURLFilename[pos] release];mURLFilename[pos]=nil;}
+		if (mURL[pos]) {mURL[pos]=nil;}
+		if (mURLFilename[pos]) {mURLFilename[pos]=nil;}
         
 		for (int i=pos;i<mURLDownloadQueueDepth-1;i++) {
 			mURL[i]=mURL[i+1];
@@ -1276,7 +1287,7 @@ static NSFileManager *mFileMngr;
 	
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
@@ -1285,13 +1296,13 @@ static NSFileManager *mFileMngr;
         MDZUIImageView *imageView = [[MDZUIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         cell.contentView.backgroundColor = [UIColor clearColor];
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -1308,7 +1319,7 @@ static NSFileManager *mFileMngr;
         //
         // Create the label for the top row of text
         //
-        bottomLabel = [[[UILabel alloc] init] autorelease];
+        bottomLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:bottomLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -1457,10 +1468,10 @@ static NSFileManager *mFileMngr;
 	int pos=indexPath.row;
 	if (indexPath.section==0) {//FTP
         if (mGetFTPInProgress) pos++;
-		if (mFilePath[pos]) {[mFilePath[pos] release];mFilePath[pos]=nil;}
-		if (mFTPpath[pos])  {[mFTPpath[pos] release];mFTPpath[pos]=nil;}
-		if (mFTPhost[pos])  {[mFTPhost[pos] release];mFTPhost[pos]=nil;}
-		if (mFTPFilename[pos]) {[mFTPFilename[pos] release];mFTPFilename[pos]=nil;}
+		if (mFilePath[pos]) {mFilePath[pos]=nil;}
+		if (mFTPpath[pos])  {mFTPpath[pos]=nil;}
+		if (mFTPhost[pos])  {mFTPhost[pos]=nil;}
+		if (mFTPFilename[pos]) {mFTPFilename[pos]=nil;}
 		
 		for (int i=pos;i<mFTPDownloadQueueDepth-1;i++) {
 			mFilePath[i]=mFilePath[i+1];
@@ -1482,8 +1493,8 @@ static NSFileManager *mFileMngr;
 	}
 	if (indexPath.section==1) {//URL
 		if (mGetURLInProgress) pos++;
-		if (mURL[pos]) {[mURL[pos] release];mURL[pos]=nil;}
-		if (mURLFilename[pos]) {[mURLFilename[pos] release];mURLFilename[pos]=nil;}
+		if (mURL[pos]) {mURL[pos]=nil;}
+		if (mURLFilename[pos]) {mURLFilename[pos]=nil;}
         
 		for (int i=pos;i<mURLDownloadQueueDepth-1;i++) {
 			mURL[i]=mURL[i+1];

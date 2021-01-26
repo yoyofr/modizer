@@ -90,11 +90,11 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
     
@@ -124,8 +124,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 
@@ -134,7 +134,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 #pragma mark - Table view data source
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    UIView *customView = [[[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)] autorelease];
+    UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)];
     customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
     
     CALayer *layerU = [CALayer layer];
@@ -244,7 +244,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     
     //NSLog(@"indexpath: %d %d %d/ %@ / %08X",indexPath.section,indexPath.row,cell_category,CellIdentifier,(void*)cell);
     if (cell==nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
@@ -256,13 +256,13 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -278,7 +278,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         //
         // Create the label for the top row of text
         //
-        bottomLabel = [[[UILabel alloc] init] autorelease];
+        bottomLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:bottomLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -412,7 +412,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         case 0: {//collection
             switch (indexPath.row) {
                 case 0: //MODLAND
-                    collectionViewController = [[[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
+                    collectionViewController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"MODLAND";
                     // Set new directory
@@ -423,7 +423,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
                 case 1: //HVSC
-                    collectionViewController = [[[RootViewControllerHVSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
+                    collectionViewController =[[RootViewControllerHVSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"HVSC";
                     // Set new directory
@@ -434,7 +434,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
                 case 2: //ASMA
-                    collectionViewController = [[[RootViewControllerASMA alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
+                    collectionViewController = [[RootViewControllerASMA alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"ASMA";
                     // Set new directory
@@ -477,7 +477,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 -(void) refreshViewAfterDownload {
     [tableView reloadData];
-    if (collectionViewController) [collectionViewController refreshViewAfterDownload];
+    if (collectionViewController) [(RootViewControllerASMA*)collectionViewController refreshViewAfterDownload];
+    //TODO: review how to manage: build a new virtual class ?
 }
 
 @end

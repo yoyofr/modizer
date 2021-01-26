@@ -15,6 +15,14 @@
 	int collectionType=0;
 	NSRange r;
 	NSString *strPath=nil;
+    
+    if ([filePath length]>2) {
+        if (([filePath characterAtIndex:0]=='/')&&([filePath characterAtIndex:1]=='/')) {
+            strPath=@"";
+        }
+    }
+    
+    if (strPath==nil) {
 	r=[filePath rangeOfString:@"Documents/MODLAND" options:NSCaseInsensitiveSearch];
 	if (r.location!=NSNotFound) {
 		strPath=DBHelper::getFullPathFromLocalPath([filePath substringFromIndex:18]);
@@ -37,6 +45,7 @@
             }
         }
 	}
+    }
 	if (strPath==nil) {
 		//Remove the Documents/ and keep the rest
 		strPath=[filePath substringFromIndex:10];
@@ -59,21 +68,21 @@
 						  ];
 	NSURL *url=[NSURL URLWithString:urlString];
 	//NSLog(@"%@",[url absoluteString]);
-	ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
-	[request setDelegate:self];
-	[request startAsynchronous];
-}
-
-- (void)requestFinished:(ASIHTTPRequest *)request {
-	// Use when fetching text data
-//	NSString *responseString = [request responseString];
 	
-	// Use when fetching binary data
-//	NSData *responseData = [request responseData];
+    
+    //ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+	//[request setDelegate:self];
+	//[request startAsynchronous];
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    [manager GET:urlString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        //NSLog(@"JSON: %@", responseObject);
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"Error: %@", error);
+    }];
+    
+    
 }
 
-- (void)requestFailed:(ASIHTTPRequest *)request {
-//	NSError *error = [request error];
-}
 
 @end
