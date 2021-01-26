@@ -384,7 +384,7 @@
     if (color) [color release];
     if (gradient) CGGradientRelease(gradient);
 #endif    
-    [super dealloc];
+    //[super dealloc];
 }
 
 @end

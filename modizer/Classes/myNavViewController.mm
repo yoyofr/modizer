@@ -69,7 +69,7 @@ extern BOOL is_ios7;
 
 
 - (void)dealloc {
-    [super dealloc];
+    //[super dealloc];
 }
 
 

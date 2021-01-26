@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -298,12 +298,11 @@
 		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
 		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
 		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
-		592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59321DD61E2560B300020079 /* libvgmstream.a */; };
 		59387AE720C71C7F001F0C20 /* liblibopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590ED7111E22CDDE00802D4C /* liblibopenmpt.a */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
-		59517DED1E40782700FAA0BF /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		59517DED1E40782700FAA0BF /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59517DEC1E40782700FAA0BF /* SESlideTableViewCell.m */; };
 		59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B431E3D103100C629AA /* tabview_gradient40Blue.png */; };
 		59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */; };
 		59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */; };
@@ -320,8 +319,27 @@
 		59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */; };
 		59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */; };
 		59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A665311E4B04E700EB110E /* txtMenu2e_2x.png */; };
+		59B2B1EF25BCBA7D006FA3D0 /* liblibxsf_snsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22CAC25BCB0DF003FEDBF /* liblibxsf_snsf.a */; };
+		59B2B31D25BDA239006FA3D0 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		59BE94B0203C1350009F0255 /* Castlevania 3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59BE94A7203C134F009F0255 /* Castlevania 3.jpg */; };
 		59BE94B1204186DD009F0255 /* Castlevania 3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 59BE94A7203C134F009F0255 /* Castlevania 3.jpg */; };
+		59C22A1A25B992D9003FEDBF /* AFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0825B992D9003FEDBF /* AFURLResponseSerialization.m */; };
+		59C22A1B25B992D9003FEDBF /* AFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0925B992D9003FEDBF /* AFHTTPSessionManager.m */; };
+		59C22A1C25B992D9003FEDBF /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0B25B992D9003FEDBF /* AFURLSessionManager.m */; };
+		59C22A1D25B992D9003FEDBF /* AFURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0C25B992D9003FEDBF /* AFURLRequestSerialization.m */; };
+		59C22A1E25B992D9003FEDBF /* AFNetworkReachabilityManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0E25B992D9003FEDBF /* AFNetworkReachabilityManager.m */; };
+		59C22A1F25B992D9003FEDBF /* AFSecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0F25B992D9003FEDBF /* AFSecurityPolicy.m */; };
+		59C22A3225B99ACA003FEDBF /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A3025B99ACA003FEDBF /* Reachability.m */; };
+		59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB325BC8C3B003FEDBF /* libxml2.tbd */; };
+		59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB725BC8CFF003FEDBF /* Security.framework */; };
+		59C22ACA25BC8EB8003FEDBF /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22ABD25BC8EB7003FEDBF /* ASIFormDataRequest.m */; };
+		59C22ACB25BC8EB8003FEDBF /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22AC325BC8EB8003FEDBF /* ASINetworkQueue.m */; };
+		59C22ACC25BC8EB8003FEDBF /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22AC525BC8EB8003FEDBF /* ASINSStringAdditions.m */; };
+		59C22ACD25BC8EB8003FEDBF /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22AC625BC8EB8003FEDBF /* ASIAuthenticationDialog.m */; };
+		59C22ACE25BC8EB8003FEDBF /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22AC725BC8EB8003FEDBF /* ASIInputStream.m */; };
+		59C22ACF25BC8EB8003FEDBF /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22AC925BC8EB8003FEDBF /* ASIHTTPRequest.m */; };
+		59C22C1125BCB088003FEDBF /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = 59C22AE625BCB088003FEDBF /* README.txt */; };
+		59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */; };
 		59F2813A1E578BA6000B7A4C /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 595F9C181E54B907009DBEED /* liblibxmp.a */; };
 		59F281451E5B5A1A000B7A4C /* Castlevania 3.nsfe in Resources */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
 		59F281461E5B6051000B7A4C /* Castlevania 3.nsfe in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
@@ -338,22 +356,22 @@
 		CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */; };
 		CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1343741AC17B3A00CAB284 /* libvgmplay.a */; };
 		CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC17F07E1AC87866006C1E82 /* Images-2.xcassets */; };
-		CC1A554F17D5C0820009E78B /* BRRequest+_UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555017D5C0820009E78B /* BRRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553E17D5C0820009E78B /* BRRequest.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555117D5C0820009E78B /* BRRequestCreateDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554017D5C0820009E78B /* BRRequestCreateDirectory.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555217D5C0820009E78B /* BRRequestDelete.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554217D5C0820009E78B /* BRRequestDelete.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555317D5C0820009E78B /* BRRequestDownload.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554417D5C0820009E78B /* BRRequestDownload.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555417D5C0820009E78B /* BRRequestError.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554617D5C0820009E78B /* BRRequestError.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555517D5C0820009E78B /* BRRequestListDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554817D5C0820009E78B /* BRRequestListDirectory.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555617D5C0820009E78B /* BRRequestQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554A17D5C0820009E78B /* BRRequestQueue.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555717D5C0820009E78B /* BRRequestUpload.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554C17D5C0820009E78B /* BRRequestUpload.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		CC1A555817D5C0820009E78B /* BRStreamInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554E17D5C0820009E78B /* BRStreamInfo.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CC1A554F17D5C0820009E78B /* BRRequest+_UserData.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553C17D5C0820009E78B /* BRRequest+_UserData.m */; };
+		CC1A555017D5C0820009E78B /* BRRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A553E17D5C0820009E78B /* BRRequest.m */; };
+		CC1A555117D5C0820009E78B /* BRRequestCreateDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554017D5C0820009E78B /* BRRequestCreateDirectory.m */; };
+		CC1A555217D5C0820009E78B /* BRRequestDelete.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554217D5C0820009E78B /* BRRequestDelete.m */; };
+		CC1A555317D5C0820009E78B /* BRRequestDownload.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554417D5C0820009E78B /* BRRequestDownload.m */; };
+		CC1A555417D5C0820009E78B /* BRRequestError.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554617D5C0820009E78B /* BRRequestError.m */; };
+		CC1A555517D5C0820009E78B /* BRRequestListDirectory.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554817D5C0820009E78B /* BRRequestListDirectory.m */; };
+		CC1A555617D5C0820009E78B /* BRRequestQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554A17D5C0820009E78B /* BRRequestQueue.m */; };
+		CC1A555717D5C0820009E78B /* BRRequestUpload.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554C17D5C0820009E78B /* BRRequestUpload.m */; };
+		CC1A555817D5C0820009E78B /* BRStreamInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1A554E17D5C0820009E78B /* BRStreamInfo.m */; };
 		CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C01200B391000A8A4E /* AudioToolbox.framework */; };
 		CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C21200B391000A8A4E /* AVFoundation.framework */; };
 		CC1E56C51200B391000A8A4E /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C41200B391000A8A4E /* CFNetwork.framework */; };
 		CC1E56C71200B391000A8A4E /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C61200B391000A8A4E /* MediaPlayer.framework */; };
 		CC1E56C91200B391000A8A4E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C81200B391000A8A4E /* MobileCoreServices.framework */; };
-		CC1E56CB1200B391000A8A4E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CA1200B391000A8A4E /* OpenGLES.framework */; };
+		CC1E56CB1200B391000A8A4E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CA1200B391000A8A4E /* OpenGLES.framework */; platformFilter = ios; };
 		CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CC1200B391000A8A4E /* QuartzCore.framework */; };
 		CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CE1200B391000A8A4E /* SystemConfiguration.framework */; };
 		CC1E56D11200B391000A8A4E /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56D01200B391000A8A4E /* libsqlite3.dylib */; };
@@ -418,13 +436,6 @@
 		CC1E5B551200B3B8000A8A4E /* xad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57AD1200B3B7000A8A4E /* xad.cpp */; };
 		CC1E5B561200B3B8000A8A4E /* xsm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57AF1200B3B7000A8A4E /* xsm.cpp */; };
 		CC1E5B571200B3B8000A8A4E /* corlett.c in Sources */ = {isa = PBXBuildFile; fileRef = CC1E57B31200B3B7000A8A4E /* corlett.c */; };
-		CC1E5BB61200B3B8000A8A4E /* ASIAuthenticationDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E58761200B3B7000A8A4E /* ASIAuthenticationDialog.m */; };
-		CC1E5BB71200B3B8000A8A4E /* ASIDownloadCache.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E58791200B3B7000A8A4E /* ASIDownloadCache.m */; };
-		CC1E5BB81200B3B8000A8A4E /* ASIFormDataRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E587B1200B3B7000A8A4E /* ASIFormDataRequest.m */; };
-		CC1E5BB91200B3B8000A8A4E /* ASIHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E587D1200B3B7000A8A4E /* ASIHTTPRequest.m */; };
-		CC1E5BBA1200B3B8000A8A4E /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E58811200B3B7000A8A4E /* ASIInputStream.m */; };
-		CC1E5BBB1200B3B8000A8A4E /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E58831200B3B7000A8A4E /* ASINetworkQueue.m */; };
-		CC1E5BC31200B3B8000A8A4E /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = CC1E58951200B3B7000A8A4E /* Reachability.m */; };
 		CC1E5C3B1200B3B8000A8A4E /* CFtpServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E597D1200B3B8000A8A4E /* CFtpServer.cpp */; };
 		CC1E5C791200B3B8000A8A4E /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A041200B3B8000A8A4E /* Font.cpp */; };
 		CC1E5C7A1200B3B8000A8A4E /* FrameBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E5A071200B3B8000A8A4E /* FrameBuffer.mm */; };
@@ -777,7 +788,7 @@
 		CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10101221788200E8DE4E /* YmUserInterface.cpp */; };
 		CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */; };
 		CCC6776C17F62BCC00F16A54 /* txtMenu7e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */; };
-		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; };
 		CCC677C217F75AEB00F16A54 /* virtual escape.sndh in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779917F75AEB00F16A54 /* virtual escape.sndh */; };
 		CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777317F75AEA00F16A54 /* 1999.xm */; };
 		CCC6785B17F75B9500F16A54 /* beat to the pulp.sid in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */; };
@@ -954,7 +965,6 @@
 		CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791701219FC6B0063D0E7 /* unzoom.png */; };
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
 		CCDCFFBC121FD47300B89B19 /* MIMETYPES.plist in Resources */ = {isa = PBXBuildFile; fileRef = CCDCFFB1121FD3A400B89B19 /* MIMETYPES.plist */; };
-		CCDDA6F91AC3E6F000AEA09F /* Launch Screen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */; };
 		CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC59B90B1AC4B882004FEEBA /* liblibFileExtractor.a */; };
 		CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1962131B66BCD700778A3E /* liblibresample.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
@@ -1103,6 +1113,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 595F9C081E54B906009DBEED;
 			remoteInfo = libxmp;
+		};
+		59C22CAB25BCB0DF003FEDBF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 59C22CA725BCB0DF003FEDBF /* libxsf_snsf.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 592862691E2D4A5A00A08A4E;
+			remoteInfo = libxsf_snsf;
 		};
 		CC1343731AC17B3A00CAB284 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1806,6 +1823,7 @@
 		595221241FDD69150079E76D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainWindow.strings; sourceTree = "<group>"; };
 		595221251FDD69190079E76D /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MainWindow.strings; sourceTree = "<group>"; };
 		595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxmp.xcodeproj; path = libxmp/libxmp.xcodeproj; sourceTree = "<group>"; };
+		5966154E25A8F5F900156F7A /* modizer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = modizer.entitlements; path = modizer/modizer.entitlements; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
 		59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Orange.png; sourceTree = "<group>"; };
@@ -1823,6 +1841,42 @@
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
 		59BE94A7203C134F009F0255 /* Castlevania 3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Castlevania 3.jpg"; path = "Resources/Samples2/Games/Castlevania 3.jpg"; sourceTree = SOURCE_ROOT; };
+		59C22A0425B992D9003FEDBF /* AFSecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFSecurityPolicy.h; sourceTree = "<group>"; };
+		59C22A0525B992D9003FEDBF /* AFNetworkReachabilityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkReachabilityManager.h; sourceTree = "<group>"; };
+		59C22A0625B992D9003FEDBF /* AFURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLSessionManager.h; sourceTree = "<group>"; };
+		59C22A0725B992D9003FEDBF /* AFURLRequestSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLRequestSerialization.h; sourceTree = "<group>"; };
+		59C22A0825B992D9003FEDBF /* AFURLResponseSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLResponseSerialization.m; sourceTree = "<group>"; };
+		59C22A0925B992D9003FEDBF /* AFHTTPSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFHTTPSessionManager.m; sourceTree = "<group>"; };
+		59C22A0A25B992D9003FEDBF /* AFURLResponseSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLResponseSerialization.h; sourceTree = "<group>"; };
+		59C22A0B25B992D9003FEDBF /* AFURLSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLSessionManager.m; sourceTree = "<group>"; };
+		59C22A0C25B992D9003FEDBF /* AFURLRequestSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFURLRequestSerialization.m; sourceTree = "<group>"; };
+		59C22A0D25B992D9003FEDBF /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
+		59C22A0E25B992D9003FEDBF /* AFNetworkReachabilityManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFNetworkReachabilityManager.m; sourceTree = "<group>"; };
+		59C22A0F25B992D9003FEDBF /* AFSecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFSecurityPolicy.m; sourceTree = "<group>"; };
+		59C22A1025B992D9003FEDBF /* AFCompatibilityMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFCompatibilityMacros.h; sourceTree = "<group>"; };
+		59C22A1125B992D9003FEDBF /* AFHTTPSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFHTTPSessionManager.h; sourceTree = "<group>"; };
+		59C22A3025B99ACA003FEDBF /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		59C22A3125B99ACA003FEDBF /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		59C22AB325BC8C3B003FEDBF /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
+		59C22AB725BC8CFF003FEDBF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		59C22ABB25BC8EB7003FEDBF /* ASIHTTPRequestConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestConfig.h; sourceTree = "<group>"; };
+		59C22ABC25BC8EB7003FEDBF /* ASIInputStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIInputStream.h; sourceTree = "<group>"; };
+		59C22ABD25BC8EB7003FEDBF /* ASIFormDataRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIFormDataRequest.m; sourceTree = "<group>"; };
+		59C22ABE25BC8EB7003FEDBF /* ASIHTTPRequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestDelegate.h; sourceTree = "<group>"; };
+		59C22ABF25BC8EB7003FEDBF /* ASIAuthenticationDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIAuthenticationDialog.h; sourceTree = "<group>"; };
+		59C22AC025BC8EB7003FEDBF /* ASINetworkQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINetworkQueue.h; sourceTree = "<group>"; };
+		59C22AC125BC8EB8003FEDBF /* ASIProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIProgressDelegate.h; sourceTree = "<group>"; };
+		59C22AC225BC8EB8003FEDBF /* ASIHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequest.h; sourceTree = "<group>"; };
+		59C22AC325BC8EB8003FEDBF /* ASINetworkQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINetworkQueue.m; sourceTree = "<group>"; };
+		59C22AC425BC8EB8003FEDBF /* ASIFormDataRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIFormDataRequest.h; sourceTree = "<group>"; };
+		59C22AC525BC8EB8003FEDBF /* ASINSStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINSStringAdditions.m; sourceTree = "<group>"; };
+		59C22AC625BC8EB8003FEDBF /* ASIAuthenticationDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIAuthenticationDialog.m; sourceTree = "<group>"; };
+		59C22AC725BC8EB8003FEDBF /* ASIInputStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIInputStream.m; sourceTree = "<group>"; };
+		59C22AC825BC8EB8003FEDBF /* ASINSStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINSStringAdditions.h; sourceTree = "<group>"; };
+		59C22AC925BC8EB8003FEDBF /* ASIHTTPRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIHTTPRequest.m; sourceTree = "<group>"; };
+		59C22AE625BCB088003FEDBF /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		59C22CA725BCB0DF003FEDBF /* libxsf_snsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libxsf_snsf.xcodeproj; sourceTree = "<group>"; };
+		59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = modizer_icon.icns; sourceTree = "<group>"; };
 		59E478B71E84FBBD00E94FC2 /* libopenmpt-vorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libopenmpt-vorbis.a"; path = "../libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-vorbis.a"; sourceTree = "<group>"; };
 		59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Castlevania 3.nsfe"; path = "Resources/Samples2/Games/Castlevania 3.nsfe"; sourceTree = SOURCE_ROOT; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
@@ -2082,24 +2136,6 @@
 		CC1E584C1200B3B7000A8A4E /* mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mem.h; sourceTree = "<group>"; };
 		CC1E584D1200B3B7000A8A4E /* osd_cpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = osd_cpu.h; sourceTree = "<group>"; };
 		CC1E58501200B3B7000A8A4E /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
-		CC1E58751200B3B7000A8A4E /* ASIAuthenticationDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIAuthenticationDialog.h; sourceTree = "<group>"; };
-		CC1E58761200B3B7000A8A4E /* ASIAuthenticationDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIAuthenticationDialog.m; sourceTree = "<group>"; };
-		CC1E58771200B3B7000A8A4E /* ASICacheDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASICacheDelegate.h; sourceTree = "<group>"; };
-		CC1E58781200B3B7000A8A4E /* ASIDownloadCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIDownloadCache.h; sourceTree = "<group>"; };
-		CC1E58791200B3B7000A8A4E /* ASIDownloadCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIDownloadCache.m; sourceTree = "<group>"; };
-		CC1E587A1200B3B7000A8A4E /* ASIFormDataRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIFormDataRequest.h; sourceTree = "<group>"; };
-		CC1E587B1200B3B7000A8A4E /* ASIFormDataRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIFormDataRequest.m; sourceTree = "<group>"; };
-		CC1E587C1200B3B7000A8A4E /* ASIHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequest.h; sourceTree = "<group>"; };
-		CC1E587D1200B3B7000A8A4E /* ASIHTTPRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIHTTPRequest.m; sourceTree = "<group>"; };
-		CC1E587E1200B3B7000A8A4E /* ASIHTTPRequestConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestConfig.h; sourceTree = "<group>"; };
-		CC1E587F1200B3B7000A8A4E /* ASIHTTPRequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestDelegate.h; sourceTree = "<group>"; };
-		CC1E58801200B3B7000A8A4E /* ASIInputStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIInputStream.h; sourceTree = "<group>"; };
-		CC1E58811200B3B7000A8A4E /* ASIInputStream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASIInputStream.m; sourceTree = "<group>"; };
-		CC1E58821200B3B7000A8A4E /* ASINetworkQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASINetworkQueue.h; sourceTree = "<group>"; };
-		CC1E58831200B3B7000A8A4E /* ASINetworkQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASINetworkQueue.m; sourceTree = "<group>"; };
-		CC1E58841200B3B7000A8A4E /* ASIProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIProgressDelegate.h; sourceTree = "<group>"; };
-		CC1E58941200B3B7000A8A4E /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
-		CC1E58951200B3B7000A8A4E /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		CC1E597D1200B3B8000A8A4E /* CFtpServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CFtpServer.cpp; sourceTree = "<group>"; };
 		CC1E597E1200B3B8000A8A4E /* CFtpServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFtpServer.h; sourceTree = "<group>"; };
 		CC1E597F1200B3B8000A8A4E /* CFtpServerConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFtpServerConfig.h; sourceTree = "<group>"; };
@@ -2917,7 +2953,6 @@
 		CCD791701219FC6B0063D0E7 /* unzoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unzoom.png; sourceTree = "<group>"; };
 		CCD791711219FC6B0063D0E7 /* zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoom.png; sourceTree = "<group>"; };
 		CCDCFFB1121FD3A400B89B19 /* MIMETYPES.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = MIMETYPES.plist; sourceTree = "<group>"; };
-		CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "Launch Screen.xib"; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
@@ -2962,11 +2997,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
 				59387AE720C71C7F001F0C20 /* liblibopenmpt.a in Frameworks */,
+				59B2B31D25BDA239006FA3D0 /* liblibxsf.a in Frameworks */,
 				59F2813A1E578BA6000B7A4C /* liblibxmp.a in Frameworks */,
-				592862C01E2D4D8D00A08A4E /* liblibxsf.a in Frameworks */,
+				59B2B1EF25BCBA7D006FA3D0 /* liblibxsf_snsf.a in Frameworks */,
 				59321DD71E2560C500020079 /* libvgmstream.a in Frameworks */,
 				CCDFE8A11B675C55003C91DB /* liblibresample.a in Frameworks */,
+				59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */,
 				CC9FB0521B64E2BF00345B1C /* liblibLazyusf.a in Frameworks */,
 				CCDFDFCB1AC4BF540035A5FC /* liblibFileExtractor.a in Frameworks */,
 				CC13449F1AC1804500CAB284 /* libvgmplay.a in Frameworks */,
@@ -3009,6 +3047,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				5966154E25A8F5F900156F7A /* modizer.entitlements */,
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
 				CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */,
 				3371987E1692053C00163CA3 /* modizer.entitlements */,
@@ -3032,6 +3071,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				59C22AB725BC8CFF003FEDBF /* Security.framework */,
+				59C22AB325BC8C3B003FEDBF /* libxml2.tbd */,
 				59E478B71E84FBBD00E94FC2 /* libopenmpt-vorbis.a */,
 				591FF53E1E5057E400D401D5 /* libmpg123-ios.a */,
 				591FF53F1E5057E400D401D5 /* libopenmpt-ogg.a */,
@@ -3723,6 +3764,85 @@
 			name = libxmp;
 			sourceTree = "<group>";
 		};
+		59C22A0325B992D9003FEDBF /* AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				59C22A0425B992D9003FEDBF /* AFSecurityPolicy.h */,
+				59C22A0525B992D9003FEDBF /* AFNetworkReachabilityManager.h */,
+				59C22A0625B992D9003FEDBF /* AFURLSessionManager.h */,
+				59C22A0725B992D9003FEDBF /* AFURLRequestSerialization.h */,
+				59C22A0825B992D9003FEDBF /* AFURLResponseSerialization.m */,
+				59C22A0925B992D9003FEDBF /* AFHTTPSessionManager.m */,
+				59C22A0A25B992D9003FEDBF /* AFURLResponseSerialization.h */,
+				59C22A0B25B992D9003FEDBF /* AFURLSessionManager.m */,
+				59C22A0C25B992D9003FEDBF /* AFURLRequestSerialization.m */,
+				59C22A0D25B992D9003FEDBF /* AFNetworking.h */,
+				59C22A0E25B992D9003FEDBF /* AFNetworkReachabilityManager.m */,
+				59C22A0F25B992D9003FEDBF /* AFSecurityPolicy.m */,
+				59C22A1025B992D9003FEDBF /* AFCompatibilityMacros.h */,
+				59C22A1125B992D9003FEDBF /* AFHTTPSessionManager.h */,
+			);
+			path = AFNetworking;
+			sourceTree = "<group>";
+		};
+		59C22A2F25B99ACA003FEDBF /* Reachability */ = {
+			isa = PBXGroup;
+			children = (
+				59C22A3025B99ACA003FEDBF /* Reachability.m */,
+				59C22A3125B99ACA003FEDBF /* Reachability.h */,
+			);
+			path = Reachability;
+			sourceTree = "<group>";
+		};
+		59C22A3525BC8BC5003FEDBF /* ASI */ = {
+			isa = PBXGroup;
+			children = (
+				59C22ABF25BC8EB7003FEDBF /* ASIAuthenticationDialog.h */,
+				59C22AC625BC8EB8003FEDBF /* ASIAuthenticationDialog.m */,
+				59C22AC425BC8EB8003FEDBF /* ASIFormDataRequest.h */,
+				59C22ABD25BC8EB7003FEDBF /* ASIFormDataRequest.m */,
+				59C22AC225BC8EB8003FEDBF /* ASIHTTPRequest.h */,
+				59C22AC925BC8EB8003FEDBF /* ASIHTTPRequest.m */,
+				59C22ABB25BC8EB7003FEDBF /* ASIHTTPRequestConfig.h */,
+				59C22ABE25BC8EB7003FEDBF /* ASIHTTPRequestDelegate.h */,
+				59C22ABC25BC8EB7003FEDBF /* ASIInputStream.h */,
+				59C22AC725BC8EB8003FEDBF /* ASIInputStream.m */,
+				59C22AC025BC8EB7003FEDBF /* ASINetworkQueue.h */,
+				59C22AC325BC8EB8003FEDBF /* ASINetworkQueue.m */,
+				59C22AC825BC8EB8003FEDBF /* ASINSStringAdditions.h */,
+				59C22AC525BC8EB8003FEDBF /* ASINSStringAdditions.m */,
+				59C22AC125BC8EB8003FEDBF /* ASIProgressDelegate.h */,
+			);
+			name = ASI;
+			path = "../../modizer copie/modizer/ASI";
+			sourceTree = "<group>";
+		};
+		59C22AE125BCB088003FEDBF /* libxsf_snsf */ = {
+			isa = PBXGroup;
+			children = (
+				59C22CA625BCB0DF003FEDBF /* libxsf_snsf */,
+				59C22AE625BCB088003FEDBF /* README.txt */,
+			);
+			name = libxsf_snsf;
+			path = ../libxsf_snsf;
+			sourceTree = "<group>";
+		};
+		59C22CA625BCB0DF003FEDBF /* libxsf_snsf */ = {
+			isa = PBXGroup;
+			children = (
+				59C22CA725BCB0DF003FEDBF /* libxsf_snsf.xcodeproj */,
+			);
+			path = libxsf_snsf;
+			sourceTree = "<group>";
+		};
+		59C22CA825BCB0DF003FEDBF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				59C22CAC25BCB0DF003FEDBF /* liblibxsf_snsf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC1343701AC17B3900CAB284 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -4085,31 +4205,6 @@
 			path = eng_ssf;
 			sourceTree = "<group>";
 		};
-		CC1E58741200B3B7000A8A4E /* ASI */ = {
-			isa = PBXGroup;
-			children = (
-				CC1E58751200B3B7000A8A4E /* ASIAuthenticationDialog.h */,
-				CC1E58761200B3B7000A8A4E /* ASIAuthenticationDialog.m */,
-				CC1E58771200B3B7000A8A4E /* ASICacheDelegate.h */,
-				CC1E58781200B3B7000A8A4E /* ASIDownloadCache.h */,
-				CC1E58791200B3B7000A8A4E /* ASIDownloadCache.m */,
-				CC1E587A1200B3B7000A8A4E /* ASIFormDataRequest.h */,
-				CC1E587B1200B3B7000A8A4E /* ASIFormDataRequest.m */,
-				CC1E587C1200B3B7000A8A4E /* ASIHTTPRequest.h */,
-				CC1E587D1200B3B7000A8A4E /* ASIHTTPRequest.m */,
-				CC1E587E1200B3B7000A8A4E /* ASIHTTPRequestConfig.h */,
-				CC1E587F1200B3B7000A8A4E /* ASIHTTPRequestDelegate.h */,
-				CC1E58801200B3B7000A8A4E /* ASIInputStream.h */,
-				CC1E58811200B3B7000A8A4E /* ASIInputStream.m */,
-				CC1E58821200B3B7000A8A4E /* ASINetworkQueue.h */,
-				CC1E58831200B3B7000A8A4E /* ASINetworkQueue.m */,
-				CC1E58841200B3B7000A8A4E /* ASIProgressDelegate.h */,
-				CC1E58941200B3B7000A8A4E /* Reachability.h */,
-				CC1E58951200B3B7000A8A4E /* Reachability.m */,
-			);
-			path = ASI;
-			sourceTree = "<group>";
-		};
 		CC1E58BA1200B3B7000A8A4E /* Classes */ = {
 			isa = PBXGroup;
 			children = (
@@ -4215,6 +4310,7 @@
 			isa = PBXGroup;
 			children = (
 				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
+				59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */,
 				59387AED20C745BB001F0C20 /* LaunchLogo.jpg */,
 				59387AEF20C746D3001F0C20 /* AppStore512.png */,
 				CCFA9ADC1AC75830007C658A /* WebTools */,
@@ -4222,7 +4318,6 @@
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
-				CCDDA6F81AC3E6F000AEA09F /* Launch Screen.xib */,
 				CCFE183B17EF586200C1682F /* MainWindow.xib */,
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
 				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
@@ -5071,6 +5166,7 @@
 			isa = PBXGroup;
 			children = (
 				595F9C1C1E54B90D009DBEED /* libxmp */,
+				59C22AE125BCB088003FEDBF /* libxsf_snsf */,
 				592862B91E2D4D6800A08A4E /* libxsf */,
 				59321DCA1E25609F00020079 /* libvgmstream */,
 				CC9FAF701B64DB0600345B1C /* libLazyusf */,
@@ -5100,6 +5196,8 @@
 		CC9B194012FF0BCA00985967 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				59C22A3525BC8BC5003FEDBF /* ASI */,
+				59C22A0325B992D9003FEDBF /* AFNetworking */,
 				59517DE61E40778D00FAA0BF /* SESlideTableViewCell */,
 				CC19620E1B66BCD600778A3E /* libresample.xcodeproj */,
 				CCC6776E17F6B92500F16A54 /* CMPopTipView */,
@@ -5111,8 +5209,8 @@
 				33C7395613A0AA700012221C /* tapkulib */,
 				CC1E5A021200B3B8000A8A4E /* MISC */,
 				CC1E597C1200B3B8000A8A4E /* ftpserver */,
-				CC1E58741200B3B7000A8A4E /* ASI */,
 				CC1E58CC1200B3B7000A8A4E /* FFT */,
+				59C22A2F25B99ACA003FEDBF /* Reachability */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -5692,6 +5790,10 @@
 					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
 				},
 				{
+					ProductGroup = 59C22CA825BCB0DF003FEDBF /* Products */;
+					ProjectRef = 59C22CA725BCB0DF003FEDBF /* libxsf_snsf.xcodeproj */;
+				},
+				{
 					ProductGroup = 33A96580140E1283007F22F5 /* Products */;
 					ProjectRef = 33A9657F140E1283007F22F5 /* sidplayfp.xcodeproj */;
 				},
@@ -5793,6 +5895,13 @@
 			remoteRef = 595F9C171E54B907009DBEED /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		59C22CAC25BCB0DF003FEDBF /* liblibxsf_snsf.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibxsf_snsf.a;
+			remoteRef = 59C22CAB25BCB0DF003FEDBF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		CC1343741AC17B3A00CAB284 /* libvgmplay.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -5859,7 +5968,6 @@
 				CC1E5CB71200B3B8000A8A4E /* rating3.png in Resources */,
 				CC1E5CB81200B3B8000A8A4E /* rating4.png in Resources */,
 				CC1E5CB91200B3B8000A8A4E /* rating5.png in Resources */,
-				CCDDA6F91AC3E6F000AEA09F /* Launch Screen.xib in Resources */,
 				CC1E5CBD1200B3B8000A8A4E /* smile32.png in Resources */,
 				CC1E5CBE1200B3B8000A8A4E /* spanner32.png in Resources */,
 				CCB8D97017F6172D008E6A45 /* txtMenu7a_2x.png in Resources */,
@@ -6079,6 +6187,7 @@
 				CC1E63B1120423E0000A8A4E /* TimFollin in Resources */,
 				CC1E63B2120423E0000A8A4E /* TomyTracker in Resources */,
 				CC1E63B3120423E0000A8A4E /* Tronic in Resources */,
+				59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */,
 				CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */,
 				CC1E63B4120423E0000A8A4E /* UltimateSoundtracker in Resources */,
 				CCB8D99317F62A18008E6A45 /* txtMenu1_2x.png in Resources */,
@@ -6102,6 +6211,7 @@
 				CC03F2E012160FE000F2AC65 /* buttonY.png in Resources */,
 				CCB8D97F17F62356008E6A45 /* txtMenu12a_2x.png in Resources */,
 				CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */,
+				59C22C1125BCB088003FEDBF /* README.txt in Resources */,
 				CCD791731219FC6B0063D0E7 /* zoom.png in Resources */,
 				CCDCFFBC121FD47300B89B19 /* MIMETYPES.plist in Resources */,
 				33888AA212231EEA0030C82E /* 1237346308.jpg in Resources */,
@@ -6235,6 +6345,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59C22A3225B99ACA003FEDBF /* Reachability.m in Sources */,
 				CC1E5B191200B3B8000A8A4E /* a2m.cpp in Sources */,
 				CC1E5B1A1200B3B8000A8A4E /* adl.cpp in Sources */,
 				CC1E5B1B1200B3B8000A8A4E /* adlibemu.c in Sources */,
@@ -6266,6 +6377,7 @@
 				CC1E5B321200B3B8000A8A4E /* flash.cpp in Sources */,
 				CC1E5B331200B3B8000A8A4E /* fmc.cpp in Sources */,
 				CC1E5B341200B3B8000A8A4E /* fmopl.c in Sources */,
+				59C22A1E25B992D9003FEDBF /* AFNetworkReachabilityManager.m in Sources */,
 				CC1E5B351200B3B8000A8A4E /* fprovide.cpp in Sources */,
 				CC1E5B361200B3B8000A8A4E /* hsc.cpp in Sources */,
 				CC1E5B371200B3B8000A8A4E /* hsp.cpp in Sources */,
@@ -6302,13 +6414,6 @@
 				CC1E5B551200B3B8000A8A4E /* xad.cpp in Sources */,
 				CC1E5B561200B3B8000A8A4E /* xsm.cpp in Sources */,
 				CC1E5B571200B3B8000A8A4E /* corlett.c in Sources */,
-				CC1E5BB61200B3B8000A8A4E /* ASIAuthenticationDialog.m in Sources */,
-				CC1E5BB71200B3B8000A8A4E /* ASIDownloadCache.m in Sources */,
-				CC1E5BB81200B3B8000A8A4E /* ASIFormDataRequest.m in Sources */,
-				CC1E5BB91200B3B8000A8A4E /* ASIHTTPRequest.m in Sources */,
-				CC1E5BBA1200B3B8000A8A4E /* ASIInputStream.m in Sources */,
-				CC1E5BBB1200B3B8000A8A4E /* ASINetworkQueue.m in Sources */,
-				CC1E5BC31200B3B8000A8A4E /* Reachability.m in Sources */,
 				CC1E5C3B1200B3B8000A8A4E /* CFtpServer.cpp in Sources */,
 				CC1E5C791200B3B8000A8A4E /* Font.cpp in Sources */,
 				CC1E5C7A1200B3B8000A8A4E /* FrameBuffer.mm in Sources */,
@@ -6317,6 +6422,7 @@
 				CC1E5C7B1200B3B8000A8A4E /* GLString.cpp in Sources */,
 				CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */,
 				CC1E5C7E1200B3B8000A8A4E /* OGLView.mm in Sources */,
+				59C22ACC25BC8EB8003FEDBF /* ASINSStringAdditions.m in Sources */,
 				CC1E5C7F1200B3B8000A8A4E /* RenderUtils.mm in Sources */,
 				CC1E5C801200B3B8000A8A4E /* TextureUtils.mm in Sources */,
 				33416A9024AA2491000ACF57 /* sop.cpp in Sources */,
@@ -6374,6 +6480,7 @@
 				CCFDC53C17DB105500C6692C /* NVLowShelvingFilter.m in Sources */,
 				CCFDC54017DB105500C6692C /* NVDSP.mm in Sources */,
 				CC1E6150120345C8000A8A4E /* effects.c in Sources */,
+				59C22A1F25B992D9003FEDBF /* AFSecurityPolicy.m in Sources */,
 				CC1E6151120345CB000A8A4E /* unixwalkdir.c in Sources */,
 				CC1E6152120345D1000A8A4E /* uadecontrol.c in Sources */,
 				CC1E6153120345D6000A8A4E /* uadeconf.c in Sources */,
@@ -6395,6 +6502,7 @@
 				333157301207462000815317 /* unixsupport.c in Sources */,
 				CC1A555617D5C0820009E78B /* BRRequestQueue.m in Sources */,
 				3331573A1207699700815317 /* hvl_replay.cpp in Sources */,
+				59C22A1A25B992D9003FEDBF /* AFURLResponseSerialization.m in Sources */,
 				CC2DE0A41217EF2900CF9CFF /* ModizerWin.mm in Sources */,
 				CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */,
 				CCBF10151221788200E8DE4E /* digidrum.cpp in Sources */,
@@ -6425,6 +6533,7 @@
 				CCCE9CC8123D807A007D9462 /* line5_68.c in Sources */,
 				CCCE9CCA123D807A007D9462 /* line6_68.c in Sources */,
 				CCCE9CCC123D807A007D9462 /* line7_68.c in Sources */,
+				59C22ACE25BC8EB8003FEDBF /* ASIInputStream.m in Sources */,
 				CCCE9CCE123D807A007D9462 /* line8_68.c in Sources */,
 				CCFDC53817DB105500C6692C /* NVBandpassQPeakGainFilter.m in Sources */,
 				CCCE9CD0123D807A007D9462 /* line9_68.c in Sources */,
@@ -6477,6 +6586,7 @@
 				3370BC10124A853F00691400 /* mdxmml_ym2151.c in Sources */,
 				3370BC13124A853F00691400 /* pdxfile.c in Sources */,
 				3370BC2F124A858C00691400 /* allpass.cpp in Sources */,
+				59C22ACF25BC8EB8003FEDBF /* ASIHTTPRequest.m in Sources */,
 				3370BC30124A858C00691400 /* comb.cpp in Sources */,
 				3370BC31124A858C00691400 /* freeverb.cpp in Sources */,
 				3370BC35124A858C00691400 /* revmodel.cpp in Sources */,
@@ -6521,6 +6631,7 @@
 				33215191139F5A0A0035E105 /* z80.c in Sources */,
 				33215192139F5B310035E105 /* eng_ssf.c in Sources */,
 				33215193139F5B580035E105 /* scsp.c in Sources */,
+				59C22A1B25B992D9003FEDBF /* AFHTTPSessionManager.m in Sources */,
 				33215194139F5B5E0035E105 /* scspdsp.c in Sources */,
 				33215195139F5B660035E105 /* sat_hw.c in Sources */,
 				33215196139F5B7F0035E105 /* m68kcpu.c in Sources */,
@@ -6530,6 +6641,7 @@
 				3321519A139F5BC50035E105 /* m68kops.c in Sources */,
 				332CD2E013A2C30E0021E86E /* UIImageResize.m in Sources */,
 				331EB22813A6C45000703140 /* AnimatedGif.m in Sources */,
+				59C22A1D25B992D9003FEDBF /* AFURLRequestSerialization.m in Sources */,
 				33BA5B521431B4AB00C87F5B /* FXFluid.cpp in Sources */,
 				CC1A555117D5C0820009E78B /* BRRequestCreateDirectory.m in Sources */,
 				33416A8F24AA2491000ACF57 /* nukedopl.c in Sources */,
@@ -6540,6 +6652,7 @@
 				50819A2814B3E06F0062FA86 /* fmgen.cpp in Sources */,
 				50819A2914B3E06F0062FA86 /* fmtimer.cpp in Sources */,
 				50819A2A14B3E06F0062FA86 /* opm.cpp in Sources */,
+				59C22ACB25BC8EB8003FEDBF /* ASINetworkQueue.m in Sources */,
 				50819A2B14B3E06F0062FA86 /* opna.cpp in Sources */,
 				50819A2C14B3E06F0062FA86 /* psg.cpp in Sources */,
 				50819A2D14B3E06F0062FA86 /* pmdmini.c in Sources */,
@@ -6553,9 +6666,11 @@
 				50819A3414B3E0700062FA86 /* util.cpp in Sources */,
 				33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */,
 				334C998D14EAB1ED0003CF9B /* RootViewControllerPlaylist.mm in Sources */,
+				59C22ACD25BC8EB8003FEDBF /* ASIAuthenticationDialog.m in Sources */,
 				333DC09716CAD92800720CA2 /* mdx_ym2151.c in Sources */,
 				330F36C917A683FB00EEC84A /* OnlineViewController.mm in Sources */,
 				33ABE5AF17B17A5100AE0EA1 /* BButton.m in Sources */,
+				59C22A1C25B992D9003FEDBF /* AFURLSessionManager.m in Sources */,
 				33416A7924AA2465000ACF57 /* adlib.cpp in Sources */,
 				33ABE5B017B17A5200AE0EA1 /* NSString+FontAwesome.m in Sources */,
 				CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */,
@@ -6569,6 +6684,7 @@
 				33FDFF6717B6E99A00B61B65 /* SettingsGenViewController.mm in Sources */,
 				33F6A94217B9A36A002369E7 /* MNEValueTrackingSlider.m in Sources */,
 				CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */,
+				59C22ACA25BC8EB8003FEDBF /* ASIFormDataRequest.m in Sources */,
 				3317854117C56EAC00929E8F /* TPKeyboardAvoidingTableView.m in Sources */,
 				33B7AD0C17C74AE700C1E404 /* SettingsMaintenanceViewController.mm in Sources */,
 				33416A9124AA2491000ACF57 /* herad.cpp in Sources */,
@@ -6646,6 +6762,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -6665,7 +6783,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
+					"\"$(SRCROOT)/asap\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos\"",
@@ -6685,8 +6803,22 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 			};
 			name = Debug;
 		};
@@ -6696,6 +6828,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -6714,7 +6848,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
+					"\"$(SRCROOT)/asap\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos\"",
@@ -6739,8 +6873,22 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6751,6 +6899,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_TESTABILITY = YES;
@@ -6771,16 +6920,31 @@
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
 					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Debug;
@@ -6791,6 +6955,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -6810,9 +6975,11 @@
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
 					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -6820,7 +6987,20 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -6831,6 +7011,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -6851,9 +7032,11 @@
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
 					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
@@ -6862,7 +7045,20 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6873,6 +7069,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -6891,7 +7089,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
+					"\"$(SRCROOT)/asap\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos\"",
@@ -6915,8 +7113,22 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release_No64;
@@ -6927,8 +7139,9 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Yohann Magnien";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Yohann Magnien";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -6946,9 +7159,11 @@
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
 					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
@@ -6956,7 +7171,20 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -6967,6 +7195,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
@@ -6984,7 +7214,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
+					"\"$(SRCROOT)/asap\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos\"",
@@ -7009,8 +7239,22 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -7021,6 +7265,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -7040,9 +7285,11 @@
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
 					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
 					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -7050,7 +7297,20 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";
@@ -7061,6 +7321,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
@@ -7078,7 +7340,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"\"$(SRCROOT)/asap-2.1.2/win32/bass\"",
+					"\"$(SRCROOT)/asap\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Debug-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/libgsf-binfcpiwhuepmgcxhjvwsfpwozex/Build/Products/Release-iphoneos\"",
 					"\"$(SRCROOT)/../../../../Library/Developer/Xcode/DerivedData/modizer-ewutdrprzhzobpehilyynkpuyhkd/Build/Products/Release-iphoneos\"",
@@ -7103,8 +7365,22 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
+				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "uade-2.13/** /Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/ /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include /Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf /Users/yohannmagnien/Documents/dev/modizer/lib2sf /Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf /Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib /Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include";
+				USER_HEADER_SEARCH_PATHS = (
+					"uade-2.13/**",
+					"/Users/yohannmagnien/Documents/dev/modizer/node-lame-master/deps/mpg123/ports/Xcode/",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"/Users/yohannmagnien/Documents/dev/modizer/libopenmpt/openmpt-trunk/include/ogg/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_xsf_framework,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_ncsf,
+					/Users/yohannmagnien/Documents/dev/modizer/lib2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf/src/in_2sf,
+					/Users/yohannmagnien/Documents/dev/modizer/modizer/SESlideTableViewCell/lib,
+					"/Users/yohannmagnien/Documents/dev/modizer/modizer/libxmp/libxmp-master/include",
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_snsf,
+					/Users/yohannmagnien/Documents/dev/modizer/libxsf_snsf/src/in_xsf_framework,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Distribution Beta";

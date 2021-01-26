@@ -42,8 +42,8 @@ dec6afe7d4d759237a3814cc46ff7093;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Final_Axel
 0c01700422bbede9945627ce65a84d06;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Greystorm_unused_level_2.sid
 63a4f2a12a492ad12bdcb68012260939;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Groove_Is_in_the_Heart.sid
 dcb0f23c667e0719bd7e1864c6c95aee;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Hardcore_Power.sid
-ed96ec1543157299ce31864018989b97;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Im_Your_Baby_Tonight.sid
-7e95982336b9c3aeb40e2f1713de402d;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Im_Your_Baby_Tonight_NTSC.sid
+40aa5a2f14db3dd0d9a2049f7c3ac2d9;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Im_Your_Baby_Tonight.sid
+13f63408637b8a8536796d05d54af765;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Im_Your_Baby_Tonight_NTSC.sid
 082a21fcc365a3e0e407737546eed330;/MUSICIANS/0-9/20CC/van_Santen_Edwin/I_Just_Dont_Have_the_Heart.sid
 3db27c52302d612dfdf10c41a26aa147;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Just_Cool.sid
 d258549d48b81dc4a520c23a402329f7;/MUSICIANS/0-9/20CC/van_Santen_Edwin/Layla_Mix.sid
@@ -281,7 +281,6 @@ bcd477a8c3a4194728e11447468bf69f;/MUSICIANS/B/Beat_Machine/Chris/Mac_Rib.sid
 1983d00a27474c0d977ff32556750baf;/MUSICIANS/B/Beat_Machine/Chris/MagicDisk_Demo_2.sid
 e650a54431e1b16125330b8a2214e10a;/MUSICIANS/B/Beat_Machine/Chris/Magic_Caves.sid
 6dbd32416fd0b7309529a7b3e1ec5e3e;/MUSICIANS/B/Beat_Machine/Chris/Megablastic.sid
-b4f0389ef17dbf23b7bdb6807d68665e;/MUSICIANS/B/Beat_Machine/Chris/Nam.sid
 1d502332d58fe30e3a7e8c3ec028f7cf;/MUSICIANS/B/Beat_Machine/Chris/No_Reality.sid
 f447574b0cf1d9e2a2e03500aa8ab3aa;/MUSICIANS/B/Beat_Machine/Chris/One_Night.sid
 bc6c73f1a8c77d42bf55d597c8e09682;/MUSICIANS/B/Beat_Machine/Chris/Outrun_II_Remix.sid
@@ -309,7 +308,7 @@ b4e9f0d2263a411fd0f6987ed4ed9cc0;/MUSICIANS/B/Beat_Machine/Chris/Street_Skater_v
 c1c99d9ebbc8fb17eb498fa60fc220c4;/MUSICIANS/B/Beat_Machine/Chris/Take_on_Me.sid
 581341f1dbe7260549520ac8c4963547;/MUSICIANS/B/Beat_Machine/Chris/Two_Years_Crest_Many_Bobs.sid
 f230ecf7cfa13a0ba21b52d60fe43655;/MUSICIANS/B/Beat_Machine/Chris/Underground.sid
-a7f1fd5e7ec7bcce337641a3ce1ceb22;/MUSICIANS/B/Beat_Machine/Chris/Wake_up.sid
+7965fe441ea0dde33bdde9a998f083b5;/MUSICIANS/B/Beat_Machine/Chris/Wake_Up.sid
 459cb94e3d6928840b3db37741d685af;/MUSICIANS/B/Beat_Machine/Chris/Weird_Dream.sid
 0f3bb105295c461428bafafbef6bf94c;/MUSICIANS/B/Beat_Machine/Xayne/Again.sid
 dd9a21f7c203dc64a721b2fd32db60e6;/MUSICIANS/B/Beat_Machine/Xayne/Another_GLGL.sid
@@ -789,7 +788,7 @@ c5a211fdb1fa7c319e89537fbd5a6d99;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Synthfun
 e375847044fbf06a489213503c5641a4;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/T-Shirt.sid
 fb7a860b73893e974567aefcc91228bc;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Tango.sid
 2be52a191107dc4bf5edb8b770b6d958;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Tango_Ballet.sid
-f0efdf7398ab268d860c223cff8b9d6f;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Tanks_3000.sid
+c4bf2d34502dab1d2373624fc95e180c;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Tanks_3000.sid
 9839c664ec4c07ba7d3c67c3573df3a9;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Tarmslyng.sid
 236e036e7367ce39c08bb92a47055880;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Tarsang.sid
 b1be2c87364013d71f884407e8da1a93;/MUSICIANS/B/Blues_Muz/Gallefoss_Glenn/Techno-Kaare.sid
@@ -2088,7 +2087,7 @@ f08c2063ef150a3c1d1ed94b2d6ba83a;/MUSICIANS/F/FAME/Hendriks_Michael/Fanatic_or_D
 27427bd9bfc771ab1a8561ad1cd82b83;/MUSICIANS/F/FAME/Hendriks_Michael/MCG_Intromusic.sid
 1e3fb4a0f372ccf320617598ff63ecac;/MUSICIANS/F/FAME/Hendriks_Michael/Ode_to_Rob.sid
 2dfc38c6af8a0c7cd0e1d16233625c81;/MUSICIANS/F/FAME/Hendriks_Michael/Paranoimia.sid
-382104f914d8894f6b76a493880b0827;/MUSICIANS/F/FAME/Hendriks_Michael/Puffys_Saga.sid
+4bd3485e256b257678f4564b446d9fe0;/MUSICIANS/F/FAME/Hendriks_Michael/Puffys_Saga.sid
 a3f11b9e68168b63a594a8add1da9a2e;/MUSICIANS/F/FAME/Hendriks_Michael/Pure_Seed.sid
 9a0785ca7a8cf2600e9696fed6d17254;/MUSICIANS/F/FAME/Hendriks_Michael/Scenario-Theatre_of_War.sid
 32db24057ad8e80acc5ab9752decf958;/MUSICIANS/F/FAME/Hendriks_Michael/Shogun.sid
@@ -2323,6 +2322,7 @@ ee42414ba95186b3f38ef92fa9c1a6e8;/MUSICIANS/M/Mitch_and_Dane/Dane/Cassanovas.sid
 fe97b84ad279e3938dde1d887e83f099;/MUSICIANS/M/Mitch_and_Dane/Dane/Chronicles.sid
 f2dec62a177921c9f9825e0ee6585874;/MUSICIANS/M/Mitch_and_Dane/Dane/CoffeeCup.sid
 538542c594e8288ac07f27e26c0feb4f;/MUSICIANS/M/Mitch_and_Dane/Dane/Coffee_Zone.sid
+ebeb7a4fd89f674eed8330ce1dfc129a;/MUSICIANS/M/Mitch_and_Dane/Dane/Copper_Booze.sid
 18392a70768156519b1e7d8475011e8d;/MUSICIANS/M/Mitch_and_Dane/Dane/Crush.sid
 064a9681a869a32b77ca771b5bcaba9f;/MUSICIANS/M/Mitch_and_Dane/Dane/Cryogenic.sid
 bc8f044a17e37a3025c25986364723e1;/MUSICIANS/M/Mitch_and_Dane/Dane/Dalai.sid
@@ -2387,6 +2387,7 @@ d8a78b3753657087ed3b3f73b2285220;/MUSICIANS/M/Mitch_and_Dane/Dane/Live_at_Floppy
 49b3f272dde8360412815607b8ee18d1;/MUSICIANS/M/Mitch_and_Dane/Dane/Live_Forever.sid
 a0c441dbf0b24cdc9eec070c857a7eb0;/MUSICIANS/M/Mitch_and_Dane/Dane/Living4Love.sid
 3c87812f2cfe29ca7042b0e3e373c675;/MUSICIANS/M/Mitch_and_Dane/Dane/Lois_Lane.sid
+a61b8b8e9e28ac2d31c52bbb7b239543;/MUSICIANS/M/Mitch_and_Dane/Dane/Lonely_Planet.sid
 4b9185e554fd99077f0e62c06e3daa7e;/MUSICIANS/M/Mitch_and_Dane/Dane/Loretta.sid
 e1140b2be363ab12a47053a9bc6a1c67;/MUSICIANS/M/Mitch_and_Dane/Dane/LovePuppy.sid
 70443796423316d26122fa87da1957b8;/MUSICIANS/M/Mitch_and_Dane/Dane/Madonna_Remix.sid
@@ -2532,6 +2533,7 @@ c20cf3483ed4fee408c6d97086bad3a7;/MUSICIANS/M/Mitch_and_Dane/Mitch/Papa_Dont_Pre
 0279808d07868e36d6b270f96da849c6;/MUSICIANS/M/Mitch_and_Dane/Mitch/Party.sid
 c14c486f10e55f700999a2ea68832718;/MUSICIANS/M/Mitch_and_Dane/Mitch/Phenomena_Dream.sid
 6873a81bde84754f78f51f4815a33741;/MUSICIANS/M/Mitch_and_Dane/Mitch/Plus_Ettan.sid
+335521e1788604fe6d855b0142f196fa;/MUSICIANS/M/Mitch_and_Dane/Mitch/Power_Ranx.sid
 b23a9ee29220bfa69fb1436efef28e5d;/MUSICIANS/M/Mitch_and_Dane/Mitch/Remember_the_80s_tune_1.sid
 6d1ad55704be548ab1ac006e3eed98a9;/MUSICIANS/M/Mitch_and_Dane/Mitch/Remember_the_80s_tune_2.sid
 3aee637fdcd4ea2536ccc9cd88c5e890;/MUSICIANS/M/Mitch_and_Dane/Mitch/Resurrection_note.sid
@@ -2753,6 +2755,7 @@ f8ce57c4e03745993e587ccf93d703d9;/MUSICIANS/P/Prosonix/Pedersen_Stein/Luftrauser
 6f79e77bed5b6e4263172d6d563ceb6e;/MUSICIANS/P/Prosonix/Pedersen_Stein/Nocturne.sid
 e1531748db1c2638f14792c548424bc4;/MUSICIANS/P/Prosonix/Pedersen_Stein/On_a_Rainy_Day.sid
 9d58af801be9f12275faf1c0e937fe2b;/MUSICIANS/P/Prosonix/Pedersen_Stein/Oxygene_IV.sid
+16284074679a03f1f72fbf3915dc360c;/MUSICIANS/P/Prosonix/Pedersen_Stein/Pal_sine_hoener_tune_3.sid
 0318c077e5ddb0a11d9915bae5c2e647;/MUSICIANS/P/Prosonix/Pedersen_Stein/Pandemoniac_Part_2_of_5_Swirler.sid
 b1bd76abafdebf9eb002d54448253077;/MUSICIANS/P/Prosonix/Pedersen_Stein/Pandemoniac_Part_5_of_5_Slider.sid
 bb863e6f741cd63fd5ff6d49bb13d71d;/MUSICIANS/P/Prosonix/Pedersen_Stein/Pixmas_Meltdown.sid
@@ -3168,6 +3171,7 @@ cb9d0aea751fa63437fa2cf189617d80;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/Bee_
 ecf2770899c3dda5a9d204f8f3abee3c;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/Display_Test.sid
 eb3cd3b7f8786aedc90e37651f006c3a;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/DJ_Puffs_Volcantic_Capers.sid
 684ec1d2a39dca84cc0b748f237f6125;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/Gez_Musix.sid
+49d9bf8319e6a2052f28f63cecfabf8a;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/Hong_Kong_Phooey.sid
 d2caf21cc0bf440b4906be6736444199;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/Into_Battle.sid
 6ee35fe0685f13135b27db6dce464046;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/Jon_Dunn_Remix.sid
 d2f77044787887ca684920c05ce2298b;/MUSICIANS/S/Sonic_Graffiti/Gourley_Gerard/Kick_Box_Vigilante.sid
@@ -3224,6 +3228,7 @@ efb83aa0b70ff40afa01a26f7ab71164;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/Prison_Ri
 e2730015a730c867422257147f6281eb;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/Running.sid
 e29d83913c4bd5bf4b9079f0492bc8be;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/Shadow_World.sid
 b37b15312d11de94beabd4262a9d6600;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/Shake_the_Disease.sid
+d18fd80140e15088ec3234a2a68e6d40;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/Sooty_and_Sweep.sid
 05fcf55298c90425e775457b24376607;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/Step_On.sid
 11b8fffefe3641a6a262e549c534a769;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/SuperTed-The_Search_for_Spot.sid
 75387f5607bcc0d76c25a4c2440736b9;/MUSICIANS/S/Sonic_Graffiti/Hayes_Ben/Test_Thingy.sid
@@ -3372,6 +3377,7 @@ d5b3f8c9b77d3946027d3f03f009ab0e;/MUSICIANS/W/Waz/Worktunes/Falling.sid
 f11775ee8f89312dc503f61c02084789;/MUSICIANS/W/Waz/Worktunes/Kill_Your_Television.sid
 6744a41a9d174979f77e3fd8f7859b39;/MUSICIANS/W/Waz/Worktunes/Kino_96.sid
 6753fb6c37d6ff98560bcae6a25f1012;/MUSICIANS/W/Waz/Worktunes/Mega_Aspecalypse_preview.sid
+8a5191962bfcf9dfc3219898667d7909;/MUSICIANS/W/Waz/Worktunes/Purple_Haze.sid
 ecf7026489c300aa8cb9962083c0a3fa;/MUSICIANS/W/Waz/Worktunes/Quadraped_Tearaways_beta.sid
 0be78953cfa627220e149345757054bf;/MUSICIANS/W/Waz/Worktunes/State_of_the_Nation.sid
 207c69acfa634561b945eb0fe89bc3c7;/MUSICIANS/W/Waz/Worktunes/Thunder_2_1.sid

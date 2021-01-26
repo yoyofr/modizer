@@ -14,40 +14,40 @@
  A state of SESlideTableViewCell that tells the buttons of which side are displayed.
  */
 typedef NS_ENUM(NSInteger, SESlideTableViewCellSlideState) {
-	/**
-	 The cell shows no button.
-	 */
-	SESlideTableViewCellSlideStateCenter,
-	/**
-	 The cell shows the buttons of the left side.
-	 */
-	SESlideTableViewCellSlideStateLeft,
-	/**
-	 The cell shows the buttons of the right side.
-	 */
-	SESlideTableViewCellSlideStateRight,
+    /**
+     The cell shows no button.
+     */
+    SESlideTableViewCellSlideStateCenter,
+    /**
+     The cell shows the buttons of the left side.
+     */
+    SESlideTableViewCellSlideStateLeft,
+    /**
+     The cell shows the buttons of the right side.
+     */
+    SESlideTableViewCellSlideStateRight,
 };
 
 /**
  A side of SESlideTableViewCell.
  */
 typedef NS_ENUM(NSInteger, SESlideTableViewCellSide) {
-	SESlideTableViewCellSideLeft,
-	SESlideTableViewCellSideRight,
+    SESlideTableViewCellSideLeft,
+    SESlideTableViewCellSideRight,
 };
 
 /**
  A slide elasticity of SESlideTableViewCell.
  */
 typedef NS_ENUM(NSInteger, SESlideTableViewCellSlideElasticity) {
-	/**
-	 The cell slides smoothly.
-	 */
-	SESlideTableViewCellSlideElasticitySmooth,
-	/**
-	 The cell has slide resistance once buttons are completely shown.
-	 */
-	SESlideTableViewCellSlideElasticityHard,
+    /**
+     The cell slides smoothly.
+     */
+    SESlideTableViewCellSlideElasticitySmooth,
+    /**
+     The cell has slide resistance once buttons are completely shown.
+     */
+    SESlideTableViewCellSlideElasticityHard,
 };
 
 /**
@@ -214,7 +214,7 @@ typedef NS_ENUM(NSInteger, SESlideTableViewCellSlideElasticity) {
  @param text A text of the button.
  @param textColor A color of the text.
  @param backgroundColor A color of background of the button.
- @param	font A font of the text.
+ @param    font A font of the text.
  @param side A side where the button is added.
  */
 - (void)addButtonWithText:(NSString*)text textColor:(UIColor*)textColor backgroundColor:(UIColor*)backgroundColor font:(UIFont*)font side:(SESlideTableViewCellSide)side;
@@ -257,7 +257,7 @@ typedef NS_ENUM(NSInteger, SESlideTableViewCellSlideElasticity) {
  @param text a text of the button.
  @param textColor a color of the text of the button.
  @param backgroundColor a color of the background of the button.
- @param	font a font of the text.
+ @param    font a font of the text.
  */
 - (void)addLeftButtonWithText:(NSString*)text textColor:(UIColor*)textColor backgroundColor:(UIColor*)backgroundColor font:(UIFont*)font;
 
@@ -276,7 +276,7 @@ typedef NS_ENUM(NSInteger, SESlideTableViewCellSlideElasticity) {
  @param text a text of the button.
  @param textColor a color of the text of the button.
  @param backgroundColor a color of the background of the button.
- @param	font a font of the text.
+ @param    font a font of the text.
  */
 - (void)addRightButtonWithText:(NSString*)text textColor:(UIColor*)textColor backgroundColor:(UIColor*)backgroundColor font:(UIFont*)font;
 
@@ -308,7 +308,7 @@ typedef NS_ENUM(NSInteger, SESlideTableViewCellSlideElasticity) {
  @param text A text of the button.
  @param textColor A color of the text of the button.
  @param font A font of the text of the button.
- @param backgrounColor A color of the background of the button.
+ @param backgroundColor A color of the background of the button.
  */
 - (void)addLeftButtonWithImage:(UIImage*)image text:(NSString*)text textColor:(UIColor*)textColor font:(UIFont*)font backgroundColor:(UIColor*)backgroundColor;
 /**
@@ -318,7 +318,7 @@ typedef NS_ENUM(NSInteger, SESlideTableViewCellSlideElasticity) {
  @param text A text of the button.
  @param textColor A color of the text of the button.
  @param font A font of the text of the button.
- @param backgrounColor A color of the background of the button.
+ @param backgroundColor A color of the background of the button.
  */
 - (void)addRightButtonWithImage:(UIImage*)image text:(NSString*)text textColor:(UIColor*)textColor font:(UIFont*)font backgroundColor:(UIColor*)backgroundColor;
 

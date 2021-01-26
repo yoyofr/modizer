@@ -17,8 +17,8 @@ extern BOOL is_ios7;
 -(IBAction) goPlayer {
     if (detailViewControllerIphone.mPlaylist_size) [self.navigationController pushViewController:detailViewControllerIphone animated:(detailViewControllerIphone.mSlowDevice?NO:YES)];
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -46,11 +46,11 @@ extern BOOL is_ios7;
 	textView.font=[UIFont systemFontOfSize:14];
     [super viewDidLoad];
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
 }
 
@@ -87,7 +87,7 @@ extern BOOL is_ios7;
 
 
 - (void)dealloc {
-    [super dealloc];
+    //[super dealloc];
 }
 
 

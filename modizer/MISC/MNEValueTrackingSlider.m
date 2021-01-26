@@ -34,7 +34,7 @@
 - (void)dealloc {
     self.text = nil;
     self.font = nil;
-    [super dealloc];
+    //[super dealloc];
 }
 
 - (void)drawRect:(CGRect)rect {
@@ -159,8 +159,8 @@
 }
 
 - (void)dealloc {
-    [valuePopupView release];
-    [super dealloc];
+    //[valuePopupView release];
+    //[super dealloc];
 }
 
 #pragma mark - UIControl touch event tracking

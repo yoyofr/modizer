@@ -19,7 +19,7 @@
 {
     self.scrubbingSpeeds = nil;
     self.scrubbingSpeedChangePositions = nil;
-    [super dealloc];
+    //[super dealloc];
 }
 
 

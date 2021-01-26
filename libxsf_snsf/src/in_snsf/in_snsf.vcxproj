@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C643848D-8ECB-4B45-9089-1F7DC4ED0451}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>in_snsf</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\in_xsf_framework\common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\in_xsf_framework\common.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;IN_SNSF_EXPORTS;_CRT_SECURE_NO_WARNINGS;WINAMP_PLUGIN;_DEBUG;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\in_xsf_framework;$(zlibRootDir)\include;$(WinampSDKDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4100;4127;4244;4245;4310;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(zlibRootDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;IN_SNSF_EXPORTS;_CRT_SECURE_NO_WARNINGS;WINAMP_PLUGIN;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\in_xsf_framework;$(zlibRootDir)\include;$(WinampSDKDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4100;4127;4244;4245;4310;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(zlibRootDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="snes9x\apu\apu.cpp" />
+    <ClCompile Include="snes9x\apu\SNES_SPC.cpp" />
+    <ClCompile Include="snes9x\apu\SNES_SPC_misc.cpp" />
+    <ClCompile Include="snes9x\apu\SPC_DSP.cpp" />
+    <ClCompile Include="snes9x\cpu.cpp" />
+    <ClCompile Include="snes9x\cpuexec.cpp" />
+    <ClCompile Include="snes9x\cpuops.cpp" />
+    <ClCompile Include="snes9x\dma.cpp" />
+    <ClCompile Include="snes9x\globals.cpp" />
+    <ClCompile Include="snes9x\memmap.cpp" />
+    <ClCompile Include="snes9x\ppu.cpp" />
+    <ClCompile Include="snes9x\sdd1.cpp" />
+    <ClCompile Include="XSFConfig_SNSF.cpp" />
+    <ClCompile Include="XSFPlayer_SNSF.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="snes9x\apu\bspline_resampler.h" />
+    <ClInclude Include="snes9x\apu\osculating_resampler.h" />
+    <ClInclude Include="snes9x\apu\sinc_resampler.h" />
+    <ClInclude Include="snes9x\65c816.h" />
+    <ClInclude Include="snes9x\apu\apu.h" />
+    <ClInclude Include="snes9x\apu\blargg_common.h" />
+    <ClInclude Include="snes9x\apu\blargg_config.h" />
+    <ClInclude Include="snes9x\apu\blargg_endian.h" />
+    <ClInclude Include="snes9x\apu\hermite_resampler.h" />
+    <ClInclude Include="snes9x\apu\linear_resampler.h" />
+    <ClInclude Include="snes9x\apu\resampler.h" />
+    <ClInclude Include="snes9x\apu\ring_buffer.h" />
+    <ClInclude Include="snes9x\apu\SNES_SPC.h" />
+    <ClInclude Include="snes9x\apu\SPC_CPU.h" />
+    <ClInclude Include="snes9x\apu\SPC_DSP.h" />
+    <ClInclude Include="snes9x\cpuaddr.h" />
+    <ClInclude Include="snes9x\cpuexec.h" />
+    <ClInclude Include="snes9x\cpumacro.h" />
+    <ClInclude Include="snes9x\cpuops.h" />
+    <ClInclude Include="snes9x\dma.h" />
+    <ClInclude Include="snes9x\getset.h" />
+    <ClInclude Include="snes9x\memmap.h" />
+    <ClInclude Include="snes9x\port.h" />
+    <ClInclude Include="snes9x\ppu.h" />
+    <ClInclude Include="snes9x\sdd1.h" />
+    <ClInclude Include="snes9x\snes9x.h" />
+    <ClInclude Include="XSFConfig_SNSF.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\in_xsf_framework\in_xsf_framework.vcxproj">
+      <Project>{9d6d2540-b3dc-462b-bbc0-5b7c32a4d581}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

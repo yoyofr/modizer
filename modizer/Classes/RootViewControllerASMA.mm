@@ -71,7 +71,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     sysctlbyname("hw.machine", name, &size, NULL, 0);
     
     // Place name into a string
-    NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
+    NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
     
     // Done with this
     free(name);
@@ -117,7 +117,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     
                     NSString *str=cur_db_entries[csection][crow].fullpath;
                     if (self.popTipView == nil) {
-                        self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
+                        self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
                         self.popTipView.delegate = self;
                         self.popTipView.backgroundColor = [UIColor lightGrayColor];
                         self.popTipView.textColor = [UIColor darkTextColor];
@@ -196,7 +196,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     lpgr.minimumPressDuration = 1.0; //seconds
     lpgr.delegate = self;
     [self.tableView addGestureRecognizer:lpgr];
-    [lpgr release];
+    //[lpgr release];
     
     shouldFillKeys=1;
     mSearch=0;
@@ -223,11 +223,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #endif
     }
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
     indexTitles = [[NSMutableArray alloc] init];
@@ -305,7 +305,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [waitingView addSubview:indView];
     
     [indView startAnimating];
-    [indView autorelease];
+    //[indView autorelease];
     
     waitingView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:waitingView];
@@ -394,12 +394,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     pthread_mutex_lock(&db_mutex);
     if (dbASMA_nb_entries) {
         for (int i=0;i<dbASMA_nb_entries;i++) {
-            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+            dbASMA_entries_data[i].label=nil;
+            dbASMA_entries_data[i].fullpath=nil;
+            dbASMA_entries_data[i].id_md5=nil;
+            dbASMA_entries_data[i].dir1=nil;
+            dbASMA_entries_data[i].dir2=nil;
+            dbASMA_entries_data[i].dir3=nil;
         }
         free(dbASMA_entries_data);dbASMA_entries_data=NULL;
         dbASMA_nb_entries=0;
@@ -518,12 +518,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     pthread_mutex_lock(&db_mutex);
     if (dbASMA_nb_entries) {
         for (int i=0;i<dbASMA_nb_entries;i++) {
-            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+            dbASMA_entries_data[i].label=nil;
+            dbASMA_entries_data[i].fullpath=nil;
+            dbASMA_entries_data[i].id_md5=nil;
+            dbASMA_entries_data[i].dir1=nil;
+            dbASMA_entries_data[i].dir2=nil;
+            dbASMA_entries_data[i].dir3=nil;
         }
         free(dbASMA_entries_data);dbASMA_entries_data=NULL;
         dbASMA_nb_entries=0;
@@ -660,12 +660,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     pthread_mutex_lock(&db_mutex);
     if (dbASMA_nb_entries) {
         for (int i=0;i<dbASMA_nb_entries;i++) {
-            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+            dbASMA_entries_data[i].label=nil;
+            dbASMA_entries_data[i].fullpath=nil;
+            dbASMA_entries_data[i].id_md5=nil;
+            dbASMA_entries_data[i].dir1=nil;
+            dbASMA_entries_data[i].dir2=nil;
+            dbASMA_entries_data[i].dir3=nil;
         }
         free(dbASMA_entries_data);dbASMA_entries_data=NULL;
         dbASMA_nb_entries=0;
@@ -804,12 +804,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     pthread_mutex_lock(&db_mutex);
     if (dbASMA_nb_entries) {
         for (int i=0;i<dbASMA_nb_entries;i++) {
-            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+            dbASMA_entries_data[i].label=nil;
+            dbASMA_entries_data[i].fullpath=nil;
+            dbASMA_entries_data[i].id_md5=nil;
+            dbASMA_entries_data[i].dir1=nil;
+            dbASMA_entries_data[i].dir2=nil;
+            dbASMA_entries_data[i].dir3=nil;
         }
         free(dbASMA_entries_data);dbASMA_entries_data=NULL;
         dbASMA_nb_entries=0;
@@ -1022,15 +1022,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     
     if (keys) {
-        [keys release];
+        //[keys release];
         keys=nil;
     }
     if (list) {
-        [list release];
+        //[list release];
         list=nil;
     }
     if (childController) {
-        [childController release];
+        //[childController release];
         childController = NULL;
     }
     
@@ -1201,7 +1201,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
@@ -1254,12 +1254,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -1275,7 +1275,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //
         // Create the label for the top row of text
         //
-        bottomLabel = [[[UILabel alloc] init] autorelease];
+        bottomLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:bottomLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -1289,7 +1289,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         bottomLabel.opaque=TRUE;
         
-        bottomImageView = [[[UIImageView alloc] initWithImage:nil]  autorelease];
+        bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
                                            26,
                                            50,9);
@@ -1522,7 +1522,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     sBar.showsCancelButton = NO;
 }
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-    if (mSearchText) [mSearchText release];
+    //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
     shouldFillKeys=1;
@@ -1530,7 +1530,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [tableView reloadData];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
-    if (mSearchText) [mSearchText release];
+    //if (mSearchText) [mSearchText release];
     mSearchText=nil;
     sBar.text=nil;
     mSearch=0;
@@ -1572,8 +1572,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
     }
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -1610,8 +1610,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
             NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",ASMA_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
             
             if (cur_db_entries[section][indexPath.row].downloaded==1) {
-                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                NSMutableArray *array_path = [[NSMutableArray alloc] init];
                 [array_label addObject:sidFilename];
                 [array_path addObject:localPath];
                 cur_db_entries[section][indexPath.row].rating=-1;
@@ -1670,8 +1670,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
             mClickedPrimAction=2;
             
             if (cur_db_entries[section][indexPath.row].downloaded==1) {
-                NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                NSMutableArray *array_path = [[NSMutableArray alloc] init];
                 [array_label addObject:sidFilename];
                 [array_path addObject:localPath];
                 [detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -1834,8 +1834,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 
                 if (cur_db_entries[section][indexPath.row].downloaded==1) {
                     if (mClickedPrimAction) {
-                        NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-                        NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+                        NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                        NSMutableArray *array_path = [[NSMutableArray alloc] init];
                         [array_label addObject:sidFilename];
                         [array_path addObject:localPath];
                         cur_db_entries[section][indexPath.row].rating=-1;
@@ -1950,30 +1950,30 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 - (void)dealloc {
     [waitingView removeFromSuperview];
-    [waitingView release];
+    //[waitingView release];
     
-    [currentPath release];
+    //[currentPath release];
     if (mSearchText) {
-        [mSearchText release];
+        //[mSearchText release];
         mSearchText=nil;
     }
     if (keys) {
-        [keys release];
+        //[keys release];
         keys=nil;
     }
     if (list) {
-        [list release];
+        //[list release];
         list=nil;
     }	
     
     if (dbASMA_nb_entries) {
         for (int i=0;i<dbASMA_nb_entries;i++) {
-            if (dbASMA_entries_data[i].label) [dbASMA_entries_data[i].label release];
-            if (dbASMA_entries_data[i].fullpath) [dbASMA_entries_data[i].fullpath release];
-            if (dbASMA_entries_data[i].id_md5) [dbASMA_entries_data[i].id_md5 release];
-            if (dbASMA_entries_data[i].dir1) [dbASMA_entries_data[i].dir1 release];
-            if (dbASMA_entries_data[i].dir2) [dbASMA_entries_data[i].dir2 release];
-            if (dbASMA_entries_data[i].dir3) [dbASMA_entries_data[i].dir3 release];
+            dbASMA_entries_data[i].label=nil;
+            dbASMA_entries_data[i].fullpath=nil;
+            dbASMA_entries_data[i].id_md5=nil;
+            dbASMA_entries_data[i].dir1=nil;
+            dbASMA_entries_data[i].dir2=nil;
+            dbASMA_entries_data[i].dir3=nil;
             
         }
         free(dbASMA_entries_data);
@@ -1983,21 +1983,21 @@ extern volatile t_settings settings[MAX_SETTINGS];
     }
     
     if (indexTitles) {
-        [indexTitles release];
+        //[indexTitles release];
         indexTitles=nil;
     }
     if (indexTitlesDownload) {
-        [indexTitlesDownload release];
+        //[indexTitlesDownload release];
         indexTitlesDownload=nil;
     }
     
     
     if (mFileMngr) {
-        [mFileMngr release];
+        //[mFileMngr release];
         mFileMngr=nil;
     }
     
-    [super dealloc];
+    //[super dealloc];
 }
 
 

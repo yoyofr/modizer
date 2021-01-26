@@ -97,7 +97,7 @@ typedef struct {
 	int local_expanded,local_searchOn;
 	
 	t_playlist_entryS *playlist_entries;
-	t_playlistS playlist;
+	t_playlistS *playlist;
 	int playlist_entries_count;
 	int playlist_expanded,playlist_searchOn;
 	

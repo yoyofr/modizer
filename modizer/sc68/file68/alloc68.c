@@ -18,6 +18,7 @@
  *
  */
 
+#include "string.h"
 #include "alloc68.h"
 #include "error68.h"
 
@@ -34,6 +35,7 @@ void * SC68alloc(unsigned int n)
     addr = 0;
   } else {
     addr = sc68_alloc(n);
+      memset(addr,0,n);
     if (!addr) {
       SC68error_add("dynamic memory allocation error.");
     }

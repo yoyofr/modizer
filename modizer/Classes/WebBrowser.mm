@@ -47,7 +47,7 @@ static UIAlertView *alertChooseName;
 @synthesize infoDownloadView,infoDownloadLbl;
 
 -(IBAction) goBookmarks {
-    bookmarksVC = [[[WB_BookmarksViewController alloc]  initWithNibName:@"BookmarksViewController" bundle:[NSBundle mainBundle]] autorelease];
+    bookmarksVC = [[WB_BookmarksViewController alloc]  initWithNibName:@"BookmarksViewController" bundle:[NSBundle mainBundle]];
     //set new title
     bookmarksVC.title = NSLocalizedString(@"Bookmarks",@"");
     bookmarksVC->detailViewController = detailViewController;
@@ -63,8 +63,8 @@ static UIAlertView *alertChooseName;
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -73,7 +73,7 @@ static UIAlertView *alertChooseName;
 -(IBAction) goBack:(id)sender {
 	if ([webView canGoBack]) [webView goBack];
 	else {
-        [self goAbout:sender];
+        [self goHome:sender];
     }
 }
 
@@ -91,7 +91,7 @@ static UIAlertView *alertChooseName;
         NSString *tmpStr;
         if ([addressTestField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTestField.text substringToIndex:24-3]];
         else tmpStr=[NSString stringWithString:addressTestField.text];
-        alertChooseName=[[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr] message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
+        alertChooseName=[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr] message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
         [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
         UITextField *tf=[alertChooseName textFieldAtIndex:0];
         tf.text=addressTestField.text;
@@ -101,8 +101,8 @@ static UIAlertView *alertChooseName;
 
 -(void) deleteBookmark:(int)index {
 	if (index>=custom_url_count) return;
-	[custom_URL[index] release];
-	[custom_URL_name[index] release];
+	//[custom_URL[index] release];
+	//[custom_URL_name[index] release];
 	for (int i=index;i<custom_url_count-1;i++) {
 		custom_URL[i]=custom_URL[i+1];
 		custom_URL_name[i]=custom_URL_name[i+1];
@@ -117,7 +117,7 @@ static UIAlertView *alertChooseName;
 	NSNumber *valNb;
     
 	valNb=[[NSNumber alloc] initWithInt:custom_url_count];
-	[prefs setObject:valNb forKey:@"Bookmarks_count"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"Bookmarks_count"];//[valNb autorelease];
 	for (int i=0;i<custom_url_count;i++) {
 		[prefs setObject:custom_URL[i] forKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
 		[prefs setObject:custom_URL_name[i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
@@ -228,7 +228,7 @@ static UIAlertView *alertChooseName;
 - (void)loadWorldCharts {
     if ((currentMode==WCHARTS_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
-        if (lastURL) [lastURL release];
+        //if (lastURL) [lastURL release];
         lastURL=nil;
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];        
@@ -245,7 +245,7 @@ static UIAlertView *alertChooseName;
 - (void)loadUserGuide {
 	if ((currentMode==GUIDE_MODE)&&(loadStatus==LOADED)) return;
     if (currentMode==WEB_MODE) { //save WEB url
-        if (lastURL) [lastURL release];
+        //if (lastURL) [lastURL release];
         lastURL=nil;
         if (addressTestField.text==nil) lastURL=nil;
         else lastURL=[[NSString alloc] initWithString:addressTestField.text];
@@ -376,7 +376,7 @@ static UIAlertView *alertChooseName;
         //NSLog(@"yo %@ / %@ / %d",cover_url_string,filename,cover_expectedContentLength);
         [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];        
     }
-    [cover_url_string autorelease];
+    //[cover_url_string autorelease];
     }
 }
 
@@ -486,8 +486,8 @@ static UIAlertView *alertChooseName;
 					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 					if (success) {//already existing : start play/enqueue
 						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-							NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-							NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+							NSMutableArray *array_label = [[NSMutableArray alloc] init ];
+							NSMutableArray *array_path = [[NSMutableArray alloc] init];
 							[array_label addObject:[localPath lastPathComponent]];
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -498,7 +498,8 @@ static UIAlertView *alertChooseName;
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
 															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 					}
-                    [fileManager release];
+                    //[fileManager release];
+                    fileManager=nil;
 				} else if (isHVSC==1) {  //HVSC DOWNLOAD
 					//get modland path to rebuild localPath
 					NSString *tmpstr=[ftpPath substringFromIndex:rHVSC.location+10];
@@ -510,8 +511,8 @@ static UIAlertView *alertChooseName;
 					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 					if (success) {//already existing : start play/enqueue
 						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-							NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-							NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+							NSMutableArray *array_label = [[NSMutableArray alloc] init];
+							NSMutableArray *array_path = [[NSMutableArray alloc] init];
 							[array_label addObject:[localPath lastPathComponent]];
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -522,7 +523,7 @@ static UIAlertView *alertChooseName;
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
 															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 					}
-                    [fileManager release];
+                    fileManager=nil;
 				}  else if (isASMA==1) {  //ASMA DOWNLOAD
 					//get modland path to rebuild localPath
 					NSString *tmpstr=[ftpPath substringFromIndex:rASMA.location+6];
@@ -534,8 +535,8 @@ static UIAlertView *alertChooseName;
 					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 					if (success) {//already existing : start play/enqueue
 						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-							NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-							NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+							NSMutableArray *array_label = [[NSMutableArray alloc] init];
+							NSMutableArray *array_path = [[NSMutableArray alloc] init];
 							[array_label addObject:[localPath lastPathComponent]];
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -546,7 +547,8 @@ static UIAlertView *alertChooseName;
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
 															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
 					}
-                    [fileManager release];
+                    //[fileManager release];
+                    fileManager=nil;
 				}else { //STANDARD DOWNLOAD
 					localPath=[[NSString alloc] initWithFormat:@"Documents/Downloads/%@",suggestedFilename];
 					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
@@ -675,8 +677,8 @@ static UIAlertView *alertChooseName;
 				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 				if (success) {//already existing : start play/enqueue
 					if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-						NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-						NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+						NSMutableArray *array_label = [[NSMutableArray alloc] init];
+						NSMutableArray *array_path = [[NSMutableArray alloc] init];
 						[array_label addObject:[localPath lastPathComponent]];
 						[array_path addObject:localPath];
 						[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -688,7 +690,7 @@ static UIAlertView *alertChooseName;
 					
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1 filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
 				}
-                [fileManager release];
+                fileManager=nil;
 				return NO;
 			} else if (isHVSC==1) {  //HVSC DOWNLOAD
 				//get modland path to rebuild localPath
@@ -701,8 +703,8 @@ static UIAlertView *alertChooseName;
 				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
 				if (success) {//already existing : start play/enqueue
 					if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-						NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-						NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+						NSMutableArray *array_label = [[NSMutableArray alloc] init];
+						NSMutableArray *array_path = [[NSMutableArray alloc] init];
 						[array_label addObject:[localPath lastPathComponent]];
 						[array_path addObject:localPath];
 						[detailViewController play_listmodules:array_label start_index:0 path:array_path];
@@ -715,7 +717,7 @@ static UIAlertView *alertChooseName;
 					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
 														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
 				}
-                [fileManager release];
+                fileManager=nil;
 				return NO;
 			}
 		}
@@ -752,7 +754,7 @@ static UIAlertView *alertChooseName;
     [button addTarget:self action:@selector(stopLoading:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
-    [button release];
+    button=nil;
     
     //update back/forward buttons
     UIBarButtonItem *barBtn;
@@ -777,7 +779,7 @@ static UIAlertView *alertChooseName;
 - (void)webViewDidFinishLoad:(UIWebView*)webV {
     
     //update addressfield indicator
-    UIButton *button = [[[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)] autorelease];
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
@@ -818,7 +820,7 @@ static UIAlertView *alertChooseName;
 					addressTestField.text=[NSString stringWithFormat:@"http://%@",addressTestField.text];
 				}
 			}
-            if (lastURL) [lastURL release];
+            //if (lastURL) [lastURL release];
             lastURL=nil;
             lastURL=[[NSString alloc] initWithString:addressTestField.text];
 			[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
@@ -911,7 +913,7 @@ static UIAlertView *alertChooseName;
             UIAlertView *msgAlert;  
             cover_currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
             if (cover_currentPlayFilepath) {
-                msgAlert=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Image detected",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]] delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"CoverFolder",@""),NSLocalizedString(@"CoverFile",@""),nil] autorelease];
+                msgAlert=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Image detected",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]] delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"CoverFolder",@""),NSLocalizedString(@"CoverFile",@""),nil];
                 
                 cover_url_string=[[NSString alloc] initWithString:url];
                 cover_expectedContentLength=-1;
@@ -932,11 +934,11 @@ static UIAlertView *alertChooseName;
     
 	self.hidesBottomBarWhenPushed = YES;
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
 	
 	webView.scalesPageToFit = YES;
@@ -949,7 +951,7 @@ static UIAlertView *alertChooseName;
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
     addressTestField.rightView = button;
     addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
-    [button release];
+    //[button release];
 	
 	[[infoDownloadView layer] setCornerRadius:5.0];
 	[[infoDownloadView layer] setBorderWidth:2.0];
@@ -963,6 +965,7 @@ static UIAlertView *alertChooseName;
     
     UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
     doubleTap.numberOfTouchesRequired = 2;
+    //doubleTap.numberOfTapsRequired=2;
     [self.webView addGestureRecognizer:doubleTap];
 
 	
@@ -1016,13 +1019,13 @@ static UIAlertView *alertChooseName;
 
 - (void)dealloc {
 	[self saveBookmarks];
-    if (lastURL) [lastURL release];
+    //if (lastURL) [lastURL release];
     lastURL=nil;
 	for (int i=0;i<custom_url_count;i++) {
-		[custom_URL[i] release];
-		[custom_URL_name[i] release];
+        custom_URL[i]=nil;
+        custom_URL_name[i]=nil;
 	}	
-    [super dealloc];
+    //[super dealloc];
 }
 
 

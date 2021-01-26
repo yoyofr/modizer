@@ -118,7 +118,9 @@ int do_extract_currentfile(unzFile uf,char *pathToExtract,NSString *pathBase);
 int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 
 -(void)recreateDB {
-    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    //NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
+        
     NSString *defaultDBPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_USER];
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     NSString *pathToOldDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_TMP];
@@ -239,8 +241,9 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     //[unrarPath release];
     db_checked=1;
     mDatabaseCreationInProgress=0;
-    [pool release];
-    [fileManager release];
+    
+        fileManager=nil;
+    }
 }
 
 -(void) updateFilesDoNotBackupAttributes {
@@ -261,7 +264,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
         if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
     }
-    [fileManager release];
+    fileManager=nil;
 }
 // Creates a writable copy of the bundled default database in the application Documents directory.
 - (void)createSamplesFromPackage:(BOOL)forceCreate {
@@ -275,7 +278,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     success = [fileManager fileExistsAtPath:samplesDocPath];
     if (success&&(forceCreate==FALSE)) {
-        [fileManager release];
+        //[fileManager release];
+        fileManager=nil;
         return;
     }
     [fileManager removeItemAtPath:samplesDocPath error:&error];
@@ -284,7 +288,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [self addSkipBackupAttributeToItemAtPath:samplesDocPath];
     [self updateFilesDoNotBackupAttributes];
     
-    [fileManager release];
+    //[fileManager release];
+    fileManager=nil;
 }
 
 // Creates a writable copy of the bundled default database in the application Documents directory.
@@ -306,7 +311,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         [self getDBVersion:&maj minor:&min];
         if ((maj==VERSION_MAJOR)&&(min==VERSION_MINOR)) {
             db_checked=1;
-            [fileManager release];
+            fileManager=nil;
             return;
         } else {
             mUpdateToNewDB=1;
@@ -318,7 +323,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     if (forceInit||(success&&(!wrongversion))) {//remove existing file
         success = [fileManager removeItemAtPath:writableDBPath error:&error];
     }
-    [fileManager release];
+    fileManager=nil;
     
     mDatabaseCreationInProgress=1;
     
@@ -328,12 +333,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     if (quiet) [self recreateDB];
     else {
         UIAlertView *alert1;
-        if (forceInit) alert1 = [[[UIAlertView alloc] initWithTitle:@"Info"
-                                                            message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"") delegate:self cancelButtonTitle:@"Recreate DB" otherButtonTitles:nil] autorelease];
+        if (forceInit) alert1 = [[UIAlertView alloc] initWithTitle:@"Info"
+                                                            message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"") delegate:self cancelButtonTitle:@"Recreate DB" otherButtonTitles:nil];
         else {
             if (wrongversion) {
-                alert1 = [[[UIAlertView alloc] initWithTitle:@"Info" message:
-                           [NSString stringWithFormat:NSLocalizedString(@"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil] autorelease];
+                alert1 = [[UIAlertView alloc] initWithTitle:@"Info" message:
+                           [NSString stringWithFormat:NSLocalizedString(@"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil];
                 [alert1 show];
             }
             else  {
@@ -362,7 +367,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (mDatabaseCreationInProgress) {
         [self recreateDB];
-        UIAlertView *alert2 = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Database created.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *alert2 = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Database created.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [alert2 show];
     }
     if (renameFile) {
@@ -371,7 +376,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
             UITextField *tf=[alertView textFieldAtIndex:0];
             //NSLog(@"rename %@ to %@",cur_local_entries[renameSec][renameIdx].label,tf.text);
-            if (cur_local_entries[renameSec][renameIdx].label) [cur_local_entries[renameSec][renameIdx].label release];
+            if (cur_local_entries[renameSec][renameIdx].label) cur_local_entries[renameSec][renameIdx].label=nil;
             
             NSString *curPath,*tgtPath;
             curPath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[renameSec][renameIdx].fullpath];
@@ -383,12 +388,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             NSError *err;
             if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
                 NSLog(@"Issue %d while renaming file %@",err.code,curPath);
-                UIAlertView *removeAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [removeAlert show];
             } else {
                 cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
                 
-                [cur_local_entries[renameSec][renameIdx].fullpath release];
+                //[cur_local_entries[renameSec][renameIdx].fullpath release];
                 cur_local_entries[renameSec][renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
                 shouldFillKeys=1;
                 [self fillKeys];
@@ -410,7 +415,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             NSError *err;
             if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
                 NSLog(@"Issue %d while create folder %@",err.code,newPath);
-                UIAlertView *removeAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [removeAlert show];
             } else {
                 [self addSkipBackupAttributeToItemAtPath:newPath];
@@ -450,7 +455,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     sysctlbyname("hw.machine", name, &size, NULL, 0);
     
     // Place name into a string
-    NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
+    NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
     
     // Done with this
     free(name);
@@ -473,7 +478,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (void)viewDidLoad {
     clock_t start_time,end_time;
     start_time=clock();
-    childController=NULL;
+    childController=nil;
     
     mFileMngr=[[NSFileManager alloc] init];
     
@@ -510,7 +515,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     lpgr.minimumPressDuration = 1.0; //seconds
     lpgr.delegate = self;
     [self.tableView addGestureRecognizer:lpgr];
-    [lpgr release];
+    //[lpgr release];
     
     shouldFillKeys=1;
     mSearch=0;
@@ -528,14 +533,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     if (browse_depth==0) { //Local mode
         currentPath = @"Documents";
-        [currentPath retain];
+        //[currentPath retain];
     }
     
-    UIButton *btn = [[[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)] autorelease];
+    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[[UIBarButtonItem alloc] initWithCustomView: btn] autorelease];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
     
@@ -615,7 +620,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     [waitingView addSubview:indView];
     
     [indView startAnimating];
-    [indView autorelease];
+    //[indView autorelease];
     
     waitingView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:waitingView];
@@ -710,10 +715,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     char tmp_str[1024];
     int tmp_str_idx;
     
-    browser_sidtune_name=(char**)malloc(subsongs_nb*sizeof(char*));
-    memset(browser_sidtune_name,0,sizeof(char*)*subsongs_nb);
-    browser_sidtune_title=(char**)malloc(subsongs_nb*sizeof(char*));
-    memset(browser_sidtune_title,0,sizeof(char*)*subsongs_nb);
+    browser_sidtune_name=(char**)calloc(subsongs_nb,sizeof(char*));
+    
+    browser_sidtune_title=(char**)calloc(subsongs_nb,sizeof(char*));
+    
     
     while (browser_stil_info[idx]) {
         if ((browser_stil_info[idx]=='(')&&(browser_stil_info[idx+1]=='#')) {
@@ -865,7 +870,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
     NSArray *filetype_extLAZYUSF=[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","];
-    NSArray *filetype_extXSF=[SUPPORTED_FILETYPE_XSF componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
+    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
@@ -876,7 +882,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
                                   [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+[filetype_extDUMB count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_extXSF count]+[filetype_extVGMSTREAM count]+[filetype_extMPG123 count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extSEXYPSF count]+[filetype_extLAZYUSF count]+[filetype_ext2SF count]+[filetype_extSNSF count]+[filetype_extVGMSTREAM count]+[filetype_extMPG123 count]+
                                   [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
@@ -907,7 +913,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             search_local_nb_entries=0;
             free(search_local_entries_data);
         }
-        search_local_entries_data=(t_local_browse_entry*)malloc(local_nb_entries*sizeof(t_local_browse_entry));
+        search_local_entries_data=(t_local_browse_entry*)calloc(local_nb_entries,sizeof(t_local_browse_entry));
         
         for (int i=0;i<27;i++) {
             search_local_entries_count[i]=0;
@@ -955,7 +961,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     [filetype_ext addObjectsFromArray:filetype_extADPLUG];
     [filetype_ext addObjectsFromArray:filetype_extSEXYPSF];
     [filetype_ext addObjectsFromArray:filetype_extLAZYUSF];
-    [filetype_ext addObjectsFromArray:filetype_extXSF];
+    [filetype_ext addObjectsFromArray:filetype_ext2SF];
+    [filetype_ext addObjectsFromArray:filetype_extSNSF];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extMPG123];
     [filetype_ext addObjectsFromArray:filetype_extAOSDK];
@@ -974,8 +981,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
-            [local_entries_data[i].label release];
-            [local_entries_data[i].fullpath release];
+            local_entries_data[i].label=nil;
+            local_entries_data[i].fullpath=nil;
         }
         free(local_entries_data);local_entries_data=NULL;
         local_nb_entries=0;
@@ -1094,20 +1101,20 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
             if (local_nb_entries) {
                 //2nd initialize array to receive entries
-                local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
+                local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries,sizeof(t_local_browse_entry));
                 if (!local_entries_data) {
                     //Not enough memory
                     //try to allocate less entries
                     local_nb_entries_limit=LIMITED_LIST_SIZE;
                     if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
-                    local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries_limit*sizeof(t_local_browse_entry));
+                    local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                     if (local_entries_data==NULL) {
                         //show alert : cannot list
-                        UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                        UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                         [memAlert show];
                     } else {
                         //show alert : limited list
-                        UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                        UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                         [memAlert show];
                         local_nb_entries=local_nb_entries_limit;
                     }
@@ -1260,20 +1267,20 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         }
         if (local_nb_entries) {
             //2nd initialize array to receive entries
-            local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
+            local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries,sizeof(t_local_browse_entry));
             if (!local_entries_data) {
                 //Not enough memory
                 //try to allocate less entries
                 local_nb_entries_limit=LIMITED_LIST_SIZE;
                 if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
-                local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries_limit*sizeof(t_local_browse_entry));
+                local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [memAlert show];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [memAlert show];
                     local_nb_entries=local_nb_entries_limit;
                 }
@@ -1440,20 +1447,20 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         if (local_nb_entries) {
             //2nd initialize array to receive entries
-            local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
+            local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries,sizeof(t_local_browse_entry));
             if (!local_entries_data) {
                 //Not enough memory
                 //try to allocate less entries
                 local_nb_entries_limit=LIMITED_LIST_SIZE;
                 if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
-                local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries_limit*sizeof(t_local_browse_entry));
+                local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [memAlert show];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [memAlert show];
                     local_nb_entries=local_nb_entries_limit;
                 }
@@ -1660,20 +1667,21 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         if (local_nb_entries) {
             //2nd initialize array to receive entries
-            local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries*sizeof(t_local_browse_entry));
+            local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries,sizeof(t_local_browse_entry));
+            
             if (!local_entries_data) {
                 //Not enough memory
                 //try to allocate less entries
                 local_nb_entries_limit=LIMITED_LIST_SIZE;
                 if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
-                local_entries_data=(t_local_browse_entry *)malloc(local_nb_entries_limit*sizeof(t_local_browse_entry));
+                local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [memAlert show];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                     [memAlert show];
                     local_nb_entries=local_nb_entries_limit;
                 }
@@ -1724,8 +1732,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                         if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
                                         if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
                                         local_entries[index][local_entries_count[index]].type=0;
-                                        
+                                                                                
                                         local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithString:file];
+                                                                                
                                         local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
                                         local_entries_count[index]++;
                                         if (local_nb_entries_limit) {
@@ -1846,6 +1855,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 }
 
 -(void) viewWillAppear:(BOOL)animated {
+    
+    
     if (!is_ios7) {
         [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
         [self.sBar setBarStyle:UIBarStyleBlack];
@@ -1856,16 +1867,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     }
     
     if (keys) {
-        [keys release];
         keys=nil;
     }
     if (list) {
-        [list release];
         list=nil;
     }
     if (childController) {
-        [childController release];
-        childController = NULL;
+        childController = nil;
     }
     
     //Reset rating if applicable (ensure updated value)
@@ -1907,7 +1915,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 -(void) refreshViewAfterDownload {
     //    if (mShowSubdir==0) {
     
-    if (childController) [childController refreshViewAfterDownload];
+    //TODO: review how to manage -> generic virtual class ?
+    if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
         
         shouldFillKeys=1;
@@ -2057,7 +2066,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     if (lbl)
         /*if ([lbl compare:@""]!=NSOrderedSame)*/{
-    UIView *customView = [[[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)] autorelease];
+    UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)];
     customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
     
     CALayer *layerU = [CALayer layer];
@@ -2076,7 +2085,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
     [customView.layer insertSublayer:layerD atIndex:0];
     
-    UILabel *topLabel = [[[UILabel alloc] init] autorelease];
+    UILabel *topLabel = [[UILabel alloc] init];
             topLabel.frame=CGRectMake(10, 0.0, tableView.bounds.size.width-10*2, 24);
     //
     // Configure the properties for the text that are the same on every row
@@ -2161,16 +2170,16 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
             if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
                 NSLog(@"Issue %d while moving: %@",err.code,cutpaste_filesrcpath);
-                UIAlertView *moveAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                UIAlertView *moveAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [moveAlert show];
             } else {
-                [cutpaste_filesrcpath release];
+                //[cutpaste_filesrcpath release];
                 cutpaste_filesrcpath=nil;
                 [self listLocalFiles];
             }
     } else {
             //Alert msg => nothing to Paste
-            UIAlertView *pasteAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"Nothing to paste",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+            UIAlertView *pasteAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"Nothing to paste",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [pasteAlert show];
         }
     } else {
@@ -2187,11 +2196,11 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 
                 if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
                     //renaming file in cut/paste buffer -> cancel buffer
-                    [cutpaste_filesrcpath release];
+                    //[cutpaste_filesrcpath release];
                     cutpaste_filesrcpath=nil;
                 }
                         
-                        alertRename=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil] autorelease];
+                        alertRename=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
                         [alertRename setAlertViewStyle:UIAlertViewStylePlainTextInput];
                         UITextField *tf=[alertRename textFieldAtIndex:0];
                         tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].label];
@@ -2223,7 +2232,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         //Header => New Folder
         createFolder=1;
         
-        alertRename=[[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter folder name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil] autorelease];
+        alertRename=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter folder name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
         [alertRename setAlertViewStyle:UIAlertViewStylePlainTextInput];
         UITextField *tf=[alertRename textFieldAtIndex:0];
         tf.text=[NSString stringWithString:NSLocalizedString(@"New folder",@"")];
@@ -2242,13 +2251,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
             //deleting file in cut/paste buffer -> cancel buffer
-            [cutpaste_filesrcpath release];
+            
             cutpaste_filesrcpath=nil;
         }
         
             if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
                 NSLog(@"Issue %d while removing: %@",err.code,fullpath);
-                UIAlertView *removeAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [removeAlert show];
             } else {
                 if (cur_local_entries[section][indexPath.row].type==0) { //Dir
@@ -2330,14 +2339,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     if (cell == nil) {
         if (is_ios7) {
             if (indexPath.section>1) {
-                cell = [[[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier] autorelease];
+                cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
                 cell.delegate = self;
                 
             [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
             [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
             [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
             } else {
-                cell = [[[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader] autorelease];
+                cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
                 cell.delegate = self;
                 
                 [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
@@ -2346,7 +2355,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 
             }
         } else {
-            cell = (SESlideTableViewCell*)[[[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
+            cell = (SESlideTableViewCell*)[[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
         }
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
@@ -2355,12 +2364,12 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -2376,7 +2385,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         //
         // Create the label for the top row of text
         //
-        bottomLabel = [[[UILabel alloc] init] autorelease];
+        bottomLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:bottomLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -2390,7 +2399,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         bottomLabel.opaque=TRUE;
         
-        bottomImageView = [[[UIImageView alloc] initWithImage:nil]  autorelease];
+        bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
                                            26,
                                            50,9);
@@ -2595,7 +2604,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
             NSLog(@"Issue %d while removing: %@",err.code,fullpath);
-            UIAlertView *removeAlert = [[[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [removeAlert show];
         } else {
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
@@ -2637,7 +2646,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         BOOL res;
         NSFileManager *myMngr=[[NSFileManager alloc] init];
         res=[myMngr isDeletableFileAtPath:fullpath];
-        [myMngr release];
+        //[myMngr release];
         return res;
     }
     return NO;
@@ -2659,7 +2668,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     sBar.showsCancelButton = NO;
 }
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
-    if (mSearchText) [mSearchText release];
+    //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
     shouldFillKeys=1;
@@ -2667,7 +2676,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     [tableView reloadData];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
-    if (mSearchText) [mSearchText release];
+    //if (mSearchText) [mSearchText release];
     mSearchText=nil;
     sBar.text=nil;
     mSearch=0;
@@ -2709,8 +2718,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         }
     }
     else {
-        UIAlertView *nofileplaying=[[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
+        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
+                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
 }
@@ -2732,49 +2741,52 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         // launch Play of current list
         int pos=0;
         
-        t_playlist pl;
-        pl.nb_entries=0;
+        t_playlist *pl;
+        pl=(t_playlist *)calloc(1,sizeof(t_playlist));
+        pl->nb_entries=0;
         for (int i=0;i<27;i++) {
             for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++) {
                 if (cur_local_entries[i][j].type&3) {
                     
-                    pl.entries[pl.nb_entries].label=cur_local_entries[i][j].label;
-                    pl.entries[pl.nb_entries].fullpath=cur_local_entries[i][j].fullpath;
-                    pl.entries[pl.nb_entries].ratings=cur_local_entries[i][j].rating;
-                    pl.entries[pl.nb_entries].playcounts=cur_local_entries[i][j].playcount;
-                    pl.nb_entries++;
+                    pl->entries[pl->nb_entries].label=cur_local_entries[i][j].label;
+                    pl->entries[pl->nb_entries].fullpath=cur_local_entries[i][j].fullpath;
+                    pl->entries[pl->nb_entries].ratings=cur_local_entries[i][j].rating;
+                    pl->entries[pl->nb_entries].playcounts=cur_local_entries[i][j].playcount;
+                    pl->nb_entries++;
                     
                     if (i<section) pos++;
                     else if ((i==(section))&&(j<indexPath.row)) pos++;
                 }
             }
         }
-        if (pl.nb_entries) {
-            [detailViewController play_listmodules:&pl start_index:-1];
+        if (pl->nb_entries) {
+            [detailViewController play_listmodules:pl start_index:-1];
             if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
             else [tableView reloadData];
         }
+        free(pl);
     } else {
         if (cur_local_entries[section][indexPath.row].type&3) {//File selected
             // launch Play
-            t_playlist pl;
-            pl.nb_entries=1;
-            pl.entries[0].label=cur_local_entries[section][indexPath.row].label;
-            pl.entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
-            pl.entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
-            pl.entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
-            [detailViewController play_listmodules:&pl start_index:0];
+            t_playlist *pl;
+            pl=(t_playlist*)calloc(1,sizeof(t_playlist));
+            pl->nb_entries=1;
+            pl->entries[0].label=cur_local_entries[section][indexPath.row].label;
+            pl->entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
+            pl->entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
+            pl->entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
+            [detailViewController play_listmodules:pl start_index:0];
             
             cur_local_entries[section][indexPath.row].rating=-1;
-            [detailViewController play_listmodules:&pl start_index:0];
+            [detailViewController play_listmodules:pl start_index:0];
             if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
             else [tableView reloadData];
             
+            free(pl);
         }
+        
     }
-    
     [self hideWaiting];
-    
     
 }
 
@@ -2795,8 +2807,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         // launch Play of current dir
         int pos=0;
         int total_entries=0;
-        NSMutableArray *array_label = [[[NSMutableArray alloc] init] autorelease];
-        NSMutableArray *array_path = [[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *array_label = [[NSMutableArray alloc] init];
+        NSMutableArray *array_path = [[NSMutableArray alloc] init];
         for (int i=0;i<27;i++)
             for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
                 if (cur_local_entries[i][j].type&3) {
@@ -2810,8 +2822,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         signed char *tmp_ratings;
         short int *tmp_playcounts;
-        tmp_ratings=(signed char*)malloc(total_entries*sizeof(signed char));
-        tmp_playcounts=(short int*)malloc(total_entries*sizeof(short int));
+        tmp_ratings=(signed char*)calloc(total_entries,sizeof(signed char));
+        tmp_playcounts=(short int*)calloc(total_entries,sizeof(short int));
         total_entries=0;
         for (int i=0;i<27;i++)
             for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
@@ -2919,7 +2931,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
             
             NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
-            [newPath retain];
+            //[newPath retain];
             if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
             else {// Don't cache childviews
             }
@@ -2945,7 +2957,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             //                    NSLog(@"currentPath:%@\ncellValue:%@\nfullpath:%@",currentPath,cellValue,cur_local_entries[section][indexPath.row].fullpath);
             if (mShowSubdir) newPath=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
             else newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
-            [newPath retain];
+            //[newPath retain];
             if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
             else {// Don't cache childviews
             }
@@ -2969,19 +2981,20 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                 // launch Play
-                t_playlist pl;
-                pl.nb_entries=1;
-                pl.entries[0].label=cur_local_entries[section][indexPath.row].label;
-                pl.entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
-                pl.entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
-                pl.entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
-                [detailViewController play_listmodules:&pl start_index:0];
+                t_playlist *pl;
+                pl=(t_playlist *)calloc(1,sizeof(t_playlist));
+                pl->nb_entries=1;
+                pl->entries[0].label=cur_local_entries[section][indexPath.row].label;
+                pl->entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
+                pl->entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
+                pl->entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
+                [detailViewController play_listmodules:pl start_index:0];
                 
                 cur_local_entries[section][indexPath.row].rating=-1;
                 if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 else [tabView reloadData];
                 
-                
+                free(pl);
                 
             } else {
                 if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:0]) {
@@ -3061,11 +3074,11 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     str=[str stringByAppendingFormat:@"\n%lluKo",[dict fileSize]/1024];
                 }
                 
-                [fileManager release];
+                //[fileManager release];
                 
                 
                 if (self.popTipView == nil) {
-                    self.popTipView = [[[CMPopTipView alloc] initWithMessage:str] autorelease];
+                    self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
                     self.popTipView.delegate = self;
                     self.popTipView.backgroundColor = [UIColor lightGrayColor];
                     self.popTipView.textColor = [UIColor darkTextColor];
@@ -3111,29 +3124,30 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 - (void)viewDidUnload {
     // Relinquish ownership of anything that can be recreated in viewDidLoad or on demand.
     // For example: self.myOutlet = nil;;
+    NSLog(@"unload");
 }
 - (void)dealloc {
     [waitingView removeFromSuperview];
-    [waitingView release];
+    //[waitingView release];
     
-    [currentPath release];
+    //[currentPath release];
     if (mSearchText) {
-        [mSearchText release];
+        //[mSearchText release];
         mSearchText=nil;
     }
     if (keys) {
-        [keys release];
+        //[keys release];
         keys=nil;
     }
     if (list) {
-        [list release];
+        //[list release];
         list=nil;
     }	
     
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
-            [local_entries_data[i].label release];
-            [local_entries_data[i].fullpath release];
+            local_entries_data[i].label=nil;
+            local_entries_data[i].fullpath=nil;
         }
         free(local_entries_data);
     }
@@ -3143,20 +3157,20 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     
     if (indexTitles) {
-        [indexTitles release];
+        //[indexTitles release];
         indexTitles=nil;        
     }
     if (indexTitlesSpace) {
-        [indexTitlesSpace release];
+        //[indexTitlesSpace release];
         indexTitlesSpace=nil;        
     }
     
     if (mFileMngr) {
-        [mFileMngr release];
+        //[mFileMngr release];
         mFileMngr=nil;
     }
     
-    [super dealloc];
+    //[super dealloc];
 }
 
 

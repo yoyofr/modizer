@@ -15,7 +15,7 @@
 @class DetailViewControllerIphone;
 @class RootViewControllerPlaylist;
 
-@interface AppDelegate_Phone : NSObject <UIApplicationDelegate> {
+@interface AppDelegate_Phone : UIResponder <UIApplicationDelegate> {
 	IBOutlet ModizerWin *modizerWin;
 //    IBOutlet UIWindow *window;
 	IBOutlet UITabBarController *tabBarController;

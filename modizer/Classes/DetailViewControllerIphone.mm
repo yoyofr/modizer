@@ -149,6 +149,7 @@ static int display_length_mode=0;
 @synthesize mOnlyCurrentSubEntry,mOnlyCurrentEntry;
 
 @synthesize mDeviceType,mDeviceIPhoneX;
+@synthesize is_macOS;
 @synthesize cover_view,cover_viewBG,gifAnimation;
 //@synthesize locManager;
 @synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
@@ -186,7 +187,7 @@ static int display_length_mode=0;
 }
 
 -(IBAction)showSubSongSelector:(id)sender {
-    UIViewController *controller = [[[UIViewController alloc]init] autorelease];
+    UIViewController *controller = [[UIViewController alloc]init];
     UITableView *alertTableView;
     CGRect rect,recttv;
     const NSInteger kAlertTableViewTag = 10001;
@@ -204,7 +205,6 @@ static int display_length_mode=0;
         else rh=self.view.frame.size.height-50-ry;
         rect = CGRectMake(rx, ry,rw,rh+50);
         recttv = CGRectMake(rx, ry,rw,rh);
-        
     } else {
         float estimated_height=SELECTOR_TABVIEWCELL_HEIGHT*mplayer.mod_subsongs+16;
         
@@ -219,8 +219,8 @@ static int display_length_mode=0;
     
     controller.modalPresentationStyle=UIModalPresentationPopover;
     
-    UIView *containerView=[[[UIView alloc] initWithFrame:recttv] autorelease];
-    alertTableView  = [[[UITableView alloc] initWithFrame:containerView.bounds] autorelease];
+    UIView *containerView=[[UIView alloc] initWithFrame:recttv];
+    alertTableView  = [[UITableView alloc] initWithFrame:containerView.bounds];
     containerView.backgroundColor = [UIColor clearColor];
     //containerView.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
@@ -233,7 +233,7 @@ static int display_length_mode=0;
     
     alertTableView.delegate = self;
     alertTableView.dataSource = self;
-    alertTableView.tableFooterView = [[[UIView alloc]initWithFrame:CGRectZero] autorelease];
+    alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
     alertTableView.sectionHeaderHeight=32;
     
@@ -247,11 +247,11 @@ static int display_length_mode=0;
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
     
-    BButton *cancel_btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
+    BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                                     10,
                                                                     200,
                                                                     
-                                                                    30)] autorelease];
+                                                                    30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn addTarget:self action:@selector(cancelSubSel) forControlEvents:UIControlEventTouchUpInside];
@@ -306,7 +306,7 @@ static int display_length_mode=0;
 }
 
 -(IBAction)showArcSelector:(id)sender {
-    UIViewController *controller = [[[UIViewController alloc]init] autorelease];
+    UIViewController *controller = [[UIViewController alloc]init];
     UITableView *alertTableView;
     CGRect rect,recttv;
     const NSInteger kAlertTableViewTag = 10001;
@@ -341,9 +341,9 @@ static int display_length_mode=0;
     
     //alertTableView  = [[UITableView alloc] initWithFrame:recttv];
     
-    UIView *containerView=[[[UIView alloc] initWithFrame:recttv] autorelease];
+    UIView *containerView=[[UIView alloc] initWithFrame:recttv];
     //self.tableView = UITableView(frame: containerView.bounds, style: .plain)
-    alertTableView  = [[[UITableView alloc] initWithFrame:containerView.bounds] autorelease];
+    alertTableView  = [[UITableView alloc] initWithFrame:containerView.bounds];
     containerView.backgroundColor = [UIColor clearColor];
     //containerView.layer.shadowColor = [[UIColor darkGrayColor] CGColor];
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
@@ -356,7 +356,7 @@ static int display_length_mode=0;
     
     alertTableView.delegate = self;
     alertTableView.dataSource = self;
-    alertTableView.tableFooterView = [[[UIView alloc]initWithFrame:CGRectZero] autorelease];
+    alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
     alertTableView.sectionHeaderHeight=32;
     
@@ -372,11 +372,11 @@ static int display_length_mode=0;
     
     
     
-    BButton *cancel_btn= [[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
+    BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                     10,
                                                     200,
                                                     
-                                                    30)] autorelease];
+                                                    30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn addTarget:self action:@selector(cancelArcSel) forControlEvents:UIControlEventTouchUpInside];
@@ -1366,7 +1366,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         temp_playlist->playlist_name=[[NSString alloc] initWithString:@"Now playing"];
         temp_playlist->playlist_id=nil;
         
-        nowplayingPL = [[[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]] autorelease];
+        nowplayingPL = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
         //set new title
         nowplayingPL.title = temp_playlist->playlist_name;
         ((RootViewControllerPlaylist*)nowplayingPL)->show_playlist=1;
@@ -1585,8 +1585,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (mplayer_error_msg[0]) alertMsg=[NSString stringWithFormat:@"%@\n%s", NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@""),mplayer_error_msg];
             else alertMsg=NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"");
             
-            UIAlertView *alertCannotPlay = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                                       message:alertMsg delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
+            UIAlertView *alertCannotPlay = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                       message:alertMsg delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
             if (alertCannotPlay) [alertCannotPlay show];
             
             
@@ -1679,7 +1679,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	if ([array count]>=MAX_PL_ENTRIES) {
 		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
 		[alert show];
 		limitPl=1;
 		//		return;
@@ -1687,8 +1687,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	if (mPlaylist_size) {
 		for (int i=0;i<mPlaylist_size;i++) {
-			[mPlaylist[i].mPlaylistFilename autorelease];
-			[mPlaylist[i].mPlaylistFilepath autorelease];
+			mPlaylist[i].mPlaylistFilename=nil;
+			mPlaylist[i].mPlaylistFilepath=nil;
 		}
 	}
 	
@@ -1732,7 +1732,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	if (pl->nb_entries>=MAX_PL_ENTRIES) {
 		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
 		[alert show];
 		limitPl=1;
         //		return;
@@ -1740,8 +1740,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	if (mPlaylist_size) {
 		for (int i=0;i<mPlaylist_size;i++) {
-			[mPlaylist[i].mPlaylistFilename autorelease];
-			[mPlaylist[i].mPlaylistFilepath autorelease];
+			mPlaylist[i].mPlaylistFilename=nil;
+			mPlaylist[i].mPlaylistFilepath=nil;
 		}
 	}
 	
@@ -1801,7 +1801,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //    [self openPopup:@"Playlist updated"];
 	if (mPlaylist_size+add_entries_nb>=MAX_PL_ENTRIES) {
 		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
 		[alert show];
 		return 0;
 	}
@@ -1890,7 +1890,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	signed char rating=0;
 	if (mPlaylist_size>=MAX_PL_ENTRIES) {
 		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-		UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil] autorelease];
+		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
 		[alert show];
 		return 0;
 	}
@@ -1960,7 +1960,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
     /*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
-	[myindex autorelease];
+	//[myindex autorelease];
 	return playLaunched;
 }
 
@@ -1968,8 +1968,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     coverflow_needredraw=1;
     
 	if (mPlaylist_size) { //ensure playlist is not empty
-		[mPlaylist[index].mPlaylistFilename autorelease];
-		[mPlaylist[index].mPlaylistFilepath autorelease];
+		//[mPlaylist[index].mPlaylistFilename autorelease];
+		//[mPlaylist[index].mPlaylistFilepath autorelease];
 		
 		for (int i=index;i<mPlaylist_size-1;i++) {
 			mPlaylist[i]=mPlaylist[i+1];
@@ -2182,7 +2182,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     
     if (nowplayingPL) {
-        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
         [nowplayingPL.tableView reloadData];
         nowplayingPL.currentPlayedEntry=mPlaylist_pos;
         [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
@@ -2270,7 +2270,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
             }
         }
-        [fileMngr release];
+        //[fileMngr release];
     }
     
     if (cover_img==nil) {
@@ -2279,7 +2279,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     if (cover_img) {
         
-        if (mScaleFactor!=1) cover_img = [[[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp] autorelease];
+        if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
         
         cover_view.image=cover_img;
         cover_view.hidden=FALSE;
@@ -2637,8 +2637,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
     
     
-    if (cover_img) artwork=[[[MPMediaItemArtwork alloc] initWithImage:cover_img] autorelease];
-    else artwork=[[[MPMediaItemArtwork alloc] initWithImage:default_cover] autorelease];
+    if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
+    else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
     
     infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithString:lblCurrentSongCFlow.text],
                                  MPMediaItemPropertyTitle,
@@ -2663,7 +2663,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
     
     if (nowplayingPL) {
-        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
+        NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
         [nowplayingPL.tableView reloadData];
         nowplayingPL.currentPlayedEntry=mPlaylist_pos;
         [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
@@ -3527,10 +3527,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	NSNumber *valNb;
 	
 	valNb=[[NSNumber alloc] initWithInt:0];
-	[prefs setObject:valNb forKey:@"ModizerRunning"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"ModizerRunning"];
     
     [prefs synchronize];
-    [valNb autorelease];
+    //[valNb autorelease];
 }
 
 //return 1 if flag is not ok
@@ -3544,7 +3544,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	else if ([valNb intValue]!=0) retcode=1;
 	
 	valNb=[[NSNumber alloc] initWithInt:1];
-	[prefs setObject:valNb forKey:@"ModizerRunning"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"ModizerRunning"];
 	
 	return retcode;
 }
@@ -3682,41 +3682,41 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	NSNumber *valNb;
     
     valNb=[[NSNumber alloc] initWithInt:VERSION_MAJOR];
-	[prefs setObject:valNb forKey:@"VERSION_MAJOR"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"VERSION_MAJOR"];
 	valNb=[[NSNumber alloc] initWithInt:VERSION_MINOR];
-	[prefs setObject:valNb forKey:@"VERSION_MINOR"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"VERSION_MINOR"];
     
     ///////////////////////////////////
     // Internal stuff
     ///////////////////////////////////////
     valNb=[[NSNumber alloc] initWithInt:(int)mOglViewIsHidden];
-	[prefs setObject:valNb forKey:@"ViewFX"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"ViewFX"];
 	
     valNb=[[NSNumber alloc] initWithInt:infoIsFullscreen];
-	[prefs setObject:valNb forKey:@"InfoFullscreen"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"InfoFullscreen"];
 	valNb=[[NSNumber alloc] initWithInt:oglViewFullscreen];
-	[prefs setObject:valNb forKey:@"OGLFullscreen"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"OGLFullscreen"];
     
 	
 	valNb=[[NSNumber alloc] initWithInt:mLoopMode];
-	[prefs setObject:valNb forKey:@"LoopMode"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"LoopMode"];
 	valNb=[[NSNumber alloc] initWithInt:mplayer.mLoopMode];
-	[prefs setObject:valNb forKey:@"LoopModeInf"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"LoopModeInf"];
 	valNb=[[NSNumber alloc] initWithInt:mShuffle];
-	[prefs setObject:valNb forKey:@"Shuffle"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"Shuffle"];
     
 	
 	valNb=[[NSNumber alloc] initWithBool:mIsPlaying];
-	[prefs setObject:valNb forKey:@"IsPlaying"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"IsPlaying"];
 	
 	valNb=[[NSNumber alloc] initWithInt:mPlaylist_size];
-	[prefs setObject:valNb forKey:@"PlaylistSize"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"PlaylistSize"];
 	
 	valNb=[[NSNumber alloc] initWithInt:mPlaylist_pos];
-	[prefs setObject:valNb forKey:@"PlaylistPos"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"PlaylistPos"];
 	
 	valNb=[[NSNumber alloc] initWithInt:[mplayer getCurrentTime]];
-	[prefs setObject:valNb forKey:@"PlayingPos"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"PlayingPos"];
     
 	if (mPlaylist_size) {
 		
@@ -3734,16 +3734,15 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	
     
 	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_subsongs];
-	[prefs setObject:valNb forKey:@"Subsongs"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"Subsongs"];
 	valNb=[[NSNumber alloc] initWithInt:mplayer.mod_currentsub];
-	[prefs setObject:valNb forKey:@"Cur_subsong"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"Cur_subsong"];
     
     valNb=[[NSNumber alloc] initWithInt:[mplayer getArcEntriesCnt]];
-	[prefs setObject:valNb forKey:@"ArchiveCnt"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"ArchiveCnt"];
 	valNb=[[NSNumber alloc] initWithInt:[mplayer getArcIndex]];
-	[prefs setObject:valNb forKey:@"ArchiveIndex"];[valNb autorelease];
+	[prefs setObject:valNb forKey:@"ArchiveIndex"];
     
-	
 	[prefs synchronize];
 }
 
@@ -3763,7 +3762,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	sysctlbyname("hw.machine", name, &size, NULL, 0);
 	
 	// Place name into a string
-	NSString *machine = [[[NSString alloc] initWithFormat:@"%s",name] autorelease];
+	NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
 	
 	// Done with this
 	free(name);
@@ -3951,7 +3950,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=8;
     else if ([self fexScanArchiveForCover:[fullFilepath UTF8String] ]) mPlaylist[index].cover_flag=9;
     
-    [fileMngr release];
+    //[fileMngr release];
 }
 
 -(void) shortWait {
@@ -4031,7 +4030,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     
     default_cover=[UIImage imageNamed:@"AppStore512.png"];
-    [default_cover retain];
+    //[default_cover retain];
     artwork=nil;
     
     cover_view.layer.shadowColor = [UIColor blackColor].CGColor;
@@ -4059,18 +4058,18 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
     
-    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[[UILongPressGestureRecognizer alloc]
+    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[UILongPressGestureRecognizer alloc]
                                                               initWithTarget:self
-                                                              action:@selector(longPressPrevSubArc:)] autorelease];
-    UILongPressGestureRecognizer *longPressPaNextSGesture = [[[UILongPressGestureRecognizer alloc]
+                                                              action:@selector(longPressPrevSubArc:)];
+    UILongPressGestureRecognizer *longPressPaNextSGesture = [[UILongPressGestureRecognizer alloc]
                                                               initWithTarget:self
-                                                              action:@selector(longPressNextSubArc:)] autorelease];
-    UILongPressGestureRecognizer *longPressPlPrevSGesture = [[[UILongPressGestureRecognizer alloc]
+                                                              action:@selector(longPressNextSubArc:)];
+    UILongPressGestureRecognizer *longPressPlPrevSGesture = [[UILongPressGestureRecognizer alloc]
                                                               initWithTarget:self
-                                                              action:@selector(longPressPrevSubArc:)] autorelease];
-    UILongPressGestureRecognizer *longPressPlNextSGesture = [[[UILongPressGestureRecognizer alloc]
+                                                              action:@selector(longPressPrevSubArc:)];
+    UILongPressGestureRecognizer *longPressPlNextSGesture = [[UILongPressGestureRecognizer alloc]
                                                               initWithTarget:self
-                                                              action:@selector(longPressNextSubArc:)] autorelease];
+                                                              action:@selector(longPressNextSubArc:)];
     
     [pauseBarSub layoutIfNeeded];
     [playBarSub layoutIfNeeded];
@@ -4098,15 +4097,15 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     labelModuleName.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =
-    [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)] autorelease];
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)];
     [labelModuleName addGestureRecognizer:tapGesture];
 	
-	mPlaylist=(t_plPlaylist_entry*)malloc(MAX_PL_ENTRIES*sizeof(t_plPlaylist_entry));
+	mPlaylist=(t_plPlaylist_entry*)calloc(MAX_PL_ENTRIES,sizeof(t_plPlaylist_entry));
     
 	self.navigationItem.title=@"No file selected";
 	//	self.navigationItem.backBarButtonItem.title=@"dd";
 	
-    UIBarButtonItem *bbitem=[[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)] autorelease];
+    UIBarButtonItem *bbitem=[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
     [bbitem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:@"FontAwesome" size:22.0], UITextAttributeFont,nil] forState:UIControlStateNormal];
     unichar tmpChar=0xF0CA;
     [bbitem setTitle:[NSString stringWithCharacters:&tmpChar length:1]];
@@ -4124,8 +4123,20 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	mShouldUpdateInfos=0;
 	mPaused=1;
 	mScaleFactor=1.0f;
+    
+    if (@available(iOS 14.0, *)) {
+            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+                is_macOS=1;
+                mDeviceType=3;
+            }else{
+                is_macOS=0;
+            }
+        }
+    
+    
+    
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-		mDeviceType=1; //ipad
+		if (!is_macOS) mDeviceType=1; //ipad
         UIScreen* mainscr = [UIScreen mainScreen];
 
         if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
@@ -4137,6 +4148,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             mDevice_hh=mainscr.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
+        
+        if (is_macOS) {
+            mDevice_ww=480*1.5f;
+            mDevice_hh=480*1.5f;
+            /*CGRect frame = [self.view.window frame];
+            frame.size.height = mDevice_hh;
+            frame.size.width = mDevice_ww;
+            [self.view.window setFrame: frame];*/
+            
+        }
+        
         
         mScaleFactor=mainscr.scale;
         
@@ -4213,7 +4235,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     coverflow_plsize=coverflow_pos=coverflow_needredraw=0;
     
     covers_default=[[UIImage imageNamed:@"default_art.png"] scaleToSize:coverflow.coverSize];
-    [covers_default retain];
+    //[covers_default retain];
     [coverflow setNumberOfCovers:0];
     
     //
@@ -4388,7 +4410,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                                                 blue:91
                                                alpha:1]];
      */
-	volumeView = [[[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/] autorelease];
+	volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
     //	volumeView.center = CGPointMake(mDevice_ww/2,32);
     //  [volumeView setShowsRouteButton:YES];
     //	[volumeView sizeToFit];
@@ -4426,10 +4448,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     lblLoading.textAlignment=NSTextAlignmentCenter;
     lblLoading.font=[UIFont italicSystemFontOfSize:16];
     [waitingView addSubview:lblLoading];
-    [lblLoading autorelease];
+    //[lblLoading autorelease];
     
 	[indView startAnimating];
-	[indView autorelease];
+	//[indView autorelease];
     
     waitingView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:waitingView];
@@ -4471,7 +4493,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     
     // Create gesture recognizer
-    UITapGestureRecognizer *glViewOneFingerOneTap = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)] autorelease];
+    UITapGestureRecognizer *glViewOneFingerOneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)];
     // Set required taps and number of touches
     [glViewOneFingerOneTap setNumberOfTapsRequired:1];
     [glViewOneFingerOneTap setNumberOfTouchesRequired:1];
@@ -4479,7 +4501,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [m_oglView addGestureRecognizer:glViewOneFingerOneTap];
     
     // Create gesture recognizer
-    UITapGestureRecognizer *glViewOneFingerTwoTaps = [[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerTwoTaps)] autorelease];
+    UITapGestureRecognizer *glViewOneFingerTwoTaps = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerTwoTaps)];
     // Set required taps and number of touches
     [glViewOneFingerTwoTaps setNumberOfTapsRequired:2];
     [glViewOneFingerTwoTaps setNumberOfTouchesRequired:1];
@@ -4487,7 +4509,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [m_oglView addGestureRecognizer:glViewOneFingerTwoTaps];
     
     // Create gesture recognizer
-    UIPanGestureRecognizer *glViewPanGesture = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPanGesture:)] autorelease];
+    UIPanGestureRecognizer *glViewPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPanGesture:)];
     // Set required taps and number of touches
     [glViewPanGesture setMinimumNumberOfTouches:1];
     [glViewPanGesture setMaximumNumberOfTouches:1];
@@ -4495,7 +4517,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [m_oglView addGestureRecognizer:glViewPanGesture];
 
     // Create gesture recognizer
-    UIPanGestureRecognizer *glViewPan2Gesture = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPan2Gesture:)] autorelease];
+    UIPanGestureRecognizer *glViewPan2Gesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPan2Gesture:)];
     // Set required taps and number of touches
     [glViewPan2Gesture setMinimumNumberOfTouches:2];
     [glViewPan2Gesture setMaximumNumberOfTouches:2];
@@ -4503,7 +4525,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [m_oglView addGestureRecognizer:glViewPan2Gesture];
     
     // Create gesture recognizer
-    UIPinchGestureRecognizer *glViewPinchGesture = [[[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPinchGesture:)] autorelease];
+    UIPinchGestureRecognizer *glViewPinchGesture = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPinchGesture:)];
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPinchGesture];
 
@@ -4731,26 +4753,26 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 - (void)dealloc {
     [waitingView removeFromSuperview];
-    [waitingView release];
+    //[waitingView release];
     
     
-    [coverflow release];
+    //[coverflow release];
     if (covers_default) {
-        [covers_default release];
+        //[covers_default release];
         covers_default=nil;
     }
     
-	if (locationLastUpdate) [locationLastUpdate release];
+	//if (locationLastUpdate) [locationLastUpdate release];
 	
 	[repeatingTimer invalidate];
 	repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 	
 	[mplayer Stop];
-	[mplayer release];
+	//[mplayer release];
     
 	for (int i=0;i<mPlaylist_size;i++) {
-		[mPlaylist[i].mPlaylistFilename autorelease];
-		[mPlaylist[i].mPlaylistFilepath autorelease];
+		//[mPlaylist[i].mPlaylistFilename autorelease];
+		//[mPlaylist[i].mPlaylistFilepath autorelease];
 	}
 	free(mPlaylist);
 	mPlaylist_size=0;
@@ -4766,7 +4788,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     free(fft_time);
 
     
-	[super dealloc];
+	//[super dealloc];
 }
 
 
@@ -4914,7 +4936,15 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 
 - (void)viewWillDisappear:(BOOL)animated {
-    if (m_displayLink) [m_displayLink invalidate];
+    is_macOS=false;
+    if (@available(iOS 14.0, *)) {
+            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+                is_macOS=true;
+            }else{
+                is_macOS=false;
+            }
+        }
+    if (!is_macOS) if (m_displayLink) [m_displayLink invalidate];
     self.navigationController.navigationBar.hidden = NO;
     
     CATransition *transition=[CATransition animation];
@@ -4953,10 +4983,10 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         
         if (mPlaylist_size) { //display current queue
             for (int i=0;i<mPlaylist_size;i++) {
-                [temp_playlist->entries[i].label release];
-                [temp_playlist->entries[i].fullpath release];
+                temp_playlist->entries[i].label=nil;
+                temp_playlist->entries[i].fullpath=nil;
             }
-            [temp_playlist->playlist_name release];
+            //[temp_playlist->playlist_name release];
         }
         free(temp_playlist);
         
@@ -6079,13 +6109,13 @@ extern "C" int current_sample;
 	}
     if (viewTapHelpShow) {
 		if (viewTapHelpInfo<255) {
-            viewTapHelpInfo+=48;
+            viewTapHelpInfo+=256;//48;
             /*			viewTapHelpInfo+=(255-viewTapHelpInfo)/3;*/
 			if (viewTapHelpInfo>255) viewTapHelpInfo=255;
 		}
 	} else {
 		if (viewTapHelpInfo>0) {
-            viewTapHelpInfo-=48;
+            viewTapHelpInfo-=256;//48;
             /*			viewTapHelpInfo-=(255+32-viewTapHelpInfo)/3;*/
 			if (viewTapHelpInfo<0) viewTapHelpInfo=0;
 		}
@@ -6261,7 +6291,7 @@ extern "C" int current_sample;
 	if(cover == nil){
 		//BOOL phone = [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone;
 		CGRect rect = CGRectMake(0,0,coverflow.coverSize.width, coverflow.coverSize.height);//phone ? CGRectMake(0, 0, 224,300) : CGRectMake(0, 0, 300, 600);
-		cover = [[[TKCoverflowCoverView alloc] initWithFrame:rect] autorelease]; // 224
+		cover = [[TKCoverflowCoverView alloc] initWithFrame:rect]; // 224
 		cover.baseline = coverflow.coverSize.height;//224;
 	}
 //    NSLog(@"ask for cov index %d",index);
@@ -6319,7 +6349,7 @@ extern "C" int current_sample;
         cover.image = [UIImage imageNamed:@"default_art.png"];//covers[0];
     }
     
-    if (mScaleFactor!=1) cover.image = [[[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp] autorelease];
+    if (mScaleFactor!=1) cover.image = [[UIImage alloc] initWithCGImage:cover.image.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
      
 	return cover;
 }
@@ -6338,7 +6368,7 @@ extern "C" int current_sample;
 	TKCoverflowCoverView *cover = [coverflowView coverAtIndex:index];
 	if(cover == nil) return;
     
-    [UIView beginAnimations:@"selectCov1" context:cover];
+    [UIView beginAnimations:@"selectCov1" context:(void *)cover];
 	[UIView setAnimationDuration:0.15f];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
@@ -6399,7 +6429,7 @@ extern "C" int current_sample;
         [UIView setAnimationDuration:0.2f];    
         [UIView setAnimationDelegate:self];
         [UIView setAnimationCurve:UIViewAnimationCurveEaseIn];
-        TKCoverflowCoverView* cover=((TKCoverflowCoverView*)context);
+        TKCoverflowCoverView* cover=((__bridge TKCoverflowCoverView*)context);
         cover.frame=CGRectMake(cover.frame.origin.x, cover.frame.origin.y,cover.frame.size.width,cover.frame.size.height);
         cover.transform=CGAffineTransformMakeScale(1.1f,1.1f);
         [UIView commitAnimations];
@@ -6407,7 +6437,7 @@ extern "C" int current_sample;
         [UIView beginAnimations:@"selectCov3" context:nil];
         [UIView setAnimationDuration:0.2f];    
         [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
-        TKCoverflowCoverView* cover=((TKCoverflowCoverView*)context);
+        TKCoverflowCoverView* cover=((__bridge TKCoverflowCoverView*)context);
         cover.frame=CGRectMake(cover.frame.origin.x, cover.frame.origin.y,cover.frame.size.width,cover.frame.size.height);
         cover.transform=CGAffineTransformMakeScale(1.0f,1.0f);
         [UIView commitAnimations];
@@ -6417,7 +6447,7 @@ extern "C" int current_sample;
 #pragma mark - Table view data source
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    UILabel *myLabel = [[[UILabel alloc] init] autorelease];
+    UILabel *myLabel = [[UILabel alloc] init];
     NSString *lbl;
     switch (current_selmode) {
         case ARCSUB_MODE_ARC:
@@ -6477,7 +6507,7 @@ extern "C" int current_sample;
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,SELECTOR_TABVIEWCELL_HEIGHT);
         
@@ -6487,12 +6517,12 @@ extern "C" int current_sample;
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
-        [imageView release];
+        //[imageView release];
         
         //
         // Create the label for the top row of text
         //
-        topLabel = [[[UILabel alloc] init] autorelease];
+        topLabel = [[UILabel alloc] init];
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row

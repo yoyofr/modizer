@@ -1,5 +1,5 @@
 Todo/Requested:
-ÑÑÑÑÑÑÑÑÑ
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 - option to keep subsong/subfiles selection screen opened
 - libopenmpt update
 - vgmstream update ?
@@ -29,17 +29,20 @@ Todo/Requested:
 - BUG: when not playing file, if download & exit => should not empty download queue
 
 2.9.4
-ÑÑÑÑÑ
-- HVSC #73
-- ASMA 2020/07/06
-- Modland 2020/07/04
+ï¿½ï¿½ï¿½ï¿½ï¿½
+- HVSC #74
+- ASMA 2021/01/15
+- Modland 2021/01/15
 - Adplug 2.3.4 beta
 - VGMPlay last version
-- snes snsf playback implemented
+- snes snsf playback implemented (beta, not compatible with all dumps)
+- mptm format added (openmpt)
 - code improvements & bugfixes
+- Files integration
+
 
 2.9.3
-ÑÑÑÑÑ
+ï¿½ï¿½ï¿½ï¿½ï¿½
 - HVSC #71
 - Modland 2019/08/23
 - ASMA 2019/08/23
@@ -47,7 +50,7 @@ Todo/Requested:
 - Playlists performances & stability improvements
 
 2.9.2
-ÑÑÑÑÑ
+ï¿½ï¿½ï¿½ï¿½ï¿½
 - HVSC #70
 - Modland 2019/16/01
 - ASAP 4.0
@@ -58,7 +61,7 @@ Todo/Requested:
 
 
 2.9.1
-ÑÑÑÑÑ
+ï¿½ï¿½ï¿½ï¿½ï¿½
 - HVSC #68
 - [Bugfix] About screen
 - [Bugfix] File browser sorting issue
@@ -66,7 +69,7 @@ Todo/Requested:
 
 
 2.9
-ÑÑÑ
+ï¿½ï¿½ï¿½
 - XMP updated to last version
 - MODLAND DB updated to 2018/02/20 snapshot
 - HVSC updated to #68 and mirrors updated
@@ -77,11 +80,11 @@ Todo/Requested:
 
 
 2.8
-ÑÑÑ
+ï¿½ï¿½ï¿½
 - [Bugfix] Archives/multisongs entries list randomized
 
 2.7
-ÑÑÑ
+ï¿½ï¿½ï¿½
 - [New] XMP plugin (mostly useful for Octamed formats)
 - [New] Display SID Subsongs name or title (when available from STIL DB)
 - [New] More plugins settings available
@@ -95,7 +98,7 @@ Todo/Requested:
 - [BugFix] General stability improvement
 
 2.6
-ÑÑÑ
+ï¿½ï¿½ï¿½
 - [New] VGMStream (Consoles streaming formats)
 - [New] 2SF & NCSF (NDS)
 - [New] Cut/Paste & New Folder features in file browser (slide left/right)
@@ -106,7 +109,7 @@ Todo/Requested:
 - [Update] Modland DB updated
 - [Update] Stability improved
 - [Update] UI improved
-- [Update] Improved Spectrum(FFT) 
+- [Update] Improved Spectrum(FFT)
 - [Update] Modland, HVSC & ASMA server's address are customizable
 - [Bugfix] Screen layouts
 - [Bugfix] Subsong management issue with ASAP
@@ -115,7 +118,7 @@ Todo/Requested:
 - [Bugfix] Lots of small fixes
 
 2.1
-ÑÑÑ
+ï¿½ï¿½ï¿½
 - updated HVSC to #62
 - updated MODLAND to latest version
 - replaced Modplug by OpenMPT
@@ -268,7 +271,7 @@ V1.2:
 
 [BugFixes]
 - WEB BROWSER: fixed issue with some links which were not correctly handled.
-- MODPLUG: better detection of Noisetracker mod to fix tempo issue. 
+- MODPLUG: better detection of Noisetracker mod to fix tempo issue.
 - MODPLUG: resampling mode option was broken in v1.1.
 - PLAYLIST: fixed wrong order issue when moving entries.
 - PLAYLIST: quit "Edit" mode when closing popup.
@@ -289,12 +292,12 @@ V1.1:
 - [Improv] BROWSER: "get all" for hvsc.
 - [Improv] BROWSER: "preview" mode => file can be deleted within HVSC/MODLAND using standard "swipe" gesture.
 - [Improv] BROWSER: Updated MODLAND database.
-- [Improv] BROWSER&PLAYER: special chars support(ex: BjerregŒrd).
+- [Improv] BROWSER&PLAYER: special chars support(ex: Bjerregï¿½rd).
 - [Improv] PLAYER: autoscroll song title (only on fast devices, 3GS & faster).
 - [Improv] PLAYER: optimized playlist handling.
 - [Improv] SEARCH: design reviewed & global optimization.
 - [Improv] SETTINGS: design reviewed & optimized.
-- [Improv] SETTINGS/GME: max song length (useful for nsf, sap, É)
+- [Improv] SETTINGS/GME: max song length (useful for nsf, sap, ï¿½)
 - [Improv] SETTINGS/MODPLUG: new setting for panning.
 - [Improv] SETTINGS/MODPLUG: add an "OFF" option for resampling.
 - [Improv] Database creation/update is faster.

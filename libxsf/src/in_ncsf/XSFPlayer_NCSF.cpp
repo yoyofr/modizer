@@ -20,8 +20,8 @@
 #include "SSEQPlayer/SDAT.h"
 #include "SSEQPlayer/Player.h"
 
-const char *XSFPlayer::WinampDescription = "NCSF Decoder";
-const char *XSFPlayer::WinampExts = "ncsf;minincsf\0DS Nitro Composer Sound Format files (*.ncsf;*.minincsf)\0";
+//const char *XSFPlayer::WinampDescription = "NCSF Decoder";
+//const char *XSFPlayer::WinampExts = "ncsf;minincsf\0DS Nitro Composer Sound Format files (*.ncsf;*.minincsf)\0";
 
 extern XSFConfig *xSFConfig;
 

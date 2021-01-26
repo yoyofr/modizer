@@ -62,7 +62,7 @@
 
 + (NSDate*) lastofMonthDate{
     NSDate *day = [NSDate date];
-	NSCalendar *gregorian = [[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+	NSCalendar *gregorian = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
 	NSDateComponents *comp = [gregorian components:(NSYearCalendarUnit | NSMonthCalendarUnit) fromDate:day];
 	[comp setDay:0];
 	[comp setMonth:comp.month+1];
