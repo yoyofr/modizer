@@ -13,34 +13,37 @@ extern BOOL is_ios7;
 //#define NB_HVSC_ENTRIES 43856
 //#define NB_ASMA_ENTRIES 4630
 
-#define WEBLINKS_VGM_NB 10
+#define WEBLINKS_VGM_NB 11
 #define WEBLINKS_MODS_NB 5
-#define WEBLINKS_Others_NB 1
+#define WEBLINKS_Others_NB 2
 NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
     //VGM & assimilated
-    {@"http://vgmrips.net/packs/",@"VGM Rips"},
+    {@"https://vgmrips.net/packs/",@"VGM Rips"},
+    {@"https://project2612.org/",@"Megadrive/Genesis Music"},
     {@"http://snesmusic.org/v2/",@"SNES Music"},
-    {@"http://project2612.org/",@"Megadrive/Genesis Music"},
     {@"http://snesmusic.org/pmh/",@"Portable Music History"},
-    {@"http://www.smspower.org/",@"Sega Master System"},
+    {@"http://snesmusic.org/cmh/",@"Console Music History"},
+    {@"https://www.smspower.org/",@"Sega Master System"},
     {@"https://hcs64.com/mboard/forum.php?showthread=26929",@"JoshW archives lists"},
     {@"http://www.midishrine.com/",@"Midishrine"},
-    {@"http://www.vgmusic.com/",@"VGMusic"},
+    {@"https://www.vgmusic.com/",@"VGMusic"},
     {@"http://www.mirsoft.info/gamemods-archive.php",@"Mirsoft MODS"},
     {@"http://www.mirsoft.info/gamemids-archive.php",@"Mirsoft Midis"}
 };
 
 NSString *weblinks_MODS[WEBLINKS_MODS_NB][2]={
     //MODS & Chiptunes
-    {@"http://modarchive.org/",@"The Mod Archive"},
+    {@"https://modarchive.org/",@"The Mod Archive"},
     {@"http://amp.dascene.net/",@"Amiga Music Preservation"},
     {@"http://2a03.free.fr/",@"2A03 - Chiptunes"},
     {@"http://sndh.atari.org/sndh/browser/index.php?dir=sndh_lf%2F",@"Atari ST SNDH Archive"},
-    {@"http://www.exotica.org.uk/",@"Exotica"}
+    {@"https://www.exotica.org.uk/wiki/Main_Page",@"Exotica"}
 };
 NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     //MIDIs
-    {@"http://www.lvbeethoven.com/Midi/",@"Beethoven Midis"}
+    {@"http://www.lvbeethoven.fr/Midi/index_En.html",@"Beethoven Midis"},
+    {@"http://www.kunstderfuge.com/",@"Classical music Midis"}
+
 };
 
 #import "OnlineViewController.h"

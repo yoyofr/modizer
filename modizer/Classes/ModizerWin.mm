@@ -17,8 +17,8 @@
     if (@available(iOS 13.4, *)) {
     for (UIPress *press in presses) {
         UIKey *key=press.key;
-        NSLog(@"key: %@ %@",key.characters,key.charactersIgnoringModifiers);
-/*        if ([key.charactersIgnoringModifiers isEqualToString:@" "]) {
+/*        NSLog(@"key: %@ %@",key.characters,key.charactersIgnoringModifiers);
+        if ([key.charactersIgnoringModifiers isEqualToString:@" "]) {
             if (detailViewControllerIphone.mPaused) {
                 detailViewControllerIphone.mPaused=0;
                 [detailViewControllerIphone.mplayer Pause:NO];

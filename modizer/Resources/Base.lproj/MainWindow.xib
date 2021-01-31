@@ -64,11 +64,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="LlD-1b-KE0"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1984">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1985">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" id="1993">
@@ -116,11 +116,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="cyz-3o-0H6"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1956">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1965">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -155,11 +155,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="SHc-ts-rSI"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1936">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1942">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -197,11 +197,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="44" width="375" height="486"/>
+                                        <rect key="frame" x="0.0" y="44" width="375" height="623"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -218,7 +218,7 @@
                                         </connections>
                                     </searchBar>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -276,11 +276,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="9zf-eA-E19"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="2020">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -433,7 +433,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1544" userLabel="Loop Inf">
-                                        <rect key="frame" x="88" y="-12" width="35" height="57"/>
+                                        <rect key="frame" x="88" y="0.0" width="35" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="36"/>
@@ -1196,7 +1196,7 @@
                         <items>
                             <barButtonItem style="plain" id="1161" userLabel="Address">
                                 <textField key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" clearButtonMode="whileEditing" id="1160">
-                                    <rect key="frame" x="16" y="5" width="244" height="34"/>
+                                    <rect key="frame" x="16" y="5" width="189" height="34"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="alphabet" returnKeyType="go"/>
@@ -1212,15 +1212,6 @@
                             </barButtonItem>
                         </items>
                     </toolbar>
-                    <webView multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="448">
-                        <rect key="frame" x="0.0" y="44" width="320" height="348"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <dataDetectorType key="dataDetectorTypes" link="YES"/>
-                        <connections>
-                            <outlet property="delegate" destination="444" id="463"/>
-                        </connections>
-                    </webView>
                     <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="447">
                         <rect key="frame" x="240" y="12" width="20" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -1297,7 +1288,6 @@
                 <outlet property="infoDownloadLbl" destination="1614" id="1615"/>
                 <outlet property="infoDownloadView" destination="1613" id="1616"/>
                 <outlet property="toolBar" destination="1925" id="1997"/>
-                <outlet property="webView" destination="448" id="458"/>
             </connections>
             <point key="canvasLocation" x="-195" y="-1380"/>
         </viewController>
@@ -1307,7 +1297,7 @@
                 <viewControllerLayoutGuide type="bottom" id="Spj-mO-qdP"/>
             </layoutGuides>
             <view key="view" contentMode="scaleToFill" id="1471">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="431"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" image="modizer_logo.png" translatesAutoresizingMaskIntoConstraints="NO" id="1472">
@@ -1315,7 +1305,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </imageView>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1468" userLabel="Text View">
-                        <rect key="frame" x="0.0" y="81" width="320" height="399"/>
+                        <rect key="frame" x="0.0" y="81" width="320" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <string key="text">v2.9.3 © Yohann Magnien / YoyoFR

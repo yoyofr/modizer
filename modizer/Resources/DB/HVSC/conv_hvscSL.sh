@@ -1,3 +1,5 @@
+#!/bin/bash
+
 tail +2 Songlengths.md5 > tmp
 awk -F'[\=\ ]' -f sid_songlength.awk tmp > hvsc_songl.txt
 awk -F'[\=\ ]' -f sid_pathmd5.awk tmp > hvsc_pathmd5.txt
