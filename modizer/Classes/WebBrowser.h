@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 #import "DownloadViewController.h"
 #import "DetailViewControllerIphone.h"
 
@@ -15,8 +16,8 @@
 @class DownloadViewController;
 @class DetailViewControllerIphone;
 
-@interface WebBrowser : UIViewController <UIWebViewDelegate,UITextFieldDelegate> {
-	IBOutlet UIWebView *webView;
+@interface WebBrowser : UIViewController <WKNavigationDelegate,UITextFieldDelegate> {
+	WKWebView *webView;
 //    IBOutlet UIView *view;
 	IBOutlet UIToolbar *toolBar;
 	IBOutlet UIActivityIndicatorView *activityIndicator;
@@ -36,7 +37,7 @@
 
 @property (nonatomic,retain) IBOutlet UIView *infoDownloadView;//,*view;
 @property (nonatomic,retain) IBOutlet UILabel *infoDownloadLbl;
-@property (nonatomic,retain) IBOutlet UIWebView *webView;
+@property (nonatomic,strong) WKWebView *webView;
 @property (nonatomic,retain) IBOutlet UIToolbar *toolBar;
 @property (nonatomic,retain) IBOutlet UIActivityIndicatorView *activityIndicator;
 @property (nonatomic,retain) IBOutlet UIBarButtonItem *backButton,*forwardButton;

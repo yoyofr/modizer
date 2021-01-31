@@ -1,3 +1,13 @@
+#!/bin/bash
+
+if (( $# < 1))
+then  
+  printf "%b" "allmods file missing.\n" >&2
+  printf "%b" "usage: conv_modland.sh allmod_text_file\n" >&2
+  printf "\n" >&2
+  exit 1
+fi
+
 perl -CSAD -pe 's/\t/\//g' allmods.txt > conv1.tmp
 rm conv.tmp
 for line in `cat ext.txt` 

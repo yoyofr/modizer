@@ -197,6 +197,7 @@ static UIAlertView *alertChooseName;
 				addressTestField.text=[NSString stringWithFormat:@"http://%@",addressTestField.text];
 			}
 		}
+        //NSLog(@"yo:%@",addressTestField.text);
 		[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
 	}
 	return NO;
@@ -257,7 +258,7 @@ static UIAlertView *alertChooseName;
     CGSize cursize=[self currentSize];
 //    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
     
-	[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
+	//[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 }
 
 -(void)loadLastURL {
@@ -302,7 +303,7 @@ static UIAlertView *alertChooseName;
     CGSize cursize=[self currentSize];
     //    webView.frame=CGRectMake(0,44,cursize.width,self.view.frame.size.height-44);
     
-    [webView loadHTMLString:EMPTY_PAGE baseURL:nil];
+    //[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 }
 
 
@@ -605,145 +606,175 @@ static UIAlertView *alertChooseName;
 	[UIView commitAnimations];
 }
 
-- (BOOL)webView:(UIWebView *)webV shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-	NSRange r;
-	NSString *endUrl=[[[request URL] absoluteString] lastPathComponent];
-	
-    //NSLog(@"url : %d %@",navigationType,[[request URL] absoluteString]);
-	
-	if (endUrl==nil) return FALSE;
-	
-	r.location= NSNotFound;
-	r = [[[request URL] absoluteString] rangeOfString:@"modizer://delete_bookmark" options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {
-		int i;
-		sscanf([[[request URL] absoluteString] UTF8String],"modizer://delete_bookmark%d",&i);
-		[self deleteBookmark:i];
-		return FALSE;
-	}
-	if ([[[request URL] absoluteString] compare:@"about:blank"]==NSOrderedSame) return TRUE;
-	
-	
-	//Check for world charts link
-	NSURL *url=[request URL];
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
-	//check if FTP or HTTP
-	r.location= NSNotFound;
-	r = [[url absoluteString] rangeOfString:@"FTP:" options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {  //FTP
-		NSString *ftpPath,*ftpHost,*localPath;
-		char tmp_str[1024],*ptr_str;
-		strcpy(tmp_str,[[[url absoluteString] stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding] UTF8String]);
-		ptr_str=strchr(tmp_str+6,'/');  // 6 first chars are FTP://
-		if (ptr_str) {
-			*ptr_str=0;
-			ptr_str++;
-			
-			ftpHost=[NSString stringWithFormat:@"%s",tmp_str+6];  //skip the FTP://
-			ftpPath=[NSString stringWithFormat:@"/%s",ptr_str];
-			
-			//Check if it is a MODLAND or a HVSC download
-			int isModland=0;
-			int isHVSC=0;
-			NSRange rMODLAND;
-			rMODLAND.location=NSNotFound;
-			rMODLAND=[ftpHost rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
-			if (rMODLAND.location!=NSNotFound) isModland++;
+  /*NSString *url = [NSString stringWithFormat:@"%@",navigationAction.request.URL.absoluteString];
+  BOOL httpRequest = [url containsString:@"http"];
+  if (navigationAction.navigationType == WKNavigationTypeLinkActivated && httpRequest) {
+    [[UIApplication sharedApplication] openURL:navigationAction.request.URL];
+    decisionHandler(WKNavigationActionPolicyCancel);
+  } else {
+    decisionHandler(WKNavigationActionPolicyAllow);
+  }*/
+    
+    NSRange r;
+    NSString *endUrl=[[[navigationAction.request URL] absoluteString] lastPathComponent];
+    
+    NSLog(@"url : %d %@",navigationAction.navigationType,[[navigationAction.request URL] absoluteString]);
+    
+    if (endUrl==nil) {
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    r.location= NSNotFound;
+    r = [[[navigationAction.request URL] absoluteString] rangeOfString:@"modizer://delete_bookmark" options:NSCaseInsensitiveSearch];
+    if (r.location != NSNotFound) {
+        int i;
+        sscanf([[[navigationAction.request URL] absoluteString] UTF8String],"modizer://delete_bookmark%d",&i);
+        [self deleteBookmark:i];
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    if ([[[navigationAction.request URL] absoluteString] compare:@"about:blank"]==NSOrderedSame) {
+        decisionHandler(WKNavigationActionPolicyAllow);
+        return;
+    }
+    
+    //Check for world charts link
+    NSURL *url=[navigationAction.request URL];
+    
+    //check if FTP or HTTP
+    r.location= NSNotFound;
+    r = [[url absoluteString] rangeOfString:@"FTP:" options:NSCaseInsensitiveSearch];
+    if (r.location != NSNotFound) {  //FTP
+        NSString *ftpPath,*ftpHost,*localPath;
+        char tmp_str[1024],*ptr_str;
+        strcpy(tmp_str,[[[url absoluteString] stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding] UTF8String]);
+        ptr_str=strchr(tmp_str+6,'/');  // 6 first chars are FTP://
+        if (ptr_str) {
+            *ptr_str=0;
+            ptr_str++;
+            
+            ftpHost=[NSString stringWithFormat:@"%s",tmp_str+6];  //skip the FTP://
+            ftpPath=[NSString stringWithFormat:@"/%s",ptr_str];
+            
+            //Check if it is a MODLAND or a HVSC download
+            int isModland=0;
+            int isHVSC=0;
+            NSRange rMODLAND;
+            rMODLAND.location=NSNotFound;
+            rMODLAND=[ftpHost rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
+            if (rMODLAND.location!=NSNotFound) isModland++;
             else {
                 rMODLAND.location=NSNotFound;
                 rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
                 if (rMODLAND.location!=NSNotFound) isModland++;
             }
-			rMODLAND.location=NSNotFound;
-			rMODLAND=[ftpPath rangeOfString:@"/pub/modules/" options:NSCaseInsensitiveSearch];
-			if (rMODLAND.location!=NSNotFound) isModland++;
-			
-			NSRange rHVSC;
-			rHVSC.location=NSNotFound;
-			rHVSC=[ftpPath rangeOfString:@"/C64Music/" options:NSCaseInsensitiveSearch];
-			if (rHVSC.location!=NSNotFound) isHVSC++;
-			
-			if (isModland==2) {  //MODLAND DOWNLOAD
-				
+            rMODLAND.location=NSNotFound;
+            rMODLAND=[ftpPath rangeOfString:@"/pub/modules/" options:NSCaseInsensitiveSearch];
+            if (rMODLAND.location!=NSNotFound) isModland++;
+            
+            NSRange rHVSC;
+            rHVSC.location=NSNotFound;
+            rHVSC=[ftpPath rangeOfString:@"/C64Music/" options:NSCaseInsensitiveSearch];
+            if (rHVSC.location!=NSNotFound) isHVSC++;
+            
+            if (isModland==2) {  //MODLAND DOWNLOAD
                 
-				//get modland path to rebuild localPath
-				NSString *tmpstr=[ftpPath substringFromIndex:rMODLAND.location+13];
-				NSString *tmpLocal=DBHelper::getLocalPathFromFullPath(tmpstr);
-				localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,tmpLocal];
-				//NSLog(@"newlocal : %@",localPath);
-				//Is it already existing ?
-				NSFileManager *fileManager = [[NSFileManager alloc] init];
-				BOOL success;
-				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
-				if (success) {//already existing : start play/enqueue
-					if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-						NSMutableArray *array_label = [[NSMutableArray alloc] init];
-						NSMutableArray *array_path = [[NSMutableArray alloc] init];
-						[array_label addObject:[localPath lastPathComponent]];
-						[array_path addObject:localPath];
-						[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-					} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-					//[self goPlayer];
-				} else { //start download
-					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
-					
-					
-					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1 filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
-				}
+                
+                //get modland path to rebuild localPath
+                NSString *tmpstr=[ftpPath substringFromIndex:rMODLAND.location+13];
+                NSString *tmpLocal=DBHelper::getLocalPathFromFullPath(tmpstr);
+                localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,tmpLocal];
+                //NSLog(@"newlocal : %@",localPath);
+                //Is it already existing ?
+                NSFileManager *fileManager = [[NSFileManager alloc] init];
+                BOOL success;
+                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                if (success) {//already existing : start play/enqueue
+                    if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+                        NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                        NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                        [array_label addObject:[localPath lastPathComponent]];
+                        [array_path addObject:localPath];
+                        [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                    } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
+                    //[self goPlayer];
+                } else { //start download
+                    [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
+                    
+                    
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1 filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
+                }
                 fileManager=nil;
-				return NO;
-			} else if (isHVSC==1) {  //HVSC DOWNLOAD
-				//get modland path to rebuild localPath
-				NSString *tmpstr=[ftpPath substringFromIndex:rHVSC.location+10];
-				localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",HVSC_BASEDIR,tmpstr];
-				//NSLog(@"newlocal : %@",localPath);
-				//Is it already existing ?
-				NSFileManager *fileManager = [[NSFileManager alloc] init];
-				BOOL success;
-				success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
-				if (success) {//already existing : start play/enqueue
-					if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-						NSMutableArray *array_label = [[NSMutableArray alloc] init];
-						NSMutableArray *array_path = [[NSMutableArray alloc] init];
-						[array_label addObject:[localPath lastPathComponent]];
-						[array_path addObject:localPath];
-						[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-					} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-					//[self goPlayer];
-				} else { //start download
-					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
-					
-					
-					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
-														filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
-				}
+                decisionHandler(WKNavigationActionPolicyCancel);
+                return;
+            } else if (isHVSC==1) {  //HVSC DOWNLOAD
+                //get modland path to rebuild localPath
+                NSString *tmpstr=[ftpPath substringFromIndex:rHVSC.location+10];
+                localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",HVSC_BASEDIR,tmpstr];
+                //NSLog(@"newlocal : %@",localPath);
+                //Is it already existing ?
+                NSFileManager *fileManager = [[NSFileManager alloc] init];
+                BOOL success;
+                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                if (success) {//already existing : start play/enqueue
+                    if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+                        NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                        NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                        [array_label addObject:[localPath lastPathComponent]];
+                        [array_path addObject:localPath];
+                        [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                    } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
+                    //[self goPlayer];
+                } else { //start download
+                    [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
+                    
+                    
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:-1
+                                                        filename:[localPath lastPathComponent] isMODLAND:1 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
+                }
                 fileManager=nil;
-				return NO;
-			}
-		}
-	}
-	
-	
-	NSURLConnection *theConnection = [NSURLConnection connectionWithRequest:request delegate:self];
-    if (theConnection==nil) {
-    	NSLog(@"Connection failed");
+                decisionHandler(WKNavigationActionPolicyCancel);
+                return;
+            }
+        }
     }
-	if ((navigationType==UIWebViewNavigationTypeLinkClicked)||
-		(navigationType==UIWebViewNavigationTypeReload)||
-		(navigationType==UIWebViewNavigationTypeBackForward)) {
-		addressTestField.text=[[request URL] absoluteString];
-		if ([addressTestField.text caseInsensitiveCompare:@"about:blank"]==NSOrderedSame) addressTestField.text=@"";
+    
+    
+    NSURLConnection *theConnection = [NSURLConnection connectionWithRequest:navigationAction.request delegate:self];
+    if (theConnection==nil) {
+        NSLog(@"Connection failed");
+    }
+    
+    /*WKNavigationTypeLinkActivated,
+    WKNavigationTypeFormSubmitted,
+    WKNavigationTypeBackForward,
+    WKNavigationTypeReload,
+    WKNavigationTypeFormResubmitted,
+    WKNavigationTypeOther = -1,*/
+
+    if ((navigationAction.navigationType==WKNavigationTypeLinkActivated)||
+        (navigationAction.navigationType==WKNavigationTypeReload)||
+        (navigationAction.navigationType==WKNavigationTypeBackForward)) {
+        addressTestField.text=[[navigationAction.request URL] absoluteString];
+        if ([addressTestField.text caseInsensitiveCompare:@"about:blank"]==NSOrderedSame) addressTestField.text=@"";
         
         NSRange rModizerdb;
         rModizerdb.location=NSNotFound;
         rModizerdb=[addressTestField.text rangeOfString:@"modizerdb.appspot.com" options:NSCaseInsensitiveSearch];
-	}
+    }
     
     
-	return YES;
+    decisionHandler(WKNavigationActionPolicyAllow);
+    return;
 }
 
-- (void)webViewDidStartLoad:(UIWebView*)webV {
+//- (void)webViewDidStartLoad:(WKWebView*)webV {
+- (void)webView:(WKWebView *)webView
+didCommitNavigation:(WKNavigation *)navigation {
 //	[activityIndicator startAnimating];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     
@@ -776,7 +807,9 @@ static UIAlertView *alertChooseName;
 
 }
 
-- (void)webViewDidFinishLoad:(UIWebView*)webV {
+//- (void)webViewDidFinishLoad:(WKWebView*)webV {
+- (void)webView:(WKWebView *)webView
+didFinishNavigation:(WKNavigation *)navigation {
     
     //update addressfield indicator
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
@@ -829,16 +862,70 @@ static UIAlertView *alertChooseName;
 }
 
 - (CGSize)windowSize {
-    CGSize size;
-    size.width = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] integerValue];
-    size.height = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] integerValue];
+    __block CGSize size;
+    __block BOOL finished1 = NO;
+    __block BOOL finished2 = NO;
+    //size.width = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] integerValue];
+    //size.height = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] integerValue];
+    
+    [self.webView evaluateJavaScript:@"window.innerWidth" completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+            if (data) {
+                //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
+                size.width=[(NSNumber*)data integerValue];
+                //NSLog(@"result: w %f",size.width);
+                finished1=YES;
+            }
+        }];
+
+    
+    [self.webView evaluateJavaScript:@"window.innerHeight" completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+            if (data) {
+                //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
+                size.height=[(NSNumber*)data integerValue];
+                //NSLog(@"result: h %f",size.height);
+                finished2=YES;
+            }
+        }];
+
+    while ((!finished1)||(!finished2))
+        {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+    
+    
     return size;
 }
 
 - (CGPoint)scrollOffset {
-    CGPoint pt;
-    pt.x = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] integerValue];
-    pt.y = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] integerValue];
+    __block CGPoint pt;
+    __block BOOL finished1 = NO;
+    __block BOOL finished2 = NO;
+    //pt.x = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] integerValue];
+    //pt.y = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] integerValue];
+    
+    [self.webView evaluateJavaScript:@"window.pageXOffset" completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+            if (data) {
+                //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
+                pt.x=[(NSNumber*)data integerValue];
+                //NSLog(@"result: w %f",pt.x);
+                finished1=YES;
+            }
+        }];
+        
+    [self.webView evaluateJavaScript:@"window.pageYOffset" completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+            if (data) {
+                //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
+                pt.y=[(NSNumber*)data integerValue];
+                //NSLog(@"result: w %f",pt.y);
+                finished2=YES;
+            }
+        }];
+    
+    while ((!finished1)||(!finished2))
+        {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+    
     return pt;
 }
 
@@ -863,7 +950,8 @@ static UIAlertView *alertChooseName;
     
     NSLog(@"tagName: %@",tagName);
     NSLog(@"urg: %@",urlToSave);*/
-    
+
+
     CGPoint point = [sender locationInView:self.webView];
     // convert point from view to HTML coordinate system
     CGSize viewSize = [webView frame].size;
@@ -884,18 +972,59 @@ static UIAlertView *alertChooseName;
     // Load the JavaScript code from the Resources and inject it into the web page
     NSString *path = [[NSBundle mainBundle] pathForResource:@"JSTools" ofType:@"js"];
     NSString *jsCode = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    [webView stringByEvaluatingJavaScriptFromString: jsCode];
+    __block BOOL finished=NO;
+    //[webView stringByEvaluatingJavaScriptFromString: jsCode];
+    [self.webView evaluateJavaScript:jsCode completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+                finished=YES;
+            
+        }];
+    
+    while (!finished)
+        {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+    
     
     
     // call js functions
-    NSString *tags = [webView stringByEvaluatingJavaScriptFromString:
+    finished=NO;
+    __block NSString *tags;
+    [self.webView evaluateJavaScript:[NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y] completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+            if (data) {
+                //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
+                tags=[NSString stringWithString:(NSString*)data];
+                finished=YES;
+            }
+        }];
+    
+    while (!finished)
+        {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+    
+    finished=NO;
+    __block NSString *tagsSRC;
+    [self.webView evaluateJavaScript:[NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y] completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+            if (data) {
+                tagsSRC=[NSString stringWithString:(NSString*)data];
+                finished=YES;
+            }
+        }];
+    
+    while (!finished)
+        {
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+    
+    /*NSString *tags = [webView stringByEvaluatingJavaScriptFromString:
                       [NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
     NSString *tagsSRC = [webView stringByEvaluatingJavaScriptFromString:
                          [NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
-    
-//    NSLog(@"src : %@",tags);
-//    NSLog(@"src : %@",tagsSRC);
-    
+    */
+
+    //NSLog(@"src : %@",tags);
+    //NSLog(@"src : %@",tagsSRC);
+
     NSString *url = nil;
     if ([tags rangeOfString:@",IMG,"].location != NSNotFound) {
         url = tagsSRC;    // Here is the image url!
@@ -928,6 +1057,65 @@ static UIAlertView *alertChooseName;
 	clock_t start_time,end_time;	
 	start_time=clock();
     
+    
+    // Create the new configuration object to set useful options
+    WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
+    configuration.suppressesIncrementalRendering = NO;//YES;
+    configuration.ignoresViewportScaleLimits = NO;
+    configuration.dataDetectorTypes = WKDataDetectorTypeNone;
+
+    // Set the position - Use the full page, but above my tabBar
+    CGRect frame = self.view.bounds;
+    CGFloat tabBarHeight = 44;//frame.size.height - self.tabBarController.tabBar.frame.origin.y;
+    //frame.size.height -= tabBarHeight;
+    //frame.origin.y=tabBarHeight;
+
+    // Create the new WKWebView
+    webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
+    
+    //webView.scalesPageToFit = YES;
+    webView.autoresizesSubviews = YES;
+    webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+    webView.translatesAutoresizingMaskIntoConstraints = NO;
+
+    
+    /* Top space to superview Y*/
+    NSLayoutConstraint *topConstraint = [NSLayoutConstraint
+                                                 constraintWithItem:webView attribute:NSLayoutAttributeTop
+                                                 relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
+                                                 NSLayoutAttributeTop multiplier:1.0f constant:44];
+    /* Bottom space to superview Y*/
+    NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint
+                                                 constraintWithItem:webView attribute:NSLayoutAttributeBottom
+                                                 relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
+                                                 NSLayoutAttributeBottom multiplier:1.0f constant:-44];
+    /* Fixed width */
+    NSLayoutConstraint *widthConstraint = [NSLayoutConstraint constraintWithItem:webView
+                                                                       attribute:NSLayoutAttributeWidth
+                                                                       relatedBy:NSLayoutRelationEqual
+                                                                          toItem:self.view
+                                                                       attribute:NSLayoutAttributeWidth
+                                                                      multiplier:1.0
+                                                                        constant:0];
+    /* Fixed height */
+    /*NSLayoutConstraint *heightConstraint = [NSLayoutConstraint constraintWithItem:webView
+                                                                       attribute:NSLayoutAttributeHeight
+                                                                       relatedBy:NSLayoutRelationEqual
+                                                                          toItem:self.view
+                                                                       attribute:NSLayoutAttributeHeight
+                                                                      multiplier:1.0
+                                                                        constant:0];*/
+    [self.view addConstraints:@[widthConstraint,topConstraint,bottomConstraint]];
+    // Set the delegate - note this is 'navigationDelegate' not just 'delegate'
+    self.webView.navigationDelegate = self;
+    
+    // Add it to the view
+    [self.view addSubview:webView];
+    [self.view sendSubviewToBack:webView];
+
+    // Load a blank page
+    [webView loadHTMLString:@"<html style='margin:0;padding:0;height:100%;width:100%;background:#fff'><body style='margin:0;padding:0;height:100%;width:100%;background:#fff'></body><html>" baseURL:nil];
+            
     lastURL=nil;
     
     bookmarksVC=nil;
@@ -941,10 +1129,7 @@ static UIAlertView *alertChooseName;
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
 	
-	webView.scalesPageToFit = YES;
-	webView.autoresizesSubviews = YES;
-	webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
-    
+	
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,24,24)];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);

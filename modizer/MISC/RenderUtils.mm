@@ -597,60 +597,64 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
     glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
     
+    int menu_cell_size;
+    if (_ww<_hh) menu_cell_size=_ww;
+    else menu_cell_size=_hh;
+    
     int fade_lev=fade_level*0.75;
     if (fade_lev<+min_level) fade_lev=min_level;
     if (fade_lev>255*0.8) fade_lev=255*0.8;
     pts[0] = LineVertex(0, 0,		0,0,0,fade_lev);
-    pts[1] = LineVertex(_ww, 0,		0,0,0,fade_lev);
-    pts[2] = LineVertex(0, _hh,		0,0,0,fade_lev);
-    pts[3] = LineVertex(_ww, _hh,	0,0,0,fade_lev);
+    pts[1] = LineVertex(menu_cell_size, 0,		0,0,0,fade_lev);
+    pts[2] = LineVertex(0, menu_cell_size,		0,0,0,fade_lev);
+    pts[3] = LineVertex(menu_cell_size, menu_cell_size,	0,0,0,fade_lev);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     
     
-    pts[0] = LineVertex(_ww*1/4-1, 0,		255,255,255,fade_level);
-    pts[1] = LineVertex(_ww*1/4-1, _hh,		55,55,155,fade_level);
-    pts[2] = LineVertex(_ww*2/4-1, 0,		55,55,155,fade_level);
-    pts[3] = LineVertex(_ww*2/4-1, _hh,		255,255,255,fade_level);
-    pts[4] = LineVertex(_ww*3/4-1, 0,		55,55,155,fade_level);
-    pts[5] = LineVertex(_ww*3/4-1, _hh,		255,255,255,fade_level);
-    pts[6] = LineVertex(_ww*1/4+1, 0,		255,255,255,fade_level/4);
-    pts[7] = LineVertex(_ww*1/4+1, _hh,		55,55,155,fade_level/4);
-    pts[8] = LineVertex(_ww*2/4+1, 0,		55,55,155,fade_level/4);
-    pts[9] = LineVertex(_ww*2/4+1, _hh,		255,255,255,fade_level/4);
-    pts[10] = LineVertex(_ww*3/4+1, 0,		55,55,155,fade_level/4);
-    pts[11] = LineVertex(_ww*3/4+1, _hh,		255,255,255,fade_level/4);
+    pts[0] = LineVertex(menu_cell_size*1/4-1, 0,		255,255,255,fade_level);
+    pts[1] = LineVertex(menu_cell_size*1/4-1, menu_cell_size,		55,55,155,fade_level);
+    pts[2] = LineVertex(menu_cell_size*2/4-1, 0,		55,55,155,fade_level);
+    pts[3] = LineVertex(menu_cell_size*2/4-1, menu_cell_size,		255,255,255,fade_level);
+    pts[4] = LineVertex(menu_cell_size*3/4-1, 0,		55,55,155,fade_level);
+    pts[5] = LineVertex(menu_cell_size*3/4-1, menu_cell_size,		255,255,255,fade_level);
+    pts[6] = LineVertex(menu_cell_size*1/4+1, 0,		255,255,255,fade_level/4);
+    pts[7] = LineVertex(menu_cell_size*1/4+1, menu_cell_size,		55,55,155,fade_level/4);
+    pts[8] = LineVertex(menu_cell_size*2/4+1, 0,		55,55,155,fade_level/4);
+    pts[9] = LineVertex(menu_cell_size*2/4+1, menu_cell_size,		255,255,255,fade_level/4);
+    pts[10] = LineVertex(menu_cell_size*3/4+1, 0,		55,55,155,fade_level/4);
+    pts[11] = LineVertex(menu_cell_size*3/4+1, menu_cell_size,		255,255,255,fade_level/4);
     
-    pts[12] = LineVertex(0,	_hh*1/4-1, 	55,55,155,fade_level);
-    pts[13] = LineVertex(_ww,	_hh*1/4-1, 	255,255,255,fade_level);
-    pts[14] = LineVertex(0,	_hh*2/4-1, 	255,255,255,fade_level);
-    pts[15] = LineVertex(_ww,	_hh*2/4-1, 	55,55,155,fade_level);
-    pts[16] = LineVertex(0,	_hh*3/4-1, 	255,255,255,fade_level);
-    pts[17] = LineVertex(_ww,	_hh*3/4-1, 	55,55,155,fade_level);
-    pts[18] = LineVertex(0,	_hh*1/4+1, 	55,55,155,fade_level/4);
-    pts[19] = LineVertex(_ww,	_hh*1/4+1, 	255,255,255,fade_level/4);
-    pts[20] = LineVertex(0,	_hh*2/4+1, 	255,255,255,fade_level/4);
-    pts[21] = LineVertex(_ww,	_hh*2/4+1, 	55,55,155,fade_level/4);
-    pts[22] = LineVertex(0,	_hh*3/4+1, 	255,255,255,fade_level/4);
-    pts[23] = LineVertex(_ww,	_hh*3/4+1, 	55,55,155,fade_level/4);
+    pts[12] = LineVertex(0,	menu_cell_size*1/4-1, 	55,55,155,fade_level);
+    pts[13] = LineVertex(menu_cell_size,	menu_cell_size*1/4-1, 	255,255,255,fade_level);
+    pts[14] = LineVertex(0,	menu_cell_size*2/4-1, 	255,255,255,fade_level);
+    pts[15] = LineVertex(menu_cell_size,	menu_cell_size*2/4-1, 	55,55,155,fade_level);
+    pts[16] = LineVertex(0,	menu_cell_size*3/4-1, 	255,255,255,fade_level);
+    pts[17] = LineVertex(menu_cell_size,	menu_cell_size*3/4-1, 	55,55,155,fade_level);
+    pts[18] = LineVertex(0,	menu_cell_size*1/4+1, 	55,55,155,fade_level/4);
+    pts[19] = LineVertex(menu_cell_size,	menu_cell_size*1/4+1, 	255,255,255,fade_level/4);
+    pts[20] = LineVertex(0,	menu_cell_size*2/4+1, 	255,255,255,fade_level/4);
+    pts[21] = LineVertex(menu_cell_size,	menu_cell_size*2/4+1, 	55,55,155,fade_level/4);
+    pts[22] = LineVertex(0,	menu_cell_size*3/4+1, 	255,255,255,fade_level/4);
+    pts[23] = LineVertex(menu_cell_size,	menu_cell_size*3/4+1, 	55,55,155,fade_level/4);
     
     glLineWidth(1.0f*(is_retina?2:1));
     glDrawArrays(GL_LINES, 0, 24);
     
     
-    pts[0] = LineVertex(_ww*1/4, 0,		255,255,255,fade_level/2);
-    pts[1] = LineVertex(_ww*1/4, _hh,		55,55,155,fade_level/2);
-    pts[2] = LineVertex(_ww*2/4, 0,		55,55,155,fade_level/2);
-    pts[3] = LineVertex(_ww*2/4, _hh,		255,255,255,fade_level/2);
-    pts[4] = LineVertex(_ww*3/4, 0,		55,55,155,fade_level/2);
-    pts[5] = LineVertex(_ww*3/4, _hh,		255,255,255,fade_level/2);
+    pts[0] = LineVertex(menu_cell_size*1/4, 0,		255,255,255,fade_level/2);
+    pts[1] = LineVertex(menu_cell_size*1/4, menu_cell_size,		55,55,155,fade_level/2);
+    pts[2] = LineVertex(menu_cell_size*2/4, 0,		55,55,155,fade_level/2);
+    pts[3] = LineVertex(menu_cell_size*2/4, menu_cell_size,		255,255,255,fade_level/2);
+    pts[4] = LineVertex(menu_cell_size*3/4, 0,		55,55,155,fade_level/2);
+    pts[5] = LineVertex(menu_cell_size*3/4, menu_cell_size,		255,255,255,fade_level/2);
     
-    pts[6] = LineVertex(0,	_hh*1/4, 	55,55,155,fade_level/2);
-    pts[7] = LineVertex(_ww,	_hh*1/4, 	255,255,255,fade_level/2);
-    pts[8] = LineVertex(0,	_hh*2/4, 	255,255,255,fade_level/2);
-    pts[9] = LineVertex(_ww,	_hh*2/4, 	55,55,155,fade_level/2);
-    pts[10] = LineVertex(0,	_hh*3/4, 	255,255,255,fade_level/2);
-    pts[11] = LineVertex(_ww,	_hh*3/4, 	55,55,155,fade_level/2);
+    pts[6] = LineVertex(0,	menu_cell_size*1/4, 	55,55,155,fade_level/2);
+    pts[7] = LineVertex(menu_cell_size,	menu_cell_size*1/4, 	255,255,255,fade_level/2);
+    pts[8] = LineVertex(0,	menu_cell_size*2/4, 	255,255,255,fade_level/2);
+    pts[9] = LineVertex(menu_cell_size,	menu_cell_size*2/4, 	55,55,155,fade_level/2);
+    pts[10] = LineVertex(0,	menu_cell_size*3/4, 	255,255,255,fade_level/2);
+    pts[11] = LineVertex(menu_cell_size,	menu_cell_size*3/4, 	55,55,155,fade_level/2);
     glLineWidth(2.0f*(is_retina?2:1));
     glDrawArrays(GL_LINES, 0, 12);
     
@@ -677,10 +681,10 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     for (int y=0;y<4;y++)
         for (int x=0;x<4;x++) {
             if (active_idx&(1<<((3-y)*4+x))) {
-                pts[0] = LineVertex(x*_ww/4+3, y*_hh/4+3,		colbgAR,colbgAG,colbgAB,fade_lev);
-                pts[1] = LineVertex((x+1)*_ww/4-3, y*_hh/4+3,		colbgBR,colbgBG,colbgBB,fade_lev);
-                pts[2] = LineVertex((x+1)*_ww/4-3, (y+1)*_hh/4-3,	colbgAR,colbgAG,colbgAB,fade_lev);
-                pts[3] = LineVertex(x*_ww/4+3, (y+1)*_hh/4-3,		colbgBR,colbgBG,colbgBB,fade_lev);
+                pts[0] = LineVertex(x*menu_cell_size/4+3, y*menu_cell_size/4+3,		colbgAR,colbgAG,colbgAB,fade_lev);
+                pts[1] = LineVertex((x+1)*menu_cell_size/4-3, y*menu_cell_size/4+3,		colbgBR,colbgBG,colbgBB,fade_lev);
+                pts[2] = LineVertex((x+1)*menu_cell_size/4-3, (y+1)*menu_cell_size/4-3,	colbgAR,colbgAG,colbgAB,fade_lev);
+                pts[3] = LineVertex(x*menu_cell_size/4+3, (y+1)*menu_cell_size/4-3,		colbgBR,colbgBG,colbgBB,fade_lev);
                 glDrawArrays(GL_LINE_LOOP, 0, 4);
             }
         }
