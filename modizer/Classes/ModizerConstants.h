@@ -100,9 +100,10 @@
 
 
 //#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
-#define ASMA_HOST_DEFAULT "http://asma.atari.org/asma"
-#define ASMA_HOST_ALT1 "http://asma.atariportal.cz/ASMA"
+#define ASMA_HOST_DEFAULT "http://asma.scene.pl/browser/trunk/asma"
+#define ASMA_HOST_ALT1 "http://asma.atari.org/asma"
 #define ASMA_HOST_ALT2 "http://asma.atariportal.cz/ASMA"
+
 
 
 //#define ASMA_FTPHOST "aero.exotica.org.uk/pub/mirrors/exotica/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"

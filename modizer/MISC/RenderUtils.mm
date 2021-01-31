@@ -605,9 +605,11 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     if (fade_lev<+min_level) fade_lev=min_level;
     if (fade_lev>255*0.8) fade_lev=255*0.8;
     pts[0] = LineVertex(0, 0,		0,0,0,fade_lev);
-    pts[1] = LineVertex(menu_cell_size, 0,		0,0,0,fade_lev);
-    pts[2] = LineVertex(0, menu_cell_size,		0,0,0,fade_lev);
-    pts[3] = LineVertex(menu_cell_size, menu_cell_size,	0,0,0,fade_lev);
+    pts[1] = LineVertex(_ww, 0,		0,0,0,fade_lev);
+    pts[2] = LineVertex(0, _hh,		0,0,0,fade_lev);
+    pts[3] = LineVertex(_ww, _hh,	0,0,0,fade_lev);
+        
+    
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     
@@ -638,6 +640,8 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     pts[22] = LineVertex(0,	menu_cell_size*3/4+1, 	255,255,255,fade_level/4);
     pts[23] = LineVertex(menu_cell_size,	menu_cell_size*3/4+1, 	55,55,155,fade_level/4);
     
+    for (int i=0;i<24;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
+    
     glLineWidth(1.0f*(is_retina?2:1));
     glDrawArrays(GL_LINES, 0, 24);
     
@@ -655,6 +659,9 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
     pts[9] = LineVertex(menu_cell_size,	menu_cell_size*2/4, 	55,55,155,fade_level/2);
     pts[10] = LineVertex(0,	menu_cell_size*3/4, 	255,255,255,fade_level/2);
     pts[11] = LineVertex(menu_cell_size,	menu_cell_size*3/4, 	55,55,155,fade_level/2);
+    
+    for (int i=0;i<12;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
+    
     glLineWidth(2.0f*(is_retina?2:1));
     glDrawArrays(GL_LINES, 0, 12);
     
@@ -685,6 +692,9 @@ void RenderUtils::DrawFXTouchGrid(uint _ww,uint _hh,int fade_level,int min_level
                 pts[1] = LineVertex((x+1)*menu_cell_size/4-3, y*menu_cell_size/4+3,		colbgBR,colbgBG,colbgBB,fade_lev);
                 pts[2] = LineVertex((x+1)*menu_cell_size/4-3, (y+1)*menu_cell_size/4-3,	colbgAR,colbgAG,colbgAB,fade_lev);
                 pts[3] = LineVertex(x*menu_cell_size/4+3, (y+1)*menu_cell_size/4-3,		colbgBR,colbgBG,colbgBB,fade_lev);
+                
+                for (int i=0;i<4;i++) pts[i].y+=+(_hh-menu_cell_size)/2;
+                
                 glDrawArrays(GL_LINE_LOOP, 0, 4);
             }
         }

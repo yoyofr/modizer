@@ -3365,7 +3365,7 @@ void ViewPerspective()
 void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
     glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
     glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);  /* Set Blending Mode         */
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
     glEnable(GL_BLEND);                 /* Enable Blending           */
 	
     /* Bind To The Blur Texture */
@@ -3400,13 +3400,13 @@ void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
         for (int j=0;j<4;j++) {
             if (txtMenuHandle[i*4+j]) {
                 glBindTexture(GL_TEXTURE_2D, txtMenuHandle[i*4+j]);
-                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg;
+                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
                 vertices[0][2]=0.0f;
-                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg;
+                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
                 vertices[1][2]=0.0f;
-                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg;
+                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
                 vertices[2][2]=0.0f;
-                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg;
+                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
                 vertices[3][2]=0.0f;
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             }
@@ -3432,7 +3432,7 @@ void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
 void infoSubMenuShowImages(int window_width,int window_height,int start_index,int nb,int alpha_byte ) {
     glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
     glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);  /* Set Blending Mode         */
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
     glEnable(GL_BLEND);                 /* Enable Blending           */
 	
     /* Bind To The Blur Texture */
@@ -3470,13 +3470,13 @@ void infoSubMenuShowImages(int window_width,int window_height,int start_index,in
         for (int j=0;(j<4)&&(idx<start_index+nb);j++) {
             if (txtSubMenuHandle[idx]) {
                 glBindTexture(GL_TEXTURE_2D, txtSubMenuHandle[idx]);
-                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg;
+                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
                 vertices[0][2]=0.0f;
-                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg;
+                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
                 vertices[1][2]=0.0f;
-                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg;
+                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
                 vertices[2][2]=0.0f;
-                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg;
+                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
                 vertices[3][2]=0.0f;
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             }
@@ -5231,9 +5231,10 @@ extern "C" int current_sample;
 		if (viewTapHelpShow==1) {  //Main Menu
 			viewTapHelpShow=0;
             viewTapHelpShowMode=1;
-			int tlx=oglTapX;
-			int tly=oglTapY;
             int menu_cell_size=(ww<hh?ww:hh);
+            int tlx=oglTapX;
+			int tly=oglTapY-(hh-menu_cell_size)/2;
+            if (tly>=0) {
             int touched_cellX=tlx*4/menu_cell_size;
             int touched_cellY=tly*4/menu_cell_size;
             int touched_coord=(touched_cellX<<4)|(touched_cellY);
@@ -5317,13 +5318,15 @@ extern "C" int current_sample;
                 settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                 settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
 			}
+            }
             
 		} else if (viewTapHelpShow==2) { //sub menu
             viewTapHelpShow=0;
             viewTapHelpShowMode=2;
-			int tlx=oglTapX;
-			int tly=oglTapY;
             int menu_cell_size=(ww<hh?ww:hh);
+            int tlx=oglTapX;
+			int tly=oglTapY-(hh-menu_cell_size)/2;
+            if (tly>=0) {
             int touched_cellX=tlx*4/menu_cell_size;
             int touched_cellY=tly*4/menu_cell_size;
             int touched_coord=(touched_cellX<<4)|(touched_cellY);
@@ -5526,6 +5529,7 @@ extern "C" int current_sample;
                         if (startChan<0) startChan=0;
                         break;
                 }
+            }
             }
         } else {viewTapHelpShow=1;viewTapHelpShowMode=1;}
 	}
@@ -6157,12 +6161,13 @@ extern "C" int current_sample;
 		if (viewTapHelpShowMode==1) {
             active_idx=[self computeActiveFX];
             
+            //NSLog(@"alpha: %d / %d",fadelev,(int)(fxalpha*255));
             RenderUtils::DrawFXTouchGrid(ww,hh, fadelev,fxalpha*255,active_idx,framecpt);
             infoMenuShowImages(ww,hh,fadelev);
             
             glPushMatrix();
             int menu_cell_size=(ww<hh?ww:hh);
-			glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*6,menu_cell_size/8, 0.0f);
+			glTranslatef((menu_cell_size*2/4)+menu_cell_size/8-(strlen(viewTapInfoStr[2]->mText)/2)*6,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
 			viewTapInfoStr[2]->Render(128+(fadelev/2));
 			glPopMatrix();
         }
@@ -6203,13 +6208,13 @@ extern "C" int current_sample;
             infoSubMenuShowImages(ww,hh,viewTapHelpShow_SubStart,viewTapHelpShow_SubNb,fadelev);
             int menu_cell_size=(ww<hh?ww:hh);
             glPushMatrix();
-			glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText)/2)*6,menu_cell_size*7/8, 0.0f);
+			glTranslatef(menu_cell_size/8-(strlen(viewTapInfoStr[1]->mText)/2)*6,menu_cell_size*7/8+(hh-menu_cell_size)/2, 0.0f);
 			viewTapInfoStr[1]->Render(128+(fadelev/2));
 			glPopMatrix();
         }
         int menu_cell_size=(ww<hh?ww:hh);
         glPushMatrix();
-		glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText)/2)*6,menu_cell_size/8, 0.0f);
+		glTranslatef((menu_cell_size*3/4)+menu_cell_size/8-(strlen(viewTapInfoStr[0]->mText)/2)*6,menu_cell_size/8+(hh-menu_cell_size)/2, 0.0f);
 		viewTapInfoStr[0]->Render(128+(fadelev/2));
 		glPopMatrix();
 	}
