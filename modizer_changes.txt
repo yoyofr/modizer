@@ -31,14 +31,15 @@ Todo/Requested:
 2.9.4
 �����
 - HVSC #74
-- ASMA 2021/01/15
-- Modland 2021/01/15
+- ASMA 2021/01/30
+- Modland 2021/01/30
 - Adplug 2.3.4 beta
-- VGMPlay last version
+- VGMPlay updated to last version
 - snes snsf playback implemented (beta, not compatible with all dumps)
-- mptm format added (openmpt)
-- code improvements & bugfixes
+- mptm format added (libopenmpt)
 - Files integration
+- various code updates/improvements & bugfixes
+- M1 Mac specific UI adjustement
 
 
 2.9.3
