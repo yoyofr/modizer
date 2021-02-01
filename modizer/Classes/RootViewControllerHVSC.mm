@@ -6,8 +6,6 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-extern BOOL is_ios7;
-
 #define GET_NB_ENTRIES 1
 #define NB_HVSC_ENTRIES 43856
 
@@ -1311,15 +1309,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 
 -(void) viewWillAppear:(BOOL)animated {
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-        [self.sBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [self.sBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
-
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [self.sBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     if (keys) {
         keys=nil;

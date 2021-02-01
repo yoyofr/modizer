@@ -15,8 +15,6 @@ enum {
 };
 static int lastSelectedSearch;
 
-extern BOOL is_ios7;
-
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
@@ -200,16 +198,10 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-        [self.sBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [self.sBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
-
-	
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [self.sBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
 	[searchResultTabView reloadData];
 	
 	[super viewWillAppear:animated];

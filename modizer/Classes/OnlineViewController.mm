@@ -6,8 +6,6 @@
 //
 //
 
-extern BOOL is_ios7;
-
 #define GET_NB_ENTRIES 1
 //#define NB_MODLAND_ENTRIES 319746
 //#define NB_HVSC_ENTRIES 43856
@@ -106,13 +104,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 }
 
 -(void) viewWillAppear:(BOOL)animated {
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
-    
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     [self.tableView reloadData];
     collectionViewController=nil;

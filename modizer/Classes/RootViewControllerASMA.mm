@@ -9,7 +9,6 @@
 #define GET_NB_ENTRIES 1
 //#define NB_ASMA_ENTRIES 4630
 
-extern BOOL is_ios7;
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define ROW_HEIGHT 40
@@ -1011,15 +1010,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 
 -(void) viewWillAppear:(BOOL)animated {
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-        [self.sBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [self.sBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
-    
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [self.sBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     if (keys) {
         //[keys release];

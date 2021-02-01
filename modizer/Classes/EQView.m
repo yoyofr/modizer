@@ -8,8 +8,6 @@
 
 #import "EQView.h"
 
-extern BOOL is_ios7;
-
 @implementation EQView
 
 - (id)initWithFrame:(CGRect)frame
@@ -32,7 +30,7 @@ extern BOOL is_ios7;
     
     CGContextSetLineWidth(context, 0.5);
     
-    int yofs=(is_ios7?16:12);
+    int yofs=16;
     CGContextMoveToPoint(context, 4+28,self.frame.size.height/4+32);
     CGContextAddLineToPoint(context, self.frame.size.width-4,self.frame.size.height/4+32);
     

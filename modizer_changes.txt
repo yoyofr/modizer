@@ -40,6 +40,7 @@ Todo/Requested:
 - Files integration
 - various code updates/improvements & bugfixes
 - M1 Mac specific UI adjustement
+- New feature: archives can be extracted (right swipe on a file in local browser view)
 
 
 2.9.3

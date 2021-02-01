@@ -9,8 +9,6 @@
 #import "myNavViewController.h"
 #import "DetailViewControllerIphone.h"
 
-extern BOOL is_ios7;
-
 @implementation myNavViewController
 @synthesize detailView;
 

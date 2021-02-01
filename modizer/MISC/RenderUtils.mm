@@ -3693,7 +3693,7 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
             
             if (vol&&(st&VOICE_ON)) {
                 //note pressed
-                piano_key_state[(data_pianofx_note[j][i])&127]=4;
+                piano_key_state[(data_pianofx_note[j][i])&127]=8;
                 piano_key_instr[(data_pianofx_note[j][i])&127]=instr;
             }
         }
@@ -3703,8 +3703,8 @@ void RenderUtils::DrawPiano3D(int *data,uint ww,uint hh,int fx_len,int automove,
     
 #define PIANO3D_DRAWKEY \
 if (piano_key_state[i+k]) { \
-yn=yf-key_height*4/5*piano_key_state[i+k]/4; \
-ynBL=yf-key_heightBL*3/5*piano_key_state[i+k]/4; \
+yn=yf-key_height*4/5*piano_key_state[i+k]/8; \
+ynBL=yf-key_heightBL*3/5*piano_key_state[i+k]/8; \
 piano_key_state[i+k]--; \
 } else { \
 yn=ynBL=yf; \
@@ -3712,9 +3712,9 @@ yn=ynBL=yf; \
 if (piano_ofs==12) piano_ofs=0; \
 if (piano_key[piano_ofs]==0) { /*white key*/ \
 if (piano_key_state[i+k]) { \
-crt=(0.6f*piano_key_state[i+k]+1.0f*(4-piano_key_state[i+k]))/4; \
-cgt=(0.6f*piano_key_state[i+k]+1.0f*(4-piano_key_state[i+k]))/4; \
-cbt=(1.0f*piano_key_state[i+k]+1.0f*(4-piano_key_state[i+k]))/4; \
+crt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
+cgt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
+cbt=(0.9f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
 } else crt=cgt=cbt=1.0f; \
 /*Key / Up Face*/ \
 cr=crt;cg=cgt;cb=cbt;\
@@ -3830,9 +3830,9 @@ glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
 white_idx++; \
 } else { /*black key*/ \
 if (piano_key_state[i+k]) { \
-crt=(1.0f*piano_key_state[i+k]+0.4f*(4-piano_key_state[i+k]))/4; \
-cgt=(0.8f*piano_key_state[i+k]+0.4f*(4-piano_key_state[i+k]))/4; \
-cbt=(0.8f*piano_key_state[i+k]+0.4f*(4-piano_key_state[i+k]))/4; \
+crt=(0.9f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
+cgt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
+cbt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
 } else crt=cgt=cbt=0.2f; \
 /*TOP*/ \
 cr=crt;cg=cgt;cb=cbt;\
@@ -4232,7 +4232,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             
             if (vol&&(st&VOICE_ON)) {
                 //note pressed
-                piano_key_state[(data_pianofx_note[j][i])&127]=4;
+                piano_key_state[(data_pianofx_note[j][i])&127]=8;
                 piano_key_instr[(data_pianofx_note[j][i])&127]=instr;
             }
         }
@@ -4278,8 +4278,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
     yadj=0.01f;
     for (int i=0;i<128;i++) {
         if (piano_key_state[i]) {
-            yn=yf-key_height*4/5*piano_key_state[i]/4;
-            ynBL=yf-key_heightBL*3/5*piano_key_state[i]/4;
+            yn=yf-key_height*4/5*piano_key_state[i]/8;
+            ynBL=yf-key_heightBL*3/5*piano_key_state[i]/8;
             piano_key_state[i]--;
             
             int colidx;//=i%12;
@@ -4309,9 +4309,9 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             piano_note_posy[i]=yf+yadj;
             piano_note_posz[i]=z-key_length;
             if (piano_key_state[i]) {
-                crt=(crt*piano_key_state[i]+1.0f*(4-piano_key_state[i]))/4;
-                cgt=(cgt*piano_key_state[i]+1.0f*(4-piano_key_state[i]))/4;
-                cbt=(cbt*piano_key_state[i]+1.0f*(4-piano_key_state[i]))/4;
+                crt=(crt*piano_key_state[i]+1.0f*(8-piano_key_state[i]))/8;
+                cgt=(cgt*piano_key_state[i]+1.0f*(8-piano_key_state[i]))/8;
+                cbt=(cbt*piano_key_state[i]+1.0f*(8-piano_key_state[i]))/8;
             } else crt=cgt=cbt=1.0f;
             /*Key / Up Face*/
             cr=crt;cg=cgt;cb=cbt;
@@ -4450,9 +4450,9 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
             piano_note_posy[i]=yf+key_heightBL;
             piano_note_posz[i]=z-key_length;
             if (piano_key_state[i]) {
-                crt=(crt*piano_key_state[i]+0.4f*(4-piano_key_state[i]))/4;
-                cgt=(cgt*piano_key_state[i]+0.4f*(4-piano_key_state[i]))/4;
-                cbt=(cbt*piano_key_state[i]+0.4f*(4-piano_key_state[i]))/4;
+                crt=(crt*piano_key_state[i]+0.4f*(8-piano_key_state[i]))/8;
+                cgt=(cgt*piano_key_state[i]+0.4f*(8-piano_key_state[i]))/8;
+                cbt=(cbt*piano_key_state[i]+0.4f*(8-piano_key_state[i]))/8;
             } else crt=cgt=cbt=0.2f;
             /*TOP*/
             cr=crt;cg=cgt;cb=cbt;
