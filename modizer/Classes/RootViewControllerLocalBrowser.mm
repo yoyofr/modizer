@@ -9,8 +9,6 @@
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define LIMITED_LIST_SIZE 1024
 
-extern BOOL is_ios7;
-
 NSString *cutpaste_filesrcpath=nil;
 
 #include <sys/types.h>
@@ -1857,14 +1855,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 -(void) viewWillAppear:(BOOL)animated {
     
     
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-        [self.sBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [self.sBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [self.sBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     if (keys) {
         keys=nil;
@@ -2154,6 +2147,426 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
  @param cell The cell informing the delegate of the event.
  @param buttonIndex The index of the button which is triggered.
  */
+
+//*****************************************
+//Archive management
+
+-(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file {
+    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@"."];
+    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
+    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
+    NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
+    NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extSEXYPSF=(no_aux_file?[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SEXYPSF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extLAZYUSF=(no_aux_file?[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_LAZYUSF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_ext2SF=(no_aux_file?[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extSNSF=(no_aux_file?[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SNSF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extAOSDK=(no_aux_file?[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_AOSDK_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
+    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extCOVER=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
+    
+    NSString *extension;
+    NSString *file_no_ext;
+    int found=0;
+    
+    
+    //extension = [_filePath pathExtension];
+    //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
+    NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+    extension = (NSString *)[temparray_filepath lastObject];
+    [temparray_filepath removeLastObject];
+    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+        
+    if (!found)
+        for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMSTREAM;break;}
+        }
+    if (!found)
+    for (int i=0;i<[filetype_extMPG123 count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=MMP_MPG123;break;}
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=MMP_MPG123;break;}
+    }
+    if (!found)
+        for (int i=0;i<[filetype_extVGM count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMPLAY;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {found=MMP_VGMPLAY;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extASAP count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=MMP_ASAP;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {found=MMP_ASAP;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extGME count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GME_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_GME;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extGME objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GME_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_GME;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extSID count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extSID objectAtIndex:i]]==NSOrderedSame) {found=MMP_SIDPLAY;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extMDX count];i++) { //PDX might be required
+            if ([extension caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                found=MMP_MDXPDX;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extMDX objectAtIndex:i]]==NSOrderedSame) {
+                found=MMP_MDXPDX;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extPMD count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=MMP_PMDMINI;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extPMD objectAtIndex:i]]==NSOrderedSame) {found=MMP_PMDMINI;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extADPLUG count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_ADPLUG;break;}
+        }
+    
+    if (!found)
+        for (int i=0;i<[filetype_extSTSOUND count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=MMP_STSOUND;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extSTSOUND objectAtIndex:i]]==NSOrderedSame) {found=MMP_STSOUND;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extSC68 count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extSC68 objectAtIndex:i]]==NSOrderedSame) {found=MMP_SC68;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extSEXYPSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_SEXYPSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_SEXYPSF;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_SEXYPSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_SEXYPSF;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extLAZYUSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_LAZYUSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_LAZYUSF;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_LAZYUSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_LAZYUSF;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_ext2SF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_2SF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_2SF;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_2SF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_2SF;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extSNSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_SNSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_SNSF;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_SNSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_SNSF;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extAOSDK count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_AOSDK;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_AOSDK;break;
+            }
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extGSF count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_GSF;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
+                //check if .miniXXX or .XXX
+                NSArray *singlefile=[SUPPORTED_FILETYPE_GSF_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_GSF;break;
+            }
+        }
+    //tmp hack => redirect to timidity
+    if (!found)
+        for (int i=0;i<[filetype_extWMIDI count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=MMP_TIMIDITY;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extWMIDI objectAtIndex:i]]==NSOrderedSame) {found=MMP_TIMIDITY;break;}
+        }
+    if (!found)
+        for (int i=0;i<[filetype_extUADE count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
+                //check if require second file
+                NSArray *singlefile=[SUPPORTED_FILETYPE_UADE_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                
+                found=MMP_UADE;break;
+            }
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
+                //check if require second file
+                NSArray *singlefile=[SUPPORTED_FILETYPE_UADE_WITHEXTFILE componentsSeparatedByString:@","];
+                for (int j=0;j<[singlefile count];j++)
+                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
+                        break;
+                    }
+                found=MMP_UADE;break;
+            }
+        }
+    if ((!found))
+        for (int i=0;i<[filetype_extMODPLUG count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+        }
+    if ((!found))
+        for (int i=0;i<[filetype_extXMP count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
+        }
+    if ((!found))
+        for (int i=0;i<[filetype_extDUMB count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
+        }
+    if (!found) {
+        for (int i=0;i<[filetype_extHVL count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
+        }
+    }
+    
+    if (!no_aux_file) {
+        if (!found)
+            for (int i=0;i<[filetype_extCOVER count];i++) {
+                if ([extension caseInsensitiveCompare:[filetype_extCOVER objectAtIndex:i]]==NSOrderedSame)    {found=99;break;}
+                if ([file_no_ext caseInsensitiveCompare:[filetype_extCOVER objectAtIndex:i]]==NSOrderedSame) {found=99;break;}
+                
+            }
+    }
+    
+    return found;
+}
+
+
+-(void) fex_extractToPath:(const char *)archivePath path:(const char *)extractPath {
+    fex_type_t type;
+    fex_t* fex;
+    int arc_size;
+    FILE *f;
+    NSString *extractFilename,*extractPathFile;
+    NSError *err;
+    int idx;
+    /* Determine file's type */
+    if (fex_identify_file( &type, archivePath )) {
+        NSLog(@"fex cannot determine type of %s",archivePath);
+    }
+    /* Only open files that fex can handle */
+    if ( type != NULL ) {
+        if (fex_open_type( &fex, archivePath, type )) {
+            NSLog(@"cannot fex open : %s / type : %d",archivePath,type);
+        } else{
+            idx=0;
+            while ( !fex_done( fex ) ) {
+                
+                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:0]) {
+                    
+                    fex_stat(fex);
+                    arc_size=fex_size(fex);
+                    extractFilename=[NSString stringWithFormat:@"%s/%s",extractPath,fex_name(fex)];
+                    extractPathFile=[extractFilename stringByDeletingLastPathComponent];
+                    
+                    //NSLog(@"file : %s, size : %dKo, output %@",fex_name(fex),arc_size/1024,extractFilename);
+                    
+                    
+                    //1st create path if not existing yet
+                    [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
+                    [self addSkipBackupAttributeToItemAtPath:extractPathFile];
+                    
+                    //2nd extract file
+                    f=fopen([extractFilename fileSystemRepresentation],"wb");
+                    if (!f) {
+                        NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
+                    } else {
+                        char *archive_data;
+                        archive_data=(char*)malloc(512*1024*1024); //buffer
+                        while (arc_size) {
+                            if (arc_size>512*1024*1024) {
+                                fex_read( fex, archive_data, 512*1024*1024);
+                                fwrite(archive_data,512*1024*1024,1,f);
+                                arc_size-=512*1024*1024;
+                            } else {
+                                fex_read( fex, archive_data, arc_size );
+                                fwrite(archive_data,arc_size,1,f);
+                                arc_size=0;
+                            }
+                        }
+                        free(archive_data);
+                        fclose(f);
+                        
+                        NSString *tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                        
+                        if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                            idx++;
+                        }
+                        if (fex_next( fex )) {
+                            NSLog(@"Error during fex scanning");
+                            break;
+                        }
+                    }
+                } else {
+                    if (fex_next( fex )) {
+                        NSLog(@"Error during fex scanning");
+                        break;
+                    }
+                }
+            }
+            fex_close( fex );
+        }
+        fex = NULL;
+    } else {
+        //NSLog( @"Skipping unsupported archive: %s\n", archivePath );
+    }
+}
+
+-(int) fex_scanarchive:(const char *)path {
+    fex_type_t type;
+    fex_t* fex;
+    int found=0;
+    /* Determine file's type */
+    if (fex_identify_file( &type, path )) {
+        NSLog(@"fex cannot determine type of %s",path);
+    }
+    /* Only open files that fex can handle */
+    if ( type != NULL ) {
+        if (fex_open_type( &fex, path, type )) {
+            NSLog(@"cannot fex open : %s / type : %d",path,type);
+        } else{
+            while ( !fex_done( fex ) ) {
+                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                    //NSLog(@"file : %s",fex_name(fex));
+                    found++;
+                }
+                if (fex_next( fex )) {
+                    NSLog(@"Error during fex scanning");
+                    break;
+                }
+            }
+            fex_close( fex );
+        }
+        fex = NULL;
+    } else {
+        NSLog( @"Skipping unsupported archive: %s\n", path );
+    }
+    return found;
+}
+
+
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
     
     if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
@@ -2216,6 +2629,27 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 //NSLog(@"Cut: %@",cutpaste_filesrcpath);
                 break;
             }
+            case 2:{//extract
+                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+                int section=indexPath.section-2;
+                                
+                NSString *filePath=[NSHomeDirectory() stringByAppendingPathComponent:cur_local_entries[section][indexPath.row].fullpath];
+                NSString *tgtPath;
+                tgtPath=[NSHomeDirectory() stringByAppendingPathComponent:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
+                int files_found=[self fex_scanarchive:[filePath UTF8String]];
+                if (files_found) {
+                    NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
+                    [self fex_extractToPath:[filePath UTF8String] path:[tgtPath UTF8String]];
+                    [self listLocalFiles];
+                    //[self.tableView reloadData];
+                } else {
+                    UIAlertView *cannotExtractAlert = [[UIAlertView alloc] initWithTitle:@"Warning" message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
+                    [cannotExtractAlert show];
+                }
+                [self hideWaiting];
+                break;
+            }
         }
     }
     
@@ -2269,7 +2703,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 
                 [self listLocalFiles];
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                [self.tableView reloadData];
+                //[self.tableView reloadData];
             }
             
             //            [self.tableView deleteRowsAtIndexPaths:@[cellIndexPath]
@@ -2337,14 +2771,16 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     
     if (cell == nil) {
-        if (is_ios7) {
             if (indexPath.section>1) {
                 cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
                 cell.delegate = self;
-                
-            [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
-            [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
-            [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+                                 
+                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
+                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
+                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor orangeColor]];
+                }
+                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
             } else {
                 cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
                 cell.delegate = self;
@@ -2354,9 +2790,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 
                 
             }
-        } else {
-            cell = (SESlideTableViewCell*)[[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
-        }
+        
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
@@ -2424,6 +2858,23 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
         secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
+        
+        [cell removeAllLeftButtons];
+        [cell removeAllRightButtons];
+        
+        if (indexPath.section>1) {
+            [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
+            [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
+            if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor orangeColor]];
+            }
+            [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+        } else {
+            [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
+            [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
+            
+            
+        }
     }
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
@@ -2637,7 +3088,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 }
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    if (is_ios7) return NO;
+    return NO;
     
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     int section=indexPath.section-2;

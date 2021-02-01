@@ -5,7 +5,6 @@
 //  Created by yoyofr on 7/4/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
-extern BOOL is_ios7;
 
 #define EMPTY_PAGE @"<html><head><title>Modizer Web Browser</title>\
 <meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" /></head>\
@@ -1161,13 +1160,8 @@ didFinishNavigation:(WKNavigation *)navigation {
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
-    
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     [super viewWillAppear:animated];
     

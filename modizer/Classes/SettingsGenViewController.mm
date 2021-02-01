@@ -6,7 +6,6 @@
 //
 //
 
-extern BOOL is_ios7;
 extern volatile int mSlowDevice;
 
 #import "SettingsGenViewController.h"
@@ -352,7 +351,7 @@ void optGSFChangedC(id param) {
     if (mSlowDevice) settings[GLOB_FXLOD].detail.mdz_switch.switch_value=1;
     else settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     
-    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=1;
     
     settings[GLOB_FXMSAA].detail.mdz_switch.switch_value=0;
     
@@ -1014,7 +1013,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXFPS].description=NULL;
     settings[GLOB_FXFPS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXFPS].sub_family=0;
-    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXFPS].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXFPS].detail.mdz_switch.switch_labels[0]=(char*)"30";
@@ -1853,12 +1852,8 @@ void optGSFChangedC(id param) {
 
 - (void)viewWillAppear:(BOOL)animated {
     
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     [self.tableView reloadData];
     

@@ -36,7 +36,7 @@ pthread_mutex_t uade_mutex;
 pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
-BOOL is_ios7,is_retina;
+BOOL is_retina;
 
 
 @implementation AppDelegate_Phone
@@ -188,10 +188,7 @@ BOOL is_ios7,is_retina;
 	if ([device respondsToSelector:@selector(isMultitaskingSupported)]) backgroundSupported = device.
         multitaskingSupported;
 	
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) {
-        is_ios7=FALSE;
-    } else is_ios7=TRUE;
-
+    
     if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)] == YES && [[UIScreen mainScreen] scale] == 2.00) {
         // RETINA DISPLAY
         is_retina=TRUE;

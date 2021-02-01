@@ -14,7 +14,6 @@
 #define ARCSUB_MODE_SUB 2
 static int current_selmode;
 
-extern BOOL is_ios7;
 extern BOOL nvdsp_EQ;
 
 #import <mach/mach.h>
@@ -2767,7 +2766,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             volWin.hidden=NO;
             volWin.frame= CGRectMake(0, mDevice_hh-64-42-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
-			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),
+			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,
                                           volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
             //			volumeView.center = CGPointMake((mDevice_ww)/2,32);
             //			[volumeView sizeToFit];
@@ -2806,7 +2805,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			labelModuleLength.frame=CGRectMake(2,0,45,20);
 			labelTime.frame=CGRectMake(2,24,45,20);
             btnChangeTime.frame=CGRectMake(2,24,45,20);
-			sliderProgressModule.frame = CGRectMake(48,23-(is_ios7?6:0),mDevice_ww-48-40-40-4,23);
+			sliderProgressModule.frame = CGRectMake(48,23-6,mDevice_ww-48-40-40-4,23);
 		}
 	} else{
 //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
@@ -3041,7 +3040,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 labelTime.frame=CGRectMake(2,20,45,20);
                 btnChangeTime.frame=CGRectMake(2,17,45,20);
                 
-                sliderProgressModule.frame = CGRectMake(48,16-(is_ios7?3:0),mDevice_hh-200-60,23);
+                sliderProgressModule.frame = CGRectMake(48,16-3,mDevice_hh-200-60,23);
             }
         }
 	}
@@ -4424,7 +4423,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                                                 blue:91
                                                alpha:1]];
      */
-	volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+(is_ios7?5:0),volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
+	volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
     //	volumeView.center = CGPointMake(mDevice_ww/2,32);
     //  [volumeView setShowsRouteButton:YES];
     //	[volumeView sizeToFit];
@@ -4825,9 +4824,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewWillAppear:(BOOL)animated {
     alertCannotPlay_displayed=0;
     
-    if (is_ios7) {
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
-    }
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     
     //coverflow
     if (coverflow && (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value==FALSE)) {
@@ -4967,13 +4964,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
     
 //    [[UIDevice currentDevice] systemVersion]
-    //if ios < 7, set bar in black
-    if (is_ios7) {
-        [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
-    } else {
-        [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
-    }
-	
+    
+    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
+    
     
 	
 	for (int i=0;i<3;i++) if (viewTapInfoStr[i]) {
@@ -5538,7 +5531,6 @@ extern "C" int current_sample;
         m_oglView.hidden=YES;
         return;
     }
-	
 	//check if current mod is ended or not
 	/*if (mplayer.bGlobalAudioPause==2) {
      //mod ended => do nothing
@@ -5548,8 +5540,6 @@ extern "C" int current_sample;
 	//get ogl context & bind
 	[EAGLContext setCurrentContext:m_oglContext];
 	[m_oglView bind];
-	
-	
 	
 	hasdrawnotes=0;
 	

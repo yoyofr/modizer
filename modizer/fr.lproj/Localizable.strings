@@ -237,6 +237,7 @@
 "Choose a subsong"="Liste des subsongs";
 "Choose a song"="Liste des morceaux";
 
+"Extract" = "Extraire";
 "Rename" = "Renommer";
 "Delete" = "Effacer";
 "Cut" = "Couper";
@@ -245,3 +246,4 @@
 
 "Nothing to paste"="Rien à coller";
 "Enter folder name"="Entrez le nom du dossier";
+"No file to extract or not supported archive format.\n"="Pas de fichier à extraire ou format archive non supporté.\n";

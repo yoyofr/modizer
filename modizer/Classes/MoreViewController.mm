@@ -6,8 +6,6 @@
 //
 //
 
-extern BOOL is_ios7;
-
 #import "MoreViewController.h"
 #import "SettingsGenViewController.h"
 
@@ -58,12 +56,8 @@ extern BOOL is_ios7;
 
 - (void)viewWillAppear:(BOOL)animated {
     
-    if (!is_ios7) {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleBlack];
-    } else {
-        [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    }
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     [self.tableView reloadData];
 
