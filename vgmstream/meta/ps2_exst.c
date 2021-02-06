@@ -1,79 +1,73 @@
 #include "meta.h"
-#include "../util.h"
+#include "../coding/coding.h"
 
-/* EXST
 
-   PS2 INT format is an interleaved format found in Shadow of the Colossus                
-   The header start with a EXST id.
-   The headers and bgm datas was separated in the game, and joined in order
-   to add support for vgmstream
+/* EXST - from Sony games [Shadow of the Colossus (PS2), Gacha Mecha Stadium Saru Battle (PS2)] */
+VGMSTREAM* init_vgmstream_ps2_exst(STREAMFILE* sf) {
+    VGMSTREAM* vgmstream = NULL;
+    STREAMFILE* sf_body = NULL;
+    off_t start_offset;
+    int loop_flag, channels, sample_rate;
+    size_t block_size, num_blocks, loop_start_block;
 
-   The interleave value is allways 0x400
-   known extensions : .STS
 
-   2008-05-13 - Fastelbja : First version ...
-*/
-
-VGMSTREAM * init_vgmstream_ps2_exst(STREAMFILE *streamFile) {
-    VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
-
-    int loop_flag=0;
-    int channel_count;
-    int i;
-
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("sts",filename_extension(filename))) goto fail;
-
-    /* check EXST Header */
-    if (read_32bitBE(0x00,streamFile) != 0x45585354)
+    /* checks */
+    /* .sts+int: standard [Shadow of the Colossus (PS2)] (some fake .sts have manually joined header+body)
+     * .x: header+body [Ape Escape 3 (PS2)] */
+    if (!check_extensions(sf, "sts,x"))
+        goto fail;
+    if (!is_id32be(0x00,sf, "EXST"))
         goto fail;
 
-    /* check loop */
-    loop_flag = (read_32bitLE(0x0C,streamFile)==1);
+    sf_body = open_streamfile_by_ext(sf,"int");
+    if (sf_body) {
+        /* separate header+body (header is 0x78) */
+        start_offset = 0x00;
+    }
+    else {
+        /* joint header+body */
+        start_offset = 0x78;
+        /* Gacharoku 2 has header+data but padded header (ELF has pointers + size to SOUND.PCK, and
+         * treats them as single files, no extension but there are Sg2ExStAdpcm* calls in the ELF) */
+        if ((get_streamfile_size(sf) % 0x10) == 0)
+            start_offset = 0x80;
 
-    channel_count=read_16bitLE(0x06,streamFile);
+        if (get_streamfile_size(sf) < start_offset)
+            goto fail;
+    }
+
+    channels = read_u16le(0x06,sf);
+    sample_rate = read_u32le(0x08,sf);
+    loop_flag = read_u32le(0x0C,sf) == 1;
+    loop_start_block = read_u32le(0x10,sf);
+    num_blocks = read_u32le(0x14,sf);
+    /* 0x18: 0x24 config per channel? (volume+panning+etc?) */
+    /* rest is padding up to 0x78 */
+
 
     /* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count,loop_flag);
+    vgmstream = allocate_vgmstream(channels, loop_flag);
     if (!vgmstream) goto fail;
 
-    /* fill in the vital statistics */
-    vgmstream->channels = read_16bitLE(0x06,streamFile);
-    vgmstream->sample_rate = read_32bitLE(0x08,streamFile);
-
-    /* Compression Scheme */
-    vgmstream->coding_type = coding_PSX;
-    vgmstream->num_samples = (read_32bitLE(0x14,streamFile)*0x400)/16*28;
-
-    /* Get loop point values */
-    if(vgmstream->loop_flag) {
-        vgmstream->loop_start_sample = (read_32bitLE(0x10,streamFile)*0x400)/16*28;
-        vgmstream->loop_end_sample = (read_32bitLE(0x14,streamFile)*0x400)/16*28;
-    }
-
-    vgmstream->interleave_block_size = 0x400;
-    vgmstream->layout_type = layout_interleave;
     vgmstream->meta_type = meta_PS2_EXST;
+    vgmstream->sample_rate = sample_rate;
 
-    /* open the file for reading by each channel */
-    {
-        for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,0x8000);
+    vgmstream->coding_type = coding_PSX;
+    vgmstream->layout_type = layout_interleave;
+    vgmstream->interleave_block_size = 0x400;
 
-            if (!vgmstream->ch[i].streamfile) goto fail;
+    block_size = vgmstream->interleave_block_size * vgmstream->channels;
+    vgmstream->num_samples = ps_bytes_to_samples(num_blocks * block_size, channels);
+    vgmstream->loop_start_sample = ps_bytes_to_samples(loop_start_block * block_size, channels);
+    vgmstream->loop_end_sample = vgmstream->num_samples;
 
-            vgmstream->ch[i].channel_start_offset=
-                vgmstream->ch[i].offset=
-                (off_t)(0x78+vgmstream->interleave_block_size*i);
-        }
-    }
-
+    if (!vgmstream_open_stream(vgmstream, sf_body ? sf_body : sf, start_offset))
+        goto fail;
+    close_streamfile(sf_body);
     return vgmstream;
 
-    /* clean up anything we may have opened */
 fail:
-    if (vgmstream) close_vgmstream(vgmstream);
+    close_streamfile(sf_body);
+    close_vgmstream(vgmstream);
     return NULL;
 }

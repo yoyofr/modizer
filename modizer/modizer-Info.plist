@@ -16,7 +16,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.mod</string>
@@ -30,7 +30,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.archive</string>
@@ -44,7 +44,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.mdx</string>
@@ -58,7 +58,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.pmd</string>
@@ -72,7 +72,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.sid</string>
@@ -86,7 +86,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.stsound</string>
@@ -100,7 +100,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.sc68</string>
@@ -114,7 +114,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.asap</string>
@@ -128,7 +128,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.vgm</string>
@@ -142,7 +142,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.gme</string>
@@ -156,7 +156,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.amiga</string>
@@ -170,7 +170,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.hvl</string>
@@ -184,7 +184,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.adlib</string>
@@ -198,7 +198,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.xsf</string>
@@ -212,7 +212,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.vgmstream</string>
@@ -226,7 +226,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
-			<string>Default</string>
+			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.yoyofr.modizer.midi</string>
@@ -314,6 +314,7 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
+				<string>public.content</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>MOD file</string>
@@ -366,6 +367,7 @@
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.data</string>
+				<string>public.content</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>Archive file</string>
@@ -381,10 +383,10 @@
 					<string>rsn</string>
 					<string>gz</string>
 					<string>lzh</string>
-					<string>lha</string>
+					<string>lha</string>					
 				</array>
 			</dict>
-		</dict>
+		</dict>		
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>

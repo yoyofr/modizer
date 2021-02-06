@@ -7,7 +7,7 @@
 /* .sfx, some .sf0 -  DSP and PCM */
 VGMSTREAM * init_vgmstream_eb_sfx(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
     off_t start_offset;
     int loop_flag = 0;
 	int channel_count;
@@ -82,6 +82,7 @@ VGMSTREAM * init_vgmstream_eb_sfx(STREAMFILE *streamFile) {
 
     vgmstream->layout_type = layout_none;
     vgmstream->meta_type = meta_EB_SFX;
+    vgmstream->allow_dual_stereo = 1;
 
     /* open the file for reading */
     {
@@ -114,7 +115,7 @@ fail:
 /* .sf0 - PCM (degenerate stereo .sfx?) */
 VGMSTREAM * init_vgmstream_eb_sf0(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
     int loop_flag = 0;
 	int channel_count;
     long file_size;
@@ -148,7 +149,7 @@ VGMSTREAM * init_vgmstream_eb_sf0(STREAMFILE *streamFile) {
     {
         int i;
         for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,vgmstream->interleave_block_size);
+            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
 
             if (!vgmstream->ch[i].streamfile) goto fail;
 

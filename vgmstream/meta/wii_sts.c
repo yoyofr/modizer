@@ -9,7 +9,7 @@
 
 VGMSTREAM * init_vgmstream_wii_sts(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
 
     int loop_flag=0;
 	int channel_count;
@@ -71,7 +71,7 @@ VGMSTREAM * init_vgmstream_wii_sts(STREAMFILE *streamFile) {
     /* open the file for reading by each channel */
     {
         for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,36);
+            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
             vgmstream->ch[i].offset = 0x50+(i*(start_offset+0x26-0x50));
 
             if (!vgmstream->ch[i].streamfile) goto fail;

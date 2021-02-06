@@ -89,7 +89,7 @@ long duh_render(
 {
 	long n;
 
-	sample_t **sampptr;
+	DUMB_sample_t **sampptr;
 
 	int n_channels;
 

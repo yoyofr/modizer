@@ -1,121 +1,116 @@
-#include "../vgmstream.h"
-
-#ifdef VGM_USE_VORBIS
-
-#include <ctype.h>
 #include "meta.h"
-#include "../util.h"
+#include <ctype.h>
 
-#ifdef WIN32
-#define DIRSEP '\\'
-#else
-#define DIRSEP '/'
-#endif
 
-/* .sli is a file with loop points, associated with a similarly named .ogg */
-
+/* .sli+ogg/opus - KiriKiri engine / WaveLoopManager loop points loader [Fate/Stay Night (PC), World End Economica (PC)] */
 VGMSTREAM * init_vgmstream_sli_ogg(STREAMFILE *streamFile) {
-    
-	VGMSTREAM * vgmstream = NULL;
-    STREAMFILE * streamFileOGG = NULL;
-    char filename[1024];
-	char filenameOGG[1024];
-    char linebuffer[1024];
-    off_t bytes_read;
-    off_t sli_offset;
-    int done;
-    int32_t loop_start = -1;
-    int32_t loop_length = -1;
-    int32_t loop_from = -1;
-    int32_t loop_to = -1;
+    VGMSTREAM * vgmstream = NULL;
+    STREAMFILE * streamData = NULL;
+    int32_t loop_start = -1, loop_length = -1;
+    int32_t loop_from = -1, loop_to = -1;
 
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("sli",filename_extension(filename))) goto fail;
+    /* checks */
+    if (!check_extensions(streamFile, "sli"))
+        goto fail;
 
-	/* check for .OGG file */
-	strcpy(filenameOGG,filename);
-    /* strip off .sli */
-    filenameOGG[strlen(filenameOGG)-4]='\0';
+    {
+        /* try with file.ogg/opus.sli=header and file.ogg/opus=data */
+        char basename[PATH_LIMIT];
+        get_streamfile_basename(streamFile,basename,PATH_LIMIT);
+        streamData = open_streamfile_by_filename(streamFile, basename);
+        if (!streamData) goto fail;
+    }
 
-	streamFileOGG = streamFile->open(streamFile,filenameOGG,STREAMFILE_DEFAULT_BUFFER_SIZE);
-	if (!streamFileOGG) {
+
+    /* let the real initer do the parsing */
+    if (check_extensions(streamData, "ogg")) { /* Fate/Stay Night (PC) */
+#ifdef VGM_USE_VORBIS
+        vgmstream = init_vgmstream_ogg_vorbis(streamData);
+        if (!vgmstream) goto fail;
+
+        vgmstream->meta_type = meta_OGG_SLI;
+#else
+    goto fail;
+#endif
+    }
+    else if (check_extensions(streamData, "opus")) { /* Sabbat of the Witch (PC) */
+#ifdef VGM_USE_FFMPEG
+        vgmstream = init_vgmstream_ffmpeg(streamData);
+        if (!vgmstream) goto fail;
+
+        /* FFmpeg's Opus encoder delay is borked but no need to fix:
+         * somehow sli+opus use 0 in the OpusHead (to simplify looping?) */
+
+        vgmstream->meta_type = meta_OPUS_SLI;
+#else
+    goto fail;
+#endif
+    }
+    else {
         goto fail;
     }
 
-    /* let the real initer do the parsing */
-    vgmstream = init_vgmstream_ogg_vorbis(streamFileOGG);
-    if (!vgmstream) goto fail;
 
-    close_streamfile(streamFileOGG);
-    streamFileOGG = NULL;
+    /* find loop text */
+    {
+        char line[PATH_LIMIT];
+        size_t bytes_read;
+        off_t sli_offset;
+        int line_ok;
 
-    sli_offset = 0;
-    while ((loop_start == -1 || loop_length == -1) && sli_offset < get_streamfile_size(streamFile)) {
-        char *endptr;
-        char *foundptr;
-        bytes_read=get_streamfile_dos_line(sizeof(linebuffer),linebuffer,sli_offset,streamFile,&done);
-        if (!done) goto fail;
+        sli_offset = 0;
+        while ((loop_start == -1 || loop_length == -1) && sli_offset < get_streamfile_size(streamFile)) {
+            char *endptr, *foundptr;
 
-        if (!memcmp("LoopStart=",linebuffer,10) && linebuffer[10]!='\0') {
-            loop_start = strtol(linebuffer+10,&endptr,10);
-            if (*endptr != '\0') {
-                /* if it didn't parse cleanly */
-                loop_start = -1;
+            bytes_read = read_line(line, sizeof(line), sli_offset, streamFile, &line_ok);
+            if (!line_ok) goto fail;
+
+            if (memcmp("LoopStart=",line,10)==0 && line[10] != '\0') {
+                loop_start = strtol(line+10,&endptr,10);
+                if (*endptr != '\0') {
+                    loop_start = -1; /* if it didn't parse cleanly */
+                }
             }
-        }
-        else if (!memcmp("LoopLength=",linebuffer,11) && linebuffer[11]!='\0') {
-            loop_length = strtol(linebuffer+11,&endptr,10);
-            if (*endptr != '\0') {
-                /* if it didn't parse cleanly */
-                loop_length = -1;
+            else if (memcmp("LoopLength=",line,11)==0 && line[11] != '\0') {
+                loop_length = strtol(line+11,&endptr,10);
+                if (*endptr != '\0') {
+                    loop_length = -1; /* if it didn't parse cleanly */
+                }
             }
-        }
 
-        /* a completely different format, also with .sli extension and can be handled similarly */
-        if ((foundptr=strstr(linebuffer,"To="))!=NULL && isdigit(foundptr[3])) {
-            loop_to = strtol(foundptr+3,&endptr,10);
-            if (*endptr != ';') {
-                loop_to = -1;
+            /* a completely different format (2.0?), also with .sli extension and can be handled similarly */
+            if ((foundptr = strstr(line,"To=")) != NULL && isdigit(foundptr[3])) {
+                loop_to = strtol(foundptr+3,&endptr,10);
+                if (*endptr != ';') {
+                    loop_to = -1;
+                }
             }
-        }
-        if ((foundptr=strstr(linebuffer,"From="))!=NULL && isdigit(foundptr[5])) {
-            loop_from = strtol(foundptr+5,&endptr,10);
-            if (*endptr != ';') {
-                loop_from = -1;
+            if ((foundptr = strstr(line,"From=")) != NULL && isdigit(foundptr[5])) {
+                loop_from = strtol(foundptr+5,&endptr,10);
+                if (*endptr != ';') {
+                    loop_from = -1;
+                }
             }
-        }
 
-        sli_offset += bytes_read;
+            sli_offset += bytes_read;
+        }
     }
 
-    if ((loop_start != -1 && loop_length != -1) ||
-        (loop_to != -1 && loop_from != -1)) {
-        /* install loops */
-        if (!vgmstream->loop_flag) {
-            vgmstream->loop_flag = 1;
-            vgmstream->loop_ch = calloc(vgmstream->channels,
-                    sizeof(VGMSTREAMCHANNEL));
-            if (!vgmstream->loop_ch) goto fail;
-        }
+    if (loop_start != -1 && loop_length != -1) { /* v1 */
+        vgmstream_force_loop(vgmstream,1,loop_start, loop_start+loop_length);
+    }
+    else if (loop_from != -1 && loop_to != -1) { /* v2 */
+        vgmstream_force_loop(vgmstream,1,loop_to, loop_from);
+    }
+    else {
+        goto fail; /* if there's no loop points the .sli wasn't valid */
+    }
 
-        if (loop_to != -1 && loop_from != -1) {
-            vgmstream->loop_start_sample = loop_to;
-            vgmstream->loop_end_sample = loop_from;
-            vgmstream->meta_type = meta_OGG_SLI2;
-        } else {
-            vgmstream->loop_start_sample = loop_start;
-            vgmstream->loop_end_sample = loop_start+loop_length;
-            vgmstream->meta_type = meta_OGG_SLI;
-        }
-    } else goto fail; /* if there's no loop points the .sli wasn't valid */
-
+    close_streamfile(streamData);
     return vgmstream;
 
-    /* clean up anything we may have opened */
 fail:
-    if (streamFileOGG) close_streamfile(streamFileOGG);
-    if (vgmstream) close_vgmstream(vgmstream);
+    close_streamfile(streamData);
+    close_vgmstream(vgmstream);
     return NULL;
 }
-#endif

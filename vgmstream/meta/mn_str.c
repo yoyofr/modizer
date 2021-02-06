@@ -3,7 +3,7 @@
 
 VGMSTREAM * init_vgmstream_mn_str(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
     off_t start_offset;
     int loop_flag = 0;
 	int channel_count;
@@ -45,6 +45,9 @@ VGMSTREAM * init_vgmstream_mn_str(STREAMFILE *streamFile) {
 				vgmstream->interleave_block_size = 0x800;
 				vgmstream->layout_type = layout_none;
 			}
+			break;
+		default:
+		    goto fail;
 	}
 
     vgmstream->num_samples = read_32bitLE(0x4C,streamFile);

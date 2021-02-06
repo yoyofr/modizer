@@ -1580,7 +1580,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
             NSString *alertMsg;
 			alertCannotPlay_displayed=1;
-			
             if (mplayer_error_msg[0]) alertMsg=[NSString stringWithFormat:@"%@\n%s", NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@""),mplayer_error_msg];
             else alertMsg=NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"");
             
@@ -2042,7 +2041,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //error while loading
                 NSLog(@"Issue in LoadModule(archive) %@",filePath);
                 if (retcode==-99) mLoadIssueMessage=0;
-                else mLoadIssueMessage=1;
+                else mLoadIssueMessage=2;
                 return FALSE;
             }
 
@@ -2196,6 +2195,15 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
 }
 
+-(NSString*) getFullFilePath:(NSString *)_filePath {
+    NSString *fullFilePath;
+    
+    if ([_filePath length]>2) {
+        if (([_filePath characterAtIndex:0]=='/')&&([_filePath characterAtIndex:1]=='/')) fullFilePath=[_filePath substringFromIndex:2];
+        else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+    } else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+    return fullFilePath;
+}
 
 -(void) checkForCover:(NSString *)filePath {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF;
@@ -2272,8 +2280,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         //[fileMngr release];
     }
     
-    if (cover_img==nil) {
-        cover_img=[self fexGetArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
+    if (cover_img==nil) {    
+        cover_img=[self fexGetArchiveCover:[self getFullFilePath:filePath]];
     }
     
     if (cover_img) {
@@ -2366,8 +2374,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mRestart=0;
 		mRestart_sub=0;
         mRestart_arc=0;
+        sprintf(mplayer_error_msg,"%s",[filePathTmp UTF8String]);
 		if (retcode==-99) mLoadIssueMessage=0;
-		else mLoadIssueMessage=1;
+		else mLoadIssueMessage=3;
 		return FALSE;
 	}
     
@@ -2380,7 +2389,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 //error while loading
                 NSLog(@"Issue in LoadModule(archive) %@",filePath);
                 if (retcode==-99) mLoadIssueMessage=0;
-                else mLoadIssueMessage=1;
+                else mLoadIssueMessage=4;
                 return FALSE;
             }
             
@@ -4038,6 +4047,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	start_time=clock();
     
     [super viewDidLoad];
+    
+    mLoadIssueMessage=0;
     
     temp_playlist=NULL;
     
