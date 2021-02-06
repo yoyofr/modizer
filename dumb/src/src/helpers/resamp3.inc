@@ -44,7 +44,7 @@
 
 
 
-long dumb_resample(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, VOLUME_PARAMETERS, float delta)
+long dumb_resample(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, VOLUME_PARAMETERS, float delta)
 {
 	int dt, inv_dt;
 	int VOLUME_VARIABLES;
@@ -364,7 +364,7 @@ long dumb_resample(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, VOLU
 
 
 
-void dumb_resample_get_current_sample(DUMB_RESAMPLER *resampler, VOLUME_PARAMETERS, sample_t *dst)
+void dumb_resample_get_current_sample(DUMB_RESAMPLER *resampler, VOLUME_PARAMETERS, DUMB_sample_t *dst)
 {
 	int VOLUME_VARIABLES;
 	SRCTYPE *src;

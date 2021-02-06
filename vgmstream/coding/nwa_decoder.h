@@ -1,4 +1,4 @@
-/* originally from nwatowav.cc 2007.7.28 version, which read: */
+/* derived from nwatowav.cc 2007.7.28 version, which read: */
 /*
  * Copyright 2001-2007  jagarl / Kazunori Ueno <jagarl@creator.club.ne.jp>
  * All Rights Reserved.
@@ -6,14 +6,14 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted.
  *
- * ¤³¤Î¥×¥í¥°¥é¥à¤Îºî¼Ô¤Ï jagarl ¤Ç¤¹¡£
+ * ã“ã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®ä½œè€…ã¯ jagarl ã§ã™ã€‚
  *
- * ¤³¤Î¥×¥í¥°¥é¥à¡¢µÚ¤Ó¥³¥ó¥Ñ¥¤¥ë¤Ë¤è¤Ã¤ÆÀ¸À®¤·¤¿¥Ğ¥¤¥Ê¥ê¤Ï
- * ¥×¥í¥°¥é¥à¤òÊÑ¹¹¤¹¤ë¡¢¤·¤Ê¤¤¤Ë¤«¤«¤ï¤é¤ººÆÇÛÉÛ²ÄÇ½¤Ç¤¹¡£
- * ¤½¤Îºİ¡¢¾åµ­ Copyright É½¼¨¤òÊİ»ı¤¹¤ë¤Ê¤É¤Î¾ò·ï¤Ï²İ¤·¤Ş
- * ¤»¤ó¡£ÂĞ±ş¤¬ÌÌÅİ¤Ê¤Î¤Ç¥Ğ¥°Êó¹ğ¤ò½ü¤­¡¢¥á¡¼¥ë¤ÇÏ¢Íí¤ò¤¹¤ë
- * ¤Ê¤É¤ÎÉ¬Í×¤â¤¢¤ê¤Ş¤»¤ó¡£¥½¡¼¥¹¤Î°ìÉô¤òÎ®ÍÑ¤¹¤ë¤³¤È¤ò´Ş¤á¡¢
- * ¤´¼«Í³¤Ë¤ª»È¤¤¤¯¤À¤µ¤¤¡£
+ * ã“ã®ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã€åŠã³ã‚³ãƒ³ãƒ‘ã‚¤ãƒ«ã«ã‚ˆã£ã¦ç”Ÿæˆã—ãŸãƒã‚¤ãƒŠãƒªã¯
+ * ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚’å¤‰æ›´ã™ã‚‹ã€ã—ãªã„ã«ã‹ã‹ã‚ã‚‰ãšå†é…å¸ƒå¯èƒ½ã§ã™ã€‚
+ * ãã®éš›ã€ä¸Šè¨˜ Copyright è¡¨ç¤ºã‚’ä¿æŒã™ã‚‹ãªã©ã®æ¡ä»¶ã¯èª²ã—ã¾
+ * ã›ã‚“ã€‚å¯¾å¿œãŒé¢å€’ãªã®ã§ãƒã‚°å ±å‘Šã‚’é™¤ãã€ãƒ¡ãƒ¼ãƒ«ã§é€£çµ¡ã‚’ã™ã‚‹
+ * ãªã©ã®å¿…è¦ã‚‚ã‚ã‚Šã¾ã›ã‚“ã€‚ã‚½ãƒ¼ã‚¹ã®ä¸€éƒ¨ã‚’æµç”¨ã™ã‚‹ã“ã¨ã‚’å«ã‚ã€
+ * ã”è‡ªç”±ã«ãŠä½¿ã„ãã ã•ã„ã€‚
  *
  * THIS SOFTWARE IS PROVIDED BY KAZUNORI 'jagarl' UENO ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -35,33 +35,39 @@
 
 #include "../streamfile.h"
 
-typedef struct NWAData_s
-{
+typedef struct NWAData_s {
     int channels;
-    int bps;						/* bits per sample */
-    int freq;						/* samples per second */
-    int complevel;				/* compression level */
-    int blocks;					/* block count */
-    int datasize;					/* all data size */
-    int compdatasize;				/* compressed data size */
-    int samplecount;				/* all samples */
-    int blocksize;				/* samples per block */
-    int restsize;					/* samples of the last block */
+    int bps; /* bits per sample */
+    int freq; /* samples per second */
+
+    int complevel; /* compression level */
+    int dummy; /* ? : 0x00 */
+
+    int blocks; /* block count */
+    int datasize; /* all data size */
+
+    int compdatasize; /* compressed data size */
+    int samplecount; /* all samples */
+    int blocksize; /* samples per block */
+    int restsize; /* samples of the last block */
+    int dummy2; /* ? : 0x89 */
 
     int curblock;
-    off_t *offsets;
+    off_t* offsets;
+    int filesize;
 
-    STREAMFILE *file;
+    int use_runlength; //extra
 
-    /* temporarily store samples */
-    sample *buffer;
-    sample *buffer_readpos;
+    uint8_t *tmpdata;
+    int16_t *outdata;
+    int16_t *outdata_readpos;
     int samples_in_buffer;
 } NWAData;
 
-NWAData *open_nwa(STREAMFILE *streamFile, const char *filename);
-void close_nwa(NWAData *nwa);
-void reset_nwa(NWAData *nwa);
-void seek_nwa(NWAData *nwa, int32_t seekpos);
+NWAData* nwalib_open(STREAMFILE* sf);
+void nwalib_close(NWAData* nwa);
+int nwalib_decode(STREAMFILE* sf, NWAData* nwa);
+void nwalib_seek(STREAMFILE* sf, NWAData* nwa, int32_t seekpos);
+void nwalib_reset(NWAData* nwa);
 
 #endif

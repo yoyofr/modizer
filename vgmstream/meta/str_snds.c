@@ -1,155 +1,129 @@
 #include "meta.h"
 #include "../coding/coding.h"
 #include "../layout/layout.h"
-#include "../util.h"
 
-/* 3DO format, .str extension and possibly a CTRL header, blocks and
- * AIFF-C style format specifier. Blocks are not IFF-compliant. Interesting
- * blocks are all SNDS  
- */
 
-VGMSTREAM * init_vgmstream_str_snds(STREAMFILE *streamFile) {
-    VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+/* .str - 3DO format with CTRL/SNDS/SHDR blocks  [Icebreaker (3DO), Battle Pinball (3DO)] */
+VGMSTREAM* init_vgmstream_str_snds(STREAMFILE* sf) {
+    VGMSTREAM* vgmstream = NULL;
+    off_t start_offset, shdr_offset = -1;
+    int loop_flag, channels, found_shdr = 0;
+    size_t file_size, ctrl_size = -1;
 
-    int channel_count;
-    int loop_flag = 0;
-    off_t SHDR_offset = -1;
-    int FoundSHDR = 0;
-    int CTRL_size = -1;
 
-    size_t file_size;
-
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("str",filename_extension(filename))) goto fail;
-
-    /* check for opening CTRL or SNDS chunk */
-    if (read_32bitBE(0x0,streamFile) != 0x4354524c &&   /* CTRL */
-        read_32bitBE(0x0,streamFile) != 0x534e4453 &&   // SNDS
-		read_32bitBE(0x0,streamFile) != 0x53484452)     // SHDR    
+    /* checks */
+    /* .str: standard
+     * .stream: Battle Tryst (Arcade) movies
+     * .3do: Aqua World - Umimi Monogatari (3DO) movies */
+    if (!check_extensions(sf, "str,stream,3do"))
+        goto fail;
+    if (read_u32be(0x00,sf) != 0x4354524c &&   /* "CTRL" */
+        read_u32be(0x00,sf) != 0x534e4453 &&   /* "SNDS" */
+        read_u32be(0x00,sf) != 0x53484452)     /* "SHDR" */
         goto fail;
 
-    file_size = get_streamfile_size(streamFile);
+    file_size = get_streamfile_size(sf);
+    start_offset = 0x00;
 
     /* scan chunks until we find a SNDS containing a SHDR */
     {
-        off_t current_chunk;
+        off_t offset = 0;
+        uint32_t size;
 
-        current_chunk = 0;
+        while (!found_shdr && offset < file_size) {
+            if (offset < 0) goto fail;
 
-        while (!FoundSHDR && current_chunk < file_size) {
-            if (current_chunk < 0) goto fail;
+            size = read_u32be(offset + 0x04,sf);
+            if (offset + size >= file_size)
+                goto fail;
 
-            if (current_chunk+read_32bitBE(current_chunk+4,streamFile) >=
-                    file_size) goto fail;
+            switch (read_u32be(offset + 0x00,sf)) {
+                case 0x4354524C: /* "CTRL" */
+                    ctrl_size = read_u32be(offset + 0x04,sf);
+                    break;
 
-            switch (read_32bitBE(current_chunk,streamFile)) 
-			{
-                case 0x4354524C: /* CTRL */
-                    /* to distinguish between styles */
-                    CTRL_size = read_32bitBE(current_chunk+4,streamFile);					
-					break;
-                case 0x534e4453: /* SNDS */
-                    switch (read_32bitBE(current_chunk+16,streamFile)) 
-					{
-						case 0x53484452: /* SHDR */
-							FoundSHDR = 1;
-							SHDR_offset = current_chunk+16;
-						break;
-						
-						default:
-							break;
+                case 0x534e4453: /* "SNDS" */
+                    switch (read_u32be(offset + 0x10,sf)) {
+                        case 0x53484452: /* SHDR */
+                            found_shdr = 1;
+                            shdr_offset = offset + 0x10;
+                            break;
+                        default:
+                            break;
                     }
                     break;
-                case 0x53484452: /* SHDR */
-                    switch (read_32bitBE(current_chunk+0x7C, streamFile)) 
-					{
-						case 0x4354524C: /* CTRL */
-							// to distinguish between styles 
-							CTRL_size = read_32bitBE(current_chunk + 0x80, streamFile);							
-							break;
-						
-						default:
-							break;
+
+                case 0x53484452: /* "SHDR" */
+                    switch (read_u32be(offset + 0x7C, sf)) {
+                        case 0x4354524C: /* "CTRL" */
+                            /* to distinguish between styles */
+                            ctrl_size = read_u32be(offset + 0x80, sf);
+                            break;
+
+                        default:
+                            break;
                     }
-					break;
-				default:
-                    /* ignore others for now */
+                    break;
+
+                default: /* ignore others */
                     break;
             }
 
-            current_chunk += read_32bitBE(current_chunk+4,streamFile);
+            offset += size;
         }
     }
 
-    if (!FoundSHDR) goto fail;
+    if (!found_shdr)
+        goto fail;
 
-    /* details */
-    channel_count = read_32bitBE(SHDR_offset+0x20,streamFile);
+    channels = read_u32be(shdr_offset+0x20,sf);
     loop_flag = 0;
 
-    /* build the VGMSTREAM */
 
-    vgmstream = allocate_vgmstream(channel_count,loop_flag);
+    /* build the VGMSTREAM */
+    vgmstream = allocate_vgmstream(channels, loop_flag);
     if (!vgmstream) goto fail;
 
-    /* fill in the vital statistics */
-    if ((CTRL_size == 0x1C) ||
-		(CTRL_size == 0x0B) ||
-		(CTRL_size == -1))
-	{
-        vgmstream->num_samples =
-            read_32bitBE(SHDR_offset+0x2c,streamFile)-1; /* sample count? */
+    vgmstream->meta_type = meta_STR_SNDS;
+    vgmstream->sample_rate = read_u32be(shdr_offset+0x1c,sf);
+
+    if (ctrl_size == 0x1C || ctrl_size == 0x0B || ctrl_size == -1) {
+        vgmstream->num_samples = read_u32be(shdr_offset+0x2c,sf) - 1; /* sample count? */
     } 
-	else {
-        vgmstream->num_samples =
-            read_32bitBE(SHDR_offset+0x2c,streamFile)   /* frame count? */
-            * 0x10;
+    else {
+        vgmstream->num_samples = read_u32be(shdr_offset+0x2c,sf) * 0x10; /* frame count? */
     }
+    vgmstream->num_samples /= vgmstream->channels;
 
-	vgmstream->num_samples/=vgmstream->channels;
-
-    vgmstream->sample_rate = read_32bitBE(SHDR_offset+0x1c,streamFile);
-    switch (read_32bitBE(SHDR_offset+0x24,streamFile)) {
-        case 0x53445832:    /* SDX2 */
-            if (channel_count > 1) {
+    switch (read_u32be(shdr_offset + 0x24,sf)) {
+        case 0x53445832:    /* "SDX2" (common) */
+            if (channels > 1) {
                 vgmstream->coding_type = coding_SDX2_int;
-                vgmstream->interleave_block_size = 1;
-            } else
+                vgmstream->interleave_block_size = 0x01;
+            } else {
                 vgmstream->coding_type = coding_SDX2;
+            }
             break;
+
+        case 0x43424432:    /* "CBD2" (rare, Battle Tryst) */
+            if (channels > 1) {
+                vgmstream->coding_type = coding_CBD2_int;
+                vgmstream->interleave_block_size = 0x01;
+            } else {
+                vgmstream->coding_type = coding_CBD2; /* assumed */
+            }
+            break;
+
         default:
             goto fail;
     }
-    vgmstream->layout_type = layout_str_snds_blocked;
-    vgmstream->meta_type = meta_STR_SNDS;
+    vgmstream->layout_type = layout_blocked_str_snds;
 
-    /* channels and loop flag are set by allocate_vgmstream */
-    if (loop_flag) {
-        /* just guessin', no way to set loop flag anyway */
-        vgmstream->loop_start_sample = 0;
-        vgmstream->loop_end_sample = vgmstream->num_samples;
-    }
-
-    /* open the file for reading by each channel */
-    {
-        int i;
-        vgmstream->ch[0].streamfile = streamFile->open(streamFile,filename,
-                STREAMFILE_DEFAULT_BUFFER_SIZE);
-        if (!vgmstream->ch[0].streamfile) goto fail;
-        for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = vgmstream->ch[0].streamfile;
-        }
-    }
-
-    /* start me up */
-    str_snds_block_update(0,vgmstream);
-
+    if (!vgmstream_open_stream(vgmstream, sf, start_offset))
+        goto fail;
     return vgmstream;
 
-    /* clean up anything we may have opened */
 fail:
-    if (vgmstream) close_vgmstream(vgmstream);
+    close_vgmstream(vgmstream);
     return NULL;
 }

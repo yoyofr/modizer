@@ -255,28 +255,28 @@ BOOL is_retina;
         
     
     if (launchOptions) {
-    NSURL *url = (NSURL *)[launchOptions valueForKey:UIApplicationLaunchOptionsURLKey];
+    /*NSURL *url = (NSURL *)[launchOptions valueForKey:UIApplicationLaunchOptionsURLKey];
         if (url) {
-    if ([url isFileURL]) {
-        NSString *filepath;
-        filepath=[url path];
-        NSRange r;
-        r=[filepath rangeOfString:@"Documents/"];
-        if (r.location!=NSNotFound) {
-            NSString *shortfilepath=[filepath substringFromIndex:r.location];
-            
-            t_playlist *pl;
-            pl=(t_playlist*)calloc(1,sizeof(t_playlist));
-            pl->nb_entries=1;
-            pl->entries[0].label=[shortfilepath lastPathComponent];
-            pl->entries[0].fullpath=shortfilepath;
-            pl->entries[0].ratings=-1;
-            pl->entries[0].playcounts=0;
-            [detailViewControlleriPhone play_listmodules:pl start_index:0];
-            free(pl);
-        }
-    }
-        }
+            if ([url isFileURL]) {
+                NSString *filepath;
+                filepath=[url path];
+                NSRange r;
+                r=[filepath rangeOfString:@"Documents/"];
+                if (r.location!=NSNotFound) {
+                    NSString *shortfilepath=[filepath substringFromIndex:r.location];
+                    
+                    t_playlist *pl;
+                    pl=(t_playlist*)calloc(1,sizeof(t_playlist));
+                    pl->nb_entries=1;
+                    pl->entries[0].label=[shortfilepath lastPathComponent];
+                    pl->entries[0].fullpath=shortfilepath;
+                    pl->entries[0].ratings=-1;
+                    pl->entries[0].playcounts=0;
+                    [detailViewControlleriPhone play_listmodules:pl start_index:0];
+                    free(pl);
+                }
+            }
+        }*/
     }
 
     
@@ -292,13 +292,13 @@ BOOL is_retina;
     if ([url isFileURL]) {
         NSString *filepath;
         filepath=[url path];
-        NSRange r;
-        r=[filepath rangeOfString:@"Documents/"];
+        //NSRange r;
+        //r=[filepath rangeOfString:@"Documents/"];
         NSString *shortfilepath;
-        if (r.location!=NSNotFound) shortfilepath=[filepath substringFromIndex:r.location];
-        else {
-            shortfilepath=[NSString stringWithFormat:@"//%@",filepath];
-        }
+        //if (r.location!=NSNotFound) shortfilepath=[filepath substringFromIndex:r.location];
+        //else {
+        shortfilepath=[NSString stringWithFormat:@"//%@",filepath];
+        //}
         t_playlist *pl;
         pl=(t_playlist*)calloc(1,sizeof(t_playlist));
         
@@ -319,10 +319,11 @@ BOOL is_retina;
     if ([url isFileURL]) {
         NSString *filepath;
         filepath=[url path];
-        NSRange r;
-        r=[filepath rangeOfString:@"Documents/"];
-        if (r.location!=NSNotFound) {
-            NSString *shortfilepath=[filepath substringFromIndex:r.location];
+        //NSRange r;
+        //r=[filepath rangeOfString:@"Documents/"];
+        //if (r.location!=NSNotFound) {
+            //NSString *shortfilepath=[filepath substringFromIndex:r.location];
+        NSString *shortfilepath=[NSString stringWithFormat:@"//%@",filepath];
             t_playlist *pl;
             pl=(t_playlist*)calloc(1,sizeof(t_playlist));
             
@@ -334,7 +335,7 @@ BOOL is_retina;
             [detailViewControlleriPhone play_listmodules:pl start_index:0];
             free(pl);
             return YES;
-        }
+        //}
     }
     return NO;
 }

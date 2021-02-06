@@ -1,94 +1,122 @@
 #include "meta.h"
-#include "../util.h"
+#include "../coding/coding.h"
 
-/* JOE (found in Wall-E and some more Pixar games) */
-VGMSTREAM * init_vgmstream_ps2_joe(STREAMFILE *streamFile) {
-    VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+static size_t joe_find_padding(STREAMFILE* sf, off_t start_offset, size_t data_size, int channels, size_t interleave);
+
+/* .JOE - from Asobo Studio games [Up (PS2), Wall-E (PS2)] */
+VGMSTREAM* init_vgmstream_ps2_joe(STREAMFILE* sf) {
+    VGMSTREAM* vgmstream = NULL;
     off_t start_offset;
-	uint8_t	testBuffer[0x10];
-	off_t	loopStart = 0;
-	off_t	loopEnd = 0;
-	off_t	readOffset = 0;
-	size_t	fileLength;
-    int loop_flag;
-	int channel_count;
+    int channel_count, loop_flag, sample_rate;
+    int32_t num_samples;
+    size_t file_size, data_size, unknown1, unknown2, interleave, padding_size;
 
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("joe",filename_extension(filename))) goto fail;
 
-    /* check header */
-    // if (read_32bitBE(0x0C,streamFile) != 0xCCCCCCCC)
-    //    goto fail;
+    /* checks */
+    if (!check_extensions(sf, "joe"))
+        goto fail;
 
-    loop_flag = 1;
+    file_size = get_streamfile_size(sf);
+    data_size = read_u32le(0x04,sf);
+    unknown1 = read_u32le(0x08,sf);
+    unknown2 = read_u32le(0x0c,sf);
+
+    /* detect version */
+    if (data_size == file_size - 0x800
+            && unknown1 == 0x00002000 && unknown2 == 0xFFFFFFFF) { /* NYR (PS2) */
+        interleave = 0x2000;
+        start_offset = 0x800;
+    }
+    else if (data_size / 2 == file_size - 0x10
+            && unknown1 == 0x0045039A && unknown2 == 0x00108920) { /* Super Farm (PS2) */
+        data_size = data_size / 2;
+        interleave = 0x4000;
+        start_offset = 0x10;
+    }
+    else if (data_size / 2 == file_size - 0x10
+            && unknown1 == 0xCCCCCCCC && unknown2 == 0xCCCCCCCC) { /* Sitting Ducks (PS2) */
+        data_size = data_size / 2;
+        interleave = 0x8000;
+        start_offset = 0x10;
+    }
+    else if (data_size == file_size - 0x10
+            && unknown1 == 0xCCCCCCCC && unknown2 == 0xCCCCCCCC) { /* The Mummy: The Animated Series (PS2) */
+        interleave = 0x8000;
+        start_offset = 0x10;
+    }
+    else if (data_size == file_size - 0x4020) { /* Counter Terrorism Special Forces (PS2), all games beyond */
+        /* header can be section(?) table (0x08=entry count) then 0xCCCCCCCC, all 0s, or all 0xCCCCCCCC (no table) */
+        interleave = 0x10;
+        start_offset = 0x4020;
+    }
+    else {
+        goto fail;
+    }
+
+    //start_offset = file_size - data_size; /* also ok */
     channel_count = 2;
+    loop_flag = 0;
+    sample_rate = read_s32le(0x00,sf);
 
-	/* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count,loop_flag);
+    /* the file's end is padded with either 0xcdcdcdcd or zeroes (but not always, ex. NYR) */
+    padding_size = joe_find_padding(sf, start_offset, data_size, channel_count, interleave);
+    data_size -= padding_size;
+    num_samples = ps_bytes_to_samples(data_size, channel_count);
+
+
+    /* build the VGMSTREAM */
+    vgmstream = allocate_vgmstream(channel_count, loop_flag);
     if (!vgmstream) goto fail;
 
-	/* fill in the vital statistics */
-    start_offset = 0x4020;
-	vgmstream->channels = channel_count;
-    vgmstream->sample_rate = read_32bitLE(0x0,streamFile);
+    vgmstream->sample_rate = sample_rate;
+    vgmstream->num_samples = num_samples;
+    vgmstream->stream_size = data_size;
+
     vgmstream->coding_type = coding_PSX;
-    vgmstream->num_samples = (get_streamfile_size(streamFile)-start_offset)*28/16/channel_count;
-		
-	
-	fileLength = get_streamfile_size(streamFile);
-    readOffset = start_offset;
-	do {
-		
-		readOffset+=(off_t)read_streamfile(testBuffer,readOffset,0x10,streamFile); 
-		
-		/* Loop Start */
-		if(testBuffer[0x01]==0x06) {
-			if(loopStart == 0) loopStart = readOffset-0x10;
-			/* break; */
-		}
-		/* Loop End */
-		if(testBuffer[0x01]==0x03) {
-			if(loopEnd == 0) loopEnd = readOffset-0x10;
-			/* break; */
-		}
+    vgmstream->layout_type = layout_interleave;
+    vgmstream->interleave_block_size = interleave;
+    vgmstream->meta_type = meta_PS2_JOE;
 
-	} while (streamFile->get_offset(streamFile)<(int32_t)fileLength);
-	
-	if(loopStart == 0) {
-		loop_flag = 0;
-		vgmstream->num_samples = read_32bitLE(0x4,streamFile)*28/16/channel_count;
-	} else {
-		loop_flag = 1;
-		vgmstream->loop_start_sample = (loopStart-start_offset-0x20)*28/16/channel_count;
-        	vgmstream->loop_end_sample = (loopEnd-start_offset+0x20)*28/16/channel_count;
-    	}
+    if (!vgmstream_open_stream(vgmstream, sf, start_offset))
+        goto fail;
+    return vgmstream;
 
-	vgmstream->layout_type = layout_interleave;
-	vgmstream->interleave_block_size = 0x10;
-	vgmstream->meta_type = meta_PS2_JOE;
+fail:
+    close_vgmstream(vgmstream);
+    return NULL;
+}
 
-    /* open the file for reading */
-    {
-        int i;
-        STREAMFILE * file;
-        file = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
-        if (!file) goto fail;
-        for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = file;
+static size_t joe_find_padding(STREAMFILE* sf, off_t start_offset, size_t data_size, int channels, size_t interleave) {
+    uint32_t pad;
+    off_t min_offset, offset;
+    size_t frame_size = 0x10;
+    size_t padding_size = 0;
+    size_t interleave_consumed = 0;
 
-            vgmstream->ch[i].channel_start_offset=
-                vgmstream->ch[i].offset=start_offset+
-                vgmstream->interleave_block_size*i;
+    if (data_size == 0 || channels == 0 || (channels > 0 && interleave == 0))
+        return 0;
 
+    offset = start_offset + data_size - interleave * (channels - 1);
+    min_offset = start_offset;
+
+    while (offset > min_offset) {
+        offset -= frame_size;
+        pad = read_u32be(offset, sf);
+        if (pad != 0xCDCDCDCD && pad != 0x00000000)
+            break;
+
+        padding_size += frame_size * channels;
+
+        /* skip other channels */
+        interleave_consumed += 0x10;
+        if (interleave_consumed == interleave) {
+            interleave_consumed = 0;
+            offset -= interleave * (channels - 1);
         }
     }
 
-    return vgmstream;
+    if (padding_size >= data_size)
+        return 0;
 
-    /* clean up anything we may have opened */
-fail:
-    if (vgmstream) close_vgmstream(vgmstream);
-    return NULL;
+    return padding_size;
 }

@@ -1,86 +1,83 @@
 #include "meta.h"
-#include "../util.h"
+#include "../coding/coding.h"
 
-/* 2PFS
-	- Mahoromatic: Moetto - KiraKira Maid-San (PS2)
 
-	
-*/
-VGMSTREAM * init_vgmstream_ps2_2pfs(STREAMFILE *streamFile) 
-{
+/* 2PFS - from Konami Games [Mahoromatic: Moetto - KiraKira Maid-San (PS2), GANTZ The Game (PS2)] */
+VGMSTREAM * init_vgmstream_ps2_2pfs(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
-    
-	size_t fileLength;
-	off_t readOffset = 0;
-	off_t start_offset;
+    off_t start_offset;
+    int loop_flag, channel_count, version, interleave;
+    int loop_start_block, loop_end_block; /* block number */
+    int loop_start_adjust, loop_end_adjust; /* loops start/end a few samples into the start/end block */
 
-	int loop_flag = 0;
-	int channel_count;
 
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("2pfs",filename_extension(filename))) goto fail;
-
-    /* check header */
-    if (read_32bitBE(0x00,streamFile) != 0x32504653) 
+    /* checks */
+    /* .sap: standard
+     * .2psf: header id? (Mahoromatic) */
+    if (!check_extensions(streamFile, "sap,2psf"))
         goto fail;
 
-	// channel count
-	channel_count = read_8bit(0x40,streamFile);
+    if (read_32bitBE(0x00,streamFile) != 0x32504653) /* "2PFS" */
+        goto fail;
 
-	// header size
-	start_offset = 0x800;
-    
-	// loop flag
-	//if ((read_32bitLE(0x38, streamFile) != 0 || 
-	//	(read_32bitLE(0x34, streamFile) != 0)))
-	//{
-	//	loop_flag = 1;
-	//}
+    version = read_16bitLE(0x04,streamFile);
+    if (version != 0x01 && version != 0x02) /* v1: Mahoromatic, v2: Gantz */
+        goto fail;
 
-	// Loop info unknown right now
-	//if (loop_flag) 
-	//{
-	//	vgmstream->loop_start_sample = read_32bitLE(0x38,streamFile)*28/16/channel_count;
-	//	vgmstream->loop_end_sample = read_32bitLE(0x34,streamFile)*28/16/channel_count;
-	//}
 
-	/* build the VGMSTREAM */
+    channel_count = read_8bit(0x40,streamFile);
+    loop_flag = read_8bit(0x41,streamFile);
+    start_offset = 0x800;
+    interleave = 0x1000;
+
+    /* other header values
+     *  0x06: unknown, v1=0x0004 v2=0x0001
+     *  0x08: unique file id
+     *  0x0c: base header size (v1=0x50, v2=0x60) + datasize (without the 0x800 full header size)
+     *  0x10-0x30: unknown (v1 differs from v2)
+     *  0x38-0x40: unknown (v1 same as v2)
+     *  0x4c: unknown, some kind of total samples? (v2 only)
+     */
+
+
+    /* build the VGMSTREAM */
     vgmstream = allocate_vgmstream(channel_count,loop_flag);
     if (!vgmstream) goto fail;
 
-	/* fill in the vital statistics */	
-	vgmstream->channels = channel_count;
-    vgmstream->sample_rate = read_32bitLE(0x44,streamFile);
-    vgmstream->coding_type = coding_PSX;
-	vgmstream->num_samples = read_32bitLE(0x0C,streamFile)*28/16/channel_count;
- 
-    vgmstream->layout_type = layout_interleave;
-    vgmstream->interleave_block_size = 0x1000;
     vgmstream->meta_type = meta_PS2_2PFS;
+    vgmstream->num_samples = read_32bitLE(0x34,streamFile) * 28 / 16 / channel_count;
+    vgmstream->coding_type = coding_PSX;
+    vgmstream->layout_type = layout_interleave;
+    vgmstream->interleave_block_size = interleave;
 
-    /* open the file for reading */
-    {
-        int i;
-        STREAMFILE * file;
-        file = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
-        if (!file) goto fail;
-        
-		for (i=0;i<channel_count;i++) 
-		{
-            vgmstream->ch[i].streamfile = file;
+    if (version == 0x01) {
+        vgmstream->sample_rate = read_32bitLE(0x44,streamFile);
+        loop_start_adjust = read_16bitLE(0x42,streamFile);
+        loop_start_block = read_32bitLE(0x48,streamFile);
+        loop_end_block = read_32bitLE(0x4c,streamFile);
+    }
+    else {
+        vgmstream->sample_rate = read_32bitLE(0x48,streamFile);
+        loop_start_adjust = read_32bitLE(0x44,streamFile);
+        loop_start_block = read_32bitLE(0x50,streamFile);
+        loop_end_block = read_32bitLE(0x54,streamFile);
+    }
+    loop_end_adjust = interleave; /* loops end after all samples in the end_block AFAIK */
 
-            vgmstream->ch[i].channel_start_offset=
-                vgmstream->ch[i].offset=start_offset + (vgmstream->interleave_block_size * i);
-
-        }
-		
+    if (loop_flag) {
+        /* block to offset > offset to sample + adjust (number of frames into the block) */
+        vgmstream->loop_start_sample =
+                ps_bytes_to_samples(loop_start_block * channel_count * interleave, channel_count)
+                + ps_bytes_to_samples(loop_start_adjust * channel_count, channel_count);
+        vgmstream->loop_end_sample =
+                ps_bytes_to_samples(loop_end_block * channel_count * interleave, channel_count)
+                + ps_bytes_to_samples(loop_end_adjust * channel_count, channel_count);
     }
 
+    if (!vgmstream_open_stream(vgmstream,streamFile,start_offset))
+        goto fail;
     return vgmstream;
 
-    /* clean up anything we may have opened */
 fail:
     if (vgmstream) close_vgmstream(vgmstream);
     return NULL;

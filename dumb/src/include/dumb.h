@@ -141,7 +141,7 @@
 
 /* Basic Sample Type. Normal range is -0x800000 to 0x7FFFFF. */
 
-typedef int sample_t;
+typedef int DUMB_sample_t;
 
 
 /* Library Clean-up Management */
@@ -236,7 +236,7 @@ typedef struct DUH_SIGRENDERER DUH_SIGRENDERER;
 DUH_SIGRENDERER *duh_start_sigrenderer(DUH *duh, int sig, int n_channels, long pos);
 
 #ifdef DUMB_DECLARE_DEPRECATED
-typedef void (*DUH_SIGRENDERER_CALLBACK)(void *data, sample_t **samples, int n_channels, long length);
+typedef void (*DUH_SIGRENDERER_CALLBACK)(void *data, DUMB_sample_t **samples, int n_channels, long length);
 /* This is deprecated, but is not marked as such because GCC tends to
  * complain spuriously when the typedef is used later. See comments below.
  */
@@ -258,7 +258,7 @@ void duh_sigrenderer_set_callback(
  * are in readme.txt.)
  */
 
-typedef void (*DUH_SIGRENDERER_ANALYSER_CALLBACK)(void *data, const sample_t *const *samples, int n_channels, long length);
+typedef void (*DUH_SIGRENDERER_ANALYSER_CALLBACK)(void *data, const DUMB_sample_t *const *samples, int n_channels, long length);
 /* This is deprecated, but is not marked as such because GCC tends to
  * complain spuriously when the typedef is used later. See comments below.
  */
@@ -279,7 +279,7 @@ void duh_sigrenderer_set_analyser_callback(
  */
 #endif
 
-typedef void (*DUH_SIGRENDERER_SAMPLE_ANALYSER_CALLBACK)(void *data, const sample_t *const *samples, int n_channels, long length);
+typedef void (*DUH_SIGRENDERER_SAMPLE_ANALYSER_CALLBACK)(void *data, const DUMB_sample_t *const *samples, int n_channels, long length);
 
 void duh_sigrenderer_set_sample_analyser_callback(
 	DUH_SIGRENDERER *sigrenderer,
@@ -295,7 +295,7 @@ void duh_sigrenderer_set_sigparam(DUH_SIGRENDERER *sigrenderer, unsigned char id
 long duh_sigrenderer_get_samples(
 	DUH_SIGRENDERER *sigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 ) DUMB_DEPRECATED;
 /* The sample format has changed, so if you were using this function,
  * you should switch to duh_sigrenderer_generate_samples() and change
@@ -307,10 +307,10 @@ long duh_sigrenderer_get_samples(
 long duh_sigrenderer_generate_samples(
 	DUH_SIGRENDERER *sigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 );
 
-void duh_sigrenderer_get_current_sample(DUH_SIGRENDERER *sigrenderer, float volume, sample_t *samples);
+void duh_sigrenderer_get_current_sample(DUH_SIGRENDERER *sigrenderer, float volume, DUMB_sample_t *samples);
 
 void duh_end_sigrenderer(DUH_SIGRENDERER *sigrenderer);
 
@@ -329,7 +329,7 @@ long duh_render(
 long duh_render_signal(
 	DUH_SIGRENDERER *sigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 ) DUMB_DEPRECATED;
 /* Please use duh_sigrenderer_generate_samples(), and see the
  * comments for the deprecated duh_sigrenderer_get_samples() too.
@@ -578,13 +578,13 @@ typedef void (*DUH_SIGRENDERER_SET_SIGPARAM)(
 typedef long (*DUH_SIGRENDERER_GENERATE_SAMPLES)(
 	sigrenderer_t *sigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 );
 
 typedef void (*DUH_SIGRENDERER_GET_CURRENT_SAMPLE)(
 	sigrenderer_t *sigrenderer,
 	float volume,
-	sample_t *samples
+	DUMB_sample_t *samples
 );
 
 typedef long (*DUH_SIGRENDERER_GET_POSITION)(
@@ -633,19 +633,19 @@ sigrenderer_t *duh_get_raw_sigrenderer(DUH_SIGRENDERER *sigrenderer, long type);
 /* Sample Buffer Allocation Helpers */
 
 #ifdef DUMB_DECLARE_DEPRECATED
-sample_t **create_sample_buffer(int n_channels, long length) DUMB_DEPRECATED;
+DUMB_sample_t **create_sample_buffer(int n_channels, long length) DUMB_DEPRECATED;
 /* DUMB has been changed to interleave stereo samples. Use
  * allocate_sample_buffer() instead, and see the comments for
  * duh_sigrenderer_set_analyser_callback().
  */
 #endif
-sample_t **allocate_sample_buffer(int n_channels, long length);
-void destroy_sample_buffer(sample_t **samples);
+DUMB_sample_t **allocate_sample_buffer(int n_channels, long length);
+void destroy_sample_buffer(DUMB_sample_t **samples);
 
 
 /* Silencing Helper */
 
-void dumb_silence(sample_t *samples, long length);
+void dumb_silence(DUMB_sample_t *samples, long length);
 
 
 /* Click Removal Helpers */
@@ -653,16 +653,16 @@ void dumb_silence(sample_t *samples, long length);
 typedef struct DUMB_CLICK_REMOVER DUMB_CLICK_REMOVER;
 
 DUMB_CLICK_REMOVER *dumb_create_click_remover(void);
-void dumb_record_click(DUMB_CLICK_REMOVER *cr, long pos, sample_t step);
-void dumb_remove_clicks(DUMB_CLICK_REMOVER *cr, sample_t *samples, long length, int step, float halflife);
-sample_t dumb_click_remover_get_offset(DUMB_CLICK_REMOVER *cr);
+void dumb_record_click(DUMB_CLICK_REMOVER *cr, long pos, DUMB_sample_t step);
+void dumb_remove_clicks(DUMB_CLICK_REMOVER *cr, DUMB_sample_t *samples, long length, int step, float halflife);
+DUMB_sample_t dumb_click_remover_get_offset(DUMB_CLICK_REMOVER *cr);
 void dumb_destroy_click_remover(DUMB_CLICK_REMOVER *cr);
 
 DUMB_CLICK_REMOVER **dumb_create_click_remover_array(int n);
-void dumb_record_click_array(int n, DUMB_CLICK_REMOVER **cr, long pos, sample_t *step);
-void dumb_record_click_negative_array(int n, DUMB_CLICK_REMOVER **cr, long pos, sample_t *step);
-void dumb_remove_clicks_array(int n, DUMB_CLICK_REMOVER **cr, sample_t **samples, long length, float halflife);
-void dumb_click_remover_get_offset_array(int n, DUMB_CLICK_REMOVER **cr, sample_t *offset);
+void dumb_record_click_array(int n, DUMB_CLICK_REMOVER **cr, long pos, DUMB_sample_t *step);
+void dumb_record_click_negative_array(int n, DUMB_CLICK_REMOVER **cr, long pos, DUMB_sample_t *step);
+void dumb_remove_clicks_array(int n, DUMB_CLICK_REMOVER **cr, DUMB_sample_t **samples, long length, float halflife);
+void dumb_click_remover_get_offset_array(int n, DUMB_CLICK_REMOVER **cr, DUMB_sample_t *offset);
 void dumb_destroy_click_remover_array(int n, DUMB_CLICK_REMOVER **cr);
 
 
@@ -696,7 +696,7 @@ struct DUMB_RESAMPLER
 	int quality;
 	/* Everything below this point is internal: do not use. */
 	union {
-		sample_t x24[3*2];
+		DUMB_sample_t x24[3*2];
 		short x16[3*2];
 		signed char x8[3*2];
 	} x;
@@ -716,52 +716,52 @@ struct DUMB_VOLUME_RAMP_INFO
 	float mix;
 };
 
-void dumb_reset_resampler(DUMB_RESAMPLER *resampler, sample_t *src, int src_channels, long pos, long start, long end, int quality);
-DUMB_RESAMPLER *dumb_start_resampler(sample_t *src, int src_channels, long pos, long start, long end, int quality);
-long dumb_resample_1_1(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
-long dumb_resample_1_2(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_2_1(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_2_2(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-void dumb_resample_get_current_sample_1_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, sample_t *dst);
-void dumb_resample_get_current_sample_1_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_2_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_2_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
+void dumb_reset_resampler(DUMB_RESAMPLER *resampler, DUMB_sample_t *src, int src_channels, long pos, long start, long end, int quality);
+DUMB_RESAMPLER *dumb_start_resampler(DUMB_sample_t *src, int src_channels, long pos, long start, long end, int quality);
+long dumb_resample_1_1(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
+long dumb_resample_1_2(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_2_1(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_2_2(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+void dumb_resample_get_current_sample_1_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_1_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_2_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_2_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
 void dumb_end_resampler(DUMB_RESAMPLER *resampler);
 
 void dumb_reset_resampler_16(DUMB_RESAMPLER *resampler, short *src, int src_channels, long pos, long start, long end, int quality);
 DUMB_RESAMPLER *dumb_start_resampler_16(short *src, int src_channels, long pos, long start, long end, int quality);
-long dumb_resample_16_1_1(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
-long dumb_resample_16_1_2(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_16_2_1(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_16_2_2(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-void dumb_resample_get_current_sample_16_1_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, sample_t *dst);
-void dumb_resample_get_current_sample_16_1_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_16_2_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_16_2_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
+long dumb_resample_16_1_1(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
+long dumb_resample_16_1_2(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_16_2_1(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_16_2_2(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+void dumb_resample_get_current_sample_16_1_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_16_1_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_16_2_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_16_2_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
 void dumb_end_resampler_16(DUMB_RESAMPLER *resampler);
 
 void dumb_reset_resampler_8(DUMB_RESAMPLER *resampler, signed char *src, int src_channels, long pos, long start, long end, int quality);
 DUMB_RESAMPLER *dumb_start_resampler_8(signed char *src, int src_channels, long pos, long start, long end, int quality);
-long dumb_resample_8_1_1(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
-long dumb_resample_8_1_2(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_8_2_1(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_8_2_2(DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-void dumb_resample_get_current_sample_8_1_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, sample_t *dst);
-void dumb_resample_get_current_sample_8_1_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_8_2_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_8_2_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
+long dumb_resample_8_1_1(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
+long dumb_resample_8_1_2(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_8_2_1(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_8_2_2(DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+void dumb_resample_get_current_sample_8_1_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_8_1_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_8_2_1(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_8_2_2(DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
 void dumb_end_resampler_8(DUMB_RESAMPLER *resampler);
 
 void dumb_reset_resampler_n(int n, DUMB_RESAMPLER *resampler, void *src, int src_channels, long pos, long start, long end, int quality);
 DUMB_RESAMPLER *dumb_start_resampler_n(int n, void *src, int src_channels, long pos, long start, long end, int quality);
-long dumb_resample_n_1_1(int n, DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
-long dumb_resample_n_1_2(int n, DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_n_2_1(int n, DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-long dumb_resample_n_2_2(int n, DUMB_RESAMPLER *resampler, sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
-void dumb_resample_get_current_sample_n_1_1(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, sample_t *dst);
-void dumb_resample_get_current_sample_n_1_2(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_n_2_1(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
-void dumb_resample_get_current_sample_n_2_2(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, sample_t *dst);
+long dumb_resample_n_1_1(int n, DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume, float delta);
+long dumb_resample_n_1_2(int n, DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_n_2_1(int n, DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+long dumb_resample_n_2_2(int n, DUMB_RESAMPLER *resampler, DUMB_sample_t *dst, long dst_size, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, float delta);
+void dumb_resample_get_current_sample_n_1_1(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_n_1_2(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_n_2_1(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
+void dumb_resample_get_current_sample_n_2_2(int n, DUMB_RESAMPLER *resampler, DUMB_VOLUME_RAMP_INFO * volume_left, DUMB_VOLUME_RAMP_INFO * volume_right, DUMB_sample_t *dst);
 void dumb_end_resampler_n(int n, DUMB_RESAMPLER *resampler);
 
 

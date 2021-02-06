@@ -5,7 +5,7 @@
 
 VGMSTREAM * init_vgmstream_ps2_p2bt(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
 
     int loop_flag=0;
 	int channel_count;
@@ -51,7 +51,7 @@ VGMSTREAM * init_vgmstream_ps2_p2bt(STREAMFILE *streamFile) {
     /* open the file for reading by each channel */
     {
         for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,vgmstream->interleave_block_size);
+            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
 
             if (!vgmstream->ch[i].streamfile) goto fail;
 

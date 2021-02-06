@@ -620,7 +620,7 @@ static UIAlertView *alertChooseName;
     NSRange r;
     NSString *endUrl=[[[navigationAction.request URL] absoluteString] lastPathComponent];
     
-    NSLog(@"url : %d %@",navigationAction.navigationType,[[navigationAction.request URL] absoluteString]);
+    //NSLog(@"url : %d %@",navigationAction.navigationType,[[navigationAction.request URL] absoluteString]);
     
     if (endUrl==nil) {
         decisionHandler(WKNavigationActionPolicyCancel);

@@ -39,7 +39,7 @@ struct DUMB_CLICK
 {
 	DUMB_CLICK *next;
 	long pos;
-	sample_t step;
+	DUMB_sample_t step;
 };
 
 
@@ -59,7 +59,7 @@ DUMB_CLICK_REMOVER *dumb_create_click_remover(void)
 
 
 
-void dumb_record_click(DUMB_CLICK_REMOVER *cr, long pos, sample_t step)
+void dumb_record_click(DUMB_CLICK_REMOVER *cr, long pos, DUMB_sample_t step)
 {
 	DUMB_CLICK *click;
 
@@ -125,7 +125,7 @@ static DUMB_CLICK *dumb_click_mergesort(DUMB_CLICK *click, int n_clicks)
 
 
 
-void dumb_remove_clicks(DUMB_CLICK_REMOVER *cr, sample_t *samples, long length, int step, float halflife)
+void dumb_remove_clicks(DUMB_CLICK_REMOVER *cr, DUMB_sample_t *samples, long length, int step, float halflife)
 {
 	DUMB_CLICK *click;
 	long pos = 0;
@@ -188,7 +188,7 @@ void dumb_remove_clicks(DUMB_CLICK_REMOVER *cr, sample_t *samples, long length, 
 
 
 
-sample_t dumb_click_remover_get_offset(DUMB_CLICK_REMOVER *cr)
+DUMB_sample_t dumb_click_remover_get_offset(DUMB_CLICK_REMOVER *cr)
 {
 	return cr ? cr->offset : 0;
 }
@@ -223,7 +223,7 @@ DUMB_CLICK_REMOVER **dumb_create_click_remover_array(int n)
 
 
 
-void dumb_record_click_array(int n, DUMB_CLICK_REMOVER **cr, long pos, sample_t *step)
+void dumb_record_click_array(int n, DUMB_CLICK_REMOVER **cr, long pos, DUMB_sample_t *step)
 {
 	if (cr) {
 		int i;
@@ -234,7 +234,7 @@ void dumb_record_click_array(int n, DUMB_CLICK_REMOVER **cr, long pos, sample_t 
 
 
 
-void dumb_record_click_negative_array(int n, DUMB_CLICK_REMOVER **cr, long pos, sample_t *step)
+void dumb_record_click_negative_array(int n, DUMB_CLICK_REMOVER **cr, long pos, DUMB_sample_t *step)
 {
 	if (cr) {
 		int i;
@@ -245,7 +245,7 @@ void dumb_record_click_negative_array(int n, DUMB_CLICK_REMOVER **cr, long pos, 
 
 
 
-void dumb_remove_clicks_array(int n, DUMB_CLICK_REMOVER **cr, sample_t **samples, long length, float halflife)
+void dumb_remove_clicks_array(int n, DUMB_CLICK_REMOVER **cr, DUMB_sample_t **samples, long length, float halflife)
 {
 	if (cr) {
 		int i;
@@ -260,7 +260,7 @@ void dumb_remove_clicks_array(int n, DUMB_CLICK_REMOVER **cr, sample_t **samples
 
 
 
-void dumb_click_remover_get_offset_array(int n, DUMB_CLICK_REMOVER **cr, sample_t *offset)
+void dumb_click_remover_get_offset_array(int n, DUMB_CLICK_REMOVER **cr, DUMB_sample_t *offset)
 {
 	if (cr) {
 		int i;

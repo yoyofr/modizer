@@ -183,7 +183,7 @@ void duh_sigrenderer_set_sigparam(
 long duh_sigrenderer_generate_samples(
 	DUH_SIGRENDERER *sigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 )
 {
 	long rendered;
@@ -197,7 +197,7 @@ long duh_sigrenderer_generate_samples(
 	if (rendered) {
 		if (sigrenderer->callback)
 			(*sigrenderer->callback)(sigrenderer->callback_data,
-				(const sample_t *const *)samples, sigrenderer->n_channels, rendered);
+				(const DUMB_sample_t *const *)samples, sigrenderer->n_channels, rendered);
 
 		t = sigrenderer->subpos + (LONG_LONG)(delta * 65536.0 + 0.5) * rendered;
 
@@ -214,10 +214,10 @@ long duh_sigrenderer_generate_samples(
 long duh_sigrenderer_get_samples(
 	DUH_SIGRENDERER *sigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 )
 {
-	sample_t **s;
+	DUMB_sample_t **s;
 	long rendered;
 	long i;
 	int j;
@@ -239,10 +239,10 @@ long duh_sigrenderer_get_samples(
 long duh_render_signal(
 	DUH_SIGRENDERER *sigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 )
 {
-	sample_t **s;
+	DUMB_sample_t **s;
 	long rendered;
 	long i;
 	int j;
@@ -260,7 +260,7 @@ long duh_render_signal(
 
 
 
-void duh_sigrenderer_get_current_sample(DUH_SIGRENDERER *sigrenderer, float volume, sample_t *samples)
+void duh_sigrenderer_get_current_sample(DUH_SIGRENDERER *sigrenderer, float volume, DUMB_sample_t *samples)
 {
 	if (sigrenderer)
 		(*sigrenderer->desc->sigrenderer_get_current_sample)(sigrenderer->sigrenderer, volume, samples);

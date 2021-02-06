@@ -1,66 +1,68 @@
-#include "../vgmstream.h"
 #include "meta.h"
-#include "../util.h"
-#include "../coding/acm_decoder.h"
+#include "../coding/coding.h"
+#include "../coding/acm_decoder_libacm.h"
 
-/* InterPlay ACM */
-/* The real work is done by libacm */
+/* ACM - InterPlay infinity engine games [Planescape: Torment (PC), Baldur's Gate (PC)] */
 VGMSTREAM * init_vgmstream_acm(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    ACMStream *acm_stream = NULL;
-    mus_acm_codec_data *data;
+    int loop_flag = 0, channel_count, sample_rate, num_samples;
+    int force_channel_number = 0;
+    acm_codec_data *data = NULL;
 
-    char filename[1024];
 
-    int loop_flag = 0;
-	int channel_count;
-
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("acm",filename_extension(filename))) goto fail;
-
-	/* check header */
-    if (read_32bitBE(0x0,streamFile) != 0x97280301)
-		goto fail;
-
-    data = calloc(1,sizeof(mus_acm_codec_data));
-    if (!data) goto fail;
-
-    data->files = calloc(1,sizeof(ACMStream *));
-    if (!data->files) {
-        free(data); data = NULL;
+    /* checks */
+    /* .acm: plain ACM extension (often but not always paired with .mus, parsed elsewhere)
+     * .wavc: header id for WAVC sfx (from bigfiles, extensionless) */
+    if (!check_extensions(streamFile, "acm,wavc"))
         goto fail;
+    if (read_32bitBE(0x00,streamFile) != 0x97280301 &&  /* header id (music) */
+        read_32bitBE(0x00,streamFile) != 0x57415643)    /* "WAVC" (sfx) */
+        goto fail;
+
+
+    /* Plain ACM "channels" in the header may be set to 2 for mono voices or 1 for music,
+     * but actually seem related to ACM rows/cols and have nothing to do with channels.
+     *
+     * libacm will set plain ACM (not WAVC) to 2ch unless changes unless changed, but
+     * only Fallout (PC) seems to use plain ACM for sfx, others are WAVC (which do have channels).
+     *
+     * Doesn't look like there is any way to detect mono/stereo, so as a quick hack if
+     * we have a plain ACM (not WAVC) named .wavc we will force 1ch. */
+    if (check_extensions(streamFile, "wavc")
+            && read_32bitBE(0x00,streamFile) == 0x97280301) {
+        force_channel_number = 1;
     }
 
-    /* gonna do this a little backwards, open and parse the file
-       before creating the vgmstream */
+    /* init decoder */
+    {
+        ACMStream *handle;
+        data = init_acm(streamFile, force_channel_number);
+        if (!data) goto fail;
 
-    if (acm_open_decoder(&acm_stream,streamFile,filename) != ACM_OK) {
-        goto fail;
+        handle = data->handle;
+        channel_count = handle->info.channels;
+        sample_rate = handle->info.rate;
+        num_samples = handle->total_values / handle->info.channels;
     }
 
-    channel_count = acm_stream->info.channels;
+
+    /* build the VGMSTREAM */
     vgmstream = allocate_vgmstream(channel_count,loop_flag);
     if (!vgmstream) goto fail;
 
-    vgmstream->channels = channel_count;
-    vgmstream->sample_rate = acm_stream->info.rate;
-    vgmstream->coding_type = coding_ACM;
-    vgmstream->num_samples = acm_stream->total_values / acm_stream->info.channels;
-    vgmstream->layout_type = layout_acm;
-    vgmstream->meta_type = meta_ACM;
+    vgmstream->sample_rate = sample_rate;
+    vgmstream->num_samples = num_samples;
 
-    data->file_count = 1;
-    data->current_file = 0;
-    data->files[0] = acm_stream;
-    /*data->end_file = -1;*/
+    vgmstream->meta_type = meta_ACM;
+    vgmstream->coding_type = coding_ACM;
+    vgmstream->layout_type = layout_none;
 
     vgmstream->codec_data = data;
 
     return vgmstream;
 
-    /* clean up anything we may have opened */
 fail:
-    if (vgmstream) close_vgmstream(vgmstream);
+    free_acm(data);
+    close_vgmstream(vgmstream);
     return NULL;
 }

@@ -9,7 +9,7 @@
 VGMSTREAM * init_vgmstream_ps2_wmus(STREAMFILE *streamFile) 
 {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
 
     int loop_flag = 1;
 	int channel_count;
@@ -20,7 +20,7 @@ VGMSTREAM * init_vgmstream_ps2_wmus(STREAMFILE *streamFile)
 	int shortBlockSize;
 	int lastBlockLocation;
 
-	char	filenameWHED[1024];
+	char	filenameWHED[PATH_LIMIT];
 	STREAMFILE * streamFileWHED = NULL;
 
 	//_TCHAR szBuffer[100];
@@ -82,7 +82,7 @@ VGMSTREAM * init_vgmstream_ps2_wmus(STREAMFILE *streamFile)
     /* open the file for reading by each channel */
     {
         for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,vgmstream->interleave_block_size);
+            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
 
             if (!vgmstream->ch[i].streamfile) goto fail;
 

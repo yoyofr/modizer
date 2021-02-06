@@ -6787,6 +6787,10 @@
 					"\"$(SRCROOT)/../../../../../Library/Developer/Xcode/DerivedData/modizerws-djikcqenfakshqfxajwtzatnvpau/Build/Products/Debug-iphoneos\"",
 				);
 				MARKETING_VERSION = 2.94;
+				OTHER_CFLAGS = (
+					"-DVGM_USE_VORBIS=1",
+					"-DVGM_USE_MPEG=1",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -6854,6 +6858,8 @@
 				MARKETING_VERSION = 2.94;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
+					"-DVGM_USE_VORBIS=1",
+					"-DVGM_USE_MPEG=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);
@@ -6916,6 +6922,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
 				PROVISIONING_PROFILE = "";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = iphoneos;
@@ -7094,6 +7101,8 @@
 				);
 				MARKETING_VERSION = 2.94;
 				OTHER_CFLAGS = (
+					"-DVGM_USE_VORBIS=1",
+					"-DVGM_USE_MPEG=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);
@@ -7219,6 +7228,8 @@
 				);
 				MARKETING_VERSION = 2.94;
 				OTHER_CFLAGS = (
+					"-DVGM_USE_VORBIS=1",
+					"-DVGM_USE_MPEG=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);
@@ -7345,6 +7356,8 @@
 				);
 				MARKETING_VERSION = 2.94;
 				OTHER_CFLAGS = (
+					"-DVGM_USE_VORBIS=1",
+					"-DVGM_USE_MPEG=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-mfpu=neon",
 				);

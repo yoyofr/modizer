@@ -119,7 +119,7 @@ struct IT_MIDI
 
 struct IT_FILTER_STATE
 {
-	sample_t currsample, prevsample;
+	DUMB_sample_t currsample, prevsample;
 };
 
 

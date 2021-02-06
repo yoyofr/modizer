@@ -7,7 +7,7 @@
 /* Doesn't seem to be working quite right yet, coef table looks odd */
 VGMSTREAM * init_vgmstream_wii_mus(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
 
     off_t start_offset;
     off_t interleave;
@@ -100,9 +100,9 @@ VGMSTREAM * init_vgmstream_wii_mus(STREAMFILE *streamFile) {
     vgmstream->ch[1].adpcm_history1_16 = channel[1].initial_hist1;
     vgmstream->ch[1].adpcm_history2_16 = channel[1].initial_hist2;
 
-    vgmstream->ch[0].streamfile = streamFile->open(streamFile,filename,interleave);
+    vgmstream->ch[0].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
     if (!vgmstream->ch[0].streamfile) goto fail;
-    vgmstream->ch[1].streamfile = streamFile->open(streamFile,filename,interleave);
+    vgmstream->ch[1].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
     if (!vgmstream->ch[1].streamfile) goto fail;
 
     /* open the file for reading */

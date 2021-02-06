@@ -7,7 +7,7 @@
 
 VGMSTREAM * init_vgmstream_dc_str(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
     off_t start_offset;
     int loop_flag = 0;
     int interleave;
@@ -39,7 +39,7 @@ VGMSTREAM * init_vgmstream_dc_str(STREAMFILE *streamFile) {
     /* fill in the vital statistics */
     switch (samples) {
         case 4:
-            vgmstream->coding_type = coding_AICA;
+            vgmstream->coding_type = coding_AICA_int;
             vgmstream->num_samples = read_32bitLE(0x14,streamFile);
         if (loop_flag) {
             vgmstream->loop_start_sample = 0;
@@ -102,7 +102,7 @@ fail:
 
 VGMSTREAM * init_vgmstream_dc_str_v2(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
     off_t start_offset;
     int loop_flag = 0;
 	int channel_count;

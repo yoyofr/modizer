@@ -4,7 +4,7 @@
 /* NGCA (from GoldenEye 007) */
 VGMSTREAM * init_vgmstream_ngca(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
     off_t start_offset;
 
     int loop_flag;
@@ -34,6 +34,7 @@ VGMSTREAM * init_vgmstream_ngca(STREAMFILE *streamFile) {
 
     vgmstream->layout_type = layout_none;
     vgmstream->meta_type = meta_NGCA;
+    vgmstream->allow_dual_stereo = 1;
 
 	 if (vgmstream->coding_type == coding_NGC_DSP) {
          int i;

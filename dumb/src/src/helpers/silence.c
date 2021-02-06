@@ -22,7 +22,7 @@
 
 
 
-void dumb_silence(sample_t *samples, long length)
+void dumb_silence(DUMB_sample_t *samples, long length)
 {
 	memset(samples, 0, length * sizeof(*samples));
 }

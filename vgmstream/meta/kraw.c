@@ -4,7 +4,7 @@
 /* KRAW (from Geometry Wars - Galaxies) */
 VGMSTREAM * init_vgmstream_kraw(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
     off_t start_offset;
     int loop_flag = 0;
 	int channel_count;
@@ -37,6 +37,7 @@ VGMSTREAM * init_vgmstream_kraw(STREAMFILE *streamFile) {
 
     vgmstream->layout_type = layout_none;
     vgmstream->meta_type = meta_KRAW;
+    vgmstream->allow_dual_stereo = 1;
 
     /* open the file for reading */
     {

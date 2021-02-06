@@ -3,7 +3,7 @@
 
 VGMSTREAM * init_vgmstream_brstm(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
+    char filename[PATH_LIMIT];
 
     coding_t coding_type;
 
@@ -91,10 +91,7 @@ VGMSTREAM * init_vgmstream_brstm(STREAMFILE *streamFile) {
     vgmstream->loop_end_sample = vgmstream->num_samples;
 
     vgmstream->coding_type = coding_type;
-    if (channel_count==1)
-        vgmstream->layout_type = layout_none;
-    else
-        vgmstream->layout_type = layout_interleave_shortblock;
+    vgmstream->layout_type = (channel_count == 1) ? layout_none : layout_interleave;
     vgmstream->meta_type = meta_RSTM;
     if (atlus_shrunken_head)
         vgmstream->meta_type = meta_RSTM_shrunken;
@@ -105,30 +102,43 @@ VGMSTREAM * init_vgmstream_brstm(STREAMFILE *streamFile) {
     }
 
     vgmstream->interleave_block_size = read_32bitBE(head_offset+0x38,streamFile);
-    vgmstream->interleave_smallblock_size = read_32bitBE(head_offset+0x48,streamFile);
+    vgmstream->interleave_last_block_size = read_32bitBE(head_offset+0x48,streamFile);
 
     if (vgmstream->coding_type == coding_NGC_DSP) {
         off_t coef_offset;
-        off_t coef_offset1;
-        off_t coef_offset2;
+        off_t head_part3_offset;
+        off_t adpcm_header_offset;
         int i,j;
-        int coef_spacing = 0x38;
+        int coef_spacing;
 
         if (atlus_shrunken_head)
         {
             coef_offset = 0x50;
             coef_spacing = 0x30;
+
+            for (j = 0; j < vgmstream->channels; j++) {
+                for (i = 0; i < 16; i++) {
+                    vgmstream->ch[j].adpcm_coef[i] = read_16bitBE(head_offset + coef_offset + j * coef_spacing + i * 2,streamFile);
+                }
+            }
         }
         else
         {
-            coef_offset1=read_32bitBE(head_offset+0x1c,streamFile);
-            coef_offset2=read_32bitBE(head_offset+0x10+coef_offset1,streamFile);
-            coef_offset=coef_offset2+0x10;
-        }
+            head_part3_offset = read_32bitBE(head_offset + 0x1c, streamFile);
 
-        for (j=0;j<vgmstream->channels;j++) {
-            for (i=0;i<16;i++) {
-                vgmstream->ch[j].adpcm_coef[i]=read_16bitBE(head_offset+coef_offset+j*coef_spacing+i*2,streamFile);
+            for (j = 0; j < vgmstream->channels; j++) {
+                adpcm_header_offset = head_offset + 0x08
+                    + head_part3_offset + 0x04 /* skip over HEAD part 3 */
+                    + j * 0x08 /* skip to channel's ADPCM offset table */
+                    + 0x04; /* ADPCM header offset field */
+
+                coef_offset = head_offset + 0x08
+                    + read_32bitBE(adpcm_header_offset, streamFile)
+                    + 0x08; /* coeffs field */
+
+                for (i = 0; i < 16; i++) {
+                    vgmstream->ch[j].adpcm_coef[i] = read_16bitBE(coef_offset + i * 2, streamFile);
+                }
             }
         }
     }
@@ -139,12 +149,7 @@ VGMSTREAM * init_vgmstream_brstm(STREAMFILE *streamFile) {
     {
         int i;
         for (i=0;i<channel_count;i++) {
-            if (vgmstream->layout_type==layout_interleave_shortblock)
-                vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,
-                    vgmstream->interleave_block_size);
-            else
-                vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,
-                    0x1000);
+            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
 
             if (!vgmstream->ch[i].streamfile) goto fail;
 

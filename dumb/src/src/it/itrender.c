@@ -589,10 +589,10 @@ static void it_reset_filter_state(IT_FILTER_STATE *state)
  * click removal right.
  */
 
-static void it_filter_int(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample_t *dst, long pos, sample_t *src, long size, int step, int sampfreq, int cutoff, int resonance)
+static void it_filter_int(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, DUMB_sample_t *dst, long pos, DUMB_sample_t *src, long size, int step, int sampfreq, int cutoff, int resonance)
 {
-	sample_t currsample = state->currsample;
-	sample_t prevsample = state->prevsample;
+	DUMB_sample_t currsample = state->currsample;
+	DUMB_sample_t prevsample = state->prevsample;
 
 	float a, b, c;
 
@@ -635,13 +635,13 @@ static void it_filter_int(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 		int i;
 
 		if (cr) {
-			sample_t startstep = MULSCA(src[0], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
+			DUMB_sample_t startstep = MULSCA(src[0], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
 			dumb_record_click(cr, pos, startstep);
 		}
 
 		for (i = 0; i < datasize; i += step) {
 			{
-				sample_t newsample = MULSCA(src[i], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
+				DUMB_sample_t newsample = MULSCA(src[i], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
 				prevsample = currsample;
 				currsample = newsample;
 			}
@@ -649,7 +649,7 @@ static void it_filter_int(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 		}
 
 		if (cr) {
-			sample_t endstep = MULSCA(src[datasize], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
+			DUMB_sample_t endstep = MULSCA(src[datasize], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
 			dumb_record_click(cr, pos + size, -endstep);
 		}
 	}
@@ -657,7 +657,7 @@ static void it_filter_int(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 #error This version is broken - it does not use step, and state should contain floats for it
 	if (cr) {
 		float startstep = src[0]*a + currsample*b + prevsample*c;
-		dumb_record_click(cr, pos, (sample_t)startstep);
+		dumb_record_click(cr, pos, (DUMB_sample_t)startstep);
 	}
 
 	{
@@ -668,23 +668,23 @@ static void it_filter_int(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 				prevsample = currsample;
 				currsample = newsample;
 			}
-			*dst++ += (sample_t)currsample;
+			*dst++ += (DUMB_sample_t)currsample;
 			i--;
 		}
 		i = size / 3;
 		while (i > 0) {
 			float newsample;
 			/* Gotta love unrolled loops! */
-			*dst++ += (sample_t)(newsample = *src++*a + currsample*b + prevsample*c);
-			*dst++ += (sample_t)(prevsample = *src++*a + newsample*b + currsample*c);
-			*dst++ += (sample_t)(currsample = *src++*a + prevsample*b + newsample*c);
+			*dst++ += (DUMB_sample_t)(newsample = *src++*a + currsample*b + prevsample*c);
+			*dst++ += (DUMB_sample_t)(prevsample = *src++*a + newsample*b + currsample*c);
+			*dst++ += (DUMB_sample_t)(currsample = *src++*a + prevsample*b + newsample*c);
 			i--;
 		}
 	}
 
 	if (cr) {
 		float endstep = src[datasize]*a + currsample*b + prevsample*c;
-		dumb_record_click(cr, pos + size, -(sample_t)endstep);
+		dumb_record_click(cr, pos + size, -(DUMB_sample_t)endstep);
 	}
 #endif
 
@@ -695,13 +695,13 @@ static void it_filter_int(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 #if defined(_USE_SSE)
 #include <xmmintrin.h>
 
-static void it_filter_sse(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample_t *dst, long pos, sample_t *src, long size, int step, int sampfreq, int cutoff, int resonance)
+static void it_filter_sse(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, DUMB_sample_t *dst, long pos, DUMB_sample_t *src, long size, int step, int sampfreq, int cutoff, int resonance)
 {
 	__m128 data, impulse;
 	__m128 temp1, temp2;
 
-	sample_t currsample = state->currsample;
-	sample_t prevsample = state->prevsample;
+	DUMB_sample_t currsample = state->currsample;
+	DUMB_sample_t prevsample = state->prevsample;
 
 	float imp[4];
 
@@ -740,7 +740,7 @@ static void it_filter_sse(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 		int ai, bi, ci, i;
 
 		if (cr) {
-			sample_t startstep;
+			DUMB_sample_t startstep;
 			ai = (int)(imp[0] * (1 << (16+SCALEB)));
 			bi = (int)(imp[1] * (1 << (16+SCALEB)));
 			ci = (int)(imp[2] * (1 << (16+SCALEB)));
@@ -772,7 +772,7 @@ static void it_filter_sse(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 		prevsample = _mm_cvtss_si32( temp1 );
 
 		if (cr) {
-			sample_t endstep = MULSCA(src[datasize], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
+			DUMB_sample_t endstep = MULSCA(src[datasize], ai) + MULSCA(currsample, bi) + MULSCA(prevsample, ci);
 			dumb_record_click(cr, pos + size, -endstep);
 		}
 	}
@@ -786,7 +786,7 @@ static void it_filter_sse(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample
 
 int _dumb_it_use_sse = 0;
 
-static void it_filter(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, sample_t *dst, long pos, sample_t *src, long size, int step, int sampfreq, int cutoff, int resonance)
+static void it_filter(DUMB_CLICK_REMOVER *cr, IT_FILTER_STATE *state, DUMB_sample_t *dst, long pos, DUMB_sample_t *src, long size, int step, int sampfreq, int cutoff, int resonance)
 {
 #if defined(_USE_SSE)
 	if ( _dumb_it_use_sse ) it_filter_sse( cr, state, dst, pos, src, size, step, sampfreq, cutoff, resonance );
@@ -4651,7 +4651,7 @@ static int apply_pan_envelope(IT_PLAYING *playing)
  * the end point will be computed twice. This situation should not arise.
  */
 #if 0
-static long render_playing(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, float volume, float main_delta, float delta, long pos, long size, sample_t **samples, int store_end_sample, int *left_to_mix, int cr_record_which)
+static long render_playing(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, float volume, float main_delta, float delta, long pos, long size, DUMB_sample_t **samples, int store_end_sample, int *left_to_mix, int cr_record_which)
 {
 	int bits;
 
@@ -4692,40 +4692,40 @@ static long render_playing(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing
 		if (sigrenderer->n_channels >= 2) {
 			if (playing->sample->flags & IT_SAMPLE_STEREO) {
 				if ((cr_record_which & 1) && sigrenderer->click_remover) {
-					sample_t click[2];
+					DUMB_sample_t click[2];
 					dumb_resample_get_current_sample_n_2_2(bits, &playing->resampler, &lvol, &rvol, click);
 					dumb_record_click(sigrenderer->click_remover[0], pos, click[0]);
 					dumb_record_click(sigrenderer->click_remover[1], pos, click[1]);
 				}
 				size_rendered = dumb_resample_n_2_2(bits, &playing->resampler, samples[0] + pos*2, size, &lvol, &rvol, delta);
 				if (store_end_sample) {
-					sample_t click[2];
+					DUMB_sample_t click[2];
 					dumb_resample_get_current_sample_n_2_2(bits, &playing->resampler, &lvol, &rvol, click);
 					samples[0][(pos + size_rendered) * 2] = click[0];
 					samples[0][(pos + size_rendered) * 2 + 1] = click[1];
 				}
 				if ((cr_record_which & 2) && sigrenderer->click_remover) {
-					sample_t click[2];
+					DUMB_sample_t click[2];
 					dumb_resample_get_current_sample_n_2_2(bits, &playing->resampler, &lvol, &rvol, click);
 					dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click[0]);
 					dumb_record_click(sigrenderer->click_remover[1], pos + size_rendered, -click[1]);
 				}
 			} else {
 				if ((cr_record_which & 1) && sigrenderer->click_remover) {
-					sample_t click[2];
+					DUMB_sample_t click[2];
 					dumb_resample_get_current_sample_n_1_2(bits, &playing->resampler, &lvol, &rvol, click);
 					dumb_record_click(sigrenderer->click_remover[0], pos, click[0]);
 					dumb_record_click(sigrenderer->click_remover[1], pos, click[1]);
 				}
 				size_rendered = dumb_resample_n_1_2(bits, &playing->resampler, samples[0] + pos*2, size, &lvol, &rvol, delta);
 				if (store_end_sample) {
-					sample_t click[2];
+					DUMB_sample_t click[2];
 					dumb_resample_get_current_sample_n_1_2(bits, &playing->resampler, &lvol, &rvol, click);
 					samples[0][(pos + size_rendered) * 2] = click[0];
 					samples[0][(pos + size_rendered) * 2 + 1] = click[1];
 				}
 				if ((cr_record_which & 2) && sigrenderer->click_remover) {
-					sample_t click[2];
+					DUMB_sample_t click[2];
 					dumb_resample_get_current_sample_n_1_2(bits, &playing->resampler, &lvol, &rvol, click);
 					dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click[0]);
 					dumb_record_click(sigrenderer->click_remover[1], pos + size_rendered, -click[1]);
@@ -4734,7 +4734,7 @@ static long render_playing(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing
 		} else {
 			if (playing->sample->flags & IT_SAMPLE_STEREO) {
 				if ((cr_record_which & 1) && sigrenderer->click_remover) {
-					sample_t click;
+					DUMB_sample_t click;
 					dumb_resample_get_current_sample_n_2_1(bits, &playing->resampler, &lvol, &rvol, &click);
 					dumb_record_click(sigrenderer->click_remover[0], pos, click);
 				}
@@ -4742,13 +4742,13 @@ static long render_playing(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing
 				if (store_end_sample)
 					dumb_resample_get_current_sample_n_2_1(bits, &playing->resampler, &lvol, &rvol, &samples[0][pos + size_rendered]);
 				if ((cr_record_which & 2) && sigrenderer->click_remover) {
-					sample_t click;
+					DUMB_sample_t click;
 					dumb_resample_get_current_sample_n_2_1(bits, &playing->resampler, &lvol, &rvol, &click);
 					dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click);
 				}
 			} else {
 				if ((cr_record_which & 1) && sigrenderer->click_remover) {
-					sample_t click;
+					DUMB_sample_t click;
 					dumb_resample_get_current_sample_n_1_1(bits, &playing->resampler, &lvol, &click);
 					dumb_record_click(sigrenderer->click_remover[0], pos, click);
 				}
@@ -4756,7 +4756,7 @@ static long render_playing(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing
 				if (store_end_sample)
 					dumb_resample_get_current_sample_n_1_1(bits, &playing->resampler, &lvol, &samples[0][pos + size_rendered]);
 				if ((cr_record_which & 2) && sigrenderer->click_remover) {
-					sample_t click;
+					DUMB_sample_t click;
 					dumb_resample_get_current_sample_n_1_1(bits, &playing->resampler, &lvol, &click);
 					dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click);
 				}
@@ -4776,47 +4776,47 @@ static long render_playing(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing
 
 #ifdef END_RAMPING
 #if 1
-static long render_playing_part(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, DUMB_VOLUME_RAMP_INFO * lvol, DUMB_VOLUME_RAMP_INFO * rvol, int bits, float delta, long pos, long size, sample_t **samples, int store_end_sample, int cr_record_which)
+static long render_playing_part(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, DUMB_VOLUME_RAMP_INFO * lvol, DUMB_VOLUME_RAMP_INFO * rvol, int bits, float delta, long pos, long size, DUMB_sample_t **samples, int store_end_sample, int cr_record_which)
 {
 	long size_rendered = 0;
 
 	if (sigrenderer->n_channels == 2) {
 		if (playing->sample->flags & IT_SAMPLE_STEREO) {
 			if ((cr_record_which & 1) && sigrenderer->click_remover) {
-				sample_t click[2];
+				DUMB_sample_t click[2];
 				dumb_resample_get_current_sample_n_2_2(bits, &playing->resampler, lvol, rvol, click);
 				dumb_record_click(sigrenderer->click_remover[0], pos, click[0]);
 				dumb_record_click(sigrenderer->click_remover[1], pos, click[1]);
 			}
 			size_rendered = dumb_resample_n_2_2(bits, &playing->resampler, samples[0] + pos*2, size, lvol, rvol, delta);
 			if (store_end_sample) {
-				sample_t click[2];
+				DUMB_sample_t click[2];
 				dumb_resample_get_current_sample_n_2_2(bits, &playing->resampler, lvol, rvol, click);
 				samples[0][(pos + size_rendered) * 2] = click[0];
 				samples[0][(pos + size_rendered) * 2 + 1] = click[1];
 			}
 			if ((cr_record_which & 2) && sigrenderer->click_remover) {
-				sample_t click[2];
+				DUMB_sample_t click[2];
 				dumb_resample_get_current_sample_n_2_2(bits, &playing->resampler, lvol, rvol, click);
 				dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click[0]);
 				dumb_record_click(sigrenderer->click_remover[1], pos + size_rendered, -click[1]);
 			}
 		} else {
 			if ((cr_record_which & 1) && sigrenderer->click_remover) {
-				sample_t click[2];
+				DUMB_sample_t click[2];
 				dumb_resample_get_current_sample_n_1_2(bits, &playing->resampler, lvol, rvol, click);
 				dumb_record_click(sigrenderer->click_remover[0], pos, click[0]);
 				dumb_record_click(sigrenderer->click_remover[1], pos, click[1]);
 			}
 			size_rendered = dumb_resample_n_1_2(bits, &playing->resampler, samples[0] + pos*2, size, lvol, rvol, delta);
 			if (store_end_sample) {
-				sample_t click[2];
+				DUMB_sample_t click[2];
 				dumb_resample_get_current_sample_n_1_2(bits, &playing->resampler, lvol, rvol, click);
 				samples[0][(pos + size_rendered) * 2] = click[0];
 				samples[0][(pos + size_rendered) * 2 + 1] = click[1];
 			}
 			if ((cr_record_which & 2) && sigrenderer->click_remover) {
-				sample_t click[2];
+				DUMB_sample_t click[2];
 				dumb_resample_get_current_sample_n_1_2(bits, &playing->resampler, lvol, rvol, click);
 				dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click[0]);
 				dumb_record_click(sigrenderer->click_remover[1], pos + size_rendered, -click[1]);
@@ -4825,7 +4825,7 @@ static long render_playing_part(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *pl
 	} else {
 		if (playing->sample->flags & IT_SAMPLE_STEREO) {
 			if ((cr_record_which & 1) && sigrenderer->click_remover) {
-				sample_t click;
+				DUMB_sample_t click;
 				dumb_resample_get_current_sample_n_2_1(bits, &playing->resampler, lvol, rvol, &click);
 				dumb_record_click(sigrenderer->click_remover[0], pos, click);
 			}
@@ -4833,13 +4833,13 @@ static long render_playing_part(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *pl
 			if (store_end_sample)
 				dumb_resample_get_current_sample_n_2_1(bits, &playing->resampler, lvol, rvol, &samples[0][pos + size_rendered]);
 			if ((cr_record_which & 2) && sigrenderer->click_remover) {
-				sample_t click;
+				DUMB_sample_t click;
 				dumb_resample_get_current_sample_n_2_1(bits, &playing->resampler, lvol, rvol, &click);
 				dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click);
 			}
 		} else {
 			if ((cr_record_which & 1) && sigrenderer->click_remover) {
-				sample_t click;
+				DUMB_sample_t click;
 				dumb_resample_get_current_sample_n_1_1(bits, &playing->resampler, lvol, &click);
 				dumb_record_click(sigrenderer->click_remover[0], pos, click);
 			}
@@ -4847,7 +4847,7 @@ static long render_playing_part(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *pl
 			if (store_end_sample)
 				dumb_resample_get_current_sample_n_1_1(bits, &playing->resampler, lvol, &samples[0][pos + size_rendered]);
 			if ((cr_record_which & 2) && sigrenderer->click_remover) {
-				sample_t click;
+				DUMB_sample_t click;
 				dumb_resample_get_current_sample_n_1_1(bits, &playing->resampler, lvol, &click);
 				dumb_record_click(sigrenderer->click_remover[0], pos + size_rendered, -click);
 			}
@@ -4856,7 +4856,7 @@ static long render_playing_part(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *pl
 	return size_rendered;
 }
 
-static long render_playing_ramp(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, float volume, float main_delta, float delta, long pos, long size, sample_t **samples, int store_end_sample, int *left_to_mix, int ramp_style)
+static long render_playing_ramp(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, float volume, float main_delta, float delta, long pos, long size, DUMB_sample_t **samples, int store_end_sample, int *left_to_mix, int ramp_style)
 {
 	int bits;
 
@@ -4960,7 +4960,7 @@ static long render_playing_ramp(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *pl
 	return size_rendered;
 }
 #else
-static long render_playing_ramp(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, float volume, float main_delta, float delta, long pos, long size, sample_t **samples, int store_end_sample, int *left_to_mix, int ramp_style)
+static long render_playing_ramp(DUMB_IT_SIGRENDERER *sigrenderer, IT_PLAYING *playing, float volume, float main_delta, float delta, long pos, long size, DUMB_sample_t **samples, int store_end_sample, int *left_to_mix, int ramp_style)
 {
 	long rv, trv;
 	int l_t_m_temp, cr_which;
@@ -5150,7 +5150,7 @@ static void apply_pitch_modifications(DUMB_IT_SIGDATA *sigdata, IT_PLAYING *play
 
 
 
-static void render_normal(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float delta, long pos, long size, sample_t **samples)
+static void render_normal(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float delta, long pos, long size, DUMB_sample_t **samples)
 {
 	int i;
 
@@ -5158,7 +5158,7 @@ static void render_normal(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float 
 	IT_TO_MIX to_mix[DUMB_IT_TOTAL_CHANNELS];
 	int left_to_mix = dumb_it_max_to_mix;
 
-	sample_t **samples_to_filter = NULL;
+	DUMB_sample_t **samples_to_filter = NULL;
 
 	int ramp_style = sigrenderer->ramp_style;
 
@@ -5268,7 +5268,7 @@ static void render_normal(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float 
 
 
 
-static void render_surround(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float delta, long pos, long size, sample_t **samples)
+static void render_surround(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float delta, long pos, long size, DUMB_sample_t **samples)
 {
 	int i;
 
@@ -5279,7 +5279,7 @@ static void render_surround(DUMB_IT_SIGRENDERER *sigrenderer, float volume, floa
 
 	int saved_channels = sigrenderer->n_channels;
 
-	sample_t **samples_to_filter = NULL;
+	DUMB_sample_t **samples_to_filter = NULL;
 
 	int ramp_style = sigrenderer->ramp_style;
 
@@ -5436,7 +5436,7 @@ static void render_surround(DUMB_IT_SIGRENDERER *sigrenderer, float volume, floa
 
 
 
-static void render(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float delta, long pos, long size, sample_t **samples)
+static void render(DUMB_IT_SIGRENDERER *sigrenderer, float volume, float delta, long pos, long size, DUMB_sample_t **samples)
 {
 	if (size == 0) return;
 	if (sigrenderer->n_channels == 1 || sigrenderer->n_channels == 2)
@@ -5797,7 +5797,7 @@ static sigrenderer_t *it_start_sigrenderer(DUH *duh, sigdata_t *vsigdata, int n_
 static long it_sigrenderer_get_samples(
 	sigrenderer_t *vsigrenderer,
 	float volume, float delta,
-	long size, sample_t **samples
+	long size, DUMB_sample_t **samples
 )
 {
 	DUMB_IT_SIGRENDERER *sigrenderer = vsigrenderer;
@@ -5878,7 +5878,7 @@ static long it_sigrenderer_get_samples(
 
 
 
-static void it_sigrenderer_get_current_sample(sigrenderer_t *vsigrenderer, float volume, sample_t *samples)
+static void it_sigrenderer_get_current_sample(sigrenderer_t *vsigrenderer, float volume, DUMB_sample_t *samples)
 {
 	DUMB_IT_SIGRENDERER *sigrenderer = vsigrenderer;
 	(void)volume; // for consideration: in any of these such functions, is 'volume' going to be required?

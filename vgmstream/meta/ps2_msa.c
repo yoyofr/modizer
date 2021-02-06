@@ -1,60 +1,63 @@
 #include "meta.h"
-#include "../util.h"
+#include "../coding/coding.h"
 
-/* MSA (from Psyvariar -Complete Edition-) */
+/* MSA - from Sucess games [Psyvariar -Complete Edition- (PS2), Konohana Pack: 3tsu no Jikenbo (PS2)]*/
 VGMSTREAM * init_vgmstream_ps2_msa(STREAMFILE *streamFile) {
     VGMSTREAM * vgmstream = NULL;
-    char filename[1024];
     off_t start_offset;
+    int loop_flag, channel_count;
+    size_t data_size, channel_size, file_size;
 
-    int loop_flag;
-   int channel_count;
 
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("msa",filename_extension(filename))) goto fail;
-
-    /* check header */
+    /* checks */
+    if (!check_extensions(streamFile, "msa"))
+        goto fail;
     if (read_32bitBE(0x00,streamFile) != 0x00000000)
+        goto fail;
+    if (read_32bitBE(0x08,streamFile) != 0x00000000)
         goto fail;
 
     loop_flag = 0;
     channel_count = 2;
+    start_offset = 0x14;
 
-   /* build the VGMSTREAM */
+    file_size = get_streamfile_size(streamFile);
+    data_size = read_32bitLE(0x04,streamFile); /* wrong, see below */
+    channel_size = read_32bitLE(0x0c,streamFile); /* also wrong like data_size */
+
+
+    /* build the VGMSTREAM */
     vgmstream = allocate_vgmstream(channel_count,loop_flag);
     if (!vgmstream) goto fail;
 
-   /* fill in the vital statistics */
-    start_offset = 0x14;
-   vgmstream->channels = channel_count;
-    vgmstream->sample_rate = 44100;
-    vgmstream->coding_type = coding_PSX;
-    vgmstream->num_samples = read_32bitLE(0x4,streamFile)*28/32;
-    vgmstream->layout_type = layout_interleave;
-    vgmstream->interleave_block_size = 0x4000;
     vgmstream->meta_type = meta_PS2_MSA;
+    vgmstream->sample_rate = read_32bitLE(0x10,streamFile);
+    if (vgmstream->sample_rate == 0) /* ex. Psyvariar's AME.MSA */
+        vgmstream->sample_rate = 44100;
+    vgmstream->num_samples = ps_bytes_to_samples(data_size, channel_count);
 
-    /* open the file for reading */
-    {
-        int i;
-        STREAMFILE * file;
-        file = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
-        if (!file) goto fail;
-        for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = file;
+    vgmstream->coding_type = coding_PSX;
+    vgmstream->layout_type = layout_interleave;
 
-            vgmstream->ch[i].channel_start_offset=
-                vgmstream->ch[i].offset=start_offset+
-                vgmstream->interleave_block_size*i;
+    if (channel_size) /* Konohana Pack */
+        vgmstream->interleave_block_size = 0x6000;
+    else /* Psyvariar */
+        vgmstream->interleave_block_size = 0x4000;
+    /* (could also test first frame in various interleaves, as it's always 0'ed) */
 
-        }
+    /* MSAs are strangely truncated, so manually calculate samples.
+     * Data after last usable block is always silence or garbage. */
+    if (data_size > file_size) {
+        off_t usable_size = file_size - start_offset;
+        usable_size -= usable_size % (vgmstream->interleave_block_size*channel_count);/* block-aligned */
+        vgmstream->num_samples = ps_bytes_to_samples(usable_size, channel_count);//usable_size * 28 / (16*channel_count);
     }
 
+    if (!vgmstream_open_stream(vgmstream, streamFile, start_offset))
+        goto fail;
     return vgmstream;
 
-    /* clean up anything we may have opened */
 fail:
-    if (vgmstream) close_vgmstream(vgmstream);
+    close_vgmstream(vgmstream);
     return NULL;
 }
