@@ -1,0 +1,131 @@
+ASMA Update #29
+Date: April 28, 2005
+
+These rips together with the original ASMA collection will make version 2.9
+of the ASMA (out of version 2.8).
+
+Number of new tunes: 69
+Better rips: 7
+Credits fixes: 24
+Removed files: 9
+
+New tunes
+---------
+Unsorted/Absorb.sap
+Unsorted/Das_Teufel.sap
+Unsorted/Deadline.sap
+Unsorted/The_Ramones_Would_Have_Lik.sap
+Unsorted/The_way_you_are.sap
+Unsorted/Zybex_Stereo.sap
+Various/Badkowski_Marek/Full_Shock.sap
+Various/Benoth_Sukkor/Ble_ble_ble.sap
+Various/Benoth_Sukkor/Guitarous.sap
+Various/Benoth_Sukkor/Mroczny.sap
+Various/Benoth_Sukkor/Muza.sap
+Various/Benoth_Sukkor/Strefa.sap
+Various/Cierkonski_Michal/Fuckir.sap
+Various/Ce_Pumpkin/Mindthumper.sap
+Various/Ce_Pumpkin/Rolo_2.sap
+Various/Czartynski_Marcin/Gravity_97_Invitro.sap
+Various/Drozdowski_Marek/Land.sap
+Various/Gora_Jakub/I_Wanna_Kiss_Her.sap
+Various/Grayscale/Kwiatek_Grzegorz/Slim_to_none.sap
+Various/Grayscale/Kwiatek_Grzegorz/UnderTrencinPressure.sap
+Various/Grayscale/Sychowicz_Lukasz/Drab.sap
+Various/Grayscale/Sychowicz_Lukasz/Forsaken_Love.sap
+Various/Grayscale/Sychowicz_Lukasz/Gwoopie_Yes_Them.sap
+Various/Grayscale/Sychowicz_Lukasz/Mahna_Malysz.sap
+Various/Grayscale/Sychowicz_Lukasz/Pacman_Game_Over.sap
+Various/Grayscale/Sychowicz_Lukasz/Synthy_Gambol.sap
+Various/Grayscale/Wasiel_Bartek/Simply_Tune.sap
+Various/Grayscale/Wasiel_Bartek/Too_Late.sap
+Various/Grayscale/Wasiel_Bartek/Zybex.sap
+Various/Karwacki_Jakub/Corvus_Corax.sap
+Various/Karwacki_Jakub/East_Party_2003_Invi_Intro.sap
+Various/Karwacki_Jakub/East_Party_2003_Invi_Main.sap
+Various/Karwacki_Jakub/Yzbex.sap
+Various/Lis_Piotr/Lisex.sap
+Various/Lis_Piotr/May_I_Win.sap
+Various/Makowski_Robert/Ladypank.sap
+Various/Matoga_Adrian/Dead_Boys_Poem.sap
+Various/Matoga_Adrian/Straight_Edge.sap
+Various/Matoga_Adrian/There_Will_Be_No_Beginning.sap
+Various/Sikorski_Pawel/Bzz.sap
+Various/Skowiniak_Krystian/Chlorzul.sap
+Various/Skowiniak_Krystian/Every_Bone_Broken.sap
+Various/Skowiniak_Krystian/Mechanic.sap
+Various/Skowiniak_Krystian/R2K440.sap
+Various/Skowiniak_Krystian/Slowly.sap
+Various/Skowiniak_Krystian/XC12.sap
+Various/Skowiniak_Krystian/ZybexTHC.sap
+Various/Sledz_Slawek/Bukkake.sap
+Various/Sledz_Slawek/DigiDigiDomba_feat_Adam_Gi.sap
+Various/Sledz_Slawek/DM.sap
+Various/Sledz_Slawek/My_styles.sap
+Various/Sledz_Slawek/Plumkacz.sap
+Various/Sledz_Slawek/Revenge.sap
+Various/Sterba_Radek/Basix.sap
+Various/Sterba_Radek/Dangerous_Street.sap
+Various/Sterba_Radek/Gem_x.sap
+Various/Sterba_Radek/Hexxagon.sap
+Various/Sterba_Radek/Lvi_srdce.sap
+Various/Sterba_Radek/Music_With_Drums.sap
+Various/Sterba_Radek/Predator.sap
+Various/Sterba_Radek/Shotem_All.sap
+Various/Sterba_Radek/Sturbon.sap
+Various/Swierszcz_Piotr/Byzex.sap
+Various/Swierszcz_Piotr/Oldskul_filink_z_newer_daj.sap
+Various/Szpilowski_Michal/WEIRD_TRIP.sap
+Various/Szpilowski_Michal/ZybeXXX.sap
+Various/Vogt_Dariusz/Arena_Bzdur.sap
+Various/Vogt_Dariusz/Leiser.sap
+Various/Vogt_Dariusz/Leiser_2.sap
+
+Better rips
+-----------
+Classics/Gilmore_Adam/Las_Vegas_Casino.sap (correct subsong handling)
+Various/Cierkonski_Michal/Kaszana.sap (includes subsongs)
+Various/Grayscale/Sychowicz_Lukasz/Trep.sap (includes subsongs)
+Various/Liebich_Tomasz/Deimos.sap (correct subsong handling)
+Various/Hay_Adam/Smells_Like_Teen_Spirit.sap (latter version)
+Various/Numan_Daniel/Spirit_Vision_4.sap (includes subsongs)
+Various/Sterba_Radek/Len_raz.sap (wrong bassline corrected)
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Games/Various/Bombay.sap > Various/Zaborowski_Robert/
+Unsorted/Comanche.sap > Various/Lepkowski_Michal/ : DATE "1997"
+Unsorted/Enigmatic_Man.sap > Various/Badkowski_Marek/ : AUTHOR "Lukasz Szalankiewicz (Zenial) & Marek Badkowski (Bac)"
+Unsorted/Hunter.sap > Various/Szpilowski_Michal/ : DATE "1995"
+Unsorted/Just_Crazy.sap > Various/Sikorski_Pawel/
+Unsorted/Lamaliza.sap > Various/Sledz_Slawek/
+Unsorted/Lampa.sap > Various/Lis_Piotr/
+Unsorted/Muzak.sap > Various/Liebich_Tomasz/
+Unsorted/One_Instrument.sap > Various/Sikorski_Pawel/
+Unsorted/Picasso.sap > Various/Top_Odin/
+Unsorted/Sadness.sap > Various/Grayscale/Kwiatek_Grzegorz/
+Unsorted/Serious_Magazine_3_2.sap > Various/Szpilowski_Michal/ : DATE "1995 <?>"
+Unsorted/Serious_Magazine_3_4.sap > Various/Szpilowski_Michal/ : DATE "1995 <?>"
+Unsorted/Serious_Magazine_5_1.sap > Various/Szpilowski_Michal/ : DATE "1995 <?>"
+Unsorted/Stwoor.sap > Various/Benoth_Sukkor/
+Various/Grayscale/Sychowicz_Lukasz/Porazka_3.sap > Porazka_3_KamiBa.sap : NAME "Porazka #3 - KamiBa" DATE "03/08/2002"
+Various/Makowski_Robert/Joshgoa.sap > Various/Lepkowski_Michal/
+Various/Roszkowski_Marek/Cyborg_1.sap > Various/Szpilowski_Michal/ : DATE "<?>"
+Various/Roszkowski_Marek/Cyborg_2.sap > Various/Szpilowski_Michal/ : DATE "<?>"
+Various/Sterba_Radek/Magnetit_Ingame.sap > Magnetit.sap (contains all 4 game subsongs)
+Various/Sterba_Radek/Multris_Menu.sap > Multris.sap (contains all 3 game subsongs)
+Various/Szpilowski_Michal/Czad.sap > Unsorted/
+Various/Szpilowski_Michal/Miker_4.sap > Some_Song_Remixed.sap
+Various/Szpilowski_Michal/Too_Hard_3.sap > Various/Ce_Pumpkin/
+
+Removed files
+-------------
+Unsorted/Bitter.sap (a corrupted version of Various/Szpilowski_Michal/Party_info.sap)
+Unsorted/Night_Mare.sap (same as Various/Majewski_Tomasz/The_Truth_Is_Out_There.sap)
+Various/Grayscale/Sychowicz_Lukasz/Trep_1.sap (this subsong is included in the new rip of Trep.sap)
+Various/Grayscale/Sychowicz_Lukasz/Trep_2.sap (this subsong is included in the new rip of Trep.sap)
+Various/Grayscale/Sychowicz_Lukasz/Trep_3.sap (this subsong is included in the new rip of Trep.sap)
+Various/Grayscale/Sychowicz_Lukasz/Trep_4.sap (this subsong is included in the new rip of Trep.sap)
+Various/Roszkowski_Marek/Liga_Polska.sap (same as Various/Szpilowski_Michal/Liga_Polska.sap)
+Various/Swierszcz_Piotr/Ardeny_Demo.sap (same as Various/Badkowski_Marek/Vacares.sap)
+Various/Szpilowski_Michal/Barymag_1_1.sap (same as Various/Galinski_Adrian/Contribution.sap)

@@ -1,0 +1,277 @@
+ASMA Update #31
+Date: September 27, 2006
+
+These rips together with the original ASMA collection will make version 3.1
+of the ASMA (out of version 3.0).
+
+Number of new tunes: 188
+Credits fixes: 62
+Better rips: 3
+Removed files: 2
+
+New tunes
+---------
+Classics/Cornelius_Orall/Super_Soccer.sap
+Classics/Gilbertson_Gary/AR_City_Guild.sap
+Classics/Gilbertson_Gary/AR_City_Intro.sap
+Classics/Gilbertson_Gary/AR_City_Smithy.sap
+Classics/Gilbertson_Gary/AR_City_Tavern_Dance.sap
+Classics/Gilbertson_Gary/AR_City_Tavern_Dragon.sap
+Classics/Gilbertson_Gary/AR_City_Tavern_Treasure.sap
+Classics/Gilbertson_Gary/Tail_of_Beta_Lyrae.sap
+Classics/Huntington_Glenys/Air_Strike_II.sap
+Demos/Das_Anty_Adolf_Demo_1.sap
+Demos/Das_Anty_Adolf_Demo_2.sap
+Games/Classic/Domain_Of_The_Undead.sap
+Games/Classic/Frogger.sap
+Games/Classic/Frogger_II.sap
+Games/Classic/Jungle_Hunt.sap
+Games/Classic/Keystone_Kapers.sap
+Games/Classic/Screaming_Wings.sap
+Games/Classic/Starquake.sap
+Games/Classic/Tarzan.sap
+Unsorted/DCK_Demosong.sap
+Unsorted/Duke_Nukem_4ever.sap
+Unsorted/Star.sap
+Unsorted/T_H_R_U_S_T.sap
+Unsorted/Tiger.sap
+Unsorted/Tracker.sap
+Unsorted/Trans.sap
+Unsorted/Trash.sap
+Unsorted/Tribal.sap
+Unsorted/Uplywa.sap
+Unsorted/Vaxeen.sap
+Unsorted/Vidol.sap
+Unsorted/Voyager.sap
+Unsorted/War.sap
+Unsorted/Wiosna.sap
+Unsorted/Yeach.sap
+Various/Badkowski_Marek/Crazy_Frog.sap
+Various/Badkowski_Marek/True_Love.sap
+Various/Banaszkiewicz_Michal/Hugo_1.sap
+Various/Banaszkiewicz_Michal/Hugo_2.sap
+Various/Banaszkiewicz_Michal/Hugo_3.sap
+Various/Banaszkiewicz_Michal/Hugo_5.sap
+Various/Banaszkiewicz_Michal/Hugo_6.sap
+Various/Banaszkiewicz_Michal/Hugo_7.sap
+Various/Banaszkiewicz_Michal/Hugotech.sap
+Various/Bienias_Adam/Puzzlenoid_3.sap
+Various/Bienias_Adam/Puzzlenoid_4.sap
+Various/Ce_Pumpkin/MyIDE_Demo_Zwei.sap
+Various/Ce_Pumpkin/Priceless.sap
+Various/Ce_Pumpkin/R0l0_7.sap
+Various/Ce_Pumpkin/R0l0_8.sap
+Various/Czlowiek_W_Atomizerze/Piua_TarCZoWA.sap
+Various/Czlowiek_W_Atomizerze/The_One.sap
+Various/Drozdowski_Marek/Help_Owsiak.sap
+Various/Drozdowski_Marek/Intro_2.sap
+Various/Drozdowski_Marek/Nowa_2.sap
+Various/Duma_Dariusz/DJ_Packer_Intro.sap
+Various/Eisenhammer_Zdenek/Krakout.sap
+Various/Eisenhammer_Zdenek/Lotus_Turbo_Challenge_3.sap
+Various/Eisenhammer_Zdenek/Somewhere.sap
+Various/Eisenhammer_Zdenek/We_re_the_Devils.sap
+Various/Goff_Mark/crab_in_a_cave_final_boss.sap
+Various/Goff_Mark/piano_dodge_bonus_level.sap
+Various/Goff_Mark/seaweed_cipst_underwater.sap
+Various/Golewski_Filip/Kopara.sap
+Various/Golewski_Filip/SFW.sap
+Various/Gora_Jakub/Dog.sap
+Various/Grayscale/Kwiatek_Grzegorz/Back_To_Life_2.sap
+Various/Grayscale/Kwiatek_Grzegorz/Chaos.sap
+Various/Grayscale/Kwiatek_Grzegorz/Destruction.sap
+Various/Grayscale/Kwiatek_Grzegorz/Entry.sap
+Various/Grayscale/Kwiatek_Grzegorz/Guitar.sap
+Various/Grayscale/Kwiatek_Grzegorz/Illusion.sap
+Various/Grayscale/Kwiatek_Grzegorz/Light.sap
+Various/Grayscale/Kwiatek_Grzegorz/Maja.sap
+Various/Grayscale/Kwiatek_Grzegorz/Rain.sap
+Various/Grayscale/Kwiatek_Grzegorz/Sabbath_1.sap
+Various/Grayscale/Kwiatek_Grzegorz/Sweet_DMC_Version.sap
+Various/Grayscale/Sychowicz_Lukasz/Flood.sap
+Various/Grayscale/Sychowicz_Lukasz/Jatatap.sap
+Various/Grayscale/Sychowicz_Lukasz/Koko_1.sap
+Various/Makara_Grzegorz/Neron_Winner.sap
+Various/Hay_Adam/Alloyrun.sap
+Various/Hay_Adam/Amegas.sap
+Various/Hay_Adam/Reaxion_End.sap
+Various/Hay_Adam/Reaxion_Ingame.sap
+Various/Hay_Adam/Reaxion_Title.sap
+Various/Hay_Adam/Territorial_Pissings.sap
+Various/Hay_Adam/Wiz.sap
+Various/Iwaszko_Krystian/Hooy_F.sap
+Various/Jastrzemski_Marcin/Artic_2.sap
+Various/Jastrzemski_Marcin/Cdn.sap
+Various/Jastrzemski_Marcin/Civil.sap
+Various/Jastrzemski_Marcin/Czdkom_2.sap
+Various/Jastrzemski_Marcin/Dreamen.sap
+Various/Jastrzemski_Marcin/Guest_6.sap
+Various/Jastrzemski_Marcin/Matura.sap
+Various/Jastrzemski_Marcin/Quo.sap
+Various/Jastrzemski_Marcin/Rave.sap
+Various/Jastrzemski_Marcin/Rave3.sap
+Various/Karwacki_Jakub/Qwerty.sap
+Various/Karwoth_Torsten/Laser_Duell.sap
+Various/Kuczek_Ireneusz/Do_You_Want_To_Know_A_Secr.sap
+Various/Kuczek_Ireneusz/Goniac_Kormorany.sap
+Various/Kuczek_Ireneusz/Moja_Muzyka.sap
+Various/Kuczek_Ireneusz/Mydelko_Fa.sap
+Various/Kuczek_Ireneusz/Nie_Placz_Ewka.sap
+Various/Lepkowski_Michal/Likuit_4k.sap
+Various/Liebich_Tomasz/Technus.sap
+Various/Lis_Piotr/Gerappaaaaaa.sap
+Various/Loos_Uwe/ABBUC_28.sap
+Various/Majchrzak_Marcin/D_City.sap
+Various/Majchrzak_Marcin/Faza_4_Mona.sap
+Various/Martin_Aleksander/Max_Ingame.sap
+Various/Martin_Aleksander/Max_Ready_For_Next_Level.sap
+Various/Martin_Aleksander/Max_Title.sap
+Various/Martin_Aleksander/Max_Winner.sap
+Various/Martin_Aleksander/Timeless_Announcemt_Load_1.sap
+Various/Martin_Aleksander/Timeless_Announcemt_Load_5.sap
+Various/Martin_Aleksander/Timeless_Announcement_Plot.sap
+Various/Matoga_Adrian/Meryb.sap
+Various/Numan_Daniel/Brain.sap
+Various/Numan_Daniel/Experience.sap
+Various/Padula_Jaroslaw/Hardcore.sap
+Various/Padula_Jaroslaw/Hike_5.sap
+Various/Padula_Jaroslaw/Reason.sap
+Various/Pucinski_Rafal/Anty_SS_Zine_1.sap
+Various/Pucinski_Rafal/Anty_SS_Zine_2.sap
+Various/Pucinski_Rafal/Intro.sap
+Various/Pucinski_Rafal/Sole.sap
+Various/Pucinski_Rafal/Warrior.sap
+Various/Radecki_Michal/Klony_Game_Over.sap
+Various/Radecki_Michal/Klony_Ingame_1.sap
+Various/Radecki_Michal/Klony_Ingame_2.sap
+Various/Radecki_Michal/Klony_Next_Level.sap
+Various/Radecki_Michal/Klony_Title.sap
+Various/Radecki_Michal/Klony_Winner.sap
+Various/Radecki_Michal/Paranoja.sap
+Various/Radecki_Michal/Powrot.sap
+Various/Sterba_Radek/Astro4road.sap
+Various/Sterba_Radek/GLU.sap
+Various/Sterba_Radek/Satellite_One.sap
+Various/Sterba_Radek/Three_Hundred_Thirteen.sap
+Various/Szczesniak_Konrad/ABBUC_JHV_2002_1.sap
+Various/Szczesniak_Konrad/ABBUC_JHV_2002_2.sap
+Various/Szpilowski_Michal/ABBUC_Sondernmagazine_19.sap
+Various/Szpilowski_Michal/Bash_Hidden_part.sap
+Various/Szpilowski_Michal/Bash_Main.sap
+Various/Szpilowski_Michal/Brainstorm.sap
+Various/Szpilowski_Michal/Endtheme.sap
+Various/Szpilowski_Michal/Flowers_Mania.sap
+Various/Szpilowski_Michal/Hope.sap
+Various/Szpilowski_Michal/Joint.sap
+Various/Szpilowski_Michal/Mayhem_X.sap
+Various/Szpilowski_Michal/Miker_2A.sap
+Various/Szpilowski_Michal/Rose.sap
+Various/Szpilowski_Michal/Salute.sap
+Various/Szpilowski_Michal/Transcendental.sap
+Various/Szpilowski_Michal/Wings_of_Death_Level_Music.sap
+Various/Szpilowski_Michal/X_Mass.sap
+Various/Szpilowski_Michal/X_Mass_Greetings_Part.sap
+Various/Szpilowski_Michal/Yie_Ar_Kung_Fu.sap
+Various/Tegethoff_Sven/Bmagic.sap
+Various/Tegethoff_Sven/Dance.sap
+Various/Tegethoff_Sven/Deep.sap
+Various/Tegethoff_Sven/Hobby.sap
+Various/Tegethoff_Sven/Roller.sap
+Various/Tegethoff_Sven/Sandy.sap
+Various/Vogt_Dariusz/DJ_V_4.sap
+Various/Vogt_Dariusz/DJ_V_5.sap
+Various/Vogt_Dariusz/DJ_V_6.sap
+Various/Vogt_Dariusz/DJ_V_7.sap
+Various/Vogt_Dariusz/DJ_V_8.sap
+Various/Vogt_Dariusz/DJ_V_9.sap
+Various/Vogt_Dariusz/DJ_V_10.sap
+Various/Vogt_Dariusz/DJ_V_11.sap
+Various/Vogt_Dariusz/DJ_V_12.sap
+Various/Vogt_Dariusz/DJ_V_13.sap
+Various/Vogt_Dariusz/Leiser_Ingame.sap
+Various/Vogt_Dariusz/Leiser_Intro.sap
+Various/Wasilewski_Dariusz/Buu_Sampled.sap
+Various/Wasilewski_Dariusz/Lancelot.sap
+Various/Wisniewski_Mateusz/Edict.sap
+Various/Wisniewski_Mateusz/Error.sap
+Various/Wisniewski_Mateusz/Joes_Adventure_Intro.sap
+Various/Wisniewski_Mateusz/Joes_Adventure_Title.sap
+Various/Wisniewski_Mateusz/Last_V8.sap
+Various/Wisniewski_Mateusz/Polymatrix_Final.sap
+Various/Wisniewski_Mateusz/Sillyventure_2k4_Inv.sap
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Demos/Endless_Dream_4.sap : AUTHOR "Ryszard Cybruch (Seabrush)"
+Demos/Grass_Slideshow_Intro.sap : AUTHOR "Daniel Nowak (Grass)"
+Demos/Running_Cow.sap : AUTHOR "Przemyslaw Wiatr (Profi)"
+Demos/Techno_Collection_4.sap > Various/Majchrzak_Marcin/
+Demos/The_Top_2.sap > Games/Classic/Pro_Mountain_Biker_Ingame.sap : AUTHOR "Paul Tonge (Orange Spoon)" NAME "Pro Mountain Biker - Ingame" DATE "1989"
+Demos/Unite.sap : AUTHOR "Daniel Kolakowski (Mozart)"
+Games/Various/Digi_Duck.sap : AUTHOR "Bartosz Galazka"
+Games/Various/Electra.sap > Various/Szczesniak_Konrad/
+Games/Various/Electra_Ingame.sap > Various/Szczesniak_Konrad/
+Games/Various/Fire_Power.sap : AUTHOR "Grzegorz Mierkiewicz"
+Games/Various/Spy_Fucker_Ingame.sap > Spy_Games_Desert_Storm.sap : NAME "Spy Games - Desert Storm"
+Unsorted/Abbuc_19.sap > ABBUC_19.sap : NAME "ABBUC 19"
+Unsorted/Abbuc_35.sap > ABBUC_35.sap : NAME "ABBUC 35"
+Unsorted/Abbuc_39.sap > ABBUC_39.sap : NAME "ABBUC 39"
+Unsorted/Deadline.sap : AUTHOR "Tomasz Sanecki (Xan) & Adrian Matoga (Epi)"
+Unsorted/Flatfish.sap : AUTHOR "Tomas Petruzela (Centy Brown)"
+Unsorted/Inny_Swiat.sap > Games/Various/
+Unsorted/Nemesis.sap > Various/Badkowski_Marek/
+Unsorted/Psychodela.sap > Various/Majchrzak_Marcin/
+Various/Badkowski_Marek/Sweet_Fantasy_Menu.sap : AUTHOR "Marek Badkowski (Bac)"
+Various/Bernasek_Jiri/Abbuc_54.sap > ABBUC_54.sap : NAME "ABBUC 54"
+Various/Bienias_Adam/Abbuc_Intro.sap > ABBUC_Intro.sap : NAME "ABBUC Intro"
+Various/Bienias_Adam/Puzzlenoid_2.sap : NAME "Puzzlenoid - 2"
+Various/Duesterhoeft_Stephan/Abbuc_8.sap > ABBUC_8.sap : NAME "ABBUC 8"
+Various/Galinski_Adrian/Abbuc_38.sap > ABBUC_38.sap : NAME "ABBUC 38"
+Various/Grayscale/Kwiatek_Grzegorz/Atarians.sap > Return_of_Atarians.sap : NAME "Return of Atarians"
+Various/Grayscale/Kwiatek_Grzegorz/Sabbath.sap > Sabbath_2.sap
+Various/Grayscale/Kwiatek_Grzegorz/Syndrom.sap : DATE "06/1994"
+Various/Grayscale/Kwiatek_Grzegorz/Unknown.sap : DATE "07/1994"
+Various/Hard_Software/Abbuc_36.sap > ABBUC_36.sap : NAME "ABBUC 36"
+Various/Husak_Jakub/Aquanaut.sap : DATE "1988"
+Various/Husak_Jakub/Opanowanie_Swiata.sap : DATE "1988"
+Various/Husak_Jakub/Ucieczka_W_Nicosc.sap : DATE "1988"
+Various/Husak_Jakub/Wodospadem_Czasu.sap : DATE "1988"
+Various/Husak_Jakub/Wsrod_Gwiazd_Nadziei.sap : DATE "1988"
+Various/Jastrzemski_Marcin/Dragon.sap > Various/Majewski_Tomasz/
+Various/Kalinowski_Bartosz/Miuzik.sap > Paczka_Tynku_5.sap : NAME "Paczka Tynku 5"
+Various/Karwacki_Jakub/Scene_Register_5_Menu.sap > Various/Cierkonski_Michal/Scene_Register_5_0_Intro.sap
+Various/Lepkowski_Michal/Help_Me_Intro_1.sap > Vengeance_Main_Part.sap
+Various/Liebich_Tomasz/Technus.sap > Technus_Intro.sap
+Various/Liebich_Tomasz/Technus_2.sap > Technus_Title.sap
+Various/Loos_Uwe/Abbuc_25.sap > ABBUC_25.sap : NAME "ABBUC 25" DATE "1991 <?>"
+Various/Majewski_Tomasz/Big_2.sap > Various/Jastrzemski_Marcin/ : AUTHOR "Marcin Jastrzemski (Fatman) & Tomasz Majewski (Mayonez)"
+Various/Majewski_Tomasz/Dreamer.sap : AUTHOR "Tomasz Majewski (Mayonez)"
+Various/Majewski_Tomasz/Fifth_Guest.sap > Various/Jastrzemski_Marcin/
+Various/Majewski_Tomasz/Giana_Sisters_Remix.sap > Unsorted/
+Various/Padula_Jaroslaw/Pszykowitz.sap : NAME "Pszykowicz"
+Various/Pelc_Janusz/Lasermania.sap : AUTHOR "Janusz Pelc & Daniel Kleczynski (D.K.)"
+Various/Pelc_Janusz/RA_1.sap > Mix.sap
+Various/Pelc_Janusz/RA_2.sap > Winner.sap
+Various/Pucinski_Rafal/Czarny_Alibaba.sap : NAME "Czarny Alibaba"
+Various/Radecki_Michal/*.* : AUTHOR "Michal Radecki (stRing)"
+Various/Sterba_Radek/Paul_The_Penguin.sap > Paul_the_Penguin.sap
+Various/Szpilowski_Michal/3D_Zine.sap > Various/Roszkowski_Marek/
+Various/Szpilowski_Michal/3D_Zine_Intro.sap > Various/Roszkowski_Marek/
+Various/Szpilowski_Michal/Sej_mik.sap : AUTHOR "Ryszard Cybruch (Seabrush) & Michal Szpilowski (Miker)"
+Various/Tegethoff_Sven/Abbuc_20_1.sap > ABBUC_20_1.sap : NAME "ABBUC 20 - 1"
+Various/Tegethoff_Sven/Abbuc_21_1.sap > ABBUC_21_1.sap : NAME "ABBUC 21 - 1"
+Various/Tegethoff_Sven/Abbuc_21_2.sap > ABBUC_21_2.sap : NAME "ABBUC 21 - 2"
+Various/Tegethoff_Sven/Abbuc_21_3.sap > ABBUC_21_3.sap : NAME "ABBUC 21 - 3"
+Various/Vogt_Dariusz/Arena_Bzdur.sap > DJ_V_14.sap
+Various/Ramzes/ > Various/Hryn_Piotr/ (all songs in this directory have credits fixed)
+
+Better rips
+-----------
+Various/Czlowiek_W_Atomizerze/PoCZWArka.sap (better custom player)
+Various/Bienias_Adam/Bitter_Reality_Rzog_Plazma.sap (one instrument didn't play)
+Various/Karwacki_Jakub/Corvus_Corax.sap (fixed looping)
+
+Removed files
+-------------
+Various/Lepkowski_Michal/Help_Me_Intro_3.sap (same as Serious_Magazine_2_4.sap)
+Various/Liebich_Tomasz/Armageddon.sap (same as Technus.sap, subsong 1)

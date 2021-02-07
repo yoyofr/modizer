@@ -1,0 +1,124 @@
+ASMA Update #13
+
+These rips together with the original ASMA collection will make version 1.3
+of the ASMA (out of version 1.2).
+
+Number of new tunes: 63
+Better rips: 1
+Credits fixes: 26
+Filename and location changes: 8
+Removed files: 1
+
+New tunes
+---------
+Demos/Alpha.sap
+Demos/Hobbytronic_88_1.sap
+Demos/Hobbytronic_89_3.sap
+Demos/Hobbytronic_89_4.sap
+Demos/Hobbytronic_89_5.sap
+Demos/Hobbytronic_89_6.sap
+Demos/Hotline_Intro.sap
+Demos/Mortal_Kombat_Demo.sap
+Demos/The_Top_2_2.sap
+Demos/World_of_Wonders_1.sap
+Demos/World_of_Wonders_2.sap
+Demos/World_of_Wonders_3.sap
+Demos/World_of_Wonders_4.sap
+Demos/World_of_Wonders_5.sap
+Demos/World_of_Wonders_6.sap
+Demos/World_of_Wonders_7.sap
+Games/Classic/Archon.sap
+Games/Classic/Frantic.sap
+Games/Classic/James_Bond.sap
+Games/Classic/Mario_Bros.sap
+Games/Classic/Montezuma's_Revenge.sap
+Games/Classic/Ruff_And_Reddy.sap
+Games/Classic/Space_Ball.sap
+Games/Classic/Stealth.sap
+Games/Classic/WhistlerBrothers.sap
+Games/Classic/Zorro.sap
+Games/Various/Jurassic_Park.sap
+Games/Various/Kasiarz.sap
+Games/Various/Sisyphos.sap
+Unsorted/Aquanaut.sap
+Unsorted/High_Society_Girl.sap
+Unsorted/Silver_But_Violent_Intro.sap
+Unsorted/Turrican_2_Level_1_Traps.sap
+Various/Bienias_Adam/Bitter_Reality_Flexible_Sq.sap
+Various/Bienias_Adam/Bitter_Reality_Greetings_P.sap
+Various/Bienias_Adam/Bitter_Reality_Partyland_1.sap
+Various/Bienias_Adam/Bitter_Reality_Partyland_2.sap
+Various/Drozdowski_Marek/APC_Intro.sap
+Various/Duesterhoeft_Stephan/Abbuc_8.sap
+Various/Duesterhoeft_Stephan/Hobbytronic_91_Equalizer.sap
+Various/Golewski_Filip/Echo.sap
+Various/Gnome_Design/Abbuc_21_2.sap
+Various/Gnome_Design/Abbuc_21_3.sap
+Various/Husak_Jakub/Garfield_Part_2.sap
+Various/Husak_Jakub/Tron.sap
+Various/Kalinowski_Bartosz/Caveman.sap
+Various/Kwiatek_Grzegorz/Poor_Rock_n_Roll.sap
+Various/Kwiatek_Grzegorz/Professional_Copy_2_1.sap
+Various/Kwiatek_Grzegorz/Punk_Is_Not_Dead.sap
+Various/Kwiatek_Grzegorz/Voice_of_Silence.sap
+Various/Liebich_Tomasz/Dracon.sap
+Various/Pucimski_Rafal/Potrawka.sap
+Various/Skwiot_Stanislaw/Music_from_Poland_2_p_1_2.sap
+Various/Skwiot_Stanislaw/Music_from_Poland_2_p_3_4.sap
+Various/Sychowicz_Lukasz/Overmind_1.sap
+Various/Sychowicz_Lukasz/Overmind_4.sap
+Various/Sychowicz_Lukasz/Porazka_2.sap
+Various/Szpilowski_Michal/Overmind_2.sap
+Various/Szpilowski_Michal/Overmind_3.sap
+Various/Zur-soft/The_Top_3_Part_10.sap
+Various/Zur-soft/The_Top_3_Part_4.sap
+Various/Zur-soft/The_Top_3_Part_8.sap
+Various/Zur-soft/The_Top_3_Part_9.sap
+
+Better rips
+-----------
+Various/Kwiatek_Grzegorz/Eclipse_Day.sap
+
+Credits fixes
+-------------
+Classics/Gilmore_Adam/Las_Vegas_Casino.sap
+Demos/Endless_Dream_4.sap
+Demos/Hobbytronic_90_Vector_Part.sap
+Demos/Hobbytronic_92_3.sap
+Demos/The_Top_2_Digi_Part.sap
+Games/Classic/Ball_Blaster.sap
+Games/Classic/Olympic_Skier.sap
+Games/Classic/Spy_vs_Spy_2.sap
+Various/Bienias_Adam/Bitter_Reality_Farewell.sap
+Various/Bienias_Adam/Zdzisio_1.sap
+Various/Bienias_Adam/Zdzisio_2.sap
+Various/Galinski_Adrian/Intel_Outside_Dots_And_Pl.sap
+Various/Galinski_Adrian/Intel_Outside_Vector_Part.sap
+Various/Gnome_Design/Abbuc_20_1.sap
+Various/Gnome_Design/Abbuc_20_2.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_Infos.sap
+Various/Martin_Aleksander/Mr_Proper.sap
+Various/Martin_Aleksander/Mr_Proper_Ingame.sap
+Various/Martin_Aleksander/Putty_Piece.sap
+Various/Sychowicz_Lukasz/King_of_Agregat.sap
+Various/Sychowicz_Lukasz/Overmind_End.sap
+Various/Szymczuk_Daniel/Darkness_Hour.sap
+Various/Szymczuk_Daniel/Darkness_Hour_End.sap
+Various/Szymczuk_Daniel/Darkness_Hour_Ingame.sap
+Various/Szymczuk_Daniel/Loriens_Tomb.sap
+Various/Szymczuk_Daniel/Loriens_Tomb_Game_Over.sap
+
+Filename and location changes
+-----------------------------
+Unsorted/Abbuc_20.sap > Various/Gnome_Design/Abbuc_20_1.sap
+Unsorted/Abbuc_20_2.sap > Various/Gnome_Design/Abbuc_20_2.sap
+Unsorted/Big_Zine_1_Greetings.sap > Various/Golewski_Filip/Big_Zine_1_Greetings.sap
+Demos/Tekkno.sap > Various/Drozdowski_Marek/Out_of_Time_Tekkno_Part.sap
+Various/Kwiatek_Grzegorz/97th_Last_Party_Invitro_2.sap > Various/Kwiatek_Grzegorz/Eclipse_Day.sap
+Games/Various/Magia_Krysztalu.sap > Various/Skwiot_Stanislaw/Magia_Krysztalu.sap
+Various/Sychowicz_Lukasz/X_Ray_2.sap > Various/Sychowicz_Lukasz/King_of_Agregat.sap
+Various/Sziplowski_Michal/ > Various/Szpilowski_Michal/ (directory renamed)
+
+Removed files
+-------------
+Demos/Top_Crew_Part.sap

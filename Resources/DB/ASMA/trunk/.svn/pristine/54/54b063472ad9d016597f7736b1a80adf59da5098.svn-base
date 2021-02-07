@@ -1,0 +1,151 @@
+ASMA Update #19
+Date: April 18, 2001
+
+These rips together with the original ASMA collection will make version 1.9
+of the ASMA (out of version 1.8).
+
+Number of new tunes: 89
+Credits fixes: 18
+Filename and location changes: 18
+Removed tunes: 4
+
+New tunes
+---------
+Demos/Joyride_Info.sap
+Demos/Joyride_Juggler.sap
+Demos/Joyride_Plasma.sap
+Demos/Joyride_Scrolls.sap
+Demos/Joyride_Tunnel.sap
+Demos/Joyride_Turn_Disk.sap
+Demos/Joyride_Twirl.sap
+Demos/Nemesis_2.sap
+Games/Classic/Elevator_Repairman.sap
+Games/Classic/Zeppelin.sap
+Games/Various/Geografia.sap
+Games/Various/Global_War.sap
+Games/Various/Neron_Ingame.sap
+Games/Various/Raszyn.sap
+Various/Bloszko_Marek/Anty_Commodore_Demo_1.sap
+Various/Bloszko_Marek/Anty_Commodore_Demo_2.sap
+Various/Bloszko_Marek/Factory_Demo.sap
+Various/Bruenninski_Uwe/Beatles.sap
+Various/Bruenninski_Uwe/Hell.sap
+Various/Bruenninski_Uwe/Insel.sap
+Various/Bruenninski_Uwe/Mit18.sap
+Various/Bruenninski_Uwe/Synthy.sap
+Various/Bruenninski_Uwe/Uwes_Last_Demo.sap
+Various/Czartynski_Marcin/Big_Mack.sap
+Various/Czartynski_Marcin/Heretic_Crew_Limited_Dem_1.sap
+Various/Czartynski_Marcin/Heretic_Crew_Limited_Dem_2.sap
+Various/Czartynski_Marcin/Paczka_Tynku_2.sap
+Various/Czartynski_Marcin/Rave_01.sap
+Various/Dojwa_Jacek/Hydraulik_ASF.sap
+Various/Duesterhoeft_Stephan/A-Team_Theme.sap
+Various/Duesterhoeft_Stephan/Chiptune.sap
+Various/Duesterhoeft_Stephan/Emboldme.sap
+Various/Duesterhoeft_Stephan/Suspicus.sap
+Various/Duesterhoeft_Stephan/Tlogic.sap
+Various/Duesterhoeft_Stephan/Toadead.sap
+Various/Golewski_Filip/My_Song.sap
+Various/Golewski_Filip/Story_Module.sap
+Various/Golewski_Filip/Walenie_W_Stolek.sap
+Various/Golewski_Filip/Waving_Sound.sap
+Various/Grad_Jacek/The_First_Explosion_1.sap
+Various/Grad_Jacek/The_First_Explosion_2.sap
+Various/Grad_Jacek/The_First_Explosion_3.sap
+Various/Grad_Jacek/The_First_Explosion_4.sap
+Various/Grad_Jacek/The_First_Explosion_5.sap
+Various/Grad_Jacek/The_First_Explosion_6.sap
+Various/Husak_Jakub/Super_Fortuna.sap
+Various/Krawczyk_Adam/Turbican_2.sap
+Various/Krawczyk_Adam/Antic.sap
+Various/Krawczyk_Adam/Euro_Demo_1.sap
+Various/Krawczyk_Adam/Euro_Demo_2.sap
+Various/Lajciak_Pavol/Apidya.sap
+Various/Lajciak_Pavol/Memories.sap
+Various/Lajciak_Pavol/Outsider.sap
+Various/Lajciak_Pavol/Quest_for_Her_Smile.sap
+Various/Lajciak_Pavol/R-Type.sap
+Various/Lajciak_Pavol/The_Hero.sap
+Various/Lajciak_Pavol/This_One_Comes_from_Slovak.sap
+Various/Loos_Uwe/Das_Omen.sap
+Various/Majewski_Tomasz/Autobiografia.sap
+Various/Majewski_Tomasz/Big_2.sap
+Various/Majewski_Tomasz/Chndream.sap
+Various/Majewski_Tomasz/Copy_Party_1996_Info.sap
+Various/Majewski_Tomasz/Das_Model.sap
+Various/Majewski_Tomasz/Fanatic.sap
+Various/Majewski_Tomasz/Fifth_Guest.sap
+Various/Majewski_Tomasz/Fog.sap
+Various/Majewski_Tomasz/Giana_Sisters_Remix.sap
+Various/Majewski_Tomasz/Hellgate.sap
+Various/Majewski_Tomasz/Only_You.sap
+Various/Majewski_Tomasz/Outsider.sap
+Various/Majewski_Tomasz/Reksio_Theme.sap
+Various/Makowski_Robert/Alfaboot_Ingame.sap
+Various/Morgoth/The_Dream.sap
+Various/Morgoth/The_Dream_2.sap
+Various/Morgoth/The_Dream_3.sap
+Various/Morgoth/Kaszana.sap
+Various/Numan_Daniel/Ascii_Art.sap
+Various/Numan_Daniel/Hacker_Zine.sap
+Various/Numan_Daniel/Muzyka.sap
+Various/Pucimski_Rafal/Kicha_5.sap
+Various/Pucimski_Rafal/Odezwa_4_0.sap
+Various/Pucimski_Rafal/XQB.sap
+Various/Radecki_Michal/Flipper_Demo.sap
+Various/Sychowicz_Lukasz/Mumin.sap
+Various/Sychowicz_Lukasz/Mixer.sap
+Various/Szpilowski_Michal/Czad.sap
+Various/Szpilowski_Michal/Party_info.sap
+Various/Top_Odin/Film_Editor_Demo.sap
+Various/Top_Odin/Galahad_2.sap
+
+Credits fixes
+-------------
+Demos/Unite.sap : AUTHOR "<?> (Mozart)"
+Games/Various/Microx.sap : AUTHOR "Filip Oscadal (Fred Brooker)"
+Various/Gnome_Design/Abbuc_20_1.sap : AUTHOR "Sven Tegethoff (Gnome Design)"
+Various/Gnome_Design/Abbuc_20_2.sap : AUTHOR "Sven Tegethoff (Gnome Design)"
+Various/Gnome_Design/Abbuc_21_2.sap : AUTHOR "Sven Tegethoff (Gnome Design)"
+Various/Gnome_Design/Abbuc_21_3.sap : AUTHOR "Sven Tegethoff (Gnome Design)"
+Various/Husak_Jakub/Thinker_1.sap : DATE "1992"
+Various/Husak_Jakub/Thinker_2.sap : DATE "1992"
+Various/Liebich_Tomasz/Aurum.sap : DATE "1993"
+Various/Liebich_Tomasz/Smus.sap : DATE "1993"
+Various/Liebich_Tomasz/Vicky_1.sap : DATE "1992"
+Various/Liebich_Tomasz/Vicky_2.sap : DATE "1992"
+Various/Liebich_Tomasz/Vicky_3.sap : DATE "1992"
+Various/Liebich_Tomasz/Vicky_4.sap : DATE "1992"
+Various/Luberda_Michal/Barahir.sap : DATE "1993"
+Various/Luberda_Michal/Barahir_Ingame.sap : DATE "1993"
+Various/Majewski_Tomasz/BQL_Puzzle.sap : AUTHOR "Tomasz Majewski (Mayonez)"
+Various/Majewski_Tomasz/BQL_Puzzle_The_End.sap : AUTHOR "Tomasz Majewski (Mayonez)"
+
+Filename and location changes (these may change also because of credits fix)
+-----------------------------
+Demos/The_Top_2_2.sap > Various/Tegethoff_Sven/
+Demos/Das_Omen.sap > Various/Loos_Uwe/Das_Omen_Intro.sap
+Demos/Delirium_Tremens.sap > Various/Morgoth/
+Demos/Lemmings_Intro.sap > Various/Oscadal_Filip/ : AUTHOR "Filip Oscadal (Fred Brooker)"
+Games/Various/Magic_Dimension.sap > Various/Krawczyk_Adam/Magic_Dimension_1.sap
+Games/Various/Turbican.sap > Various/Krawczyk_Adam/Turbican_1.sap
+Unsorted/Abbuc_25.sap > Various/Loos_Uwe/
+Unsorted/Abbuc_38.sap > Various/Galinski_Adrian/
+Unsorted/Hcl3.sap > Various/Czartynski_Marcin/Heretic_Crew_Limited_Dem_3.sap
+Unsorted/Ksiaze.sap > Various/Husak_Jakub/
+Unsorted/Magic_Dimension.sap > Various/Krawczyk_Adam/Magic_Dimension_2.sap
+Unsorted/Shakemix.sap > Various/Drozdowski_Marek/
+Unsorted/Zrebak_3.sap > Various/Golewski_Filip/Ku_Zapomnieniu.sap
+Various/Dojwa_Jacek/Hydraulik_Ingame.sap > Hydraulik_ASF_Ingame.sap
+Various/Gnome_Design/Abbuc_20_1.sap > Various/Tegethoff_Sven/Abbuc_20_1.sap
+Various/Gnome_Design/Abbuc_20_2.sap > Various/Tegethoff_Sven/Abbuc_20_2.sap
+Various/Gnome_Design/Abbuc_21_2.sap > Various/Tegethoff_Sven/Abbuc_21_2.sap
+Various/Gnome_Design/Abbuc_21_3.sap > Various/Tegethoff_Sven/Abbuc_21_3.sap
+
+Removed files
+-------------
+Unsorted/Monty_Demo.sap (same as Various/Krawczyk_Adam/Antic.sap)
+Unsorted/Gallahad.sap (same as Various/Top_Odin/Galahad_2.sap)
+Unsorted/Logic.sap (same as Various/Duesterhoeft_Stephan/Tlogic.sap)
+Various/Numan_Daniel/Spirit_Vision_5.sap (same as Pentagram_3_Music_2.sap)
