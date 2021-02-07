@@ -1,0 +1,171 @@
+ASMA Update #16
+
+These rips together with the original ASMA collection will make version 1.6
+of the ASMA (out of version 1.5).
+
+Number of new tunes: 44
+Better rips: 11
+Credits fixes: 72
+Filename and location changes: 15
+Removed tunes: 4
+
+New tunes
+---------
+Demos/Banklan_1.sap
+Demos/Banklan_2.sap
+Demos/Joyride_End.sap
+Demos/Joyride_Landscape.sap
+Games/Various/Dynakillers.sap
+Games/Various/Incydent.sap
+Games/Various/Kult.sap
+Games/Various/Turbican.sap
+Unsorted/Historia.sap
+Unsorted/Picasso.sap
+Various/Bienias_Adam/Unknown_2.sap
+Various/Czartynski_Marcin/Saper_Konstruktor.sap
+Various/Drozdowski_Marek/Lemmings_Prevision.sap
+Various/Grad_Jacek/Dwie_Wieze.sap
+Various/Kwiatek_Grzegorz/Alone.sap
+Various/Kwiatek_Grzegorz/Angel.sap
+Various/Kwiatek_Grzegorz/Schizofrenia.sap
+Various/Kwiatek_Grzegorz/Trip.sap
+Various/Luberda_Michal/Kernaw_2.sap
+Various/Luberda_Michal/Kernaw_3.sap
+Various/Marcys/Cyborg_1.sap
+Various/Marcys/Cyborg_2.sap
+Various/Matyasik_Krzysztof/Bad_Flaczkis.sap
+Various/Matyasik_Krzysztof/Pretty_Chlebek.sap
+Various/Matyasik_Krzysztof/Self_Test.sap
+Various/Numan_Daniel/Spirit_Vision_2.sap
+Various/Numan_Daniel/Spirit_Vision_4.sap
+Various/Numan_Daniel/Spirit_Vision_5.sap
+Various/Numan_Daniel/Spirit_Vision_6.sap
+Various/Numan_Daniel/Spirit_Vision_7.sap
+Various/Numan_Daniel/Spirit_Vision_8.sap
+Various/Padula_Jaroslaw/Ptrance.sap
+Various/Pelc_Janusz/Dagobar.sap
+Various/Pelc_Janusz/Dagobar_Game_Over.sap
+Various/Pelc_Janusz/Dagobar_Ingame_1.sap
+Various/Pelc_Janusz/Dagobar_Ingame_2.sap
+Various/Pelc_Janusz/Dagobar_Ingame_3.sap
+Various/Pelc_Janusz/Trix_Ingame.sap
+Various/Szmatola_Krzysztof/Change_1.sap
+Various/Szmatola_Krzysztof/Change_2.sap
+Various/Szmatola_Krzysztof/Change_3.sap
+Various/Szmatola_Krzysztof/Change_4.sap
+Various/Szpilowski_Michal/Teacher_Killer.sap
+Various/Szpilowski_Michal/Vagabond.sap
+
+Better rips
+-----------
+Games/Classic/Loco.sap (song now loops)
+Unsorted/Qwerty.sap (totally messed-up song :-)
+Various/Kwiatek_Grzegorz/Failure_Dream.sap (now plays in stereo)
+Various/Kwiatek_Grzegorz/Soul_Breakin.sap (shorter binary)
+Various/Kwiatek_Grzegorz/Ultra_End.sap (now plays with doublespeed sounds)
+Various/Kwiatek_Grzegorz/Ultra_Intro.sap (now plays in stereo)
+Various/Kwiatek_Grzegorz/Voice_of_Silence.sap (shorter binary)
+Various/Swierszcz_Piotr/Intel_Outside_4_Invitro_In.sap (repeating sound at the end removed)
+Various/Szpilowski_Michal/Extract_Collection.sap (wrong song start)
+Various/Szpilowski_Michal/Extract_End.sap (wrong song start)
+Various/Szpilowski_Michal/Extract_Intro.sap (wrong song start)
+
+Credits fixes
+-------------
+Demos/Bitter_Reality_Dragon_Bobs.sap : AUTHOR "Torsten Karwoth"
+Demos/Dual_Yellow_Energy.sap > Various/Drozdowski_Marek/
+Games/Various/Barahir.sap > Various/Luberda_Michal/Barahir_Ingame.sap
+Games/Various/Hans_Kloss.sap : DATE "1992"
+Games/Various/Upior.sap
+Games/Various/Special_Forces.sap: > Various/Galinski_Adrian/
+Games/Various/Zeus.sap > Various/Kalinowski_Bartosz/
+Unsorted/Barymag_1_3.sap > Various/Czartynski_Marcin/Barymag_1_3.sap 
+Unsorted/Barymag_1_5.sap > Various/Szpilowski_Michal/Barymag_1_5.sap
+Unsorted/Barymag_1_6.sap > Various/Czartynski_Marcin/Barymag_1_6.sap
+Unsorted/Barymag_1_7.sap > Various/Szpilowski_Michal/Barymag_1_7.sap
+Unsorted/Barymag_1_8.sap > Various/Drozdowski_Marek/Barymag_1_8.sap
+Unsorted/Dreams.sap > Various/Kwiatek_Grzegorz/
+Unsorted/Hcl5.sap > Various/Kalinowski_Bartosz/
+Unsorted/Silver_But_Violent_Intro.sap > Silent_But_Violent_Intro.sap : AUTHOR "<?> (Josh)" NAME "Silent but Violent"
+Unsorted/Zepi.sap > Various/Kalinowski_Bartosz/
+Various/Bienias_Adam/Music_1.sap > Unknown.sap
+Various/Drozdowski_Marek/Lemmings_2.sap > Lemmings_Prevision_Intro.sap
+Various/Husak_Jakub/Bank_Bang_Ingame_Tunes.sap > Bank_Bang_Ingame.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_1.sap > Sweet_Illusions_Intro.sap
+Various/Kalinowski_Bartosz/Sweet_Illusions_4.sap > Sweet_Illusions_Techno.sap
+Various/Kalinowski_Bartosz/Caveman.sap > Various/Swierszcz_Piotr/Total_Daze.sap
+Various/Kwiatek_Grzegorz/Alpha.sap
+Various/Kwiatek_Grzegorz/Angel_Of_Death.sap > Angel_of_Death.sap
+Various/Kwiatek_Grzegorz/Back_to_Life_Intro.sap > Sill_Of_Destiny.sap
+Various/Kwiatek_Grzegorz/BombSong.sap > Bomb_Song.sap
+Various/Kwiatek_Grzegorz/Cause_It_Hurts.sap
+Various/Kwiatek_Grzegorz/Czubeck_Parejd.sap
+Various/Kwiatek_Grzegorz/Deep_Kick.sap
+Various/Kwiatek_Grzegorz/Dreams1.sap > Dreams_1.sap
+Various/Kwiatek_Grzegorz/Dreams2.sap > Dreams_2.sap
+Various/Kwiatek_Grzegorz/Energy_1_3.sap > The_Power.sap
+Various/Kwiatek_Grzegorz/Expectancy.sap
+Various/Kwiatek_Grzegorz/Expression1.sap > Expression_1.sap   
+Various/Kwiatek_Grzegorz/Expression10.sap > Expression_10.sap  
+Various/Kwiatek_Grzegorz/Expression2.sap > Expression_2.sap   
+Various/Kwiatek_Grzegorz/Expression4.sap > Expression_4.sap   
+Various/Kwiatek_Grzegorz/Expression6.sap > Expression_6.sap   
+Various/Kwiatek_Grzegorz/Expression7.sap > Expression_7.sap   
+Various/Kwiatek_Grzegorz/Expression9.sap > Expression_9.sap   
+Various/Kwiatek_Grzegorz/Extase.sap
+Various/Kwiatek_Grzegorz/Extreme.sap
+Various/Kwiatek_Grzegorz/Extremely_Flammable.sap
+Various/Kwiatek_Grzegorz/Far_Away.sap : DATE "1997"
+Various/Kwiatek_Grzegorz/Freezer.sap
+Various/Kwiatek_Grzegorz/GoodBye.sap > Good_Bye.sap
+Various/Kwiatek_Grzegorz/HopeLess.sap > Hopeless.sap
+Various/Kwiatek_Grzegorz/InSanity.sap > Insanity.sap
+Various/Kwiatek_Grzegorz/IntroSpection.sap > Introspection.sap
+Various/Kwiatek_Grzegorz/LightNess.sap > Lightness.sap
+Various/Kwiatek_Grzegorz/New_Life.sap
+Various/Kwiatek_Grzegorz/New_Wave.sap
+Various/Kwiatek_Grzegorz/No_Breakes.sap
+Various/Kwiatek_Grzegorz/No_limit.sap > No_Limit.sap
+Various/Kwiatek_Grzegorz/One_Little_Step.sap
+Various/Kwiatek_Grzegorz/Punk_Is_Not_Dead.sap : DATE "1995"
+Various/Kwiatek_Grzegorz/Recycle.sap > Toxic_Cream.sap
+Various/Kwiatek_Grzegorz/Sedition.sap
+Various/Kwiatek_Grzegorz/Short_Reflex.sap
+Various/Kwiatek_Grzegorz/SomeOne.sap > Someone.sap
+Various/Kwiatek_Grzegorz/Sweet.sap
+Various/Kwiatek_Grzegorz/Sweet_Remake.sap
+Various/Kwiatek_Grzegorz/Sweet_Voice.sap
+Various/Kwiatek_Grzegorz/Syndrom.sap
+Various/Kwiatek_Grzegorz/Transmission_Into_Your_H.sap > Transmission_Into_Your_Hea.sap 
+Various/Kwiatek_Grzegorz/Tribute_To.sap > Tribute_to.sap
+Various/Kwiatek_Grzegorz/Ultra_Main.sap > Ultra.sap
+Various/Kwiatek_Grzegorz/Unknown.sap : AUTHOR "Grzegorz Kwiatek (Greg)"
+Various/Kwiatek_Grzegorz/Voice_Of_Silence4.sap > Voice_of_Silence_IV.sap
+Various/Kwiatek_Grzegorz/Voice_Preview.sap > Voice_of_Silence_III_Previ.sap
+Various/Luberda_Michal/Barahir1.sap > Barahir.sap
+Various/Padula_Jaroslaw/Trans.sap : DATE "1998"
+
+Filename and location changes (these may change also because of credits fix)
+-----------------------------
+Games/Classic/Droga_Wojovnika_Preview.sap > Games/Various/
+Games/Classic/Monstrum.sap > Games/Various/
+Games/Classic/Numblines.sap > Games/Various/
+Games/Classic/Ruff_And_Reddy.sap > Various/Cornelius_Orall/
+Games/Classic/Speed_Hawk.sap > Various/Cornelius_Orall/
+Games/Classic/Tiger_Attack.sap > Various/Cornelius_Orall/
+Games/Classic/Wladca.sap > Games/Various/
+Games/Various/Adax.sap > Various/Szmatola_Krzysztof/
+Games/Various/Adax_Ingame.sap > Various/Szmatola_Krzysztof/
+Unsorted/Deathlan.sap > Games/Various/Deathland.sap
+Unsorted/Magnetic_Fields.sap > Demos/
+Unsorted/Special_Forces.sap > Various/Galinski_Adrian/
+Various/Dhor/ > Various/Duma_Dariusz/ (All songs in this directory have credits fixed)
+Various/Kwiatek_Grzegorz/97th_Last_Party_Invitro_1.sap > Failure_Dream.sap
+Various/Swierszcz_Piotr/Intel_Outside_4_Intro.sap > Intel_Outside_4_Invitro_In.sap
+
+Removed files
+-------------
+Games/Classic/WhistlerBrothers.sap (not removed by mistake)
+Various/Drozdowski_Marek/Barymag_1_2.sap (same as Sweet_Illusion_APC_Part.sap)
+Various/Kalinowski_Bartosz/Bartman.sap
+Various/Kwiatek_Grzegorz/Energy_1_Intro.sap (same as Expression_1.sap)

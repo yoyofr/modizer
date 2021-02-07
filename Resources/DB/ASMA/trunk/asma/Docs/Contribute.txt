@@ -1,0 +1,67 @@
+This file gives all the information needed for those who want to send songs
+to ASMA archive.
+
+If you want to send me some songs, they should be already converted to SAP
+format and should include all the information needed (author, name, date,
+number of songs). If you're unsure about any information needed, you can
+send me the music as well, maybe we can find the info together. If you don't
+know how to create SAP files, send me the binary file with the INIT and PLAY
+addresses and memory location where the song has to be loaded. See Sap.txt
+for SAP format description. 
+
+File formats accepted
+~~~~~~~~~~~~~~~~~~~~~
+SAP - (Slight Atari Player) - The format designed for playing 8-bit Atari 
+      music on modern computers. All other formats can be converted to SAP.
+      See Sap.txt for more information regarding the SAP file format.
+AMP - (Antic Music Player)
+AMS - (Antic Music Sound) 
+Benjy Soundmonitor
+CMC - (Chaos Music Composer) - Atari music editor from early 1990s.
+CM3 - (CMC "3/4") - CMC with modified pattern length.
+CMR - (CMC "Rzog") - CMC with modified bass sounds.
+CMS - (Stereo Double CMC) - Stereo CMC.
+DMC - (DoublePlay CMC) - CMC with 6502 routine executed at double rate of the
+      original CMC.
+DLT - (Delta Music Composer) - Atari music editor from 1990s.
+FC  - (Future Composer) - Atari music editor from 1990s.
+MPT - (Music ProTracker) - Atari music editor from 1990s.
+MPD - (MPT DoublePlay) - MPT with 6502 routine executed at double rate of the
+      original MPT.
+RMT - (Raster Music Tracker) - Modern Atari music editor running on Windows.
+TMC - (Theta Music Composer) - Atari music editor from late 1990s.
+TM2 - (Theta Music Composer 2.x) - Modern Atari music editor.
+TM8 - Theta Music Composer dual POKEY configuration (stereo).
+
+If possible, send also the original file/game/demo that you ripped the
+song(s) from.
+
+Information needed (or welcome)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- Author of the song
+- Name of song
+- Date of creation or copyright date
+- Number of subsongs/default subsong
+For SAP files this information should be already included in the header, for
+other fileformats write it into a separate textfile.
+
+STIL information
+~~~~~~~~~~~~~~~~
+This information is not essential but if you know anything of these, please 
+send it together with the song.
+- Name of covered song (plus album)
+- Name of the interpreter (singer, band) or composer
+If the song is a demoparty music compo contribution, send us the name of the
+party (including year) and the final standing of the song (only for songs
+that ended at 1st, 2nd or 3rd place).
+Again you can write all this information into a separate text file.
+Examples:
+
+Digital_Trash.sap
+  TITLE: Domino Dancing [from Introspective]
+ ARTIST: Pet Shop Boys
+
+Desastre.sap
+COMMENT: 2nd place at Intel Outside 4 music compo.
+
+Thank you for your contributions!

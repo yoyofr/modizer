@@ -1,0 +1,136 @@
+ASMA Update #24
+Date: July 13, 2002
+
+These rips together with the original ASMA collection will make version 2.4
+of the ASMA (out of version 2.3).
+
+Number of new tunes: 94
+Better rips: 3
+Credits fixes: 16
+Removed tunes: 1
+
+New tunes
+---------
+Demos/Andermajnd.sap
+Demos/Another_Speedtro.sap
+Demos/Juzek.sap
+Demos/Techno_Collection_4.sap
+Unsorted/Abbuc_19.sap
+Unsorted/Color.sap
+Unsorted/Luzik.sap
+Unsorted/New_Generation.sap
+Unsorted/Tragedy_Zine_2.sap
+Various/Cierkonski_Michal/Kowboj.sap
+Various/Dojwa_Jacek/Pang.sap
+Various/Gora_Jakub/Psica.sap
+Various/Kalinowski_Bartosz/Infinity.sap
+Various/Matyasik_Krzysztof/Atak_serca.sap
+Various/Matyasik_Krzysztof/Baleronik.sap
+Various/Matyasik_Krzysztof/Goloneczka.sap
+Various/Matyasik_Krzysztof/Karkoweczka.sap
+Various/Matyasik_Krzysztof/Kaszaneczka.sap
+Various/Matyasik_Krzysztof/Koninka.sap
+Various/Matyasik_Krzysztof/Padaczka.sap
+Various/Matyasik_Krzysztof/Poledwiczka.sap
+Various/Matyasik_Krzysztof/Rak_mozgu.sap
+Various/Matyasik_Krzysztof/Schabik.sap
+Various/Matyasik_Krzysztof/Watrobeczka.sap
+Various/Matyasik_Krzysztof/Wieprzowinka.sap
+Various/Matyasik_Krzysztof/Wolowinka_Sampled.sap
+Various/Numan_Daniel/Wodzia.sap
+Various/Radzikowski_Ireneusz/Around_the_Planet.sap
+Various/Hard_Software/Abbuc_36.sap
+Various/Padula_Jaroslaw/Alternative_Psychodelic_Trance.sap
+Various/Padula_Jaroslaw/Brodzik.sap
+Various/Padula_Jaroslaw/Freedom.sap
+Various/Padula_Jaroslaw/Hip_Demo_Intro.sap
+Various/Padula_Jaroslaw/Hip_Demo_Main_2.sap
+Various/Padula_Jaroslaw/Ps1.sap
+Various/Padula_Jaroslaw/Psycho.sap
+Various/Padula_Jaroslaw/Tech4.sap
+Various/Padula_Jaroslaw/Techno_Collection_1.sap
+Various/Padula_Jaroslaw/Techno_Collection_2.sap
+Various/Padula_Jaroslaw/Techno_Collection_3.sap
+Various/Padula_Jaroslaw/Trial.sap
+Various/Padula_Jaroslaw/Z.sap
+Various/Sasik_Marcel/Moner_1.sap
+Various/Sasik_Marcel/Moner_2.sap
+Various/Sasik_Marcel/Moner_3.sap
+Various/Skowiniak_Krystian/Pies_drapie_sie_po_jajach.sap
+Various/Skowiniak_Krystian/THC_Rulla.sap
+Various/Sterba_Radek/Len_raz.sap
+Various/Sterba_Radek/Less_Than_222.sap
+Various/Sterba_Radek/SelfDemo.sap
+Various/Sterba_Radek/Two_Years_Ago.sap
+Various/Swiecicki_Krzysztof/T_E_C_H.sap
+Various/Swierszcz_Piotr/Ardeny_Demo.sap
+Various/Sychowicz_Lukasz/Ala_ma_kota.sap
+Various/Sychowicz_Lukasz/Explosive_Phlegm.sap
+Various/Sychowicz_Lukasz/Offsummer.sap
+Various/Sychowicz_Lukasz/Plump_Robber.sap
+Various/Sychowicz_Lukasz/Rage_against_16-bit.sap
+Various/Sychowicz_Lukasz/Rake_in_Church.sap
+Various/Sychowicz_Lukasz/Szpecyfik_Kolekszyn_Intro.sap
+Various/Sychowicz_Lukasz/Unlimited_Zdechla_Ryba.sap
+Various/Szpilowski_Michal/Manga_Rules_2.sap
+Various/Szpilowski_Michal/R0lo.sap
+Various/Szpilowski_Michal/Unknown_1.sap
+Various/Szpilowski_Michal/Wiosna_Ludzikuf_End.sap
+Various/Szpilowski_Michal/Wiosna_Ludzikuf_Main.sap
+Various/Vybostok_Marian/Implosion.sap
+Various/Vybostok_Marian/Robot_Assault_Demo.sap
+Various/Vybostok_Marian/Street_Fighter_II_Demo_1.sap
+Various/Vybostok_Marian/Street_Fighter_II_Demo_2.sap
+Various/Vybostok_Marian/Street_Fighter_II_Demo_3.sap
+Various/Vybostok_Marian/Street_Fighter_II_Demo_4.sap
+Various/Vybostok_Marian/Wanted_Intro_1.sap
+Various/Vybostok_Marian/Wanted_Intro_2.sap
+Various/Vybostok_Marian/Wanted_Part_1.sap
+Various/Vybostok_Marian/Wanted_Part_2.sap
+Various/Vybostok_Marian/Wanted_Part_3_1.sap
+Various/Vybostok_Marian/Wanted_Part_3_2.sap
+Various/Vybostok_Marian/Wanted_Part_3_3.sap
+Various/Vybostok_Marian/Wanted_Part_3_4.sap
+Various/Vybostok_Marian/Wanted_Part_4_Help.sap
+Various/Vybostok_Marian/Wanted_Part_4_Mix.sap
+Various/Vybostok_Marian/Wanted_Part_4_Moon_Patrol.sap
+Various/Vybostok_Marian/Wanted_Part_4_Percuss.sap
+Various/Vybostok_Marian/Wanted_Part_4_Polizei.sap
+Various/Vybostok_Marian/Wanted_Part_4_Summer.sap
+Various/Vybostok_Marian/Wanted_Part_4_Terror_II.sap
+Various/Vybostok_Marian/Wanted_Part_4_Zeus_Mix.sap
+Various/Vybostok_Marian/Wanted_Part_5.sap
+Various/Vybostok_Marian/Wanted_Part_6.sap
+Various/Vybostok_Marian/Wanted_Part_7.sap
+Various/Vybostok_Marian/Wanted_Part_8.sap
+Various/Vybostok_Marian/Shakings.sap
+Various/Wasilewski_Dariusz/Marzec_95.sap
+
+Better rips
+-----------
+Various/Dojwa_Jacek/Pang.sap (includes subtunes)
+Various/Krawczyk_Adam/Tawerna.sap (more subtunes)
+Various/Podedworny_Wojtek/Pandemonium.sap (includes subtunes)
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Demos/Ray_of_Hope_Bars.sap > Various/Swiecicki_Krzysztof/
+Demos/Ray_of_Hope_Shade_Bobs.sap > Various/Swiecicki_Krzysztof/
+Unsorted/sEXTOn_Is_Come.sap : AUTHOR "Krzysztof Balkowski (sEXTOn)"
+Unsorted/Suprajs.sap : AUTHOR "Marek Oglodek (Koala)"
+Various/Golewski_Filip/Memento_Mori.sap : AUTHOR "Filip Golewski (Zoltar X)"
+Various/Golewski_Filip/Street_Walker.sap : AUTHOR "Filip Golewski (Zoltar X)"
+Various/Gora_Jakub/Well_Game.sap > Holiday.sap
+Various/Sterba_Radek/Small_Stir.sap : AUTHOR "Radek Sterba (RASTER)"
+Various/Swierszcz_Piotr/Reverse_2.sap : NAME "Reverse - 2"
+Various/Sychowicz_Lukasz/Barymag_2_1.sap > Various/Grayscale/Sychowicz_Lukasz/Pancerne_trampki.sap : NAME "Pancerne trampki" DATE "1996"
+Various/Sychowicz_Lukasz/Barymag_2_2.sap > Various/Grayscale/Sychowicz_Lukasz/Revenge_of_Bozon.sap : NAME "Revenge of Bozon" DATE "1996"
+Various/Sychowicz_Lukasz/Barymag_2_6.sap > Various/Grayscale/Sychowicz_Lukasz/Squiffy_Squid.sap : NAME "Squiffy Squid" DATE "1996"
+Various/Sychowicz_Lukasz/Barymag_2_7.sap > Various/Grayscale/Sychowicz_Lukasz/Tense_Tenon.sap : NAME "Tense Tenon" DATE "1996"
+Various/Sychowicz_Lukasz/Debilizator_1_Music_4.sap > Various/Grayscale/Sychowicz_Lukasz/Terrible_Toast_Union.sap : NAME "Terrible Toast Union" DATE "1996"
+Various/Sychowicz_Lukasz/Energy_1_4.sap > Various/Grayscale/Sychowicz_Lukasz/Fate_of_Pig.sap : NAME "Fate of Pig" DATE "1996"
+Various/Sychowicz_Lukasz/Gravestone.sap : DATE "1996"
+
+Removed files
+-------------
+Various/Sychowicz_Lukasz/Ketchup.sap (all subtunes contained in Graba.sap)

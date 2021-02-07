@@ -1,0 +1,115 @@
+ASMA Update #26
+Date: January 9, 2003
+
+These rips together with the original ASMA collection will make version 2.6
+of the ASMA (out of version 2.5).
+
+Number of new tunes: 93
+Credits fixes: 8
+
+New tunes
+---------
+Demos/Carpe_Demo_3.sap
+Demos/Carpe_Demo_4.sap
+Demos/Carpe_Demo_5.sap
+Demos/Help_Me_Intro_3.sap
+Demos/Windows95_1.sap
+Demos/Windows95_2.sap
+Games/Various/Bremspunkt.sap
+Games/Various/Milligreen.sap
+Games/Various/Zumbaja_Game_Over.sap
+Games/Various/Zumbaja_Ingame.sap
+Games/Various/Zumbaja_Menu.sap
+Unsorted/Mega_Player_151_Hidden_mus.sap
+Unsorted/Sahara.sap
+Various/Badkowski_Marek/Jade.sap
+Various/Ce_Pumpkin/Rulez_2.sap
+Various/Cierkonski_Michal/Yo.sap
+Various/Czartynski_Marcin/Hlejnia.sap
+Various/Golewski_Filip/Help_Me_Intro_2.sap
+Various/Gora_Jakub/Frantic_Intro.sap
+Various/Gora_Jakub/Invita.sap
+Various/Gora_Jakub/Kankan.sap
+Various/Gora_Jakub/Kotek.sap
+Various/Gora_Jakub/Love_Somebody.sap
+Various/Gora_Jakub/Nop_Magazine_1.sap
+Various/Gora_Jakub/Smells_Like_a_Cream_Main.sap
+Various/Gora_Jakub/Tigers.sap
+Various/Jastrzebski_Dominik/Squint_Intro.sap
+Various/Karwacki_Jakub/Prelude.sap
+Various/Kazimierczak_Leszek/Bad_Girl.sap
+Various/Kazimierczak_Leszek/BBSL_Intro_1.sap
+Various/Kazimierczak_Leszek/Credits_Intro.sap
+Various/Kulinski_Grzegorz/2Ferie94.sap
+Various/Kulinski_Grzegorz/Psy_hoza.sap
+Various/Kulinski_Grzegorz/Yeah.sap
+Various/Kwiatek_Grzegorz/DrillDance.sap
+Various/Kwiatek_Grzegorz/Euglena_Zielona.sap
+Various/Lepkowski_Michal/Help_Me_Intro_1.sap
+Various/Lepkowski_Michal/Tekblast_Ingame_1.sap
+Various/Lepkowski_Michal/Tekblast_Ingame_2.sap
+Various/Lepkowski_Michal/Tekblast_Ingame_3.sap
+Various/Lepkowski_Michal/Tekblast_Ingame_4.sap
+Various/Lepkowski_Michal/Tekblast_Menu.sap
+Various/Matoga_Adrian/Public_Life_by_Epi.sap
+Various/Matoga_Adrian/Sleep.sap
+Various/Matoga_Adrian/Weep.sap
+Various/Matyasik_Krzysztof/Flaczki.sap
+Various/Numan_Daniel/Pazda_Sampled.sap
+Various/Numan_Daniel/Red_Sector.sap
+Various/Numan_Daniel/Tekkno.sap
+Various/Padula_Jaroslaw/New_Ps1.sap
+Various/Przybyszewski_Krzysztof/Apex_1.sap
+Various/Przybyszewski_Krzysztof/Blasta_Basta.sap
+Various/Przybyszewski_Krzysztof/BLB_Music_3.sap
+Various/Przybyszewski_Krzysztof/BLB_Music_4.sap
+Various/Przybyszewski_Krzysztof/Butter_Reality.sap
+Various/Przybyszewski_Krzysztof/Cicha_Przystan.sap
+Various/Przybyszewski_Krzysztof/Cobra_Info_Team.sap
+Various/Przybyszewski_Krzysztof/Cold_Sedes_Story.sap
+Various/Przybyszewski_Krzysztof/Cybel_BLB.sap
+Various/Przybyszewski_Krzysztof/Darkness_Subway.sap
+Various/Przybyszewski_Krzysztof/Disco_Polo.sap
+Various/Przybyszewski_Krzysztof/Fast_Excess.sap
+Various/Przybyszewski_Krzysztof/Friday.sap
+Various/Przybyszewski_Krzysztof/Grave.sap
+Various/Przybyszewski_Krzysztof/Jabcok_Dance.sap
+Various/Przybyszewski_Krzysztof/Lama.sap
+Various/Przybyszewski_Krzysztof/Lanza.sap
+Various/Przybyszewski_Krzysztof/Lokowka_Szal.sap
+Various/Przybyszewski_Krzysztof/Music_One.sap
+Various/Przybyszewski_Krzysztof/Mysie_Jaderka.sap
+Various/Przybyszewski_Krzysztof/Odglosy_Z_Marsa.sap
+Various/Przybyszewski_Krzysztof/Place_in_the_Space.sap
+Various/Przybyszewski_Krzysztof/Random_Delirium.sap
+Various/Przybyszewski_Krzysztof/Room.sap
+Various/Przybyszewski_Krzysztof/Roy_I_Jego_Koza.sap
+Various/Przybyszewski_Krzysztof/Siphon.sap
+Various/Przybyszewski_Krzysztof/Speed.sap
+Various/Przybyszewski_Krzysztof/Suicidal_Trip.sap
+Various/Przybyszewski_Krzysztof/Swawolny_Dyzio.sap
+Various/Przybyszewski_Krzysztof/Szalone_Sandalki.sap
+Various/Przybyszewski_Krzysztof/Total_Solution.sap
+Various/Przybyszewski_Krzysztof/X_Plorat.sap
+Various/Przybyszewski_Krzysztof/Zyzio_Corps.sap
+Various/Pucimski_Rafal/Kick.sap
+Various/Pucimski_Rafal/Magic.sap
+Various/Pucimski_Rafal/Rama.sap
+Various/Rentgen/Victoria_JHS.sap
+Various/Rentgen/Victoria_JHS_Hidden_1.sap
+Various/Rentgen/Victoria_JHS_Hidden_2.sap
+Various/Rentgen/Victoria_JHS_Hidden_3.sap
+Various/Rentgen/Victoria_JHS_Hidden_4.sap
+Various/Skowiniak_Krystian/Zielony_nap.sap
+Various/Sterba_Radek/Multris_Menu.sap
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Demos/Impossible_But_Real_End.sap : AUTHOR "Tero Kostermaa (Teque)"
+Unsorted/Aggressive.sap : AUTHOR "<?>"
+Unsorted/Scream.sap > /Various/Matoga_Adrian/
+Various/Kalinowski_Bartosz/Operation_Blood.sap > /Games/Various/ : AUTHOR "Pawel Kalinowski (PIRX)"
+Various/Kalinowski_Bartosz/Operation_Blood_Ingame.sap > /Games/Various/ : AUTHOR "Pawel Kalinowski (PIRX)"
+Various/Kazimierczak_Leszek/Megata_Zine_1_Main.sap > Under_The_Open.sap : DATE "1995"
+Various/Roszkowski_Marek/Transfer_II.sap : DATE "1997 <?>"
+Various/Swierszcz_Piotr/Energy_1_2.sap > Last_World.sap

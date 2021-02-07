@@ -1,0 +1,717 @@
+ASMA Update #37
+Date: Dec 30, 2013
+
+These rips together with the original ASMA collection will make version 3.7
+of the ASMA (out of version 3.6).
+
+Number of new tunes: 400
+Credits fixes: 63
+Better/bugfixed rips: 217
+Removed files: 14
+
+Removed files
+-------------
+Composers/Higgins_Robert/Little.sap (same as Fugue_in_G_minor.sap)
+Composers/Pesout_Marek/Alphaville_Big_in_Japan_St.sap (same as Alphaville.sap)
+Composers/Pesout_Marek/Begin.sap (same as Dirty_Begin.sap)
+Composers/Pesout_Marek/Gover.sap (same as OnEscape_Game_Over.sap)
+Composers/Pesout_Marek/Intro.sap (same as OnEscape_Intro.sap)
+Composers/Pesout_Marek/Level_1.sap (same as OnEscape_Level_1.sap)
+Composers/Pesout_Marek/Milk_Nuts_Title.sap (same as Oilgame_Deluxe.sap)
+Composers/Pesout_Marek/Title.sap (same as OnEscape_Title.sap)
+Composers/Pesout_Marek/Trident_II.sap (same as Trident.sap, just playing in cms double mode)
+Composers/Pesout_Marek/Who_1.sap (99% same as Czech_Sound_1.sap)
+Composers/Pesout_Marek/Who_2.sap (same as Agony.sap)
+Composers/Pesout_Marek/Who_3.sap (same as Destruction.sap)
+Unknown/Carpe_Demo_5.sap (same as Composers/Bruenninski_Uwe/Joshua_Tree.sap)
+Unknown/Music_2000_Menu.sap (same as Misc/Hobbytronic_89_1.sap)
+
+New tunes
+---------
+Composers/Bankowski_Krzysztof/Destrukszon_Flower_Ingame.sap
+Composers/Bankowski_Krzysztof/Destrukszon_Flower_Title.sap
+Composers/Bankowski_Krzysztof/Destrukszon_Flower_Victory.sap
+Composers/Bernasek_Jiri/H2O.sap
+Composers/Bernasek_Jiri/Multi_Dash.sap
+Composers/Brzeski_Michal/Fastfunk.sap
+Composers/Buehrig_Bastian/HARem.sap
+Composers/Buehrig_Bastian/Mighty_Jill_Off_Game.sap
+Composers/Buehrig_Bastian/Mighty_Jill_Off_Intro.sap
+Composers/Buettner_Falk/Adalmar_Acker.sap
+Composers/Buettner_Falk/Adalmar_Bootup.sap
+Composers/Buettner_Falk/Adalmar_Consum.sap
+Composers/Buettner_Falk/Adalmar_Ende.sap
+Composers/Buettner_Falk/Adalmar_Huntmoon.sap
+Composers/Buettner_Falk/Adalmar_Intro.sap
+Composers/Buettner_Falk/Adalmar_Kaiser.sap
+Composers/Buettner_Falk/Adalmar_One_Moment.sap
+Composers/Buettner_Falk/Adalmar_RSI1.sap
+Composers/Buettner_Falk/Adalmar_Title.sap
+Composers/Buettner_Falk/Alf.sap
+Composers/Buettner_Falk/Demons_Revenge.sap
+Composers/Buettner_Falk/Dumber_Bumber.sap
+Composers/Buettner_Falk/Hunter_Ingame.sap
+Composers/Buettner_Falk/Megaforce_II.sap
+Composers/Buettner_Falk/Mystix_Teil_1_music_2.sap
+Composers/Buettner_Falk/Mystix_Teil_1_music_3.sap
+Composers/Buettner_Falk/Mystix_Teil_1_Title.sap
+Composers/Buettner_Falk/Pussytalk.sap
+Composers/Chema64/Dubtrip.sap
+Composers/Chema64/Megameng_II.sap
+Composers/Cornelius_Orall/Sidewinder.sap
+Composers/Cornelius_Orall/Thunderfox.sap
+Composers/Dramczyk_Bartlomiej/Hard_Core_Test.sap
+Composers/Dramczyk_Bartlomiej/Sweet_Happens.sap
+Composers/Duma_Dariusz/Moment_of_Stop.sap
+Composers/Eisenhammer_Zdenek/Flop_56.sap
+Composers/Eisenhammer_Zdenek/Just_Be_Happy.sap
+Composers/Eisenhammer_Zdenek/New_Direction.sap
+Composers/Eisenhammer_Zdenek/Quest_for_Elvis.sap
+Composers/Eisenhammer_Zdenek/Rolltris_Game.sap
+Composers/Eisenhammer_Zdenek/Rolltris_Intro.sap
+Composers/Eisenhammer_Zdenek/Turrican_2_Freedom.sap
+Composers/Feske_Nils/Blinking_Panda.sap
+Composers/Feske_Nils/Fireworks.sap
+Composers/Feske_Nils/Frantic.sap
+Composers/Feske_Nils/Helicops_title.sap
+Composers/Feske_Nils/Metri.sap
+Composers/Feske_Nils/Nightlore.sap
+Composers/Feske_Nils/Revision.sap
+Composers/Foerst_Kai/Zarka.sap
+Composers/Garrido_Daniel/Pixel_Kabum.sap
+Composers/Gilbertson_Gary/Airstrike.sap
+Composers/Gilbertson_Gary/Altreality.sap
+Composers/Gilbertson_Gary/Cosmic.sap
+Composers/Gilbertson_Gary/Liken_My_Atari.sap
+Composers/Gilbertson_Gary/Recondocheckerboard.sap
+Composers/Gilbertson_Gary/Robotman.sap
+Composers/Grayscale/Sychowicz_Lukasz/Look_Around.sap
+Composers/Grayscale/Wasiel_Bartek/Heavy_Traffic.sap
+Composers/Grayscale/Wasiel_Bartek/Illusive.sap
+Composers/Grayscale/Wasiel_Bartek/Slurkys_Tale.sap
+Composers/Grayscale/Wasiel_Bartek/Triple_Threat.sap
+Composers/Grayscale/Wasiel_Bartek/Zorro_Has_A_Sister.sap
+Composers/Gretzschel_Dieter/Mozart_KV_331_Thema_1_Satz.sap
+Composers/Gretzschel_Dieter/Petit_Prelude.sap
+Composers/Gretzschel_Dieter/Rondo_alla_Turca.sap
+Composers/Holda_Leszek/AD_2044_Sexmisja.sap
+Composers/Husak_Jakub/Mylotremylaza.sap
+Composers/Husak_Jakub/Radioactivity.sap
+Composers/Irrlicht_Project/Another_Music_Studio_Hit.sap
+Composers/Irrlicht_Project/Endgames.sap
+Composers/Irrlicht_Project/Levels_of_Doom.sap
+Composers/Irrlicht_Project/LZTEK2.sap
+Composers/Irrlicht_Project/Marodeurs_Rag.sap
+Composers/Irrlicht_Project/No_Summer_for_Antipodes.sap
+Composers/Jaakkola_Juha/Chain_Reaction.sap
+Composers/Johnston_Stephen/Compo_of_Epic_Proportions.sap
+Composers/Johnston_Stephen/Day_the_Sun_Exploded.sap
+Composers/Krix_Mario/Alloy.sap
+Composers/Krix_Mario/Speedway_One.sap
+Composers/Kucisz_Tomasz/Wielblady_2.sap
+Composers/Lis_Piotr/Amaze_Me.sap
+Composers/Lis_Piotr/Cantaloopatari.sap
+Composers/Lis_Piotr/Chip_Spring_Tune.sap
+Composers/Lis_Piotr/Factorizer.sap
+Composers/Lis_Piotr/Let_Me_See_You_Dance.sap
+Composers/Lis_Piotr/Silly_Denture.sap
+Composers/Lis_Piotr/We_Are_Brothers_in_Atrs.sap
+Composers/Mister_Beep/1_bit_Chase.sap
+Composers/Mister_Beep/1_bit_Synthetic.sap
+Composers/Mister_Beep/1_bit_Synthetic_II.sap
+Composers/Mister_Beep/A_Thousand_Furious_Bees.sap
+Composers/Mister_Beep/Binary_Universe.sap
+Composers/Mister_Beep/File_Not_Found.sap
+Composers/Mister_Beep/Galactic_Cursing.sap
+Composers/Mister_Beep/Game_is_Over.sap
+Composers/Mister_Beep/Horaces_Adventure.sap
+Composers/Mister_Beep/In_the_Mystic_Woods.sap
+Composers/Mister_Beep/Insanity.sap
+Composers/Mister_Beep/Massive_Implosion.sap
+Composers/Mister_Beep/Ninth_Fighter_Ship.sap
+Composers/Mister_Beep/Nuthouse.sap
+Composers/Mister_Beep/Pacman_will_Eat_You_Alive.sap
+Composers/Mister_Beep/Powermetal_1.sap
+Composers/Mister_Beep/Powermetal_2.sap
+Composers/Mister_Beep/Psionic_Activity.sap
+Composers/Mister_Beep/Reductio_ad_Nihilum.sap
+Composers/Mister_Beep/Save_the_Kingdom.sap
+Composers/Mister_Beep/Single_Jingle.sap
+Composers/Mister_Beep/Slowing_Down_the_Chaos.sap
+Composers/Mister_Beep/Sonido_Electronico.sap
+Composers/Mister_Beep/Spring_is_Coming.sap
+Composers/Mister_Beep/Stone_Circle_of_Devil.sap
+Composers/Mister_Beep/Tritone_and_Mermaind.sap
+Composers/Mister_Beep/Where_is_Volume_Control.sap
+Composers/Mister_Beep/White_Hot_Iron.sap
+Composers/Murray_Chris/Henrys_House.sap
+Composers/Nedved_Vojtech/Citoplazma.sap
+Composers/null1024/Spacebend.sap
+Composers/Oscadal_Filip/Jean_Michael_Jarre.sap
+Composers/Oscadal_Filip/Skinhead_Story.sap
+Composers/Oscadal_Filip/Skinhead_Story_Demo.sap
+Composers/Pesout_Marek/12th_Warrior.sap
+Composers/Pesout_Marek/A_Man_In_White_Suit.sap
+Composers/Pesout_Marek/A_Type.sap
+Composers/Pesout_Marek/Analog_Apocalypse.sap
+Composers/Pesout_Marek/Binary_Obsession.sap
+Composers/Pesout_Marek/Blade_Runner_Stereo.sap
+Composers/Pesout_Marek/Clerics_of_Tetragrammaton.sap
+Composers/Pesout_Marek/Cyber_City_Online.sap
+Composers/Pesout_Marek/Cyber_King_is_Back.sap
+Composers/Pesout_Marek/Data_EcoRecyclation.sap
+Composers/Pesout_Marek/Deleted_Souls_Rising.sap
+Composers/Pesout_Marek/Disaster_of_Earth.sap
+Composers/Pesout_Marek/Epic_Fail.sap
+Composers/Pesout_Marek/Fall_of_LifeRecovery.sap
+Composers/Pesout_Marek/Ghosts_of_Thundercave.sap
+Composers/Pesout_Marek/Gotham_City_Cathedral.sap
+Composers/Pesout_Marek/Imperial.sap
+Composers/Pesout_Marek/John_Preston_vs_Brandt.sap
+Composers/Pesout_Marek/Kill_The_Father.sap
+Composers/Pesout_Marek/Lotus_The_Ultimate_Challen.sap
+Composers/Pesout_Marek/Master_of_Evil_Heaven.sap
+Composers/Pesout_Marek/Mekanik_March.sap
+Composers/Pesout_Marek/Moje_prvni_Atari.sap
+Composers/Pesout_Marek/Morning_Coffe.sap
+Composers/Pesout_Marek/My_Throne.sap
+Composers/Pesout_Marek/New_Age_Has_Just_Begun.sap
+Composers/Pesout_Marek/Not_without_incident.sap
+Composers/Pesout_Marek/Oilgame_Deluxe.sap
+Composers/Pesout_Marek/Old_Gremlin.sap
+Composers/Pesout_Marek/Parallel_Worlds_Are_Lost.sap
+Composers/Pesout_Marek/Poisons_Heart_Stopped_Beat.sap
+Composers/Pesout_Marek/Prototype.sap
+Composers/Pesout_Marek/Prozium_in_Blood.sap
+Composers/Pesout_Marek/Req_for_Partridge_and_Mary.sap
+Composers/Pesout_Marek/Rise_of_The_Emotions.sap
+Composers/Pesout_Marek/Sandy_New_Version.sap
+Composers/Pesout_Marek/Second_Reality.sap
+Composers/Pesout_Marek/Switch_OFF_The_City.sap
+Composers/Pesout_Marek/TerraBits_of_Dune.sap
+Composers/Pesout_Marek/The_Last_Way_of_Hadron.sap
+Composers/Pesout_Marek/The_Pursuit_of_Vikings.sap
+Composers/Pesout_Marek/Warhawk.sap
+Composers/Pesout_Marek/Who_Knows_The_Future.sap
+Composers/Pesout_Marek/You_Are_The_Machine.sap
+Composers/Petrik_Alan/Atari_Style.sap
+Composers/Petrik_Alan/Rasterizer.sap
+Composers/Petrik_Alan/Robots.sap
+Composers/Petrik_Alan/Squeeker_1.sap
+Composers/Petrik_Alan/Squeeker_2.sap
+Composers/Petrik_Alan/Squeeker_3.sap
+Composers/Petrik_Alan/Squeeker_4.sap
+Composers/Petruzela_Tomas/Viva_Las_Vegas.sap
+Composers/Potter_Mike/Nautilus.sap
+Composers/Radecki_Michal/Addicted.sap
+Composers/Radecki_Michal/Assembloids_XE_Game.sap
+Composers/Radecki_Michal/Assembloids_XE_Intro.sap
+Composers/Radecki_Michal/Deathchase_XE.sap
+Composers/Radecki_Michal/Deathchase_XE_Loading.sap
+Composers/Radecki_Michal/Energy.sap
+Composers/Radecki_Michal/Far_Away.sap
+Composers/Radecki_Michal/Fresh_Meat.sap
+Composers/Radecki_Michal/Hunt_Game.sap
+Composers/Radecki_Michal/Hunt_Intro.sap
+Composers/Radecki_Michal/Hunt_Picture.sap
+Composers/Radecki_Michal/Kiki_Pong.sap
+Composers/Radecki_Michal/Pokeyama.sap
+Composers/Radecki_Michal/Too_Silly.sap
+Composers/Radecki_Michal/We_Are_Retro.sap
+Composers/Rogers_Charles/Is_Lounge_Theta_6.sap
+Composers/Rogers_Charles/Quest_For_Cool.sap
+Composers/Snyder_Tom/Agent_USA.sap
+Composers/Snyder_Tom/Halley_Project.sap
+Composers/Snyder_Tom/Rock_n_Rhythm.sap
+Composers/Snyder_Tom/Run_for_the_Money.sap
+Composers/Snyder_Tom/Spelldiver.sap
+Composers/Spielmans_Martin/Sea_Fighter.sap
+Composers/Sporka_Adam/Five_Fifty_Five.sap
+Composers/Sporka_Adam/Grimlock_Warriors_Pacific.sap
+Composers/Sporka_Adam/Scarborough_Fair_Bitgaetto.sap
+Composers/Sporka_Adam/Things_Are_Happening.sap
+Composers/Sterba_Radek/Head_On.sap
+Composers/Strobe/Droid.sap
+Composers/Strobe/Scylla.sap
+Composers/Stuermer_Armin/Mikes_Slot_Machine_II.sap
+Composers/Szpilowski_Michal/Druid.sap
+Composers/Szpilowski_Michal/Jan_Ken_Pon_Game.sap
+Composers/Szpilowski_Michal/Jan_Ken_Pon_Menu.sap
+Composers/Szpilowski_Michal/Soccer_Pong.sap
+Composers/Szpilowski_Michal/There_Are_Many_Sheep_in_Ou.sap
+Composers/Takacs_Gabriel/Leonardo.sap
+Composers/Top_Odin/Ghastly_Night.sap
+Composers/Wieczorkowski_Bartlomiej/Gene.sap
+Composers/Wieczorkowski_Bartlomiej/Old_School_VBXE.sap
+Composers/Wieczorkowski_Bartlomiej/RoboType.sap
+Composers/Wieczorkowski_Bartlomiej/See_My_Wings.sap
+Composers/Wieczorkowski_Bartlomiej/Silly_Venture_2k13_Invitro.sap
+Composers/Wiegmann_Stefan/Quadron.sap
+Composers/Wisniewski_Mateusz/Crownland.sap
+Composers/Wisniewski_Mateusz/Crownland_preview.sap
+Games/Abracadabra.sap
+Games/Air_Rescue.sap
+Games/Air_Rescue_I.sap
+Games/Airball.sap
+Games/Ali_Baba_and_Forty_Thieves.sap
+Games/Assault_on_the_Astral_Rift.sap
+Games/Asteroidz.sap
+Games/Balloon.sap
+Games/Battle_Eagle.sap
+Games/Commando.sap
+Games/Dark_Chambers.sap
+Games/Dark_Star.sap
+Games/Decision_in_the_Desert.sap
+Games/Deflektor.sap
+Games/Desert_Falcon.sap
+Games/Despatch_Rider.sap
+Games/Dog_Daze_Deluxe.sap
+Games/Donkey_Kong.sap
+Games/Donkey_Kong_Junior.sap
+Games/Dr_Seuss.sap
+Games/Dragonriders_of_Perm.sap
+Games/Drelbs.sap
+Games/Duch.sap
+Games/Ducks_Ahoy.sap
+Games/Enigmatix.sap
+Games/Erosion.sap
+Games/Evader.sap
+Games/F_R_E_E.sap
+Games/Fidget.sap
+Games/Final_Legacy.sap
+Games/Flak.sap
+Games/Flapper.sap
+Games/Floyd_of_the_Jungle.sap
+Games/Fury.sap
+Games/Gangway.sap
+Games/Gemstone_Warrior.sap
+Games/Gemy.sap
+Games/Genetic_Drift.sap
+Games/Geo.sap
+Games/Ghost.sap
+Games/Halftime_Battlin_Bands.sap
+Games/Hardhat_Willy.sap
+Games/Heathcliff.sap
+Games/Help.sap
+Games/Hickory_Dickory_Dock.sap
+Games/Highway_Duel.sap
+Games/Hijack.sap
+Games/Homers_Honey_Craze.sap
+Games/Hopper.sap
+Games/House_of_Usher.sap
+Games/Humpty_Dumpty.sap
+Games/Hyperball.sap
+Games/Ice.sap
+Games/Icky_Squishy.sap
+Games/Im_Namen_des_Koenigs.sap
+Games/Immobilo.sap
+Games/Into_the_Eagles_Nest.sap
+Games/Jaw_Breaker_2.sap
+Games/Jawbreaker.sap
+Games/Jumpman.sap
+Games/Jumpman_Junior.sap
+Games/Kaiser.sap
+Games/Kangaroo.sap
+Games/Karateka.sap
+Games/Kissin_Kousins.sap
+Games/Knicker_Bockers.sap
+Games/Labyrinth_of_Death.sap
+Games/Landscape.sap
+Games/Lapis_Philosophorum.sap
+Games/Lazer_Type.sap
+Games/Mad_Marbles.sap
+Games/Mad_Stone.sap
+Games/Mail_Order_Monsters.sap
+Games/Maszyna_Czasu.sap
+Games/Match_Racer.sap
+Games/Math_Mileage.sap
+Games/Maxi_Golf.sap
+Games/Mental_Age_Demo.sap
+Games/Mickey_in_the_Great_Outdoo.sap
+Games/Mission_die.sap
+Games/Mission_on_Thunderhead.sap
+Games/Mission_Zircon.sap
+Games/Mouskattack.sap
+Games/Movie_Musical_Madness.sap
+Games/Mozgprocesor.sap
+Games/Mr_Bear.sap
+Games/Mr_Dos_Castle.sap
+Games/Munching_Mandy.sap
+Games/Murder_on_the_Zinderneuf.sap
+Games/Mythos.sap
+Games/N_Y_C.sap
+Games/Nastrahy_Velkomesta.sap
+Games/Naval_Battle.sap
+Games/Necromancer.sap
+Games/Nightmares.sap
+Games/Nordic_Ski.sap
+Games/Olde_Gold.sap
+Games/Omidor.sap
+Games/Oxygene.sap
+Games/Ozzys_Orchard.sap
+Games/P_O_W.sap
+Games/Party_Quiz_Game.sap
+Games/Paver.sap
+Games/Pengo.sap
+Games/Pensate.sap
+Games/Phantasie.sap
+Games/Phoenix_Lair.sap
+Games/Picnic_Paranoia.sap
+Games/Pie_Man.sap
+Games/Pinhead.sap
+Games/Piper.sap
+Games/Pirates_of_the_Barbary_Coa.sap
+Games/Planet_Attack.sap
+Games/Plattermania.sap
+Games/Playful_Professor.sap
+Games/Plop.sap
+Games/Pogoman.sap
+Games/Pole_Position.sap
+Games/Popeye.sap
+Games/Protector_mastertronic.sap
+Games/Puzzle_Panic.sap
+Games/Puzzlito.sap
+Games/Q_Bert.sap
+Games/Quarxon.sap
+Games/Questron.sap
+Games/Rat_Race.sap
+Games/Return_of_Heracles.sap
+Games/Ringmaster.sap
+Games/Roxblox.sap
+Games/Saracen.sap
+Games/Seahorses.sap
+Games/Sereamis.sap
+Games/Shoot_em_Up.sap
+Games/Show_Down.sap
+Games/Showdown_Hockey.sap
+Games/Silicon.sap
+Games/Skateboard.sap
+Games/Sky_Blazer.sap
+Games/Skywriter.sap
+Games/Slime.sap
+Games/Smasher.sap
+Games/Snake.sap
+Games/Space_Bumpers.sap
+Games/Space_Cowboy.sap
+Games/Spare_Change.sap
+Games/Speed_Puzzle.sap
+Games/Star_Wars.sap
+Games/Stargunner.sap
+Games/Storyline.sap
+Games/Unicum.sap
+Games/X_8.sap
+Games/Xirius_Defect.sap
+Games/Z_Force.sap
+Games/Zands_Labyrinth.sap
+Games/Zenji.sap
+Games/Zone_X.sap
+Misc/Afrikan_Drummer_Team.sap
+Misc/Artificial_Stars.sap
+Misc/Bitwy_Morskie.sap
+Misc/Chip_Chop.sap
+Misc/Electronic.sap
+Misc/Forever_or_Never.sap
+Misc/Funky_softsynth.sap
+Misc/Meanwhile_in_Pokeyland.sap
+Misc/Mutable.sap
+Misc/Noname.sap
+Misc/Over_the_Rainbow.sap
+Misc/Push_Up.sap
+Misc/Relax_Kaleidoscope.sap
+Misc/Roza.sap
+Misc/So_Serious_Demo.sap
+Misc/Surprise.sap
+Misc/Surprise_2.sap
+Misc/Tritona_Explodarium.sap
+Misc/Wall_of_Fuzz.sap
+Misc/What_Is_Love.sap
+Unknown/Forever_Young.sap
+Unknown/Music_Painter.sap
+Unknown/Ode_an_die_Freude.sap
+
+Credits fixes (includes filename or location changes)
+------------------------------------------------------
+Composers/Cierkonski_Michal/Speed_Ball_menu.sap : AUTHOR "Michal Cierkonski (Morgoth) & Krzysztof Paizert (Glonisz)"
+Composers/Ezcan_Kemal/Fire_Cracker.sap : AUTHOR "Kemal Ezcan (KE-SOFT)"
+Composers/Feske_Nils/Demo_Arigato.sap > Arigato.sap : NAME "Arigato" DATE "20/11/2012"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_1.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_2.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_3.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_4.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_5.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_6.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_7.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_8.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_9.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_D_mus_A.sap : AUTHOR "Gary Gilbertson"
+Composers/Gilbertson_Gary/Alternate_Reality_Dungeon.sap : AUTHOR "Gary Gilbertson"
+Composers/Grayscale/Kwiatek_Grzegorz/Angel_of_Death.sap : NAME "Angel of Death"
+Composers/Iwaszko_Krystian/SN3.sap : AUTHOR "Krystian Iwaszko (Pinokio)"
+Composers/Martin_Chris/Deflector.sap > Deflektor.sap : NAME "Deflektor"
+Composers/Matyasik_Krzysztof/Atak_serca.sap > Atak_Serca.sap : NAME "Atak Serca"
+Composers/Matyasik_Krzysztof/Rak_mozgu.sap > Rak_Mozgu.sap : NAME "Rak Mozgu"
+Composers/Padula_Jaroslaw/Zero_Music_1.sap : AUTHOR "Jaroslaw Padula (Solo) & Marcin Majchrzak (Major)"
+Composers/Padula_Jaroslaw/Zero_Music_2.sap : AUTHOR "Jaroslaw Padula (Solo) & Marcin Majchrzak (Major)" NAME "Zero - music 2"
+Composers/Pesout_Marek/Allstars.sap > Composers/Vybostok_Marian/ : AUTHOR "Marian Vybostok (Goldmaster) <?>"
+Composers/Pesout_Marek/Psycha.sap > Psychadelic.sap : NAME "Psychadelic"
+Composers/Sasik_Marcel/Moner_1.sap : AUTHOR "Marcel Sasik (Imaic) & Gabriel Takacs (GMX)"
+Composers/Sasik_Marcel/Moner_2.sap : AUTHOR "Marcel Sasik (Imaic) & Gabriel Takacs (GMX)"
+Composers/Sasik_Marcel/Moner_3.sap : AUTHOR "Marcel Sasik (Imaic) & Gabriel Takacs (GMX)"
+Composers/Szpilowski_Michal/Bioptronid.sap : NAME "Bioptronid"
+Composers/Szpilowski_Michal/Catch_a_Letter.sap : NAME "Catch a Letter"
+Composers/Zuegner_Alfred/For_Emily_whenever_I_may_f.sap > For_Emily_Whenever_I_May_F.sap : NAME "For Emily, Whenever I May Find Herr"
+Composers/Zur_soft/Humanoid_The_End.sap : NAME "Humanoid - The End"
+Games/Bannercatch.sap > Composers/Snyder_Tom/
+Games/Battle_Ships.sap > Misc/
+Games/Blip.sap : DATE "1988"
+Games/Domain_Of_The_Undead.sap > Domain_of_The_Undead.sap
+Games/Jetix.sap : AUTHOR "Jakub Kmiec (Sir Kubba)" DATE "1993"
+Games/Masters_of_Time.sap : AUTHOR "Ralf Woitinas" DATE "1983"
+Games/Ninja.sap > Composers/Coleman_Steve/ : AUTHOR "Steve Coleman <?>"
+Games/Pharaohs_Curse.sap > Composers/Coleman_Steve/ : AUTHOR "Steve Coleman"
+Games/Pro_Mountain_Biker_Ingame.sap > Pro_Mountain_Biker.sap : NAME "Pro Mountain Biker"
+Games/Rainbow_Walker.sap > Composers/Coleman_Steve/ : AUTHOR "Steve Coleman"
+Games/Sisyphos.sap > Composers/Wiegmann_Stefan/
+Games/Sisyphos_Demo.sap > Composers/Wiegmann_Stefan/
+Misc/ABBUC_27.sap > Composers/Spielmans_Martin/ : AUTHOR "Martin Spielmans (Spueli-Soft) & Karl Pelzer (Eisbaer Corp.)"
+Misc/Crunkin_Crows.sap > Composers/Irrlicht_Project/
+Misc/Datavoid.sap > Composers/Chema64/
+Misc/Downtown.sap > Composers/Foerst_Kai/
+Misc/Flatfish.sap > Composers/Petruzela_Tomas/
+Misc/HAR_Demo_3rd.sap > Composers/Buehrig_Bastian/
+Misc/Hobbytronic_89_5.sap > Composers/Spielmans_Martin/
+Misc/Level_One.sap > Composers/Dramczyk_Bartlomiej/
+Misc/Lost_in_a_Forest.sap > Composers/Johnston_Stephen/
+Misc/Meaningless_Manhole.sap > Composers/Petrik_Alan/
+Misc/Micro_Funk.sap > Composers/Brzeski_Michal/
+Misc/Pani_Basia_z_Klatki_B.sap > Composers/Brzeski_Michal/
+Misc/Quetzalli_Redux.sap > Composers/Chema64/
+Misc/Self_Test.sap : NAME "Self Test"
+Misc/Static_Stasis.sap > Composers/Dramczyk_Bartlomiej/
+Misc/Sweet_Fantasy_Intro.sap > Composers/Radzikowski_Ireneusz/ : AUTHOR "Ireneusz Radzikowski (Jager)"
+Misc/T_H_R_U_S_T.sap > Composers/Petruzela_Tomas/
+Misc/Warpsztaty_monofoniczne_in.sap : AUTHOR "Marcin Kubica (Booker)"
+Misc/Wirbel.sap > Composers/Foerst_Kai/
+Unknown/Canyon_Climber.sap > Games/
+Unknown/Mydelko.sap > Composers/Sledz_Slawek/ : AUTHOR "Slawek Sledz (Slaves)" DATE "1994"
+
+Better/bugfixed rips
+--------------------
+Composers/CEvE-Soft/World_of_Wonders_Fantasy.sap (fixed invalid BRK instruction)
+Composers/Cierkonski_Michal/Ergo_Bibamus_Endpart.sap (replaced player)
+Composers/Ezcan_Kemal/Karriere.sap (fixed invalid BRK instruction)
+Composers/Gilbertson_Gary/Face_of_the_Galaxy.sap (fixed invalid BRK instruction)
+Composers/Gilmore_Adam/Arcade_Fruit_Machine_Simul.sap (all songs were already in the rip but needed activiting)
+Composers/Grayscale/Kwiatek_Grzegorz/Far_Away.sap
+Composers/Husak_Jakub/Schlecht_Korrekt.sap (plays from the beginning now)
+Composers/Jacob_Uwe/Ein_Taennlein.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Es_ist_fuer_uns.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Frau_holle.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Froehliche_Weihnachten.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Kling_Gloeckchen_kling.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Lasst_uns_froh_und_munter.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Leise_rieselt_der_Schnee.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Morgen_Kinder_wird_s_was_g.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Morgen_kommt_der_Weihnacht.sap (fixed invalid BRK instruction)
+Composers/Jacob_Uwe/Schneefloeckchen_Weissroec.sap (fixed invalid BRK instruction)
+Composers/Murray_Chris/Winter_Games_88_Ingame.sap (fixed invalid BRK instruction)
+Composers/Oscadal_Filip/Microx.sap (better rip)
+Composers/Pesout_Marek/Countdown.sap (newer version & player fixed)
+Composers/Pesout_Marek/CPU_on_Fire.sap (player fixed)
+Composers/Pesout_Marek/Czech_Sound_2.sap (better rip)
+Composers/Pesout_Marek/Desert_Dream_Part_2.sap (player fixed)
+Composers/Pesout_Marek/Dirty_Begin.sap (player fixed)
+Composers/Pesout_Marek/Golden_Axe.sap (newer version & player fixed)
+Composers/Pesout_Marek/Hard_Feet_Fields.sap (better rip)
+Composers/Pesout_Marek/OnEscape_Game_Over.sap (player fixed)
+Composers/Pesout_Marek/OnEscape_Intro.sap (player fixed)
+Composers/Pesout_Marek/OnEscape_Level_1.sap (player fixed)
+Composers/Pesout_Marek/OnEscape_Title.sap (newer version & player fixed)
+Composers/Pesout_Marek/Plastic.sap (player fixed)
+Composers/Pesout_Marek/Popcorn.sap (player fixed)
+Composers/Pesout_Marek/Riper.sap (player fixed)
+Composers/Pesout_Marek/Techwalk.sap (player fixed)
+Composers/Pesout_Marek/TNT.sap (newer version & player fixed)
+Composers/Pesout_Marek/Trident.sap (player fixed)
+Composers/Sterba_Radek/Fluid_Chessboard.sap (fixed invalid BRK instruction)
+Composers/Stuermer_Armin/Tales_of_Dragons_and_Cav.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/America.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/American_Tune.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Annie_s_Song.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Another_Song_to_Sing.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Apache_Tears.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/April_Come_She_Will.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/As_Long_as_the_Grass_Shall.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/At_the_Zoo.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Austin.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Babalu.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Baby_Driver.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Back_Home_Again.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Ballad_of_Boot_Hill.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Ballad_of_Ira_Hayes.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Ballad_of_the_Billy_the_Ki.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Big_Battle.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Big_Bright_Green_Pleasure.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Big_River.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Big_Shot.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Black_Crow_Blues.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Blowin_in_the_Wind.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Blumen_aus_Kastilien.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Boots_of_Spanish_Leather.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Bridge_over_Troubled_Water.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Calypso.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Capri.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Cause_I_Love_You.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Cecilia.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Chimes_of_Freedom.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Come_in_Stranger.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Come_to_the_Wailing_Wall.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Cry_Cry_Cry.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Csardas.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Delia.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Don_t_Take_Your_Guns_to_T.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Edelsteine.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/El_Condor_Pasa.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Entertainer.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Everybody_Loves_You_Now.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Everything_s_Alright.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Farewell.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Farm.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Five_Feet_High_and_Rising.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Flowers_Never_Bend_with_th.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Folsom_Prison_Blues.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/For_Emily_Whenever_I_May_F.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Forty_Shades_of_Green.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Give_My_Love_to_Rose.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Gone_At_Last.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Grandma_s_Feather_Bed.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Halb.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hank_Jo_And_me.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Happiness_Is_You.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hardin_Wouldn_t_Run.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Have_a_Good_Time.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hazy_Shade_of_Winter.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/He_Turned_the_Water_Into_W.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Heaven_On_Their_Minds.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hero_Blues.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hey_Porter.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hey_Schoolgirl.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hobo_s_Blues.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Homeward_Bound.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Honesty.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Hosanna.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/I_Am_a_Rock.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/I_d_Still_Be_There.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/I_Got_the_Stripes.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/I_Only_Want_to_Say.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/I_Still_Miss_Someone.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/I_Walk_The_Line.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/I_Want_to_Go_Home.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/If_I_Only_Had_the_Words.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/In_the_Mood.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Jackson.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/James.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Jesus_Was_a_Carpenter.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Just_The_Way_You_Are.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Kathy_s_Song.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/King_Herod_s_Song.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Kodachrome.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Lago_Maggiore.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Land_of_Israel.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Last_Supper.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Leaves_That_Are_Green.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Like_a_Sad_Song.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Love_is_Everywhere.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Luther_s_Boogie.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Me_and_Julio_down_by_the_S.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Mean_As_Hell.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Mira.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Mit_Lust_und_Liebe.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Morning_Has_Broken.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Most_Peculiar_Man.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Movin_Out.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/My_Life.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/My_Sweet_Lady.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/New_York_State_Of_Mind.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/No_No_No.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Oh_What_a_Good_Thing_We_Ha.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Old_Appache_Squaw.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Ole_O_Cangaceiro.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/One_Man_s_Ceiling_is_Anoth.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Only_a_Pawn_in_Their_Game.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Only_The_Good_Die_Young.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Paranoia_Blues.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Peace_Like_a_River.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Perhaps_Love.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Pickin_Time.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Pilate_s_Dream.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Poem_on_the_Underground_Wa.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Red_Rubber_Ball.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Root_Beer_Bag.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Route_1_Box_144.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Run_Softly_Blue_River.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Run_That_Body_Down.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/San_Quentin.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Say_Goodbye_to_Hollywood.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Scarborough_Fair.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/See_Ruby_Fall.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Shantytown.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/She_s_Always_A_Woman.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Sing_It_Pretty_Sue.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Slip_Slidin_Away.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/So_Doggone_Lonesome.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/So_Long_Frank_Lloyd_Wright.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Sorgen.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Sound_of_Silence.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Southwind.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Spanish_Harlem_Incident.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Starkville_City_Jail.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Stille_Nacht_heilige_Nacht.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Stranger.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Summer_Highland_Falls.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Superstar.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Take_Me_to_the_Mardi_Gras.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Talking_Leaves.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Tennessee_Flat_Top_Box.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Thank_God_I_m_a_Country_Bo.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/This_Old_Guitar.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/This_Side_of_the_Law.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/This_Town.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Timber_Man.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Understand_Your_Man.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Until_The_Night.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Via_Espana.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Vienna.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Walking_Down_The_Line.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Was_a_Sunny_Day.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Wednesday_Morning_3_AM.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Welcome_To_My_Morning.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/What_Do_I_Care.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/What_Is_Truth.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/When_Papa_Played_the_Dobro.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/When_the_Ship_Comes_in.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/When_They_Crucified_my_Lor.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Why_Dont_You_Write_Me.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Wirl_and_the_Suck.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/Wreck_of_the_Old_Ninety_Se.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/You_Are_What_I_Need.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/You_ll_be_All_Right.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/You_re_My_Home.sap (fixed invalid BRK instruction)
+Composers/Zuegner_Alfred/You_Remembered_Me.sap (fixed invalid BRK instruction)
+Games/Inferno.sap (fixed invalid BRK instruction)
+Games/Pro_Mountain_Biker.sap (second song was already hidden in the rip)
+Games/Trailblazer.sap (fixed invalid BRK instruction)
+Misc/Death_Rides_a_Horse.sap (fixed invalid BRK instruction)
+Misc/Strangers_in_the_Night.sap (fixed invalid BRK instruction)
+Unknown/Demomus.sap (fixed invalid BRK instruction)
+Unknown/God_Save_the_Queen_1.sap (fixed invalid BRK instruction)
+Unknown/God_Save_the_Queen_2.sap (fixed invalid BRK instruction)
+Unknown/Let_It_Be.sap (fixed invalid BRK instruction)
+Unknown/Mega_Magazine_3.sap (fixed invalid BRK instruction)
+Unknown/River.sap (fixed invalid BRK instruction)
+Unknown/Rock_1.sap (fixed invalid BRK instruction)
+Unknown/Rock_2.sap (fixed invalid BRK instruction)
+Unknown/Somebody.sap (fixed invalid BRK instruction)
+Unknown/Tblues.sap (fixed invalid BRK instruction)
+Unknown/Walzer.sap (fixed invalid BRK instruction)
+

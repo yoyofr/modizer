@@ -1,0 +1,681 @@
+ASMA Update #35
+Date: Feb 24, 2012
+
+These rips together with the original ASMA collection will make version 3.5
+of the ASMA (out of version 3.4).
+
+Number of new tunes: 460
+Credits fixes: 64
+Better/bugfixed rips: 131
+Removed files: 5
+
+Removed files
+-------------
+Composers/Galinski_Adrian/Rockman_Game_Over.sap (same as Rockman.sap, subsong 4)
+Composers/Hay_Adam/Approachong.sap (same as Composers/Martin_Chris/Approachong.sap. Adam Hay confirmed that this is not his song)
+Games/Aerobics_Legs.sap (same as Composers/Mauchly_Bill/Aerobics_6.sap)
+Misc/Way_of_The_Exploding_Fist.sap (does not qualify as proper song, just a sid>mid>mod>sap conversion)
+Unknown/Unknown_02.sap (same as Composers/Vybostok_Marian/Shakings.sap with a different drumline)
+
+New tunes
+---------
+Composers/Anti_Cheat/Back_for_Sap.sap
+Composers/Armijo_Richard_J/Detuned.sap
+Composers/Armijo_Richard_J/Random_Encounter.sap
+Composers/Banas_Pawel/Ahh_Yo.sap
+Composers/Banas_Pawel/Ave_Soman.sap
+Composers/Banas_Pawel/Bit_Trip_Trance.sap
+Composers/Banas_Pawel/Chip_Body_Music.sap
+Composers/Banas_Pawel/Emotions_Bits.sap
+Composers/Banas_Pawel/End.sap
+Composers/Banas_Pawel/Please_Change_This_Title.sap
+Composers/Banas_Pawel/Why.sap
+Composers/Berger_Dominique/Acidjazzed_Evening.sap
+Composers/Berger_Dominique/Bloe_Job.sap
+Composers/Berger_Dominique/Bomb_on_Pixel_City_Theme.sap
+Composers/Berger_Dominique/Cosmos_Invaders_Theme.sap
+Composers/Berger_Dominique/Impact_7.sap
+Composers/Berger_Dominique/Love_Funk.sap
+Composers/Berger_Dominique/Mazemania.sap
+Composers/Berger_Dominique/Velo_Matrix.sap
+Composers/Berger_Dominique/Wonder_Dog.sap
+Composers/Brzezicki_Michal/Cropky.sap
+Composers/Brzezicki_Michal/Octopus.sap
+Composers/Brzezicki_Michal/Patrol_In_the_Space.sap
+Composers/Crockford_Douglas/BallSong_1.sap
+Composers/Crockford_Douglas/BallSong_2.sap
+Composers/Crockford_Douglas/Koronis_Rift.sap
+Composers/Duma_Dariusz/Music_1.sap
+Composers/Duma_Dariusz/Music_2.sap
+Composers/Duma_Dariusz/Music_3.sap
+Composers/Duma_Dariusz/Music_4.sap
+Composers/Duma_Dariusz/Music_5.sap
+Composers/Duma_Dariusz/Music_6.sap
+Composers/Duma_Dariusz/Music_7.sap
+Composers/Duma_Dariusz/Music_8.sap
+Composers/Duma_Dariusz/Music_9.sap
+Composers/Eisenhammer_Zdenek/Happy_Bars.sap
+Composers/Eisenhammer_Zdenek/Aurora_rev_2.sap
+Composers/Eisenhammer_Zdenek/Flop_magazin_54.sap
+Composers/Eisenhammer_Zdenek/Happy_New_Year_2011.sap
+Composers/Eisenhammer_Zdenek/Mashed_Turtles.sap
+Composers/Esquivel_Sal/Fletch_Investigates.sap
+Composers/Esquivel_Sal/Quadrilllion.sap
+Composers/Esquivel_Sal/Unreal_Superhero_3.sap
+Composers/Esquivel_Sal/Unreal_Superhero_3_Stereo.sap
+Composers/Esquivel_Sal/Venture.sap
+Composers/Ezcan_Kemal/Karriere.sap
+Composers/Feske_Nils/3886_Days_Ago.sap
+Composers/Feske_Nils/Dashed_off.sap
+Composers/Feske_Nils/Funktion.sap
+Composers/Feske_Nils/Gamma.sap
+Composers/Feske_Nils/Quicky.sap
+Composers/Feske_Nils/SV2k10.sap
+Composers/Feske_Nils/XMasCard.sap
+Composers/Garrido_Daniel/Campacha.sap
+Composers/Garrido_Daniel/I_Love_You_Flavored_Chips.sap
+Composers/Garrido_Daniel/Mo_Mo_Fu_5502.sap
+Composers/Garrido_Daniel/Ponker.sap
+Composers/Gilbertson_Gary/Alien.sap
+Composers/Gilbertson_Gary/All_Were_I.sap
+Composers/Gilbertson_Gary/Alternate_Reality_City_Mom.sap
+Composers/Gilbertson_Gary/Arab_Navy.sap
+Composers/Gilbertson_Gary/Face_of_the_Galaxy.sap
+Composers/Gilbertson_Gary/Frog.sap
+Composers/Gilbertson_Gary/Monster_Smash.sap
+Composers/Gilbertson_Gary/Passionately.sap
+Composers/Gilbertson_Gary/Post_Navy.sap
+Composers/Gilbertson_Gary/Say_the_Things.sap
+Composers/Golewski_Filip/Alert.sap
+Composers/Grayscale/Sychowicz_Lukasz/Fujara.sap
+Composers/Grayscale/Sychowicz_Lukasz/Gira.sap
+Composers/Grayscale/Sychowicz_Lukasz/Portfel.sap
+Composers/Grayscale/Sychowicz_Lukasz/Sandpit.sap
+Composers/Grayscale/Sychowicz_Lukasz/Siurek.sap
+Composers/Grayscale/Sychowicz_Lukasz/Stuczek.sap
+Composers/Grayscale/Wasiel_Bartek/Candy_Mountain.sap
+Composers/Husak_Jakub/Extreme_Night.sap
+Composers/Husak_Jakub/His_Dark_Majesty_Ingame.sap
+Composers/Husak_Jakub/Little_Fifteen.sap
+Composers/Husak_Jakub/Red_Dragon.sap
+Composers/Husak_Jakub/Shadow_Of_The_Beast_1_3.sap
+Composers/Husak_Jakub/Sweet_Chip_Eighties.sap
+Composers/Husak_Jakub/Swiaszczennaja_Wojna.sap
+Composers/Iwaszko_Krystian/Ballada_o_Dzemie.sap
+Composers/Iwaszko_Krystian/Crazy.sap
+Composers/Iwaszko_Krystian/Mechanic_Anti_SAP_2.sap
+Composers/Iwaszko_Krystian/Venture.sap
+Composers/Iwaszko_Krystian/Wiochna.sap
+Composers/Jaakkola_Juha/Blue_Ice.sap
+Composers/Jaakkola_Juha/Rasterized_Circles.sap
+Composers/Jaakkola_Juha/Snowpocalypse.sap
+Composers/Jaakkola_Juha/Bat_Alley.sap
+Composers/Jaakkola_Juha/Chimpanoid.sap
+Composers/Jaakkola_Juha/Crossroad.sap
+Composers/Jaakkola_Juha/Frozen_Silence.sap
+Composers/Jaakkola_Juha/Jump_Run_And_Play.sap
+Composers/Jaakkola_Juha/Search.sap
+Composers/Jaakkola_Juha/Sky_Glider.sap
+Composers/Jaakkola_Juha/Treasure_Hunting.sap
+Composers/Jacob_Uwe/Ein_Taennlein.sap
+Composers/Jacob_Uwe/Es_ist_fuer_uns.sap
+Composers/Jacob_Uwe/Frau_holle.sap
+Composers/Jacob_Uwe/Froehliche_Weihnachten.sap
+Composers/Jacob_Uwe/Kling_Gloeckchen_kling.sap
+Composers/Jacob_Uwe/Lasst_uns_froh_und_munter.sap
+Composers/Jacob_Uwe/Leise_rieselt_der_Schnee.sap
+Composers/Jacob_Uwe/Morgen_Kinder_wird_s_was_g.sap
+Composers/Jacob_Uwe/Morgen_kommt_der_Weihnacht.sap
+Composers/Jacob_Uwe/Schneefloeckchen_Weissroec.sap
+Composers/Lewandowski_Tomasz/TLC_High_Score_Table.sap
+Composers/Lewandowski_Tomasz/TLC_Intro.sap
+Composers/Lewandowski_Tomasz/TLC_Menu.sap
+Composers/Liebich_Tomasz/Perestroyka_Stereo.sap
+Composers/Liebich_Tomasz/Tank_vs_Tank.sap
+Composers/Liebich_Tomasz/Tank_vs_Tank_Ingame.sap
+Composers/Liebich_Tomasz/Vicky_Ingame.sap
+Composers/Lis_Piotr/Jest_Sprawa.sap
+Composers/Lis_Piotr/Nic_sie_nie_stalo.sap
+Composers/Lis_Piotr/Przeszlem_Freda_w_lewo.sap
+Composers/Lis_Piotr/Wotnando.sap
+Composers/Majewski_Tomasz/Mayon.sap
+Composers/Majewski_Tomasz/Mayon1.sap
+Composers/Mauchly_Bill/Aerobics_1_2.sap
+Composers/Mauchly_Bill/Aerobics_3.sap
+Composers/Mauchly_Bill/Aerobics_4.sap
+Composers/Mauchly_Bill/Aerobics_5.sap
+Composers/Mauchly_Bill/Aerobics_6.sap
+Composers/Mauchly_Bill/Aerobics_7.sap
+Composers/Mauchly_Bill/Aerobics_8.sap
+Composers/Mister_Beep/A_Crazy_Boy_Is_Jumping.sap
+Composers/Mister_Beep/A_Crazy_Boy_Is_Jumping_2.sap
+Composers/Mister_Beep/A_Piece_of_Disaster.sap
+Composers/Mister_Beep/Atari_Can_Do_It_Too.sap
+Composers/Mister_Beep/CPUs_Explosion.sap
+Composers/Mister_Beep/Isora.sap
+Composers/Mister_Beep/Kick_The_Drums.sap
+Composers/Mister_Beep/Unbearable_Bee.sap
+Composers/Nedved_Vojtech/h3x0r_Deluxe.sap
+Composers/Nedved_Vojtech/h3x0r_Deluxe_Ingame.sap
+Composers/null1024/Impenetrable.sap
+Composers/null1024/Skyways.sap
+Composers/null1024/World_Might_Survive.sap
+Composers/Numan_Daniel/Minimal.sap
+Composers/Numan_Daniel/PSX.sap
+Composers/Numan_Daniel/Szajza.sap
+Composers/Pasek_Marek/48.sap
+Composers/Pasek_Marek/Gdy_Sliczna_Panna.sap
+Composers/Pasek_Marek/Wsrod_Nocnej_Ciszy.sap
+Composers/Pesout_Marek/Milk_Nuts_1.sap
+Composers/Pesout_Marek/Milk_Nuts_2.sap
+Composers/Pesout_Marek/Milk_Nuts_3.sap
+Composers/Pesout_Marek/Milk_Nuts_Title.sap
+Composers/Pesout_Marek/OnEscape_Game_Over.sap
+Composers/Pesout_Marek/OnEscape_Intro.sap
+Composers/Pesout_Marek/OnEscape_Level_1.sap
+Composers/Pesout_Marek/OnEscape_Title.sap
+Composers/Poorten_Ivo/Hi_Guys.sap
+Composers/Poorten_Ivo/Return_of_the_Beast.sap
+Composers/Poorten_Ivo/Stichting_Pokey_Expo_Demo.sap
+Composers/Radecki_Michal/Barsa.sap
+Composers/Radecki_Michal/c_drug.sap
+Composers/Radecki_Michal/c_drug_Endscroll.sap
+Composers/Radecki_Michal/Fireflies.sap
+Composers/Radecki_Michal/Intro.sap
+Composers/Radecki_Michal/New_Year_Intro_2012.sap
+Composers/Radecki_Michal/Parachute.sap
+Composers/Radecki_Michal/Pung.sap
+Composers/Radecki_Michal/Rockit.sap
+Composers/Radecki_Michal/Solid.sap
+Composers/Radecki_Michal/Spark_Absorber.sap
+Composers/Radecki_Michal/Spark_Absorber_Stereo.sap
+Composers/Radecki_Michal/Strong.sap
+Composers/Radecki_Michal/Szmer_Szesciu_Szarych_Szpa.sap
+Composers/Radecki_Michal/Taniec_w_Zaczarowanym_Gaju.sap
+Composers/Radecki_Michal/Tribute_to.sap
+Composers/Radzikowski_Ireneusz/What_Is_Love_1.sap
+Composers/Radzikowski_Ireneusz/What_Is_Love_2.sap
+Composers/Rogers_Charles/Cast_Iron.sap
+Composers/Rogers_Charles/Poker_I_Hardly_Know_Er.sap
+Composers/Rogers_Charles/Pokey_Mann.sap
+Composers/Rogers_Charles/Wiinnnnn.sap
+Composers/Quack_Ralf_Thomas/Alle_Jahre_wieder.sap
+Composers/Quack_Ralf_Thomas/Am_Weihnachtsbaum_die_Lich.sap
+Composers/Quack_Ralf_Thomas/Auld_Lang_Syne.sap
+Composers/Quack_Ralf_Thomas/Christmas_Collection_Intro.sap
+Composers/Quack_Ralf_Thomas/Es_ist_ein_Ros_entsprungen.sap
+Composers/Quack_Ralf_Thomas/Ihr_Kinderlein_Kommet.sap
+Composers/Quack_Ralf_Thomas/Jingle_Bells.sap
+Composers/Quack_Ralf_Thomas/Kling_Gloeckchen_kling.sap
+Composers/Quack_Ralf_Thomas/Kommet_ihr_Hirten.sap
+Composers/Quack_Ralf_Thomas/Lasst_uns_froh_und_munter.sap
+Composers/Quack_Ralf_Thomas/Leise_rieselt_der_Schnee.sap
+Composers/Quack_Ralf_Thomas/Morgen_Kinder_wird_s_was_g.sap
+Composers/Quack_Ralf_Thomas/Morgen_kommt_der_Weihnacht.sap
+Composers/Quack_Ralf_Thomas/Oh_du_Froehliche.sap
+Composers/Quack_Ralf_Thomas/Oh_Tannenbaum.sap
+Composers/Quack_Ralf_Thomas/Schneefloeckchen_Weissroec.sap
+Composers/Quack_Ralf_Thomas/Stille_Nacht_heilige_Nacht.sap
+Composers/Quack_Ralf_Thomas/Suesser_die_Glocken_nie_kl.sap
+Composers/Quack_Ralf_Thomas/Vom_Himmel_hoch_da_komm_ic.sap
+Composers/Roszkowski_Marek/Buttonic.sap
+Composers/Roszkowski_Marek/Conect.sap
+Composers/Skrzypek_Tomasz/Tim.sap
+Composers/Sporka_Adam/Atari_Forever.sap
+Composers/Sporka_Adam/End_of_Summer.sap
+Composers/Sporka_Adam/Stack_Em_Up.sap
+Composers/Sterba_Radek/Fasc_in_Action.sap
+Composers/Sterba_Radek/Flop_magazin_44.sap
+Composers/Sterba_Radek/Flop_magazin_51.sap
+Composers/Sterba_Radek/Flop_magazin_52.sap
+Composers/Sterba_Radek/ILM.sap
+Composers/Sterba_Radek/Just_for_Dance.sap
+Composers/Sterba_Radek/Robix.sap
+Composers/Sterba_Radek/Sniper.sap
+Composers/Szpilowski_Michal/Blah_Blah.sap
+Composers/Szpilowski_Michal/Chopin_2010.sap
+Composers/Szpilowski_Michal/Control.sap
+Composers/Szpilowski_Michal/Control_Credits.sap
+Composers/Szpilowski_Michal/Dom_w_Dolinie_Mgiel.sap
+Composers/Szpilowski_Michal/Fantastic_Adventures_of_Di.sap
+Composers/Szpilowski_Michal/Gridrunner.sap
+Composers/Szpilowski_Michal/Jewel_Bits.sap
+Composers/Szpilowski_Michal/Marbled.sap
+Composers/Szpilowski_Michal/Mission_ArSoft.sap
+Composers/Szpilowski_Michal/Music_Memory.sap
+Composers/Szpilowski_Michal/Music_Memory_Title.sap
+Composers/Szpilowski_Michal/Path_of_a_Fiend.sap
+Composers/Szpilowski_Michal/Tajemniczy_Zamek_2.sap
+Composers/Szpilowski_Michal/Trial1.sap
+Composers/Takacs_Gabriel/Booom.sap
+Composers/Takacs_Gabriel/Do_It.sap
+Composers/Takacs_Gabriel/Survive.sap
+Composers/Takacs_Gabriel/Unlimited.sap
+Composers/Walters_Sean/Stir_Crazy.sap
+Composers/XLent/Chuck_Rock.sap
+Composers/XLent/Deflektor.sap
+Composers/XLent/Jazzy_Nork.sap
+Composers/XLent/Pladumec.sap
+Composers/XLent/Plastic_Pop.sap
+Composers/XLent/Prehistorik1.sap
+Composers/XLent/Rewind_The_Mind.sap
+Composers/Zuegner_Alfred/America.sap
+Composers/Zuegner_Alfred/American_Tune.sap
+Composers/Zuegner_Alfred/Annie_s_Song.sap
+Composers/Zuegner_Alfred/Another_Song_to_Sing.sap
+Composers/Zuegner_Alfred/Apache_Tears.sap
+Composers/Zuegner_Alfred/April_Come_She_Will.sap
+Composers/Zuegner_Alfred/As_Long_as_the_Grass_Shall.sap
+Composers/Zuegner_Alfred/At_the_Zoo.sap
+Composers/Zuegner_Alfred/Austin.sap
+Composers/Zuegner_Alfred/Babalu.sap
+Composers/Zuegner_Alfred/Baby_Driver.sap
+Composers/Zuegner_Alfred/Back_Home_Again.sap
+Composers/Zuegner_Alfred/Ballad_of_Boot_Hill.sap
+Composers/Zuegner_Alfred/Ballad_of_Ira_Hayes.sap
+Composers/Zuegner_Alfred/Ballad_of_the_Billy_the_Ki.sap
+Composers/Zuegner_Alfred/Big_Battle.sap
+Composers/Zuegner_Alfred/Big_Bright_Green_Pleasure.sap
+Composers/Zuegner_Alfred/Big_River.sap
+Composers/Zuegner_Alfred/Big_Shot.sap
+Composers/Zuegner_Alfred/Black_Crow_Blues.sap
+Composers/Zuegner_Alfred/Blowin_in_the_Wind.sap
+Composers/Zuegner_Alfred/Blumen_aus_Kastilien.sap
+Composers/Zuegner_Alfred/Boots_of_Spanish_Leather.sap
+Composers/Zuegner_Alfred/Bridge_over_Troubled_Water.sap
+Composers/Zuegner_Alfred/Calypso.sap
+Composers/Zuegner_Alfred/Capri.sap
+Composers/Zuegner_Alfred/Cause_I_Love_You.sap
+Composers/Zuegner_Alfred/Cecilia.sap
+Composers/Zuegner_Alfred/Chimes_of_Freedom.sap
+Composers/Zuegner_Alfred/Come_in_Stranger.sap
+Composers/Zuegner_Alfred/Come_to_the_Wailing_Wall.sap
+Composers/Zuegner_Alfred/Cry_Cry_Cry.sap
+Composers/Zuegner_Alfred/Csardas.sap
+Composers/Zuegner_Alfred/Delia.sap
+Composers/Zuegner_Alfred/Don_t_Take_Your_Guns_to_T.sap
+Composers/Zuegner_Alfred/Edelsteine.sap
+Composers/Zuegner_Alfred/El_Condor_Pasa.sap
+Composers/Zuegner_Alfred/Entertainer.sap
+Composers/Zuegner_Alfred/Everybody_Loves_You_Now.sap
+Composers/Zuegner_Alfred/Everything_s_Alright.sap
+Composers/Zuegner_Alfred/Farewell.sap
+Composers/Zuegner_Alfred/Farm.sap
+Composers/Zuegner_Alfred/Five_Feet_High_and_Rising.sap
+Composers/Zuegner_Alfred/Flowers_Never_Bend_with_th.sap
+Composers/Zuegner_Alfred/Folsom_Prison_Blues.sap
+Composers/Zuegner_Alfred/For_Emily_whenever_I_may_f.sap
+Composers/Zuegner_Alfred/Forty_Shades_of_Green.sap
+Composers/Zuegner_Alfred/Give_My_Love_to_Rose.sap
+Composers/Zuegner_Alfred/Gone_At_Last.sap
+Composers/Zuegner_Alfred/Grandma_s_Feather_Bed.sap
+Composers/Zuegner_Alfred/Halb.sap
+Composers/Zuegner_Alfred/Hank_Jo_And_me.sap
+Composers/Zuegner_Alfred/Happiness_Is_You.sap
+Composers/Zuegner_Alfred/Hardin_Wouldn_t_Run.sap
+Composers/Zuegner_Alfred/Have_a_Good_Time.sap
+Composers/Zuegner_Alfred/Hazy_Shade_of_Winter.sap
+Composers/Zuegner_Alfred/He_Turned_the_Water_Into_W.sap
+Composers/Zuegner_Alfred/Heaven_On_Their_Minds.sap
+Composers/Zuegner_Alfred/Hero_Blues.sap
+Composers/Zuegner_Alfred/Hey_Porter.sap
+Composers/Zuegner_Alfred/Hey_Schoolgirl.sap
+Composers/Zuegner_Alfred/Hobo_s_Blues.sap
+Composers/Zuegner_Alfred/Homeward_Bound.sap
+Composers/Zuegner_Alfred/Honesty.sap
+Composers/Zuegner_Alfred/Hosanna.sap
+Composers/Zuegner_Alfred/I_Am_a_Rock.sap
+Composers/Zuegner_Alfred/I_d_Still_Be_There.sap
+Composers/Zuegner_Alfred/I_Got_the_Stripes.sap
+Composers/Zuegner_Alfred/I_Only_Want_to_Say.sap
+Composers/Zuegner_Alfred/I_Still_Miss_Someone.sap
+Composers/Zuegner_Alfred/I_Walk_The_Line.sap
+Composers/Zuegner_Alfred/I_Want_to_Go_Home.sap
+Composers/Zuegner_Alfred/If_I_Only_Had_the_Words.sap
+Composers/Zuegner_Alfred/In_the_Mood.sap
+Composers/Zuegner_Alfred/Jackson.sap
+Composers/Zuegner_Alfred/James.sap
+Composers/Zuegner_Alfred/Jesus_Was_a_Carpenter.sap
+Composers/Zuegner_Alfred/Just_The_Way_You_Are.sap
+Composers/Zuegner_Alfred/Kathy_s_Song.sap
+Composers/Zuegner_Alfred/King_Herod_s_Song.sap
+Composers/Zuegner_Alfred/Kodachrome.sap
+Composers/Zuegner_Alfred/Lago_Maggiore.sap
+Composers/Zuegner_Alfred/Land_of_Israel.sap
+Composers/Zuegner_Alfred/Last_Supper.sap
+Composers/Zuegner_Alfred/Leaves_That_Are_Green.sap
+Composers/Zuegner_Alfred/Like_a_Sad_Song.sap
+Composers/Zuegner_Alfred/Love_is_Everywhere.sap
+Composers/Zuegner_Alfred/Luther_s_Boogie.sap
+Composers/Zuegner_Alfred/Me_and_Julio_down_by_the_S.sap
+Composers/Zuegner_Alfred/Mean_As_Hell.sap
+Composers/Zuegner_Alfred/Mira.sap
+Composers/Zuegner_Alfred/Mit_Lust_und_Liebe.sap
+Composers/Zuegner_Alfred/Morning_Has_Broken.sap
+Composers/Zuegner_Alfred/Most_Peculiar_Man.sap
+Composers/Zuegner_Alfred/Movin_Out.sap
+Composers/Zuegner_Alfred/My_Life.sap
+Composers/Zuegner_Alfred/My_Sweet_Lady.sap
+Composers/Zuegner_Alfred/New_York_State_Of_Mind.sap
+Composers/Zuegner_Alfred/No_No_No.sap
+Composers/Zuegner_Alfred/Oh_What_a_Good_Thing_We_Ha.sap
+Composers/Zuegner_Alfred/Old_Appache_Squaw.sap
+Composers/Zuegner_Alfred/Ole_O_Cangaceiro.sap
+Composers/Zuegner_Alfred/One_Man_s_Ceiling_is_Anoth.sap
+Composers/Zuegner_Alfred/Only_a_Pawn_in_Their_Game.sap
+Composers/Zuegner_Alfred/Only_The_Good_Die_Young.sap
+Composers/Zuegner_Alfred/Paranoia_Blues.sap
+Composers/Zuegner_Alfred/Peace_Like_a_River.sap
+Composers/Zuegner_Alfred/Perhaps_Love.sap
+Composers/Zuegner_Alfred/Pickin_Time.sap
+Composers/Zuegner_Alfred/Pilate_s_Dream.sap
+Composers/Zuegner_Alfred/Poem_on_the_Underground_Wa.sap
+Composers/Zuegner_Alfred/Red_Rubber_Ball.sap
+Composers/Zuegner_Alfred/Root_Beer_Bag.sap
+Composers/Zuegner_Alfred/Route_1_Box_144.sap
+Composers/Zuegner_Alfred/Run_Softly_Blue_River.sap
+Composers/Zuegner_Alfred/Run_That_Body_Down.sap
+Composers/Zuegner_Alfred/San_Quentin.sap
+Composers/Zuegner_Alfred/Say_Goodbye_to_Hollywood.sap
+Composers/Zuegner_Alfred/Scarborough_Fair.sap
+Composers/Zuegner_Alfred/See_Ruby_Fall.sap
+Composers/Zuegner_Alfred/Shantytown.sap
+Composers/Zuegner_Alfred/She_s_Always_A_Woman.sap
+Composers/Zuegner_Alfred/Sing_It_Pretty_Sue.sap
+Composers/Zuegner_Alfred/Slip_Slidin_Away.sap
+Composers/Zuegner_Alfred/So_Doggone_Lonesome.sap
+Composers/Zuegner_Alfred/So_Long_Frank_Lloyd_Wright.sap
+Composers/Zuegner_Alfred/Sorgen.sap
+Composers/Zuegner_Alfred/Sound_of_Silence.sap
+Composers/Zuegner_Alfred/Southwind.sap
+Composers/Zuegner_Alfred/Spanish_Harlem_Incident.sap
+Composers/Zuegner_Alfred/Starkville_City_Jail.sap
+Composers/Zuegner_Alfred/Stille_Nacht_heilige_Nacht.sap
+Composers/Zuegner_Alfred/Stranger.sap
+Composers/Zuegner_Alfred/Summer_Highland_Falls.sap
+Composers/Zuegner_Alfred/Superstar.sap
+Composers/Zuegner_Alfred/Take_Me_to_the_Mardi_Gras.sap
+Composers/Zuegner_Alfred/Talking_Leaves.sap
+Composers/Zuegner_Alfred/Tennessee_Flat_Top_Box.sap
+Composers/Zuegner_Alfred/Thank_God_I_m_a_Country_Bo.sap
+Composers/Zuegner_Alfred/This_Old_Guitar.sap
+Composers/Zuegner_Alfred/This_Side_of_the_Law.sap
+Composers/Zuegner_Alfred/This_Town.sap
+Composers/Zuegner_Alfred/Timber_Man.sap
+Composers/Zuegner_Alfred/Understand_Your_Man.sap
+Composers/Zuegner_Alfred/Until_The_Night.sap
+Composers/Zuegner_Alfred/Via_Espana.sap
+Composers/Zuegner_Alfred/Vienna.sap
+Composers/Zuegner_Alfred/Walking_Down_The_Line.sap
+Composers/Zuegner_Alfred/Was_a_Sunny_Day.sap
+Composers/Zuegner_Alfred/Wednesday_Morning_3_AM.sap
+Composers/Zuegner_Alfred/Welcome_To_My_Morning.sap
+Composers/Zuegner_Alfred/What_Do_I_Care.sap
+Composers/Zuegner_Alfred/What_Is_Truth.sap
+Composers/Zuegner_Alfred/When_Papa_Played_the_Dobro.sap
+Composers/Zuegner_Alfred/When_the_Ship_Comes_in.sap
+Composers/Zuegner_Alfred/When_They_Crucified_my_Lor.sap
+Composers/Zuegner_Alfred/Why_don_t_You_Write_Me.sap
+Composers/Zuegner_Alfred/Wirl_and_the_Suck.sap
+Composers/Zuegner_Alfred/Wreck_of_the_Old_Ninety_Se.sap
+Composers/Zuegner_Alfred/You_Are_What_I_Need.sap
+Composers/Zuegner_Alfred/You_ll_be_All_Right.sap
+Composers/Zuegner_Alfred/You_re_My_Home.sap
+Composers/Zuegner_Alfred/You_Remembered_Me.sap
+Games/Arex.sap
+Games/Banana.sap
+Games/Do_Akcji.sap
+Games/Goonies_Disk_Version.sap
+Games/Gremlins.sap
+Games/Inferno.sap
+Games/Leapster.sap
+Games/Logistik.sap
+Games/Monkey_Magic.sap
+Games/Morky.sap
+Games/Project_Fireblast.sap
+Games/Rainbow_Walker.sap
+Games/Realm_of_Impossiblity.sap
+Games/Ring_Der_Nibelungen_Ende.sap
+Games/Ring_Der_Nibelungen_Intro.sap
+Games/Technoid.sap
+Games/Zombies.sap
+Misc/ABBUC_27.sap
+Misc/Bael.sap
+Misc/Battle_Mode.sap
+Misc/Crunkin_Crows.sap
+Misc/Cybernoid.sap
+Misc/Death_Rides_a_Horse.sap
+Misc/Devon_Crispens_Power_of_At.sap
+Misc/Final_Fantasy_3.sap
+Misc/Final_Fantasy_Prelude.sap
+Misc/Flying_to_the_Sun.sap
+Misc/For_Raster.sap
+Misc/Halle_Project_XCIV_Top_Mag.sap
+Misc/Lemme_Tell_You_Bout_My_Neo.sap
+Misc/Meaningless_Manhole.sap
+Misc/Micro_Funk.sap
+Misc/Quetzalli_Redux.sap
+Misc/Pokey_Tune.sap
+Misc/Robocop_Intro.sap
+Misc/Sky_Is_Falling.sap
+Misc/Space_Invader_Too.sap
+Misc/Static_Stasis.sap
+Misc/Strangers_in_the_Night.sap
+Misc/Warpsztaty_monofoniczne_in.sap
+Misc/What_You_Can_Do_With_Your.sap
+Unknown/Blunder.sap
+Unknown/Demomus.sap
+Unknown/God_Save_The_Queen_1.sap
+Unknown/God_Save_The_Queen_2.sap
+Unknown/JHV_Demo_97_Extro.sap
+Unknown/JHV_Demo_97_Intro.sap
+Unknown/Let_It_Be.sap
+Unknown/Mega_Magazine_3.sap
+Unknown/Noname_Song.sap
+Unknown/River.sap
+Unknown/Rock_1.sap
+Unknown/Rock_2.sap
+Unknown/Somebody.sap
+Unknown/Tblues.sap
+Unknown/Walzer.sap
+Unknown/Yazzoo.sap
+
+Credits fixes (includes filename or location changes)
+------------------------------------------------------
+Composers/Armijo_Richard_J/Severely_Overused_Christma.sap : NAME "Severely Overused - Christmas Version!"
+Composers/B00daW/ > Composers/Walters_Sean/
+Composers/Balkowski_Krzysztof/ > Composers/Bankowski_Krzysztof/
+Composers/Eisenhammer_Zdenek/Flop_53.sap > Flop_magazin_53.sap : NAME "Flop magazin 53"
+Composers/Hay_Adam/4mat_Chip.sap > Unknown/ : AUTHOR "<?>"
+Composers/Hay_Adam/By_the_Way.sap > Unknown/ : AUTHOR "<?>"
+Composers/Hay_Adam/Churchg.sap > Unknown/ : AUTHOR "<?>"
+Composers/Hay_Adam/Hawkeye.sap > Unknown/ : AUTHOR "<?>"
+Composers/Kolakowski_Daniel/Mozart_01.sap > Composers/Jastrzemski_Marcin/Unknown_01.sap : AUTHOR "Marcin Jastrzemski (Fatman)"
+Composers/Kolakowski_Daniel/Unite.sap > Misc/
+Composers/Kolakowski_Daniel/WSL_Intro.sap > Misc/
+Composers/Krasuski_Jaroslaw/Summer_Is_Magic.sap : NAME "Summer Is Magic"
+Composers/Matoga_Adrian/Sleep.sap : DATE "2001 <?>"
+Composers/Numan_Daniel/Muzyka.sap > After_All.sap : NAME "After All" DATE "1994"
+Composers/Numan_Daniel/Spirit_Vision_1.sap > Composers/Skrzypek_Tomasz/ : AUTHOR "Tomasz Skrzypek (Bloomer)"
+Composers/Numan_Daniel/Spirit_Vision_6.sap > Composers/Skrzypek_Tomasz/ : AUTHOR "Tomasz Skrzypek (Bloomer)"
+Composers/Numan_Daniel/Spirit_Vision_8.sap > Composers/Skrzypek_Tomasz/ : AUTHOR "Tomasz Skrzypek (Bloomer)"
+Composers/Roemer_Markus/The_way_you_are.sap > Way_You_Are.sap : NAME "The Way You Are"
+Composers/Sledz_Slawek/Zybex.sap : DATE "1994"
+Composers/Sterba_Radek/Flop_Magazin_30_Just_Now.sap > Flop_magazin_30_Just_Now.sap
+Composers/Sterba_Radek/Flop_Magazin_31.sap > Flop_magazin_31.sap 
+Composers/Sterba_Radek/Flop_Magazin_31_Christmas.sap > Flop_magazin_31_Christmas.sap
+Composers/Sterba_Radek/Flop_Magazin_32.sap > Flop_magazin_32.sap
+Composers/Sterba_Radek/Flop_Magazin_33.sap > Flop_magazin_33.sap
+Composers/Sterba_Radek/Flop_Magazin_34.sap > Flop_magazin_34.sap
+Composers/Sterba_Radek/Flop_Magazin_35_BH90210.sap > Flop_magazin_35_Beverly_Hi.sap : NAME "Flop magazin 35 - Beverly Hills 90210"
+Composers/Sterba_Radek/Flop_Magazin_36_38.sap > Flop_magazin_36_38.sap
+Composers/Sterba_Radek/Flop_Magazin_37.sap > Flop_magazin_37.sap
+Composers/Sterba_Radek/Flop_Magazin_39.sap > Flop_magazin_39.sap
+Composers/Sterba_Radek/Flop_Magazin_40.sap > Flop_magazin_40.sap
+Composers/Sterba_Radek/Flop_Magazin_41.sap > Flop_magazin_41_2.sap : NAME "Flop magazin 41+2"
+Composers/Szpilowski_Michal/ABBUC_Sondernmagazine_17.sap : NAME "ABBUC Sondernmagazine #17 Intro"
+Composers/Szpilowski_Michal/Flimbos_Quest.sap > Animal_Party_Ingame.sap : NAME "Animal Party - Ingame"
+Composers/Szpilowski_Michal/Overmind_7.sap : NAME "Overmind - 7"
+Composers/Szpilowski_Michal/Wiosna_Ludzikuf_Main.sap > Sexy_Six_Title.sap : NAME "Sexy Six - Title"
+Composers/Takacs_Gabriel/Jurassic_Park_II_Ingame_1.sap > Focus.sap : NAME "Focus"
+Composers/Ui/ > Composers/Garrido_Daniel/
+Composers/Zur_soft/Ace_Plotter.sap > Misc/Downtown.sap : NAME "Downtown" AUTHOR "Kai Foerst"
+Games/Eidolon.sap > Composers/Crockford_Douglas/
+Games/Leggit.sap : "AUTHOR "Roy Gibson"
+Games/Loops_DX.sap > Composers/XLent/Ghouls_n_Ghosts.sap : NAME "Ghouls'n'Ghosts" AUTHOR "<?> (XLent)"
+Games/Simple_Minds.sap : AUTHOR "Erik Stok (TCC)"
+Misc/Brandenburg_5.sap > Composers/Chichakly_R_M/ : AUTHOR "R. M. Chichakly"
+Misc/Brandenburg_34.sap > Composers/Chichakly_R_M/ : AUTHOR "R. M. Chichakly"
+Misc/Faded.sap > Composers/Jaakkola_Juha/
+Misc/Funky_Atari.sap > Composers/Anti_Cheat/
+Misc/Hobbytronic_89_5.sap : AUTHOR "Martin Spielmans (Spueli-Soft)"
+Misc/Sunset_on_the_Moon.sap > Composers/XLent/ : AUTHOR "<?> (XLent)" DATE "07/03/2009"
+Misc/Warehouse_AM.sap > Composers/Anti_Cheat/
+Misc/Wirbel.sap : AUTHOR "Kai Foerst"
+Misc/The_Great_Commandment.sap > Unknown/ : DATE "1989"
+Unknown/Giana_Sisters_Remix.sap > Composers/Jastrzemski_Marcin/ : AUTHOR "Marcin Jastrzemski (Fatman) <?>"
+Unknown/GMG.sap > Composers/Vybostok_Marian/ : AUTHOR "Marian Vybostok (GMG) <?>"
+Unknown/Hotline_Intro.sap : DATE "1991"
+Unknown/Time_To_Enjoy.sap > Composers/Claas_Clever/ : AUTHOR "<?> (Claas Clever)" DATE "1989"
+Unknown/Tracker.sap > Composers/Dojwa_Jacek/ : AUTHOR "Jacek Dojwa <?>"
+Unknown/Trans.sap > Composers/Jastrzemski_Marcin/Digital_Drum.sap : AUTHOR "Marcin Jastrzemski (Fatman)" NAME "Digital Drum"
+Unknown/Voyager.sap > Composers/Dojwa_Jacek/ : AUTHOR "Jacek Dojwa <?>"
+Unknown/War.sap > Composers/Dojwa_Jacek/ : AUTHOR "Jacek Dojwa <?>"
+Unknown/Yeach.sap > Composers/Dojwa_Jacek/ : AUTHOR "Jacek Dojwa <?>"
+Unknown/AMS/Brother_Louie.sap : NAME "Brother Louie"
+Unknown/AMS/Close_to_You.sap : NAME "Close to You"
+Unknown/AMP/Nachtmusik.sap > Composers/Chichakly_R_M/ : AUTHOR "R. M. Chichakly"
+Unknown/Saper_V1.sap : NAME "Saper V1"
+
+Better/bugfixed rips
+--------------------
+Composers/Bernasek_Jiri/Golfer.sap (INIT routine didn't return)
+Composers/Bernasek_Jiri/Midnight.sap (INIT routine didn't return)
+Composers/Bernasek_Jiri/Strange_Mountains.sap (INIT routine didn't return)
+Composers/Billyard_Adam/Elektra_Glide.sap (TIME fixed)
+Composers/Ce_Pumpkin/Too_Hard_4_1.sap (TIME fixed)
+Composers/Cierkonski_Michal/Scene_Register_5_0_Intro.sap (TIME fixed)
+Composers/Claas_Clever/World_of_Wonders_Against_C.sap (FASTPLAY and TIME fixed)
+Composers/Claas_Clever/World_of_Wonders_Amiga_Meg.sap (FASTPLAY and TIME fixed)
+Composers/Claas_Clever/World_of_Wonders_Anti_Comm.sap (FASTPLAY and TIME fixed)
+Composers/Claas_Clever/World_of_Wonders_Atari_Fev.sap (FASTPLAY and TIME fixed)
+Composers/Claas_Clever/World_of_Wonders_Fantasy.sap (FASTPLAY and TIME fixed)
+Composers/Claas_Clever/World_of_Wonders_Goldrunne.sap (FASTPLAY and TIME fixed)
+Composers/Claas_Clever/World_of_Wonders_Katakis.sap (FASTPLAY and TIME fixed)
+Composers/Duma_Dariusz/Murder_Intro.sap (didn't play properly)
+Composers/Galinski_Adrian/Rockman.sap (includes subsongs)
+Composers/Gilbertson_Gary/Tail_of_Beta_Lyrae.sap (used illegal instructions)
+Composers/Gilmore_Adam/Ninja_Commando.sap (INIT routine didn't return)
+Composers/Gilmore_Adam/Zybex.sap (INIT routine didn't return)
+Composers/Grabowski_Pawel/IQ_Master.sap (INIT routine didn't return)
+Composers/Grabowski_Pawel/Kult.sap (INIT routine didn't return)
+Composers/Grabowski_Pawel/Monstrum.sap (INIT routine didn't return)
+Composers/Grabowski_Pawel/Skarbnik.sap (INIT routine didn't return)
+Composers/Grad_Jacek/Artefakt_Przodkow.sap (INIT routine didn't return)
+Composers/Grayscale/Dragon_Tale.sap (TIME fixed)
+Composers/Grayscale/Euglena_Zielona.sap (TIME fixed)
+Composers/Grayscale/Jam_Session.sap (TIME fixed)
+Composers/Grayscale/Let_It_Roll.sap (TIME fixed)
+Composers/Grayscale/WooBooDoo.sap (TIME fixed)
+Composers/Grayscale/Kwiatek_Grzegorz/Sill_Of_Destiny.sap (TIME fixed)
+Composers/Grayscale/Kwiatek_Grzegorz/Ultra.sap (TIME fixed)
+Composers/Grayscale/Sychowicz_Lukasz/King_of_Agregat.sap (fixed real HW compatibility)
+Composers/Grayscale/Sychowicz_Lukasz/Orto_Puzzle.sap (includes subsongs)
+Composers/Grayscale/Sychowicz_Lukasz/Overload.sap (enabled DLI and screen)
+Composers/Grayscale/Sychowicz_Lukasz/Overmind_1.sap (INIT and PLAY addresses fixed)
+Composers/Grayscale/Sychowicz_Lukasz/Pancerne_Trampki.sap (TIME fixed)
+Composers/Grayscale/Sychowicz_Lukasz/Zbig.sap (TIME fixed)
+Composers/Husak_Jakub/Battle_Ships.sap (includes subsongs)
+Composers/Hryn_Piotr/Music_Compo_93.sap (fixed real HW compatibility)
+Composers/Lashower_Stephen/Come_Sail_Away_With_Me.sap (RTS without JSR)
+Composers/Lashower_Stephen/Munsters.sap (RTS without JSR)
+Composers/Lashower_Stephen/Nut.sap (RTS without JSR)
+Composers/Lepkowski_Michal/Cypress.sap (TIME fixed)
+Composers/Liebich_Tomasz/Master_Head.sap (used illegal instructions)
+Composers/Liebich_Tomasz/Master_Head_Winner.sap (fixed real HW compatibility)
+Composers/Liebich_Tomasz/Nemesis_1.sap (used illegal instructions)
+Composers/Loos_Uwe/ABBUC_28.sap (INIT address fixed)
+Composers/Matyasik_Krzysztof/Debilizator_2_Intro.sap (TIME fixed)
+Composers/Munns_Richard/Black_Lamp.sap (INIT routine didn't return; RTS used data from stack)
+Composers/Oscadal_Filip/Brutal_Recall_Ingame.sap (used illegal instructions)
+Composers/Oscadal_Filip/Lemmings_Intro_2.sap (INIT routine didn't return)
+Composers/Padula_Jaroslaw/Reason.sap (TIME fixed)
+Composers/Podedworny_Wojtek/Pandemonium.sap (INIT routine didn't return)
+Composers/Pucinski_Rafal/Kiha_4.sap (incorrectly tagged as STEREO)
+Composers/Sterba_Radek/Aspiration_332.sap (INIT routine didn't return)
+Composers/Tegethoff_Sven/Bit.sap (INIT routine didn't return)
+Composers/Tegethoff_Sven/Bmagic.sap (INIT routine didn't return)
+Composers/Tegethoff_Sven/Dance.sap (INIT routine didn't return)
+Composers/Tegethoff_Sven/Hobby.sap (INIT routine didn't return)
+Composers/Tegethoff_Sven/Roller.sap (INIT routine didn't return)
+Composers/Top_Odin/Film_Editor_Demo.sap (INIT routine didn't return)
+Composers/Top_Odin/Gallahad_Ingame.sap (INIT routine didn't return)
+Composers/Top_Odin/Gallahad_Intro.sap (INIT routine didn't return)
+Composers/Top_Odin/Indiana_Jones.sap (INIT routine didn't return)
+Composers/Top_Odin/Indiana_Jones_Ingame.sap (INIT routine didn't return)
+Composers/Top_Odin/Renegade.sap (INIT routine didn't return)
+Composers/Top_Odin/Riot.sap (INIT routine didn't return)
+Composers/Top_Odin/SOS_Saturn_Intro.sap (INIT routine didn't return)
+Composers/Top_Odin/Terminator_Ingame.sap (INIT routine didn't return)
+Composers/Top_Odin/Terminator_Intro.sap (INIT routine didn't return)
+Composers/Top_Odin/Terminator_The_End.sap (INIT routine didn't return)
+Composers/Top_Odin/Terminator_Title.sap (INIT routine didn't return)
+Composers/Wasilewski_Dariusz/Labirynt_Smierci.sap (TIME fixed)
+Composers/Zur_soft/Humanoid.sap (INIT routine didn't return)
+Composers/Zur_soft/Humanoid_Ingame.sap (INIT routine didn't return)
+Composers/Zur_soft/Humanoid_The_End.sap (INIT routine didn't return)
+Games/Blue_Max.sap (fixed bug in music data)
+Games/Boulder_Dash_2.sap (INIT routine didn't return)
+Games/Drol.sap (INIT routine didn't return)
+Games/Frogger.sap (used illegal instructions)
+Games/Ghostbusters.sap (includes sampled speech)
+Games/Knock_Title.sap (INIT routine didn't return)
+Games/Loaded_Brain.sap (used illegal instructions)
+Games/M_U_L_E.sap (fixed bug in music data)
+Games/Operation_Blood.sap (INIT routine didn't return)
+Games/Operation_Blood_Ingame.sap (INIT routine didn't return)
+Games/Sisyphos_Demo.sap (INIT routine didn't return)
+Misc/August.sap (RTS without JSR)
+Misc/Brandenburg_34.sap (RTS without JSR)
+Misc/Brandenburg_5.sap (RTS without JSR)
+Misc/Dyer_Maker.sap (RTS without JSR)
+Misc/HAR_Demo_3rd.sap (INIT routine didn't return)
+Misc/Preludium_no_20.sap (RTS without JSR)
+Misc/Rhapsody_in_Blue.sap (RTS without JSR)
+Misc/Spring.sap (RTS without JSR)
+Unknown/CompyShop_Magazin_10_88.sap (INIT routine didn't return)
+Unknown/AMP/A_Bottle_of_Wine.sap (RTS without JSR)
+Unknown/AMP/Bee.sap (RTS without JSR)
+Unknown/AMP/Behome_4.sap (RTS without JSR)
+Unknown/AMP/BNM.sap (RTS without JSR)
+Unknown/AMP/Bolero.sap (RTS without JSR)
+Unknown/AMP/Boogie.sap (RTS without JSR)
+Unknown/AMP/Cascades.sap (RTS without JSR)
+Unknown/AMP/Cheers.sap (RTS without JSR)
+Unknown/AMP/Deckhall.sap (RTS without JSR)
+Unknown/AMP/Dont_Bring_Me_Down.sap (RTS without JSR)
+Unknown/AMP/Easy.sap (RTS without JSR)
+Unknown/AMP/Eleanor_Rigby.sap (RTS without JSR)
+Unknown/AMP/Fantimpu.sap (RTS without JSR)
+Unknown/AMP/Hark.sap (RTS without JSR)
+Unknown/AMP/Help.sap (RTS without JSR)
+Unknown/AMP/Here_Come.sap (RTS without JSR)
+Unknown/AMP/Jedi.sap (RTS without JSR)
+Unknown/AMP/Jingle_Bells.sap (RTS without JSR)
+Unknown/AMP/King_Pain.sap (RTS without JSR)
+Unknown/AMP/Kings_3.sap (RTS without JSR)
+Unknown/AMP/Major_General.sap (RTS without JSR)
+Unknown/AMP/Nachtmusik.sap (RTS without JSR)
+Unknown/AMP/Pictures_4.sap (RTS without JSR)
+Unknown/AMP/Prelude_no_21.sap (RTS without JSR)
+Unknown/AMP/Rag2step.sap (RTS without JSR)
+Unknown/AMP/Ritz.sap (RTS without JSR)
+Unknown/AMP/Round_3.sap (RTS without JSR)
+Unknown/AMP/Shckmnky.sap (RTS without JSR)
+Unknown/AMP/Silent_Night.sap (RTS without JSR)
+Unknown/AMP/Silver_Bells.sap (RTS without JSR)
+Unknown/AMP/Star_Trek.sap (RTS without JSR)
+Unknown/AMP/Traces_of_Love.sap (RTS without JSR)
+Unknown/AMP/We_Wish_You.sap (RTS without JSR)
+Unknown/AMP/When_a_Felons.sap (RTS without JSR)
+Unknown/AMP/Wish_You.sap (RTS without JSR)

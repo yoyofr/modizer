@@ -1,0 +1,150 @@
+ASMA Update #22
+Date: September 25, 2001
+
+These rips together with the original ASMA collection will make version 2.2
+of the ASMA (out of version 2.1).
+
+Number of new tunes: 96
+Better rips: 6
+Credits fixes: 30
+
+New tunes
+---------
+Games/Classic/Ballblaster.sap
+Games/Various/Cywilizacja_Intro.sap
+Games/Various/Czarny_Orzel.sap
+Games/Various/Dziedzictwo_Gigantow.sap
+Games/Various/Easy_Money.sap
+Games/Various/Eureka.sap
+Games/Various/Pyramid.sap
+Games/Various/Pyramid_End.sap
+Games/Various/Pyramid_Game_Over.sap
+Games/Various/Pyramid_Ingame.sap
+Games/Various/Pyramid_Intro.sap
+Unsorted/Reksio_2001.sap
+Various/Badkowski_Marek/Wind.sap
+Various/Bloszko_Marek/Crazy_Atarians_Info_2.sap
+Various/Bryla_Krzysztof/Colour_II.sap
+Various/Bryla_Krzysztof/Demo_Music_2.sap
+Various/Bryla_Krzysztof/Odyseja.sap
+Various/Bryla_Krzysztof/Persil.sap
+Various/Bryla_Krzysztof/Techno_Test.sap
+Various/Bryla_Krzysztof/Techwop.sap
+Various/Bryla_Krzysztof/Woppie_V2.sap
+Various/Cierkonski_Michal/Pruters.sap
+Various/Cierkonski_Michal/Scene_Register_5_Intro.sap
+Various/Czartynski_Marcin/Airborne.sap
+Various/Czartynski_Marcin/Dancing.sap
+Various/Czartynski_Marcin/Maxi2.sap
+Various/Czartynski_Marcin/Polizei.sap
+Various/Czartynski_Marcin/Probnik.sap
+Various/Czartynski_Marcin/Rave.sap
+Various/Czartynski_Marcin/Top_Secret_Ingame.sap
+Various/Czartynski_Marcin/Trans-X.sap
+Various/Czartynski_Marcin/Tuptus.sap
+Various/Dojwa_Jacek/Jumping_Jack_Ingame.sap
+Various/Dojwa_Jacek/Trisz_Divinis.sap
+Various/Dojwa_Jacek/Trisz_Divinis_End.sap
+Various/Dojwa_Jacek/Trisz_Divinis_Game_Over.sap
+Various/Dojwa_Jacek/Trisz_Divinis_Ingame.sap
+Various/Drozdowski_Marek/Help_Globus_Greetings.sap
+Various/Duma_Dariusz/Izolation.sap
+Various/Galinski_Adrian/Special_Forces_2.sap
+Various/Golewski_Filip/Crazy_Atarians_Info.sap
+Various/Gora_Jakub/Rape_Rulz.sap
+Various/Gora_Jakub/Rape_Rulz_Intro.sap
+Various/Gora_Jakub/Well.sap
+Various/Gora_Jakub/Well_Game.sap
+Various/Husak_Jakub/Rycerz.sap
+Various/Jastrzebski_Dominik/China.sap
+Various/Karwacki_Jakub/Scene_Register_5_Menu.sap
+Various/Kociuba_Dariusz/Odezwa_3_Lobo.sap
+Various/Kociuba_Dariusz/Odezwa_4_Lobo.sap
+Various/Kociuba_Dariusz/Sex_Logic.sap
+Various/Kociuba_Dariusz/Vioris_Ingame_2.sap
+Various/Krawczyk_Adam/Tawerna.sap
+Various/Kucisz_Tomasz/Complications.sap
+Various/Kucisz_Tomasz/Forgot.sap
+Various/Kucisz_Tomasz/Twingo.sap
+Various/Kwiatek_Grzegorz/Hard.sap
+Various/Liebich_Tomasz/Tank_vs_Tank.sap
+Various/Loos_Uwe/Studio_Dream.sap
+Various/Luszcz_Tomasz/Samurais_Game.sap
+Various/Luszcz_Tomasz/Samurais_Game_Ingame.sap
+Various/Luszcz_Tomasz/Samurais_Game_Ingame_2.sap
+Various/Martin_Aleksander/Mr_Proper_Ingame_2.sap
+Various/Mikolajczak_Pawel/Magia.sap
+Various/Mikolajczak_Pawel/Zbir.sap
+Various/Nabialek_Dawid/Kampania_Wrzesniowa.sap
+Various/Nabialek_Dawid/Kampania_Wrzesniowa_Ingame.sap
+Various/Numan_Daniel/Pentagram_2_Info.sap
+Various/Numan_Daniel/Pentagram_2_Menu.sap
+Various/Numan_Daniel/Zbx_Virus_1.sap
+Various/Przybyszewski_Krzysztof/The_Break.sap
+Various/Radzikowski_Ireneusz/Draconus_Remix.sap
+Various/Radzikowski_Ireneusz/Historia_Niespelnionych_1.sap
+Various/Radzikowski_Ireneusz/Historia_Niespelnionych_3.sap
+Various/Radzikowski_Ireneusz/Historia_Niespelnionych_4.sap
+Various/Ramzes/Demos_End.sap
+Various/Ramzes/Demos_End_II.sap
+Various/Ramzes/Music_Compo_93.sap
+Various/Ramzes/Party_5.sap
+Various/Sychowicz_Lukasz/Orto_Puzzle.sap
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika.sap
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika_End.sap
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika_Game.sap
+Various/Szmatola_Krzysztof/Uczen_Czarnoksieznika_Inga.sap
+Various/Szpilowski_Michal/3D_Zine.sap
+Various/Szpilowski_Michal/3D_Zine_Intro.sap
+Various/Szpilowski_Michal/Earth_242.sap
+Various/Szpilowski_Michal/Final_Lap.sap
+Various/Szpilowski_Michal/Hall_of_Rabarbadon.sap
+Various/Szpilowski_Michal/Melted_Personality.sap
+Various/Szpilowski_Michal/Postcard_from_Middle_East.sap
+Various/Szpilowski_Michal/Ride_a_Commy.sap
+Various/Szpilowski_Michal/Sunday_Drivers_Dance.sap
+Various/Szpilowski_Michal/Too_Hard_Matter.sap
+Various/Szymczuk_Daniel/Honky_Ingame.sap
+Various/Wasilewski_Dariusz/Tank.sap
+
+Better rips
+-----------
+Games/Classic/Mario_Bros.sap (played completely wrong)
+Games/Various/Bombay (includes subtunes)
+Games/Various/SEX_Versi.sap (includes subtunes)
+Various/Holda_Leszek/Wladcy_Ciemnosci_Ingame.sap (includes subtunes)
+Various/Pucimski_Rafal/Odezwa_IV.sap (played too slow)
+Various/Wasilewski_Dariusz/Ship.sap (includes subtunes)
+
+Credits fixes (includes filename or location changes)
+-----------------------------------------------------
+Classics/Munns_Richard/Plastron.sap > Zero_War.sap
+Classics/Munns_Richard/Plastron_Ingame.sap > Plastron.sap
+Classics/Munns_Richard/Tube_Baddies.sap : DATE "1995"
+Games/Classic/Astrochase.sap > Astro_Chase.sap : DATE "1982"
+Games/Classic/Ball_Blazer.sap > Ballblazer.sap : DATE "1985"
+Games/Classic/Robin_Hood.sap : AUTHOR "Glenys Huntington" DATE: "1984"
+Games/Classic/Spy_vs_Spy_2.sap > Spy_vs_Spy_Island_Caper.sap : DATE "1985"
+Games/Classic/Spy_vs_Spy_3.sap > Spy_vs_Spy_Arctic_Antics.sap : DATE "1987"
+Games/Various/Global_War.sap : AUTHOR "Peter Elfinger"
+Games/Various/Jaffar.sap > Various/Mikolajczak_Pawel/
+Games/Various/Hydraulik.sap : AUTHOR "Rafal Wojcik"
+Games/Various/Major_Bronx.sap : AUTHOR "Daniel Sniegon & Maciej Strzelinski"
+Games/Various/Raszyn.sap : NAME "Raszyn 1809"
+Games/Various/Vioris.sap > Various/Kociuba_Dariusz/
+Games/Various/Vioris_Ingame.sap > Various/Kociuba_Dariusz/
+Unsorted/Benny_Hill_Show_theme.sap > Various/Nabialek_Dawid/Benny_Hill_Show_Theme.sap
+Unsorted/Digiloo-Digiley.sap : AUTHOR "Kemal Ezcan"
+Unsorted/Dragon.sap > Various/Jastrzebski_Dominik/
+Unsorted/Forest.sap > Various/Jastrzebski_Dominik/
+Unsorted/Electrician.sap > Games/Classic/
+Unsorted/Happy_97.sap > Various/Przybyszewski_Krzysztof/
+Unsorted/Happy_New_Year.sap > Various/Przybyszewski_Krzysztof/
+Various/Liebich_Tomasz/Lowca.sap : DATE "1993"
+Various/Luberda_Michal/Kernaw_3.sap > Kernaw_Ingame.sap
+Various/Luszcz_Tomasz/Najemnik_2_Powrot.sap > Najemnik_Powrot.sap
+Various/Pucimski_Rafal/Odezwa_4_0.sap > Odezwa_IV.sap
+Various/Swierszcz_Piotr/Total_Daze.sap > Caveman.sap
+Various/Top_Odin/Galahad.sap > Gallahad_Intro.sap
+Various/Top_Odin/Galahad_2.sap > Gallahad_Credits.sap
+Various/Top_Odin/Galahad_Ingame.sap > Gallahad_Ingame.sap
