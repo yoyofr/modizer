@@ -6,72 +6,37 @@
 .*.swp
 #Resources
 modizer/Resources/DB/databaseMAIN.modizerdb
+# libs
+*.a
+# certificates
+*.p12
 
+#Xcode files
 *.xcuserstate
-
 *.xcscheme
-
 modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/UserInterfaceState.xcuserstate
-
 modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
 
+#temp data / database creation
 modizer/Resources/DB/allmods.txt
-
 modizer/Resources/DB/BUGlist.txt
-
 modizer/Resources/DB/Creators.txt
-
 modizer/Resources/DB/Musicians.txt
-
 modizer/Resources/DB/SID_file_format.txt
-
-modizer/Resources/DB/allmods_2012-06-03.txt
-
-modizer/Resources/DB/comp3.txt
-
-modizer/Resources/DB/comp4.txt
-
-modizer/Resources/DB/comp5.txt
-
-modizer/Resources/DB/comp6.txt
-
-modizer/Resources/DB/comp7.txt
-
-modizer/Resources/DB/comp8.txt
-
+modizer/Resources/DB/comp*.txt
 modizer/Resources/DB/hv_sids.faq
-
 modizer/Resources/DB/hv_sids.txt
-
 modizer/Resources/DB/Disclaimer.txt
-
 modizer/Resources/DB/HVSC.faq
-
 modizer/Resources/DB/hvsc_pathmd5.txt
-
 modizer/Resources/DB/hvsc_songl.txt
-
 modizer/Resources/DB/HVSC.txt
-
-modizer/Resources/DB/hvsc3.txt
-
-modizer/Resources/DB/hvsc4.txt
-
-modizer/Resources/DB/hvsc5.txt
-
-modizer/Resources/DB/hvsc7.txt
-
-modizer/Resources/DB/hvsc6.txt
-
-modizer/Resources/DB/hvsc8.txt
-
+modizer/Resources/DB/hvsc*.txt
 modizer/Resources/DB/ASMA/online_rep/*
 
 *.xcbkptlist
 
 modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcdebugger/Breakpoints.xcbkptlist
-
-modizer/Resources/DB/databaseMAIN.modizerdb.old
 
 libgsf/libgsf/libgsf.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/libgsf.xcscheme
 
