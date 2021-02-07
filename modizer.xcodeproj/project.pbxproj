@@ -311,6 +311,234 @@
 		5966D0C725CFEE3600520777 /* libtim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6800725CFCF2A001595B7 /* libtim.a */; };
 		5966D0C825CFEE3D00520777 /* libResample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F4925CFE90E00711C05 /* libResample.a */; };
 		5966D0FF25CFEFED00520777 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5966D0FE25CFEFED00520777 /* libsqlite3.tbd */; };
+		5966D17725CFF0D100520777 /* james_bond.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10225CFF0D100520777 /* james_bond.jpg */; };
+		5966D17825CFF0D100520777 /* james_bond.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10325CFF0D100520777 /* james_bond.mid */; };
+		5966D17925CFF0D100520777 /* Live_And_Let_Die.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10425CFF0D100520777 /* Live_And_Let_Die.mid */; };
+		5966D17A25CFF0D100520777 /* touchin' the chip.xm in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10625CFF0D100520777 /* touchin' the chip.xm */; };
+		5966D17B25CFF0D100520777 /* nebulos.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10725CFF0D100520777 /* nebulos.mod */; };
+		5966D17C25CFF0D100520777 /* trans atlantic short.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10825CFF0D100520777 /* trans atlantic short.mod */; };
+		5966D17D25CFF0D100520777 /* elysium.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10925CFF0D100520777 /* elysium.mod */; };
+		5966D17E25CFF0D100520777 /* varanen short.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10A25CFF0D100520777 /* varanen short.mod */; };
+		5966D17F25CFF0D100520777 /* nearly there.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10B25CFF0D100520777 /* nearly there.mod */; };
+		5966D18025CFF0D100520777 /* knulla kuk !!!.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10C25CFF0D100520777 /* knulla kuk !!!.mod */; };
+		5966D18125CFF0D100520777 /* space debris.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10D25CFF0D100520777 /* space debris.mod */; };
+		5966D18225CFF0D100520777 /* virtual escape.gif in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10E25CFF0D100520777 /* virtual escape.gif */; };
+		5966D18325CFF0D100520777 /* reverie of truth.compo.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D10F25CFF0D100520777 /* reverie of truth.compo.mod */; };
+		5966D18425CFF0D100520777 /* physical presence.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11025CFF0D100520777 /* physical presence.mod */; };
+		5966D18525CFF0D100520777 /* ghouls.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11125CFF0D100520777 /* ghouls.mod */; };
+		5966D18625CFF0D100520777 /* beyond music.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11225CFF0D100520777 /* beyond music.mod */; };
+		5966D18725CFF0D100520777 /* odyssey-part5.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11325CFF0D100520777 /* odyssey-part5.jpg */; };
+		5966D18825CFF0D200520777 /* beat to the pulp.sid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11425CFF0D100520777 /* beat to the pulp.sid */; };
+		5966D18925CFF0D200520777 /* livin' insanity.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11525CFF0D100520777 /* livin' insanity.mod */; };
+		5966D18A25CFF0D200520777 /* pools of poison.xm in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11625CFF0D100520777 /* pools of poison.xm */; };
+		5966D18B25CFF0D200520777 /* the_wanderer_2.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11725CFF0D100520777 /* the_wanderer_2.mod */; };
+		5966D18C25CFF0D200520777 /* crystal rain.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11825CFF0D100520777 /* crystal rain.mod */; };
+		5966D18D25CFF0D200520777 /* now what 3.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11925CFF0D100520777 /* now what 3.mod */; };
+		5966D18E25CFF0D200520777 /* we're the devils.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11A25CFF0D100520777 /* we're the devils.mod */; };
+		5966D18F25CFF0D200520777 /* unreal ][.png in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11B25CFF0D100520777 /* unreal ][.png */; };
+		5966D19025CFF0D200520777 /* cream of the earth.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11C25CFF0D100520777 /* cream of the earth.mod */; };
+		5966D19125CFF0D200520777 /* 1999.xm in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11D25CFF0D100520777 /* 1999.xm */; };
+		5966D19225CFF0D200520777 /* sleeping waste.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11E25CFF0D100520777 /* sleeping waste.mod */; };
+		5966D19325CFF0D200520777 /* desert dream.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D11F25CFF0D100520777 /* desert dream.mod */; };
+		5966D19425CFF0D200520777 /* umbrellas of peru.xm in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12025CFF0D100520777 /* umbrellas of peru.xm */; };
+		5966D19525CFF0D200520777 /* spell-amelioration.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12125CFF0D100520777 /* spell-amelioration.mod */; };
+		5966D19625CFF0D200520777 /* switchback.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12225CFF0D100520777 /* switchback.mod */; };
+		5966D19725CFF0D200520777 /* unreal ][.s3m in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12325CFF0D100520777 /* unreal ][.s3m */; };
+		5966D19825CFF0D200520777 /* odyssey-part5.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12425CFF0D100520777 /* odyssey-part5.mod */; };
+		5966D19925CFF0D200520777 /* virtual escape.sndh in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12525CFF0D100520777 /* virtual escape.sndh */; };
+		5966D19A25CFF0D200520777 /* hyperbased (musiklinjen, enigma).mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12625CFF0D100520777 /* hyperbased (musiklinjen, enigma).mod */; };
+		5966D19B25CFF0D200520777 /* bubble bobble.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12825CFF0D100520777 /* bubble bobble.mod */; };
+		5966D19C25CFF0D200520777 /* MegaMan3.rar in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12925CFF0D100520777 /* MegaMan3.rar */; };
+		5966D19D25CFF0D200520777 /* dune - ecolove.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12A25CFF0D100520777 /* dune - ecolove.jpg */; };
+		5966D19E25CFF0D200520777 /* MegaMan3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12B25CFF0D100520777 /* MegaMan3.jpg */; };
+		5966D19F25CFF0D200520777 /* turrican 2 level 0-intro.mdat in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12C25CFF0D100520777 /* turrican 2 level 0-intro.mdat */; };
+		5966D1A025CFF0D200520777 /* unreal title.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12D25CFF0D100520777 /* unreal title.jpg */; };
+		5966D1A125CFF0D200520777 /* dune - fremens.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12E25CFF0D100520777 /* dune - fremens.jpg */; };
+		5966D1A225CFF0D200520777 /* Castlevania 3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D12F25CFF0D100520777 /* Castlevania 3.jpg */; };
+		5966D1A325CFF0D200520777 /* Castlevania 3.nsfe in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13025CFF0D100520777 /* Castlevania 3.nsfe */; };
+		5966D1A425CFF0D200520777 /* the seven gates of jambala (intro).gif in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13125CFF0D100520777 /* the seven gates of jambala (intro).gif */; };
+		5966D1A525CFF0D200520777 /* turrican 2 level 0-intro.smpl in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13225CFF0D100520777 /* turrican 2 level 0-intro.smpl */; };
+		5966D1A625CFF0D200520777 /* One_Man_and_His_Droid.sid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13325CFF0D100520777 /* One_Man_and_His_Droid.sid */; };
+		5966D1A725CFF0D200520777 /* FF7_AerisTheme.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13425CFF0D100520777 /* FF7_AerisTheme.mid */; };
+		5966D1A825CFF0D200520777 /* zelda.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13525CFF0D100520777 /* zelda.mid */; };
+		5966D1A925CFF0D200520777 /* DukeNukem_Level1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13625CFF0D100520777 /* DukeNukem_Level1.jpg */; };
+		5966D1AA25CFF0D200520777 /* SMB1-Theme.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13725CFF0D100520777 /* SMB1-Theme.mid */; };
+		5966D1AB25CFF0D200520777 /* turrican intro.smpl in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13825CFF0D100520777 /* turrican intro.smpl */; };
+		5966D1AC25CFF0D200520777 /* DukeNukem_Level1.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13925CFF0D100520777 /* DukeNukem_Level1.mid */; };
+		5966D1AD25CFF0D200520777 /* zelda.png in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13A25CFF0D100520777 /* zelda.png */; };
+		5966D1AE25CFF0D200520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13B25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */; };
+		5966D1AF25CFF0D200520777 /* ij4 - end credits1.png in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13C25CFF0D100520777 /* ij4 - end credits1.png */; };
+		5966D1B025CFF0D200520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13D25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */; };
+		5966D1B125CFF0D200520777 /* monkey island 2 - intro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13E25CFF0D100520777 /* monkey island 2 - intro.jpg */; };
+		5966D1B225CFF0D200520777 /* Monty_on_the_Run.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D13F25CFF0D100520777 /* Monty_on_the_Run.jpg */; };
+		5966D1B325CFF0D200520777 /* turrican intro.mdat in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14025CFF0D100520777 /* turrican intro.mdat */; };
+		5966D1B425CFF0D200520777 /* the seven gates of jambala (intro).hip in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14125CFF0D100520777 /* the seven gates of jambala (intro).hip */; };
+		5966D1B525CFF0D200520777 /* gr-b03.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14225CFF0D100520777 /* gr-b03.jpg */; };
+		5966D1B625CFF0D200520777 /* dune - ecolove.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14325CFF0D100520777 /* dune - ecolove.mod */; };
+		5966D1B725CFF0D200520777 /* turrican intro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14425CFF0D100520777 /* turrican intro.jpg */; };
+		5966D1B825CFF0D200520777 /* bubble bobble.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14525CFF0D100520777 /* bubble bobble.jpg */; };
+		5966D1B925CFF0D200520777 /* One_Man_and_His_Droid.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14625CFF0D100520777 /* One_Man_and_His_Droid.jpg */; };
+		5966D1BA25CFF0D200520777 /* dune - fremens.mod in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14725CFF0D100520777 /* dune - fremens.mod */; };
+		5966D1BB25CFF0D200520777 /* gr-b01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14825CFF0D100520777 /* gr-b01.jpg */; };
+		5966D1BC25CFF0D200520777 /* turrican 2 level 0-intro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14925CFF0D100520777 /* turrican 2 level 0-intro.jpg */; };
+		5966D1BD25CFF0D200520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14A25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */; };
+		5966D1BE25CFF0D200520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14B25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */; };
+		5966D1BF25CFF0D200520777 /* gr-b07.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14C25CFF0D100520777 /* gr-b07.jpg */; };
+		5966D1C025CFF0D200520777 /* Doom2-Stage01.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14D25CFF0D100520777 /* Doom2-Stage01.jpg */; };
+		5966D1C125CFF0D200520777 /* gr-b07.mdx in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14E25CFF0D100520777 /* gr-b07.mdx */; };
+		5966D1C225CFF0D200520777 /* Monty_on_the_Run.sid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D14F25CFF0D100520777 /* Monty_on_the_Run.sid */; };
+		5966D1C325CFF0D200520777 /* monkey island 2 - intro.raw in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15025CFF0D100520777 /* monkey island 2 - intro.raw */; };
+		5966D1C425CFF0D200520777 /* SOMI_title theme.gif in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15125CFF0D100520777 /* SOMI_title theme.gif */; };
+		5966D1C525CFF0D200520777 /* unreal menu.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15225CFF0D100520777 /* unreal menu.jpg */; };
+		5966D1C625CFF0D200520777 /* Doom2-Stage01.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15325CFF0D100520777 /* Doom2-Stage01.mid */; };
+		5966D1C725CFF0D200520777 /* gr-pcm.pdx in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15425CFF0D100520777 /* gr-pcm.pdx */; };
+		5966D1C825CFF0D200520777 /* SOMI_title theme.laa in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15525CFF0D100520777 /* SOMI_title theme.laa */; };
+		5966D1C925CFF0D200520777 /* unreal title.jt in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15625CFF0D100520777 /* unreal title.jt */; };
+		5966D1CA25CFF0D200520777 /* gr-b01.mdx in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15725CFF0D100520777 /* gr-b01.mdx */; };
+		5966D1CB25CFF0D200520777 /* unreal menu.jt in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15825CFF0D100520777 /* unreal menu.jt */; };
+		5966D1CC25CFF0D200520777 /* gr-b03.mdx in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15925CFF0D100520777 /* gr-b03.mdx */; };
+		5966D1CD25CFF0D200520777 /* ij4 - end credits1.laa in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15A25CFF0D100520777 /* ij4 - end credits1.laa */; };
+		5966D1CE25CFF0D200520777 /* mozart_k331c.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15C25CFF0D100520777 /* mozart_k331c.mid */; };
+		5966D1CF25CFF0D200520777 /* bach_toccata_fugue_Dmin.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15D25CFF0D100520777 /* bach_toccata_fugue_Dmin.mid */; };
+		5966D1D025CFF0D200520777 /* rachmaninoff_op18.zip in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15E25CFF0D100520777 /* rachmaninoff_op18.zip */; };
+		5966D1D125CFF0D200520777 /* liszt_hr2.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D15F25CFF0D100520777 /* liszt_hr2.mid */; };
+		5966D1D225CFF0D200520777 /* debussy_arabesqu.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16025CFF0D100520777 /* debussy_arabesqu.mid */; };
+		5966D1D325CFF0D200520777 /* liszt_feux.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16125CFF0D100520777 /* liszt_feux.mid */; };
+		5966D1D425CFF0D200520777 /* grieg_pianocon.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16225CFF0D100520777 /* grieg_pianocon.mid */; };
+		5966D1D525CFF0D200520777 /* grieg_4_mtking.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16325CFF0D100520777 /* grieg_4_mtking.mid */; };
+		5966D1D625CFF0D200520777 /* tchaikovsky_1.zip in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16425CFF0D100520777 /* tchaikovsky_1.zip */; };
+		5966D1D725CFF0D200520777 /* liszt_liebstrm.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16525CFF0D100520777 /* liszt_liebstrm.mid */; };
+		5966D1D825CFF0D200520777 /* faure_pavane.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16625CFF0D100520777 /* faure_pavane.mid */; };
+		5966D1D925CFF0D200520777 /* brahms_hungdan5.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16725CFF0D100520777 /* brahms_hungdan5.mid */; };
+		5966D1DA25CFF0D200520777 /* rachmaninoff_pagvar18.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16825CFF0D100520777 /* rachmaninoff_pagvar18.mid */; };
+		5966D1DB25CFF0D200520777 /* joplin_mapleaf.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16925CFF0D100520777 /* joplin_mapleaf.mid */; };
+		5966D1DC25CFF0D200520777 /* liszt_pe3.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16A25CFF0D100520777 /* liszt_pe3.mid */; };
+		5966D1DD25CFF0D200520777 /* tchaikovski_Flowers.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16B25CFF0D100520777 /* tchaikovski_Flowers.mid */; };
+		5966D1DE25CFF0D200520777 /* bach_cs1-1pre.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16C25CFF0D100520777 /* bach_cs1-1pre.mid */; };
+		5966D1DF25CFF0D200520777 /* bach_goldberg.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16D25CFF0D100520777 /* bach_goldberg.mid */; };
+		5966D1E025CFF0D200520777 /* Ravel_PianoConcertoinG.zip in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16E25CFF0D100520777 /* Ravel_PianoConcertoinG.zip */; };
+		5966D1E125CFF0D200520777 /* ravel_pavane_orchestra.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16F25CFF0D100520777 /* ravel_pavane_orchestra.mid */; };
+		5966D1E225CFF0D200520777 /* chopin_ballade1.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D17025CFF0D100520777 /* chopin_ballade1.mid */; };
+		5966D1E325CFF0D200520777 /* albeniz_asturia.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D17125CFF0D100520777 /* albeniz_asturia.mid */; };
+		5966D1E425CFF0D200520777 /* beethoven_op27m3.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D17225CFF0D100520777 /* beethoven_op27m3.mid */; };
+		5966D1E525CFF0D200520777 /* chopin_no4801.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D17325CFF0D100520777 /* chopin_no4801.mid */; };
+		5966D1E625CFF0D200520777 /* liszt_mazeppa.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D17425CFF0D100520777 /* liszt_mazeppa.mid */; };
+		5966D1E725CFF0D200520777 /* beethoven_op125_3.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D17525CFF0D100520777 /* beethoven_op125_3.mid */; };
+		5966D1E825CFF0D200520777 /* chopin_fantaisie.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D17625CFF0D100520777 /* chopin_fantaisie.mid */; };
+		5966D1EA25CFF10C00520777 /* james_bond.jpg in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = 5966D10225CFF0D100520777 /* james_bond.jpg */; };
+		5966D1EB25CFF10C00520777 /* james_bond.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = 5966D10325CFF0D100520777 /* james_bond.mid */; };
+		5966D1EC25CFF10C00520777 /* Live_And_Let_Die.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = 5966D10425CFF0D100520777 /* Live_And_Let_Die.mid */; };
+		5966D1EE25CFF12400520777 /* touchin' the chip.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10625CFF0D100520777 /* touchin' the chip.xm */; };
+		5966D1EF25CFF12400520777 /* nebulos.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10725CFF0D100520777 /* nebulos.mod */; };
+		5966D1F025CFF12400520777 /* trans atlantic short.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10825CFF0D100520777 /* trans atlantic short.mod */; };
+		5966D1F125CFF12400520777 /* elysium.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10925CFF0D100520777 /* elysium.mod */; };
+		5966D1F225CFF12400520777 /* varanen short.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10A25CFF0D100520777 /* varanen short.mod */; };
+		5966D1F325CFF12400520777 /* nearly there.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10B25CFF0D100520777 /* nearly there.mod */; };
+		5966D1F425CFF12400520777 /* knulla kuk !!!.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10C25CFF0D100520777 /* knulla kuk !!!.mod */; };
+		5966D1F525CFF12400520777 /* space debris.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10D25CFF0D100520777 /* space debris.mod */; };
+		5966D1F625CFF12400520777 /* virtual escape.gif in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10E25CFF0D100520777 /* virtual escape.gif */; };
+		5966D1F725CFF12400520777 /* reverie of truth.compo.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D10F25CFF0D100520777 /* reverie of truth.compo.mod */; };
+		5966D1F825CFF12400520777 /* physical presence.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11025CFF0D100520777 /* physical presence.mod */; };
+		5966D1F925CFF12400520777 /* ghouls.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11125CFF0D100520777 /* ghouls.mod */; };
+		5966D1FA25CFF12400520777 /* beyond music.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11225CFF0D100520777 /* beyond music.mod */; };
+		5966D1FB25CFF12400520777 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11325CFF0D100520777 /* odyssey-part5.jpg */; };
+		5966D1FC25CFF12400520777 /* beat to the pulp.sid in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11425CFF0D100520777 /* beat to the pulp.sid */; };
+		5966D1FD25CFF12400520777 /* livin' insanity.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11525CFF0D100520777 /* livin' insanity.mod */; };
+		5966D1FE25CFF12400520777 /* pools of poison.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11625CFF0D100520777 /* pools of poison.xm */; };
+		5966D1FF25CFF12400520777 /* the_wanderer_2.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11725CFF0D100520777 /* the_wanderer_2.mod */; };
+		5966D20025CFF12400520777 /* crystal rain.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11825CFF0D100520777 /* crystal rain.mod */; };
+		5966D20125CFF12400520777 /* now what 3.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11925CFF0D100520777 /* now what 3.mod */; };
+		5966D20225CFF12400520777 /* we're the devils.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11A25CFF0D100520777 /* we're the devils.mod */; };
+		5966D20325CFF12400520777 /* unreal ][.png in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11B25CFF0D100520777 /* unreal ][.png */; };
+		5966D20425CFF12400520777 /* cream of the earth.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11C25CFF0D100520777 /* cream of the earth.mod */; };
+		5966D20525CFF12400520777 /* 1999.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11D25CFF0D100520777 /* 1999.xm */; };
+		5966D20625CFF12400520777 /* sleeping waste.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11E25CFF0D100520777 /* sleeping waste.mod */; };
+		5966D20725CFF12400520777 /* desert dream.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D11F25CFF0D100520777 /* desert dream.mod */; };
+		5966D20825CFF12400520777 /* umbrellas of peru.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D12025CFF0D100520777 /* umbrellas of peru.xm */; };
+		5966D20925CFF12400520777 /* spell-amelioration.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D12125CFF0D100520777 /* spell-amelioration.mod */; };
+		5966D20A25CFF12400520777 /* switchback.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D12225CFF0D100520777 /* switchback.mod */; };
+		5966D20B25CFF12400520777 /* unreal ][.s3m in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D12325CFF0D100520777 /* unreal ][.s3m */; };
+		5966D20C25CFF12400520777 /* odyssey-part5.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D12425CFF0D100520777 /* odyssey-part5.mod */; };
+		5966D20D25CFF12400520777 /* virtual escape.sndh in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D12525CFF0D100520777 /* virtual escape.sndh */; };
+		5966D20E25CFF12400520777 /* hyperbased (musiklinjen, enigma).mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 5966D12625CFF0D100520777 /* hyperbased (musiklinjen, enigma).mod */; };
+		5966D21025CFF13B00520777 /* bubble bobble.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12825CFF0D100520777 /* bubble bobble.mod */; };
+		5966D21125CFF13B00520777 /* MegaMan3.rar in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12925CFF0D100520777 /* MegaMan3.rar */; };
+		5966D21225CFF13B00520777 /* dune - ecolove.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12A25CFF0D100520777 /* dune - ecolove.jpg */; };
+		5966D21325CFF13B00520777 /* MegaMan3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12B25CFF0D100520777 /* MegaMan3.jpg */; };
+		5966D21425CFF13B00520777 /* turrican 2 level 0-intro.mdat in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12C25CFF0D100520777 /* turrican 2 level 0-intro.mdat */; };
+		5966D21525CFF13B00520777 /* unreal title.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12D25CFF0D100520777 /* unreal title.jpg */; };
+		5966D21625CFF13B00520777 /* dune - fremens.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12E25CFF0D100520777 /* dune - fremens.jpg */; };
+		5966D21725CFF13B00520777 /* Castlevania 3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D12F25CFF0D100520777 /* Castlevania 3.jpg */; };
+		5966D21825CFF13B00520777 /* Castlevania 3.nsfe in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13025CFF0D100520777 /* Castlevania 3.nsfe */; };
+		5966D21925CFF13B00520777 /* the seven gates of jambala (intro).gif in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13125CFF0D100520777 /* the seven gates of jambala (intro).gif */; };
+		5966D21A25CFF13B00520777 /* turrican 2 level 0-intro.smpl in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13225CFF0D100520777 /* turrican 2 level 0-intro.smpl */; };
+		5966D21B25CFF13B00520777 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13325CFF0D100520777 /* One_Man_and_His_Droid.sid */; };
+		5966D21C25CFF13B00520777 /* FF7_AerisTheme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13425CFF0D100520777 /* FF7_AerisTheme.mid */; };
+		5966D21D25CFF13B00520777 /* zelda.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13525CFF0D100520777 /* zelda.mid */; };
+		5966D21E25CFF13B00520777 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13625CFF0D100520777 /* DukeNukem_Level1.jpg */; };
+		5966D21F25CFF13B00520777 /* SMB1-Theme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13725CFF0D100520777 /* SMB1-Theme.mid */; };
+		5966D22025CFF13B00520777 /* turrican intro.smpl in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13825CFF0D100520777 /* turrican intro.smpl */; };
+		5966D22125CFF13B00520777 /* DukeNukem_Level1.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13925CFF0D100520777 /* DukeNukem_Level1.mid */; };
+		5966D22225CFF13B00520777 /* zelda.png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13A25CFF0D100520777 /* zelda.png */; };
+		5966D22325CFF13B00520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13B25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */; };
+		5966D22425CFF13B00520777 /* ij4 - end credits1.png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13C25CFF0D100520777 /* ij4 - end credits1.png */; };
+		5966D22525CFF13B00520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13D25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */; };
+		5966D22625CFF13B00520777 /* monkey island 2 - intro.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13E25CFF0D100520777 /* monkey island 2 - intro.jpg */; };
+		5966D22725CFF13B00520777 /* Monty_on_the_Run.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D13F25CFF0D100520777 /* Monty_on_the_Run.jpg */; };
+		5966D22825CFF13B00520777 /* turrican intro.mdat in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14025CFF0D100520777 /* turrican intro.mdat */; };
+		5966D22925CFF13B00520777 /* the seven gates of jambala (intro).hip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14125CFF0D100520777 /* the seven gates of jambala (intro).hip */; };
+		5966D22A25CFF13B00520777 /* gr-b03.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14225CFF0D100520777 /* gr-b03.jpg */; };
+		5966D22B25CFF13B00520777 /* dune - ecolove.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14325CFF0D100520777 /* dune - ecolove.mod */; };
+		5966D22C25CFF13B00520777 /* turrican intro.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14425CFF0D100520777 /* turrican intro.jpg */; };
+		5966D22D25CFF13B00520777 /* bubble bobble.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14525CFF0D100520777 /* bubble bobble.jpg */; };
+		5966D22E25CFF13B00520777 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14625CFF0D100520777 /* One_Man_and_His_Droid.jpg */; };
+		5966D22F25CFF13B00520777 /* dune - fremens.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14725CFF0D100520777 /* dune - fremens.mod */; };
+		5966D23025CFF13B00520777 /* gr-b01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14825CFF0D100520777 /* gr-b01.jpg */; };
+		5966D23125CFF13B00520777 /* turrican 2 level 0-intro.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14925CFF0D100520777 /* turrican 2 level 0-intro.jpg */; };
+		5966D23225CFF13B00520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14A25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */; };
+		5966D23325CFF13B00520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14B25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */; };
+		5966D23425CFF13B00520777 /* gr-b07.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14C25CFF0D100520777 /* gr-b07.jpg */; };
+		5966D23525CFF13B00520777 /* Doom2-Stage01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14D25CFF0D100520777 /* Doom2-Stage01.jpg */; };
+		5966D23625CFF13B00520777 /* gr-b07.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14E25CFF0D100520777 /* gr-b07.mdx */; };
+		5966D23725CFF13B00520777 /* Monty_on_the_Run.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D14F25CFF0D100520777 /* Monty_on_the_Run.sid */; };
+		5966D23825CFF13B00520777 /* monkey island 2 - intro.raw in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15025CFF0D100520777 /* monkey island 2 - intro.raw */; };
+		5966D23925CFF13B00520777 /* SOMI_title theme.gif in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15125CFF0D100520777 /* SOMI_title theme.gif */; };
+		5966D23A25CFF13B00520777 /* unreal menu.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15225CFF0D100520777 /* unreal menu.jpg */; };
+		5966D23B25CFF13B00520777 /* Doom2-Stage01.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15325CFF0D100520777 /* Doom2-Stage01.mid */; };
+		5966D23C25CFF13B00520777 /* gr-pcm.pdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15425CFF0D100520777 /* gr-pcm.pdx */; };
+		5966D23D25CFF13B00520777 /* SOMI_title theme.laa in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15525CFF0D100520777 /* SOMI_title theme.laa */; };
+		5966D23E25CFF13B00520777 /* unreal title.jt in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15625CFF0D100520777 /* unreal title.jt */; };
+		5966D23F25CFF13B00520777 /* gr-b01.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15725CFF0D100520777 /* gr-b01.mdx */; };
+		5966D24025CFF13B00520777 /* unreal menu.jt in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15825CFF0D100520777 /* unreal menu.jt */; };
+		5966D24125CFF13B00520777 /* gr-b03.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15925CFF0D100520777 /* gr-b03.mdx */; };
+		5966D24225CFF13B00520777 /* ij4 - end credits1.laa in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5966D15A25CFF0D100520777 /* ij4 - end credits1.laa */; };
+		5966D24425CFF14D00520777 /* mozart_k331c.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D15C25CFF0D100520777 /* mozart_k331c.mid */; };
+		5966D24525CFF14D00520777 /* bach_toccata_fugue_Dmin.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D15D25CFF0D100520777 /* bach_toccata_fugue_Dmin.mid */; };
+		5966D24625CFF14D00520777 /* rachmaninoff_op18.zip in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D15E25CFF0D100520777 /* rachmaninoff_op18.zip */; };
+		5966D24725CFF14D00520777 /* liszt_hr2.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D15F25CFF0D100520777 /* liszt_hr2.mid */; };
+		5966D24825CFF14D00520777 /* debussy_arabesqu.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16025CFF0D100520777 /* debussy_arabesqu.mid */; };
+		5966D24925CFF14D00520777 /* liszt_feux.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16125CFF0D100520777 /* liszt_feux.mid */; };
+		5966D24A25CFF14D00520777 /* grieg_pianocon.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16225CFF0D100520777 /* grieg_pianocon.mid */; };
+		5966D24B25CFF14D00520777 /* grieg_4_mtking.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16325CFF0D100520777 /* grieg_4_mtking.mid */; };
+		5966D24C25CFF14D00520777 /* tchaikovsky_1.zip in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16425CFF0D100520777 /* tchaikovsky_1.zip */; };
+		5966D24D25CFF14D00520777 /* liszt_liebstrm.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16525CFF0D100520777 /* liszt_liebstrm.mid */; };
+		5966D24E25CFF14D00520777 /* faure_pavane.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16625CFF0D100520777 /* faure_pavane.mid */; };
+		5966D24F25CFF14D00520777 /* brahms_hungdan5.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16725CFF0D100520777 /* brahms_hungdan5.mid */; };
+		5966D25025CFF14D00520777 /* rachmaninoff_pagvar18.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16825CFF0D100520777 /* rachmaninoff_pagvar18.mid */; };
+		5966D25125CFF14D00520777 /* joplin_mapleaf.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16925CFF0D100520777 /* joplin_mapleaf.mid */; };
+		5966D25225CFF14D00520777 /* liszt_pe3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16A25CFF0D100520777 /* liszt_pe3.mid */; };
+		5966D25325CFF14D00520777 /* tchaikovski_Flowers.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16B25CFF0D100520777 /* tchaikovski_Flowers.mid */; };
+		5966D25425CFF14D00520777 /* bach_cs1-1pre.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16C25CFF0D100520777 /* bach_cs1-1pre.mid */; };
+		5966D25525CFF14D00520777 /* bach_goldberg.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16D25CFF0D100520777 /* bach_goldberg.mid */; };
+		5966D25625CFF14D00520777 /* Ravel_PianoConcertoinG.zip in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16E25CFF0D100520777 /* Ravel_PianoConcertoinG.zip */; };
+		5966D25725CFF14D00520777 /* ravel_pavane_orchestra.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D16F25CFF0D100520777 /* ravel_pavane_orchestra.mid */; };
+		5966D25825CFF14D00520777 /* chopin_ballade1.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17025CFF0D100520777 /* chopin_ballade1.mid */; };
+		5966D25925CFF14D00520777 /* albeniz_asturia.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17125CFF0D100520777 /* albeniz_asturia.mid */; };
+		5966D25A25CFF14D00520777 /* beethoven_op27m3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17225CFF0D100520777 /* beethoven_op27m3.mid */; };
+		5966D25B25CFF14D00520777 /* chopin_no4801.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17325CFF0D100520777 /* chopin_no4801.mid */; };
+		5966D25C25CFF14D00520777 /* liszt_mazeppa.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17425CFF0D100520777 /* liszt_mazeppa.mid */; };
+		5966D25D25CFF14D00520777 /* beethoven_op125_3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17525CFF0D100520777 /* beethoven_op125_3.mid */; };
+		5966D25E25CFF14D00520777 /* chopin_fantaisie.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17625CFF0D100520777 /* chopin_fantaisie.mid */; };
 		59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B431E3D103100C629AA /* tabview_gradient40Blue.png */; };
 		59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */; };
 		59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */; };
@@ -342,8 +570,6 @@
 		59B9998025CFE5700071E144 /* BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5A817B17A5100AE0EA1 /* BButton.m */; };
 		59B9998D25CFE6160071E144 /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59B9998825CFE5F50071E144 /* libTapkuLibrary.a */; };
 		59B9999625CFE6890071E144 /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9999525CFE6890071E144 /* SESlideTableViewCell.m */; };
-		59BE94B0203C1350009F0255 /* Castlevania 3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59BE94A7203C134F009F0255 /* Castlevania 3.jpg */; };
-		59BE94B1204186DD009F0255 /* Castlevania 3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 59BE94A7203C134F009F0255 /* Castlevania 3.jpg */; };
 		59C22A1A25B992D9003FEDBF /* AFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0825B992D9003FEDBF /* AFURLResponseSerialization.m */; };
 		59C22A1B25B992D9003FEDBF /* AFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0925B992D9003FEDBF /* AFHTTPSessionManager.m */; };
 		59C22A1C25B992D9003FEDBF /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0B25B992D9003FEDBF /* AFURLSessionManager.m */; };
@@ -354,8 +580,6 @@
 		59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB325BC8C3B003FEDBF /* libxml2.tbd */; };
 		59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB725BC8CFF003FEDBF /* Security.framework */; };
 		59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */; };
-		59F281451E5B5A1A000B7A4C /* Castlevania 3.nsfe in Resources */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
-		59F281461E5B6051000B7A4C /* Castlevania 3.nsfe in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
@@ -698,9 +922,6 @@
 		CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */; };
 		CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */; };
 		CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */; };
-		CC91689517F01F560012E2C1 /* james_bond.jpg in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682B17F01EC80012E2C1 /* james_bond.jpg */; };
-		CC91689617F01F560012E2C1 /* james_bond.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682C17F01EC80012E2C1 /* james_bond.mid */; };
-		CC91689717F01F560012E2C1 /* Live_And_Let_Die.mid in Copy Files-Samples Various */ = {isa = PBXBuildFile; fileRef = CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */ = {isa = PBXBuildFile; fileRef = CC9F0E3A123DEFCC00D8EE6D /* config.txt */; };
 		CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */; };
@@ -750,114 +971,6 @@
 		CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */; };
 		CCC6776C17F62BCC00F16A54 /* txtMenu7e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */; };
 		CCC6777117F6B92500F16A54 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = CCC6777017F6B92500F16A54 /* CMPopTipView.m */; };
-		CCC677C217F75AEB00F16A54 /* virtual escape.sndh in Resources */ = {isa = PBXBuildFile; fileRef = CCC6779917F75AEB00F16A54 /* virtual escape.sndh */; };
-		CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777317F75AEA00F16A54 /* 1999.xm */; };
-		CCC6785B17F75B9500F16A54 /* beat to the pulp.sid in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */; };
-		CCC6785C17F75B9500F16A54 /* beyond music.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777617F75AEA00F16A54 /* beyond music.mod */; };
-		CCC6785E17F75B9500F16A54 /* cream of the earth.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777817F75AEA00F16A54 /* cream of the earth.mod */; };
-		CCC6785F17F75B9500F16A54 /* crystal rain.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777917F75AEA00F16A54 /* crystal rain.mod */; };
-		CCC6786017F75B9500F16A54 /* desert dream.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777A17F75AEB00F16A54 /* desert dream.mod */; };
-		CCC6786217F75B9500F16A54 /* elysium.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777C17F75AEB00F16A54 /* elysium.mod */; };
-		CCC6786417F75B9500F16A54 /* ghouls.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6777E17F75AEB00F16A54 /* ghouls.mod */; };
-		CCC6786717F75B9500F16A54 /* hyperbased (musiklinjen, enigma).mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778117F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod */; };
-		CCC6786817F75B9500F16A54 /* knulla kuk !!!.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778217F75AEB00F16A54 /* knulla kuk !!!.mod */; };
-		CCC6786917F75B9500F16A54 /* livin' insanity.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778317F75AEB00F16A54 /* livin' insanity.mod */; };
-		CCC6786A17F75B9500F16A54 /* nearly there.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778417F75AEB00F16A54 /* nearly there.mod */; };
-		CCC6786B17F75B9500F16A54 /* nebulos.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778517F75AEB00F16A54 /* nebulos.mod */; };
-		CCC6786D17F75B9500F16A54 /* now what 3.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778717F75AEB00F16A54 /* now what 3.mod */; };
-		CCC6786E17F75B9500F16A54 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778817F75AEB00F16A54 /* odyssey-part5.jpg */; };
-		CCC6786F17F75B9500F16A54 /* odyssey-part5.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778917F75AEB00F16A54 /* odyssey-part5.mod */; };
-		CCC6787017F75B9500F16A54 /* physical presence.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778A17F75AEB00F16A54 /* physical presence.mod */; };
-		CCC6787117F75B9500F16A54 /* pools of poison.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778B17F75AEB00F16A54 /* pools of poison.xm */; };
-		CCC6787217F75B9500F16A54 /* reverie of truth.compo.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778C17F75AEB00F16A54 /* reverie of truth.compo.mod */; };
-		CCC6787317F75B9500F16A54 /* sleeping waste.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778D17F75AEB00F16A54 /* sleeping waste.mod */; };
-		CCC6787417F75B9500F16A54 /* space debris.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778E17F75AEB00F16A54 /* space debris.mod */; };
-		CCC6787517F75B9500F16A54 /* spell-amelioration.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6778F17F75AEB00F16A54 /* spell-amelioration.mod */; };
-		CCC6787617F75B9500F16A54 /* switchback.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779017F75AEB00F16A54 /* switchback.mod */; };
-		CCC6787717F75B9500F16A54 /* the_wanderer_2.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779117F75AEB00F16A54 /* the_wanderer_2.mod */; };
-		CCC6787817F75B9500F16A54 /* touchin' the chip.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779217F75AEB00F16A54 /* touchin' the chip.xm */; };
-		CCC6787917F75B9500F16A54 /* trans atlantic short.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779317F75AEB00F16A54 /* trans atlantic short.mod */; };
-		CCC6787A17F75B9500F16A54 /* umbrellas of peru.xm in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779417F75AEB00F16A54 /* umbrellas of peru.xm */; };
-		CCC6787B17F75B9500F16A54 /* unreal ][.png in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779517F75AEB00F16A54 /* unreal ][.png */; };
-		CCC6787C17F75B9500F16A54 /* unreal ][.s3m in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779617F75AEB00F16A54 /* unreal ][.s3m */; };
-		CCC6787D17F75B9500F16A54 /* varanen short.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779717F75AEB00F16A54 /* varanen short.mod */; };
-		CCC6787E17F75B9500F16A54 /* virtual escape.gif in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779817F75AEB00F16A54 /* virtual escape.gif */; };
-		CCC6787F17F75B9500F16A54 /* virtual escape.sndh in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779917F75AEB00F16A54 /* virtual escape.sndh */; };
-		CCC6788017F75B9500F16A54 /* we're the devils.mod in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CCC6779A17F75AEB00F16A54 /* we're the devils.mod */; };
-		CCC6788117F75C3600F16A54 /* bubble bobble.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C417F75AFB00F16A54 /* bubble bobble.jpg */; };
-		CCC6788217F75C3600F16A54 /* bubble bobble.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C517F75AFB00F16A54 /* bubble bobble.mod */; };
-		CCC6788517F75C3600F16A54 /* Doom2-Stage01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C817F75AFB00F16A54 /* Doom2-Stage01.jpg */; };
-		CCC6788617F75C3600F16A54 /* Doom2-Stage01.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677C917F75AFB00F16A54 /* Doom2-Stage01.mid */; };
-		CCC6788717F75C3600F16A54 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677CA17F75AFB00F16A54 /* DukeNukem_Level1.jpg */; };
-		CCC6788817F75C3600F16A54 /* DukeNukem_Level1.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677CB17F75AFB00F16A54 /* DukeNukem_Level1.mid */; };
-		CCC6788917F75C3600F16A54 /* dune - ecolove.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677CC17F75AFB00F16A54 /* dune - ecolove.jpg */; };
-		CCC6788A17F75C3600F16A54 /* dune - ecolove.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677CD17F75AFB00F16A54 /* dune - ecolove.mod */; };
-		CCC6788B17F75C3600F16A54 /* dune - fremens.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677CE17F75AFB00F16A54 /* dune - fremens.jpg */; };
-		CCC6788C17F75C3600F16A54 /* dune - fremens.mod in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677CF17F75AFB00F16A54 /* dune - fremens.mod */; };
-		CCC6788D17F75C3600F16A54 /* FF7_AerisTheme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D017F75AFB00F16A54 /* FF7_AerisTheme.mid */; };
-		CCC6788E17F75C3600F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D117F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */; };
-		CCC6788F17F75C3600F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D217F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */; };
-		CCC6789117F75C3600F16A54 /* ij4 - end credits1.laa in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D417F75AFB00F16A54 /* ij4 - end credits1.laa */; };
-		CCC6789217F75C3600F16A54 /* MegaMan3.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D517F75AFB00F16A54 /* MegaMan3.jpg */; };
-		CCC6789317F75C3600F16A54 /* MegaMan3.rar in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D617F75AFB00F16A54 /* MegaMan3.rar */; };
-		CCC6789417F75C3600F16A54 /* monkey island 2 - intro.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D717F75AFB00F16A54 /* monkey island 2 - intro.jpg */; };
-		CCC6789517F75C3600F16A54 /* monkey island 2 - intro.raw in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D817F75AFB00F16A54 /* monkey island 2 - intro.raw */; };
-		CCC6789617F75C3600F16A54 /* Monty_on_the_Run.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677D917F75AFB00F16A54 /* Monty_on_the_Run.jpg */; };
-		CCC6789717F75C3600F16A54 /* Monty_on_the_Run.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677DA17F75AFB00F16A54 /* Monty_on_the_Run.sid */; };
-		CCC6789817F75C3600F16A54 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677DB17F75AFB00F16A54 /* One_Man_and_His_Droid.jpg */; };
-		CCC6789917F75C3600F16A54 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677DC17F75AFB00F16A54 /* One_Man_and_His_Droid.sid */; };
-		CCC6789A17F75C3600F16A54 /* SMB1-Theme.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677DD17F75AFB00F16A54 /* SMB1-Theme.mid */; };
-		CCC6789B17F75C3600F16A54 /* SOMI_title theme.gif in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677DE17F75AFB00F16A54 /* SOMI_title theme.gif */; };
-		CCC6789C17F75C3600F16A54 /* SOMI_title theme.laa in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677DF17F75AFB00F16A54 /* SOMI_title theme.laa */; };
-		CCC6789D17F75C3600F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E017F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */; };
-		CCC6789E17F75C3600F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E117F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */; };
-		CCC6789F17F75C3600F16A54 /* the seven gates of jambala (intro).gif in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E217F75AFB00F16A54 /* the seven gates of jambala (intro).gif */; };
-		CCC678A017F75C3600F16A54 /* the seven gates of jambala (intro).hip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E317F75AFB00F16A54 /* the seven gates of jambala (intro).hip */; };
-		CCC678A117F75C3600F16A54 /* turrican 2 level 0-intro.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E417F75AFB00F16A54 /* turrican 2 level 0-intro.jpg */; };
-		CCC678A217F75C3600F16A54 /* turrican 2 level 0-intro.mdat in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E517F75AFB00F16A54 /* turrican 2 level 0-intro.mdat */; };
-		CCC678A317F75C3600F16A54 /* turrican 2 level 0-intro.smpl in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E617F75AFB00F16A54 /* turrican 2 level 0-intro.smpl */; };
-		CCC678A417F75C3600F16A54 /* turrican intro.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E717F75AFB00F16A54 /* turrican intro.jpg */; };
-		CCC678A517F75C3600F16A54 /* turrican intro.mdat in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E817F75AFB00F16A54 /* turrican intro.mdat */; };
-		CCC678A617F75C3600F16A54 /* turrican intro.smpl in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677E917F75AFB00F16A54 /* turrican intro.smpl */; };
-		CCC678A717F75C3600F16A54 /* unreal menu.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677EA17F75AFB00F16A54 /* unreal menu.jpg */; };
-		CCC678A817F75C3600F16A54 /* unreal menu.jt in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677EB17F75AFB00F16A54 /* unreal menu.jt */; };
-		CCC678A917F75C3600F16A54 /* unreal title.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677EC17F75AFB00F16A54 /* unreal title.jpg */; };
-		CCC678AA17F75C3600F16A54 /* unreal title.jt in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677ED17F75AFB00F16A54 /* unreal title.jt */; };
-		CCC678AB17F75C3600F16A54 /* zelda.mid in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677EE17F75AFB00F16A54 /* zelda.mid */; };
-		CCC678AC17F75C3600F16A54 /* zelda.png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC677EF17F75AFB00F16A54 /* zelda.png */; };
-		CCC678AD17F75DE000F16A54 /* albeniz_asturia.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6781C17F75B1000F16A54 /* albeniz_asturia.mid */; };
-		CCC678AE17F75DE000F16A54 /* bach_cs1-1pre.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6781D17F75B1000F16A54 /* bach_cs1-1pre.mid */; };
-		CCC678AF17F75DE000F16A54 /* bach_goldberg.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6781E17F75B1000F16A54 /* bach_goldberg.mid */; };
-		CCC678B017F75DE000F16A54 /* bach_toccata_fugue_Dmin.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6781F17F75B1000F16A54 /* bach_toccata_fugue_Dmin.mid */; };
-		CCC678B117F75DE000F16A54 /* beethoven_op27m3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782017F75B1000F16A54 /* beethoven_op27m3.mid */; };
-		CCC678B217F75DE000F16A54 /* beethoven_op125_3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782117F75B1000F16A54 /* beethoven_op125_3.mid */; };
-		CCC678B317F75DE000F16A54 /* brahms_hungdan5.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782217F75B1000F16A54 /* brahms_hungdan5.mid */; };
-		CCC678B417F75DE000F16A54 /* chopin_ballade1.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782317F75B1000F16A54 /* chopin_ballade1.mid */; };
-		CCC678B517F75DE000F16A54 /* chopin_fantaisie.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782417F75B1000F16A54 /* chopin_fantaisie.mid */; };
-		CCC678B617F75DE000F16A54 /* chopin_no4801.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782517F75B1000F16A54 /* chopin_no4801.mid */; };
-		CCC678B717F75DE000F16A54 /* debussy_arabesqu.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782617F75B1000F16A54 /* debussy_arabesqu.mid */; };
-		CCC678B817F75DE000F16A54 /* faure_pavane.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782717F75B1000F16A54 /* faure_pavane.mid */; };
-		CCC678B917F75DE000F16A54 /* grieg_4_mtking.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782817F75B1000F16A54 /* grieg_4_mtking.mid */; };
-		CCC678BA17F75DE000F16A54 /* grieg_pianocon.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782917F75B1000F16A54 /* grieg_pianocon.mid */; };
-		CCC678BB17F75DE000F16A54 /* joplin_mapleaf.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782A17F75B1000F16A54 /* joplin_mapleaf.mid */; };
-		CCC678BC17F75DE000F16A54 /* liszt_feux.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782B17F75B1000F16A54 /* liszt_feux.mid */; };
-		CCC678BD17F75DE000F16A54 /* liszt_hr2.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782C17F75B1000F16A54 /* liszt_hr2.mid */; };
-		CCC678BE17F75DE000F16A54 /* liszt_liebstrm.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782D17F75B1000F16A54 /* liszt_liebstrm.mid */; };
-		CCC678BF17F75DE000F16A54 /* liszt_mazeppa.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782E17F75B1000F16A54 /* liszt_mazeppa.mid */; };
-		CCC678C017F75DE000F16A54 /* liszt_pe3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6782F17F75B1000F16A54 /* liszt_pe3.mid */; };
-		CCC678C117F75DE000F16A54 /* mozart_k331c.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783017F75B1000F16A54 /* mozart_k331c.mid */; };
-		CCC678C517F75DE000F16A54 /* rachmaninoff_pagvar18.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783417F75B1000F16A54 /* rachmaninoff_pagvar18.mid */; };
-		CCC678C617F75DE000F16A54 /* ravel_pavane_orchestra.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783517F75B1000F16A54 /* ravel_pavane_orchestra.mid */; };
-		CCC678C717F75DE000F16A54 /* Ravel_PianoConcertoinG.zip in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783617F75B1000F16A54 /* Ravel_PianoConcertoinG.zip */; };
-		CCC678C817F75DE000F16A54 /* tchaikovski_Flowers.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */; };
-		CCC678D917F76CC600F16A54 /* gr-b01.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CB17F76CA700F16A54 /* gr-b01.jpg */; };
-		CCC678DA17F76CC600F16A54 /* gr-b01.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CC17F76CA700F16A54 /* gr-b01.mdx */; };
-		CCC678DB17F76CC600F16A54 /* gr-b03.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CD17F76CA700F16A54 /* gr-b03.jpg */; };
-		CCC678DC17F76CC600F16A54 /* gr-b03.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CE17F76CA700F16A54 /* gr-b03.mdx */; };
-		CCC678DD17F76CC600F16A54 /* gr-b07.jpg in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678CF17F76CA700F16A54 /* gr-b07.jpg */; };
-		CCC678DE17F76CC600F16A54 /* gr-b07.mdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678D017F76CA700F16A54 /* gr-b07.mdx */; };
-		CCC678DF17F76CC600F16A54 /* gr-pcm.pdx in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678D117F76CA700F16A54 /* gr-pcm.pdx */; };
-		CCC678E217F76F0100F16A54 /* ij4 - end credits1.png in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = CCC678E017F76ED900F16A54 /* ij4 - end credits1.png */; };
 		CCC678E917F88AF900F16A54 /* star0@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E317F88AF900F16A54 /* star0@2x.png */; };
 		CCC678EA17F88AF900F16A54 /* star1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E417F88AF900F16A54 /* star1@2x.png */; };
 		CCC678EB17F88AF900F16A54 /* star2@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E517F88AF900F16A54 /* star2@2x.png */; };
@@ -1186,39 +1299,39 @@
 			dstPath = Samples/Demoscene;
 			dstSubfolderSpec = 7;
 			files = (
-				CCC6785917F75B9500F16A54 /* 1999.xm in Copy Files-Samples Demoscene */,
-				CCC6785B17F75B9500F16A54 /* beat to the pulp.sid in Copy Files-Samples Demoscene */,
-				CCC6785C17F75B9500F16A54 /* beyond music.mod in Copy Files-Samples Demoscene */,
-				CCC6785E17F75B9500F16A54 /* cream of the earth.mod in Copy Files-Samples Demoscene */,
-				CCC6785F17F75B9500F16A54 /* crystal rain.mod in Copy Files-Samples Demoscene */,
-				CCC6786017F75B9500F16A54 /* desert dream.mod in Copy Files-Samples Demoscene */,
-				CCC6786217F75B9500F16A54 /* elysium.mod in Copy Files-Samples Demoscene */,
-				CCC6786417F75B9500F16A54 /* ghouls.mod in Copy Files-Samples Demoscene */,
-				CCC6786717F75B9500F16A54 /* hyperbased (musiklinjen, enigma).mod in Copy Files-Samples Demoscene */,
-				CCC6786817F75B9500F16A54 /* knulla kuk !!!.mod in Copy Files-Samples Demoscene */,
-				CCC6786917F75B9500F16A54 /* livin' insanity.mod in Copy Files-Samples Demoscene */,
-				CCC6786A17F75B9500F16A54 /* nearly there.mod in Copy Files-Samples Demoscene */,
-				CCC6786B17F75B9500F16A54 /* nebulos.mod in Copy Files-Samples Demoscene */,
-				CCC6786D17F75B9500F16A54 /* now what 3.mod in Copy Files-Samples Demoscene */,
-				CCC6786E17F75B9500F16A54 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */,
-				CCC6786F17F75B9500F16A54 /* odyssey-part5.mod in Copy Files-Samples Demoscene */,
-				CCC6787017F75B9500F16A54 /* physical presence.mod in Copy Files-Samples Demoscene */,
-				CCC6787117F75B9500F16A54 /* pools of poison.xm in Copy Files-Samples Demoscene */,
-				CCC6787217F75B9500F16A54 /* reverie of truth.compo.mod in Copy Files-Samples Demoscene */,
-				CCC6787317F75B9500F16A54 /* sleeping waste.mod in Copy Files-Samples Demoscene */,
-				CCC6787417F75B9500F16A54 /* space debris.mod in Copy Files-Samples Demoscene */,
-				CCC6787517F75B9500F16A54 /* spell-amelioration.mod in Copy Files-Samples Demoscene */,
-				CCC6787617F75B9500F16A54 /* switchback.mod in Copy Files-Samples Demoscene */,
-				CCC6787717F75B9500F16A54 /* the_wanderer_2.mod in Copy Files-Samples Demoscene */,
-				CCC6787817F75B9500F16A54 /* touchin' the chip.xm in Copy Files-Samples Demoscene */,
-				CCC6787917F75B9500F16A54 /* trans atlantic short.mod in Copy Files-Samples Demoscene */,
-				CCC6787A17F75B9500F16A54 /* umbrellas of peru.xm in Copy Files-Samples Demoscene */,
-				CCC6787B17F75B9500F16A54 /* unreal ][.png in Copy Files-Samples Demoscene */,
-				CCC6787C17F75B9500F16A54 /* unreal ][.s3m in Copy Files-Samples Demoscene */,
-				CCC6787D17F75B9500F16A54 /* varanen short.mod in Copy Files-Samples Demoscene */,
-				CCC6787E17F75B9500F16A54 /* virtual escape.gif in Copy Files-Samples Demoscene */,
-				CCC6787F17F75B9500F16A54 /* virtual escape.sndh in Copy Files-Samples Demoscene */,
-				CCC6788017F75B9500F16A54 /* we're the devils.mod in Copy Files-Samples Demoscene */,
+				5966D1EE25CFF12400520777 /* touchin' the chip.xm in Copy Files-Samples Demoscene */,
+				5966D1EF25CFF12400520777 /* nebulos.mod in Copy Files-Samples Demoscene */,
+				5966D1F025CFF12400520777 /* trans atlantic short.mod in Copy Files-Samples Demoscene */,
+				5966D1F125CFF12400520777 /* elysium.mod in Copy Files-Samples Demoscene */,
+				5966D1F225CFF12400520777 /* varanen short.mod in Copy Files-Samples Demoscene */,
+				5966D1F325CFF12400520777 /* nearly there.mod in Copy Files-Samples Demoscene */,
+				5966D1F425CFF12400520777 /* knulla kuk !!!.mod in Copy Files-Samples Demoscene */,
+				5966D1F525CFF12400520777 /* space debris.mod in Copy Files-Samples Demoscene */,
+				5966D1F625CFF12400520777 /* virtual escape.gif in Copy Files-Samples Demoscene */,
+				5966D1F725CFF12400520777 /* reverie of truth.compo.mod in Copy Files-Samples Demoscene */,
+				5966D1F825CFF12400520777 /* physical presence.mod in Copy Files-Samples Demoscene */,
+				5966D1F925CFF12400520777 /* ghouls.mod in Copy Files-Samples Demoscene */,
+				5966D1FA25CFF12400520777 /* beyond music.mod in Copy Files-Samples Demoscene */,
+				5966D1FB25CFF12400520777 /* odyssey-part5.jpg in Copy Files-Samples Demoscene */,
+				5966D1FC25CFF12400520777 /* beat to the pulp.sid in Copy Files-Samples Demoscene */,
+				5966D1FD25CFF12400520777 /* livin' insanity.mod in Copy Files-Samples Demoscene */,
+				5966D1FE25CFF12400520777 /* pools of poison.xm in Copy Files-Samples Demoscene */,
+				5966D1FF25CFF12400520777 /* the_wanderer_2.mod in Copy Files-Samples Demoscene */,
+				5966D20025CFF12400520777 /* crystal rain.mod in Copy Files-Samples Demoscene */,
+				5966D20125CFF12400520777 /* now what 3.mod in Copy Files-Samples Demoscene */,
+				5966D20225CFF12400520777 /* we're the devils.mod in Copy Files-Samples Demoscene */,
+				5966D20325CFF12400520777 /* unreal ][.png in Copy Files-Samples Demoscene */,
+				5966D20425CFF12400520777 /* cream of the earth.mod in Copy Files-Samples Demoscene */,
+				5966D20525CFF12400520777 /* 1999.xm in Copy Files-Samples Demoscene */,
+				5966D20625CFF12400520777 /* sleeping waste.mod in Copy Files-Samples Demoscene */,
+				5966D20725CFF12400520777 /* desert dream.mod in Copy Files-Samples Demoscene */,
+				5966D20825CFF12400520777 /* umbrellas of peru.xm in Copy Files-Samples Demoscene */,
+				5966D20925CFF12400520777 /* spell-amelioration.mod in Copy Files-Samples Demoscene */,
+				5966D20A25CFF12400520777 /* switchback.mod in Copy Files-Samples Demoscene */,
+				5966D20B25CFF12400520777 /* unreal ][.s3m in Copy Files-Samples Demoscene */,
+				5966D20C25CFF12400520777 /* odyssey-part5.mod in Copy Files-Samples Demoscene */,
+				5966D20D25CFF12400520777 /* virtual escape.sndh in Copy Files-Samples Demoscene */,
+				5966D20E25CFF12400520777 /* hyperbased (musiklinjen, enigma).mod in Copy Files-Samples Demoscene */,
 			);
 			name = "Copy Files-Samples Demoscene";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1229,57 +1342,57 @@
 			dstPath = Samples/Games;
 			dstSubfolderSpec = 7;
 			files = (
-				59BE94B1204186DD009F0255 /* Castlevania 3.jpg in Copy Files-Samples Games */,
-				59F281461E5B6051000B7A4C /* Castlevania 3.nsfe in Copy Files-Samples Games */,
-				CCC678E217F76F0100F16A54 /* ij4 - end credits1.png in Copy Files-Samples Games */,
-				CCC678D917F76CC600F16A54 /* gr-b01.jpg in Copy Files-Samples Games */,
-				CCC678DA17F76CC600F16A54 /* gr-b01.mdx in Copy Files-Samples Games */,
-				CCC678DB17F76CC600F16A54 /* gr-b03.jpg in Copy Files-Samples Games */,
-				CCC678DC17F76CC600F16A54 /* gr-b03.mdx in Copy Files-Samples Games */,
-				CCC678DD17F76CC600F16A54 /* gr-b07.jpg in Copy Files-Samples Games */,
-				CCC678DE17F76CC600F16A54 /* gr-b07.mdx in Copy Files-Samples Games */,
-				CCC678DF17F76CC600F16A54 /* gr-pcm.pdx in Copy Files-Samples Games */,
-				CCC6788117F75C3600F16A54 /* bubble bobble.jpg in Copy Files-Samples Games */,
-				CCC6788217F75C3600F16A54 /* bubble bobble.mod in Copy Files-Samples Games */,
-				CCC6788517F75C3600F16A54 /* Doom2-Stage01.jpg in Copy Files-Samples Games */,
-				CCC6788617F75C3600F16A54 /* Doom2-Stage01.mid in Copy Files-Samples Games */,
-				CCC6788717F75C3600F16A54 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */,
-				CCC6788817F75C3600F16A54 /* DukeNukem_Level1.mid in Copy Files-Samples Games */,
-				CCC6788917F75C3600F16A54 /* dune - ecolove.jpg in Copy Files-Samples Games */,
-				CCC6788A17F75C3600F16A54 /* dune - ecolove.mod in Copy Files-Samples Games */,
-				CCC6788B17F75C3600F16A54 /* dune - fremens.jpg in Copy Files-Samples Games */,
-				CCC6788C17F75C3600F16A54 /* dune - fremens.mod in Copy Files-Samples Games */,
-				CCC6788D17F75C3600F16A54 /* FF7_AerisTheme.mid in Copy Files-Samples Games */,
-				CCC6788E17F75C3600F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Copy Files-Samples Games */,
-				CCC6788F17F75C3600F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Copy Files-Samples Games */,
-				CCC6789117F75C3600F16A54 /* ij4 - end credits1.laa in Copy Files-Samples Games */,
-				CCC6789217F75C3600F16A54 /* MegaMan3.jpg in Copy Files-Samples Games */,
-				CCC6789317F75C3600F16A54 /* MegaMan3.rar in Copy Files-Samples Games */,
-				CCC6789417F75C3600F16A54 /* monkey island 2 - intro.jpg in Copy Files-Samples Games */,
-				CCC6789517F75C3600F16A54 /* monkey island 2 - intro.raw in Copy Files-Samples Games */,
-				CCC6789617F75C3600F16A54 /* Monty_on_the_Run.jpg in Copy Files-Samples Games */,
-				CCC6789717F75C3600F16A54 /* Monty_on_the_Run.sid in Copy Files-Samples Games */,
-				CCC6789817F75C3600F16A54 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */,
-				CCC6789917F75C3600F16A54 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */,
-				CCC6789A17F75C3600F16A54 /* SMB1-Theme.mid in Copy Files-Samples Games */,
-				CCC6789B17F75C3600F16A54 /* SOMI_title theme.gif in Copy Files-Samples Games */,
-				CCC6789C17F75C3600F16A54 /* SOMI_title theme.laa in Copy Files-Samples Games */,
-				CCC6789D17F75C3600F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Copy Files-Samples Games */,
-				CCC6789E17F75C3600F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Copy Files-Samples Games */,
-				CCC6789F17F75C3600F16A54 /* the seven gates of jambala (intro).gif in Copy Files-Samples Games */,
-				CCC678A017F75C3600F16A54 /* the seven gates of jambala (intro).hip in Copy Files-Samples Games */,
-				CCC678A117F75C3600F16A54 /* turrican 2 level 0-intro.jpg in Copy Files-Samples Games */,
-				CCC678A217F75C3600F16A54 /* turrican 2 level 0-intro.mdat in Copy Files-Samples Games */,
-				CCC678A317F75C3600F16A54 /* turrican 2 level 0-intro.smpl in Copy Files-Samples Games */,
-				CCC678A417F75C3600F16A54 /* turrican intro.jpg in Copy Files-Samples Games */,
-				CCC678A517F75C3600F16A54 /* turrican intro.mdat in Copy Files-Samples Games */,
-				CCC678A617F75C3600F16A54 /* turrican intro.smpl in Copy Files-Samples Games */,
-				CCC678A717F75C3600F16A54 /* unreal menu.jpg in Copy Files-Samples Games */,
-				CCC678A817F75C3600F16A54 /* unreal menu.jt in Copy Files-Samples Games */,
-				CCC678A917F75C3600F16A54 /* unreal title.jpg in Copy Files-Samples Games */,
-				CCC678AA17F75C3600F16A54 /* unreal title.jt in Copy Files-Samples Games */,
-				CCC678AB17F75C3600F16A54 /* zelda.mid in Copy Files-Samples Games */,
-				CCC678AC17F75C3600F16A54 /* zelda.png in Copy Files-Samples Games */,
+				5966D21025CFF13B00520777 /* bubble bobble.mod in Copy Files-Samples Games */,
+				5966D21125CFF13B00520777 /* MegaMan3.rar in Copy Files-Samples Games */,
+				5966D21225CFF13B00520777 /* dune - ecolove.jpg in Copy Files-Samples Games */,
+				5966D21325CFF13B00520777 /* MegaMan3.jpg in Copy Files-Samples Games */,
+				5966D21425CFF13B00520777 /* turrican 2 level 0-intro.mdat in Copy Files-Samples Games */,
+				5966D21525CFF13B00520777 /* unreal title.jpg in Copy Files-Samples Games */,
+				5966D21625CFF13B00520777 /* dune - fremens.jpg in Copy Files-Samples Games */,
+				5966D21725CFF13B00520777 /* Castlevania 3.jpg in Copy Files-Samples Games */,
+				5966D21825CFF13B00520777 /* Castlevania 3.nsfe in Copy Files-Samples Games */,
+				5966D21925CFF13B00520777 /* the seven gates of jambala (intro).gif in Copy Files-Samples Games */,
+				5966D21A25CFF13B00520777 /* turrican 2 level 0-intro.smpl in Copy Files-Samples Games */,
+				5966D21B25CFF13B00520777 /* One_Man_and_His_Droid.sid in Copy Files-Samples Games */,
+				5966D21C25CFF13B00520777 /* FF7_AerisTheme.mid in Copy Files-Samples Games */,
+				5966D21D25CFF13B00520777 /* zelda.mid in Copy Files-Samples Games */,
+				5966D21E25CFF13B00520777 /* DukeNukem_Level1.jpg in Copy Files-Samples Games */,
+				5966D21F25CFF13B00520777 /* SMB1-Theme.mid in Copy Files-Samples Games */,
+				5966D22025CFF13B00520777 /* turrican intro.smpl in Copy Files-Samples Games */,
+				5966D22125CFF13B00520777 /* DukeNukem_Level1.mid in Copy Files-Samples Games */,
+				5966D22225CFF13B00520777 /* zelda.png in Copy Files-Samples Games */,
+				5966D22325CFF13B00520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Copy Files-Samples Games */,
+				5966D22425CFF13B00520777 /* ij4 - end credits1.png in Copy Files-Samples Games */,
+				5966D22525CFF13B00520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Copy Files-Samples Games */,
+				5966D22625CFF13B00520777 /* monkey island 2 - intro.jpg in Copy Files-Samples Games */,
+				5966D22725CFF13B00520777 /* Monty_on_the_Run.jpg in Copy Files-Samples Games */,
+				5966D22825CFF13B00520777 /* turrican intro.mdat in Copy Files-Samples Games */,
+				5966D22925CFF13B00520777 /* the seven gates of jambala (intro).hip in Copy Files-Samples Games */,
+				5966D22A25CFF13B00520777 /* gr-b03.jpg in Copy Files-Samples Games */,
+				5966D22B25CFF13B00520777 /* dune - ecolove.mod in Copy Files-Samples Games */,
+				5966D22C25CFF13B00520777 /* turrican intro.jpg in Copy Files-Samples Games */,
+				5966D22D25CFF13B00520777 /* bubble bobble.jpg in Copy Files-Samples Games */,
+				5966D22E25CFF13B00520777 /* One_Man_and_His_Droid.jpg in Copy Files-Samples Games */,
+				5966D22F25CFF13B00520777 /* dune - fremens.mod in Copy Files-Samples Games */,
+				5966D23025CFF13B00520777 /* gr-b01.jpg in Copy Files-Samples Games */,
+				5966D23125CFF13B00520777 /* turrican 2 level 0-intro.jpg in Copy Files-Samples Games */,
+				5966D23225CFF13B00520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Copy Files-Samples Games */,
+				5966D23325CFF13B00520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Copy Files-Samples Games */,
+				5966D23425CFF13B00520777 /* gr-b07.jpg in Copy Files-Samples Games */,
+				5966D23525CFF13B00520777 /* Doom2-Stage01.jpg in Copy Files-Samples Games */,
+				5966D23625CFF13B00520777 /* gr-b07.mdx in Copy Files-Samples Games */,
+				5966D23725CFF13B00520777 /* Monty_on_the_Run.sid in Copy Files-Samples Games */,
+				5966D23825CFF13B00520777 /* monkey island 2 - intro.raw in Copy Files-Samples Games */,
+				5966D23925CFF13B00520777 /* SOMI_title theme.gif in Copy Files-Samples Games */,
+				5966D23A25CFF13B00520777 /* unreal menu.jpg in Copy Files-Samples Games */,
+				5966D23B25CFF13B00520777 /* Doom2-Stage01.mid in Copy Files-Samples Games */,
+				5966D23C25CFF13B00520777 /* gr-pcm.pdx in Copy Files-Samples Games */,
+				5966D23D25CFF13B00520777 /* SOMI_title theme.laa in Copy Files-Samples Games */,
+				5966D23E25CFF13B00520777 /* unreal title.jt in Copy Files-Samples Games */,
+				5966D23F25CFF13B00520777 /* gr-b01.mdx in Copy Files-Samples Games */,
+				5966D24025CFF13B00520777 /* unreal menu.jt in Copy Files-Samples Games */,
+				5966D24125CFF13B00520777 /* gr-b03.mdx in Copy Files-Samples Games */,
+				5966D24225CFF13B00520777 /* ij4 - end credits1.laa in Copy Files-Samples Games */,
 			);
 			name = "Copy Files-Samples Games";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1290,31 +1403,33 @@
 			dstPath = Samples/Classical;
 			dstSubfolderSpec = 7;
 			files = (
-				CCC678AD17F75DE000F16A54 /* albeniz_asturia.mid in Copy Files-Samples Classical */,
-				CCC678AE17F75DE000F16A54 /* bach_cs1-1pre.mid in Copy Files-Samples Classical */,
-				CCC678AF17F75DE000F16A54 /* bach_goldberg.mid in Copy Files-Samples Classical */,
-				CCC678B017F75DE000F16A54 /* bach_toccata_fugue_Dmin.mid in Copy Files-Samples Classical */,
-				CCC678B117F75DE000F16A54 /* beethoven_op27m3.mid in Copy Files-Samples Classical */,
-				CCC678B217F75DE000F16A54 /* beethoven_op125_3.mid in Copy Files-Samples Classical */,
-				CCC678B317F75DE000F16A54 /* brahms_hungdan5.mid in Copy Files-Samples Classical */,
-				CCC678B417F75DE000F16A54 /* chopin_ballade1.mid in Copy Files-Samples Classical */,
-				CCC678B517F75DE000F16A54 /* chopin_fantaisie.mid in Copy Files-Samples Classical */,
-				CCC678B617F75DE000F16A54 /* chopin_no4801.mid in Copy Files-Samples Classical */,
-				CCC678B717F75DE000F16A54 /* debussy_arabesqu.mid in Copy Files-Samples Classical */,
-				CCC678B817F75DE000F16A54 /* faure_pavane.mid in Copy Files-Samples Classical */,
-				CCC678B917F75DE000F16A54 /* grieg_4_mtking.mid in Copy Files-Samples Classical */,
-				CCC678BA17F75DE000F16A54 /* grieg_pianocon.mid in Copy Files-Samples Classical */,
-				CCC678BB17F75DE000F16A54 /* joplin_mapleaf.mid in Copy Files-Samples Classical */,
-				CCC678BC17F75DE000F16A54 /* liszt_feux.mid in Copy Files-Samples Classical */,
-				CCC678BD17F75DE000F16A54 /* liszt_hr2.mid in Copy Files-Samples Classical */,
-				CCC678BE17F75DE000F16A54 /* liszt_liebstrm.mid in Copy Files-Samples Classical */,
-				CCC678BF17F75DE000F16A54 /* liszt_mazeppa.mid in Copy Files-Samples Classical */,
-				CCC678C017F75DE000F16A54 /* liszt_pe3.mid in Copy Files-Samples Classical */,
-				CCC678C117F75DE000F16A54 /* mozart_k331c.mid in Copy Files-Samples Classical */,
-				CCC678C517F75DE000F16A54 /* rachmaninoff_pagvar18.mid in Copy Files-Samples Classical */,
-				CCC678C617F75DE000F16A54 /* ravel_pavane_orchestra.mid in Copy Files-Samples Classical */,
-				CCC678C717F75DE000F16A54 /* Ravel_PianoConcertoinG.zip in Copy Files-Samples Classical */,
-				CCC678C817F75DE000F16A54 /* tchaikovski_Flowers.mid in Copy Files-Samples Classical */,
+				5966D24425CFF14D00520777 /* mozart_k331c.mid in Copy Files-Samples Classical */,
+				5966D24525CFF14D00520777 /* bach_toccata_fugue_Dmin.mid in Copy Files-Samples Classical */,
+				5966D24625CFF14D00520777 /* rachmaninoff_op18.zip in Copy Files-Samples Classical */,
+				5966D24725CFF14D00520777 /* liszt_hr2.mid in Copy Files-Samples Classical */,
+				5966D24825CFF14D00520777 /* debussy_arabesqu.mid in Copy Files-Samples Classical */,
+				5966D24925CFF14D00520777 /* liszt_feux.mid in Copy Files-Samples Classical */,
+				5966D24A25CFF14D00520777 /* grieg_pianocon.mid in Copy Files-Samples Classical */,
+				5966D24B25CFF14D00520777 /* grieg_4_mtking.mid in Copy Files-Samples Classical */,
+				5966D24C25CFF14D00520777 /* tchaikovsky_1.zip in Copy Files-Samples Classical */,
+				5966D24D25CFF14D00520777 /* liszt_liebstrm.mid in Copy Files-Samples Classical */,
+				5966D24E25CFF14D00520777 /* faure_pavane.mid in Copy Files-Samples Classical */,
+				5966D24F25CFF14D00520777 /* brahms_hungdan5.mid in Copy Files-Samples Classical */,
+				5966D25025CFF14D00520777 /* rachmaninoff_pagvar18.mid in Copy Files-Samples Classical */,
+				5966D25125CFF14D00520777 /* joplin_mapleaf.mid in Copy Files-Samples Classical */,
+				5966D25225CFF14D00520777 /* liszt_pe3.mid in Copy Files-Samples Classical */,
+				5966D25325CFF14D00520777 /* tchaikovski_Flowers.mid in Copy Files-Samples Classical */,
+				5966D25425CFF14D00520777 /* bach_cs1-1pre.mid in Copy Files-Samples Classical */,
+				5966D25525CFF14D00520777 /* bach_goldberg.mid in Copy Files-Samples Classical */,
+				5966D25625CFF14D00520777 /* Ravel_PianoConcertoinG.zip in Copy Files-Samples Classical */,
+				5966D25725CFF14D00520777 /* ravel_pavane_orchestra.mid in Copy Files-Samples Classical */,
+				5966D25825CFF14D00520777 /* chopin_ballade1.mid in Copy Files-Samples Classical */,
+				5966D25925CFF14D00520777 /* albeniz_asturia.mid in Copy Files-Samples Classical */,
+				5966D25A25CFF14D00520777 /* beethoven_op27m3.mid in Copy Files-Samples Classical */,
+				5966D25B25CFF14D00520777 /* chopin_no4801.mid in Copy Files-Samples Classical */,
+				5966D25C25CFF14D00520777 /* liszt_mazeppa.mid in Copy Files-Samples Classical */,
+				5966D25D25CFF14D00520777 /* beethoven_op125_3.mid in Copy Files-Samples Classical */,
+				5966D25E25CFF14D00520777 /* chopin_fantaisie.mid in Copy Files-Samples Classical */,
 			);
 			name = "Copy Files-Samples Classical";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1325,9 +1440,9 @@
 			dstPath = Samples/Various;
 			dstSubfolderSpec = 7;
 			files = (
-				CC91689517F01F560012E2C1 /* james_bond.jpg in Copy Files-Samples Various */,
-				CC91689617F01F560012E2C1 /* james_bond.mid in Copy Files-Samples Various */,
-				CC91689717F01F560012E2C1 /* Live_And_Let_Die.mid in Copy Files-Samples Various */,
+				5966D1EA25CFF10C00520777 /* james_bond.jpg in Copy Files-Samples Various */,
+				5966D1EB25CFF10C00520777 /* james_bond.mid in Copy Files-Samples Various */,
+				5966D1EC25CFF10C00520777 /* Live_And_Let_Die.mid in Copy Files-Samples Various */,
 			);
 			name = "Copy Files-Samples Various";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1691,6 +1806,120 @@
 		5958B42725C601B300724722 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libxmp.xcodeproj; sourceTree = "<group>"; };
 		5966D0FE25CFEFED00520777 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		5966D10225CFF0D100520777 /* james_bond.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = james_bond.jpg; sourceTree = "<group>"; };
+		5966D10325CFF0D100520777 /* james_bond.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = james_bond.mid; sourceTree = "<group>"; };
+		5966D10425CFF0D100520777 /* Live_And_Let_Die.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = Live_And_Let_Die.mid; sourceTree = "<group>"; };
+		5966D10625CFF0D100520777 /* touchin' the chip.xm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "touchin' the chip.xm"; sourceTree = "<group>"; };
+		5966D10725CFF0D100520777 /* nebulos.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = nebulos.mod; sourceTree = "<group>"; };
+		5966D10825CFF0D100520777 /* trans atlantic short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "trans atlantic short.mod"; sourceTree = "<group>"; };
+		5966D10925CFF0D100520777 /* elysium.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = elysium.mod; sourceTree = "<group>"; };
+		5966D10A25CFF0D100520777 /* varanen short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "varanen short.mod"; sourceTree = "<group>"; };
+		5966D10B25CFF0D100520777 /* nearly there.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "nearly there.mod"; sourceTree = "<group>"; };
+		5966D10C25CFF0D100520777 /* knulla kuk !!!.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "knulla kuk !!!.mod"; sourceTree = "<group>"; };
+		5966D10D25CFF0D100520777 /* space debris.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "space debris.mod"; sourceTree = "<group>"; };
+		5966D10E25CFF0D100520777 /* virtual escape.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "virtual escape.gif"; sourceTree = "<group>"; };
+		5966D10F25CFF0D100520777 /* reverie of truth.compo.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "reverie of truth.compo.mod"; sourceTree = "<group>"; };
+		5966D11025CFF0D100520777 /* physical presence.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "physical presence.mod"; sourceTree = "<group>"; };
+		5966D11125CFF0D100520777 /* ghouls.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = ghouls.mod; sourceTree = "<group>"; };
+		5966D11225CFF0D100520777 /* beyond music.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "beyond music.mod"; sourceTree = "<group>"; };
+		5966D11325CFF0D100520777 /* odyssey-part5.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "odyssey-part5.jpg"; sourceTree = "<group>"; };
+		5966D11425CFF0D100520777 /* beat to the pulp.sid */ = {isa = PBXFileReference; lastKnownFileType = file; path = "beat to the pulp.sid"; sourceTree = "<group>"; };
+		5966D11525CFF0D100520777 /* livin' insanity.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "livin' insanity.mod"; sourceTree = "<group>"; };
+		5966D11625CFF0D100520777 /* pools of poison.xm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "pools of poison.xm"; sourceTree = "<group>"; };
+		5966D11725CFF0D100520777 /* the_wanderer_2.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = the_wanderer_2.mod; sourceTree = "<group>"; };
+		5966D11825CFF0D100520777 /* crystal rain.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "crystal rain.mod"; sourceTree = "<group>"; };
+		5966D11925CFF0D100520777 /* now what 3.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "now what 3.mod"; sourceTree = "<group>"; };
+		5966D11A25CFF0D100520777 /* we're the devils.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "we're the devils.mod"; sourceTree = "<group>"; };
+		5966D11B25CFF0D100520777 /* unreal ][.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "unreal ][.png"; sourceTree = "<group>"; };
+		5966D11C25CFF0D100520777 /* cream of the earth.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "cream of the earth.mod"; sourceTree = "<group>"; };
+		5966D11D25CFF0D100520777 /* 1999.xm */ = {isa = PBXFileReference; lastKnownFileType = file; path = 1999.xm; sourceTree = "<group>"; };
+		5966D11E25CFF0D100520777 /* sleeping waste.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sleeping waste.mod"; sourceTree = "<group>"; };
+		5966D11F25CFF0D100520777 /* desert dream.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "desert dream.mod"; sourceTree = "<group>"; };
+		5966D12025CFF0D100520777 /* umbrellas of peru.xm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "umbrellas of peru.xm"; sourceTree = "<group>"; };
+		5966D12125CFF0D100520777 /* spell-amelioration.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "spell-amelioration.mod"; sourceTree = "<group>"; };
+		5966D12225CFF0D100520777 /* switchback.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = switchback.mod; sourceTree = "<group>"; };
+		5966D12325CFF0D100520777 /* unreal ][.s3m */ = {isa = PBXFileReference; lastKnownFileType = file; path = "unreal ][.s3m"; sourceTree = "<group>"; };
+		5966D12425CFF0D100520777 /* odyssey-part5.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "odyssey-part5.mod"; sourceTree = "<group>"; };
+		5966D12525CFF0D100520777 /* virtual escape.sndh */ = {isa = PBXFileReference; lastKnownFileType = file; path = "virtual escape.sndh"; sourceTree = "<group>"; };
+		5966D12625CFF0D100520777 /* hyperbased (musiklinjen, enigma).mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "hyperbased (musiklinjen, enigma).mod"; sourceTree = "<group>"; };
+		5966D12825CFF0D100520777 /* bubble bobble.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "bubble bobble.mod"; sourceTree = "<group>"; };
+		5966D12925CFF0D100520777 /* MegaMan3.rar */ = {isa = PBXFileReference; lastKnownFileType = file; path = MegaMan3.rar; sourceTree = "<group>"; };
+		5966D12A25CFF0D100520777 /* dune - ecolove.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "dune - ecolove.jpg"; sourceTree = "<group>"; };
+		5966D12B25CFF0D100520777 /* MegaMan3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = MegaMan3.jpg; sourceTree = "<group>"; };
+		5966D12C25CFF0D100520777 /* turrican 2 level 0-intro.mdat */ = {isa = PBXFileReference; lastKnownFileType = file; path = "turrican 2 level 0-intro.mdat"; sourceTree = "<group>"; };
+		5966D12D25CFF0D100520777 /* unreal title.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "unreal title.jpg"; sourceTree = "<group>"; };
+		5966D12E25CFF0D100520777 /* dune - fremens.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "dune - fremens.jpg"; sourceTree = "<group>"; };
+		5966D12F25CFF0D100520777 /* Castlevania 3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "Castlevania 3.jpg"; sourceTree = "<group>"; };
+		5966D13025CFF0D100520777 /* Castlevania 3.nsfe */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Castlevania 3.nsfe"; sourceTree = "<group>"; };
+		5966D13125CFF0D100520777 /* the seven gates of jambala (intro).gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "the seven gates of jambala (intro).gif"; sourceTree = "<group>"; };
+		5966D13225CFF0D100520777 /* turrican 2 level 0-intro.smpl */ = {isa = PBXFileReference; lastKnownFileType = file; path = "turrican 2 level 0-intro.smpl"; sourceTree = "<group>"; };
+		5966D13325CFF0D100520777 /* One_Man_and_His_Droid.sid */ = {isa = PBXFileReference; lastKnownFileType = file; path = One_Man_and_His_Droid.sid; sourceTree = "<group>"; };
+		5966D13425CFF0D100520777 /* FF7_AerisTheme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = FF7_AerisTheme.mid; sourceTree = "<group>"; };
+		5966D13525CFF0D100520777 /* zelda.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = zelda.mid; sourceTree = "<group>"; };
+		5966D13625CFF0D100520777 /* DukeNukem_Level1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = DukeNukem_Level1.jpg; sourceTree = "<group>"; };
+		5966D13725CFF0D100520777 /* SMB1-Theme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "SMB1-Theme.mid"; sourceTree = "<group>"; };
+		5966D13825CFF0D100520777 /* turrican intro.smpl */ = {isa = PBXFileReference; lastKnownFileType = file; path = "turrican intro.smpl"; sourceTree = "<group>"; };
+		5966D13925CFF0D100520777 /* DukeNukem_Level1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = DukeNukem_Level1.mid; sourceTree = "<group>"; };
+		5966D13A25CFF0D100520777 /* zelda.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zelda.png; sourceTree = "<group>"; };
+		5966D13B25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip"; sourceTree = "<group>"; };
+		5966D13C25CFF0D100520777 /* ij4 - end credits1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ij4 - end credits1.png"; sourceTree = "<group>"; };
+		5966D13D25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip"; sourceTree = "<group>"; };
+		5966D13E25CFF0D100520777 /* monkey island 2 - intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "monkey island 2 - intro.jpg"; sourceTree = "<group>"; };
+		5966D13F25CFF0D100520777 /* Monty_on_the_Run.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Monty_on_the_Run.jpg; sourceTree = "<group>"; };
+		5966D14025CFF0D100520777 /* turrican intro.mdat */ = {isa = PBXFileReference; lastKnownFileType = file; path = "turrican intro.mdat"; sourceTree = "<group>"; };
+		5966D14125CFF0D100520777 /* the seven gates of jambala (intro).hip */ = {isa = PBXFileReference; lastKnownFileType = file; path = "the seven gates of jambala (intro).hip"; sourceTree = "<group>"; };
+		5966D14225CFF0D100520777 /* gr-b03.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "gr-b03.jpg"; sourceTree = "<group>"; };
+		5966D14325CFF0D100520777 /* dune - ecolove.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "dune - ecolove.mod"; sourceTree = "<group>"; };
+		5966D14425CFF0D100520777 /* turrican intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "turrican intro.jpg"; sourceTree = "<group>"; };
+		5966D14525CFF0D100520777 /* bubble bobble.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "bubble bobble.jpg"; sourceTree = "<group>"; };
+		5966D14625CFF0D100520777 /* One_Man_and_His_Droid.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = One_Man_and_His_Droid.jpg; sourceTree = "<group>"; };
+		5966D14725CFF0D100520777 /* dune - fremens.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "dune - fremens.mod"; sourceTree = "<group>"; };
+		5966D14825CFF0D100520777 /* gr-b01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "gr-b01.jpg"; sourceTree = "<group>"; };
+		5966D14925CFF0D100520777 /* turrican 2 level 0-intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "turrican 2 level 0-intro.jpg"; sourceTree = "<group>"; };
+		5966D14A25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png"; sourceTree = "<group>"; };
+		5966D14B25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg"; sourceTree = "<group>"; };
+		5966D14C25CFF0D100520777 /* gr-b07.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "gr-b07.jpg"; sourceTree = "<group>"; };
+		5966D14D25CFF0D100520777 /* Doom2-Stage01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "Doom2-Stage01.jpg"; sourceTree = "<group>"; };
+		5966D14E25CFF0D100520777 /* gr-b07.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gr-b07.mdx"; sourceTree = "<group>"; };
+		5966D14F25CFF0D100520777 /* Monty_on_the_Run.sid */ = {isa = PBXFileReference; lastKnownFileType = file; path = Monty_on_the_Run.sid; sourceTree = "<group>"; };
+		5966D15025CFF0D100520777 /* monkey island 2 - intro.raw */ = {isa = PBXFileReference; lastKnownFileType = file; path = "monkey island 2 - intro.raw"; sourceTree = "<group>"; };
+		5966D15125CFF0D100520777 /* SOMI_title theme.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "SOMI_title theme.gif"; sourceTree = "<group>"; };
+		5966D15225CFF0D100520777 /* unreal menu.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "unreal menu.jpg"; sourceTree = "<group>"; };
+		5966D15325CFF0D100520777 /* Doom2-Stage01.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "Doom2-Stage01.mid"; sourceTree = "<group>"; };
+		5966D15425CFF0D100520777 /* gr-pcm.pdx */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gr-pcm.pdx"; sourceTree = "<group>"; };
+		5966D15525CFF0D100520777 /* SOMI_title theme.laa */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SOMI_title theme.laa"; sourceTree = "<group>"; };
+		5966D15625CFF0D100520777 /* unreal title.jt */ = {isa = PBXFileReference; lastKnownFileType = file; path = "unreal title.jt"; sourceTree = "<group>"; };
+		5966D15725CFF0D100520777 /* gr-b01.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gr-b01.mdx"; sourceTree = "<group>"; };
+		5966D15825CFF0D100520777 /* unreal menu.jt */ = {isa = PBXFileReference; lastKnownFileType = file; path = "unreal menu.jt"; sourceTree = "<group>"; };
+		5966D15925CFF0D100520777 /* gr-b03.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; path = "gr-b03.mdx"; sourceTree = "<group>"; };
+		5966D15A25CFF0D100520777 /* ij4 - end credits1.laa */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ij4 - end credits1.laa"; sourceTree = "<group>"; };
+		5966D15C25CFF0D100520777 /* mozart_k331c.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = mozart_k331c.mid; sourceTree = "<group>"; };
+		5966D15D25CFF0D100520777 /* bach_toccata_fugue_Dmin.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = bach_toccata_fugue_Dmin.mid; sourceTree = "<group>"; };
+		5966D15E25CFF0D100520777 /* rachmaninoff_op18.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = rachmaninoff_op18.zip; sourceTree = "<group>"; };
+		5966D15F25CFF0D100520777 /* liszt_hr2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = liszt_hr2.mid; sourceTree = "<group>"; };
+		5966D16025CFF0D100520777 /* debussy_arabesqu.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = debussy_arabesqu.mid; sourceTree = "<group>"; };
+		5966D16125CFF0D100520777 /* liszt_feux.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = liszt_feux.mid; sourceTree = "<group>"; };
+		5966D16225CFF0D100520777 /* grieg_pianocon.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = grieg_pianocon.mid; sourceTree = "<group>"; };
+		5966D16325CFF0D100520777 /* grieg_4_mtking.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = grieg_4_mtking.mid; sourceTree = "<group>"; };
+		5966D16425CFF0D100520777 /* tchaikovsky_1.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = tchaikovsky_1.zip; sourceTree = "<group>"; };
+		5966D16525CFF0D100520777 /* liszt_liebstrm.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = liszt_liebstrm.mid; sourceTree = "<group>"; };
+		5966D16625CFF0D100520777 /* faure_pavane.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = faure_pavane.mid; sourceTree = "<group>"; };
+		5966D16725CFF0D100520777 /* brahms_hungdan5.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = brahms_hungdan5.mid; sourceTree = "<group>"; };
+		5966D16825CFF0D100520777 /* rachmaninoff_pagvar18.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = rachmaninoff_pagvar18.mid; sourceTree = "<group>"; };
+		5966D16925CFF0D100520777 /* joplin_mapleaf.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = joplin_mapleaf.mid; sourceTree = "<group>"; };
+		5966D16A25CFF0D100520777 /* liszt_pe3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = liszt_pe3.mid; sourceTree = "<group>"; };
+		5966D16B25CFF0D100520777 /* tchaikovski_Flowers.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = tchaikovski_Flowers.mid; sourceTree = "<group>"; };
+		5966D16C25CFF0D100520777 /* bach_cs1-1pre.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = "bach_cs1-1pre.mid"; sourceTree = "<group>"; };
+		5966D16D25CFF0D100520777 /* bach_goldberg.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = bach_goldberg.mid; sourceTree = "<group>"; };
+		5966D16E25CFF0D100520777 /* Ravel_PianoConcertoinG.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = Ravel_PianoConcertoinG.zip; sourceTree = "<group>"; };
+		5966D16F25CFF0D100520777 /* ravel_pavane_orchestra.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = ravel_pavane_orchestra.mid; sourceTree = "<group>"; };
+		5966D17025CFF0D100520777 /* chopin_ballade1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = chopin_ballade1.mid; sourceTree = "<group>"; };
+		5966D17125CFF0D100520777 /* albeniz_asturia.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = albeniz_asturia.mid; sourceTree = "<group>"; };
+		5966D17225CFF0D100520777 /* beethoven_op27m3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = beethoven_op27m3.mid; sourceTree = "<group>"; };
+		5966D17325CFF0D100520777 /* chopin_no4801.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = chopin_no4801.mid; sourceTree = "<group>"; };
+		5966D17425CFF0D100520777 /* liszt_mazeppa.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = liszt_mazeppa.mid; sourceTree = "<group>"; };
+		5966D17525CFF0D100520777 /* beethoven_op125_3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = beethoven_op125_3.mid; sourceTree = "<group>"; };
+		5966D17625CFF0D100520777 /* chopin_fantaisie.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = chopin_fantaisie.mid; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
 		59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Orange.png; sourceTree = "<group>"; };
@@ -1732,7 +1961,6 @@
 		59B9998B25CFE6030071E144 /* TapkuLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TapkuLibrary.h; path = TapkuLibrary/TapkuLibrary.h; sourceTree = "<group>"; };
 		59B9999425CFE6890071E144 /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
 		59B9999525CFE6890071E144 /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
-		59BE94A7203C134F009F0255 /* Castlevania 3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Castlevania 3.jpg"; path = "Resources/Samples2/Games/Castlevania 3.jpg"; sourceTree = SOURCE_ROOT; };
 		59C22A0425B992D9003FEDBF /* AFSecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFSecurityPolicy.h; sourceTree = "<group>"; };
 		59C22A0525B992D9003FEDBF /* AFNetworkReachabilityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkReachabilityManager.h; sourceTree = "<group>"; };
 		59C22A0625B992D9003FEDBF /* AFURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLSessionManager.h; sourceTree = "<group>"; };
@@ -1752,7 +1980,6 @@
 		59C22AB325BC8C3B003FEDBF /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		59C22AB725BC8CFF003FEDBF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = modizer_icon.icns; sourceTree = "<group>"; };
-		59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Castlevania 3.nsfe"; path = "Resources/Samples2/Games/Castlevania 3.nsfe"; sourceTree = SOURCE_ROOT; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -2302,9 +2529,6 @@
 		CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-80.png"; sourceTree = "<group>"; };
 		CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-100.png"; sourceTree = "<group>"; };
 		CC8D41AF1801E26F00533682 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = SOURCE_ROOT; };
-		CC91682B17F01EC80012E2C1 /* james_bond.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = james_bond.jpg; path = Resources/Samples2/Various/james_bond.jpg; sourceTree = SOURCE_ROOT; };
-		CC91682C17F01EC80012E2C1 /* james_bond.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = james_bond.mid; path = Resources/Samples2/Various/james_bond.mid; sourceTree = SOURCE_ROOT; };
-		CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = Live_And_Let_Die.mid; path = Resources/Samples2/Various/Live_And_Let_Die.mid; sourceTree = SOURCE_ROOT; };
 		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		CC9A0AAB1ACA7BF70002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2460,113 +2684,6 @@
 		CCC6776A17F62BCC00F16A54 /* txtMenu7e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu7e_2x.png; sourceTree = "<group>"; };
 		CCC6776F17F6B92500F16A54 /* CMPopTipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMPopTipView.h; sourceTree = "<group>"; };
 		CCC6777017F6B92500F16A54 /* CMPopTipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMPopTipView.m; sourceTree = "<group>"; };
-		CCC6777317F75AEA00F16A54 /* 1999.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = 1999.xm; path = Resources/Samples2/Demoscene/1999.xm; sourceTree = SOURCE_ROOT; };
-		CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = "beat to the pulp.sid"; path = "Resources/Samples2/Demoscene/beat to the pulp.sid"; sourceTree = SOURCE_ROOT; };
-		CCC6777617F75AEA00F16A54 /* beyond music.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "beyond music.mod"; path = "Resources/Samples2/Demoscene/beyond music.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6777817F75AEA00F16A54 /* cream of the earth.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "cream of the earth.mod"; path = "Resources/Samples2/Demoscene/cream of the earth.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6777917F75AEA00F16A54 /* crystal rain.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "crystal rain.mod"; path = "Resources/Samples2/Demoscene/crystal rain.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6777A17F75AEB00F16A54 /* desert dream.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "desert dream.mod"; path = "Resources/Samples2/Demoscene/desert dream.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6777C17F75AEB00F16A54 /* elysium.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = elysium.mod; path = Resources/Samples2/Demoscene/elysium.mod; sourceTree = SOURCE_ROOT; };
-		CCC6777E17F75AEB00F16A54 /* ghouls.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = ghouls.mod; path = Resources/Samples2/Demoscene/ghouls.mod; sourceTree = SOURCE_ROOT; };
-		CCC6778117F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "hyperbased (musiklinjen, enigma).mod"; path = "Resources/Samples2/Demoscene/hyperbased (musiklinjen, enigma).mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778217F75AEB00F16A54 /* knulla kuk !!!.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "knulla kuk !!!.mod"; path = "Resources/Samples2/Demoscene/knulla kuk !!!.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778317F75AEB00F16A54 /* livin' insanity.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "livin' insanity.mod"; path = "Resources/Samples2/Demoscene/livin' insanity.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778417F75AEB00F16A54 /* nearly there.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "nearly there.mod"; path = "Resources/Samples2/Demoscene/nearly there.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778517F75AEB00F16A54 /* nebulos.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = nebulos.mod; path = Resources/Samples2/Demoscene/nebulos.mod; sourceTree = SOURCE_ROOT; };
-		CCC6778717F75AEB00F16A54 /* now what 3.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "now what 3.mod"; path = "Resources/Samples2/Demoscene/now what 3.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778817F75AEB00F16A54 /* odyssey-part5.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "odyssey-part5.jpg"; path = "Resources/Samples2/Demoscene/odyssey-part5.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC6778917F75AEB00F16A54 /* odyssey-part5.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "odyssey-part5.mod"; path = "Resources/Samples2/Demoscene/odyssey-part5.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778A17F75AEB00F16A54 /* physical presence.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "physical presence.mod"; path = "Resources/Samples2/Demoscene/physical presence.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778B17F75AEB00F16A54 /* pools of poison.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "pools of poison.xm"; path = "Resources/Samples2/Demoscene/pools of poison.xm"; sourceTree = SOURCE_ROOT; };
-		CCC6778C17F75AEB00F16A54 /* reverie of truth.compo.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "reverie of truth.compo.mod"; path = "Resources/Samples2/Demoscene/reverie of truth.compo.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778D17F75AEB00F16A54 /* sleeping waste.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "sleeping waste.mod"; path = "Resources/Samples2/Demoscene/sleeping waste.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778E17F75AEB00F16A54 /* space debris.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "space debris.mod"; path = "Resources/Samples2/Demoscene/space debris.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6778F17F75AEB00F16A54 /* spell-amelioration.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "spell-amelioration.mod"; path = "Resources/Samples2/Demoscene/spell-amelioration.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6779017F75AEB00F16A54 /* switchback.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = switchback.mod; path = Resources/Samples2/Demoscene/switchback.mod; sourceTree = SOURCE_ROOT; };
-		CCC6779117F75AEB00F16A54 /* the_wanderer_2.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = the_wanderer_2.mod; path = Resources/Samples2/Demoscene/the_wanderer_2.mod; sourceTree = SOURCE_ROOT; };
-		CCC6779217F75AEB00F16A54 /* touchin' the chip.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "touchin' the chip.xm"; path = "Resources/Samples2/Demoscene/touchin' the chip.xm"; sourceTree = SOURCE_ROOT; };
-		CCC6779317F75AEB00F16A54 /* trans atlantic short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "trans atlantic short.mod"; path = "Resources/Samples2/Demoscene/trans atlantic short.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6779417F75AEB00F16A54 /* umbrellas of peru.xm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "umbrellas of peru.xm"; path = "Resources/Samples2/Demoscene/umbrellas of peru.xm"; sourceTree = SOURCE_ROOT; };
-		CCC6779517F75AEB00F16A54 /* unreal ][.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "unreal ][.png"; path = "Resources/Samples2/Demoscene/unreal ][.png"; sourceTree = SOURCE_ROOT; };
-		CCC6779617F75AEB00F16A54 /* unreal ][.s3m */ = {isa = PBXFileReference; lastKnownFileType = file; name = "unreal ][.s3m"; path = "Resources/Samples2/Demoscene/unreal ][.s3m"; sourceTree = SOURCE_ROOT; };
-		CCC6779717F75AEB00F16A54 /* varanen short.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "varanen short.mod"; path = "Resources/Samples2/Demoscene/varanen short.mod"; sourceTree = SOURCE_ROOT; };
-		CCC6779817F75AEB00F16A54 /* virtual escape.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "virtual escape.gif"; path = "Resources/Samples2/Demoscene/virtual escape.gif"; sourceTree = SOURCE_ROOT; };
-		CCC6779917F75AEB00F16A54 /* virtual escape.sndh */ = {isa = PBXFileReference; lastKnownFileType = file; name = "virtual escape.sndh"; path = "Resources/Samples2/Demoscene/virtual escape.sndh"; sourceTree = SOURCE_ROOT; };
-		CCC6779A17F75AEB00F16A54 /* we're the devils.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "we're the devils.mod"; path = "Resources/Samples2/Demoscene/we're the devils.mod"; sourceTree = SOURCE_ROOT; };
-		CCC677C417F75AFB00F16A54 /* bubble bobble.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "bubble bobble.jpg"; path = "Resources/Samples2/Games/bubble bobble.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677C517F75AFB00F16A54 /* bubble bobble.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "bubble bobble.mod"; path = "Resources/Samples2/Games/bubble bobble.mod"; sourceTree = SOURCE_ROOT; };
-		CCC677C817F75AFB00F16A54 /* Doom2-Stage01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Doom2-Stage01.jpg"; path = "Resources/Samples2/Games/Doom2-Stage01.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677C917F75AFB00F16A54 /* Doom2-Stage01.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "Doom2-Stage01.mid"; path = "Resources/Samples2/Games/Doom2-Stage01.mid"; sourceTree = SOURCE_ROOT; };
-		CCC677CA17F75AFB00F16A54 /* DukeNukem_Level1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = DukeNukem_Level1.jpg; path = Resources/Samples2/Games/DukeNukem_Level1.jpg; sourceTree = SOURCE_ROOT; };
-		CCC677CB17F75AFB00F16A54 /* DukeNukem_Level1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = DukeNukem_Level1.mid; path = Resources/Samples2/Games/DukeNukem_Level1.mid; sourceTree = SOURCE_ROOT; };
-		CCC677CC17F75AFB00F16A54 /* dune - ecolove.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "dune - ecolove.jpg"; path = "Resources/Samples2/Games/dune - ecolove.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677CD17F75AFB00F16A54 /* dune - ecolove.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "dune - ecolove.mod"; path = "Resources/Samples2/Games/dune - ecolove.mod"; sourceTree = SOURCE_ROOT; };
-		CCC677CE17F75AFB00F16A54 /* dune - fremens.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "dune - fremens.jpg"; path = "Resources/Samples2/Games/dune - fremens.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677CF17F75AFB00F16A54 /* dune - fremens.mod */ = {isa = PBXFileReference; lastKnownFileType = file; name = "dune - fremens.mod"; path = "Resources/Samples2/Games/dune - fremens.mod"; sourceTree = SOURCE_ROOT; };
-		CCC677D017F75AFB00F16A54 /* FF7_AerisTheme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = FF7_AerisTheme.mid; path = Resources/Samples2/Games/FF7_AerisTheme.mid; sourceTree = SOURCE_ROOT; };
-		CCC677D117F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg"; path = "Resources/Samples2/Games/Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677D217F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip"; path = "Resources/Samples2/Games/Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip"; sourceTree = SOURCE_ROOT; };
-		CCC677D417F75AFB00F16A54 /* ij4 - end credits1.laa */ = {isa = PBXFileReference; lastKnownFileType = file; name = "ij4 - end credits1.laa"; path = "Resources/Samples2/Games/ij4 - end credits1.laa"; sourceTree = SOURCE_ROOT; };
-		CCC677D517F75AFB00F16A54 /* MegaMan3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = MegaMan3.jpg; path = Resources/Samples2/Games/MegaMan3.jpg; sourceTree = SOURCE_ROOT; };
-		CCC677D617F75AFB00F16A54 /* MegaMan3.rar */ = {isa = PBXFileReference; lastKnownFileType = file; name = MegaMan3.rar; path = Resources/Samples2/Games/MegaMan3.rar; sourceTree = SOURCE_ROOT; };
-		CCC677D717F75AFB00F16A54 /* monkey island 2 - intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "monkey island 2 - intro.jpg"; path = "Resources/Samples2/Games/monkey island 2 - intro.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677D817F75AFB00F16A54 /* monkey island 2 - intro.raw */ = {isa = PBXFileReference; lastKnownFileType = file; name = "monkey island 2 - intro.raw"; path = "Resources/Samples2/Games/monkey island 2 - intro.raw"; sourceTree = SOURCE_ROOT; };
-		CCC677D917F75AFB00F16A54 /* Monty_on_the_Run.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = Monty_on_the_Run.jpg; path = Resources/Samples2/Games/Monty_on_the_Run.jpg; sourceTree = SOURCE_ROOT; };
-		CCC677DA17F75AFB00F16A54 /* Monty_on_the_Run.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = Monty_on_the_Run.sid; path = Resources/Samples2/Games/Monty_on_the_Run.sid; sourceTree = SOURCE_ROOT; };
-		CCC677DB17F75AFB00F16A54 /* One_Man_and_His_Droid.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = One_Man_and_His_Droid.jpg; path = Resources/Samples2/Games/One_Man_and_His_Droid.jpg; sourceTree = SOURCE_ROOT; };
-		CCC677DC17F75AFB00F16A54 /* One_Man_and_His_Droid.sid */ = {isa = PBXFileReference; lastKnownFileType = file; name = One_Man_and_His_Droid.sid; path = Resources/Samples2/Games/One_Man_and_His_Droid.sid; sourceTree = SOURCE_ROOT; };
-		CCC677DD17F75AFB00F16A54 /* SMB1-Theme.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "SMB1-Theme.mid"; path = "Resources/Samples2/Games/SMB1-Theme.mid"; sourceTree = SOURCE_ROOT; };
-		CCC677DE17F75AFB00F16A54 /* SOMI_title theme.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "SOMI_title theme.gif"; path = "Resources/Samples2/Games/SOMI_title theme.gif"; sourceTree = SOURCE_ROOT; };
-		CCC677DF17F75AFB00F16A54 /* SOMI_title theme.laa */ = {isa = PBXFileReference; lastKnownFileType = file; name = "SOMI_title theme.laa"; path = "Resources/Samples2/Games/SOMI_title theme.laa"; sourceTree = SOURCE_ROOT; };
-		CCC677E017F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png"; path = "Resources/Samples2/Games/Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png"; sourceTree = SOURCE_ROOT; };
-		CCC677E117F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip"; path = "Resources/Samples2/Games/Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip"; sourceTree = SOURCE_ROOT; };
-		CCC677E217F75AFB00F16A54 /* the seven gates of jambala (intro).gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "the seven gates of jambala (intro).gif"; path = "Resources/Samples2/Games/the seven gates of jambala (intro).gif"; sourceTree = SOURCE_ROOT; };
-		CCC677E317F75AFB00F16A54 /* the seven gates of jambala (intro).hip */ = {isa = PBXFileReference; lastKnownFileType = file; name = "the seven gates of jambala (intro).hip"; path = "Resources/Samples2/Games/the seven gates of jambala (intro).hip"; sourceTree = SOURCE_ROOT; };
-		CCC677E417F75AFB00F16A54 /* turrican 2 level 0-intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "turrican 2 level 0-intro.jpg"; path = "Resources/Samples2/Games/turrican 2 level 0-intro.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677E517F75AFB00F16A54 /* turrican 2 level 0-intro.mdat */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican 2 level 0-intro.mdat"; path = "Resources/Samples2/Games/turrican 2 level 0-intro.mdat"; sourceTree = SOURCE_ROOT; };
-		CCC677E617F75AFB00F16A54 /* turrican 2 level 0-intro.smpl */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican 2 level 0-intro.smpl"; path = "Resources/Samples2/Games/turrican 2 level 0-intro.smpl"; sourceTree = SOURCE_ROOT; };
-		CCC677E717F75AFB00F16A54 /* turrican intro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "turrican intro.jpg"; path = "Resources/Samples2/Games/turrican intro.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677E817F75AFB00F16A54 /* turrican intro.mdat */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican intro.mdat"; path = "Resources/Samples2/Games/turrican intro.mdat"; sourceTree = SOURCE_ROOT; };
-		CCC677E917F75AFB00F16A54 /* turrican intro.smpl */ = {isa = PBXFileReference; lastKnownFileType = file; name = "turrican intro.smpl"; path = "Resources/Samples2/Games/turrican intro.smpl"; sourceTree = SOURCE_ROOT; };
-		CCC677EA17F75AFB00F16A54 /* unreal menu.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "unreal menu.jpg"; path = "Resources/Samples2/Games/unreal menu.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677EB17F75AFB00F16A54 /* unreal menu.jt */ = {isa = PBXFileReference; lastKnownFileType = file; name = "unreal menu.jt"; path = "Resources/Samples2/Games/unreal menu.jt"; sourceTree = SOURCE_ROOT; };
-		CCC677EC17F75AFB00F16A54 /* unreal title.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "unreal title.jpg"; path = "Resources/Samples2/Games/unreal title.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC677ED17F75AFB00F16A54 /* unreal title.jt */ = {isa = PBXFileReference; lastKnownFileType = file; name = "unreal title.jt"; path = "Resources/Samples2/Games/unreal title.jt"; sourceTree = SOURCE_ROOT; };
-		CCC677EE17F75AFB00F16A54 /* zelda.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = zelda.mid; path = Resources/Samples2/Games/zelda.mid; sourceTree = SOURCE_ROOT; };
-		CCC677EF17F75AFB00F16A54 /* zelda.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = zelda.png; path = Resources/Samples2/Games/zelda.png; sourceTree = SOURCE_ROOT; };
-		CCC6781C17F75B1000F16A54 /* albeniz_asturia.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = albeniz_asturia.mid; path = Resources/Samples2/Classical/albeniz_asturia.mid; sourceTree = SOURCE_ROOT; };
-		CCC6781D17F75B1000F16A54 /* bach_cs1-1pre.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = "bach_cs1-1pre.mid"; path = "Resources/Samples2/Classical/bach_cs1-1pre.mid"; sourceTree = SOURCE_ROOT; };
-		CCC6781E17F75B1000F16A54 /* bach_goldberg.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = bach_goldberg.mid; path = Resources/Samples2/Classical/bach_goldberg.mid; sourceTree = SOURCE_ROOT; };
-		CCC6781F17F75B1000F16A54 /* bach_toccata_fugue_Dmin.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = bach_toccata_fugue_Dmin.mid; path = Resources/Samples2/Classical/bach_toccata_fugue_Dmin.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782017F75B1000F16A54 /* beethoven_op27m3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_op27m3.mid; path = Resources/Samples2/Classical/beethoven_op27m3.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782117F75B1000F16A54 /* beethoven_op125_3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = beethoven_op125_3.mid; path = Resources/Samples2/Classical/beethoven_op125_3.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782217F75B1000F16A54 /* brahms_hungdan5.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = brahms_hungdan5.mid; path = Resources/Samples2/Classical/brahms_hungdan5.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782317F75B1000F16A54 /* chopin_ballade1.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = chopin_ballade1.mid; path = Resources/Samples2/Classical/chopin_ballade1.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782417F75B1000F16A54 /* chopin_fantaisie.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = chopin_fantaisie.mid; path = Resources/Samples2/Classical/chopin_fantaisie.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782517F75B1000F16A54 /* chopin_no4801.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = chopin_no4801.mid; path = Resources/Samples2/Classical/chopin_no4801.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782617F75B1000F16A54 /* debussy_arabesqu.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = debussy_arabesqu.mid; path = Resources/Samples2/Classical/debussy_arabesqu.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782717F75B1000F16A54 /* faure_pavane.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = faure_pavane.mid; path = Resources/Samples2/Classical/faure_pavane.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782817F75B1000F16A54 /* grieg_4_mtking.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = grieg_4_mtking.mid; path = Resources/Samples2/Classical/grieg_4_mtking.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782917F75B1000F16A54 /* grieg_pianocon.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = grieg_pianocon.mid; path = Resources/Samples2/Classical/grieg_pianocon.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782A17F75B1000F16A54 /* joplin_mapleaf.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = joplin_mapleaf.mid; path = Resources/Samples2/Classical/joplin_mapleaf.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782B17F75B1000F16A54 /* liszt_feux.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = liszt_feux.mid; path = Resources/Samples2/Classical/liszt_feux.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782C17F75B1000F16A54 /* liszt_hr2.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = liszt_hr2.mid; path = Resources/Samples2/Classical/liszt_hr2.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782D17F75B1000F16A54 /* liszt_liebstrm.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = liszt_liebstrm.mid; path = Resources/Samples2/Classical/liszt_liebstrm.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782E17F75B1000F16A54 /* liszt_mazeppa.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = liszt_mazeppa.mid; path = Resources/Samples2/Classical/liszt_mazeppa.mid; sourceTree = SOURCE_ROOT; };
-		CCC6782F17F75B1000F16A54 /* liszt_pe3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = liszt_pe3.mid; path = Resources/Samples2/Classical/liszt_pe3.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783017F75B1000F16A54 /* mozart_k331c.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = mozart_k331c.mid; path = Resources/Samples2/Classical/mozart_k331c.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783417F75B1000F16A54 /* rachmaninoff_pagvar18.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = rachmaninoff_pagvar18.mid; path = Resources/Samples2/Classical/rachmaninoff_pagvar18.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783517F75B1000F16A54 /* ravel_pavane_orchestra.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = ravel_pavane_orchestra.mid; path = Resources/Samples2/Classical/ravel_pavane_orchestra.mid; sourceTree = SOURCE_ROOT; };
-		CCC6783617F75B1000F16A54 /* Ravel_PianoConcertoinG.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = Ravel_PianoConcertoinG.zip; path = Resources/Samples2/Classical/Ravel_PianoConcertoinG.zip; sourceTree = SOURCE_ROOT; };
-		CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; name = tchaikovski_Flowers.mid; path = Resources/Samples2/Classical/tchaikovski_Flowers.mid; sourceTree = SOURCE_ROOT; };
-		CCC678CB17F76CA700F16A54 /* gr-b01.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "gr-b01.jpg"; path = "Resources/Samples2/Games/gr-b01.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC678CC17F76CA700F16A54 /* gr-b01.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gr-b01.mdx"; path = "Resources/Samples2/Games/gr-b01.mdx"; sourceTree = SOURCE_ROOT; };
-		CCC678CD17F76CA700F16A54 /* gr-b03.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "gr-b03.jpg"; path = "Resources/Samples2/Games/gr-b03.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC678CE17F76CA700F16A54 /* gr-b03.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gr-b03.mdx"; path = "Resources/Samples2/Games/gr-b03.mdx"; sourceTree = SOURCE_ROOT; };
-		CCC678CF17F76CA700F16A54 /* gr-b07.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = "gr-b07.jpg"; path = "Resources/Samples2/Games/gr-b07.jpg"; sourceTree = SOURCE_ROOT; };
-		CCC678D017F76CA700F16A54 /* gr-b07.mdx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gr-b07.mdx"; path = "Resources/Samples2/Games/gr-b07.mdx"; sourceTree = SOURCE_ROOT; };
-		CCC678D117F76CA700F16A54 /* gr-pcm.pdx */ = {isa = PBXFileReference; lastKnownFileType = file; name = "gr-pcm.pdx"; path = "Resources/Samples2/Games/gr-pcm.pdx"; sourceTree = SOURCE_ROOT; };
-		CCC678E017F76ED900F16A54 /* ij4 - end credits1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ij4 - end credits1.png"; path = "Resources/Samples2/Games/ij4 - end credits1.png"; sourceTree = SOURCE_ROOT; };
 		CCC678E317F88AF900F16A54 /* star0@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star0@2x.png"; sourceTree = "<group>"; };
 		CCC678E417F88AF900F16A54 /* star1@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star1@2x.png"; sourceTree = "<group>"; };
 		CCC678E517F88AF900F16A54 /* star2@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "star2@2x.png"; sourceTree = "<group>"; };
@@ -2804,7 +2921,6 @@
 				59B9991425CFDF8F0071E144 /* utils */,
 				593925CB25CF0C56009281DC /* libs */,
 				CC1E58BA1200B3B7000A8A4E /* src */,
-				CCD4631D123CB8F600D063FE /* main.mm */,
 				32CA4F630368D1EE00C91783 /* modizer_Prefix.pch */,
 				CC88D1131270AF200004EBBE /* modizer-Info.plist */,
 				CCAE594E17ECABD2007638B9 /* Localizable.strings */,
@@ -3468,6 +3584,148 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		5966D10125CFF0D100520777 /* Various */ = {
+			isa = PBXGroup;
+			children = (
+				5966D10225CFF0D100520777 /* james_bond.jpg */,
+				5966D10325CFF0D100520777 /* james_bond.mid */,
+				5966D10425CFF0D100520777 /* Live_And_Let_Die.mid */,
+			);
+			path = Various;
+			sourceTree = "<group>";
+		};
+		5966D10525CFF0D100520777 /* Demoscene */ = {
+			isa = PBXGroup;
+			children = (
+				5966D10625CFF0D100520777 /* touchin' the chip.xm */,
+				5966D10725CFF0D100520777 /* nebulos.mod */,
+				5966D10825CFF0D100520777 /* trans atlantic short.mod */,
+				5966D10925CFF0D100520777 /* elysium.mod */,
+				5966D10A25CFF0D100520777 /* varanen short.mod */,
+				5966D10B25CFF0D100520777 /* nearly there.mod */,
+				5966D10C25CFF0D100520777 /* knulla kuk !!!.mod */,
+				5966D10D25CFF0D100520777 /* space debris.mod */,
+				5966D10E25CFF0D100520777 /* virtual escape.gif */,
+				5966D10F25CFF0D100520777 /* reverie of truth.compo.mod */,
+				5966D11025CFF0D100520777 /* physical presence.mod */,
+				5966D11125CFF0D100520777 /* ghouls.mod */,
+				5966D11225CFF0D100520777 /* beyond music.mod */,
+				5966D11325CFF0D100520777 /* odyssey-part5.jpg */,
+				5966D11425CFF0D100520777 /* beat to the pulp.sid */,
+				5966D11525CFF0D100520777 /* livin' insanity.mod */,
+				5966D11625CFF0D100520777 /* pools of poison.xm */,
+				5966D11725CFF0D100520777 /* the_wanderer_2.mod */,
+				5966D11825CFF0D100520777 /* crystal rain.mod */,
+				5966D11925CFF0D100520777 /* now what 3.mod */,
+				5966D11A25CFF0D100520777 /* we're the devils.mod */,
+				5966D11B25CFF0D100520777 /* unreal ][.png */,
+				5966D11C25CFF0D100520777 /* cream of the earth.mod */,
+				5966D11D25CFF0D100520777 /* 1999.xm */,
+				5966D11E25CFF0D100520777 /* sleeping waste.mod */,
+				5966D11F25CFF0D100520777 /* desert dream.mod */,
+				5966D12025CFF0D100520777 /* umbrellas of peru.xm */,
+				5966D12125CFF0D100520777 /* spell-amelioration.mod */,
+				5966D12225CFF0D100520777 /* switchback.mod */,
+				5966D12325CFF0D100520777 /* unreal ][.s3m */,
+				5966D12425CFF0D100520777 /* odyssey-part5.mod */,
+				5966D12525CFF0D100520777 /* virtual escape.sndh */,
+				5966D12625CFF0D100520777 /* hyperbased (musiklinjen, enigma).mod */,
+			);
+			path = Demoscene;
+			sourceTree = "<group>";
+		};
+		5966D12725CFF0D100520777 /* Games */ = {
+			isa = PBXGroup;
+			children = (
+				5966D12825CFF0D100520777 /* bubble bobble.mod */,
+				5966D12925CFF0D100520777 /* MegaMan3.rar */,
+				5966D12A25CFF0D100520777 /* dune - ecolove.jpg */,
+				5966D12B25CFF0D100520777 /* MegaMan3.jpg */,
+				5966D12C25CFF0D100520777 /* turrican 2 level 0-intro.mdat */,
+				5966D12D25CFF0D100520777 /* unreal title.jpg */,
+				5966D12E25CFF0D100520777 /* dune - fremens.jpg */,
+				5966D12F25CFF0D100520777 /* Castlevania 3.jpg */,
+				5966D13025CFF0D100520777 /* Castlevania 3.nsfe */,
+				5966D13125CFF0D100520777 /* the seven gates of jambala (intro).gif */,
+				5966D13225CFF0D100520777 /* turrican 2 level 0-intro.smpl */,
+				5966D13325CFF0D100520777 /* One_Man_and_His_Droid.sid */,
+				5966D13425CFF0D100520777 /* FF7_AerisTheme.mid */,
+				5966D13525CFF0D100520777 /* zelda.mid */,
+				5966D13625CFF0D100520777 /* DukeNukem_Level1.jpg */,
+				5966D13725CFF0D100520777 /* SMB1-Theme.mid */,
+				5966D13825CFF0D100520777 /* turrican intro.smpl */,
+				5966D13925CFF0D100520777 /* DukeNukem_Level1.mid */,
+				5966D13A25CFF0D100520777 /* zelda.png */,
+				5966D13B25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */,
+				5966D13C25CFF0D100520777 /* ij4 - end credits1.png */,
+				5966D13D25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */,
+				5966D13E25CFF0D100520777 /* monkey island 2 - intro.jpg */,
+				5966D13F25CFF0D100520777 /* Monty_on_the_Run.jpg */,
+				5966D14025CFF0D100520777 /* turrican intro.mdat */,
+				5966D14125CFF0D100520777 /* the seven gates of jambala (intro).hip */,
+				5966D14225CFF0D100520777 /* gr-b03.jpg */,
+				5966D14325CFF0D100520777 /* dune - ecolove.mod */,
+				5966D14425CFF0D100520777 /* turrican intro.jpg */,
+				5966D14525CFF0D100520777 /* bubble bobble.jpg */,
+				5966D14625CFF0D100520777 /* One_Man_and_His_Droid.jpg */,
+				5966D14725CFF0D100520777 /* dune - fremens.mod */,
+				5966D14825CFF0D100520777 /* gr-b01.jpg */,
+				5966D14925CFF0D100520777 /* turrican 2 level 0-intro.jpg */,
+				5966D14A25CFF0D100520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */,
+				5966D14B25CFF0D100520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */,
+				5966D14C25CFF0D100520777 /* gr-b07.jpg */,
+				5966D14D25CFF0D100520777 /* Doom2-Stage01.jpg */,
+				5966D14E25CFF0D100520777 /* gr-b07.mdx */,
+				5966D14F25CFF0D100520777 /* Monty_on_the_Run.sid */,
+				5966D15025CFF0D100520777 /* monkey island 2 - intro.raw */,
+				5966D15125CFF0D100520777 /* SOMI_title theme.gif */,
+				5966D15225CFF0D100520777 /* unreal menu.jpg */,
+				5966D15325CFF0D100520777 /* Doom2-Stage01.mid */,
+				5966D15425CFF0D100520777 /* gr-pcm.pdx */,
+				5966D15525CFF0D100520777 /* SOMI_title theme.laa */,
+				5966D15625CFF0D100520777 /* unreal title.jt */,
+				5966D15725CFF0D100520777 /* gr-b01.mdx */,
+				5966D15825CFF0D100520777 /* unreal menu.jt */,
+				5966D15925CFF0D100520777 /* gr-b03.mdx */,
+				5966D15A25CFF0D100520777 /* ij4 - end credits1.laa */,
+			);
+			path = Games;
+			sourceTree = "<group>";
+		};
+		5966D15B25CFF0D100520777 /* Classical */ = {
+			isa = PBXGroup;
+			children = (
+				5966D15C25CFF0D100520777 /* mozart_k331c.mid */,
+				5966D15D25CFF0D100520777 /* bach_toccata_fugue_Dmin.mid */,
+				5966D15E25CFF0D100520777 /* rachmaninoff_op18.zip */,
+				5966D15F25CFF0D100520777 /* liszt_hr2.mid */,
+				5966D16025CFF0D100520777 /* debussy_arabesqu.mid */,
+				5966D16125CFF0D100520777 /* liszt_feux.mid */,
+				5966D16225CFF0D100520777 /* grieg_pianocon.mid */,
+				5966D16325CFF0D100520777 /* grieg_4_mtking.mid */,
+				5966D16425CFF0D100520777 /* tchaikovsky_1.zip */,
+				5966D16525CFF0D100520777 /* liszt_liebstrm.mid */,
+				5966D16625CFF0D100520777 /* faure_pavane.mid */,
+				5966D16725CFF0D100520777 /* brahms_hungdan5.mid */,
+				5966D16825CFF0D100520777 /* rachmaninoff_pagvar18.mid */,
+				5966D16925CFF0D100520777 /* joplin_mapleaf.mid */,
+				5966D16A25CFF0D100520777 /* liszt_pe3.mid */,
+				5966D16B25CFF0D100520777 /* tchaikovski_Flowers.mid */,
+				5966D16C25CFF0D100520777 /* bach_cs1-1pre.mid */,
+				5966D16D25CFF0D100520777 /* bach_goldberg.mid */,
+				5966D16E25CFF0D100520777 /* Ravel_PianoConcertoinG.zip */,
+				5966D16F25CFF0D100520777 /* ravel_pavane_orchestra.mid */,
+				5966D17025CFF0D100520777 /* chopin_ballade1.mid */,
+				5966D17125CFF0D100520777 /* albeniz_asturia.mid */,
+				5966D17225CFF0D100520777 /* beethoven_op27m3.mid */,
+				5966D17325CFF0D100520777 /* chopin_no4801.mid */,
+				5966D17425CFF0D100520777 /* liszt_mazeppa.mid */,
+				5966D17525CFF0D100520777 /* beethoven_op125_3.mid */,
+				5966D17625CFF0D100520777 /* chopin_fantaisie.mid */,
+			);
+			path = Classical;
+			sourceTree = "<group>";
+		};
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -3945,6 +4203,7 @@
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CCD4631D123CB8F600D063FE /* main.mm */,
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CC1E621E12041177000A8A4E /* AppDelegate_Phone.h */,
@@ -4061,7 +4320,7 @@
 				33ABE5B617B23DF900AE0EA1 /* BookmarksViewController.xib */,
 				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
 				3396B55613297F8C001792E0 /* timidity */,
-				CCB21D9C124690E000A30F62 /* Samples2 */,
+				CCB21D9C124690E000A30F62 /* Samples */,
 				CC9F0E39123DEFCC00D8EE6D /* sc68 */,
 				33888A7C122318C60030C82E /* backgrounds */,
 				CC1E6260120423DF000A8A4E /* UADE */,
@@ -4609,146 +4868,6 @@
 			path = libGME;
 			sourceTree = "<group>";
 		};
-		CC9167F117EFA6FA0012E2C1 /* Classical */ = {
-			isa = PBXGroup;
-			children = (
-				CCC6781C17F75B1000F16A54 /* albeniz_asturia.mid */,
-				CCC6781D17F75B1000F16A54 /* bach_cs1-1pre.mid */,
-				CCC6781E17F75B1000F16A54 /* bach_goldberg.mid */,
-				CCC6781F17F75B1000F16A54 /* bach_toccata_fugue_Dmin.mid */,
-				CCC6782017F75B1000F16A54 /* beethoven_op27m3.mid */,
-				CCC6782117F75B1000F16A54 /* beethoven_op125_3.mid */,
-				CCC6782217F75B1000F16A54 /* brahms_hungdan5.mid */,
-				CCC6782317F75B1000F16A54 /* chopin_ballade1.mid */,
-				CCC6782417F75B1000F16A54 /* chopin_fantaisie.mid */,
-				CCC6782517F75B1000F16A54 /* chopin_no4801.mid */,
-				CCC6782617F75B1000F16A54 /* debussy_arabesqu.mid */,
-				CCC6782717F75B1000F16A54 /* faure_pavane.mid */,
-				CCC6782817F75B1000F16A54 /* grieg_4_mtking.mid */,
-				CCC6782917F75B1000F16A54 /* grieg_pianocon.mid */,
-				CCC6782A17F75B1000F16A54 /* joplin_mapleaf.mid */,
-				CCC6782B17F75B1000F16A54 /* liszt_feux.mid */,
-				CCC6782C17F75B1000F16A54 /* liszt_hr2.mid */,
-				CCC6782D17F75B1000F16A54 /* liszt_liebstrm.mid */,
-				CCC6782E17F75B1000F16A54 /* liszt_mazeppa.mid */,
-				CCC6782F17F75B1000F16A54 /* liszt_pe3.mid */,
-				CCC6783017F75B1000F16A54 /* mozart_k331c.mid */,
-				CCC6783417F75B1000F16A54 /* rachmaninoff_pagvar18.mid */,
-				CCC6783517F75B1000F16A54 /* ravel_pavane_orchestra.mid */,
-				CCC6783617F75B1000F16A54 /* Ravel_PianoConcertoinG.zip */,
-				CCC6783717F75B1000F16A54 /* tchaikovski_Flowers.mid */,
-			);
-			name = Classical;
-			sourceTree = "<group>";
-		};
-		CC9167F317EFA72F0012E2C1 /* Games */ = {
-			isa = PBXGroup;
-			children = (
-				CCC677C417F75AFB00F16A54 /* bubble bobble.jpg */,
-				CCC677C517F75AFB00F16A54 /* bubble bobble.mod */,
-				59BE94A7203C134F009F0255 /* Castlevania 3.jpg */,
-				59F281441E5B5A11000B7A4C /* Castlevania 3.nsfe */,
-				CCC678CB17F76CA700F16A54 /* gr-b01.jpg */,
-				CCC678CC17F76CA700F16A54 /* gr-b01.mdx */,
-				CCC678CD17F76CA700F16A54 /* gr-b03.jpg */,
-				CCC678CE17F76CA700F16A54 /* gr-b03.mdx */,
-				CCC678CF17F76CA700F16A54 /* gr-b07.jpg */,
-				CCC678D017F76CA700F16A54 /* gr-b07.mdx */,
-				CCC678D117F76CA700F16A54 /* gr-pcm.pdx */,
-				CCC677C817F75AFB00F16A54 /* Doom2-Stage01.jpg */,
-				CCC677C917F75AFB00F16A54 /* Doom2-Stage01.mid */,
-				CCC677CA17F75AFB00F16A54 /* DukeNukem_Level1.jpg */,
-				CCC677CB17F75AFB00F16A54 /* DukeNukem_Level1.mid */,
-				CCC677CC17F75AFB00F16A54 /* dune - ecolove.jpg */,
-				CCC677CD17F75AFB00F16A54 /* dune - ecolove.mod */,
-				CCC677CE17F75AFB00F16A54 /* dune - fremens.jpg */,
-				CCC677CF17F75AFB00F16A54 /* dune - fremens.mod */,
-				CCC677D017F75AFB00F16A54 /* FF7_AerisTheme.mid */,
-				CCC677D117F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg */,
-				CCC677D217F75AFB00F16A54 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip */,
-				CCC677D417F75AFB00F16A54 /* ij4 - end credits1.laa */,
-				CCC678E017F76ED900F16A54 /* ij4 - end credits1.png */,
-				CCC677D517F75AFB00F16A54 /* MegaMan3.jpg */,
-				CCC677D617F75AFB00F16A54 /* MegaMan3.rar */,
-				CCC677D717F75AFB00F16A54 /* monkey island 2 - intro.jpg */,
-				CCC677D817F75AFB00F16A54 /* monkey island 2 - intro.raw */,
-				CCC677D917F75AFB00F16A54 /* Monty_on_the_Run.jpg */,
-				CCC677DA17F75AFB00F16A54 /* Monty_on_the_Run.sid */,
-				CCC677DB17F75AFB00F16A54 /* One_Man_and_His_Droid.jpg */,
-				CCC677DC17F75AFB00F16A54 /* One_Man_and_His_Droid.sid */,
-				CCC677DD17F75AFB00F16A54 /* SMB1-Theme.mid */,
-				CCC677DE17F75AFB00F16A54 /* SOMI_title theme.gif */,
-				CCC677DF17F75AFB00F16A54 /* SOMI_title theme.laa */,
-				CCC677E017F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png */,
-				CCC677E117F75AFB00F16A54 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip */,
-				CCC677E217F75AFB00F16A54 /* the seven gates of jambala (intro).gif */,
-				CCC677E317F75AFB00F16A54 /* the seven gates of jambala (intro).hip */,
-				CCC677E417F75AFB00F16A54 /* turrican 2 level 0-intro.jpg */,
-				CCC677E517F75AFB00F16A54 /* turrican 2 level 0-intro.mdat */,
-				CCC677E617F75AFB00F16A54 /* turrican 2 level 0-intro.smpl */,
-				CCC677E717F75AFB00F16A54 /* turrican intro.jpg */,
-				CCC677E817F75AFB00F16A54 /* turrican intro.mdat */,
-				CCC677E917F75AFB00F16A54 /* turrican intro.smpl */,
-				CCC677EA17F75AFB00F16A54 /* unreal menu.jpg */,
-				CCC677EB17F75AFB00F16A54 /* unreal menu.jt */,
-				CCC677EC17F75AFB00F16A54 /* unreal title.jpg */,
-				CCC677ED17F75AFB00F16A54 /* unreal title.jt */,
-				CCC677EE17F75AFB00F16A54 /* zelda.mid */,
-				CCC677EF17F75AFB00F16A54 /* zelda.png */,
-			);
-			name = Games;
-			sourceTree = "<group>";
-		};
-		CC9167F417EFA7380012E2C1 /* Demoscene */ = {
-			isa = PBXGroup;
-			children = (
-				CCC6777317F75AEA00F16A54 /* 1999.xm */,
-				CCC6777517F75AEA00F16A54 /* beat to the pulp.sid */,
-				CCC6777617F75AEA00F16A54 /* beyond music.mod */,
-				CCC6777817F75AEA00F16A54 /* cream of the earth.mod */,
-				CCC6777917F75AEA00F16A54 /* crystal rain.mod */,
-				CCC6777A17F75AEB00F16A54 /* desert dream.mod */,
-				CCC6777C17F75AEB00F16A54 /* elysium.mod */,
-				CCC6777E17F75AEB00F16A54 /* ghouls.mod */,
-				CCC6778117F75AEB00F16A54 /* hyperbased (musiklinjen, enigma).mod */,
-				CCC6778217F75AEB00F16A54 /* knulla kuk !!!.mod */,
-				CCC6778317F75AEB00F16A54 /* livin' insanity.mod */,
-				CCC6778417F75AEB00F16A54 /* nearly there.mod */,
-				CCC6778517F75AEB00F16A54 /* nebulos.mod */,
-				CCC6778717F75AEB00F16A54 /* now what 3.mod */,
-				CCC6778817F75AEB00F16A54 /* odyssey-part5.jpg */,
-				CCC6778917F75AEB00F16A54 /* odyssey-part5.mod */,
-				CCC6778A17F75AEB00F16A54 /* physical presence.mod */,
-				CCC6778B17F75AEB00F16A54 /* pools of poison.xm */,
-				CCC6778C17F75AEB00F16A54 /* reverie of truth.compo.mod */,
-				CCC6778D17F75AEB00F16A54 /* sleeping waste.mod */,
-				CCC6778E17F75AEB00F16A54 /* space debris.mod */,
-				CCC6778F17F75AEB00F16A54 /* spell-amelioration.mod */,
-				CCC6779017F75AEB00F16A54 /* switchback.mod */,
-				CCC6779117F75AEB00F16A54 /* the_wanderer_2.mod */,
-				CCC6779217F75AEB00F16A54 /* touchin' the chip.xm */,
-				CCC6779317F75AEB00F16A54 /* trans atlantic short.mod */,
-				CCC6779417F75AEB00F16A54 /* umbrellas of peru.xm */,
-				CCC6779517F75AEB00F16A54 /* unreal ][.png */,
-				CCC6779617F75AEB00F16A54 /* unreal ][.s3m */,
-				CCC6779717F75AEB00F16A54 /* varanen short.mod */,
-				CCC6779817F75AEB00F16A54 /* virtual escape.gif */,
-				CCC6779917F75AEB00F16A54 /* virtual escape.sndh */,
-				CCC6779A17F75AEB00F16A54 /* we're the devils.mod */,
-			);
-			name = Demoscene;
-			sourceTree = "<group>";
-		};
-		CC9167F517EFA7660012E2C1 /* Various */ = {
-			isa = PBXGroup;
-			children = (
-				CC91682B17F01EC80012E2C1 /* james_bond.jpg */,
-				CC91682C17F01EC80012E2C1 /* james_bond.mid */,
-				CC91682D17F01EC80012E2C1 /* Live_And_Let_Die.mid */,
-			);
-			name = Various;
-			sourceTree = "<group>";
-		};
 		CC9B17FB12FF023600985967 /* libgsf */ = {
 			isa = PBXGroup;
 			children = (
@@ -4874,15 +4993,14 @@
 			path = libLazyusf;
 			sourceTree = "<group>";
 		};
-		CCB21D9C124690E000A30F62 /* Samples2 */ = {
+		CCB21D9C124690E000A30F62 /* Samples */ = {
 			isa = PBXGroup;
 			children = (
-				CC9167F517EFA7660012E2C1 /* Various */,
-				CC9167F417EFA7380012E2C1 /* Demoscene */,
-				CC9167F317EFA72F0012E2C1 /* Games */,
-				CC9167F117EFA6FA0012E2C1 /* Classical */,
+				5966D15B25CFF0D100520777 /* Classical */,
+				5966D10525CFF0D100520777 /* Demoscene */,
+				5966D12725CFF0D100520777 /* Games */,
+				5966D10125CFF0D100520777 /* Various */,
 			);
-			name = Samples2;
 			path = Samples;
 			sourceTree = "<group>";
 		};
@@ -5444,10 +5562,13 @@
 				CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */,
 				CCB8D99D17F62A18008E6A45 /* txtMenu6_2x.png in Resources */,
 				59909B511E3E204E00C629AA /* tabview_gradient40Orange@2x.png in Resources */,
+				5966D1C425CFF0D200520777 /* SOMI_title theme.gif in Resources */,
 				CCC678EB17F88AF900F16A54 /* star2@2x.png in Resources */,
 				CC1E5C931200B3B8000A8A4E /* consolas8.fnt in Resources */,
 				CC1E5C941200B3B8000A8A4E /* 02-redo-green.png in Resources */,
 				59909B591E3E6B9A00C629AA /* tabview_gradient40Pink@2x.png in Resources */,
+				5966D1A625CFF0D200520777 /* One_Man_and_His_Droid.sid in Resources */,
+				5966D17925CFF0D100520777 /* Live_And_Let_Die.mid in Resources */,
 				CC1E5C951200B3B8000A8A4E /* 02-redo.png in Resources */,
 				CC1E5C961200B3B8000A8A4E /* 03-loopback-green.png in Resources */,
 				CC1E5C981200B3B8000A8A4E /* 05-shuffle-green.png in Resources */,
@@ -5465,6 +5586,7 @@
 				CC1E5CAF1200B3B8000A8A4E /* next.png in Resources */,
 				CC1E5CB01200B3B8000A8A4E /* play.png in Resources */,
 				CC1E5CB11200B3B8000A8A4E /* playlist.png in Resources */,
+				5966D18E25CFF0D200520777 /* we're the devils.mod in Resources */,
 				CC1E5CB21200B3B8000A8A4E /* playlist_add.png in Resources */,
 				CC1E5CB51200B3B8000A8A4E /* rating1.png in Resources */,
 				CC1E5CB61200B3B8000A8A4E /* rating2.png in Resources */,
@@ -5473,6 +5595,8 @@
 				CC1E5CB91200B3B8000A8A4E /* rating5.png in Resources */,
 				CC1E5CBD1200B3B8000A8A4E /* smile32.png in Resources */,
 				CC1E5CBE1200B3B8000A8A4E /* spanner32.png in Resources */,
+				5966D1CB25CFF0D200520777 /* unreal menu.jt in Resources */,
+				5966D19F25CFF0D200520777 /* turrican 2 level 0-intro.mdat in Resources */,
 				CCB8D97017F6172D008E6A45 /* txtMenu7a_2x.png in Resources */,
 				CC1E5CC11200B3B8000A8A4E /* star1.png in Resources */,
 				59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */,
@@ -5480,18 +5604,25 @@
 				CC1E5CC31200B3B8000A8A4E /* star3.png in Resources */,
 				CC1E5CC41200B3B8000A8A4E /* star4.png in Resources */,
 				CC1E5CC51200B3B8000A8A4E /* star5.png in Resources */,
+				5966D1A325CFF0D200520777 /* Castlevania 3.nsfe in Resources */,
 				CC1E5EA61200D05E000A8A4E /* iTunesArtwork in Resources */,
 				CC6CBDEF17DBE380006DCBC7 /* EQViewController.xib in Resources */,
+				5966D19125CFF0D200520777 /* 1999.xm in Resources */,
+				5966D1DC25CFF0D200520777 /* liszt_pe3.mid in Resources */,
 				CC1E5F0D120154A8000A8A4E /* Icon-72.png in Resources */,
 				CC1E5F0F120154A8000A8A4E /* Icon-Small.png in Resources */,
+				5966D19425CFF0D200520777 /* umbrellas of peru.xm in Resources */,
+				5966D18A25CFF0D200520777 /* pools of poison.xm in Resources */,
 				CC1E5F10120154A8000A8A4E /* Icon-Small@2x.png in Resources */,
+				5966D1AA25CFF0D200520777 /* SMB1-Theme.mid in Resources */,
 				CC1E5F11120154A8000A8A4E /* Icon.png in Resources */,
 				CC1E5F12120154A8000A8A4E /* Icon@2x.png in Resources */,
 				CC1E5F14120154F9000A8A4E /* Icon-Small-50.png in Resources */,
 				CC1E6310120423DF000A8A4E /* eagleplayer.conf in Resources */,
-				59F281451E5B5A1A000B7A4C /* Castlevania 3.nsfe in Resources */,
 				CC1E6311120423DF000A8A4E /* AbyssHighestExperience in Resources */,
 				59909B5C1E3E786700C629AA /* tabview_gradient40Red.png in Resources */,
+				5966D1BD25CFF0D200520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).png in Resources */,
+				5966D19C25CFF0D200520777 /* MegaMan3.rar in Resources */,
 				59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */,
 				CCB8D99817F62A18008E6A45 /* txtMenu3c_2x.png in Resources */,
 				CC1E6312120423DF000A8A4E /* ActionAmics in Resources */,
@@ -5500,11 +5631,14 @@
 				CC1E6314120423DF000A8A4E /* Alcatraz_Packer in Resources */,
 				CC1E6315120423DF000A8A4E /* AM-Composer in Resources */,
 				CC1E6316120423DF000A8A4E /* AMOS in Resources */,
+				5966D18D25CFF0D200520777 /* now what 3.mod in Resources */,
 				CC1E6317120423DF000A8A4E /* ArtAndMagic in Resources */,
 				CC1E6318120423DF000A8A4E /* ArtOfNoise-4V in Resources */,
+				5966D19625CFF0D200520777 /* switchback.mod in Resources */,
 				59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */,
 				CC1E6319120423DF000A8A4E /* ArtOfNoise-8V in Resources */,
 				CCC678EE17F88AF900F16A54 /* star5@2x.png in Resources */,
+				5966D1E625CFF0D200520777 /* liszt_mazeppa.mid in Resources */,
 				CCB8D99617F62A18008E6A45 /* txtMenu3a_2x.png in Resources */,
 				CC1E631A120423DF000A8A4E /* AudioSculpture in Resources */,
 				CC1E631B120423DF000A8A4E /* BeathovenSynthesizer in Resources */,
@@ -5513,29 +5647,45 @@
 				CC1E631E120423DF000A8A4E /* BladePacker in Resources */,
 				CC1E631F120423DF000A8A4E /* ChipTracker in Resources */,
 				CC1E6320120423DF000A8A4E /* Cinemaware in Resources */,
+				5966D1E525CFF0D200520777 /* chopin_no4801.mid in Resources */,
+				5966D1A125CFF0D200520777 /* dune - fremens.jpg in Resources */,
+				5966D1BA25CFF0D200520777 /* dune - fremens.mod in Resources */,
+				5966D17825CFF0D100520777 /* james_bond.mid in Resources */,
 				CC33B4271ABE1FC6009608E8 /* slider.png in Resources */,
 				CC1E6321120423DF000A8A4E /* CoreDesign in Resources */,
+				5966D1BE25CFF0D200520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).jpg in Resources */,
 				CC1E6322120423DF000A8A4E /* CustomMade in Resources */,
+				5966D18725CFF0D100520777 /* odyssey-part5.jpg in Resources */,
+				5966D1B825CFF0D200520777 /* bubble bobble.jpg in Resources */,
 				CC1E6323120423DF000A8A4E /* DariusZendeh in Resources */,
+				5966D18525CFF0D100520777 /* ghouls.mod in Resources */,
+				5966D17C25CFF0D100520777 /* trans atlantic short.mod in Resources */,
 				CC1E6324120423DF000A8A4E /* DaveLowe in Resources */,
 				CC1E6325120423DF000A8A4E /* DaveLowe_Deli in Resources */,
 				CC1E6326120423DF000A8A4E /* DaveLoweNew in Resources */,
 				CCB8D9A217F62A18008E6A45 /* txtMenu10b_2x.png in Resources */,
 				CC1E6327120423DF000A8A4E /* DavidHanney in Resources */,
 				CC1E6328120423DF000A8A4E /* DavidWhittaker in Resources */,
+				5966D1C825CFF0D200520777 /* SOMI_title theme.laa in Resources */,
 				CC1E6329120423DF000A8A4E /* DeltaMusic1.3 in Resources */,
 				CC1E632A120423DF000A8A4E /* DeltaMusic2.0 in Resources */,
+				5966D1CC25CFF0D200520777 /* gr-b03.mdx in Resources */,
 				CC1E632B120423DF000A8A4E /* Desire in Resources */,
 				CC1E632C120423DF000A8A4E /* DIGI-Booster in Resources */,
+				5966D1C025CFF0D200520777 /* Doom2-Stage01.jpg in Resources */,
+				5966D18025CFF0D100520777 /* knulla kuk !!!.mod in Resources */,
 				CC1E632D120423DF000A8A4E /* DigitalSonixChrome in Resources */,
 				CC1E632E120423DF000A8A4E /* DigitalSoundStudio in Resources */,
 				CC1E632F120423DF000A8A4E /* DirkBialluch in Resources */,
 				CCB8D99E17F62A18008E6A45 /* txtMenu8a_2x.png in Resources */,
 				CC1E6330120423DF000A8A4E /* DynamicSynthesizer in Resources */,
 				CC1E6331120423DF000A8A4E /* EarAche in Resources */,
+				5966D19325CFF0D200520777 /* desert dream.mod in Resources */,
 				CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */,
 				CC1E6332120423DF000A8A4E /* EMS in Resources */,
+				5966D1D225CFF0D200520777 /* debussy_arabesqu.mid in Resources */,
 				337FE6A824A8D20800CEE44D /* Launch Screen.storyboard in Resources */,
+				5966D1B025CFF0D200520777 /* Gargoyle's Quest [Red Arremer - Makaimura Gaiden] (GB)(1990-05-02)(Capcom).zip in Resources */,
 				CCB8D9A117F62A18008E6A45 /* txtMenu10a_2x.png in Resources */,
 				CC1E6333120423DF000A8A4E /* EMS-6 in Resources */,
 				CC1E6334120423DF000A8A4E /* ahx in Resources */,
@@ -5545,17 +5695,23 @@
 				CC8A8D4617F9FF5500A56E0C /* Icon-152.png in Resources */,
 				CC1E6338120423DF000A8A4E /* EP-Hippel_7V.cfg in Resources */,
 				CC1E6339120423DF000A8A4E /* EP-Mugician_II.cfg in Resources */,
+				5966D1D425CFF0D200520777 /* grieg_pianocon.mid in Resources */,
 				CC1E633A120423DF000A8A4E /* EP-PTK-Prowiz.cfg in Resources */,
 				CC1E633B120423DF000A8A4E /* EP-S3M.cfg in Resources */,
+				5966D17F25CFF0D100520777 /* nearly there.mod in Resources */,
 				CCB8D99F17F62A18008E6A45 /* txtMenu8b_2x.png in Resources */,
 				CC1E633C120423DF000A8A4E /* EP-TFMX_7V.cfg in Resources */,
 				CC1E633D120423DF000A8A4E /* EP-TFMX_Pro.cfg in Resources */,
+				5966D19B25CFF0D200520777 /* bubble bobble.mod in Resources */,
+				5966D1C125CFF0D200520777 /* gr-b07.mdx in Resources */,
 				CC1E633E120423DF000A8A4E /* FashionTracker in Resources */,
 				CC1E633F120423DF000A8A4E /* ForgottenWorlds_Game in Resources */,
 				CC1E6340120423DF000A8A4E /* Fred in Resources */,
+				5966D19025CFF0D200520777 /* cream of the earth.mod in Resources */,
 				59909B611E3E7F2400C629AA /* tabview_gradient40Black@2x.png in Resources */,
 				CC1E6341120423DF000A8A4E /* FredGray in Resources */,
 				CC1E6342120423DF000A8A4E /* FutureComposer-BSI in Resources */,
+				5966D1C525CFF0D200520777 /* unreal menu.jpg in Resources */,
 				59909B551E3E20A300C629AA /* tabview_gradient40Green@2x.png in Resources */,
 				CC1E6343120423DF000A8A4E /* FutureComposer1.3 in Resources */,
 				CC1E6344120423DF000A8A4E /* FutureComposer1.4 in Resources */,
@@ -5566,10 +5722,12 @@
 				CC1E6348120423DF000A8A4E /* ImagesMusicSystem in Resources */,
 				CC1E6349120423DF000A8A4E /* Infogrames in Resources */,
 				CC1E634A120423DF000A8A4E /* InStereo in Resources */,
+				5966D1DE25CFF0D200520777 /* bach_cs1-1pre.mid in Resources */,
 				CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */,
 				CC1E634B120423DF000A8A4E /* InStereo2.0 in Resources */,
 				CC1E634C120423DF000A8A4E /* JamCracker in Resources */,
 				CC1E634D120423DF000A8A4E /* JankoMrsicFlogel in Resources */,
+				5966D17A25CFF0D100520777 /* touchin' the chip.xm in Resources */,
 				CC1E634E120423DF000A8A4E /* JasonBrooke in Resources */,
 				CC1E634F120423DF000A8A4E /* JasonPage in Resources */,
 				CC1E6350120423DF000A8A4E /* JasonPage_JP in Resources */,
@@ -5581,11 +5739,13 @@
 				CC1E6356120423DF000A8A4E /* JochenHippel-7V in Resources */,
 				CC1E6357120423DF000A8A4E /* JochenHippel-CoSo in Resources */,
 				CC1E6358120423DF000A8A4E /* JochenHippel_UADE in Resources */,
+				5966D1A525CFF0D200520777 /* turrican 2 level 0-intro.smpl in Resources */,
 				CC1E6359120423DF000A8A4E /* KrisHatlelid in Resources */,
 				CC1E635A120423DF000A8A4E /* Laxity in Resources */,
 				CCB8D98017F62356008E6A45 /* txtMenu12b_2x.png in Resources */,
 				CC1E635B120423DF000A8A4E /* LegglessMusicEditor in Resources */,
 				CC1E635C120423DF000A8A4E /* Lionheart_Game in Resources */,
+				5966D1C725CFF0D200520777 /* gr-pcm.pdx in Resources */,
 				CC1E635D120423DF000A8A4E /* MagneticFieldsPacker in Resources */,
 				CC1E635E120423DF000A8A4E /* MajorTom in Resources */,
 				CC1E635F120423DF000A8A4E /* ManiacsOfNoise in Resources */,
@@ -5593,9 +5753,12 @@
 				CC1E6361120423DF000A8A4E /* Mark_Cooksey_Old in Resources */,
 				CC1E6362120423DF000A8A4E /* MarkII in Resources */,
 				59909B5D1E3E786700C629AA /* tabview_gradient40Red@2x.png in Resources */,
+				5966D1C325CFF0D200520777 /* monkey island 2 - intro.raw in Resources */,
 				CC1E6363120423DF000A8A4E /* MartinWalker in Resources */,
 				CC1E6364120423DF000A8A4E /* Maximum_Effect in Resources */,
+				5966D1A225CFF0D200520777 /* Castlevania 3.jpg in Resources */,
 				CC1E6365120423DF000A8A4E /* MCMD in Resources */,
+				5966D1B425CFF0D200520777 /* the seven gates of jambala (intro).hip in Resources */,
 				CCB8D99417F62A18008E6A45 /* txtMenu2b_2x.png in Resources */,
 				CCB8D97217F61AEA008E6A45 /* txtMenu2a_2x.png in Resources */,
 				CC1E6366120423DF000A8A4E /* MED in Resources */,
@@ -5604,6 +5767,10 @@
 				CC1E6369120423DF000A8A4E /* MikeDavies in Resources */,
 				CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */,
 				CC1E636A120423DF000A8A4E /* MMDC in Resources */,
+				5966D1B725CFF0D200520777 /* turrican intro.jpg in Resources */,
+				5966D1D725CFF0D200520777 /* liszt_liebstrm.mid in Resources */,
+				5966D1C625CFF0D200520777 /* Doom2-Stage01.mid in Resources */,
+				5966D1E825CFF0D200520777 /* chopin_fantaisie.mid in Resources */,
 				CC1E636B120423DF000A8A4E /* Mugician in Resources */,
 				CC1E636C120423DF000A8A4E /* MugicianII in Resources */,
 				CC1E636D120423DF000A8A4E /* MultiMedia_Sound in Resources */,
@@ -5616,18 +5783,24 @@
 				CC1E6372120423DF000A8A4E /* NovoTradePacker in Resources */,
 				CC1E6373120423DF000A8A4E /* NTSP-system in Resources */,
 				CC1E6374120423DF000A8A4E /* Octa-MED in Resources */,
+				5966D1E025CFF0D200520777 /* Ravel_PianoConcertoinG.zip in Resources */,
 				CC1E6375120423DF000A8A4E /* Oktalyzer in Resources */,
 				CC1E6376120423DF000A8A4E /* onEscapee in Resources */,
 				CC1E6377120423DF000A8A4E /* PaulRobotham in Resources */,
 				CC1E6378120423DF000A8A4E /* PaulShields in Resources */,
 				CC1E6379120423DF000A8A4E /* PaulSummers in Resources */,
+				5966D1AC25CFF0D200520777 /* DukeNukem_Level1.mid in Resources */,
 				CC1E637A120423DF000A8A4E /* PeterVerswyvelen in Resources */,
 				CCB8D97A17F62356008E6A45 /* txtMenu7c_2x.png in Resources */,
+				5966D1AF25CFF0D200520777 /* ij4 - end credits1.png in Resources */,
 				CC1E637B120423DF000A8A4E /* PierreAdane in Resources */,
 				CC1E637C120423DF000A8A4E /* ProfessionalSoundArtists in Resources */,
+				5966D1E325CFF0D200520777 /* albeniz_asturia.mid in Resources */,
+				5966D19525CFF0D200520777 /* spell-amelioration.mod in Resources */,
 				CC1E637D120423DF000A8A4E /* PTK-Prowiz in Resources */,
 				CC1E637E120423DF000A8A4E /* PumaTracker in Resources */,
 				CC1E637F120423DF000A8A4E /* QuadraComposer in Resources */,
+				5966D18125CFF0D100520777 /* space debris.mod in Resources */,
 				CC1E6380120423DF000A8A4E /* Quartet in Resources */,
 				CC1E6381120423DF000A8A4E /* Quartet_PSG in Resources */,
 				CC1E6382120423DF000A8A4E /* Quartet_ST in Resources */,
@@ -5642,18 +5815,22 @@
 				CC1E638B120423E0000A8A4E /* SeanConran in Resources */,
 				CC1E638C120423E0000A8A4E /* SIDMon1.0 in Resources */,
 				CC1E638D120423E0000A8A4E /* SIDMon2.0 in Resources */,
-				59BE94B0203C1350009F0255 /* Castlevania 3.jpg in Resources */,
+				5966D1CF25CFF0D200520777 /* bach_toccata_fugue_Dmin.mid in Resources */,
 				CC1E638E120423E0000A8A4E /* Sierra-AGI in Resources */,
 				CC1E638F120423E0000A8A4E /* Silmarils in Resources */,
 				CCB8D9A017F62A18008E6A45 /* txtMenu9_2x.png in Resources */,
 				CC1E6390120423E0000A8A4E /* SonicArranger in Resources */,
+				5966D1DB25CFF0D200520777 /* joplin_mapleaf.mid in Resources */,
 				CC1E6391120423E0000A8A4E /* SonicArranger-pc-all in Resources */,
+				5966D18425CFF0D100520777 /* physical presence.mod in Resources */,
 				CC1E6392120423E0000A8A4E /* SonixMusicDriver in Resources */,
 				CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */,
 				CC1E6393120423E0000A8A4E /* Sound-FX in Resources */,
+				5966D1B125CFF0D200520777 /* monkey island 2 - intro.jpg in Resources */,
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
 				CC1E6394120423E0000A8A4E /* SoundControl in Resources */,
 				CC1E6395120423E0000A8A4E /* SoundFactory in Resources */,
+				5966D1C925CFF0D200520777 /* unreal title.jt in Resources */,
 				CC1E6396120423E0000A8A4E /* SoundImages in Resources */,
 				CC1E6397120423E0000A8A4E /* SoundMaster in Resources */,
 				CC1E6398120423E0000A8A4E /* SoundMon2.0 in Resources */,
@@ -5669,6 +5846,7 @@
 				CC1E639F120423E0000A8A4E /* SpeedyA1System in Resources */,
 				CC1E63A0120423E0000A8A4E /* SpeedySystem in Resources */,
 				CC1E63A1120423E0000A8A4E /* SteveBarrett in Resources */,
+				5966D1BF25CFF0D200520777 /* gr-b07.jpg in Resources */,
 				CC1E63A2120423E0000A8A4E /* SteveTurner in Resources */,
 				CC1E63A3120423E0000A8A4E /* SUN-Tronic in Resources */,
 				CCB8D97D17F62356008E6A45 /* txtMenu11b_2x.png in Resources */,
@@ -5676,13 +5854,19 @@
 				CC1E63A5120423E0000A8A4E /* SynthDream in Resources */,
 				CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */,
 				CC1E63A6120423E0000A8A4E /* SynthPack in Resources */,
+				5966D1A025CFF0D200520777 /* unreal title.jpg in Resources */,
+				5966D1B625CFF0D200520777 /* dune - ecolove.mod in Resources */,
+				5966D1CA25CFF0D200520777 /* gr-b01.mdx in Resources */,
+				5966D1E225CFF0D200520777 /* chopin_ballade1.mid in Resources */,
 				CC1E63A7120423E0000A8A4E /* SynTracker in Resources */,
 				CC1E63A8120423E0000A8A4E /* TFMX in Resources */,
 				CC1E63A9120423E0000A8A4E /* TFMX-7V in Resources */,
 				CC1E63AA120423E0000A8A4E /* TFMX-7V-TFHD in Resources */,
+				5966D19925CFF0D200520777 /* virtual escape.sndh in Resources */,
 				CC1E63AB120423E0000A8A4E /* TFMX-Pro in Resources */,
 				CC1E63AC120423E0000A8A4E /* TFMX-Pro-TFHD in Resources */,
 				CC1E63AD120423E0000A8A4E /* TFMX-TFHD in Resources */,
+				5966D18F25CFF0D200520777 /* unreal ][.png in Resources */,
 				CC1E63AE120423E0000A8A4E /* TFMX_ST in Resources */,
 				CC1E63AF120423E0000A8A4E /* TheMusicalEnlightenment in Resources */,
 				CCC678E917F88AF900F16A54 /* star0@2x.png in Resources */,
@@ -5692,7 +5876,9 @@
 				CC1E63B3120423E0000A8A4E /* Tronic in Resources */,
 				59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */,
 				CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */,
+				5966D1E725CFF0D200520777 /* beethoven_op125_3.mid in Resources */,
 				CC1E63B4120423E0000A8A4E /* UltimateSoundtracker in Resources */,
+				5966D1A925CFF0D200520777 /* DukeNukem_Level1.jpg in Resources */,
 				CCB8D99317F62A18008E6A45 /* txtMenu1_2x.png in Resources */,
 				CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */,
 				CC1E63B5120423E0000A8A4E /* VoodooSupremeSynthesizer in Resources */,
@@ -5716,24 +5902,30 @@
 				CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */,
 				CCD791731219FC6B0063D0E7 /* zoom.png in Resources */,
 				CCDCFFBC121FD47300B89B19 /* MIMETYPES.plist in Resources */,
+				5966D1CD25CFF0D200520777 /* ij4 - end credits1.laa in Resources */,
 				33888AA212231EEA0030C82E /* 1237346308.jpg in Resources */,
 				3335B7CE122E30BB00E06F60 /* playlist_del.png in Resources */,
 				CCC678ED17F88AF900F16A54 /* star4@2x.png in Resources */,
 				CCCE9BF4123D7CA6007D9462 /* modizer_logo.png in Resources */,
 				CC9F0E99123DEFCC00D8EE6D /* config.txt in Resources */,
+				5966D1AE25CFF0D200520777 /* Super Mario Land (GB)(1989-04-21)(Nintendo RD1)(Nintendo).zip in Resources */,
+				5966D1CE25CFF0D200520777 /* mozart_k331c.mid in Resources */,
 				337FA7D8124346F500DDD352 /* checkbox_single.png in Resources */,
 				337FA7D9124346F500DDD352 /* checkbox_unchecked.png in Resources */,
 				CCB21EBB1246C68E00A30F62 /* arrow_right@2x.png in Resources */,
 				CCB21EBD1246C69800A30F62 /* playlist@2x.png in Resources */,
+				5966D1A825CFF0D200520777 /* zelda.mid in Resources */,
 				CCB8D99A17F62A18008E6A45 /* txtMenu4b_2x.png in Resources */,
 				CCB21EC91246C73600A30F62 /* play@2x.png in Resources */,
 				CCB21ECB1246C90100A30F62 /* playlist_del@2x.png in Resources */,
 				CCC678EA17F88AF900F16A54 /* star1@2x.png in Resources */,
 				CCB21ED21246C91800A30F62 /* playlist_add@2x.png in Resources */,
+				5966D18325CFF0D100520777 /* reverie of truth.compo.mod in Resources */,
 				CCB21EDA1246C9E900A30F62 /* unzoom@2x.png in Resources */,
 				CCB8D97C17F62356008E6A45 /* txtMenu7f_2x.png in Resources */,
 				CCB21EDC1246C9F200A30F62 /* zoom@2x.png in Resources */,
 				CCB21EE21246CA5100A30F62 /* close@2x.png in Resources */,
+				5966D19225CFF0D200520777 /* sleeping waste.mod in Resources */,
 				CC4D69B312472B5C0074E94B /* info@2x.png in Resources */,
 				3370BC14124A853F00691400 /* sin_tab.dat in Resources */,
 				3370BC15124A853F00691400 /* tl_tab.dat in Resources */,
@@ -5742,12 +5934,15 @@
 				CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */,
 				CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */,
 				337D3ED5137B094F00270218 /* adplug.db in Resources */,
+				5966D1E125CFF0D200520777 /* ravel_pavane_orchestra.mid in Resources */,
+				5966D17E25CFF0D100520777 /* varanen short.mod in Resources */,
 				330FB72D138053E9001EC7A2 /* play_all.png in Resources */,
 				330FB72F138053F6001EC7A2 /* play_all@2x.png in Resources */,
 				330FB73213810D1D001EC7A2 /* playlist_add_all.png in Resources */,
 				330FB73313810D1D001EC7A2 /* playlist_add_all@2x.png in Resources */,
 				3388C3BC13842E9100DA8F05 /* playlist_del_all.png in Resources */,
 				3388C3BD13842E9100DA8F05 /* playlist_del_all@2x.png in Resources */,
+				5966D19A25CFF0D200520777 /* hyperbased (musiklinjen, enigma).mod in Resources */,
 				33C7397E13A2137A0012221C /* default_art.png in Resources */,
 				33CAECAE13E93D7100088A37 /* arc_details.png in Resources */,
 				33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */,
@@ -5755,9 +5950,12 @@
 				CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */,
 				CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */,
 				33554E1414C326EE00018161 /* btnpause.png in Resources */,
+				5966D19825CFF0D200520777 /* odyssey-part5.mod in Resources */,
 				33554E1514C326EE00018161 /* btnplay.png in Resources */,
 				33554E1914C3299F00018161 /* btnback.png in Resources */,
 				59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */,
+				5966D1B525CFF0D200520777 /* gr-b03.jpg in Resources */,
+				5966D1D325CFF0D200520777 /* liszt_feux.mid in Resources */,
 				33554E1A14C3299F00018161 /* btnpause@2x.png in Resources */,
 				33554E1B14C3299F00018161 /* btnplay@2x.png in Resources */,
 				3358147914EC0F27003D7B5B /* pinfo.png in Resources */,
@@ -5769,6 +5967,9 @@
 				333DA8FA15F48D5E0095494B /* video_next.png in Resources */,
 				333DA8FB15F48D5E0095494B /* video_next@2x.png in Resources */,
 				333DA8FC15F48D5E0095494B /* video_pause.png in Resources */,
+				5966D1B225CFF0D200520777 /* Monty_on_the_Run.jpg in Resources */,
+				5966D18825CFF0D200520777 /* beat to the pulp.sid in Resources */,
+				5966D19725CFF0D200520777 /* unreal ][.s3m in Resources */,
 				333DA8FD15F48D5E0095494B /* video_pause@2x.png in Resources */,
 				333DA8FE15F48D5E0095494B /* video_play.png in Resources */,
 				333DA8FF15F48D5E0095494B /* video_play@2x.png in Resources */,
@@ -5783,44 +5984,62 @@
 				336D451215FC9DAE00F0DC00 /* video_play_h@2x.png in Resources */,
 				336D451515FC9DF200F0DC00 /* arrow_left_h.png in Resources */,
 				336D451615FC9DF200F0DC00 /* arrow_left_h@2x.png in Resources */,
+				5966D18B25CFF0D200520777 /* the_wanderer_2.mod in Resources */,
+				5966D1B925CFF0D200520777 /* One_Man_and_His_Droid.jpg in Resources */,
 				336D451915FC9E1400F0DC00 /* video_previous_h.png in Resources */,
 				336D451A15FC9E1400F0DC00 /* video_previous_h@2x.png in Resources */,
 				33C722D01691F26C001D77A5 /* 05-shuffle-green@2x.png in Resources */,
 				33C722D21691F274001D77A5 /* 05-shuffle@2x.png in Resources */,
 				33C722D41691F877001D77A5 /* 03-loopback.png in Resources */,
+				5966D1DA25CFF0D200520777 /* rachmaninoff_pagvar18.mid in Resources */,
 				33C722D81691F882001D77A5 /* 02-redo-green@2x.png in Resources */,
+				5966D18C25CFF0D200520777 /* crystal rain.mod in Resources */,
 				33C722D91691F882001D77A5 /* 03-loopback-green@2x.png in Resources */,
 				33C722DA1691F882001D77A5 /* 03-loopback@2x.png in Resources */,
+				5966D1DD25CFF0D200520777 /* tchaikovski_Flowers.mid in Resources */,
 				330F36CD17A69A7B00EEC84A /* bb_home.png in Resources */,
 				330F36CE17A69A7B00EEC84A /* bb_home@2x.png in Resources */,
 				337FF18717A9D18900CE0A28 /* PlaylistViewController.xib in Resources */,
 				33ABE58A17B0E65500AE0EA1 /* bb_list.png in Resources */,
 				CCB8D99B17F62A18008E6A45 /* txtMenu5a_2x.png in Resources */,
 				CCB8D9A317F62A18008E6A45 /* txtMenu11a_2x.png in Resources */,
+				5966D19D25CFF0D200520777 /* dune - ecolove.jpg in Resources */,
 				33ABE58B17B0E65500AE0EA1 /* bb_list@2x.png in Resources */,
 				33ABE58C17B0E65500AE0EA1 /* bb_music.png in Resources */,
 				33ABE58D17B0E65500AE0EA1 /* bb_music@2x.png in Resources */,
+				5966D17725CFF0D100520777 /* james_bond.jpg in Resources */,
 				33ABE59417B0E87D00AE0EA1 /* bb_caret-right.png in Resources */,
 				33ABE59517B0E87D00AE0EA1 /* bb_caret-left.png in Resources */,
 				33ABE59617B0E87D00AE0EA1 /* bb_download.png in Resources */,
 				33ABE59717B0E87D00AE0EA1 /* bb_download@2x.png in Resources */,
+				5966D1D125CFF0D200520777 /* liszt_hr2.mid in Resources */,
+				5966D1E425CFF0D200520777 /* beethoven_op27m3.mid in Resources */,
 				33ABE59817B0E87D00AE0EA1 /* bb_caret-left@2x.png in Resources */,
+				5966D1D625CFF0D200520777 /* tchaikovsky_1.zip in Resources */,
 				33ABE59917B0E87D00AE0EA1 /* bb_caret-right@2x.png in Resources */,
 				33ABE59E17B0EA6D00AE0EA1 /* nowplaying_back.png in Resources */,
 				33ABE59F17B0EA6D00AE0EA1 /* nowplaying_back@2x.png in Resources */,
+				5966D18625CFF0D100520777 /* beyond music.mod in Resources */,
+				5966D1C225CFF0D200520777 /* Monty_on_the_Run.sid in Resources */,
 				33ABE5A017B0EA6D00AE0EA1 /* nowplaying_fwd@2x.png in Resources */,
 				33ABE5A117B0EA6D00AE0EA1 /* nowplaying_fwd.png in Resources */,
 				33ABE5A417B142EC00AE0EA1 /* bb_list_white.png in Resources */,
 				33ABE5A517B142EC00AE0EA1 /* bb_list_white@2x.png in Resources */,
 				33ABE5B117B17A5200AE0EA1 /* FontAwesome.ttf in Resources */,
-				CCC677C217F75AEB00F16A54 /* virtual escape.sndh in Resources */,
+				5966D17B25CFF0D100520777 /* nebulos.mod in Resources */,
+				5966D1A725CFF0D200520777 /* FF7_AerisTheme.mid in Resources */,
 				33ABE5B717B23DF900AE0EA1 /* BookmarksViewController.xib in Resources */,
 				3356548617B51924003AE763 /* UpheavalPro.ttf in Resources */,
+				5966D17D25CFF0D100520777 /* elysium.mod in Resources */,
 				3356548917B52EFF003AE763 /* browser_home.html in Resources */,
 				33F6A93F17B99FB8002369E7 /* SettingsViewController.xib in Resources */,
 				33ABD4EA17BCC02600D50393 /* bb_refresh.png in Resources */,
+				5966D1A425CFF0D200520777 /* the seven gates of jambala (intro).gif in Resources */,
+				5966D1BC25CFF0D200520777 /* turrican 2 level 0-intro.jpg in Resources */,
 				CCAE595017ECABD2007638B9 /* Localizable.strings in Resources */,
 				33ABD4EB17BCC02600D50393 /* bb_refresh@2x.png in Resources */,
+				5966D1DF25CFF0D200520777 /* bach_goldberg.mid in Resources */,
+				5966D1B325CFF0D200520777 /* turrican intro.mdat in Resources */,
 				59909B541E3E20A300C629AA /* tabview_gradient40Green.png in Resources */,
 				CCB8D99517F62A18008E6A45 /* txtMenu2c_2x.png in Resources */,
 				33ABD4EF17BCC49000D50393 /* bb_stop.png in Resources */,
@@ -5830,12 +6049,22 @@
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
 				59909B601E3E7F2400C629AA /* tabview_gradient40Black.png in Resources */,
 				CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */,
+				5966D1D925CFF0D200520777 /* brahms_hungdan5.mid in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,
+				5966D1D825CFF0D200520777 /* faure_pavane.mid in Resources */,
+				5966D1AD25CFF0D200520777 /* zelda.png in Resources */,
 				CCB8D97B17F62356008E6A45 /* txtMenu7d_2x.png in Resources */,
+				5966D1D025CFF0D200520777 /* rachmaninoff_op18.zip in Resources */,
 				3317854A17C6255200929E8F /* tabview_gradient40@2x.png in Resources */,
+				5966D1BB25CFF0D200520777 /* gr-b01.jpg in Resources */,
+				5966D1AB25CFF0D200520777 /* turrican intro.smpl in Resources */,
 				3317854B17C6255200929E8F /* tabview_gradient50.png in Resources */,
+				5966D1D525CFF0D200520777 /* grieg_4_mtking.mid in Resources */,
+				5966D18225CFF0D100520777 /* virtual escape.gif in Resources */,
+				5966D18925CFF0D200520777 /* livin' insanity.mod in Resources */,
 				3317854C17C6255200929E8F /* tabview_gradient50@2x.png in Resources */,
 				33B7AD0F17C75A8B00C1E404 /* MaintenanceViewController.xib in Resources */,
+				5966D19E25CFF0D200520777 /* MegaMan3.jpg in Resources */,
 				CCFE183917EF586200C1682F /* MainWindow.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
