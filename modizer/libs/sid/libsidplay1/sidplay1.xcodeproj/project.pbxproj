@@ -1,0 +1,430 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		332368D7125F8B410032223C /* 6510_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368A6125F8B410032223C /* 6510_.cpp */; };
+		332368D8125F8B410032223C /* 6510_.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368A7125F8B410032223C /* 6510_.h */; };
+		332368D9125F8B410032223C /* 6581_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368A8125F8B410032223C /* 6581_.cpp */; };
+		332368DA125F8B410032223C /* compconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368A9125F8B410032223C /* compconf.h */; };
+		332368DB125F8B410032223C /* eeconfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368AB125F8B410032223C /* eeconfig.cpp */; };
+		332368DC125F8B410032223C /* eeconfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368AC125F8B410032223C /* eeconfig.h */; };
+		332368DD125F8B410032223C /* emucfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368AD125F8B410032223C /* emucfg.h */; };
+		332368DE125F8B410032223C /* enve_dl.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368AE125F8B410032223C /* enve_dl.h */; };
+		332368DF125F8B410032223C /* envelope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368AF125F8B410032223C /* envelope.cpp */; };
+		332368E0125F8B410032223C /* envelope.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368B0125F8B410032223C /* envelope.h */; };
+		332368E1125F8B410032223C /* fformat.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368B2125F8B410032223C /* fformat.h */; };
+		332368E2125F8B410032223C /* fformat_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368B3125F8B410032223C /* fformat_.cpp */; };
+		332368E3125F8B410032223C /* fixpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368B4125F8B410032223C /* fixpoint.h */; };
+		332368E4125F8B410032223C /* info_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368B6125F8B410032223C /* info_.cpp */; };
+		332368E5125F8B410032223C /* info_.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368B7125F8B410032223C /* info_.h */; };
+		332368E6125F8B410032223C /* libcfg.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368B8125F8B410032223C /* libcfg.h */; };
+		332368E8125F8B410032223C /* mixing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368BD125F8B410032223C /* mixing.cpp */; };
+		332368E9125F8B410032223C /* mus_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368C0125F8B410032223C /* mus_.cpp */; };
+		332368EA125F8B410032223C /* mus_.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368C1125F8B410032223C /* mus_.h */; };
+		332368EB125F8B410032223C /* myendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368C2125F8B410032223C /* myendian.h */; };
+		332368EC125F8B410032223C /* mytypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368C3125F8B410032223C /* mytypes.h */; };
+		332368ED125F8B410032223C /* opstruct.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368C4125F8B410032223C /* opstruct.h */; };
+		332368EE125F8B410032223C /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368C6125F8B410032223C /* player.cpp */; };
+		332368EF125F8B410032223C /* player.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368C7125F8B410032223C /* player.h */; };
+		332368F0125F8B410032223C /* pp.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368C8125F8B410032223C /* pp.h */; };
+		332368F1125F8B410032223C /* pp_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368C9125F8B410032223C /* pp_.cpp */; };
+		332368F2125F8B410032223C /* pp_.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368CA125F8B410032223C /* pp_.h */; };
+		332368F3125F8B410032223C /* psid_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368CB125F8B410032223C /* psid_.cpp */; };
+		332368F4125F8B410032223C /* psid_.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368CC125F8B410032223C /* psid_.h */; };
+		332368F5125F8B410032223C /* samples.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368CD125F8B410032223C /* samples.cpp */; };
+		332368F6125F8B410032223C /* samples.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368CE125F8B410032223C /* samples.h */; };
+		332368F7125F8B410032223C /* sid_.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368CF125F8B410032223C /* sid_.cpp */; };
+		332368F8125F8B410032223C /* sid_.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368D0125F8B410032223C /* sid_.h */; };
+		332368F9125F8B410032223C /* sidtune.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 332368D1125F8B410032223C /* sidtune.cpp */; };
+		332368FA125F8B410032223C /* sidtune.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368D2125F8B410032223C /* sidtune.h */; };
+		332368FB125F8B410032223C /* smart.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368D3125F8B410032223C /* smart.h */; };
+		332368FC125F8B410032223C /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368D4125F8B410032223C /* version.h */; };
+		332368FD125F8B410032223C /* wave6581.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368D5125F8B410032223C /* wave6581.h */; };
+		332368FE125F8B410032223C /* wave8580.h in Headers */ = {isa = PBXBuildFile; fileRef = 332368D6125F8B410032223C /* wave8580.h */; };
+		AA747D9F0F9514B9006C5449 /* sidplay1_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* sidplay1_Prefix.pch */; };
+		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		332368A6125F8B410032223C /* 6510_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 6510_.cpp; sourceTree = "<group>"; };
+		332368A7125F8B410032223C /* 6510_.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 6510_.h; sourceTree = "<group>"; };
+		332368A8125F8B410032223C /* 6581_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 6581_.cpp; sourceTree = "<group>"; };
+		332368A9125F8B410032223C /* compconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compconf.h; sourceTree = "<group>"; };
+		332368AB125F8B410032223C /* eeconfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eeconfig.cpp; sourceTree = "<group>"; };
+		332368AC125F8B410032223C /* eeconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eeconfig.h; sourceTree = "<group>"; };
+		332368AD125F8B410032223C /* emucfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = emucfg.h; sourceTree = "<group>"; };
+		332368AE125F8B410032223C /* enve_dl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = enve_dl.h; sourceTree = "<group>"; };
+		332368AF125F8B410032223C /* envelope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = envelope.cpp; sourceTree = "<group>"; };
+		332368B0125F8B410032223C /* envelope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = envelope.h; sourceTree = "<group>"; };
+		332368B1125F8B410032223C /* fastforward.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fastforward.txt; sourceTree = "<group>"; };
+		332368B2125F8B410032223C /* fformat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fformat.h; sourceTree = "<group>"; };
+		332368B3125F8B410032223C /* fformat_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fformat_.cpp; sourceTree = "<group>"; };
+		332368B4125F8B410032223C /* fixpoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fixpoint.h; sourceTree = "<group>"; };
+		332368B5125F8B410032223C /* format.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = format.txt; sourceTree = "<group>"; };
+		332368B6125F8B410032223C /* info_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = info_.cpp; sourceTree = "<group>"; };
+		332368B7125F8B410032223C /* info_.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = info_.h; sourceTree = "<group>"; };
+		332368B8125F8B410032223C /* libcfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libcfg.h; sourceTree = "<group>"; };
+		332368BD125F8B410032223C /* mixing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mixing.cpp; sourceTree = "<group>"; };
+		332368BE125F8B410032223C /* mixing.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mixing.txt; sourceTree = "<group>"; };
+		332368BF125F8B410032223C /* mpu.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mpu.txt; sourceTree = "<group>"; };
+		332368C0125F8B410032223C /* mus_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mus_.cpp; sourceTree = "<group>"; };
+		332368C1125F8B410032223C /* mus_.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mus_.h; sourceTree = "<group>"; };
+		332368C2125F8B410032223C /* myendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = myendian.h; sourceTree = "<group>"; };
+		332368C3125F8B410032223C /* mytypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mytypes.h; sourceTree = "<group>"; };
+		332368C4125F8B410032223C /* opstruct.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opstruct.h; sourceTree = "<group>"; };
+		332368C5125F8B410032223C /* panning.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = panning.txt; sourceTree = "<group>"; };
+		332368C6125F8B410032223C /* player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
+		332368C7125F8B410032223C /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
+		332368C8125F8B410032223C /* pp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pp.h; sourceTree = "<group>"; };
+		332368C9125F8B410032223C /* pp_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pp_.cpp; sourceTree = "<group>"; };
+		332368CA125F8B410032223C /* pp_.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pp_.h; sourceTree = "<group>"; };
+		332368CB125F8B410032223C /* psid_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = psid_.cpp; sourceTree = "<group>"; };
+		332368CC125F8B410032223C /* psid_.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psid_.h; sourceTree = "<group>"; };
+		332368CD125F8B410032223C /* samples.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = samples.cpp; sourceTree = "<group>"; };
+		332368CE125F8B410032223C /* samples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = samples.h; sourceTree = "<group>"; };
+		332368CF125F8B410032223C /* sid_.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sid_.cpp; sourceTree = "<group>"; };
+		332368D0125F8B410032223C /* sid_.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sid_.h; sourceTree = "<group>"; };
+		332368D1125F8B410032223C /* sidtune.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sidtune.cpp; sourceTree = "<group>"; };
+		332368D2125F8B410032223C /* sidtune.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sidtune.h; sourceTree = "<group>"; };
+		332368D3125F8B410032223C /* smart.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = smart.h; sourceTree = "<group>"; };
+		332368D4125F8B410032223C /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
+		332368D5125F8B410032223C /* wave6581.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wave6581.h; sourceTree = "<group>"; };
+		332368D6125F8B410032223C /* wave8580.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wave8580.h; sourceTree = "<group>"; };
+		AA747D9E0F9514B9006C5449 /* sidplay1_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sidplay1_Prefix.pch; sourceTree = "<group>"; };
+		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D2AAC07E0554694100DB518D /* libsidplay1.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsidplay1.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D2AAC07C0554694100DB518D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D2AAC07E0554694100DB518D /* libsidplay1.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* libsidplay1 */ = {
+			isa = PBXGroup;
+			children = (
+				332368A5125F8B410032223C /* src */,
+				08FB77AEFE84172EC02AAC07 /* Classes */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				0867D69AFE84028FC02AAC07 /* Frameworks */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = libsidplay1;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AA747D9E0F9514B9006C5449 /* sidplay1_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		332368A5125F8B410032223C /* src */ = {
+			isa = PBXGroup;
+			children = (
+				332368A6125F8B410032223C /* 6510_.cpp */,
+				332368A7125F8B410032223C /* 6510_.h */,
+				332368A8125F8B410032223C /* 6581_.cpp */,
+				332368A9125F8B410032223C /* compconf.h */,
+				332368AB125F8B410032223C /* eeconfig.cpp */,
+				332368AC125F8B410032223C /* eeconfig.h */,
+				332368AD125F8B410032223C /* emucfg.h */,
+				332368AE125F8B410032223C /* enve_dl.h */,
+				332368AF125F8B410032223C /* envelope.cpp */,
+				332368B0125F8B410032223C /* envelope.h */,
+				332368B1125F8B410032223C /* fastforward.txt */,
+				332368B2125F8B410032223C /* fformat.h */,
+				332368B3125F8B410032223C /* fformat_.cpp */,
+				332368B4125F8B410032223C /* fixpoint.h */,
+				332368B5125F8B410032223C /* format.txt */,
+				332368B6125F8B410032223C /* info_.cpp */,
+				332368B7125F8B410032223C /* info_.h */,
+				332368B8125F8B410032223C /* libcfg.h */,
+				332368BD125F8B410032223C /* mixing.cpp */,
+				332368BE125F8B410032223C /* mixing.txt */,
+				332368BF125F8B410032223C /* mpu.txt */,
+				332368C0125F8B410032223C /* mus_.cpp */,
+				332368C1125F8B410032223C /* mus_.h */,
+				332368C2125F8B410032223C /* myendian.h */,
+				332368C3125F8B410032223C /* mytypes.h */,
+				332368C4125F8B410032223C /* opstruct.h */,
+				332368C5125F8B410032223C /* panning.txt */,
+				332368C6125F8B410032223C /* player.cpp */,
+				332368C7125F8B410032223C /* player.h */,
+				332368C8125F8B410032223C /* pp.h */,
+				332368C9125F8B410032223C /* pp_.cpp */,
+				332368CA125F8B410032223C /* pp_.h */,
+				332368CB125F8B410032223C /* psid_.cpp */,
+				332368CC125F8B410032223C /* psid_.h */,
+				332368CD125F8B410032223C /* samples.cpp */,
+				332368CE125F8B410032223C /* samples.h */,
+				332368CF125F8B410032223C /* sid_.cpp */,
+				332368D0125F8B410032223C /* sid_.h */,
+				332368D1125F8B410032223C /* sidtune.cpp */,
+				332368D2125F8B410032223C /* sidtune.h */,
+				332368D3125F8B410032223C /* smart.h */,
+				332368D4125F8B410032223C /* version.h */,
+				332368D5125F8B410032223C /* wave6581.h */,
+				332368D6125F8B410032223C /* wave8580.h */,
+			);
+			name = src;
+			path = "libsidplay-1.36.54/src";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D2AAC07A0554694100DB518D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA747D9F0F9514B9006C5449 /* sidplay1_Prefix.pch in Headers */,
+				332368D8125F8B410032223C /* 6510_.h in Headers */,
+				332368DA125F8B410032223C /* compconf.h in Headers */,
+				332368DC125F8B410032223C /* eeconfig.h in Headers */,
+				332368DD125F8B410032223C /* emucfg.h in Headers */,
+				332368DE125F8B410032223C /* enve_dl.h in Headers */,
+				332368E0125F8B410032223C /* envelope.h in Headers */,
+				332368E1125F8B410032223C /* fformat.h in Headers */,
+				332368E3125F8B410032223C /* fixpoint.h in Headers */,
+				332368E5125F8B410032223C /* info_.h in Headers */,
+				332368E6125F8B410032223C /* libcfg.h in Headers */,
+				332368EA125F8B410032223C /* mus_.h in Headers */,
+				332368EB125F8B410032223C /* myendian.h in Headers */,
+				332368EC125F8B410032223C /* mytypes.h in Headers */,
+				332368ED125F8B410032223C /* opstruct.h in Headers */,
+				332368EF125F8B410032223C /* player.h in Headers */,
+				332368F0125F8B410032223C /* pp.h in Headers */,
+				332368F2125F8B410032223C /* pp_.h in Headers */,
+				332368F4125F8B410032223C /* psid_.h in Headers */,
+				332368F6125F8B410032223C /* samples.h in Headers */,
+				332368F8125F8B410032223C /* sid_.h in Headers */,
+				332368FA125F8B410032223C /* sidtune.h in Headers */,
+				332368FB125F8B410032223C /* smart.h in Headers */,
+				332368FC125F8B410032223C /* version.h in Headers */,
+				332368FD125F8B410032223C /* wave6581.h in Headers */,
+				332368FE125F8B410032223C /* wave8580.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D2AAC07D0554694100DB518D /* sidplay1 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "sidplay1" */;
+			buildPhases = (
+				D2AAC07A0554694100DB518D /* Headers */,
+				D2AAC07B0554694100DB518D /* Sources */,
+				D2AAC07C0554694100DB518D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = sidplay1;
+			productName = libsidplay1;
+			productReference = D2AAC07E0554694100DB518D /* libsidplay1.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+			};
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "sidplay1" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* libsidplay1 */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D2AAC07D0554694100DB518D /* sidplay1 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D2AAC07B0554694100DB518D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				332368D7125F8B410032223C /* 6510_.cpp in Sources */,
+				332368D9125F8B410032223C /* 6581_.cpp in Sources */,
+				332368DB125F8B410032223C /* eeconfig.cpp in Sources */,
+				332368DF125F8B410032223C /* envelope.cpp in Sources */,
+				332368E2125F8B410032223C /* fformat_.cpp in Sources */,
+				332368E4125F8B410032223C /* info_.cpp in Sources */,
+				332368E8125F8B410032223C /* mixing.cpp in Sources */,
+				332368E9125F8B410032223C /* mus_.cpp in Sources */,
+				332368EE125F8B410032223C /* player.cpp in Sources */,
+				332368F1125F8B410032223C /* pp_.cpp in Sources */,
+				332368F3125F8B410032223C /* psid_.cpp in Sources */,
+				332368F5125F8B410032223C /* samples.cpp in Sources */,
+				332368F7125F8B410032223C /* sid_.cpp in Sources */,
+				332368F9125F8B410032223C /* sidtune.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB921F08733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/libsidplay1.dst;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = sidplay1_Prefix.pch;
+				GCC_THUMB_SUPPORT = NO;
+				GCC_VERSION = "";
+				INSTALL_PATH = /usr/local/lib;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = sidplay1;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SYMROOT = build;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1DEB922008733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				DSTROOT = /tmp/libsidplay1.dst;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = sidplay1_Prefix.pch;
+				GCC_THUMB_SUPPORT = NO;
+				GCC_VERSION = "";
+				INSTALL_PATH = /usr/local/lib;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				PRODUCT_NAME = sidplay1;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SYMROOT = build;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1DEB922308733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_THUMB_SUPPORT = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SYMROOT = build;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1DEB922408733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_THUMB_SUPPORT = NO;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SYMROOT = build;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "sidplay1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB921F08733DC00010E9CD /* Debug */,
+				1DEB922008733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "sidplay1" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB922308733DC00010E9CD /* Debug */,
+				1DEB922408733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}

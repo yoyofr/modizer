@@ -33,14 +33,15 @@ Todo/Requested:
 - HVSC #74
 - ASMA 2021/01/30
 - Modland 2021/01/30
-- Adplug 2.3.4 beta
-- VGMPlay updated to last version
-- snes snsf playback implemented (beta, not compatible with all dumps)
-- mptm format added (libopenmpt)
 - Files integration
+- Archives can be extracted (right swipe on a file in local browser view)
+- Adplug 2.3.4 beta
+- Vgmstream updated to 2021/02/01 version, lots of new format supported
+- VGMPlay updated to last version
+- SNES SNSF beta (not compatible with all dumps)
+- MPTM format added (libopenmpt)
 - various code updates/improvements & bugfixes
 - M1 Mac specific UI adjustement
-- New feature: archives can be extracted (right swipe on a file in local browser view)
 
 
 2.9.3
