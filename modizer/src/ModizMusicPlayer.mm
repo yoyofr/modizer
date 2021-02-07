@@ -497,7 +497,7 @@ uint32 psfTimeToMS(char *str)
 
 ////////////////////
 extern "C" {
-#include "../libresample/libsamplerate-0.1.8/src/samplerate.h"
+#include "../utils/Resample/libsamplerate-0.1.8/src/samplerate.h"
 }
 #define SRC_DEFAULT_CONVERTER SRC_SINC_MEDIUM_QUALITY
 double src_ratio;
