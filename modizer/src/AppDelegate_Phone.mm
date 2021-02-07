@@ -84,8 +84,6 @@ BOOL is_retina;
 *  System Versioning Preprocessor Macros
 */
 
-//#include "ParserModland.hpp"
-
 -(void) getSupportedExtensionList {
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
