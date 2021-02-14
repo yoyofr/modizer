@@ -1,48 +1,36 @@
 Todo/Requested:
 ���������
-- option to keep subsong/subfiles selection screen opened
-- libopenmpt update
-- vgmstream update ?
-- other cores updates ?
-- xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
-
-- improve download resilience (keep track of queue in case of crash, auto restart, ...)
-- settings => when value available (not combo list or on/off switch), display it below label
-
-- modland auto update / db creation
-- hvsc auto update / db creation
-- asma auto update / db creation
-
-- integrate pxtone
-
-- Mute button / channels & playback ratio (slower/faster)
-- Cloud synchro
-
+- [UI Improvement] option to keep subsong/subfiles selection screen opened
+- [PLAYER] libopenmpt update
+- [PLAYER] xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
+- [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
+- [UI] settings => when value available (not combo list or on/off switch), display it below label
+- [DB] Modland auto update / db creation
+- [DB] Hvsc auto update / db creation
+- [DB] Asma auto update / db creation
+- [PLAYER] pxtone integration
+- [UI Improvement] Mute button / channels & playback ratio (slower/faster)
 - BUG: SID with subsongs -> global length not computed on file browser
 - BUG: SID with subsongs -> sub menu (browser) displays wrong info for subsongs (length, subsongs, ...)
-- HVSC: Add "released" (Date / company) in DB. -> will require to parse all HVSC sid file
-
 - BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
-
 - BUG: when in random mode, back button does not play previous file
-
 - BUG: when not playing file, if download & exit => should not empty download queue
 
 2.9.4
 �����
 - HVSC #74
-- ASMA 2021/01/30
-- Modland 2021/01/30
+- ASMA 2021/02/14
+- Modland 2021/02/14
 - Files integration
 - Archives can be extracted (right swipe on a file in local browser view)
-- Adplug updated to last version, 2.3.4 beta
-- VGMStream updated to 2021/02/01 version, lots of new format supported
-- VGMPlay updated to last version
+- Adplug updated to lastest version
+- VGMStream updated to latest version, lots of new format supported
+- VGMPlay updated to lastest version
 - SNES SNSF beta (not compatible with all dumps)
 - MPTM format added (libopenmpt)
-- M1 Mac specific UI adjustement
 - Multiple stability improvements / bugfixes
 - global code & project structure cleanup
+- M1 Mac specific UI adjustement
 
 
 2.9.3

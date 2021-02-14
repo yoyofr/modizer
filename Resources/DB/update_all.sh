@@ -18,8 +18,14 @@ cd ASMA
 cp trunk/Extras/Docs/STIL.txt .
 ./conv_stil.sh
 ./conv_asma.sh Asma.txt
+
 cd ..
 echo Create DB
 ./create_db.sh
+rm comp*.txt
+rm allmods.txt
+rm ASMA/asma*.txt
+rm HVSC/hvsc*.txt
+
 
 

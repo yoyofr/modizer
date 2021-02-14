@@ -1,1 +1,1 @@
-awk -f stil.awk STIL.txt > stilconverted_asma
+awk -f stil.awk trunk/asma/Docs/STIL.txt > stilconverted_asma
