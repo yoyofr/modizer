@@ -35,13 +35,14 @@ Todo/Requested:
 - Modland 2021/01/30
 - Files integration
 - Archives can be extracted (right swipe on a file in local browser view)
-- Adplug 2.3.4 beta
-- Vgmstream updated to 2021/02/01 version, lots of new format supported
+- Adplug updated to last version, 2.3.4 beta
+- VGMStream updated to 2021/02/01 version, lots of new format supported
 - VGMPlay updated to last version
 - SNES SNSF beta (not compatible with all dumps)
 - MPTM format added (libopenmpt)
-- various code updates/improvements & bugfixes
 - M1 Mac specific UI adjustement
+- Multiple stability improvements / bugfixes
+- global code & project structure cleanup
 
 
 2.9.3

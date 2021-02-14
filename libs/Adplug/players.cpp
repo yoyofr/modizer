@@ -19,12 +19,13 @@
  * players.h - Players enumeration, by Simon Peter <dn.tlp@gmx.net>
  */
 
-#include <stdlib.h>
-#include <string.h>
-
 #ifndef stricmp
 #define stricmp strcasecmp
 #endif
+
+
+#include <stdlib.h>
+#include <string.h>
 
 
 #include "players.h"
@@ -67,7 +68,7 @@ CPlayerDesc::~CPlayerDesc()
 void CPlayerDesc::add_extension(const char *ext)
 {
   unsigned long newlength = extlength + strlen(ext) + 1;
-        
+
   extensions = (char *)realloc(extensions, newlength);
   strcpy(extensions + extlength - 1, ext);
   extensions[newlength - 1] = '\0';

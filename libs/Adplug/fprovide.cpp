@@ -19,15 +19,16 @@
  * fprovide.cpp - File provider class framework, by Simon Peter <dn.tlp@gmx.net>
  */
 
+#ifndef stricmp
+#define stricmp strcasecmp
+#endif
+
+
 #include <string.h>
 #include "binio.h"
 #include "binfile.h"
 
 #include "fprovide.h"
-
-#ifndef stricmp
-#define stricmp strcasecmp
-#endif
 
 /***** CFileProvider *****/
 

@@ -23,12 +23,13 @@
 #ifndef H_ROLPLAYER
 #define H_ROLPLAYER
 
-#include <vector>
-#include <string>
-
 #ifndef stricmp
 #define stricmp strcasecmp
 #endif
+
+
+#include <vector>
+#include <string>
 
 #include "player.h"
 
