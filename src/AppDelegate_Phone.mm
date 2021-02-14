@@ -155,7 +155,9 @@ BOOL is_retina;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch
 	//
+#ifdef GEN_EXT_LIST
     [self getSupportedExtensionList];
+#endif
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
     if (@available(iOS 14.0, *)) {

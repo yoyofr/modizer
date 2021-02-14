@@ -1827,6 +1827,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
+    shouldFillKeys=1;
+    [self fillKeys];
     
     [tableView reloadData];
 }

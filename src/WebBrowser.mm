@@ -1060,8 +1060,11 @@ didFinishNavigation:(WKNavigation *)navigation {
     // Create the new configuration object to set useful options
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
     configuration.suppressesIncrementalRendering = NO;//YES;
-    configuration.ignoresViewportScaleLimits = NO;
-    configuration.dataDetectorTypes = WKDataDetectorTypeNone;
+    if (@available(iOS 10.0, *)) {
+        configuration.ignoresViewportScaleLimits = NO;
+        configuration.dataDetectorTypes = WKDataDetectorTypeNone;
+    }
+    
 
     // Set the position - Use the full page, but above my tabBar
     CGRect frame = self.view.bounds;

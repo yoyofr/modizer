@@ -12,7 +12,7 @@
 			<key>CFBundleTypeName</key>
 			<string>MOD File</string>
 			<key>CFBundleTypeIconFile</key>
-			<string>AppStore512.png</string>			
+			<string>AppStore512.png</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -265,7 +265,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
+	<false/>
 	<key>UISupportsDocumentBrowser</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>
@@ -383,10 +383,10 @@
 					<string>rsn</string>
 					<string>gz</string>
 					<string>lzh</string>
-					<string>lha</string>					
+					<string>lha</string>
 				</array>
 			</dict>
-		</dict>		
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -400,7 +400,7 @@
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>mdx</string>					
+					<string>mdx</string>
 				</array>
 			</dict>
 		</dict>
@@ -547,7 +547,7 @@
 					<string>sgc</string>
 					<string>spc</string>
 					<string>vgm</string>
-					<string>vgz</string>					
+					<string>vgz</string>
 				</array>
 			</dict>
 		</dict>
@@ -915,7 +915,7 @@
 					<string>SQT</string>
 					<string>QTS</string>
 				</array>
-			</dict>			
+			</dict>
 		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
