@@ -445,11 +445,11 @@ void optGSFChangedC(id param) {
     /////////////////////////////////////
     settings[AOSDK_Interpolation].detail.mdz_switch.switch_value=2;
     settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value=1;
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=1;
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=0;
     settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value=1;
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=0;
     settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value=1;
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=0;
     
     /////////////////////////////////////
     //ADPLUG
@@ -1735,7 +1735,7 @@ void optGSFChangedC(id param) {
     settings[AOSDK_DSF22KHZ].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_DSF22KHZ].sub_family=0;
     settings[AOSDK_DSF22KHZ].callback=&optAOSDKChangedC;
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=1;
+    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=0;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb=2;
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[0]=(char*)"44Khz";
@@ -1755,7 +1755,7 @@ void optGSFChangedC(id param) {
     settings[AOSDK_DSFEmuRatio].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_DSFEmuRatio].sub_family=0;
     settings[AOSDK_DSFEmuRatio].callback=&optAOSDKChangedC;
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=0;
     settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
     settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[0]=(char*)"1";
@@ -1777,7 +1777,7 @@ void optGSFChangedC(id param) {
     settings[AOSDK_SSFEmuRatio].family=MDZ_SETTINGS_FAMILY_AOSDK;
     settings[AOSDK_SSFEmuRatio].sub_family=0;
     settings[AOSDK_SSFEmuRatio].callback=&optAOSDKChangedC;
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=2;
+    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=0;
     settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
     settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[0]=(char*)"1";

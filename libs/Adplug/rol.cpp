@@ -26,7 +26,6 @@
 #include "rol.h"
 #include "debug.h"
 
-
 #if !defined(UINT8_MAX)
     typedef signed char    int8_t;
     typedef short          int16_t;
