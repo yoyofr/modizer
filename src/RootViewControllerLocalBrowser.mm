@@ -3133,6 +3133,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
+    shouldFillKeys=1;
+    [self fillKeys];
     
     [tableView reloadData];
 }

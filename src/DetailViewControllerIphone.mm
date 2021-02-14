@@ -2374,7 +2374,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		mRestart=0;
 		mRestart_sub=0;
         mRestart_arc=0;
-        sprintf(mplayer_error_msg,"%s",[filePathTmp UTF8String]);
+        if (mplayer_error_msg[0]==0) sprintf(mplayer_error_msg,"%s",[filePathTmp UTF8String]);
 		if (retcode==-99) mLoadIssueMessage=0;
 		else mLoadIssueMessage=3;
 		return FALSE;

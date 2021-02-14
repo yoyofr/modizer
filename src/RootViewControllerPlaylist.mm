@@ -2635,6 +2635,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
+    shouldFillKeys=1;
+    [self fillKeys];
     
     [tableView reloadData];
 }

@@ -31,6 +31,7 @@ Todo/Requested:
 - Multiple stability improvements / bugfixes
 - global code & project structure cleanup
 - M1 Mac specific UI adjustement
+- Number of support file formats: 1016.
 
 
 2.9.3
