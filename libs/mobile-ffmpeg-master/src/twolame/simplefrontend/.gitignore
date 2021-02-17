@@ -1,5 +1,0 @@
-*.o
-/Makefile
-/stwolame
-/.libs/
-/.deps/

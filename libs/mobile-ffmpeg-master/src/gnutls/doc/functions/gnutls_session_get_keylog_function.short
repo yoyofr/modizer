@@ -1,1 +1,0 @@
-@item @var{gnutls_keylog_func} @ref{gnutls_session_get_keylog_function} (const gnutls_session_t @var{session})

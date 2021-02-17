@@ -1,1 +1,0 @@
-@item @var{gnutls_ecc_curve_t} @ref{gnutls_ecc_curve_get_id} (const char * @var{name})

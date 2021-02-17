@@ -1,7 +1,0 @@
-platform :tvos, '9.2'
-  
-use_frameworks!
-
-target "MobileFFmpegTest-tvOS" do
-    pod 'mobile-ffmpeg-tvos-full', '4.4.LTS'
-end

@@ -1,3 +1,0 @@
-TIMEOUT 120
-'' '200 nntp.example.net InterNetNews NNRP server INN 2.5.4 ready (posting ok)\r\n'
-STARTTLS '382 Begin TLS negotiation now\r\n'

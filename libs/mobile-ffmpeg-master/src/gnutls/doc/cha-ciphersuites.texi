@@ -1,7 +1,0 @@
-@node Supported ciphersuites
-@appendix Supported Ciphersuites
-@anchor{ciphersuites}
-@cindex ciphersuites
-
-@include algorithms.texi
-
