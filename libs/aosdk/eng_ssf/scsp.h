@@ -3,10 +3,10 @@
 	SCSP (YMF292-F) header
 */
 
-#ifndef _SCSP_H_
-#define _SCSP_H_
+#ifndef _SCSPAOAO_H_
+#define _SCSPAOAO_H_
 
-#define MAX_SCSP	(2)
+#define MAX_SCSPAO	(2)
 
 #define COMBINE_DATA(varptr)	(*(varptr) = (*(varptr) & mem_mask) | (data & ~mem_mask))
 
@@ -19,25 +19,25 @@ typedef int offs_t;
 struct SCSPinterface 
 {
 	int num;
-	void *region[MAX_SCSP];
-	int mixing_level[MAX_SCSP];			/* volume */
-	void (*irq_callback[MAX_SCSP])(int state);	/* irq callback */
+	void *region[MAX_SCSPAO];
+	int mixing_level[MAX_SCSPAO];			/* volume */
+	void (*irq_callback[MAX_SCSPAO])(int state);	/* irq callback */
 };
 
 void *scsp_start(const void *config);
-void SCSP_Update(void *param, INT16 **inputs, INT16 **buf, int samples);
+void SCSPAO_Update(void *param, INT16 **inputs, INT16 **buf, int samples);
 
 #define READ16_HANDLER(name)	data16_t name(offs_t offset, data16_t mem_mask)
 #define WRITE16_HANDLER(name)	void     name(offs_t offset, data16_t data, data16_t mem_mask)
 
 // SCSP register access
-READ16_HANDLER( SCSP_0_r );
-WRITE16_HANDLER( SCSP_0_w );
-READ16_HANDLER( SCSP_1_r );
-WRITE16_HANDLER( SCSP_1_w );
+READ16_HANDLER( SCSPAO_0_r );
+WRITE16_HANDLER( SCSPAO_0_w );
+READ16_HANDLER( SCSPAO_1_r );
+WRITE16_HANDLER( SCSPAO_1_w );
 
 // MIDI I/O access (used for comms on Model 2/3)
-WRITE16_HANDLER( SCSP_MidiIn );
-READ16_HANDLER( SCSP_MidiOutR );
+WRITE16_HANDLER( SCSPAO_MidiIn );
+READ16_HANDLER( SCSPAO_MidiOutR );
 
 #endif

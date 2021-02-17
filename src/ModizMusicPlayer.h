@@ -9,7 +9,7 @@
 #import "ModizerConstants.h"
 
 #import <Foundation/Foundation.h>
-#import <AVFoundation/AVFoundation.h>
+//#import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
 #import "AppDelegate_Phone.h"
@@ -55,8 +55,8 @@
 extern "C" {
     
 	//AOSDK
-#import "ao.h"
-#import "eng_protos.h"
+#import "../libs/aosdk/ao.h"
+#import "../libs/aosdk/eng_protos.h"
 #import <dirent.h>
 #import "driver.h"
 // MDX

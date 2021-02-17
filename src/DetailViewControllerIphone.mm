@@ -609,7 +609,7 @@ static float movePinchScale,movePinchScaleOld;
         }
         [mplayer optGEN_DefaultLength:settings[GLOB_DefaultLength].detail.mdz_slider.slider_value];
         
-        if (mPlaylist_pos<mPlaylist_size) {
+        if ((mPlaylist_pos>=0)&&(mPlaylist_pos<mPlaylist_size)) {
             NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
             if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
             else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
@@ -808,7 +808,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMSTREAM)) {
         [mplayer optVGMSTREAM_ForceLoop:settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value];
-        [mplayer optVGMSTREAM_MaxLoop:(double)(settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value)];
+        [mplayer optVGMSTREAM_MaxLoop:(int)(settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value)];
         [mplayer optVGMSTREAM_ResampleQuality:(int)(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value)];
     }
 
@@ -2023,12 +2023,29 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
 	// load module
+
 	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value  slowDevice:mSlowDevice archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
 		//error while loading
-		NSLog(@"Issue in LoadModule(archive) %@",filePath);
-		if (retcode==-99) mLoadIssueMessage=0;
-		else mLoadIssueMessage=1;
-		return FALSE;
+        
+        if ( [mplayer isArchive] &&
+            ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
+            !mOnlyCurrentSubEntry &&
+            !mOnlyCurrentEntry ) {
+            
+            do {
+                [mplayer selectNextArcEntry];
+                if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
+                mRestart_arc=[mplayer getArcIndex];
+                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+            } while (retcode);
+        }
+        
+        if (retcode) {
+            NSLog(@"Issue in LoadModule(archive) %@",filePath);
+            if (retcode==-99) mLoadIssueMessage=0;
+            else mLoadIssueMessage=1;
+            return FALSE;
+        }
 	}
     
     if (mShuffle) {
@@ -2037,12 +2054,29 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             //[self shortWait];
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
+
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
                 //error while loading
-                NSLog(@"Issue in LoadModule(archive) %@",filePath);
-                if (retcode==-99) mLoadIssueMessage=0;
-                else mLoadIssueMessage=2;
-                return FALSE;
+                if ( [mplayer isArchive] &&
+                    ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
+                    !mOnlyCurrentSubEntry &&
+                    !mOnlyCurrentEntry ) {
+                    
+                    do {
+                        [mplayer selectNextArcEntry];
+                        if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
+                        mRestart_arc=[mplayer getArcIndex];
+                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                    } while (retcode);
+                    
+                }
+                
+                if (retcode) {
+                    NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                    if (retcode==-99) mLoadIssueMessage=0;
+                    else mLoadIssueMessage=2;
+                    return FALSE;
+                }
             }
 
 //            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
@@ -2341,13 +2375,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             found_arc=1;
             memcpy(tmp_str_copy,tmp_str,i);
             tmp_str_copy[i]=0;
-            filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
+            filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
         }
         if (tmp_str[i]=='?') {
             found_sub=1;
             memcpy(tmp_str_copy,tmp_str,i);
             tmp_str_copy[i]=0;
-            filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
+            filePathTmp=[NSString stringWithUTF8String:tmp_str_copy];
         }
         i++;
     }
@@ -2367,17 +2401,34 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mOnlyCurrentSubEntry=1;
         mOnlyCurrentEntry=1;
     }
-    
+
 	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry])) {
-		//error while loading
-		NSLog(@"Issue in LoadModule %@",filePathTmp);
-		mRestart=0;
-		mRestart_sub=0;
-        mRestart_arc=0;
-        if (mplayer_error_msg[0]==0) sprintf(mplayer_error_msg,"%s",[filePathTmp UTF8String]);
-		if (retcode==-99) mLoadIssueMessage=0;
-		else mLoadIssueMessage=3;
-		return FALSE;
+		
+        //error while loading
+        //if it is an archive, try to load next entry until end or valid one reached
+        if ( [mplayer isArchive] &&
+            ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
+            !mOnlyCurrentSubEntry &&
+            !mOnlyCurrentEntry ) {
+        
+            do {
+                [mplayer selectNextArcEntry];
+                if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
+                mRestart_arc=[mplayer getArcIndex];
+                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+            } while (retcode);
+        }
+        
+        if (retcode) {
+            NSLog(@"Issue in LoadModule %@",filePathTmp);
+            mRestart=0;
+            mRestart_sub=0;
+            mRestart_arc=0;
+            if (mplayer_error_msg[0]==0) sprintf(mplayer_error_msg,"%s",[filePathTmp UTF8String]);
+            if (retcode==-99) mLoadIssueMessage=0;
+            else mLoadIssueMessage=3;
+            return FALSE;
+        }
 	}
     
     if (mShuffle) {
@@ -2385,12 +2436,23 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 //            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
+
             if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
                 //error while loading
-                NSLog(@"Issue in LoadModule(archive) %@",filePath);
-                if (retcode==-99) mLoadIssueMessage=0;
-                else mLoadIssueMessage=4;
-                return FALSE;
+                
+                do {
+                    [mplayer selectNextArcEntry];
+                    if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
+                    mRestart_arc=[mplayer getArcIndex];
+                    retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value slowDevice:mSlowDevice archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                } while (retcode);
+                
+                if (retcode) {
+                    NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                    if (retcode==-99) mLoadIssueMessage=0;
+                    else mLoadIssueMessage=4;
+                    return FALSE;
+                }
             }
             
 //            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
@@ -3941,7 +4003,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 
 - (void) checkAvailableCovers:(int)index {
-    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF,*fullFilepath,*filePath,*basePath;
+    NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathCoverImgJPG,*pathFileImgJPG,*pathFolderImgJPEG,*pathCoverImgJPEG,*pathFileImgJPEG,*pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*fullFilepath,*filePath,*basePath;
     NSFileManager *fileMngr=[[NSFileManager alloc] init];
     
 //    NSLog(@"look for %d",index);
@@ -3956,6 +4018,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",basePath];
     pathFolderImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",basePath];
     pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",basePath];
+    pathCoverImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.png",basePath];
+    pathCoverImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.jpg",basePath];
+    pathCoverImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.jpeg",basePath];
+    pathCoverImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.gif",basePath];
+    
     basePath=[filePath stringByDeletingPathExtension];
     pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",basePath];
     pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",basePath];
@@ -3970,7 +4037,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     else if ([fileMngr fileExistsAtPath:pathFolderImgJPEG]) mPlaylist[index].cover_flag=6;
     else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[index].cover_flag=7;
     else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=8;
-    else if ([self fexScanArchiveForCover:[fullFilepath UTF8String] ]) mPlaylist[index].cover_flag=9;
+    else if ([fileMngr fileExistsAtPath:pathCoverImgJPG]) mPlaylist[index].cover_flag=9;
+    else if ([fileMngr fileExistsAtPath:pathCoverImgJPEG]) mPlaylist[index].cover_flag=10;
+    else if ([fileMngr fileExistsAtPath:pathCoverImgPNG]) mPlaylist[index].cover_flag=11;
+    else if ([fileMngr fileExistsAtPath:pathCoverImgGIF]) mPlaylist[index].cover_flag=12;
+    else if ([self fexScanArchiveForCover:[fullFilepath UTF8String] ]) mPlaylist[index].cover_flag=13;
     
     //[fileMngr release];
 }
@@ -6335,7 +6406,10 @@ extern "C" int current_sample;
         else if (mPlaylist[index].cover_flag==6) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
         else if (mPlaylist[index].cover_flag==7) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
         else if (mPlaylist[index].cover_flag==8) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
-        else if (mPlaylist[index].cover_flag==9) {
+        else if (mPlaylist[index].cover_flag==9) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.jpg",[filePath stringByDeletingLastPathComponent]];
+        else if (mPlaylist[index].cover_flag==10) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
+        else if (mPlaylist[index].cover_flag==11) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.png",[filePath stringByDeletingLastPathComponent]];
+        else if (mPlaylist[index].cover_flag==12) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.gif",[filePath stringByDeletingLastPathComponent]];if (mPlaylist[index].cover_flag==13) {
             //NSLog(@"embedded img in archive");
             img=[self fexGetArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
         }

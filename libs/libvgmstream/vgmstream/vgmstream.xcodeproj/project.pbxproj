@@ -2851,9 +2851,13 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D",
-					VGM_USE_MPEG,
+					"VGM_USE_MPEG=1",
 					"-D",
-					VGM_USE_VORBIS,
+					"VGM_USE_VORBIS=1",
+					"-D",
+					"VGM_USE_FFMPEG=1",
+					"-D",
+					"VGM_USE_ATRAC9=1",
 				);
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -2906,9 +2910,13 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = (
 					"-D",
-					VGM_USE_MPEG,
+					"VGM_USE_MPEG=1",
 					"-D",
-					VGM_USE_VORBIS,
+					"VGM_USE_VORBIS=1",
+					"-D",
+					"VGM_USE_FFMPEG=1",
+					"-D",
+					"VGM_USE_ATRAC9=1",
 				);
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

@@ -13,7 +13,7 @@
 
 #import "BButton.h"
 
-#import <AVFoundation/AVFoundation.h>
+//#import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
 #import <UIKit/UIKit.h>

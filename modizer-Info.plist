@@ -9,10 +9,10 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>MOD File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>MOD File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -23,10 +23,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>Archive file</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>Archive file</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -37,10 +37,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>MDX File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>MDX File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -51,10 +51,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>PMD File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>PMD File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -65,10 +65,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>SID File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>SID File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -79,10 +79,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>STSOUND File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>STSOUND File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -93,10 +93,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>SC68 File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>SC68 File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -107,10 +107,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>ASAP File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>ASAP File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -121,10 +121,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>VGM File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>VGM File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -135,10 +135,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>GME File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>GME File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -149,10 +149,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>AMIGA File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>AMIGA File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -163,10 +163,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>HVL File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>HVL File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -177,10 +177,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>ADLIB File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>ADLIB File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -191,10 +191,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>xSF File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>xSF File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -205,10 +205,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>VGMSTREAM File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>VGMSTREAM File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -219,10 +219,10 @@
 			</array>
 		</dict>
 		<dict>
-			<key>CFBundleTypeName</key>
-			<string>MIDI File</string>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>MIDI File</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
@@ -250,14 +250,14 @@
 		<string>en</string>
 		<string>fr</string>
 	</array>
-	<key>CFBundleSignature</key>
-	<string></string>
 	<key>CFBundleName</key>
 	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleSignature</key>
+	<string></string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
@@ -265,8 +265,6 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<false/>
-	<key>UISupportsDocumentBrowser</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
@@ -306,6 +304,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>UTExportedTypeDeclarations</key>

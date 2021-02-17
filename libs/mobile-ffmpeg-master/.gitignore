@@ -1,0 +1,4 @@
+*.log
+/prebuilt/
+*.DS_Store
+/.tmp/

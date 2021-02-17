@@ -1,0 +1,13 @@
+/.deps/
+/.libs/
+*.o
+*.lo
+/Makefile
+/config.h
+/config.log
+/config.status
+/libtool
+/libuuid.la
+/stamp-h1
+/uuid.pc
+/autom4te.cache/

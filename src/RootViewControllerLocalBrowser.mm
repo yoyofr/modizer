@@ -57,7 +57,7 @@ static volatile int mDatabaseCreationInProgress;
 static volatile int db_checked=0;
 
 extern "C" {
-#include "md5.h"
+#include "common/md5.h"
 }
 
 static char browser_stil_info[MAX_STIL_DATA_LENGTH];

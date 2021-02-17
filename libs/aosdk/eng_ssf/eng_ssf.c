@@ -85,7 +85,7 @@ static char 		psfby[256];
 static uint32		decaybegin, decayend, total_samples;
 
 void *scsp_start(const void *config);
-void SCSP_Update(void *param, INT16 **inputs, INT16 **buf, int samples);
+void SCSPAO_Update(void *param, INT16 **inputs, INT16 **buf, int samples);
 
 int32 ssf_start(uint8 *buffer, uint32 length,int32 loop_infinite,int32 defaultlength)
 {
@@ -249,7 +249,7 @@ int32 ssf_gen(int16 *buffer, uint32 samples)
 		m68k_execute((11300000/60)/735 *cycle_ratio);
 		stereo[0] = &output[opos];
 		stereo[1] = &output2[opos];
-		SCSP_Update(NULL, NULL, stereo, 1*cycle_ratio);
+		SCSPAO_Update(NULL, NULL, stereo, 1*cycle_ratio);
 		opos+=cycle_ratio;
 	}
 

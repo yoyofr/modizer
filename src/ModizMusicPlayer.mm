@@ -125,6 +125,7 @@ extern "C" {
     
     //VGMSTREAM
 #import "../libs/libvgmstream/vgmstream.h"
+#import "../libs/libvgmstream/plugins.h"
     int mpg123_read(mpg123_handle *mh, unsigned char *out, size_t size, size_t *done);
     
     static mpg123_handle *mpg123h;
@@ -144,7 +145,7 @@ extern "C" {
     int optVGMSTREAM_resampleQuality=1;
     
     static bool mVGMSTREAM_force_loop;
-    static volatile int mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples;
+    static volatile int mVGMSTREAM_total_samples,mVGMSTREAM_seek_needed_samples,mVGMSTREAM_decode_pos_samples,mVGMSTREAM_totalinternal_samples;
     
     //xmp
 #include "xmp.h"
@@ -551,7 +552,7 @@ extern "C" {
 #include "amigafilter.h"
 #include "uadeipc.h"
 #include "uadeconstants.h"
-#include "md5.h"
+#include "common/md5.h"
     
     
     void uade_dummy_wait() {
@@ -862,7 +863,7 @@ int ao_get_lib(char *filename, uint8 **buffer, uint64 *length) {
     }
     free(filelist);
     
-    auxfile = fopen([[NSString stringWithFormat:@"%s/%s",pathdir,filename] UTF8String] , "rb");
+    auxfile = fopen([[NSString stringWithFormat:@"%@/%@",[NSString stringWithUTF8String:pathdir],[NSString stringWithUTF8String:filename]] UTF8String] , "rb");
     if (!auxfile) {
         printf("Unable to find auxiliary file %s\n", filename);
         return AO_FAIL;
@@ -2342,28 +2343,68 @@ long src_callback_lazyusf(void *cb_data, float **data) {
 
 long src_callback_vgmstream(void *cb_data, float **data) {
     // render audio into sound buffer
+    int16_t *sampleData;
+    long sampleGenerated;
     int nbSamplesToRender=mVGMSTREAM_total_samples - mVGMSTREAM_decode_pos_samples;
-    if (nbSamplesToRender >SOUND_BUFFER_SIZE_SAMPLE)
-    {
+    if (mVGMSTREAM_total_samples<0) {
+        nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
+    }
+    
+    if (nbSamplesToRender >SOUND_BUFFER_SIZE_SAMPLE) {
         nbSamplesToRender = SOUND_BUFFER_SIZE_SAMPLE;
     }
     
+    if (nbSamplesToRender<=0) return 0;
+    
+    sampleGenerated=nbSamplesToRender;
+    
+    int real_available_samples=mVGMSTREAM_totalinternal_samples-mVGMSTREAM_decode_pos_samples;
+    if (mVGMSTREAM_total_samples<0) {
+        real_available_samples=SOUND_BUFFER_SIZE_SAMPLE;
+    }
+    
+    
     short int *snd_ptr;
+    sampleData=vgm_sample_data;
+    while (nbSamplesToRender) {
+        if (nbSamplesToRender<=real_available_samples) {
+            render_vgmstream(sampleData, nbSamplesToRender, vgmStream);
+            mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
+            nbSamplesToRender=0;
+        } else {
+            render_vgmstream(sampleData, real_available_samples, vgmStream);
+            sampleData+=real_available_samples;
+            mVGMSTREAM_decode_pos_samples+=real_available_samples;
+            nbSamplesToRender-=real_available_samples;
+            //end reached, looping from start
+            reset_vgmstream(vgmStream);
+            mVGMSTREAM_decode_pos_samples=0;
+            real_available_samples=mVGMSTREAM_totalinternal_samples-mVGMSTREAM_decode_pos_samples;
+        }
+    }
+    
+    if (vgmStream->channels==1) {
+        snd_ptr=vgm_sample_data;
+        for (int i=sampleGenerated-1;i>=0;i--) {
+            snd_ptr[i*2]=snd_ptr[i];
+            snd_ptr[i*2+1]=snd_ptr[i];
+        }
+    }
+    
     switch (vgmStream->channels) {
-        case 1:
-            render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
-            snd_ptr=vgm_sample_data;
+        case 1: //turno mono into stereo, L=R
+            /*snd_ptr=vgm_sample_data;
             for (int i=nbSamplesToRender-1;i>=0;i--) {
                 snd_ptr[i*2]=snd_ptr[i];
                 snd_ptr[i*2+1]=snd_ptr[i];
             }
+            mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;*/
             break;
-        case 2:
-            render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
+        case 2: //nothing to do
             break;
-        case 3:
+        case 3: //add 3rd channel in both L&R
             break;
-        case 4:
+        case 4: //assume order is L/R/L/R
             break;
         case 5:
             break;
@@ -2374,12 +2415,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         default:
             break;
     }
-    mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
     
-    src_short_to_float_array (vgm_sample_data, vgm_sample_data_float,nbSamplesToRender*2);
+    
+    src_short_to_float_array (vgm_sample_data, vgm_sample_data_float,sampleGenerated*2);
     *data=vgm_sample_data_float;
     
-    return nbSamplesToRender;
+    return sampleGenerated;
 }
 
     
@@ -3173,9 +3214,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
                         src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
-                        if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
-                        //if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
-                        if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
+                        if (mVGMSTREAM_total_samples>=0) {
+                            if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
+                            if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
+                        }
                     }
                     if (mPlayType==MMP_MPG123) { //MPG123
                         
@@ -3494,11 +3536,11 @@ long src_callback_mpg123(void *cb_data, float **data) {
             idx=0;
             while ( !fex_done( fex ) ) {
                 
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:0]) {
+                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:0]) {
                     
                     fex_stat(fex);
                     arc_size=fex_size(fex);
-                    extractFilename=[NSString stringWithFormat:@"%s/%s",extractPath,fex_name(fex)];
+                    extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,[NSString stringWithUTF8String:fex_name(fex)]];
                     extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                     
                     //NSLog(@"file : %s, size : %dKo, output %@",fex_name(fex),arc_size/1024,extractFilename);
@@ -3529,9 +3571,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         free(archive_data);
                         fclose(f);
                         
-                        NSString *tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                        NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
                         
-                        if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                        if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
                             mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
                             
@@ -3607,11 +3649,11 @@ long src_callback_mpg123(void *cb_data, float **data) {
             idx=0;
             while ( !fex_done( fex ) ) {
                 
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
                     if (index==idx) {
                         fex_stat(fex);
                         arc_size=fex_size(fex);
-                        extractFilename=[NSString stringWithFormat:@"%s/%s",extractPath,fex_name(fex)];
+                        extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,[NSString stringWithUTF8String:fex_name(fex)]];
                         extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                         //NSLog(@"file : %s, size : %dKo, output %@",fex_name(fex),arc_size/1024,extractFilename);
                         
@@ -3639,7 +3681,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             }
                             free(archive_data);
                             fclose(f);
-                            NSString *tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                            NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
                             
                             mdz_ArchiveFilesList[0]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[0],[tmp_filename fileSystemRepresentation]);
@@ -3682,7 +3724,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
             mdz_IsArchive=1;
             mdz_ArchiveFilesCnt=0;
             while ( !fex_done( fex ) ) {
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
                     mdz_ArchiveFilesCnt++;
                     //NSLog(@"file : %s",fex_name(fex));
                 }
@@ -3712,9 +3754,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
             NSLog(@"cannot fex open : %s / type : %d",path,type);
         } else{
             while ( !fex_done( fex ) ) {
-                if ([self isAcceptedFile:[NSString stringWithFormat:@"%s",fex_name(fex)] no_aux_file:1]) {
+                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
                     if (!idx) {
-                        NSString *result=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                        NSString *result=[NSString stringWithUTF8String:fex_name(fex)];
                         fex_close( fex );
                         return result;
                     }
@@ -5806,6 +5848,38 @@ long src_callback_mpg123(void *cb_data, float **data) {
     }
     /////////////////////////
     
+    vgmstream_cfg_t vcfg = {0};
+
+    
+#if 0
+ /* song mofidiers */
+    int play_forever;           /* keeps looping forever (needs loop points) */
+    int ignore_loop;            /* ignores loops points */
+    int force_loop;             /* enables full loops (0..samples) if file doesn't have loop points */
+    int really_force_loop;      /* forces full loops even if file has loop points */
+    int ignore_fade;            /*  don't fade after N loops */
+    /* song processing */
+    double loop_count;          /* target loops */
+    double fade_delay;          /* fade delay after target loops */
+    double fade_time;           /* fade period after target loops */
+#endif
+    vcfg.allow_play_forever = (mLoopMode==1?1:0);
+    vcfg.play_forever =(mLoopMode==1?1:0);
+    
+    vcfg.loop_count = optVGMSTREAM_loop_count;
+    vcfg.fade_time = 5.0f;
+    vcfg.fade_delay = 0.0f;
+    vcfg.ignore_fade = 0; //1;
+    vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
+    vcfg.ignore_loop = 0;//ignore_loop;
+    numChannels=2;
+    vgmstream_apply_config(vgmStream, &vcfg);
+    vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
+    vgmstream_mixing_autodownmix(vgmStream, 2);
+    vgmstream_mixing_enable(vgmStream, SOUND_BUFFER_SIZE_SAMPLE, NULL /*&input_channels*/, &numChannels);
+    
+    
+    
     
     src_ratio=PLAYBACK_FREQ/(double)(vgmStream->sample_rate);
     
@@ -5820,34 +5894,31 @@ long src_callback_mpg123(void *cb_data, float **data) {
     }
     
     if (mLoopMode==1) {
-        mVGMSTREAM_total_samples = get_vgmstream_play_samples(0, 0.0f, 0.0f, vgmStream);
-    } else mVGMSTREAM_total_samples = get_vgmstream_play_samples(optVGMSTREAM_loop_count, 0.0f, 0.0f, vgmStream);
+        mVGMSTREAM_total_samples = -1;//get_vgmstream_play_samples(0, 0.0f, 0.0f, vgmStream);
+        //mVGMSTREAM_totalinternal_samples = get_vgmstream_play_samples(1, 0.0f, 0.0f, vgmStream);
+    } else {
+        mVGMSTREAM_total_samples = get_vgmstream_play_samples(optVGMSTREAM_loop_count, 0.0f, 0.0f, vgmStream);
+        mVGMSTREAM_totalinternal_samples = mVGMSTREAM_total_samples;
+    }
     close_streamfile(vgmFile);
     
-    iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
+    //Loop
+    if (mLoopMode==1) iModuleLength=-1;
+    else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
     iCurrentTime=0;
     mVGMSTREAM_seek_needed_samples=-1;
     mVGMSTREAM_decode_pos_samples=0;
     
     numChannels=vgmStream->channels;
-    if (numChannels>2) {
-        NSLog(@"not managed yet, more than 2 channels (%d)",numChannels);
-    }
-    
-    
     sprintf(mod_name," %s",mod_filename);
-    
     
     mod_message[0]=0;
     describe_vgmstream(vgmStream,mod_message,8192+MAX_STIL_DATA_LENGTH);
+    vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*(numChannels>2?numChannels:2));
+    vgm_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
+    vgm_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     
     
-    //Loop
-    if (mLoopMode==1) iModuleLength=-1;
-    
-    vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
-    vgm_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
-    vgm_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
     
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
     return 0;
@@ -7101,7 +7172,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 
                     
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
-                    _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+                    _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
                     //extension = [_filePath pathExtension];
                     //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
                     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
@@ -7179,7 +7250,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 
                     
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
-                    _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+                    _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
                     //extension = [_filePath pathExtension];
                     //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
                     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
@@ -7215,7 +7286,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         
         if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
         
-        _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+        _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
         //extension = [_filePath pathExtension];
         //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
@@ -7232,7 +7303,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (archiveIndex&&mdz_IsArchive) {
         if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
         
-        _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%s",mdz_ArchiveFilesList[mdz_currentArchiveIndex]];
+        _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
         //extension = [_filePath pathExtension];
         //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
@@ -8075,7 +8146,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_SNSF)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     else {
         modMessage=[NSString stringWithCString:mod_message encoding:NSUTF8StringEncoding];
-        if (modMessage==nil) modMessage=[NSString stringWithFormat:@"%s",mod_message];
+        if (modMessage==nil) modMessage=[NSString stringWithUTF8String:mod_message];
     }
     if (modMessage==nil) return @"";
     return modMessage;
@@ -8085,7 +8156,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_SNSF)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
     else {
         modName=[NSString stringWithCString:mod_name encoding:NSUTF8StringEncoding];
-        if (modName==nil) modName=[NSString stringWithFormat:@"%s",mod_name];
+        if (modName==nil) modName=[NSString stringWithUTF8String:mod_name];
     }
     if (modName==nil) return @"";
     return modName;
@@ -8126,10 +8197,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             
             result=nil;
             if (gme_info->song){
-                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong,gme_info->song];
+                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:gme_info->song]];
             }
             if ((!result)&&(gme_info->game)) {
-                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong,gme_info->game];
+                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:gme_info->game]];
             }
             if (!result) result=[NSString stringWithFormat:@"%.3d",subsong];
             gme_free_info(gme_info);
@@ -8138,21 +8209,21 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     }
     if (mPlayType==MMP_SIDPLAY) {
         if (sidtune_name) {
-            if (sidtune_name[subsong]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_name[subsong]];
+            if (sidtune_name[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_name[subsong]]];
         }
         if (sidtune_title) {
-            if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_title[subsong]];
+            if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_title[subsong]]];
         }
         
         if (mSidEngineType==1) {
             struct sidTuneInfo sidtune_info;
             mSid1Tune->getInfo(sidtune_info);
-            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_info.infoString[0]];
+            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_info.infoString[0]]];
         }
         else {
             SidTuneInfo sidtune_info;
             sidtune_info=mSidTune->getInfo();
-            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%s",subsong,sidtune_info.infoString[0]];
+            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_info.infoString[0]]];
         }
         
         
@@ -8583,7 +8654,7 @@ extern "C" void adjust_amplification(void);
 }
 -(NSString*) getArcEntryTitle:(int)arc_index {
     if ((arc_index>=0)&&(arc_index<mdz_ArchiveFilesCnt)) {
-        return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesList[arc_index]];
+        return [NSString stringWithUTF8String:mdz_ArchiveFilesList[arc_index]];
         //return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
     } else return @"";
     

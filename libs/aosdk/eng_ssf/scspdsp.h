@@ -2,7 +2,7 @@
 #define SCSPDSP_H
 
 //the DSP Context
-struct _SCSPDSP
+struct _SCSPAODSP
 {
 //Config
 	UINT16 *SCSPRAM;
@@ -30,8 +30,8 @@ struct _SCSPDSP
 	int LastStep;
 };
 
-void SCSPDSP_Init(struct _SCSPDSP *DSP);
-void SCSPDSP_SetSample(struct _SCSPDSP *DSP, INT32 sample, INT32 SEL, INT32 MXL);
-void SCSPDSP_Step(struct _SCSPDSP *DSP);
-void SCSPDSP_Start(struct _SCSPDSP *DSP);
+void SCSPDSP_Init(struct _SCSPAODSP *DSP);
+void SCSPDSP_SetSample(struct _SCSPAODSP *DSP, INT32 sample, INT32 SEL, INT32 MXL);
+void SCSPDSP_Step(struct _SCSPAODSP *DSP);
+void SCSPDSP_Start(struct _SCSPAODSP *DSP);
 #endif
