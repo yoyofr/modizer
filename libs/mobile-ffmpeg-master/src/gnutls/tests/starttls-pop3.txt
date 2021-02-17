@@ -1,3 +1,0 @@
-TIMEOUT 120
-'' '+OK Dovecot ready.\r\n'
-STLS '+OK Begin TLS negotiation now.\r\n'

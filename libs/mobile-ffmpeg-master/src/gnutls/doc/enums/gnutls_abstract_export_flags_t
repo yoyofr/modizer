@@ -1,7 +1,0 @@
-
-
-@c gnutls_abstract_export_flags_t
-@table @code
-@item GNUTLS_@-EXPORT_@-FLAG_@-NO_@-LZ
-do not prepend a leading zero to exported values
-@end table

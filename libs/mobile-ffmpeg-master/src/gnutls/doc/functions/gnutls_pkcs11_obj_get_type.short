@@ -1,1 +1,0 @@
-@item @var{gnutls_pkcs11_obj_type_t} @ref{gnutls_pkcs11_obj_get_type} (gnutls_pkcs11_obj_t @var{obj})

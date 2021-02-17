@@ -1,1 +1,0 @@
-@item @var{gnutls_privkey_type_t} @ref{gnutls_privkey_get_type} (gnutls_privkey_t @var{key})

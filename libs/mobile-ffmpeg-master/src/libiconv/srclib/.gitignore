@@ -1,5 +1,0 @@
-/sys/
-*.h
-*.o
-*.a
-/Makefile

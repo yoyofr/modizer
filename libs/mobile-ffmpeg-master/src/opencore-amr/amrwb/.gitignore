@@ -1,7 +1,0 @@
-/.deps/
-/.libs/
-*.lo
-*.o
-*.la
-*.pc
-/Makefile

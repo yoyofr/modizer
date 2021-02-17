@@ -1,1 +1,0 @@
-@item @var{gnutls_group_t} @ref{gnutls_group_get_id} (const char * @var{name})

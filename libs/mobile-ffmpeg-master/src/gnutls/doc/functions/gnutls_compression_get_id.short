@@ -1,1 +1,0 @@
-@item @var{gnutls_compression_method_t} @ref{gnutls_compression_get_id} (const char * @var{name})
