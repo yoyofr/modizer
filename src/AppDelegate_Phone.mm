@@ -16,7 +16,7 @@
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
-#import <AVFoundation/AVFoundation.h>
+//#import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 #include <sys/xattr.h>
 
@@ -288,16 +288,50 @@ BOOL is_retina;
 	return YES;
 }
 
+
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
     if ([url isFileURL]) {
         NSString *filepath;
         filepath=[url path];
-        //NSRange r;
-        //r=[filepath rangeOfString:@"Documents/"];
-        NSString *shortfilepath;
-        //if (r.location!=NSNotFound) shortfilepath=[filepath substringFromIndex:r.location];
-        //else {
-        shortfilepath=[NSString stringWithFormat:@"//%@",filepath];
+        
+        NSString *imported_filepath;
+        NSError *err;
+        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+        imported_filepath=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"],[filepath lastPathComponent]];
+        //////////////////
+        ///Get access
+        if ([url startAccessingSecurityScopedResource]) {
+            ////////////////////
+            //Download from icould if required
+            
+            NSNumber *isDownloadedValue = NULL;
+            BOOL success = [url getResourceValue:&isDownloadedValue forKey: NSURLUbiquitousItemIsDownloadedKey error:NULL];
+
+            if (success && ![isDownloadedValue boolValue]) {
+                [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:url error:NULL];
+//                NSLog(@"file has to be downloaded");
+                
+                UIAlertView *alertDownlading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+                if (alertDownlading) [alertDownlading show];
+                
+                return YES;
+            }
+            
+//            NSLog(@"URL secure access granted for %@\n",[url path]);
+            
+            if ([mFileMngr copyItemAtPath:filepath toPath:imported_filepath error:&err]) {
+//                NSLog(@"file imported in 'Downloads' folder");
+                [rootViewControlleriPhone refreshViewAfterDownload];
+            } else {
+//                NSLog(@"file not imported in 'Downloads' folder, error: %ld %@",err.code,[err localizedDescription]);
+            }
+            [url stopAccessingSecurityScopedResource];
+        } else  {
+//            NSLog(@"URL secure access refused for %@\n",[url path]);
+        }
+        
+        NSString *shortfilepath=imported_filepath=[NSString stringWithFormat:@"Documents/Downloads/%@",[filepath lastPathComponent]];
+//        NSLog(@"opening: %@",shortfilepath);
         //}
         t_playlist *pl;
         pl=(t_playlist*)calloc(1,sizeof(t_playlist));
@@ -316,28 +350,7 @@ BOOL is_retina;
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    if ([url isFileURL]) {
-        NSString *filepath;
-        filepath=[url path];
-        //NSRange r;
-        //r=[filepath rangeOfString:@"Documents/"];
-        //if (r.location!=NSNotFound) {
-            //NSString *shortfilepath=[filepath substringFromIndex:r.location];
-        NSString *shortfilepath=[NSString stringWithFormat:@"//%@",filepath];
-            t_playlist *pl;
-            pl=(t_playlist*)calloc(1,sizeof(t_playlist));
-            
-            pl->nb_entries=1;
-            pl->entries[0].label=[shortfilepath lastPathComponent];
-            pl->entries[0].fullpath=shortfilepath;
-            pl->entries[0].ratings=-1;
-            pl->entries[0].playcounts=0;
-            [detailViewControlleriPhone play_listmodules:pl start_index:0];
-            free(pl);
-            return YES;
-        //}
-    }
-    return NO;
+    return [self application:application openURL:url options:nil];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
@@ -380,6 +393,8 @@ BOOL is_retina;
     [detailViewControlleriPhone saveSettings];
 	[detailViewControlleriPhone updateFlagOnExit];
 }
+
+
 
 // iOS 4 background support
 - (void)applicationDidEnterBackground:(UIApplication *)application {

@@ -54,9 +54,9 @@ enum { VGMSTREAM_MAX_NUM_SAMPLES = 1000000000 }; /* no ~5h vgm hopefully */
 #endif
 
 #ifdef VGM_USE_FFMPEG
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswresample/swresample.h>
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libswresample/swresample.h"
 #endif
 
 #include "ext_includes/clHCA.h"

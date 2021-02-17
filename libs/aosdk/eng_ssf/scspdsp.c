@@ -52,14 +52,14 @@ static INT32 UNPACK(UINT16 val)
 	return uval;
 }
 
-void SCSPDSP_Init(struct _SCSPDSP *DSP)
+void SCSPDSP_Init(struct _SCSPAODSP *DSP)
 {
-	memset(DSP,0,sizeof(struct _SCSPDSP));
+	memset(DSP,0,sizeof(struct _SCSPAODSP));
 	DSP->RBL=0x8000;
 	DSP->Stopped=1;
 }
 
-void SCSPDSP_Step(struct _SCSPDSP *DSP)
+void SCSPDSP_Step(struct _SCSPAODSP *DSP)
 {
 	INT32 ACC=0;	//26 bit
 	INT32 SHIFTED=0;	//24 bit
@@ -325,7 +325,7 @@ void SCSPDSP_Step(struct _SCSPDSP *DSP)
 //      fclose(f);
 }
 
-void SCSPDSP_SetSample(struct _SCSPDSP *DSP,INT32 sample,int SEL,int MXL)
+void SCSPDSP_SetSample(struct _SCSPAODSP *DSP,INT32 sample,int SEL,int MXL)
 {
 	//DSP->MIXS[SEL]+=sample<<(MXL+1)/*7*/;
 	DSP->MIXS[SEL]+=sample;
@@ -333,7 +333,7 @@ void SCSPDSP_SetSample(struct _SCSPDSP *DSP,INT32 sample,int SEL,int MXL)
 //      int a=1;
 }
 
-void SCSPDSP_Start(struct _SCSPDSP *DSP)
+void SCSPDSP_Start(struct _SCSPAODSP *DSP)
 {
 	int i;
 	DSP->Stopped=0;

@@ -77,7 +77,7 @@ unsigned int m68k_read_memory_8(unsigned int address)
 
 	if (address >= 0x100000 && address < 0x100c00)
 	{
-		int foo = SCSP_0_r((address - 0x100000)/2, 0);
+		int foo = SCSPAO_0_r((address - 0x100000)/2, 0);
 
 		if (address & 1)
 			return foo & 0xff;
@@ -97,7 +97,7 @@ unsigned int m68k_read_memory_16(unsigned int address)
 	}
 
 	if (address >= 0x100000 && address < 0x100c00)
-		return SCSP_0_r((address-0x100000)/2, 0);
+		return SCSPAO_0_r((address-0x100000)/2, 0);
 
 	printf("R16 @ %x\n", address);
 	return 0;
@@ -126,9 +126,9 @@ void m68k_write_memory_8(unsigned int address, unsigned int data)
 	{
 		address -= 0x100000;
 		if (address & 1)
-			SCSP_0_w(address>>1, data, 0xff00);
+            SCSPAO_0_w(address>>1, data, 0xff00);
 		else
-			SCSP_0_w(address>>1, data<<8, 0x00ff);
+            SCSPAO_0_w(address>>1, data<<8, 0x00ff);
 		return;
 	}
 }
@@ -144,7 +144,7 @@ void m68k_write_memory_16(unsigned int address, unsigned int data)
 
 	if (address >= 0x100000 && address < 0x100c00)
 	{
-		SCSP_0_w((address-0x100000)>>1, data, 0x0000);
+        SCSPAO_0_w((address-0x100000)>>1, data, 0x0000);
 		return;
 	}
 }
@@ -163,8 +163,8 @@ void m68k_write_memory_32(unsigned int address, unsigned int data)
 	if (address >= 0x100000 && address < 0x100c00)
 	{
 		address -= 0x100000;
-		SCSP_0_w(address>>1, data>>16, 0x0000);
-		SCSP_0_w((address>>1)+1, data&0xffff, 0x0000);
+        SCSPAO_0_w(address>>1, data>>16, 0x0000);
+        SCSPAO_0_w((address>>1)+1, data&0xffff, 0x0000);
 		return;
 	}
 }

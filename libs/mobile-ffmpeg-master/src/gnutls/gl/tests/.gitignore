@@ -1,0 +1,10 @@
+/.deps/
+/sys/
+/Makefile
+/ctype.h
+/fcntl.h
+/langinfo.h
+/locale.h
+/pthread.h
+/sched.h
+/signal.h

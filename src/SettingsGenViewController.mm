@@ -183,11 +183,11 @@ void optGSFChangedC(id param) {
                     break;
                 case MDZ_SLIDER_DISCRETE:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
                     break;
                 case MDZ_SLIDER_DISCRETE_TIME:
                     valNb=[prefs objectForKey:str];
-                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb floatValue];
+                    if (valNb!=nil) settings[i].detail.mdz_slider.slider_value=[valNb intValue];
                     break;
                 case MDZ_SLIDER_CONTINUOUS:
                     valNb=[prefs objectForKey:str];
@@ -236,11 +236,11 @@ void optGSFChangedC(id param) {
                     [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SLIDER_DISCRETE:
-                    valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
+                    valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_slider.slider_value];
                     [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SLIDER_DISCRETE_TIME:
-                    valNb=[[NSNumber alloc] initWithFloat:settings[i].detail.mdz_slider.slider_value];
+                    valNb=[[NSNumber alloc] initWithInt:settings[i].detail.mdz_slider.slider_value];
                     [prefs setObject:valNb forKey:str];
                     break;
                 case MDZ_SLIDER_CONTINUOUS:
@@ -1459,8 +1459,8 @@ void optGSFChangedC(id param) {
     settings[VGMSTREAM_Maxloop].callback=&optVGMSTREAMChangedC;
     settings[VGMSTREAM_Maxloop].type=MDZ_SLIDER_DISCRETE;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
-    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=0;
-    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=16;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=1;
+    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=32;
     
     settings[VGMSTREAM_ResampleQuality].type=MDZ_SWITCH;
     settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";

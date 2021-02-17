@@ -16,6 +16,17 @@ Todo/Requested:
 - BUG: when in random mode, back button does not play previous file
 - BUG: when not playing file, if download & exit => should not empty download queue
 
+- BUG: when a file is not compatible in an archive, the whole archive is skipped instead of trying next file
+
+2.9.5
+�����
+- FFMPEG & Atrac9 support: improve VGMStream coverage (at3, at9, xma, xwb, wma, msf, ...)
+- Modizer folders now accessible through Files
+- Bugfix / UTF-8 encoding for non latin strings
+- Stability improvement
+
+
+
 2.9.4
 �����
 - HVSC #74

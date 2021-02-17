@@ -30,7 +30,7 @@
     #include <CoreAudio/CoreAudio.h>
 #else
     #define USING_IOS
-    #include <AVFoundation/AVFoundation.h>
+    //#include <AVFoundation/AVFoundation.h>
 #endif
 
 #if defined (USING_IOS)

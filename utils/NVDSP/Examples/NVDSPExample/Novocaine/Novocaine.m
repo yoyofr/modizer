@@ -35,6 +35,13 @@
 
 
 #import "Novocaine.h"
+
+#if defined __MAC_OS_X_VERSION_MAX_ALLOWED
+#else    
+    #include <AVFoundation/AVFoundation.h>
+#endif
+
+
 #define kInputBus 1
 #define kOutputBus 0
 #define kDefaultDevice 999999
