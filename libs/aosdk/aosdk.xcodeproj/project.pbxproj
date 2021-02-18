@@ -465,7 +465,9 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D",
-					"LSB_FIRST=1",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
 				);
 				SDKROOT = iphoneos;
 			};
@@ -521,7 +523,9 @@
 				MTL_FAST_MATH = YES;
 				OTHER_CFLAGS = (
 					"-D",
-					"LSB_FIRST=1",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
 				);
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;

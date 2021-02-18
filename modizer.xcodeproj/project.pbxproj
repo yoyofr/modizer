@@ -269,13 +269,6 @@
 		5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362625DBDB2E00AA548E /* libbz2.tbd */; };
 		5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362D25DBDB8600AA548E /* CoreMedia.framework */; };
-		59053A2725DBFCF600AA548E /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590536BC25DBF87400AA548E /* libswresample.a */; };
-		59053A2825DBFCF600AA548E /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590536B925DBF87400AA548E /* libavcodec.a */; };
-		59053A2925DBFCF600AA548E /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590536BB25DBF87400AA548E /* libavdevice.a */; };
-		59053A2A25DBFCF600AA548E /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590536B725DBF87400AA548E /* libavutil.a */; };
-		59053A2B25DBFCF600AA548E /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590536B825DBF87400AA548E /* libavfilter.a */; };
-		59053A2C25DBFCF600AA548E /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590536BD25DBF87400AA548E /* libswscale.a */; };
-		59053A2D25DBFCF600AA548E /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 590536BA25DBF87400AA548E /* libavformat.a */; };
 		591D8E3F25DC63620013E19F /* tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0525DC63620013E19F /* tables.c */; };
 		591D8E4025DC63620013E19F /* libatrac9.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0625DC63620013E19F /* libatrac9.c */; };
 		591D8E4125DC63620013E19F /* huffCodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0725DC63620013E19F /* huffCodes.c */; };
@@ -299,6 +292,13 @@
 		5939290525CF59CB009281DC /* hvl_replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5939290425CF59CB009281DC /* hvl_replay.cpp */; };
 		59392A1A25CF610C009281DC /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
 		59392A7F25CF7013009281DC /* libsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A7325CF6FA0009281DC /* libsidplayfp.a */; };
+		5950D7E825DE5FCF00B476B2 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7B925DE54BA00B476B2 /* libavcodec.a */; };
+		5950D7E925DE5FCF00B476B2 /* libavdevice.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7BD25DE54BA00B476B2 /* libavdevice.a */; };
+		5950D7EA25DE5FD000B476B2 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7BA25DE54BA00B476B2 /* libavfilter.a */; };
+		5950D7EB25DE5FD000B476B2 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7BE25DE54BA00B476B2 /* libavformat.a */; };
+		5950D7EC25DE5FD000B476B2 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7BC25DE54BA00B476B2 /* libavutil.a */; };
+		5950D7ED25DE5FD000B476B2 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7BF25DE54BA00B476B2 /* libswresample.a */; };
+		5950D7EE25DE5FD000B476B2 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7BB25DE54BA00B476B2 /* libswscale.a */; };
 		5958B42625C601AB00724722 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5958B41C25C601AB00724722 /* WebKit.framework */; };
 		5958B42825C601B300724722 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5958B42725C601B300724722 /* CoreServices.framework */; };
 		5966D0B625CFEDDF00520777 /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
@@ -1917,13 +1917,6 @@
 		590536B225DBF87400AA548E /* dv_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dv_profile.h; sourceTree = "<group>"; };
 		590536B425DBF87400AA548E /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		590536B525DBF87400AA548E /* swresample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = swresample.h; sourceTree = "<group>"; };
-		590536B725DBF87400AA548E /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavutil.a; sourceTree = "<group>"; };
-		590536B825DBF87400AA548E /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavfilter.a; sourceTree = "<group>"; };
-		590536B925DBF87400AA548E /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavcodec.a; sourceTree = "<group>"; };
-		590536BA25DBF87400AA548E /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavformat.a; sourceTree = "<group>"; };
-		590536BB25DBF87400AA548E /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavdevice.a; sourceTree = "<group>"; };
-		590536BC25DBF87400AA548E /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswresample.a; sourceTree = "<group>"; };
-		590536BD25DBF87400AA548E /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libswscale.a; sourceTree = "<group>"; };
 		591D8E0525DC63620013E19F /* tables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tables.c; sourceTree = "<group>"; };
 		591D8E0625DC63620013E19F /* libatrac9.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libatrac9.c; sourceTree = "<group>"; };
 		591D8E0725DC63620013E19F /* huffCodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = huffCodes.c; sourceTree = "<group>"; };
@@ -1966,6 +1959,13 @@
 		59392A6625CF6E35009281DC /* psftag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = psftag.h; path = VBA/psftag.h; sourceTree = "<group>"; };
 		59392A7925CF6FD1009281DC /* emucfg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = emucfg.h; path = "libsidplay1/libsidplay-1.36.54/src/emucfg.h"; sourceTree = "<group>"; };
 		59392A7A25CF6FF2009281DC /* sidtune.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sidtune.h; path = "libsidplay1/libsidplay-1.36.54/src/sidtune.h"; sourceTree = "<group>"; };
+		5950D7B925DE54BA00B476B2 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = "../../../../../../../Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib/libavcodec.a"; sourceTree = "<group>"; };
+		5950D7BA25DE54BA00B476B2 /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavfilter.a; path = "../../../../../../../Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib/libavfilter.a"; sourceTree = "<group>"; };
+		5950D7BB25DE54BA00B476B2 /* libswscale.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswscale.a; path = "../../../../../../../Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib/libswscale.a"; sourceTree = "<group>"; };
+		5950D7BC25DE54BA00B476B2 /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavutil.a; path = "../../../../../../../Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib/libavutil.a"; sourceTree = "<group>"; };
+		5950D7BD25DE54BA00B476B2 /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavdevice.a; path = "../../../../../../../Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib/libavdevice.a"; sourceTree = "<group>"; };
+		5950D7BE25DE54BA00B476B2 /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavformat.a; path = "../../../../../../../Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib/libavformat.a"; sourceTree = "<group>"; };
+		5950D7BF25DE54BA00B476B2 /* libswresample.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libswresample.a; path = "../../../../../../../Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib/libswresample.a"; sourceTree = "<group>"; };
 		595221241FDD69150079E76D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainWindow.strings; sourceTree = "<group>"; };
 		595221251FDD69190079E76D /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/MainWindow.strings; sourceTree = "<group>"; };
 		5958B41C25C601AB00724722 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -2937,8 +2937,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5950D7E825DE5FCF00B476B2 /* libavcodec.a in Frameworks */,
+				5950D7E925DE5FCF00B476B2 /* libavdevice.a in Frameworks */,
+				5950D7EA25DE5FD000B476B2 /* libavfilter.a in Frameworks */,
+				5950D7EB25DE5FD000B476B2 /* libavformat.a in Frameworks */,
+				5950D7EC25DE5FD000B476B2 /* libavutil.a in Frameworks */,
+				5950D7ED25DE5FD000B476B2 /* libswresample.a in Frameworks */,
+				5950D7EE25DE5FD000B476B2 /* libswscale.a in Frameworks */,
 				591D8F1F25DDB8840013E19F /* libaosdk.a in Frameworks */,
-				59053A2B25DBFCF600AA548E /* libavfilter.a in Frameworks */,
 				5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */,
 				5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */,
 				5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */,
@@ -2953,25 +2959,19 @@
 				593928FF25CF5814009281DC /* liblibxmp.a in Frameworks */,
 				593928EE25CF5379009281DC /* libvgmstream.a in Frameworks */,
 				5966D0C825CFEE3D00520777 /* libResample.a in Frameworks */,
-				59053A2C25DBFCF600AA548E /* libswscale.a in Frameworks */,
 				593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */,
 				593928D925CF502C009281DC /* libdumb.a in Frameworks */,
 				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
-				59053A2825DBFCF600AA548E /* libavcodec.a in Frameworks */,
 				59B2B31D25BDA239006FA3D0 /* liblibxsf.a in Frameworks */,
 				5966D0C325CFEE2600520777 /* liblibxmp.a in Frameworks */,
 				59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */,
-				59053A2725DBFCF600AA548E /* libswresample.a in Frameworks */,
 				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
-				59053A2925DBFCF600AA548E /* libavdevice.a in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
-				59053A2A25DBFCF600AA548E /* libavutil.a in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				5966D0B625CFEDDF00520777 /* libuade.a in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
 				5958B42625C601AB00724722 /* WebKit.framework in Frameworks */,
-				59053A2D25DBFCF600AA548E /* libavformat.a in Frameworks */,
 				CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */,
 				5966D0C125CFEE1B00520777 /* libFileExtractor.a in Frameworks */,
 				5966D0B725CFEDE500520777 /* libsidplay1.a in Frameworks */,
@@ -3730,13 +3730,13 @@
 		590536B625DBF87400AA548E /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				590536B725DBF87400AA548E /* libavutil.a */,
-				590536B825DBF87400AA548E /* libavfilter.a */,
-				590536B925DBF87400AA548E /* libavcodec.a */,
-				590536BA25DBF87400AA548E /* libavformat.a */,
-				590536BB25DBF87400AA548E /* libavdevice.a */,
-				590536BC25DBF87400AA548E /* libswresample.a */,
-				590536BD25DBF87400AA548E /* libswscale.a */,
+				5950D7B925DE54BA00B476B2 /* libavcodec.a */,
+				5950D7BD25DE54BA00B476B2 /* libavdevice.a */,
+				5950D7BA25DE54BA00B476B2 /* libavfilter.a */,
+				5950D7BE25DE54BA00B476B2 /* libavformat.a */,
+				5950D7BC25DE54BA00B476B2 /* libavutil.a */,
+				5950D7BF25DE54BA00B476B2 /* libswresample.a */,
+				5950D7BB25DE54BA00B476B2 /* libswscale.a */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -6652,12 +6652,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/thin/arm64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/x86_64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/arm64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/i386/lib",
+					"/Users/yohannmagnien/Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib",
 				);
 				MARKETING_VERSION = 2.95;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
@@ -6701,12 +6696,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/thin/arm64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/x86_64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/arm64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/i386/lib",
+					"/Users/yohannmagnien/Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib",
 				);
 				MARKETING_VERSION = 2.95;
 				ONLY_ACTIVE_ARCH = NO;
@@ -6750,6 +6740,10 @@
 					"VGM_USE_FFMPEG=1",
 					"-D",
 					"VGM_USE_ATRAC9=1",
+					"-D",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
 				);
 				PROVISIONING_PROFILE = "";
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
@@ -6808,6 +6802,10 @@
 					"-D",
 					"VGM_USE_ATRAC9=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
+					"-D",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
 				);
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -6867,6 +6865,10 @@
 					"-D",
 					"VGM_USE_ATRAC9=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
+					"-D",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
 				);
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";
@@ -6928,12 +6930,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/thin/arm64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/x86_64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/arm64/lib",
-					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master/FFmpeg-IOSsim/i386/lib",
+					"/Users/yohannmagnien/Downloads/FFmpeg-iOS-build-script-master/FFmpeg-iOS/lib",
 				);
 				MARKETING_VERSION = 2.95;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;

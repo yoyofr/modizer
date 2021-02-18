@@ -4228,7 +4228,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             }
         }
     
-    
+    mDeviceIPhoneX=1;
     
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 		if (!is_macOS) mDeviceType=1; //ipad

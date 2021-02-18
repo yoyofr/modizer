@@ -22,8 +22,13 @@ typedef signed int							INT32;
 typedef signed __int64						INT64;
 typedef unsigned __int64					UINT64;
 #else
+#ifdef LONG_IS_64BIT
+typedef signed long                        INT64;
+typedef unsigned long                    UINT64;
+#else
 __extension__ typedef unsigned long long	UINT64;
 __extension__ typedef signed long long		INT64;
+#endif
 #endif
 #endif
 
