@@ -24,7 +24,8 @@ Todo/Requested:
 - Modizer folders now accessible through Files
 - Bugfix / UTF-8 encoding for non latin strings
 - Stability improvement
-
+- UI ajustements / volume bar. Should now be ok for recent devices
+- sc68 player bugfixed / was broken in v2.9.4 following the upgrade to ARC model for sourcecode.
 
 
 2.9.4

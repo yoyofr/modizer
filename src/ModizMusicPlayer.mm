@@ -1046,10 +1046,10 @@ void propertyListenerCallback (void                   *inUserData,              
     api68_init_t init68;
     
     NSBundle *bundle = [NSBundle mainBundle];
-    NSString *path = [bundle bundlePath];
+    NSString *path = [bundle resourcePath];
     NSMutableString *argData = [NSMutableString stringWithString:@"--sc68_data="];
     [argData appendString:path];
-    [argData appendString:@"/Contents/Resources"];
+    //[argData appendString:@"/Replay"];    
     
     char *t = (char *)[argData UTF8String];
     char *args[] = { (char*)"sc68", t, NULL };

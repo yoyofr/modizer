@@ -103,8 +103,10 @@ typedef signed short		INT16;
 typedef signed int			int32;
 typedef unsigned int		uint32;
 #ifdef LONG_IS_64BIT
-typedef signed long             int64;
-typedef unsigned long           uint64;
+#include <sys/types.h>
+//#include <sysdep.h>
+typedef int64_t             int64;
+typedef uint64_t           uint64;
 #else
 typedef signed long long	int64;
 typedef unsigned long long	uint64;

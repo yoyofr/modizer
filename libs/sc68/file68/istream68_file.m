@@ -69,7 +69,7 @@ static int isf_open(istream_t * istream)
   }
   if (isf->fileHandle) {
     //[isf->fileHandle retain];
-      isf->fileHandle=nil;
+      //isf->fileHandle=nil;
     return 0;
   }
   return -1; 
