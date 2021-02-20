@@ -1892,6 +1892,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 -(void) loadFavoritesList{
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
+    playlist->nb_entries=0;
     pthread_mutex_lock(&db_mutex);
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
         char sqlStatement[1024];
@@ -2089,6 +2090,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (browse_depth>=2) return [indexTitles objectAtIndex:section];
     return nil;
 }
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     local_flag=0;
     if (browse_depth==0) return [keys count];
@@ -2145,6 +2147,128 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
 
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerRightButton:(NSInteger)buttonIndex {
+    if ([cell.reuseIdentifier compare:@"CellA"]==NSOrderedSame) {
+        //DELETE action requested
+        // Delete button was pressed
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+        bool confirmed=false;
+        
+        if (browse_depth==0) {
+            if (indexPath.row>=4) {
+                //////////////////////////////////////////////////////////////////////////////////////:
+                //main playlist screen, delete a playlist
+                //////////////////////////////////////////////////////////////////////////////////////:
+                UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                               message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
+                                               preferredStyle:UIAlertControllerStyleAlert];
+                 
+                UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive
+                   handler:^(UIAlertAction * action) {
+                        if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-4]]) {
+                            keys=nil;
+                            list=nil;
+                            [self fillKeys];
+                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                        }
+                    }];
+                UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                   handler:^(UIAlertAction * action) {
+                        [cell setSlideState:SESlideTableViewCellSlideStateCenter animated:YES];
+                    }];
+                 
+                [alert addAction:cancelAction];
+                [alert addAction:deleteAction];
+                [self presentViewController:alert animated:YES completion:nil];
+            }
+        } else if (browse_depth==1) {
+            if (show_playlist) {
+                if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                    //////////////////////////////////////////////////////////////////////////////////////:
+                    //nowplaying playlist, remove an entry
+                    //////////////////////////////////////////////////////////////////////////////////////:
+                            detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilename=nil;
+                            detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilepath=nil;
+                            for (int i=indexPath.row-1;i<playlist->nb_entries-1;i++) {
+                                detailViewController.mPlaylist[i].mPlaylistFilename=detailViewController.mPlaylist[i+1].mPlaylistFilename;
+                                detailViewController.mPlaylist[i].mPlaylistFilepath=detailViewController.mPlaylist[i+1].mPlaylistFilepath;
+                                detailViewController.mPlaylist[i].mPlaylistRating=detailViewController.mPlaylist[i+1].mPlaylistRating;
+                                detailViewController.mPlaylist[i].mPlaylistCount=detailViewController.mPlaylist[i+1].mPlaylistCount;
+                                detailViewController.mPlaylist[i].cover_flag=detailViewController.mPlaylist[i+1].cover_flag;
+                            }
+                            detailViewController.mPlaylist_size--;
+                            if (detailViewController.mPlaylist_pos>=detailViewController.mPlaylist_size) detailViewController.mPlaylist_pos--;
+                            if ((indexPath.row-1)<=detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos--;
+                            detailViewController.mShouldUpdateInfos=1;
+                    
+                    for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+                        playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
+                        playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
+                        
+                            DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
+                                                        detailViewController.mPlaylist[i].mPlaylistFilepath,
+                                                        &(playlist->entries[i].playcounts),
+                                                        &(detailViewController.mPlaylist[i].mPlaylistRating),
+                                                        &(playlist->entries[i].song_length),
+                                                        &(playlist->entries[i].channels_nb),
+                                                        &(playlist->entries[i].songs));
+                        playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
+                    }
+                    playlist->nb_entries=detailViewController.mPlaylist_size;
+                    playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
+                    playlist->playlist_id=nil;
+                            
+                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    
+                } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
+                            short int playcount;
+                            signed char rating;
+                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                        playlist->entries[indexPath.row-1].fullpath,
+                                                        &playcount,&rating);
+                            playcount=0;
+                            DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                           playlist->entries[indexPath.row-1].fullpath,
+                                                           playcount,rating);
+                    
+                            [self loadMostPlayedList];
+                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    
+                } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
+                            short int playcount;
+                            signed char rating;
+                            DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                        playlist->entries[indexPath.row-1].fullpath,
+                                                        &playcount,&rating);
+                            rating=0;
+                            DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                           playlist->entries[indexPath.row-1].fullpath,
+                                                           playcount,rating);
+                    
+                            [self loadFavoritesList];
+                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];                                            
+                } else if (integrated_playlist==0) {
+                    if (indexPath.row>=2) {
+                        //////////////////////////////////////////////////////////////////////////////////////:
+                        //user playlist, remove an entry
+                        //////////////////////////////////////////////////////////////////////////////////////:
+                                playlist->entries[indexPath.row-2].label=nil;
+                                playlist->entries[indexPath.row-2].fullpath=nil;
+                                for (int i=indexPath.row-2;i<playlist->nb_entries-1;i++) {
+                                    playlist->entries[i].label=playlist->entries[i+1].label;
+                                    playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
+                                    playlist->entries[i].ratings=playlist->entries[i+1].ratings;
+                                    playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
+                                }
+                                playlist->nb_entries--;
+                                [self replacePlaylistDBwithCurrent];
+                                                                
+                                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                        
+                    }
+                }
+            }
+        }
+    }
 }
 
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
@@ -2152,7 +2276,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {    
     static NSString *CellIdentifier = @"Cell";
-    static NSString *CellIdentifierHeader = @"CellH";
+    static NSString *CellIdentifier_withAction = @"CellA";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
     const NSInteger BOTTOM_LABEL_TAG = 1002;
@@ -2168,18 +2292,34 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     SESlideTableViewCell *cell;
     
-    //if (indexPath.section==1) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
-    //else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    bool allow_delete;
+    allow_delete=false;
+    if (browse_depth==0) {
+        //main playlist screen with builtin ones + user specific
+        if (indexPath.row>=4) allow_delete=true;
+    } else if (browse_depth==1) {
+        if (show_playlist) {
+            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                if (indexPath.row>=1) allow_delete=true;
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
+                if (indexPath.row>=1) allow_delete=true;
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
+                if (indexPath.row>=1) allow_delete=true;
+            } else if (integrated_playlist==0) {
+                if (indexPath.row>=2) allow_delete=true;
+            }
+        }
+    }
     
-    if ((indexPath.section==0)&&(indexPath.row==0)) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
+    if (allow_delete) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier_withAction];
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     if (cell == nil) {
-        if ((indexPath.section==0)&&(indexPath.row==0)) {
-            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifierHeader];
+        if (!allow_delete) {
+            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
             cell.delegate=self;
         } else {
-            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier_withAction];
             cell.delegate=self;
             [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
         }
@@ -2498,8 +2638,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 detailViewController.mPlaylist_size--;
                 if (detailViewController.mPlaylist_pos>=detailViewController.mPlaylist_size) detailViewController.mPlaylist_pos--;
                 detailViewController.mShouldUpdateInfos=1;
-            }
-            if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
+            } else  if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
                 short int playcount;
                 signed char rating;
                 DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
@@ -2519,18 +2658,19 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating);
+            } else {
+                playlist->entries[indexPath.row-rowofs].label=nil;
+                playlist->entries[indexPath.row-rowofs].fullpath=nil;
+                for (int i=indexPath.row-rowofs;i<playlist->nb_entries-1;i++) {
+                    playlist->entries[i].label=playlist->entries[i+1].label;
+                    playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
+                    playlist->entries[i].ratings=playlist->entries[i+1].ratings;
+                    playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
+                }
+                playlist->nb_entries--;
+                [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [self replacePlaylistDBwithCurrent];
             }
-            playlist->entries[indexPath.row-rowofs].label=nil;
-            playlist->entries[indexPath.row-rowofs].fullpath=nil;
-            for (int i=indexPath.row-rowofs;i<playlist->nb_entries-1;i++) {
-                playlist->entries[i].label=playlist->entries[i+1].label;
-                playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
-                playlist->entries[i].ratings=playlist->entries[i+1].ratings;
-                playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
-            }
-            playlist->nb_entries--;
-            [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            [self replacePlaylistDBwithCurrent];
         }
         if ((browse_depth==0)&&(indexPath.row>=4)) {  //delete a playlist
             if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-4]]) {
@@ -2627,7 +2767,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 - (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    NSLog(@"depth %d / integrated pl %d / show_pl %d | sect %d row %d",browse_depth,integrated_playlist,show_playlist,indexPath.section,indexPath.row);
+    return YES;
+    //NSLog(@"depth %d / integrated pl %d / show_pl %d | sect %d row %d",browse_depth,integrated_playlist,show_playlist,indexPath.section,indexPath.row);
     int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
     if (show_playlist&&(indexPath.row>=rowofs)) {
         if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
@@ -2747,15 +2888,15 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             
             if (playlist->nb_entries) {
                 if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                else [tableView reloadData];
-                
                 [detailViewController play_listmodules:playlist start_index:0];
-                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) {
-                    keys=nil;
-                    list=nil;
-                }
+                                
+                keys=nil;
+                list=nil;
+                [self fillKeys];
+                [tableView reloadData];
             }
             [self freePlaylist];
+            
         }
     } else {
         if (show_playlist) {

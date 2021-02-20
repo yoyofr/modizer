@@ -244,6 +244,9 @@
 "Paste" = "Coller";
 "New folder" = "Nv.dossier";
 
+"Are you sure you want to delete this playlist ?" = "Etes vous sûr de vouloir supprimer cette playlist ?";
+"Are you sure you want to delete this entry ?" = "Etes vous sûr de vouloir supprimer cette entrée ?";
+
 "Nothing to paste"="Rien à coller";
 "Enter folder name"="Entrez le nom du dossier";
 "No file to extract or not supported archive format.\n"="Pas de fichier à extraire ou format archive non supporté.\n";

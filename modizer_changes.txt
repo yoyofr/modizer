@@ -13,10 +13,11 @@ Todo/Requested:
 - BUG: SID with subsongs -> sub menu (browser) displays wrong info for subsongs (length, subsongs, ...)
 - BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
-- playlist view: add swipe to remove entries
+- TODO: playlist view: add swipe to remove entries
 
-vgmplay settings
-- PreferJapTag on/off
+- TODO: vgmplay settings => PreferJapTag on/off
+
+- TODO: replace vgmplay by libvgm
 
 2.9.5
 �����
