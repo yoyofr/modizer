@@ -1190,37 +1190,28 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <toolbar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="449" userLabel="Top Toolbar">
-                        <rect key="frame" x="0.0" y="0.0" width="289" height="44"/>
+                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="toto" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" clearButtonMode="whileEditing" id="cXo-Rl-RbO">
+                        <rect key="frame" x="4" y="0.0" width="312" height="34"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="webSearch" returnKeyType="go"/>
+                        <connections>
+                            <outlet property="delegate" destination="444" id="Qwj-Zp-EpB"/>
+                        </connections>
+                    </textField>
+                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="12A-ZI-b5d">
+                        <rect key="frame" x="0.0" y="34" width="320" height="4"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                    </progressView>
+                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1925" userLabel="Bottom Toolbar">
+                        <rect key="frame" x="0.0" y="38" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                         <items>
-                            <barButtonItem style="plain" id="1161" userLabel="Address">
-                                <textField key="customView" opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" clearButtonMode="whileEditing" id="1160">
-                                    <rect key="frame" x="16" y="5" width="158" height="34"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                    <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="alphabet" returnKeyType="go"/>
-                                    <connections>
-                                        <outlet property="delegate" destination="444" id="1163"/>
-                                    </connections>
-                                </textField>
-                            </barButtonItem>
                             <barButtonItem image="bb_home.png" id="1165">
                                 <connections>
                                     <action selector="goHome:" destination="444" id="2028"/>
                                 </connections>
                             </barButtonItem>
-                        </items>
-                    </toolbar>
-                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="447">
-                        <rect key="frame" x="294" y="12" width="20" height="20"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                    </activityIndicatorView>
-                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1925" userLabel="Bottom Toolbar">
-                        <rect key="frame" x="0.0" y="44" width="320" height="44"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                        <items>
                             <barButtonItem style="plain" systemItem="flexibleSpace" id="2010"/>
                             <barButtonItem tag="1" image="bb_caret-left.png" style="plain" id="452" userLabel="Prev">
                                 <connections>
@@ -1253,7 +1244,7 @@
                     </toolbar>
                     <view userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1613" userLabel="Info download">
                         <rect key="frame" x="0.0" y="376" width="320" height="60"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." lineBreakMode="characterWrap" numberOfLines="2" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="1614" userLabel="Download Label">
                                 <rect key="frame" x="10" y="5" width="300" height="50"/>
@@ -1279,17 +1270,18 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <size key="freeformSize" width="320" height="480"/>
             <connections>
-                <outlet property="activityIndicator" destination="447" id="460"/>
-                <outlet property="addressTestField" destination="1160" id="1162"/>
+                <outlet property="addressTestField" destination="cXo-Rl-RbO" id="3uD-4X-JEn"/>
                 <outlet property="backButton" destination="452" id="454"/>
                 <outlet property="detailViewController" destination="11" id="1581"/>
                 <outlet property="downloadViewController" destination="642" id="762"/>
                 <outlet property="forwardButton" destination="451" id="456"/>
                 <outlet property="infoDownloadLbl" destination="1614" id="1615"/>
-                <outlet property="infoDownloadView" destination="1613" id="1616"/>
+                <outlet property="infoDownloadView" destination="1613" id="G3e-LT-ZMU"/>
+                <outlet property="progressIndicator" destination="12A-ZI-b5d" id="m3V-Bq-xDu"/>
                 <outlet property="toolBar" destination="1925" id="1997"/>
+                <outlet property="view" destination="445" id="x0H-ec-ei3"/>
             </connections>
-            <point key="canvasLocation" x="-195" y="-1380"/>
+            <point key="canvasLocation" x="-195.19999999999999" y="-1380.8095952023989"/>
         </viewController>
         <viewController modalTransitionStyle="flipHorizontal" id="1466" userLabel="View Controller (About)" customClass="AboutViewController">
             <layoutGuides>

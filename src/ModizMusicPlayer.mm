@@ -122,6 +122,7 @@ int optLAZYUSF_ResampleQuality=1;
 extern "C" {
     //VGMPPLAY
     CHIPS_OPTION ChipOpts[0x02];
+    bool EndPlay;
     
     //VGMSTREAM
 #import "../libs/libvgmstream/vgmstream.h"
@@ -3208,7 +3209,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     if (mPlayType==MMP_VGMPLAY) { //VGM
                         // render audio into sound buffer
                         // TODO does this work OK on mSlowDevices?
-                        nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
+                        if (EndPlay) {
+                            nbBytes=0;
+                        } else nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                     }
                     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
                         
@@ -6454,10 +6457,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
     ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     
-    VGMPlay_Init2();
-    
     VGMMaxLoop=optVGMPLAY_maxloop;
     
+    VGMPlay_Init2();
     
     
     if (!OpenVGMFile([filePath UTF8String]))

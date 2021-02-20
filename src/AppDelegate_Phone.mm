@@ -173,6 +173,9 @@ BOOL is_retina;
             //not on macos
         }
     }
+    
+    [SettingsGenViewController loadSettings];
+    [SettingsGenViewController restoreSettings];
  
     
     sprintf(homedirectory,"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);

@@ -41,7 +41,7 @@ int found_img;
 static UIAlertView *alertChooseName;
 
 
-@synthesize webView,activityIndicator,backButton,forwardButton,downloadViewController,addressTestField;//,view;
+@synthesize webView,progressIndicator,backButton,forwardButton,downloadViewController,addressTestField;//,view;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
 
@@ -388,7 +388,7 @@ static UIAlertView *alertChooseName;
 	NSArray *downloadMIMETypes = [NSArray arrayWithContentsOfFile: pathMIMETYPESplist];
 	BOOL asdf = [downloadMIMETypes containsObject:MIME];
     
-    //	NSLog(@"Connection : %@",MIME);
+    NSLog(@"Connection : %@",MIME);
 	
 	if (asdf==NO) {
         
@@ -396,31 +396,31 @@ static UIAlertView *alertChooseName;
         r.location=NSNotFound;
 		r=[MIME rangeOfString:@"application/"];
 		if (r.location!=NSNotFound) {
-            //			NSLog(@"unknown binary content, attempt to download");
-            //			NSLog(@"%@",MIME);
+            			NSLog(@"unknown binary content, attempt to download");
+            			NSLog(@"%@",MIME);
 			asdf=YES;
 		} 
 		r.location=NSNotFound;
 		r=[MIME rangeOfString:@"binary/"];
 		if (r.location!=NSNotFound) {
-            //			NSLog(@"unknown binary content, attempt to download");
-            //			NSLog(@"%@",MIME);
+            			NSLog(@"unknown binary content, attempt to download");
+            			NSLog(@"%@",MIME);
 			asdf=YES;
 		}
         r.location=NSNotFound;
 		r=[MIME rangeOfString:@"audio/"];
 		if (r.location!=NSNotFound) {
-            //			NSLog(@"unknown binary content, attempt to download");
-            //			NSLog(@"%@",MIME);
+            			NSLog(@"unknown binary content, attempt to download");
+            			NSLog(@"%@",MIME);
 			asdf=YES;
 		}
         r.location=NSNotFound;
-        r=[MIME rangeOfString:@"image/"];
+        r=[MIME rangeOfString:@"image/x-mrsid-image"];
         if (r.location!=NSNotFound) {
-            //            NSLog(@"unknown binary content, attempt to download");
-            //            NSLog(@"%@",MIME);
+                        NSLog(@"unknown binary content, attempt to download");
+                        NSLog(@"%@",MIME);
             asdf=YES;
-        }        
+        }
 	}
 	if (asdf == NO) {
 	}
@@ -604,6 +604,43 @@ static UIAlertView *alertChooseName;
 	[UIView setAnimationDidStopSelector:@selector(hidePopup)];
 	[UIView commitAnimations];
 }
+
+
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
+    self.progressIndicator.hidden=NO;
+}
+
+-(void)observeValueForKeyPath:(NSString *)keyPath
+                     ofObject:(id)object
+                       change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                      context:(void *)context{
+    
+    if ([keyPath isEqualToString:NSStringFromSelector(@selector(estimatedProgress))]
+        && object == self.webView) {
+        [self.progressIndicator setAlpha:1.0f];
+        BOOL animated = self.webView.estimatedProgress > self.progressIndicator.progress;
+        [self.progressIndicator setProgress:self.webView.estimatedProgress
+                              animated:animated];
+        
+        if (self.webView.estimatedProgress >= 1.0f) {
+            [UIView animateWithDuration:0.3f
+                                  delay:0.3f
+                                options:UIViewAnimationOptionCurveEaseOut
+                             animations:^{
+                                 [self.progressIndicator setAlpha:0.0f];
+                             }
+                             completion:^(BOOL finished) {
+                                 [self.progressIndicator setProgress:0.0f animated:NO];
+                             }];
+        }
+    }else{
+        [super observeValueForKeyPath:keyPath
+                             ofObject:object
+                               change:change
+                              context:context];
+    }
+}
+
 
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
@@ -1068,7 +1105,7 @@ didFinishNavigation:(WKNavigation *)navigation {
 
     // Set the position - Use the full page, but above my tabBar
     CGRect frame = self.view.bounds;
-    CGFloat tabBarHeight = 44;//frame.size.height - self.tabBarController.tabBar.frame.origin.y;
+    CGFloat tabBarHeight = 34+4+44;//frame.size.height - self.tabBarController.tabBar.frame.origin.y;
     //frame.size.height -= tabBarHeight;
     //frame.origin.y=tabBarHeight;
 
@@ -1085,12 +1122,12 @@ didFinishNavigation:(WKNavigation *)navigation {
     NSLayoutConstraint *topConstraint = [NSLayoutConstraint
                                                  constraintWithItem:webView attribute:NSLayoutAttributeTop
                                                  relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
-                                                 NSLayoutAttributeTop multiplier:1.0f constant:44];
+                                                 NSLayoutAttributeTop multiplier:1.0f constant:34+4+44];
     /* Bottom space to superview Y*/
     NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint
                                                  constraintWithItem:webView attribute:NSLayoutAttributeBottom
                                                  relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
-                                                 NSLayoutAttributeBottom multiplier:1.0f constant:-44];
+                                                 NSLayoutAttributeBottom multiplier:1.0f constant:0];
     /* Fixed width */
     NSLayoutConstraint *widthConstraint = [NSLayoutConstraint constraintWithItem:webView
                                                                        attribute:NSLayoutAttributeWidth
@@ -1150,16 +1187,34 @@ didFinishNavigation:(WKNavigation *)navigation {
 	[self loadHome];
     [super viewDidLoad];
     
-    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-    doubleTap.numberOfTouchesRequired = 2;
+    UITapGestureRecognizer *doubleTapMac = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    //doubleTap.numberOfTouchesRequired = 2;
+    doubleTapMac.numberOfTapsRequired=2;
+    UITapGestureRecognizer *doubleTapiOS = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    doubleTapiOS.numberOfTouchesRequired = 2;
     //doubleTap.numberOfTapsRequired=2;
-    [self.webView addGestureRecognizer:doubleTap];
+    
+    [self.webView addGestureRecognizer:doubleTapiOS];
+    [self.webView addGestureRecognizer:doubleTapMac];
+    
+    [self.webView addObserver:self
+                       forKeyPath:NSStringFromSelector(@selector(estimatedProgress))
+                          options:0
+                          context:nil];
+
 
 	
 	end_time=clock();
 #ifdef LOAD_PROFILE
 	NSLog(@"webbro : %d",end_time-start_time);
 #endif
+}
+
+
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
 }
 
 - (void)viewWillAppear:(BOOL)animated {

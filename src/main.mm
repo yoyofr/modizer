@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
         //***********************
         //settings
         
-        [SettingsGenViewController loadSettings];
-        [SettingsGenViewController restoreSettings];
+        //[SettingsGenViewController loadSettings];
+        //[SettingsGenViewController restoreSettings];
         
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate_Phone class]));
     }

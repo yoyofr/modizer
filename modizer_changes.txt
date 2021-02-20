@@ -3,7 +3,6 @@ Todo/Requested:
 - [UI Improvement] option to keep subsong/subfiles selection screen opened
 - [PLAYER] libopenmpt update
 - [PLAYER] xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
-- [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
 - [DB] Modland auto update / db creation
 - [DB] Hvsc auto update / db creation
@@ -13,10 +12,11 @@ Todo/Requested:
 - BUG: SID with subsongs -> global length not computed on file browser
 - BUG: SID with subsongs -> sub menu (browser) displays wrong info for subsongs (length, subsongs, ...)
 - BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
-- BUG: when in random mode, back button does not play previous file
-- BUG: when not playing file, if download & exit => should not empty download queue
+- [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
+- playlist view: add swipe to remove entries
 
-- BUG: when a file is not compatible in an archive, the whole archive is skipped instead of trying next file
+vgmplay settings
+- PreferJapTag on/off
 
 2.9.5
 �����
@@ -24,7 +24,7 @@ Todo/Requested:
 - Modizer folders now accessible through Files
 - Bugfix / UTF-8 encoding for non latin strings
 - Stability improvement
-- UI ajustements / volume bar. Should now be ok for recent devices
+- UI improvements / volume bar & web browser
 - sc68 player bugfixed / was broken in v2.9.4 following the upgrade to ARC model for sourcecode.
 
 

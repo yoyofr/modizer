@@ -4886,6 +4886,7 @@ static void InterpretVGM(UINT32 SampleCount)
 #endif
 						FadePlay = true;
 					}
+                    if (!VGMMaxLoopM) VGMEnd = true;
 					if (FadePlay && ! FadeTime)
 						VGMEnd = true;
 				}
