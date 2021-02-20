@@ -14,7 +14,7 @@
 #import "fex.h"
 #import "CMPopTipView.h"
 
-//#import "SWTableViewCell.h"
+
 #import "SESlideTableViewCell.h"
 
 @class DetailViewControllerIphone;

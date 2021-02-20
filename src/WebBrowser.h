@@ -10,6 +10,7 @@
 #import <WebKit/WebKit.h>
 #import "DownloadViewController.h"
 #import "DetailViewControllerIphone.h"
+#import "ModizerWebView.h"
 
 #define MAX_CUSTOM_URL 256
 
@@ -17,10 +18,10 @@
 @class DetailViewControllerIphone;
 
 @interface WebBrowser : UIViewController <WKNavigationDelegate,UITextFieldDelegate> {
-	WKWebView *webView;
-//    IBOutlet UIView *view;
+	ModizerWebView *webView;
+    IBOutlet UIView *view;
 	IBOutlet UIToolbar *toolBar;
-	IBOutlet UIActivityIndicatorView *activityIndicator;
+	IBOutlet UIProgressView *progressIndicator;
 	IBOutlet UIBarButtonItem *backButton,*forwardButton;
 	IBOutlet UITextField *addressTestField;
 	IBOutlet DownloadViewController *downloadViewController;
@@ -35,11 +36,11 @@
 	
 }
 
-@property (nonatomic,retain) IBOutlet UIView *infoDownloadView;//,*view;
+@property (nonatomic,retain) IBOutlet UIView *infoDownloadView,*view;
 @property (nonatomic,retain) IBOutlet UILabel *infoDownloadLbl;
-@property (nonatomic,strong) WKWebView *webView;
+@property (nonatomic,strong) ModizerWebView *webView;
 @property (nonatomic,retain) IBOutlet UIToolbar *toolBar;
-@property (nonatomic,retain) IBOutlet UIActivityIndicatorView *activityIndicator;
+@property (nonatomic,retain) IBOutlet UIProgressView *progressIndicator;
 @property (nonatomic,retain) IBOutlet UIBarButtonItem *backButton,*forwardButton;
 @property (nonatomic,retain) IBOutlet UITextField *addressTestField;
 @property (nonatomic,retain) IBOutlet DownloadViewController *downloadViewController;

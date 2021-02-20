@@ -13,12 +13,12 @@
 #import "fex.h"
 #import "CMPopTipView.h"
 
-
+#import "SESlideTableViewCell.h"
 
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerPlaylist : UIViewController <UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface RootViewControllerPlaylist : UIViewController <UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;

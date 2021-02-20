@@ -2129,10 +2129,30 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
 }
 
+/**
+ Asks the delegate if the cell can be a slide-state.
+ 
+ The result of this function is not reflected to the slide indicators of the cell.
+ You should set "showsLeftSlideIndicator" or "showsRightSlideIndicator" property of SESlideTableViewCell manually.
+ 
+ @return YES if the cell can be the state, otherwise NO.
+ @param cell The cell that is making this request.
+ @param slideState The state that the cell want to be.
+ */
+- (BOOL)slideTableViewCell:(SESlideTableViewCell*)cell canSlideToState:(SESlideTableViewCellSlideState)slideState {
+    return YES;
+}
 
 
-- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerRightButton:(NSInteger)buttonIndex {
+}
+
+- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {    
     static NSString *CellIdentifier = @"Cell";
+    static NSString *CellIdentifierHeader = @"CellH";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
     const NSInteger BOTTOM_LABEL_TAG = 1002;
@@ -2146,10 +2166,23 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     BOOL isEditing=[tabView isEditing];
     
-    UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    SESlideTableViewCell *cell;
+    
+    //if (indexPath.section==1) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
+    //else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
+    if ((indexPath.section==0)&&(indexPath.row==0)) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
+    else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    
     if (cell == nil) {
-//        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        if ((indexPath.section==0)&&(indexPath.row==0)) {
+            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifierHeader];
+            cell.delegate=self;
+        } else {
+            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+            cell.delegate=self;
+            [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+        }
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         
@@ -2582,6 +2615,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tabView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
+    return NO;
     int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
     if (show_playlist&&(indexPath.row>=rowofs)&&(integrated_playlist<=INTEGRATED_PLAYLIST_NOWPLAYING)) {
         /*if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
@@ -2593,6 +2627,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 - (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
+    NSLog(@"depth %d / integrated pl %d / show_pl %d | sect %d row %d",browse_depth,integrated_playlist,show_playlist,indexPath.section,indexPath.row);
     int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
     if (show_playlist&&(indexPath.row>=rowofs)) {
         if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
