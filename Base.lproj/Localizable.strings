@@ -180,6 +180,9 @@
 "Paste" = "Paste";
 "New folder" = "New folder";
 
+"Are you sure you want to delete this playlist ?" = "Are you sure you want to delete this playlist ?";
+"Are you sure you want to delete this entry ?" = "Are you sure you want to delete this entry ?";
+
 "Nothing to paste" = "Nothing to paste";
 "Enter folder name"="Enter folder name";
 "No file to extract or not supported archive format.\n"="No file to extract or not supported archive format.\n";
