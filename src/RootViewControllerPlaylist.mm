@@ -272,10 +272,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 if (buttonIndex==1) {  //new playlist from current played list
                     if (playlist->playlist_id) playlist->playlist_id=nil;
                     if (playlist->playlist_name) playlist->playlist_name=nil;
-                playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
-                playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
-                [self addListToPlaylistDB];
-                self.navigationItem.title=playlist->playlist_name;
+                    playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
+                    playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
+                    integrated_playlist=0;
+                    [self addListToPlaylistDB];
+                    self.navigationItem.title=playlist->playlist_name;
+                    [self.tableView reloadData];
                 }
             }
             
@@ -2621,7 +2623,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
+    int rowofs=(integrated_playlist?1:2);
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
         if (show_playlist&&(indexPath.row>=rowofs)) { //delete playlist entry
@@ -2637,7 +2639,27 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 }
                 detailViewController.mPlaylist_size--;
                 if (detailViewController.mPlaylist_pos>=detailViewController.mPlaylist_size) detailViewController.mPlaylist_pos--;
+                if ((indexPath.row-1)<=detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos--;
                 detailViewController.mShouldUpdateInfos=1;
+                
+                for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+                    playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
+                    playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
+                    
+                        DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
+                                                    detailViewController.mPlaylist[i].mPlaylistFilepath,
+                                                    &(playlist->entries[i].playcounts),
+                                                    &(detailViewController.mPlaylist[i].mPlaylistRating),
+                                                    &(playlist->entries[i].song_length),
+                                                    &(playlist->entries[i].channels_nb),
+                                                    &(playlist->entries[i].songs));
+                    playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
+                }
+                playlist->nb_entries=detailViewController.mPlaylist_size;
+                playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
+                playlist->playlist_id=nil;
+                        
+                        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else  if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
                 short int playcount;
                 signed char rating;
@@ -2648,6 +2670,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating);
+                [self loadMostPlayedList];
+                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {  //favorites: reset rating
                 short int playcount;
                 signed char rating;
@@ -2658,6 +2682,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating);
+                [self loadMostPlayedList];
+                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else {
                 playlist->entries[indexPath.row-rowofs].label=nil;
                 playlist->entries[indexPath.row-rowofs].fullpath=nil;
@@ -2754,9 +2780,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tabView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the item to be re-orderable.
-    return NO;
-    int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
+    int rowofs=(integrated_playlist?1:2);
     if (show_playlist&&(indexPath.row>=rowofs)&&(integrated_playlist<=INTEGRATED_PLAYLIST_NOWPLAYING)) {
         /*if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
             if (indexPath.row-rowofs==detailViewController.mPlaylist_pos) return NO;
@@ -2766,10 +2790,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     return NO;
 }
 - (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
     //NSLog(@"depth %d / integrated pl %d / show_pl %d | sect %d row %d",browse_depth,integrated_playlist,show_playlist,indexPath.section,indexPath.row);
-    int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
+    int rowofs=(integrated_playlist?1:2);
     if (show_playlist&&(indexPath.row>=rowofs)) {
         if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
             if (indexPath.row-rowofs==detailViewController.mPlaylist_pos) return NO;
