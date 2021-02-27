@@ -517,8 +517,11 @@ again:
 
 	memset(&SNESGameFixes, 0, sizeof(SNESGameFixes));
 
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],&(this->RealROM[0]),this->CalculatedSize);
 	this->InitROM();
 
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],&(this->RealROM[0]),this->CalculatedSize);
+    printf("val: %d\n",this->RealROM[65532]);
 	S9xReset();
 
 	return true;
@@ -821,17 +824,25 @@ void CMemory::Map_Initialize()
 
 void CMemory::Map_LoROMMap()
 {
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 	this->map_System();
-
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 	this->map_lorom(0x00, 0x3f, 0x8000, 0xffff, this->CalculatedSize);
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 	this->map_lorom(0x40, 0x7f, 0x0000, 0xffff, this->CalculatedSize);
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 	this->map_lorom(0x80, 0xbf, 0x8000, 0xffff, this->CalculatedSize);
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 	this->map_lorom(0xc0, 0xff, 0x0000, 0xffff, this->CalculatedSize);
 
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
+    
 	this->map_LoROMSRAM();
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 	this->map_WRAM();
-
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 	this->map_WriteProtectROM();
+    printf("1Mem MAP: %08X rom %08X size %d\n",this->Map[15],this->ROM,this->CalculatedSize);
 }
 
 void CMemory::Map_NoMAD1LoROMMap()

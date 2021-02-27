@@ -283,6 +283,7 @@
 		591D8E4A25DC63620013E19F /* quantization.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E1C25DC63620013E19F /* quantization.c */; };
 		591D8E4B25DC63620013E19F /* bit_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E1F25DC63620013E19F /* bit_allocation.c */; };
 		591D8F1F25DDB8840013E19F /* libaosdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 591D8F1C25DDB8640013E19F /* libaosdk.a */; };
+		59280E7A25EACE16009205EA /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
 		593928D925CF502C009281DC /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928D625CF4FF9009281DC /* libdumb.a */; };
@@ -1136,7 +1137,6 @@
 		5950DB8025E0F67B00B476B2 /* libgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6802025CFCF2A001595B7 /* libgme.a */; };
 		5950DB8125E0F67B00B476B2 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F425DEFF8C00B476B2 /* libswresample.a */; };
 		5950DB8225E0F67B00B476B2 /* libsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A7325CF6FA0009281DC /* libsidplayfp.a */; };
-		5950DB8325E0F67B00B476B2 /* libxsf_snsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801B25CFCF2A001595B7 /* libxsf_snsf.a */; };
 		5950DB8425E0F67B00B476B2 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CC1200B391000A8A4E /* QuartzCore.framework */; };
 		5950DB8525E0F67B00B476B2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CE1200B391000A8A4E /* SystemConfiguration.framework */; };
 		5950DB8625E0F67B00B476B2 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F525DEFF8C00B476B2 /* libavformat.a */; };
@@ -1356,7 +1356,6 @@
 		5966D0B925CFEDF000520777 /* libopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C67FFE25CFCF2A001595B7 /* libopenmpt.a */; };
 		5966D0BB25CFEDFC00520777 /* libgsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6800C25CFCF2A001595B7 /* libgsf.a */; };
 		5966D0BC25CFEE0100520777 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
-		5966D0BD25CFEE0600520777 /* libxsf_snsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801B25CFCF2A001595B7 /* libxsf_snsf.a */; };
 		5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6802025CFCF2A001595B7 /* libgme.a */; };
 		5966D0C125CFEE1B00520777 /* libFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F5625CFE90E00711C05 /* libFileExtractor.a */; };
 		5966D0C225CFEE2100520777 /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928D625CF4FF9009281DC /* libdumb.a */; };
@@ -2104,6 +2103,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5910551825EAC21F00A194FF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 591054D525EAC21F00A194FF /* snsf.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5910547A25EABB4200A194FF;
+			remoteInfo = snsf;
+		};
 		591D8F1B25DDB8640013E19F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 591D8F1725DDB8640013E19F /* aosdk.xcodeproj */;
@@ -2215,13 +2221,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = sidplay1;
-		};
-		59C6801A25CFCF2A001595B7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 593925F325CF17B8009281DC /* xsf_snsf.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 592862691E2D4A5A00A08A4E;
-			remoteInfo = xsf_snsf;
 		};
 		59C6801F25CFCF2A001595B7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3231,6 +3230,7 @@
 		590536B225DBF87400AA548E /* dv_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dv_profile.h; sourceTree = "<group>"; };
 		590536B425DBF87400AA548E /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		590536B525DBF87400AA548E /* swresample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = swresample.h; sourceTree = "<group>"; };
+		591054D525EAC21F00A194FF /* snsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = snsf.xcodeproj; sourceTree = "<group>"; };
 		591D8E0525DC63620013E19F /* tables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tables.c; sourceTree = "<group>"; };
 		591D8E0625DC63620013E19F /* libatrac9.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libatrac9.c; sourceTree = "<group>"; };
 		591D8E0725DC63620013E19F /* huffCodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = huffCodes.c; sourceTree = "<group>"; };
@@ -3260,11 +3260,11 @@
 		591D8E1F25DC63620013E19F /* bit_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bit_allocation.c; sourceTree = "<group>"; };
 		591D8E2025DC63620013E19F /* structures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = structures.h; sourceTree = "<group>"; };
 		591D8F1725DDB8640013E19F /* aosdk.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = aosdk.xcodeproj; sourceTree = "<group>"; };
+		59280E7325EACA3C009205EA /* SNESSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SNESSystem.h; path = snsf9x/SNESSystem.h; sourceTree = "<group>"; };
 		592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxsf.xcodeproj; path = ../libxsf/libxsf/libxsf.xcodeproj; sourceTree = "<group>"; };
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
 		59387AED20C745BB001F0C20 /* LaunchLogo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = LaunchLogo.jpg; sourceTree = "<group>"; };
 		59387AEF20C746D3001F0C20 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
-		593925F325CF17B8009281DC /* xsf_snsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = xsf_snsf.xcodeproj; sourceTree = "<group>"; };
 		5939285F25CF1C0A009281DC /* Lazyusf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Lazyusf.xcodeproj; path = libLazyusf/Lazyusf.xcodeproj; sourceTree = "<group>"; };
 		5939287125CF1F07009281DC /* openmpt.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openmpt.xcodeproj; path = "libs/libopenmpt/openmpt-trunk/build/xcode4/openmpt.xcodeproj"; sourceTree = "<group>"; };
 		5939290425CF59CB009281DC /* hvl_replay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hvl_replay.cpp; sourceTree = "<group>"; };
@@ -4263,6 +4263,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59280E7A25EACE16009205EA /* libsnsf.a in Frameworks */,
 				591D8F1F25DDB8840013E19F /* libaosdk.a in Frameworks */,
 				5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */,
 				5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */,
@@ -4307,7 +4308,6 @@
 				5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */,
 				5950D7FB25DEFF8C00B476B2 /* libswresample.a in Frameworks */,
 				5966D0B825CFEDEA00520777 /* libsidplayfp.a in Frameworks */,
-				5966D0BD25CFEE0600520777 /* libxsf_snsf.a in Frameworks */,
 				CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */,
 				CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */,
 				5950D82625DF00AF00B476B2 /* libavformat.a in Frameworks */,
@@ -4365,7 +4365,6 @@
 				5950DB8025E0F67B00B476B2 /* libgme.a in Frameworks */,
 				5950DB8125E0F67B00B476B2 /* libswresample.a in Frameworks */,
 				5950DB8225E0F67B00B476B2 /* libsidplayfp.a in Frameworks */,
-				5950DB8325E0F67B00B476B2 /* libxsf_snsf.a in Frameworks */,
 				5950DB8425E0F67B00B476B2 /* QuartzCore.framework in Frameworks */,
 				5950DB8525E0F67B00B476B2 /* SystemConfiguration.framework in Frameworks */,
 				5950DB8625E0F67B00B476B2 /* libavformat.a in Frameworks */,
@@ -5127,6 +5126,23 @@
 			path = "libs-iOS";
 			sourceTree = "<group>";
 		};
+		591054D125EAC21F00A194FF /* snsf */ = {
+			isa = PBXGroup;
+			children = (
+				59280E7325EACA3C009205EA /* SNESSystem.h */,
+				591054D525EAC21F00A194FF /* snsf.xcodeproj */,
+			);
+			path = snsf;
+			sourceTree = "<group>";
+		};
+		591054D625EAC21F00A194FF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5910551925EAC21F00A194FF /* libsnsf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		591D8DE125DC63620013E19F /* LibAtrac9-master */ = {
 			isa = PBXGroup;
 			children = (
@@ -5213,6 +5229,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				591054D125EAC21F00A194FF /* snsf */,
 				591D8DE125DC63620013E19F /* LibAtrac9-master */,
 				59C04EAE25DBD3AD00D77115 /* FFmpeg-iOS */,
 				CC1E57321200B3B7000A8A4E /* Adplug */,
@@ -5230,7 +5247,6 @@
 				59321DCA1E25609F00020079 /* libvgmstream */,
 				595F9C1C1E54B90D009DBEED /* libxmp */,
 				592862B91E2D4D6800A08A4E /* libxsf */,
-				59C22AE125BCB088003FEDBF /* libxsf_snsf */,
 				3370BBCE124A853F00691400 /* mdxplay */,
 				508199FE14B3E06F0062FA86 /* pmdmini */,
 				CCCE9C31123D807A007D9462 /* sc68 */,
@@ -5582,14 +5598,6 @@
 			path = Reachability;
 			sourceTree = "<group>";
 		};
-		59C22AE125BCB088003FEDBF /* libxsf_snsf */ = {
-			isa = PBXGroup;
-			children = (
-				593925F325CF17B8009281DC /* xsf_snsf.xcodeproj */,
-			);
-			path = libxsf_snsf;
-			sourceTree = "<group>";
-		};
 		59C67FF525CFCF2A001595B7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -5626,14 +5634,6 @@
 			isa = PBXGroup;
 			children = (
 				59C6801625CFCF2A001595B7 /* libsidplay1.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		59C6801725CFCF2A001595B7 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				59C6801B25CFCF2A001595B7 /* libxsf_snsf.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -7055,6 +7055,10 @@
 					ProjectRef = 33A9657F140E1283007F22F5 /* sidplayfp.xcodeproj */;
 				},
 				{
+					ProductGroup = 591054D625EAC21F00A194FF /* Products */;
+					ProjectRef = 591054D525EAC21F00A194FF /* snsf.xcodeproj */;
+				},
+				{
 					ProductGroup = 59B9998425CFE5F40071E144 /* Products */;
 					ProjectRef = 33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */;
 				},
@@ -7074,10 +7078,6 @@
 					ProductGroup = 593928E125CF524A009281DC /* Products */;
 					ProjectRef = 59321DD01E2560B200020079 /* vgmstream.xcodeproj */;
 				},
-				{
-					ProductGroup = 59C6801725CFCF2A001595B7 /* Products */;
-					ProjectRef = 593925F325CF17B8009281DC /* xsf_snsf.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
@@ -7088,6 +7088,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		5910551925EAC21F00A194FF /* libsnsf.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libsnsf.a;
+			remoteRef = 5910551825EAC21F00A194FF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		591D8F1C25DDB8640013E19F /* libaosdk.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -7198,13 +7205,6 @@
 			fileType = archive.ar;
 			path = libsidplay1.a;
 			remoteRef = 59C6801525CFCF2A001595B7 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		59C6801B25CFCF2A001595B7 /* libxsf_snsf.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libxsf_snsf.a;
-			remoteRef = 59C6801A25CFCF2A001595B7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		59C6802025CFCF2A001595B7 /* libgme.a */ = {
@@ -9117,8 +9117,6 @@
 					libs/libxsf/src/in_2sf,
 					SESlideTableViewCell/lib,
 					"libs/libxmp/libxmp-master/include",
-					libs/libxsf_snsf/src/in_snsf,
-					libs/libxsf_snsf/src/in_xsf_framework,
 					libs/libdumb/src/include,
 					libs/libtim/libarc,
 					libs/libtim/timidity,
@@ -9180,8 +9178,6 @@
 					libs/libxsf/src/in_2sf,
 					SESlideTableViewCell/lib,
 					"libs/libxmp/libxmp-master/include",
-					libs/libxsf_snsf/src/in_snsf,
-					libs/libxsf_snsf/src/in_xsf_framework,
 					libs/libdumb/src/include,
 					libs/libtim/libarc,
 					libs/libtim/timidity,
@@ -9243,8 +9239,6 @@
 					libs/libxsf/src/in_2sf,
 					SESlideTableViewCell/lib,
 					"libs/libxmp/libxmp-master/include",
-					libs/libxsf_snsf/src/in_snsf,
-					libs/libxsf_snsf/src/in_xsf_framework,
 					libs/libdumb/src/include,
 					libs/libtim/libarc,
 					libs/libtim/timidity,

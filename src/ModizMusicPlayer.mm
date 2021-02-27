@@ -111,9 +111,17 @@ static const XSFFile *xSFFile = nullptr;
 static XSFPlayer *xSFPlayer = nullptr;
 XSFConfig *xSFConfig = nullptr;
 //SNSF
-static const XSFFileSNSF *xSFFileSNSF = nullptr;
-static XSFPlayerSNSF *xSFPlayerSNSF = nullptr;
-XSFConfigSNSF *xSFConfigSNSF = nullptr;
+struct snsf_sound_out : public SNESSoundOut
+{
+    virtual ~snsf_sound_out() { }
+    // Receives signed 16-bit stereo audio and a byte count
+    virtual void write(const void * samples, unsigned long bytes)
+    {
+        /*sample_buffer.grow_size( bytes_in_buffer + bytes );
+        memcpy( &sample_buffer[ bytes_in_buffer ], samples, bytes );
+        bytes_in_buffer += bytes;*/
+    }
+};
 
 auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 
@@ -217,8 +225,8 @@ extern "C" GD3_TAG VGMTag;
 extern "C" VGM_HEADER VGMHead;
 extern "C" UINT32 VGMMaxLoop,VGMMaxLoopM;
 
-int PreferJapTag=0;
-static const wchar_t* GetTagStrEJ(const wchar_t* EngTag, const wchar_t* JapTag)
+
+static const wchar_t* GetTagStrEJ(bool preferJTAG,const wchar_t* EngTag, const wchar_t* JapTag)
 {
     const wchar_t* RetTag;
     
@@ -232,7 +240,7 @@ static const wchar_t* GetTagStrEJ(const wchar_t* EngTag, const wchar_t* JapTag)
     }
     else
     {
-        if (! PreferJapTag)
+        if (! preferJTAG)
             RetTag = EngTag;
         else
             RetTag = JapTag;
@@ -1005,7 +1013,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize ao_buffer;
 @synthesize ao_info;
 //VGMPLAY stuff
-@synthesize optVGMPLAY_maxloop,optVGMPLAY_ym2612emulator;
+@synthesize optVGMPLAY_maxloop,optVGMPLAY_ym2612emulator,optVGMPLAY_preferJapTag;
 //Modplug stuff
 @synthesize mp_settings;
 @synthesize mp_file;
@@ -1038,6 +1046,15 @@ void propertyListenerCallback (void                   *inUserData,              
     
     int result = setxattr(filePath, attrName, &attrValue, sizeof(attrValue), 0, 0);
     return result == 0;
+}
+
+
+-(NSString*) wcharToNS:(const wchar_t*)wstr {
+    return [[NSString alloc] initWithBytes:wstr length:wcslen(wstr)*sizeof(*wstr) encoding:NSUTF32LittleEndianStringEncoding];
+}
+
+-(NSString*) sjisToNS:(const char*)str {
+    return [[NSString alloc] initWithBytes:str length:strlen(str)*sizeof(*str) encoding:NSShiftJISStringEncoding];
 }
 
 
@@ -1236,6 +1253,8 @@ void propertyListenerCallback (void                   *inUserData,              
         //VGMPLAY
         optVGMPLAY_maxloop = 2;
         optVGMPLAY_ym2612emulator=0;
+        optVGMPLAY_preferJapTag=false;
+        
         //
         
         
@@ -2662,7 +2681,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         }
                         if (mPlayType==MMP_SNSF) { //SNSF
                             
-                            int seekSample=(double)mNeedSeekTime*(double)(xSFPlayerSNSF->GetSampleRate())/1000.0f;
+                            /*int seekSample=(double)mNeedSeekTime*(double)(xSFPlayerSNSF->GetSampleRate())/1000.0f;
                             bGlobalSeekProgress=-1;
                             if (xSFPlayerSNSF->currentSample >seekSample) {
                                 xSFPlayerSNSF->Terminate();
@@ -2678,7 +2697,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             {
                                 xSFPlayerSNSF->GenerateSamples(xsfSampleBuffer, 0, seekSample - xSFPlayerSNSF->currentSample);
                                 xSFPlayerSNSF->currentSample = seekSample;
-                            }
+                            }*/
                             
                             //mNeedSeek=0;
                         }
@@ -3249,14 +3268,14 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         
                     }
                     if (mPlayType==MMP_SNSF) { //SNSF
-                        bool done;
+                        /*bool done;
                         unsigned int samplesWritten;
                         
                         done= xSFPlayerSNSF->FillBuffer(xsfSampleBuffer,samplesWritten);
                         if (done) nbBytes=0;
                         else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),reinterpret_cast<char *>(&xsfSampleBuffer[0]),SOUND_BUFFER_SIZE_SAMPLE*2*2);
-                        
+                        */
                         //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                         
                     }
@@ -6282,7 +6301,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     fseek(f,0L,SEEK_END);
     mp_datasize=ftell(f);
     fclose(f);
-    
+/*
     //Create config
     xSFConfigSNSF = XSFConfigSNSF::Create();
     if (!xSFConfigSNSF) {
@@ -6344,7 +6363,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     if (mLoopMode==1) iModuleLength=-1;
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
     
-    
+   */
     return 0;
 }
 
@@ -6436,6 +6455,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
     return 0;
 }
 
+
+
 -(int) mmp_vgmplayLoad:(NSString*)filePath { //VGM
     mPlayType=MMP_VGMPLAY;
     FILE *f;
@@ -6475,14 +6496,14 @@ long src_callback_mpg123(void *cb_data, float **data) {
         }
     PlayVGM();
     
-    sprintf(mod_message,"Author:%ls\nGame:%ls\nSystem:%ls\nTitle:%ls\nRelease Date:%ls\nCreator:%ls\nNotes:%ls\n",
-            GetTagStrEJ(VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ),
-            GetTagStrEJ(VGMTag.strGameNameE,VGMTag.strGameNameJ),
-            GetTagStrEJ(VGMTag.strSystemNameE,VGMTag.strSystemNameJ),
-            GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ),
-            VGMTag.strReleaseDate,
-            VGMTag.strCreator,
-            VGMTag.strNotes);
+    sprintf(mod_message,"Author:%s\nGame:%s\nSystem:%s\nTitle:%s\nRelease Date:%s\nCreator:%s\nNotes:%s\n",
+                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
+                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
+                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
+                [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String],
+                [[self wcharToNS:VGMTag.strReleaseDate] UTF8String],
+                [[self wcharToNS:VGMTag.strCreator] UTF8String],
+                [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
     
     iModuleLength=(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
@@ -6494,7 +6515,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     mod_subsongs=1;
     
     sprintf(mod_name,"");
-    if (GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ)[0]) sprintf(mod_name," %ls",GetTagStrEJ(VGMTag.strTrackNameE,VGMTag.strTrackNameJ));
+    if (GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)[0]) sprintf(mod_name," %s",[[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strTrackNameE,VGMTag.strTrackNameJ)] UTF8String]);
     if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
     
     //Loop
@@ -6543,12 +6564,13 @@ long src_callback_mpg123(void *cb_data, float **data) {
         
         // these strings are SJIS
         pmd_get_title(tmp_mod_name);
+        
         //printf("tmp_mod_name: %s",tmp_mod_name);
-        if (tmp_mod_name[0]) sprintf(mod_name," %s",tmp_mod_name);
+        if (tmp_mod_name[0]) sprintf(mod_name," %s",[[self sjisToNS:tmp_mod_name] UTF8String]);
         else sprintf(mod_name," %s",mod_filename);
         
         pmd_get_compo(tmp_mod_message);
-        if (tmp_mod_message[0]) sprintf(mod_message,"Title: %s\nComposer: %s",tmp_mod_name, tmp_mod_message);
+        if (tmp_mod_message[0]) sprintf(mod_message,"Title: %s\nComposer: %s",[[self sjisToNS:tmp_mod_name] UTF8String], [[self sjisToNS:tmp_mod_message] UTF8String]);
         
         // PMD doesn't have subsongs
         mod_subsongs=1;
@@ -8100,8 +8122,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         delete xSFConfig;
     }
     if (mPlayType==MMP_SNSF) { //SNSF
-        delete xSFPlayerSNSF;
-        delete xSFConfigSNSF;
+        /*delete xSFPlayerSNSF;
+        delete xSFConfigSNSF;*/
     }
     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
         if (vgmStream != NULL)
@@ -8145,20 +8167,19 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage;
-    if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_SNSF)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
-    else {
-        modMessage=[NSString stringWithCString:mod_message encoding:NSUTF8StringEncoding];
-        if (modMessage==nil) modMessage=[NSString stringWithUTF8String:mod_message];
+    /*if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_SNSF)) modMessage=[NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    else*/ {
+        modMessage=[NSString stringWithUTF8String:mod_message];
+        //if (modMessage==nil) modMessage=[NSString stringWithUTF8String:mod_message];
     }
     if (modMessage==nil) return @"";
     return modMessage;
 }
 -(NSString*) getModName {
     NSString *modName;
-    if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_SNSF)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
-    else {
-        modName=[NSString stringWithCString:mod_name encoding:NSUTF8StringEncoding];
-        if (modName==nil) modName=[NSString stringWithUTF8String:mod_name];
+    /*if ((mPlayType==MMP_GME)||(mPlayType==MMP_AOSDK)||(mPlayType==MMP_SEXYPSF)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_VGMPLAY)||(mPlayType==MMP_LAZYUSF)||(mPlayType==MMP_2SF)||(mPlayType==MMP_SNSF)) modName=[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
+    else*/ {
+        modName=[NSString stringWithUTF8String:mod_name];
     }
     if (modName==nil) return @"";
     return modName;
@@ -8563,6 +8584,9 @@ extern "C" void adjust_amplification(void);
 -(void) optVGMPLAY_YM2612emulator:(unsigned char)val {
     optVGMPLAY_ym2612emulator=val;
 }
+-(void) optVGMPLAY_PreferedJTag:(bool)val {
+    optVGMPLAY_preferJapTag=val;
+}
 
 ///////////////////////////
 //VGMSTREAM
@@ -8576,7 +8600,6 @@ extern "C" void adjust_amplification(void);
 -(void) optVGMSTREAM_ResampleQuality:(unsigned int)val {
     optVGMSTREAM_resampleQuality=val;
 }
-
 ///////////////////////////
 //MPG123
 ///////////////////////////

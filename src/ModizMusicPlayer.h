@@ -30,9 +30,7 @@
 #import "XSFConfig.h"
 
 //SNSF
-#import "XSFPlayerSNSF.h"
-#import "XSFPlayer_SNSF.h"
-#import "XSFConfigSNSF.h"
+#import "SNESSystem.h"
 
 
 //GME
@@ -165,6 +163,7 @@ enum MMP_PLAYER_TYPE {
     //VGMPLAY stuff
     unsigned int optVGMPLAY_maxloop;
     unsigned char optVGMPLAY_ym2612emulator;
+    bool optVGMPLAY_preferJapTag;
     //
 	//Modplug stuff
 	
@@ -197,6 +196,7 @@ enum MMP_PLAYER_TYPE {
 //VGMPLAY
 @property unsigned int optVGMPLAY_maxloop;
 @property unsigned char optVGMPLAY_ym2612emulator;
+@property bool optVGMPLAY_preferJapTag;
 //Modplug stuff
 @property ModPlug_Settings mp_settings;
 @property ModPlugFile *mp_file;
@@ -285,6 +285,7 @@ enum MMP_PLAYER_TYPE {
 
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val;
 -(void) optVGMPLAY_YM2612emulator:(unsigned char)val;
+-(void) optVGMPLAY_PreferedJTag:(bool)val;
 
 -(void) optGEN_DefaultLength:(float_t)val;
 
@@ -317,6 +318,7 @@ enum MMP_PLAYER_TYPE {
 -(void) optVGMSTREAM_MaxLoop:(double)val;
 -(void) optVGMSTREAM_ForceLoop:(unsigned int)val;
 -(void) optVGMSTREAM_ResampleQuality:(unsigned int)val;
+-(void) optVGMSTREAM_preferJapTag:(bool)val;
 
 -(void) optLAZYUSF_ResampleQuality:(unsigned int)val;
 

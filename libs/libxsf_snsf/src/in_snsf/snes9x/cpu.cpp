@@ -239,6 +239,7 @@ static void S9xResetCPU()
 
 void S9xReset()
 {
+    printf("1Mem MAP: %08X rom %08X size %d\n",Memory.Map[15],Memory.ROM,Memory.CalculatedSize);
 	std::fill_n(&Memory.RAM[0], 0x20000, 0x55);
 	std::fill_n(&Memory.VRAM[0], 0x10000, 0);
 	std::fill_n(&Memory.FillRAM[0], 0x8000, 0);
