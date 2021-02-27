@@ -1,0 +1,443 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5910547F25EABB4200A194FF /* snsf.m in Sources */ = {isa = PBXBuildFile; fileRef = 5910547E25EABB4200A194FF /* snsf.m */; };
+		5910548025EABB4200A194FF /* snsf.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 5910547D25EABB4200A194FF /* snsf.h */; };
+		591054B925EABB8900A194FF /* ppu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5910548B25EABB8900A194FF /* ppu.cpp */; };
+		591054BA25EABB8900A194FF /* dma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5910549125EABB8900A194FF /* dma.cpp */; };
+		591054BB25EABB8900A194FF /* sdd1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5910549225EABB8900A194FF /* sdd1.cpp */; };
+		591054BC25EABB8900A194FF /* globals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5910549325EABB8900A194FF /* globals.cpp */; };
+		591054BD25EABB8900A194FF /* memmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5910549625EABB8900A194FF /* memmap.cpp */; };
+		591054BE25EABB8900A194FF /* cpuexec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5910549A25EABB8900A194FF /* cpuexec.cpp */; };
+		591054BF25EABB8900A194FF /* SNES_SPC_misc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5910549E25EABB8900A194FF /* SNES_SPC_misc.cpp */; };
+		591054C025EABB8900A194FF /* SNES_SPC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054A125EABB8900A194FF /* SNES_SPC.cpp */; };
+		591054C125EABB8900A194FF /* SNES_SPC_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054A525EABB8900A194FF /* SNES_SPC_state.cpp */; };
+		591054C225EABB8900A194FF /* SPC_Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054A725EABB8900A194FF /* SPC_Filter.cpp */; };
+		591054C325EABB8900A194FF /* apu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054AC25EABB8900A194FF /* apu.cpp */; };
+		591054C425EABB8900A194FF /* SPC_DSP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054AF25EABB8900A194FF /* SPC_DSP.cpp */; };
+		591054C525EABB8900A194FF /* cpu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054B225EABB8900A194FF /* cpu.cpp */; };
+		591054C625EABB8900A194FF /* cpuops.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054B325EABB8900A194FF /* cpuops.cpp */; };
+		591054C725EABB8900A194FF /* sa1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054B625EABB8900A194FF /* sa1.cpp */; };
+		591054C825EABB8900A194FF /* SNESSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 591054B725EABB8900A194FF /* SNESSystem.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5910547825EABB4200A194FF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+				5910548025EABB4200A194FF /* snsf.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		5910547A25EABB4200A194FF /* libsnsf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libsnsf.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5910547D25EABB4200A194FF /* snsf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = snsf.h; sourceTree = "<group>"; };
+		5910547E25EABB4200A194FF /* snsf.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = snsf.m; sourceTree = "<group>"; };
+		5910548825EABB8900A194FF /* cpuexec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpuexec.h; sourceTree = "<group>"; };
+		5910548925EABB8900A194FF /* dma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dma.h; sourceTree = "<group>"; };
+		5910548A25EABB8900A194FF /* sdd1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sdd1.h; sourceTree = "<group>"; };
+		5910548B25EABB8900A194FF /* ppu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppu.cpp; sourceTree = "<group>"; };
+		5910548C25EABB8900A194FF /* pixform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pixform.h; sourceTree = "<group>"; };
+		5910548D25EABB8900A194FF /* getset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = getset.h; sourceTree = "<group>"; };
+		5910548E25EABB8900A194FF /* cpuaddr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpuaddr.h; sourceTree = "<group>"; };
+		5910548F25EABB8900A194FF /* messages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = messages.h; sourceTree = "<group>"; };
+		5910549025EABB8900A194FF /* port.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = port.h; sourceTree = "<group>"; };
+		5910549125EABB8900A194FF /* dma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dma.cpp; sourceTree = "<group>"; };
+		5910549225EABB8900A194FF /* sdd1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdd1.cpp; sourceTree = "<group>"; };
+		5910549325EABB8900A194FF /* globals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = globals.cpp; sourceTree = "<group>"; };
+		5910549525EABB8900A194FF /* snes9x-license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "snes9x-license.txt"; sourceTree = "<group>"; };
+		5910549625EABB8900A194FF /* memmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memmap.cpp; sourceTree = "<group>"; };
+		5910549725EABB8900A194FF /* memmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memmap.h; sourceTree = "<group>"; };
+		5910549825EABB8900A194FF /* ppu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppu.h; sourceTree = "<group>"; };
+		5910549925EABB8900A194FF /* cpuops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpuops.h; sourceTree = "<group>"; };
+		5910549A25EABB8900A194FF /* cpuexec.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpuexec.cpp; sourceTree = "<group>"; };
+		5910549B25EABB8900A194FF /* sa1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sa1.h; sourceTree = "<group>"; };
+		5910549C25EABB8900A194FF /* cpumacro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cpumacro.h; sourceTree = "<group>"; };
+		5910549E25EABB8900A194FF /* SNES_SPC_misc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SNES_SPC_misc.cpp; sourceTree = "<group>"; };
+		5910549F25EABB8900A194FF /* blargg_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_common.h; sourceTree = "<group>"; };
+		591054A025EABB8900A194FF /* SPC_CPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPC_CPU.h; sourceTree = "<group>"; };
+		591054A125EABB8900A194FF /* SNES_SPC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SNES_SPC.cpp; sourceTree = "<group>"; };
+		591054A225EABB8900A194FF /* SPC_Filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPC_Filter.h; sourceTree = "<group>"; };
+		591054A325EABB8900A194FF /* linear_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = linear_resampler.h; sourceTree = "<group>"; };
+		591054A425EABB8900A194FF /* SPC_DSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPC_DSP.h; sourceTree = "<group>"; };
+		591054A525EABB8900A194FF /* SNES_SPC_state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SNES_SPC_state.cpp; sourceTree = "<group>"; };
+		591054A625EABB8900A194FF /* ring_buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ring_buffer.h; sourceTree = "<group>"; };
+		591054A725EABB8900A194FF /* SPC_Filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPC_Filter.cpp; sourceTree = "<group>"; };
+		591054A825EABB8900A194FF /* blargg_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_config.h; sourceTree = "<group>"; };
+		591054A925EABB8900A194FF /* apu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = apu.h; sourceTree = "<group>"; };
+		591054AA25EABB8900A194FF /* resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resampler.h; sourceTree = "<group>"; };
+		591054AB25EABB8900A194FF /* SNES_SPC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SNES_SPC.h; sourceTree = "<group>"; };
+		591054AC25EABB8900A194FF /* apu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = apu.cpp; sourceTree = "<group>"; };
+		591054AD25EABB8900A194FF /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		591054AE25EABB8900A194FF /* blargg_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_source.h; sourceTree = "<group>"; };
+		591054AF25EABB8900A194FF /* SPC_DSP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPC_DSP.cpp; sourceTree = "<group>"; };
+		591054B025EABB8900A194FF /* blargg_endian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = blargg_endian.h; sourceTree = "<group>"; };
+		591054B125EABB8900A194FF /* hermite_resampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hermite_resampler.h; sourceTree = "<group>"; };
+		591054B225EABB8900A194FF /* cpu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpu.cpp; sourceTree = "<group>"; };
+		591054B325EABB8900A194FF /* cpuops.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cpuops.cpp; sourceTree = "<group>"; };
+		591054B425EABB8900A194FF /* snes9x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = snes9x.h; sourceTree = "<group>"; };
+		591054B525EABB8900A194FF /* 65c816.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 65c816.h; sourceTree = "<group>"; };
+		591054B625EABB8900A194FF /* sa1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sa1.cpp; sourceTree = "<group>"; };
+		591054B725EABB8900A194FF /* SNESSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SNESSystem.cpp; path = snsf9x/SNESSystem.cpp; sourceTree = SOURCE_ROOT; };
+		591054B825EABB8900A194FF /* SNESSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SNESSystem.h; path = snsf9x/SNESSystem.h; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5910547725EABB4200A194FF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5910547125EABB4200A194FF = {
+			isa = PBXGroup;
+			children = (
+				5910547C25EABB4200A194FF /* snsf */,
+				5910547B25EABB4200A194FF /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5910547B25EABB4200A194FF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5910547A25EABB4200A194FF /* libsnsf.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5910547C25EABB4200A194FF /* snsf */ = {
+			isa = PBXGroup;
+			children = (
+				5910548725EABB8900A194FF /* snes9x */,
+				591054B725EABB8900A194FF /* SNESSystem.cpp */,
+				591054B825EABB8900A194FF /* SNESSystem.h */,
+				5910547D25EABB4200A194FF /* snsf.h */,
+				5910547E25EABB4200A194FF /* snsf.m */,
+			);
+			path = snsf;
+			sourceTree = "<group>";
+		};
+		5910548725EABB8900A194FF /* snes9x */ = {
+			isa = PBXGroup;
+			children = (
+				591054B525EABB8900A194FF /* 65c816.h */,
+				5910549D25EABB8900A194FF /* apu */,
+				591054B225EABB8900A194FF /* cpu.cpp */,
+				5910548E25EABB8900A194FF /* cpuaddr.h */,
+				5910549A25EABB8900A194FF /* cpuexec.cpp */,
+				5910548825EABB8900A194FF /* cpuexec.h */,
+				5910549C25EABB8900A194FF /* cpumacro.h */,
+				591054B325EABB8900A194FF /* cpuops.cpp */,
+				5910549925EABB8900A194FF /* cpuops.h */,
+				5910549125EABB8900A194FF /* dma.cpp */,
+				5910548925EABB8900A194FF /* dma.h */,
+				5910549425EABB8900A194FF /* docs */,
+				5910548D25EABB8900A194FF /* getset.h */,
+				5910549325EABB8900A194FF /* globals.cpp */,
+				5910549625EABB8900A194FF /* memmap.cpp */,
+				5910549725EABB8900A194FF /* memmap.h */,
+				5910548F25EABB8900A194FF /* messages.h */,
+				5910548C25EABB8900A194FF /* pixform.h */,
+				5910549025EABB8900A194FF /* port.h */,
+				5910548B25EABB8900A194FF /* ppu.cpp */,
+				5910549825EABB8900A194FF /* ppu.h */,
+				591054B625EABB8900A194FF /* sa1.cpp */,
+				5910549B25EABB8900A194FF /* sa1.h */,
+				5910549225EABB8900A194FF /* sdd1.cpp */,
+				5910548A25EABB8900A194FF /* sdd1.h */,
+				591054B425EABB8900A194FF /* snes9x.h */,
+			);
+			name = snes9x;
+			path = snsf9x/snes9x;
+			sourceTree = SOURCE_ROOT;
+		};
+		5910549425EABB8900A194FF /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				5910549525EABB8900A194FF /* snes9x-license.txt */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
+		5910549D25EABB8900A194FF /* apu */ = {
+			isa = PBXGroup;
+			children = (
+				591054AC25EABB8900A194FF /* apu.cpp */,
+				591054A925EABB8900A194FF /* apu.h */,
+				5910549F25EABB8900A194FF /* blargg_common.h */,
+				591054A825EABB8900A194FF /* blargg_config.h */,
+				591054B025EABB8900A194FF /* blargg_endian.h */,
+				591054AE25EABB8900A194FF /* blargg_source.h */,
+				591054B125EABB8900A194FF /* hermite_resampler.h */,
+				591054AD25EABB8900A194FF /* license.txt */,
+				591054A325EABB8900A194FF /* linear_resampler.h */,
+				591054AA25EABB8900A194FF /* resampler.h */,
+				591054A625EABB8900A194FF /* ring_buffer.h */,
+				5910549E25EABB8900A194FF /* SNES_SPC_misc.cpp */,
+				591054A525EABB8900A194FF /* SNES_SPC_state.cpp */,
+				591054A125EABB8900A194FF /* SNES_SPC.cpp */,
+				591054AB25EABB8900A194FF /* SNES_SPC.h */,
+				591054A025EABB8900A194FF /* SPC_CPU.h */,
+				591054AF25EABB8900A194FF /* SPC_DSP.cpp */,
+				591054A425EABB8900A194FF /* SPC_DSP.h */,
+				591054A725EABB8900A194FF /* SPC_Filter.cpp */,
+				591054A225EABB8900A194FF /* SPC_Filter.h */,
+			);
+			path = apu;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5910547925EABB4200A194FF /* snsf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5910548325EABB4200A194FF /* Build configuration list for PBXNativeTarget "snsf" */;
+			buildPhases = (
+				5910547625EABB4200A194FF /* Sources */,
+				5910547725EABB4200A194FF /* Frameworks */,
+				5910547825EABB4200A194FF /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = snsf;
+			productName = snsf;
+			productReference = 5910547A25EABB4200A194FF /* libsnsf.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5910547225EABB4200A194FF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					5910547925EABB4200A194FF = {
+						CreatedOnToolsVersion = 12.4;
+					};
+				};
+			};
+			buildConfigurationList = 5910547525EABB4200A194FF /* Build configuration list for PBXProject "snsf" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 5910547125EABB4200A194FF;
+			productRefGroup = 5910547B25EABB4200A194FF /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5910547925EABB4200A194FF /* snsf */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5910547625EABB4200A194FF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				591054BD25EABB8900A194FF /* memmap.cpp in Sources */,
+				591054BE25EABB8900A194FF /* cpuexec.cpp in Sources */,
+				591054BA25EABB8900A194FF /* dma.cpp in Sources */,
+				591054BF25EABB8900A194FF /* SNES_SPC_misc.cpp in Sources */,
+				591054C425EABB8900A194FF /* SPC_DSP.cpp in Sources */,
+				591054C025EABB8900A194FF /* SNES_SPC.cpp in Sources */,
+				591054C825EABB8900A194FF /* SNESSystem.cpp in Sources */,
+				591054C125EABB8900A194FF /* SNES_SPC_state.cpp in Sources */,
+				591054C325EABB8900A194FF /* apu.cpp in Sources */,
+				591054C625EABB8900A194FF /* cpuops.cpp in Sources */,
+				591054C225EABB8900A194FF /* SPC_Filter.cpp in Sources */,
+				591054BB25EABB8900A194FF /* sdd1.cpp in Sources */,
+				591054BC25EABB8900A194FF /* globals.cpp in Sources */,
+				5910547F25EABB4200A194FF /* snsf.m in Sources */,
+				591054C725EABB8900A194FF /* sa1.cpp in Sources */,
+				591054C525EABB8900A194FF /* cpu.cpp in Sources */,
+				591054B925EABB8900A194FF /* ppu.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5910548125EABB4200A194FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		5910548225EABB4200A194FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5910548425EABB4200A194FF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5910548525EABB4200A194FF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5910547525EABB4200A194FF /* Build configuration list for PBXProject "snsf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5910548125EABB4200A194FF /* Debug */,
+				5910548225EABB4200A194FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5910548325EABB4200A194FF /* Build configuration list for PBXNativeTarget "snsf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5910548425EABB4200A194FF /* Debug */,
+				5910548525EABB4200A194FF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5910547225EABB4200A194FF /* Project object */;
+}

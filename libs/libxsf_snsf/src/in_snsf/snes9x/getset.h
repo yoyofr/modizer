@@ -311,7 +311,8 @@ inline uint16_t S9xGetWord(uint32_t Address, s9xwrap_t w = WRAP_NONE)
 	{
         //printf("%08X %08X\n",GetAddress,reinterpret_cast<uint8_t *>(CMemory::MAP_LAST));
         //printf("%02X\n",GetAddress[Address & 0xffff]);
-		word = READ_WORD(&GetAddress[Address & 0xffff]);
+        
+        word = READ_WORD(&GetAddress[Address & 0xffff]);        
 		addCyclesInMemoryAccess_x2(speed);
 		return word;
 	}

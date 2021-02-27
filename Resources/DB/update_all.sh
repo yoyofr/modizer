@@ -26,6 +26,3 @@ rm comp*.txt
 rm allmods.txt
 rm ASMA/asma*.txt
 rm HVSC/hvsc*.txt
-
-
-
