@@ -14,20 +14,19 @@ Todo/Requested:
 - BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - TODO: playlist view: add swipe to remove entries
-
-- TODO: vgmplay settings => PreferJapTag on/off
-
 - TODO: replace vgmplay by libvgm
 
 2.9.5
 �����
 - FFMPEG & Atrac9 support: improve VGMStream coverage (at3, at9, xma, xwb, wma, msf, ...)
 - Modizer folders now accessible through Files
-- Bugfix / UTF-8 encoding for non latin strings
-- Stability improvement
+- Bugfixes / UTF-8 encoding for non latin strings
+- Bugfixes / Playlists management
+- Allmods DB updated to last version
+- Stability improvements
 - UI improvements / volume bar & web browser
 - sc68 player bugfixed / was broken in v2.9.4 following the upgrade to ARC model for sourcecode.
-
+- vgmplay: new settings to choose between eng or japanese tags
 
 2.9.4
 �����

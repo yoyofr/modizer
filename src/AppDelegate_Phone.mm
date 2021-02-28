@@ -308,18 +308,18 @@ BOOL is_retina;
             //Download from icould if required
             
             NSNumber *isDownloadedValue = NULL;
-            BOOL success = [url getResourceValue:&isDownloadedValue forKey: NSURLUbiquitousItemIsDownloadedKey error:NULL];
-
-            if (success && ![isDownloadedValue boolValue]) {
-                [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:url error:NULL];
-//                NSLog(@"file has to be downloaded");
-                
-                UIAlertView *alertDownlading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-                if (alertDownlading) [alertDownlading show];
-                
-                return YES;
-            }
-            
+            if ([mFileMngr isUbiquitousItemAtURL:url]) {
+                BOOL success = [url getResourceValue:&isDownloadedValue forKey:NSURLUbiquitousItemIsDownloadedKey error:NULL];
+                if (success && ![isDownloadedValue boolValue]) {
+                    [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:url error:NULL];
+    //                NSLog(@"file has to be downloaded");
+                    
+                    UIAlertView *alertDownlading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+                    if (alertDownlading) [alertDownlading show];
+                    
+                    return YES;
+                }
+            }            
 //            NSLog(@"URL secure access granted for %@\n",[url path]);
             
             if ([mFileMngr copyItemAtPath:filepath toPath:imported_filepath error:&err]) {
