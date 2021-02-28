@@ -48,7 +48,7 @@ INLINE static void do_abs(usf_state_t * state, short* VD, short* VS, short* VT)
     vector_copy(VD, VACC_L);
 	return;
 	
-#endif	
+#else
 	
 	
 #ifndef ARCH_MIN_SSE2
@@ -89,6 +89,7 @@ INLINE static void do_abs(usf_state_t * state, short* VD, short* VS, short* VT)
     vector_copy(VACC_L, res);
     vector_copy(VD, VACC_L);
     return;
+#endif
 }
 
 static void VABS(usf_state_t * state, int vd, int vs, int vt, int e)

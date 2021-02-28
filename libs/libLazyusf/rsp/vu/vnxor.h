@@ -27,7 +27,7 @@ INLINE void do_nxor(usf_state_t * state, short* VD, short* VS, short* VT)
 	vst1q_s16(VACC_L, vaccl);
 	vector_copy(VD, VACC_L);
 	return;
-#endif
+#else
 
     register int i;
 
@@ -35,6 +35,7 @@ INLINE void do_nxor(usf_state_t * state, short* VD, short* VS, short* VT)
         VACC_L[i] = ~(VS[i] ^ VT[i]);
     vector_copy(VD, VACC_L);
     return;
+#endif
 }
 
 static void VNXOR(usf_state_t * state, int vd, int vs, int vt, int e)

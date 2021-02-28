@@ -25,6 +25,9 @@ SOURCES += \
     registers.c \
     tlb.c \
     usf.c \
+    cpu_hle.c \
+    audiolib.c \
+    os.c \
     rsp/rsp.c \
     rsp_hle/alist.c \
     rsp_hle/alist_audio.c \
@@ -48,6 +51,9 @@ HEADERS += \
     interpreter_ops.h \
     registers.h \
     types.h \
+    cpu_hle.h \
+    audiolib.h \
+    os.h \
     rsp/execute.h \
     rsp/su.h \
     rsp/rsp.h \

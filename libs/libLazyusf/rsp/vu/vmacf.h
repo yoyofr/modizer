@@ -12,7 +12,6 @@
 * If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.             *
 \******************************************************************************/
 #include "vu.h"
-//#include <android/log.h>
 
 INLINE static void do_macf(usf_state_t * state, short* VD, short* VS, short* VT)
 {
@@ -85,7 +84,7 @@ INLINE static void do_macf(usf_state_t * state, short* VD, short* VS, short* VT)
 	SIGNED_CLAMP_AM(state, VD);
 	return;
 	
-#endif
+#else
 
 	ALIGNED int32_t product[N];
     ALIGNED uint32_t addend[N];
@@ -112,6 +111,7 @@ INLINE static void do_macf(usf_state_t * state, short* VD, short* VS, short* VT)
     SIGNED_CLAMP_AM(state, VD);
 
     return;
+#endif
 }
 
 static void VMACF(usf_state_t * state, int vd, int vs, int vt, int e)

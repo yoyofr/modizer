@@ -37,7 +37,7 @@ INLINE static void set_co(usf_state_t * state, short* VD, short* VS, short* VT)
 	vst1q_u16(state->co, co);
 	
 	return;
-#endif
+#else
 
     ALIGNED int32_t sum[N];
     register int i;
@@ -52,6 +52,8 @@ INLINE static void set_co(usf_state_t * state, short* VD, short* VS, short* VT)
     for (i = 0; i < N; i++)
         state->co[i] = sum[i] >> 16; /* native:  (sum[i] > +65535) */
     return;
+
+#endif
 }
 
 static void VADDC(usf_state_t * state, int vd, int vs, int vt, int e)

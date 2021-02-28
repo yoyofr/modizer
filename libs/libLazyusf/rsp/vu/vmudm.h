@@ -46,7 +46,7 @@ INLINE static void do_mudm(usf_state_t * state, short* VD, short* VS, short* VT)
     vector_copy(VD, VACC_M); /* no possibilities to clamp */
 	
 	return;
-#endif
+#else
 
     register int i;
 
@@ -58,6 +58,7 @@ INLINE static void do_mudm(usf_state_t * state, short* VD, short* VS, short* VT)
         VACC_H[i] = -(VACC_M[i] < 0);
     vector_copy(VD, VACC_M); /* no possibilities to clamp */
     return;
+#endif
 }
 
 static void VMUDM(usf_state_t * state, int vd, int vs, int vt, int e)

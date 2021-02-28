@@ -39,7 +39,7 @@ INLINE static void do_eq(usf_state_t * state, short* VD, short* VS, short* VT)
 
 	return;
 
-#endif	
+#else
 	
     for (i = 0; i < N; i++)
         state->clip[i] = 0;
@@ -59,6 +59,7 @@ INLINE static void do_eq(usf_state_t * state, short* VD, short* VS, short* VT)
     for (i = 0; i < N; i++)
         state->co[i] = 0;
     return;
+#endif
 }
 
 static void VEQ(usf_state_t * state, int vd, int vs, int vt, int e)

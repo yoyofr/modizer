@@ -40,7 +40,7 @@ INLINE static void do_ne(usf_state_t * state, short* VD, short* VS, short* VT)
 	vst1q_s16(state->co, zero);	
 	
 	return;
-#endif
+#else
 
     register int i;
 
@@ -62,6 +62,7 @@ INLINE static void do_ne(usf_state_t * state, short* VD, short* VS, short* VT)
     for (i = 0; i < N; i++)
         state->co[i] = 0;
     return;
+#endif
 }
 
 static void VNE(usf_state_t * state, int vd, int vs, int vt, int e)

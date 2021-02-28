@@ -56,7 +56,7 @@ static INLINE void merge(short* VD, short* cmp, short* pass, short* fail)
 	vst1q_s16(VD, vd);
 	return;
 	
-#endif
+#else
 
 #if (0)
 /* Do not use this version yet, as it still does not vectorize to SSE2. */
@@ -71,6 +71,8 @@ static INLINE void merge(short* VD, short* cmp, short* pass, short* fail)
         VD[i] = fail[i] + cmp[i]*diff[i]; /* actually `(cmp[i] != 0)*diff[i]` */
 #endif
     return;
+
+#endif
 }
 
 #ifdef ARCH_MIN_ARM_NEON
@@ -348,7 +350,7 @@ static INLINE void UNSIGNED_CLAMP(usf_state_t * state, short* VD)
 	
 	return;
 
-#endif	
+#else
 
     SIGNED_CLAMP_AM(state, temp); /* no direct map in SSE, but closely based on this */
     for (i = 0; i < N; i++)
@@ -358,6 +360,7 @@ static INLINE void UNSIGNED_CLAMP(usf_state_t * state, short* VD)
     for (i = 0; i < N; i++)
         VD[i] = VD[i] | cond[i];
     return;
+#endif
 }
 
 static INLINE void SIGNED_CLAMP_AL(usf_state_t * state, short* VD)
@@ -386,7 +389,7 @@ static INLINE void SIGNED_CLAMP_AL(usf_state_t * state, short* VD)
 	merge(VD, cond, temp, VACC_L);
 	
 	return;
-#endif
+#else
 
     SIGNED_CLAMP_AM(state, temp); /* no direct map in SSE, but closely based on this */
     for (i = 0; i < N; i++)
@@ -395,5 +398,6 @@ static INLINE void SIGNED_CLAMP_AL(usf_state_t * state, short* VD)
         temp[i] ^= 0x8000; /* half-assed unsigned saturation mix in the clamp */
     merge(VD, cond, temp, VACC_L);
     return;
+#endif
 }
 #endif

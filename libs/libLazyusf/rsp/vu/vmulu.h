@@ -64,7 +64,7 @@ INLINE static void do_mulu(usf_state_t * state, short* VD, short* VS, short* VT)
 	vst1q_s16(VD, vd);
 	return;
 	
-#endif
+#else
 
     register int i;
 
@@ -84,6 +84,7 @@ INLINE static void do_mulu(usf_state_t * state, short* VD, short* VS, short* VT)
         VD[i] &= ~(VACC_H[i] >>  0); /* VD &= -(result >= 0x000000000000) */
 #endif
     return;
+#endif
 }
 
 static void VMULU(usf_state_t * state, int vd, int vs, int vt, int e)

@@ -62,7 +62,7 @@ INLINE static void do_madl(usf_state_t * state, short* VD, short* VS, short* VT)
 	SIGNED_CLAMP_AL(state, VD);
 	return;
 	
-#endif
+#else
 
 
     ALIGNED int32_t product[N];
@@ -87,6 +87,7 @@ INLINE static void do_madl(usf_state_t * state, short* VD, short* VS, short* VT)
         VACC_H[i] += addend[i] >> 16;
     SIGNED_CLAMP_AL(state, VD);
     return;
+#endif
 }
 
 static void VMADL(usf_state_t * state, int vd, int vs, int vt, int e)
