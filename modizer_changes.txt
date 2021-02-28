@@ -25,8 +25,9 @@ Todo/Requested:
 - Allmods DB updated to last version
 - Stability improvements
 - UI improvements / volume bar & web browser
-- sc68 player bugfixed / was broken in v2.9.4 following the upgrade to ARC model for sourcecode.
-- vgmplay: new settings to choose between eng or japanese tags
+- LazyUSF: bugfix / playback too fast on some files
+- SC68 player bugfixed / was broken in v2.9.4 following the upgrade to ARC model for sourcecode.
+- VGMPLAY: new settings to choose between eng or japanese tags
 
 2.9.4
 �����

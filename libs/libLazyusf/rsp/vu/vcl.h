@@ -101,7 +101,7 @@ INLINE static void do_cl(usf_state_t * state, short* VD, short* VS, short* VT)
 	
 	return;
 
-#endif
+#else
 
 
 
@@ -171,6 +171,7 @@ INLINE static void do_cl(usf_state_t * state, short* VD, short* VS, short* VT)
     for (i = 0; i < N; i++)
         state->vce[i] = 0;
     return;
+#endif
 }
 
 static void VCL(usf_state_t * state, int vd, int vs, int vt, int e)

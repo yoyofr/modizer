@@ -1,14 +1,14 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *   Mupen64plus-rsp-hle - common.h                                        *
+ *   Mupen64plus-core - osal/preproc.h                                     *
  *   Mupen64Plus homepage: http://code.google.com/p/mupen64plus/           *
- *   Copyright (C) 2014 Bobby Smiles                                       *
+ *   Copyright (C) 2009 Richard Goedeken                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
- *   This program is distributed in the hope that it will be useful,       *
+ *   This program is distributed in the hope that it will be useful,       * 
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
  *   GNU General Public License for more details.                          *
@@ -18,22 +18,40 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+                       
+/* this header file is for system-dependent #defines, #includes, and typedefs */
 
-#ifndef COMMON_H
-#define COMMON_H
+#if !defined (OSAL_PREPROC_H)
+#define OSAL_PREPROC_H
 
-/* macro for unused variable warning suppression */
-#ifdef __GNUC__
-#  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
-#else
-#  define UNUSED(x) UNUSED_ ## x
+#if defined(WIN32) && !defined(__MINGW32__)
+
+  /* macros */
+  #define OSAL_BREAKPOINT_INTERRUPT __asm{ int 3 };
+  #define ALIGN(BYTES,DATA) __declspec(align(BYTES)) DATA
+  #define osal_inline __inline
+
+  /* string functions */
+  #define osal_insensitive_strcmp(x, y) _stricmp(x, y)
+  #define snprintf _snprintf
+  #define strdup _strdup
+
+  /* for isnan() */
+  #include <float.h>
+  #define isnan _isnan
+
+#else  /* Not WIN32 */
+
+  /* macros */
+  #define OSAL_BREAKPOINT_INTERRUPT __asm__(" int $3; ");
+  #define ALIGN(BYTES,DATA) DATA __attribute__((aligned(BYTES)))
+  #define osal_inline inline
+
+  /* string functions */
+  #define osal_insensitive_strcmp(x, y) strcasecmp(x, y)
+
 #endif
 
-#ifdef _MSC_VER
-#  define inline __forceinline
-#elif defined __GNUC__
-#  define inline inline __attribute__((always_inline))
-#endif
 
-#endif
+#endif /* OSAL_PREPROC_H */
 

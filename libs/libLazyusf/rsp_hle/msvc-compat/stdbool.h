@@ -1,5 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *   Mupen64plus-rsp-hle - alist_internal.h                                *
+ *   Mupen64plus-rsp-hle - stdbool.h                                       *
  *   Mupen64Plus homepage: http://code.google.com/p/mupen64plus/           *
  *   Copyright (C) 2014 Bobby Smiles                                       *
  *                                                                         *
@@ -19,21 +19,19 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef _MYSTDBOOL_H_
-#define _MYSTDBOOL_H_
+/* This header is only intended to be used with msvc compilers */
 
 #pragma once
 
-typedef unsigned char my_bool;
-enum { my_b_false = 0 };
-enum { my_b_true  = 1 };
+typedef int _Bool;
 
-#undef bool
-#undef true
-#undef false
+/**
+ * The standard states that "an application may undefine and then possibly redefine the macro
+ * bool, true and false". However, such feature might be withdrawn in a future version.
+ **/
+#define bool _Bool
+#define true 1
+#define false 0
 
-#define bool my_bool
-#define true my_b_true
-#define false my_b_false
+#define __bool_true_false_are_defined 1
 
-#endif

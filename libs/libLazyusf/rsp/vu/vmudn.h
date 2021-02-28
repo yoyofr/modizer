@@ -47,7 +47,7 @@ INLINE static void do_mudn(usf_state_t * state, short* VD, short* VS, short* VT)
 	
 	return;
 	
-#endif
+#else
 
     register int i;
 
@@ -59,6 +59,7 @@ INLINE static void do_mudn(usf_state_t * state, short* VD, short* VS, short* VT)
         VACC_H[i] = -(VACC_M[i] < 0);
     vector_copy(VD, VACC_L); /* no possibilities to clamp */
     return;
+#endif
 }
 
 static void VMUDN(usf_state_t * state, int vd, int vs, int vt, int e)

@@ -30,6 +30,7 @@ INLINE static void do_mulf(usf_state_t * state, short* VD, short* VS, short* VT)
 {
 
 #ifdef ARCH_MIN_ARM_NEON
+
 	int16x8_t vs,vt,res,four,zero,vacc_l, vacc_m, vacc_h;
 	uint16x8_t cond_u, vacc_m_cond_u,one;
 	   
@@ -57,7 +58,7 @@ INLINE static void do_mulf(usf_state_t * state, short* VD, short* VS, short* VT)
 	SIGNED_CLAMP_AM(state, VD);
 	return;
 	
-#endif
+#else
 
     register int i;
 
@@ -67,7 +68,7 @@ INLINE static void do_mulf(usf_state_t * state, short* VD, short* VS, short* VT)
         VACC_M[i] = (SEMIFRAC << 1) >> 16;
     for (i = 0; i < N; i++)
         VACC_H[i] = -((VACC_M[i] < 0) & (VS[i] != VT[i])); /* -32768 * -32768 */
-#if !defined ARCH_MIN_SSE2 && !defined ARCH_MIN_ARM_NEON
+#if !defined ARCH_MIN_SSE2
     vector_copy(VD, VACC_M);
     for (i = 0; i < N; i++)
         VD[i] -= (VACC_M[i] < 0) & (VS[i] == VT[i]); /* ACC b 31 set, min*min */
@@ -75,6 +76,7 @@ INLINE static void do_mulf(usf_state_t * state, short* VD, short* VS, short* VT)
     SIGNED_CLAMP_AM(state, VD);
 #endif
     return;
+#endif
 }
 
 static void VMULF(usf_state_t * state, int vd, int vs, int vt, int e)

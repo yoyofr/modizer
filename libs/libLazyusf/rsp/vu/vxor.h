@@ -26,7 +26,7 @@ INLINE void do_xor(usf_state_t * state, short* VD, short* VS, short* VT)
 	vector_copy(VD, VACC_L);
 
 	return;
-#endif
+#else
 
     register int i;
 
@@ -34,6 +34,7 @@ INLINE void do_xor(usf_state_t * state, short* VD, short* VS, short* VT)
         VACC_L[i] = VS[i] ^ VT[i];
     vector_copy(VD, VACC_L);
     return;
+#endif
 }
 
 static void VXOR(usf_state_t * state, int vd, int vs, int vt, int e)

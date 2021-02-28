@@ -33,7 +33,7 @@ INLINE static void do_mudl(usf_state_t * state, short* VD, short* VS, short* VT)
 	vector_copy(VD, VACC_L);
 	return;
 	
-#endif
+#else
 
     register int i;
 
@@ -45,6 +45,7 @@ INLINE static void do_mudl(usf_state_t * state, short* VD, short* VS, short* VT)
         VACC_H[i] = 0x0000;
     vector_copy(VD, VACC_L); /* no possibilities to clamp */
     return;
+#endif
 }
 
 static void VMUDL(usf_state_t * state, int vd, int vs, int vt, int e)

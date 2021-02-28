@@ -43,7 +43,7 @@ INLINE static void set_bo(usf_state_t * state, short* VD, short* VS, short* VT)
 	vst1q_s16(state->co, co2);
 	return;
 
-#endif
+#else
 
     ALIGNED int32_t dif[N];
     register int i;
@@ -58,6 +58,7 @@ INLINE static void set_bo(usf_state_t * state, short* VD, short* VS, short* VT)
     for (i = 0; i < N; i++)
         state->co[i] = (dif[i] < 0);
     return;
+#endif
 }
 
 static void VSUBC(usf_state_t * state, int vd, int vs, int vt, int e)

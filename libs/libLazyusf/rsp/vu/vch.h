@@ -69,7 +69,7 @@ INLINE static void do_ch(usf_state_t * state, short* VD, short* VS, short* VT)
 	   
 	return;
 	
-#endif
+#else
    
     register int i;
 
@@ -124,6 +124,7 @@ INLINE static void do_ch(usf_state_t * state, short* VD, short* VS, short* VT)
     for (i = 0; i < N; i++)
         state->co[i] = sn[i];
     return;
+#endif
 }
 
 static void VCH(usf_state_t * state, int vd, int vs, int vt, int e)

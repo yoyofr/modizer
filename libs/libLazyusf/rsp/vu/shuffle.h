@@ -91,7 +91,7 @@ INLINE static void SHUFFLE_VECTOR(short* VD, short* VT, const int e)
 }
 #endif
 
-#ifdef ARCH_MIN_SSSE2
+#if defined ARCH_MIN_SSE2 && !defined ARCH_MIN_SSSE3
 #define B(x)    ((x) & 3)
 #define SHUFFLE(a,b,c,d)    ((B(d)<<6) | (B(c)<<4) | (B(b)<<2) | (B(a)<<0))
 
@@ -254,7 +254,7 @@ INLINE static void SHUFFLE_VECTOR(short* VD, short* VT, const int e)
 }
 #endif
 
-#if !defined ARCH_MIN_ARM_NEON && !defined ARCH_MIN_SSE2 && !defined ARCH_MIN_SSE3
+#if !defined ARCH_MIN_ARM_NEON && !defined ARCH_MIN_SSE2 && !defined ARCH_MIN_SSSE3
 /*
  * vector-scalar element decoding
  * Obsolete.  Consider using at least the SSE2 algorithms instead.

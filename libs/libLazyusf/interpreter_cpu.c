@@ -28,6 +28,7 @@
 #include "cpu.h"
 #include "usf.h"
 #include "memory.h"
+#include "cpu_hle.h"
 
 #include "usf_internal.h"
 
@@ -679,6 +680,33 @@ void BuildInterpreter (usf_state_t * state) {
 }
 
 
+void RunFunction(usf_state_t * state, uint32_t address) {
+    uint32_t oldPC = state->PROGRAM_COUNTER, oldRA = state->GPR[31].UW[0], la = state->NextInstruction;
+    int callStack = 0;
+    
+    state->NextInstruction = NORMAL;
+    state->PROGRAM_COUNTER = address;
+    
+    while( (state->PROGRAM_COUNTER != oldRA) || callStack) {
+        
+       	if(state->PROGRAM_COUNTER == address)
+            callStack++;
+        
+        ExecuteInterpreterOpCode(state);
+        
+        if(state->PROGRAM_COUNTER == oldRA)
+            callStack--;
+    }
+    
+    state->PROGRAM_COUNTER = oldPC;
+    state->GPR[31].UW[0] = oldRA;
+    state->NextInstruction = la;
+}
+
+#ifdef DEBUG_INFO
+#include "debugger/dbg_decoder.h"
+#endif
+
 void ExecuteInterpreterOpCode (usf_state_t * state) {
 
 
@@ -689,6 +717,15 @@ void ExecuteInterpreterOpCode (usf_state_t * state) {
 		state->NextInstruction = NORMAL;
 		return;
 	}
+    
+#ifdef DEBUG_INFO
+    {
+        char opcode[256];
+        char arguments[256];
+        r4300_decode_op(state->Opcode.u.Hex, opcode, arguments, state->PROGRAM_COUNTER);
+        fprintf(state->debug_log, "%08x: %-16s %s\n", state->PROGRAM_COUNTER, opcode, arguments);
+    }
+#endif
 
 	COUNT_REGISTER += 2;
 	state->Timers->Timer -= 2;
@@ -713,11 +750,21 @@ void ExecuteInterpreterOpCode (usf_state_t * state) {
 		state->PROGRAM_COUNTER += 4;
 		break;
 	case JUMP:
-		state->PROGRAM_COUNTER  = state->JumpToLocation;
-		state->NextInstruction = NORMAL;
-		if ((int32_t)state->Timers->Timer < 0) {  TimerDone(state); }
+		if (
+#ifdef DEBUG_INFO
+            0 &&
+#endif
+            state->cpu_hle_entry_count &&
+			DoCPUHLE(state, state->JumpToLocation)) {
+            state->PROGRAM_COUNTER = state->GPR[31].UW[0];
+            state->NextInstruction = NORMAL;
+        }
+		else {
+			state->PROGRAM_COUNTER = state->JumpToLocation;
+			state->NextInstruction = NORMAL;
+		}
+		if ((int32_t)state->Timers->Timer < 0) { TimerDone(state); }
 		if (state->CPU_Action->DoSomething) { DoSomething(state); }
-
 	}
 }
 
@@ -732,7 +779,7 @@ void StartInterpreterCPU (usf_state_t * state) {
 		ExecuteInterpreterOpCode(state);
         if (!--safety_count) {
             if (last_sample_buffer_count == state->sample_buffer_count) {
-                DisplayError( state, "Emulator core is not generating any samples after 400 million instructions" );
+                DisplayError( state, "Emulator core is not generating any samples after 20 million instructions" );
                 break;
             } else {
                 safety_count = safety_count_max;

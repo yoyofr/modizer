@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		59A7547D25EC1B4600FC2CD8 /* cpu_hle.h in Headers */ = {isa = PBXBuildFile; fileRef = 59A7547B25EC1B4600FC2CD8 /* cpu_hle.h */; };
+		59A7547E25EC1B4600FC2CD8 /* cpu_hle.c in Sources */ = {isa = PBXBuildFile; fileRef = 59A7547C25EC1B4600FC2CD8 /* cpu_hle.c */; };
+		59A7548225EC1BF400FC2CD8 /* os.c in Sources */ = {isa = PBXBuildFile; fileRef = 59A7548025EC1BF400FC2CD8 /* os.c */; };
+		59A7548325EC1BF400FC2CD8 /* os.h in Headers */ = {isa = PBXBuildFile; fileRef = 59A7548125EC1BF400FC2CD8 /* os.h */; };
+		59A7548725EC1C2400FC2CD8 /* audiolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 59A7548525EC1C2400FC2CD8 /* audiolib.c */; };
+		59A7548825EC1C2400FC2CD8 /* audiolib.h in Headers */ = {isa = PBXBuildFile; fileRef = 59A7548625EC1C2400FC2CD8 /* audiolib.h */; };
 		CC9FAFE51B64DE8900345B1C /* audio.c in Sources */ = {isa = PBXBuildFile; fileRef = CC9FAF721B64DE8800345B1C /* audio.c */; };
 		CC9FAFE61B64DE8900345B1C /* audio.h in Headers */ = {isa = PBXBuildFile; fileRef = CC9FAF731B64DE8800345B1C /* audio.h */; };
 		CC9FAFE71B64DE8900345B1C /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = CC9FAF741B64DE8800345B1C /* config.h */; };
@@ -116,6 +122,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		59A7547B25EC1B4600FC2CD8 /* cpu_hle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cpu_hle.h; path = ../cpu_hle.h; sourceTree = "<group>"; };
+		59A7547C25EC1B4600FC2CD8 /* cpu_hle.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cpu_hle.c; path = ../cpu_hle.c; sourceTree = "<group>"; };
+		59A7548025EC1BF400FC2CD8 /* os.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = os.c; path = ../os.c; sourceTree = "<group>"; };
+		59A7548125EC1BF400FC2CD8 /* os.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = os.h; path = ../os.h; sourceTree = "<group>"; };
+		59A7548525EC1C2400FC2CD8 /* audiolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audiolib.c; path = ../audiolib.c; sourceTree = "<group>"; };
+		59A7548625EC1C2400FC2CD8 /* audiolib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audiolib.h; path = ../audiolib.h; sourceTree = "<group>"; };
 		CC9FAF631B64DAE200345B1C /* libLazyusf.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libLazyusf.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC9FAF721B64DE8800345B1C /* audio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = audio.c; path = ../audio.c; sourceTree = "<group>"; };
 		CC9FAF731B64DE8800345B1C /* audio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio.h; path = ../audio.h; sourceTree = "<group>"; };
@@ -274,12 +286,18 @@
 				CC9FAF821B64DE8800345B1C /* main.h */,
 				CC9FAF841B64DE8800345B1C /* memory.c */,
 				CC9FAF851B64DE8800345B1C /* memory.h */,
+				59A7548025EC1BF400FC2CD8 /* os.c */,
+				59A7548125EC1BF400FC2CD8 /* os.h */,
+				59A7548525EC1C2400FC2CD8 /* audiolib.c */,
+				59A7548625EC1C2400FC2CD8 /* audiolib.h */,
 				CC9FAF861B64DE8800345B1C /* misc.h */,
 				CC9FAF871B64DE8800345B1C /* opcode.h */,
 				CC9FAF881B64DE8800345B1C /* pif.c */,
 				CC9FAF891B64DE8800345B1C /* pif.h */,
 				CC9FAF8A1B64DE8800345B1C /* psflib.c */,
 				CC9FAF8B1B64DE8800345B1C /* psflib.h */,
+				59A7547C25EC1B4600FC2CD8 /* cpu_hle.c */,
+				59A7547B25EC1B4600FC2CD8 /* cpu_hle.h */,
 				CC9FAF8D1B64DE8800345B1C /* registers.c */,
 				CC9FAF8E1B64DE8800345B1C /* registers.h */,
 				CC9FAF8F1B64DE8800345B1C /* rsp */,
@@ -400,6 +418,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59A7547D25EC1B4600FC2CD8 /* cpu_hle.h in Headers */,
 				CC9FB0361B64DE8900345B1C /* alist.h in Headers */,
 				CC9FB0341B64DE8900345B1C /* vxor.h in Headers */,
 				CC9FB02D1B64DE8900345B1C /* vrsq.h in Headers */,
@@ -411,6 +430,7 @@
 				CC9FB0261B64DE8900345B1C /* vnop.h in Headers */,
 				CC9FB00B1B64DE8900345B1C /* vabs.h in Headers */,
 				CC9FB0421B64DE8900345B1C /* hle_internal.h in Headers */,
+				59A7548325EC1BF400FC2CD8 /* os.h in Headers */,
 				CC9FAFF71B64DE8900345B1C /* misc.h in Headers */,
 				CC9FB02C1B64DE8900345B1C /* vrcpl.h in Headers */,
 				CC9FAFE91B64DE8900345B1C /* cpu.h in Headers */,
@@ -423,6 +443,7 @@
 				CC9FB04B1B64DE8900345B1C /* rsp.h in Headers */,
 				CC9FB0021B64DE8900345B1C /* execute.h in Headers */,
 				CC9FB0111B64DE8900345B1C /* vcr.h in Headers */,
+				59A7548825EC1C2400FC2CD8 /* audiolib.h in Headers */,
 				CC9FB0271B64DE8900345B1C /* vnor.h in Headers */,
 				CC9FB02E1B64DE8900345B1C /* vrsqh.h in Headers */,
 				CC9FAFF31B64DE8900345B1C /* main.h in Headers */,
@@ -540,6 +561,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59A7547E25EC1B4600FC2CD8 /* cpu_hle.c in Sources */,
 				CC9FB0381B64DE8900345B1C /* alist_naudio.c in Sources */,
 				CC9FAFEE1B64DE8900345B1C /* interpreter_cpu.c in Sources */,
 				CC9FAFF01B64DE8900345B1C /* interpreter_ops.c in Sources */,
@@ -549,11 +571,13 @@
 				CC9FB0351B64DE8900345B1C /* alist.c in Sources */,
 				CC9FB0371B64DE8900345B1C /* alist_audio.c in Sources */,
 				CC9FAFFE1B64DE8900345B1C /* registers.c in Sources */,
+				59A7548725EC1C2400FC2CD8 /* audiolib.c in Sources */,
 				CC9FAFE81B64DE8900345B1C /* cpu.c in Sources */,
 				CC9FB0461B64DE8900345B1C /* mp3.c in Sources */,
 				CC9FB0441B64DE8900345B1C /* memory.c in Sources */,
 				CC9FB0501B64DE8900345B1C /* usf.c in Sources */,
 				CC9FAFFB1B64DE8900345B1C /* psflib.c in Sources */,
+				59A7548225EC1BF400FC2CD8 /* os.c in Sources */,
 				CC9FB03F1B64DE8900345B1C /* hle.c in Sources */,
 				CC9FB0471B64DE8900345B1C /* musyx.c in Sources */,
 				CC9FB0391B64DE8900345B1C /* alist_nead.c in Sources */,

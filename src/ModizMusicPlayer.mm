@@ -6398,6 +6398,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
     lzu_state->emu_state = malloc( usf_get_state_size() );
     usf_clear( lzu_state->emu_state );
     
+    usf_set_hle_audio( lzu_state->emu_state, 1 );
+    
     usf_info_data=(corlett_t*)malloc(sizeof(corlett_t));
     memset(usf_info_data,0,sizeof(corlett_t));
     
@@ -6408,7 +6410,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
         return -1;
     }
     usf_set_compare( lzu_state->emu_state, lzu_state->enable_compare );
-    usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );
+    usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );        
     
     usf_render(lzu_state->emu_state, 0, 0, &lzu_sample_rate);
     src_ratio=PLAYBACK_FREQ/(double)lzu_sample_rate;

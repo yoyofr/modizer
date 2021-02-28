@@ -15,11 +15,9 @@
 
 INLINE static void clr_ci(usf_state_t * state, short* VD, short* VS, short* VT)
 { /* clear CARRY and carry in to accumulators */
-    register int i;
-
 #ifdef ARCH_MIN_SSE2
 	
-	__m128i xmm,vs,vt,co,ne;
+	__m128i xmm,vs,vt,co; /*,ne;*/
 	
 	xmm = _mm_setzero_si128();
 	vs = _mm_load_si128((const __m128i*)VS);
@@ -61,6 +59,7 @@ INLINE static void clr_ci(usf_state_t * state, short* VD, short* VS, short* VT)
 #endif
 
 #if !defined ARCH_MIN_ARM_NEON && !defined ARCH_MIN_SSE2
+    register int i;
 
     for (i = 0; i < N; i++)
         VACC_L[i] = VS[i] + VT[i] + state->co[i];

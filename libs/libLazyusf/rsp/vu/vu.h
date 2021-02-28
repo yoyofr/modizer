@@ -59,12 +59,13 @@ static void res_V(usf_state_t * state, int vd, int vs, int vt, int e)
 	int16x8_t zero = vdupq_n_s16(0);
 	vst1q_s16(state->VR[vd], zero);
 	return;
-#endif
+#else
 
 
     for (i = 0; i < N; i++)
         state->VR[vd][i] = 0x0000; /* override behavior (bpoint) */
     return;
+#endif
 }
 static void res_M(usf_state_t * state, int vd, int vs, int vt, int e)
 {
