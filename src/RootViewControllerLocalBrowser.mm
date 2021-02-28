@@ -851,7 +851,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 }
 
 
-
 -(void)listLocalFiles {
     NSString *file,*cpath;
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -1220,46 +1219,60 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     } else if (browseType==2) { //GME Multisongs
         // Open music file in new emulator
         Music_Emu* gme_emu;
-        
+        gme_emu=NULL;
         gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
         if (gme_err) {
             NSLog(@"gme_open_file error: %s",gme_err);
         } else {
             gme_info_t *gme_info;
-            for (int i=0;i<gme_track_count( gme_emu );i++) {
-                if (gme_track_info( gme_emu, &gme_info, i )==0) {
-                    file=nil;
-                    if (gme_info->song) {
-                        if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->song];
-                    }
-                    if (!file) {
-                        if (gme_info->game) {
-                            if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->game];
+            
+            //is a m3u available ?
+            NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
+            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            if (gme_err) {
+                NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
+                gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            }
+
+            
+            int total_trackNb=gme_track_count( gme_emu );
+            for (int i=0;i<total_trackNb;i++) {
+                //err=gme_start_track( gme_emu, i );
+                //if (!err) {
+                    if (gme_track_info( gme_emu, &gme_info, i )==0) {
+                        file=nil;
+                        if (gme_info->song) {
+                            if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->song];
                         }
-                    }
-                    if (!file) {
-                        file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
-                    }
-                    
-                    int filtered=0;
-                    if ((mSearch)&&([mSearchText length]>0)) {
-                        filtered=1;
-                        NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                        if (r.location != NSNotFound) {
-                            /*if(r.location== 0)*/ filtered=0;
+                        if (!file) {
+                            if (gme_info->game) {
+                                if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->game];
+                            }
                         }
-                    }
-                    if (!filtered) {
+                        if (!file) {
+                            file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                        }
                         
-                        const char *str=[file UTF8String];
-                        int index=0;
-                        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                        local_entries_count[index]++;
-                        local_nb_entries++;
+                        int filtered=0;
+                        if ((mSearch)&&([mSearchText length]>0)) {
+                            filtered=1;
+                            NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            if (r.location != NSNotFound) {
+                                /*if(r.location== 0)*/ filtered=0;
+                            }
+                        }
+                        if (!filtered) {
+                            
+                            const char *str=[file UTF8String];
+                            int index=0;
+                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                            local_entries_count[index]++;
+                            local_nb_entries++;
+                        }
+                        gme_free_info(gme_info);
                     }
-                    gme_free_info(gme_info);
-                }
+                //}
             }
             gme_delete(gme_emu);
         }
@@ -1305,6 +1318,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     NSLog(@"gme_open_file error: %s",gme_err);
                 } else {
                     gme_info_t *gme_info;
+                    
+                    //is a m3u available ?
+                    NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
+                    gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                    if (gme_err) {
+                        NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
+                        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                    }
                     
                     for (int i=0;i<gme_track_count( gme_emu );i++) {
                         if (gme_track_info( gme_emu, &gme_info, i )==0) {
