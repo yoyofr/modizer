@@ -284,6 +284,7 @@
 		591D8E4B25DC63620013E19F /* bit_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E1F25DC63620013E19F /* bit_allocation.c */; };
 		591D8F1F25DDB8840013E19F /* libaosdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 591D8F1C25DDB8640013E19F /* libaosdk.a */; };
 		59280E7A25EACE16009205EA /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
+		59280E9225EAF41E009205EA /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
 		593928D925CF502C009281DC /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928D625CF4FF9009281DC /* libdumb.a */; };
@@ -4296,6 +4297,7 @@
 				5950D82525DF00AF00B476B2 /* libavdevice.a in Frameworks */,
 				5950D7FD25DEFF8C00B476B2 /* libavutil.a in Frameworks */,
 				CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */,
+				59280E9225EAF41E009205EA /* libsnsf.a in Frameworks */,
 				5966D0C125CFEE1B00520777 /* libFileExtractor.a in Frameworks */,
 				5966D0B725CFEDE500520777 /* libsidplay1.a in Frameworks */,
 				5950D82425DF00AF00B476B2 /* libavcodec.a in Frameworks */,

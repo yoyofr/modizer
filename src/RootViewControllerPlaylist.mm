@@ -682,7 +682,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 		} else NSLog(@"ErrSQL : %d",err);
 		
 		sprintf(sqlStatement,"SELECT p.name,p.fullpath,s.rating,s.play_count FROM playlists_entries p \
-				LEFT OUTER JOIN user_stats s ON p.fullpath=s.fullpath \
+				LEFT OUTER JOIN user_stats s ON p.fullpath=s.fullpath AND p.name=s.name \
 				WHERE id_playlist=%s",[_id_playlist UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
