@@ -1308,6 +1308,15 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             NSLog(@"gme_open_file error: %s",gme_err);
         } else {
             gme_info_t *gme_info;
+            
+            //is a m3u available ?
+            NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
+            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            if (gme_err) {
+                NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
+                gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            }
+            
             for (int i=0;i<gme_track_count( gme_emu );i++) {
                 if (gme_track_info( gme_emu, &gme_info, i )==0) {
                     file=nil;
@@ -1387,6 +1396,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     NSLog(@"gme_open_file error: %s",gme_err);
                 } else {
                     gme_info_t *gme_info;
+                    
+                    //is a m3u available ?
+                    NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
+                    gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                    if (gme_err) {
+                        NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
+                        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                    }
                     
                     for (int i=0;i<gme_track_count( gme_emu );i++) {
                         if (gme_track_info( gme_emu, &gme_info, i )==0) {
