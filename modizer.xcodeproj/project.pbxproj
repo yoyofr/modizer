@@ -9126,6 +9126,7 @@
 					"libs/uade-2.13/src/frontends",
 					"libs/uade-2.13/src/frontends/common",
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
+					libs/libLazyusf/libLazyusf,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -9187,6 +9188,7 @@
 					"libs/uade-2.13/src/frontends",
 					"libs/uade-2.13/src/frontends/common",
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
+					libs/libLazyusf/libLazyusf,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -9248,6 +9250,7 @@
 					"libs/uade-2.13/src/frontends",
 					"libs/uade-2.13/src/frontends/common",
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
+					libs/libLazyusf/libLazyusf,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
