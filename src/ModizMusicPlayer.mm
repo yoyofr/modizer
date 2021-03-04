@@ -435,6 +435,7 @@ void gsf_loop() {
 #include "usf/misc.h"
 
 int32_t lzu_sample_rate;
+long lzu_currentSample,lzu_fadeStart,lzu_fadeLength;
 #define LZU_SAMPLE_SIZE 1024
 int16_t *lzu_sample_data;
 float *lzu_sample_data_float;
@@ -2361,6 +2362,21 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 long src_callback_lazyusf(void *cb_data, float **data) {
     const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, LZU_SAMPLE_SIZE, &lzu_sample_rate);
     if (result) return 0;
+    lzu_currentSample+=LZU_SAMPLE_SIZE;
+    if (iModuleLength>0)
+    {
+        if (lzu_currentSample>lzu_fadeStart) {
+            int startSmpl=lzu_currentSample-lzu_fadeStart;
+            if (startSmpl>LZU_SAMPLE_SIZE) startSmpl=LZU_SAMPLE_SIZE;
+            int vol=lzu_fadeLength-(lzu_currentSample-lzu_fadeStart);
+            if (vol<0) vol=0;
+            for (int i=LZU_SAMPLE_SIZE-startSmpl;i<LZU_SAMPLE_SIZE;i++) {
+                lzu_sample_data[i*2]=lzu_sample_data[i*2]*vol/lzu_fadeLength;
+                lzu_sample_data[i*2+1]=lzu_sample_data[i*2+1]*vol/lzu_fadeLength;
+                if (vol) vol--;
+            }
+        }
+    }
     src_short_to_float_array (lzu_sample_data, lzu_sample_data_float,LZU_SAMPLE_SIZE*2);
     *data=lzu_sample_data_float;
     return LZU_SAMPLE_SIZE;
@@ -2659,8 +2675,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             SeekVGM(false,mNeedSeekTime*441/10);
                             //mNeedSeek=0;
                         }
-                        if (mPlayType==MMP_LAZYUSF) { //LAZYUSF : not supported
-                            mNeedSeek=0;
+                        if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
+                            int seekSample=(double)mNeedSeekTime*(double)(lzu_sample_rate)/1000.0f;
+                            bGlobalSeekProgress=-1;
+                            if (lzu_currentSample >seekSample) {
+                                usf_restart(lzu_state->emu_state);
+                                lzu_currentSample=0;
+                            }
+                            
+                            while (seekSample - lzu_currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
+                                const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, LZU_SAMPLE_SIZE, &lzu_sample_rate);
+                                lzu_currentSample+=LZU_SAMPLE_SIZE;
+                            }
+                            if (seekSample - lzu_currentSample > 0)
+                            {
+                                const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, seekSample - lzu_currentSample, &lzu_sample_rate);
+                                lzu_currentSample=seekSample;
+                            }
                         }
                         if (mPlayType==MMP_2SF) { //2SF
                             
@@ -6419,7 +6450,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     usf_render(lzu_state->emu_state, 0, 0, &lzu_sample_rate);
     src_ratio=PLAYBACK_FREQ/(double)lzu_sample_rate;
-    NSLog(@"init sr:%d/%d %f",lzu_sample_rate,PLAYBACK_FREQ,src_ratio);
+    //NSLog(@"init sr:%d/%d %f",lzu_sample_rate,PLAYBACK_FREQ,src_ratio);
     
     src_data.data_out=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     src_data.data_in=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
@@ -6428,6 +6459,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
     if (usf_info_data->inf_length) {
         iModuleLength=psfTimeToMS(usf_info_data->inf_length)+psfTimeToMS(usf_info_data->inf_fade);
     }
+    lzu_currentSample=0;
+    lzu_fadeLength=psfTimeToMS(usf_info_data->inf_fade)*lzu_sample_rate/1000;
+    lzu_fadeStart=psfTimeToMS(usf_info_data->inf_length)*lzu_sample_rate/1000;
     
     iCurrentTime=0;
     numChannels=2;
@@ -6438,7 +6472,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
     
-    sprintf(mod_message,"Game:\t%s\nTitle:\t%s\nArtist:\t%s\nYear:\t%s\nGenre:\t%s\nUSF By:\t%s\nCopyright:\t%s\nTrack:\t%s\nLength: %s - %s samples\Sample rate: %dHz\n",
+    sprintf(mod_message,"Game:\t%s\nTitle:\t%s\nArtist:\t%s\nYear:\t%s\nGenre:\t%s\nUSF By:\t%s\nCopyright:\t%s\nTrack:\t%s\nSample rate: %dHz\n",
             (usf_info_data->inf_game?usf_info_data->inf_game:""),
             (usf_info_data->inf_title?usf_info_data->inf_title:""),
             (usf_info_data->inf_artist?usf_info_data->inf_artist:""),
@@ -6447,7 +6481,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
             (usf_info_data->inf_usfby?usf_info_data->inf_usfby:""),
             (usf_info_data->inf_copy?usf_info_data->inf_copy:""),
             (usf_info_data->inf_track?usf_info_data->inf_track:""),
-            usf_info_data->inf_length,usf_info_data->inf_fade,
             lzu_sample_rate);
     
     
@@ -8653,7 +8686,7 @@ extern "C" void adjust_amplification(void);
 }
 -(void) Seek:(int) seek_time {
     if ((mPlayType==MMP_AOSDK)||(mPlayType==MMP_UADE)||(mPlayType==MMP_SIDPLAY)
-        ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_LAZYUSF)||mNeedSeek) return;
+        ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
