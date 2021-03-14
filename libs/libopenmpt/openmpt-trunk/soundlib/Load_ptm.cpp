@@ -65,10 +65,10 @@ struct PTMSampleHeader
 	SampleIO ConvertToMPT(ModSample &mptSmp) const
 	{
 		mptSmp.Initialize(MOD_TYPE_S3M);
-		mptSmp.nVolume = std::min<uint8>(volume, 64) * 4;
+		mptSmp.nVolume = std::min(volume.get(), uint8(64)) * 4;
 		mptSmp.nC5Speed = c4speed * 2;
 
-		mpt::String::Read<mpt::String::maybeNullTerminated>(mptSmp.filename, filename);
+		mptSmp.filename = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, filename);
 
 		SampleIO sampleIO(
 			SampleIO::_8bit,
@@ -104,14 +104,9 @@ struct PTMSampleHeader
 MPT_BINARY_STRUCT(PTMSampleHeader, 80)
 
 
-bool CSoundFile::ReadPTM(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
+static bool ValidateHeader(const PTMFileHeader &fileHeader)
 {
-	file.Rewind();
-
-	PTMFileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.magic, "PTMF", 4)
+	if(std::memcmp(fileHeader.magic, "PTMF", 4)
 		|| fileHeader.dosEOF != 26
 		|| fileHeader.versionHi > 2
 		|| fileHeader.flags != 0
@@ -120,23 +115,70 @@ bool CSoundFile::ReadPTM(FileReader &file, ModLoadingFlags loadFlags)
 		|| !fileHeader.numOrders || fileHeader.numOrders > 256
 		|| !fileHeader.numSamples || fileHeader.numSamples > 255
 		|| !fileHeader.numPatterns || fileHeader.numPatterns > 128
-		|| !file.CanRead(fileHeader.numSamples * sizeof(PTMSampleHeader)))
+		)
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	return true;
+}
+
+
+static uint64 GetHeaderMinimumAdditionalSize(const PTMFileHeader &fileHeader)
+{
+	return fileHeader.numSamples * sizeof(PTMSampleHeader);
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderPTM(MemoryFileReader file, const uint64 *pfilesize)
+{
+	PTMFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	return ProbeAdditionalSize(file, pfilesize, GetHeaderMinimumAdditionalSize(fileHeader));
+}
+
+
+bool CSoundFile::ReadPTM(FileReader &file, ModLoadingFlags loadFlags)
+{
+	file.Rewind();
+
+	PTMFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return false;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
 
 	InitializeGlobals(MOD_TYPE_PTM);
 
-	mpt::String::Read<mpt::String::maybeNullTerminated>(m_songName, fileHeader.songname);
+	m_songName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.songname);
 
-	m_madeWithTracker = mpt::String::Print("PolyTracker %1.%2", fileHeader.versionHi.get(), mpt::fmt::hex0<2>(fileHeader.versionLo.get()));
+	m_modFormat.formatName = U_("PolyTracker");
+	m_modFormat.type = U_("ptm");
+	m_modFormat.madeWithTracker = mpt::format(U_("PolyTracker %1.%2"))(fileHeader.versionHi.get(), mpt::ufmt::hex0<2>(fileHeader.versionLo.get()));
+	m_modFormat.charset = mpt::Charset::CP437;
+
 	m_SongFlags = SONG_ITCOMPATGXX | SONG_ITOLDEFFECTS;
 	m_nChannels = fileHeader.numChannels;
-	m_nSamples = std::min<SAMPLEINDEX>(fileHeader.numSamples, MAX_SAMPLES - 1);
-	Order.ReadFromArray(fileHeader.orders, fileHeader.numOrders, 0xFF, 0xFE);
+	m_nSamples = std::min(static_cast<SAMPLEINDEX>(fileHeader.numSamples), static_cast<SAMPLEINDEX>(MAX_SAMPLES - 1));
+	ReadOrderFromArray(Order(), fileHeader.orders, fileHeader.numOrders, 0xFF, 0xFE);
 
 	// Reading channel panning
 	for(CHANNELINDEX chn = 0; chn < m_nChannels; chn++)
@@ -153,7 +195,7 @@ bool CSoundFile::ReadPTM(FileReader &file, ModLoadingFlags loadFlags)
 		sampleHeaderChunk.ReadStruct(sampleHeader);
 
 		ModSample &sample = Samples[smp + 1];
-		mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[smp + 1], sampleHeader.samplename);
+		m_szNames[smp + 1] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, sampleHeader.samplename);
 		SampleIO sampleIO = sampleHeader.ConvertToMPT(sample);
 
 		if((loadFlags & loadSampleData) && sample.nLength && file.Seek(sampleHeader.dataOffset))
@@ -178,7 +220,7 @@ bool CSoundFile::ReadPTM(FileReader &file, ModLoadingFlags loadFlags)
 			continue;
 		}
 
-		ModCommand *rowBase = Patterns[pat];
+		ModCommand *rowBase = Patterns[pat].GetpModCommand(0, 0);
 		ROWINDEX row = 0;
 		while(row < 64 && file.CanRead(1))
 		{
@@ -196,8 +238,9 @@ bool CSoundFile::ReadPTM(FileReader &file, ModLoadingFlags loadFlags)
 
 			if(b & 0x20)
 			{
-				m.note = file.ReadUint8();
-				m.instr = file.ReadUint8();
+				const auto [note, instr] = file.ReadArray<uint8, 2>();
+				m.note = note;
+				m.instr = instr;
 				if(m.note == 254)
 					m.note = NOTE_NOTECUT;
 				else if(!m.note || m.note > 120)
@@ -205,10 +248,11 @@ bool CSoundFile::ReadPTM(FileReader &file, ModLoadingFlags loadFlags)
 			}
 			if(b & 0x40)
 			{
-				m.command = file.ReadUint8();
-				m.param = file.ReadUint8();
+				const auto [command, param] = file.ReadArray<uint8, 2>();
+				m.command = command;
+				m.param = param;
 
-				const ModCommand::COMMAND effTrans[] = { CMD_GLOBALVOLUME, CMD_RETRIG, CMD_FINEVIBRATO, CMD_NOTESLIDEUP, CMD_NOTESLIDEDOWN, CMD_NOTESLIDEUPRETRIG, CMD_NOTESLIDEDOWNRETRIG, CMD_REVERSEOFFSET };
+				static constexpr EffectCommand effTrans[] = { CMD_GLOBALVOLUME, CMD_RETRIG, CMD_FINEVIBRATO, CMD_NOTESLIDEUP, CMD_NOTESLIDEDOWN, CMD_NOTESLIDEUPRETRIG, CMD_NOTESLIDEDOWNRETRIG, CMD_REVERSEOFFSET };
 				if(m.command < 0x10)
 				{
 					// Beware: Effect letters are as in MOD, but portamento and volume slides behave like in S3M (i.e. fine slides share the same effect letters)

@@ -2776,6 +2776,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (mod_currentsub<mod_maxsub) {
                             mod_currentsub++;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_OPENMPT) {
+                                openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                                iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                                iCurrentTime=0;
+                                numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                                
+                                if (moveToNextSubSong==2) {
+                                    //[self iPhoneDrv_PlayWaitStop];
+                                    //[self iPhoneDrv_PlayStart];
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_GME) {//GME
                                 gme_start_track(gme_emu,mod_currentsub);
                                 sprintf(mod_name," %s",mod_filename);
@@ -2884,6 +2901,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     if (moveToSubSong) {
                         mod_currentsub=moveToSubSongIndex;
                         mod_message_updated=1;
+                        if (mPlayType==MMP_OPENMPT) {
+                            openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                            iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                            iCurrentTime=0;
+                            numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                            
+                            if (moveToNextSubSong==2) {
+                                //[self iPhoneDrv_PlayWaitStop];
+                                //[self iPhoneDrv_PlayStart];
+                            } else {
+                                [self iPhoneDrv_PlayStop];
+                                [self iPhoneDrv_PlayStart];
+                            }
+                            //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                            if (mLoopMode) iModuleLength=-1;
+                            mod_message_updated=1;
+                        }
                         if (mPlayType==MMP_GME) {//GME
                             gme_start_track(gme_emu,mod_currentsub);
                             sprintf(mod_name," %s",mod_filename);
@@ -2993,6 +3027,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (mod_currentsub>mod_minsub) {
                             mod_currentsub--;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_OPENMPT) {
+                                openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                                iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                                iCurrentTime=0;
+                                numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                                
+                                if (moveToNextSubSong==2) {
+                                    //[self iPhoneDrv_PlayWaitStop];
+                                    //[self iPhoneDrv_PlayStart];
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_GME) {//GME
                                 gme_start_track(gme_emu,mod_currentsub);
                                 sprintf(mod_name," %s",mod_filename);
@@ -3242,6 +3293,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         for (int i=0;i<numChannels;i++) {
                             int v=ModPlug_GetChannelVolume(mp_file,i);
                             genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
+                        }
+                        
+                        if (mChangeOfSong==0) {
+                            if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
+                                if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    mod_currentsub++;
+                                    
+                                    openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                                    
+                                    mChangeOfSong=1;
+                                    mNewModuleLength=openmpt_module_get_duration_seconds(mp_file->mod)*1000;
+                                    if (mLoopMode) mNewModuleLength=-1;
+                                } else {
+                                    nbBytes=0;
+                                }
+                            }
                         }
                         
                     }
@@ -5774,6 +5842,12 @@ long src_callback_mpg123(void *cb_data, float **data) {
         }
         
         
+        mod_subsongs=openmpt_module_get_num_subsongs(mp_file->mod);
+        mod_minsub=0;
+        mod_maxsub=mod_subsongs-1;
+        mod_currentsub=openmpt_module_get_selected_subsong( mp_file->mod );
+        
+        
         numSamples=ModPlug_NumSamples(mp_file);
         numInstr=ModPlug_NumInstruments(mp_file);
         
@@ -6324,6 +6398,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     return 0;
 }
+
 -(int) mmp_snsfLoad:(NSString*)filePath extension:(NSString*)extension {  //SNSF
     mPlayType=MMP_SNSF;
     FILE *f;
@@ -6496,8 +6571,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
     return 0;
 }
 
-
-
 -(int) mmp_vgmplayLoad:(NSString*)filePath { //VGM
     mPlayType=MMP_VGMPLAY;
     FILE *f;
@@ -6627,6 +6700,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
         return 0;
     }
 }
+
 -(int) mmp_dumbLoad:(NSString*)filePath { //DUMB
     mPlayType=MMP_DUMB;
     it_max_channels=0;
@@ -6758,6 +6832,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     return 0;
 }
+
 -(int) mmp_asapLoad:(NSString*)filePath { //ASAP
     mPlayType=MMP_ASAP;
     FILE *f;
@@ -8254,6 +8329,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 -(NSString*) getSubTitle:(int)subsong {
     NSString *result;
     if ((subsong<mod_minsub)||(subsong>mod_maxsub)) return @"";
+    if (mPlayType==MMP_OPENMPT) {
+        const char *ret=openmpt_module_get_subsong_name(mp_file->mod, subsong);
+        if (ret) {
+            result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:ret]];
+        } else result=[NSString stringWithFormat:@"%.3d",subsong];
+        return result;
+    }
     if (mPlayType==MMP_GME) {
         if (gme_track_info( gme_emu, &gme_info, subsong )==0) {
             int sublen=gme_info->play_length;

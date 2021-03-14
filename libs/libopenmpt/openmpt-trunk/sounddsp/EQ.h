@@ -11,9 +11,13 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 #include "../soundlib/Mixer.h"	// For MIXBUFFERSIZE
 
 OPENMPT_NAMESPACE_BEGIN
+
+#ifndef NO_EQ
 
 #define MAX_EQ_BANDS	6
 
@@ -33,9 +37,7 @@ typedef struct _EQBANDSTRUCT
 	bool bEnable;
 } EQBANDSTRUCT;
 
-//=======
 class CEQ
-//=======
 {
 private:
 	EQBANDSTRUCT gEQ[MAX_EQ_BANDS*2];
@@ -49,9 +51,7 @@ public:
 };
 
 
-//===========
 class CQuadEQ
-//===========
 {
 private:
 	CEQ front;
@@ -63,5 +63,7 @@ public:
 	void SetEQGains(const UINT *pGains, UINT nGains, const UINT *pFreqs, bool bReset, DWORD MixingFreq);
 };
 
+
+#endif // !NO_EQ
 
 OPENMPT_NAMESPACE_END

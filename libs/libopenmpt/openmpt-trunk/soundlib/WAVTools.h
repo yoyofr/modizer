@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 #include "ChunkReader.h"
 #include "Loaders.h"
 #include "../common/mptUUID.h"
@@ -24,10 +26,10 @@ struct RIFFHeader
 	// 32-Bit chunk identifiers
 	enum RIFFMagic
 	{
-		idRIFF	= MAGIC4LE('R','I','F','F'),	// magic for WAV files
-		idLIST	= MAGIC4LE('L','I','S','T'),	// magic for samples in DLS banks
-		idWAVE	= MAGIC4LE('W','A','V','E'),	// type for WAV files
-		idwave	= MAGIC4LE('w','a','v','e'),	// type for samples in DLS banks
+		idRIFF	= MagicLE("RIFF"),	// magic for WAV files
+		idLIST	= MagicLE("LIST"),	// magic for samples in DLS banks
+		idWAVE	= MagicLE("WAVE"),	// type for WAV files
+		idwave	= MagicLE("wave"),	// type for samples in DLS banks
 	};
 
 	uint32le magic;		// RIFF (in WAV files) or LIST (in DLS banks)
@@ -44,36 +46,35 @@ struct RIFFChunk
 	// 32-Bit chunk identifiers
 	enum ChunkIdentifiers
 	{
-		idfmt_	= MAGIC4LE('f','m','t',' '),	// Sample format information
-		iddata	= MAGIC4LE('d','a','t','a'),	// Sample data
-		idpcm_	= MAGIC4LE('p','c','m',' '),	// IMA ADPCM samples
-		idfact	= MAGIC4LE('f','a','c','t'),	// Compressed samples
-		idsmpl	= MAGIC4LE('s','m','p','l'),	// Sampler and loop information
-		idinst	= MAGIC4LE('i','n','s','t'),	// Instrument information
-		idLIST	= MAGIC4LE('L','I','S','T'),	// List of chunks
-		idxtra	= MAGIC4LE('x','t','r','a'),	// OpenMPT extra infomration
-		idcue_	= MAGIC4LE('c','u','e',' '),	// Cue points
-		idwsmp	= MAGIC4LE('w','s','m','p'),	// DLS bank samples
+		idfmt_	= MagicLE("fmt "),	// Sample format information
+		iddata	= MagicLE("data"),	// Sample data
+		idpcm_	= MagicLE("pcm "),	// IMA ADPCM samples
+		idfact	= MagicLE("fact"),	// Compressed samples
+		idsmpl	= MagicLE("smpl"),	// Sampler and loop information
+		idinst	= MagicLE("inst"),	// Instrument information
+		idLIST	= MagicLE("LIST"),	// List of chunks
+		idxtra	= MagicLE("xtra"),	// OpenMPT extra infomration
+		idcue_	= MagicLE("cue "),	// Cue points
+		idwsmp	= MagicLE("wsmp"),	// DLS bank samples
+		idCSET	= MagicLE("CSET"),	// Character Set
 		id____	= 0x00000000,	// Found when loading buggy MPT samples
 
 		// Identifiers in "LIST" chunk
-		idINAM	= MAGIC4LE('I','N','A','M'), // title
-		idISFT	= MAGIC4LE('I','S','F','T'), // software
-		idICOP	= MAGIC4LE('I','C','O','P'), // copyright
-		idIART	= MAGIC4LE('I','A','R','T'), // artist
-		idIPRD	= MAGIC4LE('I','P','R','D'), // product (album)
-		idICMT	= MAGIC4LE('I','C','M','T'), // comment
-		idIENG	= MAGIC4LE('I','E','N','G'), // engineer
-		idISBJ	= MAGIC4LE('I','S','B','J'), // subject
-		idIGNR	= MAGIC4LE('I','G','N','R'), // genre
-		idICRD	= MAGIC4LE('I','C','R','D'), // date created
+		idINAM	= MagicLE("INAM"), // title
+		idISFT	= MagicLE("ISFT"), // software
+		idICOP	= MagicLE("ICOP"), // copyright
+		idIART	= MagicLE("IART"), // artist
+		idIPRD	= MagicLE("IPRD"), // product (album)
+		idICMT	= MagicLE("ICMT"), // comment
+		idIENG	= MagicLE("IENG"), // engineer
+		idISBJ	= MagicLE("ISBJ"), // subject
+		idIGNR	= MagicLE("IGNR"), // genre
+		idICRD	= MagicLE("ICRD"), // date created
 
-		idYEAR  = MAGIC4LE('Y','E','A','R'), // year
-		idTRCK  = MAGIC4LE('T','R','C','K'), // track number
-		idTURL  = MAGIC4LE('T','U','R','L'), // url
+		idYEAR  = MagicLE("YEAR"), // year
+		idTRCK  = MagicLE("TRCK"), // track number
+		idTURL  = MagicLE("TURL"), // url
 	};
-
-	typedef ChunkIdentifiers id_type;
 
 	uint32le id;		// See ChunkIdentifiers
 	uint32le length;	// Chunk size without header
@@ -83,9 +84,9 @@ struct RIFFChunk
 		return length;
 	}
 
-	id_type GetID() const
+	ChunkIdentifiers GetID() const
 	{
-		return static_cast<id_type>(id.get());
+		return static_cast<ChunkIdentifiers>(id.get());
 	}
 };
 
@@ -280,9 +281,7 @@ struct WAVCuePoint
 MPT_BINARY_STRUCT(WAVCuePoint, 24)
 
 
-//=============
 class WAVReader
-//=============
 {
 protected:
 	ChunkReader file;
@@ -292,8 +291,11 @@ protected:
 	FileReader::off_t sampleLength;
 	WAVFormatChunk formatInfo;
 	uint16 subFormat;
+	uint16 codePage;
 	bool isDLS;
 	bool mayBeCoolEdit16_8;
+
+	uint16 GetFileCodePage(ChunkReader::ChunkList<RIFFChunk> &chunks);
 
 public:
 	WAVReader(FileReader &inputFile);
@@ -317,50 +319,47 @@ public:
 	uint16 GetSampleSize() const { return ((GetNumChannels() * GetBitsPerSample()) + 7) / 8; }
 
 	// Get sample length (in samples)
-	SmpLength GetSampleLength() const { return sampleLength; }
+	SmpLength GetSampleLength() const { return mpt::saturate_cast<SmpLength>(sampleLength); }
 
 	// Apply sample settings from file (loop points, MPT extra settings, ...) to a sample.
-	void ApplySampleSettings(ModSample &sample, char (&sampleName)[MAX_SAMPLENAME]);
+	void ApplySampleSettings(ModSample &sample, mpt::Charset sampleCharset, mpt::charbuf<MAX_SAMPLENAME> &sampleName);
 };
 
 
 #ifndef MODPLUG_NO_FILESAVE
 
-//=============
 class WAVWriter
-//=============
 {
 protected:
 	// When writing to a stream: Stream pointer
-	std::ostream *s;
+	std::ostream *s = nullptr;
 	// When writing to memory: Memory address + length
-	uint8 *memory;
-	size_t memSize;
+	mpt::byte_span memory;
 
 	// Cursor position
-	size_t position;
+	size_t position = 0;
 	// Total number of bytes written to file / memory
-	size_t totalSize;
+	size_t totalSize = 0;
 
 	// Currently written chunk
-	size_t chunkStartPos;
+	size_t chunkStartPos = 0;
 	RIFFChunk chunkHeader;
 
 public:
 	// Output to stream: Initialize with std::ostream*.
 	WAVWriter(std::ostream *stream);
 	// Output to clipboard: Initialize with pointer to memory and size of reserved memory.
-	WAVWriter(void *mem, size_t size);
+	WAVWriter(mpt::byte_span data);
 
-	~WAVWriter();
+	~WAVWriter() noexcept(false);
 
 	// Check if anything can be written to the file.
-	bool IsValid() const { return s != nullptr || memory != nullptr; }
+	bool IsValid() const { return s != nullptr || !memory.empty(); }
 
 	// Finalize the file by closing the last open chunk and updating the file header. Returns total size of file.
 	size_t Finalize();
 	// Begin writing a new chunk to the file.
-	void StartChunk(RIFFChunk::id_type id);
+	void StartChunk(RIFFChunk::ChunkIdentifiers id);
 
 	// Skip some bytes... For example after writing sample data.
 	void Skip(size_t numBytes) { Seek(position + numBytes); }
@@ -374,11 +373,12 @@ public:
 	template<typename T>
 	void Write(const T &data)
 	{
+		static_assert((mpt::is_binary_safe<T>::value));
 		Write(&data, sizeof(T));
 	}
 
 	// Write a buffer to the file.
-	void WriteBuffer(const char *data, size_t size)
+	void WriteBuffer(const std::byte *data, size_t size)
 	{
 		Write(data, size);
 	}
@@ -402,7 +402,6 @@ public:
 	void WriteExtraInformation(const ModSample &sample, MODTYPE modType, const char *sampleName = nullptr);
 
 protected:
-	void Init();
 	// Seek to a position in file.
 	void Seek(size_t pos);
 	// End current chunk by updating the chunk header and writing a padding byte if necessary.
@@ -412,7 +411,7 @@ protected:
 	void Write(const void *data, size_t numBytes);
 
 	// Write a single tag into a open idLIST chunk
-	void WriteTag(RIFFChunk::id_type id, const mpt::ustring &utext);
+	void WriteTag(RIFFChunk::ChunkIdentifiers id, const mpt::ustring &utext);
 };
 
 #endif // MODPLUG_NO_FILESAVE

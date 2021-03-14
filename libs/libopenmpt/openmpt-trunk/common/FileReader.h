@@ -10,10 +10,10 @@
 
 #pragma once
 
+#include "BuildSettings.h"
 
-#include "typedefs.h"
-#include "mptTypeTraits.h"
-#include "StringFixer.h"
+
+#include "mptStringBuffer.h"
 #include "misc_util.h"
 #include "Endianness.h"
 #include "mptIO.h"
@@ -22,177 +22,741 @@
 #include <vector>
 #include <cstring>
 
+#include "FileReaderFwd.h"
+
 
 OPENMPT_NAMESPACE_BEGIN
 
 
 // change to show warnings for functions which trigger pre-caching the whole file for unseekable streams
-//#define FILEREADER_DEPRECATED MPT_DEPRECATED
+//#define FILEREADER_DEPRECATED [[deprecated]]
 #define FILEREADER_DEPRECATED
 
 
-//==============
-class FileReader
-//==============
+class FileReaderTraitsMemory
 {
 
 public:
 
-#if defined(MPT_FILEREADER_STD_ISTREAM)
-	typedef IFileDataContainer::off_t off_t;
-#else
-	typedef FileDataContainerMemory::off_t off_t;
-#endif
+	using off_t = FileDataContainerMemory::off_t;
 
-private:
+	using data_type = FileDataContainerMemory;
+	using ref_data_type = const FileDataContainerMemory &;
+	using shared_data_type = const FileDataContainerMemory &;
+	using value_data_type = FileDataContainerMemory;
 
-#if defined(MPT_FILEREADER_STD_ISTREAM)
-	const IFileDataContainer & DataContainer() const { return *data; }
-	IFileDataContainer & DataContainer() { return *data; }
-	std::shared_ptr<IFileDataContainer> data;
-#else
-	const FileDataContainerMemory & DataContainer() const { return data; }
-	FileDataContainerMemory & DataContainer() { return data; }
-	FileDataContainerMemory data;
-#endif
+	static shared_data_type get_shared(const data_type & data) { return data; }
+	static ref_data_type get_ref(const data_type & data) { return data; }
 
-	off_t streamPos;		// Cursor location in the file
+	static value_data_type make_data() { return mpt::const_byte_span(); }
+	static value_data_type make_data(mpt::const_byte_span data) { return data; }
 
-#if defined(MPT_ENABLE_FILEIO)
-	const mpt::PathString *fileName;  // Filename that corresponds to this FileReader. It is only set if this FileReader represents the whole contents of fileName. May be nullptr.
-	#define MPT_FILEREADER_INIT_FILENAME ,fileName(nullptr)
-#else // !MPT_ENABLE_FILEIO
-	#define MPT_FILEREADER_INIT_FILENAME
-#endif // MPT_ENABLE_FILEIO
+	static value_data_type make_chunk(shared_data_type data, off_t position, off_t size)
+	{
+		return mpt::as_span(data.GetRawData() + position, size);
+	}
+
+};
+
+class FileReaderTraitsStdStream
+{
 
 public:
 
-#if defined(MPT_FILEREADER_STD_ISTREAM)
+	using off_t = IFileDataContainer::off_t;
+
+	using data_type = std::shared_ptr<const IFileDataContainer>;
+	using ref_data_type = const IFileDataContainer &;
+	using shared_data_type = std::shared_ptr<const IFileDataContainer>;
+	using value_data_type = std::shared_ptr<const IFileDataContainer>;
+
+	static shared_data_type get_shared(const data_type & data) { return data; }
+	static ref_data_type get_ref(const data_type & data) { return *data; }
+
+	static value_data_type make_data() { return std::make_shared<FileDataContainerDummy>(); }
+	static value_data_type make_data(mpt::const_byte_span data) { return std::make_shared<FileDataContainerMemory>(data); }
+
+	static value_data_type make_chunk(shared_data_type data, off_t position, off_t size)
+	{
+		return std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerWindow>(data, position, size));
+	}
+
+};
+
+using FileReaderTraitsDefault = FileReaderTraitsStdStream;
+
+namespace mpt
+{
+namespace FileReader
+{
+
+	// Read a "T" object from the stream.
+	// If not enough bytes can be read, false is returned.
+	// If successful, the file cursor is advanced by the size of "T".
+	template <typename T, typename TFileCursor>
+	bool Read(TFileCursor &f, T &target)
+	{
+		// cppcheck false-positive
+		// cppcheck-suppress uninitvar
+		mpt::byte_span dst = mpt::as_raw_memory(target);
+		if(dst.size() != f.GetRaw(dst))
+		{
+			return false;
+		}
+		f.Skip(dst.size());
+		return true;
+	}
+
+	// Read some kind of integer in little-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename T, typename TFileCursor>
+	T ReadIntLE(TFileCursor &f)
+	{
+		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
+		typename mpt::make_le<T>::type target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0;
+		}
+	}
+
+	// Read some kind of integer in big-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename T, typename TFileCursor>
+	T ReadIntBE(TFileCursor &f)
+	{
+		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
+		typename mpt::make_be<T>::type target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0;
+		}
+	}
+
+	// Read a integer in little-endian format which has some of its higher bytes not stored in file.
+	// If successful, the file cursor is advanced by the given size.
+	template <typename T, typename TFileCursor>
+	T ReadTruncatedIntLE(TFileCursor &f, typename TFileCursor::off_t size)
+	{
+		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
+		MPT_ASSERT(sizeof(T) >= size);
+		if(size == 0)
+		{
+			return 0;
+		}
+		if(!f.CanRead(size))
+		{
+			return 0;
+		}
+		uint8 buf[sizeof(T)];
+		bool negative = false;
+		for(std::size_t i = 0; i < sizeof(T); ++i)
+		{
+			uint8 byte = 0;
+			if(i < size)
+			{
+				Read(f, byte);
+				negative = std::numeric_limits<T>::is_signed && ((byte & 0x80) != 0x00);
+			} else
+			{
+				// sign or zero extend
+				byte = negative ? 0xff : 0x00;
+			}
+			buf[i] = byte;
+		}
+		typename mpt::make_le<T>::type target;
+		std::memcpy(&target, buf, sizeof(T));
+		return target;
+	}
+
+	// Read a supplied-size little endian integer to a fixed size variable.
+	// The data is properly sign-extended when fewer bytes are stored.
+	// If more bytes are stored, higher order bytes are silently ignored.
+	// If successful, the file cursor is advanced by the given size.
+	template <typename T, typename TFileCursor>
+	T ReadSizedIntLE(TFileCursor &f, typename TFileCursor::off_t size)
+	{
+		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
+		if(size == 0)
+		{
+			return 0;
+		}
+		if(!f.CanRead(size))
+		{
+			return 0;
+		}
+		if(size < sizeof(T))
+		{
+			return ReadTruncatedIntLE<T>(f, size);
+		}
+		T retval = ReadIntLE<T>(f);
+		f.Skip(size - sizeof(T));
+		return retval;
+	}
+
+	// Read unsigned 32-Bit integer in little-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	uint32 ReadUint32LE(TFileCursor &f)
+	{
+		return ReadIntLE<uint32>(f);
+	}
+
+	// Read unsigned 32-Bit integer in big-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	uint32 ReadUint32BE(TFileCursor &f)
+	{
+		return ReadIntBE<uint32>(f);
+	}
+
+	// Read signed 32-Bit integer in little-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	int32 ReadInt32LE(TFileCursor &f)
+	{
+		return ReadIntLE<int32>(f);
+	}
+
+	// Read signed 32-Bit integer in big-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	int32 ReadInt32BE(TFileCursor &f)
+	{
+		return ReadIntBE<int32>(f);
+	}
+
+	// Read unsigned 16-Bit integer in little-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	uint16 ReadUint16LE(TFileCursor &f)
+	{
+		return ReadIntLE<uint16>(f);
+	}
+
+	// Read unsigned 16-Bit integer in big-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	uint16 ReadUint16BE(TFileCursor &f)
+	{
+		return ReadIntBE<uint16>(f);
+	}
+
+	// Read signed 16-Bit integer in little-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	int16 ReadInt16LE(TFileCursor &f)
+	{
+		return ReadIntLE<int16>(f);
+	}
+
+	// Read signed 16-Bit integer in big-endian format.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	int16 ReadInt16BE(TFileCursor &f)
+	{
+		return ReadIntBE<int16>(f);
+	}
+
+	// Read a single 8bit character.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	char ReadChar(TFileCursor &f)
+	{
+		char target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0;
+		}
+	}
+
+	// Read unsigned 8-Bit integer.
+	// If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	uint8 ReadUint8(TFileCursor &f)
+	{
+		uint8 target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0;
+		}
+	}
+
+	// Read signed 8-Bit integer. If successful, the file cursor is advanced by the size of the integer.
+	template <typename TFileCursor>
+	int8 ReadInt8(TFileCursor &f)
+	{
+		int8 target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0;
+		}
+	}
+
+	// Read 32-Bit float in little-endian format.
+	// If successful, the file cursor is advanced by the size of the float.
+	template <typename TFileCursor>
+	float ReadFloatLE(TFileCursor &f)
+	{
+		IEEE754binary32LE target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0.0f;
+		}
+	}
+
+	// Read 32-Bit float in big-endian format.
+	// If successful, the file cursor is advanced by the size of the float.
+	template <typename TFileCursor>
+	float ReadFloatBE(TFileCursor &f)
+	{
+		IEEE754binary32BE target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0.0f;
+		}
+	}
+
+	// Read 64-Bit float in little-endian format.
+	// If successful, the file cursor is advanced by the size of the float.
+	template <typename TFileCursor>
+	double ReadDoubleLE(TFileCursor &f)
+	{
+		IEEE754binary64LE target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0.0;
+		}
+	}
+
+	// Read 64-Bit float in big-endian format.
+	// If successful, the file cursor is advanced by the size of the float.
+	template <typename TFileCursor>
+	double ReadDoubleBE(TFileCursor &f)
+	{
+		IEEE754binary64BE target;
+		if(Read(f, target))
+		{
+			return target;
+		} else
+		{
+			return 0.0;
+		}
+	}
+
+	// Read a struct.
+	// If successful, the file cursor is advanced by the size of the struct. Otherwise, the target is zeroed.
+	template <typename T, typename TFileCursor>
+	bool ReadStruct(TFileCursor &f, T &target)
+	{
+		static_assert(mpt::is_binary_safe<T>::value);
+		if(Read(f, target))
+		{
+			return true;
+		} else
+		{
+			Clear(target);
+			return false;
+		}
+	}
+
+	// Allow to read a struct partially (if there's less memory available than the struct's size, fill it up with zeros).
+	// The file cursor is advanced by "partialSize" bytes.
+	template <typename T, typename TFileCursor>
+	typename TFileCursor::off_t ReadStructPartial(TFileCursor &f, T &target, typename TFileCursor::off_t partialSize = sizeof(T))
+	{
+		static_assert(mpt::is_binary_safe<T>::value);
+		typename TFileCursor::off_t copyBytes = std::min(partialSize, sizeof(T));
+		if(!f.CanRead(copyBytes))
+		{
+			copyBytes = f.BytesLeft();
+		}
+		f.GetRaw(mpt::as_raw_memory(target).data(), copyBytes);
+		std::memset(mpt::as_raw_memory(target).data() + copyBytes, 0, sizeof(target) - copyBytes);
+		f.Skip(partialSize);
+		return copyBytes;
+	}
+
+	// Read a string of length srcSize into fixed-length char array destBuffer using a given read mode.
+	// The file cursor is advanced by "srcSize" bytes.
+	// Returns true if at least one byte could be read or 0 bytes were requested.
+	template<mpt::String::ReadWriteMode mode, size_t destSize, typename TFileCursor>
+	bool ReadString(TFileCursor &f, char (&destBuffer)[destSize], const typename TFileCursor::off_t srcSize)
+	{
+		typename TFileCursor::PinnedRawDataView source = f.ReadPinnedRawDataView(srcSize); // Make sure the string is cached properly.
+		typename TFileCursor::off_t realSrcSize = source.size();	// In case fewer bytes are available
+		mpt::String::WriteAutoBuf(destBuffer) = mpt::String::ReadBuf(mode, mpt::byte_cast<const char*>(source.data()), realSrcSize);
+		return (realSrcSize > 0 || srcSize == 0);
+	}
+
+	// Read a string of length srcSize into a std::string dest using a given read mode.
+	// The file cursor is advanced by "srcSize" bytes.
+	// Returns true if at least one character could be read or 0 characters were requested.
+	template<mpt::String::ReadWriteMode mode, typename TFileCursor>
+	bool ReadString(TFileCursor &f, std::string &dest, const typename TFileCursor::off_t srcSize)
+	{
+		dest.clear();
+		typename TFileCursor::PinnedRawDataView source = f.ReadPinnedRawDataView(srcSize);	// Make sure the string is cached properly.
+		typename TFileCursor::off_t realSrcSize = source.size();	// In case fewer bytes are available
+		dest = mpt::String::ReadBuf(mode, mpt::byte_cast<const char*>(source.data()), realSrcSize);
+		return (realSrcSize > 0 || srcSize == 0);
+	}
+
+	// Read a string of length srcSize into a mpt::charbuf dest using a given read mode.
+	// The file cursor is advanced by "srcSize" bytes.
+	// Returns true if at least one character could be read or 0 characters were requested.
+	template<mpt::String::ReadWriteMode mode, std::size_t len, typename TFileCursor>
+	bool ReadString(TFileCursor &f, mpt::charbuf<len> &dest, const typename TFileCursor::off_t srcSize)
+	{
+		typename TFileCursor::PinnedRawDataView source = f.ReadPinnedRawDataView(srcSize);	// Make sure the string is cached properly.
+		typename TFileCursor::off_t realSrcSize = source.size();	// In case fewer bytes are available
+		dest = mpt::String::ReadBuf(mode, mpt::byte_cast<const char*>(source.data()), realSrcSize);
+		return (realSrcSize > 0 || srcSize == 0);
+	}
+
+	// Read a charset encoded string of length srcSize into a mpt::ustring dest using a given read mode.
+	// The file cursor is advanced by "srcSize" bytes.
+	// Returns true if at least one character could be read or 0 characters were requested.
+	template<mpt::String::ReadWriteMode mode, typename TFileCursor>
+	bool ReadString(TFileCursor &f, mpt::ustring &dest, mpt::Charset charset, const typename TFileCursor::off_t srcSize)
+	{
+		dest.clear();
+		typename TFileCursor::PinnedRawDataView source = f.ReadPinnedRawDataView(srcSize);	// Make sure the string is cached properly.
+		typename TFileCursor::off_t realSrcSize = source.size();	// In case fewer bytes are available
+		dest = mpt::ToUnicode(charset, mpt::String::ReadBuf(mode, mpt::byte_cast<const char*>(source.data()), realSrcSize));
+		return (realSrcSize > 0 || srcSize == 0);
+	}
+
+	// Read a string with a preprended length field of type Tsize (must be a packed<*,*> type) into a std::string dest using a given read mode.
+	// The file cursor is advanced by the string length.
+	// Returns true if the size field could be read and at least one character could be read or 0 characters were requested.
+	template<typename Tsize, mpt::String::ReadWriteMode mode, size_t destSize, typename TFileCursor>
+	bool ReadSizedString(TFileCursor &f, char (&destBuffer)[destSize], const typename TFileCursor::off_t maxLength = std::numeric_limits<typename TFileCursor::off_t>::max())
+	{
+		packed<typename Tsize::base_type, typename Tsize::endian_type> srcSize;	// Enforce usage of a packed type by ensuring that the passed type has the required typedefs
+		if(!Read(f, srcSize))
+			return false;
+		return ReadString<mode>(f, destBuffer, std::min(static_cast<typename TFileCursor::off_t>(srcSize), maxLength));
+	}
+
+	// Read a string with a preprended length field of type Tsize (must be a packed<*,*> type) into a std::string dest using a given read mode.
+	// The file cursor is advanced by the string length.
+	// Returns true if the size field could be read and at least one character could be read or 0 characters were requested.
+	template<typename Tsize, mpt::String::ReadWriteMode mode, typename TFileCursor>
+	bool ReadSizedString(TFileCursor &f, std::string &dest, const typename TFileCursor::off_t maxLength = std::numeric_limits<typename TFileCursor::off_t>::max())
+	{
+		packed<typename Tsize::base_type, typename Tsize::endian_type> srcSize;	// Enforce usage of a packed type by ensuring that the passed type has the required typedefs
+		if(!Read(f, srcSize))
+			return false;
+		return ReadString<mode>(f, dest, std::min(static_cast<typename TFileCursor::off_t>(srcSize), maxLength));
+	}
+
+	// Read a string with a preprended length field of type Tsize (must be a packed<*,*> type) into a mpt::charbuf dest using a given read mode.
+	// The file cursor is advanced by the string length.
+	// Returns true if the size field could be read and at least one character could be read or 0 characters were requested.
+	template<typename Tsize, mpt::String::ReadWriteMode mode, std::size_t len, typename TFileCursor>
+	bool ReadSizedString(TFileCursor &f, mpt::charbuf<len> &dest, const typename TFileCursor::off_t maxLength = std::numeric_limits<typename TFileCursor::off_t>::max())
+	{
+		packed<typename Tsize::base_type, typename Tsize::endian_type> srcSize;	// Enforce usage of a packed type by ensuring that the passed type has the required typedefs
+		if(!Read(f, srcSize))
+			return false;
+		return ReadString<mode>(f, dest, std::min(static_cast<typename TFileCursor::off_t>(srcSize), maxLength));
+	}
+
+	// Read a null-terminated string into a std::string
+	template <typename TFileCursor>
+	bool ReadNullString(TFileCursor &f, std::string &dest, const typename TFileCursor::off_t maxLength = std::numeric_limits<typename TFileCursor::off_t>::max())
+	{
+		dest.clear();
+		if(!f.CanRead(1))
+			return false;
+		try
+		{
+			char buffer[64];
+			typename TFileCursor::off_t avail = 0;
+			while((avail = std::min(f.GetRaw(buffer, std::size(buffer)), maxLength - dest.length())) != 0)
+			{
+				auto end = std::find(buffer, buffer + avail, '\0');
+				dest.insert(dest.end(), buffer, end);
+				f.Skip(end - buffer);
+				if(end < buffer + avail)
+				{
+					// Found null char
+					f.Skip(1);
+					break;
+				}
+			}
+		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+		{
+			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+		}
+		return dest.length() != 0;
+	}
+
+	// Read a string up to the next line terminator into a std::string
+	template <typename TFileCursor>
+	bool ReadLine(TFileCursor &f, std::string &dest, const typename TFileCursor::off_t maxLength = std::numeric_limits<typename TFileCursor::off_t>::max())
+	{
+		dest.clear();
+		if(!f.CanRead(1))
+			return false;
+		try
+		{
+			char buffer[64];
+			char c = '\0';
+			typename TFileCursor::off_t avail = 0;
+			while((avail = std::min(f.GetRaw(buffer, std::size(buffer)), maxLength - dest.length())) != 0)
+			{
+				auto end = std::find_if(buffer, buffer + avail, mpt::String::Traits<std::string>::IsLineEnding);
+				dest.insert(dest.end(), buffer, end);
+				f.Skip(end - buffer);
+				if(end < buffer + avail)
+				{
+					// Found line ending
+					f.Skip(1);
+					// Handle CRLF line ending
+					if(*end == '\r')
+					{
+						if(Read(f, c) && c != '\n')
+							f.SkipBack(1);
+					}
+					break;
+				}
+			}
+		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+		{
+			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+		}
+		return true;
+	}
+
+	// Read an array of binary-safe T values.
+	// If successful, the file cursor is advanced by the size of the array.
+	// Otherwise, the target is zeroed.
+	template<typename T, std::size_t destSize, typename TFileCursor>
+	bool ReadArray(TFileCursor &f, T (&destArray)[destSize])
+	{
+		static_assert(mpt::is_binary_safe<T>::value);
+		if(f.CanRead(sizeof(destArray)))
+		{
+			f.ReadRaw(mpt::as_raw_memory(destArray));
+			return true;
+		} else
+		{
+			Clear(destArray);
+			return false;
+		}
+	}
+
+	// Read an array of binary-safe T values.
+	// If successful, the file cursor is advanced by the size of the array.
+	// Otherwise, the target is zeroed.
+	template<typename T, std::size_t destSize, typename TFileCursor>
+	bool ReadArray(TFileCursor &f, std::array<T, destSize> &destArray)
+	{
+		static_assert(mpt::is_binary_safe<T>::value);
+		if(f.CanRead(sizeof(destArray)))
+		{
+			f.ReadRaw(mpt::as_raw_memory(destArray));
+			return true;
+		} else
+		{
+			destArray.fill(T());
+			return false;
+		}
+	}
+
+	// Read destSize elements of binary-safe type T into a vector.
+	// If successful, the file cursor is advanced by the size of the vector.
+	// Otherwise, the vector is resized to destSize, but possibly existing contents are not cleared.
+	template<typename T, typename TFileCursor>
+	bool ReadVector(TFileCursor &f, std::vector<T> &destVector, size_t destSize)
+	{
+		static_assert(mpt::is_binary_safe<T>::value);
+		destVector.resize(destSize);
+		if(f.CanRead(sizeof(T) * destSize))
+		{
+			f.ReadRaw(mpt::as_raw_memory(destVector));
+			return true;
+		} else
+		{
+			return false;
+		}
+	}
+
+	template <typename T, std::size_t destSize, typename TFileCursor>
+	std::array<T, destSize> ReadArray(TFileCursor &f)
+	{
+		std::array<T, destSize> destArray;
+		ReadArray(f, destArray);
+		return destArray;
+	}
+
+	// Compare a magic string with the current stream position.
+	// Returns true if they are identical and advances the file cursor by the the length of the "magic" string.
+	// Returns false if the string could not be found. The file cursor is not advanced in this case.
+	template <typename TFileCursor>
+	bool ReadMagic(TFileCursor &f, const char *const magic, typename TFileCursor::off_t magicLength)
+	{
+		std::byte buffer[16] = { std::byte(0) };
+		typename TFileCursor::off_t bytesRead = 0;
+		typename TFileCursor::off_t bytesRemain = magicLength;
+		while(bytesRemain)
+		{
+			typename TFileCursor::off_t numBytes = std::min(static_cast<typename TFileCursor::off_t>(sizeof(buffer)), bytesRemain);
+			if(f.GetRawWithOffset(bytesRead, buffer, numBytes) != numBytes)
+				return false;
+			if(memcmp(buffer, magic + bytesRead, numBytes))
+				return false;
+			bytesRemain -= numBytes;
+			bytesRead += numBytes;
+		}
+		f.Skip(magicLength);
+		return true;
+	}
+	template<size_t N, typename TFileCursor>
+	bool ReadMagic(TFileCursor &f, const char (&magic)[N])
+	{
+		MPT_ASSERT(magic[N - 1] == '\0');
+		for(std::size_t i = 0; i < N - 1; ++i)
+		{
+			MPT_ASSERT(magic[i] != '\0');
+		}
+		return ReadMagic(f, static_cast<const char*>(magic), static_cast<typename TFileCursor::off_t>(N - 1));
+	}
+
+	// Read variable-length unsigned integer (as found in MIDI files).
+	// If successful, the file cursor is advanced by the size of the integer and true is returned.
+	// False is returned if not enough bytes were left to finish reading of the integer or if an overflow happened (source doesn't fit into target integer).
+	// In case of an overflow, the target is also set to the maximum value supported by its data type.
+	template<typename T, typename TFileCursor>
+	bool ReadVarInt(TFileCursor &f, T &target)
+	{
+		static_assert(std::numeric_limits<T>::is_integer == true
+			&& std::numeric_limits<T>::is_signed == false,
+			"Target type is not an unsigned integer");
+
+		if(f.NoBytesLeft())
+		{
+			target = 0;
+			return false;
+		}
+
+		std::byte bytes[16];	// More than enough for any valid VarInt
+		typename TFileCursor::off_t avail = f.GetRaw(bytes, sizeof(bytes));
+		typename TFileCursor::off_t readPos = 1;
+		
+		uint8 b = mpt::byte_cast<uint8>(bytes[0]);
+		target = (b & 0x7F);
+		size_t writtenBits = static_cast<size_t>(mpt::bit_width(target));  // Bits used in the most significant byte
+
+		while(readPos < avail && (b & 0x80) != 0)
+		{
+			b = mpt::byte_cast<uint8>(bytes[readPos++]);
+			target <<= 7;
+			target |= (b & 0x7F);
+			writtenBits += 7;
+			if(readPos == avail)
+			{
+				f.Skip(readPos);
+				avail = f.GetRaw(bytes, sizeof(bytes));
+				readPos = 0;
+			}
+		}
+		f.Skip(readPos);
+
+		if(writtenBits > sizeof(target) * 8u)
+		{
+			// Overflow
+			target = Util::MaxValueOfType<T>(target);
+			return false;
+		} else if((b & 0x80) != 0)
+		{
+			// Reached EOF
+			return false;
+		}
+		return true;
+	}
+
+} // namespace FileReader
+} // namespace mpt
+
+namespace FR = mpt::FileReader;
+
+namespace detail {
+
+template <typename Ttraits>
+class FileReader
+{
+
+private:
+
+	using traits_type = Ttraits;
+	
+public:
+
+	using off_t = typename traits_type::off_t;
+
+	using data_type        = typename traits_type::data_type;
+	using ref_data_type    = typename traits_type::ref_data_type;
+	using shared_data_type = typename traits_type::shared_data_type;
+	using value_data_type  = typename traits_type::value_data_type;
+
+protected:
+
+	shared_data_type SharedDataContainer() const { return traits_type::get_shared(m_data); }
+	ref_data_type DataContainer() const { return traits_type::get_ref(m_data); }
+
+	static value_data_type DataInitializer() { return traits_type::make_data(); }
+	static value_data_type DataInitializer(mpt::const_byte_span data) { return traits_type::make_data(data); }
+
+	static value_data_type CreateChunkImpl(shared_data_type data, off_t position, off_t size) { return traits_type::make_chunk(data, position, size); }
+
+private:
+
+	data_type m_data;
+
+	off_t streamPos;		// Cursor location in the file
+
+	const mpt::PathString *fileName;  // Filename that corresponds to this FileReader. It is only set if this FileReader represents the whole contents of fileName. May be nullptr. Lifetime is managed outside of FileReader.
+
+public:
 
 	// Initialize invalid file reader object.
-	FileReader() : data(std::make_shared<FileDataContainerDummy>()), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
+	FileReader() : m_data(DataInitializer()), streamPos(0), fileName(nullptr) { }
 
 	// Initialize file reader object with pointer to data and data length.
-	FileReader(mpt::span<const mpt::byte> bytedata) : data(std::make_shared<FileDataContainerMemory>(bytedata)), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
-#ifdef MODPLUG_TRACKER
-	FileReader(const char *chardata, off_t length) : data(std::make_shared<FileDataContainerMemory>(mpt::as_span(mpt::byte_cast<const mpt::byte *>(chardata), length))), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
-	FileReader(const uint8 *uint8data, off_t length) : data(std::make_shared<FileDataContainerMemory>(mpt::as_span(mpt::byte_cast<const mpt::byte *>(uint8data), length))), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
-#endif // MODPLUG_TRACKER
-#if defined(MPT_ENABLE_FILEIO)
-	FileReader(mpt::span<const mpt::byte> bytedata, const mpt::PathString *filename) : data(std::make_shared<FileDataContainerMemory>(bytedata)), streamPos(0), fileName(filename) { }
-#ifdef MODPLUG_TRACKER
-	FileReader(const char *chardata, off_t length, const mpt::PathString *filename) : data(std::make_shared<FileDataContainerMemory>(mpt::as_span(mpt::byte_cast<const mpt::byte *>(chardata), length))), streamPos(0), fileName(filename) { }
-	FileReader(const uint8 *uint8data, off_t length, const mpt::PathString *filename) : data(std::make_shared<FileDataContainerMemory>(mpt::as_span(mpt::byte_cast<const mpt::byte *>(uint8data), length))), streamPos(0), fileName(filename) { }
-#endif // MODPLUG_TRACKER
-#endif // MPT_ENABLE_FILEIO
-
-#if defined(MPT_FILEREADER_CALLBACK_STREAM)
-		// Initialize file reader object with a CallbackStream.
-	FileReader(CallbackStream s)
-		: data(
-#if defined(MPT_FILEREADER_STD_ISTREAM_SEEKABLE)
-				FileDataContainerCallbackStreamSeekable::IsSeekable(s) ?
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerCallbackStreamSeekable>(s))
-				:
-#endif // MPT_FILEREADER_STD_ISTREAM_SEEKABLE
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerCallbackStream>(s))
-			)
-		, streamPos(0)
-		MPT_FILEREADER_INIT_FILENAME
-	{
-		return;
-	}
-#if defined(MPT_ENABLE_FILEIO)
-	FileReader(CallbackStream s, const mpt::PathString *filename)
-		: data(
-#if defined(MPT_FILEREADER_STD_ISTREAM_SEEKABLE)
-				FileDataContainerCallbackStreamSeekable::IsSeekable(s) ?
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerCallbackStreamSeekable>(s))
-				:
-#endif // MPT_FILEREADER_STD_ISTREAM_SEEKABLE
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerCallbackStream>(s))
-			)
-		, streamPos(0)
-		, fileName(filename)
-	{
-		return;
-	}
-#endif // MPT_ENABLE_FILEIO
-#endif // MPT_FILEREADER_CALLBACK_STREAM
-
-
-	// Initialize file reader object with a std::istream.
-	FileReader(std::istream *s)
-		: data(
-#if defined(MPT_FILEREADER_STD_ISTREAM_SEEKABLE)
-				FileDataContainerStdStreamSeekable::IsSeekable(s) ?
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerStdStreamSeekable>(s))
-				:
-#endif // MPT_FILEREADER_STD_ISTREAM_SEEKABLE
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerStdStream>(s))
-			)
-		, streamPos(0)
-		MPT_FILEREADER_INIT_FILENAME
-	{
-		return;
-	}
-#if defined(MPT_ENABLE_FILEIO)
-	FileReader(std::istream *s, const mpt::PathString *filename)
-		: data(
-#if defined(MPT_FILEREADER_STD_ISTREAM_SEEKABLE)
-				FileDataContainerStdStreamSeekable::IsSeekable(s) ?
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerStdStreamSeekable>(s))
-				:
-#endif // MPT_FILEREADER_STD_ISTREAM_SEEKABLE
-					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerStdStream>(s))
-			)
-		, streamPos(0)
-		, fileName(filename)
-	{
-		return;
-	}
-#endif // MPT_ENABLE_FILEIO
+	template <typename Tbyte> FileReader(mpt::span<Tbyte> bytedata, const mpt::PathString *filename = nullptr) : m_data(DataInitializer(mpt::byte_cast<mpt::const_byte_span>(bytedata))), streamPos(0), fileName(filename) { }
 
 	// Initialize file reader object based on an existing file reader object window.
-	FileReader(std::shared_ptr<IFileDataContainer> other) : data(other), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
+	explicit FileReader(value_data_type other, const mpt::PathString *filename = nullptr) : m_data(other), streamPos(0), fileName(filename) { }
 
-	// Initialize file reader object based on an existing file reader object. The other object's stream position is copied.
-	FileReader(const FileReader &other) : data(other.data), streamPos(other.streamPos)
-#if defined(MPT_ENABLE_FILEIO)
-		, fileName(other.fileName)
-#endif // MPT_ENABLE_FILEIO
-	{ }
+public:
 
-#else // !MPT_FILEREADER_STD_ISTREAM
-
-	// Initialize invalid file reader object.
-	FileReader() : data(mpt::span<const mpt::byte>()), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
-
-	// Initialize file reader object with pointer to data and data length.
-	FileReader(mpt::span<const mpt::byte> bytedata) : data(bytedata), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
-#ifdef MODPLUG_TRACKER
-	FileReader(const char *chardata, off_t length) : data(mpt::as_span(mpt::byte_cast<const mpt::byte *>(chardata), length)), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
-	FileReader(const uint8 *uint8data, off_t length) : data(mpt::as_span(mpt::byte_cast<const mpt::byte *>(uint8data), length)), streamPos(0) MPT_FILEREADER_INIT_FILENAME { }
-#endif // MODPLUG_TRACKER
-#if defined(MPT_ENABLE_FILEIO)
-	FileReader(mpt::span<const mpt::byte> bytedata, const mpt::PathString *filename) : data(bytedata), streamPos(0), fileName(filename) { }
-#ifdef MODPLUG_TRACKER
-	FileReader(const char *chardata, off_t length, const mpt::PathString *filename) : data(mpt::as_span(mpt::byte_cast<const mpt::byte *>(chardata), length)), streamPos(0), fileName(filename) { }
-	FileReader(const uint8 *uint8data, off_t length, const mpt::PathString *filename) : data(mpt::as_span(mpt::byte_cast<const mpt::byte *>(uint8data), length)), streamPos(0), fileName(filename) { }
-#endif // MODPLUG_TRACKER
-#endif // MPT_ENABLE_FILEIO
-
-	// Initialize file reader object based on an existing file reader object. The other object's stream position is copied.
-	FileReader(const FileReader &other) : data(other.data), streamPos(other.streamPos)
-#if defined(MPT_ENABLE_FILEIO)
-		, fileName(other.fileName)
-#endif // MPT_ENABLE_FILEIO
-	{ }
-
-#endif // MPT_FILEREADER_STD_ISTREAM
-
-
-#if defined(MPT_ENABLE_FILEIO)
 	mpt::PathString GetFileName() const
 	{
 		if(!fileName)
@@ -201,9 +765,14 @@ public:
 		}
 		return *fileName;
 	}
-#endif // MPT_ENABLE_FILEIO
 
-	// Returns true if the object points to a valid stream.
+	// Returns true if the object points to a valid (non-empty) stream.
+	operator bool() const
+	{
+		return IsValid();
+	}
+
+	// Returns true if the object points to a valid (non-empty) stream.
 	bool IsValid() const
 	{
 		return DataContainer().IsValid();
@@ -270,6 +839,14 @@ public:
 		return streamPos;
 	}
 
+	// Return true IFF seeking and GetLength() is fast.
+	// In particular, it returns false for unseekable stream where GetLength()
+	// requires pre-caching.
+	bool HasFastGetLength() const
+	{
+		return DataContainer().HasFastGetLength();
+	}
+
 	// Returns size of the mapped file in bytes.
 	FILEREADER_DEPRECATED off_t GetLength() const
 	{
@@ -321,11 +898,7 @@ protected:
 		{
 			return FileReader();
 		}
-		#if defined(MPT_FILEREADER_STD_ISTREAM)
-			return FileReader(std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerWindow>(data, position, std::min(length, DataContainer().GetLength() - position))));
-		#else
-			return FileReader(mpt::as_span(DataContainer().GetRawData() + position, std::min(length, DataContainer().GetLength() - position)));
-		#endif
+		return FileReader(CreateChunkImpl(SharedDataContainer(), position, std::min(length, DataContainer().GetLength() - position)));
 	}
 
 public:
@@ -352,14 +925,12 @@ public:
 		return CreateChunk(position, length);
 	}
 
-	//=====================
 	class PinnedRawDataView
-	//=====================
 	{
 	private:
 		std::size_t size_;
-		const mpt::byte *pinnedData;
-		std::vector<mpt::byte> cache;
+		const std::byte *pinnedData;
+		std::vector<std::byte> cache;
 	private:
 		void Init(const FileReader &file, std::size_t size)
 		{
@@ -378,14 +949,17 @@ public:
 				cache.resize(size_);
 				if(!cache.empty())
 				{
+					// cppcheck false-positive
+					// cppcheck-suppress containerOutOfBounds
 					file.GetRaw(&(cache[0]), size);
 				}
 			}
 		}
 	public:
 		PinnedRawDataView()
+			: size_(0)
+			, pinnedData(nullptr)
 		{
-			return;
 		}
 		PinnedRawDataView(const FileReader &file)
 		{
@@ -412,7 +986,7 @@ public:
 			}
 		}
 	public:
-		mpt::span<const mpt::byte> GetSpan() const
+		mpt::const_byte_span GetSpan() const
 		{
 			if(pinnedData)
 			{
@@ -422,17 +996,17 @@ public:
 				return mpt::as_span(cache);
 			} else
 			{
-				return mpt::span<const mpt::byte>();
+				return mpt::const_byte_span();
 			}
 		}
-		mpt::span<const mpt::byte> span() const { return GetSpan(); }
-		void invalidate() { size_ = 0; pinnedData = nullptr; cache = std::vector<mpt::byte>(); }
-		const mpt::byte *data() const { return span().data(); }
+		mpt::const_byte_span span() const { return GetSpan(); }
+		void invalidate() { size_ = 0; pinnedData = nullptr; cache = std::vector<std::byte>(); }
+		const std::byte *data() const { return span().data(); }
 		std::size_t size() const { return size_; }
-		mpt::span<const mpt::byte>::iterator begin() const { return span().begin(); }
-		mpt::span<const mpt::byte>::iterator end() const { return span().end(); }
-		mpt::span<const mpt::byte>::const_iterator cbegin() const { return span().cbegin(); }
-		mpt::span<const mpt::byte>::const_iterator cend() const { return span().cend(); }
+		mpt::const_byte_span::pointer begin() const { return span().data(); }
+		mpt::const_byte_span::pointer end() const { return span().data() + span().size(); }
+		mpt::const_byte_span::const_pointer cbegin() const { return span().data(); }
+		mpt::const_byte_span::const_pointer cend() const { return span().data() + span().size(); }
 	};
 
 	// Returns a pinned view into the remaining raw data from cursor position.
@@ -462,7 +1036,7 @@ public:
 	// Returns raw stream data at cursor position.
 	// Should only be used if absolutely necessary, for example for sample reading, or when used with a small chunk of the file retrieved by ReadChunk().
 	// Use GetPinnedRawDataView(size) whenever possible.
-	FILEREADER_DEPRECATED const mpt::byte *GetRawData() const
+	FILEREADER_DEPRECATED const std::byte *GetRawData() const
 	{
 		// deprecated because in case of an unseekable std::istream, this triggers caching of the whole file
 		return DataContainer().GetRawData() + streamPos;
@@ -475,686 +1049,354 @@ public:
 	}
 
 	template <typename T>
+	std::size_t GetRawWithOffset(std::size_t offset, T *dst, std::size_t count) const
+	{
+		return static_cast<std::size_t>(DataContainer().Read(mpt::byte_cast<std::byte*>(dst), streamPos + offset, count));
+	}
+	std::size_t GetRawWithOffset(std::size_t offset, mpt::byte_span dst) const
+	{
+		return static_cast<std::size_t>(DataContainer().Read(streamPos + offset, dst));
+	}
+
+	template <typename T>
 	std::size_t GetRaw(T *dst, std::size_t count) const
 	{
-		return static_cast<std::size_t>(DataContainer().Read(mpt::byte_cast<mpt::byte*>(dst), streamPos, count));
+		return static_cast<std::size_t>(DataContainer().Read(mpt::byte_cast<std::byte*>(dst), streamPos, count));
+	}
+	std::size_t GetRaw(mpt::byte_span dst) const
+	{
+		return static_cast<std::size_t>(DataContainer().Read(streamPos, dst));
 	}
 
 	template <typename T>
 	std::size_t ReadRaw(T *dst, std::size_t count)
 	{
-		std::size_t result = static_cast<std::size_t>(DataContainer().Read(mpt::byte_cast<mpt::byte*>(dst), streamPos, count));
+		std::size_t result = static_cast<std::size_t>(DataContainer().Read(mpt::byte_cast<std::byte*>(dst), streamPos, count));
+		streamPos += result;
+		return result;
+	}
+	std::size_t ReadRaw(mpt::byte_span dst)
+	{
+		std::size_t result = static_cast<std::size_t>(DataContainer().Read(streamPos, dst));
 		streamPos += result;
 		return result;
 	}
 	
-	std::vector<mpt::byte> GetRawDataAsByteVector() const
+	std::vector<std::byte> GetRawDataAsByteVector() const
 	{
 		PinnedRawDataView view = GetPinnedRawDataView();
-		return std::vector<mpt::byte>(view.span().begin(), view.span().end());
+		return mpt::make_vector(view.span());
 	}
-	std::vector<mpt::byte> ReadRawDataAsByteVector()
+	std::vector<std::byte> ReadRawDataAsByteVector()
 	{
 		PinnedRawDataView view = ReadPinnedRawDataView();
-		return std::vector<mpt::byte>(view.span().begin(), view.span().end());
+		return mpt::make_vector(view.span());
 	}
-	std::vector<mpt::byte> GetRawDataAsByteVector(std::size_t size) const
+	std::vector<std::byte> GetRawDataAsByteVector(std::size_t size) const
 	{
 		PinnedRawDataView view = GetPinnedRawDataView(size);
-		return std::vector<mpt::byte>(view.span().begin(), view.span().end());
+		return mpt::make_vector(view.span());
 	}
-	std::vector<mpt::byte> ReadRawDataAsByteVector(std::size_t size)
+	std::vector<std::byte> ReadRawDataAsByteVector(std::size_t size)
 	{
 		PinnedRawDataView view = ReadPinnedRawDataView(size);
-		return std::vector<mpt::byte>(view.span().begin(), view.span().end());
+		return mpt::make_vector(view.span());
 	}
 
 	std::string GetRawDataAsString() const
 	{
 		PinnedRawDataView view = GetPinnedRawDataView();
-		return std::string(view.span().begin(), view.span().end());
+		mpt::span<const char> data = mpt::byte_cast<mpt::span<const char>>(view.span());
+		return std::string(data.begin(), data.end());
 	}
 	std::string ReadRawDataAsString()
 	{
 		PinnedRawDataView view = ReadPinnedRawDataView();
-		return std::string(view.span().begin(), view.span().end());
+		mpt::span<const char> data = mpt::byte_cast<mpt::span<const char>>(view.span());
+		return std::string(data.begin(), data.end());
 	}
 	std::string GetRawDataAsString(std::size_t size) const
 	{
 		PinnedRawDataView view = GetPinnedRawDataView(size);
-		return std::string(view.span().begin(), view.span().end());
+		mpt::span<const char> data = mpt::byte_cast<mpt::span<const char>>(view.span());
+		return std::string(data.begin(), data.end());
 	}
 	std::string ReadRawDataAsString(std::size_t size)
 	{
 		PinnedRawDataView view = ReadPinnedRawDataView(size);
-		return std::string(view.span().begin(), view.span().end());
+		mpt::span<const char> data = mpt::byte_cast<mpt::span<const char>>(view.span());
+		return std::string(data.begin(), data.end());
 	}
 
-protected:
-
-	// Read a "T" object from the stream.
-	// If not enough bytes can be read, false is returned.
-	// If successful, the file cursor is advanced by the size of "T".
 	template <typename T>
 	bool Read(T &target)
 	{
-		if(sizeof(T) != DataContainer().Read(reinterpret_cast<mpt::byte*>(&target), streamPos, sizeof(T)))
-		{
-			return false;
-		}
-		streamPos += sizeof(T);
-		return true;
+		return mpt::FileReader::Read(*this, target);
 	}
 
-public:
-
-	// Read some kind of integer in little-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	template <typename T>
 	T ReadIntLE()
 	{
-		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
-		T target;
-		if(Read(target))
-		{
-			return SwapBytesLE(target);
-		} else
-		{
-			return 0;
-		}
+		return mpt::FileReader::ReadIntLE<T>(*this);
 	}
 
-	// Read some kind of integer in big-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	template <typename T>
 	T ReadIntBE()
 	{
-		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
-		T target;
-		if(Read(target))
-		{
-			return SwapBytesBE(target);
-		} else
-		{
-			return 0;
-		}
+		return mpt::FileReader::ReadIntLE<T>(*this);
 	}
 
-	// Read a integer in little-endian format which has some of its higher bytes not stored in file.
-	// If successful, the file cursor is advanced by the given size.
 	template <typename T>
 	T ReadTruncatedIntLE(off_t size)
 	{
-		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
-		MPT_ASSERT(sizeof(T) >= size);
-		if(size == 0)
-		{
-			return 0;
-		}
-		if(!CanRead(size))
-		{
-			return 0;
-		}
-		uint8 buf[sizeof(T)];
-		bool negative = false;
-		for(std::size_t i = 0; i < sizeof(T); ++i)
-		{
-			uint8 byte = 0;
-			if(i < size)
-			{
-				Read(byte);
-				negative = std::numeric_limits<T>::is_signed && ((byte & 0x80) != 0x00);
-			} else
-			{
-				// sign or zero extend
-				byte = negative ? 0xff : 0x00;
-			}
-			buf[i] = byte;
-		}
-		T target;
-		std::memcpy(&target, buf, sizeof(T));
-		return SwapBytesLE(target);
+		return mpt::FileReader::ReadTruncatedIntLE<T>(*this, size);
 	}
 
-	// Read a supplied-size little endian integer to a fixed size variable.
-	// The data is properly sign-extended when fewer bytes are stored.
-	// If more bytes are stored, higher order bytes are silently ignored.
-	// If successful, the file cursor is advanced by the given size.
 	template <typename T>
 	T ReadSizedIntLE(off_t size)
 	{
-		static_assert(std::numeric_limits<T>::is_integer == true, "Target type is a not an integer");
-		if(size == 0)
-		{
-			return 0;
-		}
-		if(!CanRead(size))
-		{
-			return 0;
-		}
-		if(size < sizeof(T))
-		{
-			return ReadTruncatedIntLE<T>(size);
-		}
-		T retval = ReadIntLE<T>();
-		Skip(size - sizeof(T));
-		return retval;
+		return mpt::FileReader::ReadSizedIntLE<T>(*this, size);
 	}
 
-	// Read unsigned 32-Bit integer in little-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	uint32 ReadUint32LE()
 	{
-		return ReadIntLE<uint32>();
+		return mpt::FileReader::ReadUint32LE(*this);
 	}
 
-	// Read unsigned 32-Bit integer in big-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	uint32 ReadUint32BE()
 	{
-		return ReadIntBE<uint32>();
+		return mpt::FileReader::ReadUint32BE(*this);
 	}
 
-	// Read signed 32-Bit integer in little-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	int32 ReadInt32LE()
 	{
-		return ReadIntLE<int32>();
+		return mpt::FileReader::ReadInt32LE(*this);
 	}
 
-	// Read signed 32-Bit integer in big-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	int32 ReadInt32BE()
 	{
-		return ReadIntBE<int32>();
+		return mpt::FileReader::ReadInt32BE(*this);
 	}
 
-	// Read unsigned 16-Bit integer in little-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	uint16 ReadUint16LE()
 	{
-		return ReadIntLE<uint16>();
+		return mpt::FileReader::ReadUint16LE(*this);
 	}
 
-	// Read unsigned 16-Bit integer in big-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	uint16 ReadUint16BE()
 	{
-		return ReadIntBE<uint16>();
+		return mpt::FileReader::ReadUint16BE(*this);
 	}
 
-	// Read signed 16-Bit integer in little-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	int16 ReadInt16LE()
 	{
-		return ReadIntLE<int16>();
+		return mpt::FileReader::ReadInt16LE(*this);
 	}
 
-	// Read signed 16-Bit integer in big-endian format.
-	// If successful, the file cursor is advanced by the size of the integer.
 	int16 ReadInt16BE()
 	{
-		return ReadIntBE<int16>();
+		return mpt::FileReader::ReadInt16BE(*this);
 	}
 
-	// Read unsigned 8-Bit integer.
-	// If successful, the file cursor is advanced by the size of the integer.
+	char ReadChar()
+	{
+		return mpt::FileReader::ReadChar(*this);
+	}
+
 	uint8 ReadUint8()
 	{
-		uint8 target;
-		if(Read(target))
-		{
-			return target;
-		} else
-		{
-			return 0;
-		}
+		return mpt::FileReader::ReadUint8(*this);
 	}
 
-	// Read signed 8-Bit integer. If successful, the file cursor is advanced by the size of the integer.
 	int8 ReadInt8()
 	{
-		int8 target;
-		if(Read(target))
-		{
-			return target;
-		} else
-		{
-			return 0;
-		}
+		return mpt::FileReader::ReadInt8(*this);
 	}
 
-	// Read 32-Bit float in little-endian format.
-	// If successful, the file cursor is advanced by the size of the float.
 	float ReadFloatLE()
 	{
-		IEEE754binary32LE target;
-		if(Read(target))
-		{
-			return target;
-		} else
-		{
-			return 0.0f;
-		}
+		return mpt::FileReader::ReadFloatLE(*this);
 	}
 
-	// Read 32-Bit float in big-endian format.
-	// If successful, the file cursor is advanced by the size of the float.
 	float ReadFloatBE()
 	{
-		IEEE754binary32BE target;
-		if(Read(target))
-		{
-			return target;
-		} else
-		{
-			return 0.0f;
-		}
+		return mpt::FileReader::ReadFloatBE(*this);
 	}
 
-	// Read 64-Bit float in little-endian format.
-	// If successful, the file cursor is advanced by the size of the float.
 	double ReadDoubleLE()
 	{
-		IEEE754binary64LE target;
-		if(Read(target))
-		{
-			return target;
-		} else
-		{
-			return 0.0f;
-		}
+		return mpt::FileReader::ReadDoubleLE(*this);
 	}
 
-	// Read 64-Bit float in big-endian format.
-	// If successful, the file cursor is advanced by the size of the float.
 	double ReadDoubleBE()
 	{
-		IEEE754binary64BE target;
-		if(Read(target))
-		{
-			return target;
-		} else
-		{
-			return 0.0f;
-		}
+		return mpt::FileReader::ReadDoubleBE(*this);
 	}
 
-	// Read a struct.
-	// If successful, the file cursor is advanced by the size of the struct. Otherwise, the target is zeroed.
 	template <typename T>
 	bool ReadStruct(T &target)
 	{
-		STATIC_ASSERT(mpt::is_binary_safe<T>::value);
-		if(Read(target))
-		{
-			return true;
-		} else
-		{
-			MemsetZero(target);
-			return false;
-		}
+		return mpt::FileReader::ReadStruct(*this, target);
 	}
 
-	// Allow to read a struct partially (if there's less memory available than the struct's size, fill it up with zeros).
-	// The file cursor is advanced by "partialSize" bytes.
 	template <typename T>
-	bool ReadStructPartial(T &target, off_t partialSize = sizeof(T))
+	size_t ReadStructPartial(T &target, size_t partialSize = sizeof(T))
 	{
-		STATIC_ASSERT(mpt::is_binary_safe<T>::value);
-		off_t copyBytes = std::min(partialSize, sizeof(T));
-		if(!CanRead(copyBytes))
-		{
-			copyBytes = BytesLeft();
-		}
-		DataContainer().Read(reinterpret_cast<mpt::byte *>(&target), streamPos, copyBytes);
-		std::memset(reinterpret_cast<mpt::byte *>(&target) + copyBytes, 0, sizeof(target) - copyBytes);
-		Skip(partialSize);
-		return true;
+		return mpt::FileReader::ReadStructPartial(*this, target, partialSize);
 	}
 
-	// Read a string of length srcSize into fixed-length char array destBuffer using a given read mode.
-	// The file cursor is advanced by "srcSize" bytes.
-	// Returns true if at least one byte could be read or 0 bytes were requested.
 	template<mpt::String::ReadWriteMode mode, size_t destSize>
 	bool ReadString(char (&destBuffer)[destSize], const off_t srcSize)
 	{
-		FileReader::PinnedRawDataView source = ReadPinnedRawDataView(srcSize); // Make sure the string is cached properly.
-		off_t realSrcSize = source.size();	// In case fewer bytes are available
-		mpt::String::Read<mode, destSize>(destBuffer, mpt::byte_cast<const char*>(source.data()), realSrcSize);
-		return (realSrcSize > 0 || srcSize == 0);
+		return mpt::FileReader::ReadString<mode>(*this, destBuffer, srcSize);
 	}
 
-	// Read a string of length srcSize into a std::string dest using a given read mode.
-	// The file cursor is advanced by "srcSize" bytes.
-	// Returns true if at least one character could be read or 0 characters were requested.
 	template<mpt::String::ReadWriteMode mode>
 	bool ReadString(std::string &dest, const off_t srcSize)
 	{
-		FileReader::PinnedRawDataView source = ReadPinnedRawDataView(srcSize);	// Make sure the string is cached properly.
-		off_t realSrcSize = source.size();	// In case fewer bytes are available
-		mpt::String::Read<mode>(dest, mpt::byte_cast<const char*>(source.data()), realSrcSize);
-		return (realSrcSize > 0 || srcSize == 0);
+		return mpt::FileReader::ReadString<mode>(*this, dest, srcSize);
 	}
 
-	// Read a string with a preprended length field of type Tsize (must be a packed<*,*> type) into a std::string dest using a given read mode.
-	// The file cursor is advanced by the string length.
-	// Returns true if the size field could be read and at least one character could be read or 0 characters were requested.
+	template<mpt::String::ReadWriteMode mode, std::size_t len>
+	bool ReadString(mpt::charbuf<len> &dest, const off_t srcSize)
+	{
+		return mpt::FileReader::ReadString<mode>(*this, dest, srcSize);
+	}
+
+	template<mpt::String::ReadWriteMode mode>
+	bool ReadString(mpt::ustring &dest, mpt::Charset charset, const off_t srcSize)
+	{
+		return mpt::FileReader::ReadString<mode>(*this, dest, charset, srcSize);
+	}
+
 	template<typename Tsize, mpt::String::ReadWriteMode mode, size_t destSize>
 	bool ReadSizedString(char (&destBuffer)[destSize], const off_t maxLength = std::numeric_limits<off_t>::max())
 	{
-		packed<typename Tsize::base_type, typename Tsize::endian_type> srcSize;	// Enforce usage of a packed type by ensuring that the passed type has the required typedefs
-		if(!Read(srcSize))
-			return false;
-		return ReadString<mode>(destBuffer, std::min<off_t>(srcSize, maxLength));
+		return mpt::FileReader::ReadSizedString<Tsize, mode>(*this, destBuffer, maxLength);
 	}
 
-	// Read a string with a preprended length field of type Tsize (must be a packed<*,*> type) into a std::string dest using a given read mode.
-	// The file cursor is advanced by the string length.
-	// Returns true if the size field could be read and at least one character could be read or 0 characters were requested.
 	template<typename Tsize, mpt::String::ReadWriteMode mode>
 	bool ReadSizedString(std::string &dest, const off_t maxLength = std::numeric_limits<off_t>::max())
 	{
-		packed<typename Tsize::base_type, typename Tsize::endian_type> srcSize;	// Enforce usage of a packed type by ensuring that the passed type has the required typedefs
-		if(!Read(srcSize))
-			return false;
-		return ReadString<mode>(dest, std::min<off_t>(srcSize, maxLength));
+		return mpt::FileReader::ReadSizedString<Tsize, mode>(*this, dest, maxLength);
 	}
 
-	// Read a null-terminated string into a std::string
+	template<typename Tsize, mpt::String::ReadWriteMode mode, std::size_t len>
+	bool ReadSizedString(mpt::charbuf<len> &dest, const off_t maxLength = std::numeric_limits<off_t>::max())
+	{
+		return mpt::FileReader::ReadSizedString<Tsize, mode, len>(*this, dest, maxLength);
+	}
+
 	bool ReadNullString(std::string &dest, const off_t maxLength = std::numeric_limits<off_t>::max())
 	{
-		dest.clear();
-		if(!CanRead(1))
-			return false;
-		try
-		{
-			char buffer[64];
-			off_t avail = 0;
-			while((avail = std::min(DataContainer().Read(reinterpret_cast<mpt::byte*>(buffer), streamPos, sizeof(buffer)), maxLength - dest.length())) != 0)
-			{
-				auto end = std::find(buffer, buffer + avail, '\0');
-				dest.insert(dest.end(), buffer, end);
-				streamPos += (end - buffer);
-				if(end < buffer + avail)
-				{
-					// Found null char
-					streamPos++;
-					break;
-				}
-			}
-		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
-		{
-			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
-		}
-		return dest.length() != 0;
+		return mpt::FileReader::ReadNullString(*this, dest, maxLength);
 	}
 
-private:
-	static bool IsLineEnding(char c) { return c == '\r' || c == '\n'; }
-public:
-	// Read a string up to the next line terminator into a std::string
 	bool ReadLine(std::string &dest, const off_t maxLength = std::numeric_limits<off_t>::max())
 	{
-		dest.clear();
-		if(!CanRead(1))
-			return false;
-		try
-		{
-			char buffer[64], c = '\0';
-			off_t avail = 0;
-			while((avail = std::min(DataContainer().Read(reinterpret_cast<mpt::byte*>(buffer), streamPos, sizeof(buffer)), maxLength - dest.length())) != 0)
-			{
-				auto end = std::find_if(buffer, buffer + avail, IsLineEnding);
-				dest.insert(dest.end(), buffer, end);
-				streamPos += (end - buffer);
-				if(end < buffer + avail)
-				{
-					// Found line ending
-					streamPos++;
-					// Handle CRLF line ending
-					if(*end == '\r')
-					{
-						if(Read(c) && c != '\n')
-							SkipBack(1);
-					}
-					break;
-				}
-			}
-		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
-		{
-			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
-		}
-		return true;
+		return mpt::FileReader::ReadLine(*this, dest, maxLength);
 	}
 
-	// Read an array of byte-sized values.
-	// If successful, the file cursor is advanced by the size of the array.
-	// Otherwise, the target is zeroed.
-	template<typename T, off_t destSize>
+	template<typename T, std::size_t destSize>
 	bool ReadArray(T (&destArray)[destSize])
 	{
-		STATIC_ASSERT(sizeof(T) == 1);
-		if(CanRead(sizeof(destArray)))
-		{
-			for(std::size_t i = 0; i < destSize; ++i)
-			{
-				Read(destArray[i]);
-			}
-			return true;
-		} else
-		{
-			MemsetZero(destArray);
-			return false;
-		}
+		return mpt::FileReader::ReadArray(*this, destArray);
 	}
 
-	// Read an array.
-	// If successful, the file cursor is advanced by the size of the array.
-	// Otherwise, the target is zeroed.
-	template<typename T, off_t destSize>
-	bool ReadArrayLE(T (&destArray)[destSize])
+	template<typename T, std::size_t destSize>
+	bool ReadArray(std::array<T, destSize> &destArray)
 	{
-		if(CanRead(sizeof(destArray)))
-		{
-			for(std::size_t i = 0; i < destSize; ++i)
-			{
-				destArray[i] = ReadIntLE<T>();
-			}
-			return true;
-		} else
-		{
-			MemsetZero(destArray);
-			return false;
-		}
+		return mpt::FileReader::ReadArray(*this, destArray);
 	}
 
-	// Read destSize elements of byte-sized type T into a vector.
-	// If successful, the file cursor is advanced by the size of the vector.
-	// Otherwise, the vector is resized to destSize, but possibly existing contents are not cleared.
+	template <typename T, std::size_t destSize>
+	std::array<T, destSize> ReadArray()
+	{
+		return mpt::FileReader::ReadArray<T, destSize>(*this);
+	}
+
 	template<typename T>
 	bool ReadVector(std::vector<T> &destVector, size_t destSize)
 	{
-		STATIC_ASSERT(sizeof(T) == 1);
-		const off_t readSize = sizeof(T) * destSize;
-		destVector.resize(destSize);
-		if(CanRead(readSize))
-		{
-			for(std::size_t i = 0; i < destSize; ++i)
-			{
-				Read(destVector[i]);
-			}
-			return true;
-		} else
-		{
-			return false;
-		}
+		return mpt::FileReader::ReadVector(*this, destVector, destSize);
 	}
 
-	// Read destSize elements of type T into a vector.
-	// If successful, the file cursor is advanced by the size of the vector.
-	// Otherwise, the vector is resized to destSize, but possibly existing contents are not cleared.
-	template<typename T>
-	bool ReadVectorLE(std::vector<T> &destVector, size_t destSize)
-	{
-		const off_t readSize = sizeof(T) * destSize;
-		try
-		{
-			destVector.resize(destSize);
-		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
-		{
-			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
-			return false;
-		}
-		if(CanRead(readSize))
-		{
-			for(std::size_t i = 0; i < destSize; ++i)
-			{
-				destVector[i] = ReadIntLE<T>();
-			}
-			return true;
-		} else
-		{
-			return false;
-		}
-	}
-
-	// Compare a magic string with the current stream position.
-	// Returns true if they are identical and advances the file cursor by the the length of the "magic" string.
-	// Returns false if the string could not be found. The file cursor is not advanced in this case.
 	template<size_t N>
 	bool ReadMagic(const char (&magic)[N])
 	{
-		MPT_ASSERT(magic[N - 1] == '\0');
-		for(std::size_t i = 0; i < N - 1; ++i)
-		{
-			MPT_ASSERT(magic[i] != '\0');
-		}
-		if(CanRead(N - 1))
-		{
-			mpt::byte bytes[N - 1];
-			STATIC_ASSERT(sizeof(bytes) == sizeof(magic) - 1);
-			DataContainer().Read(bytes, streamPos, N - 1);
-			if(!std::memcmp(bytes, magic, N - 1))
-			{
-				streamPos += (N - 1);
-				return true;
-			}
-		}
-		return false;
+		return mpt::FileReader::ReadMagic(*this, magic);
 	}
 
 	bool ReadMagic(const char *const magic, off_t magicLength)
 	{
-		if(CanRead(magicLength))
-		{
-			bool identical = true;
-			for(std::size_t i = 0; i < magicLength; ++i)
-			{
-				mpt::byte c = 0;
-				DataContainer().Read(&c, streamPos + i, 1);
-				if(c != mpt::byte_cast<mpt::byte>(magic[i]))
-				{
-					identical = false;
-					break;
-				}
-			}
-			if(identical)
-			{
-				streamPos += magicLength;
-				return true;
-			} else
-			{
-				return false;
-			}
-		} else
-		{
-			return false;
-		}
+		return mpt::FileReader::ReadMagic(*this, magic, magicLength);
 	}
 
-	// Read variable-length integer (as found in MIDI files).
-	// If successful, the file cursor is advanced by the size of the integer and true is returned.
-	// False is returned if not enough bytes were left to finish reading of the integer or if an overflow happened (source doesn't fit into target integer).
-	// In case of an overflow, the target is also set to the maximum value supported by its data type.
 	template<typename T>
 	bool ReadVarInt(T &target)
 	{
-		static_assert(std::numeric_limits<T>::is_integer == true
-			&& std::numeric_limits<T>::is_signed == false,
-			"Target type is a not an unsigned integer");
-
-		if(NoBytesLeft())
-		{
-			target = 0;
-			return false;
-		}
-
-		size_t writtenBits = 0;
-		uint8 b = ReadUint8();
-		target = (b & 0x7F);
-
-		// Count actual bits used in most significant byte (i.e. this one)
-		for(size_t bit = 0; bit < 7; bit++)
-		{
-			if((b & (1 << bit)) != 0)
-			{
-				writtenBits = bit + 1;
-			}
-		}
-
-		while(CanRead(1) && (b & 0x80) != 0)
-		{
-			b = ReadUint8();
-			target <<= 7;
-			target |= (b & 0x7F);
-			writtenBits += 7;
-		};
-
-		if(writtenBits > sizeof(target) * 8)
-		{
-			// Overflow
-			target = Util::MaxValueOfType<T>(target);
-			return false;
-		} else if((b & 0x80) != 0)
-		{
-			// Reached EOF
-			return false;
-		}
-		return true;
+		return mpt::FileReader::ReadVarInt(*this, target);
 	}
 
 };
 
+} // namespace detail
+
+using FileReader = detail::FileReader<FileReaderTraitsDefault>;
+
+using MemoryFileReader = detail::FileReader<FileReaderTraitsMemory>;
+
+
+// Initialize file reader object with pointer to data and data length.
+template <typename Tbyte> inline FileReader make_FileReader(mpt::span<Tbyte> bytedata, const mpt::PathString *filename = nullptr)
+{
+	return FileReader(mpt::byte_cast<mpt::const_byte_span>(bytedata), filename);
+}
+
+#if defined(MPT_FILEREADER_CALLBACK_STREAM)
+
+// Initialize file reader object with a CallbackStream.
+inline FileReader make_FileReader(CallbackStream s, const mpt::PathString *filename = nullptr)
+{
+	return FileReader(
+				FileDataContainerCallbackStreamSeekable::IsSeekable(s) ?
+					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerCallbackStreamSeekable>(s))
+				:
+					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerCallbackStream>(s))
+			, filename
+		);
+}
+#endif // MPT_FILEREADER_CALLBACK_STREAM
+	
+// Initialize file reader object with a std::istream.
+inline FileReader make_FileReader(std::istream *s, const mpt::PathString *filename = nullptr)
+{
+	return FileReader(
+				FileDataContainerStdStreamSeekable::IsSeekable(s) ?
+					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerStdStreamSeekable>(s))
+				:
+					std::static_pointer_cast<IFileDataContainer>(std::make_shared<FileDataContainerStdStream>(s))
+			, filename
+		);
+}
+
 
 #if defined(MPT_ENABLE_FILEIO)
-// templated in order to reduce header inter-depoendencies
+// templated in order to reduce header inter-dependencies
 template <typename TInputFile>
 FileReader GetFileReader(TInputFile &file)
 {
-	#if defined(MPT_FILEREADER_STD_ISTREAM)
-		typename TInputFile::ContentsRef tmp = file.Get();
-		if(!tmp.first)
-		{
-			return FileReader();
-		}
-		if(!tmp.first->good())
-		{
-			return FileReader();
-		}
-		#ifdef MPT_ENABLE_FILEIO
-			return FileReader(tmp.first, tmp.second);
-		#else
-			return FileReader(tmp.first);
-		#endif
-	#else
-		typename TInputFile::ContentsRef tmp = file.Get();
-		#ifdef MPT_ENABLE_FILEIO
-			return FileReader(mpt::as_span(tmp.first.data, tmp.first.size), tmp.second);
-		#else
-			return FileReader(mpt::as_span(tmp.first.data, tmp.first.size));
-		#endif
-	#endif
+	if(!file.IsValid())
+	{
+		return FileReader();
+	}
+	if(file.IsCached())
+	{
+		return make_FileReader(file.GetCache(), &file.GetFilenameRef());
+	} else
+	{
+		return make_FileReader(file.GetStream(), &file.GetFilenameRef());
+	}
 }
 #endif // MPT_ENABLE_FILEIO
 
@@ -1171,7 +1413,7 @@ private:
 
 public:
 
-	OnDiskFileWrapper(FileReader &file, const mpt::PathString &fileNameExtension = MPT_PATHSTRING("tmp"));
+	OnDiskFileWrapper(FileReader &file, const mpt::PathString &fileNameExtension = P_("tmp"));
 
 	~OnDiskFileWrapper();
 

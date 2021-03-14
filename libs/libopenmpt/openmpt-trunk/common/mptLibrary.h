@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -18,17 +20,6 @@ OPENMPT_NAMESPACE_BEGIN
 
 namespace mpt
 {
-
-
-#if MPT_OS_WINDOWS
-
-// Returns the application path or an empty string (if unknown), e.g. "C:\mptrack\"
-mpt::PathString GetAppPath();
-
-// Returns the system directory path, e.g. "C:\Windows\System32\"
-mpt::PathString GetSystemPath();
-
-#endif // MPT_OS_WINDOWS
 
 
 typedef void* (*FuncPtr)(); // pointer to function returning void*
@@ -110,11 +101,10 @@ public:
 	template <typename Tfunc>
 	bool Bind(Tfunc * & f, const std::string &symbol) const
 	{
-		#if ((MPT_COMPILER_MSVC && MPT_MSVC_AT_LEAST(2013,0)) || !MPT_COMPILER_MSVC) && !(MPT_OS_WINDOWS && MPT_COMPILER_GCC)
-			// MSVC std::is_function is always false for non __cdecl functions.
+		#if !(MPT_OS_WINDOWS && MPT_COMPILER_GCC)
+			// MinGW64 std::is_function is always false for non __cdecl functions.
 			// See https://connect.microsoft.com/VisualStudio/feedback/details/774720/stl-is-function-bug .
-			// MinGW64 has the same problem.
-			STATIC_ASSERT(std::is_function<Tfunc>::value);
+			static_assert(std::is_function<Tfunc>::value);
 		#endif
 		const FuncPtr addr = GetProcAddress(symbol);
 		f = reinterpret_cast<Tfunc*>(addr);

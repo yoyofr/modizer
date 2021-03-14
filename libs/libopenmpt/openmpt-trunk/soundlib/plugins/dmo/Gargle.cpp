@@ -23,7 +23,6 @@ namespace DMO
 {
 
 IMixPlugin* Gargle::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
-//---------------------------------------------------------------------------------------------
 {
 	return new (std::nothrow) Gargle(factory, sndFile, mixStruct);
 }
@@ -31,7 +30,6 @@ IMixPlugin* Gargle::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLU
 
 Gargle::Gargle(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
 	: IMixPlugin(factory, sndFile, mixStruct)
-//---------------------------------------------------------------------------------
 {
 	m_param[kGargleRate] = 0.02f;
 	m_param[kGargleWaveShape] = 0.0f;
@@ -42,7 +40,6 @@ Gargle::Gargle(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStru
 
 
 void Gargle::Process(float *pOutL, float *pOutR, uint32 numFrames)
-//----------------------------------------------------------------
 {
 	if(!m_mixBuffer.Ok())
 		return;
@@ -111,7 +108,6 @@ void Gargle::Process(float *pOutL, float *pOutR, uint32 numFrames)
 
 
 PlugParamValue Gargle::GetParameter(PlugParamIndex index)
-//-------------------------------------------------------
 {
 	if(index < kEqNumParameters)
 	{
@@ -122,13 +118,12 @@ PlugParamValue Gargle::GetParameter(PlugParamIndex index)
 
 
 void Gargle::SetParameter(PlugParamIndex index, PlugParamValue value)
-//-------------------------------------------------------------------
 {
 	if(index < kEqNumParameters)
 	{
 		Limit(value, 0.0f, 1.0f);
 		if(index == kGargleWaveShape)
-			value = Util::Round(value);
+			value = mpt::round(value);
 		m_param[index] = value;
 		RecalculateGargleParams();
 	}
@@ -136,7 +131,6 @@ void Gargle::SetParameter(PlugParamIndex index, PlugParamValue value)
 
 
 void Gargle::Resume()
-//-------------------
 {
 	RecalculateGargleParams();
 	m_counter = 0;
@@ -147,7 +141,6 @@ void Gargle::Resume()
 #ifdef MODPLUG_TRACKER
 
 CString Gargle::GetParamName(PlugParamIndex param)
-//------------------------------------------------
 {
 	switch(param)
 	{
@@ -159,7 +152,6 @@ CString Gargle::GetParamName(PlugParamIndex param)
 
 
 CString Gargle::GetParamLabel(PlugParamIndex param)
-//-------------------------------------------------
 {
 	switch(param)
 	{
@@ -170,13 +162,12 @@ CString Gargle::GetParamLabel(PlugParamIndex param)
 
 
 CString Gargle::GetParamDisplay(PlugParamIndex param)
-//---------------------------------------------------
 {
 	CString s;
 	switch(param)
 	{
 	case kGargleRate:
-		s.Format("%d", RateInHertz());
+		s.Format(_T("%u"), RateInHertz());
 		break;
 	case kGargleWaveShape:
 		return (m_param[param] < 0.5) ? _T("Triangle") : _T("Square");
@@ -188,14 +179,12 @@ CString Gargle::GetParamDisplay(PlugParamIndex param)
 
 
 uint32 Gargle::RateInHertz() const
-//--------------------------------
 {
-	return Util::Round<uint32>(m_param[kGargleRate] * 999.0f) + 1;
+	return mpt::saturate_round<uint32>(m_param[kGargleRate] * 999.0f) + 1;
 }
 
 
 void Gargle::RecalculateGargleParams()
-//------------------------------------
 {
 	m_period = m_SndFile.GetSampleRate() / RateInHertz();
 	if(m_period < 2) m_period = 2;

@@ -270,7 +270,6 @@ const char *szMidiPercussionNames[61] =
 ////////////////////////////////////////////////////////////////////////////////
 // Maps a midi instrument - returns the instrument number in the file
 uint32 CSoundFile::MapMidiInstrument(uint8 program, uint16 bank, uint8 midiChannel, uint8 note, bool isXG, std::bitset<16> drumChns)
-//----------------------------------------------------------------------------------------------------------------------------------
 {
 	ModInstrument *pIns;
 	program &= 0x7F;
@@ -293,8 +292,9 @@ uint32 CSoundFile::MapMidiInstrument(uint8 program, uint16 bank, uint8 midiChann
 			if (program + 1 == p->nMidiProgram && bank + 1 == p->wMidiBank && p->nMidiDrumKey == 0) return i;
 		}
 	}
-	if ((m_nInstruments + 1 >= MAX_INSTRUMENTS) || (m_nSamples + 1 >= MAX_SAMPLES)) return 0;
-	
+	if(!CanAddMoreInstruments() || !CanAddMoreSamples())
+		return 0;
+
 	pIns = AllocateInstrument(m_nInstruments + 1);
 	if(pIns == nullptr)
 	{
@@ -302,7 +302,6 @@ uint32 CSoundFile::MapMidiInstrument(uint8 program, uint16 bank, uint8 midiChann
 	}
 
 	m_nSamples++;
-	m_nInstruments++;
 	pIns->wMidiBank = bank + 1;
 	pIns->nMidiProgram = program + 1;
 	pIns->nFadeOut = 1024;
@@ -313,9 +312,9 @@ uint32 CSoundFile::MapMidiInstrument(uint8 program, uint16 bank, uint8 midiChann
 	{
 		pIns->nMidiChannel = MIDI_DRUMCHANNEL;
 		pIns->nMidiDrumKey = note;
-		for(size_t i = 0; i < CountOf(pIns->NoteMap); i++)
+		for(auto &key : pIns->NoteMap)
 		{
-			pIns->NoteMap[i] = NOTE_MIDDLEC;
+			key = NOTE_MIDDLEC;
 		}
 	}
 	pIns->VolEnv.dwFlags.set(ENV_ENABLED);
@@ -329,13 +328,13 @@ uint32 CSoundFile::MapMidiInstrument(uint8 program, uint16 bank, uint8 midiChann
 	// Set GM program / drum name
 	if (!isDrum)
 	{
-		strcpy(pIns->name, szMidiProgramNames[program]);
+		pIns->name = szMidiProgramNames[program];
 	} else
 	{
 		if (note >= 24 && note <= 84)
-			strcpy(pIns->name, szMidiPercussionNames[note - 24]);
+			pIns->name = szMidiPercussionNames[note - 24];
 		else
-			strcpy(pIns->name, "Percussions");
+			pIns->name = "Percussions";
 	}
 	return m_nInstruments;
 }
@@ -349,84 +348,53 @@ struct MThd
 	uint16be division;		// Delta timing value: positive = units/beat; negative = smpte compatible units
 };
 
-MPT_BINARY_STRUCT(MThd, 10);
+MPT_BINARY_STRUCT(MThd, 10)
 
 
-typedef uint32 tick_t;
+using tick_t = uint32;
 
 struct TrackState
 {
 	FileReader track;
-	tick_t nextEvent;
-	uint8 command;
-	bool finished;
-
-	TrackState()
-		: nextEvent(0)
-		, command(0)
-		, finished(false)
-	{ }
+	tick_t nextEvent = 0;
+	uint8 command = 0;
+	bool finished = false;
 };
 
 struct ModChannelState
 {
-	static const uint8 NOMIDI = 0xFF;	// No MIDI channel assigned.
+	static constexpr uint8 NOMIDI = 0xFF;  // No MIDI channel assigned.
 
-	tick_t age;				// At which MIDI tick the channel was triggered
-	int32 porta;			// Current portamento position in extra-fine slide units (1/64th of a semitone)
-	uint8 vol;				// MIDI note volume (0...127)
-	uint8 pan;				// MIDI channel panning (0...256)
-	uint8 midiCh;			// MIDI channel that was last played on this channel
-	ModCommand::NOTE note;	// MIDI note that was last played on this channel
-	bool sustained : 1;		// If true, the note was already released by a note-off event, but sustain pedal CC is still active
-
-	ModChannelState()
-		: age(0)
-		, porta(0)
-		, vol(100)
-		, pan(128)
-		, midiCh(NOMIDI)
-		, note(NOTE_NONE)
-		, sustained(false)
-	{ }
+	tick_t age = 0;                     // At which MIDI tick the channel was triggered
+	int32 porta = 0;                    // Current portamento position in extra-fine slide units (1/64th of a semitone)
+	uint8 vol = 100;                    // MIDI note volume (0...127)
+	uint8 pan = 128;                    // MIDI channel panning (0...256)
+	uint8 midiCh = NOMIDI;              // MIDI channel that was last played on this channel
+	ModCommand::NOTE note = NOTE_NONE;  // MIDI note that was last played on this channel
+	bool sustained = false;             // If true, the note was already released by a note-off event, but sustain pedal CC is still active
 };
 
 struct MidiChannelState
 {
-	int32  pitchbendMod;	// Pre-computed pitchbend in extra-fine slide units (1/64th of a semitone)
-	int16  pitchbend;		// 0...16383
-	uint16 bank;			// 0...16383
-	uint8  program;			// 0...127
-	// -- Controllers ------------- function ---------- CC# --- range  ---- init (midi) ---
-	uint8 pan;             // Channel Panning           10      [0-255]     128  (64)
-	uint8 expression;      // Channel Expression        11      0-128       128  (127)
-	uint8 volume;          // Channel Volume            7       0-128       80   (100)
-	uint16 rpn;            // Currently selected RPN    100/101  n/a
-	uint8 pitchBendRange;  // Pitch Bend Range                              2
-	int8  transpose;       // Channel transpose                             0
-	bool  monoMode : 1;    // Mono/Poly operation       126/127  n/a        Poly
-	bool  sustain : 1;     // Sustain pedal             64       on/off     off
+	int32  pitchbendMod = 0;  // Pre-computed pitchbend in extra-fine slide units (1/64th of a semitone)
+	int16  pitchbend = MIDIEvents::pitchBendCentre; // 0...16383
+	uint16 bank = 0;          // 0...16383
+	uint8  program = 0;       // 0...127
+	// -- Controllers ---------------- function ---------- CC# --- range  ---- init (midi) ---
+	uint8 pan = 128;          // Channel Panning           10      [0-255]     128  (64)
+	uint8 expression = 128;   // Channel Expression        11      0-128       128  (127)
+	uint8 volume = 80;        // Channel Volume            7       0-128       80   (100)
+	uint16 rpn = 0x3FFF;      // Currently selected RPN    100/101  n/a
+	uint8 pitchBendRange = 2; // Pitch Bend Range                              2
+	int8  transpose = 0;      // Channel transpose                             0
+	bool  monoMode = false;   // Mono/Poly operation       126/127  n/a        Poly
+	bool  sustain = false;    // Sustain pedal             64       on/off     off
 
-	CHANNELINDEX noteOn[128];	// Value != CHANNELINDEX_INVALID: Note is active and mapped to mod channel in value
+	std::array<CHANNELINDEX, 128> noteOn;  // Value != CHANNELINDEX_INVALID: Note is active and mapped to mod channel in value
 
 	MidiChannelState()
-		: pitchbendMod(0)
-		, pitchbend(MIDIEvents::pitchBendCentre)
-		, bank(0)
-		, program(0)
-		, pan(128)
-		, expression(128)
-		, volume(80)
-		, rpn(0x3FFF)
-		, pitchBendRange(2)
-		, transpose(0)
-		, monoMode(false)
-		, sustain(false)
 	{
-		for(size_t i = 0; i < CountOf(noteOn); i++)
-		{
-			noteOn[i] = CHANNELINDEX_INVALID;
-		}
+		noteOn.fill(CHANNELINDEX_INVALID);
 	}
 
 	void SetPitchbend(uint16 value)
@@ -452,32 +420,32 @@ struct MidiChannelState
 	{
 		switch(rpn)
 		{
-		case 0:	// Pitch Bend Range
+		case 0: // Pitch Bend Range
 			pitchBendRange = std::max(value, uint8(1));
 			SetPitchbend(pitchbend);
 			break;
-		case 2:	// Coarse Tune
+		case 2: // Coarse Tune
 			transpose = static_cast<int8>(value) - 64;
 			break;
 		}
 	}
 
-	uint8 GetRPN() const
+	void SetRPNRelative(int8 value)
 	{
 		switch(rpn)
 		{
-		case 0:	// Pitch Bend Range
-			return pitchBendRange;
-		case 2:	// Coarse Tune
-			return transpose;
+		case 0: // Pitch Bend Range
+			pitchBendRange = static_cast<uint8>(std::clamp(pitchBendRange + value, 1, 0x7F));
+			break;
+		case 2: // Coarse Tune
+			transpose = mpt::saturate_cast<int8>(transpose + value);
+			break;
 		}
-		return 0;
 	}
 };
 
 
 static CHANNELINDEX FindUnusedChannel(uint8 midiCh, ModCommand::NOTE note, const std::vector<ModChannelState> &channels, bool monoMode, PatternRow patRow)
-//--------------------------------------------------------------------------------------------------------------------------------------------------------
 {
 	for(size_t i = 0; i < channels.size(); i++)
 	{
@@ -535,8 +503,7 @@ static CHANNELINDEX FindUnusedChannel(uint8 midiCh, ModCommand::NOTE note, const
 }
 
 
-static void MIDINoteOff(MidiChannelState &midiChn, std::vector<ModChannelState> &modChnStatus, uint8 note, uint8 delay, PatternRow patRow)
-//----------------------------------------------------------------------------------------------------------------------------------------
+static void MIDINoteOff(MidiChannelState &midiChn, std::vector<ModChannelState> &modChnStatus, uint8 note, uint8 delay, PatternRow patRow, std::bitset<16> drumChns)
 {
 	CHANNELINDEX chn = midiChn.noteOn[note];
 	if(chn == CHANNELINDEX_INVALID)
@@ -551,6 +518,7 @@ static void MIDINoteOff(MidiChannelState &midiChn, std::vector<ModChannelState> 
 
 	uint8 midiCh = modChnStatus[chn].midiCh;
 	modChnStatus[chn].note = NOTE_NONE;
+	modChnStatus[chn].sustained = false;
 	midiChn.noteOn[note] = CHANNELINDEX_INVALID;
 	ModCommand &m = patRow[chn];
 	if(m.note == NOTE_NONE)
@@ -561,7 +529,7 @@ static void MIDINoteOff(MidiChannelState &midiChn, std::vector<ModChannelState> 
 			m.command = CMD_S3MCMDEX;
 			m.param = 0xD0 | delay;
 		}
-	} else if(m.IsNote() && midiCh != (MIDI_DRUMCHANNEL - 1))
+	} else if(m.IsNote() && !drumChns[midiCh])
 	{
 		// Only do note cuts for melodic instruments - they sound weird on drums which should fade out naturally.
 		if(m.command == CMD_S3MCMDEX && (m.param & 0xF0) == 0xD0)
@@ -579,7 +547,6 @@ static void MIDINoteOff(MidiChannelState &midiChn, std::vector<ModChannelState> 
 
 
 static void EnterMIDIVolume(ModCommand &m, ModChannelState &modChn, const MidiChannelState &midiChn)
-//--------------------------------------------------------------------------------------------------
 {
 	m.volcmd = VOLCMD_VOLUME;
 
@@ -590,12 +557,27 @@ static void EnterMIDIVolume(ModCommand &m, ModChannelState &modChn, const MidiCh
 }
 
 
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderMID(MemoryFileReader file, const uint64 *pfilesize)
+{
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	char magic[4];
+	file.ReadArray(magic);
+	if(!memcmp(magic, "MThd", 4))
+		return ProbeSuccess;
+
+	if(!memcmp(magic, "RIFF", 4) && file.Skip(4) && file.ReadMagic("RMID"))
+		return ProbeSuccess;
+
+	return ProbeFailure;
+}
+
+
 bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
 {
 	file.Rewind();
 
 	// Microsoft MIDI files
+	bool isRIFF = false;
 	if(file.ReadMagic("RIFF"))
 	{
 		file.Skip(4);
@@ -616,6 +598,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 				file.Skip(length);
 			} else
 			{
+				isRIFF = true;
 				break;
 			}
 		} while(file.CanRead(8));
@@ -650,11 +633,15 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	// Avoid generating test cases that take overly long to evaluate
 	const ORDERINDEX MPT_MIDI_IMPORT_MAX_ORDERS = 64;
 #else
-	const ORDERINDEX MPT_MIDI_IMPORT_MAX_ORDERS = ORDERINDEX_MAX;
+	const ORDERINDEX MPT_MIDI_IMPORT_MAX_ORDERS = MAX_ORDERS;
 #endif
 
-	m_songArtist = MPT_USTRING("MIDI Conversion");
-	m_madeWithTracker = "Standard MIDI File";
+	m_songArtist = U_("MIDI Conversion");
+	m_modFormat.formatName = U_("Standard MIDI File");
+	m_modFormat.type = isRIFF ? UL_("rmi") : UL_("mid");
+	m_modFormat.madeWithTracker = U_("Standard MIDI File");
+	m_modFormat.charset = mpt::Charset::ISO8859_1;
+
 	SetMixLevels(mixLevels1_17RC3);
 	m_nTempoMode = tempoModeModern;
 	m_SongFlags = SONG_LINEARSLIDES;
@@ -674,7 +661,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	}
 	if(!ppqn)
 		ppqn = 96;
-	Order.clear();
+	Order().clear();
 
 	MidiChannelState midiChnStatus[16];
 	const CHANNELINDEX tempoChannel = m_nChannels - 2, globalVolChannel = m_nChannels - 1;
@@ -684,14 +671,28 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	std::bitset<16> drumChns;
 	drumChns.set(MIDI_DRUMCHANNEL - 1);
 
-	for(uint16 t = 0; t < numTracks; t++)
+	tick_t timeShift = 0;
+	for(auto &track : tracks)
 	{
 		if(!file.ReadMagic("MTrk"))
 			return false;
-		tracks[t].track = file.ReadChunk(file.ReadUint32BE());
+		track.track = file.ReadChunk(file.ReadUint32BE());
 		tick_t delta = 0;
-		tracks[t].track.ReadVarInt(delta);
-		tracks[t].nextEvent = delta;
+		track.track.ReadVarInt(delta);
+		// Work-around for some MID files that assume that negative deltas exist (they don't according to the standard)
+		if(delta > int32_max)
+			timeShift = std::max(static_cast<tick_t>(~delta  + 1), timeShift);
+		track.nextEvent = delta;
+	}
+	if(timeShift != 0)
+	{
+		for(auto &track : tracks)
+		{
+			if(track.nextEvent > int32_max)
+				track.nextEvent = timeShift - static_cast<tick_t>(~track.nextEvent + 1);
+			else
+				track.nextEvent += timeShift;
+		}
 	}
 
 	uint16 finishedTracks = 0;
@@ -702,7 +703,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	int8 masterTranspose = 0;
 	bool isXG = false;
 	bool isEMIDI = false;
-	bool isType2 = (fileHeader.format == 2);
+	const bool isType2 = (fileHeader.format == 2);
 
 	while(finishedTracks < numTracks)
 	{
@@ -726,11 +727,11 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 		ROWINDEX row = (modTicks / ticksPerRow) % patternLen;
 		uint8 delay = static_cast<uint8>(modTicks % ticksPerRow);
 
-		if(ord >= Order.size())
+		if(ord >= Order().GetLength())
 		{
 			if(ord > MPT_MIDI_IMPORT_MAX_ORDERS)
 				break;
-			ORDERINDEX curSize = Order.size();
+			ORDERINDEX curSize = Order().GetLength();
 			// If we need to extend the order list by more than one pattern, this means that we
 			// will be filling in empty patterns. Just recycle one empty pattern for this job.
 			// We read events in chronological order, so it is never possible for the loader to
@@ -740,9 +741,9 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 				if((emptyPattern = Patterns.InsertAny(patternLen)) == PATTERNINDEX_INVALID)
 					break;
 			}
-			Order.resize(ord + 1, emptyPattern);
+			Order().resize(ord + 1, emptyPattern);
 
-			if((Order[ord] = Patterns.InsertAny(patternLen)) == PATTERNINDEX_INVALID)
+			if((Order()[ord] = Patterns.InsertAny(patternLen)) == PATTERNINDEX_INVALID)
 				break;
 		}
 
@@ -756,7 +757,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 			lastRow = std::max(lastRow, row);
 		}
 
-		PATTERNINDEX pat = Order[ord];
+		PATTERNINDEX pat = Order()[ord];
 		PatternRow patRow = Patterns[pat].GetRow(row);
 
 		uint8 data1 = track.ReadUint8();
@@ -770,11 +771,11 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 
 			switch(data1)
 			{
-			case 1:	// Text
-			case 2:	// Copyright
+			case 1: // Text
+			case 2: // Copyright
 				m_songMessage.Read(chunk, len, SongMessage::leAutodetect);
 				break;
-			case 3:	// Track Name
+			case 3: // Track Name
 				if(len > 0)
 				{
 					std::string s;
@@ -786,26 +787,26 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 						m_songName = s;
 				}
 				break;
-			case 4:	// Instrument
-			case 5:	// Lyric
+			case 4: // Instrument
+			case 5: // Lyric
 				break;
-			case 6:	// Marker
-			case 7:	// Cue point
+			case 6: // Marker
+			case 7: // Cue point
 				{
 					std::string s;
 					chunk.ReadString<mpt::String::maybeNullTerminated>(s, len);
 					Patterns[pat].SetName(s);
 					if(!mpt::CompareNoCaseAscii(s, "loopStart"))
 					{
-						Order.SetRestartPos(ord);
+						Order().SetRestartPos(ord);
 						restartRow = row;
 					}
 				}
 				break;
-			case 8:	// Patch name
-			case 9:	// Port name
+			case 8: // Patch name
+			case 9: // Port name
 				break;
-			case 0x2F:	// End Of Track
+			case 0x2F: // End Of Track
 				tracks[t].finished = true;
 				break;
 			case 0x51: // Tempo
@@ -822,7 +823,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 					} else if(newTempo != tempo)
 					{
 						patRow[tempoChannel].command = CMD_TEMPO;
-						patRow[tempoChannel].param = std::max(ModCommand::PARAM(32), Util::Round<ModCommand::PARAM>(newTempo.ToDouble()));
+						patRow[tempoChannel].param = mpt::saturate_round<ModCommand::PARAM>(std::max(32.0, newTempo.ToDouble()));
 					}
 					tempo = newTempo;
 				}
@@ -833,16 +834,20 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 			}
 		} else
 		{
+			uint8 command = tracks[t].command;
 			if(data1 & 0x80)
 			{
-				// Command byte (if not present, repeat previous command byte)
-				tracks[t].command = data1;
+				// Command byte (if not present, use running status for channel messages)
+				command = data1;
 				if(data1 < 0xF0)
+				{
+					tracks[t].command = data1;
 					data1 = track.ReadUint8();
+				}
 			}
-			uint8 midiCh = tracks[t].command & 0x0F;
+			uint8 midiCh = command & 0x0F;
 
-			switch(tracks[t].command & 0xF0)
+			switch(command & 0xF0)
 			{
 			case 0x80: // Note Off
 			case 0x90: // Note On
@@ -850,7 +855,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 					data1 &= 0x7F;
 					ModCommand::NOTE note = static_cast<ModCommand::NOTE>(Clamp(data1 + NOTE_MIN, NOTE_MIN, NOTE_MAX));
 					uint8 data2 = track.ReadUint8();
-					if(data2 > 0 && (tracks[t].command & 0xF0) == 0x90)
+					if(data2 > 0 && (command & 0xF0) == 0x90)
 					{
 						// Note On
 						CHANNELINDEX chn = FindUnusedChannel(midiCh, note, modChnStatus, midiChnStatus[midiCh].monoMode, patRow);
@@ -894,7 +899,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 					} else
 					{
 						// Note Off
-						MIDINoteOff(midiChnStatus[midiCh], modChnStatus, data1, delay, patRow);
+						MIDINoteOff(midiChnStatus[midiCh], modChnStatus, data1, delay, patRow, drumChns);
 					}
 				}
 				break;
@@ -910,10 +915,9 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 					{
 					case MIDIEvents::MIDICC_Panposition_Coarse:
 						midiChnStatus[midiCh].pan = data2 * 2u;
-						for(size_t i = 0; i < CountOf(midiChnStatus[midiCh].noteOn); i++)
+						for(auto chn : midiChnStatus[midiCh].noteOn)
 						{
-							CHANNELINDEX chn = midiChnStatus[midiCh].noteOn[i];
-							if(chn != CHANNELINDEX_INVALID)
+							if(chn != CHANNELINDEX_INVALID && modChnStatus[chn].pan != midiChnStatus[midiCh].pan)
 							{
 								if(Patterns[pat].WriteEffect(EffectWriter(CMD_PANNING8, midiChnStatus[midiCh].pan).Channel(chn).Row(row)))
 								{
@@ -929,9 +933,8 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 
 					case MIDIEvents::MIDICC_Volume_Coarse:
 						midiChnStatus[midiCh].volume = (uint8)(CDLSBank::DLSMidiVolumeToLinear(data2) >> 9);
-						for(size_t i = 0; i < CountOf(midiChnStatus[midiCh].noteOn); i++)
+						for(auto chn : midiChnStatus[midiCh].noteOn)
 						{
-							CHANNELINDEX chn = midiChnStatus[midiCh].noteOn[i];
 							if(chn != CHANNELINDEX_INVALID)
 							{
 								EnterMIDIVolume(patRow[chn], modChnStatus[chn], midiChnStatus[midiCh]);
@@ -941,9 +944,8 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 
 					case MIDIEvents::MIDICC_Expression_Coarse:
 						midiChnStatus[midiCh].expression = (uint8)(CDLSBank::DLSMidiVolumeToLinear(data2) >> 9);
-						for(size_t i = 0; i < CountOf(midiChnStatus[midiCh].noteOn); i++)
+						for(auto chn : midiChnStatus[midiCh].noteOn)
 						{
-							CHANNELINDEX chn = midiChnStatus[midiCh].noteOn[i];
 							if(chn != CHANNELINDEX_INVALID)
 							{
 								EnterMIDIVolume(patRow[chn], modChnStatus[chn], midiChnStatus[midiCh]);
@@ -966,11 +968,11 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 						if(data2 < 0x40)
 						{
 							// Release notes that are still being held after note-off
-							for(size_t i = 0; i < modChnStatus.size(); i++)
+							for(const auto &chnState : modChnStatus)
 							{
-								if(modChnStatus[i].midiCh == midiCh && modChnStatus[i].sustained)
+								if(chnState.midiCh == midiCh && chnState.sustained && chnState.note != NOTE_NONE)
 								{
-									MIDINoteOff(midiChnStatus[midiCh], modChnStatus, modChnStatus[i].note - NOTE_MIN, delay, patRow);
+									MIDINoteOff(midiChnStatus[midiCh], modChnStatus, chnState.note - NOTE_MIN, delay, patRow, drumChns);
 								}
 							}
 						}
@@ -978,7 +980,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 
 					case MIDIEvents::MIDICC_DataButtonincrement:
 					case MIDIEvents::MIDICC_DataButtondecrement:
-						midiChnStatus[midiCh].SetRPN(midiChnStatus[midiCh].GetRPN() + ((data1 == MIDIEvents::MIDICC_DataButtonincrement) ? 1 : -1));
+						midiChnStatus[midiCh].SetRPNRelative((data1 == MIDIEvents::MIDICC_DataButtonincrement) ? 1 : -1);
 						break;
 
 					case MIDIEvents::MIDICC_NonRegisteredParameter_Fine:
@@ -1003,7 +1005,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 						// Non-standard MIDI loop point. May conflict with Apogee EMIDI CCs (110/111), which is why we also check if CC 110 is ever used.
 						if(data2 == 0)
 						{
-							Order.SetRestartPos(ord);
+							Order().SetRestartPos(ord);
 							restartRow = row;
 						}
 						break;
@@ -1020,14 +1022,20 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 						midiChnStatus[midiCh].sustain = false;
 						for(uint8 note = 0; note < 128; note++)
 						{
-							MIDINoteOff(midiChnStatus[midiCh], modChnStatus, note, delay, patRow);
+							MIDINoteOff(midiChnStatus[midiCh], modChnStatus, note, delay, patRow, drumChns);
 						}
 						break;
 					case MIDIEvents::MIDICC_MonoOperation:
-						midiChnStatus[midiCh].monoMode = true;
+						if(data2 == 0)
+						{
+							midiChnStatus[midiCh].monoMode = true;
+						}
 						break;
 					case MIDIEvents::MIDICC_PolyOperation:
-						midiChnStatus[midiCh].monoMode = false;
+						if(data2 == 0)
+						{
+							midiChnStatus[midiCh].monoMode = false;
+						}
 						break;
 					}
 				}
@@ -1086,7 +1094,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 									chn = 9;
 								else if(chn < 10)
 									chn--;
-								drumChns.set(chn, xg[6] != 0);
+								drumChns.set(chn, sysex.ReadUint8() != 0);
 							}
 						}
 					}
@@ -1159,7 +1167,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 			}
 
 			m.command = static_cast<ModCommand::COMMAND>(diff < 0 ? CMD_PORTAMENTODOWN : CMD_PORTAMENTOUP);
-			int32 absDiff = mpt::abs(diff);
+			int32 absDiff = std::abs(diff);
 			int32 realDiff = 0;
 			if(absDiff < 16)
 			{
@@ -1195,21 +1203,21 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 			// Add another sub-song for type-2 files
 			if(isType2 && finishedTracks < numTracks)
 			{
-				if(Order.AddSequence(false) == SEQUENCEINDEX_INVALID)
+				if(Order.AddSequence() == SEQUENCEINDEX_INVALID)
 					break;
-				Order.clear();
+				Order().clear();
 			}
 		}
 	}
 
 	if(isEMIDI)
 	{
-		Order.SetRestartPos(0);
+		Order().SetRestartPos(0);
 	}
 
-	PATTERNINDEX lastPat = Order[lastOrd];
-	if(Patterns.IsValidPat(lastPat))
+	if(Order().IsValidPat(lastOrd))
 	{
+		PATTERNINDEX lastPat = Order()[lastOrd];
 		Patterns[lastPat].Resize(lastRow + 1);
 		if(restartRow != ROWINDEX_INVALID && !isEMIDI)
 		{
@@ -1230,11 +1238,11 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 		{
 			channels.push_back(i);
 			if(modChnStatus[i].midiCh != ModChannelState::NOMIDI)
-				sprintf(ChnSettings[i].szName, "MIDI Ch %u", 1 + modChnStatus[i].midiCh);
+				ChnSettings[i].szName = mpt::format("MIDI Ch %1")(1 + modChnStatus[i].midiCh);
 			else if(i == tempoChannel)
-				strcpy(ChnSettings[i].szName, "Tempo");
+				ChnSettings[i].szName = "Tempo";
 			else if(i == globalVolChannel)
-				strcpy(ChnSettings[i].szName, "Global Volume");
+				ChnSettings[i].szName = "Global Volume";
 		}
 	}
 	if(channels.empty())
@@ -1244,7 +1252,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	if(GetpModDoc() != nullptr)
 	{
 		// Keep MIDI channels in patterns neatly grouped
-		std::sort(channels.begin(), channels.end(), [&modChnStatus] (CHANNELINDEX c1, CHANNELINDEX c2) -> bool
+		std::sort(channels.begin(), channels.end(), [&modChnStatus] (CHANNELINDEX c1, CHANNELINDEX c2)
 		{
 			if(modChnStatus[c1].midiCh == modChnStatus[c2].midiCh)
 				return c1 < c2;
@@ -1254,131 +1262,87 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 		GetpModDoc()->m_ShowSavedialog = true;
 	}
 
-	std::shared_ptr<CDLSBank> pCachedBank, pEmbeddedBank;
-	mpt::PathString cachedBankFile;
+	std::unique_ptr<CDLSBank> cachedBank, embeddedBank;
 
 	if(CDLSBank::IsDLSBank(file.GetFileName()))
 	{
 		// Soundfont embedded in MIDI file
-		pEmbeddedBank = std::make_shared<CDLSBank>();
-		pEmbeddedBank->Open(file.GetFileName());
+		embeddedBank = std::make_unique<CDLSBank>();
+		embeddedBank->Open(file.GetFileName());
 	} else
 	{
 		// Soundfont with same name as MIDI file
-		mpt::PathString exts[] = { MPT_PATHSTRING(".sf2"), MPT_PATHSTRING(".sbk"), MPT_PATHSTRING(".dls") };
-		for(size_t i = 0; i < CountOf(exts); i++)
+		for(const auto &ext : { P_(".sf2"), P_(".sbk"), P_(".dls") })
 		{
-			mpt::PathString filename = file.GetFileName().ReplaceExt(exts[i]);
+			mpt::PathString filename = file.GetFileName().ReplaceExt(ext);
 			if(filename.IsFile())
 			{
-				pEmbeddedBank = std::make_shared<CDLSBank>();
-				if(pEmbeddedBank->Open(filename))
+				embeddedBank = std::make_unique<CDLSBank>();
+				if(embeddedBank->Open(filename))
 					break;
 			}
 		}
 	}
 	ChangeModTypeTo(MOD_TYPE_MPT);
-	MIDILIBSTRUCT &midiLib = CTrackApp::GetMidiLibrary();
-	// Scan Instruments
-	for (INSTRUMENTINDEX nIns = 1; nIns <= m_nInstruments; nIns++) if (Instruments[nIns])
+	const MidiLibrary &midiLib = CTrackApp::GetMidiLibrary();
+	mpt::PathString cachedBankName;
+	// Load Instruments
+	for (INSTRUMENTINDEX ins = 1; ins <= m_nInstruments; ins++) if (Instruments[ins])
 	{
-		mpt::PathString pszMidiMapName;
-		ModInstrument *pIns = Instruments[nIns];
-		uint32 nMidiCode;
-		bool embedded = false;
+		ModInstrument *pIns = Instruments[ins];
+		uint32 midiCode = 0;
+		if(pIns->nMidiChannel == MIDI_DRUMCHANNEL)
+			midiCode = 0x80 | (pIns->nMidiDrumKey & 0x7F);
+		else if(pIns->nMidiProgram)
+			midiCode = (pIns->nMidiProgram - 1) & 0x7F;
 
-		if (pIns->nMidiChannel == MIDI_DRUMCHANNEL)
-			nMidiCode = 0x80 | (pIns->nMidiDrumKey & 0x7F);
-		else
-			nMidiCode = pIns->nMidiProgram & 0x7F;
-		pszMidiMapName = midiLib.MidiMap[nMidiCode];
-		if (pEmbeddedBank)
+		if(embeddedBank && embeddedBank->FindAndExtract(*this, ins, midiCode >= 0x80))
 		{
-			uint32 nDlsIns = 0, nDrumRgn = 0;
-			uint32 nProgram = (pIns->nMidiProgram != 0) ? pIns->nMidiProgram - 1 : 0;
-			uint32 dwKey = (nMidiCode < 128) ? 0xFF : (nMidiCode & 0x7F);
-			if ((pEmbeddedBank->FindInstrument(	(nMidiCode >= 128),
-				((pIns->wMidiBank - 1) & 0x3FFF),
-				nProgram, dwKey, &nDlsIns))
-				|| (pEmbeddedBank->FindInstrument(	(nMidiCode >= 128),	0xFFFF,
-				(nMidiCode >= 128) ? 0xFF : nProgram,
-				dwKey, &nDlsIns)))
-			{
-				if (dwKey < 0x80) nDrumRgn = pEmbeddedBank->GetRegionFromKey(nDlsIns, dwKey);
-				if (pEmbeddedBank->ExtractInstrument(*this, nIns, nDlsIns, nDrumRgn))
-				{
-					pIns = Instruments[nIns]; // Reset pIns because ExtractInstrument may delete the previous value.
-					if ((dwKey >= 24) && (dwKey < 100))
-					{
-						mpt::String::CopyN(pIns->name, szMidiPercussionNames[dwKey - 24]);
-					}
-					embedded = true;
-				}
-				else
-					pIns = Instruments[nIns]; // Reset pIns because ExtractInstrument may delete the previous value.
-			}
+			continue;
 		}
-		if((!pszMidiMapName.empty()) && (!embedded))
-		{
-			// Load From DLS Bank
-			if (CDLSBank::IsDLSBank(pszMidiMapName))
-			{
-				std::shared_ptr<CDLSBank> pDLSBank = nullptr;
 
-				if ((pCachedBank) && (!mpt::PathString::CompareNoCase(cachedBankFile, pszMidiMapName)))
+		const mpt::PathString &midiMapName = midiLib[midiCode];
+		if(!midiMapName.empty())
+		{
+			// Load from DLS/SF2 Bank
+			if(CDLSBank::IsDLSBank(midiMapName))
+			{
+				CDLSBank *dlsBank = nullptr;
+				if(cachedBank != nullptr && !mpt::PathString::CompareNoCase(cachedBankName, midiMapName))
 				{
-					pDLSBank = pCachedBank;
+					dlsBank = cachedBank.get();
 				} else
 				{
-					pCachedBank = std::make_shared<CDLSBank>();
-					cachedBankFile = pszMidiMapName;
-					if (pCachedBank->Open(pszMidiMapName)) pDLSBank = pCachedBank;
+					cachedBank = std::make_unique<CDLSBank>();
+					cachedBankName = midiMapName;
+					if(cachedBank->Open(midiMapName)) dlsBank = cachedBank.get();
 				}
-				if (pDLSBank)
+				if(dlsBank)
 				{
-					uint32 nDlsIns = 0, nDrumRgn = 0;
-					uint32 nProgram = (pIns->nMidiProgram != 0) ? pIns->nMidiProgram - 1 : 0;
-					uint32 dwKey = (nMidiCode < 128) ? 0xFF : (nMidiCode & 0x7F);
-					if ((pDLSBank->FindInstrument(	(nMidiCode >= 128),
-						((pIns->wMidiBank - 1) & 0x3FFF),
-						nProgram, dwKey, &nDlsIns))
-						|| (pDLSBank->FindInstrument(	(nMidiCode >= 128), 0xFFFF,
-						(nMidiCode >= 128) ? 0xFF : nProgram,
-						dwKey, &nDlsIns)))
-					{
-						if (dwKey < 0x80) nDrumRgn = pDLSBank->GetRegionFromKey(nDlsIns, dwKey);
-						pDLSBank->ExtractInstrument(*this, nIns, nDlsIns, nDrumRgn);
-						pIns = Instruments[nIns]; // Reset pIns because ExtractInstrument may delete the previous value.
-						if ((dwKey >= 24) && (dwKey < 24+61))
-						{
-							mpt::String::CopyN(pIns->name, szMidiPercussionNames[dwKey-24]);
-						}
-					}
+					dlsBank->FindAndExtract(*this, ins, midiCode >= 0x80);
 				}
 			} else
 			{
 				// Load from Instrument or Sample file
 				InputFile f;
-
-				if(f.Open(pszMidiMapName))
+				if(f.Open(midiMapName, SettingCacheCompleteFileBeforeLoading()))
 				{
 					FileReader insFile = GetFileReader(f);
-					if(insFile.IsValid())
+					if(ReadInstrumentFromFile(ins, insFile, false))
 					{
-						ReadInstrumentFromFile(nIns, insFile, false);
-						mpt::PathString szName = pszMidiMapName.GetFullFileName();
-						pIns = Instruments[nIns];
-						if (!pIns->filename[0]) mpt::String::Copy(pIns->filename, szName.ToLocale().c_str());
-						if (!pIns->name[0])
+						mpt::PathString filename = midiMapName.GetFullFileName();
+						pIns = Instruments[ins];
+						if(!pIns->filename[0]) pIns->filename = filename.ToLocale();
+						if(!pIns->name[0])
 						{
-							if (nMidiCode < 128)
+							if(midiCode < 0x80)
 							{
-								mpt::String::CopyN(pIns->name, szMidiProgramNames[nMidiCode]);
+								pIns->name = szMidiProgramNames[midiCode];
 							} else
 							{
-								uint32 nKey = nMidiCode & 0x7F;
-								if (nKey >= 24)
-									mpt::String::CopyN(pIns->name, szMidiPercussionNames[nKey - 24]);
+								uint32 key = midiCode & 0x7F;
+								if((key >= 24) && (key < 24 + std::size(szMidiPercussionNames)))
+									pIns->name = szMidiPercussionNames[key - 24];
 							}
 						}
 					}
@@ -1387,7 +1351,6 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 		}
 	}
 #endif // MODPLUG_TRACKER
-
 	return true;
 }
 

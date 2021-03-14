@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 #include "Snd_defs.h"
 #include "ModChannel.h"
 
@@ -23,13 +25,13 @@ class CResampler;
 template<int channelsOut, int channelsIn, typename out, typename in>
 struct MixerTraits
 {
-	static const int numChannelsIn = channelsIn;	// Number of channels in sample
-	static const int numChannelsOut = channelsOut;	// Number of mixer output channels
+	enum : int { numChannelsIn = channelsIn };	// Number of channels in sample
+	enum : int { numChannelsOut = channelsOut };	// Number of mixer output channels
 	typedef out output_t;							// Output buffer sample type
 	typedef in input_t;								// Input buffer sample type
 	typedef out outbuf_t[channelsOut];				// Output buffer sampling point type
 	// To perform sample conversion, add a function with the following signature to your derived classes:
-	// static MPT_FORCEINLINE output_t Convert(const input_t x)
+	// static MPT_CONSTEXPR11_FUN output_t Convert(const input_t x)
 };
 
 
@@ -44,7 +46,7 @@ struct NoInterpolation
 
 	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const int32)
 	{
-		static_assert(Traits::numChannelsIn <= Traits::numChannelsOut, "Too many input channels");
+		static_assert(static_cast<int>(Traits::numChannelsIn) <= static_cast<int>(Traits::numChannelsOut), "Too many input channels");
 
 		for(int i = 0; i < Traits::numChannelsIn; i++)
 		{
@@ -86,7 +88,7 @@ static void SampleLoop(ModChannel &chn, const CResampler &resampler, typename Tr
 	while(samples--)
 	{
 		typename Traits::outbuf_t outSample;
-		interpolate(outSample, inSample + smpPos.GetInt() * Traits::numChannelsIn, static_cast<uint16>(smpPos.GetFract() >> 16));
+		interpolate(outSample, inSample + smpPos.GetInt() * Traits::numChannelsIn, smpPos.GetFract());
 		filter(outSample, c);
 		mix(outSample, c, outBuffer);
 		outBuffer += Traits::numChannelsOut;

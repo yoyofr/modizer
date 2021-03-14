@@ -44,7 +44,7 @@
  *   Use the following to check for availability:
  *   \code
  *   #include <libopenmpt/libopenmpt.h>
- *   #if defined(LIBOPENMPT_STREAM_CALLBACKS_FILE) || ((OPENMPT_API_VERSION_MAJOR == 0) && ((OPENMPT_API_VERSION_MINOR == 2) || (OPENMPT_API_VERSION_MINOR == 1))
+ *   #if defined(LIBOPENMPT_STREAM_CALLBACKS_FILE) || ((OPENMPT_API_VERSION_MAJOR == 0) && ((OPENMPT_API_VERSION_MINOR == 2) || (OPENMPT_API_VERSION_MINOR == 1)))
  *   #include <libopenmpt/libopenmpt_stream_callbacks_file.h>
  *   #endif
  *   \endcode
@@ -148,6 +148,8 @@
 #else
 #define LIBOPENMPT_DEPRECATED
 #endif
+#else
+#define LIBOPENMPT_DEPRECATED
 #endif
 
 #ifndef __cplusplus
@@ -164,86 +166,13 @@ LIBOPENMPT_DEPRECATED static const int LIBOPENMPT_DEPRECATED_STRING_CONSTANT = 0
 
 #ifdef __cplusplus
 
-#ifndef LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT
-/* handle known broken compilers here by defining LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT appropriately */
-/* Note: We force the known compilers to C++11 here in order to retain compatibility with libopenmpt <= 0.2.661-beta18. */
-#if defined(__clang__)
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT 201103L
-#elif defined(_MSC_VER)
-#if (_MSC_VER >= 1600)
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT 201103L
-#else
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT 199711L
-#endif
-#elif defined(__GNUC__)
-#if (__GNUC__*10000 + __GNUC_MINOR__*100 + __GNUC_PATCHLEVEL__*1 < 40300)
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT 199711L
-#else
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT 201103L
-#endif
-#endif
-#endif
-
-#ifndef LIBOPENMPT_ASSUME_CPLUSPLUS_DEPRECATED
-/* handle known broken compilers here by defining LIBOPENMPT_ASSUME_CPLUSPLUS_DEPRECATED appropriately */
-#endif
-
-#ifndef LIBOPENMPT_ASSUME_CPLUSPLUS_NOEXCEPT
-/* handle known broken compilers here by defining LIBOPENMPT_ASSUME_CPLUSPLUS_NOEXCEPT appropriately */
-#endif
-
 #if defined(LIBOPENMPT_ASSUME_CPLUSPLUS)
-#ifndef LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT LIBOPENMPT_ASSUME_CPLUSPLUS
-#endif
-#ifndef LIBOPENMPT_ASSUME_CPLUSPLUS_DEPRECATED
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_DEPRECATED LIBOPENMPT_ASSUME_CPLUSPLUS
-#endif
-#ifndef LIBOPENMPT_ASSUME_CPLUSPLUS_NOEXCEPT
-#define LIBOPENMPT_ASSUME_CPLUSPLUS_NOEXCEPT LIBOPENMPT_ASSUME_CPLUSPLUS
-#endif
-#endif
-
-#if defined(LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT)
-#if (LIBOPENMPT_ASSUME_CPLUSPLUS_CSTDINT < 201103L)
-#define LIBOPENMPT_QUIRK_NO_CSTDINT
-#endif
-#elif (__cplusplus < 201103L)
-#define LIBOPENMPT_QUIRK_NO_CSTDINT
 #endif
 
 #if !defined(LIBOPENMPT_NO_DEPRECATE)
-#if defined(LIBOPENMPT_ASSUME_CPLUSPLUS_DEPRECATED)
-#if (LIBOPENMPT_ASSUME_CPLUSPLUS_DEPRECATED >= 201402L)
 #define LIBOPENMPT_ATTR_DEPRECATED [[deprecated]]
-#undef LIBOPENMPT_DEPRECATED
-#define LIBOPENMPT_DEPRECATED
 #else
 #define LIBOPENMPT_ATTR_DEPRECATED
-#endif
-#elif (__cplusplus >= 201402L)
-#define LIBOPENMPT_ATTR_DEPRECATED [[deprecated]]
-#undef LIBOPENMPT_DEPRECATED
-#define LIBOPENMPT_DEPRECATED
-#else
-#define LIBOPENMPT_ATTR_DEPRECATED
-#endif
-#else
-#undef LIBOPENMPT_DEPRECATED
-#define LIBOPENMPT_DEPRECATED
-#define LIBOPENMPT_ATTR_DEPRECATED
-#endif
-
-#if defined(LIBOPENMPT_ASSUME_CPLUSPLUS_NOEXCEPT)
-#if (LIBOPENMPT_ASSUME_CPLUSPLUS_NOEXCEPT >= 201103L)
-#define LIBOPENMPT_NOEXCEPT noexcept
-#else
-#define LIBOPENMPT_NOEXCEPT throw()
-#endif
-#elif (__cplusplus >= 201103L)
-#define LIBOPENMPT_NOEXCEPT noexcept
-#else
-#define LIBOPENMPT_NOEXCEPT throw()
 #endif
 
 #endif
