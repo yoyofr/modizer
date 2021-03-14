@@ -12,7 +12,7 @@
 #include "Loaders.h"
 #include "ITTools.h"
 #include "Tables.h"
-#include "../common/StringFixer.h"
+#include "../common/mptStringBuffer.h"
 #include "../common/version.h"
 
 
@@ -21,7 +21,6 @@ OPENMPT_NAMESPACE_BEGIN
 
 // Convert OpenMPT's internal envelope format into an IT/MPTM envelope.
 void ITEnvelope::ConvertToIT(const InstrumentEnvelope &mptEnv, uint8 envOffset, uint8 envDefault)
-//-----------------------------------------------------------------------------------------------
 {
 	// Envelope Flags
 	if(mptEnv.dwFlags[ENV_ENABLED]) flags |= ITEnvelope::envEnabled;
@@ -43,23 +42,21 @@ void ITEnvelope::ConvertToIT(const InstrumentEnvelope &mptEnv, uint8 envOffset, 
 		// Attention: Full MPTM envelope is stored in extended instrument properties
 		for(uint32 ev = 0; ev < num; ev++)
 		{
-			data[ev * 3] = mptEnv[ev].value - envOffset;
-			data[ev * 3 + 1] = mptEnv[ev].tick & 0xFF;
-			data[ev * 3 + 2] = mptEnv[ev].tick >> 8;
+			data[ev].value = static_cast<int8>(mptEnv[ev].value) - envOffset;
+			data[ev].tick = mptEnv[ev].tick;
 		}
 	} else
 	{
 		// Fix non-existing envelopes so that they can still be edited in Impulse Tracker.
 		num = 2;
-		data[0] = data[3] = envDefault - envOffset;
-		data[4] = 10;
+		data[0].value = data[1].value = envDefault - envOffset;
+		data[1].tick = 10;
 	}
 }
 
 
 // Convert IT/MPTM envelope data into OpenMPT's internal envelope format - To be used by ITInstrToMPT()
 void ITEnvelope::ConvertToMPT(InstrumentEnvelope &mptEnv, uint8 envOffset, uint8 maxNodes) const
-//----------------------------------------------------------------------------------------------
 {
 	// Envelope Flags
 	mptEnv.dwFlags.set(ENV_ENABLED, (flags & ITEnvelope::envEnabled) != 0);
@@ -76,22 +73,19 @@ void ITEnvelope::ConvertToMPT(InstrumentEnvelope &mptEnv, uint8 envOffset, uint8
 
 	// Envelope Data
 	// Attention: Full MPTM envelope is stored in extended instrument properties
-	for(uint32 ev = 0; ev < std::min<uint32>(25, num); ev++)
+	for(uint32 ev = 0; ev < std::min(uint8(25), num); ev++)
 	{
-		mptEnv[ev].value = data[ev * 3] + envOffset;
-		mptEnv[ev].tick = (data[ev * 3 + 2] << 8) | (data[ev * 3 + 1]);
-		if(ev > 0 && ev < num && mptEnv[ev].tick < mptEnv[ev - 1].tick)
+		mptEnv[ev].value = Clamp<int8, int8>(data[ev].value + envOffset, 0, 64);
+		mptEnv[ev].tick = data[ev].tick;
+		if(ev > 0 && mptEnv[ev].tick < mptEnv[ev - 1].tick && !(mptEnv[ev].tick & 0xFF00))
 		{
 			// Fix broken envelopes... Instruments 2 and 3 in NoGap.it by Werewolf have envelope points where the high byte of envelope nodes is missing.
-			// NoGap.it was saved with MPT 1.07 or MPT 1.09, which *normally* doesn't do this in IT files.
+			// NoGap.it was saved with MPT 1.07 - 1.09, which *normally* doesn't do this in IT files.
 			// However... It turns out that MPT 1.07 omitted the high byte of envelope nodes when saving an XI instrument file, and it looks like
 			// Instrument 2 and 3 in NoGap.it were loaded from XI files.
-			mptEnv[ev].tick &= 0xFF;
-			mptEnv[ev].tick |= (mptEnv[ev].tick & ~0xFF);
+			mptEnv[ev].tick |= mptEnv[ev - 1].tick & 0xFF00;
 			if(mptEnv[ev].tick < mptEnv[ev - 1].tick)
-			{
 				mptEnv[ev].tick += 0x100;
-			}
 		}
 	}
 }
@@ -99,7 +93,6 @@ void ITEnvelope::ConvertToMPT(InstrumentEnvelope &mptEnv, uint8 envOffset, uint8
 
 // Convert an ITOldInstrument to OpenMPT's internal instrument representation.
 void ITOldInstrument::ConvertToMPT(ModInstrument &mptIns) const
-//-------------------------------------------------------------
 {
 	// Header
 	if(memcmp(id, "IMPI", 4))
@@ -107,8 +100,8 @@ void ITOldInstrument::ConvertToMPT(ModInstrument &mptIns) const
 		return;
 	}
 
-	mpt::String::Read<mpt::String::spacePadded>(mptIns.name, name);
-	mpt::String::Read<mpt::String::nullTerminated>(mptIns.filename, filename);
+	mptIns.name = mpt::String::ReadBuf(mpt::String::spacePadded, name);
+	mptIns.filename = mpt::String::ReadBuf(mpt::String::nullTerminated, filename);
 
 	// Volume / Panning
 	mptIns.nFadeOut = fadeout << 6;
@@ -116,8 +109,8 @@ void ITOldInstrument::ConvertToMPT(ModInstrument &mptIns) const
 	mptIns.nPan = 128;
 
 	// NNA Stuff
-	mptIns.nNNA = nna;
-	mptIns.nDCT = dnc;
+	mptIns.nNNA = static_cast<NewNoteAction>(nna.get());
+	mptIns.nDCT = static_cast<DuplicateCheckType>(dnc.get());
 
 	// Sample Map
 	for(size_t i = 0; i < 120; i++)
@@ -167,21 +160,20 @@ void ITOldInstrument::ConvertToMPT(ModInstrument &mptIns) const
 
 // Convert OpenMPT's internal instrument representation to an ITInstrument.
 uint32 ITInstrument::ConvertToIT(const ModInstrument &mptIns, bool compatExport, const CSoundFile &sndFile)
-//---------------------------------------------------------------------------------------------------------
 {
 	MemsetZero(*this);
 
 	// Header
 	memcpy(id, "IMPI", 4);
-	trkvers = 0x5000 | static_cast<uint16>(MptVersion::num >> 16);
+	trkvers = 0x5000 | static_cast<uint16>(Version::Current().GetRawVersion() >> 16);
 
-	mpt::String::Write<mpt::String::nullTerminated>(filename, mptIns.filename);
-	mpt::String::Write<mpt::String::nullTerminated>(name, mptIns.name);
+	mpt::String::WriteBuf(mpt::String::nullTerminated, filename) = mptIns.filename;
+	mpt::String::WriteBuf(mpt::String::nullTerminated, name) = mptIns.name;
 
 	// Volume / Panning
-	fadeout = static_cast<uint16>(std::min<uint32>(mptIns.nFadeOut >> 5, 256u));
-	gbv = static_cast<uint8>(std::min<uint32>(mptIns.nGlobalVol * 2u, 128u));
-	dfp = static_cast<uint8>(std::min<uint32>(mptIns.nPan / 4u, 64u));
+	fadeout = static_cast<uint16>(std::min(mptIns.nFadeOut >> 5, uint32(256)));
+	gbv = static_cast<uint8>(std::min(mptIns.nGlobalVol * 2u, uint32(128)));
+	dfp = static_cast<uint8>(std::min(mptIns.nPan / 4u, uint32(64)));
 	if(!mptIns.dwFlags[INS_SETPANNING]) dfp |= ITInstrument::ignorePanning;
 
 	// Random Variation
@@ -260,15 +252,14 @@ uint32 ITInstrument::ConvertToIT(const ModInstrument &mptIns, bool compatExport,
 
 // Convert an ITInstrument to OpenMPT's internal instrument representation. Returns size of the instrument data that has been read.
 uint32 ITInstrument::ConvertToMPT(ModInstrument &mptIns, MODTYPE modFormat) const
-//-------------------------------------------------------------------------------
 {
 	if(memcmp(id, "IMPI", 4))
 	{
 		return 0;
 	}
 
-	mpt::String::Read<mpt::String::spacePadded>(mptIns.name, name);
-	mpt::String::Read<mpt::String::nullTerminated>(mptIns.filename, filename);
+	mptIns.name = mpt::String::ReadBuf(mpt::String::spacePadded, name);
+	mptIns.filename = mpt::String::ReadBuf(mpt::String::nullTerminated, filename);
 
 	// Volume / Panning
 	mptIns.nFadeOut = fadeout << 5;
@@ -279,13 +270,13 @@ uint32 ITInstrument::ConvertToMPT(ModInstrument &mptIns, MODTYPE modFormat) cons
 	mptIns.dwFlags.set(INS_SETPANNING, !(dfp & ITInstrument::ignorePanning));
 
 	// Random Variation
-	mptIns.nVolSwing = std::min<uint8>(rv, 100);
-	mptIns.nPanSwing = std::min<uint8>(rp, 64);
+	mptIns.nVolSwing = std::min(static_cast<uint8>(rv), uint8(100));
+	mptIns.nPanSwing = std::min(static_cast<uint8>(rp), uint8(64));
 
 	// NNA Stuff
-	mptIns.nNNA = nna;
-	mptIns.nDCT = dct;
-	mptIns.nDNA = dca;
+	mptIns.nNNA = static_cast<NewNoteAction>(nna.get());
+	mptIns.nDCT = static_cast<DuplicateCheckType>(dct.get());
+	mptIns.nDNA = static_cast<DuplicateNoteAction>(dca.get());
 
 	// Pitch / Pan Separation
 	mptIns.nPPS = pps;
@@ -300,8 +291,8 @@ uint32 ITInstrument::ConvertToMPT(ModInstrument &mptIns, MODTYPE modFormat) cons
 	// MPT used to have a slightly different encoding of MIDI program and banks which we are trying to fix here.
 	// Impulse Tracker / Schism Tracker will set trkvers to 0 in IT files,
 	// and we won't care about correctly importing MIDI programs and banks in ITI files.
-	// Chibi Tracker sets trkvers to 0x214, but always writes mpr=mbank=0.
-	// BeRoTracker sets trkvers to 0x214, but only writes mpr correctly.
+	// Chibi Tracker sets trkvers to 0x214, but always writes mpr=mbank=0 anyway.
+	// Old BeRoTracker versions set trkvers to 0x214 or 0x217.
 	//        <= MPT 1.07          <= MPT 1.16       OpenMPT 1.17-?      <= OpenMPT 1.26     definitely not MPT
 	if((trkvers == 0x0202 || trkvers == 0x0211 || trkvers == 0x0220 || trkvers == 0x0214) && mpr != 0xFF)
 	{
@@ -371,7 +362,6 @@ uint32 ITInstrument::ConvertToMPT(ModInstrument &mptIns, MODTYPE modFormat) cons
 
 // Convert OpenMPT's internal instrument representation to an ITInstrumentEx. Returns amount of bytes that need to be written to file.
 uint32 ITInstrumentEx::ConvertToIT(const ModInstrument &mptIns, bool compatExport, const CSoundFile &sndFile)
-//-----------------------------------------------------------------------------------------------------------
 {
 	uint32 instSize = iti.ConvertToIT(mptIns, compatExport, sndFile);
 
@@ -420,7 +410,6 @@ uint32 ITInstrumentEx::ConvertToIT(const ModInstrument &mptIns, bool compatExpor
 
 // Convert an ITInstrumentEx to OpenMPT's internal instrument representation. Returns size of the instrument data that has been read.
 uint32 ITInstrumentEx::ConvertToMPT(ModInstrument &mptIns, MODTYPE fromType) const
-//--------------------------------------------------------------------------------
 {
 	uint32 insSize = iti.ConvertToMPT(mptIns, fromType);
 
@@ -443,15 +432,14 @@ uint32 ITInstrumentEx::ConvertToMPT(ModInstrument &mptIns, MODTYPE fromType) con
 
 // Convert OpenMPT's internal sample representation to an ITSample.
 void ITSample::ConvertToIT(const ModSample &mptSmp, MODTYPE fromType, bool compress, bool compressIT215, bool allowExternal)
-//--------------------------------------------------------------------------------------------------------------------------
 {
 	MemsetZero(*this);
 
 	// Header
 	memcpy(id, "IMPS", 4);
 
-	mpt::String::Write<mpt::String::nullTerminated>(filename, mptSmp.filename);
-	//mpt::String::Write<mpt::String::nullTerminated>(name, m_szNames[nsmp]);
+	mpt::String::WriteBuf(mpt::String::nullTerminated, filename) = mptSmp.filename;
+	//mpt::String::WriteBuf(mpt::String::nullTerminated, name) = m_szNames[nsmp];
 
 	// Volume / Panning
 	gvl = static_cast<uint8>(mptSmp.nGlobalVol);
@@ -460,7 +448,7 @@ void ITSample::ConvertToIT(const ModSample &mptSmp, MODTYPE fromType, bool compr
 	if(mptSmp.uFlags[CHN_PANNING]) dfp |= ITSample::enablePanning;
 
 	// Sample Format / Loop Flags
-	if(mptSmp.nLength && mptSmp.pSample)
+	if(mptSmp.HasSampleData())
 	{
 		flags = ITSample::sampleDataPresent;
 		if(mptSmp.uFlags[CHN_LOOP]) flags |= ITSample::sampleLoop;
@@ -513,17 +501,20 @@ void ITSample::ConvertToIT(const ModSample &mptSmp, MODTYPE fromType, bool compr
 		vir = 255 - vir;
 	}
 
-	if(mptSmp.uFlags[SMP_KEEPONDISK])
+	if(mptSmp.uFlags[CHN_ADLIB])
+	{
+		length = 12;
+		cvt = ITSample::cvtOPLInstrument;
+	} else if(mptSmp.uFlags[SMP_KEEPONDISK])
 	{
 #ifndef MPT_EXTERNAL_SAMPLES
-		MPT_UNREFERENCED_PARAMETER(allowExternal);
-#else
+		allowExternal = false;
+#endif  // MPT_EXTERNAL_SAMPLES
 		// Save external sample (filename at sample pointer)
 		if(allowExternal && mptSmp.HasSampleData())
 		{
 			cvt = ITSample::cvtExternalSample;
 		} else
-#endif // MPT_EXTERNAL_SAMPLES
 		{
 			length = loopbegin = loopend = susloopbegin = susloopend = 0;
 		}
@@ -533,7 +524,6 @@ void ITSample::ConvertToIT(const ModSample &mptSmp, MODTYPE fromType, bool compr
 
 // Convert an ITSample to OpenMPT's internal sample representation.
 uint32 ITSample::ConvertToMPT(ModSample &mptSmp) const
-//----------------------------------------------------
 {
 	if(memcmp(id, "IMPS", 4))
 	{
@@ -541,7 +531,7 @@ uint32 ITSample::ConvertToMPT(ModSample &mptSmp) const
 	}
 
 	mptSmp.Initialize(MOD_TYPE_IT);
-	mpt::String::Read<mpt::String::nullTerminated>(mptSmp.filename, filename);
+	mptSmp.filename = mpt::String::ReadBuf(mpt::String::nullTerminated, filename);
 
 	// Volume / Panning
 	mptSmp.nVolume = vol * 4;
@@ -572,12 +562,16 @@ uint32 ITSample::ConvertToMPT(ModSample &mptSmp) const
 	mptSmp.SanitizeLoops();
 
 	// Auto Vibrato settings
-	mptSmp.nVibType = AutoVibratoIT2XM[vit & 7];
+	mptSmp.nVibType = static_cast<VibratoType>(AutoVibratoIT2XM[vit & 7]);
 	mptSmp.nVibRate = vis;
 	mptSmp.nVibDepth = vid & 0x7F;
 	mptSmp.nVibSweep = vir;
 
-	if(cvt == ITSample::cvtExternalSample)
+	if(cvt == ITSample::cvtOPLInstrument)
+	{
+		// FM instrument in MPTM
+		mptSmp.uFlags.set(CHN_ADLIB);
+	} else if(cvt == ITSample::cvtExternalSample)
 	{
 		// Read external sample (filename at sample pointer)
 		mptSmp.uFlags.set(SMP_KEEPONDISK);
@@ -589,7 +583,6 @@ uint32 ITSample::ConvertToMPT(ModSample &mptSmp) const
 
 // Retrieve the internal sample format flags for this instrument.
 SampleIO ITSample::GetSampleFormat(uint16 cwtv) const
-//---------------------------------------------------
 {
 	SampleIO sampleIO(
 		(flags & ITSample::sample16Bit) ? SampleIO::_16bit : SampleIO::_8bit,
@@ -637,28 +630,50 @@ SampleIO ITSample::GetSampleFormat(uint16 cwtv) const
 
 // Convert an ITHistoryStruct to OpenMPT's internal edit history representation
 void ITHistoryStruct::ConvertToMPT(FileHistory &mptHistory) const
-//---------------------------------------------------------------
 {
 	// Decode FAT date and time
 	MemsetZero(mptHistory.loadDate);
-	mptHistory.loadDate.tm_year = ((fatdate >> 9) & 0x7F) + 80;
-	mptHistory.loadDate.tm_mon = Clamp((fatdate >> 5) & 0x0F, 1, 12) - 1;
-	mptHistory.loadDate.tm_mday = Clamp(fatdate & 0x1F, 1, 31);
-	mptHistory.loadDate.tm_hour = Clamp((fattime >> 11) & 0x1F, 0, 23);
-	mptHistory.loadDate.tm_min = Clamp((fattime >> 5) & 0x3F, 0, 59);
-	mptHistory.loadDate.tm_sec = Clamp((fattime & 0x1F) * 2, 0, 59);
-	mptHistory.openTime = static_cast<uint32>(runtime * (HISTORY_TIMER_PRECISION / 18.2f));
+	if(fatdate != 0 || fattime != 0)
+	{
+		mptHistory.loadDate.tm_year = ((fatdate >> 9) & 0x7F) + 80;
+		mptHistory.loadDate.tm_mon = Clamp((fatdate >> 5) & 0x0F, 1, 12) - 1;
+		mptHistory.loadDate.tm_mday = Clamp(fatdate & 0x1F, 1, 31);
+		mptHistory.loadDate.tm_hour = Clamp((fattime >> 11) & 0x1F, 0, 23);
+		mptHistory.loadDate.tm_min = Clamp((fattime >> 5) & 0x3F, 0, 59);
+		mptHistory.loadDate.tm_sec = Clamp((fattime & 0x1F) * 2, 0, 59);
+	}
+	mptHistory.openTime = static_cast<uint32>(runtime * (HISTORY_TIMER_PRECISION / 18.2));
 }
 
 
 // Convert OpenMPT's internal edit history representation to an ITHistoryStruct
 void ITHistoryStruct::ConvertToIT(const FileHistory &mptHistory)
-//--------------------------------------------------------------
 {
 	// Create FAT file dates
-	fatdate = static_cast<uint16>(mptHistory.loadDate.tm_mday | ((mptHistory.loadDate.tm_mon + 1) << 5) | ((mptHistory.loadDate.tm_year - 80) << 9));
-	fattime = static_cast<uint16>((mptHistory.loadDate.tm_sec / 2) | (mptHistory.loadDate.tm_min << 5) | (mptHistory.loadDate.tm_hour << 11));
-	runtime = static_cast<uint32>(mptHistory.openTime * (18.2f / HISTORY_TIMER_PRECISION));
+	if(mptHistory.HasValidDate())
+	{
+		fatdate = static_cast<uint16>(mptHistory.loadDate.tm_mday | ((mptHistory.loadDate.tm_mon + 1) << 5) | ((mptHistory.loadDate.tm_year - 80) << 9));
+		fattime = static_cast<uint16>((mptHistory.loadDate.tm_sec / 2) | (mptHistory.loadDate.tm_min << 5) | (mptHistory.loadDate.tm_hour << 11));
+	} else
+	{
+		fatdate = 0;
+		fattime = 0;
+	}
+	runtime = static_cast<uint32>(mptHistory.openTime * (18.2 / HISTORY_TIMER_PRECISION));
+}
+
+
+uint32 DecodeITEditTimer(uint16 cwtv, uint32 editTime)
+{
+	if((cwtv & 0xFFF) >= 0x0208)
+	{
+		editTime ^= 0x4954524B;  // 'ITRK'
+		editTime = (editTime >> 7) | (editTime << (32 - 7));
+		editTime = ~editTime + 1;
+		editTime = (editTime << 4) | (editTime >> (32 - 4));
+		editTime ^= 0x4A54484C;  // 'JTHL'
+	}
+	return editTime;
 }
 
 

@@ -47,16 +47,7 @@
 
 #define BUFFER_COUNT 1024
 
-struct _ModPlugFile {
-	openmpt_module* mod;
-	signed short* buf;
-	signed int* mixerbuf;
-	char* name;
-	char* message;
-	ModPlug_Settings settings;
-	ModPlugMixerProc mixerproc;
-	ModPlugNote** patterns;
-};
+
 
 static ModPlug_Settings globalsettings = {
 	MODPLUG_ENABLE_OVERSAMPLING|MODPLUG_ENABLE_NOISE_REDUCTION,
@@ -91,6 +82,15 @@ static int32_t modplugresamplingmode_to_filterlength(int mode)
 	return 8;
 }
 
+/*
+//subsong: -1 to play all subsongs
+LIBOPENMPT_API int32_t openmpt_module_get_num_subsongs( openmpt_module * mod );
+LIBOPENMPT_API int openmpt_module_select_subsong( openmpt_module * mod, int32_t subsong );
+LIBOPENMPT_API int32_t openmpt_module_get_selected_subsong( openmpt_module * mod );
+LIBOPENMPT_API const char * openmpt_module_get_subsong_name( openmpt_module * mod, int32_t index );
+
+LIBOPENMPT_MODPLUG_API
+*/
 LIBOPENMPT_MODPLUG_API ModPlugFile* ModPlug_Load(const void* data, int size)
 {
 	ModPlugFile* file = (ModPlugFile*)malloc(sizeof(ModPlugFile));

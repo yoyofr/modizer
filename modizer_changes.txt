@@ -1,7 +1,6 @@
 Todo/Requested:
 ���������
 - [UI Improvement] option to keep subsong/subfiles selection screen opened
-- [PLAYER] libopenmpt update
 - [PLAYER] xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
 - [DB] Modland auto update / db creation
@@ -15,6 +14,14 @@ Todo/Requested:
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - TODO: playlist view: add swipe to remove entries
 - TODO: replace vgmplay by libvgm
+
+2.9.6
+�����
+- [PLAYER] libopenmpt updated to latest version
+- [DB] ASMA: fixed link for default repository
+- [PLAYER] subsongs management added for libopenmpt
+- [UI] Downloads directory now automatically recreated at launch
+- [PLAYER] liblazyusf updated to latest version, better playback speed accuracy
 
 2.9.5
 �����

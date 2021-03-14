@@ -62,31 +62,76 @@ struct _669Sample
 MPT_BINARY_STRUCT(_669Sample, 25)
 
 
+static bool ValidateHeader(const _669FileHeader &fileHeader)
+{
+	if((std::memcmp(fileHeader.magic, "if", 2) && std::memcmp(fileHeader.magic, "JN", 2))
+		|| fileHeader.samples > 64
+		|| fileHeader.restartPos >= 128
+		|| fileHeader.patterns > 128)
+	{
+		return false;
+	}
+	for(std::size_t i = 0; i < CountOf(fileHeader.breaks); i++)
+	{
+		if(fileHeader.orders[i] >= 128 && fileHeader.orders[i] < 0xFE)
+		{
+			return false;
+		}
+		if(fileHeader.orders[i] < 128 && fileHeader.tempoList[i] == 0)
+		{
+			return false;
+		}
+		if(fileHeader.breaks[i] >= 64)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+
+static uint64 GetHeaderMinimumAdditionalSize(const _669FileHeader &fileHeader)
+{
+	return fileHeader.samples * sizeof(_669Sample) + fileHeader.patterns * 1536u;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeader669(MemoryFileReader file, const uint64 *pfilesize)
+{
+	_669FileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	return ProbeAdditionalSize(file, pfilesize, GetHeaderMinimumAdditionalSize(fileHeader));
+}
+
+
 bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
 {
 	_669FileHeader fileHeader;
 
 	file.Rewind();
-	if(!file.ReadStruct(fileHeader)
-		|| (memcmp(fileHeader.magic, "if", 2) && memcmp(fileHeader.magic, "JN", 2))
-		|| fileHeader.samples > 64
-		|| fileHeader.restartPos >= 128
-		|| fileHeader.patterns > 128
-		|| !file.CanRead(fileHeader.samples * sizeof(_669Sample)))
+	if(!file.ReadStruct(fileHeader))
 	{
 		return false;
 	}
-	
-	for(size_t i = 0; i < CountOf(fileHeader.breaks); i++)
+	if(!ValidateHeader(fileHeader))
 	{
-		if(fileHeader.breaks[i] > 64)
-			return false;
+		return false;
 	}
-
 	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
+	}
+	
+	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	{
+		return false;
 	}
 
 	InitializeGlobals(MOD_TYPE_669);
@@ -100,10 +145,10 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 	m_SongFlags.set(SONG_LINEARSLIDES);
 #endif // MODPLUG_TRACKER
 
-	if(!memcmp(fileHeader.magic, "if", 2))
-		m_madeWithTracker = "Composer 669";
-	else
-		m_madeWithTracker = "UNIS 669";
+	m_modFormat.formatName = U_("Composer 669");
+	m_modFormat.type = U_("669");
+	m_modFormat.madeWithTracker = !memcmp(fileHeader.magic, "if", 2) ? UL_("Composer 669") : UL_("UNIS 669");
+	m_modFormat.charset = mpt::Charset::CP437;
 
 	m_nSamples = fileHeader.samples;
 	for(SAMPLEINDEX smp = 1; smp <= m_nSamples; smp++)
@@ -115,18 +160,18 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 		if(sampleHeader.length >= 0x4000000)
 			return false;
 		sampleHeader.ConvertToMPT(Samples[smp]);
-		mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[smp], sampleHeader.filename);
+		m_szNames[smp] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, sampleHeader.filename);
 	}
 
 	// Copy first song message line into song title
-	mpt::String::Read<mpt::String::spacePadded>(m_songName, fileHeader.songMessage, 36);
+	m_songName = mpt::String::ReadBuf(mpt::String::spacePadded, fileHeader.songMessage, 36);
 	// Song Message
-	m_songMessage.ReadFixedLineLength(mpt::byte_cast<const mpt::byte*>(fileHeader.songMessage), 108, 36, 0);
+	m_songMessage.ReadFixedLineLength(mpt::byte_cast<const std::byte*>(fileHeader.songMessage), 108, 36, 0);
 
 	// Reading Orders
-	Order.ReadFromArray(fileHeader.orders, CountOf(fileHeader.orders), 0xFF, 0xFE);
-	if(Order[fileHeader.restartPos] < fileHeader.patterns)
-		Order.SetRestartPos(fileHeader.restartPos);
+	ReadOrderFromArray(Order(), fileHeader.orders, MPT_ARRAY_COUNT(fileHeader.orders), 0xFF, 0xFE);
+	if(Order()[fileHeader.restartPos] < fileHeader.patterns)
+		Order().SetRestartPos(fileHeader.restartPos);
 
 	// Set up panning
 	for(CHANNELINDEX chn = 0; chn < 8; chn++)
@@ -145,7 +190,7 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 			continue;
 		}
 
-		const ModCommand::COMMAND effTrans[] =
+		static constexpr ModCommand::COMMAND effTrans[] =
 		{
 			CMD_PORTAMENTOUP,	// Slide up (param * 80) Hz on every tick
 			CMD_PORTAMENTODOWN,	// Slide down (param * 80) Hz on every tick
@@ -164,29 +209,28 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 
 			for(CHANNELINDEX chn = 0; chn < 8; chn++, m++)
 			{
-				uint8 data[3];
-				file.ReadArray(data);
+				const auto [noteInstr, instrVol, effParam] = file.ReadArray<uint8, 3>();
 
-				uint8 note = data[0] >> 2;
-				uint8 instr = ((data[0] & 0x03) << 4) | (data[1] >> 4);
-				uint8 vol = data[1] & 0x0F;
-				if(data[0] < 0xFE)
+				uint8 note = noteInstr >> 2;
+				uint8 instr = ((noteInstr & 0x03) << 4) | (instrVol >> 4);
+				uint8 vol = instrVol & 0x0F;
+				if(noteInstr < 0xFE)
 				{
 					m->note = note + 36 + NOTE_MIN;
 					m->instr = instr + 1;
 					effect[chn] = 0xFF;
 				}
-				if(data[0] <= 0xFE)
+				if(noteInstr <= 0xFE)
 				{
 					m->volcmd = VOLCMD_VOLUME;
 					m->vol = ((vol * 64 + 8) / 15);
 				}
 
-				if(data[2] != 0xFF)
+				if(effParam != 0xFF)
 				{
-					effect[chn] = data[2];
+					effect[chn] = effParam;
 				}
-				if((data[2] & 0x0F) == 0 && data[2] != 0x30)
+				if((effParam & 0x0F) == 0 && effParam != 0x30)
 				{
 					// A param value of 0 resets the effect.
 					effect[chn] = 0xFF;
@@ -260,10 +304,10 @@ bool CSoundFile::Read669(FileReader &file, ModLoadingFlags loadFlags)
 		// Write pattern break
 		if(fileHeader.breaks[pat] < 63)
 		{
-			Patterns[pat].WriteEffect(EffectWriter(CMD_PATTERNBREAK, 0).Row(fileHeader.breaks[pat]).Retry(EffectWriter::rmTryNextRow));
+			Patterns[pat].WriteEffect(EffectWriter(CMD_PATTERNBREAK, 0).Row(fileHeader.breaks[pat]).RetryNextRow());
 		}
 		// And of course the speed...
-		Patterns[pat].WriteEffect(EffectWriter(CMD_SPEED, fileHeader.tempoList[pat]).Retry(EffectWriter::rmTryNextRow));
+		Patterns[pat].WriteEffect(EffectWriter(CMD_SPEED, fileHeader.tempoList[pat]).RetryNextRow());
 	}
 
 	if(loadFlags & loadSampleData)

@@ -49,7 +49,7 @@ struct AsylumSampleHeader
 	{
 		mptSmp.Initialize();
 		mptSmp.nFineTune = MOD2XMFineTune(finetune);
-		mptSmp.nVolume = std::min<uint8>(defaultVolume, 64) * 4u;
+		mptSmp.nVolume = std::min(defaultVolume.get(), uint8(64)) * 4u;
 		mptSmp.RelativeTone = transpose;
 		mptSmp.nLength = length;
 
@@ -80,36 +80,80 @@ struct AMFFileHeader
 MPT_BINARY_STRUCT(AMFFileHeader, 41)
 
 
+static bool ValidateHeader(const AsylumFileHeader &fileHeader)
+{
+	if(std::memcmp(fileHeader.signature, "ASYLUM Music Format V1.0\0", 25)
+		|| fileHeader.numSamples > 64
+		)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+static uint64 GetHeaderMinimumAdditionalSize(const AsylumFileHeader &fileHeader)
+{
+	return 256 + 64 * sizeof(AsylumSampleHeader) + 64 * 4 * 8 * fileHeader.numPatterns;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderAMF_Asylum(MemoryFileReader file, const uint64 *pfilesize)
+{
+	AsylumFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	return ProbeAdditionalSize(file, pfilesize, GetHeaderMinimumAdditionalSize(fileHeader));
+}
+
+
 bool CSoundFile::ReadAMF_Asylum(FileReader &file, ModLoadingFlags loadFlags)
-//--------------------------------------------------------------------------
 {
 	file.Rewind();
 
 	AsylumFileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.signature, "ASYLUM Music Format V1.0\0", 25)
-		|| fileHeader.numSamples > 64
-		|| !file.CanRead(256 + 64 * sizeof(AsylumSampleHeader) + 64 * 4 * 8 * fileHeader.numPatterns))
+	if(!file.ReadStruct(fileHeader))
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
 
 	InitializeGlobals(MOD_TYPE_AMF0);
 	InitializeChannels();
+	SetupMODPanning(true);
 	m_nChannels = 8;
 	m_nDefaultSpeed = fileHeader.defaultSpeed;
 	m_nDefaultTempo.Set(fileHeader.defaultTempo);
 	m_nSamples = fileHeader.numSamples;
 	if(fileHeader.restartPos < fileHeader.numOrders)
 	{
-		Order.SetRestartPos(fileHeader.restartPos);
+		Order().SetRestartPos(fileHeader.restartPos);
 	}
-	m_songName.clear();
 
-	Order.ReadAsByte(file, 256, fileHeader.numOrders);
+	m_modFormat.formatName = U_("ASYLUM Music Format");
+	m_modFormat.type = U_("amf");
+	m_modFormat.charset = mpt::Charset::CP437;
+
+	uint8 orders[256];
+	file.ReadArray(orders);
+	ReadOrderFromArray(Order(), orders, fileHeader.numOrders);
 
 	// Read Sample Headers
 	for(SAMPLEINDEX smp = 1; smp <= GetNumSamples(); smp++)
@@ -117,7 +161,7 @@ bool CSoundFile::ReadAMF_Asylum(FileReader &file, ModLoadingFlags loadFlags)
 		AsylumSampleHeader sampleHeader;
 		file.ReadStruct(sampleHeader);
 		sampleHeader.ConvertToMPT(Samples[smp]);
-		mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[smp], sampleHeader.name);
+		m_szNames[smp] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, sampleHeader.name);
 	}
 
 	file.Skip((64 - fileHeader.numSamples) * sizeof(AsylumSampleHeader));
@@ -132,21 +176,24 @@ bool CSoundFile::ReadAMF_Asylum(FileReader &file, ModLoadingFlags loadFlags)
 			continue;
 		}
 
-		ModCommand *p = Patterns[pat];
-		for(size_t i = 0; i < 8 * 64; i++, p++)
+		for(auto &m : Patterns[pat])
 		{
-			uint8 data[4];
-			file.ReadArray(data);
-
-			p->note = NOTE_NONE;
-			if(data[0] && data[0] + 12 + NOTE_MIN <= NOTE_MAX)
+			const auto [note, instr, command, param] = file.ReadArray<uint8, 4>();
+			if(note && note + 12 + NOTE_MIN <= NOTE_MAX)
 			{
-				p->note = data[0] + 12 + NOTE_MIN;
+				m.note = note + 12 + NOTE_MIN;
 			}
-			p->instr = data[1];
-			p->command = data[2];
-			p->param = data[3];
-			ConvertModCommand(*p);
+			m.instr = instr;
+			m.command = command;
+			m.param = param;
+			ConvertModCommand(m);
+#ifdef MODPLUG_TRACKER
+			if(m.command == CMD_PANNING8)
+			{
+				// Convert 7-bit panning to 8-bit
+				m.param = mpt::saturate_cast<ModCommand::PARAM>(m.param * 2u);
+			}
+#endif
 		}
 	}
 
@@ -171,15 +218,12 @@ bool CSoundFile::ReadAMF_Asylum(FileReader &file, ModLoadingFlags loadFlags)
 
 // Read a single AMF track (channel) into a pattern.
 static void AMFReadPattern(CPattern &pattern, CHANNELINDEX chn, FileReader &fileChunk)
-//------------------------------------------------------------------------------------
 {
 	fileChunk.Rewind();
 	ModCommand::INSTR lastInstr = 0;
 	while(fileChunk.CanRead(3))
 	{
-		const uint8 row = fileChunk.ReadUint8();
-		const uint8 command = fileChunk.ReadUint8();
-		const uint8 value = fileChunk.ReadUint8();
+		const auto [row, command, value] = fileChunk.ReadArray<uint8, 3>();
 		if(row >= pattern.GetNumRows())
 		{
 			break;
@@ -219,7 +263,7 @@ static void AMFReadPattern(CPattern &pattern, CHANNELINDEX chn, FileReader &file
 		} else
 		{
 			// Effect
-			static const ModCommand::COMMAND effTrans[] =
+			static constexpr ModCommand::COMMAND effTrans[] =
 			{
 				CMD_NONE,			CMD_SPEED,			CMD_VOLUMESLIDE,		CMD_VOLUME,
 				CMD_PORTAMENTOUP,	CMD_NONE,			CMD_TONEPORTAMENTO,		CMD_TREMOR,
@@ -341,19 +385,49 @@ static void AMFReadPattern(CPattern &pattern, CHANNELINDEX chn, FileReader &file
 }
 
 
+static bool ValidateHeader(const AMFFileHeader &fileHeader)
+{
+	if(std::memcmp(fileHeader.amf, "AMF", 3)
+		|| fileHeader.version < 8 || fileHeader.version > 14
+		|| ((fileHeader.numChannels < 1 || fileHeader.numChannels > 32) && fileHeader.version >= 10)
+		)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderAMF_DSMI(MemoryFileReader file, const uint64 *pfilesize)
+{
+	AMFFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	return ProbeSuccess;
+}
+
+
 bool CSoundFile::ReadAMF_DSMI(FileReader &file, ModLoadingFlags loadFlags)
-//------------------------------------------------------------------------
 {
 	file.Rewind();
 
 	AMFFileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.amf, "AMF", 3)
-		|| fileHeader.version < 8 || fileHeader.version > 14
-		|| ((fileHeader.numChannels < 1 || fileHeader.numChannels > 32) && fileHeader.version >= 10))
+	if(!file.ReadStruct(fileHeader))
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
@@ -361,10 +435,14 @@ bool CSoundFile::ReadAMF_DSMI(FileReader &file, ModLoadingFlags loadFlags)
 	InitializeGlobals(MOD_TYPE_AMF);
 	InitializeChannels();
 
+	m_modFormat.formatName = mpt::format(U_("DSMI v%1"))(fileHeader.version);
+	m_modFormat.type = U_("amf");
+	m_modFormat.charset = mpt::Charset::CP437;
+
 	m_nChannels = fileHeader.numChannels;
 	m_nSamples = fileHeader.numSamples;
 
-	mpt::String::Read<mpt::String::maybeNullTerminated>(m_songName, fileHeader.title);
+	m_songName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.title);
 
 	if(fileHeader.version < 10)
 	{
@@ -404,10 +482,10 @@ bool CSoundFile::ReadAMF_DSMI(FileReader &file, ModLoadingFlags loadFlags)
 	// Get Tempo/Speed
 	if(fileHeader.version >= 13)
 	{
-		uint8 tempo = file.ReadUint8();
+		auto [tempo, speed] = file.ReadArray<uint8, 2>();
 		if(tempo < 32) tempo = 125;
 		m_nDefaultTempo.Set(tempo);
-		m_nDefaultSpeed = file.ReadUint8();
+		m_nDefaultSpeed = speed;
 	} else
 	{
 		m_nDefaultTempo.Set(125);
@@ -415,7 +493,7 @@ bool CSoundFile::ReadAMF_DSMI(FileReader &file, ModLoadingFlags loadFlags)
 	}
 
 	// Setup Order List
-	Order.resize(fileHeader.numOrders);
+	Order().resize(fileHeader.numOrders);
 	std::vector<uint16> patternLength;
 	const FileReader::off_t trackStartPos = file.GetPosition() + (fileHeader.version >= 14 ? 2 : 0);
 	if(fileHeader.version >= 14)
@@ -425,7 +503,7 @@ bool CSoundFile::ReadAMF_DSMI(FileReader &file, ModLoadingFlags loadFlags)
 
 	for(ORDERINDEX ord = 0; ord < fileHeader.numOrders; ord++)
 	{
-		Order[ord] = ord;
+		Order()[ord] = ord;
 		if(fileHeader.version >= 14)
 		{
 			patternLength[ord] = file.ReadUint16LE();
@@ -493,24 +571,23 @@ bool CSoundFile::ReadAMF_DSMI(FileReader &file, ModLoadingFlags loadFlags)
 	}
 	
 	// Read Track Mapping Table
-	std::vector<uint16> trackMap;
-	if(!file.ReadVectorLE(trackMap, fileHeader.numTracks))
+	std::vector<uint16le> trackMap;
+	if(!file.ReadVector(trackMap, fileHeader.numTracks))
 	{
 		return false;
 	}
 	uint16 trackCount = 0;
-	for(auto i = trackMap.cbegin(); i != trackMap.cend(); i++)
-	{
-		trackCount = std::max(trackCount, *i);
-	}
+	if(!trackMap.empty())
+		trackCount = *std::max_element(trackMap.cbegin(), trackMap.cend());
 
 	// Store Tracks Positions
 	std::vector<FileReader> trackData(trackCount);
 	for(uint16 i = 0; i < trackCount; i++)
 	{
 		// Track size is a 24-Bit value describing the number of byte triplets in this track.
-		uint32 trackSize = file.ReadUint16LE() | (file.ReadUint8() << 16);
-		trackData[i] = file.ReadChunk(trackSize * 3);
+		uint8 trackSize[3];
+		file.ReadArray(trackSize);
+		trackData[i] = file.ReadChunk((trackSize[0] | (trackSize[1] << 8) | (trackSize[2] << 16)) * 3);
 	}
 
 	if(loadFlags & loadSampleData)
@@ -561,8 +638,8 @@ bool CSoundFile::ReadAMF_DSMI(FileReader &file, ModLoadingFlags loadFlags)
 
 		// Get table with per-channel track assignments
 		file.Seek(trackStartPos + pat * (GetNumChannels() * 2 + (fileHeader.version >= 14 ? 2 : 0)));
-		std::vector<uint16> tracks;
-		if(!file.ReadVectorLE(tracks, GetNumChannels()))
+		std::vector<uint16le> tracks;
+		if(!file.ReadVector(tracks, GetNumChannels()))
 		{
 			continue;
 		}

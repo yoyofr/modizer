@@ -17,7 +17,6 @@
 OPENMPT_NAMESPACE_BEGIN
 
 IMixPlugin* DigiBoosterEcho::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
-//------------------------------------------------------------------------------------------------------
 {
 	return new (std::nothrow) DigiBoosterEcho(factory, sndFile, mixStruct);
 }
@@ -28,7 +27,7 @@ DigiBoosterEcho::DigiBoosterEcho(VSTPluginLib &factory, CSoundFile &sndFile, SND
 	, m_bufferSize(0)
 	, m_writePos(0)
 	, m_sampleRate(sndFile.GetSampleRate())
-//---------------------------------------------------------------------------------------------------
+	, m_chunk(PluginChunk::Default())
 {
 	m_mixBuffer.Initialize(2, 2);
 	InsertIntoFactoryList();
@@ -36,7 +35,6 @@ DigiBoosterEcho::DigiBoosterEcho(VSTPluginLib &factory, CSoundFile &sndFile, SND
 
 
 void DigiBoosterEcho::Process(float *pOutL, float *pOutR, uint32 numFrames)
-//-------------------------------------------------------------------------
 {
 	if(!m_bufferSize)
 		return;
@@ -64,9 +62,9 @@ void DigiBoosterEcho::Process(float *pOutL, float *pOutR, uint32 numFrames)
 		ar += lDelay * m_PCrossPBack;
 
 		// Prevent denormals
-		if(mpt::abs(al) < 1e-24f)
+		if(std::abs(al) < 1e-24f)
 			al = 0.0f;
-		if(mpt::abs(ar) < 1e-24f)
+		if(std::abs(ar) < 1e-24f)
 			ar = 0.0f;
 
 		m_delayLine[m_writePos * 2] = al;
@@ -85,28 +83,25 @@ void DigiBoosterEcho::Process(float *pOutL, float *pOutR, uint32 numFrames)
 
 
 void DigiBoosterEcho::SaveAllParameters()
-//---------------------------------------
 {
 	m_pMixStruct->defaultProgram = -1;
-	if(m_pMixStruct->nPluginDataSize != sizeof(chunk) || m_pMixStruct->pPluginData == nullptr)
+	try
 	{
-		delete[] m_pMixStruct->pPluginData;
-		m_pMixStruct->nPluginDataSize = sizeof(chunk);
-		m_pMixStruct->pPluginData = new (std::nothrow) char[sizeof(chunk)];
-	}
-	if(m_pMixStruct->pPluginData != nullptr)
+		m_pMixStruct->pluginData.resize(sizeof(m_chunk));
+		memcpy(m_pMixStruct->pluginData.data(), &m_chunk, sizeof(m_chunk));
+	} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
 	{
-		memcpy(m_pMixStruct->pPluginData, &chunk, sizeof(chunk));
+		MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
+		m_pMixStruct->pluginData.clear();
 	}
 }
 
 
 void DigiBoosterEcho::RestoreAllParameters(int32 program)
-//-------------------------------------------------------
 {
-	if(m_pMixStruct->nPluginDataSize == sizeof(chunk) && !memcmp(m_pMixStruct->pPluginData, "Echo", 4))
+	if(m_pMixStruct->pluginData.size() == sizeof(m_chunk) && !memcmp(m_pMixStruct->pluginData.data(), "Echo", 4))
 	{
-		memcpy(&chunk, m_pMixStruct->pPluginData, sizeof(chunk));
+		memcpy(&m_chunk, m_pMixStruct->pluginData.data(), sizeof(m_chunk));
 	} else
 	{
 		IMixPlugin::RestoreAllParameters(program);
@@ -116,34 +111,37 @@ void DigiBoosterEcho::RestoreAllParameters(int32 program)
 
 
 PlugParamValue DigiBoosterEcho::GetParameter(PlugParamIndex index)
-//----------------------------------------------------------------
 {
 	if(index < kEchoNumParameters)
 	{
-		return chunk.param[index] / 255.0f;
+		return m_chunk.param[index] / 255.0f;
 	}
 	return 0;
 }
 
 
 void DigiBoosterEcho::SetParameter(PlugParamIndex index, PlugParamValue value)
-//----------------------------------------------------------------------------
 {
 	if(index < kEchoNumParameters)
 	{
-		chunk.param[index] = Util::Round<uint8>(value * 255.0f);
+		m_chunk.param[index] = mpt::saturate_round<uint8>(value * 255.0f);
 		RecalculateEchoParams();
 	}
 }
 
 
 void DigiBoosterEcho::Resume()
-//----------------------------
 {
 	m_isResumed = true;
 	m_sampleRate = m_SndFile.GetSampleRate();
-	m_bufferSize = (m_sampleRate >> 1) + (m_sampleRate >> 6);
 	RecalculateEchoParams();
+	PositionChanged();
+}
+
+
+void DigiBoosterEcho::PositionChanged()
+{
+	m_bufferSize = (m_sampleRate >> 1) + (m_sampleRate >> 6);
 	try
 	{
 		m_delayLine.assign(m_bufferSize * 2, 0);
@@ -159,7 +157,6 @@ void DigiBoosterEcho::Resume()
 #ifdef MODPLUG_TRACKER
 
 CString DigiBoosterEcho::GetParamName(PlugParamIndex param)
-//---------------------------------------------------------
 {
 	switch(param)
 	{
@@ -173,7 +170,6 @@ CString DigiBoosterEcho::GetParamName(PlugParamIndex param)
 
 
 CString DigiBoosterEcho::GetParamLabel(PlugParamIndex param)
-//----------------------------------------------------------
 {
 	if(param == kEchoDelay)
 		return _T("ms");
@@ -182,16 +178,15 @@ CString DigiBoosterEcho::GetParamLabel(PlugParamIndex param)
 
 
 CString DigiBoosterEcho::GetParamDisplay(PlugParamIndex param)
-//------------------------------------------------------------
 {
 	CString s;
 	if(param == kEchoMix)
 	{
-		int wet = (chunk.param[kEchoMix] * 100) / 255;
+		int wet = (m_chunk.param[kEchoMix] * 100) / 255;
 		s.Format(_T("%d%% / %d%%"), wet, 100 - wet);
 	} else if(param < kEchoNumParameters)
 	{
-		int val = chunk.param[param];
+		int val = m_chunk.param[param];
 		if(param == kEchoDelay)
 			val *= 2;
 		s.Format(_T("%d"), val);
@@ -202,35 +197,33 @@ CString DigiBoosterEcho::GetParamDisplay(PlugParamIndex param)
 #endif // MODPLUG_TRACKER
 
 
-size_t DigiBoosterEcho::GetChunk(char *(&data), bool)
-//---------------------------------------------------
+IMixPlugin::ChunkData DigiBoosterEcho::GetChunk(bool)
 {
-	data = reinterpret_cast<char *>(&chunk);
-	return sizeof(chunk);
+	auto data = reinterpret_cast<const std::byte *>(&m_chunk);
+	return ChunkData(data, sizeof(m_chunk));
 }
 
 
-void DigiBoosterEcho::SetChunk(size_t size, char *data, bool)
-//-----------------------------------------------------------
+void DigiBoosterEcho::SetChunk(const ChunkData &chunk, bool)
 {
-	if(size == sizeof(chunk) && !memcmp(data, "Echo", 4))
+	auto data = chunk.data();
+	if(chunk.size() == sizeof(chunk) && !memcmp(data, "Echo", 4))
 	{
-		memcpy(&chunk, data, size);
+		memcpy(&m_chunk, data, chunk.size());
 		RecalculateEchoParams();
 	}
 }
 
 
 void DigiBoosterEcho::RecalculateEchoParams()
-//-------------------------------------------
 {
-	m_delayTime = (chunk.param[kEchoDelay] * m_sampleRate + 250) / 500;
-	m_PMix = (chunk.param[kEchoMix]) * (1.0f / 256.0f);
-	m_NMix = (256 - chunk.param[kEchoMix]) * (1.0f / 256.0f);
-	m_PCrossPBack = (chunk.param[kEchoCross] * chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
-	m_PCrossNBack = (chunk.param[kEchoCross] * (256 - chunk.param[kEchoFeedback])) * (1.0f / 65536.0f);
-	m_NCrossPBack = ((chunk.param[kEchoCross] - 256) * chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
-	m_NCrossNBack = ((chunk.param[kEchoCross] - 256) * (chunk.param[kEchoFeedback] - 256)) * (1.0f / 65536.0f);
+	m_delayTime = (m_chunk.param[kEchoDelay] * m_sampleRate + 250) / 500;
+	m_PMix = (m_chunk.param[kEchoMix]) * (1.0f / 256.0f);
+	m_NMix = (256 - m_chunk.param[kEchoMix]) * (1.0f / 256.0f);
+	m_PCrossPBack = (m_chunk.param[kEchoCross] * m_chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
+	m_PCrossNBack = (m_chunk.param[kEchoCross] * (256 - m_chunk.param[kEchoFeedback])) * (1.0f / 65536.0f);
+	m_NCrossPBack = ((m_chunk.param[kEchoCross] - 256) * m_chunk.param[kEchoFeedback]) * (1.0f / 65536.0f);
+	m_NCrossNBack = ((m_chunk.param[kEchoCross] - 256) * (m_chunk.param[kEchoFeedback] - 256)) * (1.0f / 65536.0f);
 }
 
 OPENMPT_NAMESPACE_END

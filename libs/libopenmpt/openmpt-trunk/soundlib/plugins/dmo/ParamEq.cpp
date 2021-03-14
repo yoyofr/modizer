@@ -23,7 +23,6 @@ namespace DMO
 {
 
 IMixPlugin* ParamEq::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
-//----------------------------------------------------------------------------------------------
 {
 	return new (std::nothrow) ParamEq(factory, sndFile, mixStruct);
 }
@@ -31,9 +30,9 @@ IMixPlugin* ParamEq::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPL
 
 ParamEq::ParamEq(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
 	: IMixPlugin(factory, sndFile, mixStruct)
-//-----------------------------------------------------------------------------------
+	, m_maxFreqParam(1.0f)
 {
-	m_param[kEqCenter] = 0.497487f;
+	m_param[kEqCenter] = (8000.0f - 80.0f) / 15920.0f;
 	m_param[kEqBandwidth] = 0.314286f;
 	m_param[kEqGain] = 0.5f;
 
@@ -43,7 +42,6 @@ ParamEq::ParamEq(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixSt
 
 
 void ParamEq::Process(float *pOutL, float *pOutR, uint32 numFrames)
-//-----------------------------------------------------------------
 {
 	if(!m_mixBuffer.Ok())
 		return;
@@ -79,7 +77,6 @@ void ParamEq::Process(float *pOutL, float *pOutR, uint32 numFrames)
 
 
 PlugParamValue ParamEq::GetParameter(PlugParamIndex index)
-//--------------------------------------------------------
 {
 	if(index < kEqNumParameters)
 	{
@@ -90,7 +87,6 @@ PlugParamValue ParamEq::GetParameter(PlugParamIndex index)
 
 
 void ParamEq::SetParameter(PlugParamIndex index, PlugParamValue value)
-//--------------------------------------------------------------------
 {
 	if(index < kEqNumParameters)
 	{
@@ -102,11 +98,17 @@ void ParamEq::SetParameter(PlugParamIndex index, PlugParamValue value)
 
 
 void ParamEq::Resume()
-//--------------------
 {
 	m_isResumed = true;
+	// Limit center frequency to a third of the sampling rate.
+	m_maxFreqParam = Clamp((m_SndFile.GetSampleRate() / 3.0f - 80.0f) / 15920.0f, 0.0f, 1.0f);
 	RecalculateEqParams();
+	PositionChanged();
+}
 
+
+void ParamEq::PositionChanged()
+{
 	// Reset filter state
 	x1[0] = x2[0] = 0;
 	x1[1] = x2[1] = 0;
@@ -118,7 +120,6 @@ void ParamEq::Resume()
 #ifdef MODPLUG_TRACKER
 
 CString ParamEq::GetParamName(PlugParamIndex param)
-//-------------------------------------------------
 {
 	switch(param)
 	{
@@ -131,7 +132,6 @@ CString ParamEq::GetParamName(PlugParamIndex param)
 
 
 CString ParamEq::GetParamLabel(PlugParamIndex param)
-//--------------------------------------------------
 {
 	switch(param)
 	{
@@ -144,7 +144,6 @@ CString ParamEq::GetParamLabel(PlugParamIndex param)
 
 
 CString ParamEq::GetParamDisplay(PlugParamIndex param)
-//----------------------------------------------------
 {
 	float value = 0.0f;
 	switch(param)
@@ -160,7 +159,7 @@ CString ParamEq::GetParamDisplay(PlugParamIndex param)
 		break;
 	}
 	CString s;
-	s.Format("%.2f", value);
+	s.Format(_T("%.2f"), value);
 	return s;
 }
 
@@ -168,9 +167,9 @@ CString ParamEq::GetParamDisplay(PlugParamIndex param)
 
 
 void ParamEq::RecalculateEqParams()
-//---------------------------------
 {
-	const float freq = std::min(FreqInHertz() / m_SndFile.GetSampleRate(), 0.5f);
+	LimitMax(m_param[kEqCenter], m_maxFreqParam);
+	const float freq = FreqInHertz() / m_SndFile.GetSampleRate();
 	const float a = std::pow(10.0f, GainInDecibel() / 40.0f);
 	const float w0 = 2.0f * float(M_PI) * freq;
 	const float sinW0 = std::sin(w0);

@@ -52,7 +52,7 @@ struct ProfileBlock
 	class Statistics * stats;
 };
 
-static const std::size_t MAX_PROFILES = 1024;
+static constexpr std::size_t MAX_PROFILES = 1024;
 
 static ProfileBlock Profiles[ MAX_PROFILES ];
 
@@ -112,7 +112,7 @@ std::string Profiler::DumpProfiles()
 			case Profiler::Audio: cat = "Audio"; break;
 			case Profiler::Notify: cat = "Notify"; break;
 			}
-			ret += cat + " " + std::string(stats.profile.Name) + ": " + mpt::Format("%6.3f").ToString(stats.usage * 100.0) + "%\r\n";
+			ret += cat + " " + std::string(stats.profile.Name) + ": " + mpt::fmt::right(6, mpt::fmt::fix(stats.usage * 100.0, 3)) + "%\r\n";
 		}
 	}
 	ret += "\r\n";

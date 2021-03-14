@@ -36,7 +36,6 @@ MPT_BINARY_STRUCT(DIGIFileHeader, 610)
 
 
 static void ReadDIGIPatternEntry(FileReader &file, ModCommand &m)
-//---------------------------------------------------------------
 {
 	CSoundFile::ReadMODPatternEntry(file, m);
 	CSoundFile::ConvertModCommand(m);
@@ -73,20 +72,49 @@ static void ReadDIGIPatternEntry(FileReader &file, ModCommand &m)
 }
 
 
-bool CSoundFile::ReadDIGI(FileReader &file, ModLoadingFlags loadFlags)
-//--------------------------------------------------------------------
+static bool ValidateHeader(const DIGIFileHeader &fileHeader)
 {
-	file.Rewind();
-
-	DIGIFileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.signature, "DIGI Booster module\0", 20)
+	if(std::memcmp(fileHeader.signature, "DIGI Booster module\0", 20)
 		|| !fileHeader.numChannels
 		|| fileHeader.numChannels > 8
 		|| fileHeader.lastOrdIndex > 127)
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	return true;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderDIGI(MemoryFileReader file, const uint64 *pfilesize)
+{
+	DIGIFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	return ProbeSuccess;
+}
+
+
+bool CSoundFile::ReadDIGI(FileReader &file, ModLoadingFlags loadFlags)
+{
+	file.Rewind();
+
+	DIGIFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return false;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
@@ -98,9 +126,13 @@ bool CSoundFile::ReadDIGI(FileReader &file, ModLoadingFlags loadFlags)
 	m_nChannels = fileHeader.numChannels;
 	m_nSamples = 31;
 	m_nSamplePreAmp = 256 / m_nChannels;
-	m_madeWithTracker = mpt::String::Print("Digi Booster %1.%2", fileHeader.versionInt >> 4, fileHeader.versionInt & 0x0F);
 
-	Order.ReadFromArray(fileHeader.orders, fileHeader.lastOrdIndex + 1);
+	m_modFormat.formatName = U_("DigiBooster");
+	m_modFormat.type = U_("digi");
+	m_modFormat.madeWithTracker = mpt::format(U_("Digi Booster %1.%2"))(fileHeader.versionInt >> 4, fileHeader.versionInt & 0x0F);
+	m_modFormat.charset = mpt::Charset::ISO8859_1;
+
+	ReadOrderFromArray(Order(), fileHeader.orders, fileHeader.lastOrdIndex + 1);
 
 	// Read sample headers
 	for(SAMPLEINDEX smp = 0; smp < 31; smp++)
@@ -116,7 +148,7 @@ bool CSoundFile::ReadDIGI(FileReader &file, ModLoadingFlags loadFlags)
 		}
 		sample.SanitizeLoops();
 	
-		sample.nVolume = std::min<uint8>(fileHeader.smpVolume[smp], 64) * 4;
+		sample.nVolume = std::min(fileHeader.smpVolume[smp].get(), uint8(64)) * 4;
 		sample.nFineTune = MOD2XMFineTune(fileHeader.smpFinetune[smp]);
 	}
 
@@ -148,8 +180,8 @@ bool CSoundFile::ReadDIGI(FileReader &file, ModLoadingFlags loadFlags)
 
 		if(fileHeader.packEnable)
 		{
-			std::vector<uint8> eventMask;
-			patternChunk.ReadVector(eventMask, 64);
+			uint8 eventMask[64];
+			patternChunk.ReadArray(eventMask);
 
 			// Compressed patterns are stored in row-major order...
 			for(ROWINDEX row = 0; row < 64; row++)

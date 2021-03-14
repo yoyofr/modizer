@@ -26,12 +26,14 @@ MixerSettings::MixerSettings()
 
 	// Mixing Configuration
 	gnChannels = 2;
-	gdwMixingFreq = 44100;
+	gdwMixingFreq = 48000;
 
 	m_nPreAmp = 128;
 
 	VolumeRampUpMicroseconds = 363; // 16 @44100
 	VolumeRampDownMicroseconds = 952; // 42 @44100
+
+	NumInputChannels = 0;
 
 }
 

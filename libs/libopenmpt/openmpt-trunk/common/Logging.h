@@ -9,6 +9,11 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
+#if defined(MODPLUG_TRACKER) && MPT_OS_WINDOWS
+#include <atomic>
+#endif
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -42,12 +47,12 @@ CSoundfile::AddToLog.
 
 Logging a simple message:
 MPT_LOG(LogWarning, "sounddev", "some message");
-MPT_LOG(LogWarning, "sounddev", MPT_USTRING("some message"));
+MPT_LOG(LogWarning, "sounddev", U_("some message"));
 Facility is some course grained code section identifier (more coarse grained
 than the current file name probably), useful to do some selective logging.
 
 Logging a more complex message:
-MPT_LOG(LogWarning, "sounddev", mpt::format(MPT_USTRING("Some message: foo=%1, bar=0x%2"))(foo, mpt::ufmt::hex0<8>(bar)));
+MPT_LOG(LogWarning, "sounddev", mpt::format(U_("Some message: foo=%1, bar=0x%2"))(foo, mpt::ufmt::hex0<8>(bar)));
 
 Note that even with full enabled logging and a runtime configurable logging
 level, the runtime overhead of a MPT_LOG(level, facility, text) call is just a
@@ -72,13 +77,13 @@ inline mpt::ustring LogLevelToString(LogLevel level)
 {
 	switch(level)
 	{
-	case LogError:        return MPT_USTRING("error");   break;
-	case LogWarning:      return MPT_USTRING("warning"); break;
-	case LogNotification: return MPT_USTRING("notify");  break;
-	case LogInformation:  return MPT_USTRING("info");    break;
-	case LogDebug:        return MPT_USTRING("debug");   break;
+	case LogError:        return U_("error");   break;
+	case LogWarning:      return U_("warning"); break;
+	case LogNotification: return U_("notify");  break;
+	case LogInformation:  return U_("info");    break;
+	case LogDebug:        return U_("debug");   break;
 	}
-	return MPT_USTRING("unknown");
+	return U_("unknown");
 }
 
 
@@ -108,7 +113,7 @@ namespace log
 // All logging code gets compiled and immediately dead-code eliminated.
 #define MPT_LOG_IS_DISABLED
 #endif
-static const int GlobalLogLevel = MPT_LOG_GLOBAL_LEVEL ;
+static constexpr int GlobalLogLevel = MPT_LOG_GLOBAL_LEVEL ;
 #else
 extern int GlobalLogLevel;
 #endif
@@ -121,35 +126,12 @@ extern bool ConsoleEnabled;
 void SetFacilities(const std::string &solo, const std::string &blocked);
 bool IsFacilityActive(const char *facility);
 #else
-static MPT_FORCEINLINE bool IsFacilityActive(const char * /*facility*/ ) { return true; }
+MPT_FORCEINLINE bool IsFacilityActive(const char * /*facility*/ ) { return true; }
 #endif
 
 
 #endif // !NO_LOGGING
 
-
-struct Context
-{
-	const char * const file;
-	const int line;
-	const char * const function;
-	MPT_FORCEINLINE Context(const char *file, int line, const char *function)
-		: file(file)
-		, line(line)
-		, function(function)
-	{
-		return;
-	}
-	MPT_FORCEINLINE Context(const Context &c)
-		: file(c.file)
-		, line(c.line)
-		, function(c.function)
-	{
-		return;
-	}
-}; // class Context
-
-#define MPT_LOG_CURRENTCONTEXT() mpt::log::Context( __FILE__ , __LINE__ , __FUNCTION__ )
 
 
 #ifndef NO_LOGGING
@@ -159,13 +141,7 @@ class Logger
 {
 public:
 	// facility:ASCII
-	void SendLogMessage(const Context &context, LogLevel level, const char *facility, const mpt::ustring &text);
-public:
-	// facility:ASCII, text:ASCII (only string literals)
-	template <std::size_t size> MPT_FORCEINLINE void SendLogMessage(const Context &context, LogLevel level, const char *facility, const char (&text)[size])
-	{
-		SendLogMessage(context, level, facility, mpt::ToUnicode(mpt::CharsetASCII, text));
-	}
+	void SendLogMessage(const mpt::source_location &loc, LogLevel level, const char *facility, const mpt::ustring &text);
 };
 
 #define MPT_LOG(level, facility, text) \
@@ -175,41 +151,17 @@ public:
 		{ \
 			MPT_MAYBE_CONSTANT_IF(mpt::log::IsFacilityActive(( facility ))) \
 			{ \
-				mpt::log::Logger().SendLogMessage( MPT_LOG_CURRENTCONTEXT() , ( level ), ( facility ), ( text )); \
+				mpt::log::Logger().SendLogMessage( MPT_SOURCE_LOCATION_CURRENT() , ( level ), ( facility ), ( text )); \
 			} \
 		} \
 	} MPT_WHILE_0 \
 /**/
 
 
-#define MPT_LEGACY_LOGLEVEL LogDebug
-
-class LegacyLogger : public Logger
-{
-private:
-	const Context context;
-public:
-	LegacyLogger(const Context &context) : context(context) {}
-	/* MPT_DEPRECATED */ void MPT_PRINTF_FUNC(2,3) operator () (const char *format, ...); // migrate to type-safe MPT_LOG
-	/* MPT_DEPRECATED */ void operator () (const AnyStringLocale &text); // migrate to properly namespaced MPT_LOG
-	/* MPT_DEPRECATED */ void operator () (LogLevel level, const mpt::ustring &text); // migrate to properly namespaced MPT_LOG
-};
-
-#define Log MPT_MAYBE_CONSTANT_IF(mpt::log::GlobalLogLevel < MPT_LEGACY_LOGLEVEL) { } else MPT_MAYBE_CONSTANT_IF(!mpt::log::IsFacilityActive("")) { } else mpt::log::LegacyLogger(MPT_LOG_CURRENTCONTEXT())
-
-
 #else // !NO_LOGGING
 
 
 #define MPT_LOG(level, facility, text) MPT_DO { } MPT_WHILE_0
-
-struct LegacyLogger
-{
-	inline void MPT_PRINTF_FUNC(2,3) operator () (const char * /*format*/ , ...) {}
-	inline void operator () (const AnyStringLocale & /*text*/ ) {}
-	inline void operator () (LogLevel /*level*/ , const mpt::ustring & /*text*/ ) {}
-};
-#define Log MPT_CONSTANT_IF(true) {} else mpt::log::LegacyLogger() // completely compile out arguments to Log() so that they do not even get evaluated
 
 
 #endif // NO_LOGGING
@@ -226,30 +178,68 @@ namespace Trace {
 // This cacheline bouncing does not matter at all
 //  if there are not multiple thread adding trace points at high frequency (way greater than 1000Hz),
 //  which, in OpenMPT, is only ever the case for just a single thread (the audio thread), if at all.
-extern bool volatile g_Enabled;
-static inline bool IsEnabled() { return g_Enabled; }
+extern std::atomic<bool> g_Enabled;
+inline bool IsEnabled() { return g_Enabled; }
 
-MPT_NOINLINE void Trace(const mpt::log::Context & contexxt);
+enum class Direction : int8
+{
+	Unknown =  0,
+	Enter   =  1,
+	Leave   = -1,
+};
+
+MPT_NOINLINE void Trace(const mpt::source_location & loc, Direction direction = Direction::Unknown) noexcept;
 
 enum ThreadKind {
 	ThreadKindGUI,
 	ThreadKindAudio,
 	ThreadKindNotify,
+	ThreadKindWatchdir,
 };
 
 void Enable(std::size_t numEntries);
 void Disable();
 
 void SetThreadId(mpt::log::Trace::ThreadKind kind, uint32 id);
+uint32 GetThreadId(mpt::log::Trace::ThreadKind kind);
 
 void Seal();
 bool Dump(const mpt::PathString &filename);
 
-#define MPT_TRACE() MPT_DO { if(mpt::log::Trace::g_Enabled) { mpt::log::Trace::Trace(MPT_LOG_CURRENTCONTEXT()); } } MPT_WHILE_0
+class Scope
+{
+private:
+	const mpt::source_location loc;
+public:
+	MPT_FORCEINLINE Scope(mpt::source_location loc) noexcept
+		: loc(loc)
+	{
+		if(mpt::log::Trace::g_Enabled)
+		{
+			mpt::log::Trace::Trace(loc, mpt::log::Trace::Direction::Enter);
+		}
+	}
+	MPT_FORCEINLINE ~Scope() noexcept
+	{
+		if(mpt::log::Trace::g_Enabled)
+		{
+			mpt::log::Trace::Trace(loc, mpt::log::Trace::Direction::Leave);
+		}
+	}
+};
+
+#define MPT_TRACE_CONCAT_HELPER(x, y) x ## y
+#define MPT_TRACE_CONCAT(x, y) MPT_TRACE_CONCAT_HELPER(x, y)
+
+#define MPT_TRACE_SCOPE() mpt::log::Trace::Scope MPT_TRACE_CONCAT(MPT_TRACE_VAR, __LINE__)(MPT_SOURCE_LOCATION_CURRENT())
+
+#define MPT_TRACE() MPT_DO { if(mpt::log::Trace::g_Enabled) { mpt::log::Trace::Trace(MPT_SOURCE_LOCATION_CURRENT()); } } MPT_WHILE_0
 
 } // namespace Trace
 
 #else // !MODPLUG_TRACKER
+
+#define MPT_TRACE_SCOPE() MPT_DO { } MPT_WHILE_0
 
 #define MPT_TRACE() MPT_DO { } MPT_WHILE_0
 

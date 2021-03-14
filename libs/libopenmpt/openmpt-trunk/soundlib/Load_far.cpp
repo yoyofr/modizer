@@ -102,19 +102,61 @@ struct FARSampleHeader
 MPT_BINARY_STRUCT(FARSampleHeader, 48)
 
 
+static bool ValidateHeader(const FARFileHeader &fileHeader)
+{
+	if(std::memcmp(fileHeader.magic, "FAR\xFE", 4) != 0
+		|| std::memcmp(fileHeader.eof, "\x0D\x0A\x1A", 3)
+		)
+	{
+		return false;
+	}
+	if(fileHeader.headerLength < sizeof(FARFileHeader))
+	{
+		return false;
+	}
+	return true;
+}
+
+
+static uint64 GetHeaderMinimumAdditionalSize(const FARFileHeader &fileHeader)
+{
+	return fileHeader.headerLength - sizeof(FARFileHeader);
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderFAR(MemoryFileReader file, const uint64 *pfilesize)
+{
+	FARFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	return ProbeAdditionalSize(file, pfilesize, GetHeaderMinimumAdditionalSize(fileHeader));
+}
+
+
 bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
 {
 	file.Rewind();
 
 	FARFileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.magic, "FAR\xFE", 4) != 0
-		|| memcmp(fileHeader.eof, "\x0D\x0A\x1A", 3)
-		|| !file.LengthIsAtLeast(fileHeader.headerLength))
+	if(!file.ReadStruct(fileHeader))
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
@@ -127,7 +169,11 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 	m_nDefaultTempo.Set(80);
 	m_nDefaultGlobalVolume = MAX_GLOBAL_VOLUME;
 
-	mpt::String::Read<mpt::String::maybeNullTerminated>(m_songName, fileHeader.songName);
+	m_modFormat.formatName = U_("Farandole Composer");
+	m_modFormat.type = U_("far");
+	m_modFormat.charset = mpt::Charset::CP437;
+
+	m_songName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.songName);
 
 	// Read channel settings
 	for(CHANNELINDEX chn = 0; chn < 16; chn++)
@@ -149,13 +195,13 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		return false;
 	}
-	Order.ReadFromArray(orderHeader.orders, orderHeader.numOrders, 0xFF, 0xFE);
-	Order.SetRestartPos(orderHeader.restartPos);
+	ReadOrderFromArray(Order(), orderHeader.orders, orderHeader.numOrders, 0xFF, 0xFE);
+	Order().SetRestartPos(orderHeader.restartPos);
 
 	file.Seek(fileHeader.headerLength);
 	
 	// Pattern effect LUT
-	static const uint8 farEffects[] =
+	static constexpr EffectCommand farEffects[] =
 	{
 		CMD_NONE,
 		CMD_PORTAMENTOUP,
@@ -192,7 +238,7 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 			continue;
 		}
 
-		// Read break row and unused value
+		// Read break row and unused value (used to be pattern tempo)
 		ROWINDEX breakRow = patternChunk.ReadUint8();
 		patternChunk.Skip(1);
 		if(breakRow > 0 && breakRow < numRows - 2)
@@ -211,24 +257,23 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 			{
 				ModCommand &m = rowBase[chn];
 
-				uint8 data[4];
-				patternChunk.ReadArray(data);
+				const auto [note, instr, volume, effect] = patternChunk.ReadArray<uint8, 4>();
 
-				if(data[0] > 0 && data[0] < 85)
+				if(note > 0 && note <= 72)
 				{
-					m.note = data[0] + 35 + NOTE_MIN;
-					m.instr = data[1] + 1;
+					m.note = note + 35 + NOTE_MIN;
+					m.instr = instr + 1;
 				}
 
-				if(data[2] & 0x0F)
+				if(m.note != NOTE_NONE || volume > 0)
 				{
 					m.volcmd = VOLCMD_VOLUME;
-					m.vol = (data[2] & 0x0F) << 2;
+					m.vol = (Clamp(volume, uint8(1), uint8(16)) - 1u) * 4u;
 				}
 				
-				m.param = data[3] & 0x0F;
+				m.param = effect & 0x0F;
 
-				switch(data[3] >> 4)
+				switch(effect >> 4)
 				{
 				case 0x03:	// Porta to note
 					m.param <<= 2;
@@ -251,11 +296,11 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 					m.param = 6 / (1 + m.param) + 1;
 					m.param |= 0x0D;
 				}
-				m.command = farEffects[data[3] >> 4];
+				m.command = farEffects[effect >> 4];
 			}
 		}
 
-		Patterns[pat].WriteEffect(EffectWriter(CMD_PATTERNBREAK, 0).Row(breakRow).Retry(EffectWriter::rmTryNextRow));
+		Patterns[pat].WriteEffect(EffectWriter(CMD_PATTERNBREAK, 0).Row(breakRow).RetryNextRow());
 	}
 	
 	if(!(loadFlags & loadSampleData))
@@ -282,7 +327,7 @@ bool CSoundFile::ReadFAR(FileReader &file, ModLoadingFlags loadFlags)
 
 		m_nSamples = smp + 1;
 		ModSample &sample = Samples[m_nSamples];
-		mpt::String::Read<mpt::String::nullTerminated>(m_szNames[m_nSamples], sampleHeader.name);
+		m_szNames[m_nSamples] = mpt::String::ReadBuf(mpt::String::nullTerminated, sampleHeader.name);
 		sampleHeader.ConvertToMPT(sample);
 		sampleHeader.GetSampleFormat().ReadSample(sample, file);
 	}

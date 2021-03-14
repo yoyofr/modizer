@@ -17,13 +17,13 @@
 /*! \brief libopenmpt major version number */
 #define OPENMPT_API_VERSION_MAJOR 0
 /*! \brief libopenmpt minor version number */
-#define OPENMPT_API_VERSION_MINOR 3
+#define OPENMPT_API_VERSION_MINOR 5
 /*! \brief libopenmpt patch version number */
-#define OPENMPT_API_VERSION_PATCH 0
+#define OPENMPT_API_VERSION_PATCH 5
 /*! \brief libopenmpt pre-release tag */
-#define OPENMPT_API_VERSION_PREREL "-pre.2"
+#define OPENMPT_API_VERSION_PREREL ""
 /*! \brief libopenmpt pre-release flag */
-#define OPENMPT_API_VERSION_IS_PREREL 1
+#define OPENMPT_API_VERSION_IS_PREREL 0
 
 /*! \brief libopenmpt version number as a single integer value
  *  \since 0.3
@@ -52,7 +52,7 @@
  */
 #define OPENMPT_API_VERSION_AT_LEAST(major, minor, patch) (OPENMPT_API_VERSION >= OPENMPT_API_VERSION_MAKE((major), (minor), (patch)))
 
-/*! \brief Check whether the libopenmpt API is at least the provided version
+/*! \brief Check whether the libopenmpt API is before the provided version
  *  \since 0.3
  *  \remarks Use the following shim if you need to support earlier libopenmpt versions:
  *           \code

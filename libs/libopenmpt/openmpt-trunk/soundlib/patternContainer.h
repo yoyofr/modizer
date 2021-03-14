@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 #include "pattern.h"
 
 #include <algorithm>
@@ -17,15 +19,12 @@
 OPENMPT_NAMESPACE_BEGIN
 
 class CSoundFile;
-typedef CPattern MODPATTERN;
 
-//=====================
 class CPatternContainer
-//=====================
 {
 public:
-	MODPATTERN& operator[](const int pat) { return m_Patterns[pat]; }
-	const MODPATTERN& operator[](const int pat) const { return m_Patterns[pat]; }
+	CPattern& operator[](const int pat) { return m_Patterns[pat]; }
+	const CPattern& operator[](const int pat) const { return m_Patterns[pat]; }
 
 public:
 	CPatternContainer(CSoundFile& sndFile) : m_rSndFile(sndFile) { }
@@ -58,6 +57,13 @@ public:
 	template <class Func>
 	Func ForEachModCommand(Func func) { return ForEachModCommand(0, Size() - 1, func); }
 
+	std::vector<CPattern>::iterator begin() { return m_Patterns.begin(); }
+	std::vector<CPattern>::const_iterator begin() const { return m_Patterns.begin(); }
+	std::vector<CPattern>::const_iterator cbegin() const { return m_Patterns.cbegin(); }
+	std::vector<CPattern>::iterator end() { return m_Patterns.end(); }
+	std::vector<CPattern>::const_iterator end() const { return m_Patterns.end(); }
+	std::vector<CPattern>::const_iterator cend() const { return m_Patterns.cend(); }
+
 	PATTERNINDEX Size() const { return static_cast<PATTERNINDEX>(m_Patterns.size()); }
 
 	CSoundFile& GetSoundFile() { return m_rSndFile; }
@@ -67,7 +73,7 @@ public:
 	bool IsValidIndex(const PATTERNINDEX iPat) const { return (iPat < Size()); }
 
 	// Return true if IsValidIndex() is true and the corresponding pattern has allocated modcommand array, false otherwise.
-	bool IsValidPat(const PATTERNINDEX iPat) const { return IsValidIndex(iPat) && (*this)[iPat]; }
+	bool IsValidPat(const PATTERNINDEX iPat) const { return IsValidIndex(iPat) && m_Patterns[iPat].IsValid(); }
 
 	// Returns true if the pattern is empty, i.e. there are no notes/effects in this pattern
 	bool IsPatternEmpty(const PATTERNINDEX nPat) const;
@@ -84,19 +90,18 @@ public:
 
 
 private:
-	std::vector<MODPATTERN> m_Patterns;
+	std::vector<CPattern> m_Patterns;
 	CSoundFile &m_rSndFile;
 };
 
 
 template <class Func>
 Func CPatternContainer::ForEachModCommand(PATTERNINDEX nStartPat, PATTERNINDEX nLastPat, Func func)
-//-------------------------------------------------------------------------------------------------
 {
 	if (nStartPat > nLastPat || nLastPat >= Size())
 		return func;
-	for (PATTERNINDEX nPat = nStartPat; nPat <= nLastPat; nPat++) if (m_Patterns[nPat])
-		std::for_each(m_Patterns[nPat].Begin(), m_Patterns[nPat].End(), func);
+	for (PATTERNINDEX nPat = nStartPat; nPat <= nLastPat; nPat++) if (m_Patterns[nPat].IsValid())
+		std::for_each(m_Patterns[nPat].begin(), m_Patterns[nPat].end(), func);
 	return func;
 }
 

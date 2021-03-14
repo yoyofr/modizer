@@ -10,41 +10,48 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
+#include <algorithm>
+#include <array>
+
+#include "../../common/mptAlloc.h"
+
+
 OPENMPT_NAMESPACE_BEGIN
+
 
 // At least this part of the code is ready for double-precision rendering... :>
 // buffer_t: Sample buffer type (float, double, ...)
 // bufferSize: Buffer size in samples
 template<typename buffer_t, uint32 bufferSize>
-//===================
 class PluginMixBuffer
-//===================
 {
+
+private:
+
+#if defined(MPT_ENABLE_ALIGNED_ALLOC)
+	static constexpr std::align_val_t alignment = std::align_val_t{16};
+	static_assert(sizeof(mpt::aligned_array<buffer_t, bufferSize, alignment>) == sizeof(std::array<buffer_t, bufferSize>));
+	static_assert(alignof(mpt::aligned_array<buffer_t, bufferSize, alignment>) == static_cast<std::size_t>(alignment));
+#endif
+
 protected:
 
-	std::vector<buffer_t>   mixBuffer;	// Actual buffer, contains all input and output buffers
-	std::vector<buffer_t *> inputs;		// Pointers to input buffers
-	std::vector<buffer_t *> outputs;	// Pointers to output buffers
-	buffer_t *alignedBuffer;			// Aligned pointer to the buffer
-
-	// Align buffer to 16 bytes
-	static_assert(sizeof(buffer_t) < 16, "Check buffer alignment code");
-	static const uintptr_t bufferAlignmentInBytes = (16 - 1);
-	static const uintptr_t additionalBuffer = bufferAlignmentInBytes / sizeof(buffer_t);
-
-	// Return pointer to an aligned buffer
-	buffer_t *GetBuffer(uint32 index) const
-	//-------------------------------------
-	{
-		MPT_ASSERT(index < inputs.size() + outputs.size());
-		return &alignedBuffer[bufferSize * index];
-	}
+#if defined(MPT_ENABLE_ALIGNED_ALLOC)
+	std::vector<mpt::aligned_array<buffer_t, bufferSize, alignment>> inputs;
+	std::vector<mpt::aligned_array<buffer_t, bufferSize, alignment>> outputs;
+#else
+	std::vector<std::array<buffer_t, bufferSize>> inputs;
+	std::vector<std::array<buffer_t, bufferSize>> outputs;
+#endif
+	std::vector<buffer_t*> inputsarray;
+	std::vector<buffer_t*> outputsarray;
 
 public:
 
 	// Allocate input and output buffers
 	bool Initialize(uint32 numInputs, uint32 numOutputs)
-	//--------------------------------------------------
 	{
 		// Short cut - we do not need to recreate the buffers.
 		if(inputs.size() == numInputs && outputs.size() == numOutputs)
@@ -56,31 +63,30 @@ public:
 		{
 			inputs.resize(numInputs);
 			outputs.resize(numOutputs);
-
-			// Create inputs + outputs buffers with additional alignment.
-			const size_t totalBufferSize = bufferSize * (numInputs + numOutputs) + additionalBuffer;
-			mixBuffer.assign(totalBufferSize, 0);
-
-			// Align buffer start.
-			alignedBuffer = reinterpret_cast<buffer_t *>((reinterpret_cast<uintptr_t>(mixBuffer.data()) + bufferAlignmentInBytes) & ~bufferAlignmentInBytes);
+			inputsarray.resize(numInputs);
+			outputsarray.resize(numOutputs);
 		} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
 		{
 			MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
 			inputs.clear();
+			inputs.shrink_to_fit();
 			outputs.clear();
-			mixBuffer.clear();
-			alignedBuffer = nullptr;
+			outputs.shrink_to_fit();
+			inputsarray.clear();
+			inputsarray.shrink_to_fit();
+			outputsarray.clear();
+			outputsarray.shrink_to_fit();
 			return false;
 		}
 
 		for(uint32 i = 0; i < numInputs; i++)
 		{
-			inputs[i] = GetInputBuffer(i);
+			inputsarray[i] = inputs[i].data();
 		}
 
 		for(uint32 i = 0; i < numOutputs; i++)
 		{
-			outputs[i] = GetOutputBuffer(i);
+			outputsarray[i] = outputs[i].data();
 		}
 
 		return true;
@@ -88,41 +94,41 @@ public:
 
 	// Silence all input buffers.
 	void ClearInputBuffers(uint32 numSamples)
-	//---------------------------------------
 	{
 		MPT_ASSERT(numSamples <= bufferSize);
 		for(size_t i = 0; i < inputs.size(); i++)
 		{
-			memset(inputs[i], 0, numSamples * sizeof(buffer_t));
+			std::fill(inputs[i].data(), inputs[i].data() + numSamples, buffer_t{0});
 		}
 	}
 
 	// Silence all output buffers.
 	void ClearOutputBuffers(uint32 numSamples)
-	//----------------------------------------
 	{
 		MPT_ASSERT(numSamples <= bufferSize);
 		for(size_t i = 0; i < outputs.size(); i++)
 		{
-			memset(outputs[i], 0, numSamples * sizeof(buffer_t));
+			std::fill(outputs[i].data(), outputs[i].data() + numSamples, buffer_t{0});
 		}
 	}
 
 	PluginMixBuffer()
-	//---------------
 	{
 		Initialize(2, 0);
 	}
 
 	// Return pointer to a given input or output buffer
-	buffer_t *GetInputBuffer(uint32 index) const { return GetBuffer(index); }
-	buffer_t *GetOutputBuffer(uint32 index) const { return GetBuffer(inputs.size() + index); }
+	const buffer_t *GetInputBuffer(uint32 index) const { return inputs[index].data(); }
+	const buffer_t *GetOutputBuffer(uint32 index) const { return outputs[index].data(); }
+	buffer_t *GetInputBuffer(uint32 index) { return inputs[index].data(); }
+	buffer_t *GetOutputBuffer(uint32 index) { return outputs[index].data(); }
 
 	// Return pointer array to all input or output buffers
-	buffer_t **GetInputBufferArray() { return inputs.empty() ? nullptr : inputs.data(); }
-	buffer_t **GetOutputBufferArray() { return outputs.empty() ? nullptr : outputs.data(); }
+	buffer_t **GetInputBufferArray() { return inputs.empty() ? nullptr : inputsarray.data(); }
+	buffer_t **GetOutputBufferArray() { return outputs.empty() ? nullptr : outputsarray.data(); }
 
-	bool Ok() const { return alignedBuffer != nullptr; }
+	bool Ok() const { return (inputs.size() + outputs.size()) > 0; }
+
 };
 
 

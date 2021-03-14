@@ -159,6 +159,10 @@ BOOL is_retina;
     [self getSupportedExtensionList];
 #endif
     
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    
+    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
+    
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
     if (@available(iOS 14.0, *)) {
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
@@ -300,6 +304,9 @@ BOOL is_retina;
         NSString *imported_filepath;
         NSError *err;
         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+        
+        [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
+        
         imported_filepath=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"],[filepath lastPathComponent]];
         //////////////////
         ///Get access
