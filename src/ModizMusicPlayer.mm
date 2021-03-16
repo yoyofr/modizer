@@ -591,7 +591,7 @@ static volatile int uadeThread_running,timThread_running;
 static volatile int buffer_ana_gen_ofs,buffer_ana_play_ofs;
 static volatile int *buffer_ana_flag;
 static volatile int bGlobalIsPlaying,bGlobalShouldEnd,bGlobalSeekProgress,bGlobalEndReached,bGlobalSoundGenInProgress,bGlobalSoundHasStarted;
-static volatile int mNeedSeek,mNeedSeekTime;
+static volatile long mNeedSeek,mNeedSeekTime;
 
 // String holding the relative path to the source directory
 static const char *pathdir;
@@ -998,6 +998,7 @@ void propertyListenerCallback (void                   *inUserData,              
 
 @implementation ModizMusicPlayer
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
+@synthesize mCurrentSamples;
 @synthesize mPlayType;
 @synthesize mp_datasize;
 @synthesize optForceMono;
@@ -1009,7 +1010,7 @@ void propertyListenerCallback (void                   *inUserData,              
 //GME stuff
 @synthesize gme_emu;
 //SID
-@synthesize optSIDoptim,mSidEngineType,mAskedSidEngineType;
+@synthesize optSIDoptim;
 //AO stuff
 @synthesize ao_buffer;
 @synthesize ao_info;
@@ -1136,6 +1137,7 @@ void propertyListenerCallback (void                   *inUserData,              
         bGlobalIsPlaying=0;
         mVolume=1.0f;
         mLoopMode=0;
+        mCurrentSamples=0;
         
         mPanning=0;
         mPanningValue=64; //75%
@@ -1231,7 +1233,6 @@ void propertyListenerCallback (void                   *inUserData,              
         // Init SID emu engine
         mSIDFilterON=1;
         
-        mSidEngineType=2;
         mSidEmuEngine=NULL;
         mBuilder=NULL;
         mSidTune=NULL;
@@ -2606,6 +2607,27 @@ long src_callback_mpg123(void *cb_data, float **data) {
                 } else if (buffer_ana_flag[buffer_ana_gen_ofs]==0) {
                     if (mNeedSeek==1) { //SEEK
                         mNeedSeek=2;  //taken into account
+                        if (mPlayType==MMP_SIDPLAY) { //SID
+                            long mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;                            
+                            bGlobalSeekProgress=-1;
+                            if (mSeekSamples<mCurrentSamples) {
+                                //reset
+                                mSidTune->selectSong(mod_currentsub+1);
+                                mSidEmuEngine->load(mSidTune);
+                                mCurrentSamples=0;
+                            }
+                            mSidEmuEngine->fastForward( 100 * 32 );
+                            while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
+                                nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                mCurrentSamples+=(nbBytes/4)*32;
+                            }
+                            mSidEmuEngine->fastForward( 100 );
+                            
+                            while (mCurrentSamples<mSeekSamples) {
+                                nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                mCurrentSamples+=(nbBytes/4);
+                            }
+                        }
                         if (mPlayType==MMP_GME) {   //GME
                             bGlobalSeekProgress=-1;
                             gme_seek(gme_emu,mNeedSeekTime);
@@ -2629,9 +2651,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (mPlayType==MMP_HVL) { //HVL
                             bGlobalSeekProgress=-1;
                             mNeedSeekTime=hvl_Seek(hvl_song,mNeedSeekTime);
-                        }
-                        if (mPlayType==MMP_SIDPLAY) { //SID : not supported
-                            mNeedSeek=0;
                         }
                         if (mPlayType==MMP_STSOUND) {//STSOUND
                             if (ymMusicIsSeekable(ymMusic)==YMTRUE) {
@@ -2831,7 +2850,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 iCurrentTime=0;
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
-                                mSidTune->selectSong(mod_currentsub);
+                                mSidTune->selectSong(mod_currentsub+1);
                                 mSidEmuEngine->load(mSidTune);
                             
                                 if (moveToNextSubSong==2) {
@@ -2842,7 +2861,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                     [self iPhoneDrv_PlayStart];
                                 }
                                 iCurrentTime=0;
-                                iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub];
+                                mCurrentSamples=0;
+                                iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
@@ -2952,7 +2972,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             iCurrentTime=0;
                         }
                         if (mPlayType==MMP_SIDPLAY) { //SID
-                            mSidTune->selectSong(mod_currentsub);
+                            mSidTune->selectSong(mod_currentsub+1);
                             mSidEmuEngine->load(mSidTune);
                             
                             if (moveToSubSong==2) {
@@ -2963,7 +2983,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 [self iPhoneDrv_PlayStart];
                             }
                             iCurrentTime=0;
-                            iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub];
+                            mCurrentSamples=0;
+                            iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                             if (mLoopMode) iModuleLength=-1;
                             mod_message_updated=1;
@@ -3070,13 +3091,14 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 iCurrentTime=0;
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
-                                mSidTune->selectSong(mod_currentsub);
+                                mSidTune->selectSong(mod_currentsub+1);
                                 mSidEmuEngine->load(mSidTune);
                                 
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
                                 iCurrentTime=0;
-                                iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub];
+                                mCurrentSamples=0;
+                                iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
@@ -3458,17 +3480,19 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     }
                     if (mPlayType==MMP_SIDPLAY) { //SID
                         nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                        mCurrentSamples+=nbBytes/4;
                         if (mChangeOfSong==0) {
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
                                 if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     mod_currentsub++;
                                     
-                                    mSidTune->selectSong(mod_currentsub);
+                                    mSidTune->selectSong(mod_currentsub+1);
                                     mSidEmuEngine->load(mSidTune);
                                     
                                     mChangeOfSong=1;
-                                    mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub];
+                                    mCurrentSamples=0;
+                                    mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                     if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                     if (mLoopMode) mNewModuleLength=-1;
                                 } else {
@@ -5001,6 +5025,7 @@ char* loadRom(const char* path, size_t romSize)
     song_md5[32]=0;
     free(tmp_md5_data);
     
+    
             
     // Init SID emu engine
     mSidEmuEngine = new sidplayfp;
@@ -5092,14 +5117,15 @@ char* loadRom(const char* path, size_t romSize)
         mod_subsongs=sidtune_info->songs();
         mod_minsub=0;//sidtune_info.startSong;
         mod_maxsub=sidtune_info->songs()-1;
-        mod_currentsub=sidtune_info->startSong();
+        mod_currentsub=sidtune_info->startSong()-1;
                        
         mSidTune->selectSong(mod_currentsub);
-        iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub];
+        iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
         if (!iModuleLength) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
         
         if (mSidEmuEngine->load(mSidTune)) {
             iCurrentTime=0;
+            mCurrentSamples=0;
             numChannels=(mSidEmuEngine->info()).channels();
             
             stil_info[0]=0;
@@ -5123,7 +5149,7 @@ char* loadRom(const char* path, size_t romSize)
             //////////////////////////////////
             mod_total_length=0;
             for (int i=0;i<sidtune_info->songs(); i++) {
-                int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub];
+                int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
                 if (!sid_subsong_length) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                 mod_total_length+=sid_subsong_length;
                 
@@ -7035,7 +7061,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         moveToNextSubSong=0;
         moveToSubSong=0;
         moveToSubSongIndex=0;
-        mSidEngineType=mAskedSidEngineType;
         iModuleLength=0;
         mPatternDataAvail=0;
         
@@ -7223,7 +7248,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         moveToNextSubSong=0;
         moveToSubSong=0;
         moveToSubSongIndex=0;
-        mSidEngineType=mAskedSidEngineType;
         iModuleLength=0;
         mPatternDataAvail=0;
         
@@ -7793,10 +7817,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
             }
-            mSidTune->selectSong(mod_currentsub);
+            mSidTune->selectSong(mod_currentsub+1);
             mSidEmuEngine->load(mSidTune);
             
-            iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub];
+            iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
             if (mLoopMode) iModuleLength=-1;
             
@@ -8101,7 +8125,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_SEXYPSF) return @"SexyPSF";
     if (mPlayType==MMP_UADE) return @"UADE";
     if (mPlayType==MMP_HVL) return @"HVL";
-    if (mPlayType==MMP_SIDPLAY) return (mSidEngineType==1?@"SIDPLAY1":@"SIDPLAY2/RESID");
+    if (mPlayType==MMP_SIDPLAY) return (@"SIDPLAY/RESIDFP");
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_SC68) return @"SC68";
     if (mPlayType==MMP_MDXPDX) return @"MDX";
@@ -8552,8 +8576,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_AOSDK)||(mPlayType==MMP_UADE)||(mPlayType==MMP_SIDPLAY)
-        ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
+    if ((mPlayType==MMP_AOSDK)||(mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;

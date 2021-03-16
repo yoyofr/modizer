@@ -741,8 +741,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optSIDFilter:settings[SID_Filter].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];
-        mplayer.optSIDoptim=(int)(settings[SID_Optim].detail.mdz_switch.switch_value);
-        mplayer.mAskedSidEngineType =(int)(settings[SID_LibVersion].detail.mdz_switch.switch_value)+1;
+        mplayer.optSIDoptim=(int)(settings[SID_Optim].detail.mdz_switch.switch_value);        
     }
     
     /////////////////////
