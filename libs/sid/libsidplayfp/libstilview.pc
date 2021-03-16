@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libstilview
+Description: STILview library.
+Version: 2.1.1
+Libs: -L${libdir} -lstilview
+Cflags: -I${includedir}

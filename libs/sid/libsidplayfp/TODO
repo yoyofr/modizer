@@ -1,0 +1,13 @@
+3.0
+* wrap everything into a library namespace (?)
+
+
+someday/maybe:
+
+* move mixer client side
+* support non-ascii paths on Windows (SidTune, SidDatabase, STIL)
+* relocate only psid tunes (?)
+* add SIDid support
+* implement support for mus data embedded in psid files
+* test hardsid support
+* fix building on Cygwin
