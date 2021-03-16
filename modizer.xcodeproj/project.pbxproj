@@ -1631,6 +1631,7 @@
 		59BE93AD2600D3F500414A42 /* c1541.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59BE93A62600D3F500414A42 /* c1541.rom */; };
 		59BE93AE2600D3F500414A42 /* basic.c64 in Resources */ = {isa = PBXBuildFile; fileRef = 59BE93A72600D3F500414A42 /* basic.c64 */; };
 		59BE93AF2600D3F500414A42 /* basic.c64 in Resources */ = {isa = PBXBuildFile; fileRef = 59BE93A72600D3F500414A42 /* basic.c64 */; };
+		59BE93B2260155B200414A42 /* libsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BE8FA226000FE400414A42 /* libsidplayfp.a */; };
 		59C22A1A25B992D9003FEDBF /* AFURLResponseSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0825B992D9003FEDBF /* AFURLResponseSerialization.m */; };
 		59C22A1B25B992D9003FEDBF /* AFHTTPSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0925B992D9003FEDBF /* AFHTTPSessionManager.m */; };
 		59C22A1C25B992D9003FEDBF /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0B25B992D9003FEDBF /* AFURLSessionManager.m */; };
@@ -4248,6 +4249,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				59BE93B2260155B200414A42 /* libsidplayfp.a in Frameworks */,
 				5950DB5725E0F67B00B476B2 /* libaosdk.a in Frameworks */,
 				5950DB5825E0F67B00B476B2 /* CoreMedia.framework in Frameworks */,
 				5950DB5925E0F67B00B476B2 /* libiconv.tbd in Frameworks */,
@@ -8605,7 +8607,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.95.4;
+				CURRENT_PROJECT_VERSION = 2.96;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -8627,7 +8629,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOS",
 					"$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos",
 				);
-				MARKETING_VERSION = 2.95;
+				MARKETING_VERSION = 2.96;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -8650,7 +8652,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.95.4;
+				CURRENT_PROJECT_VERSION = 2.96;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -8671,7 +8673,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOS",
 					"$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos",
 				);
-				MARKETING_VERSION = 2.95;
+				MARKETING_VERSION = 2.96;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -8696,7 +8698,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.95.2;
+				CURRENT_PROJECT_VERSION = 2.96;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -8718,7 +8720,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOSsimulator",
 					"$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos",
 				);
-				MARKETING_VERSION = 2.95;
+				MARKETING_VERSION = 2.96;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -8741,7 +8743,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.95.2;
+				CURRENT_PROJECT_VERSION = 2.96;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -8762,7 +8764,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOSsimulator",
 					"$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos",
 				);
-				MARKETING_VERSION = 2.95;
+				MARKETING_VERSION = 2.96;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8787,7 +8789,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 2.95.2;
+				CURRENT_PROJECT_VERSION = 2.96;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -8807,7 +8809,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOSsimulator",
 					"$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos",
 				);
-				MARKETING_VERSION = 2.95;
+				MARKETING_VERSION = 2.96;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -9021,7 +9023,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 2.95.4;
+				CURRENT_PROJECT_VERSION = 2.96;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -9041,7 +9043,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOS",
 					"$(PROJECT_DIR)/libs/sid/libsidplayfp/sidplayfp/build/Debug-iphoneos",
 				);
-				MARKETING_VERSION = 2.95;
+				MARKETING_VERSION = 2.96;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
