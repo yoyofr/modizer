@@ -675,6 +675,7 @@
 		5950D9AF25E0F67B00B476B2 /* tl_tab.dat in Resources */ = {isa = PBXBuildFile; fileRef = 3370BBF3124A853F00691400 /* tl_tab.dat */; };
 		5950D9B025E0F67B00B476B2 /* rating0.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCE26D512588EA100741F5A /* rating0.png */; };
 		5950D9B125E0F67B00B476B2 /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = CC7E810112698C29006EF083 /* previous.png */; };
+		5950D9B225E0F67B00B476B2 /* databaseMAIN.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */; };
 		5950D9B325E0F67B00B476B2 /* database.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC85B126B760400156FB3 /* database.modizerdb */; };
 		5950D9B425E0F67B00B476B2 /* adplug.db in Resources */ = {isa = PBXBuildFile; fileRef = 337D3ED4137B094F00270218 /* adplug.db */; };
 		5950D9B525E0F67B00B476B2 /* ravel_pavane_orchestra.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16F25CFF0D100520777 /* ravel_pavane_orchestra.mid */; };
@@ -1957,6 +1958,7 @@
 		CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */; };
 		CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF517DC615F006DCBC7 /* EQView.m */; };
 		CC7E810212698C29006EF083 /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = CC7E810112698C29006EF083 /* previous.png */; };
+		CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */; };
 		CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC85B126B760400156FB3 /* database.modizerdb */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
 		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
@@ -3918,6 +3920,7 @@
 		CC6CBDF417DC615F006DCBC7 /* EQView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EQView.h; sourceTree = "<group>"; };
 		CC6CBDF517DC615F006DCBC7 /* EQView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EQView.m; sourceTree = "<group>"; };
 		CC7E810112698C29006EF083 /* previous.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = previous.png; sourceTree = "<group>"; };
+		CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = databaseMAIN.modizerdb; sourceTree = "<group>"; };
 		CC7FC85B126B760400156FB3 /* database.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = database.modizerdb; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
@@ -5965,6 +5968,7 @@
 			children = (
 				337D3ED4137B094F00270218 /* adplug.db */,
 				CC7FC85B126B760400156FB3 /* database.modizerdb */,
+				CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */,
 			);
 			path = DB;
 			sourceTree = "<group>";
@@ -6985,6 +6989,7 @@
 				LastUpgradeCheck = 0720;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
+						DevelopmentTeam = ZV46EUY73C;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -7590,6 +7595,7 @@
 				3370BC15124A853F00691400 /* tl_tab.dat in Resources */,
 				CCCE26D612588EA100741F5A /* rating0.png in Resources */,
 				CC7E810212698C29006EF083 /* previous.png in Resources */,
+				CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */,
 				CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */,
 				337D3ED5137B094F00270218 /* adplug.db in Resources */,
 				5966D1E125CFF0D200520777 /* ravel_pavane_orchestra.mid in Resources */,
@@ -8104,6 +8110,7 @@
 				5950D9AF25E0F67B00B476B2 /* tl_tab.dat in Resources */,
 				5950D9B025E0F67B00B476B2 /* rating0.png in Resources */,
 				5950D9B125E0F67B00B476B2 /* previous.png in Resources */,
+				5950D9B225E0F67B00B476B2 /* databaseMAIN.modizerdb in Resources */,
 				5950D9B325E0F67B00B476B2 /* database.modizerdb in Resources */,
 				5950D9B425E0F67B00B476B2 /* adplug.db in Resources */,
 				5950D9B525E0F67B00B476B2 /* ravel_pavane_orchestra.mid in Resources */,
@@ -8863,7 +8870,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 2.95.4;
-				DEVELOPMENT_TEAM = R72X3BF4KE;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master",
@@ -8882,7 +8889,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = "libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOS";
 				MARKETING_VERSION = 2.95;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoshisuga.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -8905,7 +8912,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 2.95.4;
-				DEVELOPMENT_TEAM = R72X3BF4KE;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master",
@@ -8924,7 +8931,7 @@
 				LIBRARY_SEARCH_PATHS = "libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOS";
 				MARKETING_VERSION = 2.95;
 				ONLY_ACTIVE_ARCH = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoshisuga.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -9261,7 +9268,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 2.95.4;
-				DEVELOPMENT_TEAM = R72X3BF4KE;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/FFmpeg-iOS-build-script-master",
@@ -9278,7 +9285,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = "libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/libs-iOS";
 				MARKETING_VERSION = 2.95;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yoshisuga.modizer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

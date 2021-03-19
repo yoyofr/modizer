@@ -317,11 +317,11 @@
                 <viewControllerLayoutGuide type="bottom" id="xNg-gz-N0C"/>
             </layoutGuides>
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="15" userLabel="PlayerView">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="1237346308.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="X7f-i5-f7a">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     </imageView>
                     <view clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="442" userLabel="main view">
@@ -981,7 +981,7 @@
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <view userInteractionEnabled="NO" alpha="0.69999999999999973" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1620" userLabel="Info Msg Player">
-                        <rect key="frame" x="0.0" y="218" width="320" height="140"/>
+                        <rect key="frame" x="0.0" y="190" width="320" height="140"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" minimumFontSize="16" translatesAutoresizingMaskIntoConstraints="NO" id="1621" userLabel="Pri Msg Label">
@@ -1187,7 +1187,7 @@
                 <viewControllerLayoutGuide type="bottom" id="aGb-Vx-W6l"/>
             </layoutGuides>
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="445" userLabel="WB View">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="toto" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" clearButtonMode="whileEditing" id="cXo-Rl-RbO">
@@ -1243,7 +1243,7 @@
                         </items>
                     </toolbar>
                     <view userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1613" userLabel="Info download">
-                        <rect key="frame" x="0.0" y="420" width="320" height="60"/>
+                        <rect key="frame" x="0.0" y="376" width="320" height="60"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." lineBreakMode="characterWrap" numberOfLines="2" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="1614" userLabel="Download Label">
@@ -1289,7 +1289,7 @@
                 <viewControllerLayoutGuide type="bottom" id="Spj-mO-qdP"/>
             </layoutGuides>
             <view key="view" contentMode="scaleToFill" id="1471">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="431"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" image="modizer_logo.png" translatesAutoresizingMaskIntoConstraints="NO" id="1472">
@@ -1297,10 +1297,10 @@
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     </imageView>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1468" userLabel="Text View">
-                        <rect key="frame" x="0.0" y="81" width="320" height="399"/>
+                        <rect key="frame" x="0.0" y="81" width="320" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <string key="text">v2.9.5 © Yohann Magnien / YoyoFR
+                        <mutableString key="text">v2.9.5 © Yohann Magnien / YoyoFR
 
 Web: http://yoyofr.blogspot.com/p/modizer.html
 Forum: http://modizer.988727.n3.nabble.com/
@@ -1337,7 +1337,7 @@ Integrated player libs:
 - VGMStream
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>
                         <dataDetectorType key="dataDetectorTypes" link="YES"/>
