@@ -44,7 +44,7 @@ extern "C" {
 #define MOD_TYPE_UMX		0x80000000 // Fake type
 
 
-struct _ModPlugFile;
+
 typedef struct _ModPlugFile ModPlugFile;
 
 struct _ModPlugNote {
@@ -126,6 +126,17 @@ typedef struct _ModPlug_Settings
 	int mLoopCount;      /* Number of times to loop.  Zero prevents looping.
 	                        -1 loops forever. */
 } ModPlug_Settings;
+
+struct _ModPlugFile {
+    openmpt_module* mod;
+    signed short* buf;
+    signed int* mixerbuf;
+    char* name;
+    char* message;
+    ModPlug_Settings settings;
+    ModPlugMixerProc mixerproc;
+    ModPlugNote** patterns;
+};
 
 /* Get and set the mod decoder settings.  All options, except for channels, bits-per-sample,
  * sampling rate, and loop count, will take effect immediately.  Those options which don't

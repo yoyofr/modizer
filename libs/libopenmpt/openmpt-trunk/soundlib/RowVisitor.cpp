@@ -27,44 +27,55 @@
 OPENMPT_NAMESPACE_BEGIN
 
 RowVisitor::RowVisitor(const CSoundFile &sf, SEQUENCEINDEX sequence)
-	: sndFile(sf)
-	, currentOrder(0)
+	: m_sndFile(sf)
+	, m_currentOrder(0)
+	, m_sequence(sequence)
 {
-	if(sequence < sndFile.Order.GetNumSequences())
-		Order = &sndFile.Order.GetSequence(sequence);
-	else
-		Order = &sndFile.Order;
 	Initialize(true);
 }
 
+
+void RowVisitor::MoveVisitedRowsFrom(RowVisitor &other)
+{
+	m_visitedRows = std::move(other.m_visitedRows);
+}
+
+
+const ModSequence &RowVisitor::Order() const
+{
+	if(m_sequence >= m_sndFile.Order.GetNumSequences())
+		return m_sndFile.Order();
+	else
+		return m_sndFile.Order(m_sequence);
+}
 
 
 // Resize / Clear the row vector.
 // If reset is true, the vector is not only resized to the required dimensions, but also completely cleared (i.e. all visited rows are unset).
 void RowVisitor::Initialize(bool reset)
-//-------------------------------------
 {
-	const ORDERINDEX endOrder = Order->GetLengthTailTrimmed();
-	visitedRows.resize(endOrder);
+	auto &order = Order();
+	const ORDERINDEX endOrder = order.GetLengthTailTrimmed();
+	m_visitedRows.resize(endOrder);
 	if(reset)
 	{
-		visitOrder.clear();
+		m_visitOrder.clear();
 		// Pre-allocate maximum amount of memory most likely needed for keeping track of visited rows in a pattern
-		if(visitOrder.capacity() < MAX_PATTERN_ROWS)
+		if(m_visitOrder.capacity() < MAX_PATTERN_ROWS)
 		{
 			ROWINDEX maxRows = 0;
-			for(PATTERNINDEX pat = 0; pat < sndFile.Patterns.Size(); pat++)
+			for(const auto &pat :m_sndFile.Patterns)
 			{
-				maxRows = std::max(maxRows, sndFile.Patterns[pat].GetNumRows());
+				maxRows = std::max(maxRows, pat.GetNumRows());
 			}
-			visitOrder.reserve(maxRows);
+			m_visitOrder.reserve(maxRows);
 		}
 	}
 
-	for(ORDERINDEX order = 0; order < endOrder; order++)
+	for(ORDERINDEX ord = 0; ord < endOrder; ord++)
 	{
-		VisitedRowsBaseType &row = visitedRows[order];
-		const size_t size = GetVisitedRowsVectorSize(Order->At(order));
+		auto &row = m_visitedRows[ord];
+		const size_t size = GetVisitedRowsVectorSize(order[ord]);
 		if(reset)
 		{
 			// If we want to reset the vectors completely, we overwrite existing items with false.
@@ -80,29 +91,29 @@ void RowVisitor::Initialize(bool reset)
 // (Un)sets a given row as visited.
 // order, row - which row should be (un)set
 // If visited is true, the row will be set as visited.
-void RowVisitor::SetVisited(ORDERINDEX order, ROWINDEX row, bool visited)
-//-----------------------------------------------------------------------
+void RowVisitor::SetVisited(ORDERINDEX ord, ROWINDEX row, bool visited)
 {
-	if(order >= Order->GetLength() || row >= GetVisitedRowsVectorSize(Order->At(order)))
+	auto &order = Order();
+	if(ord >= order.size() || row >= GetVisitedRowsVectorSize(order[ord]))
 	{
 		return;
 	}
 
 	// The module might have been edited in the meantime - so we have to extend this a bit.
-	if(order >= visitedRows.size() || row >= visitedRows[order].size())
+	if(ord >= m_visitedRows.size() || row >= m_visitedRows[ord].size())
 	{
 		Initialize(false);
-		// If it's still past the end of the vector, this means that order >= Order->GetLengthTailTrimmed(), i.e. we are trying to play an empty order.
-		if(order >= visitedRows.size())
+		// If it's still past the end of the vector, this means that ord >= order.GetLengthTailTrimmed(), i.e. we are trying to play an empty order.
+		if(ord >= m_visitedRows.size())
 		{
 			return;
 		}
 	}
 
-	visitedRows[order][row] = visited;
+	m_visitedRows[ord][row] = visited;
 	if(visited)
 	{
-		AddVisitedRow(order, row);
+		AddVisitedRow(ord, row);
 	}
 }
 
@@ -110,32 +121,31 @@ void RowVisitor::SetVisited(ORDERINDEX order, ROWINDEX row, bool visited)
 // Returns whether a given row has been visited yet.
 // If autoSet is true, the queried row will automatically be marked as visited.
 // Use this parameter instead of consecutive IsRowVisited / SetRowVisited calls.
-bool RowVisitor::IsVisited(ORDERINDEX order, ROWINDEX row, bool autoSet)
-//----------------------------------------------------------------------
+bool RowVisitor::IsVisited(ORDERINDEX ord, ROWINDEX row, bool autoSet)
 {
-	if(order >= Order->GetLength())
+	if(ord >= Order().size())
 	{
 		return false;
 	}
 
 	// The row slot for this row has not been assigned yet - Just return false, as this means that the program has not played the row yet.
-	if(order >= visitedRows.size() || row >= visitedRows[order].size())
+	if(ord >= m_visitedRows.size() || row >= m_visitedRows[ord].size())
 	{
 		if(autoSet)
 		{
-			SetVisited(order, row, true);
+			SetVisited(ord, row, true);
 		}
 		return false;
 	}
 
-	if(visitedRows[order][row])
+	if(m_visitedRows[ord][row])
 	{
 		// We visited this row already - this module must be looping.
 		return true;
 	} else if(autoSet)
 	{
-		visitedRows[order][row] = true;
-		AddVisitedRow(order, row);
+		m_visitedRows[ord][row] = true;
+		AddVisitedRow(ord, row);
 	}
 
 	return false;
@@ -144,11 +154,10 @@ bool RowVisitor::IsVisited(ORDERINDEX order, ROWINDEX row, bool autoSet)
 
 // Get the needed vector size for pattern nPat.
 size_t RowVisitor::GetVisitedRowsVectorSize(PATTERNINDEX pattern) const
-//---------------------------------------------------------------------
 {
-	if(sndFile.Patterns.IsValidPat(pattern))
+	if(m_sndFile.Patterns.IsValidPat(pattern))
 	{
-		return static_cast<size_t>(sndFile.Patterns[pattern].GetNumRows());
+		return static_cast<size_t>(m_sndFile.Patterns[pattern].GetNumRows());
 	} else
 	{
 		// Invalid patterns consist of a "fake" row.
@@ -159,77 +168,97 @@ size_t RowVisitor::GetVisitedRowsVectorSize(PATTERNINDEX pattern) const
 
 // Find the first row that has not been played yet.
 // The order and row is stored in the order and row variables on success, on failure they contain invalid values.
-// If fastSearch is true (default), only the first row of each pattern is looked at, otherwise every row is examined.
+// If onlyUnplayedPatterns is true (default), only completely unplayed patterns are considered, otherwise a song can start anywhere.
 // Function returns true on success.
-bool RowVisitor::GetFirstUnvisitedRow(ORDERINDEX &order, ROWINDEX &row, bool fastSearch) const
-//--------------------------------------------------------------------------------------------
+bool RowVisitor::GetFirstUnvisitedRow(ORDERINDEX &ord, ROWINDEX &row, bool onlyUnplayedPatterns) const
 {
-	const ORDERINDEX endOrder = Order->GetLengthTailTrimmed();
-	for(order = 0; order < endOrder; order++)
+	const auto &order = Order();
+	const ORDERINDEX endOrder = order.GetLengthTailTrimmed();
+	for(ord = 0; ord < endOrder; ord++)
 	{
-		const PATTERNINDEX pattern = Order->At(order);
-		if(!sndFile.Patterns.IsValidPat(pattern))
+		const PATTERNINDEX pattern = order[ord];
+		if(!m_sndFile.Patterns.IsValidPat(pattern))
 		{
 			continue;
 		}
 
-		if(order >= visitedRows.size())
+		if(ord >= m_visitedRows.size())
 		{
 			// Not yet initialized => unvisited
+			row = 0;
 			return true;
 		}
 
-		const ROWINDEX endRow = (fastSearch ? 1 : sndFile.Patterns[pattern].GetNumRows());
-		for(row = 0; row < endRow; row++)
+		const auto &visitedRows = m_visitedRows[ord];
+		auto foundRow = std::find(visitedRows.begin(), visitedRows.end(), onlyUnplayedPatterns);
+		if(onlyUnplayedPatterns && foundRow == visitedRows.end())
 		{
-			if(row >= visitedRows[order].size() || visitedRows[order][row] == false)
+			// No row of this pattern has been played yet.
+			row = 0;
+			return true;
+		} else if(!onlyUnplayedPatterns)
+		{
+			// Return the first unplayed row in this pattern
+			if(foundRow != visitedRows.end())
 			{
-				// Not yet initialized, or unvisited
+				row = static_cast<ROWINDEX>(std::distance(visitedRows.begin(), foundRow));
+				return true;
+			}
+			if(visitedRows.size() < m_sndFile.Patterns[pattern].GetNumRows())
+			{
+				// History is not fully initialized
+				row = static_cast<ROWINDEX>(visitedRows.size());
 				return true;
 			}
 		}
 	}
 
 	// Didn't find anything :(
-	order = ORDERINDEX_INVALID;
+	ord = ORDERINDEX_INVALID;
 	row = ROWINDEX_INVALID;
 	return false;
 }
 
 
 // Set all rows of a previous pattern loop as unvisited.
-void RowVisitor::ResetPatternLoop(ORDERINDEX order, ROWINDEX startRow)
-//--------------------------------------------------------------------
+void RowVisitor::ResetPatternLoop(ORDERINDEX ord, ROWINDEX startRow)
 {
-	MPT_ASSERT(order == currentOrder);	// Shouldn't trigger, unless we're jumping around in the GUI during a pattern loop.
-	
+	MPT_ASSERT(ord == m_currentOrder);	// Shouldn't trigger, unless we're jumping around in the GUI during a pattern loop.
+
 	// Unvisit all rows that are in the visited row buffer, until we hit the start row for this pattern loop.
 	ROWINDEX row = ROWINDEX_INVALID;
-	std::vector<ROWINDEX>::reverse_iterator iter = visitOrder.rbegin();
-	while(iter != visitOrder.rend() && row != startRow)
+	for(auto iter = m_visitOrder.crbegin(); iter != m_visitOrder.crend() && row != startRow; iter++)
 	{
-		row = *(iter++);
-		Unvisit(order, row);
+		row = *iter;
+		Unvisit(ord, row);
 	}
 }
 
 
 // Add a row to the visited row memory for this pattern.
-void RowVisitor::AddVisitedRow(ORDERINDEX order, ROWINDEX row)
-//------------------------------------------------------------
+void RowVisitor::AddVisitedRow(ORDERINDEX ord, ROWINDEX row)
 {
-	if(order != currentOrder)
+	if(ord != m_currentOrder)
 	{
 		// We're in a new pattern! Forget about which rows we previously visited...
-		visitOrder.clear();
-		currentOrder = order;
+		m_visitOrder.clear();
+		m_currentOrder = ord;
 	}
-	if(visitOrder.empty())
+	if(m_visitOrder.empty())
 	{
-		visitOrder.reserve(GetVisitedRowsVectorSize(Order->At(order)));
+		m_visitOrder.reserve(GetVisitedRowsVectorSize(Order()[ord]));
 	}
 	// And now add the played row to our memory.
-	visitOrder.push_back(row);
+	m_visitOrder.push_back(row);
+}
+
+
+// Returns the last visited row index of the current pattern, or ROWINDEX_INVALID if there is none.
+ROWINDEX RowVisitor::GetLastVisitedRow() const
+{
+	if(m_visitOrder.empty())
+		return ROWINDEX_INVALID;
+	return m_visitOrder.back();
 }
 
 

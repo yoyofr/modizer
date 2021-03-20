@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 OPENMPT_NAMESPACE_BEGIN
 
 namespace mpt
@@ -27,9 +29,9 @@ public:
 	typedef T value_type;
 	typedef uint8 byte_type;
 
-	static const std::size_t size_bytes = sizeof(value_type);
-	static const std::size_t size_bits = sizeof(value_type) * 8;
-	static const value_type top_bit = static_cast<value_type>(1) << ((sizeof(value_type) * 8) - 1);
+	enum : std::size_t { size_bytes = sizeof(value_type) };
+	enum : std::size_t { size_bits = sizeof(value_type) * 8 };
+	enum : value_type { top_bit = static_cast<value_type>(1) << ((sizeof(value_type) * 8) - 1) };
 
 private:
 	
@@ -111,7 +113,7 @@ public:
 
 	inline void processByte(byte_type byte)
 	{
-		MPT_CONSTANT_IF(reverseData)
+		if constexpr(reverseData)
 		{
 			value = (value >> 8) ^ read_table(static_cast<byte_type>((value & 0xff) ^ byte));
 		} else
@@ -134,7 +136,7 @@ public:
 
 	inline crc & process(char c)
 	{
-		processByte(static_cast<byte_type>(c));
+		processByte(mpt::byte_cast<byte_type>(c));
 		return *this;
 	}
 
@@ -146,7 +148,13 @@ public:
 
 	inline crc & process(unsigned char c)
 	{
-		processByte(static_cast<byte_type>(c));
+		processByte(mpt::byte_cast<byte_type>(c));
+		return *this;
+	}
+
+	inline crc & process(std::byte c)
+	{
+		processByte(mpt::byte_cast<byte_type>(c));
 		return *this;
 	}
 
@@ -170,7 +178,7 @@ public:
 
 	inline crc & operator () (char c)
 	{
-		processByte(static_cast<byte_type>(c));
+		processByte(mpt::byte_cast<byte_type>(c));
 		return *this;
 	}
 
@@ -182,7 +190,13 @@ public:
 
 	inline crc & operator () (unsigned char c)
 	{
-		processByte(static_cast<byte_type>(c));
+		processByte(mpt::byte_cast<byte_type>(c));
+		return *this;
+	}
+
+	inline crc & operator () (std::byte c)
+	{
+		processByte(mpt::byte_cast<byte_type>(c));
 		return *this;
 	}
 

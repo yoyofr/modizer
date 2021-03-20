@@ -21,7 +21,6 @@ OPENMPT_NAMESPACE_BEGIN
 
 // Translate sample properties between two given formats.
 void ModSample::Convert(MODTYPE fromType, MODTYPE toType)
-//-------------------------------------------------------
 {
 	// Convert between frequency and transpose values if necessary.
 	if((!(toType & (MOD_TYPE_MOD | MOD_TYPE_XM))) && (fromType & (MOD_TYPE_MOD | MOD_TYPE_XM)))
@@ -67,7 +66,7 @@ void ModSample::Convert(MODTYPE fromType, MODTYPE toType)
 			uFlags.set(CHN_PINGPONGLOOP, uFlags[CHN_PINGPONGSUSTAIN]);
 		}
 		nSustainStart = nSustainEnd = 0;
-		uFlags.reset(CHN_SUSTAINLOOP|CHN_PINGPONGSUSTAIN);
+		uFlags.reset(CHN_SUSTAINLOOP | CHN_PINGPONGSUSTAIN);
 	}
 
 	// All XM samples have default panning, and XM's autovibrato settings are rather limited.
@@ -89,7 +88,10 @@ void ModSample::Convert(MODTYPE fromType, MODTYPE toType)
 	{
 		if(nVibRate != 0 && nVibDepth != 0)
 		{
-			nVibSweep = 255 - nVibSweep;
+			if(nVibSweep != 0)
+				nVibSweep = mpt::saturate_cast<decltype(nVibSweep)>(Util::muldivr_unsigned(nVibDepth, 256, nVibSweep));
+			else
+				nVibSweep = 255;
 		}
 	}
 	// Convert incompatible autovibrato types
@@ -106,13 +108,24 @@ void ModSample::Convert(MODTYPE fromType, MODTYPE toType)
 	{
 		uFlags.reset(SMP_KEEPONDISK);
 	}
+
+	// No Adlib instruments in formats that can't handle it.
+	if(!CSoundFile::SupportsOPL(toType) && uFlags[CHN_ADLIB])
+	{
+		SetAdlib(false);
+	} else if(toType == MOD_TYPE_S3M && uFlags[CHN_ADLIB])
+	{
+		// No support for OPL3 waveforms in S3M
+		adlib[8] &= 0x03;
+		adlib[9] &= 0x03;
+	}
 }
 
 
 // Initialize sample slot with default values.
 void ModSample::Initialize(MODTYPE type)
-//--------------------------------------
 {
+	FreeSample();
 	nLength = 0;
 	nLoopStart = nLoopEnd = 0;
 	nSustainStart = nSustainEnd = 0;
@@ -120,7 +133,7 @@ void ModSample::Initialize(MODTYPE type)
 	nPan = 128;
 	nVolume = 256;
 	nGlobalVol = 64;
-	uFlags.reset(CHN_PANNING | CHN_SUSTAINLOOP | CHN_LOOP | CHN_PINGPONGLOOP | CHN_PINGPONGSUSTAIN | SMP_MODIFIED | SMP_KEEPONDISK);
+	uFlags.reset(CHN_PANNING | CHN_SUSTAINLOOP | CHN_LOOP | CHN_PINGPONGLOOP | CHN_PINGPONGSUSTAIN | CHN_ADLIB | SMP_MODIFIED | SMP_KEEPONDISK);
 	if(type == MOD_TYPE_XM)
 	{
 		uFlags.set(CHN_PANNING);
@@ -132,19 +145,14 @@ void ModSample::Initialize(MODTYPE type)
 	nVibDepth = 0;
 	nVibRate = 0;
 	rootNote = 0;
-	filename[0] = '\0';
+	filename = "";
 
-	// Default cues compatible with old-style volume column offset
-	for(int i = 0; i < 9; i++)
-	{
-		cues[i] = (i + 1) << 11;
-	}
+	SetDefaultCuePoints();
 }
 
 
 // Returns sample rate of the sample.
 uint32 ModSample::GetSampleRate(const MODTYPE type) const
-//-------------------------------------------------------
 {
 	uint32 rate;
 	if(CSoundFile::UseFinetuneAndTranspose(type))
@@ -161,11 +169,10 @@ uint32 ModSample::GetSampleRate(const MODTYPE type) const
 // Allocate sample based on a ModSample's properties.
 // Returns number of bytes allocated, 0 on failure.
 size_t ModSample::AllocateSample()
-//--------------------------------
 {
 	FreeSample();
 
-	if((pSample = AllocateSample(nLength, GetBytesPerSample())) == nullptr)
+	if((pData.pSample = AllocateSample(nLength, GetBytesPerSample())) == nullptr)
 	{
 		return 0;
 	} else
@@ -175,16 +182,15 @@ size_t ModSample::AllocateSample()
 }
 
 
-// Allocate sample memory. On sucess, a pointer to the silenced sample buffer is returned. On failure, nullptr is returned.
-// numSamples must contain the sample length, bytesPerSample the size of a sampling point multiplied with the number of channels.
-void *ModSample::AllocateSample(SmpLength numSamples, size_t bytesPerSample)
-//--------------------------------------------------------------------------
+// Allocate sample memory. On success, a pointer to the silenced sample buffer is returned. On failure, nullptr is returned.
+// numFrames must contain the sample length, bytesPerSample the size of a sampling point multiplied with the number of channels.
+void *ModSample::AllocateSample(SmpLength numFrames, size_t bytesPerSample)
 {
-	const size_t allocSize = GetRealSampleBufferSize(numSamples, bytesPerSample);
+	const size_t allocSize = GetRealSampleBufferSize(numFrames, bytesPerSample);
 
 	if(allocSize != 0)
 	{
-		char *p = new (std::nothrow) char[allocSize];
+		char *p = new(std::nothrow) char[allocSize];
 		if(p != nullptr)
 		{
 			memset(p, 0, allocSize);
@@ -197,7 +203,6 @@ void *ModSample::AllocateSample(SmpLength numSamples, size_t bytesPerSample)
 
 // Compute sample buffer size in bytes, including any overhead introduced by pre-computed loops and such. Returns 0 if sample is too big.
 size_t ModSample::GetRealSampleBufferSize(SmpLength numSamples, size_t bytesPerSample)
-//------------------------------------------------------------------------------------
 {
 	// Number of required lookahead samples:
 	// * 1x InterpolationMaxLookahead samples before the actual sample start. This is set to MaxSamplingPointSize due to the way AllocateSample/FreeSample currently work.
@@ -205,11 +210,11 @@ size_t ModSample::GetRealSampleBufferSize(SmpLength numSamples, size_t bytesPerS
 	// * 2x InterpolationMaxLookahead before the loop point (because we start at InterpolationMaxLookahead before the loop point and will look backwards from there as well)
 	// * 2x InterpolationMaxLookahead after the loop point (for wrap-around)
 	// * 4x InterpolationMaxLookahead for the sustain loop (same as the two points above)
-	
+
 	const SmpLength maxSize = Util::MaxValueOfType(numSamples);
 	const SmpLength lookaheadBufferSize = (MaxSamplingPointSize + 1 + 4 + 4) * InterpolationMaxLookahead;
 
-	if(numSamples > MAX_SAMPLE_LENGTH || lookaheadBufferSize > maxSize - numSamples)
+	if(numSamples == 0 || numSamples > MAX_SAMPLE_LENGTH || lookaheadBufferSize > maxSize - numSamples)
 	{
 		return 0;
 	}
@@ -225,26 +230,23 @@ size_t ModSample::GetRealSampleBufferSize(SmpLength numSamples, size_t bytesPerS
 
 
 void ModSample::FreeSample()
-//--------------------------
 {
-	FreeSample(pSample);
-	pSample = nullptr;
+	FreeSample(pData.pSample);
+	pData.pSample = nullptr;
 }
 
 
 void ModSample::FreeSample(void *samplePtr)
-//-----------------------------------------
 {
 	if(samplePtr)
 	{
-		delete[] (((char *)samplePtr) - (InterpolationMaxLookahead * MaxSamplingPointSize));
+		delete[](((char *)samplePtr) - (InterpolationMaxLookahead * MaxSamplingPointSize));
 	}
 }
 
 
 // Set loop points and update loop wrap-around buffer
 void ModSample::SetLoop(SmpLength start, SmpLength end, bool enable, bool pingpong, CSoundFile &sndFile)
-//------------------------------------------------------------------------------------------------------
 {
 	nLoopStart = start;
 	nLoopEnd = end;
@@ -264,7 +266,6 @@ void ModSample::SetLoop(SmpLength start, SmpLength end, bool enable, bool pingpo
 
 // Set sustain loop points and update loop wrap-around buffer
 void ModSample::SetSustainLoop(SmpLength start, SmpLength end, bool enable, bool pingpong, CSoundFile &sndFile)
-//-------------------------------------------------------------------------------------------------------------
 {
 	nSustainStart = start;
 	nSustainEnd = end;
@@ -282,16 +283,149 @@ void ModSample::SetSustainLoop(SmpLength start, SmpLength end, bool enable, bool
 }
 
 
-void ModSample::PrecomputeLoops(CSoundFile &sndFile, bool updateChannels)
-//-----------------------------------------------------------------------
+namespace  // Unnamed namespace for local implementation functions.
 {
-	ctrlSmp::PrecomputeLoops(*this, sndFile, updateChannels);
+
+template <typename T>
+class PrecomputeLoop
+{
+protected:
+	T *target;
+	const T *sampleData;
+	SmpLength loopEnd;
+	int numChannels;
+	bool pingpong;
+	bool ITPingPongMode;
+
+public:
+	PrecomputeLoop(T *target, const T *sampleData, SmpLength loopEnd, int numChannels, bool pingpong, bool ITPingPongMode)
+	    : target(target), sampleData(sampleData), loopEnd(loopEnd), numChannels(numChannels), pingpong(pingpong), ITPingPongMode(ITPingPongMode)
+	{
+		if(loopEnd > 0)
+		{
+			CopyLoop(true);
+			CopyLoop(false);
+		}
+	}
+
+	void CopyLoop(bool direction) const
+	{
+		// Direction: true = start reading and writing forward, false = start reading and writing backward (write direction never changes)
+		const int numSamples = 2 * InterpolationMaxLookahead + (direction ? 1 : 0);  // Loop point is included in forward loop expansion
+		T *dest = target + numChannels * (2 * InterpolationMaxLookahead - 1);        // Write buffer offset
+		SmpLength readPosition = loopEnd - 1;
+		const int writeIncrement = direction ? 1 : -1;
+		int readIncrement = writeIncrement;
+
+		for(int i = 0; i < numSamples; i++)
+		{
+			// Copy sample over to lookahead buffer
+			for(int c = 0; c < numChannels; c++)
+			{
+				dest[c] = sampleData[readPosition * numChannels + c];
+			}
+			dest += writeIncrement * numChannels;
+
+			if(readPosition == loopEnd - 1 && readIncrement > 0)
+			{
+				// Reached end of loop while going forward
+				if(pingpong)
+				{
+					readIncrement = -1;
+					if(ITPingPongMode && readPosition > 0)
+					{
+						readPosition--;
+					}
+				} else
+				{
+					readPosition = 0;
+				}
+			} else if(readPosition == 0 && readIncrement < 0)
+			{
+				// Reached start of loop while going backward
+				if(pingpong)
+				{
+					readIncrement = 1;
+				} else
+				{
+					readPosition = loopEnd - 1;
+				}
+			} else
+			{
+				readPosition += readIncrement;
+			}
+		}
+	}
+};
+
+
+template <typename T>
+void PrecomputeLoopsImpl(ModSample &smp, const CSoundFile &sndFile)
+{
+	const int numChannels = smp.GetNumChannels();
+	const int copySamples = numChannels * InterpolationMaxLookahead;
+
+	T *sampleData = static_cast<T *>(smp.samplev());
+	T *afterSampleStart = sampleData + smp.nLength * numChannels;
+	T *loopLookAheadStart = afterSampleStart + copySamples;
+	T *sustainLookAheadStart = loopLookAheadStart + 4 * copySamples;
+
+	// Hold sample on the same level as the last sampling point at the end to prevent extra pops with interpolation.
+	// Do the same at the sample start, too.
+	for(int i = 0; i < (int)InterpolationMaxLookahead; i++)
+	{
+		for(int c = 0; c < numChannels; c++)
+		{
+			afterSampleStart[i * numChannels + c] = afterSampleStart[-numChannels + c];
+			sampleData[-(i + 1) * numChannels + c] = sampleData[c];
+		}
+	}
+
+	if(smp.uFlags[CHN_LOOP])
+	{
+		PrecomputeLoop<T>(loopLookAheadStart,
+			sampleData + smp.nLoopStart * numChannels,
+			smp.nLoopEnd - smp.nLoopStart,
+			numChannels,
+			smp.uFlags[CHN_PINGPONGLOOP],
+			sndFile.m_playBehaviour[kITPingPongMode]);
+	}
+	if(smp.uFlags[CHN_SUSTAINLOOP])
+	{
+		PrecomputeLoop<T>(sustainLookAheadStart,
+			sampleData + smp.nSustainStart * numChannels,
+			smp.nSustainEnd - smp.nSustainStart,
+			numChannels,
+			smp.uFlags[CHN_PINGPONGSUSTAIN],
+			sndFile.m_playBehaviour[kITPingPongMode]);
+	}
+}
+
+}  // unnamed namespace
+
+
+void ModSample::PrecomputeLoops(CSoundFile &sndFile, bool updateChannels)
+{
+	if(!HasSampleData())
+		return;
+
+	SanitizeLoops();
+
+	// Update channels with possibly changed loop values
+	if(updateChannels)
+	{
+		ctrlSmp::UpdateLoopPoints(*this, sndFile);
+	}
+
+	if(GetElementarySampleSize() == 2)
+		PrecomputeLoopsImpl<int16>(*this, sndFile);
+	else if(GetElementarySampleSize() == 1)
+		PrecomputeLoopsImpl<int8>(*this, sndFile);
 }
 
 
 // Remove loop points if they're invalid.
 void ModSample::SanitizeLoops()
-//-----------------------------
 {
 	LimitMax(nSustainEnd, nLength);
 	LimitMax(nLoopEnd, nLength);
@@ -312,66 +446,82 @@ void ModSample::SanitizeLoops()
 // Transpose <-> Frequency conversions
 
 uint32 ModSample::TransposeToFrequency(int transpose, int finetune)
-//-----------------------------------------------------------------
 {
-	return Util::Round<uint32>(std::pow(2.0, (transpose * 128.0 + finetune) * (1.0 / (12.0 * 128.0))) * 8363.0);
+	return mpt::saturate_round<uint32>(std::pow(2.0, (transpose * 128.0 + finetune) * (1.0 / (12.0 * 128.0))) * 8363.0);
 }
 
 
 void ModSample::TransposeToFrequency()
-//------------------------------------
 {
 	nC5Speed = TransposeToFrequency(RelativeTone, nFineTune);
 }
 
 
 // Return tranpose.finetune as 25.7 fixed point value.
-int ModSample::FrequencyToTranspose(uint32 freq)
-//----------------------------------------------
+int32 ModSample::FrequencyToTranspose(uint32 freq)
 {
-	return Util::Round<int>(std::log(freq * (1.0 / 8363.0)) * (12.0 * 128.0 * (1.0 / M_LN2)));
+	if(!freq)
+		return 0;
+	else
+		return mpt::saturate_round<int32>(std::log(freq * (1.0 / 8363.0)) * (12.0 * 128.0 * (1.0 / M_LN2)));
 }
 
 
 void ModSample::FrequencyToTranspose()
-//------------------------------------
 {
-	int f2t;
-	if(nC5Speed)
-		f2t = FrequencyToTranspose(nC5Speed);
-	else
-		f2t = 0;
-	int transpose = f2t >> 7;
-	int finetune = f2t & 0x7F;	//0x7F == 111 1111
-	if(finetune > 80)			// XXX Why is this 80?
-	{
-		transpose++;
-		finetune -= 128;
-	}
-	Limit(transpose, -127, 128);
-	RelativeTone = static_cast<int8>(transpose);
-	nFineTune = static_cast<int8>(finetune);
+	const int f2t = Clamp(FrequencyToTranspose(nC5Speed), -16384, 16383);
+	const auto fine = std::div(f2t, 128);
+	RelativeTone = static_cast<int8>(fine.quot);
+	nFineTune = static_cast<int8>(fine.rem);
 }
 
 
 // Transpose the sample by amount specified in octaves (i.e. amount=1 transposes one octave up)
 void ModSample::Transpose(double amount)
-//--------------------------------------
 {
-	nC5Speed = Util::Round<uint32>(nC5Speed * std::pow(2.0, amount));
+	nC5Speed = mpt::saturate_round<uint32>(nC5Speed * std::pow(2.0, amount));
 }
 
 
 // Check if the sample's cue points are the default cue point set.
 bool ModSample::HasCustomCuePoints() const
-//----------------------------------------
 {
-	for(SmpLength i = 0; i < CountOf(cues); i++)
+	if(!uFlags[CHN_ADLIB])
 	{
-		if(cues[i] != (i + 1) << 11) return true;
+		for(SmpLength i = 0; i < CountOf(cues); i++)
+		{
+			if(cues[i] != (i + 1) << 11)
+				return true;
+		}
 	}
 	return false;
 }
 
+
+void ModSample::SetDefaultCuePoints()
+{
+	// Default cues compatible with old-style volume column offset
+	for(int i = 0; i < 9; i++)
+	{
+		cues[i] = (i + 1) << 11;
+	}
+}
+
+void ModSample::SetAdlib(bool enable, OPLPatch patch)
+{
+	if(!enable && uFlags[CHN_ADLIB])
+	{
+		SetDefaultCuePoints();
+	}
+	uFlags.set(CHN_ADLIB, enable);
+	if(enable)
+	{
+		// Bogus sample to make playback work
+		uFlags.reset(CHN_16BIT | CHN_STEREO);
+		nLength = 4;
+		AllocateSample();
+		adlib = patch;
+	}
+}
 
 OPENMPT_NAMESPACE_END

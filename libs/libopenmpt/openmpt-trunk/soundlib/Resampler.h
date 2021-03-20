@@ -9,10 +9,13 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 
 #include "WindowedFIR.h"
 #include "Mixer.h"
 #include "MixerSettings.h"
+#include "Paula.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -48,35 +51,27 @@ typedef mixsample_t SINC_TYPE;
 #endif // MPT_INTMIXER
 
 #define SINC_MASK (SINC_PHASES-1)
-STATIC_ASSERT((SINC_MASK & 0xffff) == SINC_MASK); // exceeding fractional freq
+static_assert((SINC_MASK & 0xffff) == SINC_MASK); // exceeding fractional freq
 
 
-//======================
 class CResamplerSettings
-//======================
 {
 public:
-	ResamplingMode SrcMode;
-	double gdWFIRCutoff;
-	uint8 gbWFIRType;
+	ResamplingMode SrcMode = Resampling::Default();
+	double gdWFIRCutoff = 0.97;
+	uint8 gbWFIRType = WFIR_KAISER4T;
+	Resampling::AmigaFilter emulateAmiga = Resampling::AmigaFilter::Off;
 public:
-	CResamplerSettings()
-	{
-		SrcMode = SRCMODE_POLYPHASE;
-		gdWFIRCutoff = 0.97;
-		gbWFIRType = WFIR_KAISER4T;
-	}
+	constexpr CResamplerSettings() = default;
 	bool operator == (const CResamplerSettings &cmp) const
 	{
-		return SrcMode == cmp.SrcMode && gdWFIRCutoff == cmp.gdWFIRCutoff && gbWFIRType == cmp.gbWFIRType;
+		return SrcMode == cmp.SrcMode && gdWFIRCutoff == cmp.gdWFIRCutoff && gbWFIRType == cmp.gbWFIRType && emulateAmiga == cmp.emulateAmiga;
 	}
 	bool operator != (const CResamplerSettings &cmp) const { return !(*this == cmp); }
 };
 
 
-//==============
 class CResampler
-//==============
 {
 public:
 	CResamplerSettings m_Settings;
@@ -94,6 +89,7 @@ public:
 	RESAMPLER_TABLE SINC_TYPE gKaiserSinc[SINC_PHASES * 8];     // Upsampling
 	RESAMPLER_TABLE SINC_TYPE gDownsample13x[SINC_PHASES * 8];  // Downsample 1.333x
 	RESAMPLER_TABLE SINC_TYPE gDownsample2x[SINC_PHASES * 8];   // Downsample 2x
+	RESAMPLER_TABLE Paula::BlepTables blepTables;               // Amiga BLEP resampler
 
 #ifndef MPT_INTMIXER
 	RESAMPLER_TABLE mixsample_t FastSincTablef[256 * 4];	// Cubic spline LUT
@@ -127,8 +123,7 @@ public:
 	{
 		InitializeTablesFromScratch(false);
 	}
-	~CResampler() {}
-	bool IsHQ() const { return m_Settings.SrcMode >= SRCMODE_SPLINE && m_Settings.SrcMode < SRCMODE_DEFAULT; }
+
 private:
 	void InitFloatmixerTables();
 	void InitializeTablesFromScratch(bool force=false);

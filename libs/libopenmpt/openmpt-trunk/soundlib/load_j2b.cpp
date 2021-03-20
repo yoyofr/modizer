@@ -18,7 +18,12 @@
 #if defined(MPT_WITH_ZLIB)
 #include <zlib.h>
 #elif defined(MPT_WITH_MINIZ)
-#include <miniz/miniz.c>
+#include <miniz/miniz.h>
+#endif
+
+
+#ifdef MPT_ALL_LOGGING
+#define J2B_LOG
 #endif
 
 
@@ -26,7 +31,7 @@ OPENMPT_NAMESPACE_BEGIN
 
 
 // First off, a nice vibrato translation LUT.
-static const uint8 j2bAutoVibratoTrans[] = 
+static constexpr VibratoType j2bAutoVibratoTrans[] = 
 {
 	VIB_SINE, VIB_SQUARE, VIB_RAMP_UP, VIB_RAMP_DOWN, VIB_RANDOM,
 };
@@ -37,8 +42,10 @@ struct J2BFileHeader
 {
 	// Magic Bytes
 	// 32-Bit J2B header identifiers
-	static const uint32 magicDEADBEAF = 0xAFBEADDEu;
-	static const uint32 magicDEADBABE = 0xBEBAADDEu;
+	enum : uint32 {
+		magicDEADBEAF = 0xAFBEADDEu,
+		magicDEADBABE = 0xBEBAADDEu
+	};
 
 	char     signature[4];		// MUSE
 	uint32le deadbeaf;			// 0xDEADBEAF (AM) or 0xDEADBABE (AMFF)
@@ -58,20 +65,18 @@ struct AMFFRiffChunk
 	// 32-Bit chunk identifiers
 	enum ChunkIdentifiers
 	{
-		idRIFF	= MAGIC4LE('R','I','F','F'),
-		idAMFF	= MAGIC4LE('A','M','F','F'),
-		idAM__	= MAGIC4LE('A','M',' ',' '),
-		idMAIN	= MAGIC4LE('M','A','I','N'),
-		idINIT	= MAGIC4LE('I','N','I','T'),
-		idORDR	= MAGIC4LE('O','R','D','R'),
-		idPATT	= MAGIC4LE('P','A','T','T'),
-		idINST	= MAGIC4LE('I','N','S','T'),
-		idSAMP	= MAGIC4LE('S','A','M','P'),
-		idAI__	= MAGIC4LE('A','I',' ',' '),
-		idAS__	= MAGIC4LE('A','S',' ',' '),
+		idRIFF	= MagicLE("RIFF"),
+		idAMFF	= MagicLE("AMFF"),
+		idAM__	= MagicLE("AM  "),
+		idMAIN	= MagicLE("MAIN"),
+		idINIT	= MagicLE("INIT"),
+		idORDR	= MagicLE("ORDR"),
+		idPATT	= MagicLE("PATT"),
+		idINST	= MagicLE("INST"),
+		idSAMP	= MagicLE("SAMP"),
+		idAI__	= MagicLE("AI  "),
+		idAS__	= MagicLE("AS  "),
 	};
-
-	typedef ChunkIdentifiers id_type;
 
 	uint32le id;		// See ChunkIdentifiers
 	uint32le length;	// Chunk size without header
@@ -81,9 +86,9 @@ struct AMFFRiffChunk
 		return length;
 	}
 
-	id_type GetID() const
+	ChunkIdentifiers GetID() const
 	{
-		return static_cast<id_type>(id.get());
+		return static_cast<ChunkIdentifiers>(id.get());
 	}
 };
 
@@ -104,22 +109,12 @@ struct AMFFMainChunk
 	uint8le  channels;
 	uint8le  speed;
 	uint8le  tempo;
-	uint16le minPeriod;
-	uint16le maxPeriod;
+	uint16le minPeriod;	// 16x Amiga periods, but we should ignore them - otherwise some high notes in Medivo.j2b won't sound correct.
+	uint16le maxPeriod;	// Ditto
 	uint8le  globalvolume;
 };
 
 MPT_BINARY_STRUCT(AMFFMainChunk, 73)
-
-
-// AMFF instrument envelope point (old format)
-struct AMFFEnvelopePoint
-{
-	uint16le tick;
-	uint8le  value;	// 0...64
-};
-
-MPT_BINARY_STRUCT(AMFFEnvelopePoint, 3)
 
 
 // AMFF instrument envelope (old format)
@@ -133,16 +128,22 @@ struct AMFFEnvelope
 		envLoop		= 0x04,
 	};
 
+	struct EnvPoint
+	{
+		uint16le tick;
+		uint8le  value;	// 0...64
+	};
+
 	uint8le envFlags;			// high nibble = pan env flags, low nibble = vol env flags (both nibbles work the same way)
 	uint8le envNumPoints;		// high nibble = pan env length, low nibble = vol env length
 	uint8le envSustainPoints;	// you guessed it... high nibble = pan env sustain point, low nibble = vol env sustain point
 	uint8le envLoopStarts;		// I guess you know the pattern now.
 	uint8le envLoopEnds;		// same here.
-	AMFFEnvelopePoint volEnv[10];
-	AMFFEnvelopePoint panEnv[10];
+	EnvPoint volEnv[10];
+	EnvPoint panEnv[10];
 
 	// Convert weird envelope data to OpenMPT's internal format.
-	void ConvertEnvelope(uint8 flags, uint8 numPoints, uint8 sustainPoint, uint8 loopStart, uint8 loopEnd, const AMFFEnvelopePoint *points, InstrumentEnvelope &mptEnv) const
+	void ConvertEnvelope(uint8 flags, uint8 numPoints, uint8 sustainPoint, uint8 loopStart, uint8 loopEnd, const EnvPoint (&points)[10], InstrumentEnvelope &mptEnv) const
 	{
 		// The buggy mod2j2b converter will actually NOT limit this to 10 points if the envelope is longer.
 		mptEnv.resize(std::min(numPoints, static_cast<uint8>(10)));
@@ -175,11 +176,14 @@ struct AMFFEnvelope
 		// but just has room for 10 envelope points. That means that long (>= 16 points)
 		// envelopes are cut off, and envelopes have to be trimmed to 10 points, even if
 		// the header claims that they are longer.
+		// For XM files the number of points also appears to be off by one,
+		// but luckily there are no official J2Bs using envelopes anyway.
 		ConvertEnvelope(envFlags & 0x0F, envNumPoints & 0x0F, envSustainPoints & 0x0F, envLoopStarts & 0x0F, envLoopEnds & 0x0F, volEnv, mptIns.VolEnv);
 		ConvertEnvelope(envFlags >> 4, envNumPoints >> 4, envSustainPoints >> 4, envLoopStarts >> 4, envLoopEnds >> 4, panEnv, mptIns.PanEnv);
 	}
 };
 
+MPT_BINARY_STRUCT(AMFFEnvelope::EnvPoint, 3)
 MPT_BINARY_STRUCT(AMFFEnvelope, 65)
 
 
@@ -201,10 +205,10 @@ struct AMFFInstrumentHeader
 	// Convert instrument data to OpenMPT's internal format.
 	void ConvertToMPT(ModInstrument &mptIns, SAMPLEINDEX baseSample)
 	{
-		mpt::String::Read<mpt::String::maybeNullTerminated>(mptIns.name, name);
+		mptIns.name = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, name);
 
-		STATIC_ASSERT(CountOf(sampleMap) <= CountOf(mptIns.Keyboard));
-		for(size_t i = 0; i < CountOf(sampleMap); i++)
+		static_assert(mpt::array_size<decltype(sampleMap)>::size <= mpt::array_size<decltype(mptIns.Keyboard)>::size);
+		for(size_t i = 0; i < std::size(sampleMap); i++)
 		{
 			mptIns.Keyboard[i] = sampleMap[i] + baseSample + 1;
 		}
@@ -257,7 +261,7 @@ struct AMFFSampleHeader
 		mptSmp.nLoopEnd = loopEnd;
 		mptSmp.nC5Speed = sampleRate;
 
-		if(instrHeader.vibratoType < CountOf(j2bAutoVibratoTrans))
+		if(instrHeader.vibratoType < std::size(j2bAutoVibratoTrans))
 			mptSmp.nVibType = j2bAutoVibratoTrans[instrHeader.vibratoType];
 		mptSmp.nVibSweep = static_cast<uint8>(instrHeader.vibratoSweep);
 		mptSmp.nVibRate = static_cast<uint8>(instrHeader.vibratoRate / 16);
@@ -292,26 +296,22 @@ struct AMFFSampleHeader
 MPT_BINARY_STRUCT(AMFFSampleHeader, 64)
 
 
-// AM instrument envelope point (new format)
-struct AMEnvelopePoint
-{
-	uint16le tick;
-	uint16le value;
-};
-
-MPT_BINARY_STRUCT(AMEnvelopePoint, 4)
-
-
 // AM instrument envelope (new format)
 struct AMEnvelope
 {
+	struct EnvPoint
+	{
+		uint16le tick;
+		int16le value;
+	};
+
 	uint16le flags;
-	uint8le  numPoints;		// actually, it's num. points - 1, and 0xFF if there is no envelope
+	uint8le  numPoints;  // actually, it's num. points - 1, and 0xFF if there is no envelope
 	uint8le  sustainPoint;
 	uint8le  loopStart;
 	uint8le  loopEnd;
-	AMEnvelopePoint values[10];
-	uint16le fadeout;		// why is this here? it's only needed for the volume envelope...
+	EnvPoint values[10];
+	uint16le fadeout;  // why is this here? it's only needed for the volume envelope...
 
 	// Convert envelope data to OpenMPT's internal format.
 	void ConvertToMPT(InstrumentEnvelope &mptEnv, EnvelopeType envType) const
@@ -326,6 +326,23 @@ struct AMEnvelope
 		mptEnv.nLoopStart = loopStart;
 		mptEnv.nLoopEnd = loopEnd;
 
+		int32 scale = 0, offset = 0;
+		switch(envType)
+		{
+		case ENV_VOLUME:  // 0....32767
+		default:
+			scale = 32767 / ENVELOPE_MAX;
+			break;
+		case ENV_PITCH:  // -4096....4096
+			scale = 8192 / ENVELOPE_MAX;
+			offset = 4096;
+			break;
+		case ENV_PANNING:  // -32768...32767
+			scale = 65536 / ENVELOPE_MAX;
+			offset = 32768;
+			break;
+		}
+
 		for(uint32 i = 0; i < mptEnv.size(); i++)
 		{
 			mptEnv[i].tick = values[i].tick >> 4;
@@ -334,21 +351,9 @@ struct AMEnvelope
 			else if(mptEnv[i].tick < mptEnv[i - 1].tick)
 				mptEnv[i].tick = mptEnv[i - 1].tick + 1;
 
-			const uint16 val = values[i].value;
-			switch(envType)
-			{
-			case ENV_VOLUME:	// 0....32767
-			default:
-				mptEnv[i].value = (uint8)((val + 1) >> 9);
-				break;
-			case ENV_PITCH:		// -4096....4096
-				mptEnv[i].value = (uint8)((((int16)val) + 0x1001) >> 7);
-				break;
-			case ENV_PANNING:	// -32768...32767
-				mptEnv[i].value = (uint8)((((int16)val) + 0x8001) >> 10);
-				break;
-			}
-			Limit(mptEnv[i].value, uint8(ENVELOPE_MIN), uint8(ENVELOPE_MAX));
+			int32 val = values[i].value + offset;
+			val = (val + scale / 2) / scale;
+			mptEnv[i].value = static_cast<EnvelopeNode::value_t>(std::clamp(val, int32(ENVELOPE_MIN), int32(ENVELOPE_MAX)));
 		}
 
 		mptEnv.dwFlags.set(ENV_ENABLED, (flags & AMFFEnvelope::envEnabled) != 0);
@@ -357,6 +362,7 @@ struct AMEnvelope
 	}
 };
 
+MPT_BINARY_STRUCT(AMEnvelope::EnvPoint, 4)
 MPT_BINARY_STRUCT(AMEnvelope, 48)
 
 
@@ -381,10 +387,10 @@ struct AMInstrumentHeader
 	// Convert instrument data to OpenMPT's internal format.
 	void ConvertToMPT(ModInstrument &mptIns, SAMPLEINDEX baseSample)
 	{
-		mpt::String::Read<mpt::String::maybeNullTerminated>(mptIns.name, name);
+		mptIns.name = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, name);
 
-		STATIC_ASSERT(CountOf(sampleMap) <= CountOf(mptIns.Keyboard));
-		for(uint8 i = 0; i < CountOf(sampleMap); i++)
+		static_assert(mpt::array_size<decltype(sampleMap)>::size <= mpt::array_size<decltype(mptIns.Keyboard)>::size);
+		for(uint8 i = 0; i < std::size(sampleMap); i++)
 		{
 			mptIns.Keyboard[i] = sampleMap[i] + baseSample + 1;
 		}
@@ -413,7 +419,7 @@ struct AMSampleHeader
 	uint16le pan;
 	uint16le volume;
 	uint16le flags;
-	uint16le unkown;		// 0x0000 / 0x0080?
+	uint16le unknown;		// 0x0000 / 0x0080?
 	uint32le length;
 	uint32le loopStart;
 	uint32le loopEnd;
@@ -423,8 +429,8 @@ struct AMSampleHeader
 	void ConvertToMPT(AMInstrumentHeader &instrHeader, ModSample &mptSmp) const
 	{
 		mptSmp.Initialize();
-		mptSmp.nPan = std::min<uint16>(pan, 32767) * 256 / 32767;
-		mptSmp.nVolume = std::min<uint16>(volume, 32767) * 256 / 32767;
+		mptSmp.nPan = std::min(pan.get(), uint16(32767)) * 256 / 32767;
+		mptSmp.nVolume = std::min(volume.get(), uint16(32767)) * 256 / 32767;
 		mptSmp.nGlobalVol = 64;
 		mptSmp.nLength = length;
 		mptSmp.nLoopStart = loopStart;
@@ -468,10 +474,9 @@ MPT_BINARY_STRUCT(AMSampleHeader, 60)
 
 // Convert RIFF AM(FF) pattern data to MPT pattern data.
 static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSoundFile &sndFile)
-//----------------------------------------------------------------------------------------------
 {
 	// Effect translation LUT
-	static const ModCommand::COMMAND amEffTrans[] =
+	static constexpr EffectCommand amEffTrans[] =
 	{
 		CMD_ARPEGGIO, CMD_PORTAMENTOUP, CMD_PORTAMENTODOWN, CMD_TONEPORTAMENTO,
 		CMD_VIBRATO, CMD_TONEPORTAVOL, CMD_VIBRATOVOL, CMD_TREMOLO,
@@ -506,7 +511,6 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 	if(channels == 0)
 		return false;
 
-	PatternRow rowBase = sndFile.Patterns[pat].GetRow(0);
 	ROWINDEX row = 0;
 
 	while(row < numRows && chunk.CanRead(1))
@@ -516,28 +520,27 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 		if(flags == rowDone)
 		{
 			row++;
-			rowBase = sndFile.Patterns[pat].GetRow(row);
 			continue;
 		}
 
-		ModCommand &m = rowBase[std::min<CHANNELINDEX>((flags & channelMask), channels - 1)];
+		ModCommand &m = *sndFile.Patterns[pat].GetpModCommand(row, std::min(static_cast<CHANNELINDEX>(flags & channelMask), static_cast<CHANNELINDEX>(channels - 1)));
 
 		if(flags & dataFlag)
 		{
 			if(flags & effectFlag) // effect
 			{
 				m.param = chunk.ReadUint8();
-				m.command = chunk.ReadUint8();
+				uint8 command = chunk.ReadUint8();
 
-				if(m.command < CountOf(amEffTrans))
+				if(command < CountOf(amEffTrans))
 				{
 					// command translation
-					m.command = amEffTrans[m.command];
+					m.command = amEffTrans[command];
 				} else
 				{
-#ifdef DEBUG
-					Log(mpt::String::Print("J2B: Unknown command: 0x%1, param 0x%2", mpt::fmt::HEX0<2>(m.command), mpt::fmt::HEX0<2>(m.param)));
-#endif // DEBUG
+#ifdef J2B_LOG
+					MPT_LOG(LogDebug, "J2B", mpt::uformat(U_("J2B: Unknown command: 0x%1, param 0x%2"))(mpt::ufmt::HEX0<2>(command), mpt::ufmt::HEX0<2>(m.param)));
+#endif
 					m.command = CMD_NONE;
 				}
 
@@ -564,7 +567,7 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 					if (m.param & 0xF0) m.param &= 0xF0;
 					break;
 				case CMD_PANNING8:
-					if(m.param <= 0x80) m.param = MIN(m.param << 1, 0xFF);
+					if(m.param <= 0x80) m.param = mpt::saturate_cast<uint8>(m.param * 2);
 					else if(m.param == 0xA4) {m.command = CMD_S3MCMDEX; m.param = 0x91;}
 					break;
 				case CMD_PATTERNBREAK:
@@ -593,8 +596,9 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 
 			if (flags & noteFlag) // note + ins
 			{
-				m.instr = chunk.ReadUint8();
-				m.note = chunk.ReadUint8();
+				const auto [instr, note] = chunk.ReadArray<uint8, 2>();
+				m.instr = instr;
+				m.note = note;
 				if(m.note == 0x80) m.note = NOTE_KEYOFF;
 				else if(m.note > 0x80) m.note = NOTE_FADE;	// I guess the support for IT "note fade" notes was not intended in mod2j2b, but hey, it works! :-D
 			}
@@ -615,8 +619,64 @@ static bool ConvertAMPattern(FileReader chunk, PATTERNINDEX pat, bool isAM, CSou
 }
 
 
+struct AMFFRiffChunkFormat
+{
+	uint32le format;
+};
+
+MPT_BINARY_STRUCT(AMFFRiffChunkFormat, 4)
+
+
+static bool ValidateHeader(const AMFFRiffChunk &fileHeader)
+{
+	if(fileHeader.id != AMFFRiffChunk::idRIFF)
+	{
+		return false;
+	}
+	if(fileHeader.GetLength() < 8 + sizeof(AMFFMainChunk))
+	{
+		return false;
+	}
+	return true;
+}
+
+
+static bool ValidateHeader(const AMFFRiffChunkFormat &formatHeader)
+{
+	if(formatHeader.format != AMFFRiffChunk::idAMFF && formatHeader.format != AMFFRiffChunk::idAM__)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderAM(MemoryFileReader file, const uint64 *pfilesize)
+{
+	AMFFRiffChunk fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	AMFFRiffChunkFormat formatHeader;
+	if(!file.ReadStruct(formatHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(formatHeader))
+	{
+		return ProbeFailure;
+	}
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	return ProbeSuccess;
+}
+
+
 bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
-//------------------------------------------------------------------
 {
 	file.Rewind();
 	AMFFRiffChunk fileHeader;
@@ -624,15 +684,23 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		return false;
 	}
-
-	if(fileHeader.id != AMFFRiffChunk::idRIFF)
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	AMFFRiffChunkFormat formatHeader;
+	if(!file.ReadStruct(formatHeader))
+	{
+		return false;
+	}
+	if(!ValidateHeader(formatHeader))
 	{
 		return false;
 	}
 
 	bool isAM; // false: AMFF, true: AM
 
-	uint32 format = file.ReadUint32LE();
+	uint32 format = formatHeader.format;
 	if(format == AMFFRiffChunk::idAMFF)
 		isAM = false; // "AMFF"
 	else if(format == AMFFRiffChunk::idAM__)
@@ -671,24 +739,16 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 	m_SongFlags = SONG_ITOLDEFFECTS | SONG_ITCOMPATGXX;
 	m_SongFlags.set(SONG_LINEARSLIDES, !(mainChunk.flags & AMFFMainChunk::amigaSlides));
 
-	m_nChannels = MIN(mainChunk.channels, MAX_BASECHANNELS);
+	m_nChannels = std::min(static_cast<CHANNELINDEX>(mainChunk.channels), static_cast<CHANNELINDEX>(MAX_BASECHANNELS));
 	m_nDefaultSpeed = mainChunk.speed;
 	m_nDefaultTempo.Set(mainChunk.tempo);
 	m_nDefaultGlobalVolume = mainChunk.globalvolume * 2;
 
-	m_madeWithTracker = "Galaxy Sound System (";
-	if(isAM)
-		m_madeWithTracker += "new version)";
-	else
-		m_madeWithTracker += "old version)";
+	m_modFormat.formatName = isAM ? UL_("Galaxy Sound System (new version)") : UL_("Galaxy Sound System (old version)");
+	m_modFormat.type = U_("j2b");
+	m_modFormat.charset = mpt::Charset::CP437;
 
-	if(mainChunk.minPeriod < mainChunk.maxPeriod)
-	{
-		m_nMinPeriod = mainChunk.minPeriod / 4u;
-		m_nMaxPeriod = mainChunk.maxPeriod / 4u;
-	}
-
-	mpt::String::Read<mpt::String::maybeNullTerminated>(m_songName, mainChunk.songname);
+	m_songName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, mainChunk.songname);
 
 	// It seems like there's no way to differentiate between
 	// Muted and Surround channels (they're all 0xA0) - might
@@ -718,7 +778,7 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 		// "ORDR" - Order list
 		FileReader chunk(chunks.GetChunk(AMFFRiffChunk::idORDR));
 		uint8 numOrders = chunk.ReadUint8() + 1;
-		Order.ReadAsByte(chunk, numOrders, numOrders, 0xFF, 0xFE);
+		ReadOrderFromFile<uint8>(Order(), chunk, numOrders, 0xFF, 0xFE);
 	}
 
 	// "PATT" - Pattern data for one pattern
@@ -727,9 +787,8 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 		PATTERNINDEX maxPattern = 0;
 		auto pattChunks = chunks.GetAllChunks(AMFFRiffChunk::idPATT);
 		Patterns.ResizeArray(static_cast<PATTERNINDEX>(pattChunks.size()));
-		for(auto patternIter = pattChunks.begin(); patternIter != pattChunks.end(); patternIter++)
+		for(auto chunk : pattChunks)
 		{
-			FileReader chunk(*patternIter);
 			PATTERNINDEX pat = chunk.ReadUint8();
 			size_t patternSize = chunk.ReadUint32LE();
 			ConvertAMPattern(chunk.ReadChunk(patternSize), pat, isAM, *this);
@@ -746,9 +805,8 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		// "INST" - Instrument (only in RIFF AMFF)
 		auto instChunks = chunks.GetAllChunks(AMFFRiffChunk::idINST);
-		for(auto instIter = instChunks.begin(); instIter != instChunks.end(); instIter++)
+		for(auto chunk : instChunks)
 		{
-			FileReader chunk(*instIter);
 			AMFFInstrumentHeader instrHeader;
 			if(!chunk.ReadStruct(instrHeader))
 			{
@@ -765,8 +823,6 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 				continue;
 			}
 
-			m_nInstruments = std::max(m_nInstruments, instr);
-
 			instrHeader.ConvertToMPT(*pIns, m_nSamples);
 
 			// read sample sub-chunks - this is a rather "flat" format compared to RIFF AM and has no nested RIFF chunks.
@@ -774,7 +830,7 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 			{
 				AMFFSampleHeader sampleHeader;
 
-				if(m_nSamples + 1 >= MAX_SAMPLES || !chunk.ReadStruct(sampleHeader))
+				if(!CanAddMoreSamples() || !chunk.ReadStruct(sampleHeader))
 				{
 					continue;
 				}
@@ -786,7 +842,7 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 					continue;
 				}
 
-				mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[smp], sampleHeader.name);
+				m_szNames[smp] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, sampleHeader.name);
 				sampleHeader.ConvertToMPT(instrHeader, Samples[smp]);
 				if(loadFlags & loadSampleData)
 					sampleHeader.GetSampleFormat().ReadSample(Samples[smp], chunk);
@@ -798,9 +854,8 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		// "RIFF" - Instrument (only in RIFF AM)
 		auto instChunks = chunks.GetAllChunks(AMFFRiffChunk::idRIFF);
-		for(auto instIter = instChunks.begin(); instIter != instChunks.end(); instIter++)
+		for(ChunkReader chunk : instChunks)
 		{
-			ChunkReader chunk(*instIter);
 			if(chunk.ReadUint32LE() != AMFFRiffChunk::idAI__)
 			{
 				continue;
@@ -828,20 +883,16 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 			{
 				continue;
 			}
-			m_nInstruments = std::max(m_nInstruments, instr);
 
 			instrHeader.ConvertToMPT(*pIns, m_nSamples);
 
 			// Read sample sub-chunks (RIFF nesting ftw)
-			ChunkReader::ChunkList<AMFFRiffChunk> sampleChunkFile = chunk.ReadChunks<AMFFRiffChunk>(2);
-			auto sampleChunks = sampleChunkFile.GetAllChunks(AMFFRiffChunk::idRIFF);
+			auto sampleChunks = chunk.ReadChunks<AMFFRiffChunk>(2).GetAllChunks(AMFFRiffChunk::idRIFF);
 			MPT_ASSERT(sampleChunks.size() == instrHeader.numSamples);
 
-			for(auto smpIter = sampleChunks.begin(); smpIter != sampleChunks.end(); smpIter++)
+			for(auto sampleChunk : sampleChunks)
 			{
-				ChunkReader sampleChunk(*smpIter);
-
-				if(sampleChunk.ReadUint32LE() != AMFFRiffChunk::idAS__ || m_nSamples + 1 >= MAX_SAMPLES)
+				if(sampleChunk.ReadUint32LE() != AMFFRiffChunk::idAS__ || !CanAddMoreSamples())
 				{
 					continue;
 				}
@@ -869,7 +920,7 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 					break;
 				}
 
-				mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[smp], sampleHeader.name);
+				m_szNames[smp] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, sampleHeader.name);
 
 				sampleHeader.ConvertToMPT(instrHeader, Samples[smp]);
 
@@ -886,8 +937,62 @@ bool CSoundFile::ReadAM(FileReader &file, ModLoadingFlags loadFlags)
 	return true;
 }
 
+
+static bool ValidateHeader(const J2BFileHeader &fileHeader)
+{
+	if(std::memcmp(fileHeader.signature, "MUSE", 4)
+		|| (fileHeader.deadbeaf != J2BFileHeader::magicDEADBEAF // 0xDEADBEAF (RIFF AM)
+			&& fileHeader.deadbeaf != J2BFileHeader::magicDEADBABE) // 0xDEADBABE (RIFF AMFF)
+		)
+	{
+		return false;
+	}
+	if(fileHeader.packedLength == 0)
+	{
+		return false;
+	}
+	if(fileHeader.fileLength != fileHeader.packedLength + sizeof(J2BFileHeader))
+	{
+		return false;
+	}
+	return true;
+}
+
+
+static bool ValidateHeaderFileSize(const J2BFileHeader &fileHeader, uint64 filesize)
+{
+	if(filesize != fileHeader.fileLength)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderJ2B(MemoryFileReader file, const uint64 *pfilesize)
+{
+	J2BFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	if(pfilesize)
+	{
+		if(!ValidateHeaderFileSize(fileHeader, *pfilesize))
+		{
+			return ProbeFailure;
+		}
+	}
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	return ProbeSuccess;
+}
+
+
 bool CSoundFile::ReadJ2B(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
 {
 
 #if !defined(MPT_WITH_ZLIB) && !defined(MPT_WITH_MINIZ)
@@ -900,46 +1005,66 @@ bool CSoundFile::ReadJ2B(FileReader &file, ModLoadingFlags loadFlags)
 
 	file.Rewind();
 	J2BFileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.signature, "MUSE", 4)
-		|| (fileHeader.deadbeaf != J2BFileHeader::magicDEADBEAF // 0xDEADBEAF (RIFF AM)
-			&& fileHeader.deadbeaf != J2BFileHeader::magicDEADBABE) // 0xDEADBABE (RIFF AMFF)
-		|| fileHeader.fileLength != file.GetLength()
+	if(!file.ReadStruct(fileHeader))
+	{
+		return false;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(fileHeader.fileLength != file.GetLength()
 		|| fileHeader.packedLength != file.BytesLeft()
-		|| fileHeader.packedLength == 0
 		)
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
 
-	FileReader::PinnedRawDataView filePackedView = file.GetPinnedRawDataView(fileHeader.packedLength);
-
-#ifndef MPT_BUILD_FUZZER
-	if(fileHeader.crc32 != crc32(0, mpt::byte_cast<const Bytef*>(filePackedView.data()), filePackedView.size()))
-	{
-		return false;
-	}
-#endif
-
 	// Header is valid, now unpack the RIFF AM file using inflate
-	uLongf destSize = fileHeader.unpackedLength;
-	std::vector<Bytef> amFileData(destSize);
-	int retVal = uncompress(amFileData.data(), &destSize, mpt::byte_cast<const Bytef*>(filePackedView.data()), filePackedView.size());
+	z_stream strm{};
+	if(inflateInit(&strm) != Z_OK)
+		return false;
+
+	uint32 remainRead = fileHeader.packedLength, remainWrite = fileHeader.unpackedLength, totalWritten = 0;
+	uint32 crc = 0;
+	std::vector<Bytef> amFileData(remainWrite);
+	int retVal = Z_OK;
+	while(remainRead && remainWrite && retVal != Z_STREAM_END)
+	{
+		Bytef buffer[mpt::IO::BUFFERSIZE_TINY];
+		uint32 readSize = std::min(static_cast<uint32>(sizeof(buffer)), remainRead);
+		file.ReadRaw(buffer, readSize);
+		crc = crc32(crc, buffer, readSize);
+
+		strm.avail_in = readSize;
+		strm.next_in = buffer;
+		do
+		{
+			strm.avail_out = remainWrite;
+			strm.next_out = amFileData.data() + totalWritten;
+			retVal = inflate(&strm, Z_NO_FLUSH);
+			uint32 written = remainWrite - strm.avail_out;
+			totalWritten += written;
+			remainWrite -= written;
+		} while(remainWrite && strm.avail_out == 0);
+
+		remainRead -= readSize;
+	}
+	inflateEnd(&strm);
 
 	bool result = false;
-
 #ifndef MPT_BUILD_FUZZER
-	if(destSize == fileHeader.unpackedLength && retVal == Z_OK)
+	if(fileHeader.crc32 == crc && !remainWrite && retVal == Z_STREAM_END)
 #endif
 	{
 		// Success, now load the RIFF AM(FF) module.
 		FileReader amFile(mpt::as_span(amFileData));
 		result = ReadAM(amFile, loadFlags);
 	}
-
 	return result;
 
 #endif

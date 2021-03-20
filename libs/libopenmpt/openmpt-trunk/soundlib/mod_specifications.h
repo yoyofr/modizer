@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 #include "Snd_defs.h"
 #include "modcommand.h"							// ModCommand::
 #include "../soundlib/SoundFilePlayConfig.h"	// mixlevel constants.
@@ -18,13 +20,11 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
-//=======================
 struct CModSpecifications
-//=======================
 {
 	/// Returns modtype corresponding to given file extension. The extension string
 	/// may begin with or without dot, e.g. both ".it" and "it" will be handled correctly.
-	static MODTYPE ExtensionToType(std::string ext);
+	static MODTYPE ExtensionToType(std::string ext); // (encoded in UTF8)
 
 	// Return true if format supports given note.
 	bool HasNote(ModCommand::NOTE note) const;
@@ -36,7 +36,7 @@ struct CModSpecifications
 
 	// NOTE: If changing order, update all initializations in .cpp file.
 	MODTYPE internalType;				// Internal MODTYPE value
-	const char *fileExtension;			// File extension without dot.
+	const char *fileExtension;			// File extension without dot (encoded in UTF8).
 	ModCommand::NOTE noteMin;			// Minimum note index (index starts from 1)
 	ModCommand::NOTE noteMax;			// Maximum note index (index starts from 1)
 	PATTERNINDEX patternsMax;
@@ -63,20 +63,20 @@ struct CModSpecifications
 	uint8 MIDIMappingDirectivesMax;		// Number of MIDI Mapping directives that the format can store (0 = none)
 	uint8 envelopePointsMax;			// Maximum number of points of each envelope
 	//	Work around a possible code generation bug in MSVC10 with boolean bitfields by using uint8
-	uint8 hasNoteCut : 1;				// True if format has note cut (^^).
-	uint8 hasNoteOff : 1;				// True if format has note off (==).
-	uint8 hasNoteFade : 1;				// True if format has note fade (~~).
-	uint8 hasReleaseNode : 1;			// Envelope release node
-	uint8 hasComments : 1;				// True if format has a comments field
-	uint8 hasIgnoreIndex : 1;			// Does "+++" pattern exist?
-	uint8 hasStopIndex : 1;				// Does "---" pattern exist?
-	uint8 hasRestartPos : 1;			// Format has an automatic restart order position
-	uint8 supportsPlugins : 1;			// Format can store plugins
-	uint8 hasPatternSignatures : 1;		// Can patterns have a custom time signature?
-	uint8 hasPatternNames : 1;			// Cat patterns have a name?
-	uint8 hasArtistName : 1;			// Can artist name be stored in file?
-	uint8 hasDefaultResampling : 1;		// Can default resampling be saved? (if not, it can still be modified in the GUI but won't set the module as modified)
-	uint8 hasFractionalTempo : 1;		// Are fractional tempos allowed?
+	bool hasNoteCut;					// True if format has note cut (^^).
+	bool hasNoteOff;					// True if format has note off (==).
+	bool hasNoteFade;					// True if format has note fade (~~).
+	bool hasReleaseNode;				// Envelope release node
+	bool hasComments;					// True if format has a comments field
+	bool hasIgnoreIndex;				// Does "+++" pattern exist?
+	bool hasStopIndex;					// Does "---" pattern exist?
+	bool hasRestartPos;					// Format has an automatic restart order position
+	bool supportsPlugins;				// Format can store plugins
+	bool hasPatternSignatures;			// Can patterns have a custom time signature?
+	bool hasPatternNames;				// Can patterns have a name?
+	bool hasArtistName;					// Can artist name be stored in file?
+	bool hasDefaultResampling;			// Can default resampling be saved? (if not, it can still be modified in the GUI but won't set the module as modified)
+	bool hasFractionalTempo;			// Are fractional tempos allowed?
 	const char *commands;				// An array holding all commands this format supports; commands that are not supported are marked with "?"
 	const char *volcommands;			// Ditto, but for volume column
 	MPT_CONSTEXPR11_FUN TEMPO GetTempoMin() const { return TEMPO(tempoMinInt, 0); }

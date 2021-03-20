@@ -20,7 +20,8 @@
 
 #include "gme.h"
 
-#include "SidTune.h"
+#include "sidplayfp/SidTune.h"
+#include "sidplayfp/SidTuneInfo.h"
 
 #include "unzip.h"
 
@@ -1160,21 +1161,21 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (browseType==3) {//SID
         SidTune *mSidTune=new SidTune([cpath UTF8String],0,true);
         
-        if ((mSidTune==NULL)||(mSidTune->cache.get()==0)) {
+        if (mSidTune==NULL) {
             NSLog(@"SID SidTune init error");
             if (mSidTune) {delete mSidTune;mSidTune=NULL;}
         } else {
-            SidTuneInfo sidtune_info;
+            const SidTuneInfo *sidtune_info;
             sidtune_info=mSidTune->getInfo();
             
-            for (int i=0;i<sidtune_info.songs;i++){
-                SidTuneInfo s_info;
+            for (int i=0;i<sidtune_info->songs();i++){
+                const SidTuneInfo *s_info;
                 file=nil;
                 mSidTune->selectSong(i);
                 s_info=mSidTune->getInfo();
                 
-                if (s_info.infoString[0][0]) {
-                    file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                if (s_info->infoString(0)[0]) {
+                    file=[NSString stringWithFormat:@"%.3d-%s",i,s_info->infoString(0)];
                 } else {
                     file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
                 }
@@ -1233,14 +1234,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             }
                         }
                     
-                    for (int i=0;i<sidtune_info.songs;i++){
-                        SidTuneInfo s_info;
+                    for (int i=0;i<sidtune_info->songs();i++){
+                        const SidTuneInfo *s_info;
                         file=nil;
                         mSidTune->selectSong(i);
                         s_info=mSidTune->getInfo();
                         
-                        if (s_info.infoString[0][0]) {
-                            file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                        if (s_info->infoString(0)[0]) {
+                            file=[NSString stringWithFormat:@"%.3d-%s",i,s_info->infoString(0)];
                         } else {
                             file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
                         }

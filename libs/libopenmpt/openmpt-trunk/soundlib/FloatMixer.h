@@ -3,13 +3,14 @@
  * ------------
  * Purpose: Floating point mixer classes
  * Notes  : (currently none)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
+ * Authors: OpenMPT Devs
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
  */
 
 
 #pragma once
+
+#include "BuildSettings.h"
 
 #include "MixerInterface.h"
 #include "Resampler.h"
@@ -22,9 +23,9 @@ struct IntToFloatTraits : public MixerTraits<channelsOut, channelsIn, out, in>
 	static_assert(std::numeric_limits<input_t>::is_integer, "Input must be integer");
 	static_assert(!std::numeric_limits<output_t>::is_integer, "Output must be floating point");
 
-	static MPT_FORCEINLINE output_t Convert(const input_t x)
+	static MPT_CONSTEXPR11_FUN output_t Convert(const input_t x)
 	{
-		return static_cast<output_t>(x) * (static_cast<output_t>(1.0f) / static_cast<output_t>(int2float));
+		return static_cast<output_t>(x) * (static_cast<output_t>(1) / static_cast<output_t>(int2float));
 	}
 };
 
@@ -44,15 +45,15 @@ struct LinearInterpolation
 
 	MPT_FORCEINLINE void End(const ModChannel &) { }
 
-	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const int32 posLo)
+	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const uint32 posLo)
 	{
-		static_assert(Traits::numChannelsIn <= Traits::numChannelsOut, "Too many input channels");
-		const Traits::output_t fract = CResampler::LinearTablef[posLo >> 8];
+		static_assert(static_cast<int>(Traits::numChannelsIn) <= static_cast<int>(Traits::numChannelsOut), "Too many input channels");
+		const typename Traits::output_t fract = posLo / static_cast<typename Traits::output_t>(0x100000000); //CResampler::LinearTablef[posLo >> 24];
 
 		for(int i = 0; i < Traits::numChannelsIn; i++)
 		{
-			Traits::output_t srcVol = Traits::Convert(inBuffer[i]);
-			Traits::output_t destVol = Traits::Convert(inBuffer[i + Traits::numChannelsIn]);
+			typename Traits::output_t srcVol = Traits::Convert(inBuffer[i]);
+			typename Traits::output_t destVol = Traits::Convert(inBuffer[i + Traits::numChannelsIn]);
 
 			outSample[i] = srcVol + fract * (destVol - srcVol);
 		}
@@ -66,10 +67,10 @@ struct FastSincInterpolation
 	MPT_FORCEINLINE void Start(const ModChannel &, const CResampler &) { }
 	MPT_FORCEINLINE void End(const ModChannel &) { }
 
-	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const int32 posLo)
+	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const uint32 posLo)
 	{
-		static_assert(Traits::numChannelsIn <= Traits::numChannelsOut, "Too many input channels");
-		const Traits::output_t *lut = CResampler::FastSincTablef + ((posLo >> 6) & 0x3FC);
+		static_assert(static_cast<int>(Traits::numChannelsIn) <= static_cast<int>(Traits::numChannelsOut), "Too many input channels");
+		const typename Traits::output_t *lut = CResampler::FastSincTablef + ((posLo >> 22) & 0x3FC);
 
 		for(int i = 0; i < Traits::numChannelsIn; i++)
 		{
@@ -96,10 +97,10 @@ struct PolyphaseInterpolation
 
 	MPT_FORCEINLINE void End(const ModChannel &) { }
 
-	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const int32 posLo)
+	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const uint32 posLo)
 	{
-		static_assert(Traits::numChannelsIn <= Traits::numChannelsOut, "Too many input channels");
-		const Traits::output_t *lut = sinc + ((posLo >> (16 - SINC_PHASES_BITS)) & SINC_MASK) * SINC_WIDTH;
+		static_assert(static_cast<int>(Traits::numChannelsIn) <= static_cast<int>(Traits::numChannelsOut), "Too many input channels");
+		const typename Traits::output_t *lut = sinc + ((posLo >> (32 - SINC_PHASES_BITS)) & SINC_MASK) * SINC_WIDTH;
 
 		for(int i = 0; i < Traits::numChannelsIn; i++)
 		{
@@ -129,10 +130,10 @@ struct FIRFilterInterpolation
 
 	MPT_FORCEINLINE void End(const ModChannel &) { }
 
-	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const int32 posLo)
+	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const typename Traits::input_t * const inBuffer, const uint32 posLo)
 	{
-		static_assert(Traits::numChannelsIn <= Traits::numChannelsOut, "Too many input channels");
-		const Traits::output_t * const lut = WFIRlut + (((posLo + WFIR_FRACHALVE) >> WFIR_FRACSHIFT) & WFIR_FRACMASK);
+		static_assert(static_cast<int>(Traits::numChannelsIn) <= static_cast<int>(Traits::numChannelsOut), "Too many input channels");
+		const typename Traits::output_t * const lut = WFIRlut + ((((posLo >> 16) + WFIR_FRACHALVE) >> WFIR_FRACSHIFT) & WFIR_FRACMASK);
 
 		for(int i = 0; i < Traits::numChannelsIn; i++)
 		{
@@ -192,7 +193,7 @@ struct MixMonoFastNoRamp : public NoRamp<Traits>
 {
 	MPT_FORCEINLINE void operator() (const typename Traits::outbuf_t &outSample, const ModChannel &chn, typename Traits::output_t * const outBuffer)
 	{
-		Traits::output_t vol = outSample[0] * lVol;
+		typename Traits::output_t vol = outSample[0] * lVol;
 		for(int i = 0; i < Traits::numChannelsOut; i++)
 		{
 			outBuffer[i] += vol;
@@ -295,11 +296,11 @@ struct ResonantFilter
 
 	MPT_FORCEINLINE void operator() (typename Traits::outbuf_t &outSample, const ModChannel &chn)
 	{
-		static_assert(Traits::numChannelsIn <= Traits::numChannelsOut, "Too many input channels");
+		static_assert(static_cast<int>(Traits::numChannelsIn) <= static_cast<int>(Traits::numChannelsOut), "Too many input channels");
 
 		for(int i = 0; i < Traits::numChannelsIn; i++)
 		{
-			Traits::output_t val = outSample[i] * chn.nFilter_A0 + ClipFilter(fy[i][0]) * chn.nFilter_B0 + ClipFilter(fy[i][1]) * chn.nFilter_B1;
+			typename Traits::output_t val = outSample[i] * chn.nFilter_A0 + ClipFilter(fy[i][0]) * chn.nFilter_B0 + ClipFilter(fy[i][1]) * chn.nFilter_B1;
 			fy[i][1] = fy[i][0];
 			fy[i][0] = val - (outSample[i] * chn.nFilter_HP);
 			outSample[i] = val;

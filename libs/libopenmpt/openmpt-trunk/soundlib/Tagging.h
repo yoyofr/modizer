@@ -10,14 +10,14 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 #include <string>
 
 OPENMPT_NAMESPACE_BEGIN
 
 
-//=============
 struct FileTags
-//=============
 {
 
 	mpt::ustring encoder;
@@ -35,7 +35,7 @@ struct FileTags
 
 	mpt::ustring genre;
 
-	FileTags();
+	void SetEncoder();
 
 };
 

@@ -90,45 +90,96 @@ struct GDMSampleHeader
 MPT_BINARY_STRUCT(GDMSampleHeader, 62)
 
 
-bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
+static constexpr MODTYPE gdmFormatOrigin[] =
 {
-	file.Rewind();
+	MOD_TYPE_NONE, MOD_TYPE_MOD, MOD_TYPE_MTM, MOD_TYPE_S3M, MOD_TYPE_669, MOD_TYPE_FAR, MOD_TYPE_ULT, MOD_TYPE_STM, MOD_TYPE_MED, MOD_TYPE_PSM
+};
+static constexpr mpt::uchar gdmFormatOriginType[][4] =
+{
+	UL_(""), UL_("mod"), UL_("mtm"), UL_("s3m"), UL_("669"), UL_("far"), UL_("ult"), UL_("stm"), UL_("med"), UL_("psm")
+};
+static constexpr const mpt::uchar * gdmFormatOriginFormat[] =
+{
+	UL_(""),
+	UL_("Generic MOD"),
+	UL_("MultiTracker"),
+	UL_("ScreamTracker 3"),
+	UL_("Composer 669 / UNIS 669"),
+	UL_("Farandole Composer"),
+	UL_("UltraTracker"),
+	UL_("ScreamTracker 2"),
+	UL_("OctaMED"),
+	UL_("Epic Megagames MASI")
+};
 
-	const MODTYPE gdmFormatOrigin[] =
-	{
-		MOD_TYPE_NONE, MOD_TYPE_MOD, MOD_TYPE_MTM, MOD_TYPE_S3M, MOD_TYPE_669, MOD_TYPE_FAR, MOD_TYPE_ULT, MOD_TYPE_STM, MOD_TYPE_MED, MOD_TYPE_PSM
-	};
 
-	GDMFileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.magic, "GDM\xFE", 4)
+static bool ValidateHeader(const GDMFileHeader &fileHeader)
+{
+	if(std::memcmp(fileHeader.magic, "GDM\xFE", 4)
 		|| fileHeader.dosEOF[0] != 13 || fileHeader.dosEOF[1] != 10 || fileHeader.dosEOF[2] != 26
-		|| memcmp(fileHeader.magic2, "GMFS", 4)
+		|| std::memcmp(fileHeader.magic2, "GMFS", 4)
 		|| fileHeader.formatMajorVer != 1 || fileHeader.formatMinorVer != 0
-		|| fileHeader.originalFormat >= CountOf(gdmFormatOrigin)
+		|| fileHeader.originalFormat >= std::size(gdmFormatOrigin)
 		|| fileHeader.originalFormat == 0)
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	return true;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderGDM(MemoryFileReader file, const uint64 *pfilesize)
+{
+	GDMFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	return ProbeSuccess;
+}
+
+
+bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
+{
+	file.Rewind();
+
+	GDMFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return false;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
 
 	InitializeGlobals(gdmFormatOrigin[fileHeader.originalFormat]);
-	m_ContainerType = MOD_CONTAINERTYPE_GDM;
-	m_madeWithTracker = mpt::String::Print("BWSB 2GDM %1.%2 (converted from %3)", fileHeader.trackerMajorVer, fileHeader.formatMinorVer, ModTypeToTracker(GetType()));
+
+	m_modFormat.formatName = U_("General Digital Music");
+	m_modFormat.type = U_("gdm");
+	m_modFormat.madeWithTracker = mpt::format(U_("BWSB 2GDM %1.%2"))(fileHeader.trackerMajorVer, fileHeader.formatMinorVer);
+	m_modFormat.originalType = gdmFormatOriginType[fileHeader.originalFormat];
+	m_modFormat.originalFormatName = gdmFormatOriginFormat[fileHeader.originalFormat];
+	m_modFormat.charset = mpt::Charset::CP437;
 
 	// Song name
-	mpt::String::Read<mpt::String::maybeNullTerminated>(m_songName, fileHeader.songTitle);
+	m_songName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.songTitle);
 
 	// Artist name
 	{
-		std::string artist;
-		mpt::String::Read<mpt::String::maybeNullTerminated>(artist, fileHeader.songMusician);
+		std::string artist = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.songMusician);
 		if(artist != "Unknown")
 		{
-			m_songArtist = mpt::ToUnicode(mpt::CharsetCP437, artist);
+			m_songArtist = mpt::ToUnicode(mpt::Charset::CP437, artist);
 		}
 	}
 
@@ -155,14 +206,14 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 		return false;
 	}
 
-	m_nDefaultGlobalVolume = MIN(fileHeader.masterVol * 4, 256);
+	m_nDefaultGlobalVolume = std::min(fileHeader.masterVol * 4u, 256u);
 	m_nDefaultSpeed = fileHeader.tempo;
 	m_nDefaultTempo.Set(fileHeader.bpm);
 
 	// Read orders
 	if(file.Seek(fileHeader.orderOffset))
 	{
-		Order.ReadAsByte(file, fileHeader.lastOrder + 1, fileHeader.lastOrder + 1, 0xFF, 0xFE);
+		ReadOrderFromFile<uint8>(Order(), file, fileHeader.lastOrder + 1, 0xFF, 0xFE);
 	}
 
 	// Read samples
@@ -184,11 +235,26 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 
 		ModSample &sample = Samples[smp];
 		sample.Initialize();
-		mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[smp], gdmSample.name);
-		mpt::String::Read<mpt::String::maybeNullTerminated>(sample.filename, gdmSample.fileName);
+		m_szNames[smp] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, gdmSample.name);
+		sample.filename = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, gdmSample.fileName);
 
 		sample.nC5Speed = gdmSample.c4Hertz;
-		sample.nGlobalVol = 256;	// Not supported in this format
+		if(UseFinetuneAndTranspose())
+		{
+			// Use the same inaccurate table as 2GDM for translating back to finetune, as our own routines
+			// give slightly different results for the provided sample rates that may result in transpose != 0.
+			static constexpr uint16 rate2finetune[] = { 8363, 8424, 8485, 8547, 8608, 8671, 8734, 8797, 7894, 7951, 8009, 8067, 8125, 8184, 8244, 8303 };
+			for(uint8 i = 0; i < 16; i++)
+			{
+				if(sample.nC5Speed == rate2finetune[i])
+				{
+					sample.nFineTune = MOD2XMFineTune(i);
+					break;
+				}
+			}
+		}
+
+		sample.nGlobalVol = 64;	// Not supported in this format
 
 		sample.nLength = gdmSample.length; // in bytes
 
@@ -199,33 +265,18 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 			sample.nLength /= 2;
 		}
 
-		sample.nLoopStart = gdmSample.loopBegin;	// in samples
-		sample.nLoopEnd = gdmSample.loopEnd - 1;	// ditto
-		sample.FrequencyToTranspose();	// set transpose + finetune for mod files
-
-		// Fix transpose + finetune for some rare cases where transpose is not C-5 (e.g. sample 4 in wander2.gdm)
-		if(m_nType == MOD_TYPE_MOD)
-		{
-			if(sample.RelativeTone > 0)
-			{
-				sample.RelativeTone -= 1;
-				sample.nFineTune += 128;
-			} else if(sample.RelativeTone < 0)
-			{
-				sample.RelativeTone += 1;
-				sample.nFineTune -= 128;
-			}
-		}
+		sample.nLoopStart = gdmSample.loopBegin;
+		sample.nLoopEnd = gdmSample.loopEnd - 1;
 
 		if(gdmSample.flags & GDMSampleHeader::smpLoop) sample.uFlags.set(CHN_LOOP); // Loop sample
 
 		if(gdmSample.flags & GDMSampleHeader::smpVolume)
 		{
 			// Default volume is used... 0...64, 255 = no default volume
-			sample.nVolume = std::min<uint8>(gdmSample.volume, 64) * 4;
+			sample.nVolume = std::min(static_cast<uint8>(gdmSample.volume), uint8(64)) * 4;
 		} else
 		{
-			sample.nVolume = 256;
+			sample.uFlags.set(SMP_NODEFAULTVOLUME);
 		}
 
 		if(gdmSample.flags & GDMSampleHeader::smpPanning)
@@ -259,6 +310,7 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 	Patterns.ResizeArray(fileHeader.lastPattern + 1);
 
 	const CModSpecifications &modSpecs = GetModSpecifications(GetBestSaveFormat());
+	bool onlyAmigaNotes = true;
 
 	// We'll start at position patternsOffset and decode all patterns
 	file.Seek(fileHeader.patternOffset);
@@ -305,16 +357,18 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 				if(channelByte & noteFlag)
 				{
 					// Note and sample follows
-					uint8 noteByte = chunk.ReadUint8();
-					uint8 noteSample = chunk.ReadUint8();
+					auto [note, instr] = chunk.ReadArray<uint8, 2>();
 
-					if(noteByte)
+					if(note)
 					{
-						noteByte = (noteByte & 0x7F) - 1; // This format doesn't have note cuts
-						if(noteByte < 0xF0) noteByte = (noteByte & 0x0F) + 12 * (noteByte >> 4) + 12 + NOTE_MIN;
-						m.note = noteByte;
+						note = (note & 0x7F) - 1;  // High bit = no-retrig flag (notes with portamento have this set)
+						m.note = (note & 0x0F) + 12 * (note >> 4) + 12 + NOTE_MIN;
+						if(!m.IsAmigaNote())
+						{
+							onlyAmigaNotes = false;
+						}
 					}
-					m.instr = noteSample;
+					m.instr = instr;
 				}
 
 				if(channelByte & effectFlag)
@@ -325,16 +379,14 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 
 					while(chunk.CanRead(2))
 					{
-						uint8 effByte = chunk.ReadUint8();
-						uint8 paramByte = chunk.ReadUint8();
-
 						// We may want to restore the old command in some cases.
 						const ModCommand oldCmd = m;
-						m.command = effByte & effectMask;
-						m.param = paramByte;
+
+						const auto [effByte, param] = chunk.ReadArray<uint8, 2>();
+						m.param = param;
 
 						// Effect translation LUT
-						static const uint8 gdmEffTrans[] =
+						static constexpr EffectCommand gdmEffTrans[] =
 						{
 							CMD_NONE, CMD_PORTAMENTOUP, CMD_PORTAMENTODOWN, CMD_TONEPORTAMENTO,
 							CMD_VIBRATO, CMD_TONEPORTAVOL, CMD_VIBRATOVOL, CMD_TREMOLO,
@@ -347,8 +399,9 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 						};
 
 						// Translate effect
-						if(m.command < CountOf(gdmEffTrans))
-							m.command = gdmEffTrans[m.command];
+						uint8 command = effByte & effectMask;
+						if(command < CountOf(gdmEffTrans))
+							m.command = gdmEffTrans[command];
 						else
 							m.command = CMD_NONE;
 
@@ -376,7 +429,7 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 							break;
 
 						case CMD_VOLUME:
-							m.param = MIN(m.param, 64);
+							m.param = std::min(m.param, uint8(64));
 							if(modSpecs.HasVolCommand(VOLCMD_VOLUME))
 							{
 								m.volcmd = VOLCMD_VOLUME;
@@ -472,6 +525,8 @@ bool CSoundFile::ReadGDM(FileReader &file, ModLoadingFlags loadFlags)
 			}
 		}
 	}
+
+	m_SongFlags.set(SONG_AMIGALIMITS | SONG_ISAMIGA, GetType() == MOD_TYPE_MOD && GetNumChannels() == 4 && onlyAmigaNotes);
 
 	// Read song comments
 	if(fileHeader.messageTextLength > 0 && file.Seek(fileHeader.messageTextOffset))

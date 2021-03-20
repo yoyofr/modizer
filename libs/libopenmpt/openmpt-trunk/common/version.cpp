@@ -17,81 +17,93 @@
 #include "versionNumber.h"
 #include "svn_version.h"
 
+
+
 OPENMPT_NAMESPACE_BEGIN
 
-namespace MptVersion {
 
-static_assert((MPT_VERSION_NUMERIC & 0xffff) != 0x0000, "Version numbers ending in .00.00 shall never exist again, as they make interpreting the version number ambiguous for file formats which can only store the two major parts of the version number (e.g. IT and S3M).");
 
-const VersionNum num = MPT_VERSION_NUMERIC;
+#define MPT_MAKE_VERSION_NUMERIC_HELPER(prefix,v0,v1,v2,v3) Version( prefix ## v0 , prefix ## v1 , prefix ## v2 , prefix ## v3 )
+#define MPT_MAKE_VERSION_NUMERIC(v0,v1,v2,v3) MPT_MAKE_VERSION_NUMERIC_HELPER(0x, v0, v1, v2, v3)
 
-const char * const str = MPT_VERSION_STR;
+#define MPT_VERSION_CURRENT MPT_MAKE_VERSION_NUMERIC(VER_MAJORMAJOR,VER_MAJOR,VER_MINOR,VER_MINORMINOR)
 
-std::string GetOpenMPTVersionStr()
+
+
+static_assert((MPT_VERSION_CURRENT.GetRawVersion() & 0xffffu) != 0x0000u, "Version numbers ending in .00.00 shall never exist again, as they make interpreting the version number ambiguous for file formats which can only store the two major parts of the version number (e.g. IT and S3M).");
+
+
+
+Version Version::Current() noexcept
 {
-	return std::string("OpenMPT " MPT_VERSION_STR);
+	return MPT_VERSION_CURRENT;
 }
 
-VersionNum ToNum(const std::string &s)
+mpt::ustring Version::GetOpenMPTVersionString() const
 {
-	VersionNum result = 0;
-	std::vector<std::string> numbers = mpt::String::Split<std::string>(s, std::string("."));
-	for(std::size_t i = 0; i < numbers.size() && i < 4; ++i)
+	return U_("OpenMPT ") + ToUString();
+}
+
+Version Version::Parse(const mpt::ustring &s)
+{
+	uint32 result = 0;
+	std::vector<mpt::ustring> numbers = mpt::String::Split<mpt::ustring>(s, U_("."));
+	for (std::size_t i = 0; i < numbers.size() && i < 4; ++i)
 	{
-		result |= (mpt::String::Parse::Hex<unsigned int>(numbers[i]) & 0xff) << ((3-i)*8);
+		result |= (mpt::String::Parse::Hex<unsigned int>(numbers[i]) & 0xff) << ((3 - i) * 8);
 	}
-	return result;
-
+	return Version(result);
 }
 
-std::string ToStr(const VersionNum v)
+mpt::ustring Version::ToUString() const
 {
+	uint32 v = m_Version;
 	if(v == 0)
 	{
 		// Unknown version
-		return "Unknown";
+		return U_("Unknown");
 	} else if((v & 0xFFFF) == 0)
 	{
 		// Only parts of the version number are known (e.g. when reading the version from the IT or S3M file header)
-		return mpt::format("%1.%2")(mpt::fmt::HEX((v >> 24) & 0xFF), mpt::fmt::HEX0<2>((v >> 16) & 0xFF));
+		return mpt::format(U_("%1.%2"))(mpt::ufmt::HEX((v >> 24) & 0xFF), mpt::ufmt::HEX0<2>((v >> 16) & 0xFF));
 	} else
 	{
 		// Full version info available
-		return mpt::format("%1.%2.%3.%4")(mpt::fmt::HEX((v >> 24) & 0xFF), mpt::fmt::HEX0<2>((v >> 16) & 0xFF), mpt::fmt::HEX0<2>((v >> 8) & 0xFF), mpt::fmt::HEX0<2>((v) & 0xFF));
+		return mpt::format(U_("%1.%2.%3.%4"))(mpt::ufmt::HEX((v >> 24) & 0xFF), mpt::ufmt::HEX0<2>((v >> 16) & 0xFF), mpt::ufmt::HEX0<2>((v >> 8) & 0xFF), mpt::ufmt::HEX0<2>((v) & 0xFF));
 	}
 }
 
-VersionNum RemoveBuildNumber(const VersionNum num_)
+Version Version::WithoutTestNumber() const noexcept
 {
-	return (num_ & 0xFFFFFF00);
+	return Version(m_Version & 0xFFFFFF00u);
 }
 
-bool IsTestBuild(const VersionNum num_)
+Version Version::WithoutPatchOrTestNumbers() const noexcept
+{
+	return Version(m_Version & 0xFFFF0000u);
+}
+
+bool Version::IsTestVersion() const noexcept
 {
 	return (
 			// Legacy
-			(num_ > MAKE_VERSION_NUMERIC(1,17,02,54) && num_ < MAKE_VERSION_NUMERIC(1,18,02,00) && num_ != MAKE_VERSION_NUMERIC(1,18,00,00))
+			(*this > MPT_V("1.17.02.54") && *this < MPT_V("1.18.02.00") && *this != MPT_V("1.18.00.00"))
 		||
 			// Test builds have non-zero VER_MINORMINOR
-			(num_ > MAKE_VERSION_NUMERIC(1,18,02,00) && RemoveBuildNumber(num_) != num_)
+			(*this > MPT_V("1.18.02.00") && ((m_Version & 0xFFFFFF00u) != m_Version))
 		);
 }
 
-bool IsDebugBuild()
-{
-	#ifdef _DEBUG
-		return true;
-	#else
-		return false;
-	#endif
-}
 
-static std::string GetUrl()
+
+namespace Source {
+
+static mpt::ustring GetUrl()
 {
 	#ifdef OPENMPT_VERSION_URL
-		return OPENMPT_VERSION_URL;
+		return mpt::ToUnicode(mpt::Charset::ASCII, OPENMPT_VERSION_URL);
 	#else
-		return "";
+		return mpt::ustring();
 	#endif
 }
 
@@ -127,15 +139,7 @@ static int GetRevision()
 		}
 		return ConvertStrTo<int>(svnversion);
 	#else
-		#if MPT_COMPILER_MSVC
-			#pragma message("SVN revision unknown. Please check your build system.")
-		#elif MPT_COMPILER_GCC || MPT_COMPILER_CLANG || MPT_COMPILER_MSVCCLANGC2
-			#warning "SVN revision unknown. Please check your build system."
-		#else
-			// There is no portable way to display a warning.
-			// Try to provoke a warning with an unused variable.
-			int SVN_revision_unknown__Please_check_your_build_system;
-		#endif
+		MPT_WARNING_STATEMENT("SVN revision unknown. Please check your build system.");
 		return 0;
 	#endif
 }
@@ -201,289 +205,290 @@ static bool IsPackage()
 	#endif
 }
 
-static std::string GetSourceDate()
+static mpt::ustring GetSourceDate()
 {
 	#if defined(OPENMPT_VERSION_DATE)
-		return OPENMPT_VERSION_DATE;
+		return mpt::ToUnicode(mpt::Charset::ASCII, OPENMPT_VERSION_DATE);
 	#else
-		return "";
+		return mpt::ustring();
 	#endif
 }
 
-SourceInfo GetSourceInfo()
+} // namespace Source
+
+SourceInfo::SourceInfo()
+	: m_Url(Source::GetUrl())
+	, m_Revision(Source::GetRevision())
+	, m_IsDirty(Source::IsDirty())
+	, m_HasMixedRevisions(Source::HasMixedRevisions())
+	, m_IsPackage(Source::IsPackage())
+	, m_Date(Source::GetSourceDate())
 {
-	SourceInfo result;
-	result.Url = GetUrl();
-	result.Revision = GetRevision();
-	result.IsDirty = IsDirty();
-	result.HasMixedRevisions = HasMixedRevisions();
-	result.IsPackage = IsPackage();
-	result.Date = GetSourceDate();
-	return result;
 }
 
-std::string SourceInfo::GetStateString() const
+mpt::ustring SourceInfo::GetUrlWithRevision() const
 {
-	std::string retval;
-	if(IsDirty)
+	if(m_Url.empty() || (m_Revision == 0))
 	{
-		retval += "+dirty";
+		return mpt::ustring();
 	}
-	if(HasMixedRevisions)
+	return m_Url + UL_("@") + mpt::ufmt::val(m_Revision);
+}
+
+mpt::ustring SourceInfo::GetStateString() const
+{
+	mpt::ustring retval;
+	if(m_IsDirty)
 	{
-		retval += "+mixed";
+		retval += UL_("+dirty");
+	}
+	if(m_HasMixedRevisions)
+	{
+		retval += UL_("+mixed");
 	}
 	if(retval.empty())
 	{
-		retval += "clean";
+		retval += UL_("clean");
 	}
-	if(IsPackage)
+	if(m_IsPackage)
 	{
-		retval += "-pkg";
+		retval += UL_("-pkg");
 	}
 	return retval;
 }
 
-std::string GetBuildDateString()
+SourceInfo SourceInfo::Current()
 {
-	#ifdef MODPLUG_TRACKER
-		#if defined(OPENMPT_BUILD_DATE)
-			return OPENMPT_BUILD_DATE;
-		#else
-			return __DATE__ " " __TIME__ ;
-		#endif
-	#else // !MODPLUG_TRACKER
-		return GetSourceInfo().Date;
-	#endif // MODPLUG_TRACKER
+	return SourceInfo();
 }
 
-static std::string GetBuildFlagsString()
+
+
+namespace Build {
+
+bool IsReleasedBuild()
 {
-	std::string retval;
+	return !(Version::Current().IsTestVersion() || IsDebugBuild() || Source::IsDirty() || Source::HasMixedRevisions());
+}
+
+bool IsDebugBuild()
+{
+	#if defined(MPT_BUILD_DEBUG) || defined(DEBUG) || defined(_DEBUG)
+		return true;
+	#else
+		return false;
+	#endif
+}
+
+mpt::ustring GetBuildDateString()
+{
+	mpt::ustring result;
 	#ifdef MODPLUG_TRACKER
-		if(IsTestBuild())
+		#if defined(OPENMPT_BUILD_DATE)
+			result = mpt::ToUnicode(mpt::Charset::ASCII, OPENMPT_BUILD_DATE );
+		#else
+			result = mpt::ToUnicode(mpt::Charset::ASCII, __DATE__ " " __TIME__ );
+		#endif
+	#else // !MODPLUG_TRACKER
+		result = SourceInfo::Current().Date();
+	#endif // MODPLUG_TRACKER
+	return result;
+}
+
+static mpt::ustring GetBuildFlagsString()
+{
+	mpt::ustring retval;
+	#ifdef MODPLUG_TRACKER
+		if(Version::Current().IsTestVersion())
 		{
-			retval += " TEST";
+			retval += UL_(" TEST");
 		}
 	#endif // MODPLUG_TRACKER
 	if(IsDebugBuild())
 	{
-		retval += " DEBUG";
+		retval += UL_(" DEBUG");
 	}
 	return retval;
 }
 
-std::string GetBuildFeaturesString()
+mpt::ustring GetBuildFeaturesString()
 {
-	std::string retval;
+	mpt::ustring retval;
 	#ifdef LIBOPENMPT_BUILD
-		#if defined(MPT_CHARSET_WIN32)
-			retval += " +WINAPI";
-		#endif
-		#if defined(MPT_CHARSET_ICONV)
-			retval += " +ICONV";
-		#endif
-		#if defined(MPT_CHARSET_CODECVTUTF8)
-			retval += " +CODECVTUTF8";
-		#endif
-		#if defined(MPT_CHARSET_INTERNAL)
-			retval += " +INTERNALCHARSETS";
-		#endif
+		retval = UL_("")
 		#if defined(MPT_WITH_ZLIB)
-			retval += " +ZLIB";
+			UL_(" +ZLIB")
 		#endif
 		#if defined(MPT_WITH_MINIZ)
-			retval += " +MINIZ";
+			UL_(" +MINIZ")
 		#endif
 		#if !defined(MPT_WITH_ZLIB) && !defined(MPT_WITH_MINIZ)
-			retval += " -INFLATE";
+			UL_(" -INFLATE")
 		#endif
 		#if defined(MPT_WITH_MPG123)
-			retval += " +MPG123";
-		#elif defined(MPT_ENABLE_MPG123_DYNBIND)
-			retval += " +MPG123-DYNBIND";
+			UL_(" +MPG123")
 		#endif
 		#if defined(MPT_WITH_MINIMP3)
-			retval += " +MINIMP3";
+			UL_(" +MINIMP3")
 		#endif
 		#if defined(MPT_WITH_MEDIAFOUNDATION)
-			retval += " +MF";
+			UL_(" +MF")
 		#endif
-		#if !defined(MPT_WITH_MPG123) && !defined(MPT_ENABLE_MPG123_DYNBIND) && !defined(MPT_WITH_MINIMP3) && !defined(MPT_WITH_MEDIAFOUNDATION)
-			retval += " -MP3";
+		#if !defined(MPT_WITH_MPG123) && !defined(MPT_WITH_MINIMP3) && !defined(MPT_WITH_MEDIAFOUNDATION)
+			UL_(" -MP3")
 		#endif
 		#if defined(MPT_WITH_OGG) && defined(MPT_WITH_VORBIS) && defined(MPT_WITH_VORBISFILE)
-			retval += " +VORBIS";
+			UL_(" +VORBIS")
 		#endif
 		#if defined(MPT_WITH_STBVORBIS)
-			retval += " +STBVORBIS";
+			UL_(" +STBVORBIS")
 		#endif
 		#if !(defined(MPT_WITH_OGG) && defined(MPT_WITH_VORBIS) && defined(MPT_WITH_VORBISFILE)) && !defined(MPT_WITH_STBVORBIS)
-			retval += " -VORBIS";
-		#endif
-		#if defined(MPT_ENABLE_MO3_BUILTIN)
-			retval += " +MO3";
-		#endif
-		#if defined(MPT_WITH_UNMO3)
-			retval += " +UNMO3";
-		#elif defined(MPT_ENABLE_UNMO3_DYNBIND)
-			retval += " +UNMO3-DYNBIND";
-		#endif
-		#if !defined(MPT_WITH_UNMO3) && !defined(MPT_ENABLE_UNMO3_DYNBIND) && !defined(MPT_ENABLE_MO3_BUILTIN)
-			retval += " -MO3";
+			UL_(" -VORBIS")
 		#endif
 		#if !defined(NO_PLUGINS)
-			retval += " +PLUGINS";
+			UL_(" +PLUGINS")
 		#else
-			retval += " -PLUGINS";
+			UL_(" -PLUGINS")
 		#endif
-		#if !defined(NO_DMO)
-			retval += " +DMO";
+		#if defined(MPT_WITH_DMO)
+			UL_(" +DMO")
 		#endif
+		;
 	#endif
 	#ifdef MODPLUG_TRACKER
-		#if (MPT_ARCH_BITS == 64)
+		if constexpr(mpt::arch_bits == 64)
+		{
 			if (true
 				&& (mpt::Windows::Version::GetMinimumKernelLevel() <= mpt::Windows::Version::WinXP64)
 				&& (mpt::Windows::Version::GetMinimumAPILevel() <= mpt::Windows::Version::WinXP64)
 			) {
-				retval += " WIN64OLD";
+				retval += UL_(" WIN64OLD");
 			}
-		#elif (MPT_ARCH_BITS == 32)
+		} else if constexpr(mpt::arch_bits == 32)
+		{
 			if (true
 				&& (mpt::Windows::Version::GetMinimumKernelLevel() <= mpt::Windows::Version::WinXP)
 				&& (mpt::Windows::Version::GetMinimumAPILevel() <= mpt::Windows::Version::WinXP)
 			) {
-				retval += " WIN32OLD";
+				retval += UL_(" WIN32OLD");
 			}
+		}
+		retval += UL_("")
+		#if defined(UNICODE)
+			UL_(" UNICODE")
+		#else
+			UL_(" ANSI")
 		#endif
 		#ifdef NO_VST
-			retval += " NO_VST";
+			UL_(" NO_VST")
 		#endif
-		#ifdef NO_DMO
-			retval += " NO_DMO";
+		#ifndef MPT_WITH_DMO
+			UL_(" NO_DMO")
 		#endif
 		#ifdef NO_PLUGINS
-			retval += " NO_PLUGINS";
+			UL_(" NO_PLUGINS")
 		#endif
 		#ifndef MPT_WITH_ASIO
-			retval += " NO_ASIO";
+			UL_(" NO_ASIO")
 		#endif
-		#ifndef MPT_WITH_DSOUND
-			retval += " NO_DSOUND";
-		#endif
+			;
 	#endif
 	return retval;
 }
 
-std::string GetBuildCompilerString()
+mpt::ustring GetBuildCompilerString()
 {
-	std::string retval;
+	mpt::ustring retval;
 	#if MPT_COMPILER_GENERIC
-		retval += "*Generic C++11 Compiler";
+		retval += U_("Generic C++11 Compiler");
 	#elif MPT_COMPILER_MSVC
 		#if defined(_MSC_FULL_VER) && defined(_MSC_BUILD) && (_MSC_BUILD > 0)
-			retval += mpt::format("Microsoft Compiler %1.%2.%3.%4")
+			retval += mpt::format(U_("Microsoft Compiler %1.%2.%3.%4"))
 				( _MSC_FULL_VER / 10000000
-				, mpt::fmt::dec0<2>((_MSC_FULL_VER / 100000) % 100)
-				, mpt::fmt::dec0<5>(_MSC_FULL_VER % 100000)
-				, mpt::fmt::dec0<2>(_MSC_BUILD)
+				, mpt::ufmt::dec0<2>((_MSC_FULL_VER / 100000) % 100)
+				, mpt::ufmt::dec0<5>(_MSC_FULL_VER % 100000)
+				, mpt::ufmt::dec0<2>(_MSC_BUILD)
 				);
 		#elif defined(_MSC_FULL_VER)
-			retval += mpt::format("Microsoft Compiler %1.%2.%3")
+			retval += mpt::format(U_("Microsoft Compiler %1.%2.%3"))
 				( _MSC_FULL_VER / 10000000
-				, mpt::fmt::dec0<2>((_MSC_FULL_VER / 100000) % 100)
-				, mpt::fmt::dec0<5>(_MSC_FULL_VER % 100000)
+				, mpt::ufmt::dec0<2>((_MSC_FULL_VER / 100000) % 100)
+				, mpt::ufmt::dec0<5>(_MSC_FULL_VER % 100000)
 				);
 		#else
-			retval += mpt::format("Microsoft Compiler %1.%2")(MPT_COMPILER_MSVC_VERSION / 100, MPT_COMPILER_MSVC_VERSION % 100);
+			retval += mpt::format(U_("Microsoft Compiler %1.%2"))(MPT_COMPILER_MSVC_VERSION / 100, MPT_COMPILER_MSVC_VERSION % 100);
 		#endif
 	#elif MPT_COMPILER_GCC
-		retval += mpt::format("GNU Compiler Collection %1.%2.%3")(MPT_COMPILER_GCC_VERSION / 10000, (MPT_COMPILER_GCC_VERSION / 100) % 100, MPT_COMPILER_GCC_VERSION % 100);
+		retval += mpt::format(U_("GNU Compiler Collection %1.%2.%3"))(MPT_COMPILER_GCC_VERSION / 10000, (MPT_COMPILER_GCC_VERSION / 100) % 100, MPT_COMPILER_GCC_VERSION % 100);
 	#elif MPT_COMPILER_CLANG
-		retval += mpt::format("Clang %1.%2.%3")(MPT_COMPILER_CLANG_VERSION / 10000, (MPT_COMPILER_CLANG_VERSION / 100) % 100, MPT_COMPILER_CLANG_VERSION % 100);
-	#elif MPT_COMPILER_MSVCCLANGC2
-		retval += mpt::format("MSVC-Clang/C2 %1")(MPT_COMPILER_MSVCCLANGC2_VERSION);
+		retval += mpt::format(U_("Clang %1.%2.%3"))(MPT_COMPILER_CLANG_VERSION / 10000, (MPT_COMPILER_CLANG_VERSION / 100) % 100, MPT_COMPILER_CLANG_VERSION % 100);
 	#else
-		retval += "*unknown";
+		retval += U_("unknown");
 	#endif
 	return retval;
 }
 
-static std::string GetRevisionString()
+static mpt::ustring GetRevisionString()
 {
-	std::string result;
-	if(GetRevision() == 0)
+	mpt::ustring result;
+	if(Source::GetRevision() == 0)
 	{
 		return result;
 	}
-	result = std::string("-r") + mpt::ToString(GetRevision());
-	if(HasMixedRevisions())
+	result = U_("-r") + mpt::ufmt::val(Source::GetRevision());
+	if(Source::HasMixedRevisions())
 	{
-		result += "!";
+		result += UL_("!");
 	}
-	if(IsDirty())
+	if(Source::IsDirty())
 	{
-		result += "+";
+		result += UL_("+");
 	}
-	if(IsPackage())
+	if(Source::IsPackage())
 	{
-		result += "p";
+		result += UL_("p");
 	}
 	return result;
 }
 
-mpt::ustring GetDownloadURL()
+mpt::ustring GetVersionString(FlagSet<Build::Strings> strings)
 {
-	#ifdef MODPLUG_TRACKER
-		return (MptVersion::IsDebugBuild() || MptVersion::IsTestBuild() || MptVersion::IsDirty() || MptVersion::HasMixedRevisions())
-			?
-				MPT_USTRING("https://buildbot.openmpt.org/builds/")
-			:
-				MPT_USTRING("https://openmpt.org/download")
-			;
-	#else
-		return MPT_USTRING("https://lib.openmpt.org/");
-	#endif
-}
-
-std::string GetVersionString(FlagSet<MptVersion::Strings> strings)
-{
-	std::vector<std::string> result;
+	std::vector<mpt::ustring> result;
 	if(strings[StringVersion])
 	{
-		result.push_back(MPT_VERSION_STR);
+		result.push_back(mpt::ufmt::val(Version::Current()));
 	}
 	if(strings[StringRevision])
 	{
-		if(IsDebugBuild() || IsTestBuild() || IsDirty() || HasMixedRevisions())
+		if(!IsReleasedBuild())
 		{
 			result.push_back(GetRevisionString());
 		}
 	}
 	if(strings[StringBitness])
 	{
-		result.push_back(mpt::format(" %1 bit")(sizeof(void*)*8));
+		result.push_back(mpt::format(U_(" %1 bit"))(mpt::arch_bits));
 	}
 	if(strings[StringSourceInfo])
 	{
-		const SourceInfo sourceInfo = GetSourceInfo();
+		const SourceInfo sourceInfo = SourceInfo::Current();
 		if(!sourceInfo.GetUrlWithRevision().empty())
 		{
-			result.push_back(mpt::format(" %1")(sourceInfo.GetUrlWithRevision()));
+			result.push_back(mpt::format(U_(" %1"))(sourceInfo.GetUrlWithRevision()));
 		}
-		if(!sourceInfo.Date.empty())
+		if(!sourceInfo.Date().empty())
 		{
-			result.push_back(mpt::format(" (%1)")(sourceInfo.Date));
+			result.push_back(mpt::format(U_(" (%1)"))(sourceInfo.Date()));
 		}
 		if(!sourceInfo.GetStateString().empty())
 		{
-			result.push_back(mpt::format(" %1")(sourceInfo.GetStateString()));
+			result.push_back(mpt::format(U_(" %1"))(sourceInfo.GetStateString()));
 		}
 	}
 	if(strings[StringBuildFlags])
 	{
-		if(IsDebugBuild() || IsTestBuild() || IsDirty() || HasMixedRevisions())
+		if(!IsReleasedBuild())
 		{
 			result.push_back(GetBuildFlagsString());
 		}
@@ -492,100 +497,97 @@ std::string GetVersionString(FlagSet<MptVersion::Strings> strings)
 	{
 		result.push_back(GetBuildFeaturesString());
 	}
-	return mpt::String::Trim(mpt::String::Combine<std::string>(result, std::string("")));
+	return mpt::String::Trim(mpt::String::Combine<mpt::ustring>(result, U_("")));
 }
 
-std::string GetVersionStringPure()
+mpt::ustring GetVersionStringPure()
 {
-	FlagSet<MptVersion::Strings> strings;
-	strings |= MptVersion::StringVersion;
-	strings |= MptVersion::StringRevision;
+	FlagSet<Build::Strings> strings;
+	strings |= Build::StringVersion;
+	strings |= Build::StringRevision;
 	#ifdef MODPLUG_TRACKER
-		strings |= MptVersion::StringBitness;
+		strings |= Build::StringBitness;
 	#endif
 	return GetVersionString(strings);
 }
 
-std::string GetVersionStringSimple()
+mpt::ustring GetVersionStringSimple()
 {
-	FlagSet<MptVersion::Strings> strings;
-	strings |= MptVersion::StringVersion;
-	strings |= MptVersion::StringRevision;
-	strings |= MptVersion::StringBuildFlags;
+	FlagSet<Build::Strings> strings;
+	strings |= Build::StringVersion;
+	strings |= Build::StringRevision;
+	strings |= Build::StringBuildFlags;
 	return GetVersionString(strings);
 }
 
-std::string GetVersionStringExtended()
+mpt::ustring GetVersionStringExtended()
 {
-	FlagSet<MptVersion::Strings> strings;
-	strings |= MptVersion::StringVersion;
-	strings |= MptVersion::StringRevision;
+	FlagSet<Build::Strings> strings;
+	strings |= Build::StringVersion;
+	strings |= Build::StringRevision;
 	#ifdef MODPLUG_TRACKER
-		strings |= MptVersion::StringBitness;
+		strings |= Build::StringBitness;
 	#endif
 	#ifndef MODPLUG_TRACKER
-		strings |= MptVersion::StringSourceInfo;
+		strings |= Build::StringSourceInfo;
 	#endif
-	strings |= MptVersion::StringBuildFlags;
+	strings |= Build::StringBuildFlags;
 	#ifdef MODPLUG_TRACKER
-		strings |= MptVersion::StringBuildFeatures;
+		strings |= Build::StringBuildFeatures;
 	#endif
 	return GetVersionString(strings);
 }
 
-std::string SourceInfo::GetUrlWithRevision() const
-{
-	if(Url.empty() || (Revision == 0))
-	{
-		return std::string();
-	}
-	return Url + "@" + mpt::ToString(Revision);
-}
-
-mpt::ustring GetURL(std::string key)
+mpt::ustring GetURL(Build::Url key)
 {
 	mpt::ustring result;
-	if(key.empty())
+	switch(key)
 	{
-		result = mpt::ustring();
-	} else if(key == "website")
-	{
-		#ifdef LIBOPENMPT_BUILD
-			result = MPT_USTRING("https://lib.openmpt.org/");
-		#else
-			result = MPT_USTRING("https://openmpt.org/");
-		#endif
-	} else if(key == "forum")
-	{
-		result = MPT_USTRING("https://forum.openmpt.org/");
-	} else if(key == "bugtracker")
-	{
-		result = MPT_USTRING("https://bugs.openmpt.org/");
-	} else if(key == "updates")
-	{
-		result = MPT_USTRING("https://openmpt.org/download");
-	} else if(key == "top_picks")
-	{
-		result = MPT_USTRING("https://openmpt.org/top_picks");
+		case Url::Website:
+			#ifdef LIBOPENMPT_BUILD
+				result = U_("https://lib.openmpt.org/");
+			#else
+				result = U_("https://openmpt.org/");
+			#endif
+			break;
+		case Url::Download:
+			#ifdef MODPLUG_TRACKER
+				result = IsReleasedBuild() ? U_("https://openmpt.org/download") : U_("https://builds.openmpt.org/builds/");
+			#else
+				result = U_("https://lib.openmpt.org/libopenmpt/download/");
+			#endif
+			break;
+		case Url::Forum:
+			result = U_("https://forum.openmpt.org/");
+			break;
+		case Url::Bugtracker:
+			result = U_("https://bugs.openmpt.org/");
+			break;
+		case Url::Updates:
+			result = U_("https://openmpt.org/download");
+			break;
+		case Url::TopPicks:
+			result = U_("https://openmpt.org/top_picks");
+			break;
 	}
 	return result;
 }
 
 mpt::ustring GetFullCreditsString()
 {
-	return mpt::ToUnicode(mpt::CharsetUTF8,
+	return mpt::ToUnicode(mpt::Charset::UTF8,
 #ifdef MODPLUG_TRACKER
 		"OpenMPT / ModPlug Tracker\n"
 #else
 		"libopenmpt (based on OpenMPT / ModPlug Tracker)\n"
 #endif
 		"\n"
-		"Copyright \xC2\xA9 2004-2017 Contributors\n"
+		"Copyright \xC2\xA9 2004-2021 Contributors\n"
 		"Copyright \xC2\xA9 1997-2003 Olivier Lapicque\n"
 		"\n"
 		"Contributors:\n"
-		"Johannes Schultz (2008-2017)\n"
-		"J\xC3\xB6rn Heusipp (2012-2017)\n"
+		"Johannes Schultz (2008-2021)\n"
+		"J\xC3\xB6rn Heusipp (2012-2021)\n"
 		"Ahti Lepp\xC3\xA4nen (2005-2011)\n"
 		"Robin Fernandes (2004-2007)\n"
 		"Sergiy Pylypenko (2007)\n"
@@ -594,9 +596,10 @@ mpt::ustring GetFullCreditsString()
 		"Olivier Lapicque (1997-2003)\n"
 		"\n"
 		"Additional patch submitters:\n"
-		"coda (http://coda.s3m.us/)\n"
+		"coda (https://coda.s3m.us/)\n"
+		"Jo\xC3\xA3o Baptista de Paula e Silva (https://joaobapt.com/)\n"
 		"kode54 (https://kode54.net/)\n"
-		"Revenant (http://revenant1.net/)\n"
+		"Revenant (https://revenant1.net/)\n"
 		"xaimus (http://xaimus.com/)\n"
 		"\n"
 		"Thanks to:\n"
@@ -612,39 +615,46 @@ mpt::ustring GetFullCreditsString()
 		"https://github.com/avaneev/r8brain-free-src\n"
 		"\n"
 		"Olli Parviainen for SoundTouch Library (time stretching)\n"
-		"http://www.surina.net/soundtouch/\n"
+		"https://www.surina.net/soundtouch/\n"
 		"\n"
 #endif
 #ifndef NO_VST
 		"Hermann Seib for his example VST Host implementation\n"
 		"http://www.hermannseib.com/english/vsthost.htm\n"
 		"\n"
-#endif
-#if defined(MPT_WITH_UNMO3) || defined(MPT_ENABLE_UNMO3_DYNBIND)
-		"Ian Luck for UNMO3\n"
-		"http://www.un4seen.com/mo3.html\n"
+		"Benjamin \"BeRo\" Rosseaux for his independent VST header\n"
+		"https://blog.rosseaux.net/\n"
 		"\n"
 #endif
-#ifdef MPT_ENABLE_MO3_BUILTIN
+		"Storlek for all the IT compatibility hints and testcases\n"
+		"as well as the IMF, MDL, OKT and ULT loaders\n"
+		"http://schismtracker.org/\n"
+		"\n"
+		"Sergei \"x0r\" Kolzun for various hints on Scream Tracker 2 compatibility\n"
+		"https://github.com/viiri/st2play\n"
+		"\n"
 		"Laurent Cl\xc3\xA9vy for unofficial MO3 documentation and decompression code\n"
 		"https://github.com/lclevy/unmo3\n"
 		"\n"
-#endif
 		"Ben \"GreaseMonkey\" Russell for IT sample compression code\n"
 		"https://github.com/iamgreaser/it2everything/\n"
 		"\n"
-#ifdef MODPLUG_TRACKER
-		"Alexander Chemeris for msinttypes\n"
-		"https://github.com/chemeris/msinttypes\n"
+		"Antti S. Lankila for Amiga resampler implementation\n"
+		"https://bel.fi/alankila/modguide/interpolate.txt\n"
 		"\n"
-#endif
+		"Shayde / Reality Productions for Opal OPL3 emulator\n"
+		"https://www.3eality.com/\n"
+		"\n"
+		"Ryuhei Mori for TinyFFT\n"
+		"https://github.com/ryuhei-mori/tinyfft\n"
+		"\n"
 #ifdef MPT_WITH_ZLIB
 		"Jean-loup Gailly and Mark Adler for zlib\n"
-		"http://zlib.net/\n"
+		"https://zlib.net/\n"
 		"\n"
 #endif
 #ifdef MPT_WITH_MINIZ
-		"Rich Geldreich for miniz\n"
+		"Rich Geldreich et al. for miniz\n"
 		"https://github.com/richgel999/miniz\n"
 		"\n"
 #endif
@@ -655,7 +665,7 @@ mpt::ustring GetFullCreditsString()
 #endif
 #ifdef MPT_WITH_UNRAR
 		"Alexander L. Roshal for UnRAR\n"
-		"http://rarlab.com/\n"
+		"https://rarlab.com/\n"
 		"\n"
 #endif
 #ifdef MPT_WITH_PORTAUDIO
@@ -663,20 +673,24 @@ mpt::ustring GetFullCreditsString()
 		"http://www.portaudio.com/\n"
 		"\n"
 #endif
+#ifdef MPT_WITH_RTAUDIO
+		"Gary P. Scavone, McGill University\n"
+		"https://www.music.mcgill.ca/~gary/rtaudio/\n"
+		"\n"
+#endif
 #ifdef MPT_WITH_FLAC
 		"Josh Coalson / Xiph.Org Foundation for libFLAC\n"
 		"https://xiph.org/flac/\n"
 		"\n"
 #endif
-#if defined(MPT_WITH_MPG123) || defined(MPT_ENABLE_MPG123_DYNBIND)
+#if defined(MPT_WITH_MPG123)
 		"The mpg123 project for libmpg123\n"
-		"http://mpg123.de/\n"
+		"https://mpg123.de/\n"
 		"\n"
 #endif
 #ifdef MPT_WITH_MINIMP3
-		"Fabrice Bellard, FFMPEG contributors\n"
-		"and Martin J. Fiedler (KeyJ/kakiarts) for minimp3\n"
-		"http://keyj.emphy.de/minimp3/\n"
+		"Lion (github.com/lieff) for minimp3\n"
+		"https://github.com/lieff/minimp3/\n"
 		"\n"
 #endif
 #ifdef MPT_WITH_STBVORBIS
@@ -706,20 +720,35 @@ mpt::ustring GetFullCreditsString()
 		"https://opus-codec.org/\n"
 		"\n"
 #endif
-#if defined(MPT_WITH_PICOJSON)
-		"Cybozu Labs Inc. and Kazuho Oku et. al. for picojson\n"
-		"https://github.com/kazuho/picojson\n"
+#if defined(MPT_WITH_OPUSENC)
+		"Xiph.Org Foundation, Jean-Marc Valin and contributors for libopusenc\n"
+		"https://git.xiph.org/?p=libopusenc.git;a=summary\n"
 		"\n"
 #endif
-		"Storlek for all the IT compatibility hints and testcases\n"
-		"as well as the IMF, MDL, OKT and ULT loaders\n"
-		"http://schismtracker.org/\n"
+#if defined(MPT_WITH_LAME)
+		"The LAME project for LAME\n"
+		"https://lame.sourceforge.io/\n"
 		"\n"
+#endif
+#if defined(MPT_WITH_NLOHMANNJSON)
+		"Niels Lohmann et al. for nlohmann-json\n"
+		"https://github.com/nlohmann/json\n"
+		"\n"
+#endif
 #ifdef MODPLUG_TRACKER
-		"Alexander Uckun for decimal input field\n"
-		"http://www.codeproject.com/Articles/21257/_\n"
+		"Lennart Poettering and David Henningsson for RealtimeKit\n"
+		"http://git.0pointer.net/rtkit.git/\n"
 		"\n"
-		"Nobuyuki for application and file icon\n"
+		"Gary P. Scavone for RtMidi\n"
+		"https://www.music.mcgill.ca/~gary/rtmidi/\n"
+		"\n"
+		"Alexander Uckun for decimal input field\n"
+		"https://www.codeproject.com/Articles/21257/_\n"
+		"\n"
+		"\xc3\x9alfur Kolka for application icon, splash and about screen\n"
+		"https://www.behance.net/ulfurkolka\n"
+		"\n"
+		"Nobuyuki for file icon\n"
 		"https://twitter.com/nobuyukinyuu\n"
 		"\n"
 #endif
@@ -732,7 +761,7 @@ mpt::ustring GetFullCreditsString()
 		"33, 8bitbubsy, Anboi, BooT-SectoR-ViruZ, Bvanoudtshoorn\n"
 		"christofori, cubaxd, Diamond, Ganja, Georg, Goor00,\n"
 		"Harbinger, jmkz, KrazyKatz, LPChip, Nofold, Rakib, Sam Zen\n"
-		"Skaven, Skilletaudio, Snu, Squirrel Havoc, Waxhead\n"
+		"Skaven, Skilletaudio, Snu, Squirrel Havoc, Teimoso, Waxhead\n"
 		"\n"
 #ifndef NO_VST
 		"VST PlugIn Technology by Steinberg Media Technologies GmbH\n"
@@ -748,9 +777,7 @@ mpt::ustring GetFullCreditsString()
 mpt::ustring GetLicenseString()
 {
 	return MPT_UTF8(
-		"The OpenMPT code is licensed under the BSD license." "\n"
-		"" "\n"
-		"Copyright (c) 2004-2017, OpenMPT contributors" "\n"
+		"Copyright (c) 2004-2021, OpenMPT contributors" "\n"
 		"Copyright (c) 1997-2003, Olivier Lapicque" "\n"
 		"All rights reserved." "\n"
 		"" "\n"
@@ -778,6 +805,8 @@ mpt::ustring GetLicenseString()
 		);
 }
 
-} // namespace MptVersion
+} // namespace Build
+
+
 
 OPENMPT_NAMESPACE_END

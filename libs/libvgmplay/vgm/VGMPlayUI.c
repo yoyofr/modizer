@@ -120,7 +120,7 @@ extern UINT32 SampleRate;	// Note: also used by some sound cores to
 							//       determinate the chip sample rate
 
 extern UINT32 VGMPbRate;
-extern UINT32 VGMMaxLoop;
+extern INT32 VGMMaxLoop;
 extern UINT32 CMFMaxLoop;
 UINT32 FadeTimeN;	// normal fade time
 UINT32 FadeTimePL;	// in-playlist fade time
@@ -212,7 +212,7 @@ extern UINT8 PlayingMode;
 extern UINT32 PlayingTime;
 
 extern UINT32 FadeStart;
-extern UINT32 VGMMaxLoopM;
+extern INT32 VGMMaxLoopM;
 extern UINT32 VGMCurLoop;
 extern float VolumeLevelM;
 bool ErrorHappened;	// used by VGMPlay.c and VGMPlay_AddFmts.c

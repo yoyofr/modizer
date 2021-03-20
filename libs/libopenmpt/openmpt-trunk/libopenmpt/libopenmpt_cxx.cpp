@@ -11,17 +11,20 @@
 
 #include "libopenmpt_internal.h"
 #include "libopenmpt.hpp"
+#include "libopenmpt_ext.hpp"
 
 #include "libopenmpt_impl.hpp"
+#include "libopenmpt_ext_impl.hpp"
 
 #include <algorithm>
+#include <stdexcept>
 
 #include <cstdlib>
 #include <cstring>
 
 namespace openmpt {
 
-exception::exception( const std::string & text_ ) LIBOPENMPT_NOEXCEPT
+exception::exception( const std::string & text_ ) noexcept
 	: std::exception()
 	, text(0)
 {
@@ -31,18 +34,66 @@ exception::exception( const std::string & text_ ) LIBOPENMPT_NOEXCEPT
 	}
 }
 
-exception::~exception() LIBOPENMPT_NOEXCEPT {
+exception::exception( const exception & other ) noexcept
+	: std::exception()
+	, text(0)
+{
+	const char * const text_ = ( other.what() ? other.what() : "" );
+	text = static_cast<char*>( std::malloc( std::strlen( text_ ) + 1 ) );
+	if ( text ) {
+		std::memcpy( text, text_, std::strlen( text_ ) + 1 );
+	}
+}
+
+exception::exception( exception && other ) noexcept
+	: std::exception()
+	, text(0)
+{
+	text = std::move( other.text );
+	other.text = 0;
+}
+
+exception & exception::operator = ( const exception & other ) noexcept {
+	if ( this == &other ) {
+		return *this;
+	}
+	if ( text ) {
+		std::free( text );
+		text = 0;
+	}
+	const char * const text_ = ( other.what() ? other.what() : "" );
+	text = static_cast<char*>( std::malloc( std::strlen( text_ ) + 1 ) );
+	if ( text ) {
+		std::memcpy( text, text_, std::strlen( text_ ) + 1 );
+	}
+	return *this;
+}
+
+exception & exception::operator = ( exception && other ) noexcept {
+	if ( this == &other ) {
+		return *this;
+	}
+	if ( text ) {
+		std::free( text );
+		text = 0;
+	}
+	text = std::move( other.text );
+	other.text = 0;
+	return *this;
+}
+
+exception::~exception() noexcept {
 	if ( text ) {
 		std::free( text );
 		text = 0;
 	}
 }
 
-const char * exception::what() const LIBOPENMPT_NOEXCEPT {
+const char * exception::what() const noexcept {
 	if ( text ) {
 		return text;
 	} else {
-		return "unknown openmpt exception";
+		return "out of memory";
 	}
 }
 
@@ -75,21 +126,53 @@ std::vector<std::string> get_supported_extensions() {
 bool is_extension_supported( const std::string & extension ) {
 	return openmpt::module_impl::is_extension_supported( extension );
 }
+bool is_extension_supported2( std::string_view extension ) {
+	return openmpt::module_impl::is_extension_supported( extension );
+}
 
 double could_open_probability( std::istream & stream, double effort, std::ostream & log ) {
-	return openmpt::module_impl::could_open_probability( stream, effort, std::make_shared<std_ostream_log>( log ) );
+	return openmpt::module_impl::could_open_probability( stream, effort, openmpt::helper::make_unique<std_ostream_log>( log ) );
 }
 double could_open_propability( std::istream & stream, double effort, std::ostream & log ) {
-	return openmpt::module_impl::could_open_probability( stream, effort, std::make_shared<std_ostream_log>( log ) );
+	return openmpt::module_impl::could_open_probability( stream, effort, openmpt::helper::make_unique<std_ostream_log>( log ) );
 }
 
-module::module( const module & ) {
+std::size_t probe_file_header_get_recommended_size() {
+	return openmpt::module_impl::probe_file_header_get_recommended_size();
+}
+int probe_file_header( std::uint64_t flags, const std::byte * data, std::size_t size, std::uint64_t filesize ) {
+	return openmpt::module_impl::probe_file_header( flags, data, size, filesize );
+}
+int probe_file_header( std::uint64_t flags, const std::uint8_t * data, std::size_t size, std::uint64_t filesize ) {
+	return openmpt::module_impl::probe_file_header( flags, data, size, filesize );
+}
+int probe_file_header( std::uint64_t flags, const std::byte * data, std::size_t size ) {
+	return openmpt::module_impl::probe_file_header( flags, data, size );
+}
+int probe_file_header( std::uint64_t flags, const std::uint8_t * data, std::size_t size ) {
+	return openmpt::module_impl::probe_file_header( flags, data, size );
+}
+int probe_file_header( std::uint64_t flags, std::istream & stream ) {
+	return openmpt::module_impl::probe_file_header( flags, stream );
+}
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4702) // unreachable code
+#endif // _MSC_VER
+
+module::module( const module & ) : impl(nullptr) {
 	throw exception("openmpt::module is non-copyable");
 }
 
+// cppcheck-suppress operatorEqVarError
 void module::operator = ( const module & ) {
 	throw exception("openmpt::module is non-copyable");
 }
+
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif // _MSC_VER
 
 module::module() : impl(0) {
 	return;
@@ -100,35 +183,47 @@ void module::set_impl( module_impl * i ) {
 }
 
 module::module( std::istream & stream, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( stream, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( stream, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+}
+
+module::module( const std::vector<std::byte> & data, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
+	impl = new module_impl( data, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+}
+
+module::module( const std::byte * beg, const std::byte * end, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
+	impl = new module_impl( beg, end - beg, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+}
+
+module::module( const std::byte * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
+	impl = new module_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::module( const std::vector<std::uint8_t> & data, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( data, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( data, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::module( const std::uint8_t * beg, const std::uint8_t * end, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( beg, end - beg, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( beg, end - beg, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::module( const std::uint8_t * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( data, size, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::module( const std::vector<char> & data, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( data, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( data, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::module( const char * beg, const char * end, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( beg, end - beg, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( beg, end - beg, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::module( const char * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( data, size, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::module( const void * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : impl(0) {
-	impl = new module_impl( data, size, std::make_shared<std_ostream_log>( log ), ctls );
+	impl = new module_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
 }
 
 module::~module() {
@@ -210,6 +305,9 @@ std::string module::get_metadata( const std::string & key ) const {
 	return impl->get_metadata( key );
 }
 
+double module::get_current_estimated_bpm() const {
+	return impl->get_current_estimated_bpm();
+}
 std::int32_t module::get_current_speed() const {
 	return impl->get_current_speed();
 }
@@ -311,11 +409,94 @@ std::string module::highlight_pattern_row_channel( std::int32_t pattern, std::in
 std::vector<std::string> module::get_ctls() const {
 	return impl->get_ctls();
 }
+
 std::string module::ctl_get( const std::string & ctl ) const {
 	return impl->ctl_get( ctl );
 }
+bool module::ctl_get_boolean( std::string_view ctl ) const {
+	return impl->ctl_get_boolean( ctl );
+}
+std::int64_t module::ctl_get_integer( std::string_view ctl ) const {
+	return impl->ctl_get_integer( ctl );
+}
+double module::ctl_get_floatingpoint( std::string_view ctl ) const {
+	return impl->ctl_get_floatingpoint( ctl );
+}
+std::string module::ctl_get_text( std::string_view ctl ) const {
+	return impl->ctl_get_text( ctl );
+}
+
 void module::ctl_set( const std::string & ctl, const std::string & value ) {
 	impl->ctl_set( ctl, value );
+}
+void module::ctl_set_boolean( std::string_view ctl, bool value ) {
+	impl->ctl_set_boolean( ctl, value );
+}
+void module::ctl_set_integer( std::string_view ctl, std::int64_t value ) {
+	impl->ctl_set_integer( ctl, value );
+}
+void module::ctl_set_floatingpoint( std::string_view ctl, double value ) {
+	impl->ctl_set_floatingpoint( ctl, value );
+}
+void module::ctl_set_text( std::string_view ctl, std::string_view value ) {
+	impl->ctl_set_text( ctl, value );
+}
+
+module_ext::module_ext( std::istream & stream, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( stream, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::module_ext( const std::vector<std::uint8_t> & data, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( data, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::module_ext( const std::vector<char> & data, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( data, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::module_ext( const std::vector<std::byte> & data, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( data, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::module_ext( const std::uint8_t * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::module_ext( const char * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::module_ext( const std::byte * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::module_ext( const void * data, std::size_t size, std::ostream & log, const std::map< std::string, std::string > & ctls ) : ext_impl(0) {
+	ext_impl = new module_ext_impl( data, size, openmpt::helper::make_unique<std_ostream_log>( log ), ctls );
+	set_impl( ext_impl );
+}
+module_ext::~module_ext() {
+	set_impl( 0 );
+	delete ext_impl;
+	ext_impl = 0;
+}
+
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable:4702) // unreachable code
+#endif // _MSC_VER
+module_ext::module_ext( const module_ext & other ) : module(other), ext_impl(nullptr) {
+	throw std::runtime_error("openmpt::module_ext is non-copyable");
+}
+// cppcheck-suppress operatorEqVarError
+void module_ext::operator = ( const module_ext & ) {
+	throw std::runtime_error("openmpt::module_ext is non-copyable");
+}
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif // _MSC_VER
+
+void * module_ext::get_interface( const std::string & interface_id ) {
+	return ext_impl->get_interface( interface_id );
 }
 
 } // namespace openmpt

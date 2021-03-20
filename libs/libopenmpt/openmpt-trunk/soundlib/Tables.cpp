@@ -11,11 +11,11 @@
 
 #include "stdafx.h"
 #include "Tables.h"
-#include <math.h>
 #include "Sndfile.h"
 
 #include "Resampler.h"
 #include "WindowedFIR.h"
+#include <cmath>
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -24,16 +24,16 @@ OPENMPT_NAMESPACE_BEGIN
 /////////////////////////////////////////////////////////////////////////////
 // Note Name Tables
 
-const char NoteNamesSharp[12][4] =
+const mpt::uchar NoteNamesSharp[12][4] =
 {
-	"C-", "C#", "D-", "D#", "E-", "F-",
-	"F#", "G-", "G#", "A-", "A#", "B-"
+	UL_("C-"), UL_("C#"), UL_("D-"), UL_("D#"), UL_("E-"), UL_("F-"),
+	UL_("F#"), UL_("G-"), UL_("G#"), UL_("A-"), UL_("A#"), UL_("B-")
 };
 
-const char NoteNamesFlat[12][4] =
+const mpt::uchar NoteNamesFlat[12][4] =
 {
-	"C-", "Db", "D-", "Eb", "E-", "F-",
-	"Gb", "G-", "Ab", "A-", "Bb", "B-"
+	UL_("C-"), UL_("Db"), UL_("D-"), UL_("Eb"), UL_("E-"), UL_("F-"),
+	UL_("Gb"), UL_("G-"), UL_("Ab"), UL_("A-"), UL_("Bb"), UL_("B-")
 };
 
 
@@ -42,192 +42,131 @@ const char NoteNamesFlat[12][4] =
 
 struct ModFormatInfo
 {
-	MODTYPE format;			// MOD_TYPE_XXXX
-	const char *name;		// "ProTracker"
-	const char *extension;	// "mod"
+	MODTYPE format;              // MOD_TYPE_XXXX
+	const mpt::uchar *name;  // "ProTracker"
+	const char *extension;       // "mod"
 };
 
-// remember to also update libopenmpt/foo_openmpt.cpp (all other plugins read these dynamically)
-static const ModFormatInfo modFormatInfo[] =
+// Note: Formats with identical extensions must be grouped together.
+static constexpr ModFormatInfo modFormatInfo[] =
 {
-	{ MOD_TYPE_MOD,		"ProTracker",				"mod" },
-	{ MOD_TYPE_S3M,		"ScreamTracker 3",			"s3m" },
-	{ MOD_TYPE_XM,		"FastTracker II",			"xm" },
-	{ MOD_TYPE_IT,		"Impulse Tracker",			"it" },
-#ifdef MPT_EXTERNAL_SAMPLES
-	{ MOD_TYPE_IT,		"Impulse Tracker Project",	"itp" },
-#endif
-	{ MOD_TYPE_MPT,		"OpenMPT",					"mptm" },
-	{ MOD_TYPE_STM,		"ScreamTracker 2",			"stm" },
-	{ MOD_TYPE_MOD,		"ProTracker",				"pt36" },
-	{ MOD_TYPE_MOD,		"NoiseTracker",				"nst" },
-	{ MOD_TYPE_MOD,		"Soundtracker",				"m15" },
-	{ MOD_TYPE_MOD,		"Soundtracker",				"stk" },
-	{ MOD_TYPE_MOD,		"SoundTracker 2.6",			"st26" },
-	{ MOD_TYPE_MOD,		"Ice Tracker",				"ice" },
-	{ MOD_TYPE_MOD,		"Mod's Grave",				"wow" },
-	{ MOD_TYPE_ULT,		"UltraTracker",				"ult" },
-	{ MOD_TYPE_669,		"Composer 669 / UNIS 669",	"669" },
-	{ MOD_TYPE_MTM,		"MultiTracker",				"mtm" },
-	{ MOD_TYPE_MED,		"OctaMed",					"med" },
-	{ MOD_TYPE_FAR,		"Farandole Composer",		"far" },
-	{ MOD_TYPE_MDL,		"Digitrakker",				"mdl" },
-	{ MOD_TYPE_AMS,		"Extreme's Tracker",		"ams" },
-	{ MOD_TYPE_AMS2,	"Velvet Studio",			"ams" },
-	{ MOD_TYPE_DSM,		"DSIK Format",				"dsm" },
-	{ MOD_TYPE_AMF,		"DSMI",						"amf" },
-	{ MOD_TYPE_AMF0,	"ASYLUM",					"amf" },
-	{ MOD_TYPE_OKT,		"Oktalyzer",				"okt" },
-	{ MOD_TYPE_DMF,		"X-Tracker",				"dmf" },
-	{ MOD_TYPE_PTM,		"PolyTracker",				"ptm" },
-	{ MOD_TYPE_PSM,		"Epic Megagames MASI",		"psm" },
-	{ MOD_TYPE_MT2,		"MadTracker 2",				"mt2" },
-	{ MOD_TYPE_DBM,		"DigiBooster Pro",			"dbm" },
-	{ MOD_TYPE_DIGI,	"DigiBooster",				"digi" },
-	{ MOD_TYPE_IMF,		"Imago Orpheus",			"imf" },
-	{ MOD_TYPE_J2B,		"Galaxy Sound System",		"j2b" },
-	{ MOD_TYPE_PLM,		"Disorder Tracker 2",		"plm" },
-	{ MOD_TYPE_SFX,		"SoundFX",					"sfx" },
-	{ MOD_TYPE_SFX,		"SoundFX",					"sfx2" },
-	{ MOD_TYPE_SFX,		"MultiMedia Sound",			"mms" },
+	{ MOD_TYPE_MPT,  UL_("OpenMPT"),                    "mptm" },
+	{ MOD_TYPE_MOD,  UL_("ProTracker"),                 "mod" },
+	{ MOD_TYPE_S3M,  UL_("ScreamTracker 3"),            "s3m" },
+	{ MOD_TYPE_XM,   UL_("FastTracker 2"),              "xm" },
+	{ MOD_TYPE_IT,   UL_("Impulse Tracker"),            "it" },
 
+	{ MOD_TYPE_669,  UL_("Composer 669 / UNIS 669"),    "669" },
+	{ MOD_TYPE_AMF0, UL_("ASYLUM Music Format"),        "amf" },
+	{ MOD_TYPE_AMF,  UL_("DSMI Advanced Music Format"), "amf" },
+	{ MOD_TYPE_AMS,  UL_("Extreme's Tracker"),          "ams" },
+	{ MOD_TYPE_AMS,  UL_("Velvet Studio"),              "ams" },
+	{ MOD_TYPE_S3M,  UL_("CDFM / Composer 670"),        "c67" },
+	{ MOD_TYPE_DBM,  UL_("DigiBooster Pro"),            "dbm" },
+	{ MOD_TYPE_DIGI, UL_("DigiBooster"),                "digi" },
+	{ MOD_TYPE_DMF,  UL_("X-Tracker"),                  "dmf" },
+	{ MOD_TYPE_DSM,  UL_("DSIK Format"),                "dsm" },
+	{ MOD_TYPE_DTM,  UL_("Digital Tracker"),            "dtm" },
+	{ MOD_TYPE_FAR,  UL_("Farandole Composer"),         "far" },
+	{ MOD_TYPE_IMF,  UL_("Imago Orpheus"),              "imf" },
+	{ MOD_TYPE_MOD,  UL_("Ice Tracker"),                "ice" },
+#ifdef MPT_EXTERNAL_SAMPLES
+	{ MOD_TYPE_IT,   UL_("Impulse Tracker Project"),    "itp" },
+#endif
+	{ MOD_TYPE_J2B,  UL_("Galaxy Sound System"),        "j2b" },
+	{ MOD_TYPE_MOD,  UL_("Soundtracker"),               "m15" },
+	{ MOD_TYPE_MDL,  UL_("Digitrakker"),                "mdl" },
+	{ MOD_TYPE_MED,  UL_("OctaMED"),                    "med" },
+	{ MOD_TYPE_SFX,  UL_("MultiMedia Sound"),           "mms" },
+	{ MOD_TYPE_MT2,  UL_("MadTracker 2"),               "mt2" },
+	{ MOD_TYPE_MTM,  UL_("MultiTracker"),               "mtm" },
+	{ MOD_TYPE_MOD,  UL_("NoiseTracker"),               "nst" },
+	{ MOD_TYPE_OKT,  UL_("Oktalyzer"),                  "okt" },
+	{ MOD_TYPE_PLM,  UL_("Disorder Tracker 2"),         "plm" },
+	{ MOD_TYPE_PSM,  UL_("Epic Megagames MASI"),        "psm" },
+	{ MOD_TYPE_MOD,  UL_("ProTracker"),                 "pt36" },
+	{ MOD_TYPE_PTM,  UL_("PolyTracker"),                "ptm" },
+	{ MOD_TYPE_SFX,  UL_("SoundFX"),                    "sfx" },
+	{ MOD_TYPE_SFX,  UL_("SoundFX"),                    "sfx2" },
+	{ MOD_TYPE_MOD,  UL_("SoundTracker 2.6"),           "st26" },
+	{ MOD_TYPE_MOD,  UL_("Soundtracker"),               "stk" },
+	{ MOD_TYPE_STM,  UL_("ScreamTracker 2"),            "stm" },
+	{ MOD_TYPE_STP,  UL_("Soundtracker Pro II"),        "stp" },
+	{ MOD_TYPE_ULT,  UL_("UltraTracker"),               "ult" },
+	{ MOD_TYPE_MOD,  UL_("Mod's Grave"),                "wow" },
+	// converted formats (no MODTYPE)
+	{ MOD_TYPE_NONE, UL_("General Digital Music"),      "gdm" },
+	{ MOD_TYPE_NONE, UL_("Un4seen MO3"),                "mo3" },
+	{ MOD_TYPE_NONE, UL_("OggMod FastTracker 2"),       "oxm" },
 #ifndef NO_ARCHIVE_SUPPORT
 	// Compressed modules
-	{ MOD_TYPE_MOD,		"ProTracker",				"mdz" },
-	{ MOD_TYPE_MOD,		"ProTracker",				"mdr" },
-	{ MOD_TYPE_S3M,		"ScreamTracker 3",			"s3z" },
-	{ MOD_TYPE_XM,		"FastTracker II",			"xmz" },
-	{ MOD_TYPE_IT,		"Impulse Tracker",			"itz" },
-	{ MOD_TYPE_MPT,		"OpenMPT",					"mptmz" },
+	{ MOD_TYPE_MOD,  UL_("Compressed ProTracker"),      "mdz" },
+	{ MOD_TYPE_MOD,  UL_("Compressed Module"),          "mdr" },
+	{ MOD_TYPE_S3M,  UL_("Compressed ScreamTracker 3"), "s3z" },
+	{ MOD_TYPE_XM,   UL_("Compressed FastTracker 2"),   "xmz" },
+	{ MOD_TYPE_IT,   UL_("Compressed Impulse Tracker"), "itz" },
+	{ MOD_TYPE_MPT,  UL_("Compressed OpenMPT"),         "mptmz" },
 #endif
 };
 
 
 struct ModContainerInfo
 {
-	MODCONTAINERTYPE format; // MOD_CONTAINERTYPE_XXXX
-	const char *name;        // "Unreal Music"
-	const char *extension;   // "umx"
+	MODCONTAINERTYPE format;     // MOD_CONTAINERTYPE_XXXX
+	const mpt::uchar *name;  // "Unreal Music"
+	const char *extension;       // "umx"
 };
 
-// remember to also update libopenmpt/libopenmpt_foobar2000.cpp (all other plugins read these dynamically)
-static const ModContainerInfo modContainerInfo[] =
+static constexpr ModContainerInfo modContainerInfo[] =
 {
 	// Container formats
-	{ MOD_CONTAINERTYPE_GDM,   "General Digital Music",    "gdm"   },
-	{ MOD_CONTAINERTYPE_UMX,   "Unreal Music",             "umx"   },
-#if defined(MPT_ENABLE_MO3)
-	{ MOD_CONTAINERTYPE_MO3,   "Un4seen MO3",              "mo3"   },
-#endif // MPT_ENABLE_MO3
-	{ MOD_CONTAINERTYPE_XPK,   "XPK packed",               "xpk"   },
-	{ MOD_CONTAINERTYPE_PP20,  "PowerPack PP20",           "ppm"   },
-	{ MOD_CONTAINERTYPE_MMCMP, "Music Module Compressor",  "mmcmp" }
+	{ MOD_CONTAINERTYPE_UMX,   UL_("Unreal Music"),             "umx"   },
+	{ MOD_CONTAINERTYPE_XPK,   UL_("XPK packed"),               "xpk"   },
+	{ MOD_CONTAINERTYPE_PP20,  UL_("PowerPack PP20"),           "ppm"   },
+	{ MOD_CONTAINERTYPE_MMCMP, UL_("Music Module Compressor"),  "mmcmp" }
+#ifdef MODPLUG_TRACKER
+	,
+	{ MOD_CONTAINERTYPE_WAV,   UL_("Wave"),                     "wav"   },
+	{ MOD_CONTAINERTYPE_UAX,   UL_("Unreal Sounds"),            "uax"   }
+#endif
 };
 
 
 #ifdef MODPLUG_TRACKER
-static const ModFormatInfo otherFormatInfo[] =
+static constexpr ModFormatInfo otherFormatInfo[] =
 {
-	// Other stuff
-	{ MOD_TYPE_WAV,		"Wave",						"wav" }, // PCM as module
-	{ MOD_TYPE_UAX,		"Unreal Sounds",			"uax" }, // sampleset as module
-	{ MOD_TYPE_MID,		"MIDI",						"mid" },
-	{ MOD_TYPE_MID,		"MIDI",						"rmi" },
-	{ MOD_TYPE_MID,		"MIDI",						"smf" },
+	{ MOD_TYPE_MID,  UL_("MIDI"), "mid" },
+	{ MOD_TYPE_MID,  UL_("MIDI"), "rmi" },
+	{ MOD_TYPE_MID,  UL_("MIDI"), "smf" }
 };
 #endif
 
 
-struct ModCharsetInfo
-{
-	MODTYPE type;
-	mpt::Charset charset;
-};
-
-static const ModCharsetInfo ModCharsetInfos[] =
-{
-	// Amiga
-	{ MOD_TYPE_OKT , mpt::CharsetISO8859_1  },
-	{ MOD_TYPE_DBM , mpt::CharsetISO8859_1  },
-	{ MOD_TYPE_DIGI, mpt::CharsetISO8859_1  },
-	{ MOD_TYPE_SFX , mpt::CharsetISO8859_1  },
-	// Amiga // DOS
-	{ MOD_TYPE_MOD , mpt::CharsetISO8859_1  },
-	{ MOD_TYPE_MED , mpt::CharsetISO8859_1  },
-	// DOS
-	{ MOD_TYPE_S3M , mpt::CharsetCP437      },
-	{ MOD_TYPE_XM  , mpt::CharsetCP437      },
-	{ MOD_TYPE_MTM , mpt::CharsetCP437      },
-	{ MOD_TYPE_IT  , mpt::CharsetCP437      },
-	{ MOD_TYPE_669 , mpt::CharsetCP437      },
-	{ MOD_TYPE_STM , mpt::CharsetCP437      },
-	{ MOD_TYPE_FAR , mpt::CharsetCP437      },
-	{ MOD_TYPE_AMF , mpt::CharsetCP437      },
-	{ MOD_TYPE_AMF0, mpt::CharsetCP437      },
-	{ MOD_TYPE_MDL , mpt::CharsetCP437      },
-	{ MOD_TYPE_DMF , mpt::CharsetCP437      },
-	{ MOD_TYPE_PTM , mpt::CharsetCP437      },
-	{ MOD_TYPE_PSM , mpt::CharsetCP437      },
-	{ MOD_TYPE_J2B , mpt::CharsetCP437      },
-	{ MOD_TYPE_IMF , mpt::CharsetCP437      },
-	{ MOD_TYPE_ULT , mpt::CharsetCP437      },
-	{ MOD_TYPE_AMS , mpt::CharsetCP437      },
-	{ MOD_TYPE_AMS2, mpt::CharsetCP437      },
-	{ MOD_TYPE_DSM , mpt::CharsetCP437      },
-	// Windows
-	{ MOD_TYPE_MT2 , mpt::CharsetWindows1252},
-	{ MOD_TYPE_MPT , mpt::CharsetWindows1252},
-	// random stuff
-	{ MOD_TYPE_MID , mpt::CharsetASCII      },
-	{ MOD_TYPE_WAV , mpt::CharsetASCII      },
-	// end
-	{ MOD_TYPE_NONE, mpt::CharsetASCII      }
-};
-
-
-mpt::Charset CSoundFile::GetCharsetFromModType(MODTYPE modtype)
-//-------------------------------------------------------------
-{
-	// This is just a rough heuristic.
-	// It could be improved by adjusting the charset according to the tracker that had been used to save the file.
-	for(const ModCharsetInfo *charsetInfoIt = ModCharsetInfos; charsetInfoIt->type != MOD_TYPE_NONE; ++charsetInfoIt)
-	{
-		if(charsetInfoIt->type == modtype)
-		{
-			return charsetInfoIt->charset;
-		}
-	}
-	// fallback
-	return mpt::CharsetASCII;
-}
-
-
 std::vector<const char *> CSoundFile::GetSupportedExtensions(bool otherFormats)
-//-----------------------------------------------------------------------------
 {
 	std::vector<const char *> exts;
-	for(size_t i = 0; i < CountOf(modFormatInfo); i++)
+	for(const auto &formatInfo : modFormatInfo)
 	{
 		// Avoid dupes in list
-		if(i == 0 || strcmp(modFormatInfo[i].extension, modFormatInfo[i - 1].extension))
+		if(exts.empty() || strcmp(formatInfo.extension, exts.back()))
 		{
-			exts.push_back(modFormatInfo[i].extension);
+			exts.push_back(formatInfo.extension);
 		}
 	}
-	for(size_t i = 0; i < CountOf(modContainerInfo); i++)
+	for(const auto &containerInfo : modContainerInfo)
 	{
 		// Avoid dupes in list
-		if(i == 0 || strcmp(modContainerInfo[i].extension, modContainerInfo[i - 1].extension))
+		if(exts.empty() || strcmp(containerInfo.extension, exts.back()))
 		{
-			exts.push_back(modContainerInfo[i].extension);
+			exts.push_back(containerInfo.extension);
 		}
 	}
 #ifdef MODPLUG_TRACKER
 	if(otherFormats)
 	{
-		for(size_t i = 0; i < CountOf(otherFormatInfo); i++)
+		for(const auto &formatInfo : otherFormatInfo)
 		{
-			exts.push_back(otherFormatInfo[i].extension);
+			exts.push_back(formatInfo.extension);
 		}
 	}
 #else
@@ -237,79 +176,67 @@ std::vector<const char *> CSoundFile::GetSupportedExtensions(bool otherFormats)
 }
 
 
-const char * CSoundFile::ModTypeToString(MODTYPE modtype)
-//-------------------------------------------------------
+static bool IsEqualExtension(std::string_view a, std::string_view b)
 {
-	for(size_t i = 0; i < CountOf(modFormatInfo); i++)
+	if(a.length() != b.length())
 	{
-		if(modFormatInfo[i].format & modtype)
-		{
-			return modFormatInfo[i].extension;
-		}
+		return false;
 	}
-	return "";
+	return mpt::CompareNoCaseAscii(a, b) == 0;
 }
 
 
-std::string CSoundFile::ModContainerTypeToString(MODCONTAINERTYPE containertype)
-//------------------------------------------------------------------------------
+bool CSoundFile::IsExtensionSupported(std::string_view ext)
 {
-	for(size_t i = 0; i < CountOf(modContainerInfo); i++)
+	if(ext.length() == 0)
 	{
-		if(modContainerInfo[i].format == containertype)
+		return false;
+	}
+	for(const auto &formatInfo : modFormatInfo)
+	{
+		if(IsEqualExtension(ext, formatInfo.extension))
 		{
-			return modContainerInfo[i].extension;
+			return true;
 		}
 	}
-	return "";
+	for(const auto &containerInfo : modContainerInfo)
+	{
+		if(IsEqualExtension(ext, containerInfo.extension))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 
-std::string CSoundFile::ModTypeToTracker(MODTYPE modtype)
-//-------------------------------------------------------
+mpt::ustring CSoundFile::ModContainerTypeToString(MODCONTAINERTYPE containertype)
 {
-	std::set<std::string> retvals;
-	std::string retval;
-	if(modtype == MOD_TYPE_MOD)
-	{ // special case MOD
-		return "Generic Amiga / PC MOD file";
-	}
-	for(size_t i = 0; i < CountOf(modFormatInfo); i++)
+	for(const auto &containerInfo : modContainerInfo)
 	{
-		if(modFormatInfo[i].format & modtype)
+		if(containerInfo.format == containertype)
 		{
-			std::string name = modFormatInfo[i].name;
-			if(retvals.find(name) == retvals.end())
+			return mpt::ToUnicode(mpt::Charset::UTF8, containerInfo.extension);
+		}
+	}
+	return mpt::ustring();
+}
+
+
+mpt::ustring CSoundFile::ModContainerTypeToTracker(MODCONTAINERTYPE containertype)
+{
+	std::set<mpt::ustring> retvals;
+	mpt::ustring retval;
+	for(const auto &containerInfo : modContainerInfo)
+	{
+		if(containerInfo.format == containertype)
+		{
+			mpt::ustring name = containerInfo.name;
+			if(retvals.insert(name).second)
 			{
-				retvals.insert(name);
 				if(!retval.empty())
 				{
-					retval += " / ";
-				}
-				retval += name;
-			}
-		}
-	}
-	return retval;
-}
-
-
-std::string CSoundFile::ModContainerTypeToTracker(MODCONTAINERTYPE containertype)
-//-------------------------------------------------------------------------------
-{
-	std::set<std::string> retvals;
-	std::string retval;
-	for(size_t i = 0; i < CountOf(modContainerInfo); i++)
-	{
-		if(modContainerInfo[i].format == containertype)
-		{
-			std::string name = modContainerInfo[i].name;
-			if(retvals.find(name) == retvals.end())
-			{
-				retvals.insert(name);
-				if(!retval.empty())
-				{
-					retval += " / ";
+					retval += U_(" / ");
 				}
 				retval += name;
 			}
@@ -328,9 +255,10 @@ const uint8 ImpulseTrackerPortaVolCmd[16] =
 	0x80, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 };
 
-// Period table for Protracker octaves 0-5:
-const uint16 ProTrackerPeriodTable[6*12] =
+// Period table for ProTracker octaves (1-7 in FastTracker 2, also used for file I/O):
+const uint16 ProTrackerPeriodTable[7*12] =
 {
+	2*1712,2*1616,2*1524,2*1440,2*1356,2*1280,2*1208,2*1140,2*1076,2*1016,2*960,2*906,
 	1712,1616,1524,1440,1356,1280,1208,1140,1076,1016,960,907,
 	856,808,762,720,678,640,604,570,538,508,480,453,
 	428,404,381,360,339,320,302,285,269,254,240,226,
@@ -368,11 +296,9 @@ const uint8 ModEFxTable[16] =
 };
 
 // S3M C-4 periods
-const uint16 FreqS3MTable[16] =
+const uint16 FreqS3MTable[12] =
 {
-	1712,1616,1524,1440,1356,1280,
-	1208,1140,1076,1016,960,907,
-	0,0,0,0
+	1712,1616,1524,1440,1356,1280,1208,1140,1076,1016,960,907
 };
 
 // S3M FineTune frequencies
@@ -392,15 +318,6 @@ const int8 ModSinusTable[64] =
 	-127,-126,-125,-122,-117,-112,-106,-98,-90,-81,-71,-60,-49,-37,-25,-12
 };
 
-// Triangle wave table (ramp down)
-const int8 ModRampDownTable[64] =
-{
-	0,-4,-8,-12,-16,-20,-24,-28,-32,-36,-40,-44,-48,-52,-56,-60,
-	-64,-68,-72,-76,-80,-84,-88,-92,-96,-100,-104,-108,-112,-116,-120,-124,
-	127,123,119,115,111,107,103,99,95,91,87,83,79,75,71,67,
-	63,59,55,51,47,43,39,35,31,27,23,19,15,11,7,3
-};
-
 // Random wave table
 const int8 ModRandomTable[64] =
 {
@@ -410,9 +327,7 @@ const int8 ModRandomTable[64] =
 	42,-34,89,-4,-51,-72,21,-29,112,123,84,-101,-92,98,-54,-95
 };
 
-// Impulse Tracker tables (ITTECH.TXT)
-
-// Sinus table
+// Impulse Tracker sinus table (ITTECH.TXT)
 const int8 ITSinusTable[256] =
 {
 	  0,  2,  3,  5,  6,  8,  9, 11, 12, 14, 16, 17, 19, 20, 22, 23,
@@ -431,27 +346,6 @@ const int8 ITSinusTable[256] =
 	-59,-59,-58,-57,-56,-56,-55,-54,-53,-52,-51,-50,-49,-48,-47,-46,
 	-45,-44,-43,-42,-41,-39,-38,-37,-36,-34,-33,-32,-30,-29,-27,-26,
 	-24,-23,-22,-20,-19,-17,-16,-14,-12,-11, -9, -8, -6, -5, -3, -2,
-};
-
-// Triangle wave table (ramp down)
-const int8 ITRampDownTable[256] =
-{
-	 64, 63, 63, 62, 62, 61, 61, 60, 60, 59, 59, 58, 58, 57, 57, 56,
-	 56, 55, 55, 54, 54, 53, 53, 52, 52, 51, 51, 50, 50, 49, 49, 48,
-	 48, 47, 47, 46, 46, 45, 45, 44, 44, 43, 43, 42, 42, 41, 41, 40,
-	 40, 39, 39, 38, 38, 37, 37, 36, 36, 35, 35, 34, 34, 33, 33, 32,
-	 32, 31, 31, 30, 30, 29, 29, 28, 28, 27, 27, 26, 26, 25, 25, 24,
-	 24, 23, 23, 22, 22, 21, 21, 20, 20, 19, 19, 18, 18, 17, 17, 16,
-	 16, 15, 15, 14, 14, 13, 13, 12, 12, 11, 11, 10, 10,  9,  9,  8,
-	  8,  7,  7,  6,  6,  5,  5,  4,  4,  3,  3,  2,  2,  1,  1,  0,
-	  0, -1, -1, -2, -2, -3, -3, -4, -4, -5, -5, -6, -6, -7, -7, -8,
-	 -8, -9, -9,-10,-10,-11,-11,-12,-12,-13,-13,-14,-14,-15,-15,-16,
-	-16,-17,-17,-18,-18,-19,-19,-20,-20,-21,-21,-22,-22,-23,-23,-24,
-	-24,-25,-25,-26,-26,-27,-27,-28,-28,-29,-29,-30,-30,-31,-31,-32,
-	-32,-33,-33,-34,-34,-35,-35,-36,-36,-37,-37,-38,-38,-39,-39,-40,
-	-40,-41,-41,-42,-42,-43,-43,-44,-44,-45,-45,-46,-46,-47,-47,-48,
-	-48,-49,-49,-50,-50,-51,-51,-52,-52,-53,-53,-54,-54,-55,-55,-56,
-	-56,-57,-57,-58,-58,-59,-59,-60,-60,-61,-61,-62,-62,-63,-63,-64,
 };
 
 
@@ -581,28 +475,6 @@ const uint32 XMLinearTable[768] =
 };
 
 
-const int8 ft2VibratoTable[256] =
-{
-	0,-2,-3,-5,-6,-8,-9,-11,-12,-14,-16,-17,-19,-20,-22,-23,
-	-24,-26,-27,-29,-30,-32,-33,-34,-36,-37,-38,-39,-41,-42,
-	-43,-44,-45,-46,-47,-48,-49,-50,-51,-52,-53,-54,-55,-56,
-	-56,-57,-58,-59,-59,-60,-60,-61,-61,-62,-62,-62,-63,-63,
-	-63,-64,-64,-64,-64,-64,-64,-64,-64,-64,-64,-64,-63,-63,
-	-63,-62,-62,-62,-61,-61,-60,-60,-59,-59,-58,-57,-56,-56,
-	-55,-54,-53,-52,-51,-50,-49,-48,-47,-46,-45,-44,-43,-42,
-	-41,-39,-38,-37,-36,-34,-33,-32,-30,-29,-27,-26,-24,-23,
-	-22,-20,-19,-17,-16,-14,-12,-11,-9,-8,-6,-5,-3,-2,0,
-	2,3,5,6,8,9,11,12,14,16,17,19,20,22,23,24,26,27,29,30,
-	32,33,34,36,37,38,39,41,42,43,44,45,46,47,48,49,50,51,
-	52,53,54,55,56,56,57,58,59,59,60,60,61,61,62,62,62,63,
-	63,63,64,64,64,64,64,64,64,64,64,64,64,63,63,63,62,62,
-	62,61,61,60,60,59,59,58,57,56,56,55,54,53,52,51,50,49,
-	48,47,46,45,44,43,42,41,39,38,37,36,34,33,32,30,29,27,
-	26,24,23,22,20,19,17,16,14,12,11,9,8,6,5,3,2
-};
-
-
-
 // round(65536 * 2**(n/768))
 // 768 = 64 extra-fine finetune steps for 12 notes
 // Table content is in 16.16 format
@@ -616,7 +488,7 @@ const uint32 FineLinearSlideUpTable[16] =
 // round(65536 * 2**(-n/768))
 // 768 = 64 extra-fine finetune steps for 12 notes
 // Table content is in 16.16 format
-// Note that there are a few errors in this table (typos?), but well, this table comes straight from ITTECH.TXT...
+// Note that there are a few errors in this table (typos?), but well, this table comes straight from Impulse Tracker's source...
 // Entry 0 (65535) should be 65536 (this value is unused and most likely stored this way so that it fits in a 16-bit integer)
 // Entry 11 (64888) should be 64889 - rounding error?
 // Entry 15 (64645) should be 64655 - typo?
@@ -627,83 +499,83 @@ const uint32 FineLinearSlideDownTable[16] =
 };
 
 
-// floor(65536 * 2**(n/192))
+// round(65536 * 2**(n/192))
 // 192 = 16 finetune steps for 12 notes
 // Table content is in 16.16 format
 const uint32 LinearSlideUpTable[256] =
 {
-	65536, 65773, 66010, 66249, 66489, 66729, 66971, 67213,
-	67456, 67700, 67945, 68190, 68437, 68685, 68933, 69182,
-	69432, 69684, 69936, 70189, 70442, 70697, 70953, 71209,
-	71467, 71725, 71985, 72245, 72507, 72769, 73032, 73296,
-	73561, 73827, 74094, 74362, 74631, 74901, 75172, 75444,
-	75717, 75991, 76265, 76541, 76818, 77096, 77375, 77655,
-	77935, 78217, 78500, 78784, 79069, 79355, 79642, 79930,
-	80219, 80509, 80800, 81093, 81386, 81680, 81976, 82272,
-	82570, 82868, 83168, 83469, 83771, 84074, 84378, 84683,
-	84989, 85297, 85605, 85915, 86225, 86537, 86850, 87164,
-	87480, 87796, 88113, 88432, 88752, 89073, 89395, 89718,
-	90043, 90369, 90695, 91023, 91353, 91683, 92015, 92347,
-	92681, 93017, 93353, 93691, 94029, 94370, 94711, 95053,
-	95397, 95742, 96088, 96436, 96785, 97135, 97486, 97839,
-	98193, 98548, 98904, 99262, 99621, 99981, 100343, 100706,
-	101070, 101435, 101802, 102170, 102540, 102911, 103283, 103657,
-	104031, 104408, 104785, 105164, 105545, 105926, 106309, 106694,
-	107080, 107467, 107856, 108246, 108637, 109030, 109425, 109820,
-	110217, 110616, 111016, 111418, 111821, 112225, 112631, 113038,
-	113447, 113857, 114269, 114682, 115097, 115514, 115931, 116351,
-	116771, 117194, 117618, 118043, 118470, 118898, 119328, 119760,
-	120193, 120628, 121064, 121502, 121941, 122382, 122825, 123269,
-	123715, 124162, 124611, 125062, 125514, 125968, 126424, 126881,
-	127340, 127801, 128263, 128727, 129192, 129660, 130129, 130599,
-	131072, 131546, 132021, 132499, 132978, 133459, 133942, 134426,
-	134912, 135400, 135890, 136381, 136875, 137370, 137866, 138365,
-	138865, 139368, 139872, 140378, 140885, 141395, 141906, 142419,
-	142935, 143451, 143970, 144491, 145014, 145538, 146064, 146593,
-	147123, 147655, 148189, 148725, 149263, 149803, 150344, 150888,
-	151434, 151982, 152531, 153083, 153637, 154192, 154750, 155310,
-	155871, 156435, 157001, 157569, 158138, 158710, 159284, 159860,
-	160439, 161019, 161601, 162186, 162772, 163361, 163952, 164545,
+	65536, 65773, 66011, 66250, 66489, 66730, 66971, 67213,
+	67456, 67700, 67945, 68191, 68438, 68685, 68933, 69183,
+	69433, 69684, 69936, 70189, 70443, 70698, 70953, 71210,
+	71468, 71726, 71985, 72246, 72507, 72769, 73032, 73297,
+	73562, 73828, 74095, 74363, 74632, 74902, 75172, 75444,
+	75717, 75991, 76266, 76542, 76819, 77096, 77375, 77655,
+	77936, 78218, 78501, 78785, 79069, 79355, 79642, 79930,
+	80220, 80510, 80801, 81093, 81386, 81681, 81976, 82273,
+	82570, 82869, 83169, 83469, 83771, 84074, 84378, 84683,
+	84990, 85297, 85606, 85915, 86226, 86538, 86851, 87165,
+	87480, 87796, 88114, 88433, 88752, 89073, 89396, 89719,
+	90043, 90369, 90696, 91024, 91353, 91684, 92015, 92348,
+	92682, 93017, 93354, 93691, 94030, 94370, 94711, 95054,
+	95398, 95743, 96089, 96436, 96785, 97135, 97487, 97839,
+	98193, 98548, 98905, 99262, 99621, 99982, 100343, 100706,
+	101070, 101436, 101803, 102171, 102540, 102911, 103283, 103657,
+	104032, 104408, 104786, 105165, 105545, 105927, 106310, 106694,
+	107080, 107468, 107856, 108246, 108638, 109031, 109425, 109821,
+	110218, 110617, 111017, 111418, 111821, 112226, 112631, 113039,
+	113448, 113858, 114270, 114683, 115098, 115514, 115932, 116351,
+	116772, 117194, 117618, 118043, 118470, 118899, 119329, 119760,
+	120194, 120628, 121065, 121502, 121942, 122383, 122825, 123270,
+	123715, 124163, 124612, 125063, 125515, 125969, 126425, 126882,
+	127341, 127801, 128263, 128727, 129193, 129660, 130129, 130600,
+	131072, 131546, 132022, 132499, 132978, 133459, 133942, 134427,
+	134913, 135401, 135890, 136382, 136875, 137370, 137867, 138366,
+	138866, 139368, 139872, 140378, 140886, 141395, 141907, 142420,
+	142935, 143452, 143971, 144491, 145014, 145539, 146065, 146593,
+	147123, 147655, 148189, 148725, 149263, 149803, 150345, 150889,
+	151434, 151982, 152532, 153083, 153637, 154193, 154750, 155310,
+	155872, 156435, 157001, 157569, 158139, 158711, 159285, 159861,
+	160439, 161019, 161602, 162186, 162773, 163361, 163952, 164545
 };
 
 
-// floor(65536 * 2**(-n/192))
+// round(65536 * 2**(-n/192))
 // 192 = 16 finetune steps for 12 notes
 // Table content is in 16.16 format
 const uint32 LinearSlideDownTable[256] =
 {
-	65536, 65299, 65064, 64830, 64596, 64363, 64131, 63900,
-	63670, 63440, 63212, 62984, 62757, 62531, 62305, 62081,
-	61857, 61634, 61412, 61191, 60970, 60751, 60532, 60314,
-	60096, 59880, 59664, 59449, 59235, 59021, 58809, 58597,
-	58385, 58175, 57965, 57757, 57548, 57341, 57134, 56928,
-	56723, 56519, 56315, 56112, 55910, 55709, 55508, 55308,
-	55108, 54910, 54712, 54515, 54318, 54123, 53928, 53733,
-	53540, 53347, 53154, 52963, 52772, 52582, 52392, 52204,
-	52015, 51828, 51641, 51455, 51270, 51085, 50901, 50717,
-	50535, 50353, 50171, 49990, 49810, 49631, 49452, 49274,
-	49096, 48919, 48743, 48567, 48392, 48218, 48044, 47871,
-	47698, 47526, 47355, 47185, 47014, 46845, 46676, 46508,
-	46340, 46173, 46007, 45841, 45676, 45511, 45347, 45184,
-	45021, 44859, 44697, 44536, 44376, 44216, 44056, 43898,
-	43740, 43582, 43425, 43268, 43112, 42957, 42802, 42648,
-	42494, 42341, 42189, 42037, 41885, 41734, 41584, 41434,
-	41285, 41136, 40988, 40840, 40693, 40546, 40400, 40254,
-	40109, 39965, 39821, 39677, 39534, 39392, 39250, 39108,
-	38967, 38827, 38687, 38548, 38409, 38270, 38132, 37995,
-	37858, 37722, 37586, 37450, 37315, 37181, 37047, 36913,
-	36780, 36648, 36516, 36384, 36253, 36122, 35992, 35862,
-	35733, 35604, 35476, 35348, 35221, 35094, 34968, 34842,
-	34716, 34591, 34466, 34342, 34218, 34095, 33972, 33850,
-	33728, 33606, 33485, 33364, 33244, 33124, 33005, 32886,
-	32768, 32649, 32532, 32415, 32298, 32181, 32065, 31950,
-	31835, 31720, 31606, 31492, 31378, 31265, 31152, 31040,
-	30928, 30817, 30706, 30595, 30485, 30375, 30266, 30157,
-	30048, 29940, 29832, 29724, 29617, 29510, 29404, 29298,
-	29192, 29087, 28982, 28878, 28774, 28670, 28567, 28464,
-	28361, 28259, 28157, 28056, 27955, 27854, 27754, 27654,
-	27554, 27455, 27356, 27257, 27159, 27061, 26964, 26866,
-	26770, 26673, 26577, 26481, 26386, 26291, 26196, 26102,
+	65536, 65300, 65065, 64830, 64596, 64364, 64132, 63901,
+	63670, 63441, 63212, 62984, 62757, 62531, 62306, 62081,
+	61858, 61635, 61413, 61191, 60971, 60751, 60532, 60314,
+	60097, 59880, 59664, 59449, 59235, 59022, 58809, 58597,
+	58386, 58176, 57966, 57757, 57549, 57341, 57135, 56929,
+	56724, 56519, 56316, 56113, 55911, 55709, 55508, 55308,
+	55109, 54910, 54713, 54515, 54319, 54123, 53928, 53734,
+	53540, 53347, 53155, 52963, 52773, 52582, 52393, 52204,
+	52016, 51829, 51642, 51456, 51270, 51085, 50901, 50718,
+	50535, 50353, 50172, 49991, 49811, 49631, 49452, 49274,
+	49097, 48920, 48743, 48568, 48393, 48218, 48044, 47871,
+	47699, 47527, 47356, 47185, 47015, 46846, 46677, 46509,
+	46341, 46174, 46008, 45842, 45677, 45512, 45348, 45185,
+	45022, 44859, 44698, 44537, 44376, 44216, 44057, 43898,
+	43740, 43582, 43425, 43269, 43113, 42958, 42803, 42649,
+	42495, 42342, 42189, 42037, 41886, 41735, 41584, 41434,
+	41285, 41136, 40988, 40840, 40693, 40547, 40400, 40255,
+	40110, 39965, 39821, 39678, 39535, 39392, 39250, 39109,
+	38968, 38828, 38688, 38548, 38409, 38271, 38133, 37996,
+	37859, 37722, 37586, 37451, 37316, 37181, 37047, 36914,
+	36781, 36648, 36516, 36385, 36254, 36123, 35993, 35863,
+	35734, 35605, 35477, 35349, 35221, 35095, 34968, 34842,
+	34716, 34591, 34467, 34343, 34219, 34095, 33973, 33850,
+	33728, 33607, 33486, 33365, 33245, 33125, 33005, 32887,
+	32768, 32650, 32532, 32415, 32298, 32182, 32066, 31950,
+	31835, 31720, 31606, 31492, 31379, 31266, 31153, 31041,
+	30929, 30817, 30706, 30596, 30485, 30376, 30266, 30157,
+	30048, 29940, 29832, 29725, 29618, 29511, 29405, 29299,
+	29193, 29088, 28983, 28879, 28774, 28671, 28567, 28464,
+	28362, 28260, 28158, 28056, 27955, 27855, 27754, 27654,
+	27554, 27455, 27356, 27258, 27159, 27062, 26964, 26867,
+	26770, 26674, 26577, 26482, 26386, 26291, 26196, 26102
 };
 
 
@@ -809,27 +681,29 @@ const int16 CResampler::FastSincTable[256*4] =
 
 
 // Compute Bessel function Izero(y) using a series approximation
-static double izero(double y)
+double Izero(double y)
 {
-	double s=1, ds=1, d=0;
+	double s = 1, ds = 1, d = 0;
 	do
 	{
-		d = d + 2; ds = ds * (y*y)/(d*d);
+		d = d + 2;
+		ds = ds * (y * y) / (d * d);
 		s = s + ds;
-	} while (ds > 1E-7 * s);
+	} while(ds > 1E-7 * s);
 	return s;
 }
 
-static void getsinc(SINC_TYPE *psinc, double beta, double lowpass_factor)
+
+static void getsinc(SINC_TYPE *psinc, double beta, double cutoff)
 {
-	if(lowpass_factor >= 0.999)
+	if(cutoff >= 0.999)
 	{
 		// Avoid mixer overflows.
 		// 1.0 itself does not make much sense.
-		lowpass_factor = 0.999;
+		cutoff = 0.999;
 	}
-	const double izero_beta = izero(beta);
-	const double kPi = 4.0*atan(1.0)*lowpass_factor;
+	const double izeroBeta = Izero(beta);
+	const double kPi = 4.0 * std::atan(1.0) * cutoff;
 	for (int isrc=0; isrc<8*SINC_PHASES; isrc++)
 	{
 		double fsinc;
@@ -840,10 +714,11 @@ static void getsinc(SINC_TYPE *psinc, double beta, double lowpass_factor)
 			fsinc = 1.0;
 		} else
 		{
-			double x = (double)(ix - (4*SINC_PHASES)) * (double)(1.0/SINC_PHASES);
-			fsinc = sin(x*kPi) * izero(beta*sqrt(1-x*x*(1.0/16.0))) / (izero_beta*x*kPi); // Kaiser window
+			const double x = (double)(ix - (4*SINC_PHASES)) * (double)(1.0/SINC_PHASES);
+			const double xPi = x * kPi;
+			fsinc = std::sin(xPi) * Izero(beta * std::sqrt(1 - x * x * (1.0 / 16.0))) / (izeroBeta * xPi); // Kaiser window
 		}
-		double coeff = fsinc * lowpass_factor;
+		double coeff = fsinc * cutoff;
 #ifdef MPT_INTMIXER
 		int n = (int)std::floor(coeff * (1<<SINC_QUANTSHIFT) + 0.5);
 		MPT_ASSERT(n <= int16_max);
@@ -855,50 +730,15 @@ static void getsinc(SINC_TYPE *psinc, double beta, double lowpass_factor)
 	}
 }
 
-#if 0
-
-// this code is currently unused
-
-static double GetSpline(double x, double c0, double c1, double c2, double c3)
-{
-	double Xo = c1;
-	double Xa = c0 - Xo;
-	double Xb = c2 - Xo;
-	double Ux = (Xb-Xa)/2;
-	double Vx = (c3 - Xo)/2;
-	double a = Vx+Ux-2*Xb;
-	double b = 3*Xb-2*Ux-Vx;
-	return (((a*x+b)*x)+Ux)*x+Xo;
-}
-
-
-static void getdownsample2x(short int *psinc)
-{
-	for (int i=0; i<SINC_PHASES; i++)
-	{
-		double x = (double)i * (double)(0.5/SINC_PHASES);
-		psinc[i*8+7] = (short int)(GetSpline(x,     0, 0, 0, 1) * 8192);
-		psinc[i*8+6] = (short int)(GetSpline(x+0.5, 0, 0, 0, 1) * 8192);
-		psinc[i*8+5] = (short int)(GetSpline(x,     0, 0, 1, 0) * 8192);
-		psinc[i*8+4] = (short int)(GetSpline(x+0.5, 0, 0, 1, 0) * 8192);
-		psinc[i*8+3] = (short int)(GetSpline(x,     0, 1, 0, 0) * 8192);
-		psinc[i*8+2] = (short int)(GetSpline(x+0.5, 0, 1, 0, 0) * 8192);
-		psinc[i*8+1] = (short int)(GetSpline(x,     1, 0, 0, 0) * 8192);
-		psinc[i*8+0] = (short int)(GetSpline(x+0.5, 1, 0, 0, 0) * 8192);
-	}
-}
-
-#endif
-
 
 #ifdef MODPLUG_TRACKER
 bool CResampler::StaticTablesInitialized = false;
-SINC_TYPE CResampler::gKaiserSinc[SINC_PHASES*8];     // Upsampling
-SINC_TYPE CResampler::gDownsample13x[SINC_PHASES*8];	// Downsample 1.333x
-SINC_TYPE CResampler::gDownsample2x[SINC_PHASES*8];		// Downsample 2x
+SINC_TYPE CResampler::gKaiserSinc[SINC_PHASES * 8];     // Upsampling
+SINC_TYPE CResampler::gDownsample13x[SINC_PHASES * 8];  // Downsample 1.333x
+SINC_TYPE CResampler::gDownsample2x[SINC_PHASES * 8];   // Downsample 2x
+Paula::BlepTables CResampler::blepTables;               // Amiga BLEP resampler
 #ifndef MPT_INTMIXER
-mixsample_t CResampler::FastSincTablef[256 * 4];		// Cubic spline LUT
-mixsample_t CResampler::LinearTablef[256];				// Linear interpolation LUT
+mixsample_t CResampler::FastSincTablef[256 * 4];        // Cubic spline LUT
 #endif // !defined(MPT_INTMIXER)
 #endif // MODPLUG_TRACKER
 
@@ -917,46 +757,34 @@ void CResampler::InitFloatmixerTables()
 	{
 		FastSincTablef[i] = static_cast<mixsample_t>(FastSincTable[i] * mixsample_t(1.0f / 16384.0f));
 	}
-
-	// Prepare linear interpolation coefficients for floating point mixer
-	for(size_t i = 0; i < CountOf(LinearTablef); i++)
-	{
-		LinearTablef[i] = static_cast<mixsample_t>(i * mixsample_t(1.0f / CountOf(LinearTablef)));
-	}
 #endif // !defined(MPT_INTMIXER)
 }
 
 
 void CResampler::InitializeTablesFromScratch(bool force)
 {
-
 	bool initParameterIndependentTables = false;
 	if(force)
 	{
 		initParameterIndependentTables = true;
 	}
-	#ifdef MODPLUG_TRACKER
-		if(!StaticTablesInitialized)
-		{
-			initParameterIndependentTables = true;
-		}
-	#endif // MODPLUG_TRACKER
+#ifdef MODPLUG_TRACKER
+	initParameterIndependentTables = !StaticTablesInitialized;
+#endif  // MODPLUG_TRACKER
 
 	MPT_MAYBE_CONSTANT_IF(initParameterIndependentTables)
 	{
 		InitFloatmixerTables();
 
+		blepTables.InitTables();
+
 		getsinc(gKaiserSinc, 9.6377, 0.97);
-		//ericus' downsampling improvement.
-		//getsinc(gDownsample13x, 8.5, 3.0/4.0);
-		//getdownsample2x(gDownsample2x);
 		getsinc(gDownsample13x, 8.5, 0.5);
 		getsinc(gDownsample2x, 2.7625, 0.425);
-		//end ericus' downsampling improvement.
 
-		#ifdef MODPLUG_TRACKER
-			StaticTablesInitialized = true;
-		#endif // MODPLUG_TRACKER
+#ifdef MODPLUG_TRACKER
+		StaticTablesInitialized = true;
+#endif  // MODPLUG_TRACKER
 	}
 
 	if((m_OldSettings == m_Settings) && !force)
@@ -967,20 +795,27 @@ void CResampler::InitializeTablesFromScratch(bool force)
 	m_WindowedFIR.InitTable(m_Settings.gdWFIRCutoff, m_Settings.gbWFIRType);
 
 	m_OldSettings = m_Settings;
-
 }
 
 
 #ifdef MPT_RESAMPLER_TABLES_CACHED
 
-void CResampler::InitializeTablesFromCache()
+static const CResampler & GetCachedResampler()
 {
 	static CResampler s_CachedResampler(true);
+	return s_CachedResampler;
+}
+
+
+void CResampler::InitializeTablesFromCache()
+{
+	const CResampler & s_CachedResampler = GetCachedResampler();
 	InitFloatmixerTables();
 	std::copy(s_CachedResampler.gKaiserSinc, s_CachedResampler.gKaiserSinc + SINC_PHASES*8, gKaiserSinc);
 	std::copy(s_CachedResampler.gDownsample13x, s_CachedResampler.gDownsample13x + SINC_PHASES*8, gDownsample13x);
 	std::copy(s_CachedResampler.gDownsample2x, s_CachedResampler.gDownsample2x + SINC_PHASES*8, gDownsample2x);
 	std::copy(s_CachedResampler.m_WindowedFIR.lut, s_CachedResampler.m_WindowedFIR.lut + WFIR_LUTLEN*WFIR_WIDTH, m_WindowedFIR.lut);
+	blepTables = s_CachedResampler.blepTables;
 }
 
 #endif // MPT_RESAMPLER_TABLES_CACHED
@@ -988,14 +823,21 @@ void CResampler::InitializeTablesFromCache()
 
 #ifdef MPT_RESAMPLER_TABLES_CACHED_ONSTARTUP
 
-struct ResampleCacheInitialzer
+struct ResampleCacheInitializer
 {
-	ResampleCacheInitialzer()
+	ResampleCacheInitializer()
 	{
-		CResampler cachePrimer;
+		GetCachedResampler();
 	}
 };
-static ResampleCacheInitialzer g_ResamplerCachePrimer;
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+#endif // MPT_COMPILER_CLANG
+static ResampleCacheInitializer g_ResamplerCachePrimer;
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif // MPT_COMPILER_CLANG
 
 #endif // MPT_RESAMPLER_TABLES_CACHED_ONSTARTUP
 
