@@ -218,7 +218,7 @@ extern "C" char gsf_libfile[1024];
 
 extern "C" GD3_TAG VGMTag;
 extern "C" VGM_HEADER VGMHead;
-extern "C" UINT32 VGMMaxLoop,VGMMaxLoopM;
+extern "C" INT32 VGMMaxLoop,VGMMaxLoopM;
 
 
 static const wchar_t* GetTagStrEJ(bool preferJTAG,const wchar_t* EngTag, const wchar_t* JapTag)
@@ -6420,8 +6420,9 @@ char* loadRom(const char* path, size_t romSize)
     // load configuration file here
     ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
-    
+        
     VGMMaxLoop=optVGMPLAY_maxloop;
+    if (mLoopMode==1) VGMMaxLoop=-1;
     
     VGMPlay_Init2();
     

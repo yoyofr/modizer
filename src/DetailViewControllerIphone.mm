@@ -420,11 +420,33 @@ static int display_length_mode=0;
 	if (mplayer.mLoopMode==0) {
 		[mplayer setLoopInf:1];
 		[btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.5f blue:1.0f alpha:1.0f] forState:UIControlStateNormal];
-		if ([mplayer isPlaying]) [self play_curEntry];
+        if ([mplayer isPlaying]) {
+            int arcidx=[mplayer getArcIndex];
+            if (arcidx) {
+                int subIdx=mplayer.mod_currentsub;
+                [self play_loadArchiveModule];
+                if (subIdx) [mplayer playGoToSub:subIdx];
+            } else {
+                int subIdx=mplayer.mod_currentsub;
+                [self play_curEntry];
+                if (subIdx) [mplayer playGoToSub:subIdx];
+            }
+        }
 	} else  {
 		[mplayer setLoopInf:0];
 		[btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.3f blue:0.3f alpha:1.0f] forState:UIControlStateNormal];
-		if ([mplayer isPlaying]) [self play_curEntry];
+        if ([mplayer isPlaying]) {
+            int arcidx=[mplayer getArcIndex];
+            if (arcidx) {
+                int subIdx=mplayer.mod_currentsub;
+                [self play_loadArchiveModule];
+                if (subIdx) [mplayer playGoToSub:subIdx];
+            } else {
+                int subIdx=mplayer.mod_currentsub;
+                [self play_curEntry];
+                if (subIdx) [mplayer playGoToSub:subIdx];
+            }
+        }
 	}
 }
 
