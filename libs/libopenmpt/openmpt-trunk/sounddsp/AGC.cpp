@@ -10,7 +10,6 @@
 
 
 #include "stdafx.h"
-#include "../soundlib/Sndfile.h"
 #include "../sounddsp/AGC.h"
 
 
@@ -31,7 +30,6 @@ OPENMPT_NAMESPACE_BEGIN
 
 
 static UINT ProcessAGC(int *pBuffer, int *pRearBuffer, std::size_t nSamples, std::size_t nChannels, int nAGC)
-//-----------------------------------------------------------------------------------------------------------
 {
 	if(nChannels == 1)
 	{
@@ -86,14 +84,12 @@ static UINT ProcessAGC(int *pBuffer, int *pRearBuffer, std::size_t nSamples, std
 
 
 CAGC::CAGC()
-//----------
 {
 	Initialize(true, 44100);
 }
 
 
 void CAGC::Process(int *MixSoundBuffer, int *RearSoundBuffer, std::size_t count, std::size_t nChannels)
-//-----------------------------------------------------------------------------------------------------
 {
 	UINT agc = ProcessAGC(MixSoundBuffer, RearSoundBuffer, count, nChannels, m_nAGC);
 	// Some kind custom law, so that the AGC stays quite stable, but slowly
@@ -116,7 +112,6 @@ void CAGC::Process(int *MixSoundBuffer, int *RearSoundBuffer, std::size_t count,
 
 
 void CAGC::Adjust(UINT oldVol, UINT newVol)
-//-----------------------------------------
 {
 	m_nAGC = m_nAGC * oldVol / newVol;
 	if (m_nAGC > AGC_UNITY) m_nAGC = AGC_UNITY;
@@ -124,7 +119,6 @@ void CAGC::Adjust(UINT oldVol, UINT newVol)
 
 
 void CAGC::Initialize(bool bReset, DWORD MixingFreq)
-//--------------------------------------------------
 {
 	if(bReset)
 	{
@@ -133,6 +127,12 @@ void CAGC::Initialize(bool bReset, DWORD MixingFreq)
 	}
 	m_Timeout = (MixingFreq >> (AGC_PRECISION-8)) >> 1;
 }
+
+
+#else
+
+
+MPT_MSVC_WORKAROUND_LNK4221(AGC)
 
 
 #endif // NO_AGC

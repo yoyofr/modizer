@@ -17,7 +17,8 @@ NSString *cutpaste_filesrcpath=nil;
 #include "gme.h"
 
 //SID2
-#import "SidTune.h"
+#include "sidplayfp/SidTune.h"
+#include "sidplayfp/SidTuneInfo.h"
 
 #include "unzip.h"
 
@@ -1006,38 +1007,38 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     if (browseType==3) {//SID
         SidTune *mSidTune=new SidTune([cpath UTF8String],0,true);
         
-        if ((mSidTune==NULL)||(mSidTune->cache.get()==0)) {
+        if (mSidTune==NULL) {
             NSLog(@"SID SidTune init error");
             if (mSidTune) {delete mSidTune;mSidTune=NULL;}
         } else {
-            SidTuneInfo sidtune_info;
+            const SidTuneInfo *sidtune_info;
             sidtune_info=mSidTune->getInfo();
             
             
             
             //Compute MD5
             memset(browser_song_md5,0,33);
-            int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
+            /*int tmp_md5_data_size=sidtune_info->c64dataLen()+2*3+sizeof(sidtune_info->songSpeed())*sidtune_info->songs();
             char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
             memset(tmp_md5_data,0,tmp_md5_data_size);
             int ofs_md5_data=0;
             unsigned char tmp[2];
-            memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info.c64dataLen);
-            ofs_md5_data+=sidtune_info.c64dataLen;
+            memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info->c64dataLen());
+            ofs_md5_data+=sidtune_info->c64dataLen();
             // Include INIT and PLAY address.
-            writeLEword(tmp,sidtune_info.initAddr);
+            writeLEword(tmp,sidtune_info->initAddr());
             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
             ofs_md5_data+=2;
-            writeLEword(tmp,sidtune_info.playAddr);
+            writeLEword(tmp,sidtune_info->playAddr());
             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
             ofs_md5_data+=2;
             // Include number of songs.
-            writeLEword(tmp,sidtune_info.songs);
+            writeLEword(tmp,sidtune_info->songs());
             memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
             ofs_md5_data+=2;
             
             // Include song speed for each song.
-            for (unsigned int s = 1; s <= sidtune_info.songs; s++)
+            for (unsigned int s = 1; s <= sidtune_info->songs(); s++)
             {
                 mSidTune->selectSong(s);
                 memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
@@ -1054,24 +1055,26 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 //myMD5.append(&info.clockSpeed,sizeof(info.clockSpeed));
             }
             md5_from_buffer(browser_song_md5,33,tmp_md5_data,tmp_md5_data_size);
+            free(tmp_md5_data);*/
+            mSidTune->createMD5New(browser_song_md5);
             browser_song_md5[32]=0;
-            free(tmp_md5_data);
+            
             
             //Get STIL info
             browser_stil_info[0]=0;
             [self getStilInfo:(char*)[cpath UTF8String]];
             
-            [self sid_parseStilInfo:sidtune_info.songs];
+            [self sid_parseStilInfo:sidtune_info->songs()];
             
-            for (int i=0;i<sidtune_info.songs;i++){
-                SidTuneInfo s_info;
+            for (int i=0;i<sidtune_info->songs();i++){
+                const SidTuneInfo *s_info;
                 file=nil;
                 mSidTune->selectSong(i);
                 s_info=mSidTune->getInfo();
                 
                 if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_name[i]];
                 else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_title[i]];
-                else if (s_info.infoString[0][0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                else if (s_info->infoString(0)[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info->infoString(0)];
                 else file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
                 
                 int filtered=0;
@@ -1133,22 +1136,16 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             }
                         }
                     
-                    for (int i=0;i<sidtune_info.songs;i++){
-                        SidTuneInfo s_info;
+                    for (int i=0;i<sidtune_info->songs();i++){
+                        const SidTuneInfo *s_info;
                         file=nil;
                         mSidTune->selectSong(i);
                         s_info=mSidTune->getInfo();
                         
                         if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_name[i]];
                         else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_title[i]];
-                        else if (s_info.infoString[0][0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
+                        else if (s_info->infoString(0)[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info->infoString(0)];
                         else file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
-                        
-                        /*if (s_info.infoString[0][0]) {
-                            file=[NSString stringWithFormat:@"%.3d-%s",i,s_info.infoString[0]];
-                        } else {
-                            file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
-                        }*/
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
@@ -1204,13 +1201,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             }
             if (mSidTune) {delete mSidTune;mSidTune=NULL;}
             if (browser_sidtune_title) {
-                for (int i=0;i<sidtune_info.songs;i++)
+                for (int i=0;i<sidtune_info->songs();i++)
                     if (browser_sidtune_title[i]) free(browser_sidtune_title[i]);
                 free(browser_sidtune_title);
                 browser_sidtune_title=NULL;
             }
             if (browser_sidtune_name) {
-                for (int i=0;i<sidtune_info.songs;i++)
+                for (int i=0;i<sidtune_info->songs();i++)
                     if (browser_sidtune_name[i]) free(browser_sidtune_name[i]);
                 free(browser_sidtune_name);
                 browser_sidtune_name=NULL;

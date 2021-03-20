@@ -28,7 +28,6 @@ namespace DMO
 float logGain(float x, int32 shiftL, int32 shiftR);
 
 IMixPlugin* Compressor::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
-//-------------------------------------------------------------------------------------------------
 {
 	return new (std::nothrow) Compressor(factory, sndFile, mixStruct);
 }
@@ -36,7 +35,6 @@ IMixPlugin* Compressor::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMI
 
 Compressor::Compressor(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
 	: IMixPlugin(factory, sndFile, mixStruct)
-//-----------------------------------------------------------------------------------------
 {
 	m_param[kCompGain] = 0.5f;
 	m_param[kCompAttack] = 0.02f;
@@ -51,7 +49,6 @@ Compressor::Compressor(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN 
 
 
 void Compressor::Process(float *pOutL, float *pOutR, uint32 numFrames)
-//--------------------------------------------------------------------
 {
 	if(!m_bufSize || !m_mixBuffer.Ok())
 		return;
@@ -64,18 +61,14 @@ void Compressor::Process(float *pOutL, float *pOutR, uint32 numFrames)
 		float leftIn  = *(in[0])++;
 		float rightIn = *(in[1])++;
 			
-		while(m_bufPos < 0)
-			m_bufPos += m_bufSize * 4096;
+		m_buffer[m_bufPos * 2] = leftIn;
+		m_buffer[m_bufPos * 2 + 1] = rightIn;
 
-		int32 writeOffset = (m_bufPos / 4096) % m_bufSize;
-		m_buffer[writeOffset * 2] = leftIn;
-		m_buffer[writeOffset * 2 + 1] = rightIn;
-
-		leftIn = mpt::abs(leftIn);
-		rightIn = mpt::abs(rightIn);
+		leftIn = std::abs(leftIn);
+		rightIn = std::abs(rightIn);
 
 		float mono = (leftIn + rightIn) * (0.5f * 32768.0f * 32768.0f);
-		float monoLog = mpt::abs(logGain(mono, 31, 5)) * (1.0f / float(1u << 31));
+		float monoLog = std::abs(logGain(mono, 31, 5)) * (1.0f / float(1u << 31));
 
 		float newPeak = monoLog + (m_peak - monoLog) * ((m_peak <= monoLog) ? m_attack : m_release);
 		m_peak = newPeak;
@@ -96,7 +89,7 @@ void Compressor::Process(float *pOutL, float *pOutR, uint32 numFrames)
 		}
 		compGainPow >>= (31 - compGainInt);
 		
-		int32 readOffset = m_predelay + m_bufPos + m_bufSize - 1;
+		int32 readOffset = m_predelay + m_bufPos * 4096 + m_bufSize - 1;
 		readOffset /= 4096;
 		readOffset %= m_bufSize;
 		
@@ -104,7 +97,8 @@ void Compressor::Process(float *pOutL, float *pOutR, uint32 numFrames)
 		*(out[0])++ = m_buffer[readOffset * 2] * outGain;
 		*(out[1])++ = m_buffer[readOffset * 2 + 1] * outGain;
 		
-		m_bufPos -= 4096;
+		if(m_bufPos-- == 0)
+			m_bufPos += m_bufSize;
 	}
 
 	ProcessMixOps(pOutL, pOutR, m_mixBuffer.GetOutputBuffer(0), m_mixBuffer.GetOutputBuffer(1), numFrames);
@@ -112,7 +106,6 @@ void Compressor::Process(float *pOutL, float *pOutR, uint32 numFrames)
 
 
 PlugParamValue Compressor::GetParameter(PlugParamIndex index)
-//-----------------------------------------------------------
 {
 	if(index < kCompNumParameters)
 	{
@@ -123,7 +116,6 @@ PlugParamValue Compressor::GetParameter(PlugParamIndex index)
 
 
 void Compressor::SetParameter(PlugParamIndex index, PlugParamValue value)
-//-----------------------------------------------------------------------
 {
 	if(index < kCompNumParameters)
 	{
@@ -135,15 +127,16 @@ void Compressor::SetParameter(PlugParamIndex index, PlugParamValue value)
 
 
 void Compressor::Resume()
-//-----------------------
 {
-	uint64 bufferSize = Util::mul32to64_unsigned(m_SndFile.GetSampleRate(), 200) / 1000;
-	if(bufferSize > uint64(int32_max))
-	{
-		m_bufSize = 0;
-		return;
-	}
-	m_bufSize = static_cast<int32>(bufferSize);
+	m_isResumed = true;
+	PositionChanged();
+	RecalculateCompressorParams();
+}
+
+
+void Compressor::PositionChanged()
+{
+	m_bufSize = Util::muldiv(m_SndFile.GetSampleRate(), 200, 1000);
 	try
 	{
 		m_buffer.assign(m_bufSize * 2, 0.0f);
@@ -152,18 +145,14 @@ void Compressor::Resume()
 		MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
 		m_bufSize = 0;
 	}
-
-	m_isResumed = true;
 	m_bufPos = 0;
 	m_peak = 0.0f;
-	RecalculateCompressorParams();
 }
 
 
 #ifdef MODPLUG_TRACKER
 
 CString Compressor::GetParamName(PlugParamIndex param)
-//----------------------------------------------------
 {
 	switch(param)
 	{
@@ -179,7 +168,6 @@ CString Compressor::GetParamName(PlugParamIndex param)
 
 
 CString Compressor::GetParamLabel(PlugParamIndex param)
-//-----------------------------------------------------
 {
 	switch(param)
 	{
@@ -196,7 +184,6 @@ CString Compressor::GetParamLabel(PlugParamIndex param)
 
 
 CString Compressor::GetParamDisplay(PlugParamIndex param)
-//-------------------------------------------------------
 {
 	float value = m_param[param];
 	switch(param)
@@ -221,7 +208,7 @@ CString Compressor::GetParamDisplay(PlugParamIndex param)
 		break;
 	}
 	CString s;
-	s.Format("%.2f", value);
+	s.Format(_T("%.2f"), value);
 	return s;
 }
 
@@ -229,15 +216,14 @@ CString Compressor::GetParamDisplay(PlugParamIndex param)
 
 
 void Compressor::RecalculateCompressorParams()
-//--------------------------------------------
 {
 	const float sampleRate = m_SndFile.GetSampleRate() / 1000.0f;
 	m_gain = std::pow(10.0f, GainInDecibel() / 20.0f);
 	m_attack = std::pow(10.0f, -1.0f / (AttackTime() * sampleRate));
 	m_release = std::pow(10.0f, -1.0f / (ReleaseTime() * sampleRate));
-	const double _2e31 = double(1u << 31);
-	const double _2e26 = double(1u << 26);
-	m_threshold = static_cast<float>(std::min((_2e31 - 1.0), (std::log(std::pow(10.0f, ThresholdInDecibel() / 20.0f) * _2e31) * _2e26) / M_LN2 + _2e26) * (1.0 / _2e31));
+	const float _2e31 = float(1u << 31);
+	const float _2e26 = float(1u << 26);
+	m_threshold = std::min((_2e31 - 1.0f), (std::log(std::pow(10.0f, ThresholdInDecibel() / 20.0f) * _2e31) * _2e26) / static_cast<float>(M_LN2) + _2e26) * (1.0f / _2e31);
 	m_ratio = 1.0f - (1.0f / CompressorRatio());
 	m_predelay = static_cast<int32>((PreDelay() * sampleRate) + 2.0f);
 }

@@ -25,10 +25,7 @@
 
 #elif defined(__clang__) && defined(_MSC_VER) && defined(__c2__)
 
-#define MPT_COMPILER_MSVCCLANGC2                     1
-#define MPT_COMPILER_MSVCCLANGC2_VERSION             (__c2_version__)
-#define MPT_MSVCCLANGC2_AT_LEAST(major,minor,build)  (MPT_COMPILER_MSVCCLANGC2_VERSION >= MPT_COMPILER_MAKE_VERSION3_BUILD((major),(minor),(build)))
-#define MPT_MSVCCLANGC2_BEFORE(major,minor,build)    (MPT_COMPILER_MSVCCLANGC2_VERSION <  MPT_COMPILER_MAKE_VERSION3_BUILD((major),(minor),(build)))
+#error "Clang/C2 is not supported. Please use Clang/LLVM for Windows instead."
 
 #elif defined(__clang__)
 
@@ -37,11 +34,11 @@
 #define MPT_CLANG_AT_LEAST(major,minor,patch)        (MPT_COMPILER_CLANG_VERSION >= MPT_COMPILER_MAKE_VERSION3((major),(minor),(patch)))
 #define MPT_CLANG_BEFORE(major,minor,patch)          (MPT_COMPILER_CLANG_VERSION <  MPT_COMPILER_MAKE_VERSION3((major),(minor),(patch)))
 
-#if MPT_CLANG_BEFORE(3,0,0)
-#error "clang version 3.0 required"
+#if MPT_CLANG_BEFORE(5,0,0)
+#error "clang version 5 required"
 #endif
 
-#if defined(__clang_analyzer__) 
+#if defined(__clang_analyzer__)
 #ifndef MPT_BUILD_ANALYZED
 #define MPT_BUILD_ANALYZED
 #endif
@@ -54,14 +51,44 @@
 #define MPT_GCC_AT_LEAST(major,minor,patch)          (MPT_COMPILER_GCC_VERSION >= MPT_COMPILER_MAKE_VERSION3((major),(minor),(patch)))
 #define MPT_GCC_BEFORE(major,minor,patch)            (MPT_COMPILER_GCC_VERSION <  MPT_COMPILER_MAKE_VERSION3((major),(minor),(patch)))
 
-#if MPT_GCC_BEFORE(4,4,0)
-#error "GCC version 4.4 required"
+#if MPT_GCC_BEFORE(7,1,0)
+#error "GCC version 7.1 required"
 #endif
 
 #elif defined(_MSC_VER)
 
 #define MPT_COMPILER_MSVC                            1
-#if (_MSC_VER >= 1900)
+#if (_MSC_VER >= 1926)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2019,6)
+#elif (_MSC_VER >= 1925)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2019,5)
+#elif (_MSC_VER >= 1924)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2019,4)
+#elif (_MSC_VER >= 1923)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2019,3)
+#elif (_MSC_VER >= 1922)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2019,2)
+#elif (_MSC_VER >= 1921)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2019,1)
+#elif (_MSC_VER >= 1920)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2019,0)
+#elif (_MSC_VER >= 1916)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2017,9)
+#elif (_MSC_VER >= 1915)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2017,8)
+#elif (_MSC_VER >= 1914)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2017,7)
+#elif (_MSC_VER >= 1913)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2017,6)
+#elif (_MSC_VER >= 1912)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2017,5)
+#elif (_MSC_VER >= 1911)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2017,3)
+#elif (_MSC_VER >= 1910)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2017,0)
+#elif (_MSC_VER >= 1900) && defined(_MSVC_LANG)
+#define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2015,3)
+#elif (_MSC_VER >= 1900)
 #define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2015,0)
 #elif (_MSC_VER >= 1800)
 #define MPT_COMPILER_MSVC_VERSION                    MPT_COMPILER_MAKE_VERSION2(2013,0)
@@ -77,8 +104,8 @@
 #define MPT_MSVC_AT_LEAST(version,sp)                (MPT_COMPILER_MSVC_VERSION >= MPT_COMPILER_MAKE_VERSION2((version),(sp)))
 #define MPT_MSVC_BEFORE(version,sp)                  (MPT_COMPILER_MSVC_VERSION <  MPT_COMPILER_MAKE_VERSION2((version),(sp)))
 
-#if MPT_MSVC_BEFORE(2010,0)
-#error "MSVC version 2010 required"
+#if MPT_MSVC_BEFORE(2017,9)
+#error "MSVC version 2017 15.9 required"
 #endif
 
 #if defined(_PREFAST_)
@@ -98,11 +125,6 @@
 #ifndef MPT_COMPILER_GENERIC
 #define MPT_COMPILER_GENERIC                  0
 #endif
-#ifndef MPT_COMPILER_MSVCCLANGC2
-#define MPT_COMPILER_MSVCCLANGC2                    0
-#define MPT_MSVCCLANGC2_AT_LEAST(major,minor,build) 0
-#define MPT_MSVCCLANGC2_BEFORE(major,minor,build)   0
-#endif
 #ifndef MPT_COMPILER_CLANG
 #define MPT_COMPILER_CLANG                    0
 #define MPT_CLANG_AT_LEAST(major,minor,patch) 0
@@ -121,59 +143,35 @@
 
 
 
-#if MPT_COMPILER_MSVC
-	#define MPT_PLATFORM_LITTLE_ENDIAN
-#elif MPT_COMPILER_GCC
-	#if MPT_GCC_AT_LEAST(4,6,0)
-		#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			#define MPT_PLATFORM_BIG_ENDIAN
-		#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-			#define MPT_PLATFORM_LITTLE_ENDIAN
-		#endif
-	#endif
-#elif MPT_COMPILER_CLANG || MPT_COMPILER_MSVCCLANGC2
-	#if MPT_CLANG_AT_LEAST(3,2,0)
-		#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			#define MPT_PLATFORM_BIG_ENDIAN
-		#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-			#define MPT_PLATFORM_LITTLE_ENDIAN
-		#endif
-	#endif
-#endif
+#if MPT_COMPILER_GENERIC || MPT_COMPILER_GCC || MPT_COMPILER_CLANG
 
-// fallback:
-#if !defined(MPT_PLATFORM_BIG_ENDIAN) && !defined(MPT_PLATFORM_LITTLE_ENDIAN)
-	// taken from boost/detail/endian.hpp
-	#if (defined(_BIG_ENDIAN) && !defined(_LITTLE_ENDIAN)) \
-		|| (defined(__BIG_ENDIAN__) && !defined(__LITTLE_ENDIAN__)) \
-		|| (defined(_STLP_BIG_ENDIAN) && !defined(_STLP_LITTLE_ENDIAN))
-			#define MPT_PLATFORM_BIG_ENDIAN
-	#elif (defined(_LITTLE_ENDIAN) && !defined(_BIG_ENDIAN)) \
-		|| (defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)) \
-		|| (defined(_STLP_LITTLE_ENDIAN) && !defined(_STLP_BIG_ENDIAN))
-			#define MPT_PLATFORM_LITTLE_ENDIAN
-	#elif defined(__sparc) || defined(__sparc__) \
-		|| defined(_POWER) || defined(__powerpc__) \
-		|| defined(__ppc__) || defined(__hpux) || defined(__hppa) \
-		|| defined(_MIPSEB) || defined(_POWER) \
-		|| defined(__s390__)
-			#define MPT_PLATFORM_BIG_ENDIAN
-	#elif defined(__i386__) || defined(__alpha__) \
-		|| defined(__ia64) || defined(__ia64__) \
-		|| defined(_M_IX86) || defined(_M_IA64) \
-		|| defined(_M_ALPHA) || defined(__amd64) \
-		|| defined(__amd64__) || defined(_M_AMD64) \
-		|| defined(__x86_64) || defined(__x86_64__) \
-		|| defined(_M_X64) || defined(__bfin__)
-			#define MPT_PLATFORM_LITTLE_ENDIAN
-	#endif
-#endif
-
-#if defined(MPT_PLATFORM_BIG_ENDIAN) || defined(MPT_PLATFORM_LITTLE_ENDIAN)
-#define MPT_PLATFORM_ENDIAN_KNOWN 1
+#if (__cplusplus >= 201703)
+#define MPT_CXX 17
 #else
-#define MPT_PLATFORM_ENDIAN_KNOWN 0
+#define MPT_CXX 17
 #endif
+
+#elif MPT_COMPILER_MSVC
+
+#if (_MSVC_LANG >= 201703)
+#define MPT_CXX 17
+#else
+#define MPT_CXX 17
+#endif
+
+#else
+
+#define MPT_CXX 17
+
+#endif
+
+// MPT_CXX is stricter than just using __cplusplus directly.
+// We will only claim a language version as supported IFF all core language and
+// library fatures that we need are actually supported AND working correctly
+// (to our needs).
+
+#define MPT_CXX_AT_LEAST(version) (MPT_CXX >= (version))
+#define MPT_CXX_BEFORE(version)   (MPT_CXX <  (version))
 
 
 
@@ -189,29 +187,6 @@
 
 
 
-#if MPT_GCC_BEFORE(4,5,0)
-#define MPT_COMPILER_QUIRK_RANDOM_TR1
-#endif
-
-
-
-// C++11 constexpr
-#if MPT_GCC_BEFORE(4,8,0) || MPT_CLANG_BEFORE(3,1,0) || MPT_MSVC_BEFORE(2015,0)
-// GCC 4.6 rejects valid code
-// GCC 4.7 crashes compiling FlagSet<T>
-#define MPT_COMPILER_HAS_CONSTEXPR11 0
-#endif
-
-#if MPT_COMPILER_MSVC
-#define MPT_COMPILER_QUIRK_CONSTEXPR_NO_STRING_LITERALS
-#endif
-
-#ifndef MPT_COMPILER_HAS_CONSTEXPR11
-#define MPT_COMPILER_HAS_CONSTEXPR11 1
-#endif
-
-
-
 #if MPT_COMPILER_MSVC
 // Compiler has multiplication/division semantics when shifting signed integers.
 #define MPT_COMPILER_SHIFT_SIGNED 1
@@ -223,40 +198,34 @@
 
 
 
-#if MPT_COMPILER_GCC || MPT_COMPILER_MSVC
-// Compiler supports type-punning through unions. This is not stricly standard-conforming.
-// For GCC, this is documented, for MSVC this is apparently not documented, but we assume it.
-#define MPT_COMPILER_UNION_TYPE_ALIASES 1
-#endif
-
-#ifndef MPT_COMPILER_UNION_TYPE_ALIASES
-// Compiler does not support type-punning through unions. std::memcpy is used instead.
-// This is the safe fallback and strictly standard-conforming.
-// Another standard-compliant alternative would be casting pointers to a character type pointer.
-// This results in rather unreadable code and,
-// in most cases, compilers generate better code by just inlining the memcpy anyway.
-// (see <http://blog.regehr.org/archives/959>).
-#define MPT_COMPILER_UNION_TYPE_ALIASES 0
-#endif
-
-
-
 // The order of the checks matters!
-#if defined(__EMSCRIPTEN__)
+#if defined(__DJGPP__)
+	#define MPT_OS_DJGPP 1
+#elif defined(__EMSCRIPTEN__)
 	#define MPT_OS_EMSCRIPTEN 1
 	#if defined(__EMSCRIPTEN_major__) && defined(__EMSCRIPTEN_minor__)
 		#if (__EMSCRIPTEN_major__ > 1)
-			#define MPT_OS_EMSCRIPTEN_ANCIENT 0
-		#elif (__EMSCRIPTEN_major__ == 1) && (__EMSCRIPTEN_minor__ >= 36)
-			#define MPT_OS_EMSCRIPTEN_ANCIENT 0
+			// ok
+		#elif (__EMSCRIPTEN_major__ == 1) && (__EMSCRIPTEN_minor__ > 39)
+			// ok
+		#elif (__EMSCRIPTEN_major__ == 1) && (__EMSCRIPTEN_minor__ == 39) && (__EMSCRIPTEN_tiny__ >= 7)
+			// ok
 		#else
-			#define MPT_OS_EMSCRIPTEN_ANCIENT 1
+			#error "Emscripten >= 1.39.7 is required."
 		#endif
-	#else
-		#define MPT_OS_EMSCRIPTEN_ANCIENT 1
 	#endif
 #elif defined(_WIN32)
 	#define MPT_OS_WINDOWS 1
+	#if defined(WINAPI_FAMILY)
+		#include <winapifamily.h>
+		#if (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
+			#define MPT_OS_WINDOWS_WINRT 0
+		#else
+			#define MPT_OS_WINDOWS_WINRT 1
+		#endif
+	#else // !WINAPI_FAMILY
+		#define MPT_OS_WINDOWS_WINRT 0
+	#endif // WINAPI_FAMILY
 #elif defined(__APPLE__)
 	#define MPT_OS_MACOSX_OR_IOS 1
 	//#include "TargetConditionals.h"
@@ -265,6 +234,8 @@
 	//#elif TARGET_OS_MAC
 	//#else
 	//#endif
+#elif defined(__HAIKU__)
+	#define MPT_OS_HAIKU 1
 #elif defined(__ANDROID__) || defined(ANDROID)
 	#define MPT_OS_ANDROID 1
 #elif defined(__linux__)
@@ -283,14 +254,23 @@
 	#define MPT_OS_UNKNOWN 1
 #endif
 
+#ifndef MPT_OS_DJGPP
+#define MPT_OS_DJGPP 0
+#endif
 #ifndef MPT_OS_EMSCRIPTEN
 #define MPT_OS_EMSCRIPTEN 0
 #endif
 #ifndef MPT_OS_WINDOWS
 #define MPT_OS_WINDOWS 0
 #endif
+#ifndef MPT_OS_WINDOWS_WINRT
+#define MPT_OS_WINDOWS_WINRT 0
+#endif
 #ifndef MPT_OS_MACOSX_OR_IOS
 #define MPT_OS_MACOSX_OR_IOS 0
+#endif
+#ifndef MPT_OS_HAIKU
+#define MPT_OS_HAIKU 0
 #endif
 #ifndef MPT_OS_ANDROID
 #define MPT_OS_ANDROID 0
@@ -323,7 +303,70 @@
 
 
 
-#if MPT_OS_EMSCRIPTEN
+#if (MPT_OS_DJGPP || MPT_OS_EMSCRIPTEN)
 #undef MPT_PLATFORM_MULTITHREADED
 #define MPT_PLATFORM_MULTITHREADED 0
+#endif
+
+
+#if MPT_OS_EMSCRIPTEN && defined(MPT_BUILD_AUDIOWORKLETPROCESSOR)
+#define MPT_COMPILER_QUIRK_CHRONO_NO_HIGH_RESOLUTION_CLOCK
+#define MPT_COMPILER_QUIRK_RANDOM_NO_RANDOM_DEVICE
+#endif
+
+
+#if MPT_OS_DJGPP
+#define MPT_COMPILER_QUIRK_NO_WCHAR
+#endif
+
+
+#if defined(__arm__)
+
+#if defined(__SOFTFP__)
+#define MPT_COMPILER_QUIRK_FLOAT_EMULATED 1
+#else
+#define MPT_COMPILER_QUIRK_FLOAT_EMULATED 0
+#endif
+#if defined(__VFP_FP__)
+// native-endian IEEE754
+#define MPT_COMPILER_QUIRK_FLOAT_NOTNATIVEENDIAN 0
+#define MPT_COMPILER_QUIRK_FLOAT_NOTIEEE754 0
+#elif defined(__MAVERICK__)
+// little-endian IEEE754, we assume native-endian though
+#define MPT_COMPILER_QUIRK_FLOAT_NOTNATIVEENDIAN 1
+#define MPT_COMPILER_QUIRK_FLOAT_NOTIEEE754 0
+#else
+// not IEEE754
+#define MPT_COMPILER_QUIRK_FLOAT_NOTNATIVEENDIAN 1
+#define MPT_COMPILER_QUIRK_FLOAT_NOTIEEE754 1
+#endif
+
+#elif defined(__mips__)
+
+#if defined(__mips_soft_float)
+#define MPT_COMPILER_QUIRK_FLOAT_EMULATED 1
+#else
+#define MPT_COMPILER_QUIRK_FLOAT_EMULATED 0
+#endif
+
+#endif
+
+#if MPT_OS_EMSCRIPTEN
+#define MPT_COMPILER_QUIRK_FLOAT_PREFER64 1
+#endif
+
+#ifndef MPT_COMPILER_QUIRK_FLOAT_PREFER32
+#define MPT_COMPILER_QUIRK_FLOAT_PREFER32 0
+#endif
+#ifndef MPT_COMPILER_QUIRK_FLOAT_PREFER64
+#define MPT_COMPILER_QUIRK_FLOAT_PREFER64 0
+#endif
+#ifndef MPT_COMPILER_QUIRK_FLOAT_EMULATED
+#define MPT_COMPILER_QUIRK_FLOAT_EMULATED 0
+#endif
+#ifndef MPT_COMPILER_QUIRK_FLOAT_NOTNATIVEENDIAN
+#define MPT_COMPILER_QUIRK_FLOAT_NOTNATIVEENDIAN 0
+#endif
+#ifndef MPT_COMPILER_QUIRK_FLOAT_NOTIEEE754
+#define MPT_COMPILER_QUIRK_FLOAT_NOTIEEE754 0
 #endif

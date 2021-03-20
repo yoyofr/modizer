@@ -24,8 +24,7 @@ OPENMPT_NAMESPACE_BEGIN
 // [in]  length: number of characters that should be read, not including a possible trailing null terminator (it is automatically appended).
 // [in]  lineEnding: line ending formatting of the text in memory.
 // [out] returns true on success.
-bool SongMessage::Read(const mpt::byte *data, size_t length, LineEnding lineEnding)
-//---------------------------------------------------------------------------------
+bool SongMessage::Read(const std::byte *data, size_t length, LineEnding lineEnding)
 {
 	const char *str = mpt::byte_cast<const char *>(data);
 	while(length != 0 && str[length - 1] == '\0')
@@ -107,7 +106,6 @@ bool SongMessage::Read(const mpt::byte *data, size_t length, LineEnding lineEndi
 
 
 bool SongMessage::Read(FileReader &file, const size_t length, LineEnding lineEnding)
-//----------------------------------------------------------------------------------
 {
 	FileReader::off_t readLength = std::min(static_cast<FileReader::off_t>(length), file.BytesLeft());
 	FileReader::PinnedRawDataView fileView = file.ReadPinnedRawDataView(readLength);
@@ -122,43 +120,42 @@ bool SongMessage::Read(FileReader &file, const size_t length, LineEnding lineEnd
 // [in]  lineLength: The fixed length of a line.
 // [in]  lineEndingLength: The padding space between two fixed lines. (there could for example be a null char after every line)
 // [out] returns true on success.
-bool SongMessage::ReadFixedLineLength(const mpt::byte *data, const size_t length, const size_t lineLength, const size_t lineEndingLength)
-//---------------------------------------------------------------------------------------------------------------------------------------
+bool SongMessage::ReadFixedLineLength(const std::byte *data, const size_t length, const size_t lineLength, const size_t lineEndingLength)
 {
-	const char *str = mpt::byte_cast<const char *>(data);
 	if(lineLength == 0)
 		return false;
-
-	const size_t numLines = (length / (lineLength + lineEndingLength));
-	const size_t finalLength = numLines * (lineLength + 1);
 	clear();
-	reserve(finalLength);
+	reserve(length);
 
-	for(size_t line = 0, fpos = 0, cpos = 0; line < numLines; line++, fpos += (lineLength + lineEndingLength), cpos += (lineLength + 1))
+	size_t readPos = 0, writePos = 0;
+	while(readPos < length)
 	{
-		append(str + fpos, std::min(lineLength, length - fpos));
+		size_t thisLineLength = std::min(lineLength, length - readPos);
+		append(mpt::byte_cast<const char *>(data) + readPos, thisLineLength);
 		append(1, InternalLineEnding);
 
-		// fix weird chars
-		for(size_t lpos = 0; lpos < lineLength; lpos++)
+		// Fix weird chars
+		for(size_t pos = writePos; pos < writePos + thisLineLength; pos++)
 		{
-			switch(at(cpos + lpos))
+			switch(at(pos))
 			{
 			case '\0':
 			case '\n':
 			case '\r':
-				at(cpos + lpos) = ' ';
+				at(pos) = ' ';
 				break;
 			}
 
 		}
+
+		readPos += thisLineLength + std::min(lineEndingLength, length - readPos - thisLineLength);
+		writePos += thisLineLength + 1;
 	}
 	return true;
 }
 
 
 bool SongMessage::ReadFixedLineLength(FileReader &file, const size_t length, const size_t lineLength, const size_t lineEndingLength)
-//----------------------------------------------------------------------------------------------------------------------------------
 {
 	FileReader::off_t readLength = std::min(static_cast<FileReader::off_t>(length), file.BytesLeft());
 	FileReader::PinnedRawDataView fileView = file.ReadPinnedRawDataView(readLength);
@@ -171,21 +168,12 @@ bool SongMessage::ReadFixedLineLength(FileReader &file, const size_t length, con
 // [in]  lineEnding: line ending formatting of the text in memory.
 // [out] returns formatted song message.
 std::string SongMessage::GetFormatted(const LineEnding lineEnding) const
-//----------------------------------------------------------------------
 {
 	std::string comments;
-
-	if(empty())
+	comments.reserve(length());
+	for(auto c : *this)
 	{
-		return comments;
-	}
-
-	const size_t len = length();
-	comments.reserve(len);
-
-	for(size_t i = 0; i < len; i++)
-	{
-		if(at(i) == InternalLineEnding)
+		if(c == InternalLineEnding)
 		{
 			switch(lineEnding)
 			{
@@ -205,7 +193,7 @@ std::string SongMessage::GetFormatted(const LineEnding lineEnding) const
 			}
 		} else
 		{
-			comments.push_back(at(i));
+			comments.push_back(c);
 		}
 	}
 	return comments;
@@ -215,7 +203,7 @@ std::string SongMessage::GetFormatted(const LineEnding lineEnding) const
 bool SongMessage::SetFormatted(std::string message, LineEnding lineEnding)
 {
 	MPT_ASSERT(lineEnding == leLF || lineEnding == leCR || lineEnding == leCRLF);
-	switch (lineEnding)
+	switch(lineEnding)
 	{
 	case leLF:
 		message = mpt::String::Replace(message, "\n", std::string(1, InternalLineEnding));
@@ -234,7 +222,7 @@ bool SongMessage::SetFormatted(std::string message, LineEnding lineEnding)
 	{
 		return false;
 	}
-	assign(message);
+	assign(std::move(message));
 	return true;
 }
 

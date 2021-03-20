@@ -14,9 +14,7 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-//=======================================
-class DigiBoosterEcho : public IMixPlugin
-//=======================================
+class DigiBoosterEcho final : public IMixPlugin
 {
 public:
 	enum Parameters
@@ -34,15 +32,20 @@ public:
 		char  id[4];
 		uint8 param[kEchoNumParameters];
 
-		PluginChunk(uint8 delay = 80, uint8 feedback = 150, uint8 mix = 80, uint8 cross = 255)
+		static PluginChunk Create(uint8 delay, uint8 feedback, uint8 mix, uint8 cross)
 		{
-			memcpy(id, "Echo", 4);
-			param[kEchoDelay] = delay;
-			param[kEchoFeedback] = feedback;
-			param[kEchoMix] = mix;
-			param[kEchoCross] = cross;
-
-			STATIC_ASSERT(sizeof(PluginChunk) == 8);
+			static_assert(sizeof(PluginChunk) == 8);
+			PluginChunk result;
+			memcpy(result.id, "Echo", 4);
+			result.param[kEchoDelay] = delay;
+			result.param[kEchoFeedback] = feedback;
+			result.param[kEchoMix] = mix;
+			result.param[kEchoCross] = cross;
+			return result;
+		}
+		static PluginChunk Default()
+		{
+			return Create(80, 150, 80, 255);
 		}
 	};
 
@@ -59,60 +62,60 @@ protected:
 	float m_NCrossPBack, m_NCrossNBack;
 
 	// Settings chunk for file I/O
-	PluginChunk chunk;
+	PluginChunk m_chunk;
 
 public:
 	static IMixPlugin* Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
 	DigiBoosterEcho(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct);
 
-	virtual void Release() { delete this; }
-	virtual void SaveAllParameters();
-	virtual void RestoreAllParameters(int32 program);
-	virtual int32 GetUID() const { int32 id; memcpy(&id, "Echo", 4); return id; }
-	virtual int32 GetVersion() const { return 0; }
-	virtual void Idle() { }
-	virtual uint32 GetLatency() const { return 0; }
+	void Release() override { delete this; }
+	void SaveAllParameters() override;
+	void RestoreAllParameters(int32 program) override;
+	int32 GetUID() const override { int32le id; memcpy(&id, "Echo", 4); return id; }
+	int32 GetVersion() const override { return 0; }
+	void Idle() override { }
+	uint32 GetLatency() const override { return 0; }
 
-	virtual void Process(float *pOutL, float *pOutR, uint32 numFrames);
+	void Process(float *pOutL, float *pOutR, uint32 numFrames) override;
 
-	virtual float RenderSilence(uint32) { return 0.0f; }
+	float RenderSilence(uint32) override { return 0.0f; }
 
-	virtual int32 GetNumPrograms() const { return 0; }
-	virtual int32 GetCurrentProgram() { return 0; }
-	virtual void SetCurrentProgram(int32) { }
+	int32 GetNumPrograms() const override { return 0; }
+	int32 GetCurrentProgram() override { return 0; }
+	void SetCurrentProgram(int32) override { }
 
-	virtual PlugParamIndex GetNumParameters() const { return kEchoNumParameters; }
-	virtual PlugParamValue GetParameter(PlugParamIndex index);
-	virtual void SetParameter(PlugParamIndex index, PlugParamValue value);
+	PlugParamIndex GetNumParameters() const override { return kEchoNumParameters; }
+	PlugParamValue GetParameter(PlugParamIndex index) override;
+	void SetParameter(PlugParamIndex index, PlugParamValue value) override;
 
-	virtual void Resume();
-	virtual void Suspend() { m_isResumed = false; }
-	virtual void PositionChanged() { }
+	void Resume() override;
+	void Suspend() override { m_isResumed = false; }
+	void PositionChanged() override;
 
-	virtual bool IsInstrument() const { return false; }
-	virtual bool CanRecieveMidiEvents() { return false; }
-	virtual bool ShouldProcessSilence() { return true; }
+	bool IsInstrument() const override { return false; }
+	bool CanRecieveMidiEvents() override { return false; }
+	bool ShouldProcessSilence() override { return true; }
 
 #ifdef MODPLUG_TRACKER
-	virtual CString GetDefaultEffectName() { return _T("Echo"); }
+	CString GetDefaultEffectName() override { return _T("Echo"); }
 
-	virtual CString GetParamName(PlugParamIndex param);
-	virtual CString GetParamLabel(PlugParamIndex);
-	virtual CString GetParamDisplay(PlugParamIndex param);
+	CString GetParamName(PlugParamIndex param) override;
+	CString GetParamLabel(PlugParamIndex) override;
+	CString GetParamDisplay(PlugParamIndex param) override;
 
-	virtual CString GetCurrentProgramName() { return CString(); }
-	virtual void SetCurrentProgramName(const CString &) { }
-	virtual CString GetProgramName(int32) { return CString(); }
+	CString GetCurrentProgramName() override { return CString(); }
+	void SetCurrentProgramName(const CString &) override { }
+	CString GetProgramName(int32) override { return CString(); }
 
-	virtual bool HasEditor() const { return false; }
+	bool HasEditor() const override { return false; }
 #endif
 
-	virtual int GetNumInputChannels() const { return 2; }
-	virtual int GetNumOutputChannels() const { return 2; }
+	int GetNumInputChannels() const override { return 2; }
+	int GetNumOutputChannels() const override { return 2; }
 
-	virtual bool ProgramsAreChunks() const { return true; }
-	virtual size_t GetChunk(char *(&data), bool);
-	virtual void SetChunk(size_t size, char *data, bool);
+	bool ProgramsAreChunks() const override { return true; }
+	ChunkData GetChunk(bool) override;
+	void SetChunk(const ChunkData &chunk, bool) override;
 
 protected:
 	void RecalculateEchoParams();

@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "BuildSettings.h"
+
 OPENMPT_NAMESPACE_BEGIN
 
 #if defined(MODPLUG_TRACKER)
@@ -40,6 +42,7 @@ public:
 	};
 public:
 	CriticalSection();
+	CriticalSection(CriticalSection &&other) noexcept;
 	explicit CriticalSection(InitialState state);
 	void Enter();
 	void Leave();
@@ -58,7 +61,8 @@ public:
 	};
 public:
 	CriticalSection() {}
-	explicit CriticalSection(InitialState state) { MPT_UNREFERENCED_PARAMETER(state); }
+	CriticalSection(CriticalSection &&) noexcept {}
+	explicit CriticalSection(InitialState) {}
 	void Enter() {}
 	void Leave() {}
 	~CriticalSection() {}

@@ -5,7 +5,6 @@
 # vim swap file
 .*.swp
 #Resources
-modizer/Resources/DB/databaseMAIN.modizerdb
 # libs
 *.a
 # certificates
@@ -18,95 +17,16 @@ modizer/modizer.xcodeproj/project.xcworkspace/xcuserdata/ymagnien.xcuserdatad/Us
 modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcschemes/modizer.xcscheme
 
 #temp data / database creation
-modizer/Resources/DB/allmods.txt
-modizer/Resources/DB/BUGlist.txt
-modizer/Resources/DB/Creators.txt
-modizer/Resources/DB/Musicians.txt
-modizer/Resources/DB/SID_file_format.txt
-modizer/Resources/DB/comp*.txt
-modizer/Resources/DB/hv_sids.faq
-modizer/Resources/DB/hv_sids.txt
-modizer/Resources/DB/Disclaimer.txt
-modizer/Resources/DB/HVSC.faq
-modizer/Resources/DB/hvsc_pathmd5.txt
-modizer/Resources/DB/hvsc_songl.txt
-modizer/Resources/DB/HVSC.txt
-modizer/Resources/DB/hvsc*.txt
-modizer/Resources/DB/ASMA/online_rep/*
-
 *.xcbkptlist
 
 modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcdebugger/Breakpoints.xcbkptlist
 
-libgsf/libgsf/libgsf.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/libgsf.xcscheme
-
-libmodplug/libmodplug.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/libmodplug.xcscheme
-
-libmodplug/libmodplug.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/xcschememanagement.plist
-
-libsidplay1/libsidplay1.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/libsidplay1.xcscheme
-
-libsidplay1/libsidplay1.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/xcschememanagement.plist
-
 modizer/modizer.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/modizer.xcscheme
-
-File_Extractor-1.0.0/libFileExtractor/libFileExtractor.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/libFileExtractor.xcscheme
-
-modizer/Resources/DB/allmods_20150305.zip
-
-modizer/Resources/DB/conv.tmp
-
-modizer/Resources/DB/conv1.tmp
-
-modizer/Resources/backgrounds/1237346308 - copie.jpg
-
-modizer/Resources/Images/slider - copie.png
-
-modizer/Resources/Images/slider@2x - copie.png
 
 modizer/Resources/DB/ASMA/Asma.txt
 
 modizer/Resources/DB/ASMA/trunk/*
 
-modizer/Resources/DB/ASMA/Composers.txt
-
-modizer/Resources/DB/ASMA/Update38.txt
-
-modizer/Resources/DB/conv1.sh
-
-modizer/Resources/DB/database.modizerdb.old
-
-modizer/Resources/DB/allmods02012017.zip
-
-modizer/Resources/DB/d.zip
-
 modizer/Resources/DB/database.modizerdb
 
-modizer/Resources/DB/databaseMAIN.modizerdb.bak
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/*
-
-libopenmpt/openmpt-trunk/.svn/*
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-zlib.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-ogg.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/liblibopenmpt.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-vorbis.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Debug/libopenmpt-zlib.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/liblibopenmpt.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-vorbis.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-zlib.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/liblibopenmpt.a
-
-libopenmpt/openmpt-trunk/build/lib/xcode4/x86_64/Release/libopenmpt-ogg.a
-
-
-lib2sf/2sf/2sf.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+modizer/Resources/DB/databaseMAIN.modizerdb

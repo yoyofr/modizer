@@ -40,29 +40,11 @@ const CModDoc *IMixPlugin::GetModDoc() const { return m_SndFile.GetpModDoc(); }
 
 
 IMixPlugin::IMixPlugin(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
-//-----------------------------------------------------------------------------------------
-	: m_pNext(nullptr)
-	, m_pPrev(nullptr)
-	, m_Factory(factory)
+	: m_Factory(factory)
 	, m_SndFile(sndFile)
 	, m_pMixStruct(mixStruct)
-#ifdef MODPLUG_TRACKER
-	, m_pEditor(nullptr)
-#endif // MODPLUG_TRACKER
-	, m_fGain(1.0f)
-	, m_nSlot(0)
-	, m_isSongPlaying(false)
-	, m_isResumed(false)
-	, m_recordAutomation(false)
-	, m_passKeypressesToPlug(false)
-	, m_recordMIDIOut(false)
 {
 	m_MixState.pMixBuffer = (mixsample_t *)((((intptr_t)m_MixBuffer) + 7) & ~7);
-
-	m_MixState.dwFlags = 0;
-	m_MixState.nVolDecayL = 0;
-	m_MixState.nVolDecayR = 0;
-
 	while(m_pMixStruct != &(m_SndFile.m_MixPlugins[m_nSlot]) && m_nSlot < MAX_MIXPLUGINS - 1)
 	{
 		m_nSlot++;
@@ -71,7 +53,6 @@ IMixPlugin::IMixPlugin(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN 
 
 
 IMixPlugin::~IMixPlugin()
-//-----------------------
 {
 #ifdef MODPLUG_TRACKER
 	CloseEditor();
@@ -94,7 +75,6 @@ IMixPlugin::~IMixPlugin()
 
 
 void IMixPlugin::InsertIntoFactoryList()
-//--------------------------------------
 {
 	m_pMixStruct->pMixPlugin = this;
 
@@ -110,7 +90,6 @@ void IMixPlugin::InsertIntoFactoryList()
 #ifdef MODPLUG_TRACKER
 
 void IMixPlugin::SetSlot(PLUGINDEX slot)
-//--------------------------------------
 {
 	m_nSlot = slot;
 	m_pMixStruct = &m_SndFile.m_MixPlugins[slot];
@@ -118,16 +97,15 @@ void IMixPlugin::SetSlot(PLUGINDEX slot)
 
 
 CString IMixPlugin::GetFormattedParamName(PlugParamIndex param)
-//-------------------------------------------------------------
 {
 	CString paramName = GetParamName(param);
 	CString name;
 	if(paramName.IsEmpty())
 	{
-		name.Format(_T("%02u: Parameter %02u"), param, param);
+		name = mpt::cformat(_T("%1: Parameter %2"))(mpt::cfmt::dec0<2>(param), mpt::cfmt::dec0<2>(param));
 	} else
 	{
-		name.Format(_T("%02u: %s"), param, paramName);
+		name = mpt::cformat(_T("%1: %2"))(mpt::cfmt::dec0<2>(param), paramName);
 	}
 	return name;
 }
@@ -135,7 +113,6 @@ CString IMixPlugin::GetFormattedParamName(PlugParamIndex param)
 
 // Get a parameter's current value, represented by the plugin.
 CString IMixPlugin::GetFormattedParamValue(PlugParamIndex param)
-//--------------------------------------------------------------
 {
 
 	CString paramDisplay = GetParamDisplay(param);
@@ -149,7 +126,6 @@ CString IMixPlugin::GetFormattedParamValue(PlugParamIndex param)
 
 
 CString IMixPlugin::GetFormattedProgramName(int32 index)
-//------------------------------------------------------
 {
 	CString rawname = GetProgramName(index);
 	
@@ -157,17 +133,16 @@ CString IMixPlugin::GetFormattedProgramName(int32 index)
 	index++;
 
 	CString formattedName;
-	if((unsigned char)rawname[0] < ' ')
-		formattedName.Format("%02u - Program %u", index, index);
+	if(rawname[0] >= 0 && rawname[0] < _T(' '))
+		formattedName = mpt::cformat(_T("%1 - Program %2"))(mpt::cfmt::dec0<2>(index), index);
 	else
-		formattedName.Format("%02u - %s", index, rawname);
+		formattedName = mpt::cformat(_T("%1 - %2"))(mpt::cfmt::dec0<2>(index), rawname);
 
 	return formattedName;
 }
 
 
 void IMixPlugin::SetEditorPos(int32 x, int32 y)
-//---------------------------------------------
 {
 	m_pMixStruct->editorX = x;
 	m_pMixStruct->editorY = y;
@@ -175,7 +150,6 @@ void IMixPlugin::SetEditorPos(int32 x, int32 y)
 
 
 void IMixPlugin::GetEditorPos(int32 &x, int32 &y) const
-//-----------------------------------------------------
 {
 	x = m_pMixStruct->editorX;
 	y = m_pMixStruct->editorY;
@@ -186,14 +160,12 @@ void IMixPlugin::GetEditorPos(int32 &x, int32 &y) const
 
 
 bool IMixPlugin::IsBypassed() const
-//---------------------------------
 {
 	return m_pMixStruct != nullptr && m_pMixStruct->IsBypassed();
 }
 
 
 void IMixPlugin::RecalculateGain()
-//--------------------------------
 {
 	float gain = 0.1f * static_cast<float>(m_pMixStruct ? m_pMixStruct->GetGain() : 10);
 	if(gain < 0.1f) gain = 1.0f;
@@ -208,7 +180,6 @@ void IMixPlugin::RecalculateGain()
 
 
 void IMixPlugin::SetDryRatio(uint32 param)
-//----------------------------------------
 {
 	param = std::min(param, uint32(127));
 	m_pMixStruct->fDryRatio = 1.0f - (param / 127.0f);
@@ -216,19 +187,17 @@ void IMixPlugin::SetDryRatio(uint32 param)
 
 
 void IMixPlugin::Bypass(bool bypass)
-//----------------------------------
 {
 	m_pMixStruct->Info.SetBypass(bypass);
 
 #ifdef MODPLUG_TRACKER
 	if(m_SndFile.GetpModDoc())
-		m_SndFile.GetpModDoc()->UpdateAllViews(nullptr, PluginHint(m_nSlot).Info(), nullptr);
+		m_SndFile.GetpModDoc()->UpdateAllViews(nullptr, PluginHint(m_nSlot + 1).Info(), nullptr);
 #endif // MODPLUG_TRACKER
 }
 
 
 double IMixPlugin::GetOutputLatency() const
-//-----------------------------------------
 {
 	if(GetSoundFile().IsRenderingToDisc())
 		return 0;
@@ -237,8 +206,7 @@ double IMixPlugin::GetOutputLatency() const
 }
 
 
-void IMixPlugin::ProcessMixOps(float *pOutL, float *pOutR, float *leftPlugOutput, float *rightPlugOutput, uint32 numFrames) const
-//-------------------------------------------------------------------------------------------------------------------------------
+void IMixPlugin::ProcessMixOps(float * MPT_RESTRICT pOutL, float * MPT_RESTRICT pOutR, float * MPT_RESTRICT leftPlugOutput, float * MPT_RESTRICT rightPlugOutput, uint32 numFrames)
 {
 /*	float *leftPlugOutput;
 	float *rightPlugOutput;
@@ -290,8 +258,8 @@ void IMixPlugin::ProcessMixOps(float *pOutL, float *pOutR, float *leftPlugOutput
 	wetRatio *= m_fGain;
 	dryRatio *= m_fGain;
 
-	float *plugInputL = m_mixBuffer.GetInputBuffer(0);
-	float *plugInputR = m_mixBuffer.GetInputBuffer(1);
+	float * MPT_RESTRICT plugInputL = m_mixBuffer.GetInputBuffer(0);
+	float * MPT_RESTRICT plugInputR = m_mixBuffer.GetInputBuffer(1);
 
 	// Mix operation
 	switch(mixop)
@@ -375,7 +343,6 @@ void IMixPlugin::ProcessMixOps(float *pOutL, float *pOutR, float *leftPlugOutput
 
 // Render some silence and return maximum level returned by the plugin.
 float IMixPlugin::RenderSilence(uint32 numFrames)
-//-----------------------------------------------
 {
 	// The JUCE framework doesn't like processing while being suspended.
 	const bool wasSuspended = !IsResumed();
@@ -391,7 +358,7 @@ float IMixPlugin::RenderSilence(uint32 numFrames)
 	while(numFrames > 0)
 	{
 		uint32 renderSamples = numFrames;
-		LimitMax(renderSamples, CountOf(out[0]));
+		LimitMax(renderSamples, mpt::saturate_cast<uint32>(MPT_ARRAY_COUNT(out[0])));
 		MemsetZero(out);
 
 		Process(out[0], out[1], renderSamples);
@@ -415,7 +382,6 @@ float IMixPlugin::RenderSilence(uint32 numFrames)
 
 // Get list of plugins to which output is sent. A nullptr indicates master output.
 size_t IMixPlugin::GetOutputPlugList(std::vector<IMixPlugin *> &list)
-//-------------------------------------------------------------------
 {
 	// At the moment we know there will only be 1 output.
 	// Returning nullptr means plugin outputs directly to master.
@@ -438,7 +404,6 @@ size_t IMixPlugin::GetOutputPlugList(std::vector<IMixPlugin *> &list)
 
 // Get a list of plugins that send data to this plugin.
 size_t IMixPlugin::GetInputPlugList(std::vector<IMixPlugin *> &list)
-//------------------------------------------------------------------
 {
 	std::vector<IMixPlugin *> candidatePlugOutputs;
 	list.clear();
@@ -450,9 +415,9 @@ size_t IMixPlugin::GetInputPlugList(std::vector<IMixPlugin *> &list)
 		{
 			candidatePlug->GetOutputPlugList(candidatePlugOutputs);
 
-			for(auto iter = candidatePlugOutputs.begin(); iter != candidatePlugOutputs.end(); iter++)
+			for(auto &outPlug : candidatePlugOutputs)
 			{
-				if(*iter == this)
+				if(outPlug == this)
 				{
 					list.push_back(candidatePlug);
 					break;
@@ -467,7 +432,6 @@ size_t IMixPlugin::GetInputPlugList(std::vector<IMixPlugin *> &list)
 
 // Get a list of instruments that send data to this plugin.
 size_t IMixPlugin::GetInputInstrumentList(std::vector<INSTRUMENTINDEX> &list)
-//---------------------------------------------------------------------------
 {
 	list.clear();
 	const PLUGINDEX nThisMixPlug = m_nSlot + 1;		//m_nSlot is position in mixplug array.
@@ -485,7 +449,6 @@ size_t IMixPlugin::GetInputInstrumentList(std::vector<INSTRUMENTINDEX> &list)
 
 
 size_t IMixPlugin::GetInputChannelList(std::vector<CHANNELINDEX> &list)
-//---------------------------------------------------------------------
 {
 	list.clear();
 
@@ -505,7 +468,6 @@ size_t IMixPlugin::GetInputChannelList(std::vector<CHANNELINDEX> &list)
 
 
 void IMixPlugin::SaveAllParameters()
-//----------------------------------
 {
 	if (m_pMixStruct == nullptr)
 	{
@@ -514,48 +476,42 @@ void IMixPlugin::SaveAllParameters()
 	m_pMixStruct->defaultProgram = -1;
 	
 	// Default implementation: Save all parameter values
-	PlugParamIndex numParams = std::min<uint32>(GetNumParameters(), (std::numeric_limits<uint32>::max() - sizeof(uint32)) / sizeof(IEEE754binary32LE));
+	PlugParamIndex numParams = std::min(GetNumParameters(), static_cast<int32>((std::numeric_limits<uint32>::max() - sizeof(uint32)) / sizeof(IEEE754binary32LE)));
 	uint32 nLen = numParams * sizeof(IEEE754binary32LE);
 	if (!nLen) return;
 	nLen += sizeof(uint32);
-	if ((m_pMixStruct->pPluginData) && (m_pMixStruct->nPluginDataSize >= nLen))
+
+	try
 	{
-		m_pMixStruct->nPluginDataSize = nLen;
-	} else
-	{
-		if (m_pMixStruct->pPluginData) delete[] m_pMixStruct->pPluginData;
-		m_pMixStruct->nPluginDataSize = 0;
-		m_pMixStruct->pPluginData = new (std::nothrow) char[nLen];
-		if (m_pMixStruct->pPluginData)
-		{
-			m_pMixStruct->nPluginDataSize = nLen;
-		}
-	}
-	if (m_pMixStruct->pPluginData != nullptr)
-	{
-		std::pair<mpt::span<char>, mpt::IO::Offset> memFile = std::make_pair(mpt::as_span(m_pMixStruct->pPluginData, nLen), 0);
+		m_pMixStruct->pluginData.resize(nLen);
+		auto memFile = std::make_pair(mpt::as_span(m_pMixStruct->pluginData), mpt::IO::Offset(0));
 		mpt::IO::WriteIntLE<uint32>(memFile, 0);	// Plugin data type
+		BeginGetProgram();
 		for(PlugParamIndex i = 0; i < numParams; i++)
 		{
 			mpt::IO::Write(memFile, IEEE754binary32LE(GetParameter(i)));
 		}
+		EndGetProgram();
+	} MPT_EXCEPTION_CATCH_OUT_OF_MEMORY(e)
+	{
+		m_pMixStruct->pluginData.clear();
+		MPT_EXCEPTION_DELETE_OUT_OF_MEMORY(e);
 	}
 }
 
 
 void IMixPlugin::RestoreAllParameters(int32 /*program*/)
-//------------------------------------------------------
 {
-	if(m_pMixStruct != nullptr && m_pMixStruct->pPluginData != nullptr && m_pMixStruct->nPluginDataSize >= sizeof(uint32))
+	if(m_pMixStruct != nullptr && m_pMixStruct->pluginData.size() >= sizeof(uint32))
 	{
-		FileReader memFile(mpt::as_span(mpt::byte_cast<const mpt::byte *>(m_pMixStruct->pPluginData), m_pMixStruct->nPluginDataSize));
+		FileReader memFile(mpt::as_span(m_pMixStruct->pluginData));
 		uint32 type = memFile.ReadUint32LE();
 		if(type == 0)
 		{
 			const uint32 numParams = GetNumParameters();
-			if((m_pMixStruct->nPluginDataSize - sizeof(uint32)) >= (numParams * sizeof(IEEE754binary32LE)))
+			if((m_pMixStruct->pluginData.size() - sizeof(uint32)) >= (numParams * sizeof(IEEE754binary32LE)))
 			{
-				BeginSetProgram(-1);
+				BeginSetProgram();
 				for(uint32 i = 0; i < numParams; i++)
 				{
 					SetParameter(i, memFile.ReadFloatLE());
@@ -569,7 +525,6 @@ void IMixPlugin::RestoreAllParameters(int32 /*program*/)
 
 #ifdef MODPLUG_TRACKER
 void IMixPlugin::ToggleEditor()
-//-----------------------------
 {
 	// We only really need this mutex for bridged plugins, as we may be processing window messages (in the same thread) while the editor opens.
 	// The user could press the toggle button while the editor is loading and thus close the editor while still being initialized.
@@ -595,7 +550,6 @@ void IMixPlugin::ToggleEditor()
 
 // Provide default plugin editor
 CAbstractVstEditor *IMixPlugin::OpenEditor()
-//------------------------------------------
 {
 	try
 	{
@@ -609,7 +563,6 @@ CAbstractVstEditor *IMixPlugin::OpenEditor()
 
 
 void IMixPlugin::CloseEditor()
-//----------------------------
 {
 	if(m_pEditor)
 	{
@@ -622,7 +575,6 @@ void IMixPlugin::CloseEditor()
 
 // Automate a parameter from the plugin GUI (both custom and default plugin GUI)
 void IMixPlugin::AutomateParameter(PlugParamIndex param)
-//------------------------------------------------------
 {
 	CModDoc *modDoc = GetModDoc();
 	if(modDoc == nullptr)
@@ -638,48 +590,51 @@ void IMixPlugin::AutomateParameter(PlugParamIndex param)
 		modDoc->RecordParamChange(GetSlot(), param);
 	}
 
-	modDoc->PostMessageToAllViews(WM_MOD_PLUGPARAMAUTOMATE, m_nSlot, param);
-	// TODO: This should rather be posted to the GUI thread!
-	CAbstractVstEditor *pVstEditor = GetEditor();
+	modDoc->SendNotifyMessageToAllViews(WM_MOD_PLUGPARAMAUTOMATE, m_nSlot, param);
 
-	if(pVstEditor && pVstEditor->m_hWnd)
+	if(auto *vstEditor = GetEditor(); vstEditor && vstEditor->m_hWnd)
 	{
 		// Mark track modified if GUI is open and format supports plugins
-		if(m_SndFile.GetModSpecifications().supportsPlugins)
-		{
-			CMainFrame::GetMainFrame()->ThreadSafeSetModified(modDoc);
-		}
+		SetModified();
 
-
-		if (CMainFrame::GetInputHandler()->ShiftPressed())
+		// Do not use InputHandler in case we are coming from a bridged plugin editor
+		if((GetAsyncKeyState(VK_SHIFT) & 0x8000) && TrackerSettings::Instance().midiMappingInPluginEditor)
 		{
 			// Shift pressed -> Open MIDI mapping dialog
-			CMainFrame::GetInputHandler()->SetModifierMask(0); // Make sure that the dialog will open only once.
 			CMainFrame::GetMainFrame()->PostMessage(WM_MOD_MIDIMAPPING, m_nSlot, param);
 		}
 
 		// Learn macro
-		int macroToLearn = pVstEditor->GetLearnMacro();
+		int macroToLearn = vstEditor->GetLearnMacro();
 		if (macroToLearn > -1)
 		{
 			modDoc->LearnMacro(macroToLearn, param);
-			pVstEditor->SetLearnMacro(-1);
+			vstEditor->SetLearnMacro(-1);
 		}
 	}
 }
 
 
+void IMixPlugin::SetModified()
+{
+	CModDoc *modDoc = GetModDoc();
+	if(modDoc != nullptr && m_SndFile.GetModSpecifications().supportsPlugins)
+	{
+		modDoc->SetModified();
+	}
+}
+
+
 bool IMixPlugin::SaveProgram()
-//----------------------------
 {
 	mpt::PathString defaultDir = TrackerSettings::Instance().PathPluginPresets.GetWorkingDir();
-	bool useDefaultDir = !defaultDir.empty();
+	const bool useDefaultDir = !defaultDir.empty();
 	if(!useDefaultDir && m_Factory.dllPath.IsFile())
 	{
 		defaultDir = m_Factory.dllPath.GetPath();
 	}
 
-	CString progName = GetCurrentProgramName();
+	CString progName = m_Factory.libraryName.ToCString() + _T(" - ") + GetCurrentProgramName();
 	SanitizeFilename(progName);
 
 	FileDialog dlg = SaveFileDialog()
@@ -695,23 +650,25 @@ bool IMixPlugin::SaveProgram()
 		TrackerSettings::Instance().PathPluginPresets.SetWorkingDir(dlg.GetWorkingDirectory());
 	}
 
-	bool bank = (dlg.GetExtension() == MPT_PATHSTRING("fxb"));
+	const bool isBank = (dlg.GetExtension() == P_("fxb"));
 
-	mpt::fstream f(dlg.GetFirstFile(), std::ios::out | std::ios::trunc | std::ios::binary);
-	if(f.good() && VSTPresets::SaveFile(f, *this, bank))
+	try
 	{
-		return true;
-	} else
+		mpt::SafeOutputFile sf(dlg.GetFirstFile(), std::ios::binary, mpt::FlushModeFromBool(TrackerSettings::Instance().MiscFlushFileBuffersOnSave));
+		mpt::ofstream &f = sf;
+		f.exceptions(f.exceptions() | std::ios::badbit | std::ios::failbit);
+		if(f.good() && VSTPresets::SaveFile(f, *this, isBank))
+			return true;
+	} catch(const std::exception &)
 	{
-		Reporting::Error("Error saving preset.", m_pEditor);
-		return false;
+		
 	}
-
+	Reporting::Error("Error saving preset.", m_pEditor);
+	return false;
 }
 
 
 bool IMixPlugin::LoadProgram(mpt::PathString fileName)
-//----------------------------------------------------
 {
 	mpt::PathString defaultDir = TrackerSettings::Instance().PathPluginPresets.GetWorkingDir();
 	bool useDefaultDir = !defaultDir.empty();
@@ -739,7 +696,7 @@ bool IMixPlugin::LoadProgram(mpt::PathString fileName)
 	}
 
 	const char *errorStr = nullptr;
-	InputFile f(fileName);
+	InputFile f(fileName, SettingCacheCompleteFileBeforeLoading());
 	if(f.IsValid())
 	{
 		FileReader file = GetFileReader(f);
@@ -773,19 +730,17 @@ bool IMixPlugin::LoadProgram(mpt::PathString fileName)
 
 IMidiPlugin::IMidiPlugin(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
 	: IMixPlugin(factory, sndFile, mixStruct)
-//-------------------------------------------------------------------------------------------
+	, m_MidiCh{{}}
 {
-	MemsetZero(m_MidiCh);
-	for(int ch = 0; ch < 16; ch++)
+	for(auto &chn : m_MidiCh)
 	{
-		m_MidiCh[ch].midiPitchBendPos = EncodePitchBendParam(MIDIEvents::pitchBendCentre); // centre pitch bend on all channels
-		m_MidiCh[ch].ResetProgram();
+		chn.midiPitchBendPos = EncodePitchBendParam(MIDIEvents::pitchBendCentre); // centre pitch bend on all channels
+		chn.ResetProgram();
 	}
 }
 
 
 void IMidiPlugin::ApplyPitchWheelDepth(int32 &value, int8 pwd)
-//------------------------------------------------------------
 {
 	if(pwd != 0)
 	{
@@ -797,24 +752,37 @@ void IMidiPlugin::ApplyPitchWheelDepth(int32 &value, int8 pwd)
 }
 
 
-void IMidiPlugin::MidiCC(uint8 nMidiCh, MIDIEvents::MidiCC nController, uint8 nParam, CHANNELINDEX /*trackChannel*/)
-//------------------------------------------------------------------------------------------------------------------
+// Get the MIDI channel currently associated with a given tracker channel
+uint8 IMidiPlugin::GetMidiChannel(CHANNELINDEX trackChannel) const
+{
+	if(trackChannel >= std::size(m_SndFile.m_PlayState.Chn))
+		return 0;
+
+	if(auto ins = m_SndFile.m_PlayState.Chn[trackChannel].pModInstrument; ins != nullptr)
+		return ins->GetMIDIChannel(m_SndFile, trackChannel);
+	else
+		return 0;
+}
+
+
+void IMidiPlugin::MidiCC(MIDIEvents::MidiCC nController, uint8 nParam, CHANNELINDEX trackChannel)
 {
 	//Error checking
 	LimitMax(nController, MIDIEvents::MIDICC_end);
 	LimitMax(nParam, uint8(127));
+	auto midiCh = GetMidiChannel(trackChannel);
 
 	if(m_SndFile.m_playBehaviour[kMIDICCBugEmulation])
-		MidiSend(MIDIEvents::Event(MIDIEvents::evControllerChange, nMidiCh, nParam, static_cast<uint8>(nController)));	// param and controller are swapped (old broken implementation)
+		MidiSend(MIDIEvents::Event(MIDIEvents::evControllerChange, midiCh, nParam, static_cast<uint8>(nController)));	// param and controller are swapped (old broken implementation)
 	else
-		MidiSend(MIDIEvents::CC(nController, nMidiCh, nParam));
+		MidiSend(MIDIEvents::CC(nController, midiCh, nParam));
 }
 
 
 // Bend MIDI pitch for given MIDI channel using fine tracker param (one unit = 1/64th of a note step)
-void IMidiPlugin::MidiPitchBend(uint8 nMidiCh, int32 increment, int8 pwd)
-//-----------------------------------------------------------------------
+void IMidiPlugin::MidiPitchBend(int32 increment, int8 pwd, CHANNELINDEX trackerChn)
 {
+	auto midiCh = GetMidiChannel(trackerChn);
 	if(m_SndFile.m_playBehaviour[kOldMIDIPitchBends])
 	{
 		// OpenMPT Legacy: Old pitch slides never were really accurate, but setting the PWD to 13 in plugins would give the closest results.
@@ -826,81 +794,79 @@ void IMidiPlugin::MidiPitchBend(uint8 nMidiCh, int32 increment, int8 pwd)
 		ApplyPitchWheelDepth(increment, pwd);
 	}
 
-	int32 newPitchBendPos = (increment + m_MidiCh[nMidiCh].midiPitchBendPos) & vstPitchBendMask;
+	int32 newPitchBendPos = (increment + m_MidiCh[midiCh].midiPitchBendPos) & vstPitchBendMask;
 	Limit(newPitchBendPos, EncodePitchBendParam(MIDIEvents::pitchBendMin), EncodePitchBendParam(MIDIEvents::pitchBendMax));
 
-	MidiPitchBend(nMidiCh, newPitchBendPos);
+	MidiPitchBend(midiCh, newPitchBendPos);
 }
 
 
 // Set MIDI pitch for given MIDI channel using fixed point pitch bend value (converted back to 0-16383 MIDI range)
-void IMidiPlugin::MidiPitchBend(uint8 nMidiCh, int32 newPitchBendPos)
-//-------------------------------------------------------------------
+void IMidiPlugin::MidiPitchBend(uint8 midiCh, int32 newPitchBendPos)
 {
 	MPT_ASSERT(EncodePitchBendParam(MIDIEvents::pitchBendMin) <= newPitchBendPos && newPitchBendPos <= EncodePitchBendParam(MIDIEvents::pitchBendMax));
-	m_MidiCh[nMidiCh].midiPitchBendPos = newPitchBendPos;
-	MidiSend(MIDIEvents::PitchBend(nMidiCh, DecodePitchBendParam(newPitchBendPos)));
+	m_MidiCh[midiCh].midiPitchBendPos = newPitchBendPos;
+	MidiSend(MIDIEvents::PitchBend(midiCh, DecodePitchBendParam(newPitchBendPos)));
 }
 
 
 // Apply vibrato effect through pitch wheel commands on a given MIDI channel.
-void IMidiPlugin::MidiVibrato(uint8 nMidiCh, int32 depth, int8 pwd)
-//-----------------------------------------------------------------
+void IMidiPlugin::MidiVibrato(int32 depth, int8 pwd, CHANNELINDEX trackerChn)
 {
+	auto midiCh = GetMidiChannel(trackerChn);
 	depth = EncodePitchBendParam(depth);
-	if(depth != 0 || (m_MidiCh[nMidiCh].midiPitchBendPos & vstVibratoFlag))
+	if(depth != 0 || (m_MidiCh[midiCh].midiPitchBendPos & vstVibratoFlag))
 	{
 		ApplyPitchWheelDepth(depth, pwd);
 
 		// Temporarily add vibrato offset to current pitch
-		int32 newPitchBendPos = (depth + m_MidiCh[nMidiCh].midiPitchBendPos) & vstPitchBendMask;
+		int32 newPitchBendPos = (depth + m_MidiCh[midiCh].midiPitchBendPos) & vstPitchBendMask;
 		Limit(newPitchBendPos, EncodePitchBendParam(MIDIEvents::pitchBendMin), EncodePitchBendParam(MIDIEvents::pitchBendMax));
 
-		MidiSend(MIDIEvents::PitchBend(nMidiCh, DecodePitchBendParam(newPitchBendPos)));
+		MidiSend(MIDIEvents::PitchBend(midiCh, DecodePitchBendParam(newPitchBendPos)));
 	}
 
 	// Update vibrato status
 	if(depth != 0)
-	{
-		m_MidiCh[nMidiCh].midiPitchBendPos |= vstVibratoFlag;
-	} else
-	{
-		m_MidiCh[nMidiCh].midiPitchBendPos &= ~vstVibratoFlag;
-	}
+		m_MidiCh[midiCh].midiPitchBendPos |= vstVibratoFlag;
+	else
+		m_MidiCh[midiCh].midiPitchBendPos &= ~vstVibratoFlag;
 }
 
 
-void IMidiPlugin::MidiCommand(uint8 nMidiCh, uint8 nMidiProg, uint16 wMidiBank, uint16 note, uint16 vol, CHANNELINDEX trackChannel)
-//---------------------------------------------------------------------------------------------------------------------------------
+void IMidiPlugin::MidiCommand(const ModInstrument &instr, uint16 note, uint16 vol, CHANNELINDEX trackChannel)
 {
-	PlugInstrChannel &channel = m_MidiCh[nMidiCh];
+	auto midiCh = GetMidiChannel(trackChannel);
+	PlugInstrChannel &channel = m_MidiCh[midiCh];
 
-	bool bankChanged = (channel.currentBank != --wMidiBank) && (wMidiBank < 0x4000);
-	bool progChanged = (channel.currentProgram != --nMidiProg) && (nMidiProg < 0x80);
+	uint16 midiBank = instr.wMidiBank - 1;
+	uint8 midiProg = instr.nMidiProgram - 1;
+	bool bankChanged = (channel.currentBank != midiBank) && (midiBank < 0x4000);
+	bool progChanged = (channel.currentProgram != midiProg) && (midiProg < 0x80);
 	//get vol in [0,128[
-	uint8 volume = static_cast<uint8>(std::min(vol / 2, 127));
+	uint8 volume = static_cast<uint8>(std::min(vol / 2u, 127u));
 
 	// Bank change
 	if(bankChanged)
 	{
-		uint8 high = static_cast<uint8>(wMidiBank >> 7);
-		uint8 low = static_cast<uint8>(wMidiBank & 0x7F);
+		uint8 high = static_cast<uint8>(midiBank >> 7);
+		uint8 low = static_cast<uint8>(midiBank & 0x7F);
 
-		//GetSoundFile()->ProcessMIDIMacro(trackChannel, false, GetSoundFile()->m_MidiCfg.szMidiGlb[MIDIOUT_BANKSEL], 0);
-		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_BankSelect_Coarse, nMidiCh, high));
-		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_BankSelect_Fine, nMidiCh, low));
+		//m_SndFile.ProcessMIDIMacro(trackChannel, false, m_SndFile.m_MidiCfg.szMidiGlb[MIDIOUT_BANKSEL], 0, m_nSlot + 1);
+		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_BankSelect_Coarse, midiCh, high));
+		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_BankSelect_Fine, midiCh, low));
 
-		channel.currentBank = wMidiBank;
+		channel.currentBank = midiBank;
 	}
 
 	// Program change
 	// According to the MIDI specs, a bank change alone doesn't have to change the active program - it will only change the bank of subsequent program changes.
 	// Thus we send program changes also if only the bank has changed.
-	if(progChanged || (nMidiProg < 0x80 && bankChanged))
+	if(progChanged || (midiProg < 0x80 && bankChanged))
 	{
-		channel.currentProgram = nMidiProg;
-		//GetSoundFile()->ProcessMIDIMacro(trackChannel, false, GetSoundFile()->m_MidiCfg.szMidiGlb[MIDIOUT_PROGRAM], 0);
-		MidiSend(MIDIEvents::ProgramChange(nMidiCh, nMidiProg));
+		channel.currentProgram = midiProg;
+		//m_SndFile.ProcessMIDIMacro(trackChannel, false, m_SndFile.m_MidiCfg.szMidiGlb[MIDIOUT_PROGRAM], 0, m_nSlot + 1);
+		MidiSend(MIDIEvents::ProgramChange(midiCh, midiProg));
 	}
 
 
@@ -911,7 +877,7 @@ void IMidiPlugin::MidiCommand(uint8 nMidiCh, uint8 nMidiProg, uint16 wMidiBank, 
 		if(channel.noteOnMap[i][trackChannel])
 		{
 			channel.noteOnMap[i][trackChannel]--;
-			MidiSend(MIDIEvents::NoteOff(nMidiCh, i, 0));
+			MidiSend(MIDIEvents::NoteOff(midiCh, i, 0));
 		}
 	}
 
@@ -920,14 +886,14 @@ void IMidiPlugin::MidiCommand(uint8 nMidiCh, uint8 nMidiProg, uint16 wMidiBank, 
 	// Also less likely to cause a VST event buffer overflow.
 	else if(note == NOTE_NOTECUT)	// ^^
 	{
-		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_AllNotesOff, nMidiCh, 0));
-		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_AllSoundOff, nMidiCh, 0));
+		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_AllNotesOff, midiCh, 0));
+		MidiSend(MIDIEvents::CC(MIDIEvents::MIDICC_AllSoundOff, midiCh, 0));
 
 		// Turn off all notes
 		for(uint8 i = 0; i < CountOf(channel.noteOnMap); i++)
 		{
 			channel.noteOnMap[i][trackChannel] = 0;
-			MidiSend(MIDIEvents::NoteOff(nMidiCh, i, volume));
+			MidiSend(MIDIEvents::NoteOff(midiCh, i, volume));
 		}
 
 	}
@@ -941,7 +907,7 @@ void IMidiPlugin::MidiCommand(uint8 nMidiCh, uint8 nMidiProg, uint16 wMidiBank, 
 			// Some VSTis need a note off for each instance of a note on, e.g. fabfilter.
 			while(channel.noteOnMap[i][trackChannel])
 			{
-				MidiSend(MIDIEvents::NoteOff(nMidiCh, i, volume));
+				MidiSend(MIDIEvents::NoteOff(midiCh, i, volume));
 				channel.noteOnMap[i][trackChannel]--;
 			}
 		}
@@ -954,9 +920,9 @@ void IMidiPlugin::MidiCommand(uint8 nMidiCh, uint8 nMidiProg, uint16 wMidiBank, 
 
 		// Reset pitch bend on each new note, tracker style.
 		// This is done if the pitch wheel has been moved or there was a vibrato on the previous row (in which case the "vstVibratoFlag" bit of the pitch bend memory is set)
-		if(m_MidiCh[nMidiCh].midiPitchBendPos != EncodePitchBendParam(MIDIEvents::pitchBendCentre))
+		if(m_MidiCh[midiCh].midiPitchBendPos != EncodePitchBendParam(MIDIEvents::pitchBendCentre))
 		{
-			MidiPitchBend(nMidiCh, EncodePitchBendParam(MIDIEvents::pitchBendCentre));
+			MidiPitchBend(midiCh, EncodePitchBendParam(MIDIEvents::pitchBendCentre));
 		}
 
 		// count instances of active notes.
@@ -964,24 +930,34 @@ void IMidiPlugin::MidiCommand(uint8 nMidiCh, uint8 nMidiProg, uint16 wMidiBank, 
 		// Problem: if a note dies out naturally and we never send a note off, this counter
 		// will block at max until note off. Is this a problem?
 		// Safe to assume we won't need more than 16 note offs max on a given note?
-		if(channel.noteOnMap[note][trackChannel] < 17)
+#if MPT_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable:6385) // false-positive: Reading invalid data from 'channel.noteOnMap': the readable size is '32768' bytes, but 'note' bytes may be read.
+#endif // MPT_COMPILER_MSVC
+		if(channel.noteOnMap[note][trackChannel] < uint8_max)
+#if MPT_COMPILER_MSVC
+#pragma warning(pop)
+#endif // MPT_COMPILER_MSVC
+		{
 			channel.noteOnMap[note][trackChannel]++;
+		}
 
-		MidiSend(MIDIEvents::NoteOn(nMidiCh, static_cast<uint8>(note), volume));
+		MidiSend(MIDIEvents::NoteOn(midiCh, static_cast<uint8>(note), volume));
 	}
 }
 
 
-bool IMidiPlugin::IsNotePlaying(uint32 note, uint32 midiChn, uint32 trackerChn)
-//-------------------------------------------------------------------------
+bool IMidiPlugin::IsNotePlaying(uint8 note, CHANNELINDEX trackerChn)
 {
+	if(!ModCommand::IsNote(note) || trackerChn >= std::size(m_MidiCh[GetMidiChannel(trackerChn)].noteOnMap[note]))
+		return false;
+
 	note -= NOTE_MIN;
-	return (m_MidiCh[midiChn].noteOnMap[note][trackerChn] != 0);
+	return (m_MidiCh[GetMidiChannel(trackerChn)].noteOnMap[note][trackerChn] != 0);
 }
 
 
 void IMidiPlugin::ReceiveMidi(uint32 midiCode)
-//--------------------------------------------
 {
 	ResetSilence();
 
@@ -1005,8 +981,7 @@ void IMidiPlugin::ReceiveMidi(uint32 midiCode)
 }
 
 
-void IMidiPlugin::ReceiveSysex(const void *message, uint32 length)
-//----------------------------------------------------------------
+void IMidiPlugin::ReceiveSysex(mpt::const_byte_span sysex)
 {
 	ResetSilence();
 
@@ -1017,7 +992,7 @@ void IMidiPlugin::ReceiveSysex(const void *message, uint32 length)
 	{
 		IMixPlugin *plugin = m_SndFile.m_MixPlugins[receiver].pMixPlugin;
 		// Add all events to the plugin's queue.
-		plugin->MidiSysexSend(message, length);
+		plugin->MidiSysexSend(sysex);
 	}
 }
 
@@ -1025,7 +1000,6 @@ void IMidiPlugin::ReceiveSysex(const void *message, uint32 length)
 // SNDMIXPLUGIN functions
 
 void SNDMIXPLUGIN::SetGain(uint8 gain)
-//------------------------------------
 {
 	Info.gain = gain;
 	if(pMixPlugin != nullptr) pMixPlugin->RecalculateGain();
@@ -1033,7 +1007,6 @@ void SNDMIXPLUGIN::SetGain(uint8 gain)
 
 
 void SNDMIXPLUGIN::SetBypass(bool bypass)
-//---------------------------------------
 {
 	if(pMixPlugin != nullptr)
 		pMixPlugin->Bypass(bypass);
@@ -1043,17 +1016,14 @@ void SNDMIXPLUGIN::SetBypass(bool bypass)
 
 
 void SNDMIXPLUGIN::Destroy()
-//--------------------------
 {
-	delete[] pPluginData;
-	pPluginData = nullptr;
-	nPluginDataSize = 0;
-
 	if(pMixPlugin)
 	{
 		pMixPlugin->Release();
 		pMixPlugin = nullptr;
 	}
+	pluginData.clear();
+	pluginData.shrink_to_fit();
 }
 
 OPENMPT_NAMESPACE_END

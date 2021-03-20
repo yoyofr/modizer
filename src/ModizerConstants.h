@@ -72,11 +72,11 @@
 
 #define VERSION_MAJOR 2
 #define VERSION_MAJOR_STR "2"
-#define VERSION_MINOR 95
-#define VERSION_MINOR_STR "95"
+#define VERSION_MINOR 96
+#define VERSION_MINOR_STR "96"
 
 
-#define MAX_PL_ENTRIES 32768
+#define MAX_PL_ENTRIES 65536
 
 #define MAX_RANDFX_TIME 15   //max is in fact min + max (seconds)
 #define MIN_RANDFX_TIME 15
@@ -100,7 +100,7 @@
 
 
 //#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
-#define ASMA_HOST_DEFAULT "http://asma.scene.pl/browser/trunk/asma"
+#define ASMA_HOST_DEFAULT "http://asma.scene.pl/export/1674/trunk/asma"
 #define ASMA_HOST_ALT1 "http://asma.atari.org/asma"
 #define ASMA_HOST_ALT2 "http://asma.atariportal.cz/ASMA"
 

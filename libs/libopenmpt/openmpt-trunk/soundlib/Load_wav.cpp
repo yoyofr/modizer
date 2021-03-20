@@ -24,8 +24,7 @@ OPENMPT_NAMESPACE_BEGIN
 
 
 template <typename SampleConversion>
-bool CopyWavChannel(ModSample &sample, const FileReader &file, size_t channelIndex, size_t numChannels, SampleConversion conv = SampleConversion())
-//-------------------------------------------------------------------------------------------------------------------------------------------------
+static bool CopyWavChannel(ModSample &sample, const FileReader &file, size_t channelIndex, size_t numChannels, SampleConversion conv = SampleConversion())
 {
 	MPT_ASSERT(sample.GetNumChannels() == 1);
 	MPT_ASSERT(sample.GetElementarySampleSize() == sizeof(typename SampleConversion::output_t));
@@ -37,14 +36,30 @@ bool CopyWavChannel(ModSample &sample, const FileReader &file, size_t channelInd
 		return false;
 	}
 
-	const mpt::byte *inBuf = file.GetRawData<mpt::byte>();
-	CopySample<SampleConversion>(reinterpret_cast<typename SampleConversion::output_t*>(sample.pSample), sample.nLength, 1, inBuf + offset, file.BytesLeft() - offset, numChannels, conv);
+	const std::byte *inBuf = file.GetRawData<std::byte>();
+	CopySample<SampleConversion>(reinterpret_cast<typename SampleConversion::output_t*>(sample.samplev()), sample.nLength, 1, inBuf + offset, file.BytesLeft() - offset, numChannels, conv);
 	return true;
 }
 
 
-bool CSoundFile::ReadWav(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderWAV(MemoryFileReader file, const uint64 *pfilesize)
+{
+	RIFFHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if((fileHeader.magic != RIFFHeader::idRIFF && fileHeader.magic != RIFFHeader::idLIST)
+		|| (fileHeader.type != RIFFHeader::idWAVE && fileHeader.type != RIFFHeader::idwave))
+	{
+		return ProbeFailure;
+	}
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	return ProbeSuccess;
+}
+
+
+bool CSoundFile::ReadWAV(FileReader &file, ModLoadingFlags loadFlags)
 {
 	WAVReader wavFile(file);
 
@@ -61,13 +76,18 @@ bool CSoundFile::ReadWav(FileReader &file, ModLoadingFlags loadFlags)
 		return true;
 	}
 
-	InitializeGlobals(MOD_TYPE_WAV);
+	InitializeGlobals(MOD_TYPE_MPT);
+	m_ContainerType = MOD_CONTAINERTYPE_WAV;
 	m_nChannels = std::max(wavFile.GetNumChannels(), uint16(2));
 	Patterns.ResizeArray(2);
 	if(!Patterns.Insert(0, 64) || !Patterns.Insert(1, 64))
 	{
 		return false;
 	}
+
+	m_modFormat.formatName = U_("RIFF WAVE");
+	m_modFormat.type = U_("wav");
+	m_modFormat.charset = mpt::Charset::Windows1252;
 	
 	const SmpLength sampleLength = wavFile.GetSampleLength();
 
@@ -75,22 +95,16 @@ bool CSoundFile::ReadWav(FileReader &file, ModLoadingFlags loadFlags)
 	// Calculate sample length in ticks at tempo 125
 	const uint32 sampleRate = std::max(uint32(1), wavFile.GetSampleRate());
 	const uint32 sampleTicks = mpt::saturate_cast<uint32>(((sampleLength * 50) / sampleRate) + 1);
-	uint32 ticksPerRow = std::max((sampleTicks + 63u) / 63u, 1u);
+	uint32 ticksPerRow = std::max((sampleTicks + 63u) / 63u, uint32(1));
 
-	Order.clear();
-	Order.Append(0);
+	Order().assign(1, 0);
 	ORDERINDEX numOrders = 1;
-	while(ticksPerRow >= 32)
+	while(ticksPerRow >= 32 && numOrders < MAX_ORDERS)
 	{
-		Order.Append(1);
-
 		numOrders++;
 		ticksPerRow = (sampleTicks + (64 * numOrders - 1)) / (64 * numOrders);
-		if(numOrders == MAX_ORDERS)
-		{
-			break;
-		}
 	}
+	Order().resize(numOrders, 1);
 
 	m_nSamples = wavFile.GetNumChannels();
 	m_nInstruments = 0;
@@ -122,8 +136,8 @@ bool CSoundFile::ReadWav(FileReader &file, ModLoadingFlags loadFlags)
 		sample.uFlags = CHN_PANNING;
 		sample.nLength =  sampleLength;
 		sample.nC5Speed = wavFile.GetSampleRate();
-		strcpy(m_szNames[channel + 1], "");
-		wavFile.ApplySampleSettings(sample, m_szNames[channel + 1]);
+		m_szNames[channel + 1] = "";
+		wavFile.ApplySampleSettings(sample, GetCharsetInternal(), m_szNames[channel + 1]);
 
 		if(wavFile.GetNumChannels() > 1)
 		{

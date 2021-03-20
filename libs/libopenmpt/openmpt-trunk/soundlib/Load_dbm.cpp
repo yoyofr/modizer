@@ -11,7 +11,7 @@
 #include "stdafx.h"
 #include "Loaders.h"
 #include "ChunkReader.h"
-#include "../common/StringFixer.h"
+#include "../common/mptStringBuffer.h"
 #ifndef NO_PLUGINS
 #include "plugins/DigiBoosterEcho.h"
 #endif // NO_PLUGINS
@@ -33,26 +33,24 @@ struct DBMFileHeader
 MPT_BINARY_STRUCT(DBMFileHeader, 8)
 
 
-// RIFF-style Chunk
+// IFF-style Chunk
 struct DBMChunk
 {
 	// 32-Bit chunk identifiers
 	enum ChunkIdentifiers
 	{
-		idNAME	= MAGIC4BE('N','A','M','E'),
-		idINFO	= MAGIC4BE('I','N','F','O'),
-		idSONG	= MAGIC4BE('S','O','N','G'),
-		idINST	= MAGIC4BE('I','N','S','T'),
-		idVENV	= MAGIC4BE('V','E','N','V'),
-		idPENV	= MAGIC4BE('P','E','N','V'),
-		idPATT	= MAGIC4BE('P','A','T','T'),
-		idPNAM	= MAGIC4BE('P','N','A','M'),
-		idSMPL	= MAGIC4BE('S','M','P','L'),
-		idDSPE	= MAGIC4BE('D','S','P','E'),
-		idMPEG	= MAGIC4BE('M','P','E','G'),
+		idNAME	= MagicBE("NAME"),
+		idINFO	= MagicBE("INFO"),
+		idSONG	= MagicBE("SONG"),
+		idINST	= MagicBE("INST"),
+		idVENV	= MagicBE("VENV"),
+		idPENV	= MagicBE("PENV"),
+		idPATT	= MagicBE("PATT"),
+		idPNAM	= MagicBE("PNAM"),
+		idSMPL	= MagicBE("SMPL"),
+		idDSPE	= MagicBE("DSPE"),
+		idMPEG	= MagicBE("MPEG"),
 	};
-
-	typedef ChunkIdentifiers id_type;
 
 	uint32be id;
 	uint32be length;
@@ -62,9 +60,9 @@ struct DBMChunk
 		return length;
 	}
 
-	id_type GetID() const
+	ChunkIdentifiers GetID() const
 	{
-		return static_cast<id_type>(id.get());
+		return static_cast<ChunkIdentifiers>(id.get());
 	}
 };
 
@@ -129,14 +127,14 @@ MPT_BINARY_STRUCT(DBMEnvelope, 136)
 
 
 // Note: Unlike in MOD, 1Fx, 2Fx, 5Fx / 5xF, 6Fx / 6xF and AFx / AxF are fine slides.
-static const ModCommand::COMMAND dbmEffects[] =
+static constexpr ModCommand::COMMAND dbmEffects[] =
 {
 	CMD_ARPEGGIO, CMD_PORTAMENTOUP, CMD_PORTAMENTODOWN, CMD_TONEPORTAMENTO,
 	CMD_VIBRATO, CMD_TONEPORTAVOL, CMD_VIBRATOVOL, CMD_TREMOLO,
 	CMD_PANNING8, CMD_OFFSET, CMD_VOLUMESLIDE, CMD_POSITIONJUMP,
 	CMD_VOLUME, CMD_PATTERNBREAK, CMD_MODCMDEX, CMD_TEMPO,
-	CMD_GLOBALVOLUME, CMD_GLOBALVOLSLIDE, CMD_KEYOFF, CMD_SETENVPOSITION,
-	CMD_CHANNELVOLUME, CMD_CHANNELVOLSLIDE, CMD_NONE, CMD_NONE,
+	CMD_GLOBALVOLUME, CMD_GLOBALVOLSLIDE, CMD_NONE, CMD_NONE,
+	CMD_KEYOFF, CMD_SETENVPOSITION, CMD_NONE, CMD_NONE,
 	CMD_NONE, CMD_PANNINGSLIDE, CMD_NONE, CMD_NONE,
 	CMD_NONE, CMD_NONE, CMD_NONE,
 #ifndef NO_PLUGINS
@@ -150,7 +148,6 @@ static const ModCommand::COMMAND dbmEffects[] =
 
 
 static void ConvertDBMEffect(uint8 &command, uint8 &param)
-//--------------------------------------------------------
 {
 	uint8 oldCmd = command;
 	if(command < CountOf(dbmEffects))
@@ -158,12 +155,28 @@ static void ConvertDBMEffect(uint8 &command, uint8 &param)
 	else
 		command = CMD_NONE;
 
-	switch (command)
+	switch(command)
 	{
 	case CMD_ARPEGGIO:
 		if(param == 0)
 			command = CMD_NONE;
 		break;
+
+#ifdef MODPLUG_TRACKER
+	case CMD_VIBRATO:
+		if(param & 0x0F)
+		{
+			// DBM vibrato is half as deep as most other trackers. Convert it to IT fine vibrato range if possible.
+			uint8 depth = (param & 0x0F) * 2u;
+			param &= 0xF0;
+			if(depth < 16)
+				command = CMD_FINEVIBRATO;
+			else
+				depth = (depth + 2u) / 4u;
+			param |= depth;
+		}
+		break;
+#endif
 
 	// Volume slide nibble priority - first nibble (slide up) has precedence.
 	case CMD_VOLUMESLIDE:
@@ -183,18 +196,15 @@ static void ConvertDBMEffect(uint8 &command, uint8 &param)
 	case CMD_MODCMDEX:
 		switch(param & 0xF0)
 		{
-		case 0x00:	// set filter
-			command = CMD_NONE;
-			break;
-		case 0x30:	// play backwards
+		case 0x30:	// Play backwards
 			command = CMD_S3MCMDEX;
 			param = 0x9F;
 			break;
-		case 0x40:	// turn off sound in channel (volume / portamento commands after this can't pick up the note anymore)
+		case 0x40:	// Turn off sound in channel (volume / portamento commands after this can't pick up the note anymore)
 			command = CMD_S3MCMDEX;
 			param = 0xC0;
 			break;
-		case 0x50:	// turn on/off channel
+		case 0x50:	// Turn on/off channel
 			// TODO: Apparently this should also kill the playing note.
 			if((param & 0x0F) <= 0x01)
 			{
@@ -202,11 +212,9 @@ static void ConvertDBMEffect(uint8 &command, uint8 &param)
 				param = (param == 0x50) ? 0x00 : 0x40;
 			}
 			break;
-		case 0x60:	// set loop begin / loop
-			// TODO
-			break;
-		case 0x70:	// set offset
-			// TODO
+		case 0x70:	// Coarse offset
+			command = CMD_S3MCMDEX;
+			param = 0xA0 | (param & 0x0F);
 			break;
 		default:
 			// Rest will be converted later from CMD_MODCMDEX to CMD_S3MCMDEX.
@@ -221,7 +229,7 @@ static void ConvertDBMEffect(uint8 &command, uint8 &param)
 	case CMD_KEYOFF:
 		if (param == 0)
 		{
-			// TODO key of at tick 0
+			// TODO key off at tick 0
 		}
 		break;
 
@@ -234,7 +242,6 @@ static void ConvertDBMEffect(uint8 &command, uint8 &param)
 
 // Read a chunk of volume or panning envelopes
 static void ReadDBMEnvelopeChunk(FileReader chunk, EnvelopeType envType, CSoundFile &sndFile, bool scaleEnv)
-//----------------------------------------------------------------------------------------------------------
 {
 	uint16 numEnvs = chunk.ReadUint16BE();
 	for(uint16 env = 0; env < numEnvs; env++)
@@ -255,13 +262,14 @@ static void ReadDBMEnvelopeChunk(FileReader chunk, EnvelopeType envType, CSoundF
 				if(dbmEnv.flags & DBMEnvelope::envLoop) mptEnv.dwFlags.set(ENV_LOOP);
 			}
 
-			mptEnv.resize(std::min<uint32>(dbmEnv.numSegments + 1, 32));
+			uint8 numPoints = std::min(dbmEnv.numSegments.get(), uint8(31)) + 1;
+			mptEnv.resize(numPoints);
 
 			mptEnv.nLoopStart = dbmEnv.loopBegin;
 			mptEnv.nLoopEnd = dbmEnv.loopEnd;
 			mptEnv.nSustainStart = mptEnv.nSustainEnd = dbmEnv.sustain1;
 
-			for(uint32 i = 0; i < mptEnv.size(); i++)
+			for(uint8 i = 0; i < numPoints; i++)
 			{
 				mptEnv[i].tick = dbmEnv.data[i * 2];
 				uint16 val = dbmEnv.data[i * 2 + 1];
@@ -278,24 +286,53 @@ static void ReadDBMEnvelopeChunk(FileReader chunk, EnvelopeType envType, CSoundF
 }
 
 
-bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
+static bool ValidateHeader(const DBMFileHeader &fileHeader)
 {
-	DBMFileHeader fileHeader;
-
-	file.Rewind();
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.dbm0, "DBM0", 4)
+	if(std::memcmp(fileHeader.dbm0, "DBM0", 4)
 		|| fileHeader.trkVerHi > 3)
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	return true;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderDBM(MemoryFileReader file, const uint64 *pfilesize)
+{
+	DBMFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	MPT_UNREFERENCED_PARAMETER(pfilesize);
+	return ProbeSuccess;
+}
+
+
+bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
+{
+
+	file.Rewind();
+	DBMFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return false;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
 
 	ChunkReader chunkFile(file);
-	ChunkReader::ChunkList<DBMChunk> chunks = chunkFile.ReadChunks<DBMChunk>(1);
+	auto chunks = chunkFile.ReadChunks<DBMChunk>(1);
 
 	// Globals
 	DBMInfoChunk infoData;
@@ -308,10 +345,16 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 	InitializeChannels();
 	m_SongFlags = SONG_ITCOMPATGXX | SONG_ITOLDEFFECTS;
 	m_nChannels = Clamp<uint16, uint16>(infoData.channels, 1, MAX_BASECHANNELS);	// note: MAX_BASECHANNELS is currently 127, but DBPro 2 supports up to 128 channels, DBPro 3 apparently up to 254.
-	m_nInstruments = std::min<INSTRUMENTINDEX>(infoData.instruments, MAX_INSTRUMENTS - 1);
-	m_nSamples = std::min<SAMPLEINDEX>(infoData.samples, MAX_SAMPLES - 1);
-	m_madeWithTracker = mpt::String::Print("DigiBooster Pro %1.%2", mpt::fmt::hex(fileHeader.trkVerHi), mpt::fmt::hex(fileHeader.trkVerLo));
+	m_nInstruments = std::min(static_cast<INSTRUMENTINDEX>(infoData.instruments), static_cast<INSTRUMENTINDEX>(MAX_INSTRUMENTS - 1));
+	m_nSamples = std::min(static_cast<SAMPLEINDEX>(infoData.samples), static_cast<SAMPLEINDEX>(MAX_SAMPLES - 1));
 	m_playBehaviour.set(kSlidesAtSpeed1);
+	m_playBehaviour.reset(kITVibratoTremoloPanbrello);
+	m_playBehaviour.reset(kITArpeggio);
+
+	m_modFormat.formatName = U_("DigiBooster Pro");
+	m_modFormat.type = U_("dbm");
+	m_modFormat.madeWithTracker = mpt::format(U_("DigiBooster Pro %1.%2"))(mpt::ufmt::hex(fileHeader.trkVerHi), mpt::ufmt::hex(fileHeader.trkVerLo));
+	m_modFormat.charset = mpt::Charset::ISO8859_1;
 
 	// Name chunk
 	FileReader nameChunk = chunks.GetChunk(DBMChunk::idNAME);
@@ -319,7 +362,7 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 
 	// Song chunk
 	FileReader songChunk = chunks.GetChunk(DBMChunk::idSONG);
-	Order.clear();
+	Order().clear();
 	uint16 numSongs = infoData.songs;
 	for(uint16 i = 0; i < numSongs && songChunk.CanRead(46); i++)
 	{
@@ -329,37 +372,36 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 		{
 			m_songName = name;
 		}
+		uint16 numOrders = songChunk.ReadUint16BE();
+
 #ifdef MPT_DBM_USE_REAL_SUBSONGS
-		if(Order.GetLength() != 0)
+		if(!Order().empty())
 		{
 			// Add a new sequence for this song
-			if(Order.AddSequence(false) == SEQUENCEINDEX_INVALID)
+			if(Order.AddSequence() == SEQUENCEINDEX_INVALID)
 				break;
-			Order.clear();
 		}
-		Order.SetName(name);
-#endif // MPT_DBM_USE_REAL_SUBSONGS
-
-		uint16 numOrders = songChunk.ReadUint16BE();
-		const ORDERINDEX startIndex = Order.GetLength();
-		if(startIndex < ORDERINDEX_MAX && songChunk.CanRead(numOrders * 2u))
+		Order().SetName(mpt::ToUnicode(mpt::Charset::ISO8859_1, name));
+		ReadOrderFromFile<uint16be>(Order(), songChunk, numOrders);
+#else
+		const ORDERINDEX startIndex = Order().GetLength();
+		if(startIndex < MAX_ORDERS && songChunk.CanRead(numOrders * 2u))
 		{
-			LimitMax(numOrders, static_cast<ORDERINDEX>(ORDERINDEX_MAX - startIndex - 1));
-			Order.resize(startIndex + numOrders + 1, Order.GetInvalidPatIndex());
-
+			LimitMax(numOrders, static_cast<ORDERINDEX>(MAX_ORDERS - startIndex - 1));
+			Order().resize(startIndex + numOrders + 1);
 			for(uint16 ord = 0; ord < numOrders; ord++)
 			{
-				Order[startIndex + ord] = static_cast<PATTERNINDEX>(songChunk.ReadUint16BE());
+				Order()[startIndex + ord] = static_cast<PATTERNINDEX>(songChunk.ReadUint16BE());
 			}
 		}
+#endif // MPT_DBM_USE_REAL_SUBSONGS
 	}
 #ifdef MPT_DBM_USE_REAL_SUBSONGS
 	Order.SetSequence(0);
 #endif // MPT_DBM_USE_REAL_SUBSONGS
 
 	// Read instruments
-	FileReader instChunk = chunks.GetChunk(DBMChunk::idINST);
-	if(instChunk.IsValid())
+	if(FileReader instChunk = chunks.GetChunk(DBMChunk::idINST))
 	{
 		for(INSTRUMENTINDEX i = 1; i <= GetNumInstruments(); i++)
 		{
@@ -371,10 +413,9 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 			{
 				continue;
 			}
-			ModSample &mptSmp = Samples[instrHeader.sample];
 
-			mpt::String::Read<mpt::String::maybeNullTerminated>(mptIns->name, instrHeader.name);
-			mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[instrHeader.sample], instrHeader.name);
+			mptIns->name = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, instrHeader.name);
+			m_szNames[instrHeader.sample] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, instrHeader.name);
 
 			mptIns->nFadeOut = 0;
 			mptIns->nPan = static_cast<uint16>(instrHeader.panning + 128);
@@ -382,8 +423,9 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 			mptIns->dwFlags.set(INS_SETPANNING);
 
 			// Sample Info
+			ModSample &mptSmp = Samples[instrHeader.sample];
 			mptSmp.Initialize();
-			mptSmp.nVolume = std::min<uint16>(instrHeader.volume, 64) * 4u;
+			mptSmp.nVolume = std::min(static_cast<uint16>(instrHeader.volume), uint16(64)) * 4u;
 			mptSmp.nC5Speed = instrHeader.sampleRate;
 
 			if(instrHeader.loopLength && (instrHeader.flags & (DBMInstrument::smpLoop | DBMInstrument::smpPingPongLoop)))
@@ -391,7 +433,8 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 				mptSmp.nLoopStart = instrHeader.loopStart;
 				mptSmp.nLoopEnd = mptSmp.nLoopStart + instrHeader.loopLength;
 				mptSmp.uFlags.set(CHN_LOOP);
-				if(instrHeader.flags & DBMInstrument::smpPingPongLoop) mptSmp.uFlags.set(CHN_PINGPONGLOOP);
+				if(instrHeader.flags & DBMInstrument::smpPingPongLoop)
+					mptSmp.uFlags.set(CHN_PINGPONGLOOP);
 			}
 		}
 
@@ -420,6 +463,7 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 		patternNameChunk.Skip(1);	// Encoding, should be UTF-8 or ASCII
 
 		Patterns.ResizeArray(infoData.patterns);
+		std::vector<std::pair<EffectCommand, ModCommand::PARAM>> lostGlobalCommands;
 		for(PATTERNINDEX pat = 0; pat < infoData.patterns; pat++)
 		{
 			uint16 numRows = patternChunk.ReadUint16BE();
@@ -427,9 +471,7 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 			FileReader chunk = patternChunk.ReadChunk(packedSize);
 
 			if(!Patterns.Insert(pat, numRows))
-			{
 				continue;
-			}
 
 			std::string patName;
 			patternNameChunk.ReadSizedString<uint8be, mpt::String::maybeNullTerminated>(patName);
@@ -437,18 +479,28 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 
 			PatternRow patRow = Patterns[pat].GetRow(0);
 			ROWINDEX row = 0;
-			while(chunk.CanRead(1) && row < numRows)
+			lostGlobalCommands.clear();
+			while(chunk.CanRead(1))
 			{
 				const uint8 ch = chunk.ReadUint8();
 
 				if(!ch)
 				{
-					row++;
+					// End Of Row
+					for(const auto &cmd : lostGlobalCommands)
+					{
+						Patterns[pat].WriteEffect(EffectWriter(cmd.first, cmd.second).Row(row));
+					}
+					lostGlobalCommands.clear();
+
+					if(++row >= numRows)
+						break;
+
 					patRow = Patterns[pat].GetRow(row);
 					continue;
 				}
 
-				ModCommand dummy;
+				ModCommand dummy = ModCommand::Empty();
 				ModCommand &m = ch <= GetNumChannels() ? patRow[ch - 1] : dummy;
 
 				const uint8 b = chunk.ReadUint8();
@@ -458,12 +510,9 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 					uint8 note = chunk.ReadUint8();
 
 					if(note == 0x1F)
-						note = NOTE_KEYOFF;
+						m.note = NOTE_KEYOFF;
 					else if(note > 0 && note < 0xFE)
-					{
-						note = ((note >> 4) * 12) + (note & 0x0F) + 13;
-					}
-					m.note = note;
+						m.note = ((note >> 4) * 12) + (note & 0x0F) + 13;
 				}
 				if(b & 0x02)
 				{
@@ -471,8 +520,7 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 				}
 				if(b & 0x3C)
 				{
-					uint8 cmd1 = CMD_NONE, cmd2 = CMD_NONE;
-					uint8 param1 = 0, param2 = 0;
+					uint8 cmd1 = 0, cmd2 = 0, param1 = 0, param2 = 0;
 					if(b & 0x04) cmd2 = chunk.ReadUint8();
 					if(b & 0x08) param2 = chunk.ReadUint8();
 					if(b & 0x10) cmd1 = chunk.ReadUint8();
@@ -486,7 +534,9 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 						std::swap(param1, param2);
 					}
 
-					ModCommand::TwoRegularCommandsToMPT(cmd1, param1, cmd2, param2);
+					const auto lostCommand = ModCommand::TwoRegularCommandsToMPT(cmd1, param1, cmd2, param2);
+					if(ModCommand::IsGlobalCommand(lostCommand.first, lostCommand.second))
+						lostGlobalCommands.insert(lostGlobalCommands.begin(), lostCommand);  // Insert at front so that the last command of same type "wins"
 
 					m.volcmd = cmd1;
 					m.vol = param1;
@@ -524,8 +574,7 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 		// DBP 3 Documentation says that the defaults are 64/128/128/255, but they appear to be 80/150/80/255 in DBP 2.21
 		uint8 settings[8] = { 0, 80, 0, 150, 0, 80, 0, 255 };
 
-		FileReader dspChunk = chunks.GetChunk(DBMChunk::idDSPE);
-		if(dspChunk.IsValid())
+		if(FileReader dspChunk = chunks.GetChunk(DBMChunk::idDSPE))
 		{
 			uint16 maskLen = dspChunk.ReadUint16BE();
 			for(uint16 i = 0; i < maskLen; i++)
@@ -560,16 +609,13 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 			plugin.Info.gain = 10;
 			plugin.Info.reserved = 0;
 			plugin.Info.dwOutputRouting = 0;
-			std::fill(plugin.Info.dwReserved, plugin.Info.dwReserved + CountOf(plugin.Info.dwReserved), 0);
-			mpt::String::Write<mpt::String::nullTerminated>(plugin.Info.szName, "Echo");
-			mpt::String::Write<mpt::String::nullTerminated>(plugin.Info.szLibraryName, "DigiBooster Pro Echo");
+			std::fill(plugin.Info.dwReserved, plugin.Info.dwReserved + std::size(plugin.Info.dwReserved), 0);
+			plugin.Info.szName = "Echo";
+			plugin.Info.szLibraryName = "DigiBooster Pro Echo";
 
-			plugin.nPluginDataSize = sizeof(DigiBoosterEcho::PluginChunk);
-			plugin.pPluginData = new (std::nothrow) char[sizeof(DigiBoosterEcho::PluginChunk)];
-			if(plugin.pPluginData != nullptr)
-			{
-				new (plugin.pPluginData) DigiBoosterEcho::PluginChunk(settings[1], settings[3], settings[5], settings[7]);
-			}
+			plugin.pluginData.resize(sizeof(DigiBoosterEcho::PluginChunk));
+			DigiBoosterEcho::PluginChunk chunk = DigiBoosterEcho::PluginChunk::Create(settings[1], settings[3], settings[5], settings[7]);
+			new (plugin.pluginData.data()) DigiBoosterEcho::PluginChunk(chunk);
 		}
 	}
 
@@ -579,10 +625,10 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 		for(uint32 i = 0; i < 32; i++)
 		{
 			uint32 param = (i * 127u) / 32u;
-			sprintf(m_MidiCfg.szMidiZXXExt[i     ], "F0F080%02X", param);
-			sprintf(m_MidiCfg.szMidiZXXExt[i + 32], "F0F081%02X", param);
-			sprintf(m_MidiCfg.szMidiZXXExt[i + 64], "F0F082%02X", param);
-			sprintf(m_MidiCfg.szMidiZXXExt[i + 96], "F0F083%02X", param);
+			mpt::String::WriteAutoBuf(m_MidiCfg.szMidiZXXExt[i     ]) = mpt::format("F0F080%1")(mpt::fmt::HEX0<2>(param));
+			mpt::String::WriteAutoBuf(m_MidiCfg.szMidiZXXExt[i + 32]) = mpt::format("F0F081%1")(mpt::fmt::HEX0<2>(param));
+			mpt::String::WriteAutoBuf(m_MidiCfg.szMidiZXXExt[i + 64]) = mpt::format("F0F082%1")(mpt::fmt::HEX0<2>(param));
+			mpt::String::WriteAutoBuf(m_MidiCfg.szMidiZXXExt[i + 96]) = mpt::format("F0F083%1")(mpt::fmt::HEX0<2>(param));
 		}
 	}
 #endif // NO_PLUGINS
@@ -596,11 +642,11 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 			uint32 sampleFlags = sampleChunk.ReadUint32BE();
 			uint32 sampleLength = sampleChunk.ReadUint32BE();
 
-			ModSample &sample = Samples[smp];
-			sample.nLength = sampleLength;
-
 			if(sampleFlags & 7)
 			{
+				ModSample &sample = Samples[smp];
+				sample.nLength = sampleLength;
+
 				SampleIO(
 					(sampleFlags & 4) ? SampleIO::_32bit : ((sampleFlags & 2) ? SampleIO::_16bit : SampleIO::_8bit),
 					SampleIO::mono,
@@ -624,24 +670,30 @@ bool CSoundFile::ReadDBM(FileReader &file, ModLoadingFlags loadFlags)
 
 		// Read whole MPEG stream into one sample and then split it up.
 		FileReader chunk = mpegChunk.GetChunk(mpegChunk.BytesLeft());
-		if(ReadMP3Sample(0, chunk))
+		if(ReadMP3Sample(0, chunk, true))
 		{
 			ModSample &srcSample = Samples[0];
-			const int8 *smpData = srcSample.pSample8;
+			const std::byte *smpData = srcSample.sampleb();
+			SmpLength predelay = Util::muldiv_unsigned(20116, srcSample.nC5Speed, 100000);
+			LimitMax(predelay, srcSample.nLength);
+			smpData += predelay * srcSample.GetBytesPerSample();
+			srcSample.nLength -= predelay;
 
 			for(SAMPLEINDEX smp = 1; smp <= GetNumSamples(); smp++)
 			{
 				ModSample &sample = Samples[smp];
 				sample.uFlags.set(srcSample.uFlags);
-				sample.nLength *= 2;
 				LimitMax(sample.nLength, srcSample.nLength);
 				if(sample.nLength)
 				{
 					sample.AllocateSample();
-					memcpy(sample.pSample, smpData, sample.GetSampleSizeInBytes());
-					CSoundFile::AdjustSampleLoop(sample);
+					memcpy(sample.sampleb(), smpData, sample.GetSampleSizeInBytes());
 					smpData += sample.GetSampleSizeInBytes();
 					srcSample.nLength -= sample.nLength;
+					SmpLength gap = Util::muldiv_unsigned(454, srcSample.nC5Speed, 10000);
+					LimitMax(gap, srcSample.nLength);
+					smpData += gap * srcSample.GetBytesPerSample();
+					srcSample.nLength -= gap;
 				}
 			}
 			srcSample.FreeSample();

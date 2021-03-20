@@ -44,16 +44,13 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 
 #import "EQViewController.h"
 
-//
-
-//SIDPLAY
-//SID1
-#import "emucfg.h"
 //SID2
-#import "SidTune.h"
-#import "sidplay2.h"
-#import "resid.h"
-//#import "residfp.h"
+#include "sidplayfp/sidplayfp.h"
+#include "sidplayfp/SidTune.h"
+#include "sidplayfp/SidInfo.h"
+#include "sidplayfp/SidTuneInfo.h"
+
+#include "builders/residfp-builder/residfp.h"
 
 static char **sidtune_title,**sidtune_name;
 
@@ -178,12 +175,10 @@ static api68_t *sc68;
 
 //SID
 static int mSIDFilterON;
-static sidplay2 *mSidEmuEngine;
-static ReSIDBuilder *mBuilder;
+static sidplayfp *mSidEmuEngine;
+sidbuilder *mBuilder;
 //static ReSIDfpBuilder *mBuilder;
 static SidTune *mSidTune;
-static emuEngine *mSid1EmuEngine;
-static sidTune *mSid1Tune;
 
 static int sid_forceClock;
 static int sid_forceModel;
@@ -223,7 +218,7 @@ extern "C" char gsf_libfile[1024];
 
 extern "C" GD3_TAG VGMTag;
 extern "C" VGM_HEADER VGMHead;
-extern "C" UINT32 VGMMaxLoop,VGMMaxLoopM;
+extern "C" INT32 VGMMaxLoop,VGMMaxLoopM;
 
 
 static const wchar_t* GetTagStrEJ(bool preferJTAG,const wchar_t* EngTag, const wchar_t* JapTag)
@@ -596,7 +591,7 @@ static volatile int uadeThread_running,timThread_running;
 static volatile int buffer_ana_gen_ofs,buffer_ana_play_ofs;
 static volatile int *buffer_ana_flag;
 static volatile int bGlobalIsPlaying,bGlobalShouldEnd,bGlobalSeekProgress,bGlobalEndReached,bGlobalSoundGenInProgress,bGlobalSoundHasStarted;
-static volatile int mNeedSeek,mNeedSeekTime;
+static volatile long mNeedSeek,mNeedSeekTime;
 
 // String holding the relative path to the source directory
 static const char *pathdir;
@@ -1003,6 +998,7 @@ void propertyListenerCallback (void                   *inUserData,              
 
 @implementation ModizMusicPlayer
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
+@synthesize mCurrentSamples;
 @synthesize mPlayType;
 @synthesize mp_datasize;
 @synthesize optForceMono;
@@ -1014,7 +1010,7 @@ void propertyListenerCallback (void                   *inUserData,              
 //GME stuff
 @synthesize gme_emu;
 //SID
-@synthesize optSIDoptim,mSidEngineType,mAskedSidEngineType;
+@synthesize optSIDoptim;
 //AO stuff
 @synthesize ao_buffer;
 @synthesize ao_info;
@@ -1141,6 +1137,7 @@ void propertyListenerCallback (void                   *inUserData,              
         bGlobalIsPlaying=0;
         mVolume=1.0f;
         mLoopMode=0;
+        mCurrentSamples=0;
         
         mPanning=0;
         mPanningValue=64; //75%
@@ -1235,14 +1232,11 @@ void propertyListenerCallback (void                   *inUserData,              
         // SIDPLAY
         // Init SID emu engine
         mSIDFilterON=1;
-        mSid1EmuEngine=NULL;
         
-        mSidEngineType=2;
         mSidEmuEngine=NULL;
         mBuilder=NULL;
         mSidTune=NULL;
         
-        mSid1Tune=NULL;
         optSIDoptim=1;
         
         sid_forceModel=0;
@@ -2613,6 +2607,27 @@ long src_callback_mpg123(void *cb_data, float **data) {
                 } else if (buffer_ana_flag[buffer_ana_gen_ofs]==0) {
                     if (mNeedSeek==1) { //SEEK
                         mNeedSeek=2;  //taken into account
+                        if (mPlayType==MMP_SIDPLAY) { //SID
+                            long mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;                            
+                            bGlobalSeekProgress=-1;
+                            if (mSeekSamples<mCurrentSamples) {
+                                //reset
+                                mSidTune->selectSong(mod_currentsub+1);
+                                mSidEmuEngine->load(mSidTune);
+                                mCurrentSamples=0;
+                            }
+                            mSidEmuEngine->fastForward( 100 * 32 );
+                            while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
+                                nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                mCurrentSamples+=(nbBytes/4)*32;
+                            }
+                            mSidEmuEngine->fastForward( 100 );
+                            
+                            while (mCurrentSamples<mSeekSamples) {
+                                nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                mCurrentSamples+=(nbBytes/4);
+                            }
+                        }
                         if (mPlayType==MMP_GME) {   //GME
                             bGlobalSeekProgress=-1;
                             gme_seek(gme_emu,mNeedSeekTime);
@@ -2636,9 +2651,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (mPlayType==MMP_HVL) { //HVL
                             bGlobalSeekProgress=-1;
                             mNeedSeekTime=hvl_Seek(hvl_song,mNeedSeekTime);
-                        }
-                        if (mPlayType==MMP_SIDPLAY) { //SID : not supported
-                            mNeedSeek=0;
                         }
                         if (mPlayType==MMP_STSOUND) {//STSOUND
                             if (ymMusicIsSeekable(ymMusic)==YMTRUE) {
@@ -2776,6 +2788,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (mod_currentsub<mod_maxsub) {
                             mod_currentsub++;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_OPENMPT) {
+                                openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                                iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                                iCurrentTime=0;
+                                numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                                
+                                if (moveToNextSubSong==2) {
+                                    //[self iPhoneDrv_PlayWaitStop];
+                                    //[self iPhoneDrv_PlayStart];
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_GME) {//GME
                                 gme_start_track(gme_emu,mod_currentsub);
                                 sprintf(mod_name," %s",mod_filename);
@@ -2821,13 +2850,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 iCurrentTime=0;
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
-                                if (mSidEngineType==1) {
-                                    sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
-                                } else {
-                                    mSidTune->selectSong(mod_currentsub+1);
-                                    mSidEmuEngine->load(mSidTune);
-                                }
-                                
+                                mSidTune->selectSong(mod_currentsub+1);
+                                mSidEmuEngine->load(mSidTune);
+                            
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
@@ -2836,6 +2861,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                     [self iPhoneDrv_PlayStart];
                                 }
                                 iCurrentTime=0;
+                                mCurrentSamples=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
@@ -2884,6 +2910,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     if (moveToSubSong) {
                         mod_currentsub=moveToSubSongIndex;
                         mod_message_updated=1;
+                        if (mPlayType==MMP_OPENMPT) {
+                            openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                            iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                            iCurrentTime=0;
+                            numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                            
+                            if (moveToNextSubSong==2) {
+                                //[self iPhoneDrv_PlayWaitStop];
+                                //[self iPhoneDrv_PlayStart];
+                            } else {
+                                [self iPhoneDrv_PlayStop];
+                                [self iPhoneDrv_PlayStart];
+                            }
+                            //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                            if (mLoopMode) iModuleLength=-1;
+                            mod_message_updated=1;
+                        }
                         if (mPlayType==MMP_GME) {//GME
                             gme_start_track(gme_emu,mod_currentsub);
                             sprintf(mod_name," %s",mod_filename);
@@ -2929,12 +2972,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             iCurrentTime=0;
                         }
                         if (mPlayType==MMP_SIDPLAY) { //SID
-                            if (mSidEngineType==1) {
-                                sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
-                            } else {
-                                mSidTune->selectSong(mod_currentsub+1);
-                                mSidEmuEngine->load(mSidTune);
-                            }
+                            mSidTune->selectSong(mod_currentsub+1);
+                            mSidEmuEngine->load(mSidTune);
                             
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
@@ -2944,6 +2983,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 [self iPhoneDrv_PlayStart];
                             }
                             iCurrentTime=0;
+                            mCurrentSamples=0;
                             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                             if (mLoopMode) iModuleLength=-1;
@@ -2993,6 +3033,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (mod_currentsub>mod_minsub) {
                             mod_currentsub--;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_OPENMPT) {
+                                openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                                iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                                iCurrentTime=0;
+                                numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                                
+                                if (moveToNextSubSong==2) {
+                                    //[self iPhoneDrv_PlayWaitStop];
+                                    //[self iPhoneDrv_PlayStart];
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_GME) {//GME
                                 gme_start_track(gme_emu,mod_currentsub);
                                 sprintf(mod_name," %s",mod_filename);
@@ -3034,16 +3091,13 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 iCurrentTime=0;
                             }
                             if (mPlayType==MMP_SIDPLAY) { //SID
-                                if (mSidEngineType==1) {
-                                    sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
-                                } else {
-                                    mSidTune->selectSong(mod_currentsub+1);
-                                    mSidEmuEngine->load(mSidTune);
-                                }
+                                mSidTune->selectSong(mod_currentsub+1);
+                                mSidEmuEngine->load(mSidTune);
                                 
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
                                 iCurrentTime=0;
+                                mCurrentSamples=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                 if (mLoopMode) iModuleLength=-1;
@@ -3244,6 +3298,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                         }
                         
+                        if (mChangeOfSong==0) {
+                            if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
+                                if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    mod_currentsub++;
+                                    
+                                    openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                                    
+                                    mChangeOfSong=1;
+                                    mNewModuleLength=openmpt_module_get_duration_seconds(mp_file->mod)*1000;
+                                    if (mLoopMode) mNewModuleLength=-1;
+                                } else {
+                                    nbBytes=0;
+                                }
+                            }
+                        }
+                        
                     }
                     if (mPlayType==MMP_PMDMINI) { //PMD
                         // render audio into sound buffer
@@ -3408,24 +3479,19 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         
                     }
                     if (mPlayType==MMP_SIDPLAY) { //SID
-                        if (mSidEngineType==1) {
-                            sidEmuFillBuffer(*mSid1EmuEngine,*mSid1Tune,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
-                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                        } else nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                        nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                        mCurrentSamples+=nbBytes/4;
                         if (mChangeOfSong==0) {
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
                                 if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     mod_currentsub++;
                                     
-                                    if (mSidEngineType==1) {
-                                        sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
-                                    } else {
-                                        mSidTune->selectSong(mod_currentsub+1);
-                                        mSidEmuEngine->load(mSidTune);
-                                    }
+                                    mSidTune->selectSong(mod_currentsub+1);
+                                    mSidEmuEngine->load(mSidTune);
                                     
                                     mChangeOfSong=1;
+                                    mCurrentSamples=0;
                                     mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                     if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                     if (mLoopMode) mNewModuleLength=-1;
@@ -4021,7 +4087,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     pthread_mutex_unlock(&db_mutex);
 }
-
 
 -(void) scanForPlayableFile:(NSString*)pathToScan {
     NSString *file;
@@ -4905,6 +4970,30 @@ long src_callback_mpg123(void *cb_data, float **data) {
     }
 }
 
+/*
+ * Load ROM dump from file.
+ * Allocate the buffer if file exists, otherwise return 0.
+ */
+char* loadRom(const char* path, size_t romSize)
+{
+    char* buffer = 0;
+    FILE *f=fopen(path,"rb");
+    if (!f) return NULL;
+    fseek(f,0L,SEEK_END);
+    int fsize=ftell(f);
+    fseek(f,0L,SEEK_SET);
+    buffer=new char[fsize];
+    if (!buffer) {
+        fclose(f);
+        return NULL;
+    }
+    fread(buffer,1,fsize,f);
+    
+    fclose(f);
+    return buffer;
+}
+
+
 -(int) mmp_sidplayLoad:(NSString*)filePath {  //SID
     mPlayType=MMP_SIDPLAY;
     
@@ -4937,364 +5026,172 @@ long src_callback_mpg123(void *cb_data, float **data) {
     free(tmp_md5_data);
     
     
-    if (mSidEngineType==1) {
+            
+    // Init SID emu engine
+    mSidEmuEngine = new sidplayfp;
+    
+    NSString *c64_path = [[NSBundle mainBundle] resourcePath];
+    
+    char *kernal = loadRom([[c64_path stringByAppendingString:@"/kernal.c64"] UTF8String], 8192);
+    char *basic = loadRom([[c64_path stringByAppendingString:@"/basic.c64"] UTF8String], 8192);
+    char *chargen = loadRom([[c64_path stringByAppendingString:@"/chargen.c64"] UTF8String], 4096);
+
+    mSidEmuEngine->setRoms((const uint8_t*)kernal, (const uint8_t*)basic, (const uint8_t*)chargen);
+
+    delete [] kernal;
+    delete [] basic;
+    delete [] chargen;
+    
+    
+    // Init ReSID
+    mBuilder = new ReSIDfpBuilder("residfp");
+    unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+    mBuilder->create(maxsids);
+    // Check if builder is ok
+    if (!mBuilder->getStatus())
+    {
+        NSLog(@"issue in creating sid builder");
+        return -1;
+    }
+    //mBuilder = new ReSIDfpBuilder("residfp");
+    // Set config
+    SidConfig cfg;// = mSidEmuEngine->config();
+    //cfg.optimisation = optSIDoptim;
+    cfg.frequency= PLAYBACK_FREQ;
+    cfg.samplingMethod = SidConfig::INTERPOLATE;
+    cfg.fastSampling = false;
+    cfg.playback = SidConfig::STEREO;
+    cfg.sidEmulation  = mBuilder;
+    
+    
+    
+    switch (sid_forceClock) {
+        case 0:
+            //cfg.clockForced=FALSE;
+            cfg.forceC64Model=false;
+            break;
+        case 1:
+            cfg.forceC64Model=true;
+            cfg.defaultC64Model=SidConfig::PAL;
+            break;
+        case 2:
+            cfg.forceC64Model=true;
+            cfg.defaultC64Model=SidConfig::NTSC;
+            break;
+    }
+    
+    switch (sid_forceModel) {
+        case 0:
+            cfg.forceSidModel=false;
+            break;
+        case 1:
+            cfg.defaultSidModel=SidConfig::MOS6581;
+            cfg.forceSidModel=true;
+            break;
+        case 2:
+            cfg.defaultSidModel=SidConfig::MOS8580;
+            cfg.forceSidModel=true;
+            break;
+    }
+    
+    // setup resid
+    if (mSIDFilterON) mBuilder->filter(true);
+    else mBuilder->filter(false);
+    
+    mSidEmuEngine->config(cfg);
+    // Load tune
+    mSidTune=new SidTune([filePath UTF8String],0,true);
+    
+    if (mSidTune==NULL) {
+        NSLog(@"SID SidTune init error");
+        delete mSidEmuEngine; mSidEmuEngine=NULL;
+        delete mBuilder; mBuilder=NULL;
+        if (mSidTune) {delete mSidTune;mSidTune=NULL;}
+        mPlayType=0;
+    } else {
+        const SidTuneInfo *sidtune_info;
+        sidtune_info=mSidTune->getInfo();
         
-        mSid1EmuEngine = new emuEngine;
-        // Set config
-        struct emuConfig cfg;
-        mSid1EmuEngine->getConfig(cfg);
-        cfg.channels = SIDEMU_STEREO;
-        cfg.volumeControl = SIDEMU_VOLCONTROL;
-        if (mSIDFilterON) cfg.emulateFilter=TRUE;
-        else cfg.emulateFilter=FALSE;
+        if (sidtune_info->infoString(0)[0]) sprintf(mod_name," %s",sidtune_info->infoString(0));
+        else sprintf(mod_name," %s",mod_filename);
+        mod_subsongs=sidtune_info->songs();
+        mod_minsub=0;//sidtune_info.startSong;
+        mod_maxsub=sidtune_info->songs()-1;
+        mod_currentsub=sidtune_info->startSong()-1;
+                       
+        mSidTune->selectSong(mod_currentsub);
+        iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+        if (!iModuleLength) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
         
-        switch (sid_forceClock) {
-            case 0:
-                cfg.forceSongSpeed=FALSE;
-                break;
-            case 1:
-                cfg.forceSongSpeed=TRUE;
-                cfg.clockSpeed=SIDTUNE_CLOCK_PAL;
-                break;
-            case 2:
-                cfg.forceSongSpeed=TRUE;
-                cfg.clockSpeed=SIDTUNE_CLOCK_NTSC;
-                break;
-        }
-        
-        switch (sid_forceModel) {
-            case 0:
-                break;
-            case 1:
-                cfg.mos8580=0;
-                break;
-            case 2:
-                cfg.mos8580=1;
-                break;
-        }
-        
-        mSid1EmuEngine->setConfig(cfg);
-        
-        
-        // Load tune
-        mSid1Tune=new sidTune([filePath UTF8String],true,0);
-        
-        if ((mSid1Tune==NULL)||(mSid1Tune->cachePtr==0)) {
-            NSLog(@"SID SidTune init error");
-            delete mSid1EmuEngine; mSid1EmuEngine=NULL;
-            if (mSid1Tune) {delete mSid1Tune;mSid1Tune=NULL;}
-            mPlayType=0;
-        } else {
-            struct sidTuneInfo sidtune_info;
-            mSid1Tune->getInfo(sidtune_info);
-            
-            if (sidtune_info.infoString[0][0]) sprintf(mod_name," %s",sidtune_info.infoString[0]);
-            else sprintf(mod_name," %s",mod_filename);
-            mod_subsongs=sidtune_info.songs;
-            mod_minsub=0;
-            mod_maxsub=sidtune_info.songs-1;
-            mod_currentsub=sidtune_info.startSong-1;
-            
-            /*old format
-            
-            int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
-            char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
-            memset(tmp_md5_data,0,tmp_md5_data_size);
-            int ofs_md5_data=0;
-            unsigned char tmp[2];
-            memcpy(tmp_md5_data,mSid1Tune->cachePtr+mSid1Tune->fileOffset,sidtune_info.c64dataLen);
-            ofs_md5_data+=sidtune_info.c64dataLen;
-            // Include INIT and PLAY address.
-            writeLEword(tmp,sidtune_info.initAddr);
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            writeLEword(tmp,sidtune_info.playAddr);
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            // Include number of songs.
-            writeLEword(tmp,sidtune_info.songs);
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            
-            // Include song speed for each song.
-            for (unsigned int s = 1; s <= sidtune_info.songs; s++) {
-                sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, s);
-                mSid1Tune->getInfo(sidtune_info);
-                if (sidtune_info.songSpeed==50) sidtune_info.songSpeed=0;
-                memcpy(tmp_md5_data+ofs_md5_data,&sidtune_info.songSpeed,sizeof(sidtune_info.songSpeed));
-                //NSLog(@"sp : %d %d %d",s,sidtune_info.songSpeed,sizeof(sidtune_info.songSpeed));
-                ofs_md5_data+=sizeof(sidtune_info.songSpeed);
-            }
-            // Deal with PSID v2NG clock speed flags: Let only NTSC
-            // clock speed change the MD5 fingerprint. That way the
-            // fingerprint of a PAL-speed sidtune in PSID v1, v2, and
-            // PSID v2NG format is the same.
-            if ( sidtune_info.clockSpeed == SIDTUNE_CLOCK_NTSC ) {
-                memcpy(tmp_md5_data+ofs_md5_data,&sidtune_info.clockSpeed,sizeof(sidtune_info.clockSpeed));
-                ofs_md5_data+=sizeof(sidtune_info.clockSpeed);
-            }
-            
-            md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
-            song_md5[32]=0;
-            free(tmp_md5_data);
-             */
-            
-            
-            
-             
-            //NSLog(@"MD5: %s",song_md5);
-            //
-            sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
-            mSid1Tune->getInfo(sidtune_info);
-            
-            
-            
-            iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
-            
-            if ((sidtune_info.sidModel==SIDTUNE_SIDMODEL_6581)&&(sid_forceModel==0)) {
-                mSid1EmuEngine->getConfig(cfg);
-                cfg.mos8580=0;
-                mSid1EmuEngine->setConfig(cfg);
-            }
-            
-            if ((sidtune_info.sidModel == SIDTUNE_SIDMODEL_8580)&&(sid_forceModel==0)){
-                mSid1EmuEngine->getConfig(cfg);
-                cfg.mos8580=0;
-                mSid1EmuEngine->setConfig(cfg);
-            } else {
-                //mFilterSettings.distortion_enable = true;
-                //mBuilder->filter(&mFilterSettings);
-            }
-            
+        if (mSidEmuEngine->load(mSidTune)) {
             iCurrentTime=0;
-            numChannels=4;
-            
-            
-            mSid1EmuEngine->setVoiceVolume(1, 150, 255-150, 256);
-            mSid1EmuEngine->setVoiceVolume(3, 150, 255-150, 256);
-            mSid1EmuEngine->setVoiceVolume(2, 255-150, 150, 256);
-            mSid1EmuEngine->setVoiceVolume(4, 255-150, 150, 256);
+            mCurrentSamples=0;
+            numChannels=(mSidEmuEngine->info()).channels();
             
             stil_info[0]=0;
             [self getStilInfo:(char*)[filePath UTF8String]];
             
             sprintf(mod_message,"");
-            for (int i=0;i<sidtune_info.numberOfInfoStrings;i++)
-                sprintf(mod_message,"%s%s\n",mod_message,sidtune_info.infoString[i]);
+            for (int i=0;i<sidtune_info->numberOfInfoStrings();i++)
+                sprintf(mod_message,"%s%s\n",mod_message,sidtune_info->infoString(i));
             
             sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
+            //Loop
+            if (mLoopMode==1) iModuleLength=-1;
+            
             
             //Parse STIL INFO for subsongs info
             [self sid_parseStilInfo];
             
             
+            //////////////////////////////////
+            //update DB with songlength
+            //////////////////////////////////
+            mod_total_length=0;
+            for (int i=0;i<sidtune_info->songs(); i++) {
+                int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
+                if (!sid_subsong_length) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                mod_total_length+=sid_subsong_length;
+                
+                short int playcount;
+                signed char rating;
+                int song_length;
+                char channels_nb;
+                int songs;
+                NSString *filePathSid;
+                NSString *fileName=[self getSubTitle:i];
+                
+                
+                NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+                for (;;) {
+                    if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                        break;
+                    }
+                    [tmp_path removeObjectAtIndex:0];
+                    if ([tmp_path count]==0) break;
+                }
+                filePathSid=[tmp_path componentsJoinedByString:@"/"];
+                
+                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
+                
+                DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+                //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,sid_subsong_length,rating);
+                
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,(mSidEmuEngine->info()).channels(),sidtune_info->songs());
+                
+                if (i==sidtune_info->songs()-1) {// Global file stats update
+                    fileName=[filePath lastPathComponent];
+                    DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&song_length,&channels_nb,&songs);
+                    
+                    //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSid,mod_total_length,rating);
+                    
+                    DBHelper::updateFileStatsDBmod(fileName,filePathSid,playcount,rating,mod_total_length,(mSidEmuEngine->info()).channels(),sidtune_info->songs());
+                }
+            }
+            
+            
             return 0;
         }
-    } else {
-        
-        // Init SID emu engine
-        mSidEmuEngine = new sidplay2;
-        // Init ReSID
-        mBuilder = new ReSIDBuilder("resid");
-        //mBuilder = new ReSIDfpBuilder("residfp");
-        // Set config
-        sid2_config_t cfg = mSidEmuEngine->config();
-        //cfg.optimisation = optSIDoptim;
-        cfg.sidEmulation  = mBuilder;
-        cfg.frequency= PLAYBACK_FREQ;
-        cfg.emulateStereo = false;
-        cfg.playback = sid2_stereo;
-        cfg.sidSamples	  = true;
-        
-        switch (sid_forceClock) {
-            case 0:
-                cfg.clockForced=FALSE;
-                break;
-            case 1:
-                cfg.clockForced=TRUE;
-                cfg.clockSpeed=SID2_CLOCK_PAL;
-                break;
-            case 2:
-                cfg.clockForced=TRUE;
-                cfg.clockSpeed=SID2_CLOCK_NTSC;
-                break;
-        }
-        
-        switch (sid_forceModel) {
-            case 0:
-                cfg.sidModel=SID2_MODEL_CORRECT;
-                break;
-            case 1:
-                cfg.sidModel=SID2_MOS6581;
-                break;
-            case 2:
-                cfg.sidModel=SID2_MOS8580;
-                break;
-        }
-        
-        // setup resid
-        if (mBuilder) mBuilder->create(mSidEmuEngine->info().maxsids);
-        if (mSIDFilterON) mBuilder->filter(true);
-        else mBuilder->filter(false);
-        mBuilder->bias(0);
-        
-        //mBuilder->filter((const sid_filter_t *)NULL);
-        //mBuilder->filter(&mSIDFilter);
-        //mBuilder->sampling(cfg.frequency);
-        
-        mSidEmuEngine->config(cfg);
-        // Load tune
-        mSidTune=new SidTune([filePath UTF8String],0,true);
-        
-        if ((mSidTune==NULL)||(mSidTune->cache.get()==0)) {
-            NSLog(@"SID SidTune init error");
-            delete mSidEmuEngine; mSidEmuEngine=NULL;
-            delete mBuilder; mBuilder=NULL;
-            if (mSidTune) {delete mSidTune;mSidTune=NULL;}
-            mPlayType=0;
-        } else {
-            SidTuneInfo sidtune_info;
-            sidtune_info=mSidTune->getInfo();
-            
-            if (sidtune_info.infoString[0][0]) sprintf(mod_name," %s",sidtune_info.infoString[0]);
-            else sprintf(mod_name," %s",mod_filename);
-            mod_subsongs=sidtune_info.songs;
-            mod_minsub=0;//sidtune_info.startSong;
-            mod_maxsub=sidtune_info.songs-1;
-            mod_currentsub=sidtune_info.startSong-1;
-           
-            /* old format
-            int tmp_md5_data_size=sidtune_info.c64dataLen+2*3+sizeof(sidtune_info.songSpeed)*sidtune_info.songs;
-            char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
-            memset(tmp_md5_data,0,tmp_md5_data_size);
-            int ofs_md5_data=0;
-            unsigned char tmp[2];
-            memcpy(tmp_md5_data,mSidTune->cache.get()+mSidTune->fileOffset,sidtune_info.c64dataLen);
-            ofs_md5_data+=sidtune_info.c64dataLen;
-            // Include INIT and PLAY address.
-            writeLEword(tmp,sidtune_info.initAddr);
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            writeLEword(tmp,sidtune_info.playAddr);
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            // Include number of songs.
-            writeLEword(tmp,sidtune_info.songs);
-            memcpy(tmp_md5_data+ofs_md5_data,tmp,2);
-            ofs_md5_data+=2;
-            
-            // Include song speed for each song.
-            for (unsigned int s = 1; s <= sidtune_info.songs; s++)
-            {
-                mSidTune->selectSong(s);
-                memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
-                //NSLog(@"sp : %d %d %d",s,mSidTune->info.songSpeed,sizeof(mSidTune->info.songSpeed));
-                ofs_md5_data+=sizeof(mSidTune->info.songSpeed);
-            }
-            // Deal with PSID v2NG clock speed flags: Let only NTSC
-            // clock speed change the MD5 fingerprint. That way the
-            // fingerprint of a PAL-speed sidtune in PSID v1, v2, and
-            // PSID v2NG format is the same.
-            if ( mSidTune->info.clockSpeed == SIDTUNE_CLOCK_NTSC ) {
-                memcpy(tmp_md5_data+ofs_md5_data,&mSidTune->info.clockSpeed,sizeof(mSidTune->info.clockSpeed));
-                ofs_md5_data+=sizeof(mSidTune->info.clockSpeed);
-                //myMD5.append(&info.clockSpeed,sizeof(info.clockSpeed));
-            }
-            md5_from_buffer(song_md5,33,tmp_md5_data,tmp_md5_data_size);
-            song_md5[32]=0;
-            free(tmp_md5_data);
-             */
-            //NSLog(@"MD5: %s",song_md5);
-            
-            
-            mSidTune->selectSong(mod_currentsub+1);
-            iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-            if (!iModuleLength) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
-            
-            
-            
-            /*				if (sidtune_info.sidModel==SIDTUNE_SIDMODEL_6581) {
-             mBuilder->filter((sid_filter_t*)NULL);
-             }
-             
-             if (sidtune_info.sidModel == SIDTUNE_SIDMODEL_8580){
-             mBuilder->filter((sid_filter_t*)NULL);
-             } else {
-             mSIDFilter.distortion_enable = true;
-             mBuilder->filter(&mSIDFilter);
-             }*/
-            
-            if (mSidEmuEngine->load(mSidTune)==0) {
-                iCurrentTime=0;
-                numChannels=mSidEmuEngine->info().channels;
-                
-                stil_info[0]=0;
-                [self getStilInfo:(char*)[filePath UTF8String]];
-                
-                sprintf(mod_message,"");
-                for (int i=0;i<sidtune_info.numberOfInfoStrings;i++)
-                    sprintf(mod_message,"%s%s\n",mod_message,sidtune_info.infoString[i]);
-                sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
-                //Loop
-                if (mLoopMode==1) iModuleLength=-1;
-                
-                
-                //Parse STIL INFO for subsongs info
-                [self sid_parseStilInfo];
-                
-                
-                //////////////////////////////////
-                //update DB with songlength
-                //////////////////////////////////
-                mod_total_length=0;
-                for (int i=0;i<sidtune_info.songs; i++) {
-                    int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
-                    if (!sid_subsong_length) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
-                    mod_total_length+=sid_subsong_length;
-                    
-                    short int playcount;
-                    signed char rating;
-                    int song_length;
-                    char channels_nb;
-                    int songs;
-                    NSString *filePathSid;
-                    NSString *fileName=[self getSubTitle:i];
-                    
-                    
-                    NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-                    for (;;) {
-                        if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
-                            break;
-                        }
-                        [tmp_path removeObjectAtIndex:0];
-                        if ([tmp_path count]==0) break;
-                    }
-                    filePathSid=[tmp_path componentsJoinedByString:@"/"];
-                    
-                    NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathSid,i];
-                    
-                    DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
-                    //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,sid_subsong_length,rating);
-                    
-                    DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,mSidEmuEngine->info().channels,sidtune_info.songs);
-                    
-                    if (i==sidtune_info.songs-1) {// Global file stats update
-                        fileName=[filePath lastPathComponent];
-                        DBHelper::getFileStatsDBmod(fileName,filePathSid,&playcount,&rating,&song_length,&channels_nb,&songs);
-                        
-                        //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSid,mod_total_length,rating);
-                        
-                        DBHelper::updateFileStatsDBmod(fileName,filePathSid,playcount,rating,mod_total_length,mSidEmuEngine->info().channels,sidtune_info.songs);
-                    }
-                }
-                
-                
-                return 0;
-            }
-        }
-        
-        
     }
     return 1;
 }
@@ -5772,6 +5669,12 @@ long src_callback_mpg123(void *cb_data, float **data) {
         } else {
             sprintf(mod_name," %s", modName);
         }
+        
+        
+        mod_subsongs=openmpt_module_get_num_subsongs(mp_file->mod);
+        mod_minsub=0;
+        mod_maxsub=mod_subsongs-1;
+        mod_currentsub=openmpt_module_get_selected_subsong( mp_file->mod );
         
         
         numSamples=ModPlug_NumSamples(mp_file);
@@ -6324,6 +6227,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     return 0;
 }
+
 -(int) mmp_snsfLoad:(NSString*)filePath extension:(NSString*)extension {  //SNSF
     mPlayType=MMP_SNSF;
     FILE *f;
@@ -6496,8 +6400,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
     return 0;
 }
 
-
-
 -(int) mmp_vgmplayLoad:(NSString*)filePath { //VGM
     mPlayType=MMP_VGMPLAY;
     FILE *f;
@@ -6518,8 +6420,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
     // load configuration file here
     ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
-    
+        
     VGMMaxLoop=optVGMPLAY_maxloop;
+    if (mLoopMode==1) VGMMaxLoop=-1;
     
     VGMPlay_Init2();
     
@@ -6627,6 +6530,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
         return 0;
     }
 }
+
 -(int) mmp_dumbLoad:(NSString*)filePath { //DUMB
     mPlayType=MMP_DUMB;
     it_max_channels=0;
@@ -6758,6 +6662,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     return 0;
 }
+
 -(int) mmp_asapLoad:(NSString*)filePath { //ASAP
     mPlayType=MMP_ASAP;
     FILE *f;
@@ -7157,7 +7062,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         moveToNextSubSong=0;
         moveToSubSong=0;
         moveToSubSongIndex=0;
-        mSidEngineType=mAskedSidEngineType;
         iModuleLength=0;
         mPatternDataAvail=0;
         
@@ -7345,7 +7249,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         moveToNextSubSong=0;
         moveToSubSong=0;
         moveToSubSongIndex=0;
-        mSidEngineType=mAskedSidEngineType;
         iModuleLength=0;
         mPatternDataAvail=0;
         
@@ -7915,12 +7818,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
             }
-            if (mSidEngineType==1) {
-                sidEmuInitializeSong(*mSid1EmuEngine,*mSid1Tune, mod_currentsub+1);
-            } else {
-                mSidTune->selectSong(mod_currentsub+1);
-                mSidEmuEngine->load(mSidTune);
-            }
+            mSidTune->selectSong(mod_currentsub+1);
+            mSidEmuEngine->load(mSidTune);
+            
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
             if (mLoopMode) iModuleLength=-1;
@@ -8083,14 +7983,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             delete mSidEmuEngine;
             mSidEmuEngine = NULL;
         }
-        if (mSid1Tune) {
-            delete mSid1Tune;
-            mSid1Tune = NULL;
-        }
-        if (mSid1EmuEngine) {
-            delete mSid1EmuEngine;
-            mSid1EmuEngine = NULL;
-        }
         
         if (sidtune_title) {
             for (int i=0;i<mod_subsongs;i++)
@@ -8234,7 +8126,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_SEXYPSF) return @"SexyPSF";
     if (mPlayType==MMP_UADE) return @"UADE";
     if (mPlayType==MMP_HVL) return @"HVL";
-    if (mPlayType==MMP_SIDPLAY) return (mSidEngineType==1?@"SIDPLAY1":@"SIDPLAY2/RESID");
+    if (mPlayType==MMP_SIDPLAY) return (@"SIDPLAY/RESIDFP");
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_SC68) return @"SC68";
     if (mPlayType==MMP_MDXPDX) return @"MDX";
@@ -8254,6 +8146,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 -(NSString*) getSubTitle:(int)subsong {
     NSString *result;
     if ((subsong<mod_minsub)||(subsong>mod_maxsub)) return @"";
+    if (mPlayType==MMP_OPENMPT) {
+        const char *ret=openmpt_module_get_subsong_name(mp_file->mod, subsong);
+        if (ret) {
+            result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:ret]];
+        } else result=[NSString stringWithFormat:@"%.3d",subsong];
+        return result;
+    }
     if (mPlayType==MMP_GME) {
         if (gme_track_info( gme_emu, &gme_info, subsong )==0) {
             int sublen=gme_info->play_length;
@@ -8279,16 +8178,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_title[subsong]]];
         }
         
-        if (mSidEngineType==1) {
-            struct sidTuneInfo sidtune_info;
-            mSid1Tune->getInfo(sidtune_info);
-            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_info.infoString[0]]];
-        }
-        else {
-            SidTuneInfo sidtune_info;
-            sidtune_info=mSidTune->getInfo();
-            if (sidtune_info.infoString[0][0]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_info.infoString[0]]];
-        }
+        const SidTuneInfo *sidtune_info;
+        sidtune_info=mSidTune->getInfo();
+        if (sidtune_info->infoString(0)[0]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_info->infoString(0)]];
         
         
         
@@ -8685,8 +8577,7 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int) seek_time {
-    if ((mPlayType==MMP_AOSDK)||(mPlayType==MMP_UADE)||(mPlayType==MMP_SIDPLAY)
-        ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
+    if ((mPlayType==MMP_AOSDK)||(mPlayType==MMP_UADE)  ||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_GSF)||(mPlayType==MMP_PMDMINI)||mNeedSeek) return;
     
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;

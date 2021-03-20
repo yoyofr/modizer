@@ -123,13 +123,13 @@ extern bool PausePlay;
 extern bool FadePlay;
 extern bool ForceVGMExec;
 
-extern UINT32 VGMMaxLoop;
+extern INT32 VGMMaxLoop;
 UINT32 CMFMaxLoop;
-extern UINT32 VGMMaxLoopM;
+extern INT32 VGMMaxLoopM;
 extern UINT32 VGMCurLoop;
 
 extern UINT32 FadeTime;
-extern UINT32 VGMMaxLoop;
+extern INT32 VGMMaxLoop;
 extern bool ErrorHappened;
 
 extern UINT8 CmdList[0x100];

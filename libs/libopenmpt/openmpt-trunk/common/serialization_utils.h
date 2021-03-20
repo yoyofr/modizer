@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "../common/typedefs.h"
-#include "../common/mptTypeTraits.h"
+#include "BuildSettings.h"
+
+#include "../common/mptBaseTypes.h"
 #include "../common/mptIO.h"
 #include "../common/Endianness.h"
 
@@ -85,7 +86,6 @@ typedef int32 SsbStatus;
 
 
 struct ReadEntry
-//==============
 {
 	ReadEntry() : nIdpos(0), rposStart(0), nSize(invalidDatasize), nIdLength(0) {}
 
@@ -116,14 +116,12 @@ enum Rwf
 
 template<class T>
 inline void Binarywrite(std::ostream& oStrm, const T& data)
-//---------------------------------------------------------
 {
 	mpt::IO::WriteIntLE(oStrm, data);
 }
 
 template<>
 inline void Binarywrite(std::ostream& oStrm, const float& data)
-//-------------------------------------------------------------
 {
 	IEEE754binary32LE tmp = IEEE754binary32LE(data);
 	mpt::IO::Write(oStrm, tmp);
@@ -131,7 +129,6 @@ inline void Binarywrite(std::ostream& oStrm, const float& data)
 
 template<>
 inline void Binarywrite(std::ostream& oStrm, const double& data)
-//--------------------------------------------------------------
 {
 	IEEE754binary64LE tmp = IEEE754binary64LE(data);
 	mpt::IO::Write(oStrm, tmp);
@@ -139,11 +136,8 @@ inline void Binarywrite(std::ostream& oStrm, const double& data)
 
 template <class T>
 inline void WriteItem(std::ostream& oStrm, const T& data)
-//-------------------------------------------------------
 {
-	#if !MPT_GCC_BEFORE(4,5,0)
-		static_assert(std::is_trivial<T>::value == true, "");
-	#endif
+	static_assert(std::is_trivial<T>::value == true, "");
 	Binarywrite(oStrm, data);
 }
 
@@ -155,14 +149,12 @@ inline void WriteItem<std::string>(std::ostream& oStrm, const std::string& str) 
 
 template<class T>
 inline void Binaryread(std::istream& iStrm, T& data)
-//--------------------------------------------------
 {
 	mpt::IO::ReadIntLE(iStrm, data);
 }
 
 template<>
 inline void Binaryread(std::istream& iStrm, float& data)
-//------------------------------------------------------
 {
 	IEEE754binary32LE tmp = IEEE754binary32LE(0.0f);
 	mpt::IO::Read(iStrm, tmp);
@@ -171,7 +163,6 @@ inline void Binaryread(std::istream& iStrm, float& data)
 
 template<>
 inline void Binaryread(std::istream& iStrm, double& data)
-//-------------------------------------------------------
 {
 	IEEE754binary64LE tmp = IEEE754binary64LE(0.0);
 	mpt::IO::Read(iStrm, tmp);
@@ -181,17 +172,15 @@ inline void Binaryread(std::istream& iStrm, double& data)
 //Read only given number of bytes to the beginning of data; data bytes are memset to 0 before reading.
 template <class T>
 inline void Binaryread(std::istream& iStrm, T& data, const Offtype bytecount)
-//---------------------------------------------------------------------------
 {
 	mpt::IO::ReadBinaryTruncatedLE(iStrm, data, static_cast<std::size_t>(bytecount));
 }
 
 template <>
 inline void Binaryread<float>(std::istream& iStrm, float& data, const Offtype bytecount)
-//--------------------------------------------------------------------------------------
 {
 	typedef IEEE754binary32LE T;
-	mpt::byte bytes[sizeof(T)];
+	std::byte bytes[sizeof(T)];
 	std::memset(bytes, 0, sizeof(T));
 	mpt::IO::ReadRaw(iStrm, bytes, std::min(static_cast<std::size_t>(bytecount), sizeof(T)));
 	// There is not much we can sanely do for truncated floats,
@@ -201,10 +190,9 @@ inline void Binaryread<float>(std::istream& iStrm, float& data, const Offtype by
 
 template <>
 inline void Binaryread<double>(std::istream& iStrm, double& data, const Offtype bytecount)
-//----------------------------------------------------------------------------------------
 {
 	typedef IEEE754binary64LE T;
-	mpt::byte bytes[sizeof(T)];
+	std::byte bytes[sizeof(T)];
 	std::memset(bytes, 0, sizeof(T));
 	mpt::IO::ReadRaw(iStrm, bytes, std::min(static_cast<std::size_t>(bytecount), sizeof(T)));
 	// There is not much we can sanely do for truncated floats,
@@ -215,11 +203,8 @@ inline void Binaryread<double>(std::istream& iStrm, double& data, const Offtype 
 
 template <class T>
 inline void ReadItem(std::istream& iStrm, T& data, const DataSize nSize)
-//----------------------------------------------------------------------
 {
-	#if !MPT_GCC_BEFORE(4,5,0)
-		static_assert(std::is_trivial<T>::value == true, "");
-	#endif
+	static_assert(std::is_trivial<T>::value == true, "");
 	if (nSize == sizeof(T) || nSize == invalidDatasize)
 		Binaryread(iStrm, data);
 	else
@@ -230,7 +215,6 @@ void ReadItemString(std::istream& iStrm, std::string& str, const DataSize);
 
 template <>
 inline void ReadItem<std::string>(std::istream& iStrm, std::string& str, const DataSize nSize)
-//--------------------------------------------------------------------------------------------
 {
 	ReadItemString(iStrm, str, nSize);
 }
@@ -250,10 +234,10 @@ public:
 	template <typename T>
 	static ID FromInt(const T &val)
 	{
-		STATIC_ASSERT(std::numeric_limits<T>::is_integer);
+		static_assert(std::numeric_limits<T>::is_integer);
 		typename mpt::make_le<T>::type valle;
 		valle = val;
-		return ID(std::string(mpt::as_raw_memory(valle), mpt::as_raw_memory(valle) + sizeof(valle)));
+		return ID(std::string(mpt::byte_cast<const char*>(mpt::as_raw_memory(valle).data()), mpt::byte_cast<const char*>(mpt::as_raw_memory(valle).data() + sizeof(valle))));
 	}
 	bool IsPrintable() const;
 	mpt::ustring AsString() const;
@@ -303,7 +287,7 @@ protected:
 
 protected:
 
-	static const uint8 s_DefaultFlagbyte = 0;
+	enum : uint8 { s_DefaultFlagbyte = 0 };
 	static const char s_EntryID[3];
 
 };
@@ -391,7 +375,7 @@ private:
 	// immutable when reading, there is no need to ever invalidate the cache and
 	// redo CacheMap().
 
-	std::istream* m_pIstrm;					// Read: Pointer to read stream.
+	std::istream& iStrm;
 
 	std::vector<char> m_Idarray;		// Read: Holds entry ids.
 
@@ -454,7 +438,7 @@ private:
 
 private:
 
-	std::ostream* m_pOstrm;				// Write: Pointer to write stream.
+	std::ostream& oStrm;
 
 	Postype m_posEntrycount;			// Write: Pos of entrycount field. 
 	Postype m_posMapPosField;			// Write: Pos of map position field.
@@ -465,40 +449,36 @@ private:
 
 template <class T, class FuncObj>
 void SsbWrite::WriteItem(const T& obj, const ID &id, FuncObj Func)
-//----------------------------------------------------------------
 {
-	const Postype pos = m_pOstrm->tellp();
-	Func(*m_pOstrm, obj);
+	const Postype pos = oStrm.tellp();
+	Func(oStrm, obj);
 	OnWroteItem(id, pos);
 }
 
 template <class T, class FuncObj>
 SsbRead::ReadRv SsbRead::ReadItem(T& obj, const ID &id, FuncObj Func)
-//-------------------------------------------------------------------
 {
 	const ReadEntry* pE = Find(id);
-	const Postype pos = m_pIstrm->tellg();
+	const Postype pos = iStrm.tellg();
 	if (pE != nullptr || GetFlag(RwfRMapHasId) == false)
-		Func(*m_pIstrm, obj, (pE) ? (pE->nSize) : invalidDatasize);
+		Func(iStrm, obj, (pE) ? (pE->nSize) : invalidDatasize);
 	return OnReadEntry(pE, id, pos);
 }
 
 
 template <class T, class FuncObj>
 SsbRead::ReadRv SsbRead::ReadIterItem(const ReadIterator& iter, T& obj, FuncObj func)
-//-----------------------------------------------------------------------------------
 {
-	m_pIstrm->clear();
+	iStrm.clear();
 	if (iter->rposStart != 0)
-		m_pIstrm->seekg(m_posStart + Postype(iter->rposStart));
-	const Postype pos = m_pIstrm->tellg();
-	func(*m_pIstrm, obj, iter->nSize);
+		iStrm.seekg(m_posStart + Postype(iter->rposStart));
+	const Postype pos = iStrm.tellg();
+	func(iStrm, obj, iter->nSize);
 	return OnReadEntry(&(*iter), ID(&m_Idarray[iter->nIdpos], iter->nIdLength), pos);
 }
 
 
 inline SsbRead::IdMatchStatus SsbRead::CompareId(const ReadIterator& iter, const ID &id)
-//--------------------------------------------------------------------------------------
 {
 	if(iter->nIdpos >= m_Idarray.size()) return IdMismatch;
 	return (id == ID(&m_Idarray[iter->nIdpos], iter->nIdLength)) ? IdMatch : IdMismatch;
@@ -506,7 +486,6 @@ inline SsbRead::IdMatchStatus SsbRead::CompareId(const ReadIterator& iter, const
 
 
 inline SsbRead::ReadIterator SsbRead::GetReadBegin()
-//--------------------------------------------------
 {
 	MPT_ASSERT(GetFlag(RwfRMapHasId) && (GetFlag(RwfRMapHasStartpos) || GetFlag(RwfRMapHasSize) || m_nFixedEntrySize > 0));
 	if (GetFlag(RwfRMapCached) == false)
@@ -516,7 +495,6 @@ inline SsbRead::ReadIterator SsbRead::GetReadBegin()
 
 
 inline SsbRead::ReadIterator SsbRead::GetReadEnd()
-//------------------------------------------------
 {
 	if (GetFlag(RwfRMapCached) == false)
 		CacheMap();
@@ -525,14 +503,29 @@ inline SsbRead::ReadIterator SsbRead::GetReadEnd()
 
 
 template <class T>
-struct ArrayWriter
-//================
+struct VectorWriter
 {
-	ArrayWriter(size_t nCount) : m_nCount(nCount) {}
-	void operator()(std::ostream& oStrm, const T* pData) {
-		for(std::size_t i=0; i<m_nCount; ++i)
+	VectorWriter(size_t nCount) : m_nCount(nCount) {}
+	void operator()(std::ostream &oStrm, const std::vector<T> &vec)
+	{
+		for(size_t i = 0; i < m_nCount; i++)
 		{
-			Binarywrite(oStrm, pData[i]);
+			Binarywrite(oStrm, vec[i]);
+		}
+	}
+	size_t m_nCount;
+};
+
+template <class T>
+struct VectorReader
+{
+	VectorReader(size_t nCount) : m_nCount(nCount) {}
+	void operator()(std::istream& iStrm, std::vector<T> &vec, const size_t)
+	{
+		vec.resize(m_nCount);
+		for(std::size_t i = 0; i < m_nCount; ++i)
+		{
+			Binaryread(iStrm, vec[i]);
 		}
 	}
 	size_t m_nCount;
@@ -540,10 +533,10 @@ struct ArrayWriter
 
 template <class T>
 struct ArrayReader
-//================
 {
 	ArrayReader(size_t nCount) : m_nCount(nCount) {}
-	void operator()(std::istream& iStrm, T* pData, const size_t) {
+	void operator()(std::istream& iStrm, T* pData, const size_t)
+	{
 		for(std::size_t i=0; i<m_nCount; ++i)
 		{
 			Binaryread(iStrm, pData[i]);

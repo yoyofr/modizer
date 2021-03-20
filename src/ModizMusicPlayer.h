@@ -108,6 +108,7 @@ enum MMP_PLAYER_TYPE {
 	unsigned int mPlayType;
 	int mp_datasize,numChannels;
 	int mLoopMode; //0:off, 1:infinite
+    long mCurrentSamples;
 
 	//Player status
 	int bGlobalAudioPause;
@@ -144,7 +145,6 @@ enum MMP_PLAYER_TYPE {
     int mADPLUGopltype;
 	//SID
 	int optSIDoptim;
-	int mSidEngineType,mAskedSidEngineType; //Current / next
 	
 	
 	//Adplug stuff
@@ -178,6 +178,7 @@ enum MMP_PLAYER_TYPE {
 	int mQueueIsBeingStopped;
 };
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
+@property long mCurrentSamples;
 @property int optForceMono;
 @property unsigned int mPlayType;
 @property int mp_datasize,mPatternDataAvail;
@@ -189,7 +190,7 @@ enum MMP_PLAYER_TYPE {
 //GME stuff
 @property Music_Emu* gme_emu;
 //SID
-@property int optSIDoptim,mSidEngineType,mAskedSidEngineType;
+@property int optSIDoptim;
 //AO stuff
 @property unsigned char *ao_buffer;
 @property ao_display_info ao_info;

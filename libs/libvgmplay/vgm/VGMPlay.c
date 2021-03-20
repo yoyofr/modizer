@@ -292,7 +292,7 @@ void* PlayingThread(void* Arg);
 // Options Variables
 UINT32 SampleRate;	// Note: also used by some sound cores to determinate the chip sample rate
 
-UINT32 VGMMaxLoop;
+INT32 VGMMaxLoop;
 UINT32 VGMPbRate;	// in Hz, ignored if this value or VGM's lngRate Header value is 0
 #ifdef ADDITIONAL_FORMATS
 extern UINT32 CMFMaxLoop;
@@ -406,7 +406,7 @@ UINT8 PlayingMode;
 bool UseFM;
 UINT32 PlayingTime;
 UINT32 FadeStart;
-UINT32 VGMMaxLoopM;
+INT32 VGMMaxLoopM;
 UINT32 VGMCurLoop;
 float VolumeLevelM;
 float FinalVol;
@@ -959,8 +959,10 @@ void PlayVGM(void)
 	}
 	else
 	{
-		TempSLng = (VGMMaxLoop * VGMHead.bytLoopModifier + 0x08) / 0x10 - VGMHead.bytLoopBase;
-		VGMMaxLoopM = (TempSLng >= 0x01) ? TempSLng : 0x01;
+        if (VGMMaxLoop>0) {
+            TempSLng = (VGMMaxLoop * VGMHead.bytLoopModifier + 0x08) / 0x10 - VGMHead.bytLoopBase;
+            VGMMaxLoopM = (TempSLng >= 0x01) ? TempSLng : 0x01;
+        } else VGMMaxLoopM=-1;
 	}
 	
 	if (! VGMPbRate || ! VGMHead.lngRate)
@@ -4875,7 +4877,7 @@ static void InterpretVGM(UINT32 SampleCount)
 					SmplPlayed = SamplePbk2VGM_I(VGMSmplPlayed + SampleCount);
 					VGMCurLoop ++;
 					
-					if (VGMMaxLoopM && VGMCurLoop >= VGMMaxLoopM)
+					if ((VGMMaxLoopM>0) && (VGMCurLoop >= VGMMaxLoopM) )
 					{
 #ifndef CONSOLE_MODE
 						if (! FadePlay)
@@ -4892,23 +4894,30 @@ static void InterpretVGM(UINT32 SampleCount)
 				}
 				else
 				{
-					if (VGMHead.lngTotalSamples != (UINT32)VGMSmplPos)
-					{
-#ifdef CONSOLE_MODE
-						fprintf(stderr, "Warning! Header Samples: %u\t Counted Samples: %u\n",
-								VGMHead.lngTotalSamples, VGMSmplPos);
-						ErrorHappened = true;
-#endif
-						VGMHead.lngTotalSamples = VGMSmplPos;
-					}
-					
-					if (HardStopOldVGMs)
-					{
-						if (VGMHead.lngVersion < 0x150 ||
-							(VGMHead.lngVersion == 0x150 && HardStopOldVGMs == 0x02))
-						Chips_GeneralActions(0x01); // reset all chips, for instant silence
-					}
-					VGMEnd = true;
+                    if (VGMMaxLoopM==-1) { //force loop
+                        VGMPos = 0;
+                        VGMSmplPos = 0;
+                        VGMSmplPlayed = 0;
+                        SmplPlayed = 0;
+                    } else {
+                        if (VGMHead.lngTotalSamples != (UINT32)VGMSmplPos)
+                        {
+    #ifdef CONSOLE_MODE
+                            fprintf(stderr, "Warning! Header Samples: %u\t Counted Samples: %u\n",
+                                    VGMHead.lngTotalSamples, VGMSmplPos);
+                            ErrorHappened = true;
+    #endif
+                            VGMHead.lngTotalSamples = VGMSmplPos;
+                        }
+                        
+                        if (HardStopOldVGMs)
+                        {
+                            if (VGMHead.lngVersion < 0x150 ||
+                                (VGMHead.lngVersion == 0x150 && HardStopOldVGMs == 0x02))
+                            Chips_GeneralActions(0x01); // reset all chips, for instant silence
+                        }
+                        VGMEnd = true;
+                    }
 					break;
 				}
 				break;

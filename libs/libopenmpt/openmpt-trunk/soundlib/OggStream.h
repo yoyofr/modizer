@@ -8,14 +8,17 @@
  */
 
 
+#pragma once
+
+#include "BuildSettings.h"
+
 #include "../common/Endianness.h"
 #include "../common/mptIO.h"
 
+#include "../common/FileReaderFwd.h"
+
 
 OPENMPT_NAMESPACE_BEGIN
-
-
-class FileReader;
 
 
 namespace Ogg
@@ -23,7 +26,7 @@ namespace Ogg
 
 struct PageHeader
 {
-	char      capture_pattern[4]; // "OggS"
+	char     capture_pattern[4]; // "OggS"
 	uint8le  version;
 	uint8le  header_type;
 	uint64le granule_position;
@@ -48,6 +51,7 @@ struct PageInfo
 		MemsetZero(segment_table);
 	}
 	uint16 GetPagePhysicalSize() const;
+	uint16 GetPageHeaderSize() const;
 	uint16 GetPageDataSize() const;
 };
 
@@ -55,7 +59,9 @@ struct PageInfo
 // returns false on EOF
 bool AdvanceToPageMagic(FileReader &file);
 
+bool ReadPage(FileReader &file, PageInfo &pageInfo, std::vector<uint8> *pageData = nullptr);
 bool ReadPage(FileReader &file, PageInfo &pageInfo, std::vector<uint8> &pageData);
+bool ReadPage(FileReader &file);
 
 bool ReadPageAndSkipJunk(FileReader &file, PageInfo &pageInfo, std::vector<uint8> &pageData);
 
@@ -64,7 +70,7 @@ bool UpdatePageCRC(PageInfo &pageInfo, const std::vector<uint8> &pageData);
 
 
 template <typename Tfile>
-bool WritePage(Tfile & f, PageInfo &pageInfo, const std::vector<uint8> &pageData)
+bool WritePage(Tfile & f, const PageInfo &pageInfo, const std::vector<uint8> &pageData)
 {
 	if(!mpt::IO::Write(f, pageInfo.header))
 	{

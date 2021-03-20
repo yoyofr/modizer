@@ -110,7 +110,7 @@ struct IMFInstrument
 		uint16 minTick = 0; // minimum tick value for next node
 		for(uint32 n = 0; n < mptEnv.size(); n++)
 		{
-			minTick = mptEnv[n].tick = std::max<uint16>(minTick, nodes[e][n].tick);
+			mptEnv[n].tick = minTick = std::max(minTick, nodes[e][n].tick.get());
 			minTick++;
 			mptEnv[n].value = static_cast<uint8>(std::min(nodes[e][n].value >> shift, ENVELOPE_MAX));
 		}
@@ -119,14 +119,13 @@ struct IMFInstrument
 	// Convert an IMFInstrument to OpenMPT's internal instrument representation.
 	void ConvertToMPT(ModInstrument &mptIns, SAMPLEINDEX firstSample) const
 	{
-		mpt::String::Read<mpt::String::nullTerminated>(mptIns.name, name);
+		mptIns.name = mpt::String::ReadBuf(mpt::String::nullTerminated, name);
 
 		if(smpNum)
 		{
-			STATIC_ASSERT(CountOf(mptIns.Keyboard) >= CountOf(map));
-			for(size_t note = 0; note < CountOf(map); note++)
+			for(size_t note = 0; note < std::min(std::size(map), std::size(mptIns.Keyboard) - 12u); note++)
 			{
-				mptIns.Keyboard[note] = firstSample + map[note];
+				mptIns.Keyboard[note + 12] = firstSample + map[note];
 			}
 		}
 
@@ -138,9 +137,9 @@ struct IMFInstrument
 		if(mptIns.PitchEnv.dwFlags[ENV_ENABLED])
 			mptIns.PitchEnv.dwFlags.set(ENV_FILTER);
 
-		// hack to get === to stop notes (from modplug's xm loader)
+		// hack to get === to stop notes
 		if(!mptIns.VolEnv.dwFlags[ENV_ENABLED] && !mptIns.nFadeOut)
-			mptIns.nFadeOut = 8192;
+			mptIns.nFadeOut = 32767;
 	}
 };
 
@@ -175,7 +174,7 @@ struct IMFSample
 	void ConvertToMPT(ModSample &mptSmp) const
 	{
 		mptSmp.Initialize();
-		mpt::String::Read<mpt::String::nullTerminated>(mptSmp.filename, filename);
+		mptSmp.filename = mpt::String::ReadBuf(mpt::String::nullTerminated, filename);
 
 		mptSmp.nLength = length;
 		mptSmp.nLoopStart = loopStart;
@@ -202,7 +201,7 @@ struct IMFSample
 MPT_BINARY_STRUCT(IMFSample, 64)
 
 
-static const uint8 imfEffects[] =
+static constexpr EffectCommand imfEffects[] =
 {
 	CMD_NONE,
 	CMD_SPEED,			// 0x01 1xx Set Tempo
@@ -253,7 +252,6 @@ static const uint8 imfEffects[] =
 };
 
 static void ImportIMFEffect(ModCommand &m)
-//----------------------------------------
 {
 	uint8 n;
 	// fix some of them
@@ -274,21 +272,21 @@ static void ImportIMFEffect(ModCommand &m)
 		break;
 	case 0xF: // set finetune
 		// we don't implement this, but let's at least import the value
-		m.param = 0x20 | MIN(m.param >> 4, 0x0F);
+		m.param = 0x20 | std::min(static_cast<uint8>(m.param >> 4), uint8(0x0F));
 		break;
 	case 0x14: // fine slide up
 	case 0x15: // fine slide down
 		// this is about as close as we can do...
 		if(m.param >> 4)
-			m.param = 0xF0 | MIN(m.param >> 4, 0x0F);
+			m.param = 0xF0 | std::min(static_cast<uint8>(m.param >> 4), uint8(0x0F));
 		else
 			m.param |= 0xE0;
 		break;
 	case 0x16: // cutoff
-		m.param >>= 1;
+		m.param = (0xFF - m.param) / 2u;
 		break;
 	case 0x1F: // set global volume
-		m.param = MIN(m.param << 1, 0xFF);
+		m.param = mpt::saturate_cast<uint8>(m.param * 2);
 		break;
 	case 0x21:
 		n = 0;
@@ -341,7 +339,7 @@ static void ImportIMFEffect(ModCommand &m)
 			m.param = n | (m.param & 0x0F);
 		break;
 	}
-	m.command = (m.command < CountOf(imfEffects)) ? imfEffects[m.command] : (int)CMD_NONE;
+	m.command = (m.command < CountOf(imfEffects)) ? imfEffects[m.command] : CMD_NONE;
 	if(m.command == CMD_VOLUME && m.volcmd == VOLCMD_NONE)
 	{
 		m.volcmd = VOLCMD_VOLUME;
@@ -351,18 +349,81 @@ static void ImportIMFEffect(ModCommand &m)
 	}
 }
 
+
+static bool ValidateHeader(const IMFFileHeader &fileHeader)
+{
+	if(std::memcmp(fileHeader.im10, "IM10", 4)
+		|| fileHeader.ordNum > 256
+		|| fileHeader.insNum >= MAX_INSTRUMENTS)
+	{
+		return false;
+	}
+	bool channelFound = false;
+	for(const auto &chn : fileHeader.channels)
+	{
+		switch(chn.status)
+		{
+		case 0: // enabled; don't worry about it
+			channelFound = true;
+			break;
+		case 1: // mute
+			channelFound = true;
+			break;
+		case 2: // disabled
+			// nothing
+			break;
+		default: // uhhhh.... freak out
+			return false;
+		}
+	}
+	if(!channelFound)
+	{
+		return false;
+	}
+	return true;
+}
+
+
+static uint64 GetHeaderMinimumAdditionalSize(const IMFFileHeader &fileHeader)
+{
+	return 256 + fileHeader.patNum * 4 + fileHeader.insNum * sizeof(IMFInstrument);
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderIMF(MemoryFileReader file, const uint64 *pfilesize)
+{
+	IMFFileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	return ProbeAdditionalSize(file, pfilesize, GetHeaderMinimumAdditionalSize(fileHeader));
+}
+
+
 bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
 {
 	IMFFileHeader fileHeader;
 	file.Rewind();
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.im10, "IM10", 4)
-		|| fileHeader.ordNum > 256
-		|| fileHeader.insNum >= MAX_INSTRUMENTS
-		|| !file.CanRead(256))
+	if(!file.ReadStruct(fileHeader))
 	{
 		return false;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
+	{
+		return true;
 	}
 
 	// Read channel configuration
@@ -373,7 +434,7 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 		ChnSettings[chn].Reset();
 		ChnSettings[chn].nPan = fileHeader.channels[chn].panning * 256 / 255;
 
-		mpt::String::Read<mpt::String::nullTerminated>(ChnSettings[chn].szName, fileHeader.channels[chn].name);
+		ChnSettings[chn].szName = mpt::String::ReadBuf(mpt::String::nullTerminated, fileHeader.channels[chn].name);
 
 		// TODO: reverb/chorus?
 		switch(fileHeader.channels[chn].status)
@@ -390,20 +451,16 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			ignoreChannels[chn] = true;
 			break;
 		default: // uhhhh.... freak out
-			//fprintf(stderr, "imf: channel %d has unknown status %d\n", n, hdr.channels[n].status);
 			return false;
 		}
-	}
-	if(!detectedChannels)
-	{
-		return false;
-	} else if(loadFlags == onlyVerifyHeader)
-	{
-		return true;
 	}
 
 	InitializeGlobals(MOD_TYPE_IMF);
 	m_nChannels = detectedChannels;
+
+	m_modFormat.formatName = U_("Imago Orpheus");
+	m_modFormat.type = U_("imf");
+	m_modFormat.charset = mpt::Charset::CP437;
 
 	//From mikmod: work around an Orpheus bug
 	if(fileHeader.channels[0].status == 0)
@@ -418,9 +475,9 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 	}
 
 	// Song Name
-	mpt::String::Read<mpt::String::nullTerminated>(m_songName, fileHeader.title);
+	m_songName = mpt::String::ReadBuf(mpt::String::nullTerminated, fileHeader.title);
 
-	m_SongFlags = (fileHeader.flags & IMFFileHeader::linearSlides) ? SONG_LINEARSLIDES : SongFlags(0);
+	m_SongFlags.set(SONG_LINEARSLIDES, fileHeader.flags & IMFFileHeader::linearSlides);
 	m_nDefaultSpeed = fileHeader.tempo;
 	m_nDefaultTempo.Set(fileHeader.bpm);
 	m_nDefaultGlobalVolume = Clamp<uint8, uint8>(fileHeader.master, 0, 64) * 4;
@@ -429,7 +486,9 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 	m_nInstruments = fileHeader.insNum;
 	m_nSamples = 0; // Will be incremented later
 
-	Order.ReadAsByte(file, 256, fileHeader.ordNum, uint16_max, 0xFF);
+	uint8 orders[256];
+	file.ReadArray(orders);
+	ReadOrderFromArray(Order(), orders, fileHeader.ordNum, uint16_max, 0xFF);
 
 	// Read patterns
 	if(loadFlags & loadPatternData)
@@ -444,7 +503,7 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			continue;
 		}
 
-		ModCommand junkNote;
+		ModCommand dummy;
 		ROWINDEX row = 0;
 		while(row < numRows)
 		{
@@ -456,13 +515,14 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			}
 
 			uint8 channel = mask & 0x1F;
-			ModCommand &m = ignoreChannels[channel] ? junkNote : *Patterns[pat].GetpModCommand(row, channel);
+			ModCommand &m = (channel < GetNumChannels()) ? *Patterns[pat].GetpModCommand(row, channel) : dummy;
 
 			if(mask & 0x20)
 			{
 				// Read note/instrument
-				m.note = patternChunk.ReadUint8();
-				m.instr = patternChunk.ReadUint8();
+				const auto [note, instr] = patternChunk.ReadArray<uint8, 2>();
+				m.note = note;
+				m.instr = instr;
 
 				if(m.note == 160)
 				{
@@ -482,20 +542,17 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			if((mask & 0xC0) == 0xC0)
 			{
 				// Read both effects and figure out what to do with them
-				uint8 e1c = patternChunk.ReadUint8();	// Command 1
-				uint8 e1d = patternChunk.ReadUint8();	// Data 1
-				uint8 e2c = patternChunk.ReadUint8();	// Command 2
-				uint8 e2d = patternChunk.ReadUint8();	// Data 2
+				const auto [e1c, e1d, e2c, e2d] = patternChunk.ReadArray<uint8, 4>();  // Command 1, Data 1, Command 2, Data 2
 
 				if(e1c == 0x0C)
 				{
-					m.vol = MIN(e1d, 0x40);
+					m.vol = std::min(e1d, uint8(0x40));
 					m.volcmd = VOLCMD_VOLUME;
 					m.command = e2c;
 					m.param = e2d;
 				} else if(e2c == 0x0C)
 				{
-					m.vol = MIN(e2d, 0x40);
+					m.vol = std::min(e2d, uint8(0x40));
 					m.volcmd = VOLCMD_VOLUME;
 					m.command = e1c;
 					m.param = e1d;
@@ -522,11 +579,14 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			} else if(mask & 0xC0)
 			{
 				// There's one effect, just stick it in the effect column
-				m.command = patternChunk.ReadUint8();
-				m.param = patternChunk.ReadUint8();
+				const auto [command, param] = patternChunk.ReadArray<uint8, 2>();
+				m.command = command;
+				m.param = param;
 			}
 			if(m.command)
 				ImportIMFEffect(m);
+			if(ignoreChannels[channel] && m.IsGlobalCommand())
+				m.command = CMD_NONE;
 		}
 	}
 
@@ -563,7 +623,7 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 			ModSample &sample = Samples[smpID];
 
 			sampleHeader.ConvertToMPT(sample);
-			mpt::String::Copy(m_szNames[smpID], sample.filename);
+			m_szNames[smpID] = sample.filename;
 
 			if(sampleHeader.length)
 			{

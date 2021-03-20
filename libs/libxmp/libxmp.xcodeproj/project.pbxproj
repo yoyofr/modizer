@@ -964,7 +964,7 @@
 				OTHER_CFLAGS = "-DHAVE_ROUND";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/libs/libxmp/libxmp-master/src";
+				USER_HEADER_SEARCH_PATHS = "libs/libxmp/libxmp-master/src";
 			};
 			name = Debug;
 		};
@@ -1009,7 +1009,7 @@
 				OTHER_CFLAGS = "-DHAVE_ROUND";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/libs/libxmp/libxmp-master/src";
+				USER_HEADER_SEARCH_PATHS = "libs/libxmp/libxmp-master/src";
 			};
 			name = Release;
 		};

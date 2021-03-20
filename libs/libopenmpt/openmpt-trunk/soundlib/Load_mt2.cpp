@@ -203,7 +203,6 @@ MPT_BINARY_STRUCT(MT2VST, 128)
 
 
 static bool ConvertMT2Command(CSoundFile *that, ModCommand &m, MT2Command &p)
-//---------------------------------------------------------------------------
 {
 	bool hasLegacyTempo = false;
 
@@ -337,7 +336,7 @@ static bool ConvertMT2Command(CSoundFile *that, ModCommand &m, MT2Command &p)
 			break;
 
 		case 0x9D:	// Offset + delay
-			m.volcmd = CMD_OFFSET;
+			m.volcmd = VOLCMD_OFFSET;
 			m.vol = p.fxparam2 >> 3;
 			m.command = CMD_S3MCMDEX;
 			m.param = 0xD0 | std::min(p.fxparam1, uint8(0x0F));
@@ -370,7 +369,6 @@ static bool ConvertMT2Command(CSoundFile *that, ModCommand &m, MT2Command &p)
 
 // This doesn't really do anything but skipping the envelope chunk at the moment.
 static void ReadMT2Automation(uint16 version, FileReader &file)
-//-------------------------------------------------------------
 {
 	uint32 flags;
 	uint32 trkfxid;
@@ -395,30 +393,74 @@ static void ReadMT2Automation(uint16 version, FileReader &file)
 }
 
 
-bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
-//-------------------------------------------------------------------
+static bool ValidateHeader(const MT2FileHeader &fileHeader)
 {
-	file.Rewind();
-	MT2FileHeader fileHeader;
-	if(!file.ReadStruct(fileHeader)
-		|| memcmp(fileHeader.signature, "MT20", 4)
+	if(std::memcmp(fileHeader.signature, "MT20", 4)
 		|| fileHeader.version < 0x200 || fileHeader.version >= 0x300
 		|| fileHeader.numChannels < 1 || fileHeader.numChannels > 64
 		|| fileHeader.numOrders > 256
 		|| fileHeader.numInstruments >= MAX_INSTRUMENTS
 		|| fileHeader.numSamples >= MAX_SAMPLES
-		|| !file.CanRead(256))
+		)
 	{
 		return false;
-	} else if(loadFlags == onlyVerifyHeader)
+	}
+	return true;
+}
+
+
+static uint64 GetHeaderMinimumAdditionalSize(const MT2FileHeader &fileHeader)
+{
+	MPT_UNREFERENCED_PARAMETER(fileHeader);
+	return 256;
+}
+
+
+CSoundFile::ProbeResult CSoundFile::ProbeFileHeaderMT2(MemoryFileReader file, const uint64 *pfilesize)
+{
+	MT2FileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return ProbeWantMoreData;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return ProbeFailure;
+	}
+	return ProbeAdditionalSize(file, pfilesize, GetHeaderMinimumAdditionalSize(fileHeader));
+}
+
+
+bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
+{
+	file.Rewind();
+	MT2FileHeader fileHeader;
+	if(!file.ReadStruct(fileHeader))
+	{
+		return false;
+	}
+	if(!ValidateHeader(fileHeader))
+	{
+		return false;
+	}
+	if(!file.CanRead(mpt::saturate_cast<FileReader::off_t>(GetHeaderMinimumAdditionalSize(fileHeader))))
+	{
+		return false;
+	}
+	if(loadFlags == onlyVerifyHeader)
 	{
 		return true;
 	}
 
 	InitializeGlobals(MOD_TYPE_MT2);
 	InitializeChannels();
-	mpt::String::Read<mpt::String::maybeNullTerminated>(m_madeWithTracker, fileHeader.trackerName);
-	mpt::String::Read<mpt::String::maybeNullTerminated>(m_songName, fileHeader.songName);
+
+	m_modFormat.formatName = mpt::format(U_("MadTracker %1.%2"))(fileHeader.version >> 8, mpt::ufmt::hex0<2>(fileHeader.version & 0xFF));
+	m_modFormat.type = U_("mt2");
+	m_modFormat.madeWithTracker = mpt::ToUnicode(mpt::Charset::Windows1252, mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.trackerName));
+	m_modFormat.charset = mpt::Charset::Windows1252;
+
+	m_songName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.songName);
 	m_nChannels = fileHeader.numChannels;
 	m_nDefaultSpeed = Clamp<uint8, uint8>(fileHeader.ticksPerLine, 1, 31);
 	m_nDefaultTempo.Set(125);
@@ -430,15 +472,17 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 	m_nVSTiVolume = 48;
 	m_nSamplePreAmp = 48 * 2;	// Double pre-amp because we will halve the volume of all non-drum instruments, because the volume of drum samples can exceed that of normal samples
 
-	Order.ReadAsByte(file, 256, fileHeader.numOrders);
-	Order.SetRestartPos(fileHeader.restartPos);
+	uint8 orders[256];
+	file.ReadArray(orders);
+	ReadOrderFromArray(Order(), orders, fileHeader.numOrders);
+	Order().SetRestartPos(fileHeader.restartPos);
 
 	FileReader drumData = file.ReadChunk(file.ReadUint16LE());
 	FileReader extraData = file.ReadChunk(file.ReadUint32LE());
 
 	const CHANNELINDEX channelsWithoutDrums = m_nChannels;
 	const bool hasDrumChannels = drumData.CanRead(sizeof(MT2DrumsData));
-	STATIC_ASSERT(MAX_BASECHANNELS >= 64 + 8);
+	static_assert(MAX_BASECHANNELS >= 64 + 8);
 	if(hasDrumChannels)
 	{
 		m_nChannels += 8;
@@ -505,12 +549,12 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 		{
 			for(ROWINDEX row = 0; row < numRows; row++)
 			{
-				ModCommand *m = Patterns[pat].GetRow(row);
-				for(CHANNELINDEX chn = 0; chn < channelsWithoutDrums; chn++, m++)
+				auto rowData = Patterns[pat].GetRow(row);
+				for(CHANNELINDEX chn = 0; chn < channelsWithoutDrums; chn++)
 				{
 					MT2Command cmd;
 					chunk.ReadStruct(cmd);
-					hasLegacyTempo |= ConvertMT2Command(this, *m, cmd);
+					hasLegacyTempo |= ConvertMT2Command(this, rowData[chn], cmd);
 				}
 			}
 		}
@@ -539,7 +583,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 
 		switch(id)
 		{
-		case MAGIC4LE('B','P','M','+'):
+		case MagicLE("BPM+"):
 			if(!hasLegacyTempo)
 			{
 				m_nTempoMode = tempoModeModern;
@@ -551,13 +595,13 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 			}
 			break;
 
-		case MAGIC4LE('T','F','X','M'):
+		case MagicLE("TFXM"):
 			break;
 
-		case MAGIC4LE('T','R','K','O'):
+		case MagicLE("TRKO"):
 			break;
 
-		case MAGIC4LE('T','R','K','S'):
+		case MagicLE("TRKS"):
 			m_nSamplePreAmp = chunk.ReadUint16LE() / 256u;	// 131072 is 0dB... I think (that's how MTIOModule_MT2.cpp reads)
 			m_nVSTiVolume = m_nSamplePreAmp / 2u;
 			for(CHANNELINDEX c = 0; c < GetNumChannels(); c++)
@@ -565,23 +609,22 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				MT2TrackSettings trackSettings;
 				if(chunk.ReadStruct(trackSettings))
 				{
-					ChnSettings[c].nVolume = trackSettings.volume >> 10;	// 32768 is 0dB
+					ChnSettings[c].nVolume = static_cast<uint8>(trackSettings.volume >> 10);	// 32768 is 0dB
 					trackRouting[c] = trackSettings.output;
-					LimitMax(ChnSettings[c].nVolume, uint16(64));
 				}
 			}
 			break;
 
-		case MAGIC4LE('T','R','K','L'):
+		case MagicLE("TRKL"):
 			for(CHANNELINDEX i = 0; i < m_nChannels && chunk.CanRead(1); i++)
 			{
 				std::string name;
 				chunk.ReadNullString(name);
-				mpt::String::Read<mpt::String::spacePadded>(ChnSettings[i].szName, name.c_str(), name.length());
+				ChnSettings[i].szName = mpt::String::ReadBuf(mpt::String::spacePadded, name.c_str(), name.length());
 			}
 			break;
 
-		case MAGIC4LE('P','A','T','N'):
+		case MagicLE("PATN"):
 			for(PATTERNINDEX i = 0; i < fileHeader.numPatterns && chunk.CanRead(1) && Patterns.IsValidIndex(i); i++)
 			{
 				std::string name;
@@ -590,15 +633,15 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 			}
 			break;
 
-		case MAGIC4LE('M','S','G','\0'):
+		case MagicLE("MSG\0"):
 			chunk.Skip(1);	// Show message on startup
 			m_songMessage.Read(chunk, chunk.BytesLeft(), SongMessage::leCRLF);
 			break;
 
-		case MAGIC4LE('P','I','C','T'):
+		case MagicLE("PICT"):
 			break;
 
-		case MAGIC4LE('S','U','M','\0'):
+		case MagicLE("SUM\0"):
 			{
 				uint8 summaryMask[6];
 				chunk.ReadArray(summaryMask);
@@ -606,19 +649,19 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				chunk.ReadNullString(artist);
 				if(artist != "Unregistered")
 				{
-					m_songArtist = mpt::ToUnicode(mpt::CharsetWindows1252, artist);
+					m_songArtist = mpt::ToUnicode(mpt::Charset::Windows1252, artist);
 				}
 			}
 			break;
 
-		case MAGIC4LE('T','M','A','P'):
+		case MagicLE("TMAP"):
 			break;
-		case MAGIC4LE('M','I','D','I'):
+		case MagicLE("MIDI"):
 			break;
-		case MAGIC4LE('T','R','E','Q'):
+		case MagicLE("TREQ"):
 			break;
 
-		case MAGIC4LE('V','S','T','2'):
+		case MagicLE("VST2"):
 			numVST = chunk.ReadUint32LE();
 #ifndef NO_VST
 			if(!(loadFlags & loadPluginData))
@@ -635,15 +678,15 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 
 					SNDMIXPLUGIN &mixPlug = m_MixPlugins[i];
 					mixPlug.Destroy();
-					mpt::String::Read<mpt::String::maybeNullTerminated>(mixPlug.Info.szLibraryName, vstHeader.dll);
-					mpt::String::Read<mpt::String::maybeNullTerminated>(mixPlug.Info.szName, vstHeader.programName);
-					const size_t len = strlen(mixPlug.Info.szLibraryName);
-					if(len > 4 && mixPlug.Info.szLibraryName[len - 4] == '.')
+					std::string libraryName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, vstHeader.dll);
+					mixPlug.Info.szName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, vstHeader.programName);
+					if(libraryName.length() > 4 && libraryName[libraryName.length() - 4] == '.')
 					{
 						// Remove ".dll" from library name
-						mixPlug.Info.szLibraryName[len - 4] = '\0';
+						libraryName.resize(libraryName.length() - 4 );
 					}
-					mixPlug.Info.dwPluginId1 = kEffectMagic;
+					mixPlug.Info.szLibraryName = libraryName;
+					mixPlug.Info.dwPluginId1 = Vst::kEffectMagic;
 					mixPlug.Info.dwPluginId2 = vstHeader.fxID;
 					if(vstHeader.track >= m_nChannels)
 					{
@@ -670,34 +713,32 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 					}
 
 					// Read plugin settings
+					uint32 dataSize;
 					if(vstHeader.useChunks)
 					{
 						// MT2 only ever calls effGetChunk for programs, and OpenMPT uses the defaultProgram value to determine
 						// whether it should use effSetChunk for programs or banks...
 						mixPlug.defaultProgram = -1;
-						LimitMax(vstHeader.n, Util::MaxValueOfType(mixPlug.nPluginDataSize) - 4);
-						mixPlug.nPluginDataSize = vstHeader.n + 4;
+						LimitMax(vstHeader.n, Util::MaxValueOfType(dataSize) - 4);
+						dataSize = vstHeader.n + 4;
 					} else
 					{
 						mixPlug.defaultProgram = vstHeader.programNr;
-						LimitMax(vstHeader.n, (Util::MaxValueOfType(mixPlug.nPluginDataSize) / 4u) - 1);
-						mixPlug.nPluginDataSize = vstHeader.n * 4 + 4;
+						LimitMax(vstHeader.n, (Util::MaxValueOfType(dataSize) / 4u) - 1);
+						dataSize = vstHeader.n * 4 + 4;
 					}
-					mixPlug.pPluginData = new (std::nothrow) char[mixPlug.nPluginDataSize];
-					if(mixPlug.pPluginData != nullptr)
+					mixPlug.pluginData.resize(dataSize);
+					if(vstHeader.useChunks)
 					{
-						if(vstHeader.useChunks)
+						memcpy(mixPlug.pluginData.data(), "fEvN", 4);	// 'NvEf' plugin data type
+						chunk.ReadRaw(mixPlug.pluginData.data() + 4, vstHeader.n);
+					} else
+					{
+						float32 *f = reinterpret_cast<float32 *>(mixPlug.pluginData.data());
+						*(f++) = 0;	// Plugin data type
+						for(uint32 param = 0; param < vstHeader.n; param++, f++)
 						{
-							memcpy(mixPlug.pPluginData, "fEvN", 4);	// 'NvEf' plugin data type
-							chunk.ReadRaw(mixPlug.pPluginData + 4, vstHeader.n);
-						} else
-						{
-							float32 *f = reinterpret_cast<float32 *>(mixPlug.pPluginData);
-							*(f++) = 0;	// Plugin data type
-							for(uint32 param = 0; param < vstHeader.n; param++, f++)
-							{
-								*f = chunk.ReadFloatLE();
-							}
+							*f = chunk.ReadFloatLE();
 						}
 					}
 				} else
@@ -752,12 +793,10 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 			drumSample[i] = drumHeader.DrumSamples[i];
 			if(drumMap[i] != INSTRUMENTINDEX_INVALID)
 			{
-				m_nInstruments = drumMap[i];
 				ModInstrument *mptIns = AllocateInstrument(drumMap[i], drumHeader.DrumSamples[i] + 1);
 				if(mptIns != nullptr)
 				{
-					strcpy(mptIns->name, "Drum #x");
-					mptIns->name[6] = '1' + char(i);
+					mptIns->name = mpt::format("Drum #%1")(i+1);
 				}
 			} else
 			{
@@ -776,11 +815,11 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 		std::vector<PATTERNINDEX> patMapping(fileHeader.numPatterns, PATTERNINDEX_INVALID);
 		for(uint32 ord = 0; ord < fileHeader.numOrders; ord++)
 		{
-			if(drumHeader.DrumPatternOrder[ord] >= drumHeader.numDrumPatterns || Order[ord] >= fileHeader.numPatterns)
+			if(drumHeader.DrumPatternOrder[ord] >= drumHeader.numDrumPatterns || Order()[ord] >= fileHeader.numPatterns)
 				continue;
 
 			// Figure out where to write this drum pattern
-			PATTERNINDEX writePat = Order[ord];
+			PATTERNINDEX writePat = Order()[ord];
 			if(patMapping[writePat] == PATTERNINDEX_INVALID)
 			{
 				patMapping[writePat] = drumHeader.DrumPatternOrder[ord];
@@ -791,7 +830,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				if(newPat != PATTERNINDEX_INVALID)
 				{
 					writePat = newPat;
-					Order[ord] = writePat;
+					Order()[ord] = writePat;
 				}
 			}
 			if(!Patterns.IsValidPat(writePat))
@@ -869,7 +908,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 		if(mptIns == nullptr)
 			continue;
 
-		mpt::String::Read<mpt::String::maybeNullTerminated>(mptIns->name, instrName);
+		mptIns->name = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, instrName);
 
 		if(!dataLength)
 			continue;
@@ -882,9 +921,9 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 		if(fileHeader.version >= 0x0202) envMask = instrChunk.ReadUint32LE();
 
 		mptIns->nFadeOut = insHeader.fadeout;
-		const uint8 NNA[4] = { NNA_NOTECUT, NNA_CONTINUE, NNA_NOTEOFF, NNA_NOTEFADE };
-		const uint8 DCT[4] = { DCT_NONE, DCT_NOTE, DCT_SAMPLE, DCT_INSTRUMENT };
-		const uint8 DNA[4] = { DNA_NOTECUT, DNA_NOTEFADE /* actually continue, but IT doesn't have that */, DNA_NOTEOFF, DNA_NOTEFADE };
+		const NewNoteAction NNA[4]       = { NNA_NOTECUT, NNA_CONTINUE, NNA_NOTEOFF, NNA_NOTEFADE };
+		const DuplicateCheckType DCT[4]  = { DCT_NONE, DCT_NOTE, DCT_SAMPLE, DCT_INSTRUMENT };
+		const DuplicateNoteAction DNA[4] = { DNA_NOTECUT, DNA_NOTEFADE /* actually continue, but IT doesn't have that */, DNA_NOTEOFF, DNA_NOTEFADE };
 		mptIns->nNNA = NNA[insHeader.nna & 3];
 		mptIns->nDCT = DCT[(insHeader.nna >> 8) & 3];
 		mptIns->nDNA = DNA[(insHeader.nna >> 12) & 3];
@@ -904,7 +943,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				mptEnv.dwFlags.set(ENV_ENABLED, (mt2Env.flags & 1) != 0);
 				mptEnv.dwFlags.set(ENV_SUSTAIN, (mt2Env.flags & 2) != 0);
 				mptEnv.dwFlags.set(ENV_LOOP, (mt2Env.flags & 4) != 0);
-				mptEnv.resize(std::min<uint8>(mt2Env.numPoints, 16));
+				mptEnv.resize(std::min(mt2Env.numPoints.get(), uint8(16)));
 				mptEnv.nSustainStart = mptEnv.nSustainEnd = mt2Env.sustainPos;
 				mptEnv.nLoopStart = mt2Env.loopStart;
 				mptEnv.nLoopEnd = mt2Env.loopEnd;
@@ -935,7 +974,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				mptIns->SetCutoff(FrequencyToCutOff(synthData.cutoff), true);
 				mptIns->SetResonance(synthData.resonance, true);
 			}
-			mptIns->nFilterMode = synthData.effectID == 1 ? FLTMODE_HIGHPASS : FLTMODE_LOWPASS;
+			mptIns->filterMode = synthData.effectID == 1 ? FilterMode::HighPass : FilterMode::LowPass;
 			if(flags & 4)
 			{
 				// VSTi / MIDI synth enabled
@@ -948,7 +987,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				}
 				if(synthData.transpose)
 				{
-					for(uint32 n = 0; n < CountOf(mptIns->NoteMap); n++)
+					for(uint32 n = 0; n < std::size(mptIns->NoteMap); n++)
 					{
 						int note = NOTE_MIN + n + synthData.transpose;
 						Limit(note, NOTE_MIN, NOTE_MAX);
@@ -974,7 +1013,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 
 		if(i < fileHeader.numSamples)
 		{
-			mpt::String::Read<mpt::String::maybeNullTerminated>(m_szNames[i + 1], sampleName);
+			m_szNames[i + 1] = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, sampleName);
 		}
 
 		if(dataLength && i < fileHeader.numSamples)
@@ -1019,7 +1058,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				{
 					if(drumSample[drum] == i && Instruments[drumMap[drum]] != nullptr)
 					{
-						Instruments[drumMap[drum]]->nResampling = SRCMODE_NEAREST;
+						Instruments[drumMap[drum]]->resampling = SRCMODE_NEAREST;
 					}
 				}
 			}
@@ -1027,14 +1066,8 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 	}
 
 	// Read sample groups
-	for(INSTRUMENTINDEX ins = 0; ins < 255; ins++)
+	for(INSTRUMENTINDEX ins = 0; ins < fileHeader.numInstruments; ins++)
 	{
-		ModInstrument *mptIns = Instruments[ins + 1];
-
-		// Instruments with plugin assignments never play samples at the same time!
-		if(mptIns == nullptr || mptIns->nMixPlug != 0)
-			continue;
-
 		if(instrChunks[ins].GetLength())
 		{
 			FileReader &chunk = instrChunks[ins];
@@ -1042,11 +1075,13 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 			chunk.Rewind();
 			chunk.ReadStruct(insHeader);
 
-			std::vector<MT2Group> groups(insHeader.numSamples);
-			for(uint32 grp = 0; grp < insHeader.numSamples; grp++)
-			{
-				file.ReadStruct(groups[grp]);
-			}
+			std::vector<MT2Group> groups;
+			file.ReadVector(groups, insHeader.numSamples);
+
+			ModInstrument *mptIns = Instruments[ins + 1];
+			// Instruments with plugin assignments never play samples at the same time!
+			if(mptIns == nullptr || mptIns->nMixPlug != 0)
+				continue;
 
 			mptIns->nGlobalVol = 32;	// Compensate for extended dynamic range of drum instruments
 			mptIns->AssignSample(0);
@@ -1060,7 +1095,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 					if(sample > 0 && sample <= m_nSamples)
 					{
 						ModSample &mptSmp = Samples[sample];
-						mptSmp.nVibType = insHeader.vibtype;
+						mptSmp.nVibType = static_cast<VibratoType>(insHeader.vibtype & 3); // In fact, MT2 only implements sine vibrato
 						mptSmp.nVibSweep = insHeader.vibsweep;
 						mptSmp.nVibDepth = insHeader.vibdepth;
 						mptSmp.nVibRate = insHeader.vibrate;
@@ -1068,7 +1103,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 						mptSmp.nFineTune = group.pitch;
 						if(sampleNoInterpolation[sample - 1])
 						{
-							mptIns->nResampling = SRCMODE_NEAREST;
+							mptIns->resampling = SRCMODE_NEAREST;
 						}
 						if(sampleSynchronized[sample - 1])
 						{
@@ -1107,9 +1142,9 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 			file.Skip(12); // Reserved
 			std::string filename;
 			file.ReadString<mpt::String::maybeNullTerminated>(filename, filenameSize);
-			mpt::String::Copy(mptSmp.filename, filename);
+			mptSmp.filename = filename;
 
-#ifdef MPT_EXTERNAL_SAMPLES
+#if defined(MPT_EXTERNAL_SAMPLES)
 			if(filename.length() >= 2
 				&& filename.at(0) != '\\'	// Relative path on same drive
 				&& filename.at(1) != ':')	// Absolute path
@@ -1118,8 +1153,8 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				filename = ".\\" + filename;
 			}
 			SetSamplePath(i + 1, mpt::PathString::FromLocaleSilent(filename));
-#else
-			AddToLog(LogWarning, mpt::String::Print(MPT_USTRING("Loading external sample %1 ('%2') failed: External samples are not supported."), i, mpt::ToUnicode(GetCharsetLocaleOrModule(), filename)));
+#elif !defined(LIBOPENMPT_BUILD_TEST)
+			AddToLog(LogWarning, mpt::format(U_("Loading external sample %1 ('%2') failed: External samples are not supported."))(i + 1, mpt::ToUnicode(GetCharsetFile(), filename)));
 #endif // MPT_EXTERNAL_SAMPLES
 		}
 	}

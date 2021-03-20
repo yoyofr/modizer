@@ -26,7 +26,6 @@ namespace DMO
 
 // Computes (log2(x) + 1) * 2 ^ (shiftL - shiftR) (x = -2^31...2^31)
 float logGain(float x, int32 shiftL, int32 shiftR)
-//------------------------------------------------
 {
 	uint32 intSample = static_cast<uint32>(static_cast<int32>(x));
 	const uint32 sign = intSample & 0x80000000;
@@ -53,7 +52,6 @@ float logGain(float x, int32 shiftL, int32 shiftR)
 
 
 IMixPlugin* Distortion::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
-//-------------------------------------------------------------------------------------------------
 {
 	return new (std::nothrow) Distortion(factory, sndFile, mixStruct);
 }
@@ -61,7 +59,6 @@ IMixPlugin* Distortion::Create(VSTPluginLib &factory, CSoundFile &sndFile, SNDMI
 
 Distortion::Distortion(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN *mixStruct)
 	: IMixPlugin(factory, sndFile, mixStruct)
-//-----------------------------------------------------------------------------------------
 {
 	m_param[kDistGain] = 0.7f;
 	m_param[kDistEdge] = 0.15f;
@@ -75,7 +72,6 @@ Distortion::Distortion(VSTPluginLib &factory, CSoundFile &sndFile, SNDMIXPLUGIN 
 
 
 void Distortion::Process(float *pOutL, float *pOutR, uint32 numFrames)
-//--------------------------------------------------------------------
 {
 	if(!m_mixBuffer.Ok())
 		return;
@@ -113,7 +109,6 @@ void Distortion::Process(float *pOutL, float *pOutR, uint32 numFrames)
 
 
 PlugParamValue Distortion::GetParameter(PlugParamIndex index)
-//-----------------------------------------------------------
 {
 	if(index < kDistNumParameters)
 	{
@@ -124,7 +119,6 @@ PlugParamValue Distortion::GetParameter(PlugParamIndex index)
 
 
 void Distortion::SetParameter(PlugParamIndex index, PlugParamValue value)
-//-----------------------------------------------------------------------
 {
 	if(index < kDistNumParameters)
 	{
@@ -136,11 +130,15 @@ void Distortion::SetParameter(PlugParamIndex index, PlugParamValue value)
 
 
 void Distortion::Resume()
-//-----------------------
 {
 	m_isResumed = true;
 	RecalculateDistortionParams();
+	PositionChanged();
+}
 
+
+void Distortion::PositionChanged()
+{
 	// Reset filter state
 	m_preEQz1[0] = m_preEQz1[1] = 0;
 	m_postEQz1[0] = m_postEQz2[0] = 0;
@@ -151,7 +149,6 @@ void Distortion::Resume()
 #ifdef MODPLUG_TRACKER
 
 CString Distortion::GetParamName(PlugParamIndex param)
-//----------------------------------------------------
 {
 	switch(param)
 	{
@@ -166,7 +163,6 @@ CString Distortion::GetParamName(PlugParamIndex param)
 
 
 CString Distortion::GetParamLabel(PlugParamIndex param)
-//-----------------------------------------------------
 {
 	switch(param)
 	{
@@ -180,7 +176,6 @@ CString Distortion::GetParamLabel(PlugParamIndex param)
 
 
 CString Distortion::GetParamDisplay(PlugParamIndex param)
-//-------------------------------------------------------
 {
 	float value = m_param[param];
 	switch(param)
@@ -198,7 +193,7 @@ CString Distortion::GetParamDisplay(PlugParamIndex param)
 		break;
 	}
 	CString s;
-	s.Format("%.2f", value);
+	s.Format(_T("%.2f"), value);
 	return s;
 }
 
@@ -206,7 +201,6 @@ CString Distortion::GetParamDisplay(PlugParamIndex param)
 
 
 void Distortion::RecalculateDistortionParams()
-//--------------------------------------------
 {
 	// Pre-EQ
 	m_preEQb1 = std::sqrt((2.0f * std::cos(2.0f * float(M_PI) * std::min(FreqInHertz(m_param[kDistPreLowpassCutoff]) / m_SndFile.GetSampleRate(), 0.5f)) + 3.0f) / 5.0f);
@@ -216,7 +210,7 @@ void Distortion::RecalculateDistortionParams()
 	float edge = 2.0f + m_param[kDistEdge] * 29.0f;
 	m_edge = static_cast<uint8>(edge);	// 2...31 shifted bits
 
-	// Work out the magical shift factor (= floor(log2(edge)) + 1 / index of highest bit + 1)
+	// Work out the magical shift factor (= floor(log2(edge)) + 1 == index of highest bit + 1)
 	uint8 shift;
 	if(m_edge <= 3)
 		shift = 2;
@@ -228,16 +222,12 @@ void Distortion::RecalculateDistortionParams()
 		shift = 5;
 	m_shift = shift;
 
-	static const double LogNorm[32] =
+	static constexpr float LogNorm[32] =
 	{
-		1.0000000000000000, 1.0000000000000000, 1.5000000000000000, 1.0000000000000000,
-		1.7500000000000000, 1.3999999999999999, 1.1699999999999999, 1.0000000000000000,
-		1.8799999999999999, 1.7600000000000000, 1.5000000000000000, 1.3600000000000001,
-		1.2500000000000000, 1.1499999999999999, 1.0700000000000001, 1.0000000000000000,
-		1.9399999999999999, 1.8200000000000001, 1.7200000000000000, 1.6299999999999999,
-		1.5500000000000000, 1.4800000000000000, 1.4099999999999999, 1.3500000000000001,
-		1.2900000000000000, 1.2400000000000000, 1.1899999999999999, 1.1499999999999999,
-		1.1100000000000001, 1.0700000000000001, 1.0300000000000000, 1.0000000000000000,
+		1.00f, 1.00f, 1.50f, 1.00f, 1.75f, 1.40f, 1.17f, 1.00f,
+		1.88f, 1.76f, 1.50f, 1.36f, 1.25f, 1.15f, 1.07f, 1.00f,
+		1.94f, 1.82f, 1.72f, 1.63f, 1.55f, 1.48f, 1.41f, 1.35f,
+		1.29f, 1.24f, 1.19f, 1.15f, 1.11f, 1.07f, 1.03f, 1.00f,
 	};
 
 	// Post-EQ
@@ -247,7 +237,7 @@ void Distortion::RecalculateDistortionParams()
 	const float t = std::tan(5.0e-1f * postBw);
 	m_postEQb1 = ((1.0f - t) / (1.0f + t));
 	m_postEQb0 = -std::cos(postFreq);
-	m_postEQa0 = static_cast<float>(gain * std::sqrt(1.0f - m_postEQb0 * m_postEQb0) * std::sqrt(1.0f - m_postEQb1 * m_postEQb1) * LogNorm[m_edge]);
+	m_postEQa0 = gain * std::sqrt(1.0f - m_postEQb0 * m_postEQb0) * std::sqrt(1.0f - m_postEQb1 * m_postEQb1) * LogNorm[m_edge];
 }
 
 } // namespace DMO
