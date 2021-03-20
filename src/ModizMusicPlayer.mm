@@ -998,7 +998,7 @@ void propertyListenerCallback (void                   *inUserData,              
 
 @implementation ModizMusicPlayer
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
-@synthesize mCurrentSamples;
+@synthesize mCurrentSamples,mTgtSamples;
 @synthesize mPlayType;
 @synthesize mp_datasize;
 @synthesize optForceMono;
@@ -1010,7 +1010,6 @@ void propertyListenerCallback (void                   *inUserData,              
 //GME stuff
 @synthesize gme_emu;
 //SID
-@synthesize optSIDoptim;
 //AO stuff
 @synthesize ao_buffer;
 @synthesize ao_info;
@@ -1236,9 +1235,7 @@ void propertyListenerCallback (void                   *inUserData,              
         mSidEmuEngine=NULL;
         mBuilder=NULL;
         mSidTune=NULL;
-        
-        optSIDoptim=1;
-        
+                
         sid_forceModel=0;
         sid_forceClock=0;
         //
@@ -2864,6 +2861,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
                             }
@@ -2986,6 +2984,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             mCurrentSamples=0;
                             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                            mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                             if (mLoopMode) iModuleLength=-1;
                             mod_message_updated=1;
                         }
@@ -3100,6 +3099,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
                             }
@@ -3494,12 +3494,22 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                     mCurrentSamples=0;
                                     mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                     if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                     if (mLoopMode) mNewModuleLength=-1;
                                 } else {
                                     nbBytes=0;
                                 }
+                            } else if (iModuleLength<0) {
+                                if (mCurrentSamples>=mTgtSamples) {
+                                    //loop
+                                    mSidTune->selectSong(mod_currentsub+1);
+                                    mSidEmuEngine->load(mSidTune);
+                                    mCurrentSamples=0;
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                }
                             }
                         }
+                        
                     }
                     if (mPlayType==MMP_STSOUND) { //STSOUND
                         int nbSample = SOUND_BUFFER_SIZE_SAMPLE;
@@ -5056,7 +5066,6 @@ char* loadRom(const char* path, size_t romSize)
     //mBuilder = new ReSIDfpBuilder("residfp");
     // Set config
     SidConfig cfg;// = mSidEmuEngine->config();
-    //cfg.optimisation = optSIDoptim;
     cfg.frequency= PLAYBACK_FREQ;
     cfg.samplingMethod = SidConfig::INTERPOLATE;
     cfg.fastSampling = false;
@@ -5122,6 +5131,7 @@ char* loadRom(const char* path, size_t romSize)
         mSidTune->selectSong(mod_currentsub);
         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
         if (!iModuleLength) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+        mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         
         if (mSidEmuEngine->load(mSidTune)) {
             iCurrentTime=0;
@@ -7823,6 +7833,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
             
             mod_message_updated=1;

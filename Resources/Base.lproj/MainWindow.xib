@@ -1300,7 +1300,7 @@
                         <rect key="frame" x="0.0" y="81" width="320" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <mutableString key="text">v2.9.5 © Yohann Magnien / YoyoFR
+                        <mutableString key="text">v2.9.6 © Yohann Magnien / YoyoFR
 
 Web: http://yoyofr.blogspot.com/p/modizer.html
 Forum: http://modizer.988727.n3.nabble.com/

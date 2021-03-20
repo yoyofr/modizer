@@ -8607,7 +8607,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.96;
+				CURRENT_PROJECT_VERSION = 2.96.1;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -8652,7 +8652,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.96;
+				CURRENT_PROJECT_VERSION = 2.96.1;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -9023,7 +9023,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 2.96;
+				CURRENT_PROJECT_VERSION = 2.96.1;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

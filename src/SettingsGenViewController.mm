@@ -417,8 +417,6 @@ void optGSFChangedC(id param) {
     //SID
     /////////////////////////////////////
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
-    settings[SID_Optim].detail.mdz_switch.switch_value=1;
-    settings[SID_LibVersion].detail.mdz_switch.switch_value=1;
     settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_value=0;
     
@@ -1533,30 +1531,6 @@ void optGSFChangedC(id param) {
     settings[SID_Filter].callback=&optSIDChangedC;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
     
-    settings[SID_Optim].type=MDZ_SWITCH;
-    settings[SID_Optim].label=(char*)"Optim";
-    settings[SID_Optim].description=NULL;
-    settings[SID_Optim].family=MDZ_SETTINGS_FAMILY_SID;
-    settings[SID_Optim].sub_family=0;
-    settings[SID_Optim].callback=&optSIDChangedC;
-    settings[SID_Optim].detail.mdz_switch.switch_value=1;
-    settings[SID_Optim].detail.mdz_switch.switch_value_nb=3;
-    settings[SID_Optim].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_Optim].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[SID_Optim].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[SID_Optim].detail.mdz_switch.switch_labels[1]=(char*)"Std";
-    settings[SID_Optim].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
-    
-    settings[SID_LibVersion].type=MDZ_SWITCH;
-    settings[SID_LibVersion].label=(char*)"Library version";
-    settings[SID_LibVersion].description=NULL;
-    settings[SID_LibVersion].family=MDZ_SETTINGS_FAMILY_SID;
-    settings[SID_LibVersion].sub_family=0;
-    settings[SID_LibVersion].callback=&optSIDChangedC;
-    settings[SID_LibVersion].detail.mdz_switch.switch_value=1;
-    settings[SID_LibVersion].detail.mdz_switch.switch_value_nb=2;
-    settings[SID_LibVersion].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_LibVersion].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[SID_LibVersion].detail.mdz_switch.switch_labels[0]=(char*)"SIDPLAY1";
-    settings[SID_LibVersion].detail.mdz_switch.switch_labels[1]=(char*)"SIDPLAY2";
     
     settings[SID_CLOCK].type=MDZ_SWITCH;
     settings[SID_CLOCK].label=(char*)"CLOCK";

@@ -22,6 +22,7 @@ Todo/Requested:
 - [PLAYER] subsongs management added for libopenmpt
 - [UI] Downloads directory now automatically recreated at launch
 - [PLAYER] liblazyusf updated to latest version, better playback speed accuracy
+- [PLAYER] libvgmplay bugfix / infinite loop mode
 
 2.9.5
 �����

@@ -158,8 +158,6 @@ enum MDZ_SETTINGS {
     
     
         MDZ_SETTINGS_FAMILY_SID,
-        SID_Optim,
-        SID_LibVersion,
         SID_Filter,
         SID_CLOCK,
         SID_MODEL,
