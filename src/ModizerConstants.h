@@ -76,7 +76,7 @@
 #define VERSION_MINOR_STR "96"
 
 
-#define MAX_PL_ENTRIES 32768
+#define MAX_PL_ENTRIES 65536
 
 #define MAX_RANDFX_TIME 15   //max is in fact min + max (seconds)
 #define MIN_RANDFX_TIME 15
