@@ -34,7 +34,6 @@ test-dev/libxmp-test
 *.amf
 *.umx
 *.gtk
-mod.*
 AS.*
 *.NT
 *.xz
