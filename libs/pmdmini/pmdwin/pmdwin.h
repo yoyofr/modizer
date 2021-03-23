@@ -448,7 +448,7 @@ public:
 	void WINAPI music_start(void);
 	void WINAPI music_stop(void);
 	int WINAPI getloopcount(void);
-	bool WINAPI getlength(char *filename, int *length, int *loop);
+	bool WINAPI getlength(char *filename, long *length, int *loop);
 	int WINAPI getpos(void);
 	void WINAPI setpos(int pos);
 	void WINAPI getpcmdata(short *buf, int nsamples);
@@ -470,7 +470,7 @@ public:
 	int WINAPI getpos2(void);
 	char* WINAPI getpcmfilename(char *dest);
 	char* WINAPI getppzfilename(char *dest, int bufnum);
-	bool WINAPI getlength2(char *filename, int *length, int *loop);
+	bool WINAPI getlength2(char *filename, long *length, int *loop);
 	
 	// IPMDWIN
 	void WINAPI setppsuse(bool value);
@@ -808,8 +808,8 @@ __declspec(dllexport) void WINAPI setpos(int pos);
 __declspec(dllexport) void WINAPI setpos2(int pos);
 __declspec(dllexport) int WINAPI getpos(void);
 __declspec(dllexport) int WINAPI getpos2(void);
-__declspec(dllexport) bool WINAPI getlength(char *filename, int *length, int *loop);
-__declspec(dllexport) bool WINAPI getlength2(char *filename, int *length, int *loop);
+__declspec(dllexport) bool WINAPI getlength(char *filename, long *length, int *loop);
+__declspec(dllexport) bool WINAPI getlength2(char *filename, long *length, int *loop);
 __declspec(dllexport) int WINAPI getloopcount(void);
 __declspec(dllexport) void WINAPI setfmwait(int nsec);
 __declspec(dllexport) void WINAPI setssgwait(int nsec);

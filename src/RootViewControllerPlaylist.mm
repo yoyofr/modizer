@@ -416,18 +416,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     mFileMngr=[[NSFileManager alloc] init];
 	
-	NSString *strMachine=[self machine];
-	mSlowDevice=0;
-	NSRange r = [strMachine rangeOfString:@"iPhone1," options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {
-		mSlowDevice=1;
-	}
-	r.location=NSNotFound;
-	r = [strMachine rangeOfString:@"iPod1," options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {
-		mSlowDevice=1;
-	}
-	
 	mShowSubdir=0;
 	
 	ratingImg[0] = @"rating0.png";
@@ -2020,7 +2008,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     if (detailViewController.mShouldHaveFocus) {
         detailViewController.mShouldHaveFocus=0;
-        [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
+        [self.navigationController pushViewController:detailViewController animated:YES];
     } else {
         [self fillKeys];
         [self.tableView reloadData];
@@ -2865,7 +2853,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         if (detailViewController) {
             @try {
-                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                [self.navigationController pushViewController:detailViewController animated:YES];
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
@@ -2878,7 +2866,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
                     range.location != NSNotFound) {
                     //view controller already exists in the stack - just pop back to it
-                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                    [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
                     NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }

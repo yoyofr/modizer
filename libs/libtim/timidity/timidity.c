@@ -5676,7 +5676,6 @@ static int CoInitializeOK = 0;
 #endif
 
 extern PlayMode ios_play_mode;
-extern volatile int mSlowDevice;
     
 int tim_init(char *path) {    
 //    printf("initpath:%s\n",path);
@@ -5693,7 +5692,7 @@ int tim_main(int argc, char **argv) {
 	int main_ret;
 	int longind;
     
-    audio_buffer_bits=DEFAULT_AUDIO_BUFFER_BITS-mSlowDevice;
+    audio_buffer_bits=DEFAULT_AUDIO_BUFFER_BITS;
 
     
     play_mode=&ios_play_mode;

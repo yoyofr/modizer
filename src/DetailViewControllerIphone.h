@@ -127,7 +127,7 @@ class CGLString;
 	CGLString *viewTapInfoStr[9];
 	CGLString *mHeader;
 	
-	int mDeviceType,mSlowDevice,mDeviceIPhoneX;
+	int mDeviceType,mDeviceIPhoneX;
     char is_macOS;
 	
 	short int real_spectrumL[SPECTRUM_BANDS*2],oreal_spectrumL[SPECTRUM_BANDS];
@@ -237,7 +237,7 @@ class CGLString;
 -(IBAction) oglButtonPushed;
 
 @property int mShouldHaveFocus,mHasFocus,mPaused;
-@property int mPlaylist_size,mPlaylist_pos,mSlowDevice,mDeviceType,mDeviceIPhoneX;
+@property int mPlaylist_size,mPlaylist_pos,mDeviceType,mDeviceIPhoneX;
 @property char is_macOS;
 @property BOOL mIsPlaying;
 @property float mScaleFactor;

@@ -182,9 +182,6 @@ typedef struct _MDX_DATA {
   float reverb_width;
   float reverb_dry;
   float reverb_wet;
-	
-	int slowDevice;
-
 } MDX_DATA;
 
 typedef struct _PDX_TONE {
@@ -260,7 +257,7 @@ extern int mdx_output_titles( MDX_DATA * );
 #define MDX_INVALID_DATA    0xe0        /* any undefined command means
 					   stop playing */
 
-int mdx_load( char *filename, MDX_DATA **mdx, PDX_DATA **pdx, int slowDevice, int infloop );
+int mdx_load( char *filename, MDX_DATA **mdx, PDX_DATA **pdx, int infloop );
 void mdx_close(MDX_DATA *mdx,PDX_DATA *pdx);
 void mdx_play(MDX_DATA *mdx,PDX_DATA *pdx);
 void mdx_stop();

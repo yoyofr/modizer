@@ -82,7 +82,7 @@ static float reverb_wet;
 
 /* ------------------------------------------------------------------ */
 
-int mdx_load( char *filename, MDX_DATA **mdx, PDX_DATA **pdx, int slowDevice, int infloop ) {
+int mdx_load( char *filename, MDX_DATA **mdx, PDX_DATA **pdx, int infloop ) {
 if (!self_construct()) {
     /* failed to create class instances */
     return -1;
@@ -103,7 +103,7 @@ if (!self_construct()) {
 	fade_out_speed      = 5;
 	dump_voice          = FLAG_FALSE;
 	output_titles       = FLAG_FALSE;
-	is_use_reverb       = (slowDevice?FLAG_FALSE:FLAG_TRUE);
+	is_use_reverb       = FLAG_TRUE;
 	reverb_predelay     = 0.05f;
 	reverb_roomsize     = 0.5f;
 	reverb_damp         = 0.1f;
@@ -122,9 +122,7 @@ if (!self_construct()) {
     *mdx = mdx_open_mdx( filename );
     if ( (*mdx) == NULL ) error_end(_("file not found"));
 	
-	(*mdx)->slowDevice = slowDevice;
-
-    (*mdx)->is_use_pcm8         = no_pdx      == FLAG_TRUE ? FLAG_FALSE:FLAG_TRUE;
+	(*mdx)->is_use_pcm8         = no_pdx      == FLAG_TRUE ? FLAG_FALSE:FLAG_TRUE;
     (*mdx)->is_use_fm           = no_fm       == FLAG_TRUE ? FLAG_FALSE:FLAG_TRUE;
     (*mdx)->is_use_opl3         = no_opl3     == FLAG_TRUE ? FLAG_FALSE:FLAG_TRUE;
     (*mdx)->is_use_ym2151       = no_ym2151   == FLAG_TRUE ? FLAG_FALSE:FLAG_TRUE;

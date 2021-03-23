@@ -60,7 +60,7 @@ static UIAlertView *alertChooseName;
 }
 
 -(IBAction) goPlayer {
-    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
         UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];

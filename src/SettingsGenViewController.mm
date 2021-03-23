@@ -6,8 +6,6 @@
 //
 //
 
-extern volatile int mSlowDevice;
-
 #import "SettingsGenViewController.h"
 #import "MNEValueTrackingSlider.h"
 
@@ -27,7 +25,7 @@ extern volatile int mSlowDevice;
 volatile t_settings settings[MAX_SETTINGS];
 
 -(IBAction) goPlayer {
-    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
         UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -348,8 +346,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
     
-    if (mSlowDevice) settings[GLOB_FXLOD].detail.mdz_switch.switch_value=1;
-    else settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
+    settings[GLOB_FXLOD].detail.mdz_switch.switch_value=2;
     
     settings[GLOB_FXFPS].detail.mdz_switch.switch_value=1;
     

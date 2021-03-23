@@ -481,18 +481,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     mFileMngr=[[NSFileManager alloc] init];
     
-    NSString *strMachine=[self machine];
-    mSlowDevice=0;
-    NSRange r = [strMachine rangeOfString:@"iPhone1," options:NSCaseInsensitiveSearch];
-    if (r.location != NSNotFound) {
-        mSlowDevice=1;
-    }
-    r.location=NSNotFound;
-    r = [strMachine rangeOfString:@"iPod1," options:NSCaseInsensitiveSearch];
-    if (r.location != NSNotFound) {
-        mSlowDevice=1;
-    }
-    
     mShowSubdir=0;
     
     ratingImg[0] = @"rating0.png";
@@ -1901,7 +1889,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     /////////////
     if (detailViewController.mShouldHaveFocus) {
         detailViewController.mShouldHaveFocus=0;
-        [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
+        [self.navigationController pushViewController:detailViewController animated:YES];
     } else {
         if (mShowSubdir==0) shouldFillKeys=1; //performance limit-> no update if listing all files
         
@@ -3095,7 +3083,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
             @try {
-                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                [self.navigationController pushViewController:detailViewController animated:YES];
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
@@ -3108,7 +3096,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
                     range.location != NSNotFound) {
                     //view controller already exists in the stack - just pop back to it
-                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                    [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
                     NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }

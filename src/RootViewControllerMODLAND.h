@@ -43,8 +43,6 @@
     
     int mAccessoryButton;
 
-	int mSlowDevice;
-	
 	t_db_browse_entry *db_entries_data;
 	int db_entries_count[27];
 	t_db_browse_entry *db_entries[27];

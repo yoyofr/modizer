@@ -15,7 +15,7 @@
 extern pthread_mutex_t db_mutex;
 extern pthread_mutex_t play_mutex;
 
-int iModuleLength;
+long iModuleLength;
 double iCurrentTime;
 int mod_message_updated;
 
@@ -61,7 +61,6 @@ static char **sidtune_title,**sidtune_name;
 static char gmetype[64];
 
 static uint32 ao_type;
-volatile int mSlowDevice;
 static volatile int moveToPrevSubSong,moveToNextSubSong,mod_wantedcurrentsub,mChangeOfSong,mNewModuleLength,moveToSubSong,moveToSubSongIndex;
 static int sampleVolume,mInterruptShoudlRestart;
 //static volatile int genCurOffset,genCurOffsetCnt;
@@ -604,7 +603,6 @@ static void tim_close_output(void) {
 }
 
 static int tim_output_data(char *buf, int32 nbytes) {
-    if (mSlowDevice) nbytes*=2; //22Khz
     if (bGlobalShouldEnd||(!bGlobalIsPlaying)) {
         g_playing=0;
         return 0;
@@ -624,30 +622,11 @@ static int tim_output_data(char *buf, int32 nbytes) {
     
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
     if (nbytes<to_fill) {
-        if (!mSlowDevice) {
-            memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,nbytes);
-        } else {
-            signed int *dst=(signed int *)((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs);
-            signed int *src=(signed int *)buf;
-            for (int i=0;i<nbytes/2/4;i++) {
-                dst[i*2]=src[i];
-                dst[i*2+1]=src[i];
-            }
-        }
-        
+        memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,nbytes);
         buffer_ana_subofs+=nbytes;
         
     } else {
-        if (!mSlowDevice) {
-            memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,to_fill);
-        } else {
-            signed int *dst=(signed int *)((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs);
-            signed int *src=(signed int *)buf;
-            for (int i=0;i<to_fill/4/2;i++) {
-                dst[i*2]=src[i];
-                dst[i*2+1]=src[i];
-            }
-        }
+        memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,to_fill);
         
         nbytes-=to_fill;
         buffer_ana_subofs=0;
@@ -694,16 +673,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
                     return 0;
                 }
             }
-            if (!mSlowDevice) {
-                memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)buf)+to_fill,nbytes);
-            } else {
-                signed int *dst=(signed int *)(char*)(buffer_ana[buffer_ana_gen_ofs]);
-                signed int *src=(signed int *)(((char*)buf)+to_fill/2);
-                for (int i=0;i<nbytes/2/4;i++) {
-                    dst[i*2]=src[i];
-                    dst[i*2+1]=src[i];
-                }
-            }
+            memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)buf)+to_fill,nbytes);
             
             buffer_ana_subofs=nbytes;
         }
@@ -723,7 +693,7 @@ static int tim_acntl(int request, void *arg) {
     
     switch (request){
         case PM_REQ_GETFRAGSIZ:
-            *((int *)arg) = 4096>>mSlowDevice;
+            *((int *)arg) = 4096;
             return 0;
             
         case PM_REQ_GETQSIZ:
@@ -1172,22 +1142,13 @@ void propertyListenerCallback (void                   *inUserData,              
         //GME specific
         optGMEIgnoreSilence=0;
         optGMEFadeOut=1000;
-        if (mSlowDevice) {
-            gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
-            gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
-            gme_fx.enabled=0;
-            gme_fx.echo = 0.0f;
-            gme_fx.surround = 0.0f;
-            gme_fx.stereo = 0.0f;
-            
-        } else {
-            gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
-            gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
-            gme_fx.enabled=0;
-            gme_fx.echo = 0.0f;
-            gme_fx.surround = 0.0f;
-            gme_fx.stereo = 0.8f;
-        }
+        gme_eq.treble = -14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+        gme_eq.bass   = 80;  // 1 = full bass, 90 = average, 16000 = almost no bass
+        gme_fx.enabled=0;
+        gme_fx.echo = 0.0f;
+        gme_fx.surround = 0.0f;
+        gme_fx.stereo = 0.8f;
+        
         
         //
         // ADPLUG specific
@@ -1619,29 +1580,13 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
     
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
     
-    if (mSlowDevice) len=len*2;
-    
     if (len<to_fill) {
         
-        if (mSlowDevice) {
-            signed int *dst=(signed int *)((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs);
-            signed int *src=(signed int *)data;
-            for (int i=len/8-1;i>=0;i--) {
-                dst[i*2]=src[i];
-                dst[i*2+1]=src[i];
-            }
-        } else memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,len);
+        memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,len);
         buffer_ana_subofs+=len;
     } else {
         
-        if (mSlowDevice) {
-            signed int *dst=(signed int *)((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs);
-            signed int *src=(signed int *)data;
-            for (int i=to_fill/8-1;i>=0;i--) {
-                dst[i*2]=src[i];
-                dst[i*2+1]=src[i];
-            }
-        } else memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,to_fill);
+        memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,to_fill);
         
         len-=to_fill;
         buffer_ana_subofs=0;
@@ -1677,14 +1622,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
                     return;
                 }
             }
-            if (mSlowDevice) {
-                signed int *dst=(signed int *)buffer_ana[buffer_ana_gen_ofs];
-                signed int *src=(signed int *)((char*)data+to_fill);
-                for (int i=len/8-1;i>=0;i--) {
-                    dst[i*2]=src[i];
-                    dst[i*2+1]=src[i];
-                }
-            } else memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)data)+to_fill,len);
+            memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)data)+to_fill,len);
             buffer_ana_subofs=len;
         }
     }
@@ -3139,26 +3077,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             //NSLog(@"Track ended : %d",iCurrentTime);
                             if (mLoopMode==1) {
                                 gme_start_track(gme_emu,mod_currentsub);
-                                
-                                
-                                if (mSlowDevice) {
-                                    gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
-                                    /*									for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
-                                     buffer_ana[buffer_ana_gen_ofs][i*4]=buffer_ana[buffer_ana_gen_ofs][i*4+2]=buffer_ana[buffer_ana_gen_ofs][i*2];
-                                     buffer_ana[buffer_ana_gen_ofs][i*4+1]=buffer_ana[buffer_ana_gen_ofs][i*4+3]=buffer_ana[buffer_ana_gen_ofs][i*2+1];
-                                     }*/
-                                    signed int *dst=(signed int *)buffer_ana[buffer_ana_gen_ofs];
-                                    signed int *src=(signed int *)buffer_ana[buffer_ana_gen_ofs];
-                                    for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
-                                        dst[i*2]=src[i];
-                                        dst[i*2+1]=src[i];
-                                    }
-                                    
-                                    
-                                } else {
-                                    gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
-                                }
-                                
+                                gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             } else if (mChangeOfSong==0) {
                                 if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
@@ -3196,47 +3115,15 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                         if (mNewModuleLength>optGMEFadeOut) gme_set_fade( gme_emu, mNewModuleLength-optGMEFadeOut,optGMEFadeOut ); //Fade 1s before end
                                         else gme_set_fade( gme_emu, mNewModuleLength/2, mNewModuleLength/2 ); //Fade 1s before end
                                     } else gme_set_fade( gme_emu, 1<<30,optGMEFadeOut );
-                                    if (mSlowDevice) {
-                                        gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
-                                        /*for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
-                                         buffer_ana[buffer_ana_gen_ofs][i*4]=buffer_ana[buffer_ana_gen_ofs][i*4+2]=buffer_ana[buffer_ana_gen_ofs][i*2];
-                                         buffer_ana[buffer_ana_gen_ofs][i*4+1]=buffer_ana[buffer_ana_gen_ofs][i*4+3]=buffer_ana[buffer_ana_gen_ofs][i*2+1];
-                                         }*/
-                                        signed int *dst=(signed int *)buffer_ana[buffer_ana_gen_ofs];
-                                        signed int *src=(signed int *)buffer_ana[buffer_ana_gen_ofs];
-                                        for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
-                                            dst[i*2]=src[i];
-                                            dst[i*2+1]=src[i];
-                                        }
-                                        
-                                    } else {
-                                        gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
-                                    }
-                                    
+                                    gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                                    
                                     //iCurrentTime=0;
                                     
                                 } else nbBytes=0;
                             }
                         }
                         else {
-                            if (mSlowDevice) {
-                                gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
-                                /*for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
-                                 buffer_ana[buffer_ana_gen_ofs][i*4]=buffer_ana[buffer_ana_gen_ofs][i*4+2]=buffer_ana[buffer_ana_gen_ofs][i*2];
-                                 buffer_ana[buffer_ana_gen_ofs][i*4+1]=buffer_ana[buffer_ana_gen_ofs][i*4+3]=buffer_ana[buffer_ana_gen_ofs][i*2+1];
-                                 }*/
-                                signed int *dst=(signed int *)buffer_ana[buffer_ana_gen_ofs];
-                                signed int *src=(signed int *)buffer_ana[buffer_ana_gen_ofs];
-                                for (int i=SOUND_BUFFER_SIZE_SAMPLE/2-1;i>=0;i--) {
-                                    dst[i*2]=src[i];
-                                    dst[i*2+1]=src[i];
-                                }
-                                
-                            } else {
-                                gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
-                            }
+                            gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         }
                     }
@@ -3318,7 +3205,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     }
                     if (mPlayType==MMP_PMDMINI) { //PMD
                         // render audio into sound buffer
-                        // TODO does this work OK on mSlowDevices?
                         pmd_renderer(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         // pmd_renderer gives no useful information on when song is done
@@ -3334,7 +3220,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     }
                     if (mPlayType==MMP_VGMPLAY) { //VGM
                         // render audio into sound buffer
-                        // TODO does this work OK on mSlowDevices?
                         if (EndPlay) {
                             nbBytes=0;
                         } else nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
@@ -3494,7 +3379,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                     mCurrentSamples=0;
                                     mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                     if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
-                                    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+                                    mTgtSamples=mNewModuleLength*PLAYBACK_FREQ/1000;
                                     if (mLoopMode) mNewModuleLength=-1;
                                 } else {
                                     nbBytes=0;
@@ -4728,7 +4613,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     fclose(f);
     
-    if (mdx_load((char*)[filePath UTF8String],&mdx,&pdx,mSlowDevice,mLoopMode) ) {
+    if (mdx_load((char*)[filePath UTF8String],&mdx,&pdx,mLoopMode) ) {
         NSLog(@"MDX mdx_load error");
         mPlayType=0;
         return -1;
@@ -5727,11 +5612,6 @@ char* loadRom(const char* path, size_t romSize)
     opt_reverb_control=tim_reverb;
     //set_current_resampler (RESAMPLE_LINEAR); //resample : MOVE TO SETTINGS
     
-    if (mSlowDevice) {
-        ios_play_mode.rate=22050;
-    } else {
-    }
-    
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
         NSLog(@"timidity Cannot open file %@",filePath);
@@ -6488,7 +6368,7 @@ char* loadRom(const char* path, size_t romSize)
     
     mPlayType=MMP_PMDMINI;
     pmd_init();
-    pmd_setrate(mSlowDevice?PLAYBACK_FREQ/2:PLAYBACK_FREQ); // 22kHz or 44.1kHz?
+    pmd_setrate(PLAYBACK_FREQ); // 22kHz or 44.1kHz?
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
@@ -6821,7 +6701,7 @@ char* loadRom(const char* path, size_t romSize)
 }
 
 -(int) mmp_gmeLoad:(NSString*)filePath {
-    long sample_rate = (mSlowDevice?PLAYBACK_FREQ/2:PLAYBACK_FREQ); /* number of samples per second */
+    long sample_rate = PLAYBACK_FREQ; /* number of samples per second */
     int track = 0; /* index of track to play (0 = first) */
     gme_err_t err;
     mPlayType=MMP_GME;
@@ -7006,7 +6886,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     return fullFilePath;
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER slowDevice:(int)slowDevice archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -7077,8 +6957,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         
         sprintf(mod_filename,"%s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
         
-        
-        mSlowDevice=slowDevice;
         
         if (mdz_ArchiveFilesCnt) {
             for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesList[i]);
@@ -7733,13 +7611,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     bGlobalIsPlaying=1;
     //Ensure play has been taken into account
     //wait for sound generation thread to end
-    if (1/*mSlowDevice*/) {
-        while (bGlobalSoundHasStarted<SOUND_BUFFER_NB/2) {
-            [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
-            counter++;
-            if (counter*DEFAULT_WAIT_TIME_UADE_MS>2) break;
-        }
+    
+    while (bGlobalSoundHasStarted<SOUND_BUFFER_NB/2) {
+        [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
+        counter++;
+        if (counter*DEFAULT_WAIT_TIME_UADE_MS>2) break;
     }
+    
     pthread_mutex_unlock(&play_mutex);
 }
 -(void) PlaySeek:(int)startPos subsong:(int)subsong {

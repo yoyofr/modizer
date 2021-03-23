@@ -12,6 +12,6 @@ CREATE INDEX idx_songlength_user_id_md5 on songlength_user (id_md5);
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)
-VALUES (2,96);
+VALUES (2,961);
 
 VACUUM;

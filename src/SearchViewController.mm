@@ -42,7 +42,7 @@ static NSFileManager *mFileMngr;
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
             @try {
-                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                [self.navigationController pushViewController:detailViewController animated:YES];
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
@@ -55,7 +55,7 @@ static NSFileManager *mFileMngr;
                 if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
                     range.location != NSNotFound) {
                     //view controller already exists in the stack - just pop back to it
-                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                    [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
                     NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }

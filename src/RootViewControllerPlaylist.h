@@ -59,9 +59,6 @@
 	
 	int mRenamePlaylist;
 	
-	int mSlowDevice;
-	
-
 	NSString *currentPath;
 	int mSearch;
 	NSString *mSearchText;

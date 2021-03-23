@@ -214,10 +214,9 @@ int pcm8_open( MDX_DATA *mdx )
 	
 	self->is_encoding_16bit  = FLAG_TRUE;
 	self->is_encoding_stereo = FLAG_TRUE;
-	self->dsp_speed  = (mdx->slowDevice?PCM8_MASTER_PCM_RATE/2:PCM8_MASTER_PCM_RATE);
+	self->dsp_speed  = PCM8_MASTER_PCM_RATE;
 	self->pcm_buffer_ptr = 0;
-	//self->pcm_buffer_size = ((mdx->slowDevice?PCM8_MASTER_PCM_RATE/2:PCM8_MASTER_PCM_RATE)/30)*4;
-    self->pcm_buffer_size = (mdx->slowDevice?SOUND_BUFFER_SIZE_SAMPLE/2:SOUND_BUFFER_SIZE_SAMPLE)*4;
+	self->pcm_buffer_size = SOUND_BUFFER_SIZE_SAMPLE*4;
 	self->pcm_buffer = (unsigned char *)malloc(sizeof(unsigned char)*self->pcm_buffer_size);
 	
 	self->sample_buffer_size = self->dsp_speed * PCM8_SYSTEM_RATE / 1000;

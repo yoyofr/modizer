@@ -57,11 +57,6 @@ BOOL is_retina;
     return result == 0;
 }
 
--(int) isSlowDevice {
-	return mSlowDevice;
-}
-
-
 /*NSUInteger pasteboardChangeCount_;
 
 - (void)pasteboardChangedNotification:(NSNotification*)notification {

@@ -25,7 +25,6 @@
     IBOutlet RootViewControllerPlaylist *playlistVC;
 	
 	UIBackgroundTaskIdentifier bgTask;
-	int mSlowDevice;
 }
 
 //@property (nonatomic, retain) IBOutlet UIWindow *window;

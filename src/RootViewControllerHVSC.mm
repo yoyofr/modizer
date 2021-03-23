@@ -158,17 +158,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     mFileMngr=[[NSFileManager alloc] init];
 	
-	NSString *strMachine=[self machine];
-	mSlowDevice=0;
-	NSRange r = [strMachine rangeOfString:@"iPhone1," options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {
-		mSlowDevice=1;
-	}
-	r.location=NSNotFound;
-	r = [strMachine rangeOfString:@"iPod1," options:NSCaseInsensitiveSearch];
-	if (r.location != NSNotFound) {
-		mSlowDevice=1;
-	}
 	
 	ratingImg[0] = @"rating0.png";
     ratingImg[1] = @"rating1.png";
@@ -1338,7 +1327,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     if (detailViewController.mShouldHaveFocus) {
         detailViewController.mShouldHaveFocus=0;
-        [self.navigationController pushViewController:detailViewController animated:(mSlowDevice?NO:YES)];
+        [self.navigationController pushViewController:detailViewController animated:YES];
     } else {				
         if (shouldFillKeys&&(browse_depth>0)) {
             
@@ -1840,7 +1829,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
             @try {
-                [self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                [self.navigationController pushViewController:detailViewController animated:YES];
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
@@ -1853,7 +1842,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 if ([ex.name isEqualToString:@"NSInvalidArgumentException"] &&
                     range.location != NSNotFound) {
                     //view controller already exists in the stack - just pop back to it
-                    [self.navigationController popToViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+                    [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
                     NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }

@@ -32,7 +32,7 @@ extern BOOL nvdsp_EQ;
 @synthesize detailViewController;
 
 -(IBAction) goPlayer {
-	[self.navigationController pushViewController:detailViewController animated:(detailViewController.mSlowDevice?NO:YES)];
+	[self.navigationController pushViewController:detailViewController animated:YES];
 }
 
 

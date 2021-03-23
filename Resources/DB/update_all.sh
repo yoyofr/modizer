@@ -1,8 +1,13 @@
 #!/bin/bash
-
-echo allmods
+echo downloading last allmods.zip
+echo ...
+rm allmods.zip
+curl https://ftp.modland.com/allmods.zip --output allmods.zip
+echo unzipping
 echo ...
 unzip allmods.zip
+echo converting
+echo ...
 ./conv_modland.sh allmods.txt
 echo HVSC
 echo ...

@@ -54,8 +54,6 @@
 		
 	NSString *mDir1,*mDir2,*mDir3,*mDir4,*mDir5;
 	
-	int mSlowDevice;
-		
 	NSString *currentPath;
 	int mSearch;
 	NSString *mSearchText;

@@ -58,8 +58,6 @@
 	
 	int search_local;
 		
-	int mSlowDevice;
-	
 	NSString *currentPath;
 	int mSearch;
 	NSString *mSearchText;
