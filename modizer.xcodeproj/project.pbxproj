@@ -2160,6 +2160,13 @@
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = FileExtractor;
 		};
+		596642BD2611263C007DAE70 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 59BDE85E260F666C00FB0C69 /* psflib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 59BDE84C260F663C00FB0C69;
+			remoteInfo = psflib;
+		};
 		59B9998725CFE5F50071E144 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */;
@@ -5023,6 +5030,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		596642AF2611263C007DAE70 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				596642BE2611263C007DAE70 /* libpsflib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		5966D10125CFF0D100520777 /* Various */ = {
 			isa = PBXGroup;
 			children = (
@@ -6747,6 +6762,10 @@
 					ProjectRef = 5939287125CF1F07009281DC /* openmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = 596642AF2611263C007DAE70 /* Products */;
+					ProjectRef = 59BDE85E260F666C00FB0C69 /* psflib.xcodeproj */;
+				},
+				{
 					ProductGroup = 59627F3E25CFE90E00711C05 /* Products */;
 					ProjectRef = CC19620E1B66BCD600778A3E /* Resample.xcodeproj */;
 				},
@@ -6849,6 +6868,13 @@
 			fileType = archive.ar;
 			path = libFileExtractor.a;
 			remoteRef = 59627F5525CFE90E00711C05 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		596642BE2611263C007DAE70 /* libpsflib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libpsflib.a;
+			remoteRef = 596642BD2611263C007DAE70 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		59B9998825CFE5F50071E144 /* libTapkuLibrary.a */ = {

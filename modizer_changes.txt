@@ -20,8 +20,10 @@ Todo/Requested:
 - [UI] stability improvement
 - [UI] Do not recreate samples folder automatically
 - [DB] Updated to latest versions
-- [PLAYER] Highly Complete added (DSF,PSF,PSF2,QSF,SSF)
-- [PLAYER] AOSDK & SEXYPSF removed (DSF,PSF,PSF2,QSF,SSF)
+- [PLAYER] AOSDK/SexyPSF replaced by Highly Complete for better compatibility (DSF,PSF,PSF2,QSF,SSF)
+- [PLAYER] LazyUSF now part of Highly Complete
+- [PLAYER] VGMSTREAM subsongs support
+
 
 2.961
 �����

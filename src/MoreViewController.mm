@@ -8,6 +8,7 @@
 
 #import "MoreViewController.h"
 #import "SettingsGenViewController.h"
+#import "ModizerConstants.h"
 
 @interface MoreViewController ()
 
@@ -82,7 +83,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 4;
+    return 5;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -217,14 +218,18 @@
             bottomLabel.text=NSLocalizedString(@"Some general informations",@"");
             break;
         case 1:
+            topLabel.text=NSLocalizedString(@"Mail support",@"");
+            bottomLabel.text=NSLocalizedString(@"Contact support by email",@"");
+            break;
+        case 2:
             topLabel.text=NSLocalizedString(@"Settings",@"");
             bottomLabel.text=NSLocalizedString(@"Global, Visu, FTP & Plugins",@"");
             break;
-        case 2:
+        case 3:
             topLabel.text=NSLocalizedString(@"Maintenance",@"");
             bottomLabel.text=NSLocalizedString(@"Clean DB, Reset ratings, ...",@"");
             break;
-        case 3: //downloads
+        case 4: //downloads
         {
             topLabel.text=NSLocalizedString(@"Downloads",@"");
             int download_queue=downloadViewController.mFTPDownloadQueueDepth+downloadViewController.mURLDownloadQueueDepth;
@@ -290,20 +295,35 @@
             // And push the window
             [self.navigationController pushViewController:aboutVC animated:YES];
             break;
-        case 1://Settings
+        case 1://Mail support
+        {
+            BOOL isiOSAppOnMac = false;
+            if (@available(iOS 14.0, *)) {
+                isiOSAppOnMac = [NSProcessInfo processInfo].isiOSAppOnMac;
+            }
+            NSString *strSystemDetails=[NSString stringWithFormat:@"model:%@\nsystem name:%@\nsystem version:%@\nPref language:%@\nMac M1:%s\nModizer version:%s.%s\n",[[UIDevice currentDevice] model],[[UIDevice currentDevice] systemName],[[UIDevice currentDevice] systemVersion],[[NSLocale preferredLanguages] objectAtIndex:0],(isiOSAppOnMac?"Yes":"No"),VERSION_MAJOR_STR,VERSION_MINOR_STR];
+            //get device model, ios version, language settings, modizer version
+            
+            NSString *strmail=[NSString stringWithFormat:@"%@%@---------------------------------------\n\n%@:\n",MODIZER_SUPPORT_EMAIL,strSystemDetails,NSLocalizedString(@"[Please describe your request below]",@"")];
+            NSString * encodedString = [strmail stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
+            UIApplication *application = [UIApplication sharedApplication];
+                [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];
+        }
+            break;
+        case 2://Settings
             settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
             settingsVC->detailViewController=detailViewController;
             settingsVC.title=NSLocalizedString(@"General Settings",@"");
             [self.navigationController pushViewController:settingsVC animated:YES];
             break;
-        case 2://Maintenance
+        case 3://Maintenance
             mntVC=[[SettingsMaintenanceViewController alloc] initWithNibName:@"MaintenanceViewController" bundle:[NSBundle mainBundle]];
             mntVC->detailViewController=detailViewController;
             mntVC->rootVC=rootVC;
             mntVC.title=NSLocalizedString(@"Maintenance",@"");
             [self.navigationController pushViewController:mntVC animated:YES];
             break;
-        case 3://downloads
+        case 4://downloads
             [self.navigationController pushViewController:downloadViewController animated:YES];
             break;
             

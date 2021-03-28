@@ -197,11 +197,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="44" width="375" height="623"/>
+                                        <rect key="frame" x="0.0" y="44" width="375" height="486"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -218,7 +218,7 @@
                                         </connections>
                                     </searchBar>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -276,11 +276,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="9zf-eA-E19"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="2020">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -1302,9 +1302,8 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <mutableString key="text">v2.962 © Yohann Magnien / YoyoFR
 
+Contact: mailto:modizerhelp@gmail.com
 Web: http://yoyofr.blogspot.com/p/modizer.html
-Forum: http://modizer.988727.n3.nabble.com/
-Contact: mailto:ymagnien@gmail.com
 
 Modizer's logo by Steve Miele.
 

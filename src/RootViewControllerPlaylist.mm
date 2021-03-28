@@ -1013,7 +1013,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
-	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
+	NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
 	NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -1022,7 +1022,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+[filetype_extDUMB count]+
 								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extLAZYUSF count]+[filetype_ext2SF count]+[filetype_extSNSF count]+[filetype_extVGMSTREAM count]+[filetype_extMPG123 count]+
-								  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
+								  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
 								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
 	NSMutableArray *archivetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extARCHIVEFILE count]];
@@ -1103,7 +1103,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [filetype_ext addObjectsFromArray:filetype_extSNSF];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extMPG123];
-	[filetype_ext addObjectsFromArray:filetype_extAOSDK];
+	[filetype_ext addObjectsFromArray:filetype_extHC];
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
 	[filetype_ext addObjectsFromArray:filetype_extGSF];
 	[filetype_ext addObjectsFromArray:filetype_extASAP];

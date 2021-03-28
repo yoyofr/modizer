@@ -468,6 +468,23 @@ static void * psf_file_fopen( const char * uri )
 {
     FILE *f;
     f = fopen(uri, "r");
+    if (!f) {
+        //search file with case insensitive
+        NSString *dir=[NSString stringWithFormat:@"%s",uri];
+        dir=[dir stringByDeletingLastPathComponent];
+        mFileMngr=[[NSFileManager alloc] init];
+        NSError *error;
+        NSArray *listFiles=[mFileMngr contentsOfDirectoryAtPath:dir error:&error];
+        for (int i=0;i<[listFiles count];i++) {
+            NSLog(@"file: %@",(NSString*)[listFiles objectAtIndex:i]);
+            if (strcasecmp(uri,[(NSString*)[listFiles objectAtIndex:i] UTF8String])==0) {
+                NSLog(@"found");
+                f=fopen([(NSString*)[listFiles objectAtIndex:i] UTF8String],"r");
+                break;
+            }
+        }
+        
+    }
     return f;
 }
 
@@ -831,22 +848,14 @@ static int qsf_loader(void * context, const uint8_t * exe, size_t exe_size,
 
 #include "usf/misc.h"
 
-int32_t lzu_sample_rate;
-long lzu_currentSample,lzu_fadeStart,lzu_fadeLength;
-#define LZU_SAMPLE_SIZE 1024
-int16_t *lzu_sample_data;
-float *lzu_sample_data_float;
-float *lzu_sample_converted_data_float;
+int32_t hc_sample_rate;
+long hc_currentSample,hc_fadeStart,hc_fadeLength;
 
-
-
+int16_t *hc_sample_data;
+float *hc_sample_data_float;
+float *hc_sample_converted_data_float;
 
 usf_loader_state * lzu_state;
-
-
-
-//#include "corlett.h"
-//extern corlett_t *usf_info_data;
 
 uint32 psfTimeToMS(char *str)
 {
@@ -982,9 +991,6 @@ static volatile int buffer_ana_gen_ofs,buffer_ana_play_ofs;
 static volatile int *buffer_ana_flag;
 static volatile int bGlobalIsPlaying,bGlobalShouldEnd,bGlobalSeekProgress,bGlobalEndReached,bGlobalSoundGenInProgress,bGlobalSoundHasStarted;
 static volatile long mNeedSeek,mNeedSeekTime;
-
-// String holding the relative path to the source directory
-static const char *pathdir;
 
 static int tim_open_output(void) {
     return 0;
@@ -2484,45 +2490,45 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
 }
 
 long src_callback_he(void *cb_data, float **data) {
-    uint32_t howmany = LZU_SAMPLE_SIZE;
+    uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
     switch (HC_type) {
         case 1:
         case 2:
-            if (psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) lzu_sample_data, &howmany, 0 )<0) return 0;
+            if (psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 )<0) return 0;
             break;
         case 0x11:
         case 0x12:
-            if ( sega_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) lzu_sample_data, &howmany ) < 0 ) return 0;
+            if ( sega_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
             break;
         case 0x21:
-            if (usf_render(lzu_state->emu_state, lzu_sample_data, LZU_SAMPLE_SIZE, &lzu_sample_rate)) return 0;
+            if (usf_render(lzu_state->emu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &hc_sample_rate)) return 0;
             break;
         case 0x41:
-            if ( qsound_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) lzu_sample_data, &howmany ) < 0 ) return 0;
+            if ( qsound_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
             break;
     }
-    lzu_currentSample += howmany;
+    hc_currentSample += howmany;
 
     if (iModuleLength>0) {
-        if (lzu_fadeLength&&(lzu_fadeStart>0)&&(lzu_currentSample>lzu_fadeStart)) {
-            int startSmpl=lzu_currentSample-lzu_fadeStart;
-            if (startSmpl>LZU_SAMPLE_SIZE) startSmpl=LZU_SAMPLE_SIZE;
-            long vol=lzu_fadeLength-(lzu_currentSample-lzu_fadeStart);
+        if (hc_fadeLength&&(hc_fadeStart>0)&&(hc_currentSample>hc_fadeStart)) {
+            int startSmpl=hc_currentSample-hc_fadeStart;
+            if (startSmpl>SOUND_BUFFER_SIZE_SAMPLE) startSmpl=SOUND_BUFFER_SIZE_SAMPLE;
+            long vol=hc_fadeLength-(hc_currentSample-hc_fadeStart);
             if (vol<0) vol=0;
-            for (int i=LZU_SAMPLE_SIZE-startSmpl;i<LZU_SAMPLE_SIZE;i++) {
-                lzu_sample_data[i*2]=(long)(lzu_sample_data[i*2])*vol/lzu_fadeLength;
-                lzu_sample_data[i*2+1]=(long)(lzu_sample_data[i*2+1])*vol/lzu_fadeLength;
+            for (int i=SOUND_BUFFER_SIZE_SAMPLE-startSmpl;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                hc_sample_data[i*2]=(long)(hc_sample_data[i*2])*vol/hc_fadeLength;
+                hc_sample_data[i*2+1]=(long)(hc_sample_data[i*2+1])*vol/hc_fadeLength;
                 if (vol) vol--;
             }
         }
     }
-    src_short_to_float_array (lzu_sample_data, lzu_sample_data_float,LZU_SAMPLE_SIZE*2);
-    *data=lzu_sample_data_float;
-    return LZU_SAMPLE_SIZE;
+    src_short_to_float_array (hc_sample_data, hc_sample_data_float,SOUND_BUFFER_SIZE_SAMPLE*2);
+    *data=hc_sample_data_float;
+    return SOUND_BUFFER_SIZE_SAMPLE;
 }
 
 
-long src_callback_lazyusf(void *cb_data, float **data) {
+/*long src_callback_lazyusf(void *cb_data, float **data) {
     const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, LZU_SAMPLE_SIZE, &lzu_sample_rate);
     if (result) return 0;
     lzu_currentSample+=LZU_SAMPLE_SIZE;
@@ -2543,7 +2549,7 @@ long src_callback_lazyusf(void *cb_data, float **data) {
     src_short_to_float_array (lzu_sample_data, lzu_sample_data_float,LZU_SAMPLE_SIZE*2);
     *data=lzu_sample_data_float;
     return LZU_SAMPLE_SIZE;
-}
+}*/
 
 long src_callback_vgmstream(void *cb_data, float **data) {
     // render audio into sound buffer
@@ -2831,7 +2837,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             SeekVGM(false,mNeedSeekTime*441/10);
                             //mNeedSeek=0;
                         }
-                        if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
+                        /*if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
                             int seekSample=(double)mNeedSeekTime*(double)(lzu_sample_rate)/1000.0f;
                             bGlobalSeekProgress=-1;
                             if (lzu_currentSample >seekSample) {
@@ -2848,11 +2854,11 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 const char * result=usf_render(lzu_state->emu_state, lzu_sample_data, seekSample - lzu_currentSample, &lzu_sample_rate);
                                 lzu_currentSample=seekSample;
                             }
-                        }
+                        }*/
                         if (mPlayType==MMP_HC) { //HC
-                            int seekSample=(double)mNeedSeekTime*(double)(lzu_sample_rate)/1000.0f;
+                            int seekSample=(double)mNeedSeekTime*(double)(hc_sample_rate)/1000.0f;
                             bGlobalSeekProgress=-1;
-                            if (lzu_currentSample >seekSample) {
+                            if (hc_currentSample >seekSample) {
                                 //
                                 // RESTART required
                                 //
@@ -2861,55 +2867,55 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                     [self MMP_HCClose];
                                     [self MMP_HCLoad:mod_currentfile];
                                 }
-                                lzu_currentSample=0;
+                                hc_currentSample=0;
                             }
                             
                             //
                             // progress
                             //
-                            while (seekSample - lzu_currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
-                                uint32_t howmany = LZU_SAMPLE_SIZE;
+                            while (seekSample - hc_currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
+                                uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
                                 switch (HC_type) {
                                     case 1:
                                     case 2:
-                                        psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) lzu_sample_data, &howmany, 0 );
+                                        psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 );
                                         break;
                                     case 0x11:
                                     case 0x12:
                                         sega_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                     case 0x21:
-                                        usf_render(lzu_state->emu_state, lzu_sample_data, howmany, &lzu_sample_rate);
+                                        usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
                                         break;
                                     case 0x41:
                                         qsound_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                 }
-                                lzu_currentSample += howmany;
+                                hc_currentSample += howmany;
                             }
                             //
                             // fine tune
                             //
-                            if (seekSample - lzu_currentSample > 0)
+                            if (seekSample - hc_currentSample > 0)
                             {
-                                uint32_t howmany = seekSample - lzu_currentSample;
+                                uint32_t howmany = seekSample - hc_currentSample;
                                 switch (HC_type) {
                                     case 1:
                                     case 2:
-                                        psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) lzu_sample_data, &howmany, 0 );
+                                        psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 );
                                         break;
                                     case 0x11:
                                     case 0x12:
                                         sega_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                     case 0x21:
-                                        usf_render(lzu_state->emu_state, lzu_sample_data, howmany, &lzu_sample_rate);
+                                        usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
                                         break;
                                     case 0x41:
                                         qsound_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                 }
-                                lzu_currentSample += howmany;
+                                hc_currentSample += howmany;
                                 
                             }
                         }
@@ -3597,15 +3603,15 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         //if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) NSLog(@"nbBytes %d",nbBytes);
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
-                    if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
+                    /*if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, lzu_sample_converted_data_float)*2*2;
                         src_float_to_short_array (lzu_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
-                    }
+                    }*/
                     if (mPlayType==MMP_HC) { //Highly Experimental
-                        nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, lzu_sample_converted_data_float)*2*2;
-                        src_float_to_short_array (lzu_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                        nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
+                        src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
@@ -4366,7 +4372,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
-    NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
+    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -4376,7 +4382,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
                                   [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+[filetype_extDUMB count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_extLAZYUSF count]+[filetype_ext2SF count]+[filetype_extSNSF count]+[filetype_extVGMSTREAM count]+[filetype_extMPG123 count]+
-                                  [filetype_extAOSDK count]+[filetype_extHVL count]+[filetype_extGSF count]+
+                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     
     int err;
@@ -4402,7 +4408,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extSNSF];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extMPG123];
-    [filetype_ext addObjectsFromArray:filetype_extAOSDK];
+    [filetype_ext addObjectsFromArray:filetype_extHC];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
     [filetype_ext addObjectsFromArray:filetype_extGSF];
     [filetype_ext addObjectsFromArray:filetype_extASAP];
@@ -4497,7 +4503,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     NSArray *filetype_extLAZYUSF=(no_aux_file?[SUPPORTED_FILETYPE_LAZYUSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_LAZYUSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_ext2SF=(no_aux_file?[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extSNSF=(no_aux_file?[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SNSF_EXT componentsSeparatedByString:@","]);
-    NSArray *filetype_extAOSDK=(no_aux_file?[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_AOSDK_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extHC=(no_aux_file?[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -4668,19 +4674,19 @@ long src_callback_mpg123(void *cb_data, float **data) {
             }
         }
     if (!found)
-        for (int i=0;i<[filetype_extAOSDK count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+        for (int i=0;i<[filetype_extHC count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
+                NSArray *singlefile=[SUPPORTED_FILETYPE_HC_WITHEXTFILE componentsSeparatedByString:@","];
                 for (int j=0;j<[singlefile count];j++)
                     if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
                 found=MMP_HC;break;
             }
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
                 //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_AOSDK_WITHEXTFILE componentsSeparatedByString:@","];
+                NSArray *singlefile=[SUPPORTED_FILETYPE_HC_WITHEXTFILE componentsSeparatedByString:@","];
                 for (int j=0;j<[singlefile count];j++)
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
@@ -6429,7 +6435,7 @@ char* loadRom(const char* path, size_t romSize)
     src_data.data_out=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     src_data.data_in=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     if (HC_type==1) { //PSF1
-        lzu_sample_rate=44100;
+        hc_sample_rate=44100;
         HE_emulatorCore = ( uint8_t * ) calloc( 1,psx_get_state_size( 1 ) );
         psx_clear_state( HE_emulatorCore, 1 );
         struct psf1_load_state state;
@@ -6446,7 +6452,7 @@ char* loadRom(const char* path, size_t romSize)
         }
         if ( state.refresh ) psx_set_refresh( HE_emulatorCore, state.refresh );
     } else if (HC_type==2) { //PSF2
-        lzu_sample_rate=48000;
+        hc_sample_rate=48000;
         HE_emulatorExtra = psf2fs_create();
         struct psf1_load_state state;
         state.refresh = 0;
@@ -6464,8 +6470,8 @@ char* loadRom(const char* path, size_t romSize)
         psx_clear_state( HE_emulatorCore, 2 );
         if ( state.refresh ) psx_set_refresh( HE_emulatorCore, state.refresh );
         psx_set_readfile( HE_emulatorCore, virtual_readfile, HE_emulatorExtra );
-    } else if ( HC_type == 0x11 || HC_type == 0x12 ) {
-        lzu_sample_rate=44100;
+    } else if ( HC_type == 0x11 || HC_type == 0x12 ) { //DSL/SSF
+        hc_sample_rate=44100;
         struct sdsf_loader_state state;
         memset( &state, 0, sizeof(state) );
         if ( psf_load( [filePath UTF8String], &psf_file_system, HC_type, sdsf_loader, &state, 0, 0, 0 ) <= 0 ) {
@@ -6493,8 +6499,27 @@ char* loadRom(const char* path, size_t romSize)
         sega_upload_program( HE_emulatorCore, state.data, (uint32_t)length );
         
         free( state.data );
-    } else if ( HC_type == 0x41 ) {
-        lzu_sample_rate=24038;
+    } else if (HC_type == 0x21) { //USF
+        lzu_state = new usf_loader_state;
+        lzu_state->emu_state = malloc( usf_get_state_size() );
+        usf_clear( lzu_state->emu_state );
+        
+        //usf_set_hle_audio( lzu_state->emu_state, 1 );
+        
+        usf_info_data=(corlett_t*)calloc(1,sizeof(corlett_t));
+        
+        if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x21, usf_loader, lzu_state, usf_info, lzu_state,1 ) < 0 ) {
+            NSLog(@"Error loading USF");
+            mPlayType=0;
+            src_delete(src_state);
+            return -1;
+        }
+        usf_set_compare( lzu_state->emu_state, lzu_state->enable_compare );
+        usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );
+        
+        usf_render(lzu_state->emu_state, 0, 0, &hc_sample_rate);
+    } else if ( HC_type == 0x41 ) { //QSF
+        hc_sample_rate=24038;
         struct qsf_loader_state * state = ( struct qsf_loader_state * ) calloc( 1, sizeof( *state ) );
         
         HE_emulatorExtra = state;
@@ -6525,7 +6550,7 @@ char* loadRom(const char* path, size_t romSize)
         qsound_set_z80_rom( HE_emulatorCore, state->z80_rom, state->z80_size );
         qsound_set_sample_rom( HE_emulatorCore, state->sample_rom, state->sample_size );
     }
-    src_ratio=PLAYBACK_FREQ/(double)lzu_sample_rate;
+    src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
             
     iModuleLength=-1;
     if (info.tag_length_ms) {
@@ -6534,34 +6559,54 @@ char* loadRom(const char* path, size_t romSize)
     iCurrentTime=0;
     numChannels=2;
     
-    sprintf(mod_name,"");
-    if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
     
-    sprintf(mod_message,"\n");
-    for (id key in info.info) {
-        id value = info.info[key];
-        NSString *tmpstr=[NSString stringWithFormat:@"%@:%@\n",key,value];
-        strcat(mod_message,[tmpstr UTF8String]);
-    }
+    if (HC_type==0x21) {
+        sprintf(mod_name,"");
+        if (usf_info_data->inf_title)
+            if (usf_info_data->inf_title[0]) sprintf(mod_name," %s",usf_info_data->inf_title);
         
+        if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        
+        sprintf(mod_message,"Game:\t%s\nTitle:\t%s\nArtist:\t%s\nYear:\t%s\nGenre:\t%s\nUSF By:\t%s\nCopyright:\t%s\nTrack:\t%s\nSample rate: %dHz\n",
+                (usf_info_data->inf_game?usf_info_data->inf_game:""),
+                (usf_info_data->inf_title?usf_info_data->inf_title:""),
+                (usf_info_data->inf_artist?usf_info_data->inf_artist:""),
+                (usf_info_data->inf_year?usf_info_data->inf_year:""),
+                (usf_info_data->inf_genre?usf_info_data->inf_genre:""),
+                (usf_info_data->inf_usfby?usf_info_data->inf_usfby:""),
+                (usf_info_data->inf_copy?usf_info_data->inf_copy:""),
+                (usf_info_data->inf_track?usf_info_data->inf_track:""),
+                hc_sample_rate);
+    } else {
+        sprintf(mod_name,"");
+        if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
+        
+        sprintf(mod_message,"\n");
+        for (id key in info.info) {
+            id value = info.info[key];
+            NSString *tmpstr=[NSString stringWithFormat:@"%@:%@\n",key,value];
+            strcat(mod_message,[tmpstr UTF8String]);
+        }
+        strcat(mod_message,[[NSString stringWithFormat:@"Sample rate: %dHz\nLength: %ds",hc_sample_rate,iModuleLength/1000] UTF8String]);
+    }
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
     
-    lzu_currentSample=0;
-    lzu_fadeLength=(long)(info.tag_fade_ms)*(long)lzu_sample_rate/1000;
-    lzu_fadeStart=(long)(info.tag_length_ms)*(long)lzu_sample_rate/1000;
+    hc_currentSample=0;
+    hc_fadeLength=(long)(info.tag_fade_ms)*(long)hc_sample_rate/1000;
+    hc_fadeStart=(long)(info.tag_length_ms)*(long)hc_sample_rate/1000;
     
-    lzu_sample_data=(int16_t*)malloc(LZU_SAMPLE_SIZE*2*2);
-    lzu_sample_data_float=(float*)malloc(LZU_SAMPLE_SIZE*4*2);
-    lzu_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+    hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+    hc_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+    hc_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
     
     return 0;
 }
 
 -(int) mmp_lazyusfLoad:(NSString*)filePath {  //LAZYUSF
     mPlayType=MMP_LAZYUSF;
-    FILE *f;
+    /*FILE *f;
     
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
@@ -6583,9 +6628,6 @@ char* loadRom(const char* path, size_t romSize)
     /////////////////////////
     
     
-    NSString *fileDir=[filePath stringByDeletingLastPathComponent];
-    pathdir=[fileDir UTF8String];
-    
     lzu_state = new usf_loader_state;
     lzu_state->emu_state = malloc( usf_get_state_size() );
     usf_clear( lzu_state->emu_state );
@@ -6604,9 +6646,9 @@ char* loadRom(const char* path, size_t romSize)
     usf_set_compare( lzu_state->emu_state, lzu_state->enable_compare );
     usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );        
     
-    usf_render(lzu_state->emu_state, 0, 0, &lzu_sample_rate);
-    src_ratio=PLAYBACK_FREQ/(double)lzu_sample_rate;
-    //NSLog(@"init sr:%d/%d %f",lzu_sample_rate,PLAYBACK_FREQ,src_ratio);
+    usf_render(lzu_state->emu_state, 0, 0, &hc_sample_rate);
+    src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
+    //NSLog(@"init sr:%d/%d %f",hc_sample_rate,PLAYBACK_FREQ,src_ratio);
     
     src_data.data_out=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     src_data.data_in=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
@@ -6615,9 +6657,9 @@ char* loadRom(const char* path, size_t romSize)
     if (usf_info_data->inf_length) {
         iModuleLength=psfTimeToMS(usf_info_data->inf_length)+psfTimeToMS(usf_info_data->inf_fade);
     }
-    lzu_currentSample=0;
-    lzu_fadeLength=psfTimeToMS(usf_info_data->inf_fade)*lzu_sample_rate/1000;
-    lzu_fadeStart=psfTimeToMS(usf_info_data->inf_length)*lzu_sample_rate/1000;
+    hc_currentSample=0;
+    hc_fadeLength=psfTimeToMS(usf_info_data->inf_fade)*hc_sample_rate/1000;
+    hc_fadeStart=psfTimeToMS(usf_info_data->inf_length)*hc_sample_rate/1000;
     
     iCurrentTime=0;
     numChannels=2;
@@ -6637,18 +6679,18 @@ char* loadRom(const char* path, size_t romSize)
             (usf_info_data->inf_usfby?usf_info_data->inf_usfby:""),
             (usf_info_data->inf_copy?usf_info_data->inf_copy:""),
             (usf_info_data->inf_track?usf_info_data->inf_track:""),
-            lzu_sample_rate);
+            hc_sample_rate);
     
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
-    lzu_sample_data=(int16_t*)malloc(LZU_SAMPLE_SIZE*2*2);
-    lzu_sample_data_float=(float*)malloc(LZU_SAMPLE_SIZE*4*2);
-    lzu_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+    hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+    hc_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
+    hc_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
     
     
-    
+    */
     return 0;
 }
 
@@ -7267,7 +7309,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
-    NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
+    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -7661,12 +7703,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
-    for (int i=0;i<[filetype_extAOSDK count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+    for (int i=0;i<[filetype_extHC count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_HC]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extAOSDK objectAtIndex:i]]==NSOrderedSame) {
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_HC]];
             break;
         }
@@ -8163,9 +8205,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         HE_emulatorExtra = nil;
     }
             
-    free(lzu_sample_data);
-    free(lzu_sample_data_float);
-    free(lzu_sample_converted_data_float);
+    free(hc_sample_data);
+    free(hc_sample_data_float);
+    free(hc_sample_converted_data_float);
     
     if (src_state) src_delete(src_state);
     src_state=NULL;
@@ -8305,9 +8347,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     }
     if (mPlayType==MMP_LAZYUSF) { //LAZYUSF
         usf_shutdown(lzu_state->emu_state);
-        free(lzu_sample_data);
-        free(lzu_sample_data_float);
-        free(lzu_sample_converted_data_float);
+        free(hc_sample_data);
+        free(hc_sample_data_float);
+        free(hc_sample_converted_data_float);
         free(usf_info_data);
         if (src_state) src_delete(src_state);
         src_state=NULL;

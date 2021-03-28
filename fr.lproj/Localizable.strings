@@ -252,3 +252,9 @@
 "No file to extract or not supported archive format.\n"="Pas de fichier à extraire ou format archive non supporté.\n";
 
 "File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application."="Fichier absent de l'appareil.\nDémarrage du téléchargement depuis iCloud, veuillez vérifier dans l'application 'Fichiers'.";
+
+"Mail support"="Mail support";
+"Contact support by email"="Contacter le support par email";
+
+"[Please describe your request below]"="[Veuillez décrire votre requête ci-dessous]";
+
