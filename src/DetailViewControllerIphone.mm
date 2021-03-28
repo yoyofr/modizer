@@ -815,10 +815,10 @@ static float movePinchScale,movePinchScaleOld;
     }
 
     /////////////////////
-    //LAZYUSF
+    //HC
     /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_LAZYUSF)) {
-        [mplayer optLAZYUSF_ResampleQuality:(int)(settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value)];
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_HC)) {
+        [mplayer optHC_ResampleQuality:(int)(settings[HC_ResampleQuality].detail.mdz_switch.switch_value)];
     }
     
     /////////////////////

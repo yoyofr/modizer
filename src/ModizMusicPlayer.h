@@ -80,7 +80,6 @@ enum MMP_PLAYER_TYPE {
     MMP_TIMIDITY,
     MMP_VGMSTREAM,
     MMP_MPG123,
-    MMP_LAZYUSF,
     MMP_VGMPLAY,
     MMP_GME,
     MMP_ASAP,
@@ -299,7 +298,7 @@ enum MMP_PLAYER_TYPE {
 -(void) optVGMSTREAM_ResampleQuality:(unsigned int)val;
 -(void) optVGMSTREAM_preferJapTag:(bool)val;
 
--(void) optLAZYUSF_ResampleQuality:(unsigned int)val;
+-(void) optHC_ResampleQuality:(unsigned int)val;
 
 -(void) optGME_Fade:(int)fade;
 -(void) optGME_IgnoreSilence:(int)ignoreSilence;
@@ -339,7 +338,6 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_timidityLoad:(NSString*)filePath;
 -(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension subsong:(int)subindex;
 -(int) mmp_mpg123Load:(NSString*)filePath extension:(NSString*)extension;
--(int) mmp_lazyusfLoad:(NSString*)filePath;
 -(int) MMP_HCLoad:(NSString*)filePath;
 -(void) MMP_HCClose;
 -(int) mmp_2sfLoad:(NSString*)filePath;

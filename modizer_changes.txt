@@ -23,7 +23,7 @@ Todo/Requested:
 - [PLAYER] AOSDK/SexyPSF replaced by Highly Complete for better compatibility (DSF,PSF,PSF2,QSF,SSF)
 - [PLAYER] LazyUSF now part of Highly Complete
 - [PLAYER] VGMSTREAM subsongs support
-
+- [PLAYER] FLAC support
 
 2.961
 �����

@@ -32,13 +32,13 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_DUMB,
     SETTINGS_GME,
     SETTINGS_GSF,
+    SETTINGS_HC,
     SETTINGS_MODPLUG,
     SETTINGS_SID,
     SETTINGS_UADE,
     SETTINGS_TIMIDITY,
     SETTINGS_VGMPLAY,
     SETTINGS_VGMSTREAM,
-    SETTINGS_LAZYUSF,
     SETTINGS_ONLINE
 };
 
@@ -109,6 +109,9 @@ enum MDZ_SETTINGS {
         GSF_LOWPASSFILTER,
         GSF_ECHO,
     
+        MDZ_SETTINGS_FAMILY_HC,
+        HC_ResampleQuality,
+    
         MDZ_SETTINGS_FAMILY_MODPLUG,
         MODPLUG_MasterVolume,
         MODPLUG_Sampling,
@@ -160,8 +163,7 @@ enum MDZ_SETTINGS {
         VGMSTREAM_Maxloop,
         VGMSTREAM_Fadeouttime,
     
-        MDZ_SETTINGS_FAMILY_LAZYUSF,
-        LAZYUSF_ResampleQuality,
+        
     
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,

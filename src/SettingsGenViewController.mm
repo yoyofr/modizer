@@ -124,12 +124,12 @@ void optVGMSTREAMChangedC(id param) {
     [param optVGMSTREAMChanged];
 }
 
-//LAZYUSF
--(void) optLAZYUSFChanged {
-    [detailViewController settingsChanged:(int)SETTINGS_LAZYUSF];
+//HC
+-(void) optHCChanged {
+    [detailViewController settingsChanged:(int)SETTINGS_HC];
 }
-void optLAZYUSFChangedC(id param) {
-    [param optLAZYUSFChanged];
+void optHCChangedC(id param) {
+    [param optHCChanged];
 }
 //GSF
 -(void) optGSFChanged {
@@ -438,9 +438,9 @@ void optGSFChangedC(id param) {
     
     
     /////////////////////////////////////
-    //LAZYUSF
+    //HC
     /////////////////////////////////////
-    settings[LAZYUSF_ResampleQuality].detail.mdz_slider.slider_value=1;
+    settings[HC_ResampleQuality].detail.mdz_slider.slider_value=0;
     
     
 }
@@ -1465,28 +1465,28 @@ void optGSFChangedC(id param) {
     
     
     /////////////////////////////////////
-    //LAZYUSF
+    //HC
     /////////////////////////////////////
-    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].label=(char*)"LAZYUSF";
-    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].family=MDZ_SETTINGS_FAMILY_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_LAZYUSF].sub_family=MDZ_SETTINGS_FAMILY_LAZYUSF;
+    settings[MDZ_SETTINGS_FAMILY_HC].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_HC].label=(char*)"Highly Complete";
+    settings[MDZ_SETTINGS_FAMILY_HC].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_HC].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_HC].sub_family=MDZ_SETTINGS_FAMILY_HC;
 
-    settings[LAZYUSF_ResampleQuality].type=MDZ_SWITCH;
-    settings[LAZYUSF_ResampleQuality].label=(char*)"Resampling";
-    settings[LAZYUSF_ResampleQuality].description=NULL;
-    settings[LAZYUSF_ResampleQuality].family=MDZ_SETTINGS_FAMILY_LAZYUSF;
-    settings[LAZYUSF_ResampleQuality].sub_family=0;
-    settings[LAZYUSF_ResampleQuality].callback=&optLAZYUSFChangedC;
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value=1;
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[1]=(char*)"Med.";
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[3]=(char*)"ZOH";
-    settings[LAZYUSF_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
+    settings[HC_ResampleQuality].type=MDZ_SWITCH;
+    settings[HC_ResampleQuality].label=(char*)"Resampling";
+    settings[HC_ResampleQuality].description=NULL;
+    settings[HC_ResampleQuality].family=MDZ_SETTINGS_FAMILY_HC;
+    settings[HC_ResampleQuality].sub_family=0;
+    settings[HC_ResampleQuality].callback=&optHCChangedC;
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_value=0;
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_value_nb=5;
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_labels=(char**)malloc(settings[HC_ResampleQuality].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[0]=(char*)"Best";
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[1]=(char*)"Med.";
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[2]=(char*)"Fast";
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[3]=(char*)"ZOH";
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
     
     
     /////////////////////////////////////
