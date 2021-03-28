@@ -7,7 +7,7 @@
 //
 
 
-#define FTP_BUFFER_SIZE 256*1024
+#define FTP_BUFFER_SIZE 1*1024*1024
 #define TMP_FILE_NAME @"Documents/tmp.tmpfile"
 
 #import "DownloadViewController.h"
@@ -416,13 +416,13 @@ static NSFileManager *mFileMngr;
         } break;
         case NSStreamEventHasBytesAvailable: {
             NSInteger       bytesRead;
-            uint8_t         buffer[FTP_BUFFER_SIZE];
+            uint8_t         *buffer;
 			NSString *msg;
 			
-            
+            buffer=(uint8_t*)malloc(FTP_BUFFER_SIZE);
             // Pull some data off the network.
             
-            bytesRead = [self.networkStream read:buffer maxLength:sizeof(buffer)];
+            bytesRead = [self.networkStream read:buffer maxLength:FTP_BUFFER_SIZE];
 			
 			mCurrentDownloadedBytes+=bytesRead;
 			
@@ -451,6 +451,7 @@ static NSFileManager *mFileMngr;
                     }
                 } while (bytesWrittenSoFar != bytesRead);
             }
+            free(buffer);
         } break;
         case NSStreamEventHasSpaceAvailable: {
             assert(NO);     // should never happen for the output stream
@@ -769,7 +770,6 @@ static NSFileManager *mFileMngr;
     NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
 	NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
-	NSArray *filetype_extSEXYPSF=[SUPPORTED_FILETYPE_SEXYPSF componentsSeparatedByString:@","];
 	NSArray *filetype_extAOSDK=[SUPPORTED_FILETYPE_AOSDK componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
 	NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
@@ -842,11 +842,6 @@ static NSFileManager *mFileMngr;
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 		}
 	if (!found)
-		for (int i=0;i<[filetype_extSEXYPSF count];i++) {
-			if ([extension caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-			if ([file_no_ext caseInsensitiveCompare:[filetype_extSEXYPSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-		}
-    if (!found)
         for (int i=0;i<[filetype_extLAZYUSF count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extLAZYUSF objectAtIndex:i]]==NSOrderedSame) {found=1;break;}

@@ -354,7 +354,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_nb_entries=0;
 			free(search_dbHVSC_entries_data);
 		}
-		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		
 		for (int i=0;i<27;i++) {
 			search_dbHVSC_entries_count[i]=0;
@@ -421,8 +421,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		} else NSLog(@"ErrSQL : %d",err);
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
-			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbHVSC_entries_data,0,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			
 			dbHVSC_entries_index=0;
 			for (int i=0;i<27;i++) {
 				dbHVSC_entries_count[i]=0;
@@ -482,7 +482,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_nb_entries=0;
 			free(search_dbHVSC_entries_data);
 		}
-		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		
 		for (int i=0;i<27;i++) {
 			search_dbHVSC_entries_count[i]=0;
@@ -549,8 +549,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		} else NSLog(@"ErrSQL : %d",err);
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
-			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbHVSC_entries_data,0,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			
 			dbHVSC_entries_index=0;
 			for (int i=0;i<27;i++) {
 				dbHVSC_entries_count[i]=0;
@@ -607,7 +607,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_nb_entries=0;
 			free(search_dbHVSC_entries_data);
 		}
-		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		search_dbHVSC_hasFiles=0;
 		for (int i=0;i<27;i++) {
 			search_dbHVSC_entries_count[i]=0;
@@ -682,8 +682,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
-			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbHVSC_entries_data,0,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			
 			dbHVSC_entries_index=0;
 			for (int i=0;i<27;i++) {
 				dbHVSC_entries_count[i]=0;
@@ -755,7 +755,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			free(search_dbHVSC_entries_data);
 		}
 		search_dbHVSC_hasFiles=0;
-		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		
 		for (int i=0;i<27;i++) {
 			search_dbHVSC_entries_count[i]=0;
@@ -830,8 +830,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
-			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbHVSC_entries_data,0,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			
 			dbHVSC_entries_index=0;
 			for (int i=0;i<27;i++) {
 				dbHVSC_entries_count[i]=0;
@@ -902,7 +902,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_nb_entries=0;
 			free(search_dbHVSC_entries_data);
 		}
-		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		search_dbHVSC_hasFiles=0;
 		for (int i=0;i<27;i++) {
 			search_dbHVSC_entries_count[i]=0;
@@ -978,8 +978,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
-			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbHVSC_entries_data,0,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			
 			dbHVSC_entries_index=0;
 			for (int i=0;i<27;i++) {
 				dbHVSC_entries_count[i]=0;
@@ -1051,7 +1051,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 			search_dbHVSC_nb_entries=0;
 			free(search_dbHVSC_entries_data);
 		}
-		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		search_dbHVSC_hasFiles=0;
 		for (int i=0;i<27;i++) {
 			search_dbHVSC_entries_count[i]=0;
@@ -1124,8 +1124,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
-			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)malloc(dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
-			memset(dbHVSC_entries_data,0,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
+			
 			dbHVSC_entries_index=0;
 			for (int i=0;i<27;i++) {
 				dbHVSC_entries_count[i]=0;

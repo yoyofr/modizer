@@ -1377,7 +1377,7 @@ static NSFileManager *mFileMngr;
 -(void) doPrimAction:(NSIndexPath *)indexPath {
 	if (indexPath.section==0) {//playlist
         playlist=(t_playlistS*)calloc(1,sizeof(t_playlistS));
-		[self loadPlayListsFromDB:playlist_entries[indexPath.row].playlist_id intoPlaylist:playlist];
+        [self loadPlayListsFromDB:playlist_entries[indexPath.row].playlist_id intoPlaylist:playlist];
 		int pos=0,flag=0;
 		
 		NSMutableArray *array_label = [[NSMutableArray alloc] init];

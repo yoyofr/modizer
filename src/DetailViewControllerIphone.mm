@@ -271,7 +271,7 @@ static int display_length_mode=0;
     [controller.view addConstraints:vConstraints];
     
     [self presentViewController:controller animated:YES completion:^{
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:mplayer.mod_currentsub inSection:0];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:mplayer.mod_currentsub-mplayer.mod_minsub inSection:0];
         [alertTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }];
     
@@ -701,25 +701,6 @@ static float movePinchScale,movePinchScaleOld;
     }
     
     /////////////////////
-    //AOSDK
-    /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_AOSDK)) {
-        [mplayer optAOSDK:settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value interpol:settings[AOSDK_Interpolation].detail.mdz_switch.switch_value];
-        [mplayer optAOSDK_22KHZ:settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value];
-        [mplayer optAOSDK_DSFDSP:settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value];
-        [mplayer optAOSDK_DSFEmuRatio:settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value];
-        [mplayer optAOSDK_SSFDSP:settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value];
-        [mplayer optAOSDK_SSFEmuRatio:settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value];
-    }
-    
-    /////////////////////
-    //SEXYPSF
-    /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_SEXYPSF)) {
-        [mplayer optSEXYPSF:settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value interpol:settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value];
-    }
-    
-    /////////////////////
     //UADE
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_UADE)) {
@@ -829,6 +810,7 @@ static float movePinchScale,movePinchScaleOld;
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMSTREAM)) {
         [mplayer optVGMSTREAM_ForceLoop:settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value];
         [mplayer optVGMSTREAM_MaxLoop:(int)(settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value)];
+        [mplayer optVGMSTREAM_Fadeouttime:(int)(settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value)];
         [mplayer optVGMSTREAM_ResampleQuality:(int)(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value)];
     }
 
@@ -6664,7 +6646,7 @@ extern "C" int current_sample;
             topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getArcEntryTitle:indexPath.row]];
             break;
         case ARCSUB_MODE_SUB:
-            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getSubTitle:indexPath.row]];
+            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getSubTitle:indexPath.row+mplayer.mod_minsub]];
             break;
         default:
             topLabel.text=@"N/A";

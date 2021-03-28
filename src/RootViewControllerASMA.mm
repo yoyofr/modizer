@@ -350,7 +350,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_nb_entries=0;
             free(search_dbASMA_entries_data);
         }
-        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
         
         for (int i=0;i<27;i++) {
             search_dbASMA_entries_count[i]=0;
@@ -413,7 +413,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         } else NSLog(@"ErrSQL : %d",err);
         if (dbASMA_nb_entries) {
             //2nd initialize array to receive entries
-            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
             memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
             dbASMA_entries_index=0;
             for (int i=0;i<27;i++) {
@@ -472,7 +472,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_nb_entries=0;
             free(search_dbASMA_entries_data);
         }
-        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        
         search_dbASMA_hasFiles=0;
         for (int i=0;i<27;i++) {
             search_dbASMA_entries_count[i]=0;
@@ -543,8 +544,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         if (dbASMA_nb_entries) {
             //2nd initialize array to receive entries
-            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-            memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
             dbASMA_entries_index=0;
             for (int i=0;i<27;i++) {
                 dbASMA_entries_count[i]=0;
@@ -614,7 +614,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_nb_entries=0;
             free(search_dbASMA_entries_data);
         }
-        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
         search_dbASMA_hasFiles=0;
         for (int i=0;i<27;i++) {
             search_dbASMA_entries_count[i]=0;
@@ -685,8 +685,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         if (dbASMA_nb_entries) {
             //2nd initialize array to receive entries
-            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-            memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            
             dbASMA_entries_index=0;
             for (int i=0;i<27;i++) {
                 dbASMA_entries_count[i]=0;
@@ -758,7 +758,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             search_dbASMA_nb_entries=0;
             free(search_dbASMA_entries_data);
         }
-        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+        search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
         search_dbASMA_hasFiles=0;
         for (int i=0;i<27;i++) {
             search_dbASMA_entries_count[i]=0;
@@ -827,8 +827,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         if (dbASMA_nb_entries) {
             //2nd initialize array to receive entries
-            dbASMA_entries_data=(t_dbHVSC_browse_entry *)malloc(dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
-            memset(dbASMA_entries_data,0,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            dbASMA_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
+            
             dbASMA_entries_index=0;
             for (int i=0;i<27;i++) {
                 dbASMA_entries_count[i]=0;

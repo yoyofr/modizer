@@ -29,12 +29,10 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_GLOBAL,
     SETTINGS_VISU,
     SETTINGS_ADPLUG,
-    SETTINGS_AOSDK,
     SETTINGS_DUMB,
     SETTINGS_GME,
     SETTINGS_GSF,
     SETTINGS_MODPLUG,
-    SETTINGS_SEXYPSF,
     SETTINGS_SID,
     SETTINGS_UADE,
     SETTINGS_TIMIDITY,
@@ -43,24 +41,6 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_LAZYUSF,
     SETTINGS_ONLINE
 };
-
-/*
-enum MDZ_SETTINGS_FAMILY {
-    MDZ_SETTINGS_ROOT=1,
-    MDZ_SETTINGS_GLOBAL_PLAYER,
-    MDZ_SETTINGS_GLOBAL_VISU,
-    MDZ_SETTINGS_GLOBAL_FTP,
-    MDZ_SETTINGS_PLUGINS,
-    MDZ_SETTINGS_MODPLUG,
-    MDZ_SETTINGS_UADE,
-    MDZ_SETTINGS_TIMIDITY,
-    MDZ_SETTINGS_SID,
-    MDZ_SETTINGS_DUMB,
-    MDZ_SETTINGS_SEXYPSF,
-    MDZ_SETTINGS_AOSDK,
-    MDZ_SETTINGS_ADPLUG
-};
- */
 
 enum MDZ_SETTINGS {
     MDZ_SETTINGS_FAMILY_ROOT=1,
@@ -105,15 +85,7 @@ enum MDZ_SETTINGS {
         MDZ_SETTINGS_FAMILY_ADPLUG,
         ADPLUG_OplType,
     
-        MDZ_SETTINGS_FAMILY_AOSDK,
-        AOSDK_Reverb,
-        AOSDK_Interpolation,
-        AOSDK_DSFEmuRatio,
-        AOSDK_DSFDSP,
-        AOSDK_DSF22KHZ,
-        AOSDK_SSFEmuRatio,
-        AOSDK_SSFDSP,
-    
+        
         MDZ_SETTINGS_FAMILY_DUMB,
         DUMB_MasterVolume,
         DUMB_Resampling,
@@ -151,12 +123,7 @@ enum MDZ_SETTINGS {
         old_MODPLUG_Surround,
             old_MODPLUG_SurroundDepth,
             old_MODPLUG_SurroundDelay,
-    
-        MDZ_SETTINGS_FAMILY_SEXYPSF,
-        SEXYPSF_Reverb,
-        SEXYPSF_Interpolation,
-    
-    
+            
         MDZ_SETTINGS_FAMILY_SID,
         SID_Filter,
         SID_CLOCK,
@@ -191,6 +158,7 @@ enum MDZ_SETTINGS {
         VGMSTREAM_ResampleQuality,
         VGMSTREAM_Forceloop,
         VGMSTREAM_Maxloop,
+        VGMSTREAM_Fadeouttime,
     
         MDZ_SETTINGS_FAMILY_LAZYUSF,
         LAZYUSF_ResampleQuality,

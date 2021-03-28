@@ -67,13 +67,6 @@ void optVISUChangedC(id param) {
 void optADPLUGChangedC(id param) {
     [param optADPLUGChanged];
 }
-//AOSDK
--(void) optAOSDKChanged {
-    [detailViewController settingsChanged:(int)SETTINGS_AOSDK];
-}
-void optAOSDKChangedC(id param) {
-    [param optAOSDKChanged];
-}
 //DUMB
 -(void) optDUMBChanged {
     [detailViewController settingsChanged:(int)SETTINGS_DUMB];
@@ -94,13 +87,6 @@ void optGMEChangedC(id param) {
 }
 void optMODPLUGChangedC(id param) {
     [param optMODPLUGChanged];
-}
-//SEXYPSF
--(void) optSEXYPSFChanged {
-    [detailViewController settingsChanged:(int)SETTINGS_SEXYPSF];
-}
-void optSEXYPSFChangedC(id param) {
-    [param optSEXYPSFChanged];
 }
 //SID
 -(void) optSIDChanged {
@@ -429,23 +415,7 @@ void optGSFChangedC(id param) {
     settings[UADE_Pan].detail.mdz_boolswitch.switch_value=1;
     settings[UADE_PanValue].detail.mdz_slider.slider_value=0.7;
     settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
-    /////////////////////////////////////
-    //SEXYPSF
-    /////////////////////////////////////
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value=1;
-    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value=1;
-    
-    /////////////////////////////////////
-    //AOSDK
-    /////////////////////////////////////
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_value=2;
-    settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value=1;
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=0;
-    settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value=1;
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=0;
-    settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value=1;
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=0;
-    
+        
     /////////////////////////////////////
     //ADPLUG
     /////////////////////////////////////
@@ -463,7 +433,9 @@ void optGSFChangedC(id param) {
     /////////////////////////////////////
     settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value=2;
+    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value=5;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_slider.slider_value=1;
+    
     
     /////////////////////////////////////
     //LAZYUSF
@@ -1466,6 +1438,16 @@ void optGSFChangedC(id param) {
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=32;
     
+    settings[VGMSTREAM_Fadeouttime].label=(char*)"Fade out time";
+    settings[VGMSTREAM_Fadeouttime].description=NULL;
+    settings[VGMSTREAM_Fadeouttime].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+    settings[VGMSTREAM_Fadeouttime].sub_family=0;
+    settings[VGMSTREAM_Fadeouttime].callback=&optVGMSTREAMChangedC;
+    settings[VGMSTREAM_Fadeouttime].type=MDZ_SLIDER_DISCRETE;
+    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_value=5;
+    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_min_value=0;
+    settings[VGMSTREAM_Fadeouttime].detail.mdz_slider.slider_max_value=30;
+    
     settings[VGMSTREAM_ResampleQuality].type=MDZ_SWITCH;
     settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";
     settings[VGMSTREAM_ResampleQuality].description=NULL;
@@ -1641,130 +1623,7 @@ void optGSFChangedC(id param) {
     settings[UADE_NTSC].sub_family=0;
     settings[UADE_NTSC].callback=&optUADEChangedC;
     settings[UADE_NTSC].detail.mdz_boolswitch.switch_value=0;
-    
-    /////////////////////////////////////
-    //SEXYPSF
-    /////////////////////////////////////
-    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].label=(char*)"SexyPSF";
-    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].family=MDZ_SETTINGS_FAMILY_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_SEXYPSF].sub_family=MDZ_SETTINGS_FAMILY_SEXYPSF;
-    
-    settings[SEXYPSF_Interpolation].type=MDZ_SWITCH;
-    settings[SEXYPSF_Interpolation].label=(char*)"Interpolation";
-    settings[SEXYPSF_Interpolation].description=NULL;
-    settings[SEXYPSF_Interpolation].family=MDZ_SETTINGS_FAMILY_SEXYPSF;
-    settings[SEXYPSF_Interpolation].sub_family=0;
-    settings[SEXYPSF_Interpolation].callback=&optSEXYPSFChangedC;
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value=1;
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value_nb=4;
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Gau";
-    settings[SEXYPSF_Interpolation].detail.mdz_switch.switch_labels[3]=(char*)"Cub";
-    
-    settings[SEXYPSF_Reverb].type=MDZ_SWITCH;
-    settings[SEXYPSF_Reverb].label=(char*)"Reverb";
-    settings[SEXYPSF_Reverb].description=NULL;
-    settings[SEXYPSF_Reverb].family=MDZ_SETTINGS_FAMILY_SEXYPSF;
-    settings[SEXYPSF_Reverb].sub_family=0;
-    settings[SEXYPSF_Reverb].callback=&optSEXYPSFChangedC;
-    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value=1;
-    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value_nb=3;
-    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels=(char**)malloc(settings[SEXYPSF_Reverb].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels[1]=(char*)"Fake";
-    settings[SEXYPSF_Reverb].detail.mdz_switch.switch_labels[2]=(char*)"Real";
-    
-    /////////////////////////////////////
-    //AOSDK
-    /////////////////////////////////////
-    settings[MDZ_SETTINGS_FAMILY_AOSDK].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_AOSDK].label=(char*)"AOSDK";
-    settings[MDZ_SETTINGS_FAMILY_AOSDK].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_AOSDK].family=MDZ_SETTINGS_FAMILY_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_AOSDK].sub_family=MDZ_SETTINGS_FAMILY_AOSDK;
-    
-    settings[AOSDK_Interpolation].type=MDZ_SWITCH;
-    settings[AOSDK_Interpolation].label=(char*)"Interpolation";
-    settings[AOSDK_Interpolation].description=NULL;
-    settings[AOSDK_Interpolation].family=MDZ_SETTINGS_FAMILY_AOSDK;
-    settings[AOSDK_Interpolation].sub_family=0;
-    settings[AOSDK_Interpolation].callback=&optAOSDKChangedC;
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_value=2;
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_value_nb=4;
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Gau";
-    settings[AOSDK_Interpolation].detail.mdz_switch.switch_labels[3]=(char*)"Cub";
-    
-    settings[AOSDK_Reverb].type=MDZ_BOOLSWITCH;
-    settings[AOSDK_Reverb].label=(char*)"Reverb";
-    settings[AOSDK_Reverb].description=NULL;
-    settings[AOSDK_Reverb].family=MDZ_SETTINGS_FAMILY_AOSDK;
-    settings[AOSDK_Reverb].sub_family=0;
-    settings[AOSDK_Reverb].callback=&optAOSDKChangedC;
-    settings[AOSDK_Reverb].detail.mdz_boolswitch.switch_value=1;
-    
-    settings[AOSDK_DSF22KHZ].type=MDZ_SWITCH;
-    settings[AOSDK_DSF22KHZ].label=(char*)"Output";
-    settings[AOSDK_DSF22KHZ].description=NULL;
-    settings[AOSDK_DSF22KHZ].family=MDZ_SETTINGS_FAMILY_AOSDK;
-    settings[AOSDK_DSF22KHZ].sub_family=0;
-    settings[AOSDK_DSF22KHZ].callback=&optAOSDKChangedC;
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value=0;
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb=2;
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[0]=(char*)"44Khz";
-    settings[AOSDK_DSF22KHZ].detail.mdz_switch.switch_labels[1]=(char*)"22Khz";
-    
-    settings[AOSDK_DSFDSP].type=MDZ_BOOLSWITCH;
-    settings[AOSDK_DSFDSP].label=(char*)"DSF DSP";
-    settings[AOSDK_DSFDSP].description=NULL;
-    settings[AOSDK_DSFDSP].family=MDZ_SETTINGS_FAMILY_AOSDK;
-    settings[AOSDK_DSFDSP].sub_family=0;
-    settings[AOSDK_DSFDSP].callback=&optAOSDKChangedC;
-    settings[AOSDK_DSFDSP].detail.mdz_boolswitch.switch_value=1;
-    
-    settings[AOSDK_DSFEmuRatio].type=MDZ_SWITCH;
-    settings[AOSDK_DSFEmuRatio].label=(char*)"DSF Emu Ratio";
-    settings[AOSDK_DSFEmuRatio].description=NULL;
-    settings[AOSDK_DSFEmuRatio].family=MDZ_SETTINGS_FAMILY_AOSDK;
-    settings[AOSDK_DSFEmuRatio].sub_family=0;
-    settings[AOSDK_DSFEmuRatio].callback=&optAOSDKChangedC;
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value=0;
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[0]=(char*)"1";
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[1]=(char*)"5";
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[2]=(char*)"15";
-    settings[AOSDK_DSFEmuRatio].detail.mdz_switch.switch_labels[3]=(char*)"30";
-    
-    settings[AOSDK_SSFDSP].type=MDZ_BOOLSWITCH;
-    settings[AOSDK_SSFDSP].label=(char*)"SSF DSP";
-    settings[AOSDK_SSFDSP].description=NULL;
-    settings[AOSDK_SSFDSP].family=MDZ_SETTINGS_FAMILY_AOSDK;
-    settings[AOSDK_SSFDSP].sub_family=0;
-    settings[AOSDK_SSFDSP].callback=&optAOSDKChangedC;
-    settings[AOSDK_SSFDSP].detail.mdz_boolswitch.switch_value=1;
-    
-    settings[AOSDK_SSFEmuRatio].type=MDZ_SWITCH;
-    settings[AOSDK_SSFEmuRatio].label=(char*)"SSF Emu Ratio";
-    settings[AOSDK_SSFEmuRatio].description=NULL;
-    settings[AOSDK_SSFEmuRatio].family=MDZ_SETTINGS_FAMILY_AOSDK;
-    settings[AOSDK_SSFEmuRatio].sub_family=0;
-    settings[AOSDK_SSFEmuRatio].callback=&optAOSDKChangedC;
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value=0;
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb=4;
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels=(char**)malloc(settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[0]=(char*)"1";
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[1]=(char*)"5";
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[2]=(char*)"15";
-    settings[AOSDK_SSFEmuRatio].detail.mdz_switch.switch_labels[3]=(char*)"30";
-    
+            
     /////////////////////////////////////
     //ADPLUG
     /////////////////////////////////////

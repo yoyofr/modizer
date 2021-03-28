@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		59AE8B8825EFE8F6006B23BF /* psflib.h in Headers */ = {isa = PBXBuildFile; fileRef = 59AE8A8725EFE8F4006B23BF /* psflib.h */; };
 		59AE8B8925EFE8F6006B23BF /* ri_controller.h in Headers */ = {isa = PBXBuildFile; fileRef = 59AE8A8925EFE8F5006B23BF /* ri_controller.h */; };
 		59AE8B8A25EFE8F6006B23BF /* rdram.h in Headers */ = {isa = PBXBuildFile; fileRef = 59AE8A8A25EFE8F5006B23BF /* rdram.h */; };
 		59AE8B8B25EFE8F6006B23BF /* rdram_detection_hack.c in Sources */ = {isa = PBXBuildFile; fileRef = 59AE8A8B25EFE8F5006B23BF /* rdram_detection_hack.c */; };
@@ -16,7 +15,6 @@
 		59AE8B8E25EFE8F6006B23BF /* rdram_detection_hack.h in Headers */ = {isa = PBXBuildFile; fileRef = 59AE8A8E25EFE8F5006B23BF /* rdram_detection_hack.h */; };
 		59AE8B8F25EFE8F6006B23BF /* rsp_core.h in Headers */ = {isa = PBXBuildFile; fileRef = 59AE8A9025EFE8F5006B23BF /* rsp_core.h */; };
 		59AE8B9025EFE8F6006B23BF /* rsp_core.c in Sources */ = {isa = PBXBuildFile; fileRef = 59AE8A9125EFE8F5006B23BF /* rsp_core.c */; };
-		59AE8B9125EFE8F6006B23BF /* psflib.c in Sources */ = {isa = PBXBuildFile; fileRef = 59AE8A9225EFE8F5006B23BF /* psflib.c */; };
 		59AE8B9225EFE8F6006B23BF /* preproc.h in Headers */ = {isa = PBXBuildFile; fileRef = 59AE8A9425EFE8F5006B23BF /* preproc.h */; };
 		59AE8B9325EFE8F6006B23BF /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 59AE8A9725EFE8F5006B23BF /* memory.c */; };
 		59AE8B9425EFE8F6006B23BF /* memory.h in Headers */ = {isa = PBXBuildFile; fileRef = 59AE8A9825EFE8F5006B23BF /* memory.h */; };
@@ -180,7 +178,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		59AE8A8725EFE8F4006B23BF /* psflib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psflib.h; sourceTree = "<group>"; };
 		59AE8A8925EFE8F5006B23BF /* ri_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ri_controller.h; sourceTree = "<group>"; };
 		59AE8A8A25EFE8F5006B23BF /* rdram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rdram.h; sourceTree = "<group>"; };
 		59AE8A8B25EFE8F5006B23BF /* rdram_detection_hack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rdram_detection_hack.c; sourceTree = "<group>"; };
@@ -189,7 +186,6 @@
 		59AE8A8E25EFE8F5006B23BF /* rdram_detection_hack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rdram_detection_hack.h; sourceTree = "<group>"; };
 		59AE8A9025EFE8F5006B23BF /* rsp_core.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rsp_core.h; sourceTree = "<group>"; };
 		59AE8A9125EFE8F5006B23BF /* rsp_core.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rsp_core.c; sourceTree = "<group>"; };
-		59AE8A9225EFE8F5006B23BF /* psflib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = psflib.c; sourceTree = "<group>"; };
 		59AE8A9425EFE8F5006B23BF /* preproc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = preproc.h; sourceTree = "<group>"; };
 		59AE8A9525EFE8F5006B23BF /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		59AE8A9725EFE8F5006B23BF /* memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
@@ -696,8 +692,6 @@
 				59AE8A9625EFE8F5006B23BF /* memory */,
 				59AE8A9325EFE8F5006B23BF /* osal */,
 				59AE8B6425EFE8F6006B23BF /* pi */,
-				59AE8A9225EFE8F5006B23BF /* psflib.c */,
-				59AE8A8725EFE8F4006B23BF /* psflib.h */,
 				59AE8AE225EFE8F5006B23BF /* r4300 */,
 				59AE8B6925EFE8F6006B23BF /* rdp */,
 				59AE8A9525EFE8F5006B23BF /* README.md */,
@@ -772,7 +766,6 @@
 				59AE8BBE25EFE8F6006B23BF /* vmudm.h in Headers */,
 				59AE8C4025EFE8F6006B23BF /* hle.h in Headers */,
 				59AE8BE625EFE8F6006B23BF /* cached_interp.h in Headers */,
-				59AE8B8825EFE8F6006B23BF /* psflib.h in Headers */,
 				59AE8BB125EFE8F6006B23BF /* vlt.h in Headers */,
 				59AE8BDC25EFE8F6006B23BF /* interupt.h in Headers */,
 				59AE8C5B25EFE8F6006B23BF /* m64p_frontend.h in Headers */,
@@ -945,7 +938,6 @@
 				59AE8B8B25EFE8F6006B23BF /* rdram_detection_hack.c in Sources */,
 				59AE8C2C25EFE8F6006B23BF /* pif.c in Sources */,
 				59AE8B9325EFE8F6006B23BF /* memory.c in Sources */,
-				59AE8B9125EFE8F6006B23BF /* psflib.c in Sources */,
 				59AE8C3C25EFE8F6006B23BF /* alist.c in Sources */,
 				59AE8B9825EFE8F6006B23BF /* usf.c in Sources */,
 				59AE8C4625EFE8F6006B23BF /* cart_rom.c in Sources */,

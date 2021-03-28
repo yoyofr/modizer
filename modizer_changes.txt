@@ -15,6 +15,14 @@ Todo/Requested:
 - TODO: playlist view: add swipe to remove entries
 - TODO: replace vgmplay by libvgm
 
+2.962
+�����
+- [UI] stability improvement
+- [UI] Do not recreate samples folder automatically
+- [DB] Updated to latest versions
+- [PLAYER] Highly Complete added (DSF,PSF,PSF2,QSF,SSF)
+- [PLAYER] AOSDK & SEXYPSF removed (DSF,PSF,PSF2,QSF,SSF)
+
 2.961
 �����
 - [PLAYER] bugfix in libsidplayfp when in infinite play mode

@@ -24,8 +24,8 @@
 
 //2SF
 
-#import "XSFPlayer.h"
-#import "XSFPlayer_NCSF.h"
+#import "../libs/libxsf/src/in_xsf_framework/XSFPlayer.h"
+#import "../libs/libxsf/src/in_ncsf/XSFPlayer_NCSF.h"
 #import "XSFPlayer_2SF.h"
 #import "XSFConfig.h"
 
@@ -52,11 +52,7 @@
 
 extern "C" {
     
-	//AOSDK
-#import "../libs/aosdk/ao.h"
-#import "../libs/aosdk/eng_protos.h"
 #import <dirent.h>
-#import "driver.h"
 // MDX
 #import "mdx.h"
 // PMD
@@ -93,10 +89,9 @@ enum MMP_PLAYER_TYPE {
     MMP_SC68,
     MMP_STSOUND,
     MMP_HVL,
-    MMP_SEXYPSF,
-    MMP_AOSDK,
     MMP_2SF,
-    MMP_SNSF
+    MMP_SNSF,
+    MMP_HC
 };
 
 
@@ -139,8 +134,6 @@ enum MMP_PLAYER_TYPE {
 	//Modplug
 	ModPlug_Settings mp_settings;
     int mPatternDataAvail;
-	//AO
-	//SexyPSF
 	//adplug
     int mADPLUGopltype;
 	//SID
@@ -154,10 +147,6 @@ enum MMP_PLAYER_TYPE {
 	//
 	//GME stuff
 	Music_Emu* gme_emu;
-	//
-	//AO stuff
-	unsigned char *ao_buffer;
-	ao_display_info ao_info;
 	//
     //VGMPLAY stuff
     unsigned int optVGMPLAY_maxloop;
@@ -189,9 +178,6 @@ enum MMP_PLAYER_TYPE {
 //GME stuff
 @property Music_Emu* gme_emu;
 //SID
-//AO stuff
-@property unsigned char *ao_buffer;
-@property ao_display_info ao_info;
 //VGMPLAY
 @property unsigned int optVGMPLAY_maxloop;
 @property unsigned char optVGMPLAY_ym2612emulator;
@@ -299,14 +285,7 @@ enum MMP_PLAYER_TYPE {
 -(void) optSIDClock:(int)clockMode;
 -(void) optSIDModel:(int)modelMode;
 
--(void) optSEXYPSF:(int)reverb interpol:(int)interpol;
--(void) optAOSDK:(int)reverb interpol:(int)interpol;
 -(void) optADPLUG:(int)opltype;
--(void) optAOSDK_22KHZ:(int)value;
--(void) optAOSDK_DSFDSP:(int)value;
--(void) optAOSDK_DSFEmuRatio:(int)value;
--(void) optAOSDK_SSFDSP:(int)value;
--(void) optAOSDK_SSFEmuRatio:(int)value;
 -(void) optDUMB_MastVol:(float)value;
 -(void) optDUMB_Resampling:(int)value;
 
@@ -314,7 +293,8 @@ enum MMP_PLAYER_TYPE {
 -(void) optGLOB_PanningValue:(float)value;
 
 
--(void) optVGMSTREAM_MaxLoop:(double)val;
+-(void) optVGMSTREAM_MaxLoop:(int)val;
+-(void) optVGMSTREAM_Fadeouttime:(int)val;
 -(void) optVGMSTREAM_ForceLoop:(unsigned int)val;
 -(void) optVGMSTREAM_ResampleQuality:(unsigned int)val;
 -(void) optVGMSTREAM_preferJapTag:(bool)val;
@@ -355,13 +335,13 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_sidplayLoad:(NSString*)filePath;
 -(int) mmp_hvlLoad:(NSString*)filePath;
 -(int) mmp_uadeLoad:(NSString*)filePath;
--(int) mmp_sexypsfLoad:(NSString*)filePath;
--(int) mmp_aosdkLoad:(NSString*)filePath;
 -(int) mmp_openmptLoad:(NSString*)filePath;
 -(int) mmp_timidityLoad:(NSString*)filePath;
--(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension;
+-(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension subsong:(int)subindex;
 -(int) mmp_mpg123Load:(NSString*)filePath extension:(NSString*)extension;
 -(int) mmp_lazyusfLoad:(NSString*)filePath;
+-(int) MMP_HCLoad:(NSString*)filePath;
+-(void) MMP_HCClose;
 -(int) mmp_2sfLoad:(NSString*)filePath;
 -(int) mmp_snsfLoad:(NSString*)filePath;
 -(int) mmp_vgmplayLoad:(NSString*)filePath;
