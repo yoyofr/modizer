@@ -475,11 +475,17 @@ static void * psf_file_fopen( const char * uri )
         mFileMngr=[[NSFileManager alloc] init];
         NSError *error;
         NSArray *listFiles=[mFileMngr contentsOfDirectoryAtPath:dir error:&error];
+        char *strtmp=(char*)uri;
+        int i=0;
+        while (uri[i]) {
+            if (uri[i]=='/') strtmp=(char*)uri+i+1;
+            i++;
+        }
         for (int i=0;i<[listFiles count];i++) {
-            NSLog(@"file: %@",(NSString*)[listFiles objectAtIndex:i]);
-            if (strcasecmp(uri,[(NSString*)[listFiles objectAtIndex:i] UTF8String])==0) {
-                NSLog(@"found");
-                f=fopen([(NSString*)[listFiles objectAtIndex:i] UTF8String],"r");
+            //NSLog(@"file: %@",(NSString*)[listFiles objectAtIndex:i]);
+            if (strcasecmp(strtmp,[(NSString*)[listFiles objectAtIndex:i] UTF8String])==0) {
+                //NSLog(@"found");
+                f=fopen([[NSString stringWithFormat:@"%@/%@",dir,(NSString*)[listFiles objectAtIndex:i]] UTF8String],"r");
                 break;
             }
         }
