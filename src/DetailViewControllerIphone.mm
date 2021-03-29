@@ -74,6 +74,9 @@ static int *fft_freqAvgCount;
 
 #import "AnimatedGif.h"
 
+extern "C" int sidfp_voice_buff_ana_cpy[SOUND_BUFFER_NB][SOUND_BUFFER_SIZE_SAMPLE*3];
+
+
 /*extern "C" {
     int fix_fftr(short int f[], int m, int inverse);
     int fix_fft(short int  fr[], short int  fi[], short int  m, short int  inverse);
@@ -741,6 +744,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_SID)) {
         [mplayer optSIDFilter:settings[SID_Filter].detail.mdz_boolswitch.switch_value];
+        [mplayer optSIDForceLoop:settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];                
     }
@@ -5096,6 +5100,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
  return mem_free;
  }*/
 
+
 static int mOglView1Tap=0;
 static int mOglView2Taps=0;
 -(void) glViewOneFingerTwoTaps {
@@ -6134,7 +6139,10 @@ extern "C" int current_sample;
             RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
                                   settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
 		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
-		if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
+        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
+            if ([mplayer mPlayType]==MMP_SIDPLAY) RenderUtils::DrawOscilloMultiple3(sidfp_voice_buff_ana_cpy[cur_pos],SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,pos_fx);
+            else RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
+        }
 	}
     
 	if ([mplayer isPlaying]){

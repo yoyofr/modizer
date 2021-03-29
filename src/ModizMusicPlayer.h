@@ -135,8 +135,7 @@ enum MMP_PLAYER_TYPE {
     int mPatternDataAvail;
 	//adplug
     int mADPLUGopltype;
-	//SID
-	
+	//SID    
 	
 	//Adplug stuff
 	CPlayer	*adPlugPlayer;
@@ -201,6 +200,7 @@ enum MMP_PLAYER_TYPE {
 @property AudioQueueRef mAudioQueue;
 @property AudioQueueBufferRef *mBuffers;
 @property int mQueueIsBeingStopped;
+//SID
 
 -(id) initMusicPlayer;
 
@@ -280,6 +280,7 @@ enum MMP_PLAYER_TYPE {
 -(void) optTIM_Resample:(int)val;
 -(void) optTIM_Amplification:(int)val;
 
+-(void) optSIDForceLoop:(int)forceLoop;
 -(void) optSIDFilter:(int)onoff;
 -(void) optSIDClock:(int)clockMode;
 -(void) optSIDModel:(int)modelMode;

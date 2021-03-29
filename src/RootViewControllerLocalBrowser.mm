@@ -61,7 +61,7 @@ extern "C" {
 #include "common/md5.h"
 }
 
-static char browser_stil_info[MAX_STIL_DATA_LENGTH];
+static char *browser_stil_info;//[MAX_STIL_DATA_LENGTH];
 static char browser_song_md5[33];
 static char **browser_sidtune_title,**browser_sidtune_name;
 
@@ -479,6 +479,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     start_time=clock();
     childController=nil;
     
+    browser_stil_info=(char*)malloc(MAX_STIL_DATA_LENGTH);
+    
     mFileMngr=[[NSFileManager alloc] init];
     
     mShowSubdir=0;
@@ -646,6 +648,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     sqlite3 *db;
     int err;
     
+        
     strcpy(browser_stil_info,"");
     pthread_mutex_lock(&db_mutexHVSCSTIL);
     
@@ -1183,7 +1186,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     }
                 }
             }
-            if (mSidTune) {delete mSidTune;mSidTune=NULL;}
             if (browser_sidtune_title) {
                 for (int i=0;i<sidtune_info->songs();i++)
                     if (browser_sidtune_title[i]) free(browser_sidtune_title[i]);
@@ -1196,6 +1198,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 free(browser_sidtune_name);
                 browser_sidtune_name=NULL;
             }
+            if (mSidTune) {delete mSidTune;mSidTune=NULL;}
         }
     } else if (browseType==2) { //GME Multisongs
         // Open music file in new emulator
@@ -3512,6 +3515,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         mFileMngr=nil;
     }
     
+    if (browser_stil_info) free(browser_stil_info);
+    browser_stil_info=nil;
     //[super dealloc];
 }
 

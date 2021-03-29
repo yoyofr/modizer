@@ -308,6 +308,12 @@ int SID::output() const
 }
 
 
+//TODO: turn this into something more generic / integrated with ModizerContant.h
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+
+extern "C" int sidfp_voice_buff[3][SOUND_BUFFER_SIZE_SAMPLE];
+extern "C" int sidfp_voice_current_ptr;
+
 RESID_INLINE
 int SID::clock(unsigned int cycles, short* buf)
 {
@@ -335,6 +341,11 @@ int SID::clock(unsigned int cycles, short* buf)
                 if (unlikely(resampler->input(output())))
                 {
                     buf[s++] = resampler->getOutput();
+                    sidfp_voice_buff[0][sidfp_voice_current_ptr]=voice[0]->output(voice[0]->wave());
+                    sidfp_voice_buff[1][sidfp_voice_current_ptr]=voice[1]->output(voice[1]->wave());
+                    sidfp_voice_buff[2][sidfp_voice_current_ptr]=voice[2]->output(voice[2]->wave());
+                    sidfp_voice_current_ptr++;
+                    if (sidfp_voice_current_ptr>=SOUND_BUFFER_SIZE_SAMPLE) sidfp_voice_current_ptr=0;
                 }
             }
 

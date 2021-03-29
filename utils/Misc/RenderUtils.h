@@ -35,6 +35,7 @@ void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 	
 void DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos);
+void DrawOscilloMultiple3(int *snd_data,int numval,uint ww,uint hh,uint bg,uint pos);
 void DrawSpectrum(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,uint bg,uint peaks,uint _pos,int nb_spectrum_bands);
 
 void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);

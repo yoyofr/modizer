@@ -517,15 +517,15 @@
 				595F9C421E55A6D3009DBEED /* unzip.c */,
 				595F9C441E55A6D3009DBEED /* vorbis.c */,
 				595F9C451E55A6D3009DBEED /* vorbis.h */,
-				595F9C461E55A6D3009DBEED /* xfd.c */,
 				595F9C471E55A6D3009DBEED /* xfd_link.c */,
-				595F9C481E55A6D3009DBEED /* xz.h */,
+				595F9C461E55A6D3009DBEED /* xfd.c */,
 				595F9C491E55A6D3009DBEED /* xz_config.h */,
 				595F9C4A1E55A6D3009DBEED /* xz_dec_lzma2.c */,
 				595F9C4B1E55A6D3009DBEED /* xz_dec_stream.c */,
 				595F9C4C1E55A6D3009DBEED /* xz_lzma2.h */,
 				595F9C4D1E55A6D3009DBEED /* xz_private.h */,
 				595F9C4E1E55A6D3009DBEED /* xz_stream.h */,
+				595F9C481E55A6D3009DBEED /* xz.h */,
 			);
 			path = depackers;
 			sourceTree = "<group>";

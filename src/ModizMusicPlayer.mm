@@ -53,6 +53,10 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 #include "builders/residfp-builder/residfp.h"
 
 static char **sidtune_title,**sidtune_name;
+int sidfp_voice_buff[3][SOUND_BUFFER_SIZE_SAMPLE];
+int sidfp_voice_buff_ana[SOUND_BUFFER_NB][SOUND_BUFFER_SIZE_SAMPLE*3];
+int sidfp_voice_buff_ana_cpy[SOUND_BUFFER_NB][SOUND_BUFFER_SIZE_SAMPLE*3];
+int sidfp_voice_current_ptr=0;
 
 
 
@@ -65,8 +69,8 @@ static volatile int moveToPrevSubSong,moveToNextSubSong,mod_wantedcurrentsub,mCh
 static int sampleVolume,mInterruptShoudlRestart;
 //static volatile int genCurOffset,genCurOffsetCnt;
 static char str_name[1024];
-static char stil_info[MAX_STIL_DATA_LENGTH];
-char mod_message[8192+MAX_STIL_DATA_LENGTH];
+static char *stil_info;//[MAX_STIL_DATA_LENGTH];
+char *mod_message;//[8192+MAX_STIL_DATA_LENGTH];
 static char mod_name[256];
 static char mod_filename[512];
 static char archive_filename[512];
@@ -178,7 +182,7 @@ static YMMUSIC *ymMusic;
 static api68_t *sc68;
 
 //SID
-static int mSIDFilterON;
+static int mSIDFilterON,mSIDForceLoop;
 static sidplayfp *mSidEmuEngine;
 sidbuilder *mBuilder;
 //static ReSIDfpBuilder *mBuilder;
@@ -1426,6 +1430,10 @@ void propertyListenerCallback (void                   *inUserData,              
         mLoopMode=0;
         mCurrentSamples=0;
         
+        stil_info=(char*)malloc(MAX_STIL_DATA_LENGTH);
+        mod_message=(char*)malloc(MAX_STIL_DATA_LENGTH*2);
+
+        
         mPanning=0;
         mPanningValue=64; //75%
         
@@ -1486,6 +1494,9 @@ void propertyListenerCallback (void                   *inUserData,              
         uadeThread_running=0;
         timThread_running=0;
         
+        //SID
+        
+        
         // init  UADE stuff
         char uadeconfname[PATH_MAX];
         memset(&UADEstate, 0, sizeof UADEstate);
@@ -1510,6 +1521,7 @@ void propertyListenerCallback (void                   *inUserData,              
         // SIDPLAY
         // Init SID emu engine
         mSIDFilterON=1;
+        mSIDForceLoop=0;
         
         mSidEmuEngine=NULL;
         mBuilder=NULL;
@@ -1828,6 +1840,7 @@ void propertyListenerCallback (void                   *inUserData,              
                 } else memcpy((char*)mBuffer->mAudioData,buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
             }
             memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+            memcpy(sidfp_voice_buff_ana_cpy[buffer_ana_play_ofs],sidfp_voice_buff_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*3*4);
             
             if (buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
                 //iCurrentTime=0;
@@ -3485,6 +3498,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                          genCurOffset=1000*genCurOffsetCnt*tempo/(3*25*speed);
                          }*/
                         //						genOffset[buffer_ana_gen_ofs]=genCurOffset;
+                        
+                        
+
+                        
                         nbBytes = ModPlug_Read(mp_file,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         for (int i=0;i<numChannels;i++) {
                             int v=ModPlug_GetChannelVolume(mp_file,i);
@@ -3691,6 +3708,12 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     if (mPlayType==MMP_SIDPLAY) { //SID
                         nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                         mCurrentSamples+=nbBytes/4;
+                        
+                        //copy voice data for oscillo view
+                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            for (int j=0;j<3;j++) sidfp_voice_buff_ana[buffer_ana_gen_ofs][i*3+j]=sidfp_voice_buff[j][i];
+                        }
+                        
                         if (mChangeOfSong==0) {
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
                                 if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
@@ -3710,7 +3733,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                     nbBytes=0;
                                 }
                             } else if (iModuleLength<0) {
-                                if (mCurrentSamples>=mTgtSamples) {
+                                if (mSIDForceLoop&&(mCurrentSamples>=mTgtSamples)) {
                                     //loop
                                     mSidTune->selectSong(mod_currentsub+1);
                                     mSidEmuEngine->load(mSidTune);
@@ -5615,14 +5638,14 @@ char* loadRom(const char* path, size_t romSize)
         mod_message[0]=0;
         if (xmp_mi.mod->ins) {
             for (int i=0;i<xmp_mi.mod->ins;i++) {
-                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,xmp_mi.mod->xxi[i].name);
-                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
+                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,xmp_mi.mod->xxi[i].name);
+                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,"\n");
             }
         }
         if (xmp_mi.mod->smp) {
             for (int i=0;i<xmp_mi.mod->smp;i++) {
-                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,xmp_mi.mod->xxs[i].name);
-                concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
+                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,xmp_mi.mod->xxs[i].name);
+                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,"\n");
             }
         }
     }
@@ -5878,7 +5901,7 @@ char* loadRom(const char* path, size_t romSize)
     else sprintf(mod_name," %s",mod_filename);
     
     mod_message[0]=0;
-    describe_vgmstream(vgmStream,mod_message,8192+MAX_STIL_DATA_LENGTH);
+    describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
     vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*(numChannels>2?numChannels:2));
     vgm_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     vgm_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
@@ -6218,8 +6241,8 @@ char* loadRom(const char* path, size_t romSize)
     std::wstring info;
     for (unsigned x = 0, numTags = keys.size(); x < numTags; ++x)
     {
-        if (x) concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
-        concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,(keys[x] + "=" + tags[keys[x]]).c_str());
+        if (x) concatn(MAX_STIL_DATA_LENGTH*2,mod_message,"\n");
+        concatn(MAX_STIL_DATA_LENGTH*2,mod_message,(keys[x] + "=" + tags[keys[x]]).c_str());
     }
     int fadeInMS=xSFFile->GetFadeMS(xSFPlayer->fadeInMS);
     xSFPlayer->fadeInMS=fadeInMS;
@@ -8223,10 +8246,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 -(NSString*) getModMessage {
     NSString *modMessage;
     modMessage=[NSString stringWithUTF8String:mod_message];
-    
-    if (modMessage==nil) return @"";
+    if (modMessage==nil) {
+        modMessage=[NSString stringWithFormat:@"%s",mod_message];
+        if (modMessage==nil) return @"";
+    }
     return modMessage;
 }
+
 -(NSString*) getModName {
     NSString *modName;
     modName=[NSString stringWithUTF8String:mod_name];
@@ -8423,6 +8449,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 ///////////////////////////
 // SIDPLAY
 ///////////////////////////
+-(void) optSIDForceLoop:(int)forceLoop {
+    mSIDForceLoop=forceLoop;
+}
 -(void) optSIDFilter:(int)onoff {
     mSIDFilterON=onoff;
 }

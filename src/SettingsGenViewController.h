@@ -129,6 +129,7 @@ enum MDZ_SETTINGS {
             
         MDZ_SETTINGS_FAMILY_SID,
         SID_Filter,
+        SID_ForceLoop,
         SID_CLOCK,
         SID_MODEL,
     

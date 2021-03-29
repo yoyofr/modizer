@@ -102,6 +102,86 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
     
 }
 
+void RenderUtils::DrawOscilloMultiple3(int *snd_data,int numval,uint ww,uint hh,uint bg,uint pos) {
+    LineVertex *pts,*ptsB;
+    int mulfactor;
+    int val[3];
+    int oval[3];
+    int sp[3];
+    int osp[3];
+    int colL1,colL2,ypos;
+    int count;
+    
+    
+    if (numval>=128) {
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        pts=(LineVertex*)malloc(sizeof(LineVertex)*128*2*3);
+        ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
+        count=0;
+        
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        
+        int wd=(ww)/128;
+        ypos=hh/2;
+        mulfactor=hh*1/16;
+        
+        if (bg) {
+            ypos=hh/2;
+            
+            ptsB[0] = LineVertex((ww+(128*wd))/2, ypos-100-32,        0,0,16,192);
+            ptsB[1] = LineVertex((ww-(128*wd))/2, ypos-100-32,        0,0,16,192);
+            ptsB[2] = LineVertex((ww+(128*wd))/2, ypos+100+32,        0,0,16,192);
+            ptsB[3] = LineVertex((ww-(128*wd))/2, ypos+100+32,        0,0,16,192);
+            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
+            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
+            /* Render The Quad */
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            
+        }
+        for (int i=0;i<3;i++) {
+            val[i]=snd_data[i]*mulfactor>>7;
+            sp[i]=(val[i])>>(15-5); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
+        }
+        colL1=150;
+        colL2=75;
+        
+        for (int i=1; i<128; i++) {
+            
+            for (int j=0;j<3;j++) {
+                oval[j]=val[j];
+                val[j]=snd_data[(i*numval>>7)*3+j]*mulfactor>>7;
+                osp[j]=sp[j];
+                sp[j]=(val[j])>>(15-5); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
+                
+                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd-wd, ypos+osp[j]-hh/4+hh/4*j,colL2,colL1,colL2,205);
+                
+                colL1=(((val[j]-oval[j])*1024)>>15)+180;
+                colL2=(((val[j]-oval[j])*128)>>15)+32;
+                if (colL1<32) colL1=32;if (colL1>255) colL1=255;
+                if (colL2<32) colL2=32;if (colL2>255) colL2=255;
+                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd, ypos+sp[j]-hh/4+hh/4*j,colL2,colL1,colL2,205);
+                
+            }
+        }
+        glLineWidth(2.0f);
+        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+        glDrawArrays(GL_LINES, 0, count);
+                                
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisable(GL_BLEND);
+        free(pts);
+        free(ptsB);
+    }
+    
+}
+
+
 void RenderUtils::DrawOscillo(short int *snd_data,int numval,uint ww,uint hh,uint bg,uint type_oscillo,uint pos) {
     LineVertex *pts,*ptsB;
     int mulfactor;

@@ -400,6 +400,7 @@ void optGSFChangedC(id param) {
     //SID
     /////////////////////////////////////
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
+    settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_value=0;
     
@@ -1509,6 +1510,14 @@ void optGSFChangedC(id param) {
     settings[SID_Filter].sub_family=0;
     settings[SID_Filter].callback=&optSIDChangedC;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
+    
+    settings[SID_ForceLoop].type=MDZ_BOOLSWITCH;
+    settings[SID_ForceLoop].label=(char*)"Force Loop";
+    settings[SID_ForceLoop].description=NULL;
+    settings[SID_ForceLoop].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_ForceLoop].sub_family=0;
+    settings[SID_ForceLoop].callback=&optSIDChangedC;
+    settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     
     
     settings[SID_CLOCK].type=MDZ_SWITCH;
