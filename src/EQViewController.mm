@@ -59,8 +59,16 @@ extern BOOL nvdsp_EQ;
     }
 }
 
--(void)switchChanged:(id)sender {
+-(void)switchEQChanged:(id)sender {
     nvdsp_EQ=((UISwitch*)sender).on;
+}
+
+-(void)switchVoicesChanged:(id)sender {
+    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
+        if (voices[i]==sender) {
+            [detailViewController.mplayer setVoicesStatus:voices[i].on index:i];            
+        }
+    }
 }
 
 
@@ -124,6 +132,11 @@ extern BOOL nvdsp_EQ;
 {
     [super viewDidLoad];
     
+    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
+        voicesLbl[i]=NULL;
+        voices[i]=NULL;
+    }
+    
     CGAffineTransform sliderRotation = CGAffineTransformIdentity;
     sliderRotation = CGAffineTransformRotate(sliderRotation, -(M_PI / 2));
     
@@ -138,7 +151,7 @@ extern BOOL nvdsp_EQ;
         eqSlider[i].maximumValue=12;
         eqSlider[i].minimumValue=-12;
         eqSlider[i].transform=sliderRotation;
-        eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/2);
+        eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/4);
         [self.view addSubview:eqSlider[i]];
         //[eqSlider[i] release];
         
@@ -150,7 +163,7 @@ extern BOOL nvdsp_EQ;
         [self.view addSubview:eqLabelFreq[i]];
         //[eqLabelFreq[i] release];
         
-        eqLabelValue[i]=[[UILabel alloc] initWithFrame:CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/2+32,32,16)];
+        eqLabelValue[i]=[[UILabel alloc] initWithFrame:CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/4+32,32,16)];
         eqLabelValue[i].font=[UIFont systemFontOfSize:7];
         eqLabelValue[i].backgroundColor=[UIColor clearColor];
         eqLabelValue[i].textColor=[UIColor whiteColor];
@@ -170,11 +183,11 @@ extern BOOL nvdsp_EQ;
     eqGlobalGain.value=0;
     eqGlobalGainLastValue=0;
     eqGlobalGain.transform=sliderRotation;
-    eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/2);
+    eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/4);
     [self.view addSubview:eqGlobalGain];
     //[eqGlobalGain release];
     
-    minus12DB=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/2+32,28,20)];
+    minus12DB=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/4+32,28,20)];
     minus12DB.font=[UIFont boldSystemFontOfSize:8];
     minus12DB.text=@"-12dB";
     minus12DB.backgroundColor=[UIColor clearColor];
@@ -201,7 +214,7 @@ extern BOOL nvdsp_EQ;
     [self.view addSubview:zeroDB];
     //[zeroDB release];
     
-    globalGain=[[UILabel alloc] initWithFrame:CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/2+32,32,16)];
+    globalGain=[[UILabel alloc] initWithFrame:CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/4+32,32,16)];
     globalGain.font=[UIFont systemFontOfSize:8];
     globalGain.text=@"Gbl";
     globalGain.backgroundColor=[UIColor clearColor];
@@ -210,13 +223,13 @@ extern BOOL nvdsp_EQ;
     //[globalGain release];
     
     eqOnOff=[[UISwitch alloc] init];
-    eqOnOff.frame=CGRectMake(10,self.view.frame.size.height/2+32,32,32);
-    [eqOnOff addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
+    eqOnOff.frame=CGRectMake(10,self.view.frame.size.height/4+32,32,32);
+    [eqOnOff addTarget:self action:@selector(switchEQChanged:) forControlEvents:UIControlEventValueChanged];
     eqOnOff.on=nvdsp_EQ;
     [self.view addSubview:eqOnOff];
     //[eqOnOff release];
     
-    eqOnOffLbl=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/2+64,100,20)];
+    eqOnOffLbl=[[UILabel alloc] initWithFrame:CGRectMake(4,self.view.frame.size.height/4+64,100,20)];
     eqOnOffLbl.font=[UIFont boldSystemFontOfSize:10];
     eqOnOffLbl.text=@"Apply equalizer";
     eqOnOffLbl.backgroundColor=[UIColor clearColor];
@@ -228,25 +241,48 @@ extern BOOL nvdsp_EQ;
 }
 
 - (void) recomputeFrames {
-    for (int i=0;i<EQUALIZER_NB_BANDS;i++) {
-        eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/2);
-        eqLabelFreq[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),16,32,16);
-        eqLabelValue[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/2+32,32,16);
+    
+    if ([detailViewController.mplayer isVoicesMutingSupported]&&detailViewController.mplayer.numChannels) {
+        int ypos=self.view.frame.size.height/4+64+40;
+        int xpos=4;
+        for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
+            if (voicesLbl[i]) voicesLbl[i].frame=CGRectMake(xpos,ypos,96,32);
+            if (voices[i]) voices[i].frame=CGRectMake(xpos+96,ypos,32,32);
+            if (i&1) {
+                xpos=4;
+                ypos+=40;
+            } else xpos+=self.view.frame.size.width/2;
+            
+        }
     }
-    minus12DB.frame=CGRectMake(4,self.view.frame.size.height/2+32-23,28,20);
+    
+    for (int i=0;i<EQUALIZER_NB_BANDS;i++) {
+        eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/4);
+        eqLabelFreq[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),16,32,16);
+        eqLabelValue[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/4+32,32,16);
+    }
+    minus12DB.frame=CGRectMake(4,self.view.frame.size.height/4+32-23,28,20);
     plus12DB.frame=CGRectMake(4,32+1,28,20);
     zeroDB.frame=CGRectMake(4,self.view.frame.size.height/4+32-11,28,20);
     
-    globalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/2+32,32,16);
-    eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/2);
+    globalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/4+32,32,16);
+    eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/4);
     
-    eqOnOff.frame=CGRectMake(80+10,self.view.frame.size.height/2+64,32,20);
+    eqOnOff.frame=CGRectMake(80+10,self.view.frame.size.height/4+64,32,20);
 
-    eqOnOffLbl.frame=CGRectMake(4,self.view.frame.size.height/2+64+2,80,20);
+    eqOnOffLbl.frame=CGRectMake(4,self.view.frame.size.height/4+64+2,80,20);
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
     [EQViewController backupEQSettings];
+    
+    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
+        if (voicesLbl[i]) [voicesLbl[i] removeFromSuperview];
+        if (voices[i]) [voices[i] removeFromSuperview];
+        voicesLbl[i]=NULL;
+        voices[i]=NULL;
+    }
+    
     [super viewWillDisappear:animated];
 }
 
@@ -255,6 +291,31 @@ extern BOOL nvdsp_EQ;
     
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    if ([detailViewController.mplayer isVoicesMutingSupported]&&detailViewController.mplayer.numChannels) {
+        int ypos=self.view.frame.size.height/4+64+32;
+        int xpos=4;
+        for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
+            voicesLbl[i]=[[UILabel alloc] initWithFrame:CGRectMake(xpos,ypos,96,20)];
+            voicesLbl[i].font=[UIFont boldSystemFontOfSize:16];
+            voicesLbl[i].text=[detailViewController.mplayer getVoicesName:i];
+            voicesLbl[i].backgroundColor=[UIColor clearColor];
+            voicesLbl[i].textColor=[UIColor whiteColor];
+
+            voices[i]=[[UISwitch alloc] init];
+            voices[i].frame=CGRectMake(xpos+96,ypos,32,32);
+            [voices[i] addTarget:self action:@selector(switchVoicesChanged:) forControlEvents:UIControlEventValueChanged];
+            voices[i].on=[detailViewController.mplayer getVoicesStatus:i];
+            
+            if (i&1) {
+                xpos=4;
+                ypos+=32;
+            } else xpos+=self.view.frame.size.width/2;
+            
+            [self.view addSubview:voicesLbl[i]];
+            [self.view addSubview:voices[i]];
+        }
+    }
     
     [self recomputeFrames];
     

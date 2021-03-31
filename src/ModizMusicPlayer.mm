@@ -324,7 +324,6 @@ static struct ASAP *asap;
 
 
 extern "C" {
-    int gSpcSlowAPU=1;
     //GSF
     int defvolume=1000;
     int relvolume=1000;
@@ -1408,6 +1407,7 @@ void propertyListenerCallback (void                   *inUserData,              
         AudioSessionSetActive (true);
         
         
+        
         buffer_ana_flag=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         buffer_ana=(short int**)malloc(SOUND_BUFFER_NB*sizeof(unsigned short int *));
         buffer_ana_cpy=(short int**)malloc(SOUND_BUFFER_NB*sizeof(unsigned short int *));
@@ -1429,6 +1429,8 @@ void propertyListenerCallback (void                   *inUserData,              
         mVolume=1.0f;
         mLoopMode=0;
         mCurrentSamples=0;
+        
+        for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) voicesStatus[i]=1;
         
         stil_info=(char*)malloc(MAX_STIL_DATA_LENGTH);
         mod_message=(char*)malloc(MAX_STIL_DATA_LENGTH*2);
@@ -3108,7 +3110,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 
                                 
                                 iCurrentTime=0;
-                                numChannels=asap->moduleInfo.channels;
+                                //numChannels=asap->moduleInfo.channels;
                                 
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
@@ -3157,7 +3159,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
                             iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
                             iCurrentTime=0;
-                            numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                            //numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
                             
                             if (moveToNextSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
@@ -3257,7 +3259,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             
                             
                             iCurrentTime=0;
-                            numChannels=asap->moduleInfo.channels;
+                            //numChannels=8;//asap->moduleInfo.channels;
                             
                             if (moveToSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
@@ -3307,7 +3309,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
                                 iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
                                 iCurrentTime=0;
-                                numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                                //numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
                                 
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
@@ -3393,7 +3395,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 
                                 
                                 iCurrentTime=0;
-                                numChannels=asap->moduleInfo.channels;
+                                //numChannels=8;//asap->moduleInfo.channels;
                                 
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
@@ -3486,21 +3488,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (prev_ofs<0) prev_ofs=SOUND_BUFFER_NB-1;
                         genPattern[buffer_ana_gen_ofs]=ModPlug_GetCurrentPattern(mp_file);
                         genRow[buffer_ana_gen_ofs]=ModPlug_GetCurrentRow(mp_file);
-                        //NSLog(@"pat %d row %d",genPattern[buffer_ana_gen_ofs],genRow[buffer_ana_gen_ofs]);
-                        /*						if ((genRow[buffer_ana_gen_ofs]!=genRow[prev_ofs])||(genPattern[buffer_ana_gen_ofs]!=genPattern[prev_ofs])) {
-                         genCurOffset=0;
-                         genCurOffsetCnt=0;
-                         } else {
-                         int tempo=ModPlug_GetCurrentTempo(mp_file);
-                         int speed=ModPlug_GetCurrentSpeed(mp_file);
-                         // compute length of current row
-                         genCurOffsetCnt++;
-                         genCurOffset=1000*genCurOffsetCnt*tempo/(3*25*speed);
-                         }*/
-                        //						genOffset[buffer_ana_gen_ofs]=genCurOffset;
-                        
-                        
-
                         
                         nbBytes = ModPlug_Read(mp_file,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         for (int i=0;i<numChannels;i++) {
@@ -5321,7 +5308,8 @@ char* loadRom(const char* path, size_t romSize)
         if (mSidEmuEngine->load(mSidTune)) {
             iCurrentTime=0;
             mCurrentSamples=0;
-            numChannels=(mSidEmuEngine->info()).channels();
+            numChannels=3;//(mSidEmuEngine->info()).channels();
+            for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
             
             stil_info[0]=0;
             [self getStilInfo:(char*)[filePath UTF8String]];
@@ -5438,6 +5426,7 @@ char* loadRom(const char* path, size_t romSize)
         iCurrentTime=0;
         
         numChannels=hvl_song->ht_Channels;
+        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         if (hvl_song->ht_InstrumentNr==0) sprintf(mod_message,"N/A\n");
         else {
@@ -5659,6 +5648,7 @@ char* loadRom(const char* path, size_t romSize)
     
     iCurrentTime=0;
     numChannels=xmp_mi.mod->chn;
+    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
@@ -5703,6 +5693,7 @@ char* loadRom(const char* path, size_t romSize)
         
         numChannels=ModPlug_NumChannels(mp_file);
         numPatterns=ModPlug_NumPatterns(mp_file);
+        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         modName=ModPlug_GetName(mp_file);
         if (!modName) {
@@ -6685,6 +6676,7 @@ char* loadRom(const char* path, size_t romSize)
         mod_currentsub=1;
         
         numChannels=pmd_get_tracks();
+        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -6794,6 +6786,7 @@ char* loadRom(const char* path, size_t romSize)
     
     if (it_max_channels) numChannels=it_max_channels+1;
     else if (itsd->n_pchannels) numChannels = itsd->n_pchannels;
+    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
     
     sprintf(mod_message,"%s\n",[[filePath lastPathComponent] UTF8String]);
     const char * tag;
@@ -6868,7 +6861,9 @@ char* loadRom(const char* path, size_t romSize)
     
     iModuleLength=duration;
     iCurrentTime=0;
-    numChannels=asap->moduleInfo.channels;
+    numChannels=8;//asap->moduleInfo.channels;
+    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
+    
     mod_minsub=0;
     mod_maxsub=asap->moduleInfo.songs-1;
     mod_subsongs=asap->moduleInfo.songs;
@@ -6967,6 +6962,7 @@ char* loadRom(const char* path, size_t romSize)
         if (mLoopMode==1) iModuleLength=-1;
         
         numChannels=9;
+        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         return 0;
     }
@@ -6977,8 +6973,6 @@ char* loadRom(const char* path, size_t romSize)
     int track = 0; /* index of track to play (0 = first) */
     gme_err_t err;
     mPlayType=MMP_GME;
-    
-    gSpcSlowAPU=1;
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
@@ -7134,6 +7128,7 @@ char* loadRom(const char* path, size_t romSize)
         
         iCurrentTime=0;
         numChannels=gme_voice_count( gme_emu );
+        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         mod_message_updated=2;
         return 0;
@@ -8564,9 +8559,11 @@ extern "C" void adjust_amplification(void);
 -(void) optGME_Fade:(int)fade {
     optGMEFadeOut=fade;
 }
+
 -(void) optGME_IgnoreSilence:(int)ignoreSilence {
     optGMEIgnoreSilence=ignoreSilence;
 }
+
 -(void) optGME_Ratio:(float)ratio isEnabled:(bool)enabled {
     optGMERatio = ratio;
     if(gme_emu) {
@@ -8794,6 +8791,59 @@ extern "C" void adjust_amplification(void);
     }
     return res;
 }
+
+-(bool) isVoicesMutingSupported {
+    switch (mPlayType) {
+        case MMP_GME:
+        case MMP_SIDPLAY:
+            return true;
+        default: return false;
+    }
+}
+
+-(NSString*) getVoicesName:(unsigned int)channel {
+    if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
+    switch (mPlayType) {
+        case MMP_GME:
+            return [NSString stringWithFormat:@"%s",gme_voice_name(gme_emu,channel)];
+            break;
+        default:
+            return [NSString stringWithFormat:@"Voice#%d",channel];
+            break;
+            
+    }
+}
+
+-(bool) getVoicesStatus:(unsigned int)channel {
+    if (channel>=SOUND_MAXMOD_CHANNELS) return false;
+    return (voicesStatus[channel]?true:false);
+}
+-(void) setVoicesStatus:(bool)active index:(unsigned int)channel {
+    if (channel>=SOUND_MAXMOD_CHANNELS) return;
+    voicesStatus[channel]=(active?1:0);
+    switch (mPlayType) {
+        case MMP_GME:{
+            //if some voices are muted, deactive silence detection as it could end current song
+            bool isAnyVoicesMuted=false;
+            for (int i=0;i<numChannels;i++) {
+                if (voicesStatus[i]==0) {
+                    isAnyVoicesMuted=true;
+                    break;
+                }
+            }
+            if (isAnyVoicesMuted) gme_ignore_silence(gme_emu,1);
+            else gme_ignore_silence(gme_emu,optGMEIgnoreSilence);
+            gme_mute_voice(gme_emu,channel,(active?0:1));
+            break;
+        }
+        case MMP_SIDPLAY:
+            mSidEmuEngine->mute(0,channel,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);
+            break;
+        default:
+            break;
+    }
+}
+
 
 //*****************************************
 @end

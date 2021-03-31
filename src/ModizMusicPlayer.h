@@ -101,6 +101,7 @@ enum MMP_PLAYER_TYPE {
 	int mod_currentsub,mod_minsub,mod_maxsub;
 	unsigned int mPlayType;
 	int mp_datasize,numChannels;
+    char voicesStatus[SOUND_MAXMOD_CHANNELS];
 	int mLoopMode; //0:off, 1:infinite
     long mCurrentSamples,mTgtSamples;
 
@@ -352,5 +353,10 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_2sfLoad:(NSString*)filePath;
 
 -(NSString*) getFullFilePath:(NSString *)_filePath;
+
+-(bool) isVoicesMutingSupported;
+-(NSString*) getVoicesName:(unsigned int)channel;
+-(bool) getVoicesStatus:(unsigned int)channel;
+-(void) setVoicesStatus:(bool)active index:(unsigned int)channel;
 
 @end

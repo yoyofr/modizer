@@ -157,13 +157,14 @@ void RenderUtils::DrawOscilloMultiple3(int *snd_data,int numval,uint ww,uint hh,
                 osp[j]=sp[j];
                 sp[j]=(val[j])>>(15-5); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
                 
-                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd-wd, ypos+osp[j]-hh/4+hh/4*j,colL2,colL1,colL2,205);
-                
                 colL1=(((val[j]-oval[j])*1024)>>15)+180;
                 colL2=(((val[j]-oval[j])*128)>>15)+32;
+                
+                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd-wd, ypos+osp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
+                
                 if (colL1<32) colL1=32;if (colL1>255) colL1=255;
                 if (colL2<32) colL2=32;if (colL2>255) colL2=255;
-                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd, ypos+sp[j]-hh/4+hh/4*j,colL2,colL1,colL2,205);
+                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd, ypos+sp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
                 
             }
         }
