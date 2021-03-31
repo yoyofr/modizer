@@ -74,7 +74,7 @@ static int *fft_freqAvgCount;
 
 #import "AnimatedGif.h"
 
-extern "C" int sidfp_voice_buff_ana_cpy[SOUND_BUFFER_NB][SOUND_BUFFER_SIZE_SAMPLE*3];
+extern "C" signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
 
 
 /*extern "C" {
@@ -6122,12 +6122,11 @@ extern "C" int current_sample;
 	
 	if ([mplayer isPlaying]){
 		short int **snd_buffer;
-		int cur_pos;
+		int cur_pos,prev_pos;
 		int pos_fx;
 		snd_buffer=[mplayer buffer_ana_cpy];
 		cur_pos=[mplayer getCurrentPlayedBufferIdx];
 		short int *curBuffer=snd_buffer[cur_pos];
-		
 		pos_fx=0;
 		if ((settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
 		if ((settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value)&&(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value)) pos_fx=1;
@@ -6140,7 +6139,7 @@ extern "C" int current_sample;
                                   settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
 		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
-            if ([mplayer mPlayType]==MMP_SIDPLAY) RenderUtils::DrawOscilloMultiple3(sidfp_voice_buff_ana_cpy[cur_pos],SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,pos_fx);
+            if ([mplayer mPlayType]==MMP_SIDPLAY) RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],[mplayer numChannels],ww,hh,hasdrawnotes,pos_fx);
             else RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
         }
 	}

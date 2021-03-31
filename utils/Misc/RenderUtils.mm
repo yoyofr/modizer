@@ -102,83 +102,118 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
     
 }
 
-void RenderUtils::DrawOscilloMultiple3(int *snd_data,int numval,uint ww,uint hh,uint bg,uint pos) {
+static signed char *prev_snd_data;
+int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
+
+#define absint(a) (a>=0?a:-a)
+void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint ww,uint hh,uint bg,uint pos) {
     LineVertex *pts,*ptsB;
     int mulfactor;
-    int val[3];
-    int oval[3];
-    int sp[3];
-    int osp[3];
+    int val[SOUND_MAXVOICES_BUFFER_FX];
+    int oval[SOUND_MAXVOICES_BUFFER_FX];
+    int sp[SOUND_MAXVOICES_BUFFER_FX];
+    int osp[SOUND_MAXVOICES_BUFFER_FX];
     int colL1,colL2,ypos;
     int count;
+    int min_gap,tmp_gap,ofs,k,old_ofs;
     
+    static char first_call=1;
     
-    if (numval>=128) {
+    if (first_call) {
+        prev_snd_data=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+        memcpy(prev_snd_data,snd_data,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        
-        pts=(LineVertex*)malloc(sizeof(LineVertex)*128*2*3);
-        ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
-        count=0;
-        
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        
-        int wd=(ww)/128;
-        ypos=hh/2;
-        mulfactor=hh*1/16;
-        
-        if (bg) {
-            ypos=hh/2;
-            
-            ptsB[0] = LineVertex((ww+(128*wd))/2, ypos-100-32,        0,0,16,192);
-            ptsB[1] = LineVertex((ww-(128*wd))/2, ypos-100-32,        0,0,16,192);
-            ptsB[2] = LineVertex((ww+(128*wd))/2, ypos+100+32,        0,0,16,192);
-            ptsB[3] = LineVertex((ww-(128*wd))/2, ypos+100+32,        0,0,16,192);
-            glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
-            glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
-            /* Render The Quad */
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            
-        }
-        for (int i=0;i<3;i++) {
-            val[i]=snd_data[i]*mulfactor>>7;
-            sp[i]=(val[i])>>(15-5); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
-        }
-        colL1=150;
-        colL2=75;
-        
-        for (int i=1; i<128; i++) {
-            
-            for (int j=0;j<3;j++) {
-                oval[j]=val[j];
-                val[j]=snd_data[(i*numval>>7)*3+j]*mulfactor>>7;
-                osp[j]=sp[j];
-                sp[j]=(val[j])>>(15-5); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
-                
-                colL1=(((val[j]-oval[j])*1024)>>15)+180;
-                colL2=(((val[j]-oval[j])*128)>>15)+32;
-                
-                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd-wd, ypos+osp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
-                
-                if (colL1<32) colL1=32;if (colL1>255) colL1=255;
-                if (colL2<32) colL2=32;if (colL2>255) colL2=255;
-                pts[count++] = LineVertex((ww-(128*wd))/2+i*wd, ypos+sp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
-                
-            }
-        }
-        glLineWidth(2.0f);
-        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
-        glDrawArrays(GL_LINES, 0, count);
-                                
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisable(GL_BLEND);
-        free(pts);
-        free(ptsB);
+        memset(snd_data_ofs,0,SOUND_MAXVOICES_BUFFER_FX*4);
+        first_call=0;
     }
+    
+    
+        
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    pts=(LineVertex*)malloc(sizeof(LineVertex)*2*SOUND_BUFFER_SIZE_SAMPLE*num_voices);
+    ptsB=(LineVertex*)malloc(sizeof(LineVertex)*4);
+    count=0;
+    
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    
+    //int wd=ww/128;
+    ypos=hh/2;
+    mulfactor=hh/num_voices;
+    
+    // Try to compute right offset to realign oscilloscope view / previous one
+    for (int j=0;j<num_voices;j++) {
+        min_gap=SOUND_BUFFER_SIZE_SAMPLE*256;
+        old_ofs=snd_data_ofs[j];
+        ofs=0;
+        for (int l=0;l<SOUND_BUFFER_SIZE_SAMPLE-1;l++) {
+            tmp_gap=0;
+            k=ofs%SOUND_BUFFER_SIZE_SAMPLE;
+            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                tmp_gap=tmp_gap+absint(((int)(snd_data[((i+ofs)%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[((i+old_ofs)%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])));
+                if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
+            }
+            if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
+                min_gap=tmp_gap;
+                snd_data_ofs[j]=ofs;
+            }
+            ofs++;
+        }
+    }
+    memcpy(prev_snd_data,snd_data,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+    
+    /*if (bg) {
+        ypos=hh/2;
+        
+        ptsB[0] = LineVertex((ww+(128*wd))/2, ypos-100-32,        0,0,16,192);
+        ptsB[1] = LineVertex((ww-(128*wd))/2, ypos-100-32,        0,0,16,192);
+        ptsB[2] = LineVertex((ww+(128*wd))/2, ypos+100+32,        0,0,16,192);
+        ptsB[3] = LineVertex((ww-(128*wd))/2, ypos+100+32,        0,0,16,192);
+        glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &ptsB[0].x);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &ptsB[0].r);
+        // Render The Quad
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        
+    }*/
+    for (int i=0;i<num_voices;i++) {
+        val[i]=(signed int)(snd_data[((snd_data_ofs[i])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i])*mulfactor>>5;
+        sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
+    }
+    colL1=150;
+    colL2=75;
+    
+    for (int i=0; i<ww; i++) {
+        int smpl_ofs=i*(SOUND_BUFFER_SIZE_SAMPLE-1)/ww;
+        for (int j=0;j<num_voices;j++) {
+            oval[j]=val[j];
+            val[j]=(signed int)(snd_data[((smpl_ofs+snd_data_ofs[j])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])*mulfactor>>5;
+            osp[j]=sp[j];
+            sp[j]=(val[j]); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
+            
+            colL1=(((val[j]-oval[j])*1024)>>15)+180;
+            colL2=(((val[j]-oval[j])*128)>>15)+32;
+            
+            pts[count++] = LineVertex(i, ypos+osp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
+            
+            if (colL1<32) colL1=32;if (colL1>255) colL1=255;
+            if (colL2<32) colL2=32;if (colL2>255) colL2=255;
+            pts[count++] = LineVertex(i+1, ypos+sp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
+            
+        }
+    }
+    glLineWidth(2.0f);
+    glVertexPointer(2, GL_SHORT, sizeof(LineVertex), &pts[0].x);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertex), &pts[0].r);
+    glDrawArrays(GL_LINES, 0, count);
+                            
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisable(GL_BLEND);
+    free(pts);
+    free(ptsB);
+
     
 }
 

@@ -52,11 +52,14 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 
 #include "builders/residfp-builder/residfp.h"
 
+
+
+
 static char **sidtune_title,**sidtune_name;
-int sidfp_voice_buff[3][SOUND_BUFFER_SIZE_SAMPLE];
-int sidfp_voice_buff_ana[SOUND_BUFFER_NB][SOUND_BUFFER_SIZE_SAMPLE*3];
-int sidfp_voice_buff_ana_cpy[SOUND_BUFFER_NB][SOUND_BUFFER_SIZE_SAMPLE*3];
-int sidfp_voice_current_ptr=0;
+signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
+signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
+int m_voice_current_ptr=0;
 
 
 
@@ -1418,6 +1421,16 @@ void propertyListenerCallback (void                   *inUserData,              
             buffer_ana_flag[i]=0;
         }
         
+        for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
+            m_voice_buff[i]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE);
+            for (int j=0;j<SOUND_BUFFER_NB;j++) {
+                m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+                m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+            }
+        }
+        
+
+        
         //Global
         bGlobalShouldEnd=0;
         bGlobalSoundGenInProgress=0;
@@ -1842,7 +1855,7 @@ void propertyListenerCallback (void                   *inUserData,              
                 } else memcpy((char*)mBuffer->mAudioData,buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
             }
             memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
-            memcpy(sidfp_voice_buff_ana_cpy[buffer_ana_play_ofs],sidfp_voice_buff_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*3*4);
+            memcpy(m_voice_buff_ana_cpy[buffer_ana_play_ofs],m_voice_buff_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             
             if (buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
                 //iCurrentTime=0;
@@ -3698,8 +3711,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         
                         //copy voice data for oscillo view
                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                            for (int j=0;j<3;j++) sidfp_voice_buff_ana[buffer_ana_gen_ofs][i*3+j]=sidfp_voice_buff[j][i];
+                            for (int j=0;j<numChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                            }
                         }
+                        //printf("sid: %d\n",m_voice_current_ptr>>8);
                         
                         if (mChangeOfSong==0) {
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
@@ -6856,6 +6871,7 @@ char* loadRom(const char* path, size_t romSize)
     duration = asap->moduleInfo.durations[song];
     ASAP_PlaySong(asap, song, duration);
     mod_currentsub=song;
+    ASAP_MutePokeyChannels(asap,0); //all channels active by default
     
     sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap->moduleInfo.author,asap->moduleInfo.title,asap->moduleInfo.songs,asap->moduleInfo.channels);
     
@@ -8796,6 +8812,7 @@ extern "C" void adjust_amplification(void);
     switch (mPlayType) {
         case MMP_GME:
         case MMP_SIDPLAY:
+        case MMP_ASAP:
             return true;
         default: return false;
     }
@@ -8818,6 +8835,7 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return false;
     return (voicesStatus[channel]?true:false);
 }
+
 -(void) setVoicesStatus:(bool)active index:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     voicesStatus[channel]=(active?1:0);
@@ -8839,6 +8857,12 @@ extern "C" void adjust_amplification(void);
         case MMP_SIDPLAY:
             mSidEmuEngine->mute(0,channel,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);
             break;
+        case MMP_ASAP: {
+            int mask=0;
+            for (int i=0;i<8;i++) if (voicesStatus[i]==0) mask|=1<<i;
+            ASAP_MutePokeyChannels(asap,mask);
+            break;
+        }
         default:
             break;
     }
