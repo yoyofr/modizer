@@ -59,6 +59,7 @@ static char **sidtune_title,**sidtune_name;
 signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
 signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
+void *m_voice_SID_ID[3];
 int m_voice_current_ptr=0;
 
 
@@ -1428,7 +1429,7 @@ void propertyListenerCallback (void                   *inUserData,              
                 m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             }
         }
-        
+        memset(m_voice_SID_ID,0,sizeof(void*)*3);
 
         
         //Global
@@ -5244,9 +5245,11 @@ char* loadRom(const char* path, size_t romSize)
     mBuilder = new ReSIDfpBuilder("residfp");
     unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
     mBuilder->create(maxsids);
+        
+    memset(m_voice_SID_ID,0,sizeof(void*)*3);
+    
     // Check if builder is ok
-    if (!mBuilder->getStatus())
-    {
+    if (!mBuilder->getStatus()) {
         NSLog(@"issue in creating sid builder");
         return -1;
     }
@@ -5298,6 +5301,14 @@ char* loadRom(const char* path, size_t romSize)
     // Load tune
     mSidTune=new SidTune([filePath UTF8String],0,true);
     
+    if (mSidTune) {
+        if (mSidTune->getStatus()==false) {
+            NSLog(@"SID SidTune init error: wrong format");
+            delete mSidTune;
+            mSidTune=NULL;
+        }
+    }
+    
     if (mSidTune==NULL) {
         NSLog(@"SID SidTune init error");
         delete mSidEmuEngine; mSidEmuEngine=NULL;
@@ -5305,6 +5316,7 @@ char* loadRom(const char* path, size_t romSize)
         if (mSidTune) {delete mSidTune;mSidTune=NULL;}
         mPlayType=0;
     } else {
+        
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
         
@@ -5323,7 +5335,7 @@ char* loadRom(const char* path, size_t romSize)
         if (mSidEmuEngine->load(mSidTune)) {
             iCurrentTime=0;
             mCurrentSamples=0;
-            numChannels=3;//(mSidEmuEngine->info()).channels();
+            numChannels=3*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
             for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
             
             stil_info[0]=0;
@@ -8255,8 +8267,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 //*****************************************
 //Playback infos
 -(NSString*) getModMessage {
-    NSString *modMessage;
-    modMessage=[NSString stringWithUTF8String:mod_message];
+    NSString *modMessage=nil;
+    if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
         if (modMessage==nil) return @"";

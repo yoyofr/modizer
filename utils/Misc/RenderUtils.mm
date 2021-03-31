@@ -113,7 +113,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     int oval[SOUND_MAXVOICES_BUFFER_FX];
     int sp[SOUND_MAXVOICES_BUFFER_FX];
     int osp[SOUND_MAXVOICES_BUFFER_FX];
-    int colL1,colL2,ypos;
+    int colL1,colL2;
     int count;
     int min_gap,tmp_gap,ofs,k,old_ofs;
     
@@ -140,7 +140,6 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     glEnableClientState(GL_COLOR_ARRAY);
     
     //int wd=ww/128;
-    ypos=hh/2;
     mulfactor=hh/num_voices;
     
     // Try to compute right offset to realign oscilloscope view / previous one
@@ -195,11 +194,11 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
             colL1=(((val[j]-oval[j])*1024)>>15)+180;
             colL2=(((val[j]-oval[j])*128)>>15)+32;
             
-            pts[count++] = LineVertex(i, ypos+osp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
+            pts[count++] = LineVertex(i, osp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
             
             if (colL1<32) colL1=32;if (colL1>255) colL1=255;
             if (colL2<32) colL2=32;if (colL2>255) colL2=255;
-            pts[count++] = LineVertex(i+1, ypos+sp[j]-hh/4+hh/4*(2-j),colL2,colL1,colL2,205);
+            pts[count++] = LineVertex(i+1, sp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
             
         }
     }

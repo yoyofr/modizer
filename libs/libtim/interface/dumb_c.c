@@ -109,7 +109,7 @@ static int ctl_read(int32 *valp)
   return RC_NONE;
 }
 
-extern char mod_message[8192+4400];
+extern char *mod_message;
 char tim_tmp_message[1024];
 
 static int cmsg(int type, int verbosity_level, char *fmt, ...)

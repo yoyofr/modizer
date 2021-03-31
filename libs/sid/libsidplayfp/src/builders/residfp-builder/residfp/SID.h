@@ -314,6 +314,7 @@ int SID::output() const
 
 extern "C" signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 extern "C" int m_voice_current_ptr;
+extern "C" void *m_voice_SID_ID[3];
 
 #define LIMIT8(a) (a>127?127:(a<-128?-128:a))
 
@@ -329,6 +330,25 @@ int SID::clock(unsigned int cycles, short* buf)
 
         if (likely(delta_t > 0))
         {
+            //check current active sid
+            int sid_idx=0;
+            if (m_voice_SID_ID[0]==NULL) {
+                m_voice_SID_ID[0]=(void*)this;
+                sid_idx=0;
+            } else if (m_voice_SID_ID[0]==(void*)this) {
+                sid_idx=0;
+            } else if (m_voice_SID_ID[1]==NULL) {
+                m_voice_SID_ID[1]=(void*)this;
+                sid_idx=1*3;
+            } else if (m_voice_SID_ID[1]==(void*)this) {
+                sid_idx=1*3;
+            } else if (m_voice_SID_ID[2]==NULL) {
+                m_voice_SID_ID[2]=(void*)this;
+                sid_idx=2*3;
+            } else if (m_voice_SID_ID[2]==(void*)this) {
+                sid_idx=2*3;
+            }
+            
             for (unsigned int i = 0; i < delta_t; i++)
             {
                 // clock waveform generators
@@ -340,16 +360,17 @@ int SID::clock(unsigned int cycles, short* buf)
                 voice[0]->envelope()->clock();
                 voice[1]->envelope()->clock();
                 voice[2]->envelope()->clock();
-
+                
                 if (unlikely(resampler->input(output())))
                 {
                     buf[s++] = resampler->getOutput();
-                    m_voice_buff[0][m_voice_current_ptr>>8]=LIMIT8((voice[0]->output(voice[0]->wave())>>16));
-                    m_voice_buff[1][m_voice_current_ptr>>8]=LIMIT8((voice[1]->output(voice[1]->wave())>>16));
-                    m_voice_buff[2][m_voice_current_ptr>>8]=LIMIT8((voice[2]->output(voice[2]->wave())>>16));
+                    m_voice_buff[sid_idx+0][m_voice_current_ptr>>8]=LIMIT8((voice[0]->output(voice[0]->wave())>>16));
+                    m_voice_buff[sid_idx+1][m_voice_current_ptr>>8]=LIMIT8((voice[1]->output(voice[1]->wave())>>16));
+                    m_voice_buff[sid_idx+2][m_voice_current_ptr>>8]=LIMIT8((voice[2]->output(voice[2]->wave())>>16));
                     m_voice_current_ptr+=(441<<8)/960;
                     if ((m_voice_current_ptr>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                 }
+                
             }
 
             cycles -= delta_t;
