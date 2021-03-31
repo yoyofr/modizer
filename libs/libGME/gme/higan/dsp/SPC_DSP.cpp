@@ -876,6 +876,19 @@ VOICE_CLOCK( V3c )
 	if ( !v->kon_delay )
 		run_envelope( v );
 }
+
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 16
+
+extern "C" signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern "C" int m_voice_current_ptr;
+static int current_voice=0;
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 inline void SPC_DSP::voice_output( voice_t const* v, int ch )
 {
     // Check surround removal
@@ -894,6 +907,10 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
 	// Add to output total
 	m.t_main_out [ch] += amp;
 	CLAMP16( m.t_main_out [ch] );
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    m_voice_buff[current_voice][m_voice_current_ptr>>8]=LIMIT8(amp>>7);
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	// Optionally add to echo total
 	if ( m.t_eon & v->vbit )
@@ -1146,7 +1163,10 @@ ECHO_CLOCK( 30 )
 //// Timing
 
 // Execute clock for a particular voice
-#define V( clock, voice )   voice_##clock( &m.voices [voice] );
+//TODO:  MODIZER changes start / YOYOFR
+#define V( clock, voice )   \
+current_voice=voice; \
+voice_##clock( &m.voices [voice] );
 
 /* The most common sequence of clocks uses composite operations
 for efficiency. For example, the following are equivalent to the
@@ -1190,6 +1210,11 @@ PHASE(28) misc_28();                                                 echo_28();\
 PHASE(29) misc_29();                                                 echo_29();\
 PHASE(30) misc_30();V(V3c,0)                                         echo_30();\
 PHASE(31)  V(V4,0)       V(V1,2)\
+m_voice_current_ptr+=256;if ((m_voice_current_ptr>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;\
+
+
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #if !SPC_DSP_CUSTOM_RUN
 

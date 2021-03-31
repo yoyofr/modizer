@@ -3474,6 +3474,16 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         else {
                             gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            
+                            //copy voice data for oscillo view
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<numChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                }
+                            }
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr>>8);
+                            
+                            
+                            
                         }
                     }
                     if (mPlayType==MMP_XMP) {  //XMP
@@ -3715,7 +3725,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             for (int j=0;j<numChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
                             }
                         }
-                        //printf("sid: %d\n",m_voice_current_ptr>>8);
                         
                         if (mChangeOfSong==0) {
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
@@ -6885,11 +6894,14 @@ char* loadRom(const char* path, size_t romSize)
     mod_currentsub=song;
     ASAP_MutePokeyChannels(asap,0); //all channels active by default
     
+    
+    //ASAPInfo_GetExtDescription
+    
     sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap->moduleInfo.author,asap->moduleInfo.title,asap->moduleInfo.songs,asap->moduleInfo.channels);
     
     iModuleLength=duration;
     iCurrentTime=0;
-    numChannels=8;//asap->moduleInfo.channels;
+    numChannels=4;//asap->moduleInfo.channels;
     for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
     
     mod_minsub=0;

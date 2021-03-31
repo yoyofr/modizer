@@ -177,7 +177,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         
     }*/
     for (int i=0;i<num_voices;i++) {
-        val[i]=(signed int)(snd_data[((snd_data_ofs[i])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i])*mulfactor>>5;
+        val[i]=(signed int)(snd_data[((snd_data_ofs[i])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i])*mulfactor>>7;
         sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
     }
     colL1=150;
@@ -187,7 +187,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         int smpl_ofs=i*(SOUND_BUFFER_SIZE_SAMPLE-1)/ww;
         for (int j=0;j<num_voices;j++) {
             oval[j]=val[j];
-            val[j]=(signed int)(snd_data[((smpl_ofs+snd_data_ofs[j])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])*mulfactor>>5;
+            val[j]=(signed int)(snd_data[((smpl_ofs+snd_data_ofs[j])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])*mulfactor>>7;
             osp[j]=sp[j];
             sp[j]=(val[j]); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
             

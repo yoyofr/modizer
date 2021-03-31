@@ -6790,6 +6790,7 @@ static void Pokey_GenerateUntilCycle(Pokey *self, PokeyPair const *pokeys, int c
 				self->channels[0].tickCycle = cycle + self->channels[0].periodCycles;
 			PokeyChannel_DoTick(&self->channels[1], self, pokeys, cycle, 1);
 		}
+        
 	}
 }
 
@@ -7216,6 +7217,8 @@ static int PokeyPair_EndFrame(PokeyPair *self, int cycle)
 	return self->readySamplesEnd;
 }
 
+
+
 static int PokeyPair_Generate(PokeyPair *self, unsigned char *buffer, int bufferOffset, int blocks, ASAPSampleFormat format)
 {
 	int i = self->readySamplesStart;
@@ -7226,6 +7229,7 @@ static int PokeyPair_Generate(PokeyPair *self, unsigned char *buffer, int buffer
 		blocks = samplesEnd - i;
 	for (; i < samplesEnd; i++) {
 		bufferOffset = Pokey_StoreSample(&self->basePokey, buffer, bufferOffset, i, format);
+        
 		if (self->extraPokeyMask != 0)
 			bufferOffset = Pokey_StoreSample(&self->extraPokey, buffer, bufferOffset, i, format);
 	}

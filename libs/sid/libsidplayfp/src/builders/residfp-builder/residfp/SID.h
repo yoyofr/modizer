@@ -270,6 +270,8 @@ public:
 
 } // namespace reSIDfp
 
+
+
 #if RESID_INLINING || defined(SID_CPP)
 
 #include <algorithm>
@@ -308,7 +310,7 @@ int SID::output() const
 }
 
 
-//TODO: turn this into something more generic / integrated with ModizerContant.h
+//TODO:  MODIZER changes start / YOYOFR
 #define SOUND_BUFFER_SIZE_SAMPLE 1024
 #define SOUND_MAXVOICES_BUFFER_FX 16
 
@@ -317,6 +319,7 @@ extern "C" int m_voice_current_ptr;
 extern "C" void *m_voice_SID_ID[3];
 
 #define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
 
 RESID_INLINE
 int SID::clock(unsigned int cycles, short* buf)
@@ -330,6 +333,7 @@ int SID::clock(unsigned int cycles, short* buf)
 
         if (likely(delta_t > 0))
         {
+            //TODO:  MODIZER changes start / YOYOFR
             //check current active sid
             int sid_idx=0;
             if (m_voice_SID_ID[0]==NULL) {
@@ -348,6 +352,7 @@ int SID::clock(unsigned int cycles, short* buf)
             } else if (m_voice_SID_ID[2]==(void*)this) {
                 sid_idx=2*3;
             }
+            //TODO:  MODIZER changes end / YOYOFR
             
             for (unsigned int i = 0; i < delta_t; i++)
             {
@@ -364,15 +369,20 @@ int SID::clock(unsigned int cycles, short* buf)
                 if (unlikely(resampler->input(output())))
                 {
                     buf[s++] = resampler->getOutput();
-                    m_voice_buff[sid_idx+0][m_voice_current_ptr>>8]=LIMIT8((voice[0]->output(voice[0]->wave())>>16));
-                    m_voice_buff[sid_idx+1][m_voice_current_ptr>>8]=LIMIT8((voice[1]->output(voice[1]->wave())>>16));
-                    m_voice_buff[sid_idx+2][m_voice_current_ptr>>8]=LIMIT8((voice[2]->output(voice[2]->wave())>>16));
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    m_voice_buff[sid_idx+0][m_voice_current_ptr>>8]=LIMIT8((voice[0]->output(voice[0]->wave())>>14));
+                    m_voice_buff[sid_idx+1][m_voice_current_ptr>>8]=LIMIT8((voice[1]->output(voice[1]->wave())>>14));
+                    m_voice_buff[sid_idx+2][m_voice_current_ptr>>8]=LIMIT8((voice[2]->output(voice[2]->wave())>>14));
+                    
                     m_voice_current_ptr+=(441<<8)/960;
                     if ((m_voice_current_ptr>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    //TODO:  MODIZER changes end / YOYOFR
                 }
                 
+                
             }
-
+            
             cycles -= delta_t;
             nextVoiceSync -= delta_t;
         }
