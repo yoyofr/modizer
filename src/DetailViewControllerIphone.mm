@@ -6139,14 +6139,10 @@ extern "C" int current_sample;
                                   settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
 		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
-            switch ([mplayer mPlayType]) {
-                case MMP_SIDPLAY:
-                case MMP_GME:
-                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],[mplayer numChannels],ww,hh,hasdrawnotes,pos_fx);
-                    break;
-                default:
-                    RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
-                    break;
+            if ([mplayer voicesDataAvail]) {
+                RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],([mplayer numChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer numChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,hasdrawnotes,pos_fx);
+            } else {
+                RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
             }
         }
 	}

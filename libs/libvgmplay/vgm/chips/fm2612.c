@@ -2235,6 +2235,18 @@ static void init_tables(void)
 /*      YM2612 local section                                                   */
 /*******************************************************************************/
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 16
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /* Generate samples for one of the YM2612s */
 void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
 {
@@ -2290,6 +2302,21 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
 		update_ssg_eg_channel(&cch[5]->SLOT[SLOT1]);
 	}
 
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-6;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            m_voice_ChipID[ii]=chip;m_voice_ChipID[ii+1]=chip;m_voice_ChipID[ii+2]=chip;
+            m_voice_ChipID[ii+3]=chip;m_voice_ChipID[ii+4]=chip;m_voice_ChipID[ii+5]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* buffering */
 	for(i=0; i < length ; i++)
@@ -2366,6 +2393,24 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
 		else if (out_fm[4] < -8192) out_fm[4] = -8192;
 		if (out_fm[5] > 8192) out_fm[5] = 8192;
 		else if (out_fm[5] < -8192) out_fm[5] = -8192;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((out_fm[0]>>6));
+            m_voice_buff[m_voice_ofs+1][m_voice_current_ptr[m_voice_ofs+1]>>8]=LIMIT8((out_fm[1]>>6));
+            m_voice_buff[m_voice_ofs+2][m_voice_current_ptr[m_voice_ofs+2]>>8]=LIMIT8((out_fm[2]>>6));
+            m_voice_buff[m_voice_ofs+3][m_voice_current_ptr[m_voice_ofs+3]>>8]=LIMIT8((out_fm[3]>>6));
+            if (F2612->dac_test) m_voice_buff[m_voice_ofs+4][m_voice_current_ptr[m_voice_ofs+4]>>8]=LIMIT8((dacout>>6));
+            else m_voice_buff[m_voice_ofs+4][m_voice_current_ptr[m_voice_ofs+4]>>8]=LIMIT8((out_fm[4]>>6));
+            m_voice_buff[m_voice_ofs+5][m_voice_current_ptr[m_voice_ofs+5]>>8]=LIMIT8((out_fm[5]>>6));
+            
+            for (int ii=0;ii<6;ii++) {
+                m_voice_current_ptr[m_voice_ofs+ii]+=441*256/533;
+                if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
+
 
 		/* 6-channels mixing  */
 		lt  = ((out_fm[0]>>0) & OPN->pan[0]);

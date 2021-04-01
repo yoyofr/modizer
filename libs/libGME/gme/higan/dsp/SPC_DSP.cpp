@@ -882,7 +882,7 @@ VOICE_CLOCK( V3c )
 #define SOUND_MAXVOICES_BUFFER_FX 16
 
 extern "C" signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
-extern "C" int m_voice_current_ptr;
+extern "C" int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
 static int current_voice=0;
 
 #define LIMIT8(a) (a>127?127:(a<-128?-128:a))
@@ -909,7 +909,7 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
 	CLAMP16( m.t_main_out [ch] );
     
     //TODO:  MODIZER changes start / YOYOFR
-    m_voice_buff[current_voice][m_voice_current_ptr>>8]=LIMIT8(amp>>7);
+    m_voice_buff[current_voice][m_voice_current_ptr[current_voice]>>8]=LIMIT8(amp>>7);
     //TODO:  MODIZER changes end / YOYOFR
 	
 	// Optionally add to echo total
@@ -1210,7 +1210,7 @@ PHASE(28) misc_28();                                                 echo_28();\
 PHASE(29) misc_29();                                                 echo_29();\
 PHASE(30) misc_30();V(V3c,0)                                         echo_30();\
 PHASE(31)  V(V4,0)       V(V1,2)\
-m_voice_current_ptr+=256;if ((m_voice_current_ptr>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;\
+for (int jj=0;jj<8;jj++) {m_voice_current_ptr[jj]+=256;if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;}\
 
 
 //TODO:  MODIZER changes end / YOYOFR

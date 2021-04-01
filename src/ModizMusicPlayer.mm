@@ -59,8 +59,8 @@ static char **sidtune_title,**sidtune_name;
 signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
 signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
-void *m_voice_SID_ID[3];
-int m_voice_current_ptr=0;
+void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
 
 
 
@@ -99,8 +99,12 @@ static int mSingleSubMode;
 #define DEFAULT_VGMVGM 0
 #define DEFAULT_VGMGME 1
 
+#define VGMPLAY_MAX_ACTIVE_CHIPS 32
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER;
+static char vgmplay_activeChips[VGMPLAY_MAX_ACTIVE_CHIPS];
+static char vgmplay_activeChipsID[VGMPLAY_MAX_ACTIVE_CHIPS];
+static char vgmplay_activeChipsNb;
 static char **mdz_ArchiveFilesList;
 //static char **mdz_ArchiveFilesListAlias;
 
@@ -131,14 +135,29 @@ auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 
 int optHC_ResampleQuality=1;
 
-NSString *mod_currentfile;
-NSString *mod_currentext;
+
 
 
 extern "C" {
     //VGMPPLAY
     CHIPS_OPTION ChipOpts[0x02];
     bool EndPlay;
+const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
+{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x03, 0x00,
+    0x00, 0x09, 0x09, 0x09, 0x12, 0x00, 0x0C, 0x08,
+    0x08, 0x00, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
+    0x04, 0x05, 0x08, 0x08, 0x18, 0x04, 0x04, 0x10,
+    0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
+    0x04
+};
+const UINT8 vgmCHN_MASK_CNT[CHIP_COUNT] =
+{    0x04, 0x0E, 0x07, 0x08, 0x10, 0x08, 0x03, 0x06,
+    0x06, 0x0E, 0x0E, 0x0E, 0x17, 0x18, 0x0C, 0x08,
+    0x08, 0x00, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
+    0x04, 0x05, 0x08, 0x08, 0x18, 0x04, 0x04, 0x10,
+    0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
+    0x04
+};
     
     //VGMSTREAM
 #import "../libs/libvgmstream/vgmstream.h"
@@ -213,6 +232,23 @@ extern "C" GD3_TAG VGMTag;
 extern "C" VGM_HEADER VGMHead;
 extern "C" INT32 VGMMaxLoop,VGMMaxLoopM;
 
+static int vgmGetChipsDetails(char *str,UINT8 ChipID, UINT8 SubType, UINT32 Clock)
+{
+    if (! Clock)
+        return 0;
+    
+    if (ChipID == 0x00 && (Clock & 0x80000000))
+        Clock &= ~0x40000000;
+    if (Clock & 0x80000000)
+    {
+        Clock &= ~0x80000000;
+        ChipID |= 0x80;
+    }
+    
+    sprintf(str,"%s", GetAccurateChipName(ChipID, SubType));
+    if (Clock & 0x40000000) return 2;
+    return 1;
+}
 
 static const wchar_t* GetTagStrEJ(bool preferJTAG,const wchar_t* EngTag, const wchar_t* JapTag)
 {
@@ -1297,6 +1333,7 @@ void propertyListenerCallback (void                   *inUserData,              
 
 @implementation ModizMusicPlayer
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
+@synthesize mod_currentfile,mod_currentext;
 @synthesize mCurrentSamples,mTgtSamples;
 @synthesize mPlayType;
 @synthesize mp_datasize;
@@ -1317,6 +1354,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize mp_data;
 @synthesize mVolume;
 @synthesize numChannels,numPatterns,numSamples,numInstr,mPatternDataAvail;
+@synthesize voicesDataAvail;
 @synthesize genRow,genPattern,/*genOffset,*/playRow,playPattern;//,playOffset;
 @synthesize genVolData,playVolData;
 //GSF
@@ -1423,13 +1461,14 @@ void propertyListenerCallback (void                   *inUserData,              
         }
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
+            m_voice_current_ptr[i]=0;
             m_voice_buff[i]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE);
             for (int j=0;j<SOUND_BUFFER_NB;j++) {
                 m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
                 m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             }
         }
-        memset(m_voice_SID_ID,0,sizeof(void*)*3);
+        memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
 
         
         //Global
@@ -3477,10 +3516,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             
                             //copy voice data for oscillo view
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<numChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numChannels<SOUND_MAXVOICES_BUFFER_FX?numChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                 }
                             }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr>>8);
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
                             
                             
                             
@@ -3556,7 +3595,16 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         // render audio into sound buffer
                         if (EndPlay) {
                             nbBytes=0;
-                        } else nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
+                        } else {
+                            nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
+                            
+                            //copy voice data for oscillo view
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numChannels<SOUND_MAXVOICES_BUFFER_FX?numChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                }
+                            }
+                            //printf("vptr: %d\n",m_voice_current_ptr[0]>>8);
+                        }
                     }
                     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
                         
@@ -3722,7 +3770,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         
                         //copy voice data for oscillo view
                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                            for (int j=0;j<numChannels;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                            for (int j=0;j<(numChannels<SOUND_MAXVOICES_BUFFER_FX?numChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
                             }
                         }
                         
@@ -5255,8 +5303,6 @@ char* loadRom(const char* path, size_t romSize)
     unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
     mBuilder->create(maxsids);
         
-    memset(m_voice_SID_ID,0,sizeof(void*)*3);
-    
     // Check if builder is ok
     if (!mBuilder->getStatus()) {
         NSLog(@"issue in creating sid builder");
@@ -5271,7 +5317,7 @@ char* loadRom(const char* path, size_t romSize)
     cfg.playback = SidConfig::STEREO;
     cfg.sidEmulation  = mBuilder;
     
-    
+    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
     
     switch (sid_forceClock) {
         case 0:
@@ -5345,6 +5391,8 @@ char* loadRom(const char* path, size_t romSize)
             iCurrentTime=0;
             mCurrentSamples=0;
             numChannels=3*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
+            voicesDataAvail=1;
+            
             for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
             
             stil_info[0]=0;
@@ -5828,10 +5876,6 @@ char* loadRom(const char* path, size_t romSize)
     FILE *f;
     
     //NSLog(@"yo: %@",filePath);
-    
-    mod_currentfile=[NSString stringWithString:filePath];
-    mod_currentext=[NSString stringWithString:extension];
-    
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
         NSLog(@"VGMSTREAM Cannot open file %@",filePath);
@@ -6372,8 +6416,6 @@ char* loadRom(const char* path, size_t romSize)
     FILE *f;
     
     HC_type=0;
-    mod_currentfile=[NSString stringWithString:filePath];
-    
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
         NSLog(@"HE Cannot open file %@",filePath);
@@ -6629,7 +6671,55 @@ char* loadRom(const char* path, size_t romSize)
         }
     PlayVGM();
     
-    sprintf(mod_message,"Author:%s\nGame:%s\nSystem:%s\nTitle:%s\nRelease Date:%s\nCreator:%s\nNotes:%s\n",
+    mod_message[0]=0;
+    numChannels=0;
+    voicesDataAvail=0;
+    vgmplay_activeChipsNb=0;
+    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
+    
+    UINT8 CurChip;
+    UINT32 ChpClk;
+    UINT8 ChpType;
+    char strChip[16];
+    char firstChip=1;
+    for (CurChip = 0x00; CurChip < CHIP_COUNT; CurChip ++)
+    {
+        ChpClk = GetChipClock(&VGMHead, CurChip, &ChpType);
+        if (ChpClk && GetChipClock(&VGMHead, 0x80 | CurChip, NULL))
+            ChpClk |= 0x40000000;
+        if (ChpClk) {
+            int chipNumber=vgmGetChipsDetails(strChip,CurChip, ChpType, ChpClk);
+            
+            for (int i=0;i<chipNumber;i++) {
+                vgmplay_activeChips[vgmplay_activeChipsNb]=CurChip;
+                vgmplay_activeChipsID[vgmplay_activeChipsNb]=i;
+                numChannels+=vgmCHN_COUNT[CurChip];
+                vgmplay_activeChipsNb++;
+            }
+                                    
+            if (firstChip) {
+                sprintf(mod_message+strlen(mod_message),"%dx%s",chipNumber,strChip);
+                firstChip=0;
+            } else sprintf(mod_message+strlen(mod_message),",%dx%s",chipNumber,strChip);
+            /*    {    "SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
+             "YM2610", "YM3812", "YM3526", "Y8950", "YMF262", "YMF278B", "YMF271", "YMZ280B",
+             "RF5C164", "PWM", "AY8910", "GameBoy", "NES APU", "YMW258", "uPD7759", "OKIM6258",
+             "OKIM6295", "K051649", "K054539", "HuC6280", "C140", "K053260", "Pokey", "QSound",
+             "SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
+             "GA20"};*/
+            
+            
+            strcpy(strChip,GetChipName(CurChip));
+            if (strcmp(strChip,"SN76496")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM2612")==0) {
+                voicesDataAvail=1;
+            }
+        }
+    }
+    //if (!voicesDataAvail) numChannels=2;
+                
+    sprintf(mod_message+strlen(mod_message),"\nAuthor:%s\nGame:%s\nSystem:%s\nTitle:%s\nRelease Date:%s\nCreator:%s\nNotes:%s\n",
                 [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)] UTF8String],
                 [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)] UTF8String],
                 [[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strSystemNameE,VGMTag.strSystemNameJ)] UTF8String],
@@ -6642,7 +6732,8 @@ char* loadRom(const char* path, size_t romSize)
     iModuleLength=(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
     //NSLog(@"VGM length %d",iModuleLength);
     iCurrentTime=0;
-    numChannels=2;//asap.moduleInfo.channels;
+    
+    
     mod_minsub=0;
     mod_maxsub=0;
     mod_subsongs=1;
@@ -7024,6 +7115,8 @@ char* loadRom(const char* path, size_t romSize)
     mp_datasize=ftell(f);
     fclose(f);
     
+    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
+    
     // Open music file in new emulator
     gme_emu=NULL;
     err=gme_open_file( [filePath UTF8String], &gme_emu, sample_rate );
@@ -7134,6 +7227,10 @@ char* loadRom(const char* path, size_t romSize)
             if (strcmp(gmetype,"NSF")==0) {//NSF
                 //check length in database
                 //iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+            }
+                        
+            if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
+                voicesDataAvail=1;
             }
             
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
@@ -7761,10 +7858,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
     
     mod_total_length=0;
+    voicesDataAvail=0;
+    mod_currentfile=[NSString stringWithString:filePath];
+    mod_currentext=[NSString stringWithString:extension];
     
     for (int i=0;i<[available_player count];i++) {
-        int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];
-        int successful_loading=0;
+        int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
         //NSLog(@"pl_idx: %d",i);
         switch (pl_idx) {
             case MMP_TIMIDITY:
@@ -8837,6 +8936,7 @@ extern "C" void adjust_amplification(void);
         case MMP_GME:
         case MMP_SIDPLAY:
         case MMP_ASAP:
+        case MMP_VGMPLAY:
             return true;
         default: return false;
     }
@@ -8848,10 +8948,19 @@ extern "C" void adjust_amplification(void);
         case MMP_GME:
             return [NSString stringWithFormat:@"%s",gme_voice_name(gme_emu,channel)];
             break;
+        case MMP_VGMPLAY:{
+            int idx=0;
+            for (int i=0;i<vgmplay_activeChipsNb;i++) {
+                if ((channel>=idx)&&(channel<idx+vgmCHN_COUNT[vgmplay_activeChips[i]])) {
+                    return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx,GetChipName(vgmplay_activeChips[i]),vgmplay_activeChipsID[i]];
+                }
+                idx+=vgmCHN_COUNT[vgmplay_activeChips[i]];
+            }
+            return @"";
+        }
         default:
             return [NSString stringWithFormat:@"Voice#%d",channel];
             break;
-            
     }
 }
 
@@ -8885,6 +8994,37 @@ extern "C" void adjust_amplification(void);
             int mask=0;
             for (int i=0;i<8;i++) if (voicesStatus[i]==0) mask|=1<<i;
             ASAP_MutePokeyChannels(asap,mask);
+            break;
+        }
+        case MMP_VGMPLAY:{
+            int idx=0;
+            int mask=0;
+            for (int i=0;i<vgmplay_activeChipsNb;i++) {
+                if ((channel>=idx)&&(channel<idx+vgmCHN_COUNT[vgmplay_activeChips[i]])) {
+                    //
+                    switch (vgmplay_activeChips[i]) {
+                        case 0: //SN76496:
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 2: //YM2612:
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<(channel-idx);
+                            if ((channel-idx)==4) {
+                                //update dac channel as well, seems when dac channel 6 is linked to fm 4
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<6);
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<6;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                    //return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx,GetChipName(vgmplay_activeChips[i]),i];
+                }
+                idx+=vgmCHN_COUNT[vgmplay_activeChips[i]];
+            }
+            RefreshMuting();
             break;
         }
         default:

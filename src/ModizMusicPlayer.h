@@ -101,9 +101,12 @@ enum MMP_PLAYER_TYPE {
 	int mod_currentsub,mod_minsub,mod_maxsub;
 	unsigned int mPlayType;
 	int mp_datasize,numChannels;
+    char voicesDataAvail;
     char voicesStatus[SOUND_MAXMOD_CHANNELS];
 	int mLoopMode; //0:off, 1:infinite
     long mCurrentSamples,mTgtSamples;
+    NSString *mod_currentfile;
+    NSString *mod_currentext;
 
 	//Player status
 	int bGlobalAudioPause;
@@ -169,6 +172,7 @@ enum MMP_PLAYER_TYPE {
 @property int optForceMono;
 @property unsigned int mPlayType;
 @property int mp_datasize,mPatternDataAvail;
+@property NSString *mod_currentfile,*mod_currentext;
 //Adplug stuff
 @property CPlayer	*adPlugPlayer;
 @property CAdPlugDatabase *adplugDB;
@@ -189,6 +193,7 @@ enum MMP_PLAYER_TYPE {
 @property unsigned char *genVolData,*playVolData;
 @property float mVolume;
 @property int numChannels,numPatterns,numSamples,numInstr;
+@property char voicesDataAvail;
 //GSF stuff
 @property char optGSFsoundLowPass;
 @property char optGSFsoundEcho;

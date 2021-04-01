@@ -224,6 +224,7 @@ void Nes_Apu::run_until_( blip_time_t end_time )
 		square1.clock_envelope();
 		square2.clock_envelope();
 		noise.clock_envelope();
+        
 	}
 }
 

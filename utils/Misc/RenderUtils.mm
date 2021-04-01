@@ -139,10 +139,11 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     
-    //int wd=ww/128;
-    mulfactor=hh/num_voices;
+    
+    
     
     // Try to compute right offset to realign oscilloscope view / previous one
+    int min_gap_threshold=SOUND_BUFFER_SIZE_SAMPLE*1;
     for (int j=0;j<num_voices;j++) {
         min_gap=SOUND_BUFFER_SIZE_SAMPLE*256;
         old_ofs=snd_data_ofs[j];
@@ -157,6 +158,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
             if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
                 min_gap=tmp_gap;
                 snd_data_ofs[j]=ofs;
+                if (min_gap<=min_gap_threshold) break;
             }
             ofs++;
         }
@@ -176,30 +178,78 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         
     }*/
-    for (int i=0;i<num_voices;i++) {
-        val[i]=(signed int)(snd_data[((snd_data_ofs[i])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i])*mulfactor>>7;
-        sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
-    }
+    
     colL1=150;
     colL2=75;
     
-    for (int i=0; i<ww; i++) {
-        int smpl_ofs=i*(SOUND_BUFFER_SIZE_SAMPLE-1)/ww;
-        for (int j=0;j<num_voices;j++) {
-            oval[j]=val[j];
-            val[j]=(signed int)(snd_data[((smpl_ofs+snd_data_ofs[j])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])*mulfactor>>7;
-            osp[j]=sp[j];
-            sp[j]=(val[j]); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
+    if (num_voices<=8) {
+        mulfactor=hh/num_voices;
+        for (int i=0;i<num_voices;i++) {
+            val[i]=(signed int)(snd_data[((snd_data_ofs[i])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i])*mulfactor>>8;
+            sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
+        }
+        for (int i=0; i<ww; i++) {
+            int smpl_ofs=i*(SOUND_BUFFER_SIZE_SAMPLE-1)/ww;
+            for (int j=0;j<num_voices;j++) {
+                oval[j]=val[j];
+                val[j]=(signed int)(snd_data[((smpl_ofs+snd_data_ofs[j])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])*mulfactor>>8;
+                osp[j]=sp[j];
+                sp[j]=(val[j]); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
+                
+                colL1=(((val[j]-oval[j])*1024)>>15)+180;
+                colL2=(((val[j]-oval[j])*128)>>15)+32;
+                
+                pts[count++] = LineVertex(i, osp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
+                
+                if (colL1<32) colL1=32;if (colL1>255) colL1=255;
+                if (colL2<32) colL2=32;if (colL2>255) colL2=255;
+                pts[count++] = LineVertex(i+1, sp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
+                
+            }
+        }
+    } else if (num_voices<=16) {
+        mulfactor=hh*2/num_voices;
+        for (int i=0;i<num_voices;i++) {
+            val[i]=(signed int)(snd_data[((snd_data_ofs[i])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+i])*mulfactor>>8;
+            sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
+        }
+        for (int i=0; i<ww/2-1; i++) {
+            int smpl_ofs=i*(SOUND_BUFFER_SIZE_SAMPLE-1)/ww;
+            int xofs=0;
+            int j=0;
+            for (;j<num_voices/2;j++) {
+                oval[j]=val[j];
+                val[j]=(signed int)(snd_data[((smpl_ofs+snd_data_ofs[j])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])*mulfactor>>8;
+                osp[j]=sp[j];
+                sp[j]=(val[j]); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
+                
+                colL1=(((val[j]-oval[j])*1024)>>15)+180;
+                colL2=(((val[j]-oval[j])*128)>>15)+32;
+                
+                pts[count++] = LineVertex(i+xofs, osp[j]+mulfactor/2+mulfactor*(num_voices/2-1-j),colL2,colL1,colL2,205);
+                
+                if (colL1<32) colL1=32;if (colL1>255) colL1=255;
+                if (colL2<32) colL2=32;if (colL2>255) colL2=255;
+                pts[count++] = LineVertex(i+1+xofs, sp[j]+mulfactor/2+mulfactor*(num_voices/2-1-j),colL2,colL1,colL2,205);
+            }
+            xofs=ww/2+1;
+            for (;j<num_voices;j++) {
+                oval[j]=val[j];
+                val[j]=(signed int)(snd_data[((smpl_ofs+snd_data_ofs[j])%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])*mulfactor>>8;
+                osp[j]=sp[j];
+                sp[j]=(val[j]); if(sp[j]>mulfactor) sp[j]=mulfactor; if (sp[j]<-mulfactor) sp[j]=-mulfactor;
+                
+                colL1=(((val[j]-oval[j])*1024)>>15)+180;
+                colL2=(((val[j]-oval[j])*128)>>15)+32;
+                
+                pts[count++] = LineVertex(i+xofs, osp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
+                
+                if (colL1<32) colL1=32;if (colL1>255) colL1=255;
+                if (colL2<32) colL2=32;if (colL2>255) colL2=255;
+                pts[count++] = LineVertex(i+1+xofs, sp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
+            }
             
-            colL1=(((val[j]-oval[j])*1024)>>15)+180;
-            colL2=(((val[j]-oval[j])*128)>>15)+32;
-            
-            pts[count++] = LineVertex(i, osp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
-            
-            if (colL1<32) colL1=32;if (colL1>255) colL1=255;
-            if (colL2<32) colL2=32;if (colL2>255) colL2=255;
-            pts[count++] = LineVertex(i+1, sp[j]+mulfactor/2+mulfactor*(num_voices-1-j),colL2,colL1,colL2,205);
-            
+        
         }
     }
     glLineWidth(2.0f);

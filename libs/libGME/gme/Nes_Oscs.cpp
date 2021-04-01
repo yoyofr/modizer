@@ -117,6 +117,7 @@ void Nes_Square::run( nes_time_t time, nes_time_t end_time )
 		{
 			output->set_modified();
 			synth.offset( time, -last_amp, output );
+                        
 			last_amp = 0;
 		}
 		
@@ -140,8 +141,9 @@ void Nes_Square::run( nes_time_t time, nes_time_t end_time )
 		output->set_modified();
 		{
 			int delta = update_amp( amp );
-			if ( delta )
+            if ( delta ) {
 				synth.offset( time, delta, output );
+            }
 		}
 		
 		time += delay;
@@ -159,6 +161,7 @@ void Nes_Square::run( nes_time_t time, nes_time_t end_time )
 				{
 					delta = -delta;
 					synth.offset_inline( time, delta, output );
+                    
 				}
 				time += timer_period;
 			}
@@ -207,6 +210,8 @@ inline Nes_Square::nes_time_t Nes_Triangle::maintain_phase( nes_time_t time, nes
 	}
 	return time;
 }
+
+
 
 void Nes_Triangle::run( nes_time_t time, nes_time_t end_time )
 {
@@ -268,6 +273,8 @@ void Nes_Triangle::run( nes_time_t time, nes_time_t end_time )
 			phase += phase_range;
 		this->phase = phase;
 		last_amp = calc_amp();
+        
+        
  	}
 	delay = time - end_time;
 }

@@ -276,6 +276,18 @@ void sn76496_write_reg(void *chip, offs_t offset, UINT8 data)
 	}
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 16
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //static STREAM_UPDATE( SN76496Update )
 void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 {
@@ -316,6 +328,25 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 			return;
 		}
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-4;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            m_voice_ChipID[ii]=chip;
+            m_voice_ChipID[ii+1]=chip;
+            m_voice_ChipID[ii+2]=chip;
+            m_voice_ChipID[ii+3]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+    
 	
 	ggst[0] = 0x01;
 	ggst[1] = 0x01;
@@ -415,6 +446,14 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 				{
 					out += vol[i] * R->Volume[i] * ggst[0];
 					out2 += vol[i] * R->Volume[i] * ggst[1];
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
+                        m_voice_current_ptr[m_voice_ofs+i]+=256;
+                        if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 				else if (R->MuteMsk[i])
 				{
@@ -423,6 +462,14 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 					//out2 += (2 * R->Volume[i] - R->VolTable[5]) * ggst[1];
 					out += R->Volume[i] * ggst[0];
 					out2 += R->Volume[i] * ggst[1];
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((R->Volume[i] * ggst[0]>>5));
+                        m_voice_current_ptr[m_voice_ofs+i]+=256;
+                        if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
 		}
@@ -455,14 +502,32 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 					{
 						out += vol[i] * R->Volume[i] * ggst[0];
 						out2 += vol[i] * R2->Volume[i] * ggst[1];
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
+                            m_voice_current_ptr[m_voice_ofs+i]+=256;
+                            if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 					else if (R->MuteMsk[i])
 					{
 						// Make Bipolar Output with PCM possible
 						out += R->Volume[i] * ggst[0];
 						out2 += R2->Volume[i] * ggst[1];
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
+                            m_voice_current_ptr[m_voice_ofs+i]+=256;
+                            if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 				}
+                
+                
 			}
 			else
 			{
@@ -489,6 +554,14 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
 				//out2 += vol[3] * R->Volume[3];
 				out += vol[3] * R2->Volume[3] * ggst[0];
 				out2 += vol[3] * R->Volume[3] * ggst[1];
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    m_voice_buff[m_voice_ofs+3][m_voice_current_ptr[m_voice_ofs+3]>>8]=LIMIT8((vol[3] * R2->Volume[3] * ggst[0]>>5));
+                    m_voice_current_ptr[m_voice_ofs+3]+=256;
+                    if ((m_voice_current_ptr[m_voice_ofs+3]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+3]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 		}
 		// --- CUSTOM CODE END --
