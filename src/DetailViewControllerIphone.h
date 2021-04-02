@@ -30,6 +30,8 @@
 
 #import "SettingsGenViewController.h"
 
+#import "VoicesViewController.h"
+
 #import "GoogleAppHelper.h"
 
 #import "EQViewController.h"
@@ -46,6 +48,7 @@ struct Resources;
 @class EAGLContext;
 @class CADisplayLink;
 @class EQViewController;
+@class VoicesViewController;
 
 class CFont;
 class CGLString;
@@ -55,6 +58,9 @@ class CGLString;
     
     //EQ
     EQViewController *eqVC;
+    
+    //Voices
+    VoicesViewController *voicesVC;
     
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;
@@ -89,7 +95,7 @@ class CGLString;
 
     //Subsongs and Archive entries picker
 	IBOutlet UIButton *btnChangeTime;
-    IBOutlet BButton *btnShowArcList,*btnShowSubSong;
+    IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices;
 	
 	IBOutlet UILabel *labelTime,*labelModuleLength;
 	IBOutlet UILabel *labelSeeking;
@@ -266,7 +272,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
-@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong;
+@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playBarSubRewind,*playBarSubFFwd,*pauseBarSubRewind,*pauseBarSubFFwd;
@@ -284,6 +290,7 @@ class CGLString;
 
 -(IBAction) changeTimeDisplay;
 
+-(IBAction)showVoicesSelector:(id)sender;
 -(IBAction)showSubSongSelector:(id)sender;
 -(IBAction)playSelectedSubSong;
 -(IBAction)showArcSelector:(id)sender;

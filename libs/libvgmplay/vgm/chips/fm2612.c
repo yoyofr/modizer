@@ -2237,7 +2237,7 @@ static void init_tables(void)
 
 //TODO:  MODIZER changes start / YOYOFR
 #define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 16
+#define SOUND_MAXVOICES_BUFFER_FX 32
 
 extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
@@ -2305,10 +2305,10 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
     int m_voice_ofs=-1;
-    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-6;ii++) {
+    int m_total_channels=6;
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (m_voice_ChipID[ii]==0) {
-            m_voice_ChipID[ii]=chip;m_voice_ChipID[ii+1]=chip;m_voice_ChipID[ii+2]=chip;
-            m_voice_ChipID[ii+3]=chip;m_voice_ChipID[ii+4]=chip;m_voice_ChipID[ii+5]=chip;
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
             m_voice_ofs=ii;
             break;
         } else if (m_voice_ChipID[ii]==chip) {

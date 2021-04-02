@@ -268,6 +268,10 @@
 		5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362625DBDB2E00AA548E /* libbz2.tbd */; };
 		5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362D25DBDB8600AA548E /* CoreMedia.framework */; };
+		5918E0AC26177CB1004B85DA /* VoicesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5918E0AA26177CB1004B85DA /* VoicesViewController.mm */; };
+		5918E0AD26177CB1004B85DA /* VoicesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5918E0AA26177CB1004B85DA /* VoicesViewController.mm */; };
+		5918E0AE26177CB1004B85DA /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5918E0AB26177CB1004B85DA /* VoicesViewController.xib */; };
+		5918E0AF26177CB1004B85DA /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5918E0AB26177CB1004B85DA /* VoicesViewController.xib */; };
 		591D8E3F25DC63620013E19F /* tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0525DC63620013E19F /* tables.c */; };
 		591D8E4025DC63620013E19F /* libatrac9.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0625DC63620013E19F /* libatrac9.c */; };
 		591D8E4125DC63620013E19F /* huffCodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0725DC63620013E19F /* huffCodes.c */; };
@@ -3158,6 +3162,9 @@
 		590536B425DBF87400AA548E /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		590536B525DBF87400AA548E /* swresample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = swresample.h; sourceTree = "<group>"; };
 		591054D525EAC21F00A194FF /* snsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = snsf.xcodeproj; sourceTree = "<group>"; };
+		5918E0A926177CB1004B85DA /* VoicesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoicesViewController.h; sourceTree = "<group>"; };
+		5918E0AA26177CB1004B85DA /* VoicesViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VoicesViewController.mm; sourceTree = "<group>"; };
+		5918E0AB26177CB1004B85DA /* VoicesViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VoicesViewController.xib; sourceTree = "<group>"; };
 		591D8E0525DC63620013E19F /* tables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tables.c; sourceTree = "<group>"; };
 		591D8E0625DC63620013E19F /* libatrac9.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libatrac9.c; sourceTree = "<group>"; };
 		591D8E0725DC63620013E19F /* huffCodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = huffCodes.c; sourceTree = "<group>"; };
@@ -5611,6 +5618,8 @@
 				CC6CBDF517DC615F006DCBC7 /* EQView.m */,
 				CC6CBDF117DBE3A8006DCBC7 /* EQViewController.h */,
 				CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */,
+				5918E0A926177CB1004B85DA /* VoicesViewController.h */,
+				5918E0AA26177CB1004B85DA /* VoicesViewController.mm */,
 				CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */,
 				CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */,
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
@@ -5711,6 +5720,7 @@
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
+				5918E0AB26177CB1004B85DA /* VoicesViewController.xib */,
 				CCFE183B17EF586200C1682F /* MainWindow.xib */,
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
 				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
@@ -7118,6 +7128,7 @@
 				CC1E6346120423DF000A8A4E /* GlueMon in Resources */,
 				CC1E6347120423DF000A8A4E /* HowieDavies in Resources */,
 				CC1E6348120423DF000A8A4E /* ImagesMusicSystem in Resources */,
+				5918E0AE26177CB1004B85DA /* VoicesViewController.xib in Resources */,
 				CC1E6349120423DF000A8A4E /* Infogrames in Resources */,
 				CC1E634A120423DF000A8A4E /* InStereo in Resources */,
 				5966D1DE25CFF0D200520777 /* bach_cs1-1pre.mid in Resources */,
@@ -7639,6 +7650,7 @@
 				5950D8DD25E0F67B00B476B2 /* GlueMon in Resources */,
 				5950D8DE25E0F67B00B476B2 /* HowieDavies in Resources */,
 				5950D8DF25E0F67B00B476B2 /* ImagesMusicSystem in Resources */,
+				5918E0AF26177CB1004B85DA /* VoicesViewController.xib in Resources */,
 				5950D8E025E0F67B00B476B2 /* Infogrames in Resources */,
 				5950D8E125E0F67B00B476B2 /* InStereo in Resources */,
 				5950D8E225E0F67B00B476B2 /* bach_cs1-1pre.mid in Resources */,
@@ -8167,6 +8179,7 @@
 				CCCE9CF0123D807A007D9462 /* url68.c in Sources */,
 				CCCE9CF1123D807A007D9462 /* mfp_io.c in Sources */,
 				CCCE9CF2123D807A007D9462 /* mfpemul.c in Sources */,
+				5918E0AC26177CB1004B85DA /* VoicesViewController.mm in Sources */,
 				CCCE9CF3123D807A007D9462 /* mw_io.c in Sources */,
 				CCCE9CF4123D807A007D9462 /* mwemul.c in Sources */,
 				CCCE9CF5123D807A007D9462 /* paula_io.c in Sources */,
@@ -8446,6 +8459,7 @@
 				5950DAEB25E0F67B00B476B2 /* url68.c in Sources */,
 				5950DAEC25E0F67B00B476B2 /* mfp_io.c in Sources */,
 				5950DAED25E0F67B00B476B2 /* mfpemul.c in Sources */,
+				5918E0AD26177CB1004B85DA /* VoicesViewController.mm in Sources */,
 				5950DAEE25E0F67B00B476B2 /* mw_io.c in Sources */,
 				5950DAEF25E0F67B00B476B2 /* mwemul.c in Sources */,
 				5950DAF025E0F67B00B476B2 /* paula_io.c in Sources */,

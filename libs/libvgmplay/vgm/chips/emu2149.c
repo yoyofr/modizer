@@ -434,6 +434,18 @@ calc_stereo (PSG * psg, e_int32 out[2])
   return;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 EMU2149_API void
 PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
 {
@@ -442,6 +454,22 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
   e_int32 buffers[2];
 
   int i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=3;
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=psg;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==psg) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
   for (i = 0; i < samples; i ++)
   {
@@ -450,6 +478,17 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
       calc_stereo (psg, buffers);
       bufMO[i] = buffers[0];
       bufRO[i] = buffers[1];
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<3;jj++) {
+                m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((psg->cout[jj]));
+                m_voice_current_ptr[m_voice_ofs+jj]+=256;
+                if ((m_voice_current_ptr[m_voice_ofs+jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
     else
     {
@@ -466,7 +505,19 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
                            + (double) psg->sprev[0] * psg->psgtime) / psg->psgstep);
       bufRO[i] = (e_int32) (((double) psg->snext[1] * (psg->psgstep - psg->psgtime)
                            + (double) psg->sprev[1] * psg->psgtime) / psg->psgstep);
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<3;jj++) {
+                m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((psg->cout[jj]));
+                m_voice_current_ptr[m_voice_ofs+jj]+=256;
+                if ((m_voice_current_ptr[m_voice_ofs+jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
+      
   }
 }
 

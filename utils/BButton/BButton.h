@@ -1,46 +1,50 @@
 //
-//  BButton.h
-//
 //  Created by Mathieu Bolard on 31/07/12.
 //  Copyright (c) 2012 Mathieu Bolard. All rights reserved.
 //
 //  https://github.com/mattlawer/BButton
 //
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
 //
-//  * Redistributions of source code must retain the above copyright notice,
-//  this list of conditions and the following disclaimer.
+//  BButton is licensed under the MIT license
+//  http://opensource.org/licenses/MIT
 //
-//  * Redistributions in binary form must reproduce the above copyright notice,
-//  this list of conditions and the following disclaimer in the documentation
-//  and/or other materials provided with the distribution.
-//
-// * Neither the name of Mathieu Bolard, mattlawer nor the names of its contributors
-//  may be used to endorse or promote products derived from this software
-//  without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-//  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL Mathieu Bolard BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-//  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-//  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//  Documentation
+//  http://cocoadocs.org/docsets/BButton
 //
 //  -----------------------------------------
 //  Edited and refactored by Jesse Squires on 2 April, 2013.
 //
 //  http://github.com/jessesquires/BButton
 //
-//  http://hexedbits.com
+//  http://jessesquires.com
 //
 
 #import <UIKit/UIKit.h>
 #import "UIColor+BButton.h"
 #import "NSString+FontAwesome.h"
 
-typedef enum {
-    BButtonTypeDefault = 0,
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+ *  A constant describing the button style.
+ */
+typedef NS_ENUM(NSUInteger, BButtonStyle) {
+    /**
+     *  Styles the button like bootstrap version 2.x.x.
+     */
+    BButtonStyleBootstrapV2,
+    /**
+     *  Styles the button like bootstrap version 3.x.x.
+     */
+    BButtonStyleBootstrapV3
+};
+
+
+/**
+ *  A constant describing the button type. This sets the button color.
+ */
+typedef NS_ENUM(NSUInteger, BButtonType) {
+    BButtonTypeDefault,
     BButtonTypePrimary,
     BButtonTypeInfo,
     BButtonTypeSuccess,
@@ -51,28 +55,141 @@ typedef enum {
     BButtonTypeFacebook,
     BButtonTypePurple,
     BButtonTypeGray
-} BButtonType;
+};
 
 
-@interface BButton : UIButton
+/**
+ *  An instanace of `BButton` is a subclass of `UIButton` that is styled like the 
+ *  Twitter Bootstrap buttons and is drawn entirely with `CoreGraphics`.
+ */
+@interface BButton : UIButton <UIAppearance>
 
-//@property (strong, nonatomic) UIColor *color;
-@property (nonatomic, retain) UIColor *color;
-@property (assign, nonatomic) BOOL shouldShowDisabled;
+/**
+ *  The color of the button in its normal state. `BButton` automatically darks this color when the button enters its pressed state. 
+ *  The default value is `[UIColor bb_defaultColorV3]`, the color value associated with `BButtonTypeDefault`. @see BButtonType.
+ */
+@property (strong, nonatomic) UIColor *color;
+
+/**
+ *  The corner radius of the button. The default value is 6.0 for buttons initialized with style `BButtonStyleBootstrapV2`, 
+ *  or 4.0 for buttons initialized with style `BButtonStyleBootstrapV3`. @see BButtonType.
+ */
+@property (strong, nonatomic) NSNumber *buttonCornerRadius UI_APPEARANCE_SELECTOR;
 
 #pragma mark - Initialization
-- (id)initWithFrame:(CGRect)frame type:(BButtonType)type;
-- (id)initWithFrame:(CGRect)frame type:(BButtonType)type icon:(int)icon fontSize:(CGFloat)fontSize;
 
-- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor;
-- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor icon:(int)icon fontSize:(CGFloat)fontSize;
+/**
+ *  Initializes and returns a button having the given frame, type, and style.
+ *
+ *  @param frame  A rectangle specifying the initial location and size of the button in its superview's coordinates.
+ *  @param type   A constant that specifies the type of the button. @see BButtonType.
+ *  @param style  A constant that specifies the style of the button. @see BButtonStyle.
+ *
+ *  @return An initialized `BButton` object or `nil` if the object could not be successfully initialized.
+ */
+- (instancetype)initWithFrame:(CGRect)frame type:(BButtonType)type style:(BButtonStyle)style;
 
-+ (BButton *)awesomeButtonWithOnlyIcon:(int)icon type:(BButtonType)type;
-+ (BButton *)awesomeButtonWithOnlyIcon:(int)icon color:(UIColor *)color;
+/**
+ *  Initializes and returns a button having the given frame, type, style, icon, and font size.
+ *
+ *  @param frame  A rectangle specifying the initial location and size of the button in its superview's coordinates.
+ *  @param type   A constant that specifies the type of the button. @see BButtonType.
+ *  @param style  A constant that specifies the style of the button. @see BButtonStyle.
+ *  @param icon     A contant that specifies the FontAwesome icon of the button. @see FAIcon.
+ *  @param fontSize A float specifying the font size of the button's `textLabel`.
+ *
+ *  @return An initialized `BButton` object or `nil` if the object could not be successfully initialized.
+ */
+- (instancetype)initWithFrame:(CGRect)frame
+                         type:(BButtonType)type
+                        style:(BButtonStyle)style
+                         icon:(FAIcon)icon
+                     fontSize:(CGFloat)fontSize;
+
+/**
+ *  Initializes and returns a button having the given frame, color, and style.
+ *
+ *  @param frame  A rectangle specifying the initial location and size of the button in its superview's coordinates.
+ *  @param color  A `UIColor` object specifying the color of the button.
+ *  @param style  A constant that specifies the style of the button. @see BButtonStyle.
+ *
+ *  @return An initialized `BButton` object or `nil` if the object could not be successfully initialized.
+ */
+- (instancetype)initWithFrame:(CGRect)frame color:(UIColor *)color style:(BButtonStyle)style;
+
+/**
+ *  Initializes and returns a button having the given frame, color, style, icon, and font size.
+ *
+ *  @param frame  A rectangle specifying the initial location and size of the button in its superview's coordinates.
+ *  @param color  A `UIColor` object specifying the color of the button.
+ *  @param style  A constant that specifies the style of the button. @see BButtonStyle.
+ *  @param icon     A contant that specifies the FontAwesome icon of the button. @see FAIcon.
+ *  @param fontSize A float specifying the font size of the button's `textLabel`.
+ *
+ *  @return An initialized `BButton` object or `nil` if the object could not be successfully initialized.
+ */
+- (instancetype)initWithFrame:(CGRect)frame
+                        color:(UIColor *)color
+                        style:(BButtonStyle)style
+                         icon:(FAIcon)icon
+                     fontSize:(CGFloat)fontSize;
+
+/**
+ *  Initializes and returns a special icon-only button having the given icon, type, and style. The button frame is set with an origin of `(0.0, 0.0)` and a size of `(40.0, 40.0)`. The button font size is set to `20.0`.
+ *
+ *  @param icon  A contant that specifies the FontAwesome icon of the button. @see FAIcon.
+ *  @param type  A constant that specifies the type of the button. @see BButtonType.
+ *  @param style A constant that specifies the style of the button. @see BButtonStyle.
+ *
+ *  @return An initialized `BButton` object or `nil` if the object could not be successfully initialized.
+ */
++ (instancetype)awesomeButtonWithOnlyIcon:(FAIcon)icon
+                                     type:(BButtonType)type
+                                    style:(BButtonStyle)style;
+
+/**
+ *  Initializes and returns a special icon-only button having the given icon, color, and style. The button frame is set with an origin of `(0.0, 0.0)` and a size of `(40.0, 40.0)`. The button font size is set to `20.0`.
+ *
+ *  @param icon  A contant that specifies the FontAwesome icon of the button. @see FAIcon.
+ *  @param color A `UIColor` object specifying the color of the button.
+ *  @param style A constant that specifies the style of the button. @see BButtonStyle.
+ *
+ *  @return An initialized `BButton` object or `nil` if the object could not be successfully initialized.
+ */
++ (instancetype)awesomeButtonWithOnlyIcon:(FAIcon)icon
+                                    color:(UIColor *)color
+                                    style:(BButtonStyle)style;
+
+- (id)init NS_UNAVAILABLE;
 
 #pragma mark - BButton
+
+/**
+ *  Sets the style of the button after. @see BButtonStyle.
+ *
+ *  @param style A constant describing the button style.
+ *
+ *  @bug If also setting the button type via `setType:`, *you must set the button style first*, via this method.
+ */
+- (void)setStyle:(BButtonStyle)style;
+
+/**
+ *  Sets the type of the button. @see BButtonType.
+ *
+ *  @param type A constant describing the button type.
+ */
 - (void)setType:(BButtonType)type;
-- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before;
-- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size;
+
+/**
+ *  Adds the specified icon to the buttons's `titleLabel`, and sets `titleLabel.font` to `FontAwesome.ttf`.
+ *
+ *  @param icon   A constant describing the FontAwesome Icon. @see FAIcon.
+ *  @param before A boolean value indicating if the icon should be placed before or after any existing text. Pass `YES` to place the icon before the text, and `NO` to place the icon after the text. 
+ *
+ *  @warning A single space is inserted between the added icon and existing text.
+ */
+- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before;
 
 @end
+
+NS_ASSUME_NONNULL_END

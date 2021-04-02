@@ -449,8 +449,8 @@
                                             <action selector="pushedLoopInf" destination="11" eventType="touchUpInside" id="1548"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1626" userLabel="SubSelector" customClass="BButton">
-                                        <rect key="frame" x="284" y="0.0" width="32" height="32"/>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bl7-vC-pr8" userLabel="VoicesSelector" customClass="BButton">
+                                        <rect key="frame" x="216" y="0.0" width="32" height="32"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
@@ -458,7 +458,7 @@
                                             <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <connections>
-                                            <action selector="showSubSongSelector:" destination="11" eventType="touchUpInside" id="ofi-0z-c5H"/>
+                                            <action selector="showVoicesSelector:" destination="11" eventType="touchUpInside" id="UKG-Pz-8le"/>
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1647" userLabel="ArcSelector" customClass="BButton">
@@ -471,6 +471,18 @@
                                         </state>
                                         <connections>
                                             <action selector="showArcSelector:" destination="11" eventType="touchUpInside" id="TMW-lO-G1R"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1626" userLabel="SubSelector" customClass="BButton">
+                                        <rect key="frame" x="284" y="0.0" width="32" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal">
+                                            <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="showSubSongSelector:" destination="11" eventType="touchUpInside" id="ofi-0z-c5H"/>
                                         </connections>
                                     </button>
                                     <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1584" userLabel="Main Rating 1">
@@ -648,7 +660,7 @@
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <size key="titleShadowOffset" width="2" height="2"/>
-                                <state key="normal" title="EQ">
+                                <state key="normal">
                                     <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <connections>
@@ -1022,6 +1034,7 @@
                 <outlet property="btnLoopInf" destination="1544" id="1547"/>
                 <outlet property="btnShowArcList" destination="1647" id="1659"/>
                 <outlet property="btnShowSubSong" destination="1626" id="1638"/>
+                <outlet property="btnShowVoices" destination="Bl7-vC-pr8" id="80p-pm-Wp9"/>
                 <outlet property="buttonLoopList" destination="247" id="260"/>
                 <outlet property="buttonLoopListSel" destination="263" id="266"/>
                 <outlet property="buttonLoopTitleSel" destination="255" id="257"/>

@@ -171,7 +171,7 @@ static int display_length_mode=0;
 
 @synthesize oglButton;
 
-@synthesize btnShowSubSong,btnShowArcList;
+@synthesize btnShowSubSong,btnShowArcList,btnShowVoices;
 
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
@@ -185,6 +185,16 @@ static int display_length_mode=0;
 -(void) cancelSubSel {
     current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(IBAction)showVoicesSelector:(id)sender {
+    voicesVC = [[VoicesViewController alloc]  initWithNibName:@"VoicesViewController" bundle:[NSBundle mainBundle]];
+    //set new title
+    voicesVC.title = NSLocalizedString(@"Voices control",@"Voices control");
+    voicesVC.detailViewController=self;
+    
+    // And push the window
+    [self.navigationController pushViewController:voicesVC animated:YES];
 }
 
 -(IBAction)showSubSongSelector:(id)sender {
@@ -2862,7 +2872,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             buttonShuffleSel.frame = CGRectMake(50,0+48,32,32);
             btnLoopInf.frame = CGRectMake(88,-12+48,35,57);
             btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0+48,32,32);
-            btnShowArcList.frame = CGRectMake(mDevice_ww-36-36,0+48,32,32);
+            btnShowArcList.frame = CGRectMake(mDevice_ww-36*2,0+48,32,32);
+            btnShowVoices.frame = CGRectMake(mDevice_ww-36*3,0+48,32,32);
 			
 			mainRating1.frame = CGRectMake(130+2,3+48+4,20,20);
 			mainRating2.frame = CGRectMake(130+24+2,3+48+4,20,20);
@@ -3105,6 +3116,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
                 btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+32+4,yofs+40,32,32);
+                btnShowVoices.frame = CGRectMake(xofs+6+24*5+4+32*2+4,yofs+40,32,32);
                 
                 
                 //infoButton.frame = CGRectMake(mDevice_hh-200-10,1,38,38);
@@ -4628,17 +4640,29 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     else initFluid(64,64);
     
     //BButton
+    [btnShowVoices setStyle:BButtonStyleBootstrapV2];
+    [btnShowArcList setStyle:BButtonStyleBootstrapV2];
+    [btnShowSubSong setStyle:BButtonStyleBootstrapV2];
+    
+    
+    [btnShowVoices setType:BButtonTypeInverse];
     [btnShowArcList setType:BButtonTypeInverse];
     [btnShowSubSong setType:BButtonTypeInverse];
-    [btnShowArcList addAwesomeIcon:0x187 beforeTitle:YES font_size:20];
-    [btnShowSubSong addAwesomeIcon:0x16c beforeTitle:YES font_size:20];
     
+    [btnShowVoices addAwesomeIcon:FAIconMusic beforeTitle:YES];
+    [btnShowArcList addAwesomeIcon:FAIconArchive beforeTitle:YES];
+    [btnShowSubSong addAwesomeIcon:FAIconStackOverflow beforeTitle:YES];
+    
+    btnShowVoices.hidden=false;
+    
+    [infoButton setStyle:BButtonStyleBootstrapV2];
     [infoButton setType:BButtonTypeInverse];
-    [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
+    [infoButton addAwesomeIcon:FAIconInfoCircle beforeTitle:YES];
     
+    [eqButton setStyle:BButtonStyleBootstrapV2];
     [eqButton setType:BButtonTypeInverse];
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
-//    [infoButton addAwesomeIcon:0x05A beforeTitle:YES font_size:28];
+    [eqButton addAwesomeIcon:FAIconSliders beforeTitle:YES];
     
 	
 	end_time=clock();

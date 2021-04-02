@@ -142,8 +142,16 @@ extern "C" {
     //VGMPPLAY
     CHIPS_OPTION ChipOpts[0x02];
     bool EndPlay;
+
+/*
+"SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
+"YM2610", "YM3812", "YM3526", "Y8950", "YMF262", "YMF278B", "YMF271", "YMZ280B",
+"RF5C164", "PWM", "AY8910", "GameBoy", "NES APU", "YMW258", "uPD7759", "OKIM6258",
+"OKIM6295", "K051649", "K054539", "HuC6280", "C140", "K053260", "Pokey", "QSound",
+"SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
+"GA20"*/
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
-{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x03, 0x00,
+{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x03, 0x10,
     0x00, 0x09, 0x09, 0x09, 0x12, 0x00, 0x0C, 0x08,
     0x08, 0x00, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
     0x04, 0x05, 0x08, 0x08, 0x18, 0x04, 0x04, 0x10,
@@ -5393,8 +5401,6 @@ char* loadRom(const char* path, size_t romSize)
             numChannels=3*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
             voicesDataAvail=1;
             
-            for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
-            
             stil_info[0]=0;
             [self getStilInfo:(char*)[filePath UTF8String]];
             
@@ -5510,7 +5516,6 @@ char* loadRom(const char* path, size_t romSize)
         iCurrentTime=0;
         
         numChannels=hvl_song->ht_Channels;
-        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         if (hvl_song->ht_InstrumentNr==0) sprintf(mod_message,"N/A\n");
         else {
@@ -5732,7 +5737,6 @@ char* loadRom(const char* path, size_t romSize)
     
     iCurrentTime=0;
     numChannels=xmp_mi.mod->chn;
-    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
@@ -5777,7 +5781,6 @@ char* loadRom(const char* path, size_t romSize)
         
         numChannels=ModPlug_NumChannels(mp_file);
         numPatterns=ModPlug_NumPatterns(mp_file);
-        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         modName=ModPlug_GetName(mp_file);
         if (!modName) {
@@ -6714,6 +6717,10 @@ char* loadRom(const char* path, size_t romSize)
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2612")==0) {
                 voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM2608")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM2608")==0) {
+                voicesDataAvail=1;
             }
         }
     }
@@ -6803,7 +6810,6 @@ char* loadRom(const char* path, size_t romSize)
         mod_currentsub=1;
         
         numChannels=pmd_get_tracks();
-        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -6913,7 +6919,6 @@ char* loadRom(const char* path, size_t romSize)
     
     if (it_max_channels) numChannels=it_max_channels+1;
     else if (itsd->n_pchannels) numChannels = itsd->n_pchannels;
-    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
     
     sprintf(mod_message,"%s\n",[[filePath lastPathComponent] UTF8String]);
     const char * tag;
@@ -6993,7 +6998,7 @@ char* loadRom(const char* path, size_t romSize)
     iModuleLength=duration;
     iCurrentTime=0;
     numChannels=4;//asap->moduleInfo.channels;
-    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
+    
     
     mod_minsub=0;
     mod_maxsub=asap->moduleInfo.songs-1;
@@ -7093,7 +7098,7 @@ char* loadRom(const char* path, size_t romSize)
         if (mLoopMode==1) iModuleLength=-1;
         
         numChannels=9;
-        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
+        
         
         return 0;
     }
@@ -7265,7 +7270,7 @@ char* loadRom(const char* path, size_t romSize)
         
         iCurrentTime=0;
         numChannels=gme_voice_count( gme_emu );
-        for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
+        
         
         mod_message_updated=2;
         return 0;
@@ -7861,6 +7866,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     voicesDataAvail=0;
     mod_currentfile=[NSString stringWithString:filePath];
     mod_currentext=[NSString stringWithString:extension];
+    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
     
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
@@ -9003,11 +9009,11 @@ extern "C" void adjust_amplification(void);
                 if ((channel>=idx)&&(channel<idx+vgmCHN_COUNT[vgmplay_activeChips[i]])) {
                     //
                     switch (vgmplay_activeChips[i]) {
-                        case 0: //SN76496:
+                        case 0: //SN76496: 4voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1|=1<<(channel-idx);
                             break;
-                        case 2: //YM2612:
+                        case 2: //YM2612:  6voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<(channel-idx);
                             if ((channel-idx)==4) {
@@ -9016,6 +9022,22 @@ extern "C" void adjust_amplification(void);
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<6;
                             }
                             break;
+                        case 7:{ //YM2608: 16voices:
+                                 // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
+                                 // chnmute3, 3bits -> yyy y:ay 3ch
+                            int voice=channel-idx;
+                            if (voice<6) {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1&=0xFFFFFFFF^(1<<voice);
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1|=(1<<voice);
+                            } else if (voice<13) {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2&=0xFFFFFFFF^(1<<(voice-6));
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2|=(1<<(voice-6));
+                            } else {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=0xFFFFFFFF^(1<<(voice-13));
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3|=(1<<(voice-13));
+                            }                            
+                            break;
+                        }
                         default:
                             break;
                     }

@@ -63,74 +63,6 @@ extern BOOL nvdsp_EQ;
     nvdsp_EQ=((UISwitch*)sender).on;
 }
 
--(void)pushedVoicesChanged:(id)sender {
-    if ([detailViewController.mplayer isPlaying]&&([currentPlayingFile compare:[detailViewController.mplayer mod_currentfile]]==NSOrderedSame)) {
-        for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
-            if (voices[i]==sender) {
-                if ([detailViewController.mplayer getVoicesStatus:i]) {
-                    [voices[i] setType:BButtonTypeInverse];
-                    [detailViewController.mplayer setVoicesStatus:0 index:i];
-                } else {
-                    [voices[i] setType:BButtonTypePrimary];
-                    [detailViewController.mplayer setVoicesStatus:1 index:i];
-                }
-            }
-        }
-    } else {
-        [self resetVoicesButtons];
-        [self recomputeFrames];
-    }
-}
-
--(void)pushedSoloVoice:(id)sender {
-    if ([detailViewController.mplayer isPlaying]&&([currentPlayingFile compare:[detailViewController.mplayer mod_currentfile]]==NSOrderedSame)) {
-        for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
-            if (voicesSolo[i]==sender) {
-                [voices[i] setType:BButtonTypePrimary];
-                [detailViewController.mplayer setVoicesStatus:1 index:i];
-            } else {
-                [voices[i] setType:BButtonTypeInverse];
-                [detailViewController.mplayer setVoicesStatus:0 index:i];
-            }
-        }
-    } else {
-        [self resetVoicesButtons];
-        [self recomputeFrames];
-    }
-}
-
--(void)pushedAllVoicesOn:(id)sender {
-    if ([detailViewController.mplayer isPlaying]&&([currentPlayingFile compare:[detailViewController.mplayer mod_currentfile]]==NSOrderedSame)) {
-        for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
-            [voices[i] setType:BButtonTypePrimary];
-            [detailViewController.mplayer setVoicesStatus:1 index:i];
-        }
-    } else {
-        [self resetVoicesButtons];
-        [self recomputeFrames];
-    }
-}
-
--(void)pushedAllVoicesOff:(id)sender {
-    if ([detailViewController.mplayer isPlaying]&&([currentPlayingFile compare:[detailViewController.mplayer mod_currentfile]]==NSOrderedSame)) {
-        for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
-            [voices[i] setType:BButtonTypeInverse];
-            [detailViewController.mplayer setVoicesStatus:0 index:i];
-        }
-    } else {
-        [self resetVoicesButtons];
-        [self recomputeFrames];
-    }
-}
-
--(void) checkPlayer {
-    if ([detailViewController.mplayer isPlaying]&&([currentPlayingFile compare:[detailViewController.mplayer mod_currentfile]]==NSOrderedSame)) {
-    } else {
-        [self resetVoicesButtons];
-        [self recomputeFrames];
-    }
-}
-
 
 - (void)sliderChanged:(id)sender {
     UISlider *slider=(UISlider *)sender;
@@ -191,16 +123,6 @@ extern BOOL nvdsp_EQ;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    currentPlayingFile=NULL;
-    
-    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
-        voicesLbl[i]=NULL;
-        voices[i]=NULL;
-        voicesSolo[i]=NULL;
-    }
-    voicesAllOn=NULL;
-    voicesAllOff=NULL;
     
     CGAffineTransform sliderRotation = CGAffineTransformIdentity;
     sliderRotation = CGAffineTransformRotate(sliderRotation, -(M_PI / 2));
@@ -302,33 +224,13 @@ extern BOOL nvdsp_EQ;
     
     [self.view addSubview:eqOnOffLbl];
     //[eqOnOffLbl release];
-    
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(checkPlayer) userInfo:nil repeats:YES];
-    
 }
 
 - (void) recomputeFrames {
-    
-    if ([detailViewController.mplayer isVoicesMutingSupported]&&detailViewController.mplayer.numChannels) {
-        int ypos=self.view.frame.size.height/4+64+40;
-        int xpos=4;
-        
-        voicesAllOn.frame=CGRectMake(self.view.frame.size.width-80,ypos-40,32,32);
-        voicesAllOff.frame=CGRectMake(self.view.frame.size.width-40,ypos-40,32,32);
-        for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
-            if (voicesLbl[i]) voicesLbl[i].frame=CGRectMake(xpos,ypos,96,32);
-            if (voices[i]) voices[i].frame=CGRectMake(xpos+128,ypos,32,32);
-            
-            voicesSolo[i].frame=CGRectMake(xpos+96,ypos,32,32);
-            
-            if (i&1) {
-                xpos=4;
-                ypos+=40;
-            } else xpos+=self.view.frame.size.width/2;
-            
-        }
-    }
-    
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
+
     for (int i=0;i<EQUALIZER_NB_BANDS;i++) {
         eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/4);
         eqLabelFreq[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),16,32,16);
@@ -344,81 +246,14 @@ extern BOOL nvdsp_EQ;
     eqOnOff.frame=CGRectMake(80+10,self.view.frame.size.height/4+64,32,20);
 
     eqOnOffLbl.frame=CGRectMake(4,self.view.frame.size.height/4+64+2,80,20);
+    
+    no_reentrant=false;
 }
 
 
-- (void) removeVoicesButtons {
-    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
-        if (voicesLbl[i]) [voicesLbl[i] removeFromSuperview];
-        if (voices[i]) [voices[i] removeFromSuperview];
-        if (voicesSolo[i]) [voicesSolo[i] removeFromSuperview];
-        voicesSolo[i]=NULL;
-        voicesLbl[i]=NULL;
-        voices[i]=NULL;
-    }
-    if (voicesAllOn) [voicesAllOn removeFromSuperview];
-    if (voicesAllOff) [voicesAllOff removeFromSuperview];
-    voicesAllOn=NULL;
-    voicesAllOff=NULL;
-}
-
-- (void) resetVoicesButtons {
-    [self removeVoicesButtons];
-    if ([detailViewController.mplayer isPlaying]) {
-        currentPlayingFile=[detailViewController.mplayer mod_currentfile];
-        if ([detailViewController.mplayer isVoicesMutingSupported]&&detailViewController.mplayer.numChannels) {
-            int ypos=self.view.frame.size.height/4+64+32;
-            int xpos=4;
-            
-            voicesAllOn=[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width-64,ypos,32,32)];
-            [voicesAllOn setType:BButtonTypePrimary];
-            [voicesAllOn addTarget:self action:@selector(pushedAllVoicesOn:) forControlEvents:UIControlEventTouchUpInside];
-            [voicesAllOn setTitle:@"On" forState:UIControlStateNormal];
-            [self.view addSubview:voicesAllOn];
-            
-            voicesAllOff=[[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width-32,ypos,32,32)];
-            [voicesAllOff setType:BButtonTypePrimary];
-            [voicesAllOff addTarget:self action:@selector(pushedAllVoicesOff:) forControlEvents:UIControlEventTouchUpInside];
-            [voicesAllOff setTitle:@"Off" forState:UIControlStateNormal];
-            [self.view addSubview:voicesAllOff];
-            
-            for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
-                voicesLbl[i]=[[UILabel alloc] initWithFrame:CGRectMake(xpos,ypos,96,20)];
-                voicesLbl[i].font=[UIFont boldSystemFontOfSize:12];
-                voicesLbl[i].text=[detailViewController.mplayer getVoicesName:i];
-                voicesLbl[i].backgroundColor=[UIColor clearColor];
-                voicesLbl[i].textColor=[UIColor whiteColor];
-
-                voices[i]=[[BButton alloc] initWithFrame:CGRectMake(xpos+128,ypos,32,32)];
-                [voices[i] setType:([detailViewController.mplayer getVoicesStatus:i]?BButtonTypePrimary:BButtonTypeInverse)];
-                [voices[i] setTitle:@" " forState:UIControlStateNormal];
-                [voices[i] addTarget:self action:@selector(pushedVoicesChanged:) forControlEvents:UIControlEventTouchUpInside];
-                
-                voicesSolo[i]=[[BButton alloc] initWithFrame:CGRectMake(xpos+96,ypos,32,32)];
-                [voicesSolo[i] setType:BButtonTypePrimary];
-                [voicesSolo[i] addTarget:self action:@selector(pushedSoloVoice:) forControlEvents:UIControlEventTouchUpInside];
-                [voicesSolo[i] setTitle:@"S" forState:UIControlStateNormal];
-                [self.view addSubview:voicesSolo[i]];
-                
-                //[btnShowSubSong setType:BButtonTypeInverse];
-                //[btnShowArcList addAwesomeIcon:0x187 beforeTitle:YES font_size:20];
-                
-                if (i&1) {
-                    xpos=4;
-                    ypos+=32;
-                } else xpos+=self.view.frame.size.width/2;
-                
-                [self.view addSubview:voicesLbl[i]];
-                [self.view addSubview:voices[i]];
-            }
-        }
-    }
-}
 
 - (void) viewWillDisappear:(BOOL)animated {
     [EQViewController backupEQSettings];
-    
-    [self removeVoicesButtons];
     
     [super viewWillDisappear:animated];
 }
@@ -429,8 +264,6 @@ extern BOOL nvdsp_EQ;
     
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    
-    [self resetVoicesButtons];
     
     [self recomputeFrames];
     

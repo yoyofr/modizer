@@ -3321,6 +3321,18 @@ INLINE void YM2608IRQMaskWrite(FM_OPN *OPN, YM2608 *F2608, int v)
 	FM_IRQMASK_SET(&OPN->ST, (F2608->irqmask & F2608->flagmask) );
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /* Generate samples for one of the YM2608s */
 void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
 {
@@ -3331,6 +3343,22 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
 	FMSAMPLE  *bufL,*bufR;
 	FM_CH	*cch[6];
 	INT32 *out_fm = OPN->out_fm;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=13;
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* set bufer */
 	bufL = buffer[0];
@@ -3399,7 +3427,7 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
 			if( F2608->adpcm[j].flag )
 				ADPCMA_calc_chan( F2608, &F2608->adpcm[j]);
 		}
-
+                
 		/* advance envelope generator */
 		OPN->eg_timer += OPN->eg_timer_add;
 		while (OPN->eg_timer >= OPN->eg_timer_overflow)
@@ -3452,6 +3480,25 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
 			rt += (out_fm[4] & OPN->pan[9]);
 			lt += (out_fm[5] & OPN->pan[10]);
 			rt += (out_fm[5] & OPN->pan[11]);
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                for (int jj=0;jj<6;jj++) {
+                    m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((out_fm[jj]>>6));
+                    if( F2608->adpcm[jj].flag ) {
+                        m_voice_buff[m_voice_ofs+jj+6][m_voice_current_ptr[m_voice_ofs+jj+6]>>8]=LIMIT8((F2608->adpcm[jj].adpcm_out>>4));
+                    } else {
+                        m_voice_buff[m_voice_ofs+jj+6][m_voice_current_ptr[m_voice_ofs+jj+6]>>8]=0;
+                    }
+                }
+                m_voice_buff[m_voice_ofs+12][m_voice_current_ptr[m_voice_ofs+12]>>8]=LIMIT8(((OPN->out_delta[OUTD_LEFT]  + OPN->out_delta[OUTD_CENTER] + OPN->out_delta[OUTD_RIGHT])>>14));
+                
+                for (int ii=0;ii<13;ii++) {
+                    m_voice_current_ptr[m_voice_ofs+ii]+=441*256/533;
+                    if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 
 			lt >>= FINAL_SH;
 			rt >>= FINAL_SH;

@@ -278,7 +278,7 @@ void sn76496_write_reg(void *chip, offs_t offset, UINT8 data)
 
 //TODO:  MODIZER changes start / YOYOFR
 #define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 16
+#define SOUND_MAXVOICES_BUFFER_FX 32
 
 extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
@@ -332,12 +332,10 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
     int m_voice_ofs=-1;
-    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-4;ii++) {
+    int m_total_channels=4;
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (m_voice_ChipID[ii]==0) {
-            m_voice_ChipID[ii]=chip;
-            m_voice_ChipID[ii+1]=chip;
-            m_voice_ChipID[ii+2]=chip;
-            m_voice_ChipID[ii+3]=chip;
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
             m_voice_ofs=ii;
             break;
         } else if (m_voice_ChipID[ii]==chip) {

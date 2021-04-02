@@ -879,7 +879,7 @@ VOICE_CLOCK( V3c )
 
 //TODO:  MODIZER changes start / YOYOFR
 #define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 16
+#define SOUND_MAXVOICES_BUFFER_FX 32
 
 extern "C" signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 extern "C" int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];

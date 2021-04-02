@@ -171,8 +171,8 @@ static NSFileManager *mFileMngr;
     [btnSuspend setType:BButtonTypeGray];
     [btnResume setType:BButtonTypeGray];
     
-    [btnCancel setShouldShowDisabled:YES];
-    [btnClear setShouldShowDisabled:YES];
+    //[btnCancel setShouldShowDisabled:YES];
+    //[btnClear setShouldShowDisabled:YES];
 	
 	btnCancel.enabled=NO;
     btnClear.enabled=NO;

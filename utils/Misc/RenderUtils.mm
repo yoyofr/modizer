@@ -147,17 +147,17 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     for (int j=0;j<num_voices;j++) {
         min_gap=SOUND_BUFFER_SIZE_SAMPLE*256;
         old_ofs=snd_data_ofs[j];
-        ofs=0;
+        ofs=snd_data_ofs[j];
         for (int l=0;l<SOUND_BUFFER_SIZE_SAMPLE-1;l++) {
             tmp_gap=0;
-            k=ofs%SOUND_BUFFER_SIZE_SAMPLE;
+            k=ofs&(SOUND_BUFFER_SIZE_SAMPLE-1);
             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                tmp_gap=tmp_gap+absint(((int)(snd_data[((i+ofs)%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[((i+old_ofs)%SOUND_BUFFER_SIZE_SAMPLE)*SOUND_MAXVOICES_BUFFER_FX+j])));
+                tmp_gap=tmp_gap+absint(((int)(snd_data[((i+ofs)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[((i+old_ofs)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])));
                 if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
             }
             if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
                 min_gap=tmp_gap;
-                snd_data_ofs[j]=ofs;
+                snd_data_ofs[j]=ofs&(SOUND_BUFFER_SIZE_SAMPLE-1);
                 if (min_gap<=min_gap_threshold) break;
             }
             ofs++;

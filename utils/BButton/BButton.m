@@ -1,50 +1,47 @@
 //
-//  BButton.m
-//
 //  Created by Mathieu Bolard on 31/07/12.
 //  Copyright (c) 2012 Mathieu Bolard. All rights reserved.
 //
 //  https://github.com/mattlawer/BButton
 //
-//  Redistribution and use in source and binary forms, with or without modification,
-//  are permitted provided that the following conditions are met:
 //
-//  * Redistributions of source code must retain the above copyright notice,
-//  this list of conditions and the following disclaimer.
+//  BButton is licensed under the MIT license
+//  http://opensource.org/licenses/MIT
 //
-//  * Redistributions in binary form must reproduce the above copyright notice,
-//  this list of conditions and the following disclaimer in the documentation
-//  and/or other materials provided with the distribution.
-//
-// * Neither the name of Mathieu Bolard, mattlawer nor the names of its contributors
-//  may be used to endorse or promote products derived from this software
-//  without specific prior written permission.
-//
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-//  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-//  IN NO EVENT SHALL Mathieu Bolard BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-//  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-//  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//  Documentation
+//  http://cocoadocs.org/docsets/BButton
 //
 //  -----------------------------------------
 //  Edited and refactored by Jesse Squires on 2 April, 2013.
 //
 //  http://github.com/jessesquires/BButton
 //
-//  http://hexedbits.com
+//  http://jessesquires.com
 //
 
 #import "BButton.h"
 #import <CoreGraphics/CoreGraphics.h>
 
+static CGFloat const kBButtonCornerRadiusV2 = 6.0f;
+static CGFloat const kBButtonCornerRadiusV3 = 4.0f;
+
 @interface BButton ()
 
-@property (assign, nonatomic) CGGradientRef gradient;
+@property (assign, nonatomic) BButtonStyle buttonStyle;
 
 - (void)setup;
-+ (UIColor *)colorForButtonType:(BButtonType)type;
-- (void)setGradientEnabled:(BOOL)enabled;
+- (void)setTextAttributesForStyle:(BButtonStyle)aStyle;
+
++ (UIColor *)colorForButtonType:(BButtonType)type style:(BButtonStyle)style;
++ (UIColor *)colorForV2StyleButtonWithType:(BButtonType)type;
++ (UIColor *)colorForV3StyleButtonWithType:(BButtonType)type;
++ (NSNumber *)cornerRadiusForStyle:(BButtonStyle)aStyle;
+
+- (NSString *)stringByTrimingWhiteSpaceFromString:(NSString *)str;
+- (BOOL)isStringEmpty:(NSString *)str;
+
+- (void)drawBButtonStyleV2InRect:(CGRect)rect withContext:(CGContextRef *)context;
+- (void)drawBButtonStyleV3InRect:(CGRect)rect withContext:(CGContextRef *)context;
 
 @end
 
@@ -52,95 +49,130 @@
 
 @implementation BButton
 
-@synthesize color;
-@synthesize gradient;
-@synthesize shouldShowDisabled;
+#pragma mark - Setup
 
-#pragma mark - Initialization
 - (void)setup
 {
-    self.backgroundColor = [UIColor clearColor];
-    self.titleLabel.shadowOffset = CGSizeMake(0.0f, -1.0f);
-    self.titleLabel.font = [UIFont boldSystemFontOfSize:12.0f];
-    self.shouldShowDisabled = NO;
+    [self setBackgroundColor:[UIColor clearColor]];
+    _buttonStyle = BButtonStyleBootstrapV3;
     [self setType:BButtonTypeDefault];
 }
 
-- (id)initWithFrame:(CGRect)frame type:(BButtonType)type
+- (void)setTextAttributesForStyle:(BButtonStyle)aStyle
 {
-    return [self initWithFrame:frame color:[BButton colorForButtonType:type]];
+    switch (aStyle) {
+        case BButtonStyleBootstrapV2:
+            [[self titleLabel] setShadowOffset:CGSizeMake(0.0f, -1.0f)];
+            [[self titleLabel] setFont:[UIFont boldSystemFontOfSize:17.0f]];
+            break;
+            
+        case BButtonStyleBootstrapV3:
+            [[self titleLabel] setShadowOffset:CGSizeMake(0.0f, 0.0f)];
+            [[self titleLabel] setFont:[UIFont systemFontOfSize:17.0f]];
+            break;
+    }
 }
 
-- (id)initWithFrame:(CGRect)frame type:(BButtonType)type icon:(int)icon fontSize:(CGFloat)fontSize
+#pragma mark - Initialization
+
+- (instancetype)initWithFrame:(CGRect)frame type:(BButtonType)type style:(BButtonStyle)style
 {
     return [self initWithFrame:frame
-                         color:[BButton colorForButtonType:type]
+                         color:[BButton colorForButtonType:type style:style]
+                         style:style];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+                         type:(BButtonType)type
+                        style:(BButtonStyle)style
+                         icon:(FAIcon)icon
+                     fontSize:(CGFloat)fontSize
+{
+    return [self initWithFrame:frame
+                         color:[BButton colorForButtonType:type style:style]
+                         style:style
                           icon:icon
                       fontSize:fontSize];
 }
 
-- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor
+- (instancetype)initWithFrame:(CGRect)frame color:(UIColor *)color style:(BButtonStyle)style
 {
+    NSParameterAssert(color != nil);
+    
     self = [self initWithFrame:frame];
-    if(self) {
-        self.color = aColor;
+    if (self) {
+        _buttonStyle = style;
+        [self setColor:color];
+        [self setTextAttributesForStyle:style];
     }
     return self;
 }
 
-- (id)initWithFrame:(CGRect)frame color:(UIColor *)aColor icon:(int)icon fontSize:(CGFloat)fontSize
+- (instancetype)initWithFrame:(CGRect)frame
+                        color:(UIColor *)color
+                        style:(BButtonStyle)style
+                         icon:(FAIcon)icon
+                     fontSize:(CGFloat)fontSize
 {
-    self = [self initWithFrame:frame color:aColor];
-    if(self) {
-        self.titleLabel.font = [UIFont fontWithName:@"FontAwesome" size:fontSize];
-        self.titleLabel.textAlignment = NSTextAlignmentCenter;
-        [self setTitle:[NSString stringFromAwesomeIcon:icon] forState:UIControlStateNormal];
+    self = [self initWithFrame:frame color:color style:style];
+    if (self) {
+        [[self titleLabel] setFont:[UIFont fontWithName:kFontAwesomeFont size:fontSize]];
+        [[self titleLabel] setTextAlignment:NSTextAlignmentCenter];
+        [self setTitle:[NSString fa_stringForFontAwesomeIcon:icon]
+              forState:UIControlStateNormal];
     }
     return self;
 }
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
-    if(self) {
+    if (self) {
         [self setup];
+        [self setTextAttributesForStyle:_buttonStyle];
     }
     return self;
 }
 
-- (id)initWithCoder:(NSCoder *)aDecoder
+- (instancetype)initWithCoder:(NSCoder *)aDecoder
 {
     self = [super initWithCoder:aDecoder];
-    if(self) {
+    if (self) {
         [self setup];
     }
     return self;
 }
 
-- (id)init
+- (void)dealloc
 {
-    self = [super init];
-    if(self) {
-        [self setup];
-    }
-    return self;
+    _color = nil;
+    _buttonCornerRadius = nil;
 }
 
-+ (BButton *)awesomeButtonWithOnlyIcon:(int)icon type:(BButtonType)type
+#pragma mark - Class initialization
+
++ (instancetype)awesomeButtonWithOnlyIcon:(FAIcon)icon
+                                     type:(BButtonType)type
+                                    style:(BButtonStyle)style
 {
     return [BButton awesomeButtonWithOnlyIcon:icon
-                                        color:[BButton colorForButtonType:type]];
+                                        color:[BButton colorForButtonType:type style:style]
+                                        style:style];
 }
 
-+ (BButton *)awesomeButtonWithOnlyIcon:(int)icon color:(UIColor *)color
++ (instancetype)awesomeButtonWithOnlyIcon:(FAIcon)icon
+                                    color:(UIColor *)color
+                                    style:(BButtonStyle)style
 {
     return [[BButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 40.0f, 40.0f)
                                     color:color
+                                    style:style
                                      icon:icon
                                  fontSize:20.0f];
 }
 
 #pragma mark - Parent overrides
+
 - (void)setHighlighted:(BOOL)highlighted
 {
     [super setHighlighted:highlighted];
@@ -150,184 +182,253 @@
 - (void)setEnabled:(BOOL)enabled
 {
     [super setEnabled:enabled];
-    
-    if(self.shouldShowDisabled)
-        [self setGradientEnabled:enabled];
-    
     [self setNeedsDisplay];
 }
 
+#pragma mark - UIAppearance getters
+
+- (NSNumber *)buttonCornerRadius
+{
+    if (!_buttonCornerRadius) {
+        _buttonCornerRadius = [[[self class] appearance] buttonCornerRadius];
+    }
+    
+    if (_buttonCornerRadius) {
+        return _buttonCornerRadius;
+    }
+    
+    return [BButton cornerRadiusForStyle:_buttonStyle];
+}
+
 #pragma mark - Setters
+
 - (void)setColor:(UIColor *)newColor
 {
-#if __has_feature(objc_arc)
-    color = newColor;
-#else
-    if (color) [color release];
-    color = [newColor retain];
-#endif
+    _color = newColor;
     
-    if([newColor isLightColor]) {
+    if ([newColor bb_isLightColor]) {
         [self setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         [self setTitleShadowColor:[[UIColor whiteColor] colorWithAlphaComponent:0.6f] forState:UIControlStateNormal];
-        
-        if(self.shouldShowDisabled)
-            [self setTitleColor:[UIColor colorWithWhite:0.4f alpha:0.5f] forState:UIControlStateDisabled];
+        [self setTitleColor:[UIColor colorWithWhite:0.4f alpha:0.5f] forState:UIControlStateDisabled];
     }
     else {
         [self setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [self setTitleShadowColor:[[UIColor blackColor] colorWithAlphaComponent:0.6f] forState:UIControlStateNormal];
-        
-        if(self.shouldShowDisabled)
-            [self setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.5f] forState:UIControlStateDisabled];
+        [self setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.5f] forState:UIControlStateDisabled];
     }
-    
-    if(self.shouldShowDisabled)
-        [self setGradientEnabled:self.enabled];
-    else
-        [self setGradientEnabled:YES];
     
     [self setNeedsDisplay];
 }
 
-- (void)setShouldShowDisabled:(BOOL)show
+#pragma mark - BButton
+
+- (void)setStyle:(BButtonStyle)style
 {
-    shouldShowDisabled = show;
-    
-    if(show) {
-        if([self.color isLightColor])
-            [self setTitleColor:[UIColor colorWithWhite:0.4f alpha:0.5f] forState:UIControlStateDisabled];
-        else
-            [self setTitleColor:[UIColor colorWithWhite:1.0f alpha:0.5f] forState:UIControlStateDisabled];
-    }
-    else {
-        if([self.color isLightColor])
-            [self setTitleColor:[UIColor blackColor] forState:UIControlStateDisabled];
-        else
-            [self setTitleColor:[UIColor whiteColor] forState:UIControlStateDisabled];
-    }
+    _buttonStyle = style;
+    [self setColor:_color];
 }
 
-#pragma mark - BButton
 - (void)setType:(BButtonType)type
 {
-    self.color = [BButton colorForButtonType:type];
+    [self setColor:[BButton colorForButtonType:type
+                                         style:_buttonStyle]];
 }
 
-- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before font_size:(CGFloat)font_size
+- (void)addAwesomeIcon:(FAIcon)icon beforeTitle:(BOOL)before
 {
-    NSString *iconString = [NSString stringFromAwesomeIcon:icon];
-    self.titleLabel.font = [UIFont fontWithName:@"FontAwesome"
-                                           size:font_size];
-    
-    NSString *title = [NSString stringWithFormat:@"%@", iconString];
-    
-    if (self.titleLabel.text==nil) {
-        
-    } else if(![self.titleLabel.text isEmpty]) {
-        if(before)
-            title = [title stringByAppendingFormat:@" %@", self.titleLabel.text];
-        else
-            title = [NSString stringWithFormat:@"%@  %@", self.titleLabel.text, iconString];
-    }
-    
-    [self setTitle:title forState:UIControlStateNormal];
-}
-
-
-- (void)addAwesomeIcon:(int)icon beforeTitle:(BOOL)before
-{
-    NSString *iconString = [NSString stringFromAwesomeIcon:icon];
-    self.titleLabel.font = [UIFont fontWithName:@"FontAwesome"
+    NSString *iconString = [NSString fa_stringForFontAwesomeIcon:icon];
+    self.titleLabel.font = [UIFont fontWithName:kFontAwesomeFont
                                            size:self.titleLabel.font.pointSize];
     
     NSString *title = [NSString stringWithFormat:@"%@", iconString];
     
-    if (self.titleLabel.text==nil) {
-        
-    } else if(![self.titleLabel.text isEmpty]) {
-        if(before)
+    if(self.titleLabel.text && ![self isStringEmpty:self.titleLabel.text]) {
+        if(before) {
             title = [title stringByAppendingFormat:@" %@", self.titleLabel.text];
-        else
-            title = [NSString stringWithFormat:@"%@  %@", self.titleLabel.text, iconString];
+        }
+        else {
+            title = [NSString stringWithFormat:@"%@ %@", self.titleLabel.text, iconString];
+        }
     }
     
     [self setTitle:title forState:UIControlStateNormal];
 }
 
-+ (UIColor *)colorForButtonType:(BButtonType)type
++ (UIColor *)colorForButtonType:(BButtonType)type style:(BButtonStyle)style
 {
-    UIColor *newColor = nil;
-    
+    switch (style) {
+        case BButtonStyleBootstrapV2:
+            return [BButton colorForV2StyleButtonWithType:type];
+        case BButtonStyleBootstrapV3:
+        default:
+            return [BButton colorForV3StyleButtonWithType:type];
+    }
+}
+
++ (UIColor *)colorForV2StyleButtonWithType:(BButtonType)type
+{
     switch (type) {
         case BButtonTypePrimary:
-            newColor = [UIColor colorWithRed:0.00f green:0.33f blue:0.80f alpha:1.00f];
-            break;
+            return [UIColor bb_primaryColorV2];
+            
         case BButtonTypeInfo:
-            newColor = [UIColor colorWithRed:0.18f green:0.59f blue:0.71f alpha:1.00f];
-            break;
+            return [UIColor bb_infoColorV2];
+            
         case BButtonTypeSuccess:
-            newColor = [UIColor colorWithRed:0.32f green:0.64f blue:0.32f alpha:1.00f];
-            break;
+            return [UIColor bb_successColorV2];
+            
         case BButtonTypeWarning:
-            newColor = [UIColor colorWithRed:0.97f green:0.58f blue:0.02f alpha:1.00f];
-            break;
+            return [UIColor bb_warningColorV2];
+            
         case BButtonTypeDanger:
-            newColor = [UIColor colorWithRed:0.74f green:0.21f blue:0.18f alpha:1.00f];
-            break;
+            return [UIColor bb_dangerColorV2];
+            
         case BButtonTypeInverse:
-            newColor = [UIColor colorWithRed:0.13f green:0.13f blue:0.13f alpha:1.00f];
-            break;
+            return [UIColor bb_inverseColorV2];
+            
         case BButtonTypeTwitter:
-            newColor = [UIColor colorWithRed:0.25f green:0.60f blue:1.00f alpha:1.00f];
-            break;
+            return [UIColor bb_twitterColor];
+            
         case BButtonTypeFacebook:
-            newColor = [UIColor colorWithRed:0.23f green:0.35f blue:0.60f alpha:1.00f];
-            break;
+            return [UIColor bb_facebookColor];
+            
         case BButtonTypePurple:
-            newColor = [UIColor colorWithRed:0.45f green:0.30f blue:0.75f alpha:1.00f];
-            break;
+            return [UIColor bb_purpleBButtonColor];
+            
         case BButtonTypeGray:
-            newColor = [UIColor colorWithRed:0.60f green:0.60f blue:0.60f alpha:1.00f];
-            break;
+            return [UIColor bb_grayBButtonColor];
+            
         case BButtonTypeDefault:
         default:
-            newColor = [UIColor colorWithRed:0.85f green:0.85f blue:0.85f alpha:1.00f];
+            return [UIColor bb_defaultColorV2];
+    }
+}
+
++ (UIColor *)colorForV3StyleButtonWithType:(BButtonType)type
+{
+    switch (type) {
+        case BButtonTypePrimary:
+            return [UIColor bb_primaryColorV3];
+            
+        case BButtonTypeInfo:
+            return [UIColor bb_infoColorV3];
+            
+        case BButtonTypeSuccess:
+            return [UIColor bb_successColorV3];
+            
+        case BButtonTypeWarning:
+            return [UIColor bb_warningColorV3];
+            
+        case BButtonTypeDanger:
+            return [UIColor bb_dangerColorV3];
+            
+        case BButtonTypeInverse:
+            return [UIColor bb_inverseColorV3];
+            
+        case BButtonTypeTwitter:
+            return [UIColor bb_twitterColor];
+            
+        case BButtonTypeFacebook:
+            return [UIColor bb_facebookColor];
+            
+        case BButtonTypePurple:
+            return [UIColor bb_purpleBButtonColor];
+            
+        case BButtonTypeGray:
+            return [UIColor bb_grayBButtonColor];
+            
+        case BButtonTypeDefault:
+        default:
+            return [UIColor bb_defaultColorV3];
+    }
+}
+
++ (NSNumber *)cornerRadiusForStyle:(BButtonStyle)aStyle
+{
+    CGFloat r = 0.0f;
+    
+    switch (aStyle) {
+        case BButtonStyleBootstrapV2:
+            r = kBButtonCornerRadiusV2;
+            break;
+        case BButtonStyleBootstrapV3:
+            r = kBButtonCornerRadiusV3;
             break;
     }
-    
-    return newColor;
+    return [NSNumber numberWithFloat:r];
+}
+
+#pragma mark - Utilities
+
+- (NSString *)stringByTrimingWhiteSpaceFromString:(NSString *)str
+{
+    return [str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+}
+
+- (BOOL)isStringEmpty:(NSString *)str
+{
+    return [[self stringByTrimingWhiteSpaceFromString:str] isEqualToString:@""];
 }
 
 #pragma mark - Drawing
+
 - (void)drawRect:(CGRect)rect
 {
     [super drawRect:rect];
+    
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    UIColor *border = [self.color darkenColorWithValue:0.06f];
+    if (!context) {
+        return;
+    }
     
-    // Shadow Declarations
-    UIColor *shadow = [self.color lightenColorWithValue:0.50f];
+    NSAssert(self.color != nil, @"Error! Attempting to draw button with nil color. %s", __PRETTY_FUNCTION__);
+    
+    switch (self.buttonStyle) {
+        case BButtonStyleBootstrapV2:
+            [self drawBButtonStyleV2InRect:rect withContext:&context];
+            break;
+        case BButtonStyleBootstrapV3:
+            [self drawBButtonStyleV3InRect:rect withContext:&context];
+            break;
+    }
+}
+
+- (void)drawBButtonStyleV2InRect:(CGRect)rect withContext:(CGContextRef *)context
+{
+    UIColor *border = [self.color bb_darkenColorWithValue:0.06f];
+    
+    UIColor *shadow = [self.color bb_lightenColorWithValue:0.50f];
     CGSize shadowOffset = CGSizeMake(0.0f, 1.0f);
     CGFloat shadowBlurRadius = 2.0f;
     
-    // Rounded Rectangle Drawing
     UIBezierPath *roundedRectanglePath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0.5f, 0.5f, rect.size.width-1.0f, rect.size.height-1.0f)
-                                                                    cornerRadius:6.0f];
+                                                                    cornerRadius:[self.buttonCornerRadius floatValue]];
     
-    CGContextSaveGState(context);
+    CGContextSaveGState(*context);
     
     [roundedRectanglePath addClip];
     
-    CGContextDrawLinearGradient(context,
-                                self.gradient,
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    UIColor *topColor = (!self.enabled) ? [self.color bb_darkenColorWithValue:0.12f] : [self.color bb_lightenColorWithValue:0.12f];
+    
+    NSArray *newGradientColors = [NSArray arrayWithObjects:(id)topColor.CGColor, (id)self.color.CGColor, nil];
+    CGFloat newGradientLocations[] = {0.0f, 1.0f};
+    
+    CGGradientRef gradient = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)newGradientColors, newGradientLocations);
+    
+    CGColorSpaceRelease(colorSpace);
+    
+    CGContextDrawLinearGradient(*context,
+                                gradient,
                                 CGPointMake(0.0f, self.highlighted ? rect.size.height - 0.5f : 0.5f),
                                 CGPointMake(0.0f, self.highlighted ? 0.5f : rect.size.height - 0.5f), 0.0f);
     
-    CGContextRestoreGState(context);
+    CGGradientRelease(gradient);
     
-    if(!self.highlighted) {
+    CGContextRestoreGState(*context);
+    
+    if (!self.highlighted) {
         // Rounded Rectangle Inner Shadow
         CGRect roundedRectangleBorderRect = CGRectInset([roundedRectanglePath bounds], -shadowBlurRadius, -shadowBlurRadius);
         roundedRectangleBorderRect = CGRectOffset(roundedRectangleBorderRect, -shadowOffset.width, -shadowOffset.height);
@@ -337,22 +438,22 @@
         [roundedRectangleNegativePath appendPath: roundedRectanglePath];
         roundedRectangleNegativePath.usesEvenOddFillRule = YES;
         
-        CGContextSaveGState(context);
-        {
-            CGFloat xOffset = shadowOffset.width + round(roundedRectangleBorderRect.size.width);
-            CGFloat yOffset = shadowOffset.height;
-            CGContextSetShadowWithColor(context,
-                                        CGSizeMake(xOffset + copysign(0.1f, xOffset), yOffset + copysign(0.1f, yOffset)),
-                                        shadowBlurRadius,
-                                        shadow.CGColor);
-            
-            [roundedRectanglePath addClip];
-            CGAffineTransform transform = CGAffineTransformMakeTranslation(-round(roundedRectangleBorderRect.size.width), 0.0f);
-            [roundedRectangleNegativePath applyTransform: transform];
-            [[UIColor grayColor] setFill];
-            [roundedRectangleNegativePath fill];
-        }
-        CGContextRestoreGState(context);
+        CGContextSaveGState(*context);
+        
+        CGFloat xOffset = shadowOffset.width + round(roundedRectangleBorderRect.size.width);
+        CGFloat yOffset = shadowOffset.height;
+        CGContextSetShadowWithColor(*context,
+                                    CGSizeMake(xOffset + copysign(0.1f, xOffset), yOffset + copysign(0.1f, yOffset)),
+                                    shadowBlurRadius,
+                                    shadow.CGColor);
+        
+        [roundedRectanglePath addClip];
+        CGAffineTransform transform = CGAffineTransformMakeTranslation(-round(roundedRectangleBorderRect.size.width), 0.0f);
+        [roundedRectangleNegativePath applyTransform: transform];
+        [[UIColor grayColor] setFill];
+        [roundedRectangleNegativePath fill];
+        
+        CGContextRestoreGState(*context);
     }
     
     [border setStroke];
@@ -360,31 +461,33 @@
     [roundedRectanglePath stroke];
 }
 
-- (void)setGradientEnabled:(BOOL)enabled
+- (void)drawBButtonStyleV3InRect:(CGRect)rect withContext:(CGContextRef *)context
 {
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    UIColor *topColor = enabled ? [self.color lightenColorWithValue:0.12f] : [self.color darkenColorWithValue:0.12f];
+    CGContextSaveGState(*context);
     
-    NSArray *newGradientColors = [NSArray arrayWithObjects:(id)topColor.CGColor, (id)self.color.CGColor, nil];
-    CGFloat newGradientLocations[] = {0.0f, 1.0f};
+    UIColor *fill = (!self.highlighted) ? self.color : [self.color bb_darkenColorWithValue:0.06f];
+    if (!self.enabled) {
+        fill = [fill bb_desaturatedColorToPercentSaturation:0.60f];
+    }
     
-#if __has_feature(objc_arc)
-    gradient = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef)newGradientColors, newGradientLocations);
-#else
-    if (gradient) CGGradientRelease(gradient);
-    gradient = CGGradientCreateWithColors(colorSpace, (CFArrayRef)newGradientColors, newGradientLocations);
-#endif
+    CGContextSetFillColorWithColor(*context, fill.CGColor);
     
-    CGColorSpaceRelease(colorSpace);
-}
-
-- (void)dealloc {
-#if __has_feature(objc_arc)
-#else
-    if (color) [color release];
-    if (gradient) CGGradientRelease(gradient);
-#endif    
-    //[super dealloc];
+    UIColor *border = (!self.highlighted) ? [self.color bb_darkenColorWithValue:0.06f] : [self.color bb_darkenColorWithValue:0.12f];
+    if (!self.enabled) {
+        border = [border bb_desaturatedColorToPercentSaturation:0.60f];
+    }
+    
+    CGContextSetStrokeColorWithColor(*context, border.CGColor);
+    
+    CGContextSetLineWidth(*context, 1.0f);
+    
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0.5f, 0.5f, rect.size.width-1.0f, rect.size.height-1.0f)
+                                                    cornerRadius:[self.buttonCornerRadius floatValue]];
+    
+    CGContextAddPath(*context, path.CGPath);
+    CGContextDrawPath(*context, kCGPathFillStroke);
+    
+    CGContextRestoreGState(*context);
 }
 
 @end
