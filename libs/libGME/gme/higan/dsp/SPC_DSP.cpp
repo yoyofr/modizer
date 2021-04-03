@@ -1210,7 +1210,7 @@ PHASE(28) misc_28();                                                 echo_28();\
 PHASE(29) misc_29();                                                 echo_29();\
 PHASE(30) misc_30();V(V3c,0)                                         echo_30();\
 PHASE(31)  V(V4,0)       V(V1,2)\
-for (int jj=0;jj<8;jj++) {m_voice_current_ptr[jj]+=256;if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;}\
+for (int jj=0;jj<8;jj++) {m_voice_current_ptr[jj]+=32000*256/44100;if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;}\
 
 
 //TODO:  MODIZER changes end / YOYOFR

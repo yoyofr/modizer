@@ -290,6 +290,19 @@ void c140_set_base(UINT8 ChipID, void *base)
 	return in;
 }*/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include <stdio.h>
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //static STREAM_UPDATE( update_stereo )
 void c140_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
@@ -320,6 +333,36 @@ void c140_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 
 	/* get the number of voices to update */
 	voicecnt = (info->banking_type == C140_TYPE_ASIC219) ? 16 : 24;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=24;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=info;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==info) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=info->sample_rate*256/44100;
+    if (smplIncr>256) smplIncr=256;
+    //printf("c140 smpl rate: %d\n",info->sample_rate);
+    
+    if (m_voice_ofs>=0) {
+        for (int j=0;j<m_total_channels;j++) {
+            int cur_pos=m_voice_current_ptr[m_voice_ofs+j];
+            for (int i=0;i<samples;i++) {
+                m_voice_buff[m_voice_ofs+j][(cur_pos>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=0;
+                cur_pos+=smplIncr;
+            }
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+    
 
 	//--- audio update
 	for( i=0;i<voicecnt;i++ )
@@ -408,6 +451,14 @@ void c140_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 					/* Write the data to the sample buffers */
 					*lmix++ +=(dt*lvol)>>(5+5);
 					*rmix++ +=(dt*rvol)>>(5+5);
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8(((dt*(lvol+rvol))>>13));
+                        m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
+                        if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
 			else
@@ -465,6 +516,14 @@ void c140_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 					/* Write the data to the sample buffers */
 					*lmix++ +=(dt*lvol)>>5;
 					*rmix++ +=(dt*rvol)>>5;
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8(((dt*(lvol+rvol))>>8));
+                        m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
+                        if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 			}
 
@@ -474,7 +533,7 @@ void c140_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 			v->lastdt=lastdt;
 			v->prevdt=prevdt;
 			v->dltdt=dltdt;
-		}
+        }
 	}
 
 	/* render to MAME's stream buffer */

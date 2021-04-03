@@ -1471,10 +1471,10 @@ void propertyListenerCallback (void                   *inUserData,              
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
             m_voice_current_ptr[i]=0;
             m_voice_buff[i]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE);
-            for (int j=0;j<SOUND_BUFFER_NB;j++) {
-                m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
-                m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
-            }
+        }
+        for (int j=0;j<SOUND_BUFFER_NB;j++) {
+            m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+            m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         }
         memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
 
@@ -6717,9 +6717,15 @@ char* loadRom(const char* path, size_t romSize)
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2612")==0) {
                 voicesDataAvail=1;
-            } else if (strcmp(strChip,"YM2608")==0) {
+            } else if (strcmp(strChip,"YM2151")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"SegaPCM")==0) {
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2608")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"OKIM6295")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"C140")==0) {
                 voicesDataAvail=1;
             }
         }
@@ -7866,7 +7872,19 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     voicesDataAvail=0;
     mod_currentfile=[NSString stringWithString:filePath];
     mod_currentext=[NSString stringWithString:extension];
-    for (int i=0;i<numChannels;i++) voicesStatus[i]=1;
+    
+    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) voicesStatus[i]=1;
+    
+    for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
+        m_voice_current_ptr[i]=0;
+        memset(m_voice_buff[i],0,SOUND_BUFFER_SIZE_SAMPLE);
+    }
+    
+    for (int j=0;j<SOUND_BUFFER_NB;j++) {
+        memset(m_voice_buff_ana[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+        memset(m_voice_buff_ana_cpy[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+    }
+    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
     
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
@@ -9022,6 +9040,14 @@ extern "C" void adjust_amplification(void);
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<6;
                             }
                             break;
+                        case 3: //YM2151: 8voices
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].YM2151.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 4: //Sega PCM: 16voices
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1|=1<<(channel-idx);
+                            break;
                         case 7:{ //YM2608: 16voices:
                                  // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
                                  // chnmute3, 3bits -> yyy y:ay 3ch
@@ -9038,6 +9064,12 @@ extern "C" void adjust_amplification(void);
                             }                            
                             break;
                         }
+                        case 24: //OKIM6295: 4voices
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1|=1<<(channel-idx);
+                        case 28: //C140: 24voices
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1|=1<<(channel-idx);
                         default:
                             break;
                     }

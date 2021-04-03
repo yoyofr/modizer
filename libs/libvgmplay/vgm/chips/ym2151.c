@@ -2392,6 +2392,17 @@ INLINE signed int acc_calc(signed int value)
 	#endif
 #endif
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
 
 /*  Generate samples for one of the YM2151's
 *
@@ -2409,6 +2420,24 @@ void ym2151_update_one(void *chip, SAMP **buffers, int length)
 	bufR = buffers[1];
 
 	PSG = (YM2151 *)chip;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }    
+    int smplIncr=44100*256/PSG->sampfreq;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
 
 #ifdef USE_MAME_TIMERS
 		/* ASG 980324 - handled by real timers now */
@@ -2475,6 +2504,16 @@ void ym2151_update_one(void *chip, SAMP **buffers, int length)
 		outr += (chanout[6] & PSG->pan[13]);
 		outl += (chanout[7] & PSG->pan[14]);
 		outr += (chanout[7] & PSG->pan[15]);
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int ii=0;ii<8;ii++) {
+                m_voice_buff[m_voice_ofs+ii][m_voice_current_ptr[m_voice_ofs+ii]>>8]=LIMIT8((chanout[ii]>>6));
+                m_voice_current_ptr[m_voice_ofs+ii]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		outl >>= FINAL_SH;
 		outr >>= FINAL_SH;

@@ -326,6 +326,17 @@ static void generate_adpcm(okim6295_state *chip, struct ADPCMVoice *voice, INT16
  *
 ***********************************************************************************************/
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
 
 /**********************************************************************************************
 
@@ -339,6 +350,27 @@ void okim6295_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	//okim6295_state *chip = (okim6295_state *)param;
 	okim6295_state *chip = &OKIM6295Data[ChipID];
 	int i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplFreq=chip->master_clock/(chip->pin7_state ? 132 : 165);
+    int smplIncr=44100*256/smplFreq;
+    if (smplIncr>256) smplIncr=256;
+    //printf("okim clock: %d\n",smplFreq);
+    //TODO:  MODIZER changes end / YOYOFR
+    
 
 	memset(outputs[0], 0, samples * sizeof(*outputs[0]));
 
@@ -358,8 +390,17 @@ void okim6295_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 				int samp;
 
 				generate_adpcm(chip, voice, sample_data, samples);
-				for (samp = 0; samp < samples; samp++)
+                for (samp = 0; samp < samples; samp++) {
 					*buffer++ += sample_data[samp];
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((sample_data[samp]>>8));
+                        m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
+                        if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
+                }
 
 				remaining -= samples;
 			}
@@ -367,6 +408,8 @@ void okim6295_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	}
 	
 	memcpy(outputs[1], outputs[0], samples * sizeof(*outputs[0]));
+    
+    
 }
 
 

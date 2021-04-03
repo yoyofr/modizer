@@ -48,6 +48,18 @@ static void sega_pcm_fwrite_romusage(UINT8 ChipID);
 	return (segapcm_state *)device->token;
 }*/
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //static STREAM_UPDATE( SEGAPCM_update )
 void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
@@ -80,6 +92,36 @@ void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	//          bit 1: loop disable
 	//          other bits: bank
 	// 0x87     ?
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=16;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=spcm;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==spcm) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncr=31025*256/44100;
+    if (smplIncr>256) smplIncr=256;
+    
+    if (m_voice_ofs>=0) {
+        for (int j=0;j<m_total_channels;j++) {
+            int cur_pos=m_voice_current_ptr[m_voice_ofs+j];
+            for (int i=0;i<samples;i++) {
+                m_voice_buff[m_voice_ofs+j][(cur_pos>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=0;
+                cur_pos+=smplIncr;
+            }
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+
 
 	/* loop over channels */
 	for (ch = 0; ch < 16; ch++)
@@ -190,6 +232,14 @@ void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 				outputs[0][i] += v * (regs[2] & 0x7F);
 				outputs[1][i] += v * (regs[3] & 0x7F);
 				addr = (addr + regs[7]) & 0xffffff;
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>8]=LIMIT8(((v*((regs[2]&0x7F)+(regs[3]&0x7F)))>>7));
+                    m_voice_current_ptr[m_voice_ofs+ch]+=smplIncr;
+                    if ((m_voice_current_ptr[m_voice_ofs+ch]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 
 			/* store back the updated address */

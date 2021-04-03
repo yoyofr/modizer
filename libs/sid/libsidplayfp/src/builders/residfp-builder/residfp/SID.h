@@ -326,6 +326,29 @@ int SID::clock(unsigned int cycles, short* buf)
 {
     ageBusValue(cycles);
     int s = 0;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //check current active sid
+    int sid_idx=0;
+    if (m_voice_ChipID[0]==NULL) {
+        m_voice_ChipID[0]=(void*)this;
+        sid_idx=0;
+    } else if (m_voice_ChipID[0]==(void*)this) {
+        sid_idx=0;
+    } else if (m_voice_ChipID[1]==NULL) {
+        m_voice_ChipID[1]=(void*)this;
+        sid_idx=1*3;
+    } else if (m_voice_ChipID[1]==(void*)this) {
+        sid_idx=1*3;
+    } else if (m_voice_ChipID[2]==NULL) {
+        m_voice_ChipID[2]=(void*)this;
+        sid_idx=2*3;
+    } else if (m_voice_ChipID[2]==(void*)this) {
+        sid_idx=2*3;
+    }
+    int smplIncr=(96000<<8)/44100;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
 
     while (cycles != 0)
     {
@@ -333,26 +356,7 @@ int SID::clock(unsigned int cycles, short* buf)
 
         if (likely(delta_t > 0))
         {
-            //TODO:  MODIZER changes start / YOYOFR
-            //check current active sid
-            int sid_idx=0;
-            if (m_voice_ChipID[0]==NULL) {
-                m_voice_ChipID[0]=(void*)this;
-                sid_idx=0;
-            } else if (m_voice_ChipID[0]==(void*)this) {
-                sid_idx=0;
-            } else if (m_voice_ChipID[1]==NULL) {
-                m_voice_ChipID[1]=(void*)this;
-                sid_idx=1*3;
-            } else if (m_voice_ChipID[1]==(void*)this) {
-                sid_idx=1*3;
-            } else if (m_voice_ChipID[2]==NULL) {
-                m_voice_ChipID[2]=(void*)this;
-                sid_idx=2*3;
-            } else if (m_voice_ChipID[2]==(void*)this) {
-                sid_idx=2*3;
-            }
-            //TODO:  MODIZER changes end / YOYOFR
+            
             
             for (unsigned int i = 0; i < delta_t; i++)
             {
@@ -375,7 +379,7 @@ int SID::clock(unsigned int cycles, short* buf)
                     m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>8]=LIMIT8((voice[1]->output(voice[1]->wave())>>14));
                     m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>8]=LIMIT8((voice[2]->output(voice[2]->wave())>>14));
                     
-                    m_voice_current_ptr[sid_idx+0]+=(441<<8)/960;m_voice_current_ptr[sid_idx+1]+=(441<<8)/960;m_voice_current_ptr[sid_idx+2]+=(441<<8)/960;
+                    m_voice_current_ptr[sid_idx+0]+=smplIncr;m_voice_current_ptr[sid_idx+1]+=smplIncr;m_voice_current_ptr[sid_idx+2]+=smplIncr;
                     if ((m_voice_current_ptr[sid_idx+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                     if ((m_voice_current_ptr[sid_idx+1]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                     if ((m_voice_current_ptr[sid_idx+2]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;

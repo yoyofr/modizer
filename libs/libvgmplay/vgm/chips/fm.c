@@ -3348,7 +3348,7 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
     //search first voice linked to current chip
     int m_voice_ofs=-1;
     int m_total_channels=13;
-    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (m_voice_ChipID[ii]==0) {
             for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
             m_voice_ofs=ii;
@@ -3358,6 +3358,10 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
             break;
         }
     }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncrFM=44100*256/OPN->ST.rate;
+    if (smplIncrFM>256) smplIncrFM=256;
+    int smplIncrADPCM=44100*256/44100;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* set bufer */
@@ -3491,10 +3495,15 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
                         m_voice_buff[m_voice_ofs+jj+6][m_voice_current_ptr[m_voice_ofs+jj+6]>>8]=0;
                     }
                 }
-                m_voice_buff[m_voice_ofs+12][m_voice_current_ptr[m_voice_ofs+12]>>8]=LIMIT8(((OPN->out_delta[OUTD_LEFT]  + OPN->out_delta[OUTD_CENTER] + OPN->out_delta[OUTD_RIGHT])>>14));
+                if( DELTAT->portstate&0x80 && ! F2608->MuteDeltaT ) m_voice_buff[m_voice_ofs+12][m_voice_current_ptr[m_voice_ofs+12]>>8]=LIMIT8(((OPN->out_delta[OUTD_LEFT]  + OPN->out_delta[OUTD_CENTER] + OPN->out_delta[OUTD_RIGHT])>>14));
+                else m_voice_buff[m_voice_ofs+12][m_voice_current_ptr[m_voice_ofs+12]>>8]=0;
                 
-                for (int ii=0;ii<13;ii++) {
-                    m_voice_current_ptr[m_voice_ofs+ii]+=441*256/533;
+                for (int ii=0;ii<6;ii++) {
+                    m_voice_current_ptr[m_voice_ofs+ii]+=smplIncrFM;
+                    if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+                for (int ii=6;ii<13;ii++) {
+                    m_voice_current_ptr[m_voice_ofs+ii]+=smplIncrADPCM;
                     if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                 }
             }

@@ -868,6 +868,34 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"chip_reg_write=VGMchip_reg_write",
+					"ym2413_shutdown=VGMym2413_shutdown",
+					"ym2413_init=VGMym2413_init",
+					"qsound_update=VGMqsound_update",
+					"ym2151_update_one=VGMym2151_update_one",
+					"ym2151_shutdown=VGMym2151_shutdown",
+					"ym2151_reset_chip=VGMym2151_reset_chip",
+					"ym2151_init=VGMym2151_init",
+					"ym2151_write_reg=VGMym2151_write_reg",
+					"SCSP_Update=VGMSCSP_Update",
+					"ym2413_update_one=VGMym2413_update_one",
+					"ym2413_set_update_handler=VGMym2413_set_update_handler",
+					"ym2413_read=VGMym2413_read",
+					"ym2413_write=VGMym2413_write",
+					"ym2413_reset_chip=VGMym2413_reset_chip",
+					"ym2612_write=VGMym2612_write",
+					"ym2612_setoptions=VGMym2612_setoptions",
+					"ym2612_set_mutemask=VGMym2612_set_mutemask",
+					"ym2612_timer_over=VGMym2612_timer_over",
+					"ym2612_read=VGMym2612_read",
+					"ym2612_reset_chip=VGMym2612_reset_chip",
+					"ym2612_shutdown=VGMym2612_shutdown",
+					"ym2612_init=VGMym2612_init",
+					"ym2612_update_one=VGMym2612_update_one",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

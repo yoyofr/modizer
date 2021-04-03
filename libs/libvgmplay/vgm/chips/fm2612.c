@@ -2306,7 +2306,7 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
     //search first voice linked to current chip
     int m_voice_ofs=-1;
     int m_total_channels=6;
-    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (m_voice_ChipID[ii]==0) {
             for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
             m_voice_ofs=ii;
