@@ -1,3 +1,4 @@
+
 /***************************************************************************
  * Gens: PWM audio emulator.                                               *
  *                                                                         *
@@ -87,6 +88,7 @@ typedef struct _pwm_chip
 #endif
 	
 	int clock;
+    int muteMask;
 } pwm_chip;
 #if CHILLY_WILLY_SCALE
 // TODO: Fix Chilly Willy's new scaling algorithm.
@@ -131,6 +133,8 @@ void PWM_Init(pwm_chip* chip)
 	//PWM_Loudness = 0;
 	PWM_Set_Cycle(chip, 0);
 	PWM_Set_Int(chip, 0);
+    
+    chip->muteMask=0;
 }
 
 
@@ -311,6 +315,17 @@ INLINE int PWM_Update_Scale(pwm_chip* chip, int PWM_In)
 #endif
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
 
 void PWM_Update(pwm_chip* chip, int **buf, int length)
 {
@@ -320,11 +335,46 @@ void PWM_Update(pwm_chip* chip, int **buf, int length)
 	
 	//if (!PWM_Enable)
 	//	return;
-	
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=2;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=256;//44100*256/info->rate;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    if (chip->muteMask&1) chip->PWM_Out_L=0;
+    if (chip->muteMask&2) chip->PWM_Out_R=0;
+        	
 	if (chip->PWM_Out_L == 0 && chip->PWM_Out_R == 0)
 	{
 		memset(buf[0], 0x00, length * sizeof(int));
 		memset(buf[1], 0x00, length * sizeof(int));
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        for (int j=0;j<length;j++) {
+            if (m_voice_ofs>=0) {
+                m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
+                m_voice_buff[m_voice_ofs+1][m_voice_current_ptr[m_voice_ofs+1]>>8]=0;
+                m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
+                m_voice_current_ptr[m_voice_ofs+1]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                if ((m_voice_current_ptr[m_voice_ofs+1]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
+        
 		return;
 	}
 	
@@ -336,7 +386,27 @@ void PWM_Update(pwm_chip* chip, int **buf, int length)
 	{
 		buf[0][i] = tmpOutL;
 		buf[1][i] = tmpOutR;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((tmpOutL)>>7);
+            m_voice_buff[m_voice_ofs+1][m_voice_current_ptr[m_voice_ofs+1]>>8]=LIMIT8((tmpOutR)>>7);
+            m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
+            m_voice_current_ptr[m_voice_ofs+1]+=smplIncr;
+            if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            if ((m_voice_current_ptr[m_voice_ofs+1]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}
+}
+
+void pwm_set_mute_mask(UINT8 ChipID, UINT32 MuteMask)
+{
+    pwm_chip *chip = &PWM_Chip[ChipID];
+    UINT8 CurChn;
+    
+    chip->muteMask=MuteMask;
+    return;
 }
 
 

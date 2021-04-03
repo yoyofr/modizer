@@ -3887,7 +3887,7 @@ static void Chips_GeneralActions(UINT8 Mode)
 			else if (CAA->ChipType == 0x10)
 				rf5c164_set_mute_mask(CurCSet, ChipOpts[CurCSet].RF5C164.ChnMute1);
 			else if (CAA->ChipType == 0x11)
-				;	// PWM - nothing to mute
+                pwm_set_mute_mask(CurCSet, ChipOpts[CurCSet].PWM.ChnMute1);
 			else if (CAA->ChipType == 0x12 && ! UseFM)
 				ayxx_set_mute_mask(CurCSet, ChipOpts[CurCSet].AY8910.ChnMute1);
 			else if (CAA->ChipType == 0x13)

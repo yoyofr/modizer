@@ -469,6 +469,8 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
             break;
         }
     }
+    int smplIncr=44100*256/psg->rate;
+    if (smplIncr>256) smplIncr=256;
     //TODO:  MODIZER changes end / YOYOFR
 
   for (i = 0; i < samples; i ++)
@@ -482,11 +484,10 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             for (int jj=0;jj<3;jj++) {
-                m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((psg->cout[jj]));
-                m_voice_current_ptr[m_voice_ofs+jj]+=256;
+                m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((psg->cout[jj])<<1);
+                m_voice_current_ptr[m_voice_ofs+jj]+=smplIncr;
                 if ((m_voice_current_ptr[m_voice_ofs+jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
             }
-            
         }
         //TODO:  MODIZER changes end / YOYOFR
     }

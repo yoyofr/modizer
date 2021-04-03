@@ -346,7 +346,7 @@ int SID::clock(unsigned int cycles, short* buf)
     } else if (m_voice_ChipID[2]==(void*)this) {
         sid_idx=2*3;
     }
-    int smplIncr=(96000<<8)/44100;
+    int smplIncr=44100*256/96000;
     if (smplIncr>256) smplIncr=256;
     //TODO:  MODIZER changes end / YOYOFR
 

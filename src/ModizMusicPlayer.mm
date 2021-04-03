@@ -99,11 +99,11 @@ static int mSingleSubMode;
 #define DEFAULT_VGMVGM 0
 #define DEFAULT_VGMGME 1
 
-#define VGMPLAY_MAX_ACTIVE_CHIPS 32
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER;
 static char vgmplay_activeChips[VGMPLAY_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsID[VGMPLAY_MAX_ACTIVE_CHIPS];
+static char *vgmplay_activeChipsName[VGMPLAY_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsNb;
 static char **mdz_ArchiveFilesList;
 //static char **mdz_ArchiveFilesListAlias;
@@ -151,13 +151,21 @@ extern "C" {
 "SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
 "GA20"*/
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
-{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x03, 0x10,
+{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
     0x00, 0x09, 0x09, 0x09, 0x12, 0x00, 0x0C, 0x08,
-    0x08, 0x00, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
-    0x04, 0x05, 0x08, 0x08, 0x18, 0x04, 0x04, 0x10,
+    0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
+    0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
     0x04
 };
+
+char vgmVRC7;
+
+UINT8 vgmGetVoicesNb(UINT8 chipId) {
+    if ((chipId==1)&&(vgmVRC7)) return 6;
+    return vgmCHN_COUNT[chipId];
+}
+
 const UINT8 vgmCHN_MASK_CNT[CHIP_COUNT] =
 {    0x04, 0x0E, 0x07, 0x08, 0x10, 0x08, 0x03, 0x06,
     0x06, 0x0E, 0x0E, 0x0E, 0x17, 0x18, 0x0C, 0x08,
@@ -6678,6 +6686,7 @@ char* loadRom(const char* path, size_t romSize)
     numChannels=0;
     voicesDataAvail=0;
     vgmplay_activeChipsNb=0;
+    vgmVRC7=0;
     memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
     
     UINT8 CurChip;
@@ -6688,15 +6697,17 @@ char* loadRom(const char* path, size_t romSize)
     for (CurChip = 0x00; CurChip < CHIP_COUNT; CurChip ++)
     {
         ChpClk = GetChipClock(&VGMHead, CurChip, &ChpType);
-        if (ChpClk && GetChipClock(&VGMHead, 0x80 | CurChip, NULL))
-            ChpClk |= 0x40000000;
+        if (ChpClk && GetChipClock(&VGMHead, 0x80 | CurChip, NULL)) ChpClk |= 0x40000000;
         if (ChpClk) {
             int chipNumber=vgmGetChipsDetails(strChip,CurChip, ChpType, ChpClk);
+            
+            if ((CurChip==1)&&(ChpClk&0x80000000)) vgmVRC7=1;
             
             for (int i=0;i<chipNumber;i++) {
                 vgmplay_activeChips[vgmplay_activeChipsNb]=CurChip;
                 vgmplay_activeChipsID[vgmplay_activeChipsNb]=i;
-                numChannels+=vgmCHN_COUNT[CurChip];
+                vgmplay_activeChipsName[vgmplay_activeChipsNb]=strdup(strChip);
+                numChannels+=vgmGetVoicesNb(CurChip);
                 vgmplay_activeChipsNb++;
             }
                                     
@@ -6715,15 +6726,29 @@ char* loadRom(const char* path, size_t romSize)
             strcpy(strChip,GetChipName(CurChip));
             if (strcmp(strChip,"SN76496")==0) {
                 voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM2413")==0) {
+                voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2612")==0) {
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2151")==0) {
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"SegaPCM")==0) {
                 voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM2203")==0) {
+                voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2608")==0) {
                 voicesDataAvail=1;
+            } else if (strcmp(strChip,"PWM")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"AY8910")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"NES APU")==0) {
+                voicesDataAvail=1;
             } else if (strcmp(strChip,"OKIM6295")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"K051649")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"HuC6280")==0) {
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"C140")==0) {
                 voicesDataAvail=1;
@@ -8355,6 +8380,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         StopVGM();
         CloseVGMFile();
         VGMPlay_Deinit();
+        for (int i=0;i<vgmplay_activeChipsNb;i++) {
+            if (vgmplay_activeChipsName[i]) free(vgmplay_activeChipsName[i]);
+            vgmplay_activeChipsName[i]=NULL;
+        }
     }
     if (mPlayType==MMP_2SF) { //2SF
         delete xSFPlayer;
@@ -8975,10 +9004,10 @@ extern "C" void adjust_amplification(void);
         case MMP_VGMPLAY:{
             int idx=0;
             for (int i=0;i<vgmplay_activeChipsNb;i++) {
-                if ((channel>=idx)&&(channel<idx+vgmCHN_COUNT[vgmplay_activeChips[i]])) {
+                if ((channel>=idx)&&(channel<idx+vgmGetVoicesNb(vgmplay_activeChips[i]))) {
                     return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx,GetChipName(vgmplay_activeChips[i]),vgmplay_activeChipsID[i]];
                 }
-                idx+=vgmCHN_COUNT[vgmplay_activeChips[i]];
+                idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
             }
             return @"";
         }
@@ -8987,6 +9016,126 @@ extern "C" void adjust_amplification(void);
             break;
     }
 }
+
+-(int) getSystemsNb {
+    switch (mPlayType) {
+        case MMP_GME:
+            return 1;
+        case MMP_VGMPLAY:
+            return vgmplay_activeChipsNb;
+        case MMP_SIDPLAY:
+            return numChannels/3; //number of sidchip active: voices/3, (3ch each)
+        default:
+            return 0;
+    }
+}
+
+-(NSString*) getSystemsName:(int)systemIdx {
+    switch (mPlayType) {
+        case MMP_GME:
+            if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
+                return @"SPC700";
+            }
+            return @"";
+        case MMP_VGMPLAY:
+            return [NSString stringWithFormat:@"%s#%d",vgmplay_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx]];
+        case MMP_SIDPLAY:
+            return [NSString stringWithFormat:@"sid#%d",numChannels/3]; //number of sidchip active: voices/3, (3ch each)
+        default:
+            return 0;
+    }
+}
+
+-(int) getSystemForVoice:(int)voiceIdx {
+    switch (mPlayType) {
+        case MMP_GME:
+            return 0;
+        case MMP_VGMPLAY: {
+            int idx=0;
+            for (int i=0;i<vgmplay_activeChipsNb;i++) {
+                if (voiceIdx<idx+vgmGetVoicesNb(vgmplay_activeChips[i])) return i;
+                idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
+            }
+            return 0;
+        }
+        case MMP_SIDPLAY:
+            return voiceIdx/3;
+        default:
+            return 0;
+    }
+}
+
+-(int) getSystemVoicesStatus:(int)systemIdx {
+    int tmp;
+    switch (mPlayType) {
+        case MMP_GME:
+            if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
+                tmp=0;
+                for (int i=0;i<numChannels;i++) {
+                    tmp+=(voicesStatus[i]?1:0);
+                }
+                if (tmp==numChannels) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+                return 0; //all off
+            }
+            return 0;
+        case MMP_VGMPLAY: {
+            int idx=0;
+            //1st reach 1st voice of systemIdx
+            for (int i=0;i<systemIdx;i++) {
+                idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
+            }
+            //2nd check active voices/total
+            tmp=0;
+            for (int i=0;i<vgmGetVoicesNb(vgmplay_activeChips[systemIdx]);i++) {
+                tmp+=(voicesStatus[idx+i]?1:0);
+            }
+            if (tmp==vgmGetVoicesNb(vgmplay_activeChips[systemIdx])) return 2; //all active
+            else if (tmp>0) return 1; //partially active
+            return 0; //all off
+        }
+        case MMP_SIDPLAY:
+            tmp=0;
+            for (int i=systemIdx*3;i<systemIdx*3+3;i++) {
+                tmp+=(voicesStatus[i]?1:0);
+            }
+            if (tmp==3) return 2; //all active
+            else if (tmp>0) return 1; //partially active
+            return 0; //all off
+        default:
+            return 0;
+    }
+}
+
+-(void) setSystemVoicesStatus:(int)systemIdx active:(bool)active {
+    switch (mPlayType) {
+        case MMP_GME:
+            for (int i=0;i<numChannels;i++) {
+                [self setVoicesStatus:active index:i];
+            }
+            break;
+        case MMP_VGMPLAY: {
+            int idx=0;
+            //1st reach 1st voice of systemIdx
+            for (int i=0;i<systemIdx;i++) {
+                idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
+            }
+            //2nd update voice status
+            for (int i=0;i<vgmGetVoicesNb(vgmplay_activeChips[systemIdx]);i++) {
+                [self setVoicesStatus:active index:i+idx];
+            }
+            break;
+        }
+        case MMP_SIDPLAY:
+            for (int i=systemIdx*3;i<systemIdx*3+3;i++) {
+                [self setVoicesStatus:active index:i];
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 
 -(bool) getVoicesStatus:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return false;
@@ -9024,12 +9173,16 @@ extern "C" void adjust_amplification(void);
             int idx=0;
             int mask=0;
             for (int i=0;i<vgmplay_activeChipsNb;i++) {
-                if ((channel>=idx)&&(channel<idx+vgmCHN_COUNT[vgmplay_activeChips[i]])) {
+                if ((channel>=idx)&&(channel<idx+vgmGetVoicesNb(vgmplay_activeChips[i]))) {
                     //
                     switch (vgmplay_activeChips[i]) {
                         case 0: //SN76496: 4voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SN76496.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 1: //VRC7 or YM2413
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2413.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].YM2413.ChnMute1|=1<<(channel-idx);
                             break;
                         case 2: //YM2612:  6voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
@@ -9048,6 +9201,19 @@ extern "C" void adjust_amplification(void);
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].SegaPCM.ChnMute1|=1<<(channel-idx);
                             break;
+                        case 6: {//YM2203
+                            // chnmute1 3bits -> fff f:fm 3ch
+                            // chnmute3, 3bits -> yyy y:ay 3ch
+                            int voice=channel-idx;
+                            if (voice<3) {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1&=0xFFFFFFFF^(1<<voice);
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1|=(1<<voice);
+                            } else {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3&=0xFFFFFFFF^(1<<(voice-3));
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3|=(1<<(voice-3));
+                            }
+                            break;
+                        }
                         case 7:{ //YM2608: 16voices:
                                  // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
                                  // chnmute3, 3bits -> yyy y:ay 3ch
@@ -9064,19 +9230,41 @@ extern "C" void adjust_amplification(void);
                             }                            
                             break;
                         }
-                        case 24: //OKIM6295: 4voices
+                        case 0x11: //PWM
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].PWM.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 0x12: //AY8910
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].AY8910.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 0x14: //NES APU: 5voices
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 0x18: //OKIM6295: 4voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1|=1<<(channel-idx);
-                        case 28: //C140: 24voices
+                            break;
+                        case 0x19: //K051649: 5voices
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].K051649.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 0x1B: //HuC6280
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].HuC6280.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 0x1C: //C140: 24voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].C140.ChnMute1|=1<<(channel-idx);
+                            break;
                         default:
                             break;
                     }
                     break;
                     //return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx,GetChipName(vgmplay_activeChips[i]),i];
                 }
-                idx+=vgmCHN_COUNT[vgmplay_activeChips[i]];
+                idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
             }
             RefreshMuting();
             break;

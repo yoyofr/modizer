@@ -343,6 +343,8 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
             break;
         }
     }
+    int smplIncr=44100*256/16000;
+    if (smplIncr>256) smplIncr=256;
     //TODO:  MODIZER changes end / YOYOFR
     
 	
@@ -448,7 +450,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                     //TODO:  MODIZER changes start / YOYOFR
                     if (m_voice_ofs>=0) {
                         m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
-                        m_voice_current_ptr[m_voice_ofs+i]+=256;
+                        m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
                         if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                     }
                     //TODO:  MODIZER changes end / YOYOFR
@@ -464,7 +466,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                     //TODO:  MODIZER changes start / YOYOFR
                     if (m_voice_ofs>=0) {
                         m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((R->Volume[i] * ggst[0]>>5));
-                        m_voice_current_ptr[m_voice_ofs+i]+=256;
+                        m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
                         if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                     }
                     //TODO:  MODIZER changes end / YOYOFR
@@ -504,7 +506,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                         //TODO:  MODIZER changes start / YOYOFR
                         if (m_voice_ofs>=0) {
                             m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
-                            m_voice_current_ptr[m_voice_ofs+i]+=256;
+                            m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
                             if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                         }
                         //TODO:  MODIZER changes end / YOYOFR
@@ -518,7 +520,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                         //TODO:  MODIZER changes start / YOYOFR
                         if (m_voice_ofs>=0) {
                             m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
-                            m_voice_current_ptr[m_voice_ofs+i]+=256;
+                            m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
                             if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                         }
                         //TODO:  MODIZER changes end / YOYOFR
@@ -556,7 +558,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                 //TODO:  MODIZER changes start / YOYOFR
                 if (m_voice_ofs>=0) {
                     m_voice_buff[m_voice_ofs+3][m_voice_current_ptr[m_voice_ofs+3]>>8]=LIMIT8((vol[3] * R2->Volume[3] * ggst[0]>>5));
-                    m_voice_current_ptr[m_voice_ofs+3]+=256;
+                    m_voice_current_ptr[m_voice_ofs+3]+=smplIncr;
                     if ((m_voice_current_ptr[m_voice_ofs+3]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+3]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
                 }
                 //TODO:  MODIZER changes end / YOYOFR

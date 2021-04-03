@@ -702,6 +702,18 @@ typedef struct
 	else if ( val < min ) val = min; \
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 
 /* status set and IRQ handling */
 INLINE void FM_STATUS_SET(FM_ST *ST,int flag)
@@ -2119,6 +2131,8 @@ typedef struct
 	FM_CH CH[3];			/* channel state     */
 } YM2203;
 
+
+
 /* Generate samples for one of the YM2203s */
 void ym2203_update_one(void *chip, FMSAMPLE **buffer, int length)
 {
@@ -2132,6 +2146,27 @@ void ym2203_update_one(void *chip, FMSAMPLE **buffer, int length)
 	cch[0]   = &F2203->CH[0];
 	cch[1]   = &F2203->CH[1];
 	cch[2]   = &F2203->CH[2];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=3;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncr=44100*256/OPN->ST.rate;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
+
+    
 
 
 	/* refresh PG and EG */
@@ -2180,6 +2215,16 @@ void ym2203_update_one(void *chip, FMSAMPLE **buffer, int length)
 		chan_calc(OPN, cch[0], 0 );
 		chan_calc(OPN, cch[1], 1 );
 		chan_calc(OPN, cch[2], 2 );
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<3;jj++) {
+                m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((OPN->out_fm[jj]>>6));
+                m_voice_current_ptr[m_voice_ofs+jj]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		/* buffering */
 		{
@@ -3321,16 +3366,6 @@ INLINE void YM2608IRQMaskWrite(FM_OPN *OPN, YM2608 *F2608, int v)
 	FM_IRQMASK_SET(&OPN->ST, (F2608->irqmask & F2608->flagmask) );
 }
 
-//TODO:  MODIZER changes start / YOYOFR
-#define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 32
-
-extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
-extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
-extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
-
-#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
-//TODO:  MODIZER changes end / YOYOFR
 
 
 /* Generate samples for one of the YM2608s */

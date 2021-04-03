@@ -359,6 +359,12 @@ enum MMP_PLAYER_TYPE {
 
 -(NSString*) getFullFilePath:(NSString *)_filePath;
 
+-(int) getSystemsNb;
+-(NSString*) getSystemsName:(int)systemIdx;
+
+-(int) getSystemForVoice:(int)voiceIdx;
+-(void) setSystemVoicesStatus:(int)systemIdx active:(bool)active;
+-(int) getSystemVoicesStatus:(int)systemIdx;
 -(bool) isVoicesMutingSupported;
 -(NSString*) getVoicesName:(unsigned int)channel;
 -(bool) getVoicesStatus:(unsigned int)channel;

@@ -59,3 +59,5 @@ void device_stop_pwm(UINT8 ChipID);
 void device_reset_pwm(UINT8 ChipID);
 
 void pwm_chn_w(UINT8 ChipID, UINT8 Channel, UINT16 data);
+
+void pwm_set_mute_mask(UINT8 ChipID, UINT32 MuteMask);

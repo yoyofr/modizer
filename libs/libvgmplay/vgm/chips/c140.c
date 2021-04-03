@@ -348,7 +348,7 @@ void c140_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             break;
         }
     }
-    int smplIncr=info->sample_rate*256/44100;
+    int smplIncr=44100*256/info->sample_rate;
     if (smplIncr>256) smplIncr=256;
     //printf("c140 smpl rate: %d\n",info->sample_rate);
     

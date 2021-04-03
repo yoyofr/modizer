@@ -1050,9 +1050,41 @@ INLINE static void mix_output(OPLL *opll) {
   }
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+extern char vgmVRC7;
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 INLINE static void mix_output_stereo(OPLL *opll) {
   int16_t *out = opll->mix_out;
   int i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=(vgmVRC7?6:9);
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=opll;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==opll) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*256/opll->rate;
+    if (smplIncr>256) smplIncr=256;
+    //printf("okim clock: %d\n",smplFreq);
+    //TODO:  MODIZER changes end / YOYOFR
+    
   out[0] = out[1] = 0;
   for (i = 0; i < 14; i++) {
     /* Maxim/Valley Bell: added stereo control (multiply each side by a float in opll->pan[ch][side]) */
@@ -1060,6 +1092,19 @@ INLINE static void mix_output_stereo(OPLL *opll) {
       out[0] += (int16_t)(opll->ch_out[i] * opll->pan_fine[i][0]);
     if (opll->pan[i] & 1)
       out[1] += (int16_t)(opll->ch_out[i] * opll->pan_fine[i][1]);
+      
+      //TODO:  MODIZER changes start / YOYOFR
+      if ((m_voice_ofs>=0)&&(i<m_total_channels)) {
+        if (i<6) m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>4));
+        else if (i<9) {
+          if (opll->rhythm_mode) {
+            
+          } else m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>4));
+        }
+        m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
+        if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;              
+      }
+      //TODO:  MODIZER changes end / YOYOFR
   }
   if (opll->conv) {
     OPLL_RateConv_putData(opll->conv, 0, out[0]);

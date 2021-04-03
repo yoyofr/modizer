@@ -108,7 +108,7 @@ void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         }
     }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
-    int smplIncr=31025*256/44100;
+    int smplIncr=44100*256/31025;
     if (smplIncr>256) smplIncr=256;
     
     if (m_voice_ofs>=0) {

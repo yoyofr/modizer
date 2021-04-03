@@ -244,6 +244,19 @@ static void Tick(NES_APU* apu, UINT32 clocks)
 	apu->out[1] = calc_sqr(apu, 1, clocks);
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include <stdio.h>
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 // 生成される波形の振幅は0-8191
 UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
 {
@@ -256,6 +269,25 @@ UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
 
 	apu->out[0] = (apu->mask & 1) ? 0 : apu->out[0];
 	apu->out[1] = (apu->mask & 2) ? 0 : apu->out[1];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=2;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*256/(apu->rate);
+    if (smplIncr>256) smplIncr=256;
+    //printf("rate: %d\n",dmc->rate);
+    //TODO:  MODIZER changes end / YOYOFR
 
 	if(apu->option[OPT_NONLINEAR_MIXER])
 	{
@@ -291,6 +323,17 @@ UINT32 NES_APU_np_Render(void* chip, INT32 b[2])
 	b[1]  = m[0] * apu->sm[1][0];
 	b[1] += m[1] * apu->sm[1][1];
 	b[1] >>= 7-2;	// see above
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    if (m_voice_ofs>=0) {
+        for (int i=0;i<2;i++) {
+            m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8(((m[i] * (apu->sm[0][i]+apu->sm[1][i]))>>12));
+            m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
+            if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        }
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+
 
 	return 2;
 }

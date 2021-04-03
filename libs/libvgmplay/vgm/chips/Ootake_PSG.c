@@ -541,6 +541,18 @@ set_VOL(huc6280_state* info)
 	}*/
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /*-----------------------------------------------------------------------------
 	[Mix]
 		ＰＳＧの出力をミックスします。
@@ -566,6 +578,25 @@ PSG_Mix(
 
 //	if (!_bPsgInit)
 //		return;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*256/info->SAMPLE_RATE;
+    int smplOut;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	for (j=0; j<nSample; j++)
 	{
@@ -574,6 +605,9 @@ PSG_Mix(
 		for (i=0; i<N_CHANNEL; i++)
 		{
 			PSGChn = &info->Psg[i];
+            //TODO:  MODIZER changes start / YOYOFR
+            smplOut = 0;
+            //TODO:  MODIZER changes end / YOYOFR
 			
 			if ((PSGChn->bOn)&&((i != 1)||(info->LfoCtrl == 0))&&(!info->bPsgMute[i])) //Kitao更新
 			{
@@ -583,6 +617,10 @@ PSG_Mix(
 					sampleAllL += smp + (smp >> 3) + (smp >> 4) + (smp >> 5) + (smp >> 7) + (smp >> 12) + (smp >> 14) + (smp >> 15); //Kitao更新。サンプリング音の音量を実機並みに調整。v2.39,v2.40,v2.62,v2.65再調整した。
 					smp = PSGChn->ddaSample * PSGChn->outVolumeR;
 					sampleAllR += smp + (smp >> 3) + (smp >> 4) + (smp >> 5) + (smp >> 7) + (smp >> 12) + (smp >> 14) + (smp >> 15); //Kitao更新。サンプリング音の音量を実機並みに調整。v2.39,v2.40,v2.62,v2.65再調整した。
+                    //TODO:  MODIZER changes start / YOYOFR
+                    smp = PSGChn->ddaSample * (PSGChn->outVolumeL+PSGChn->outVolumeR)/2;
+                    smplOut+=smp + (smp >> 3) + (smp >> 4) + (smp >> 5) + (smp >> 7) + (smp >> 12) + (smp >> 14) + (smp >> 15); //Kitao更新。サンプリング音の音量を実機並みに調整。v2.39,v2.40,v2.62,v2.65再調整した。
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 				else if (PSGChn->bNoiseOn)
 				{
@@ -594,6 +632,10 @@ PSG_Mix(
 						sampleAllL += (smp >> 1) + (smp >> 12) + (smp >> 14); //(1/2 + 1/4096 + (1/32768 + 1/32768))
 						smp = sample * PSGChn->outVolumeR;
 						sampleAllR += (smp >> 1) + (smp >> 12) + (smp >> 14);
+                        //TODO:  MODIZER changes start / YOYOFR
+                        smp = sample * (PSGChn->outVolumeL+PSGChn->outVolumeR)/2;
+                        smplOut+=(smp >> 1) + (smp >> 12) + (smp >> 14);
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 					else //通常
 					{
@@ -601,6 +643,10 @@ PSG_Mix(
 						sampleAllL += smp + (smp >> 11) + (smp >> 14) + (smp >> 15); //Kitao更新。ノイズの音量を実機並みに調整(1 + 1/2048 + 1/16384 + 1/32768)。この"+1/32768"で絶妙(主観。大魔界村,ソルジャーブレイドなど)になる。v2.62更新
 						smp = sample * PSGChn->outVolumeR;
 						sampleAllR += smp + (smp >> 11) + (smp >> 14) + (smp >> 15); //Kitao更新。ノイズの音量を実機並みに調整
+                        //TODO:  MODIZER changes start / YOYOFR
+                        smp = sample * (PSGChn->outVolumeL+PSGChn->outVolumeR)/2;
+                        smplOut+=smp + (smp >> 11) + (smp >> 14) + (smp >> 15); //Kitao更新。ノイズの音量を実機並みに調整
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 					
 					PSGChn->phase += PSGChn->deltaNoisePhase; //Kitao更新
@@ -614,6 +660,9 @@ PSG_Mix(
 
 					sampleAllL += sample * PSGChn->outVolumeL; //Kitao更新
 					sampleAllR += sample * PSGChn->outVolumeR; //Kitao更新
+                    //TODO:  MODIZER changes start / YOYOFR
+                    smplOut+=sample * (PSGChn->outVolumeL+PSGChn->outVolumeR)/2;
+                    //TODO:  MODIZER changes end / YOYOFR
 					
 					//Kitao更新。Lfoオンが有効になるようにし、Lfoの掛かり具合を実機に近づけた。v1.59
 					if ((i==0)&&(info->LfoCtrl>0))
@@ -640,6 +689,16 @@ PSG_Mix(
 				++info->DdaFadeOutR[i];
 			sampleAllL += info->DdaFadeOutL[i];
 			sampleAllR += info->DdaFadeOutR[i];
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            smplOut+=(info->DdaFadeOutL[i]+info->DdaFadeOutR[i])/2;
+            
+            if (m_voice_ofs>=0) {
+                m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((((Sint32)((double)smplOut * info->VOL))>>5));
+                m_voice_current_ptr[m_voice_ofs+i]+=256;
+                if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 		//Kitao更新。6ch合わさったところで、ボリューム調整してバッファに書き込む。
 		sampleAllL = (Sint32)((double)sampleAllL * info->VOL);

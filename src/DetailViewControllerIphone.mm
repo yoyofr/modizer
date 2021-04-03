@@ -1508,6 +1508,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 
 - (IBAction)playPrevSub {
+    if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
+        [self play_curEntry];
+        return;
+    }
     //if archive and no subsongs => change archive index
     if ([mplayer isArchive]&&(mplayer.mod_subsongs==1)) {
         [mplayer selectPrevArcEntry];

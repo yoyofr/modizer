@@ -15,11 +15,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface VoicesViewController : UIViewController {
     BButton *voices[SOUND_MAXMOD_CHANNELS];
-    UILabel *voicesLbl[SOUND_MAXMOD_CHANNELS];
     BButton *voicesSolo[SOUND_MAXMOD_CHANNELS];
+    BButton *voicesChip[VGMPLAY_MAX_ACTIVE_CHIPS];    
+    UIColor *voicesChipCol[VGMPLAY_MAX_ACTIVE_CHIPS];
     BButton *voicesAllOn;
     BButton *voicesAllOff;
-    UILabel *voicesAllLbl;
+    UIView *sep1,*sep2;
+    int systemsNb;
     
     NSString *currentPlayingFile;
     
