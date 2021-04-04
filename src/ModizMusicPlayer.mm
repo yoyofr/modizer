@@ -6637,6 +6637,9 @@ char* loadRom(const char* path, size_t romSize)
     // load configuration file here
     ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
+    
+    //ChipOpts[0].YM3812.EmuCore=optVGMPLAY_ym2612emulator;
+    //ChipOpts[1].YM3812.EmuCore=optVGMPLAY_ym2612emulator;
         
     VGMMaxLoop=optVGMPLAY_maxloop;
     if (mLoopMode==1) VGMMaxLoop=-1;

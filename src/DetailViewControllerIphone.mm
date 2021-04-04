@@ -745,7 +745,7 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMPLAY)) {
         [mplayer optVGMPLAY_MaxLoop:(unsigned int)settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value];
-        [mplayer optVGMPLAY_YM2612emulator:(unsigned char)settings[VGMPLAY_YM2612Emulator].detail.mdz_slider.slider_value];
+        [mplayer optVGMPLAY_YM2612emulator:(unsigned char)settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value];
         [mplayer optVGMPLAY_PreferedJTag:(bool)settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value];
     }
     
@@ -1520,7 +1520,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)playPrevSub {
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
-        [self play_curEntry];
+        if ([mplayer isArchive]&&(mplayer.mod_subsongs==1)) {
+            [mplayer selectArcEntry:[mplayer getArcIndex]];
+            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self shortWait];
+            [self play_loadArchiveModule];
+            [self hideWaiting];
+        } else {
+            [mplayer playGoToSub:mplayer.mod_currentsub];
+            if (mPaused) [self playPushed:nil];
+        }
         return;
     }
     //if archive and no subsongs => change archive index

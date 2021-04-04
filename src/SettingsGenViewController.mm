@@ -436,7 +436,7 @@ void optGSFChangedC(id param) {
     //VGMPLAY
     /////////////////////////////////////
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
-    settings[VGMPLAY_YM2612Emulator].detail.mdz_slider.slider_value=0;
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
