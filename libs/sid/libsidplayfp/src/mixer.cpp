@@ -116,7 +116,12 @@ void Mixer::doMix()
         const unsigned int channels = m_stereo ? 2 : 1;
         for (unsigned int ch = 0; ch < channels; ch++)
         {
-            const int_least32_t tmp = ((this->*(m_mix[ch]))() * m_volume[ch] + dither) / VOLUME_MAX;
+            //TODO:  MODIZER changes start / YOYOFR
+            /*const */int_least32_t tmp = ((this->*(m_mix[ch]))() * m_volume[ch] + dither) / VOLUME_MAX;
+            //soft clipping
+            if (tmp>32767) tmp=32767;
+            else if (tmp<-32768) tmp=-32768;
+            //TODO:  MODIZER changes end / YOYOFR
             assert(tmp >= -32768 && tmp <= 32767);
             *buf++ = static_cast<short>(tmp);
             m_sampleIndex++;

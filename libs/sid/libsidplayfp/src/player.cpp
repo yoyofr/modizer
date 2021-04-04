@@ -337,7 +337,7 @@ bool Player::config(const SidConfig &cfg, bool force)
     m_info.m_channels = isStereo ? 2 : 1;
 
     m_mixer.setStereo(isStereo);
-    m_mixer.setVolume(cfg.leftVolume, cfg.rightVolume);
+    m_mixer.setVolume(cfg.leftVolume, cfg.rightVolume);        
 
     // Update Configuration
     m_cfg = cfg;

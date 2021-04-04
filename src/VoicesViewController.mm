@@ -104,7 +104,8 @@
                 [voicesChip[i] addAwesomeIcon:FAIconVolumeUp beforeTitle:true];
                 break;
             case 1: //partially active
-                [voicesChip[i] setType:BButtonTypeGray];
+                //[voicesChip[i] setType:BButtonTypeGray];
+                [voicesChip[i] setColor:voicesChipColHalf[i]];
                 [voicesChip[i] addAwesomeIcon:FAIconVolumeDown beforeTitle:true];
                 break;
             case 0:
@@ -331,7 +332,8 @@
                 voicesChip[i]=[[BButton alloc] initWithFrame:CGRectMake(0,0,32,32) type:BButtonTypePrimary style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];
                 [voicesChip[i] setTitle:[detailViewController.mplayer getSystemsName:i] forState:UIControlStateNormal];
                                 
-                voicesChipCol[i]=[UIColor colorWithHue:0.65f+i*0.35f/(float)systemsNb saturation:1.0f brightness:0.4f alpha:1.0f];
+                voicesChipCol[i]=[UIColor colorWithHue:0.6f+i*0.4f/(float)systemsNb saturation:0.8f brightness:0.75f alpha:1.0f];
+                voicesChipColHalf[i]=[UIColor colorWithHue:0.6f+i*0.4f/(float)systemsNb saturation:0.7f brightness:0.4f alpha:1.0f];
                 switch ([detailViewController.mplayer getSystemVoicesStatus:i]) {
                     case 2: //all active
                         //[voicesChip[i] setType:BButtonTypePrimary];

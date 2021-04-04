@@ -152,7 +152,7 @@ void optGSFChangedC(id param) {
             str=[NSString stringWithFormat:@"%s",settings[i].label];
             int j=settings[i].family;
             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
-                str=[NSString stringWithFormat:@"%@/%s",str,settings[j].label];
+                str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
                 j=settings[j].family;
             }
             
@@ -206,7 +206,7 @@ void optGSFChangedC(id param) {
             str=[NSString stringWithFormat:@"%s",settings[i].label];
             int j=settings[i].family;
             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
-                str=[NSString stringWithFormat:@"%@/%s",str,settings[j].label];
+                str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
                 j=settings[j].family;
             }
             
@@ -403,6 +403,16 @@ void optGSFChangedC(id param) {
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_value=0;
+    settings[SID_SecondSIDOn].detail.mdz_switch.switch_value=0;
+    settings[SID_ThirdSIDOn].detail.mdz_switch.switch_value=0;
+    
+    //0xD420-0xD7FF  or  0xDE00-0xDFFF
+    if (settings[SID_SecondSIDAddress].detail.mdz_msgbox.text) free(settings[SID_SecondSIDAddress].detail.mdz_msgbox.text);
+    settings[SID_SecondSIDAddress].detail.mdz_msgbox.text=(char*)malloc(strlen("0xd420")+1);
+    strcpy(settings[SID_SecondSIDAddress].detail.mdz_msgbox.text,"0xd420");
+    if (settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text) free(settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text);
+    settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text=(char*)malloc(strlen("0xd440")+1);
+    strcpy(settings[SID_ThirdSIDAddress].detail.mdz_msgbox.text,"0xd440");
     
     /////////////////////////////////////
     //UADE
@@ -739,7 +749,7 @@ void optGSFChangedC(id param) {
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
     
-    settings[ONLINE_MODLAND_URL_CUSTOM].label=(char*)"Custom URL";
+    settings[ONLINE_MODLAND_URL_CUSTOM].label=(char*)"MODLAND cust.URL";
     settings[ONLINE_MODLAND_URL_CUSTOM].description=NULL;
     settings[ONLINE_MODLAND_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_MODLAND_URL_CUSTOM].callback=&optONLINESwitchChanged;
@@ -761,7 +771,7 @@ void optGSFChangedC(id param) {
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
     
-    settings[ONLINE_HVSC_URL_CUSTOM].label=(char*)"Custom URL";
+    settings[ONLINE_HVSC_URL_CUSTOM].label=(char*)"HVSC cust.URL";
     settings[ONLINE_HVSC_URL_CUSTOM].description=NULL;
     settings[ONLINE_HVSC_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_HVSC_URL_CUSTOM].sub_family=0;
@@ -782,7 +792,7 @@ void optGSFChangedC(id param) {
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
     
-    settings[ONLINE_ASMA_URL_CUSTOM].label=(char*)"Custom URL";
+    settings[ONLINE_ASMA_URL_CUSTOM].label=(char*)"ASMA cust.URL";
     settings[ONLINE_ASMA_URL_CUSTOM].description=NULL;
     settings[ONLINE_ASMA_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
     settings[ONLINE_ASMA_URL_CUSTOM].sub_family=0;
@@ -1519,7 +1529,41 @@ void optGSFChangedC(id param) {
     settings[SID_ForceLoop].callback=&optSIDChangedC;
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     
+    settings[SID_SecondSIDOn].type=MDZ_BOOLSWITCH;
+    settings[SID_SecondSIDOn].label=(char*)"Force 2nd SID";
+    settings[SID_SecondSIDOn].description=NULL;
+    settings[SID_SecondSIDOn].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_SecondSIDOn].sub_family=0;
+    settings[SID_SecondSIDOn].callback=&optSIDChangedC;
+    settings[SID_SecondSIDOn].detail.mdz_boolswitch.switch_value=0;
     
+    settings[SID_ThirdSIDOn].type=MDZ_BOOLSWITCH;
+    settings[SID_ThirdSIDOn].label=(char*)"Force 3rd SID";
+    settings[SID_ThirdSIDOn].description=NULL;
+    settings[SID_ThirdSIDOn].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_ThirdSIDOn].sub_family=0;
+    settings[SID_ThirdSIDOn].callback=&optSIDChangedC;
+    settings[SID_ThirdSIDOn].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[SID_SecondSIDAddress].label=(char*)"Address 2nd";
+    settings[SID_SecondSIDAddress].description="0xD420-0xD7FF or 0xDE00-0xDFFF";
+    settings[SID_SecondSIDAddress].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_SecondSIDAddress].sub_family=0;
+    settings[SID_SecondSIDAddress].type=MDZ_TEXTBOX;
+    settings[SID_SecondSIDAddress].detail.mdz_textbox.text=(char*)malloc(strlen("0xD420")+1);
+    settings[SID_SecondSIDAddress].detail.mdz_textbox.max_width_char=6;
+    strcpy(settings[SID_SecondSIDAddress].detail.mdz_textbox.text,"0xD420");
+    
+    settings[SID_ThirdSIDAddress].label=(char*)"Address 3rd";
+    settings[SID_ThirdSIDAddress].description="0xD420-0xD7FF or 0xDE00-0xDFFF";
+    settings[SID_ThirdSIDAddress].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_ThirdSIDAddress].sub_family=0;
+    settings[SID_ThirdSIDAddress].type=MDZ_TEXTBOX;
+    settings[SID_ThirdSIDAddress].detail.mdz_textbox.text=(char*)malloc(strlen("0xD440")+1);
+    settings[SID_ThirdSIDAddress].detail.mdz_textbox.max_width_char=6;
+    strcpy(settings[SID_ThirdSIDAddress].detail.mdz_textbox.text,"0xD440");
+    
+        
     settings[SID_CLOCK].type=MDZ_SWITCH;
     settings[SID_CLOCK].label=(char*)"CLOCK";
     settings[SID_CLOCK].description=NULL;
@@ -1731,7 +1775,7 @@ void optGSFChangedC(id param) {
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
-    NSString *footer=(settings[cur_settings_idx[section]].description?[NSString stringWithFormat:@"%s",settings[cur_settings_idx[section]].description]:nil);
+    NSString *footer=nil;
     return footer;
 }
 
@@ -1803,19 +1847,29 @@ void optGSFChangedC(id param) {
     
     if (settings[cur_settings_idx[textField.tag]].callback) {
         settings[cur_settings_idx[textField.tag]].callback(self);
-        [self.tableView reloadData];
+        //[self.tableView reloadData];
     }
+    [self.tableView reloadData];
     return YES;
 }
 
-
+- (void)textFieldTextChanged:(UITextField *)textField {
+    if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.max_width_char) {
+        if (textField.text.length<=settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.max_width_char) return;
+        
+        NSInteger adaptedLength = settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.max_width_char;
+        NSRange range = NSMakeRange(0, adaptedLength);
+        textField.text = [textField.text substringWithRange:range];
+    }
+}
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
-    UILabel *topLabel;
+    const NSInteger BOTTOM_LABEL_TAG = 1002;
+    UILabel *topLabel,*bottomLabel;
     UITextField *msgLabel;
     
     UISwitch *switchview;
@@ -1856,22 +1910,54 @@ void optGSFChangedC(id param) {
         topLabel.opaque=TRUE;
         topLabel.numberOfLines=0;
         
+        bottomLabel = [[UILabel alloc] init];
+        [cell.contentView addSubview:bottomLabel];
+        //
+        // Configure the properties for the text that are the same on every row
+        //
+        bottomLabel.tag = BOTTOM_LABEL_TAG;
+        bottomLabel.backgroundColor = [UIColor clearColor];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.font = [UIFont systemFontOfSize:12];
+        bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
+        bottomLabel.opaque=TRUE;
+        
+        
         cell.accessoryView=nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
     }
     topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
     topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     
-    topLabel.frame= CGRectMake(4,
-                               0,
-                               tabView.bounds.size.width*4/10,
-                               50);
-    
-    
-    
-    topLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
+    if (settings[cur_settings_idx[indexPath.section]].description) {
+        topLabel.frame= CGRectMake(4,
+                                   0,
+                                   tabView.bounds.size.width/**4/10*/,
+                                   50);
+        bottomLabel.frame= CGRectMake(4,
+                                   38,
+                                   tabView.bounds.size.width/**4/10*/,
+                                   12);
+        
+        topLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
+        bottomLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].description]),@"");
+    } else {
+        topLabel.frame= CGRectMake(4,
+                                   0,
+                                   tabView.bounds.size.width*4/10,
+                                   50);
+        bottomLabel.frame= CGRectMake(4,
+                                   0,
+                                   tabView.bounds.size.width*4/10,
+                                   0);
+        
+        topLabel.text=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
+        bottomLabel.text=@"";
+    }
     
     switch (settings[cur_settings_idx[indexPath.section]].type) {
         case MDZ_FAMILY:
@@ -1943,7 +2029,7 @@ void optGSFChangedC(id param) {
             cell.accessoryView = sliderview;
             //[sliderview release];
             break;
-        case MDZ_TEXTBOX:
+        case MDZ_TEXTBOX: {
             txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             txtfield.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             txtfield.borderStyle = UITextBorderStyleRoundedRect;
@@ -1958,9 +2044,25 @@ void optGSFChangedC(id param) {
             
             if (settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text) txtfield.text=[NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].detail.mdz_textbox.text];
             else txtfield.text=@"";
+            
+            UIFont *font = [UIFont systemFontOfSize:15];
+            NSDictionary *userAttributes = @{NSFontAttributeName: font,
+                                             NSForegroundColorAttributeName: [UIColor blackColor]};
+            CGSize textSize = [txtfield.text sizeWithAttributes: userAttributes];
+            textSize.width*=2;
+            if (textSize.width<tabView.bounds.size.width*2.5f/10) textSize.width=tabView.bounds.size.width*2.5f/10;
+            if (textSize.width>tabView.bounds.size.width*5.5f/10) textSize.width=tabView.bounds.size.width*5.5f/10;
+            txtfield.frame=CGRectMake(0,0,textSize.width,30);
+            
+            [txtfield addTarget:self
+                         action:@selector(textFieldTextChanged:)
+               forControlEvents:UIControlEventEditingChanged];
+            
             cell.accessoryView = txtfield;
+            
             //[txtfield release];
             break;
+        }
         case MDZ_MSGBOX:
             msgLabel = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             msgLabel.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;

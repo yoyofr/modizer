@@ -45,14 +45,14 @@ public:
     /// Maximum number of supported SIDs
     static const unsigned int MAX_SIDS = 3;
 
-    static const int_least32_t SCALE_FACTOR = 1 << 16;
+    static const int_least32_t SCALE_FACTOR = 1 << 14;
 #ifdef HAVE_CXX11
     static constexpr double SQRT_0_5 = 0.70710678118654746;
 #else
 #  define SQRT_0_5 0.70710678118654746
 #endif
-    static const int_least32_t C1 = static_cast<int_least32_t>(1.0 / (1.0 + SQRT_0_5) * SCALE_FACTOR);
-    static const int_least32_t C2 = static_cast<int_least32_t>(SQRT_0_5 / (1.0 + SQRT_0_5) * SCALE_FACTOR);
+    static const int_least32_t C1 = static_cast<int_least32_t>(1.0* SCALE_FACTOR / (1.0 + SQRT_0_5) );
+    static const int_least32_t C2 = static_cast<int_least32_t>(SQRT_0_5* SCALE_FACTOR / (1.0 + SQRT_0_5) );
 
 private:
     typedef int_least32_t (Mixer::*mixer_func_t)() const;
@@ -123,12 +123,14 @@ private:
 
     // Stereo mixing
     int_least32_t stereo_OneChip() const { return m_iSamples[0]; }
+    //TODO:  MODIZER changes start / YOYOFR
+    //Force  gain for 2 chips and 3 chips mode
+    int_least32_t stereo_ch1_TwoChips() const { return m_iSamples[0]*2; }
+    int_least32_t stereo_ch2_TwoChips() const { return m_iSamples[1]*2; }
 
-    int_least32_t stereo_ch1_TwoChips() const { return m_iSamples[0]; }
-    int_least32_t stereo_ch2_TwoChips() const { return m_iSamples[1]; }
-
-    int_least32_t stereo_ch1_ThreeChips() const { return (C1*m_iSamples[0] + C2*m_iSamples[1]) / SCALE_FACTOR; }
-    int_least32_t stereo_ch2_ThreeChips() const { return (C2*m_iSamples[1] + C1*m_iSamples[2]) / SCALE_FACTOR; }
+    int_least32_t stereo_ch1_ThreeChips() const { return (C1*m_iSamples[0] + C2*m_iSamples[1])*3 / SCALE_FACTOR; }
+    int_least32_t stereo_ch2_ThreeChips() const { return (C2*m_iSamples[1] + C1*m_iSamples[2])*3 / SCALE_FACTOR; }
+    //TODO:  MODIZER changes end / YOYOFR
 
 public:
     /**

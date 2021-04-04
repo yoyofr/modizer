@@ -14,6 +14,7 @@ Todo/Requested:
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - TODO: playlist view: add swipe to remove entries
 - TODO: replace vgmplay by libvgm
+- TODO: add description for Settings when relevant
 
 2.962
 �����
@@ -24,6 +25,10 @@ Todo/Requested:
 - [PLAYER] LazyUSF now part of Highly Complete
 - [PLAYER] VGMSTREAM subsongs support
 - [PLAYER] FLAC support
+- [PLAYER] Voices control for ASAP/GME/SIDPLAYFP/VGMPLAY
+- [PLAYER] Oscilloscope view / channels (ASAP/GME(spc only)/SIDPLAYFP/VGMPLAY(not all chipsets))
+- [HVSC] Fixed a bug in title/name parsing from STIL DB
+- [] Bugfixes / settings management
 
 2.961
 �����

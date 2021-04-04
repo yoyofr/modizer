@@ -709,6 +709,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     browser_sidtune_title=(char**)calloc(subsongs_nb,sizeof(char*));
     
+    NSLog(@"stil info:\n%s\n",browser_stil_info);
     
     while (browser_stil_info[idx]) {
         if ((browser_stil_info[idx]=='(')&&(browser_stil_info[idx+1]=='#')) {
@@ -730,32 +731,19 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     }
                     break;
                 case 3: // got a "(#<track_nb>)" before
-                    if (browser_stil_info[idx]=='N') parser_status=4;
-                    if (browser_stil_info[idx]=='T') parser_status=10;
-                    break;
-                    ///////////////////////////////////////////////
-                    //"NAME: "
-                    ///////////////////////////////////////////////
-                case 4: // "N"
-                    if (browser_stil_info[idx]=='A') parser_status=5;
-                    break;
-                case 5: // "NA"
-                    if (browser_stil_info[idx]=='M') parser_status=6;
-                    break;
-                case 6: // "NAM"
-                    if (browser_stil_info[idx]=='E') parser_status=7;
-                    break;
-                case 7: // "NAME"
-                    if (browser_stil_info[idx]==':') parser_status=8;
-                    break;
-                case 8: // "NAME:"
-                    if (browser_stil_info[idx]==' ') {
-                        parser_status=9;
+                    if (strncmp(browser_stil_info+idx,"NAME: ",strlen("NAME: "))==0) {
+                        parser_status=4;
                         tmp_str[0]=0;
                         tmp_str_idx=0;
-                    }
+                        idx+=strlen("NAME: ")-1;
+                    } else if (strncmp(browser_stil_info+idx,"TITLE: ",strlen("TITLE: "))==0) {
+                        parser_status=5;
+                        tmp_str[0]=0;
+                        tmp_str_idx=0;
+                        idx+=strlen("TITLE: ")-1;
+                    } else
                     break;
-                case 9: // "NAME: "
+                case 4: // "NAME: "
                     if (browser_stil_info[idx]==0x0A) {
                         parser_status=0;
                         if (parser_track_nb<=subsongs_nb) {
@@ -768,32 +756,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                         tmp_str[tmp_str_idx]=0;
                     }
                     break;
-                    ///////////////////////////////////////////////
-                    //"TITLE: "
-                    ///////////////////////////////////////////////
-                case 10: // "T"
-                    if (browser_stil_info[idx]=='I') parser_status=11;
-                    break;
-                case 11: // "TI"
-                    if (browser_stil_info[idx]=='T') parser_status=12;
-                    break;
-                case 12: // "TIT"
-                    if (browser_stil_info[idx]=='L') parser_status=13;
-                    break;
-                case 13: // "TITL"
-                    if (browser_stil_info[idx]=='E') parser_status=14;
-                    break;
-                case 14: // "TITLE"
-                    if (browser_stil_info[idx]==':') parser_status=15;
-                    break;
-                case 15: // "TITLE:"
-                    if (browser_stil_info[idx]==' ') {
-                        parser_status=16;
-                        tmp_str[0]=0;
-                        tmp_str_idx=0;
-                    }
-                    break;
-                case 16: // "TITLE: "
+                case 5: // "TITLE: "
                     if (browser_stil_info[idx]==0x0A) {
                         parser_status=0;
                         if (parser_track_nb<=subsongs_nb) {

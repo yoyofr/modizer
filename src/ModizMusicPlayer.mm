@@ -49,6 +49,7 @@ float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 #include "sidplayfp/SidTune.h"
 #include "sidplayfp/SidInfo.h"
 #include "sidplayfp/SidTuneInfo.h"
+#include "sidplayfp/SidConfig.h"
 
 #include "builders/residfp-builder/residfp.h"
 
@@ -222,6 +223,7 @@ static api68_t *sc68;
 
 //SID
 static int mSIDFilterON,mSIDForceLoop;
+static int mSIDSecondSIDAddress,mSIDThirdSIDAddress;
 static sidplayfp *mSidEmuEngine;
 sidbuilder *mBuilder;
 //static ReSIDfpBuilder *mBuilder;
@@ -1593,6 +1595,8 @@ void propertyListenerCallback (void                   *inUserData,              
         // Init SID emu engine
         mSIDFilterON=1;
         mSIDForceLoop=0;
+        mSIDSecondSIDAddress=0;
+        mSIDThirdSIDAddress=0;
         
         mSidEmuEngine=NULL;
         mBuilder=NULL;
@@ -5156,32 +5160,19 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     }
                     break;
                 case 3: // got a "(#<track_nb>)" before
-                    if (stil_info[idx]=='N') parser_status=4;
-                    if (stil_info[idx]=='T') parser_status=10;
-                    break;
-                    ///////////////////////////////////////////////
-                    //"NAME: "
-                    ///////////////////////////////////////////////
-                case 4: // "N"
-                    if (stil_info[idx]=='A') parser_status=5;
-                    break;
-                case 5: // "NA"
-                    if (stil_info[idx]=='M') parser_status=6;
-                    break;
-                case 6: // "NAM"
-                    if (stil_info[idx]=='E') parser_status=7;
-                    break;
-                case 7: // "NAME"
-                    if (stil_info[idx]==':') parser_status=8;
-                    break;
-                case 8: // "NAME:"
-                    if (stil_info[idx]==' ') {
-                        parser_status=9;
+                    if (strncmp(stil_info+idx,"NAME: ",strlen("NAME: "))==0) {
+                        parser_status=4;
                         tmp_str[0]=0;
                         tmp_str_idx=0;
-                    }
+                        idx+=strlen("NAME: ")-1;
+                    } else if (strncmp(stil_info+idx,"TITLE: ",strlen("TITLE: "))==0) {
+                        parser_status=5;
+                        tmp_str[0]=0;
+                        tmp_str_idx=0;
+                        idx+=strlen("TITLE: ")-1;
+                    } else
                     break;
-                case 9: // "NAME: "
+                case 4: // "NAME: "
                     if (stil_info[idx]==0x0A) {
                         parser_status=0;
                         if (parser_track_nb<=mod_subsongs) {
@@ -5194,32 +5185,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         tmp_str[tmp_str_idx]=0;
                     }
                     break;
-                    ///////////////////////////////////////////////
-                    //"TITLE: "
-                    ///////////////////////////////////////////////
-                case 10: // "T"
-                    if (stil_info[idx]=='I') parser_status=11;
-                    break;
-                case 11: // "TI"
-                    if (stil_info[idx]=='T') parser_status=12;
-                    break;
-                case 12: // "TIT"
-                    if (stil_info[idx]=='L') parser_status=13;
-                    break;
-                case 13: // "TITL"
-                    if (stil_info[idx]=='E') parser_status=14;
-                    break;
-                case 14: // "TITLE"
-                    if (stil_info[idx]==':') parser_status=15;
-                    break;
-                case 15: // "TITLE:"
-                    if (stil_info[idx]==' ') {
-                        parser_status=16;
-                        tmp_str[0]=0;
-                        tmp_str_idx=0;
-                    }
-                    break;
-                case 16: // "TITLE: "
+                case 5: // "TITLE: "
                     if (stil_info[idx]==0x0A) {
                         parser_status=0;
                         if (parser_track_nb<=mod_subsongs) {
@@ -5301,19 +5267,7 @@ char* loadRom(const char* path, size_t romSize)
     // Init SID emu engine
     mSidEmuEngine = new sidplayfp;
     
-    NSString *c64_path = [[NSBundle mainBundle] resourcePath];
-    
-    char *kernal = loadRom([[c64_path stringByAppendingString:@"/kernal.c64"] UTF8String], 8192);
-    char *basic = loadRom([[c64_path stringByAppendingString:@"/basic.c64"] UTF8String], 8192);
-    char *chargen = loadRom([[c64_path stringByAppendingString:@"/chargen.c64"] UTF8String], 4096);
-
-    mSidEmuEngine->setRoms((const uint8_t*)kernal, (const uint8_t*)basic, (const uint8_t*)chargen);
-
-    delete [] kernal;
-    delete [] basic;
-    delete [] chargen;
-    
-    
+            
     // Init ReSID
     mBuilder = new ReSIDfpBuilder("residfp");
     unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
@@ -5324,14 +5278,20 @@ char* loadRom(const char* path, size_t romSize)
         NSLog(@"issue in creating sid builder");
         return -1;
     }
-    //mBuilder = new ReSIDfpBuilder("residfp");
+    
+    // setup resid
+    if (mSIDFilterON) mBuilder->filter(true);
+    else mBuilder->filter(false);
+    
     // Set config
-    SidConfig cfg;// = mSidEmuEngine->config();
+    SidConfig cfg = mSidEmuEngine->config();
     cfg.frequency= PLAYBACK_FREQ;
-    cfg.samplingMethod = SidConfig::INTERPOLATE;
+    cfg.samplingMethod = SidConfig::RESAMPLE_INTERPOLATE;
     cfg.fastSampling = false;
     cfg.playback = SidConfig::STEREO;
     cfg.sidEmulation  = mBuilder;
+    cfg.secondSidAddress = mSIDSecondSIDAddress;
+    cfg.thirdSidAddress = mSIDThirdSIDAddress;
     
     memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
     
@@ -5363,12 +5323,22 @@ char* loadRom(const char* path, size_t romSize)
             cfg.forceSidModel=true;
             break;
     }
-    
-    // setup resid
-    if (mSIDFilterON) mBuilder->filter(true);
-    else mBuilder->filter(false);
-    
     mSidEmuEngine->config(cfg);
+    
+    NSString *c64_path = [[NSBundle mainBundle] resourcePath];
+    
+    char *kernal = loadRom([[c64_path stringByAppendingString:@"/kernal.c64"] UTF8String], 8192);
+    char *basic = loadRom([[c64_path stringByAppendingString:@"/basic.c64"] UTF8String], 8192);
+    char *chargen = loadRom([[c64_path stringByAppendingString:@"/chargen.c64"] UTF8String], 4096);
+
+    mSidEmuEngine->setRoms((const uint8_t*)kernal, (const uint8_t*)basic, (const uint8_t*)chargen);
+
+    delete [] kernal;
+    delete [] basic;
+    delete [] chargen;
+    
+    
+    
     // Load tune
     mSidTune=new SidTune([filePath UTF8String],0,true);
     
@@ -5387,7 +5357,6 @@ char* loadRom(const char* path, size_t romSize)
         if (mSidTune) {delete mSidTune;mSidTune=NULL;}
         mPlayType=0;
     } else {
-        
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
         
@@ -5404,6 +5373,12 @@ char* loadRom(const char* path, size_t romSize)
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         
         if (mSidEmuEngine->load(mSidTune)) {
+            
+            
+            //cfg.secondSidAddress = 0xd420;
+            //mSidEmuEngine->config(cfg);
+            
+            
             iCurrentTime=0;
             mCurrentSamples=0;
             numChannels=3*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
@@ -7028,7 +7003,8 @@ char* loadRom(const char* path, size_t romSize)
     
     iModuleLength=duration;
     iCurrentTime=0;
-    numChannels=4;//asap->moduleInfo.channels;
+        
+    numChannels=(asap->pokeys.extraPokeyMask?8:4);//asap->moduleInfo.channels;
     
     
     mod_minsub=0;
@@ -8636,6 +8612,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 ///////////////////////////
 // SIDPLAY
 ///////////////////////////
+-(void) optSIDSecondSIDAddress:(int)addr {
+    mSIDSecondSIDAddress=addr;
+}
+-(void) optSIDThirdSIDAddress:(int)addr {
+    mSIDThirdSIDAddress=addr;
+}
 -(void) optSIDForceLoop:(int)forceLoop {
     mSIDForceLoop=forceLoop;
 }
@@ -8998,27 +8980,32 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getVoicesName:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
+        case MMP_ASAP:
+            return [NSString stringWithFormat:@"#%d-POKEY#%d",(channel&3)+1,channel/4+1];
         case MMP_GME:
             return [NSString stringWithFormat:@"%s",gme_voice_name(gme_emu,channel)];
-            break;
+        case MMP_SIDPLAY:
+            return [NSString stringWithFormat:@"#%d-SID#%d",(channel%3)+1,channel/3+1];
         case MMP_VGMPLAY:{
             int idx=0;
             for (int i=0;i<vgmplay_activeChipsNb;i++) {
                 if ((channel>=idx)&&(channel<idx+vgmGetVoicesNb(vgmplay_activeChips[i]))) {
-                    return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx,GetChipName(vgmplay_activeChips[i]),vgmplay_activeChipsID[i]];
+                    return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx+1,GetChipName(vgmplay_activeChips[i]),vgmplay_activeChipsID[i]+1];
                 }
                 idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
             }
             return @"";
         }
         default:
-            return [NSString stringWithFormat:@"Voice#%d",channel];
+            return [NSString stringWithFormat:@"#%d",channel+1];
             break;
     }
 }
 
 -(int) getSystemsNb {
     switch (mPlayType) {
+        case MMP_ASAP:
+            return numChannels/4;
         case MMP_GME:
             return 1;
         case MMP_VGMPLAY:
@@ -9032,15 +9019,18 @@ extern "C" void adjust_amplification(void);
 
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
+        case MMP_ASAP:
+            if (systemIdx==0) return @"POKEY#1";
+            return @"POKEY#2";
         case MMP_GME:
             if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
                 return @"SPC700";
             }
             return @"";
         case MMP_VGMPLAY:
-            return [NSString stringWithFormat:@"%s#%d",vgmplay_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx]];
+            return [NSString stringWithFormat:@"%s#%d",vgmplay_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx] + 1];
         case MMP_SIDPLAY:
-            return [NSString stringWithFormat:@"sid#%d",numChannels/3]; //number of sidchip active: voices/3, (3ch each)
+            return [NSString stringWithFormat:@"Sid#%d",systemIdx + 1]; //number of sidchip active: voices/3, (3ch each)
         default:
             return 0;
     }
@@ -9048,6 +9038,8 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemForVoice:(int)voiceIdx {
     switch (mPlayType) {
+        case MMP_ASAP:
+            return voiceIdx/4;
         case MMP_GME:
             return 0;
         case MMP_VGMPLAY: {
@@ -9068,6 +9060,14 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemVoicesStatus:(int)systemIdx {
     int tmp;
     switch (mPlayType) {
+        case MMP_ASAP:
+            tmp=0;
+            for (int i=0;i<4;i++) {
+                tmp+=(voicesStatus[i+systemIdx*4]?1:0);
+            }
+            if (tmp==4) return 2; //all active
+            else if (tmp>0) return 1; //partially active
+            return 0; //all off
         case MMP_GME:
             if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
                 tmp=0;
@@ -9109,6 +9109,11 @@ extern "C" void adjust_amplification(void);
 
 -(void) setSystemVoicesStatus:(int)systemIdx active:(bool)active {
     switch (mPlayType) {
+        case MMP_ASAP:
+            for (int i=0;i<4;i++) {
+                [self setVoicesStatus:active index:systemIdx*4+i];
+            }
+            break;
         case MMP_GME:
             for (int i=0;i<numChannels;i++) {
                 [self setVoicesStatus:active index:i];
@@ -9161,11 +9166,11 @@ extern "C" void adjust_amplification(void);
             break;
         }
         case MMP_SIDPLAY:
-            mSidEmuEngine->mute(0,channel,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);
+            mSidEmuEngine->mute(channel/3,channel%3,(active?0:1));   //(unsigned int sidNum, unsigned int voice, bool enable);
             break;
         case MMP_ASAP: {
             int mask=0;
-            for (int i=0;i<8;i++) if (voicesStatus[i]==0) mask|=1<<i;
+            for (int i=0;i<numChannels;i++) if (voicesStatus[i]==0) mask|=1<<i;
             ASAP_MutePokeyChannels(asap,mask);
             break;
         }

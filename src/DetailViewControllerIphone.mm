@@ -756,7 +756,18 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optSIDFilter:settings[SID_Filter].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDForceLoop:settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
-        [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];                
+        [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];
+
+        if (settings[SID_SecondSIDOn].detail.mdz_boolswitch.switch_value) {
+            long x = strtol(settings[SID_SecondSIDAddress].detail.mdz_textbox.text, 0, 0);
+            [mplayer optSIDSecondSIDAddress:x];
+        } else [mplayer optSIDSecondSIDAddress:0];
+        
+        if (settings[SID_ThirdSIDOn].detail.mdz_boolswitch.switch_value) {
+            long x = strtol(settings[SID_ThirdSIDAddress].detail.mdz_textbox.text, 0, 0);
+            [mplayer optSIDThirdSIDAddress:x];
+        } else [mplayer optSIDThirdSIDAddress:0];
+            
     }
     
     /////////////////////

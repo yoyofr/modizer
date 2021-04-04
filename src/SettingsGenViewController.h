@@ -132,6 +132,10 @@ enum MDZ_SETTINGS {
         SID_ForceLoop,
         SID_CLOCK,
         SID_MODEL,
+        SID_SecondSIDOn,
+        SID_SecondSIDAddress,
+        SID_ThirdSIDOn,
+        SID_ThirdSIDAddress,
     
     
         MDZ_SETTINGS_FAMILY_TIMIDITY,
@@ -214,6 +218,7 @@ typedef struct {
 typedef struct {
     //textbox
     char *text;
+    int max_width_char;    
 } t_setting_textbox;
 
 typedef struct {

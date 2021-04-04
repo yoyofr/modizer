@@ -286,6 +286,8 @@ enum MMP_PLAYER_TYPE {
 -(void) optTIM_Resample:(int)val;
 -(void) optTIM_Amplification:(int)val;
 
+-(void) optSIDSecondSIDAddress:(int)addr;
+-(void) optSIDThirdSIDAddress:(int)addr;
 -(void) optSIDForceLoop:(int)forceLoop;
 -(void) optSIDFilter:(int)onoff;
 -(void) optSIDClock:(int)clockMode;
