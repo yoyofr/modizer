@@ -161,6 +161,18 @@ static INT16 clock_adpcm(okim6258_state *chip, UINT8 nibble)
 	return chip->signal << 4;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#define SOUND_BUFFER_SIZE_SAMPLE 1024
+#define SOUND_MAXVOICES_BUFFER_FX 32
+
+extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
+extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+
+#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /**********************************************************************************************
 
      okim6258_update -- update the sound chip so that it is in sync with CPU execution
@@ -175,6 +187,27 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	//stream_sample_t *buffer = outputs[0];
 	stream_sample_t *bufL = outputs[0];
 	stream_sample_t *bufR = outputs[1];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=1;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (m_voice_ChipID[ii]==0) {
+            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
+            m_voice_ofs=ii;
+            break;
+        } else if (m_voice_ChipID[ii]==chip) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplFreq=chip->master_clock/(chip->divider);
+    int smplIncr=44100*256/smplFreq;
+    if (smplIncr>256) smplIncr=256;
+    //printf("okim clock: %d\n",smplFreq);
+    //TODO:  MODIZER changes end / YOYOFR
+    
 
 	//memset(outputs[0], 0, samples * sizeof(*outputs[0]));
 
@@ -238,6 +271,16 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 			*bufL++ = (chip->pan & 0x02) ? 0x00 : sample;
 			*bufR++ = (chip->pan & 0x01) ? 0x00 : sample;
 			samples--;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                if ((chip->pan&3)==3) m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
+                else m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((sample>>8));
+                
+                m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 
 		/* Update the parameters */

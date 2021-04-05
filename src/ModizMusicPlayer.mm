@@ -90,9 +90,8 @@ static int mSingleSubMode;
 
 
 #define DEFAULT_MODPLUG 0
-#define DEFAULT_DUMB 1
-#define DEFAULT_UADE 2
-#define DEFAULT_XMP 3
+#define DEFAULT_UADE 1
+#define DEFAULT_XMP 2
 
 #define DEFAULT_SAPASAP 0
 #define DEFAULT_SAPGME 1
@@ -154,7 +153,7 @@ extern "C" {
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
     0x00, 0x09, 0x09, 0x09, 0x12, 0x00, 0x0C, 0x08,
-    0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
+    0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
     0x04
@@ -207,8 +206,6 @@ const UINT8 vgmCHN_MASK_CNT[CHIP_COUNT] =
     static struct xmp_module_info xmp_mi;
 }
 
-//DUMB
-static float dumb_MastVol;
 
 //MDX
 static MDX_DATA *mdx;
@@ -354,25 +351,6 @@ extern "C" {
     };
     extern PlayMode *play_mode;
     
-    
-    //DUMB
-#include "dumb.h"
-#include "internal/it.h"
-    int it_max_channels;
-    
-    int dumb_it_callback_loop(void *data) {
-        (void)data;
-        return 0;
-    }
-    
-    
-    typedef struct DUH_PLAYER {
-        int n_channels;
-        DUH_SIGRENDERER *dr;
-        float volume;
-    } DUH_PLAYER;
-    DUH *duh;
-    DUH_PLAYER *duh_player;
 }
 
 //ASAP
@@ -1368,7 +1346,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize optVGMPLAY_maxloop,optVGMPLAY_ym2612emulator,optVGMPLAY_preferJapTag;
 //Modplug stuff
 @synthesize mp_settings;
-@synthesize mp_file;
+@synthesize ompt_mod;
 @synthesize mp_data;
 @synthesize mVolume;
 @synthesize numChannels,numPatterns,numSamples,numInstr,mPatternDataAvail;
@@ -1517,15 +1495,8 @@ void propertyListenerCallback (void                   *inUserData,              
         mdz_currentArchiveIndex=0;
         //Timidity
         
-        //
-        //DUMB
-        dumb_MastVol=1.0f;
-        dumb_register_memfiles();
-        duh=NULL; duh_player=NULL;
-        //
         
         //MODPLUG specific
-        mp_file=NULL;
         genPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         genRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         //genOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
@@ -1690,12 +1661,6 @@ void propertyListenerCallback (void                   *inUserData,              
     free(genVolData);
     //free(genOffset);
     
-    if (duh_player) {
-        free(duh_player);duh_player=NULL;
-    }
-    if (duh) {
-        unload_duh(duh); duh=NULL;
-    }
     //[mFileMngr release];
     
     //[super dealloc];
@@ -2857,7 +2822,8 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         }
                         if (mPlayType==MMP_OPENMPT) { //MODPLUG
                             bGlobalSeekProgress=-1;
-                            ModPlug_Seek(mp_file,mNeedSeekTime);
+                            openmpt_module_set_position_seconds(openmpt_module_ext_get_module(ompt_mod), (double)(mNeedSeekTime)/1000.0f );
+                            
                         }
                         if (mPlayType==MMP_XMP) { //XMP
                             bGlobalSeekProgress=-1;
@@ -2884,19 +2850,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if (mPlayType==MMP_ASAP) { //ASAP
                             bGlobalSeekProgress=-1;
                             ASAP_Seek(asap, mNeedSeekTime);
-                        }
-                        if (mPlayType==MMP_DUMB) {//DUMB
-                            bGlobalSeekProgress=-1;
-                            duh_end_sigrenderer(duh_player->dr);
-                            duh_player->dr = duh_start_sigrenderer(duh, 0, 2/*nb channels*/, ((long long)mNeedSeekTime<<16)/1000);
-                            if (!duh_player->dr) {
-                                NSLog(@"big issue!!!!!!");
-                            } else {
-                                DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
-                                if (mLoopMode==1) dumb_it_set_loop_callback(itsr, &dumb_it_callback_loop, NULL);
-                                else dumb_it_set_loop_callback(itsr, &dumb_it_callback_terminate, NULL);
-                                dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);
-                            }
                         }
                         if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
                             mNeedSeek=0;
@@ -3080,10 +3033,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 mod_message_updated=2;
                             }
                             if (mPlayType==MMP_OPENMPT) {
-                                openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
-                                iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                                openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
+                                iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
                                 iCurrentTime=0;
-                                numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                                numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));  //should not change in a subsong
                                 
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
@@ -3229,10 +3182,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             mod_message_updated=2;
                         }
                         if (mPlayType==MMP_OPENMPT) {
-                            openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
-                            iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                            openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
+                            iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
                             iCurrentTime=0;
-                            //numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                            //numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));  //should not change in a subsong
                             
                             if (moveToNextSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
@@ -3379,10 +3332,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 mod_message_updated=2;
                             }
                             if (mPlayType==MMP_OPENMPT) {
-                                openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
-                                iModuleLength=openmpt_module_get_duration_seconds( mp_file->mod )*1000;
+                                openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
+                                iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
                                 iCurrentTime=0;
-                                //numChannels=openmpt_module_get_num_channels(mp_file->mod);  //should not change in a subsong
+                                //numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));  //should not change in a subsong
                                 
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
@@ -3569,12 +3522,15 @@ long src_callback_mpg123(void *cb_data, float **data) {
                     if (mPlayType==MMP_OPENMPT) {  //MODPLUG
                         int prev_ofs=buffer_ana_gen_ofs-1;
                         if (prev_ofs<0) prev_ofs=SOUND_BUFFER_NB-1;
-                        genPattern[buffer_ana_gen_ofs]=ModPlug_GetCurrentPattern(mp_file);
-                        genRow[buffer_ana_gen_ofs]=ModPlug_GetCurrentRow(mp_file);
                         
-                        nbBytes = ModPlug_Read(mp_file,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                        genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
+                        genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
+                        
+                        nbBytes=openmpt_module_read_interleaved_stereo(openmpt_module_ext_get_module(ompt_mod),PLAYBACK_FREQ,SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
+                        nbBytes*=4;
+                        openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
                         for (int i=0;i<numChannels;i++) {
-                            int v=ModPlug_GetChannelVolume(mp_file,i);
+                            int v=openmpt_module_get_current_channel_vu_mono(openmpt_module_ext_get_module(ompt_mod),i)*255;
                             genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                         }
                         
@@ -3584,10 +3540,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     mod_currentsub++;
                                     
-                                    openmpt_module_select_subsong(mp_file->mod, mod_currentsub);
+                                    openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod),mod_currentsub);
                                     
                                     mChangeOfSong=1;
-                                    mNewModuleLength=openmpt_module_get_duration_seconds(mp_file->mod)*1000;
+                                    mNewModuleLength=openmpt_module_get_duration_seconds(openmpt_module_ext_get_module(ompt_mod))*1000;
                                     if (mLoopMode) mNewModuleLength=-1;
                                 } else {
                                     nbBytes=0;
@@ -3881,35 +3837,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
                             }
                         }
                         
-                    }
-                    if (mPlayType==MMP_DUMB) {//DUMB
-                        if (duh_player->dr) {
-                            
-                            if (mPatternDataAvail){
-                                int prev_ofs=buffer_ana_gen_ofs-1;
-                                if (prev_ofs<0) prev_ofs=SOUND_BUFFER_NB-1;
-                                DUMB_IT_SIGRENDERER *duh_itsr=duh_get_it_sigrenderer(duh_player->dr);
-                                
-                                ModPlug_SeekOrder(mp_file,dumb_it_sr_get_current_order(duh_itsr));
-                                genPattern[buffer_ana_gen_ofs]=ModPlug_GetCurrentOrder(mp_file);
-                                //ModPlug_GetPatternOrder(mp_file, dumb_it_sr_get_current_order(duh_itsr)) ;
-                                
-                                genRow[buffer_ana_gen_ofs]=dumb_it_sr_get_current_row(duh_itsr);
-                                
-                                for (int i=0;i<numChannels;i++) {
-                                    int v=dumb_it_sr_get_channel_volume(duh_itsr,i)*4;
-                                    genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
-                                }
-                                
-                                
-                                //NSLog(@"pat %d row %d",genPattern[buffer_ana_gen_ofs],genRow[buffer_ana_gen_ofs]);
-                            }
-                            
-                            long n = duh_render(duh_player->dr, 16/*bits_per_sample*/, 0/*bits_per_sample == 8 ? 1 : 0*/,
-                                                duh_player->volume, 65536.0f / 44100, SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs]);
-                            
-                            nbBytes = n * (/*bits_per_sample*/16 >> 3) * 2/*stereo*/;
-                        } else nbBytes=0;
                     }
                     
                     buffer_ana_flag[buffer_ana_gen_ofs]=1;
@@ -4424,7 +4351,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
-    NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
@@ -4439,7 +4365,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
-                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+[filetype_extDUMB count]+
+                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extSNSF count]+[filetype_extVGMSTREAM count]+[filetype_extMPG123 count]+
                                   [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
@@ -4459,7 +4385,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extUADE];
     [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
     [filetype_ext addObjectsFromArray:filetype_extXMP];
-    [filetype_ext addObjectsFromArray:filetype_extDUMB];
     [filetype_ext addObjectsFromArray:filetype_extGME];
     [filetype_ext addObjectsFromArray:filetype_extADPLUG];
     [filetype_ext addObjectsFromArray:filetype_ext2SF];
@@ -4555,7 +4480,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
-    NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
     NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=(no_aux_file?[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","]);
@@ -4788,11 +4712,6 @@ long src_callback_mpg123(void *cb_data, float **data) {
         for (int i=0;i<[filetype_extXMP count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extXMP objectAtIndex:i]]==NSOrderedSame) {found=MMP_OPENMPT;break;}
-        }
-    if ((!found)||(mdz_defaultMODPLAYER==DEFAULT_DUMB))
-        for (int i=0;i<[filetype_extDUMB count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
         }
     if (!found) {
         for (int i=0;i<[filetype_extHVL count];i++) {
@@ -5728,8 +5647,50 @@ char* loadRom(const char* path, size_t romSize)
     return 0;
 }
 
+static void libopenmpt_example_logfunc( const char * message, void * userdata ) {
+    (void)userdata;
+    if ( message ) {
+        printf( "openmpt: %s\n", message );
+    }
+}
+
+static int libopenmpt_example_errfunc( int error, void * userdata ) {
+    (void)userdata;
+    (void)error;
+    return OPENMPT_ERROR_FUNC_RESULT_DEFAULT & ~OPENMPT_ERROR_FUNC_RESULT_LOG;
+}
+
+static void libopenmpt_example_print_error( const char * func_name, int mod_err, const char * mod_err_str ) {
+    if ( !func_name ) {
+        func_name = "unknown function";
+    }
+    if ( mod_err == OPENMPT_ERROR_OUT_OF_MEMORY ) {
+        mod_err_str = openmpt_error_string( mod_err );
+        if ( !mod_err_str ) {
+            printf( "Error: %s\n", "OPENMPT_ERROR_OUT_OF_MEMORY" );
+        } else {
+            printf( "Error: %s\n", mod_err_str );
+            openmpt_free_string( mod_err_str );
+            mod_err_str = NULL;
+        }
+    } else {
+        if ( !mod_err_str ) {
+            mod_err_str = openmpt_error_string( mod_err );
+            if ( !mod_err_str ) {
+                printf( "Error: %s failed.\n", func_name );
+            } else {
+                printf( "Error: %s failed: %s\n", func_name, mod_err_str );
+            }
+            openmpt_free_string( mod_err_str );
+            mod_err_str = NULL;
+        }
+        printf( "Error: %s failed: %s\n", func_name, mod_err_str );
+    }
+}
+
+
 -(int) mmp_openmptLoad:(NSString*)filePath {  //MODPLUG
-    const char *modName;
+    char *modName;
     char *modMessage;
     mPlayType=MMP_OPENMPT;
     
@@ -5747,73 +5708,134 @@ char* loadRom(const char* path, size_t romSize)
     fread(mp_data,mp_datasize,sizeof(char),f);
     fclose(f);
     
-    [self getMPSettings];
-    if (mLoopMode==1) mp_settings.mLoopCount=-1; //Should be like "infinite"
-    else mp_settings.mLoopCount=0;
-    [self updateMPSettings];
-    
-    mp_file=ModPlug_Load(mp_data,mp_datasize);
-    if (mp_file==NULL) {
-        free(mp_data); /* ? */
-        NSLog(@"ModPlug_load error");
+    int mod_err = OPENMPT_ERROR_OK;
+    const char * mod_err_str = NULL;
+    ompt_mod_interactive=(openmpt_module_ext_interface_interactive*)malloc(sizeof(openmpt_module_ext_interface_interactive));
+            
+    ompt_mod=openmpt_module_ext_create_from_memory(mp_data, mp_datasize, &libopenmpt_example_logfunc, NULL, &libopenmpt_example_errfunc, NULL, &mod_err, &mod_err_str, NULL );
+    if (!ompt_mod) {
+        printf("openmpt error initializing ompt\n");
         mPlayType=0;
-    } else {
-        iModuleLength=ModPlug_GetLength(mp_file);
-        iCurrentTime=0;
-        mPatternDataAvail=1;
-        
-        numChannels=ModPlug_NumChannels(mp_file);
-        numPatterns=ModPlug_NumPatterns(mp_file);
-        
-        modName=ModPlug_GetName(mp_file);
-        if (!modName) {
-            sprintf(mod_name," %s",mod_filename);
-        } else if (modName[0]==0) {
-            sprintf(mod_name," %s",mod_filename);
-        } else {
-            sprintf(mod_name," %s", modName);
-        }
-        
-        
-        mod_subsongs=openmpt_module_get_num_subsongs(mp_file->mod);
-        mod_minsub=0;
-        mod_maxsub=mod_subsongs-1;
-        mod_currentsub=openmpt_module_get_selected_subsong( mp_file->mod );
-        
-        
-        numSamples=ModPlug_NumSamples(mp_file);
-        numInstr=ModPlug_NumInstruments(mp_file);
-        
-        modMessage=ModPlug_GetMessage(mp_file);
-        if (modMessage) sprintf(mod_message,"%s\n",modMessage);
-        else {
-            if ((numInstr==0)&&(numSamples==0)) sprintf(mod_message,"N/A\n");
-            else sprintf(mod_message,"");
-        }
-        
-        
-        /*			if (numInstr>0) {
-         for (int i=1;i<=numInstr;i++) {
-         ModPlug_InstrumentName(mp_file,i,str_name);
-         sprintf(mod_message,"%s%s\n", mod_message,str_name);
-         };
-         }
-         if (numSamples>0) {
-         for (int i=1;i<=numSamples;i++) {
-         ModPlug_SampleName(mp_file,i,str_name);
-         sprintf(mod_message,"%s%s\n", mod_message,str_name);
-         };
-         }*/
-        
-        //Loop
-        if (mLoopMode==1) {
-            iModuleLength=-1;
-        }
-        
-        return 0;
+        free(mp_data);
+        free(ompt_mod_interactive);
+        return -1;
     }
-    return 1;
+    //openmpt_module_ext_interface_interactive *ompt_mod_interactive;
+    
+    if (!openmpt_module_ext_get_interface( ompt_mod, "interactive", ompt_mod_interactive, sizeof(openmpt_module_ext_interface_interactive))) {
+        printf("openmpt error initializing interactive extension\n");
+        mPlayType=0;
+        free(mp_data);
+        free(ompt_mod_interactive);
+        return -1;
+    }
+    
+    iModuleLength=(int)(openmpt_module_get_duration_seconds(openmpt_module_ext_get_module(ompt_mod))*1000);//  ModPlug_GetLength(mp_file);
+    iCurrentTime=0;
+    mPatternDataAvail=1;
+    
+    numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumChannels(mp_file);
+    numPatterns=openmpt_module_get_num_patterns(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumPatterns(mp_file);
+    
+    //LIBOPENMPT_API const char * openmpt_module_get_metadata_keys( openmpt_module * mod );
+    //LIBOPENMPT_API const char * openmpt_module_get_metadata( openmpt_module * mod, const char * key );
+    char *keys_list=(char*)openmpt_module_get_metadata_keys(openmpt_module_ext_get_module(ompt_mod));
+    if (keys_list) {
+        printf("ompt metadata keys: %s\n",keys_list);
+        free(keys_list);
+    }
+    
+    modName=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"title"); //ModPlug_GetName(mp_file);
+    if (!modName) {
+        sprintf(mod_name," %s",mod_filename);
+    } else if (modName[0]==0) {
+        sprintf(mod_name," %s",mod_filename);
+    } else {
+        sprintf(mod_name," %s", modName);
+    }
+    if (modName) free(modName);
+    
+    mod_subsongs=openmpt_module_get_num_subsongs(openmpt_module_ext_get_module(ompt_mod)); //mp_file->mod);
+    mod_minsub=0;
+    mod_maxsub=mod_subsongs-1;
+    mod_currentsub=openmpt_module_get_selected_subsong(openmpt_module_ext_get_module(ompt_mod)); //mp_file->mod );
+    
+    numSamples=openmpt_module_get_num_samples(openmpt_module_ext_get_module(ompt_mod)); //ModPlug_NumSamples(mp_file);
+    numInstr=openmpt_module_get_num_instruments(openmpt_module_ext_get_module(ompt_mod)); //ModPlug_NumInstruments(mp_file);
+    
+    modMessage=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"message"); //ModPlug_GetMessage(mp_file);
+    if (modMessage) sprintf(mod_message,"%s\n",modMessage);
+    else {
+        if ((numInstr==0)&&(numSamples==0)) sprintf(mod_message,"N/A\n");
+        else sprintf(mod_message,"");
+    }
+    if (modMessage) free(modMessage);
+    
+    
+    /*			if (numInstr>0) {
+     for (int i=1;i<=numInstr;i++) {
+     ModPlug_InstrumentName(mp_file,i,str_name);
+     sprintf(mod_message,"%s%s\n", mod_message,str_name);
+     };
+     }
+     if (numSamples>0) {
+     for (int i=1;i<=numSamples;i++) {
+     ModPlug_SampleName(mp_file,i,str_name);
+     sprintf(mod_message,"%s%s\n", mod_message,str_name);
+     };
+     }*/
+    
+    //Loop
+    if (mLoopMode==1) {
+        iModuleLength=-1;
+        openmpt_module_set_repeat_count(openmpt_module_ext_get_module(ompt_mod),-1);
+    }
+    
+    ompt_patterns = (ModPlugNote**)calloc(1,sizeof(ModPlugNote*)*numPatterns);
+    if(!ompt_patterns) return NULL;
+
+    return 0;
 }
+
+-(ModPlugNote*) ompt_getPattern:(int)pattern numrows:(unsigned int*)numrows {
+    int c;
+    int r;
+    int numr;
+    int numc;
+    ModPlugNote note;
+    
+    if(!ompt_mod) return NULL;
+    if (!openmpt_module_ext_get_module(ompt_mod)) return NULL;
+    if(numrows){
+        *numrows = openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern);
+    }
+    if(pattern<0||pattern>=openmpt_module_get_num_patterns(openmpt_module_ext_get_module(ompt_mod))){
+        return NULL;
+    }
+    
+    
+    if(!ompt_patterns[pattern]){
+        ompt_patterns[pattern] = (ModPlugNote*)malloc(sizeof(ModPlugNote)*openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern)*openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod)));
+        if(!ompt_patterns[pattern]) return NULL;
+        memset(ompt_patterns[pattern],0,sizeof(ModPlugNote)*openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern)*openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod)));
+    }
+    numr = openmpt_module_get_pattern_num_rows(openmpt_module_ext_get_module(ompt_mod),pattern);
+    numc = openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));
+    for(r=0;r<numr;r++){
+        for(c=0;c<numc;c++){
+            memset(&note,0,sizeof(ModPlugNote));
+            note.Note = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_NOTE);
+            note.Instrument = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_INSTRUMENT);
+            note.VolumeEffect = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_VOLUMEEFFECT);
+            note.Effect = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_EFFECT);
+            note.Volume = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_VOLUME);
+            note.Parameter = openmpt_module_get_pattern_row_channel_command(openmpt_module_ext_get_module(ompt_mod),pattern,r,c,OPENMPT_MODULE_COMMAND_PARAMETER);
+            memcpy(&ompt_patterns[pattern][r*numc+c],&note,sizeof(ModPlugNote));
+        }
+    }
+    return ompt_patterns[pattern];
+}
+
 -(int) mmp_timidityLoad:(NSString*)filePath { //timidity
     mPlayType=MMP_TIMIDITY;
     max_voices = voices = tim_max_voices;  //polyphony : MOVE TO SETTINGS
@@ -6722,6 +6744,8 @@ char* loadRom(const char* path, size_t romSize)
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"NES APU")==0) {
                 voicesDataAvail=1;
+            } else if (strcmp(strChip,"OKIM6258")==0) {
+                voicesDataAvail=1;
             } else if (strcmp(strChip,"OKIM6295")==0) {
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"K051649")==0) {
@@ -6827,137 +6851,6 @@ char* loadRom(const char* path, size_t romSize)
     }
 }
 
--(int) mmp_dumbLoad:(NSString*)filePath { //DUMB
-    mPlayType=MMP_DUMB;
-    it_max_channels=0;
-    
-    FILE *f=fopen([filePath UTF8String],"rb");
-    if (f==NULL) {
-        NSLog(@"DUMB Cannot open file %@",filePath);
-        mPlayType=0;
-        return -1;
-    }
-    
-    fseek(f,0L,SEEK_END);
-    mp_datasize=ftell(f);
-    //Pattern display/modplug
-    rewind(f);
-    mp_data=(char*)malloc(mp_datasize);
-    fread(mp_data,mp_datasize,1,f);
-    //
-    fclose(f);
-    
-    mod_subsongs=1;
-    mod_minsub=1;
-    mod_maxsub=1;
-    mod_currentsub=1;
-    
-    /* Load file */
-    typedef void (*func)(void);
-    typedef DUH *(*dumb1)(const char *);
-    typedef DUH *(*dumb2)(const char *, int);
-    func dumbFormats[15] = {
-        (func)&dumb_load_it, (func)&load_duh,
-        (func)&dumb_load_xm, (func)&dumb_load_s3m,
-        (func)&dumb_load_mod, (func)&dumb_load_stm,
-        (func)&dumb_load_ptm, (func)&dumb_load_669,
-        (func)&dumb_load_mtm, (func)&dumb_load_riff,
-        (func)&dumb_load_asy, (func)&dumb_load_amf,
-        (func)&dumb_load_okt, (func)&dumb_load_psm,
-        (func)&dumb_load_old_psm };
-    
-    int i;
-    for(i = 0; i < 15; i++) {
-        dumbfile_open_memory(mp_data,mp_datasize);
-        if(i==4||i==12) {
-            duh = ((dumb2)dumbFormats[i])([filePath UTF8String],0);
-        } else {
-            duh = ((dumb1)dumbFormats[i])([filePath UTF8String]);
-        }
-        if(duh) {break;}
-    }
-    if(!duh) {
-        free(mp_data);
-        mp_data=NULL;
-        return 1;
-    }
-    
-    iModuleLength = (int)((LONG_LONG)duh_get_length(duh) * 1000 >> 16);
-    const char *mod_title = duh_get_tag(duh, "TITLE");
-    if (mod_title && mod_title[0]) {
-        int i=0;
-        while (mod_title[i]==' ') i++;  //only spaces?
-        if (mod_title[i]) sprintf(mod_name," %s",mod_title); //no
-        else sprintf(mod_name," %s",mod_filename); //yes
-    }
-    else sprintf(mod_name," %s",mod_filename);
-    
-    //NSLog(@"mod names: %s / %s",mod_title,mod_filename);
-    
-    iCurrentTime=0;
-    numChannels=2;
-    //Loop
-    if (mLoopMode==1) iModuleLength=-1;
-    
-    duh_player = (DUH_PLAYER*)malloc(sizeof(DUH_PLAYER));
-    if (!duh_player) {
-        unload_duh(duh); duh=NULL;
-        free(mp_data);
-        mp_data=NULL;
-        
-        return -2;
-    }
-    duh_player->n_channels = 2;
-    duh_player->volume = dumb_MastVol;
-    
-    duh_player->dr = duh_start_sigrenderer(duh, 0, 2/*nb channels*/, 0/*pos*/);
-    if (!duh_player->dr) {
-        free(duh_player);duh_player=NULL;
-        unload_duh(duh); duh=NULL;
-        free(mp_data);
-        mp_data=NULL;
-        
-        return -3;
-    }
-    DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
-    if (mLoopMode==1) dumb_it_set_loop_callback(itsr, &dumb_it_callback_loop, NULL);
-    else dumb_it_set_loop_callback(itsr, &dumb_it_callback_terminate, NULL);
-    dumb_it_set_xm_speed_zero_callback(itsr, &dumb_it_callback_terminate, NULL);
-    
-    DUMB_IT_SIGDATA *itsd = duh_get_it_sigdata(duh);
-    
-    if (it_max_channels) numChannels=it_max_channels+1;
-    else if (itsd->n_pchannels) numChannels = itsd->n_pchannels;
-    
-    sprintf(mod_message,"%s\n",[[filePath lastPathComponent] UTF8String]);
-    const char * tag;
-    tag = duh_get_tag(duh, "TRACKERVERSION");
-    if (tag && *tag) sprintf(mod_message,"%sTracker version: %s\n",mod_message, tag);
-    tag = duh_get_tag(duh, "FORMATVERSION");
-    if (tag && *tag) sprintf(mod_message,"%sFormat version: %s\n",mod_message, tag);
-    
-    if (itsd->song_message) sprintf(mod_message,"%s%s\n",mod_message, itsd->song_message);
-    
-    if (itsd->n_instruments) {
-        if (itsd->instrument)
-            for (int i = 0, n = itsd->n_instruments; i < n; i++) sprintf(mod_message,"%s%s\n",mod_message,itsd->instrument[i].name);
-    }
-    if (itsd->n_samples) {
-        if (itsd->sample)
-            for (int i = 0, n = itsd->n_samples; i < n; i++) sprintf(mod_message,"%s%s\n",mod_message,itsd->sample[i].name);
-    }
-    
-    //try to also load with modplug for pattern display
-    mp_file=NULL;//ModPlug_LoadPat(mp_data,mp_datasize);
-    if (mp_file==NULL) {
-        free(mp_data);
-    } else {
-        mPatternDataAvail=1;
-        numPatterns=ModPlug_NumPatterns(mp_file);
-    }
-    
-    return 0;
-}
 
 -(int) mmp_asapLoad:(NSString*)filePath { //ASAP
     mPlayType=MMP_ASAP;
@@ -7071,14 +6964,6 @@ char* loadRom(const char* path, size_t romSize)
         delete opl;
         opl=NULL;
         mPlayType=0;
-        /*        for (int i=0;i<[filetype_extDUMB count];i++) { //Try Dumb if applicable
-         if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
-         if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {found=MMP_DUMB;break;}
-         }
-         for (int i=0;i<[filetype_extUADE count];i++) { //Try UADE if applicable
-         if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=MMP_UADE;break;}
-         if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {found=MMP_UADE;break;}
-         }*/
         return -1;
     } else {
         if (adPlugPlayer->update()) {
@@ -7316,7 +7201,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
-    NSArray *filetype_extDUMB=[SUPPORTED_FILETYPE_DUMB componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
@@ -7782,20 +7666,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
-    for (int i=0;i<[filetype_extDUMB count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {
-            if (mdz_defaultMODPLAYER==DEFAULT_DUMB) [available_player insertObject:[NSNumber numberWithInt:MMP_DUMB] atIndex:0];
-            else [available_player addObject:[NSNumber numberWithInt:MMP_DUMB]];
-            found=MMP_DUMB;
-            break;
-        }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extDUMB objectAtIndex:i]]==NSOrderedSame) {
-            if (mdz_defaultMODPLAYER==DEFAULT_DUMB) [available_player insertObject:[NSNumber numberWithInt:MMP_DUMB] atIndex:0];
-            else [available_player addObject:[NSNumber numberWithInt:MMP_DUMB]];
-            found=MMP_DUMB;
-            break;
-        }
-    }
     for (int i=0;i<[filetype_extMODPLUG count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extMODPLUG objectAtIndex:i]]==NSOrderedSame) {
             if (mdz_defaultMODPLAYER==DEFAULT_MODPLUG) [available_player insertObject:[NSNumber numberWithInt:MMP_OPENMPT] atIndex:0];
@@ -7914,9 +7784,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 break;
             case MMP_PMDMINI:
                 if ([self mmp_pmdminiLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
-                break;
-            case MMP_DUMB:
-                if ([self mmp_dumbLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
                 break;
             case MMP_ASAP:
                 if ([self mmp_asapLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
@@ -8155,10 +8022,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
-        case MMP_DUMB: //DUMB
-            if (startPos) [self Seek:startPos];
-            [self Play];
-            break;
         case MMP_TIMIDITY: //Timidity
             if (startPos) {
                 //hack because midi length is unknow at this stage, preventing seek to work
@@ -8256,11 +8119,18 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         xmp_ctx=NULL;
     }
     if (mPlayType==MMP_OPENMPT) {
-        if (mp_file) {
-            ModPlug_Unload(mp_file);
+        if (ompt_patterns) {
+            for (int i=0;i<numPatterns;i++) {
+                if (ompt_patterns[i]) free(ompt_patterns[i]);
+            }
+            free(ompt_patterns);
         }
+        ompt_patterns=NULL;
+        
+        if (ompt_mod) openmpt_module_ext_destroy(ompt_mod);
+        ompt_mod=NULL;
         if (mp_data) free(mp_data);
-        mp_file=NULL;
+        mp_data=NULL;
     }
     if (mPlayType==MMP_ADPLUG) {
         delete adPlugPlayer;
@@ -8332,23 +8202,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     }
     if (mPlayType==MMP_ASAP) { //ASAP
         free(ASAP_module);
-    }
-    if (mPlayType==MMP_DUMB) {
-        if (mPatternDataAvail) {
-            mPatternDataAvail=0;
-            if (mp_file) {
-                //ModPlug_UnloadPat(mp_file);
-            }
-            if (mp_data) free(mp_data);
-            mp_file=NULL;
-        }
-        if (duh_player) {
-            duh_end_sigrenderer(duh_player->dr);
-            free(duh_player);duh_player=NULL;
-        }
-        if (duh) {
-            unload_duh(duh); duh=NULL;
-        }
     }
     if (mPlayType==MMP_TIMIDITY) { //VGM
     }
@@ -8440,7 +8293,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_MDXPDX) return @"MDX";
     if (mPlayType==MMP_GSF) return @"GSF";
     if (mPlayType==MMP_ASAP) return @"ASAP";
-    if (mPlayType==MMP_DUMB) return @"DUMB";
     if (mPlayType==MMP_TIMIDITY) return @"Timidity";
     if (mPlayType==MMP_PMDMINI) return @"PMDMini";
     if (mPlayType==MMP_VGMPLAY) return @"VGMPlay";
@@ -8478,7 +8330,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         return result;
     }
     if (mPlayType==MMP_OPENMPT) {
-        const char *ret=openmpt_module_get_subsong_name(mp_file->mod, subsong);
+        const char *ret=openmpt_module_get_subsong_name(openmpt_module_ext_get_module(ompt_mod), subsong);
         if (ret) {
             result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:ret]];
         } else result=[NSString stringWithFormat:@"%.3d",subsong];
@@ -8528,9 +8380,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         return [NSString stringWithFormat:@"%s",xmp_mi.mod->type];
     }
     if (mPlayType==MMP_OPENMPT) {
-        char *str_type=(char*)ModPlug_GetModuleTypeLStr(mp_file);
-        char *str_cont=(char*)ModPlug_GetModuleContainerLStr(mp_file);
-        NSString *result=[NSString stringWithFormat:@"%s %s",str_type,str_cont];
+        char *str_type=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"type_long");//(char*)ModPlug_GetModuleTypeLStr(mp_file);
+        char *str_orig=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"originaltype_long");
+        char *str_cont=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"container_long");//(char*)ModPlug_GetModuleContainerLStr(mp_file);
+        NSString *result=[NSString stringWithFormat:@"%s(%s) %s",str_type,str_orig,str_cont];
+        if (str_orig) free(str_orig);
         if (str_type) free(str_type);
         if (str_cont) free(str_cont);
         return result;
@@ -8570,11 +8424,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     }
     if (mPlayType==MMP_GSF) return @"GSF";
     if (mPlayType==MMP_ASAP) return @"ASAP";
-    if (mPlayType==MMP_DUMB) {
-        const char * tag = duh_get_tag(duh, "FORMAT");
-        if (tag && *tag) return [NSString stringWithFormat:@"%s",tag];
-        else return @"mod?";
-    }
     if (mPlayType==MMP_TIMIDITY) return @"MIDI";
     if (mPlayType==MMP_PMDMINI) return @"PMD";
     if (mPlayType==MMP_VGMPLAY) return @"VGM";
@@ -8652,24 +8501,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 -(void) optGSF_UpdateParam {
     soundLowPass = optGSFsoundLowPass;
     soundEcho = optGSFsoundEcho;
-}
-
-
-///////////////////////////
-//DUMB
-///////////////////////////
--(void) optDUMB_MastVol:(float)value{
-    if (value<0) value=0;
-    if (value>1) value=1;
-    dumb_MastVol=value*2;
-    if (duh_player) {
-        duh_player->volume = dumb_MastVol;
-    }
-}
--(void) optDUMB_Resampling:(int)value{
-    if (value>3) value=3;
-    if (value<0) value=0;
-    dumb_resampling_quality=value;
 }
 
 
@@ -8870,20 +8701,29 @@ extern "C" void adjust_amplification(void);
 }
 
 ///////////////////////////
-//MODPLUG
+//Openmpt
 ///////////////////////////
--(ModPlug_Settings*) getMPSettings {
-    if (mPlayType==MMP_OPENMPT) ModPlug_GetSettings(&mp_settings);
-    return &mp_settings;
-}
--(void) updateMPSettings {
-    if (mPlayType==MMP_OPENMPT) {
-        //IOS_OPENMPT_TODO  ModPlug_SetSettings(mp_file,&mp_settings);
-        ModPlug_SetSettings(&mp_settings);
+-(void) optOMPT_Sampling:(int) mode {
+    int val;
+    switch(mode) {
+        case 0: //no interpolation (zero order hold)
+            val=1;break;
+        case 1: //linear interpolation
+            val=2;break;
+        case 2: //cubic interpolation
+            val=4;break;
+        case 3: //windowed sinc with 8 taps
+            val=8;break;
+        default: //internal default
+            val=0;break;
     }
+    openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,val);
 }
--(void) setModPlugMasterVol:(float) mstVol {
-    if ((mPlayType==MMP_OPENMPT)&&(mp_file)) ModPlug_SetMasterVolume(mp_file,(int )(mstVol*256));
+-(void) optOMPT_StereoSeparation:(float) val {
+    openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT,val*100);
+}
+-(void) optOMPT_MasterVol:(float) mstVol {
+    if ((mPlayType==MMP_OPENMPT)&&(ompt_mod)) openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_MASTERGAIN_MILLIBEL,(int32_t)(2000.0*log10((int )(mstVol*256)/128.0)));//ModPlug_SetMasterVolume(mp_file,(int )(mstVol*256));
 }
 
 ///////////////////////////
@@ -8953,16 +8793,10 @@ extern "C" void adjust_amplification(void);
     int res;
     switch (mPlayType){
         case MMP_OPENMPT://Modplug
-            res=ModPlug_GetChannelVolume( mp_file,channel);
+            res=openmpt_module_get_current_channel_vu_mono(openmpt_module_ext_get_module(ompt_mod),channel)*255;
             break;
         case MMP_XMP://XMP
             res=xmp_channel_vol(xmp_ctx, channel,-1);
-            break;
-        case MMP_DUMB://DUMB
-        {
-            DUMB_IT_SIGRENDERER *itsr = duh_get_it_sigrenderer(duh_player->dr);
-            res=dumb_it_sr_get_channel_volume(itsr,channel)*4;
-        }
             break;
         default:res=0;
     }
@@ -8971,6 +8805,7 @@ extern "C" void adjust_amplification(void);
 
 -(bool) isVoicesMutingSupported {
     switch (mPlayType) {
+        case MMP_OPENMPT:
         case MMP_GME:
         case MMP_SIDPLAY:
         case MMP_ASAP:
@@ -8983,6 +8818,15 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getVoicesName:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
+        case MMP_OPENMPT: {
+            NSString *result;
+            char *strTmp=(char*)openmpt_module_get_channel_name(openmpt_module_ext_get_module(ompt_mod),channel);
+            if (strTmp&&strTmp[0]) {
+                result=[NSString stringWithFormat:@"#%d-%s",channel+1,strTmp];
+                free(strTmp);
+            } else result=[NSString stringWithFormat:@"#%d-OMPT",channel+1];
+            return result;
+        }
         case MMP_ASAP:
             return [NSString stringWithFormat:@"#%d-POKEY#%d",(channel&3)+1,channel/4+1];
         case MMP_GME:
@@ -9007,6 +8851,8 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemsNb {
     switch (mPlayType) {
+        case MMP_OPENMPT:
+            return 1;
         case MMP_ASAP:
             return numChannels/4;
         case MMP_GME:
@@ -9022,6 +8868,8 @@ extern "C" void adjust_amplification(void);
 
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
+        case MMP_OPENMPT:
+            return @"OMPT";
         case MMP_ASAP:
             if (systemIdx==0) return @"POKEY#1";
             return @"POKEY#2";
@@ -9041,6 +8889,8 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemForVoice:(int)voiceIdx {
     switch (mPlayType) {
+        case MMP_OPENMPT:
+            return 0;
         case MMP_ASAP:
             return voiceIdx/4;
         case MMP_GME:
@@ -9063,6 +8913,14 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemVoicesStatus:(int)systemIdx {
     int tmp;
     switch (mPlayType) {
+        case MMP_OPENMPT:
+            tmp=0;
+            for (int i=0;i<numChannels;i++) {
+                tmp+=(voicesStatus[i]?1:0);
+            }
+            if (tmp==numChannels) return 2; //all active
+            else if (tmp>0) return 1; //partially active
+            return 0; //all off
         case MMP_ASAP:
             tmp=0;
             for (int i=0;i<4;i++) {
@@ -9112,6 +8970,9 @@ extern "C" void adjust_amplification(void);
 
 -(void) setSystemVoicesStatus:(int)systemIdx active:(bool)active {
     switch (mPlayType) {
+        case MMP_OPENMPT:
+            for (int i=0;i<numChannels;i++) [self setVoicesStatus:active index:i];
+            break;
         case MMP_ASAP:
             for (int i=0;i<4;i++) {
                 [self setVoicesStatus:active index:systemIdx*4+i];
@@ -9154,6 +9015,9 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
+        case MMP_OPENMPT:
+            ompt_mod_interactive->set_channel_mute_status(ompt_mod,channel,!active);
+            break;
         case MMP_GME:{
             //if some voices are muted, deactive silence detection as it could end current song
             bool isAnyVoicesMuted=false;
@@ -9249,6 +9113,10 @@ extern "C" void adjust_amplification(void);
                         case 0x14: //NES APU: 5voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].NES.ChnMute1|=1<<(channel-idx);
+                            break;
+                        case 0x17: //OKIM6258: 1voice
+                            if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
+                            else ChipOpts[vgmplay_activeChipsID[i]].OKIM6258.ChnMute1|=1<<(channel-idx);
                             break;
                         case 0x18: //OKIM6295: 4voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].OKIM6295.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));

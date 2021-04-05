@@ -289,7 +289,6 @@
 		59280E9225EAF41E009205EA /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
-		593928D925CF502C009281DC /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928D625CF4FF9009281DC /* libdumb.a */; };
 		593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
 		593928EE25CF5379009281DC /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928E525CF524A009281DC /* libvgmstream.a */; };
 		593928FF25CF5814009281DC /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
@@ -1098,7 +1097,6 @@
 		5950DB6525E0F67B00B476B2 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928E525CF524A009281DC /* libvgmstream.a */; };
 		5950DB6625E0F67B00B476B2 /* libResample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F4925CFE90E00711C05 /* libResample.a */; };
 		5950DB6725E0F67B00B476B2 /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
-		5950DB6825E0F67B00B476B2 /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928D625CF4FF9009281DC /* libdumb.a */; };
 		5950DB6925E0F67B00B476B2 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB325BC8C3B003FEDBF /* libxml2.tbd */; };
 		5950DB6A25E0F67B00B476B2 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		5950DB6B25E0F67B00B476B2 /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
@@ -1128,7 +1126,6 @@
 		5950DB8625E0F67B00B476B2 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F525DEFF8C00B476B2 /* libavformat.a */; };
 		5950DB8725E0F67B00B476B2 /* libopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C67FFE25CFCF2A001595B7 /* libopenmpt.a */; };
 		5950DB8825E0F67B00B476B2 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5958B42725C601B300724722 /* CoreServices.framework */; };
-		5950DB8925E0F67B00B476B2 /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928D625CF4FF9009281DC /* libdumb.a */; };
 		5950DB8B25E0F67B00B476B2 /* aenigmatica.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3C123DEFCC00D8EE6D /* aenigmatica.bin */; };
 		5950DB8C25E0F67B00B476B2 /* alteredbeast.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3D123DEFCC00D8EE6D /* alteredbeast.bin */; };
 		5950DB8D25E0F67B00B476B2 /* armalyte.bin in Copy Files-Replay(SC68) */ = {isa = PBXBuildFile; fileRef = CC9F0E3E123DEFCC00D8EE6D /* armalyte.bin */; };
@@ -1342,7 +1339,6 @@
 		5966D0BC25CFEE0100520777 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6802025CFCF2A001595B7 /* libgme.a */; };
 		5966D0C125CFEE1B00520777 /* libFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F5625CFE90E00711C05 /* libFileExtractor.a */; };
-		5966D0C225CFEE2100520777 /* libdumb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928D625CF4FF9009281DC /* libdumb.a */; };
 		5966D0C325CFEE2600520777 /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
 		5966D0C525CFEE3000520777 /* libLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801125CFCF2A001595B7 /* libLazyusf.a */; };
 		5966D0C725CFEE3600520777 /* libtim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6800725CFCF2A001595B7 /* libtim.a */; };
@@ -2121,13 +2117,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC1343681AC17B3900CAB284;
 			remoteInfo = vgmplay;
-		};
-		593928D525CF4FF9009281DC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 33C294C313ACA1A3006A3BC0 /* dumb.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 335E9DBB13AB2A4300A32A0C;
-			remoteInfo = dumb;
 		};
 		593928E425CF524A009281DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2971,7 +2960,6 @@
 		33BA705E1407A12F0099E943 /* tim.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = tim.xcodeproj; path = libs/libtim/tim.xcodeproj; sourceTree = "<group>"; };
 		33BB80CD14D4679B00EA4B32 /* OBSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OBSlider.h; sourceTree = "<group>"; };
 		33BB80CE14D4679B00EA4B32 /* OBSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OBSlider.m; sourceTree = "<group>"; };
-		33C294C313ACA1A3006A3BC0 /* dumb.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = dumb.xcodeproj; sourceTree = "<group>"; };
 		33C658B0139437FE00265A1D /* merlin_gold.sf2 */ = {isa = PBXFileReference; lastKnownFileType = file; path = merlin_gold.sf2; sourceTree = "<group>"; };
 		33C722CF1691F26C001D77A5 /* 05-shuffle-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffle-green@2x.png"; sourceTree = "<group>"; };
 		33C722D11691F274001D77A5 /* 05-shuffle@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffle@2x.png"; sourceTree = "<group>"; };
@@ -4188,7 +4176,6 @@
 				593928EE25CF5379009281DC /* libvgmstream.a in Frameworks */,
 				5966D0C825CFEE3D00520777 /* libResample.a in Frameworks */,
 				593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */,
-				593928D925CF502C009281DC /* libdumb.a in Frameworks */,
 				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
 				59B2B31D25BDA239006FA3D0 /* liblibxsf.a in Frameworks */,
 				5966D0C325CFEE2600520777 /* liblibxmp.a in Frameworks */,
@@ -4221,7 +4208,6 @@
 				5950D82625DF00AF00B476B2 /* libavformat.a in Frameworks */,
 				5966D0B925CFEDF000520777 /* libopenmpt.a in Frameworks */,
 				5958B42825C601B300724722 /* CoreServices.framework in Frameworks */,
-				5966D0C225CFEE2100520777 /* libdumb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4245,7 +4231,6 @@
 				5950DB6525E0F67B00B476B2 /* libvgmstream.a in Frameworks */,
 				5950DB6625E0F67B00B476B2 /* libResample.a in Frameworks */,
 				5950DB6725E0F67B00B476B2 /* libvgmplay.a in Frameworks */,
-				5950DB6825E0F67B00B476B2 /* libdumb.a in Frameworks */,
 				5950DB6925E0F67B00B476B2 /* libxml2.tbd in Frameworks */,
 				5950DB6A25E0F67B00B476B2 /* liblibxsf.a in Frameworks */,
 				5950DB6B25E0F67B00B476B2 /* liblibxmp.a in Frameworks */,
@@ -4279,7 +4264,6 @@
 				5950DB8625E0F67B00B476B2 /* libavformat.a in Frameworks */,
 				5950DB8725E0F67B00B476B2 /* libopenmpt.a in Frameworks */,
 				5950DB8825E0F67B00B476B2 /* CoreServices.framework in Frameworks */,
-				5950DB8925E0F67B00B476B2 /* libdumb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4534,14 +4518,6 @@
 				33BB80CE14D4679B00EA4B32 /* OBSlider.m */,
 			);
 			path = OBSlider;
-			sourceTree = "<group>";
-		};
-		33C294C213ACA187006A3BC0 /* libdumb */ = {
-			isa = PBXGroup;
-			children = (
-				33C294C313ACA1A3006A3BC0 /* dumb.xcodeproj */,
-			);
-			path = libdumb;
 			sourceTree = "<group>";
 		};
 		33C7395613A0AA700012221C /* tapkulib */ = {
@@ -4928,7 +4904,6 @@
 				59BDE949260FE33100FB0C69 /* HighlyQuixotic */,
 				59BDE8E8260FE1D000FB0C69 /* highlytheoritical */,
 				591D8DE125DC63620013E19F /* LibAtrac9-master */,
-				33C294C213ACA187006A3BC0 /* libdumb */,
 				CC6BE1F612FF3CCD0035A210 /* libgme */,
 				CC9B17FB12FF023600985967 /* libgsf */,
 				CC9FAF701B64DB0600345B1C /* libLazyusf */,
@@ -4954,14 +4929,6 @@
 			isa = PBXGroup;
 			children = (
 				593928CD25CF4E81009281DC /* libvgmplay.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		593928D225CF4FF9009281DC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				593928D625CF4FF9009281DC /* libdumb.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -6728,10 +6695,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 593928D225CF4FF9009281DC /* Products */;
-					ProjectRef = 33C294C313ACA1A3006A3BC0 /* dumb.xcodeproj */;
-				},
-				{
 					ProductGroup = 59627F5225CFE90E00711C05 /* Products */;
 					ProjectRef = CC59B9061AC4B882004FEEBA /* FileExtractor.xcodeproj */;
 				},
@@ -6836,13 +6799,6 @@
 			fileType = archive.ar;
 			path = libvgmplay.a;
 			remoteRef = 593928CC25CF4E81009281DC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		593928D625CF4FF9009281DC /* libdumb.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libdumb.a;
-			remoteRef = 593928D525CF4FF9009281DC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		593928E525CF524A009281DC /* libvgmstream.a */ = {

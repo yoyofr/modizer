@@ -771,14 +771,6 @@ static float movePinchScale,movePinchScaleOld;
     }
     
     /////////////////////
-    //DUMB
-    /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_DUMB)) {
-        [mplayer optDUMB_Resampling:settings[DUMB_Resampling].detail.mdz_switch.switch_value];
-        [mplayer optDUMB_MastVol:settings[DUMB_MasterVolume].detail.mdz_slider.slider_value];
-    }
-    
-    /////////////////////
     //GME
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_GME)) {
@@ -850,36 +842,10 @@ static float movePinchScale,movePinchScaleOld;
     //MODPLUG
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_MODPLUG)) {
-        ModPlug_Settings *mpsettings;
-        mpsettings=[mplayer getMPSettings];
-        switch ( settings[MODPLUG_Sampling].detail.mdz_switch.switch_value) {
-            case 0:mpsettings->mResamplingMode = MODPLUG_RESAMPLE_NEAREST;break;
-            case 1:mpsettings->mResamplingMode = MODPLUG_RESAMPLE_LINEAR;break;
-            case 2:mpsettings->mResamplingMode = MODPLUG_RESAMPLE_SPLINE;break;
-            case 3:mpsettings->mResamplingMode = MODPLUG_RESAMPLE_FIR;break;
-        }
-        mpsettings->mFlags|=MODPLUG_ENABLE_OVERSAMPLING|MODPLUG_ENABLE_NOISE_REDUCTION;
-       /* switch ( settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value) {
-            case 1:mpsettings->mFlags|=MODPLUG_ENABLE_REVERB;break;
-            case 0:mpsettings->mFlags&=~MODPLUG_ENABLE_REVERB;break;
-        }
-        switch ( settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value) {
-            case 1:mpsettings->mFlags|=MODPLUG_ENABLE_MEGABASS;break;
-            case 0:mpsettings->mFlags&=~MODPLUG_ENABLE_MEGABASS;break;
-        }
-        switch ( settings[MODPLUG_Surround].detail.mdz_boolswitch.switch_value) {
-            case 1:mpsettings->mFlags|=MODPLUG_ENABLE_SURROUND;break;
-            case 0:mpsettings->mFlags&=~MODPLUG_ENABLE_SURROUND;break;
-        }
-        mpsettings->mReverbDepth=(int)(settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_value*100.0f);
-        mpsettings->mReverbDelay=(int)(settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value*160.0f+40.0f);
-        mpsettings->mBassAmount=(int)(settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value*100.0f);
-        mpsettings->mBassRange=(int)(settings[MODPLUG_BassRange].detail.mdz_slider.slider_value*80.0f+20.0f);
-        mpsettings->mSurroundDepth=(int)(settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_value*100.0f);
-        mpsettings->mSurroundDelay=(int)(settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value*35.0f+5.0f);*/
-        mpsettings->mStereoSeparation=(int)(settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value*255.0f+1);
-        [mplayer setModPlugMasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
-        [mplayer updateMPSettings];
+        [mplayer optOMPT_Sampling:settings[MODPLUG_Sampling].detail.mdz_switch.switch_value];
+        [mplayer optOMPT_StereoSeparation:settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value];
+        [mplayer optOMPT_MasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
+        
     }
 	
 }
@@ -2224,7 +2190,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
 	//set volume (if applicable)
-	[mplayer setModPlugMasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
+	[mplayer optOMPT_MasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
 	
 	
 	labelTime.text=@"00:00";
@@ -2588,7 +2554,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     mRestart_sub=0;
     mRestart_arc=0;
     //set volume (if applicable)
-    [mplayer setModPlugMasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
+    [mplayer optOMPT_MasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
     
     
     
@@ -4808,15 +4774,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 #endif
 	mplayer.bGlobalAudioPause=1;
     //init mod player var
-	ModPlug_Settings *mpsettings=[mplayer getMPSettings];
-	mpsettings->mResamplingMode = MODPLUG_RESAMPLE_LINEAR; /* RESAMP */
-	mpsettings->mChannels = 2;
-	mpsettings->mBits = 16;
-	mpsettings->mFrequency = 44100;
-	/* insert more setting changes here */
-	mpsettings->mLoopCount = 0;
-	[mplayer updateMPSettings];
-    
+	
 	
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -5914,7 +5872,8 @@ extern "C" int current_sample;
                     currentPattern=pat[playerpos];
                     currentRow=row[playerpos];
                     
-                    currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
+                    currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
+                    //ModPlug_GetPatternModizer(openmpt_module_ext_get_module(ompt_mod),currentPattern,(unsigned int*)(&numRows));
                     idx=startRow*mplayer.numChannels+startChan;
                     
                     for (int i=0;i<mplayer.numChannels;i++) tim_notes_cpy[playerpos][i]=0;
@@ -5974,10 +5933,11 @@ extern "C" int current_sample;
                         channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i+startChan];
                     }
                     
-                    currentNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
-                    if (currentPattern>0) prevNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern-1,(unsigned int*)(&numRowsP));
+                    currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)]; //ModPlug_GetPattern(mplayer.mp_file,currentPattern,(unsigned int*)(&numRows));
+                    
+                    if (currentPattern>0) prevNotes=[mplayer ompt_getPattern:currentPattern-1 numrows:(unsigned int*)(&numRowsP)];//ModPlug_GetPattern(mplayer.mp_file,currentPattern-1,(unsigned int*)(&numRowsP));
                     else prevNotes=nil;
-                    if (currentPattern<mplayer.numPatterns-1) nextNotes=ModPlug_GetPattern(mplayer.mp_file,currentPattern+1,(unsigned int*)(&numRowsN));
+                    if (currentPattern<mplayer.numPatterns-1) nextNotes=[mplayer ompt_getPattern:currentPattern+1 numrows:(unsigned int*)(&numRowsN)];//ModPlug_GetPattern(mplayer.mp_file,currentPattern+1,(unsigned int*)(&numRowsN));
                     else nextNotes=nil;
                     idx=startRow*mplayer.numChannels+startChan;
                     

@@ -67,13 +67,6 @@ void optVISUChangedC(id param) {
 void optADPLUGChangedC(id param) {
     [param optADPLUGChanged];
 }
-//DUMB
--(void) optDUMBChanged {
-    [detailViewController settingsChanged:(int)SETTINGS_DUMB];
-}
-void optDUMBChangedC(id param) {
-    [param optDUMBChanged];
-}
 //GME
 -(void) optGMEChanged {
     [detailViewController settingsChanged:(int)SETTINGS_GME];
@@ -346,7 +339,7 @@ void optGSFChangedC(id param) {
     //MODPLUG
     /////////////////////////////////////
     settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value=0.5;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=2;
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=0;
 /*    settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
     settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value=0.7;
     settings[MODPLUG_BassRange].detail.mdz_slider.slider_value=0.3;
@@ -357,12 +350,6 @@ void optGSFChangedC(id param) {
     settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_value=0.8;
     settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;*/
     settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value=0.5;
-    
-    /////////////////////////////////////
-    //DUMB
-    /////////////////////////////////////
-    settings[DUMB_MasterVolume].detail.mdz_slider.slider_value=0.5;
-    settings[DUMB_Resampling].detail.mdz_switch.switch_value=1;
     
     /////////////////////////////////////
     //TIMIDITY
@@ -543,9 +530,8 @@ void optGSFChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"DUMB";
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"UADE";
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[3]=(char*)"XMP";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"UADE";
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[2]=(char*)"XMP";
     
     settings[GLOB_DefaultSAPPlayer].type=MDZ_SWITCH;
     settings[GLOB_DefaultSAPPlayer].label=(char*)"Default SAP player";
@@ -1028,13 +1014,14 @@ void optGSFChangedC(id param) {
     settings[MODPLUG_Sampling].family=MDZ_SETTINGS_FAMILY_MODPLUG;
     settings[MODPLUG_Sampling].sub_family=0;
     settings[MODPLUG_Sampling].callback=&optMODPLUGChangedC;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=2;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb=4;
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=0;
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb=5;
     settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Near";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Cub";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[3]=(char*)"Win";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Def.";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[1]=(char*)"Near";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Lin";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[3]=(char*)"Cub";
+    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[4]=(char*)"Win";
     
 /*    settings[MODPLUG_Megabass].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Megabass].label=(char*)"Megabass";
@@ -1131,38 +1118,6 @@ void optGSFChangedC(id param) {
     settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_max_value=1;
     
     
-    /////////////////////////////////////
-    //DUMB
-    /////////////////////////////////////
-    settings[MDZ_SETTINGS_FAMILY_DUMB].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_DUMB].label=(char*)"Dumb";
-    settings[MDZ_SETTINGS_FAMILY_DUMB].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_DUMB].family=MDZ_SETTINGS_FAMILY_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_DUMB].sub_family=MDZ_SETTINGS_FAMILY_DUMB;
-    
-    settings[DUMB_MasterVolume].label=(char*)"Master Volume";
-    settings[DUMB_MasterVolume].description=NULL;
-    settings[DUMB_MasterVolume].family=MDZ_SETTINGS_FAMILY_DUMB;
-    settings[DUMB_MasterVolume].sub_family=0;
-    settings[DUMB_MasterVolume].callback=&optDUMBChangedC;
-    settings[DUMB_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
-    settings[DUMB_MasterVolume].detail.mdz_slider.slider_value=1.0;
-    settings[DUMB_MasterVolume].detail.mdz_slider.slider_min_value=0;
-    settings[DUMB_MasterVolume].detail.mdz_slider.slider_max_value=1;
-    
-    settings[DUMB_Resampling].type=MDZ_SWITCH;
-    settings[DUMB_Resampling].label=(char*)"Resampling";
-    settings[DUMB_Resampling].description=NULL;
-    settings[DUMB_Resampling].family=MDZ_SETTINGS_FAMILY_DUMB;
-    settings[DUMB_Resampling].sub_family=0;
-    settings[DUMB_Resampling].callback=&optDUMBChangedC;
-    settings[DUMB_Resampling].detail.mdz_switch.switch_value=2;
-    settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb=4;
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[0]=(char*)"Alias";
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[1]=(char*)"Lin";
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[2]=(char*)"Cubic";
-    settings[DUMB_Resampling].detail.mdz_switch.switch_labels[3]=(char*)"FIR";
     
     /////////////////////////////////////
     //GME
@@ -1281,7 +1236,7 @@ void optGSFChangedC(id param) {
     settings[GSF_SOUNDQUALITY].callback=&optGSFChangedC;
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value=2;
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value_nb=3;
-    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels=(char**)malloc(settings[DUMB_Resampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels=(char**)malloc(settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[0]=(char*)"11Khz";
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[1]=(char*)"22Khz";
     settings[GSF_SOUNDQUALITY].detail.mdz_switch.switch_labels[2]=(char*)"44Khz";

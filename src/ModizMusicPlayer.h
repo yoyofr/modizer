@@ -16,6 +16,7 @@
 
 //libopenmpt
 #import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt.h"
+#import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt_ext.h"
 #import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt_stream_callbacks_file.h"
 #import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 //MODPLUG
@@ -75,7 +76,6 @@ enum MMP_PLAYER_TYPE {
     MMP_SIDPLAY,
     MMP_XMP,
     MMP_OPENMPT,
-    MMP_DUMB,
     MMP_UADE,
     MMP_TIMIDITY,
     MMP_VGMSTREAM,
@@ -134,9 +134,11 @@ enum MMP_PLAYER_TYPE {
     char optGSFsoundEcho;
     char optGSFsoundQuality;//1:44Khz, 2:22Khz, 4:11Khz
     char optGSFsoundInterpolation;
-	//Modplug
-	ModPlug_Settings mp_settings;
+	//Openmpt
     int mPatternDataAvail;
+    openmpt_module_ext *ompt_mod;
+    openmpt_module_ext_interface_interactive *ompt_mod_interactive;
+    ModPlugNote** ompt_patterns;
 	//adplug
     int mADPLUGopltype;
 	//SID    
@@ -157,7 +159,6 @@ enum MMP_PLAYER_TYPE {
     //
 	//Modplug stuff
 	
-	ModPlugFile *mp_file;
 	int *genRow,*genPattern,*playRow,*playPattern;//,*playOffset,*genOffset;
     unsigned char *genVolData,*playVolData;
 	char *mp_data;
@@ -186,8 +187,8 @@ enum MMP_PLAYER_TYPE {
 @property unsigned char optVGMPLAY_ym2612emulator;
 @property bool optVGMPLAY_preferJapTag;
 //Modplug stuff
+@property openmpt_module_ext *ompt_mod;
 @property ModPlug_Settings mp_settings;
-@property ModPlugFile *mp_file;
 @property char *mp_data;
 @property int *genRow,*genPattern,*playRow,*playPattern;//,*playOffset,*genOffset;
 @property unsigned char *genVolData,*playVolData;
@@ -230,14 +231,10 @@ enum MMP_PLAYER_TYPE {
 -(NSString*) getModName;
 -(NSString*) getModType;
 -(NSString*) getPlayerName;
--(void) setModPlugMasterVol:(float)mstVol;
 -(void) Seek:(int)seek_time;
 
 -(int) getSongLengthfromMD5:(int)track_nb;
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength;
-
--(ModPlug_Settings*) getMPSettings;
--(void) updateMPSettings;
 
 -(BOOL) isEndReached;
 -(void) Stop;
@@ -271,6 +268,10 @@ enum MMP_PLAYER_TYPE {
 -(void) optUADE_PanValue:(float_t)val;
 -(void) optUADE_GainValue:(float_t)val;
 
+-(void) optOMPT_MasterVol:(float)mstVol;
+-(void) optOMPT_Sampling:(int) mode;
+-(void) optOMPT_StereoSeparation:(float) val;
+
 
 
 -(void) optVGMPLAY_MaxLoop:(unsigned int)val;
@@ -294,8 +295,6 @@ enum MMP_PLAYER_TYPE {
 -(void) optSIDModel:(int)modelMode;
 
 -(void) optADPLUG:(int)opltype;
--(void) optDUMB_MastVol:(float)value;
--(void) optDUMB_Resampling:(int)value;
 
 -(void) optGLOB_Panning:(int)onoff;
 -(void) optGLOB_PanningValue:(float)value;
@@ -353,11 +352,12 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_snsfLoad:(NSString*)filePath;
 -(int) mmp_vgmplayLoad:(NSString*)filePath;
 -(int) mmp_pmdminiLoad:(NSString*)filePath;
--(int) mmp_dumbLoad:(NSString*)filePath;
 -(int) mmp_asapLoad:(NSString*)filePath;
 -(int) mmp_adplugLoad:(NSString*)filePath;
 -(int) mmp_gmeLoad:(NSString*)filePath;
 -(int) mmp_2sfLoad:(NSString*)filePath;
+
+-(ModPlugNote*) ompt_getPattern:(int)pattern numrows:(unsigned int*)numrows;
 
 -(NSString*) getFullFilePath:(NSString *)_filePath;
 
