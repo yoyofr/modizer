@@ -16,9 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface VoicesViewController : UIViewController {
     BButton *voices[SOUND_MAXMOD_CHANNELS];
     BButton *voicesSolo[SOUND_MAXMOD_CHANNELS];
-    BButton *voicesChip[VGMPLAY_MAX_ACTIVE_CHIPS];    
-    UIColor *voicesChipCol[VGMPLAY_MAX_ACTIVE_CHIPS];
-    UIColor *voicesChipColHalf[VGMPLAY_MAX_ACTIVE_CHIPS];
+    BButton *voicesChip[SOUND_VOICES_MAX_ACTIVE_CHIPS];
+    UIColor *voicesChipCol[SOUND_VOICES_MAX_ACTIVE_CHIPS];
+    UIColor *voicesChipColHalf[SOUND_VOICES_MAX_ACTIVE_CHIPS];
     BButton *voicesAllOn;
     BButton *voicesAllOff;
     UIView *sep1,*sep2;

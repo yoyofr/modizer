@@ -105,15 +105,17 @@ void RenderUtils::SetUpOrtho(float rotation,uint width,uint height)
 static signed char *prev_snd_data;
 int snd_data_ofs[SOUND_MAXVOICES_BUFFER_FX];
 
+#include "ModizerVoicesData.h"
+
 #define absint(a) (a>=0?a:-a)
-void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint ww,uint hh,uint bg,uint pos) {
+void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint ww,uint hh,uint color_mode,uint pos) {
     LineVertex *pts,*ptsB;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
     int oval[SOUND_MAXVOICES_BUFFER_FX];
     int sp[SOUND_MAXVOICES_BUFFER_FX];
     int osp[SOUND_MAXVOICES_BUFFER_FX];
-    int colL1,colL2;
+    int colR,colG,colB,tmpR,tmpG,tmpB;
     int count;
     int min_gap,tmp_gap,ofs,old_ofs;
     
@@ -142,9 +144,6 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     
     
     
-    colL1=150;
-    colL2=75;
-        
     int rows_nb=((num_voices-1)/8)+1;
     int rows_width=ww/rows_nb;
     int xofs=(ww-rows_width*rows_nb)/2;
@@ -202,21 +201,29 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         for (;cur_voices<max_voices;cur_voices++,ypos-=mulfactor) {
             
             int smpl_ofs=snd_data_ofs[cur_voices]<<8;
+            colR=((m_voice_voiceColor[cur_voices]>>16)&0xFF)*1.5f;
+            colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF)*1.5f;
+            colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF)*1.5f;
                         
             for (int i=0; i<rows_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
-                val[cur_voices]=(signed int)(snd_data[((smpl_ofs>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+cur_voices])*mulfactor>>8;
+                val[cur_voices]=snd_data[((smpl_ofs>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+cur_voices];
                 osp[cur_voices]=sp[cur_voices];
-                sp[cur_voices]=(val[cur_voices]); if(sp[cur_voices]>mulfactor) sp[cur_voices]=mulfactor; if (sp[cur_voices]<-mulfactor) sp[cur_voices]=-mulfactor;
+                sp[cur_voices]=(val[cur_voices])*mulfactor>>8; if(sp[cur_voices]>mulfactor) sp[cur_voices]=mulfactor; if (sp[cur_voices]<-mulfactor) sp[cur_voices]=-mulfactor;
                 
-                colL1=(((val[cur_voices]-oval[cur_voices])*1024)>>15)+180;
-                colL2=(((val[cur_voices]-oval[cur_voices])*128)>>15)+32;
+                //colL1=(((val[cur_voices]-oval[cur_voices])*1024)>>15)+180;
+                //colL2=(((val[cur_voices]-oval[cur_voices])*128)>>15)+32;
+                tmpR=colR+((val[cur_voices]-oval[cur_voices])<<1);
+                tmpG=colG+((val[cur_voices]-oval[cur_voices])<<1);
+                tmpB=colB+((val[cur_voices]-oval[cur_voices])<<1);
+                if (tmpR>255) tmpR=255;if (tmpG>255) tmpG=255;if (tmpB>255) tmpB=255;
+                if (tmpR<0) tmpR=0;if (tmpG<0) tmpG=0;if (tmpB<0) tmpB=0;
                 
-                pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,colL2,colL1,colL2,205);
                 
-                if (colL1<32) colL1=32;if (colL1>255) colL1=255;
-                if (colL2<32) colL2=32;if (colL2>255) colL2=255;
-                pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,colL2,colL1,colL2,205);
+                pts[count++] = LineVertex(xpos+i, osp[cur_voices]+ypos,tmpR,tmpG,tmpB,192);
+                
+                pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,192);
+                
                 
                 smpl_ofs+=smpl_ofs_incr;
             }

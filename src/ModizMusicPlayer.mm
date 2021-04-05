@@ -62,8 +62,11 @@ signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
 signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
 int m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
 int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+int m_voice_systemColor[SOUND_VOICES_MAX_ACTIVE_CHIPS];
+int m_voice_voiceColor[SOUND_MAXVOICES_BUFFER_FX];
 signed char m_voice_current_system,m_voice_current_systemSub;
 char m_voice_current_systemPairedOfs;
+char mSIDSeekInProgress;
 
 
 
@@ -103,9 +106,10 @@ static int mSingleSubMode;
 
 static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int mdz_defaultMODPLAYER,mdz_defaultSAPPLAYER,mdz_defaultVGMPLAYER;
-static char vgmplay_activeChips[VGMPLAY_MAX_ACTIVE_CHIPS];
-static char vgmplay_activeChipsID[VGMPLAY_MAX_ACTIVE_CHIPS];
-static char *vgmplay_activeChipsName[VGMPLAY_MAX_ACTIVE_CHIPS];
+
+static char vgmplay_activeChips[SOUND_VOICES_MAX_ACTIVE_CHIPS];
+static char vgmplay_activeChipsID[SOUND_VOICES_MAX_ACTIVE_CHIPS];
+static char *vgmplay_activeChipsName[SOUND_VOICES_MAX_ACTIVE_CHIPS];
 static char vgmplay_activeChipsNb;
 static char **mdz_ArchiveFilesList;
 //static char **mdz_ArchiveFilesListAlias;
@@ -1462,7 +1466,17 @@ void propertyListenerCallback (void                   *inUserData,              
             m_voice_buff_ana[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         }
-        memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
+        memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
+        
+        for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
+            CGFloat hue=0.4f+i*0.3f;
+            while (hue>1.0) hue-=1.0f;
+            UIColor *col=[UIColor colorWithHue:hue saturation:0.9f brightness:0.6f alpha:1.0f];
+            CGFloat red,green,blue;
+            //voicesChipColHalf[i]=[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.7f brightness:0.4f alpha:1.0f];
+            [col getRed:&red green:&green blue:&blue alpha:NULL];
+            m_voice_systemColor[i]=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
+        }
 
         
         //Global
@@ -2801,6 +2815,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 mSidEmuEngine->load(mSidTune);
                                 mCurrentSamples=0;
                             }
+                            mSIDSeekInProgress=1;
                             mSidEmuEngine->fastForward( 100 * 32 );
                             while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
                                 nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
@@ -2812,6 +2827,7 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                 mCurrentSamples+=(nbBytes/4);
                             }
+                            mSIDSeekInProgress=0;
                         }
                         if (mPlayType==MMP_GME) {   //GME
                             bGlobalSeekProgress=-1;
@@ -3035,6 +3051,9 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
                                 iCurrentTime=0;
                                 numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));  //should not change in a subsong
+                                for (int i=0;i<numChannels;i++) {
+                                    m_voice_voiceColor[i]=m_voice_systemColor[0];
+                                }
                                 
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
@@ -4896,6 +4915,11 @@ long src_callback_mpg123(void *cb_data, float **data) {
     
     iCurrentTime=0;
     numChannels=sndNumChannels;
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+    
     mod_name[0]=0;
     if (title_str)
         if (title_str[0]) sprintf(mod_name," %s",title_str);
@@ -4944,6 +4968,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
         iCurrentTime=0;
         
         numChannels=mdx->tracks;
+        
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
         
         if (tmp_mod_name) sprintf(mod_message,"Title.....: %s\n",tmp_mod_name);
         else sprintf(mod_message,"Title.....: N/A\n");
@@ -5001,6 +5029,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
         
         numChannels=2;
         
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
+        
         sprintf(mod_message,"Title.....: %s\nAuthor...: %s\nComposer...: %s\nHardware...: %s\nConverter.....: %s\nRipper...: %s\n",
                 info.title,info.author,info.composer,info.hwname,info.converter,info.ripper);
         
@@ -5047,6 +5079,10 @@ long src_callback_mpg123(void *cb_data, float **data) {
         iCurrentTime=0;
         
         numChannels=2;
+        
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
         
         sprintf(mod_message,"Name.....: %s\nAuthor...: %s\nType.....: %s\nPlayer...: %s\nComment..: %s\n",info.pSongName,info.pSongAuthor,info.pSongType,info.pSongPlayer,info.pSongComment);
         
@@ -5312,6 +5348,11 @@ char* loadRom(const char* path, size_t romSize)
             iCurrentTime=0;
             mCurrentSamples=0;
             numChannels=3*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
+            
+            for (int i=0;i<numChannels;i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[i/3];
+            }
+            
             voicesDataAvail=1;
             
             stil_info[0]=0;
@@ -5429,6 +5470,10 @@ char* loadRom(const char* path, size_t romSize)
         iCurrentTime=0;
         
         numChannels=hvl_song->ht_Channels;
+        
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
         
         if (hvl_song->ht_InstrumentNr==0) sprintf(mod_message,"N/A\n");
         else {
@@ -5571,6 +5616,11 @@ char* loadRom(const char* path, size_t romSize)
     sprintf(mod_message,"%s\n",mod_name);
     numChannels=4;
     iCurrentTime=0;
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+    
     iModuleLength=UADEstate.song->playtime;
     if (iModuleLength<0) iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
     
@@ -5650,6 +5700,10 @@ char* loadRom(const char* path, size_t romSize)
     
     iCurrentTime=0;
     numChannels=xmp_mi.mod->chn;
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
@@ -5747,6 +5801,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumChannels(mp_file);
     numPatterns=openmpt_module_get_num_patterns(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumPatterns(mp_file);
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
     
     //LIBOPENMPT_API const char * openmpt_module_get_metadata_keys( openmpt_module * mod );
     //LIBOPENMPT_API const char * openmpt_module_get_metadata( openmpt_module * mod, const char * key );
@@ -5879,6 +5937,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     numChannels=2;
     
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+    
     sprintf(mod_name," %s",mod_filename);
     sprintf(mod_message,"Midi Infos:");
     
@@ -5954,6 +6016,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
     vcfg.ignore_loop = 0;//ignore_loop;
     numChannels=2;
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+    
     vgmstream_apply_config(vgmStream, &vcfg);
     vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
     vgmstream_mixing_autodownmix(vgmStream, 2);
@@ -5989,6 +6056,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     numChannels=vgmStream->channels;
     if (vgmStream->stream_name[0]) sprintf(mod_name," %s",vgmStream->stream_name);
     else sprintf(mod_name," %s",mod_filename);
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+    
     
     mod_message[0]=0;
     describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
@@ -6340,6 +6412,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     iCurrentTime=0;
     numChannels=2;
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
+    
     iModuleLength=1000* (long long)(xSFPlayer->GetLengthInSamples()) / 44100;
     
     
@@ -6501,6 +6578,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         voicesDataAvail=1;
         numChannels=24;
         
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
+        
         //help to behave more like real hardware, fix a few recent dumps
         void * pIOP = psx_get_iop_state( HC_emulatorCore );
         iop_set_compat( pIOP, IOP_COMPAT_HARSH );
@@ -6526,6 +6607,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         
         voicesDataAvail=1;
         numChannels=48;
+        
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[i/24];
+        }
         
         //help to behave more like real hardware, fix a few recent dumps
         void * pIOP = psx_get_iop_state( HC_emulatorCore );
@@ -6561,6 +6646,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         free( state.data );
         
         numChannels=2;
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
     } else if (HC_type == 0x21) { //USF
         lzu_state = new usf_loader_state;
         lzu_state->emu_state = malloc( usf_get_state_size() );
@@ -6582,6 +6670,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         usf_render(lzu_state->emu_state, 0, 0, &hc_sample_rate);
         
         numChannels=2;
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
     } else if ( HC_type == 0x41 ) { //QSF
         hc_sample_rate=24038;
         struct qsf_loader_state * state = ( struct qsf_loader_state * ) calloc( 1, sizeof( *state ) );
@@ -6615,6 +6706,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         qsound_set_sample_rom( HC_emulatorCore, state->sample_rom, state->sample_size );
         
         numChannels=2;
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
     }
     src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
             
@@ -6740,6 +6834,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
                 vgmplay_activeChipsID[vgmplay_activeChipsNb]=i;
                 m_voice_ChipID[numChannels]=CurChip|(i<<8);
                 
+                for (int j=numChannels;j<numChannels+vgmGetVoicesNb(CurChip);j++) {
+                    m_voice_voiceColor[j]=m_voice_systemColor[vgmplay_activeChipsNb];
+                }
+                
                 vgmplay_activeChipsName[vgmplay_activeChipsNb]=strdup(strChip);
                 numChannels+=vgmGetVoicesNb(CurChip);
                 vgmplay_activeChipsNb++;
@@ -6793,6 +6891,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             }
         }
     }
+        
     //if (!voicesDataAvail) numChannels=2;
                 
     sprintf(mod_message+strlen(mod_message),"\nAuthor:%s\nGame:%s\nSystem:%s\nTitle:%s\nRelease Date:%s\nCreator:%s\nNotes:%s\n",
@@ -6880,6 +6979,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         
         numChannels=pmd_get_tracks();
         
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
+        
+        
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         
@@ -6937,6 +7041,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     iCurrentTime=0;
         
     numChannels=(asap->pokeys.extraPokeyMask?8:4);//asap->moduleInfo.channels;
+    
+    for (int i=0;i<numChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[i/4];
+    }
     
     
     mod_minsub=0;
@@ -7029,6 +7137,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         if (mLoopMode==1) iModuleLength=-1;
         
         numChannels=9;
+        
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
         
         
         return 0;
@@ -7199,6 +7311,10 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         
         iCurrentTime=0;
         numChannels=gme_voice_count( gme_emu );
+        
+        for (int i=0;i<numChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
         
         
         mod_message_updated=2;
@@ -7793,6 +7909,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         memset(m_voice_buff_ana_cpy[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
     }
     memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
+    mSIDSeekInProgress=0;
     
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
@@ -8924,7 +9041,7 @@ extern "C" void adjust_amplification(void);
             if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
                 return @"SPC700";
             }
-            return @"";
+            return [NSString stringWithFormat:@"%s",gmetype];
         case MMP_VGMPLAY:
             return [NSString stringWithFormat:@"%s#%d",vgmplay_activeChipsName[systemIdx],vgmplay_activeChipsID[systemIdx] + 1];
         case MMP_SIDPLAY:
@@ -8993,16 +9110,13 @@ extern "C" void adjust_amplification(void);
             else if (tmp>0) return 1; //partially active
             return 0; //all off
         case MMP_GME:
-            if (strcmp(gmetype,"Super Nintendo")==0) {//SPC
-                tmp=0;
-                for (int i=0;i<numChannels;i++) {
-                    tmp+=(voicesStatus[i]?1:0);
-                }
-                if (tmp==numChannels) return 2; //all active
-                else if (tmp>0) return 1; //partially active
-                return 0; //all off
+            tmp=0;
+            for (int i=0;i<numChannels;i++) {
+                tmp+=(voicesStatus[i]?1:0);
             }
-            return 0;
+            if (tmp==numChannels) return 2; //all active
+            else if (tmp>0) return 1; //partially active
+            return 0; //all off
         case MMP_VGMPLAY: {
             int idx=0;
             //1st reach 1st voice of systemIdx

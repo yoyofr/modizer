@@ -299,12 +299,16 @@ void SID::ageBusValue(unsigned int n)
     }
 }
 
+static int v1;
+static int v2;
+static int v3;
+
 RESID_INLINE
 int SID::output() const
 {
-    const int v1 = voice[0]->output(voice[2]->wave());
-    const int v2 = voice[1]->output(voice[0]->wave());
-    const int v3 = voice[2]->output(voice[1]->wave());
+    /*const int*/ v1 = voice[0]->output(voice[2]->wave());
+    /*const int*/ v2 = voice[1]->output(voice[0]->wave());
+    /*const int*/ v3 = voice[2]->output(voice[1]->wave());
 
     return externalFilter->clock(filter->clock(v1, v2, v3));
 }
@@ -313,7 +317,9 @@ int SID::output() const
 //TODO:  MODIZER changes start / YOYOFR
 extern "C" {
 #include "../../../../src/ModizerVoicesData.h"
+extern char mSIDSeekInProgress;
 }
+
 //TODO:  MODIZER changes end / YOYOFR
 
 RESID_INLINE
@@ -327,8 +333,9 @@ int SID::clock(unsigned int cycles, short* buf)
     //check current active sid
     int sid_idx=m_voice_current_system*3;    
     int smplIncr=44100*256/96000;
-    if (smplIncr>256) smplIncr=256;    
+    if (smplIncr>256) smplIncr=256;
     //TODO:  MODIZER changes end / YOYOFR
+    
 
     while (cycles != 0)
     {
@@ -336,8 +343,6 @@ int SID::clock(unsigned int cycles, short* buf)
 
         if (likely(delta_t > 0))
         {
-            
-            
             for (unsigned int i = 0; i < delta_t; i++)
             {
                 // clock waveform generators
@@ -349,24 +354,28 @@ int SID::clock(unsigned int cycles, short* buf)
                 voice[0]->envelope()->clock();
                 voice[1]->envelope()->clock();
                 voice[2]->envelope()->clock();
-                
-                if (unlikely(resampler->input(output())))
-                {
-                    buf[s++] = resampler->getOutput();
-                    
-                    //TODO:  MODIZER changes start / YOYOFR
-                    m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>8]=LIMIT8((voice[0]->output(voice[0]->wave())>>14));
-                    m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>8]=LIMIT8((voice[1]->output(voice[1]->wave())>>14));
-                    m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>8]=LIMIT8((voice[2]->output(voice[2]->wave())>>14));
-                    
-                    m_voice_current_ptr[sid_idx+0]+=smplIncr;m_voice_current_ptr[sid_idx+1]+=smplIncr;m_voice_current_ptr[sid_idx+2]+=smplIncr;
-                    if ((m_voice_current_ptr[sid_idx+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
-                    if ((m_voice_current_ptr[sid_idx+1]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
-                    if ((m_voice_current_ptr[sid_idx+2]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
-                    //TODO:  MODIZER changes end / YOYOFR
+                if (!mSIDSeekInProgress) {
+                    if (unlikely(resampler->input(output())))
+                    {
+                        buf[s++] = resampler->getOutput();
+                        
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>8]=LIMIT8((v1>>14));
+                        m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>8]=LIMIT8((v2>>14));
+                        m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>8]=LIMIT8((v3>>14));
+                        
+                        m_voice_current_ptr[sid_idx+0]+=smplIncr;m_voice_current_ptr[sid_idx+1]+=smplIncr;m_voice_current_ptr[sid_idx+2]+=smplIncr;
+                        if ((m_voice_current_ptr[sid_idx+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                        if ((m_voice_current_ptr[sid_idx+1]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                        if ((m_voice_current_ptr[sid_idx+2]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                        //TODO:  MODIZER changes end / YOYOFR
+                    }
+                } else {
+                    if (unlikely(resampler->input(0))) {
+                        s++;
+                    }
                 }
-                
-                
             }
             
             cycles -= delta_t;

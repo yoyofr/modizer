@@ -7,6 +7,8 @@
 
 #import "VoicesViewController.h"
 
+#include "ModizerVoicesData.h"
+
 @interface VoicesViewController ()
 
 @end
@@ -332,8 +334,18 @@
                 voicesChip[i]=[[BButton alloc] initWithFrame:CGRectMake(0,0,32,32) type:BButtonTypePrimary style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];
                 [voicesChip[i] setTitle:[detailViewController.mplayer getSystemsName:i] forState:UIControlStateNormal];
                                 
-                voicesChipCol[i]=[UIColor colorWithHue:0.8f-i*0.4f/(float)systemsNb saturation:0.9f brightness:0.8f alpha:1.0f];
-                voicesChipColHalf[i]=[UIColor colorWithHue:0.8f-i*0.4f/(float)systemsNb saturation:0.7f brightness:0.4f alpha:1.0f];
+                CGFloat red,green,blue;
+                red=(float)((m_voice_systemColor[i]>>16)&255)/255.0f;
+                green=(float)((m_voice_systemColor[i]>>8)&255)/255.0f;
+                blue=(float)((m_voice_systemColor[i]>>0)&255)/255.0f;
+                voicesChipCol[i]=[UIColor colorWithRed:red
+                                                 green:green
+                                                  blue:blue
+                                                 alpha:1];  //[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.9f brightness:0.8f alpha:1.0f];
+                voicesChipColHalf[i]=[UIColor colorWithRed:red*2/3
+                                                     green:green*2/3
+                                                      blue:blue*2/3
+                                                     alpha:1];  //[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.7f brightness:0.4f alpha:1.0f];
                 switch ([detailViewController.mplayer getSystemVoicesStatus:i]) {
                     case 2: //all active
                         //[voicesChip[i] setType:BButtonTypePrimary];
