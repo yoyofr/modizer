@@ -4223,26 +4223,26 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
         }
         
         if (ztrans>ztrans_tgt) {
-            ztrans=ztrans+(ztrans_tgt-ztrans)*ztransSpeed_tgt;
+            ztrans=ztrans+(ztrans_tgt-ztrans)*ztransSpeed_tgt*0.5f;
             if (ztransSpeed_tgt<0.1) ztransSpeed_tgt=ztransSpeed_tgt+0.001;
             if (ztrans-ztrans_tgt<0.1) {
                 ztransSpeed_tgt=0;
             }
             
-            ztrans_wait=30*5+arc4random()&255;
+            ztrans_wait=60*5+arc4random()&511;
         } else {
             if (ztrans_wait==0) {
-                ztrans=ztrans+(ztrans_tgt-ztrans)*ztransSpeed_tgt;
+                ztrans=ztrans+(ztrans_tgt-ztrans)*ztransSpeed_tgt*0.5f;
                 if (ztransSpeed_tgt<0.1) ztransSpeed_tgt=ztransSpeed_tgt+0.001;
                 if (ztrans_tgt-ztrans<0.1) {
-                    ztrans_wait=30*5+arc4random()&255;
+                    ztrans_wait=60*5+arc4random()&511;
                     ztransSpeed_tgt=0;
                 }
             } else ztrans_wait--;
         }
         
         xtrans_tgt=((note_max+note_min)/2-64)*7.0/12;
-        xtrans=xtrans+(xtrans_tgt-xtrans)*xtransSpeed_tgt;
+        xtrans=xtrans+(xtrans_tgt-xtrans)*xtransSpeed_tgt*0.5f;
         if (xtransSpeed_tgt<0.1) xtransSpeed_tgt=xtransSpeed_tgt+0.001;
         if (abs(xtrans-xtrans_tgt)<0.1) {
             xtransSpeed_tgt=0;
@@ -4296,21 +4296,21 @@ void RenderUtils::DrawPiano3DWithNotesWall(int *data,uint ww,uint hh,int fx_len,
                 break;
         }
         
-        glTranslatef(-xtrans+xrandfact*(0.9f*sin((float)piano_fxcpt*3.14159f/319)+
-                                        0.5f*sin((float)piano_fxcpt*3.14159f/789)-
-                                        0.7f*sin((float)piano_fxcpt*3.14159f/1061)),
+        glTranslatef(-xtrans+xrandfact*(0.9f*sin((float)piano_fxcpt*0.5*3.14159f/319)+
+                                        0.5f*sin((float)piano_fxcpt*0.5*3.14159f/789)-
+                                        0.7f*sin((float)piano_fxcpt*0.5*3.14159f/1061)),
                      2.0,
-                     ztrans-5*(1.2f*cos((float)piano_fxcpt*3.14159f/719)+
-                               0.5f*sin((float)piano_fxcpt*3.14159f/289)-
-                               0.7f*sin((float)piano_fxcpt*3.14159f/361)));
+                     ztrans-5*(1.2f*cos((float)piano_fxcpt*0.5*3.14159f/719)+
+                               0.5f*sin((float)piano_fxcpt*0.5*3.14159f/289)-
+                               0.7f*sin((float)piano_fxcpt*0.5*3.14159f/361)));
         
         
-        glRotatef(rotx_adj+rotx_randfact*(0.4f*sin((float)piano_fxcpt*3.14159f/91)+
-                                          0.7f*sin((float)piano_fxcpt*3.14159f/911)+
-                                          0.3f*sin((float)piano_fxcpt*3.14159f/409)), 1, 0, 0);
-        glRotatef(roty_adj+roty_randfact*(0.8f*sin((float)piano_fxcpt*3.14159f/173)+
-                                          0.5f*sin((float)piano_fxcpt*3.14159f/1029)+
-                                          0.3f*sin((float)piano_fxcpt*3.14159f/511)), 0, 1, 0);
+        glRotatef(rotx_adj+rotx_randfact*(0.4f*sin((float)piano_fxcpt*0.5*3.14159f/91)+
+                                          0.7f*sin((float)piano_fxcpt*0.5*3.14159f/911)+
+                                          0.3f*sin((float)piano_fxcpt*0.5*3.14159f/409)), 1, 0, 0);
+        glRotatef(roty_adj+roty_randfact*(0.8f*sin((float)piano_fxcpt*0.5*3.14159f/173)+
+                                          0.5f*sin((float)piano_fxcpt*0.5*3.14159f/1029)+
+                                          0.3f*sin((float)piano_fxcpt*0.5*3.14159f/511)), 0, 1, 0);
         
     } else {
         glTranslatef(posx,posy,posz-100*15);

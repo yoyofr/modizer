@@ -27,11 +27,17 @@
 
 #include "sidemu.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
 
 namespace libsidplayfp
 {
 
-void clockChip(sidemu *s) { s->clock(); }
+void clockChip(sidemu *s) { s->clock(); m_voice_current_system++;}
 
 class bufferPos
 {
@@ -63,6 +69,7 @@ private:
 
 void Mixer::clockChips()
 {
+    m_voice_current_system=0;
     std::for_each(m_chips.begin(), m_chips.end(), clockChip);
 }
 

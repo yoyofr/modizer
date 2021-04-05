@@ -703,14 +703,7 @@ typedef struct
 }
 
 //TODO:  MODIZER changes start / YOYOFR
-#define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 32
-
-extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
-extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
-extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
-
-#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+#include "../../../../src/ModizerVoicesData.h"
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -2152,11 +2145,7 @@ void ym2203_update_one(void *chip, FMSAMPLE **buffer, int length)
     int m_voice_ofs=-1;
     int m_total_channels=3;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (m_voice_ChipID[ii]==0) {
-            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
-            m_voice_ofs=ii;
-            break;
-        } else if (m_voice_ChipID[ii]==chip) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;
             break;
         }
@@ -2164,6 +2153,7 @@ void ym2203_update_one(void *chip, FMSAMPLE **buffer, int length)
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
     int smplIncr=44100*256/OPN->ST.rate;
     if (smplIncr>256) smplIncr=256;
+    m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
 
     
@@ -3384,11 +3374,7 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
     int m_voice_ofs=-1;
     int m_total_channels=13;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (m_voice_ChipID[ii]==0) {
-            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
-            m_voice_ofs=ii;
-            break;
-        } else if (m_voice_ChipID[ii]==chip) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;
             break;
         }
@@ -3397,6 +3383,7 @@ void ym2608_update_one(void *chip, FMSAMPLE **buffer, int length)
     int smplIncrFM=44100*256/OPN->ST.rate;
     if (smplIncrFM>256) smplIncrFM=256;
     int smplIncrADPCM=44100*256/44100;
+    m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* set bufer */
@@ -4039,6 +4026,23 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 	FMSAMPLE  *bufL,*bufR;
 	FM_CH	*cch[4];
 	INT32 *out_fm = OPN->out_fm;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=11;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncrFM=44100*256/OPN->ST.rate;
+    if (smplIncrFM>256) smplIncrFM=256;
+    int smplIncrADPCM=44100*256/44100;
+    m_voice_current_systemPairedOfs=m_total_channels;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* buffer setup */
 	bufL = buffer[0];
@@ -4178,6 +4182,33 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
 			/* buffering */
 			bufL[i] = lt;
 			bufR[i] = rt;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((out_fm[1]>>6));
+                m_voice_buff[m_voice_ofs+1][m_voice_current_ptr[m_voice_ofs+1]>>8]=LIMIT8((out_fm[2]>>6));
+                m_voice_buff[m_voice_ofs+2][m_voice_current_ptr[m_voice_ofs+2]>>8]=LIMIT8((out_fm[4]>>6));
+                m_voice_buff[m_voice_ofs+3][m_voice_current_ptr[m_voice_ofs+3]>>8]=LIMIT8((out_fm[5]>>6));
+                for (int jj=0;jj<6;jj++) {
+                    if( F2610->adpcm[jj].flag ) {
+                        m_voice_buff[m_voice_ofs+jj+4][m_voice_current_ptr[m_voice_ofs+jj+4]>>8]=LIMIT8((F2610->adpcm[jj].adpcm_out>>4));
+                    } else {
+                        m_voice_buff[m_voice_ofs+jj+4][m_voice_current_ptr[m_voice_ofs+jj+4]>>8]=0;
+                    }
+                }
+                if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+10][m_voice_current_ptr[m_voice_ofs+10]>>8]=LIMIT8(((OPN->out_delta[OUTD_LEFT]  + OPN->out_delta[OUTD_CENTER] + OPN->out_delta[OUTD_RIGHT])>>14));
+                else m_voice_buff[m_voice_ofs+10][m_voice_current_ptr[m_voice_ofs+10]>>8]=0;
+                
+                for (int ii=0;ii<4;ii++) {
+                    m_voice_current_ptr[m_voice_ofs+ii]+=smplIncrFM;
+                    if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+                for (int ii=4;ii<11;ii++) {
+                    m_voice_current_ptr[m_voice_ofs+ii]+=smplIncrADPCM;
+                    if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 
 		/* timer A control */
@@ -4198,6 +4229,23 @@ void ym2610b_update_one(void *chip, FMSAMPLE **buffer, int length)
 	FMSAMPLE  *bufL,*bufR;
 	FM_CH	*cch[6];
 	INT32 *out_fm = OPN->out_fm;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=13;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncrFM=44100*256/OPN->ST.rate;
+    if (smplIncrFM>256) smplIncrFM=256;
+    int smplIncrADPCM=44100*256/44100;
+    m_voice_current_systemPairedOfs=m_total_channels;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* buffer setup */
 	bufL = buffer[0];
@@ -4334,6 +4382,30 @@ void ym2610b_update_one(void *chip, FMSAMPLE **buffer, int length)
 			/* buffering */
 			bufL[i] = lt;
 			bufR[i] = rt;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                for (int jj=0;jj<6;jj++) {
+                    m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((out_fm[jj]>>6));
+                    if( F2610->adpcm[jj].flag ) {
+                        m_voice_buff[m_voice_ofs+jj+6][m_voice_current_ptr[m_voice_ofs+jj+6]>>8]=LIMIT8((F2610->adpcm[jj].adpcm_out>>4));
+                    } else {
+                        m_voice_buff[m_voice_ofs+jj+6][m_voice_current_ptr[m_voice_ofs+jj+6]>>8]=0;
+                    }
+                }
+                if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+10][m_voice_current_ptr[m_voice_ofs+10]>>8]=LIMIT8(((OPN->out_delta[OUTD_LEFT]  + OPN->out_delta[OUTD_CENTER] + OPN->out_delta[OUTD_RIGHT])>>14));
+                else m_voice_buff[m_voice_ofs+10][m_voice_current_ptr[m_voice_ofs+10]>>8]=0;
+                
+                for (int ii=0;ii<6;ii++) {
+                    m_voice_current_ptr[m_voice_ofs+ii]+=smplIncrFM;
+                    if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+                for (int ii=6;ii<13;ii++) {
+                    m_voice_current_ptr[m_voice_ofs+ii]+=smplIncrADPCM;
+                    if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 
 		/* timer A control */

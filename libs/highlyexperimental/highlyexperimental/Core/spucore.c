@@ -1676,6 +1676,11 @@ static void EMU_CALL reverb_process(struct SPUCORE_STATE *state, uint16 *ram, si
 
 //int spucore_frq[RENDERMAX];
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /*
 ** Renderer
 */
@@ -1701,6 +1706,17 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
   struct SPUCORE_IRQ_STATE *irq_state_ptr;
 
   //spucore_frq[samples]++;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=m_voice_current_system*24;//-1;
+    int m_total_channels=24;
+    
+    int smplFreq=44100;
+    int smplIncr=44100*256/smplFreq;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
+    
 
   irq_state_ptr = NULL;
   irq_state.triggered_cycle = 0xFFFFFFFF;
@@ -1740,6 +1756,13 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
   maskfm = state->fm & 0xFFFFFE;
 
   if(!mainout) { maskmain_l = 0; maskmain_r = 0; }
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    maskmain_l&=(m_voice_current_system?HC_voicesMuteMask2:HC_voicesMuteMask1);
+    maskmain_r&=(m_voice_current_system?HC_voicesMuteMask2:HC_voicesMuteMask1);
+    maskverb_l&=(m_voice_current_system?HC_voicesMuteMask2:HC_voicesMuteMask1);
+    maskverb_r&=(m_voice_current_system?HC_voicesMuteMask2:HC_voicesMuteMask1);
+    //TODO:  MODIZER changes end / YOYOFR
 
   for(ch = 0, chanbit = 1; ch < 24; ch++, chanbit <<= 1) {
     int r;
@@ -1770,6 +1793,14 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
       if(main_r) ibufmix[2*i+1] += q_r;
       if(verb_l) ibufrvb[2*i+0] += q_l;
       if(verb_r) ibufrvb[2*i+1] += q_r;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>8]=LIMIT8((q_l+q_r)>>7);
+            m_voice_current_ptr[m_voice_ofs+ch]+=smplIncr;
+            if ((m_voice_current_ptr[m_voice_ofs+ch]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
   }
 

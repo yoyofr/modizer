@@ -3372,6 +3372,7 @@
 		59B9998B25CFE6030071E144 /* TapkuLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TapkuLibrary.h; path = TapkuLibrary/TapkuLibrary.h; sourceTree = "<group>"; };
 		59B9999425CFE6890071E144 /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
 		59B9999525CFE6890071E144 /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
+		59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModizerVoicesData.h; sourceTree = "<group>"; };
 		59BDE7DA260F650C00FB0C69 /* highlyexperimental.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = highlyexperimental.xcodeproj; sourceTree = "<group>"; };
 		59BDE83B260F658B00FB0C69 /* hebios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hebios.h; path = highlyexperimental/hebios.h; sourceTree = "<group>"; };
 		59BDE85E260F666C00FB0C69 /* psflib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = psflib.xcodeproj; path = psflib/psflib.xcodeproj; sourceTree = "<group>"; };
@@ -5570,7 +5571,6 @@
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
 			isa = PBXGroup;
 			children = (
-				CCD4631D123CB8F600D063FE /* main.mm */,
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CC1E621E12041177000A8A4E /* AppDelegate_Phone.h */,
@@ -5585,13 +5585,15 @@
 				CC6CBDF517DC615F006DCBC7 /* EQView.m */,
 				CC6CBDF117DBE3A8006DCBC7 /* EQViewController.h */,
 				CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */,
-				5918E0A926177CB1004B85DA /* VoicesViewController.h */,
-				5918E0AA26177CB1004B85DA /* VoicesViewController.mm */,
 				CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */,
 				CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */,
+				CCD4631D123CB8F600D063FE /* main.mm */,
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
 				CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */,
 				CC9B97161221739A007A156C /* ModizerConstants.h */,
+				59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */,
+				5950D83825DF1A2500B476B2 /* ModizerWebView.h */,
+				5950D83925DF1A2500B476B2 /* ModizerWebView.m */,
 				CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */,
 				CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */,
 				CC1E622812041177000A8A4E /* ModizMusicPlayer.h */,
@@ -5609,12 +5611,12 @@
 				33FDFF6617B6E99A00B61B65 /* SettingsGenViewController.mm */,
 				33B7AD0A17C74AE600C1E404 /* SettingsMaintenanceViewController.h */,
 				33B7AD0B17C74AE700C1E404 /* SettingsMaintenanceViewController.mm */,
+				5918E0A926177CB1004B85DA /* VoicesViewController.h */,
+				5918E0AA26177CB1004B85DA /* VoicesViewController.mm */,
 				33ABE5B317B2364C00AE0EA1 /* WB_BookmarksViewController.h */,
 				33ABE5B417B2364C00AE0EA1 /* WB_BookmarksViewController.mm */,
 				CC1E623912041177000A8A4E /* WebBrowser.h */,
 				CC1E623A12041177000A8A4E /* WebBrowser.mm */,
-				5950D83825DF1A2500B476B2 /* ModizerWebView.h */,
-				5950D83925DF1A2500B476B2 /* ModizerWebView.m */,
 			);
 			path = src;
 			sourceTree = "<group>";

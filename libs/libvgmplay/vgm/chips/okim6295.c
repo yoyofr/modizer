@@ -327,14 +327,7 @@ static void generate_adpcm(okim6295_state *chip, struct ADPCMVoice *voice, INT16
 ***********************************************************************************************/
 
 //TODO:  MODIZER changes start / YOYOFR
-#define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 32
-
-extern signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
-extern int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
-extern void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
-
-#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+#include "../../../../src/ModizerVoicesData.h"
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -356,11 +349,7 @@ void okim6295_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
     int m_voice_ofs=-1;
     int m_total_channels=4;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (m_voice_ChipID[ii]==0) {
-            for (int jj=0;jj<m_total_channels;jj++) m_voice_ChipID[ii+jj]=chip;
-            m_voice_ofs=ii;
-            break;
-        } else if (m_voice_ChipID[ii]==chip) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;
             break;
         }

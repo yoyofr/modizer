@@ -33,6 +33,8 @@
 #  include "config.h"
 #endif
 
+
+
 namespace libsidplayfp
 {
 
@@ -99,6 +101,7 @@ void ReSIDfp::write(uint_least8_t addr, uint8_t data)
     clock();
     m_sid.write(addr, data);
 }
+
 
 void ReSIDfp::clock()
 {

@@ -103,6 +103,10 @@ void ClosePortTalk(void);
 
 #include "ChipMapper.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 typedef void (*strm_func)(UINT8 ChipID, stream_sample_t **outputs, int samples);
 
 typedef struct chip_audio_attributes CAUD_ATTR;
@@ -2868,8 +2872,8 @@ static void Chips_GeneralActions(UINT8 Mode)
 				ChipClk = GetChipClock(&VGMHead, (CurChip << 7) | CAA->ChipType, NULL);
 				CAA->SmpRate = device_start_ym2610(CurChip, ChipClk, COpt->SpecialFlags & 0x01,
 													(int*)&CAA->Paired->SmpRate);
-				CAA->StreamUpdate = (ChipClk & 0x80000000) ? ym2610b_stream_update :
-															ym2610_stream_update;
+				CAA->StreamUpdate = (ChipClk & 0x80000000) ? &ym2610b_stream_update :
+															&ym2610_stream_update;
 				CAA->Paired->StreamUpdate = &ym2610_stream_update_ay;
 				
 				CAA->Volume = GetChipVolume(&VGMHead, CAA->ChipType, CurChip, ChipCnt);
@@ -5819,6 +5823,11 @@ static void SetupResampler(CAUD_ATTR* CAA)
 	CAA->LSmpl.Right = 0x00;
 	if (CAA->Resampler == 0x01)
 	{
+        //TODO:  MODIZER changes start / YOYOFR
+        m_voice_current_system=CAA->ChipType;
+        m_voice_current_systemSub=CAA->ChipID;
+        m_voice_current_systemPairedOfs=0;
+        //TODO:  MODIZER changes end / YOYOFR
 		// Pregenerate first Sample (the upsampler is always one too late)
 		CAA->StreamUpdate(CAA->ChipID, StreamBufs, 1);
 		CAA->NSmpl.Left = StreamBufs[0x00][0x00];
@@ -5932,6 +5941,12 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
 	CAA = CLst->CAud;
 	CurBufL = StreamBufs[0x00];
 	CurBufR = StreamBufs[0x01];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    m_voice_current_system=CAA->ChipType;
+    m_voice_current_systemSub=CAA->ChipID;
+    m_voice_current_systemPairedOfs=0;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	// This Do-While-Loop gets and resamples the chip output of one or more chips.
 	// It's a loop to support the AY8910 paired with the YM2203/YM2608/YM2610.
@@ -6007,6 +6022,7 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
 			CurBufR[0x01] = CAA->NSmpl.Right;
 			StreamPnt[0x00] = &CurBufL[0x02];
 			StreamPnt[0x01] = &CurBufR[0x02];
+                
 			CAA->StreamUpdate(CAA->ChipID, StreamPnt, InNow - CAA->SmpNext);
 			
 			InBase = FIXPNT_FACT + (UINT32)(InPosL - (SLINT)CAA->SmpNext * FIXPNT_FACT);
@@ -6047,6 +6063,7 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
 			break;
 		case 0x02:	// Copying
 			CAA->SmpNext = CAA->SmpP * CAA->SmpRate / SampleRate;
+                
 			CAA->StreamUpdate(CAA->ChipID, StreamBufs, Length);
 			
 			for (OutPos = 0x00; OutPos < Length; OutPos ++)
@@ -6066,6 +6083,7 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
 			CurBufR[0x00] = CAA->LSmpl.Right;
 			StreamPnt[0x00] = &CurBufL[0x01];
 			StreamPnt[0x01] = &CurBufR[0x01];
+                                
 			CAA->StreamUpdate(CAA->ChipID, StreamPnt, CAA->SmpNext - CAA->SmpLast);
 			
 			InPosL = (SLINT)(FIXPNT_FACT * CAA->SmpP * ChipSmpRate / SampleRate);

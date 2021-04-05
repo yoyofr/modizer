@@ -213,7 +213,7 @@ void ym2610_stream_update_ay(UINT8 ChipID, stream_sample_t **outputs, int sample
 {
 	//ym2610_state *info = (ym2610_state *)param;
 	ym2610_state *info = &YM2610Data[ChipID];
-	
+    
 	if (info->psg != NULL)
 	{
 		switch(AY_EMU_CORE)

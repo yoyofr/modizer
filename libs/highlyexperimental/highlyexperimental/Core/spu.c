@@ -765,6 +765,11 @@ void EMU_CALL spu_sh(void *state, uint32 a, uint16 d) {
   }
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void EMU_CALL spu_render(void *state, sint16 *buf, uint32 samples) {
@@ -773,9 +778,18 @@ void EMU_CALL spu_render(void *state, sint16 *buf, uint32 samples) {
   uint8 effectout = SPUSTATE->global_effect_on;
 //  mainout = 0;
   if(SPUSTATE->version == 1) {
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_system=0;
+      //TODO:  MODIZER changes end / YOYOFR
     spucore_render(CORESTATE(0), SPURAM, buf, NULL, samples, mainout, effectout);
   } else {
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_system=0;
+      //TODO:  MODIZER changes end / YOYOFR
     spucore_render(CORESTATE(0), SPURAM, buf, NULL, samples, mainout, effectout);
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_system=1;
+      //TODO:  MODIZER changes end / YOYOFR
     spucore_render(CORESTATE(1), SPURAM, buf, buf , samples, mainout, effectout);
 //    spucore_render(CORESTATE(1), SPURAM, buf, NULL, samples);
   }
@@ -789,9 +803,18 @@ void EMU_CALL spu_render_ext(void *state, sint16 *buf, sint16 *ext, uint32 sampl
   uint8 effectout = SPUSTATE->global_effect_on;
 //  mainout = 0;
   if(SPUSTATE->version == 1) {
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_system=0;
+      //TODO:  MODIZER changes end / YOYOFR
     spucore_render(CORESTATE(0), SPURAM, buf, ext, samples, mainout, effectout);
   } else {
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_system=0;
+      //TODO:  MODIZER changes end / YOYOFR
     spucore_render(CORESTATE(0), SPURAM, buf, ext, samples, mainout, effectout);
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_current_system=1;
+      //TODO:  MODIZER changes end / YOYOFR
     spucore_render(CORESTATE(1), SPURAM, buf, buf, samples, mainout, effectout);
 //    spucore_render(CORESTATE(1), SPURAM, buf, NULL, samples);
   }

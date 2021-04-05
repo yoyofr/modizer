@@ -311,14 +311,9 @@ int SID::output() const
 
 
 //TODO:  MODIZER changes start / YOYOFR
-#define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 32
-
-extern "C" signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
-extern "C" int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
-extern "C" void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
-
-#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
 //TODO:  MODIZER changes end / YOYOFR
 
 RESID_INLINE
@@ -327,27 +322,12 @@ int SID::clock(unsigned int cycles, short* buf)
     ageBusValue(cycles);
     int s = 0;
     
+    
     //TODO:  MODIZER changes start / YOYOFR
     //check current active sid
-    int sid_idx=0;
-    if (m_voice_ChipID[0]==NULL) {
-        m_voice_ChipID[0]=(void*)this;
-        sid_idx=0;
-    } else if (m_voice_ChipID[0]==(void*)this) {
-        sid_idx=0;
-    } else if (m_voice_ChipID[1]==NULL) {
-        m_voice_ChipID[1]=(void*)this;
-        sid_idx=1*3;
-    } else if (m_voice_ChipID[1]==(void*)this) {
-        sid_idx=1*3;
-    } else if (m_voice_ChipID[2]==NULL) {
-        m_voice_ChipID[2]=(void*)this;
-        sid_idx=2*3;
-    } else if (m_voice_ChipID[2]==(void*)this) {
-        sid_idx=2*3;
-    }
+    int sid_idx=m_voice_current_system*3;    
     int smplIncr=44100*256/96000;
-    if (smplIncr>256) smplIncr=256;
+    if (smplIncr>256) smplIncr=256;    
     //TODO:  MODIZER changes end / YOYOFR
 
     while (cycles != 0)

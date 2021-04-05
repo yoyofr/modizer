@@ -878,14 +878,10 @@ VOICE_CLOCK( V3c )
 }
 
 //TODO:  MODIZER changes start / YOYOFR
-#define SOUND_BUFFER_SIZE_SAMPLE 1024
-#define SOUND_MAXVOICES_BUFFER_FX 32
-
-extern "C" signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
-extern "C" int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
-static int current_voice=0;
-
-#define LIMIT8(a) (a>127?127:(a<-128?-128:a))
+extern "C" {
+#include "../../../../../src/ModizerVoicesData.h"
+}
+static int current_voice;
 //TODO:  MODIZER changes end / YOYOFR
 
 

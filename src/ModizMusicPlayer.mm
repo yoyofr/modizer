@@ -60,8 +60,10 @@ static char **sidtune_title,**sidtune_name;
 signed char *m_voice_buff[SOUND_MAXVOICES_BUFFER_FX];
 signed char *m_voice_buff_ana[SOUND_BUFFER_NB];
 signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
-void *m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
+int m_voice_ChipID[SOUND_MAXVOICES_BUFFER_FX];
 int m_voice_current_ptr[SOUND_MAXVOICES_BUFFER_FX];
+signed char m_voice_current_system,m_voice_current_systemSub;
+char m_voice_current_systemPairedOfs;
 
 
 
@@ -152,28 +154,20 @@ extern "C" {
 "GA20"*/
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
-    0x00, 0x09, 0x09, 0x09, 0x12, 0x00, 0x0C, 0x08,
+    0x0E, 0x09, 0x09, 0x09, 0x12, 0x00, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
     0x04
 };
 
-char vgmVRC7;
+char vgmVRC7,vgm2610b;
 
 UINT8 vgmGetVoicesNb(UINT8 chipId) {
     if ((chipId==1)&&(vgmVRC7)) return 6;
+    if ((chipId==8)&&(vgm2610b)) return 16;
     return vgmCHN_COUNT[chipId];
 }
-
-const UINT8 vgmCHN_MASK_CNT[CHIP_COUNT] =
-{    0x04, 0x0E, 0x07, 0x08, 0x10, 0x08, 0x03, 0x06,
-    0x06, 0x0E, 0x0E, 0x0E, 0x17, 0x18, 0x0C, 0x08,
-    0x08, 0x00, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x00,
-    0x04, 0x05, 0x08, 0x08, 0x18, 0x04, 0x04, 0x10,
-    0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
-    0x04
-};
     
     //VGMSTREAM
 #import "../libs/libvgmstream/vgmstream.h"
@@ -566,11 +560,15 @@ static long psf_file_ftell( void * handle )
 #import "../libs/highlytheoritical/highlytheoritical/sega.h"
 
 #import "../libs/HighlyQuixotic/HighlyQuixotic/qsound.h"
+extern "C" {
+int HC_voicesMuteMask1;
+int HC_voicesMuteMask2;
+}
 
 
 static int HC_type;
-static uint8_t *HE_emulatorCore;
-static void *HE_emulatorExtra;
+static uint8_t *HC_emulatorCore;
+static void *HC_emulatorExtra;
 
 struct psf_info_meta_state
 {
@@ -2552,17 +2550,17 @@ long src_callback_he(void *cb_data, float **data) {
     switch (HC_type) {
         case 1:
         case 2:
-            if (psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 )<0) return 0;
+            if (psx_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 )<0) return 0;
             break;
         case 0x11:
         case 0x12:
-            if ( sega_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
+            if ( sega_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
             break;
         case 0x21:
             if (usf_render(lzu_state->emu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &hc_sample_rate)) return 0;
             break;
         case 0x41:
-            if ( qsound_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
+            if ( qsound_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
             break;
     }
     hc_currentSample += howmany;
@@ -2882,17 +2880,17 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 switch (HC_type) {
                                     case 1:
                                     case 2:
-                                        psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 );
+                                        psx_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 );
                                         break;
                                     case 0x11:
                                     case 0x12:
-                                        sega_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
+                                        sega_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                     case 0x21:
                                         usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
                                         break;
                                     case 0x41:
-                                        qsound_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
+                                        qsound_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                 }
                                 hc_currentSample += howmany;
@@ -2906,17 +2904,17 @@ long src_callback_mpg123(void *cb_data, float **data) {
                                 switch (HC_type) {
                                     case 1:
                                     case 2:
-                                        psx_execute( HE_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 );
+                                        psx_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany, 0 );
                                         break;
                                     case 0x11:
                                     case 0x12:
-                                        sega_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
+                                        sega_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                     case 0x21:
                                         usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
                                         break;
                                     case 0x41:
-                                        qsound_execute( HE_emulatorCore, 0x7fffffff, 0, &howmany );
+                                        qsound_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
                                 }
                                 hc_currentSample += howmany;
@@ -3619,8 +3617,23 @@ long src_callback_mpg123(void *cb_data, float **data) {
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
                     if (mPlayType==MMP_HC) { //Highly Experimental
+                        
+                        //copy voice data for oscillo view
+                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            for (int j=0;j<(numChannels<SOUND_MAXVOICES_BUFFER_FX?numChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                            }
+                        }
+                        
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                         src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                        
+                        //copy voice data for oscillo view
+                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            for (int j=0;j<(numChannels<SOUND_MAXVOICES_BUFFER_FX?numChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                            }
+                        }
+                        //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
                         
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
@@ -5212,8 +5225,6 @@ char* loadRom(const char* path, size_t romSize)
     cfg.secondSidAddress = mSIDSecondSIDAddress;
     cfg.thirdSidAddress = mSIDThirdSIDAddress;
     
-    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
-    
     switch (sid_forceClock) {
         case 0:
             //cfg.clockForced=FALSE;
@@ -6464,45 +6475,61 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         return -1;
     }
     /////////////////////////
+    HC_voicesMuteMask1=0xFFFFFFFF;
+    HC_voicesMuteMask2=0xFFFFFFFF;
     
     src_data.data_out=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     src_data.data_in=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     if (HC_type==1) { //PSF1
         hc_sample_rate=44100;
-        HE_emulatorCore = ( uint8_t * ) calloc( 1,psx_get_state_size( 1 ) );
-        psx_clear_state( HE_emulatorCore, 1 );
+        HC_emulatorCore = ( uint8_t * ) calloc( 1,psx_get_state_size( 1 ) );
+        psx_clear_state( HC_emulatorCore, 1 );
         struct psf1_load_state state;
-        state.emu = HE_emulatorCore;
+        state.emu = HC_emulatorCore;
         state.first = true;
         state.refresh = 0;
         if ( psf_load( [filePath UTF8String], &psf_file_system, 1, psf1_loader, &state, psf1_info, &state, 1 ) <= 0 ) {
             NSLog(@"Error loading PSF1");
             mPlayType=0;
             src_delete(src_state);
-            if (HE_emulatorCore) free(HE_emulatorCore);
-            HE_emulatorCore=NULL;
+            if (HC_emulatorCore) free(HC_emulatorCore);
+            HC_emulatorCore=NULL;
             return -1;
         }
-        if ( state.refresh ) psx_set_refresh( HE_emulatorCore, state.refresh );
+        if ( state.refresh ) psx_set_refresh( HC_emulatorCore, state.refresh );
+        
+        voicesDataAvail=1;
+        numChannels=24;
+        
+        //help to behave more like real hardware, fix a few recent dumps
+        void * pIOP = psx_get_iop_state( HC_emulatorCore );
+        iop_set_compat( pIOP, IOP_COMPAT_HARSH );
     } else if (HC_type==2) { //PSF2
         hc_sample_rate=48000;
-        HE_emulatorExtra = psf2fs_create();
+        HC_emulatorExtra = psf2fs_create();
         struct psf1_load_state state;
         state.refresh = 0;
-        if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 2, psf2fs_load_callback, HE_emulatorExtra, psf1_info, &state, 1 ) <= 0 ) {
+        if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 2, psf2fs_load_callback, HC_emulatorExtra, psf1_info, &state, 1 ) <= 0 ) {
             NSLog(@"Error loading PSF2");
             mPlayType=0;
             src_delete(src_state);
-            if (HE_emulatorExtra ) {
-                psf2fs_delete( HE_emulatorExtra );
-                HE_emulatorExtra = NULL;
+            if (HC_emulatorExtra ) {
+                psf2fs_delete( HC_emulatorExtra );
+                HC_emulatorExtra = NULL;
             }
             return -1;
         }
-        HE_emulatorCore = ( uint8_t * ) calloc( 1,psx_get_state_size( 2 ) );
-        psx_clear_state( HE_emulatorCore, 2 );
-        if ( state.refresh ) psx_set_refresh( HE_emulatorCore, state.refresh );
-        psx_set_readfile( HE_emulatorCore, virtual_readfile, HE_emulatorExtra );
+        HC_emulatorCore = ( uint8_t * ) calloc( 1,psx_get_state_size( 2 ) );
+        psx_clear_state( HC_emulatorCore, 2 );
+        if ( state.refresh ) psx_set_refresh( HC_emulatorCore, state.refresh );
+        psx_set_readfile( HC_emulatorCore, virtual_readfile, HC_emulatorExtra );
+        
+        voicesDataAvail=1;
+        numChannels=48;
+        
+        //help to behave more like real hardware, fix a few recent dumps
+        void * pIOP = psx_get_iop_state( HC_emulatorCore );
+        iop_set_compat( pIOP, IOP_COMPAT_HARSH );
     } else if ( HC_type == 0x11 || HC_type == 0x12 ) { //DSL/SSF
         hc_sample_rate=44100;
         struct sdsf_loader_state state;
@@ -6514,14 +6541,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             return -1;
         }
         
-        HE_emulatorCore = ( uint8_t * ) calloc( 1,sega_get_state_size( HC_type - 0x10 ) );
+        HC_emulatorCore = ( uint8_t * ) calloc( 1,sega_get_state_size( HC_type - 0x10 ) );
         
-        sega_clear_state( HE_emulatorCore, HC_type - 0x10 );
+        sega_clear_state( HC_emulatorCore, HC_type - 0x10 );
         
-        sega_enable_dry( HE_emulatorCore, 1 );
-        sega_enable_dsp( HE_emulatorCore, 1 );
+        sega_enable_dry( HC_emulatorCore, 1 );
+        sega_enable_dsp( HC_emulatorCore, 1 );
         
-        sega_enable_dsp_dynarec( HE_emulatorCore, 0 );
+        sega_enable_dsp_dynarec( HC_emulatorCore, 0 );
         
         uint32_t start  = *(uint32_t*) state.data;
         size_t length = state.data_size;
@@ -6529,9 +6556,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         if ( ( start + ( length - 4 ) ) > max_length ) {
             length = max_length - start + 4;
         }
-        sega_upload_program( HE_emulatorCore, state.data, (uint32_t)length );
+        sega_upload_program( HC_emulatorCore, state.data, (uint32_t)length );
         
         free( state.data );
+        
+        numChannels=2;
     } else if (HC_type == 0x21) { //USF
         lzu_state = new usf_loader_state;
         lzu_state->emu_state = malloc( usf_get_state_size() );
@@ -6551,24 +6580,26 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         usf_set_fifo_full( lzu_state->emu_state, lzu_state->enable_fifo_full );
         
         usf_render(lzu_state->emu_state, 0, 0, &hc_sample_rate);
+        
+        numChannels=2;
     } else if ( HC_type == 0x41 ) { //QSF
         hc_sample_rate=24038;
         struct qsf_loader_state * state = ( struct qsf_loader_state * ) calloc( 1, sizeof( *state ) );
         
-        HE_emulatorExtra = state;
+        HC_emulatorExtra = state;
         
         if ( psf_load( [filePath UTF8String], &psf_file_system, 0x41, qsf_loader, state, 0, 0, 0 ) <= 0 ) {
             NSLog(@"Error loading QSF");
             mPlayType=0;
             src_delete(src_state);
-            free(HE_emulatorExtra);
-            HE_emulatorExtra=NULL;
+            free(HC_emulatorExtra);
+            HC_emulatorExtra=NULL;
             return -1;
         }
         
-        HE_emulatorCore = ( uint8_t * ) calloc( 1,qsound_get_state_size() );
+        HC_emulatorCore = ( uint8_t * ) calloc( 1,qsound_get_state_size() );
         
-        qsound_clear_state( HE_emulatorCore );
+        qsound_clear_state( HC_emulatorCore );
         
         if(state->key_size == 11) {
             uint8_t * ptr = state->key;
@@ -6576,12 +6607,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             uint32_t swap_key2 = get_be32( ptr +  4 );
             uint32_t addr_key  = get_be16( ptr +  8 );
             uint8_t  xor_key   =        *( ptr + 10 );
-            qsound_set_kabuki_key( HE_emulatorCore, swap_key1, swap_key2, addr_key, xor_key );
+            qsound_set_kabuki_key( HC_emulatorCore, swap_key1, swap_key2, addr_key, xor_key );
         } else {
-            qsound_set_kabuki_key( HE_emulatorCore, 0, 0, 0, 0 );
+            qsound_set_kabuki_key( HC_emulatorCore, 0, 0, 0, 0 );
         }
-        qsound_set_z80_rom( HE_emulatorCore, state->z80_rom, state->z80_size );
-        qsound_set_sample_rom( HE_emulatorCore, state->sample_rom, state->sample_size );
+        qsound_set_z80_rom( HC_emulatorCore, state->z80_rom, state->z80_size );
+        qsound_set_sample_rom( HC_emulatorCore, state->sample_rom, state->sample_size );
+        
+        numChannels=2;
     }
     src_ratio=PLAYBACK_FREQ/(double)hc_sample_rate;
             
@@ -6590,7 +6623,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         iModuleLength=info.tag_length_ms+info.tag_fade_ms;
     }
     iCurrentTime=0;
-    numChannels=2;
     
     
     if (HC_type==0x21) {
@@ -6684,10 +6716,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     mod_message[0]=0;
     numChannels=0;
-    voicesDataAvail=0;
     vgmplay_activeChipsNb=0;
-    vgmVRC7=0;
-    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
+    vgmVRC7=vgm2610b=0;
+    
     
     UINT8 CurChip;
     UINT32 ChpClk;
@@ -6702,10 +6733,13 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             int chipNumber=vgmGetChipsDetails(strChip,CurChip, ChpType, ChpClk);
             
             if ((CurChip==1)&&(ChpClk&0x80000000)) vgmVRC7=1;
+            if ((CurChip==8)&&(ChpClk&0x80000000)) vgm2610b=1;
             
             for (int i=0;i<chipNumber;i++) {
                 vgmplay_activeChips[vgmplay_activeChipsNb]=CurChip;
                 vgmplay_activeChipsID[vgmplay_activeChipsNb]=i;
+                m_voice_ChipID[numChannels]=CurChip|(i<<8);
+                
                 vgmplay_activeChipsName[vgmplay_activeChipsNb]=strdup(strChip);
                 numChannels+=vgmGetVoicesNb(CurChip);
                 vgmplay_activeChipsNb++;
@@ -6737,6 +6771,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             } else if (strcmp(strChip,"YM2203")==0) {
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2608")==0) {
+                voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM2610")==0) {
                 voicesDataAvail=1;
             } else if (strcmp(strChip,"PWM")==0) {
                 voicesDataAvail=1;
@@ -7014,8 +7050,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     fseek(f,0L,SEEK_END);
     mp_datasize=ftell(f);
     fclose(f);
-    
-    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
     
     // Open music file in new emulator
     gme_emu=NULL;
@@ -7743,17 +7777,17 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
     
     mod_total_length=0;
-    voicesDataAvail=0;
+    
     mod_currentfile=[NSString stringWithString:filePath];
     mod_currentext=[NSString stringWithString:extension];
     
-    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) voicesStatus[i]=1;
     
+    voicesDataAvail=0;
+    for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) voicesStatus[i]=1;
     for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
         m_voice_current_ptr[i]=0;
         memset(m_voice_buff[i],0,SOUND_BUFFER_SIZE_SAMPLE);
     }
-    
     for (int j=0;j<SOUND_BUFFER_NB;j++) {
         memset(m_voice_buff_ana[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         memset(m_voice_buff_ana_cpy[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
@@ -8060,27 +8094,27 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 }
 
 -(void) MMP_HCClose {
-    if (HE_emulatorCore) {
+    if (HC_emulatorCore) {
         if ( HC_type == 0x21 ) {
-            usf_shutdown( HE_emulatorCore );
-            free( HE_emulatorCore );
+            usf_shutdown( HC_emulatorCore );
+            free( HC_emulatorCore );
         } else {
-            free( HE_emulatorCore );
+            free( HC_emulatorCore );
         }
     }
-    if ( HC_type == 2 && HE_emulatorExtra ) {
-        psf2fs_delete( HE_emulatorExtra );
-        HE_emulatorExtra = NULL;
+    if ( HC_type == 2 && HC_emulatorExtra ) {
+        psf2fs_delete( HC_emulatorExtra );
+        HC_emulatorExtra = NULL;
     } else if (HC_type==0x21) {
         usf_shutdown(lzu_state->emu_state);
         free(usf_info_data);
-    } else if ( HC_type == 0x41 && HE_emulatorExtra ) {
-        struct qsf_loader_state * state = ( struct qsf_loader_state * ) HE_emulatorExtra;
+    } else if ( HC_type == 0x41 && HC_emulatorExtra ) {
+        struct qsf_loader_state * state = ( struct qsf_loader_state * ) HC_emulatorExtra;
         free( state->key );
         free( state->z80_rom );
         free( state->sample_rom );
         free( state );
-        HE_emulatorExtra = nil;
+        HC_emulatorExtra = nil;
     }
             
     free(hc_sample_data);
@@ -8381,10 +8415,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     }
     if (mPlayType==MMP_OPENMPT) {
         char *str_type=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"type_long");//(char*)ModPlug_GetModuleTypeLStr(mp_file);
-        char *str_orig=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"originaltype_long");
         char *str_cont=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"container_long");//(char*)ModPlug_GetModuleContainerLStr(mp_file);
-        NSString *result=[NSString stringWithFormat:@"%s(%s) %s",str_type,str_orig,str_cont];
-        if (str_orig) free(str_orig);
+        NSString *result=[NSString stringWithFormat:@"%s %s",str_type,str_cont];
         if (str_type) free(str_type);
         if (str_cont) free(str_cont);
         return result;
@@ -8805,6 +8837,9 @@ extern "C" void adjust_amplification(void);
 
 -(bool) isVoicesMutingSupported {
     switch (mPlayType) {
+        case MMP_HC:
+            if ((HC_type==1)||(HC_type==2)) return true;
+            return false;
         case MMP_OPENMPT:
         case MMP_GME:
         case MMP_SIDPLAY:
@@ -8818,6 +8853,10 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getVoicesName:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
+        case MMP_HC:
+            if (HC_type==1) return [NSString stringWithFormat:@"#%d-SPU",channel+1];
+            else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];
+            return @"";
         case MMP_OPENMPT: {
             NSString *result;
             char *strTmp=(char*)openmpt_module_get_channel_name(openmpt_module_ext_get_module(ompt_mod),channel);
@@ -8851,6 +8890,10 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemsNb {
     switch (mPlayType) {
+        case MMP_HC:
+            if (HC_type==1) return 1;
+            else if (HC_type==2) return 2;
+            return 1;
         case MMP_OPENMPT:
             return 1;
         case MMP_ASAP:
@@ -8868,6 +8911,10 @@ extern "C" void adjust_amplification(void);
 
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
+        case MMP_HC:
+            if (HC_type==1) return @"SPU";
+            else if (HC_type==2) return [NSString stringWithFormat:@"SPU#%d",systemIdx + 1];
+            return @"";
         case MMP_OPENMPT:
             return @"OMPT";
         case MMP_ASAP:
@@ -8889,6 +8936,10 @@ extern "C" void adjust_amplification(void);
 
 -(int) getSystemForVoice:(int)voiceIdx {
     switch (mPlayType) {
+        case MMP_HC:
+            if (HC_type==1) return 0;
+            else if (HC_type==2) return voiceIdx/24;
+            return 0;
         case MMP_OPENMPT:
             return 0;
         case MMP_ASAP:
@@ -8913,6 +8964,18 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemVoicesStatus:(int)systemIdx {
     int tmp;
     switch (mPlayType) {
+        case MMP_HC:
+            tmp=0;
+            if (HC_type==1) {
+                for (int i=0;i<numChannels;i++) tmp+=(voicesStatus[i]?1:0);
+                if (tmp==numChannels) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+            } else if (HC_type==2) {
+                for (int i=0;i<24;i++) tmp+=(voicesStatus[i+systemIdx*24]?1:0);
+                if (tmp==24) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+            }
+            return 0;
         case MMP_OPENMPT:
             tmp=0;
             for (int i=0;i<numChannels;i++) {
@@ -8970,6 +9033,10 @@ extern "C" void adjust_amplification(void);
 
 -(void) setSystemVoicesStatus:(int)systemIdx active:(bool)active {
     switch (mPlayType) {
+        case MMP_HC:
+            if (HC_type==1) for (int i=0;i<numChannels;i++) [self setVoicesStatus:active index:i]; //PSF, 24voices
+            else if (HC_type==2) for (int i=0;i<24;i++) [self setVoicesStatus:active index:(i+systemIdx*24)]; //PSF2, 48voices
+            break;
         case MMP_OPENMPT:
             for (int i=0;i<numChannels;i++) [self setVoicesStatus:active index:i];
             break;
@@ -9015,6 +9082,17 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
+        case MMP_HC:
+            if ((HC_type==1)||(HC_type==2)) {//PSF1 and PSF2}
+                if (active) {
+                    if (channel<24) HC_voicesMuteMask1|=1<<channel;
+                    else HC_voicesMuteMask2|=1<<(channel-24);
+                } else {
+                    if (channel<24) HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
+                    else HC_voicesMuteMask2&=0xFFFFFFFF^(1<<(channel-24));
+                }
+            }
+            break;
         case MMP_OPENMPT:
             ompt_mod_interactive->set_channel_mute_status(ompt_mod,channel,!active);
             break;
@@ -9059,7 +9137,7 @@ extern "C" void adjust_amplification(void);
                         case 2: //YM2612:  6voices
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<(channel-idx);
-                            if ((channel-idx)==4) {
+                            if ((channel-idx)==5) {
                                 //update dac channel as well, seems when dac channel 6 is linked to fm 4
                                 if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1&=0xFFFFFFFF^(1<<6);
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2612.ChnMute1|=1<<6;
@@ -9100,6 +9178,32 @@ extern "C" void adjust_amplification(void);
                                 if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=0xFFFFFFFF^(1<<(voice-13));
                                 else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3|=(1<<(voice-13));
                             }                            
+                            break;
+                        }
+                        case 8:{ //YM2610: 14voices (4 fm), YM2610b: 16voices (6 fm)
+                                 // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
+                                 // chnmute3, 3bits -> yyy y:ay 3ch
+                            int voice=channel-idx;
+                            if (!vgm2610b) {
+                                if (voice<4) {
+                                    switch (voice) {
+                                        case 0:voice=1;break;
+                                        case 1:voice=2;break;
+                                        case 2:voice=4;break;
+                                        case 3:voice=5;break;
+                                    }
+                                } else voice+=2;
+                            }
+                            if (voice<6) {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute1&=0xFFFFFFFF^(1<<voice);
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute1|=(1<<voice);
+                            } else if (voice<13) {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute2&=0xFFFFFFFF^(1<<(voice-6));
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute2|=(1<<(voice-6));
+                            } else {
+                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute3&=0xFFFFFFFF^(1<<(voice-13));
+                                else ChipOpts[vgmplay_activeChipsID[i]].YM2610.ChnMute3|=(1<<(voice-13));
+                            }
                             break;
                         }
                         case 0x11: //PWM

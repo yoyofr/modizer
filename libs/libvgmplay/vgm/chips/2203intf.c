@@ -199,11 +199,16 @@ void ym2203_stream_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	ym2203_update_one(info->chip, outputs, samples);
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 void ym2203_stream_update_ay(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
 	//ym2203_state *info = (ym2203_state *)param;
 	ym2203_state *info = &YM2203Data[ChipID];
-	
+    
 	if (info->psg != NULL)
 	{
 		switch(AY_EMU_CORE)
