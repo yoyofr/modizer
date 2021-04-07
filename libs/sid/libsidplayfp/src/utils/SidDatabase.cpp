@@ -110,6 +110,23 @@ bool SidDatabase::open(const char *filename)
     return true;
 }
 
+#ifdef _WIN32
+bool SidDatabase::open(const wchar_t* filename)
+{
+    delete m_parser;
+    m_parser = new libsidplayfp::iniParser();
+
+    if (!m_parser->open(filename))
+    {
+        close();
+        errorString = ERR_UNABLE_TO_LOAD_DATABASE;
+        return false;
+    }
+
+    return true;
+}
+#endif
+
 void SidDatabase::close()
 {
     delete m_parser;

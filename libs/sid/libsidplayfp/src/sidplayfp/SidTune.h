@@ -24,6 +24,7 @@
 #define SIDTUNE_H
 
 #include <stdint.h>
+#include <vector>
 
 #include "sidplayfp/siddefs.h"
 
@@ -56,6 +57,8 @@ private:  // -------------------------------------------------------------
 
 public:  // ----------------------------------------------------------------
 
+    typedef void (*LoaderFunc)(const char* fileName, std::vector<uint8_t>& bufferRef);
+
     /**
      * Load a sidtune from a file.
      *
@@ -73,7 +76,7 @@ public:  // ----------------------------------------------------------------
      * @param separatorIsSlash
      */
     SidTune(const char* fileName, const char **fileNameExt = 0,
-            bool separatorIsSlash = false);
+            bool separatorIsSlash = false, LoaderFunc loader = NULL);
 
     /**
      * Load a single-file sidtune from a memory buffer.
@@ -102,7 +105,7 @@ public:  // ----------------------------------------------------------------
      * @param fileName
      * @param separatorIsSlash
      */
-    void load(const char* fileName, bool separatorIsSlash = false);
+    void load(const char* fileName, bool separatorIsSlash = false, LoaderFunc loader = NULL);
 
     /**
      * Load a sidtune into an existing object from a buffer.

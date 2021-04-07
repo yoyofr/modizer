@@ -39,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) recomputeFrames;
 - (void) checkPlayer;
 
+-(IBAction) closeView;
+
 @end
 
 NS_ASSUME_NONNULL_END

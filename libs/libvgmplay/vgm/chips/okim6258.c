@@ -165,7 +165,6 @@ static INT16 clock_adpcm(okim6258_state *chip, UINT8 nibble)
 #include "../../../../src/ModizerVoicesData.h"
 //TODO:  MODIZER changes end / YOYOFR
 
-
 /**********************************************************************************************
 
      okim6258_update -- update the sound chip so that it is in sync with CPU execution

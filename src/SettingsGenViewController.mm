@@ -527,7 +527,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_DefaultMODPlayer].sub_family=0;
     settings[GLOB_DefaultMODPlayer].callback=&optGLOBALChangedC;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value=0;
-    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[0]=(char*)"OMPT";
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_labels[1]=(char*)"UADE";
@@ -824,8 +824,8 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Split";
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Comb";
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[1]=(char*)"Mono";
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[2]=(char*)"Colored";
     
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";

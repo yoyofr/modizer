@@ -31,10 +31,11 @@ extern BOOL nvdsp_EQ;
 
 @synthesize detailViewController;
 
--(IBAction) goPlayer {
-	[self.navigationController pushViewController:detailViewController animated:YES];
+-(IBAction) closeView {
+    [self viewWillDisappear:NO];
+    [self.view removeFromSuperview];
+    [self removeFromParentViewController];
 }
-
 
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -253,17 +254,22 @@ extern BOOL nvdsp_EQ;
 
 
 - (void) viewWillDisappear:(BOOL)animated {
+    detailViewController.bShowEQ=false;
     [EQViewController backupEQSettings];
     
     [super viewWillDisappear:animated];
 }
 
+-(void) viewDidAppear:(BOOL)animated {
+    detailViewController.bShowEQ=true;
+    [super viewDidAppear:animated];
+}
 
 - (void) viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    //[self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     [self recomputeFrames];
     

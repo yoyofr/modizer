@@ -22,6 +22,7 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <fstream>
 
 namespace libsidplayfp
 {
@@ -42,8 +43,13 @@ private:
 
     keys_t::value_type parseKey(const std::string &buffer);
 
+    bool open_internal(std::ifstream& iniFile);
+
 public:
     bool open(const char *fName);
+#ifdef _WIN32
+    bool open(const wchar_t* fName);
+#endif
     void close();
 
     bool setSection(const char *section);

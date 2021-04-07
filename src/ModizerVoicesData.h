@@ -19,6 +19,10 @@ extern char vgmVRC7,vgm2610b;
 extern int HC_voicesMuteMask1,HC_voicesMuteMask2;
 extern signed char m_voice_current_system,m_voice_current_systemSub;
 extern char m_voice_current_systemPairedOfs;
+extern char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
+
+
+extern int m_voicesForceOfs;
 
 #define LIMIT8(a) (a>127?127:(a<-128?-128:a))
 

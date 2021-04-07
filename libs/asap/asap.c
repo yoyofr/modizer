@@ -7217,8 +7217,6 @@ static int PokeyPair_EndFrame(PokeyPair *self, int cycle)
 	return self->readySamplesEnd;
 }
 
-
-
 static int PokeyPair_Generate(PokeyPair *self, unsigned char *buffer, int bufferOffset, int blocks, ASAPSampleFormat format)
 {
 	int i = self->readySamplesStart;

@@ -73,6 +73,8 @@ protected:
 public:  // ----------------------------------------------------------------
     virtual ~SidTuneBase() {}
 
+    typedef void (*LoaderFunc)(const char* fileName, buffer_t& bufferRef);
+
     /**
      * Load a sidtune from a file.
      *
@@ -89,7 +91,7 @@ public:  // ----------------------------------------------------------------
      * @return the sid tune
      * @throw loadError
      */
-    static SidTuneBase* load(const char* fileName, const char **fileNameExt, bool separatorIsSlash);
+    static SidTuneBase* load(const char* fileName, const char **fileNameExt, bool separatorIsSlash, LoaderFunc loader);
 
     /**
      * Load a single-file sidtune from a memory buffer.
@@ -235,7 +237,7 @@ private:  // ---------------------------------------------------------------
 #if !defined(SIDTUNE_NO_STDIN_LOADER)
     static SidTuneBase* getFromStdIn();
 #endif
-    static SidTuneBase* getFromFiles(const char* name, const char **fileNameExtensions, bool separatorIsSlash);
+    static SidTuneBase* getFromFiles(const char* name, const char **fileNameExtensions, bool separatorIsSlash, LoaderFunc loader);
 
     /**
      * Try to retrieve single-file sidtune from specified buffer.

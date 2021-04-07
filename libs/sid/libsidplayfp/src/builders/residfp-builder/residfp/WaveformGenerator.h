@@ -146,6 +146,8 @@ private:
     void write_shift_register();
 
     void set_noise_output();
+    
+    void set_no_noise_or_noise_output();
 
     void waveBitfade();
 
@@ -190,7 +192,7 @@ public:
         ring_msb_mask(0),
         no_noise(0),
         noise_output(0),
-        no_noise_or_noise_output(no_noise | noise_output),
+        no_noise_or_noise_output(0),
         no_pulse(0),
         pulse_output(0),
         waveform(0),
@@ -330,16 +332,6 @@ void WaveformGenerator::clock()
     }
 }
 
-static unsigned int noise_pulse6581(unsigned int noise)
-{
-    return (noise < 0xf00) ? 0x000 : noise & (noise << 1) & (noise << 2);
-}
-
-static unsigned int noise_pulse8580(unsigned int noise)
-{
-    return (noise < 0xfc0) ? noise & (noise << 1) : 0xfc0;
-}
-
 RESID_INLINE
 float WaveformGenerator::output(const WaveformGenerator* ringModulator)
 {
@@ -351,10 +343,6 @@ float WaveformGenerator::output(const WaveformGenerator* ringModulator)
         // The bit masks no_pulse and no_noise are used to achieve branch-free
         // calculation of the output value.
         waveform_output = wave[ix] & (no_pulse | pulse_output) & no_noise_or_noise_output;
-
-        // pulse+noise
-        if (unlikely((waveform & 0xc) == 0xc))
-            waveform_output = is6581 ? noise_pulse6581(waveform_output) : noise_pulse8580(waveform_output);
 
         // Triangle/Sawtooth output is delayed half cycle on 8580.
         // This will appear as a one cycle delay on OSC3 as it is latched first phase of the clock.

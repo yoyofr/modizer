@@ -254,6 +254,12 @@ void VSU_Write(UINT8 ChipID, UINT32 A, UINT8 V)
 	}
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+static int smplIncr,m_voice_ofs;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 INLINE void VSU_CalcCurrentOutput(vsu_state* chip, int ch, int* left, int* right)
 {
 	int WD;
@@ -291,8 +297,19 @@ INLINE void VSU_CalcCurrentOutput(vsu_state* chip, int ch, int* left, int* right
 	WD -= 0x20;
 	(*left) += WD * l_ol;
 	(*right) += WD * r_ol;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    if (m_voice_ofs>=0) {
+        m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>8]=LIMIT8(((WD*(l_ol+r_ol))>>5));
+        m_voice_current_ptr[m_voice_ofs+ch]+=smplIncr;
+        if ((m_voice_current_ptr[m_voice_ofs+ch]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+
 	return;
 }
+
+
 
 static void VSU_Update(vsu_state* chip, INT32 timestamp, int* outleft, int* outright)
 {
@@ -564,10 +581,27 @@ static void VSU_Update(vsu_state* chip, INT32 timestamp, int* outleft, int* outr
 }*/
 
 
+
 void vsu_stream_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
 	vsu_state* chip = &VSUData[ChipID];
 	int curSmpl;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=6;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    smplIncr=44100*256/chip->smplrate;
+    if (smplIncr>256) smplIncr=256;
+    m_voice_current_systemPairedOfs=m_total_channels;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	for (curSmpl = 0; curSmpl < samples; curSmpl ++)
 	{

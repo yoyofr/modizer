@@ -18,8 +18,11 @@
 @synthesize detailViewController;
 @synthesize scrollView;
 
--(IBAction) goPlayer {
-    [self.navigationController pushViewController:detailViewController animated:YES];
+
+-(IBAction) closeView {
+    [self viewWillDisappear:NO];
+    [self.view removeFromSuperview];
+    [self removeFromParentViewController];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -49,14 +52,19 @@
 }
 
 - (void) viewWillDisappear:(BOOL)animated {
+    detailViewController.bShowVC=false;
     [self removeVoicesButtons];
-    
     [super viewWillDisappear:animated];
 }
 
+-(void) viewDidAppear:(BOOL)animated {
+    detailViewController.bShowVC=true;
+    [super viewDidAppear:animated];
+}
 
 - (void) viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    //[self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     [self resetVoicesButtons];
@@ -99,7 +107,7 @@
 -(void)updateSystemVoicesBtn {
     for (int i=0;i<systemsNb;i++) {
         [voicesChip[i] setTitle:[detailViewController.mplayer getSystemsName:i] forState:UIControlStateNormal];
-        switch ([detailViewController.mplayer getSystemVoicesStatus:i]) {
+        switch ([detailViewController.mplayer getSystemm_voicesStatus:i]) {
             case 2: //all active
                 //[voicesChip[i] setType:BButtonTypePrimary];
                 [voicesChip[i] setColor:voicesChipCol[i]];
@@ -120,7 +128,7 @@
 
 -(void)updateVoicesBtn {
     for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
-        if ([detailViewController.mplayer getVoicesStatus:i]) {
+        if ([detailViewController.mplayer getm_voicesStatus:i]) {
             //[voices[i] setType:BButtonTypePrimary];
             [voices[i] setColor:voicesChipCol[[detailViewController.mplayer getSystemForVoice:i]]];
             [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeUp,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
@@ -135,8 +143,8 @@
 -(void)pushedSystemVoicesChanged:(id)sender {
     for (int i=0;i<systemsNb;i++) {
         if (sender==voicesChip[i]) {
-            if ([detailViewController.mplayer getSystemVoicesStatus:i]) [detailViewController.mplayer setSystemVoicesStatus:i active:false];
-            else [detailViewController.mplayer setSystemVoicesStatus:i active:true];
+            if ([detailViewController.mplayer getSystemm_voicesStatus:i]) [detailViewController.mplayer setSystemm_voicesStatus:i active:false];
+            else [detailViewController.mplayer setSystemm_voicesStatus:i active:true];
             break;
         }
     }
@@ -148,15 +156,15 @@
     if ([detailViewController.mplayer isPlaying]&&([currentPlayingFile compare:[detailViewController.mplayer mod_currentfile]]==NSOrderedSame)) {
         for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
             if (voices[i]==sender) {
-                if ([detailViewController.mplayer getVoicesStatus:i]) {
+                if ([detailViewController.mplayer getm_voicesStatus:i]) {
                     [voices[i] setType:BButtonTypeInverse];
                     [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeOff,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
-                    [detailViewController.mplayer setVoicesStatus:0 index:i];
+                    [detailViewController.mplayer setm_voicesStatus:0 index:i];
                 } else {
                     //[voices[i] setType:BButtonTypePrimary];
                     [voices[i] setColor:voicesChipCol[[detailViewController.mplayer getSystemForVoice:i]]];
                     [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeUp,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
-                    [detailViewController.mplayer setVoicesStatus:1 index:i];
+                    [detailViewController.mplayer setm_voicesStatus:1 index:i];
                 }
             }
         }
@@ -174,11 +182,11 @@
                 //[voices[i] setType:BButtonTypePrimary];
                 [voices[i] setColor:voicesChipCol[[detailViewController.mplayer getSystemForVoice:i]]];
                 [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeUp,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
-                [detailViewController.mplayer setVoicesStatus:1 index:i];
+                [detailViewController.mplayer setm_voicesStatus:1 index:i];
             } else {
                 [voices[i] setType:BButtonTypeInverse];
                 [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeOff,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
-                [detailViewController.mplayer setVoicesStatus:0 index:i];
+                [detailViewController.mplayer setm_voicesStatus:0 index:i];
             }
         }
         [self updateSystemVoicesBtn];
@@ -194,7 +202,7 @@
             //[voices[i] setType:BButtonTypePrimary];
             [voices[i] setColor:voicesChipCol[[detailViewController.mplayer getSystemForVoice:i]]];
             [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeUp,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
-            [detailViewController.mplayer setVoicesStatus:1 index:i];
+            [detailViewController.mplayer setm_voicesStatus:1 index:i];
         }
         [self updateSystemVoicesBtn];
     } else {
@@ -208,7 +216,7 @@
         for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
             [voices[i] setType:BButtonTypeInverse];
             [voices[i] setTitle:[NSString stringWithFormat:@"%C %@",FAIconVolumeOff,[detailViewController.mplayer getVoicesName:i]] forState:UIControlStateNormal];
-            [detailViewController.mplayer setVoicesStatus:0 index:i];
+            [detailViewController.mplayer setm_voicesStatus:0 index:i];
         }
         [self updateSystemVoicesBtn];
     } else {
@@ -232,10 +240,10 @@
     if (no_reentrant) return;
     no_reentrant=true;
     if ([detailViewController.mplayer isVoicesMutingSupported]&&detailViewController.mplayer.numChannels) {
-        int rows_nb=self.scrollView.frame.size.width/(115);
-        int rows_width=self.scrollView.frame.size.width/rows_nb;
+        int cols_nb=self.scrollView.frame.size.width/(115);
+        int cols_width=self.scrollView.frame.size.width/cols_nb;
         int ypos=4;
-        int xpos=(self.scrollView.frame.size.width-rows_nb*rows_width)/2;
+        int xpos=(self.scrollView.frame.size.width-cols_nb*cols_width)/2;
                 
         voicesAllOn.frame=CGRectMake(xpos,ypos,100,32);
         voicesAllOff.frame=CGRectMake(xpos+100+8,ypos,100,32);
@@ -247,34 +255,43 @@
         for (int i=0;i<systemsNb;i++) {
             voicesChip[i].frame=CGRectMake(xpos,ypos,115,32);
                                                 
-            if ((i+1)%rows_nb) {
-                xpos+=rows_width;
+            if ((i+1)%cols_nb) {
+                xpos+=cols_width;
             } else {
-                xpos=(self.scrollView.frame.size.width-rows_nb*rows_width)/2;
+                xpos=(self.scrollView.frame.size.width-cols_nb*cols_width)/2;
                 ypos+=40;
             }
         }
         
-        if (xpos!=(self.scrollView.frame.size.width-rows_nb*rows_width)/2) ypos+=40;
+        if (xpos!=(self.scrollView.frame.size.width-cols_nb*cols_width)/2) ypos+=40;
         ypos+=10;
         
         sep2.frame=CGRectMake(0, ypos-9, self.view.frame.size.width, 1);
         
-        rows_nb=self.scrollView.frame.size.width/(180);
-        rows_width=self.scrollView.frame.size.width/rows_nb;
-        xpos=(self.scrollView.frame.size.width-rows_nb*rows_width)/2;
+        cols_nb=self.scrollView.frame.size.width/(180);
+        cols_width=self.scrollView.frame.size.width/cols_nb;
+        xpos=(self.scrollView.frame.size.width-cols_nb*cols_width)/2;
+        int rows_nb=(detailViewController.mplayer.numChannels-1)/cols_nb+1;
+        int ystart=ypos;
         for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
             if (voicesSolo[i]) voicesSolo[i].frame=CGRectMake(xpos,ypos,32,32);
             if (voices[i]) voices[i].frame=CGRectMake(xpos+32+4,ypos,140,32);
             
-            if ((i+1)%rows_nb) {
-                xpos+=rows_width;
-            } else {
-                xpos=(self.scrollView.frame.size.width-rows_nb*rows_width)/2;;
+            if ((i+1)%rows_nb) {                
                 ypos+=40;
+            } else {
+                xpos+=cols_width;
+                ypos=ystart;
             }
+            
+            /*if ((i+1)%cols_nb) {
+                xpos+=cols_width;
+            } else {
+                xpos=(self.scrollView.frame.size.width-cols_nb*cols_width)/2;
+                ypos+=40;
+            }*/
         }
-        self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width, ypos);
+        self.scrollView.contentSize = CGSizeMake(self.view.frame.size.width, ystart+40*rows_nb+8);
     }
     no_reentrant=false;
 }
@@ -338,22 +355,23 @@
                 red=(float)((m_voice_systemColor[i]>>16)&255)/255.0f;
                 green=(float)((m_voice_systemColor[i]>>8)&255)/255.0f;
                 blue=(float)((m_voice_systemColor[i]>>0)&255)/255.0f;
-                voicesChipCol[i]=[UIColor colorWithRed:red
-                                                 green:green
-                                                  blue:blue
+                voicesChipCol[i]=[UIColor colorWithRed:red*2/3
+                                                 green:green*2/3
+                                                  blue:blue*2/3
                                                  alpha:1];  //[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.9f brightness:0.8f alpha:1.0f];
-                voicesChipColHalf[i]=[UIColor colorWithRed:red*2/3
-                                                     green:green*2/3
-                                                      blue:blue*2/3
+                voicesChipColHalf[i]=[UIColor colorWithRed:red/3
+                                                     green:green/3
+                                                      blue:blue/3
                                                      alpha:1];  //[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.7f brightness:0.4f alpha:1.0f];
-                switch ([detailViewController.mplayer getSystemVoicesStatus:i]) {
+                switch ([detailViewController.mplayer getSystemm_voicesStatus:i]) {
                     case 2: //all active
                         //[voicesChip[i] setType:BButtonTypePrimary];
                         [voicesChip[i] setColor:voicesChipCol[i]];
                         [voicesChip[i] addAwesomeIcon:FAIconVolumeUp beforeTitle:true];
                         break;
                     case 1: //partially active
-                        [voicesChip[i] setType:BButtonTypeGray];
+                        //[voicesChip[i] setType:BButtonTypeGray];
+                        [voicesChip[i] setColor:voicesChipColHalf[i]];
                         [voicesChip[i] addAwesomeIcon:FAIconVolumeDown beforeTitle:true];
                         break;
                     case 0:
@@ -366,12 +384,12 @@
             }
                         
             for (int i=0;i<detailViewController.mplayer.numChannels;i++) {
-                voices[i]=[[BButton alloc] initWithFrame:CGRectMake(0,0,32,32) type:([detailViewController.mplayer getVoicesStatus:i]?BButtonTypePrimary:BButtonTypeInverse) style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];
+                voices[i]=[[BButton alloc] initWithFrame:CGRectMake(0,0,32,32) type:([detailViewController.mplayer getm_voicesStatus:i]?BButtonTypePrimary:BButtonTypeInverse) style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];
                 [voices[i] setTitle:[detailViewController.mplayer getVoicesName:i] forState:UIControlStateNormal];
-                [voices[i] addAwesomeIcon:([detailViewController.mplayer getVoicesStatus:i]?FAIconVolumeUp:FAIconVolumeOff) beforeTitle:true];
+                [voices[i] addAwesomeIcon:([detailViewController.mplayer getm_voicesStatus:i]?FAIconVolumeUp:FAIconVolumeOff) beforeTitle:true];
                 [voices[i] addTarget:self action:@selector(pushedVoicesChanged:) forControlEvents:UIControlEventTouchUpInside];
                 
-                if ([detailViewController.mplayer getVoicesStatus:i]) {
+                if ([detailViewController.mplayer getm_voicesStatus:i]) {
                     [voices[i] setColor:voicesChipCol[[detailViewController.mplayer getSystemForVoice:i]]];
                 }
                 

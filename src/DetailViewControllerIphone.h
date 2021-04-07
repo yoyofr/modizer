@@ -58,9 +58,10 @@ class CGLString;
     
     //EQ
     EQViewController *eqVC;
-    
+    bool bShowEQ;
     //Voices
     VoicesViewController *voicesVC;
+    bool bShowVC;
     
     //Options
 	IBOutlet UISegmentedControl *sc_allowPopup;
@@ -174,6 +175,7 @@ class CGLString;
 @property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
 @property BOOL mShuffle;
 @property int mShouldUpdateInfos;
+@property bool bShowVC,bShowEQ;
 
 -(IBAction)pushedRating1;
 -(IBAction)pushedRating2;

@@ -56,6 +56,9 @@ public:
      * @return false in case of errors, true otherwise.
      */
     bool open(const char *filename);
+#ifdef _WIN32
+    bool open(const wchar_t* filename);
+#endif
 
     /**
      * Close the songlength DataBase.

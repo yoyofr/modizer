@@ -331,7 +331,7 @@ int SID::clock(unsigned int cycles, short* buf)
     
     //TODO:  MODIZER changes start / YOYOFR
     //check current active sid
-    int sid_idx=m_voice_current_system*3;    
+    int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
     int smplIncr=44100*256/96000;
     if (smplIncr>256) smplIncr=256;
     //TODO:  MODIZER changes end / YOYOFR

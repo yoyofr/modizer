@@ -29,4 +29,6 @@
 + (void) backupEQSettings;
 + (void) restoreEQSettings;
 
+-(IBAction) closeView;
+
 @end

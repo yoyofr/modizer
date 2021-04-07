@@ -628,6 +628,11 @@ int ymf278b_anyActive(YMF278BChip* chip)
 	return 0;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
 {
 	YMF278BChip* chip = &YMF278BData[ChipID];
@@ -635,6 +640,23 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
 	unsigned int j;
 	INT32 vl;
 	INT32 vr;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=18+24;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    if (m_voice_ofs) m_voicesForceOfs=m_voice_ofs;
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncr=44100*256/44100;
+    if (smplIncr>256) smplIncr=256;
+    
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	if (chip->FMEnabled)
 	{
@@ -681,6 +703,14 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
 			{
 				//outputs[0][j] += 0;
 				//outputs[1][j] += 0;
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    m_voice_buff[m_voice_ofs+18+i][m_voice_current_ptr[m_voice_ofs+18+i]>>8]=0;
+                    m_voice_current_ptr[m_voice_ofs+18+i]+=smplIncr;
+                    if ((m_voice_current_ptr[m_voice_ofs+18+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+18+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
+                
 				continue;
 			}
 
@@ -698,6 +728,14 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
 
 			outputs[0][j] += (sample * chip->volume[volLeft] ) >> 17;
 			outputs[1][j] += (sample * chip->volume[volRight]) >> 17;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                m_voice_buff[m_voice_ofs+18+i][m_voice_current_ptr[m_voice_ofs+18+i]>>8]=LIMIT8(((sample*(chip->volume[volLeft]+chip->volume[volRight]))>>22));
+                m_voice_current_ptr[m_voice_ofs+18+i]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+18+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+18+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 
 			if (sl->lfo_active && sl->vib)
 			{

@@ -2542,6 +2542,11 @@ void ymf262_set_mutemask(void *chip, UINT32 MuteMask)
 }
 
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /*
 ** Generate samples for one of the YMF262's
 **
@@ -2561,6 +2566,27 @@ void ymf262_update_one(void *_chip, OPL3SAMPLE **buffers, int length)
 
 	int i;
 	int chn;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=18;
+    if (m_voicesForceOfs) {
+        m_voice_ofs=m_voicesForceOfs;
+        m_voicesForceOfs=-1;
+    } else {
+        for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+            if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+                m_voice_ofs=ii;
+                break;
+            }
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncr=44100*256/chip->rate;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
+    
 
 	for( i=0; i < length ; i++ )
 	{
@@ -2715,6 +2741,17 @@ void ymf262_update_one(void *_chip, OPL3SAMPLE **buffers, int length)
 		c += chip->chanout[17] & chip->pan[70];
 		d += chip->chanout[17] & chip->pan[71];
 #endif
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int ii=0;ii<18;ii++) {
+                m_voice_buff[m_voice_ofs+ii][m_voice_current_ptr[m_voice_ofs+ii]>>8]=LIMIT8((chip->chanout[ii])>>8);
+                m_voice_current_ptr[m_voice_ofs+ii]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
+        
 		a >>= FINAL_SH;
 		b >>= FINAL_SH;
 		c >>= FINAL_SH;

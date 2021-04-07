@@ -619,6 +619,51 @@ static NSFileManager *mFileMngr;
                     mFTPDownloadQueueDepth++;
                     
                 }
+                //5/ Stereo sid file -> .mus and .str should go be paired
+                r.location=NSNotFound;
+                r = [fileName rangeOfString:@".mus" options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    strcpy(tmp_str,[filePath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.str",tmp_str];
+                    
+                    strcpy(tmp_str,[ftpPath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.str",tmp_str];
+                    
+                    mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                    
+                    strcpy(tmp_str,[fileName UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.str",tmp_str];
+                    
+                    mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                    mFileSize[mFTPDownloadQueueDepth]=-1;
+                    mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                    
+                    mFTPDownloadQueueDepth++;
+                }
+                r.location=NSNotFound;
+                r = [fileName rangeOfString:@".str" options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    strcpy(tmp_str,[filePath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.mus",tmp_str];
+                    
+                    strcpy(tmp_str,[ftpPath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.mus",tmp_str];
+                
+                    mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                    
+                    strcpy(tmp_str,[fileName UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                    mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.mus",tmp_str];
+                    
+                    mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                    mFileSize[mFTPDownloadQueueDepth]=-1;
+                    mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                    
+                    mFTPDownloadQueueDepth++;
+                }
 			}
 			
 			mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:filePath];
@@ -780,7 +825,6 @@ static NSFileManager *mFileMngr;
     NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
     NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
-    NSArray *filetype_extMPG123=[SUPPORTED_FILETYPE_MPG123 componentsSeparatedByString:@","];
     NSString *extension;// = [file pathExtension];
     NSString *file_no_ext;// = [[file lastPathComponent] stringByDeletingPathExtension];
     
@@ -850,11 +894,6 @@ static NSFileManager *mFileMngr;
             if ([file_no_ext caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
         }
     if (!found)
-    for (int i=0;i<[filetype_extMPG123 count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extMPG123 objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
-    }
-	if (!found)
 		for (int i=0;i<[filetype_extHC count];i++) {
 			if ([extension caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {found=1;break;}
 			if ([file_no_ext caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {found=1;break;}

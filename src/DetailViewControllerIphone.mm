@@ -145,6 +145,7 @@ static int display_length_mode=0;
 @implementation DetailViewControllerIphone
 
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
+@synthesize bShowVC,bShowEQ;
 @synthesize mShuffle,mShouldUpdateInfos;
 @synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime,btnNextCFlow,btnPrevCFlow,btnNextSubCFlow,btnPrevSubCFlow;
 
@@ -188,13 +189,23 @@ static int display_length_mode=0;
 }
 
 -(IBAction)showVoicesSelector:(id)sender {
-    voicesVC = [[VoicesViewController alloc]  initWithNibName:@"VoicesViewController" bundle:[NSBundle mainBundle]];
-    //set new title
-    voicesVC.title = NSLocalizedString(@"Voices control",@"Voices control");
-    voicesVC.detailViewController=self;
-    
-    // And push the window
-    [self.navigationController pushViewController:voicesVC animated:YES];
+    if (bShowVC) {
+        [voicesVC viewWillDisappear:YES];
+        [voicesVC.view removeFromSuperview];
+        [voicesVC removeFromParentViewController];
+    } else {
+        voicesVC = [[VoicesViewController alloc]  initWithNibName:@"VoicesViewController" bundle:[NSBundle mainBundle]];
+        //set new title
+        voicesVC.title = NSLocalizedString(@"Voices control",@"Voices control");
+        voicesVC.detailViewController=self;
+                
+        voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
+        // And push the window
+        //[self.navigationController pushViewController:voicesVC animated:YES];
+        
+        [self addChildViewController:voicesVC];
+        [self.view addSubview:voicesVC.view];
+    }
 }
 
 -(IBAction)showSubSongSelector:(id)sender {
@@ -1383,13 +1394,22 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 - (IBAction)showEQ {
-    eqVC = [[EQViewController alloc]  initWithNibName:@"EQViewController" bundle:[NSBundle mainBundle]];
-    //set new title
-    eqVC.title = @"Equalizer";
-    eqVC.detailViewController=self;
     
-    // And push the window
-    [self.navigationController pushViewController:eqVC animated:YES];
+    if (bShowEQ) {
+        [eqVC viewWillDisappear:YES];
+        [eqVC.view removeFromSuperview];
+        [eqVC removeFromParentViewController];
+    } else {
+        eqVC = [[EQViewController alloc]  initWithNibName:@"EQViewController" bundle:[NSBundle mainBundle]];
+        //set new title
+        eqVC.title = @"Equalizer";
+        eqVC.detailViewController=self;
+                
+        eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
+        
+        [self addChildViewController:eqVC];
+        [self.view addSubview:eqVC.view];
+    }
 }
 
 
@@ -1415,48 +1435,52 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     textMessage.text=[NSString stringWithFormat:@"%@",[mplayer getModMessage]];
     
     
-    mInWasView=m_oglView;
+    /*mInWasView=m_oglView;
     mInWasViewHidden=m_oglView.hidden;
 	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
+	[UIView setAnimationDuration:0.50];
     //	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mInWasView cache:YES];
 	mInWasView.hidden=YES;
 	[UIView commitAnimations];
 	if (infoIsFullscreen) {
 		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
+		[UIView setAnimationDuration:0.50];
         //		[UIView setAnimationDelegate:self];
 		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:mainView cache:YES];
 		mainView.hidden=YES;
 		[UIView commitAnimations];
 	}
-	
+	*/
 	infoView.hidden=NO;
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
+	/*[UIView beginAnimations:nil context:nil];
+	[UIView setAnimationDuration:0.50];
     //	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:infoView cache:YES];
-	[UIView commitAnimations];
+	[UIView commitAnimations];*/
 	
 }
 
 - (IBAction)hideInfo {
-	[UIView beginAnimations:nil context:nil];
-	[UIView setAnimationDuration:0.70];
+    
+	/*[UIView beginAnimations:nil context:nil];
+	[UIView setAnimationDuration:0.50];
     //	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:infoView cache:YES];
-	infoView.hidden=YES;
-	[UIView commitAnimations];
+    infoView.hidden=YES;
+	[UIView commitAnimations];*/
+    
+    infoView.hidden=YES;
+        
 	
-	if (mInWasView==m_oglView) {  //if ogl view was selected, check if it should be hidden
+	/*if (mInWasView==m_oglView) {  //if ogl view was selected, check if it should be hidden
 		
         if (mOglViewIsHidden) mInWasViewHidden=YES;
 		else mInWasViewHidden=NO;
 	}
 	if (!mInWasViewHidden) {
 		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
+		[UIView setAnimationDuration:0.50];
         //		[UIView setAnimationDelegate:self];
 		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mInWasView cache:YES];
 		mInWasView.hidden=NO;
@@ -1467,7 +1491,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		[UIView commitAnimations];
 	} else if (infoIsFullscreen) {
 		[UIView beginAnimations:nil context:nil];
-		[UIView setAnimationDuration:0.70];
+		[UIView setAnimationDuration:0.50];
         //		[UIView setAnimationDelegate:self];
 		[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromRight  forView:mainView cache:YES];
 		mainView.hidden=NO;
@@ -1480,7 +1504,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	[UIView setAnimationDuration:0.70];
     //	[UIView setAnimationDelegate:self];
 	[UIView setAnimationTransition:UIViewAnimationTransitionFlipFromLeft  forView:self.navigationItem.rightBarButtonItem.customView cache:YES];
-	[UIView commitAnimations];
+	[UIView commitAnimations];*/
 }
 
 
@@ -4129,6 +4153,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     mLoadIssueMessage=0;
     
+    
+    
     temp_playlist=NULL;
     
     
@@ -4142,9 +4168,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     cover_view.layer.shadowRadius = 2.0;
     cover_view.clipsToBounds = NO;
     
+    //Voices control
+    bShowVC=false;
     
     //EQ
     eqVC=nil;
+    bShowEQ=false;
   
 
     [sliderProgressModule setThumbImage:[UIImage imageNamed:@"slider.png" ] forState:UIControlStateNormal];
@@ -5299,6 +5328,7 @@ extern "C" int current_sample;
             mOglView2Taps=0;
 			oglViewFullscreen^=1;
 			oglViewFullscreenChanged=1;
+            viewTapHelpShow=0;
 			[self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
 		}
 
@@ -5872,8 +5902,7 @@ extern "C" int current_sample;
                     currentPattern=pat[playerpos];
                     currentRow=row[playerpos];
                     
-                    currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
-                    //ModPlug_GetPatternModizer(openmpt_module_ext_get_module(ompt_mod),currentPattern,(unsigned int*)(&numRows));
+                    currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];                    
                     idx=startRow*mplayer.numChannels+startChan;
                     
                     for (int i=0;i<mplayer.numChannels;i++) tim_notes_cpy[playerpos][i]=0;
@@ -6147,10 +6176,11 @@ extern "C" int current_sample;
                                   settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
 		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
         if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
-            if ([mplayer voicesDataAvail]) {
-                RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],([mplayer numChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer numChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,hasdrawnotes,pos_fx);
+            if ([mplayer m_voicesDataAvail]) {
+                RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,0); //hasdrawnotes
             } else {
-                RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
+                //RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
+                RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],2,ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,1); //hasdrawnotes
             }
         }
 	}

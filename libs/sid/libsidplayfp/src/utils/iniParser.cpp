@@ -57,6 +57,20 @@ bool iniParser::open(const char *fName)
 {
     std::ifstream iniFile(fName);
 
+    return open_internal(iniFile);
+}
+
+#ifdef _WIN32
+bool iniParser::open(const wchar_t *fName)
+{
+    std::ifstream iniFile(fName);
+
+    return open_internal(iniFile);
+}
+#endif
+
+bool iniParser::open_internal(std::ifstream & iniFile)
+{
     if (iniFile.fail())
     {
         return false;

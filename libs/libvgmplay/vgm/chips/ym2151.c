@@ -2497,7 +2497,7 @@ void ym2151_update_one(void *chip, SAMP **buffers, int length)
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             for (int ii=0;ii<8;ii++) {
-                m_voice_buff[m_voice_ofs+ii][m_voice_current_ptr[m_voice_ofs+ii]>>8]=LIMIT8((chanout[ii]>>7));
+                m_voice_buff[m_voice_ofs+ii][m_voice_current_ptr[m_voice_ofs+ii]>>8]=LIMIT8((chanout[ii]>>6));
                 m_voice_current_ptr[m_voice_ofs+ii]+=smplIncr;
                 if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
             }

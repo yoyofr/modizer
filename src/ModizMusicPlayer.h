@@ -22,7 +22,6 @@
 //MODPLUG
 //#import "modplug.h"
 
-
 //2SF
 
 #import "../libs/libxsf/src/in_xsf_framework/XSFPlayer.h"
@@ -79,7 +78,6 @@ enum MMP_PLAYER_TYPE {
     MMP_UADE,
     MMP_TIMIDITY,
     MMP_VGMSTREAM,
-    MMP_MPG123,
     MMP_VGMPLAY,
     MMP_GME,
     MMP_ASAP,
@@ -100,10 +98,8 @@ enum MMP_PLAYER_TYPE {
 	int mod_subsongs;
 	int mod_currentsub,mod_minsub,mod_maxsub;
 	unsigned int mPlayType;
-	int mp_datasize,numChannels;
-    char voicesDataAvail;
-    char voicesStatus[SOUND_MAXMOD_CHANNELS];
-	int mLoopMode; //0:off, 1:infinite
+	int mp_datasize,numChannels,numVoicesChannels;
+    int mLoopMode; //0:off, 1:infinite
     long mCurrentSamples,mTgtSamples;
     NSString *mod_currentfile;
     NSString *mod_currentext;
@@ -139,6 +135,10 @@ enum MMP_PLAYER_TYPE {
     openmpt_module_ext *ompt_mod;
     openmpt_module_ext_interface_interactive *ompt_mod_interactive;
     ModPlugNote** ompt_patterns;
+    int optOMPT_SamplingVal;
+    int optOMPT_StereoSeparationVal;
+    int optOMPT_MasterVol;
+
 	//adplug
     int mADPLUGopltype;
 	//SID    
@@ -193,8 +193,8 @@ enum MMP_PLAYER_TYPE {
 @property int *genRow,*genPattern,*playRow,*playPattern;//,*playOffset,*genOffset;
 @property unsigned char *genVolData,*playVolData;
 @property float mVolume;
-@property int numChannels,numPatterns,numSamples,numInstr;
-@property char voicesDataAvail;
+@property int numChannels,numPatterns,numSamples,numInstr,numVoicesChannels;
+@property char m_voicesDataAvail;
 //GSF stuff
 @property char optGSFsoundLowPass;
 @property char optGSFsoundEcho;
@@ -345,7 +345,6 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_openmptLoad:(NSString*)filePath;
 -(int) mmp_timidityLoad:(NSString*)filePath;
 -(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension subsong:(int)subindex;
--(int) mmp_mpg123Load:(NSString*)filePath extension:(NSString*)extension;
 -(int) MMP_HCLoad:(NSString*)filePath;
 -(void) MMP_HCClose;
 -(int) mmp_2sfLoad:(NSString*)filePath;
@@ -365,11 +364,11 @@ enum MMP_PLAYER_TYPE {
 -(NSString*) getSystemsName:(int)systemIdx;
 
 -(int) getSystemForVoice:(int)voiceIdx;
--(void) setSystemVoicesStatus:(int)systemIdx active:(bool)active;
--(int) getSystemVoicesStatus:(int)systemIdx;
+-(void) setSystemm_voicesStatus:(int)systemIdx active:(bool)active;
+-(int) getSystemm_voicesStatus:(int)systemIdx;
 -(bool) isVoicesMutingSupported;
 -(NSString*) getVoicesName:(unsigned int)channel;
--(bool) getVoicesStatus:(unsigned int)channel;
--(void) setVoicesStatus:(bool)active index:(unsigned int)channel;
+-(bool) getm_voicesStatus:(unsigned int)channel;
+-(void) setm_voicesStatus:(bool)active index:(unsigned int)channel;
 
 @end

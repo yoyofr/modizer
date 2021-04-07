@@ -100,15 +100,6 @@ void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
     int smplIncr=44100*256/31025;
     if (smplIncr>256) smplIncr=256;
     
-    if (m_voice_ofs>=0) {
-        for (int j=0;j<m_total_channels;j++) {
-            int cur_pos=m_voice_current_ptr[m_voice_ofs+j];
-            for (int i=0;i<samples;i++) {
-                m_voice_buff[m_voice_ofs+j][(cur_pos>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=0;
-                cur_pos+=smplIncr;
-            }
-        }
-    }
     //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -235,7 +226,17 @@ void SEGAPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 			regs[0x84] = addr >> 8;
 			regs[0x85] = addr >> 16;
 			spcm->low[ch] = regs[0x86] & 1 ? 0 : addr;
-		}
+        }
+        //TODO:  MODIZER changes start / YOYOFR
+        else {
+            for (int i = 0; i < samples; i++)
+                if (m_voice_ofs>=0) {
+                    m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>8]=0;
+                    m_voice_current_ptr[m_voice_ofs+ch]+=smplIncr;
+                    if ((m_voice_current_ptr[m_voice_ofs+ch]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 //}
 #endif
 	}

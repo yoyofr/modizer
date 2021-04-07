@@ -37,7 +37,16 @@ extern "C" {
 namespace libsidplayfp
 {
 
-void clockChip(sidemu *s) { s->clock(); m_voice_current_system++;}
+void clockChip(sidemu *s) {
+    s->clock();
+    //TODO:  MODIZER changes start / YOYOFR
+    m_voice_current_system++;
+    if (m_voice_current_system>3)
+    {
+        m_voice_current_system=m_voice_current_system; //HAck to check some bugs
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+}
 
 class bufferPos
 {
