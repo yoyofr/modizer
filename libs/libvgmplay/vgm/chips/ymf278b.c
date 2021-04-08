@@ -651,14 +651,14 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
             break;
         }
     }
-    if (m_voice_ofs) m_voicesForceOfs=m_voice_ofs;
+    if (m_voice_ofs>=0) m_voicesForceOfs=m_voice_ofs;
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
     int smplIncr=44100*256/44100;
     if (smplIncr>256) smplIncr=256;
     
     //TODO:  MODIZER changes end / YOYOFR
 	
-	if (chip->FMEnabled)
+	if (1|chip->FMEnabled)
 	{
 		/* memset is done by ymf262_update */
 		ymf262_update_one(chip->fmchip, outputs, samples);
@@ -731,7 +731,7 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
             
             //TODO:  MODIZER changes start / YOYOFR
             if (m_voice_ofs>=0) {
-                m_voice_buff[m_voice_ofs+18+i][m_voice_current_ptr[m_voice_ofs+18+i]>>8]=LIMIT8(((sample*(chip->volume[volLeft]+chip->volume[volRight]))>>22));
+                m_voice_buff[m_voice_ofs+18+i][m_voice_current_ptr[m_voice_ofs+18+i]>>8]=LIMIT8(((sample*(chip->volume[volLeft]+chip->volume[volRight]))>>23));
                 m_voice_current_ptr[m_voice_ofs+18+i]+=smplIncr;
                 if ((m_voice_current_ptr[m_voice_ofs+18+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+18+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
             }

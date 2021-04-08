@@ -2571,7 +2571,7 @@ void ymf262_update_one(void *_chip, OPL3SAMPLE **buffers, int length)
     //search first voice linked to current chip
     int m_voice_ofs=-1;
     int m_total_channels=18;
-    if (m_voicesForceOfs) {
+    if (m_voicesForceOfs>=0) {
         m_voice_ofs=m_voicesForceOfs;
         m_voicesForceOfs=-1;
     } else {

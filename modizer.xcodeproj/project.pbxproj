@@ -792,7 +792,6 @@
 		5950DA2525E0F67B00B476B2 /* textGradient.png in Resources */ = {isa = PBXBuildFile; fileRef = 33ABD4F117BD065300D50393 /* textGradient.png */; };
 		5950DA2625E0F67B00B476B2 /* txtMenu0.png in Resources */ = {isa = PBXBuildFile; fileRef = 33E46AF517C2B77600F70A14 /* txtMenu0.png */; };
 		5950DA2725E0F67B00B476B2 /* tabview_gradient40Black.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B5E1E3E7F2400C629AA /* tabview_gradient40Black.png */; };
-		5950DA2825E0F67B00B476B2 /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */; };
 		5950DA2925E0F67B00B476B2 /* brahms_hungdan5.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16725CFF0D100520777 /* brahms_hungdan5.mid */; };
 		5950DA2A25E0F67B00B476B2 /* tabview_gradient40.png in Resources */ = {isa = PBXBuildFile; fileRef = 3317854517C6255200929E8F /* tabview_gradient40.png */; };
 		5950DA2B25E0F67B00B476B2 /* faure_pavane.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16625CFF0D100520777 /* faure_pavane.mid */; };
@@ -1638,6 +1637,10 @@
 		59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB325BC8C3B003FEDBF /* libxml2.tbd */; };
 		59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB725BC8CFF003FEDBF /* Security.framework */; };
 		59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */; };
+		59E4A380261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
+		59E4A381261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
+		59E4A382261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
+		59E4A383261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
@@ -1648,7 +1651,6 @@
 		CC03F2DE12160FE000F2AC65 /* buttonR.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D812160FE000F2AC65 /* buttonR.png */; };
 		CC03F2DF12160FE000F2AC65 /* buttonY-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */; };
 		CC03F2E012160FE000F2AC65 /* buttonY.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2DA12160FE000F2AC65 /* buttonY.png */; };
-		CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */; };
 		CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC17F07E1AC87866006C1E82 /* Images-2.xcassets */; };
 		CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C01200B391000A8A4E /* AudioToolbox.framework */; };
 		CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C21200B391000A8A4E /* AVFoundation.framework */; };
@@ -3408,6 +3410,8 @@
 		59C22AB325BC8C3B003FEDBF /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		59C22AB725BC8CFF003FEDBF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = modizer_icon.icns; sourceTree = "<group>"; };
+		59E4A37E261E7219000A31BA /* yrw801.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = yrw801.rom; sourceTree = "<group>"; };
+		59E4A37F261E7219000A31BA /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGMPlay.ini; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -3417,7 +3421,6 @@
 		CC03F2D912160FE000F2AC65 /* buttonY-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonY-highlight.png"; sourceTree = "<group>"; };
 		CC03F2DA12160FE000F2AC65 /* buttonY.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonY.png; sourceTree = "<group>"; };
 		CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = vgmplay.xcodeproj; sourceTree = "<group>"; };
-		CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VGMPlay.ini; path = ../libs/libvgmplay/vgm/VGMPlay.ini; sourceTree = "<group>"; };
 		CC17F07E1AC87866006C1E82 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = "Images-2.xcassets"; path = "modizer/Images-2.xcassets"; sourceTree = SOURCE_ROOT; };
 		CC19620E1B66BCD600778A3E /* Resample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Resample.xcodeproj; sourceTree = "<group>"; };
 		CC1E56C01200B391000A8A4E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -5396,20 +5399,21 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		59E4A37D261E7219000A31BA /* vgmplay */ = {
+			isa = PBXGroup;
+			children = (
+				59E4A37E261E7219000A31BA /* yrw801.rom */,
+				59E4A37F261E7219000A31BA /* VGMPlay.ini */,
+			);
+			path = vgmplay;
+			sourceTree = "<group>";
+		};
 		CC1343751AC17B4D00CAB284 /* libvgmplay */ = {
 			isa = PBXGroup;
 			children = (
 				CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */,
 			);
 			path = libvgmplay;
-			sourceTree = "<group>";
-		};
-		CC13449B1AC17CC200CAB284 /* vgmplay */ = {
-			isa = PBXGroup;
-			children = (
-				CC13449C1AC17CCD00CAB284 /* VGMPlay.ini */,
-			);
-			name = vgmplay;
 			sourceTree = "<group>";
 		};
 		CC1E57321200B3B7000A8A4E /* Adplug */ = {
@@ -5678,6 +5682,7 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				59E4A37D261E7219000A31BA /* vgmplay */,
 				59BE93A32600D3F500414A42 /* c64 */,
 				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
 				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
@@ -5685,7 +5690,6 @@
 				59387AED20C745BB001F0C20 /* LaunchLogo.jpg */,
 				59387AEF20C746D3001F0C20 /* AppStore512.png */,
 				CCFA9ADC1AC75830007C658A /* WebTools */,
-				CC13449B1AC17CC200CAB284 /* vgmplay */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
@@ -7011,9 +7015,11 @@
 				CC1E631E120423DF000A8A4E /* BladePacker in Resources */,
 				CC1E631F120423DF000A8A4E /* ChipTracker in Resources */,
 				CC1E6320120423DF000A8A4E /* Cinemaware in Resources */,
+				59E4A380261E7219000A31BA /* yrw801.rom in Resources */,
 				5966D1E525CFF0D200520777 /* chopin_no4801.mid in Resources */,
 				5966D1A125CFF0D200520777 /* dune - fremens.jpg in Resources */,
 				5966D1BA25CFF0D200520777 /* dune - fremens.mod in Resources */,
+				59E4A382261E7219000A31BA /* VGMPlay.ini in Resources */,
 				5966D17825CFF0D100520777 /* james_bond.mid in Resources */,
 				CC33B4271ABE1FC6009608E8 /* slider.png in Resources */,
 				CC1E6321120423DF000A8A4E /* CoreDesign in Resources */,
@@ -7419,7 +7425,6 @@
 				33ABD4F217BD065800D50393 /* textGradient.png in Resources */,
 				33E46B0A17C2B77600F70A14 /* txtMenu0.png in Resources */,
 				59909B601E3E7F2400C629AA /* tabview_gradient40Black.png in Resources */,
-				CC13449D1AC17CCD00CAB284 /* VGMPlay.ini in Resources */,
 				5966D1D925CFF0D200520777 /* brahms_hungdan5.mid in Resources */,
 				3317854917C6255200929E8F /* tabview_gradient40.png in Resources */,
 				5966D1D825CFF0D200520777 /* faure_pavane.mid in Resources */,
@@ -7533,9 +7538,11 @@
 				5950D89425E0F67B00B476B2 /* BladePacker in Resources */,
 				5950D89525E0F67B00B476B2 /* ChipTracker in Resources */,
 				5950D89625E0F67B00B476B2 /* Cinemaware in Resources */,
+				59E4A381261E7219000A31BA /* yrw801.rom in Resources */,
 				5950D89725E0F67B00B476B2 /* chopin_no4801.mid in Resources */,
 				5950D89825E0F67B00B476B2 /* dune - fremens.jpg in Resources */,
 				5950D89925E0F67B00B476B2 /* dune - fremens.mod in Resources */,
+				59E4A383261E7219000A31BA /* VGMPlay.ini in Resources */,
 				5950D89A25E0F67B00B476B2 /* james_bond.mid in Resources */,
 				5950D89B25E0F67B00B476B2 /* slider.png in Resources */,
 				5950D89C25E0F67B00B476B2 /* CoreDesign in Resources */,
@@ -7941,7 +7948,6 @@
 				5950DA2525E0F67B00B476B2 /* textGradient.png in Resources */,
 				5950DA2625E0F67B00B476B2 /* txtMenu0.png in Resources */,
 				5950DA2725E0F67B00B476B2 /* tabview_gradient40Black.png in Resources */,
-				5950DA2825E0F67B00B476B2 /* VGMPlay.ini in Resources */,
 				5950DA2925E0F67B00B476B2 /* brahms_hungdan5.mid in Resources */,
 				5950DA2A25E0F67B00B476B2 /* tabview_gradient40.png in Resources */,
 				5950DA2B25E0F67B00B476B2 /* faure_pavane.mid in Resources */,

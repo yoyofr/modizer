@@ -152,6 +152,7 @@ extern "C" {
     //VGMPPLAY
     CHIPS_OPTION ChipOpts[0x02];
     bool EndPlay;
+    char* AppPaths[8];
 
 /*
 "SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
@@ -1560,7 +1561,7 @@ void propertyListenerCallback (void                   *inUserData,              
         timThread_running=0;
         
         //SID
-        
+                
         
         // init  UADE stuff
         char uadeconfname[PATH_MAX];
@@ -6272,8 +6273,23 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         sega_upload_program( HC_emulatorCore, state.data, (uint32_t)length );
         
         free( state.data );
+                        
+        if (HC_type==0x11) {
+            numChannels=32;
+            numVoicesChannels=32;
+            m_voicesDataAvail=1;
+            for (int i=0;i<numVoicesChannels;i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[0];
+            }
+        } else if (HC_type==0x12) {
+            numChannels=64;
+            numVoicesChannels=64;
+            m_voicesDataAvail=1;
+            for (int i=0;i<numVoicesChannels;i++) {
+                m_voice_voiceColor[i]=m_voice_systemColor[0];
+            }
+        }
         
-        numChannels=2;
     } else if (HC_type == 0x21) { //USF
         lzu_state = new usf_loader_state;
         lzu_state->emu_state = malloc( usf_get_state_size() );
@@ -6401,6 +6417,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     
     VGMPlay_Init();
+    
+    NSString *vgm_base_path = [[NSBundle mainBundle] resourcePath];
+    AppPaths[0]=strdup([[NSString stringWithFormat:@"%@/",vgm_base_path] UTF8String]);
     // load configuration file here
     ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
@@ -6519,6 +6538,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             } else if (strcmp(strChip,"C140")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"VSU")==0) {
+                m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"GA20")==0) {
                 m_voicesDataAvail=1;
             }
         }
@@ -7516,6 +7537,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         memset(m_voice_buff_ana_cpy[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
     }
     memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
+    m_voice_current_system=0;
     mSIDSeekInProgress=0;
     
     for (int i=0;i<[available_player count];i++) {
@@ -7963,6 +7985,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         StopVGM();
         CloseVGMFile();
         VGMPlay_Deinit();
+        if (AppPaths[0]) free(AppPaths[0]);
+        AppPaths[0]=NULL;
         for (int i=0;i<vgmplay_activeChipsNb;i++) {
             if (vgmplay_activeChipsName[i]) free(vgmplay_activeChipsName[i]);
             vgmplay_activeChipsName[i]=NULL;
@@ -8524,6 +8548,7 @@ extern "C" void adjust_amplification(void);
     switch (mPlayType) {
         case MMP_HC:
             if ((HC_type==1)||(HC_type==2)) return true;
+            if ((HC_type==0x11)||(HC_type==0x12)) return true;
             return false;
         case MMP_OPENMPT:
         case MMP_GME:
@@ -8541,6 +8566,8 @@ extern "C" void adjust_amplification(void);
         case MMP_HC:
             if (HC_type==1) return [NSString stringWithFormat:@"#%d-SPU",channel+1];
             else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];
+            else if (HC_type==0x11) return [NSString stringWithFormat:@"#%d-SCSP",channel+1];
+            else if (HC_type==0x12) return [NSString stringWithFormat:@"#%d-AICA",channel+1];
             return @"";
         case MMP_OPENMPT: {
             NSString *result;
@@ -8578,6 +8605,7 @@ extern "C" void adjust_amplification(void);
         case MMP_HC:
             if (HC_type==1) return 1;
             else if (HC_type==2) return 2;
+            else if ((HC_type==0x11)||(HC_type==0x12)) return 1;
             return 1;
         case MMP_OPENMPT:
             return 1;
@@ -8599,6 +8627,8 @@ extern "C" void adjust_amplification(void);
         case MMP_HC:
             if (HC_type==1) return @"SPU";
             else if (HC_type==2) return [NSString stringWithFormat:@"SPU#%d",systemIdx + 1];
+            else if (HC_type==0x11) return @"SCSP";
+            else if (HC_type==0x12) return @"AICA";
             return @"";
         case MMP_OPENMPT:
             return @"OMPT";
@@ -8624,6 +8654,7 @@ extern "C" void adjust_amplification(void);
         case MMP_HC:
             if (HC_type==1) return 0;
             else if (HC_type==2) return voiceIdx/24;
+            else if ((HC_type==0x11)||(HC_type==0x12)) return 0;
             return 0;
         case MMP_OPENMPT:
             return 0;
@@ -8658,6 +8689,10 @@ extern "C" void adjust_amplification(void);
             } else if (HC_type==2) {
                 for (int i=0;i<24;i++) tmp+=(m_voicesStatus[i+systemIdx*24]?1:0);
                 if (tmp==24) return 2; //all active
+                else if (tmp>0) return 1; //partially active
+            } else if ((HC_type==0x11)||(HC_type==0x12)) { //scsp or aica
+                for (int i=0;i<numChannels;i++) tmp+=(m_voicesStatus[i]?1:0);
+                if (tmp==numChannels) return 2; //all active
                 else if (tmp>0) return 1; //partially active
             }
             return 0;
@@ -8718,6 +8753,8 @@ extern "C" void adjust_amplification(void);
         case MMP_HC:
             if (HC_type==1) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //PSF, 24voices
             else if (HC_type==2) for (int i=0;i<24;i++) [self setm_voicesStatus:active index:(i+systemIdx*24)]; //PSF2, 48voices
+            else if (HC_type==0x11) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //SCSP, 32voices
+            else if (HC_type==0x12) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //AICA, 64voices
             break;
         case MMP_OPENMPT:
             for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i];
@@ -8772,6 +8809,14 @@ extern "C" void adjust_amplification(void);
                 } else {
                     if (channel<24) HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
                     else HC_voicesMuteMask2&=0xFFFFFFFF^(1<<(channel-24));
+                }
+            } else if ((HC_type==0x11)||(HC_type==0x12)) { //SSF/SCSP or DSF/AICA
+                if (active) {
+                    if (channel<32) HC_voicesMuteMask1|=1<<channel;
+                    else HC_voicesMuteMask2|=1<<(channel-32);
+                } else {
+                    if (channel<32) HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
+                    else HC_voicesMuteMask2&=0xFFFFFFFF^(1<<(channel-32));
                 }
             }
             break;

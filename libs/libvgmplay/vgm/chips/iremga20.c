@@ -71,6 +71,10 @@ static ga20_state GA20Data[MAX_CHIPS];
 	return (ga20_state *)downcast<legacy_device_base *>(device)->token();
 }*/
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 //static STREAM_UPDATE( IremGA20_update )
 void IremGA20_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
@@ -81,6 +85,20 @@ void IremGA20_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	UINT8 *pSamples;
 	stream_sample_t *outL, *outR;
 	int i, sampleout;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=4;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*256/44100;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* precache some values */
 	for (i=0; i < 4; i++)
@@ -139,6 +157,16 @@ void IremGA20_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		sampleout >>= 2;
 		outL[i] = sampleout;
 		outR[i] = sampleout;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int ii=0;ii<4;ii++) {
+                m_voice_buff[m_voice_ofs+ii][m_voice_current_ptr[m_voice_ofs+ii]>>8]=LIMIT8((((pSamples[pos[ii]] - 0x80) * vol[ii])>>12));
+                m_voice_current_ptr[m_voice_ofs+ii]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}
 
 	/* update the regs now */

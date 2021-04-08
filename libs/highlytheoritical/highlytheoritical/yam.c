@@ -8,6 +8,14 @@
 #error "Hi I forgot to set EMU_COMPILE"
 #endif
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+static int m_voice_ofs;
+static int smplIncr;
+static int m_voice_currentChannel;
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include "yam.h"
 
 #ifdef _WIN32
@@ -2331,6 +2339,14 @@ static void render_and_add_channel(
     samples
   );
 
+    //TODO:  MODIZER changes start / YOYOFR
+    if (m_voice_currentChannel<32) {
+        if (!(HC_voicesMuteMask1&(1<<m_voice_currentChannel))) memset(localbuf,0,rendersamples*sizeof(sint32));
+    } else {
+        if (!(HC_voicesMuteMask2&(1<<(m_voice_currentChannel-32)))) memset(localbuf,0,rendersamples*sizeof(sint32));
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+
   // Add to output
   if(directout) {
     uint8 att_l, att_r;
@@ -2344,6 +2360,14 @@ static void render_and_add_channel(
       directout[0] += (localbuf[i]*lin_l) >> att_l;
       directout[1] += (localbuf[i]*lin_r) >> att_r;
       directout += 2;
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>8]=\
+            LIMIT8( ( ((localbuf[i]*lin_l) >> att_l)+((localbuf[i]*lin_r) >> att_r) )>>9 );
+            m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
+            if ((m_voice_current_ptr[m_voice_currentChannel]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
   }
   if(fxout) {
@@ -2353,6 +2377,15 @@ static void render_and_add_channel(
     for(i = 0; i < rendersamples; i++) {
       fxout[0] += (localbuf[i]*lin) >> att;
       fxout += 16;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>8]=\
+            LIMIT8( ((localbuf[i]*lin) >> att) >>9 );
+            m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
+            if ((m_voice_current_ptr[m_voice_currentChannel]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
     }
   }
 
@@ -2944,6 +2977,8 @@ int __cdecl render_priority_compare(const void * a, const void * b) {
   struct render_priority *_b = (struct render_priority *) b;
   return _b->priority_level - _a->priority_level;
 }
+    
+    
 static void render(struct YAM_STATE *state, uint32 odometer, uint32 samples) {
   uint32 i, j;
   struct render_priority priority_list[64];
@@ -2959,6 +2994,20 @@ static void render(struct YAM_STATE *state, uint32 odometer, uint32 samples) {
   buf = YAMSTATE->out_buf;
   directout = (buf && (state->dry_out_enabled)) ? outbuf : NULL;
   nchannels = ((YAMSTATE->version) == 1) ? 32 : 64;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    m_voice_ofs=-1;
+    int m_total_channels=nchannels;    
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    smplIncr=44100*256/44100;
+    if (smplIncr>256) smplIncr=256;
+    //TODO:  MODIZER changes end / YOYOFR
 
 //  st=odometer;
 //if(odometer>=11*44100)dumpch(YAMSTATE,YAMSTATE->chan+11);
@@ -3016,6 +3065,10 @@ fclose(f);
     chan = state->chan + j;
     state->bufptr = bufptr_base + j;
 // is 11
+      //TODO:  MODIZER changes start / YOYOFR
+      m_voice_currentChannel=i;
+      //TODO:  MODIZER changes end / YOYOFR
+      
     render_and_add_channel(state, chan, directout,
       wantreverb ? (fxbus + chan->dspchan) : NULL,
       odometer, samples
