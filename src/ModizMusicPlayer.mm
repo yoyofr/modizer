@@ -1074,10 +1074,25 @@ static int tim_output_data(char *buf, int32 nbytes) {
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
     if (nbytes<to_fill) {
         memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,nbytes);
+        
+        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+        for (int i=0;i<nbytes>>2;i++) {
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
+        }
+        
         buffer_ana_subofs+=nbytes;
+        
+        
         
     } else {
         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)buf,to_fill);
+        
+        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+        for (int i=0;i<to_fill>>2;i++) {
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
+        }
         
         nbytes-=to_fill;
         buffer_ana_subofs=0;
@@ -1125,6 +1140,12 @@ static int tim_output_data(char *buf, int32 nbytes) {
                 }
             }
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)buf)+to_fill,nbytes);
+            
+            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+            for (int i=0;i<nbytes>>2;i++) {
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i)*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i)*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+            }
             
             buffer_ana_subofs=nbytes;
         }
@@ -1981,10 +2002,23 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
     if (len<to_fill) {
         
         memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,len);
+        
+        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+        for (int i=0;i<len/4;i++) {
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
+        }
+        
         buffer_ana_subofs+=len;
     } else {
         
         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)data,to_fill);
+        
+        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+        for (int i=0;i<to_fill/4;i++) {
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
+        }
         
         len-=to_fill;
         buffer_ana_subofs=0;
@@ -2019,6 +2053,13 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
                 }
             }
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)data)+to_fill,len);
+            
+            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+            for (int i=0;i<len/4;i++) {
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i)*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i)*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+            }
+            
             buffer_ana_subofs=len;
         }
     }
@@ -2038,10 +2079,23 @@ void gsf_update(unsigned char* pSound,int lBytes) {
     int to_fill=SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs;
     if (lBytes<to_fill) {
         memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,lBytes);
+        
+        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+        for (int i=0;i<lBytes/4;i++) {
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
+        }
+        
         buffer_ana_subofs+=lBytes;
         
     } else {
         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,to_fill);
+        
+        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+        for (int i=0;i<to_fill/4;i++) {
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
+            m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
+        }
         
         lBytes-=to_fill;
         buffer_ana_subofs=0;
@@ -2068,6 +2122,12 @@ void gsf_update(unsigned char* pSound,int lBytes) {
             }
             
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),((char*)pSound)+to_fill,lBytes);
+            
+            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+            for (int i=0;i<lBytes/4;i++) {
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i)*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i)*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+            }
             
             buffer_ana_subofs=lBytes;
         }
@@ -2142,19 +2202,45 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         
         if (lBytes<to_fill) {
             memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,lBytes);
+            
+            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+            for (int i=0;i<lBytes/4;i++) {
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
+            }
+            
             buffer_ana_subofs+=lBytes;
             lBytes=0;
+            
+            
+            
             if (song_end) {
                 memset( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,0,SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs);
+                
+                //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE-buffer_ana_subofs/4;i++) {
+                    m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs)>>2]>>8);
+                    m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs)>>2]>>8);
+                }
+                
                 buffer_ana_flag[buffer_ana_gen_ofs]=1|4;
                 buffer_ana_gen_ofs++;
                 if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
             }
         } else {
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,to_fill);
+            
+            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+            for (int i=0;i<to_fill/4;i++) {
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs)>>2]>>8);
+                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs)>>2]>>8);
+            }
+            
             lBytes-=to_fill;
             pSound+=to_fill;
             buffer_ana_subofs=0;
+            
+            
             
             buffer_ana_flag[buffer_ana_gen_ofs]=1;
             if (song_end) {
@@ -3448,9 +3534,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             
-                            //copy voice data for oscillo view
-                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                            if (m_voicesDataAvail) {
+                                //copy voice data for oscillo view
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                    }
+                                }
+                            } else {
+                                //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                                for (int i=0;i<nbBytes/4;i++) {
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
                                 }
                             }
                             //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
@@ -3465,6 +3559,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             xmp_get_frame_info(xmp_ctx, &xmp_fi);
                             
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            
+                            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                            for (int i=0;i<nbBytes/4;i++) {
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                            }
                             
                             genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
                             genRow[buffer_ana_gen_ofs]=xmp_fi.row;
@@ -3495,6 +3595,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                         }
                         
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                        }
+                        
                         if (mChangeOfSong==0) {
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
                                 if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
@@ -3517,15 +3623,23 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         // render audio into sound buffer
                         pmd_renderer(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                        }
+                        
                         // pmd_renderer gives no useful information on when song is done
                         // and will happily keep playing forever, so check song length against
                         // current playtime
                         if (iCurrentTime>=iModuleLength) {
-                            AudioQueueStop( mAudioQueue, TRUE );
+                            nbBytes=0;
+                            /*AudioQueueStop( mAudioQueue, TRUE );
                             AudioQueueReset( mAudioQueue );
                             mQueueIsBeingStopped = FALSE;
                             bGlobalEndReached=1;
-                            bGlobalAudioPause=2;
+                            bGlobalAudioPause=2;*/
                         }
                     }
                     if (mPlayType==MMP_VGMPLAY) { //VGM
@@ -3547,6 +3661,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
                         src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                        
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                        }
+                        
                         if (mVGMSTREAM_total_samples>=0) {
                             if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
                             if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
@@ -3601,6 +3722,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),reinterpret_cast<char *>(&xsfSampleBuffer[0]),SOUND_BUFFER_SIZE_SAMPLE*2*2);
                         
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                        }
+                        
                         //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                         
                     }
@@ -3629,6 +3756,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 opl->update((short int *)(buffer_ana[buffer_ana_gen_ofs]),opl_towrite);
                                 opl_towrite=0;
                             }
+                            
+                            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                            for (int i=0;i<nbBytes/4;i++) {
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                            }
+                            
                             if (!opl_towrite) {
                                 if (adPlugPlayer->update()) opl_towrite=(int)(PLAYBACK_FREQ*1.0f/adPlugPlayer->getrefresh());
                                 else {
@@ -3676,6 +3810,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 hvl_sample_to_write=0;
                             }
+                            
+                            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                            for (int i=0;i<nbBytes/4;i++) {
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                            }
+                            
                             if (!hvl_sample_to_write) {
                                 hvl_play_irq(hvl_song);
                                 if (hvl_song->ht_SongEndReached) {//end reached
@@ -3752,6 +3893,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         int nbSample = SOUND_BUFFER_SIZE_SAMPLE;
                         if (ymMusicComputeStereo((void*)ymMusic,(ymsample*)buffer_ana[buffer_ana_gen_ofs],nbSample)==YMTRUE) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         else nbBytes=0;
+                        
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                        }
                     }
                     if (mPlayType==MMP_SC68) {//SC68
                         nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -3759,6 +3906,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         if (code & API68_END) nbBytes=0;
                         //if (code & API68_LOOP) nbBytes=0;
                         //if (code & API68_CHANGE) nbBytes=0;
+                        
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                        }
                         
                         if (mChangeOfSong==0) {
                             if ((nbBytes==0)||( (iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
@@ -3788,8 +3941,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             nbBytes*=2;
                         }
-                        //copy voice data for oscillo view
-                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
                             m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
                             m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
                         }
@@ -6630,7 +6783,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         mod_maxsub=1;
         mod_currentsub=1;
         
-        numChannels=pmd_get_tracks();
+        numChannels=2;//pmd_get_tracks();
         
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
@@ -8024,6 +8177,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage=nil;
+    if (mPlayType==MMP_MDXPDX) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -8034,6 +8188,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 
 -(NSString*) getModName {
     NSString *modName;
+    if (mPlayType==MMP_MDXPDX) return [NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
     modName=[NSString stringWithUTF8String:mod_name];
     
     if (modName==nil) return @"";
