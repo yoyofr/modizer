@@ -146,6 +146,7 @@ static int display_length_mode=0;
 
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
 @synthesize bShowVC,bShowEQ;
+@synthesize infoButton,eqButton;
 @synthesize mShuffle,mShouldUpdateInfos;
 @synthesize btnPlayCFlow,btnPauseCFlow,btnBackCFlow,btnChangeTime,btnNextCFlow,btnPrevCFlow,btnNextSubCFlow,btnPrevSubCFlow;
 
@@ -167,7 +168,7 @@ static int display_length_mode=0;
 @synthesize mainView,infoView;
 @synthesize mainRating1,mainRating1off,mainRating2,mainRating2off,mainRating3,mainRating3off,mainRating4,mainRating4off,mainRating5,mainRating5off;
 @synthesize mShouldHaveFocus,mHasFocus,mScaleFactor;
-@synthesize infoButton,backInfo;
+@synthesize backInfo;
 @synthesize mPlaylist_pos,mPlaylist_size;
 
 @synthesize oglButton;
@@ -2123,9 +2124,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	if ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0)) btnShowSubSong.hidden=false;
 	else btnShowSubSong.hidden=true;
-    
     if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) btnShowArcList.hidden=false;
 	else btnShowArcList.hidden=true;
+    if ([mplayer isVoicesMutingSupported]) btnShowVoices.hidden=false;
+    else btnShowVoices.hidden=true;
     
 	
 	alertCannotPlay_displayed=0;
@@ -2506,6 +2508,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	else btnShowSubSong.hidden=true;
     if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0)) btnShowArcList.hidden=false;
 	else btnShowArcList.hidden=true;
+    if ([mplayer isVoicesMutingSupported]) btnShowVoices.hidden=false;
+    else btnShowVoices.hidden=true;
     
 	
 	
@@ -2836,8 +2840,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnNextCFlow.alpha=0;
             btnPrevSubCFlow.alpha=0;
             btnNextSubCFlow.alpha=0;
+            coverflow.hidden=true;
             [UIView commitAnimations];
-            [[self navigationController] setNavigationBarHidden:NO animated:NO];
+            
+            //[[self navigationController] setNavigationBarHidden:NO animated:NO];
         }
         }
 		if (oglViewFullscreen) {
@@ -2851,7 +2857,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 		} else {
             if (mHasFocus) {
-            [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+                [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
             }
             [self.navigationController setNavigationBarHidden:NO animated:YES];
             
@@ -2861,6 +2867,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
             cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-(mDeviceIPhoneX?32:0));
             cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-(mDeviceIPhoneX?32:0));
+            
+            if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
+            if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
+            
             
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
 			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
@@ -2875,7 +2885,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 			if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
 			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
-			
+            
+            
 			//commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
             commandViewU.frame = CGRectMake(0, 0, mDevice_ww, 32+48);
             
@@ -3088,6 +3099,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                     //NSLog(@"3: %f %f",cover_view.frame.size.width,cover_view.frame.size.height);
                     gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
                 }
+                
+                if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
+                if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
 
                 oglButton.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
                 
@@ -3104,7 +3118,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 if (infoIsFullscreen) infoView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
                 else infoView.frame = CGRectMake(0.0, 82, mDevice_hh, mDevice_ww-82-30);
                 
-                int xofs=mDevice_hh-(24*5+4+32+4+32+8);
+                int xofs=mDevice_hh-(24*5+36*3+8);
                 int yofs=10;
                 //commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
                 commandViewU.frame = CGRectMake(0, 0, mDevice_hh, 32+44+8);
@@ -3126,14 +3140,11 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 mainRating3off.frame = CGRectMake(xofs+6+24*2+2,yofs+42+2,20,20);
                 mainRating4off.frame = CGRectMake(xofs+6+24*3+2,yofs+42+2,20,20);
                 mainRating5off.frame = CGRectMake(xofs+6+24*4+2,yofs+42+2,20,20);
-                
-                
-                btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
-                btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+32+4,yofs+40,32,32);
-                btnShowVoices.frame = CGRectMake(xofs+6+24*5+4+32*2+4,yofs+40,32,32);
-                
-                
-                //infoButton.frame = CGRectMake(mDevice_hh-200-10,1,38,38);
+                                
+                btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
+                btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
+                btnShowVoices.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
+                                
                 infoButton.frame = CGRectMake(mDevice_hh-44,4,40,40);
                 eqButton.frame = CGRectMake(mDevice_hh-44-44,4,40,40);
                 
@@ -3184,7 +3195,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
 		pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
 	} else {
-        int xofs=24*5+32*2+10;
+        int xofs=24*5+36*3+10;
 		playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
 		pauseBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44);
 		playBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
@@ -4673,6 +4684,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [btnShowSubSong addAwesomeIcon:FAIconStackOverflow beforeTitle:YES];
     
     btnShowVoices.hidden=false;
+    
     
     [infoButton setStyle:BButtonStyleBootstrapV2];
     [infoButton setType:BButtonTypeInverse];

@@ -2363,7 +2363,7 @@ static void render_and_add_channel(
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>8]=\
-            LIMIT8( ( ((localbuf[i]*lin_l) >> att_l)+((localbuf[i]*lin_r) >> att_r) )>>9 );
+            LIMIT8( ( ((localbuf[i]*lin_l) >> att_l)+((localbuf[i]*lin_r) >> att_r) )>>11 );
             m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
             if ((m_voice_current_ptr[m_voice_currentChannel]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
         }
@@ -2381,7 +2381,7 @@ static void render_and_add_channel(
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>8]=\
-            LIMIT8( ((localbuf[i]*lin) >> att) >>9 );
+            LIMIT8( ((localbuf[i]*lin) >> att) >>10 );
             m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
             if ((m_voice_current_ptr[m_voice_currentChannel]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
         }

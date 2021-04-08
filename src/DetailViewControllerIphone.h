@@ -262,7 +262,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UIView *mainView,*infoView;
 @property (nonatomic, retain) IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
 @property (nonatomic, retain) IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
-@property (nonatomic, retain) IBOutlet BButton *infoButton;
+@property (nonatomic, retain) IBOutlet BButton *infoButton,*eqButton;
 @property (nonatomic, retain) IBOutlet UIButton *oglButton;
 
 @property (nonatomic, retain) NSTimer *repeatingTimer;

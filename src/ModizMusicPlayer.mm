@@ -510,6 +510,42 @@ const psf_file_callbacks psf_file_system =
     psf_file_ftell
 };
 
+char *strclean(char *str) {
+    if (str==NULL) return NULL;
+    char *result=strdup(str);
+    bool remove;
+    int i=0;
+    while (result[i]) {
+        remove=false;
+        switch (result[i]) {
+            case ' ':remove=true; break;
+            case '-':remove=true; break;
+            case '_':remove=true; break;
+            default:break;
+        }
+        if (remove) {
+            int j=i;
+            while (result[j]) {
+                result[j]=result[j+1];
+                j++;
+            }
+        }
+        i++;
+    }
+    return result;
+}
+
+bool strcleancmp(char *str1,char *str2) {
+    bool result=false;
+    char *strtmp1,*strtmp2;
+    strtmp1=strclean(str1);
+    strtmp2=strclean(str2);
+    if (strcasecmp(strtmp1,strtmp2)==0) result=true;
+    if (strtmp1) free(strtmp1);
+    if (strtmp2) free(strtmp2);
+    return result;
+}
+
 static void * psf_file_fopen( const char * uri )
 {
     FILE *f;
@@ -529,7 +565,7 @@ static void * psf_file_fopen( const char * uri )
         }
         for (int i=0;i<[listFiles count];i++) {
             //NSLog(@"file: %@",(NSString*)[listFiles objectAtIndex:i]);
-            if (strcasecmp(strtmp,[(NSString*)[listFiles objectAtIndex:i] UTF8String])==0) {
+            if (strcleancmp(strtmp,(char*)[(NSString*)[listFiles objectAtIndex:i] UTF8String])) {
                 //NSLog(@"found");
                 f=fopen([[NSString stringWithFormat:@"%@/%@",dir,(NSString*)[listFiles objectAtIndex:i]] UTF8String],"r");
                 break;
@@ -5865,7 +5901,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     //LIBOPENMPT_API const char * openmpt_module_get_metadata( openmpt_module * mod, const char * key );
     char *keys_list=(char*)openmpt_module_get_metadata_keys(openmpt_module_ext_get_module(ompt_mod));
     if (keys_list) {
-        printf("ompt metadata keys: %s\n",keys_list);
+        //printf("ompt metadata keys: %s\n",keys_list);
         free(keys_list);
     }
     

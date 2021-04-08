@@ -41,7 +41,7 @@
                             </connections>
                         </button>
                     </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.6735225340136054" colorSpace="custom" customColorSpace="displayP3"/>
                     <connections>
                         <outlet property="delegate" destination="-1" id="8KC-B1-MoY"/>
                     </connections>

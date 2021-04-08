@@ -62,6 +62,7 @@ extern BOOL nvdsp_EQ;
 
 -(void)switchEQChanged:(id)sender {
     nvdsp_EQ=((UISwitch*)sender).on;
+    [detailViewController.eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
 }
 
 
@@ -233,20 +234,20 @@ extern BOOL nvdsp_EQ;
     no_reentrant=true;
 
     for (int i=0;i<EQUALIZER_NB_BANDS;i++) {
-        eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/4);
+        eqSlider[i].frame=CGRectMake(10+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),32,16,self.view.frame.size.height/2);
         eqLabelFreq[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),16,32,16);
-        eqLabelValue[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/4+32,32,16);
+        eqLabelValue[i].frame=CGRectMake(8+(i+1)*(self.view.frame.size.width-8)/(EQUALIZER_NB_BANDS+2),self.view.frame.size.height/2+32,32,16);
     }
-    minus12DB.frame=CGRectMake(4,self.view.frame.size.height/4+32-23,28,20);
+    minus12DB.frame=CGRectMake(4,self.view.frame.size.height/2+32-23,28,20);
     plus12DB.frame=CGRectMake(4,32+1,28,20);
-    zeroDB.frame=CGRectMake(4,self.view.frame.size.height/4+32-11,28,20);
+    zeroDB.frame=CGRectMake(4,self.view.frame.size.height/2+32-11,28,20);
     
-    globalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/4+32,32,16);
-    eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/4);
+    globalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),self.view.frame.size.height/2+32,32,16);
+    eqGlobalGain.frame=CGRectMake(10+(self.view.frame.size.width-34),32,16,self.view.frame.size.height/2);
     
-    eqOnOff.frame=CGRectMake(80+10,self.view.frame.size.height/4+64,32,20);
+    eqOnOff.frame=CGRectMake(80+10,self.view.frame.size.height/2+64,32,20);
 
-    eqOnOffLbl.frame=CGRectMake(4,self.view.frame.size.height/4+64+2,80,20);
+    eqOnOffLbl.frame=CGRectMake(4,self.view.frame.size.height/2+64+2,80,20);
     
     no_reentrant=false;
 }
@@ -285,15 +286,22 @@ extern BOOL nvdsp_EQ;
     }
 }
 
+
+- (void)viewDidLayoutSubviews {
+    [self recomputeFrames];
+}
+
+/*
 - (NSUInteger)supportedInterfaceOrientations {
     return UIInterfaceOrientationMaskAll;
 }
-
+*/
+/*
 - (BOOL)shouldAutorotate {
     [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
     return TRUE;
 }
-
+*/
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     [self recomputeFrames];
     [self.view setNeedsDisplay];

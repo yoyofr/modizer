@@ -35,7 +35,7 @@
                     </connections>
                 </button>
             </subviews>
-            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="displayP3"/>
+            <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.75241815476190477" colorSpace="custom" customColorSpace="displayP3"/>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO" prompted="NO"/>
             <point key="canvasLocation" x="76" y="83"/>
         </view>

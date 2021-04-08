@@ -143,7 +143,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     int rows_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int rows_width=ww/rows_nb;
     int xofs=(ww-rows_width*rows_nb)/2;
-    int smpl_ofs_incr=(SOUND_BUFFER_SIZE_SAMPLE-1)*256/rows_width;
+    int smpl_ofs_incr=(SOUND_BUFFER_SIZE_SAMPLE)*256/rows_width;
     int cur_voices=0;
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
@@ -164,7 +164,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         //reset start offset / previous frame
         old_ofs=snd_data_ofs[j]<<8;
         //start at 1/4 before previous one to help tuning
-        ofs=((snd_data_ofs[j]+SOUND_BUFFER_SIZE_SAMPLE*3/4)&(SOUND_BUFFER_SIZE_SAMPLE-1))<<8;
+        ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<8;
         for (int l=0;l<bufflen-1;l++) {
             // start analyzing
             tmp_gap=0;
