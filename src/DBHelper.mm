@@ -470,6 +470,19 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     
     if (fullpath==nil) return;
     
+    NSLog(@"upd avgrating: %@\n",[fullpath lastPathComponent]);
+    const char *tmp_str=[fullpath UTF8String];
+    char tmp_str_copy[1024];
+    int i=0,j=0;
+    tmp_str_copy[j]=0;
+    while (tmp_str[i]) {
+        if (tmp_str[i]=='@') break;
+        if (tmp_str[i]=='?') break;
+        tmp_str_copy[j++]=tmp_str[i++];
+        tmp_str_copy[j]=0;
+    }
+    NSString *fullpathCleaned=[NSString stringWithFormat:@"%s",tmp_str_copy];
+    
     avg_rating=0;
     entries_nb=0;
     playcount=0;
@@ -485,11 +498,11 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-        sprintf(sqlStatement,"SELECT fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpath UTF8String]);
+        sprintf(sqlStatement,"SELECT fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
         
         //printf("req: %s\n",sqlStatement);
         
-        int fullpath_len=[fullpath length];
+        int fullpath_len=[fullpathCleaned length];
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         
@@ -520,12 +533,12 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
         
     //2nd update rating based on average
     
-    sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+    sprintf(sqlStatement,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
     err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
     if (err==SQLITE_OK){
     } else NSLog(@"ErrSQL : %d",err);
         
-    sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",[[fullpath lastPathComponent] UTF8String],[fullpath UTF8String],playcount,avg_rating);
+    sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",[[fullpathCleaned lastPathComponent] UTF8String],[fullpathCleaned UTF8String],playcount,avg_rating);
     err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
     if (err==SQLITE_OK){
     } else NSLog(@"ErrSQL : %d",err);
@@ -543,6 +556,8 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	int err;	
 	
     if (name==nil) return;
+    
+    NSLog(@"upd: %@/%@ played:%d rating:%d\n",name,[fullpath lastPathComponent],playcount,rating);
     
 	pthread_mutex_lock(&db_mutex);
 	
@@ -575,6 +590,8 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	int err;
     
     if (name==nil) return;
+    
+    NSLog(@"updlong: %@/%@ played:%d rating:%d ...\n",name,[fullpath lastPathComponent],playcount,rating);
     
 	pthread_mutex_lock(&db_mutex);
 	

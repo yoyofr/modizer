@@ -257,6 +257,7 @@ extern "C" char gsf_libfile[1024];
 extern "C" GD3_TAG VGMTag;
 extern "C" VGM_HEADER VGMHead;
 extern "C" INT32 VGMMaxLoop,VGMMaxLoopM;
+extern "C" UINT32 FadeTime;
 
 static int vgmGetChipsDetails(char *str,UINT8 ChipID, UINT8 SubType, UINT32 Clock)
 {
@@ -6588,6 +6589,29 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     return 0;
 }
 
+int vgmGetFileLength()
+{
+    UINT32 SmplCnt;
+    UINT32 MSecCnt;
+    INT32 LoopCnt;
+    
+    LoopCnt = VGMMaxLoopM;
+    
+    if (! LoopCnt && VGMHead.lngLoopSamples)
+        return -1000;
+    
+    // Note: SmplCnt is ALWAYS 44.1 KHz, VGM's native sample rate
+    SmplCnt = VGMHead.lngTotalSamples + VGMHead.lngLoopSamples * (LoopCnt - 0x01);
+        MSecCnt = CalcSampleMSec(SmplCnt, 0x02);
+    
+    if (VGMHead.lngLoopSamples)
+        MSecCnt += FadeTime + 0;//Options.PauseLp;
+    else
+        MSecCnt += 0;//Options.PauseNL;
+    
+    return MSecCnt;
+}
+
 
 -(int) mmp_vgmplayLoad:(NSString*)filePath { //VGM
     mPlayType=MMP_VGMPLAY;
@@ -6745,8 +6769,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
                 [[self wcharToNS:VGMTag.strCreator] UTF8String],
                 [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
-    
-    iModuleLength=(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
+    NSLog(@"loop: %d\n",VGMMaxLoopM);
+    iModuleLength=vgmGetFileLength();//(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
     //NSLog(@"VGM length %d",iModuleLength);
     iCurrentTime=0;
     
