@@ -6769,7 +6769,7 @@ int vgmGetFileLength()
                 [[self wcharToNS:VGMTag.strCreator] UTF8String],
                 [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
-    NSLog(@"loop: %d\n",VGMMaxLoopM);
+    //NSLog(@"loop: %d\n",VGMMaxLoopM);
     iModuleLength=vgmGetFileLength();//(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
     //NSLog(@"VGM length %d",iModuleLength);
     iCurrentTime=0;

@@ -105,20 +105,11 @@ enum MDZ_SETTINGS {
         MDZ_SETTINGS_FAMILY_HC,
         HC_ResampleQuality,
     
-        MDZ_SETTINGS_FAMILY_MODPLUG,
-        MODPLUG_MasterVolume,
-        MODPLUG_Sampling,
-        MODPLUG_StereoSeparation,
-    
-        old_MODPLUG_Megabass,
-            old_MODPLUG_BassAmount,
-            old_MODPLUG_BassRange,
-        old_MODPLUG_Reverb,
-            old_MODPLUG_ReverbDepth,
-            old_MODPLUG_ReverbDelay,
-        old_MODPLUG_Surround,
-            old_MODPLUG_SurroundDepth,
-            old_MODPLUG_SurroundDelay,
+        MDZ_SETTINGS_FAMILY_OMPT,
+        OMPT_MasterVolume,
+        OMPT_Sampling,
+        OMPT_StereoSeparation,
+            
             
         MDZ_SETTINGS_FAMILY_SID,
         SID_Filter,

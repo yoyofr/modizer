@@ -854,9 +854,9 @@ static float movePinchScale,movePinchScaleOld;
     //MODPLUG
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_MODPLUG)) {
-        [mplayer optOMPT_Sampling:settings[MODPLUG_Sampling].detail.mdz_switch.switch_value];
-        [mplayer optOMPT_StereoSeparation:settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value];
-        [mplayer optOMPT_MasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
+        [mplayer optOMPT_Sampling:settings[OMPT_Sampling].detail.mdz_switch.switch_value];
+        [mplayer optOMPT_StereoSeparation:settings[OMPT_StereoSeparation].detail.mdz_slider.slider_value];
+        [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
         
     }
 	
@@ -2216,7 +2216,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
 	//set volume (if applicable)
-	[mplayer optOMPT_MasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
+	[mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
 	
 	
 	labelTime.text=@"00:00";
@@ -2582,7 +2582,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     mRestart_sub=0;
     mRestart_arc=0;
     //set volume (if applicable)
-    [mplayer optOMPT_MasterVol:settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value];
+    [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
     
     
     
@@ -3475,144 +3475,6 @@ void ViewPerspective()
     glPopMatrix();                      /* Pop The Matrix    */
 }
 
-void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
-    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
-    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
-    glEnable(GL_BLEND);                 /* Enable Blending           */
-	
-    /* Bind To The Blur Texture */
-    
-	
-    /* Switch To An Ortho View   */
-    int menu_cell_size;
-    if (window_width<window_height) {
-        menu_cell_size=window_width;
-    } else {
-        menu_cell_size=window_height;
-    }
-    ViewOrtho(window_width, window_height);
-	
-	
-    /* Begin Drawing Quads, setup vertex and texcoord array pointers */
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-    /* Enable Vertex Pointer */
-    glEnableClientState(GL_VERTEX_ARRAY);
-    /* Enable Texture Coordinations Pointer */
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glColor4f(1.0f, 1.0f, 1.0f, alpha_byte*1.0f/255.0f);
-	texcoords[0][0]=0.0f; texcoords[0][1]=0.0f;
-	texcoords[1][0]=0.0f; texcoords[1][1]=1.0f;
-	texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
-	texcoords[3][0]=1.0f; texcoords[3][1]=1.0f;
-	
-	
-	int marg=4;
-    for (int i=0;i<4;i++)
-        for (int j=0;j<4;j++) {
-            if (txtMenuHandle[i*4+j]) {
-                glBindTexture(GL_TEXTURE_2D, txtMenuHandle[i*4+j]);
-                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[0][2]=0.0f;
-                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[1][2]=0.0f;
-                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[2][2]=0.0f;
-                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[3][2]=0.0f;
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
-        }
-    /* Disable Vertex Pointer */
-    glDisableClientState(GL_VERTEX_ARRAY);
-    /* Disable Texture Coordinations Pointer */
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-    /* Switch To A Perspective View */
-    ViewPerspective();
-	
-    /* Enable Depth Testing */
-    glEnable(GL_DEPTH_TEST);
-    /* Disable 2D Texture Mapping */
-    glDisable(GL_TEXTURE_2D);
-    /* Disable Blending */
-    glDisable(GL_BLEND);
-    /* Unbind The Blur Texture */
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void infoSubMenuShowImages(int window_width,int window_height,int start_index,int nb,int alpha_byte ) {
-    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
-    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
-    glEnable(GL_BLEND);                 /* Enable Blending           */
-	
-    /* Bind To The Blur Texture */
-    
-	
-    /* Switch To An Ortho View   */
-    ViewOrtho(window_width, window_height);
-    
-    int menu_cell_size;
-    if (window_width<window_height) {
-        menu_cell_size=window_width;
-    } else {
-        menu_cell_size=window_height;
-    }
-    
-	
-	
-    /* Begin Drawing Quads, setup vertex and texcoord array pointers */
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
-    /* Enable Vertex Pointer */
-    glEnableClientState(GL_VERTEX_ARRAY);
-    /* Enable Texture Coordinations Pointer */
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glColor4f(1.0f, 1.0f, 1.0f, alpha_byte*1.0f/255.0f);
-	texcoords[0][0]=0.0f; texcoords[0][1]=0.0f;
-	texcoords[1][0]=0.0f; texcoords[1][1]=1.0f;
-	texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
-	texcoords[3][0]=1.0f; texcoords[3][1]=1.0f;
-	
-	
-	int marg=4;
-    int idx=start_index;
-    for (int i=0;(i<4)&&(idx<start_index+nb);i++) {
-        for (int j=0;(j<4)&&(idx<start_index+nb);j++) {
-            if (txtSubMenuHandle[idx]) {
-                glBindTexture(GL_TEXTURE_2D, txtSubMenuHandle[idx]);
-                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[0][2]=0.0f;
-                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[1][2]=0.0f;
-                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
-                vertices[2][2]=0.0f;
-                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
-                vertices[3][2]=0.0f;
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            }
-            idx++;
-        }
-    }
-    /* Disable Vertex Pointer */
-    glDisableClientState(GL_VERTEX_ARRAY);
-    /* Disable Texture Coordinations Pointer */
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-    /* Switch To A Perspective View */
-    ViewPerspective();
-	
-    /* Enable Depth Testing */
-    glEnable(GL_DEPTH_TEST);
-    /* Disable 2D Texture Mapping */
-    glDisable(GL_TEXTURE_2D);
-    /* Disable Blending */
-    glDisable(GL_BLEND);
-    /* Unbind The Blur Texture */
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
 
 
 void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spectrumDataR,int numval,float alphaval) {
@@ -4717,6 +4579,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);//GL_NICEST);
     
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
+    
 	txtMenuHandle[0]=TextureUtils::Create([UIImage imageNamed:@"txtMenu1_2x.png"]);
 	txtMenuHandle[1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2a_2x.png"]);
 	txtMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3a_2x.png"]);
@@ -5146,6 +5009,171 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
  natural_t mem_free = vm_stat.free_count * pagesize;
  return mem_free;
  }*/
+
+void infoMenuShowImages(int window_width,int window_height,int alpha_byte ) {
+    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
+    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
+    glEnable(GL_BLEND);                 /* Enable Blending           */
+    
+    /* Bind To The Blur Texture */
+    
+    
+    /* Switch To An Ortho View   */
+    int menu_cell_size;
+    if (window_width<window_height) {
+        menu_cell_size=window_width;
+    } else {
+        menu_cell_size=window_height;
+    }
+    ViewOrtho(window_width, window_height);
+    
+    
+    /* Begin Drawing Quads, setup vertex and texcoord array pointers */
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
+    /* Enable Vertex Pointer */
+    glEnableClientState(GL_VERTEX_ARRAY);
+    /* Enable Texture Coordinations Pointer */
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glColor4f(1.0f, 1.0f, 1.0f, alpha_byte*1.0f/255.0f);
+    texcoords[0][0]=0.0f; texcoords[0][1]=0.0f;
+    texcoords[1][0]=0.0f; texcoords[1][1]=1.0f;
+    texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
+    texcoords[3][0]=1.0f; texcoords[3][1]=1.0f;
+    
+    if (settings[GLOB_FX2].detail.mdz_switch.switch_value) txtMenuHandle[1]=txtSubMenuHandle[SUBMENU0_START+settings[GLOB_FX2].detail.mdz_switch.switch_value];
+    else txtMenuHandle[1]=txtSubMenuHandle[SUBMENU0_START+1];
+    
+    if (settings[GLOB_FX3].detail.mdz_switch.switch_value) txtMenuHandle[2]=txtSubMenuHandle[SUBMENU1_START+settings[GLOB_FX3].detail.mdz_switch.switch_value];
+    else txtMenuHandle[2]=txtSubMenuHandle[SUBMENU1_START+1];
+    
+    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[3]=txtSubMenuHandle[SUBMENU2_START+settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value];
+    else txtMenuHandle[3]=txtSubMenuHandle[SUBMENU2_START+1];
+    
+    if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) txtMenuHandle[4]=txtSubMenuHandle[SUBMENU3_START+settings[GLOB_FXOscillo].detail.mdz_switch.switch_value];
+    else txtMenuHandle[4]=txtSubMenuHandle[SUBMENU3_START+1];
+    
+    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) txtMenuHandle[6]=txtSubMenuHandle[SUBMENU4_START+settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value];
+    else txtMenuHandle[6]=txtSubMenuHandle[SUBMENU4_START+1];
+    
+    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) txtMenuHandle[7]=txtSubMenuHandle[SUBMENU5_START+settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value];
+    else txtMenuHandle[7]=txtSubMenuHandle[SUBMENU5_START+1];
+    
+    if (settings[GLOB_FX5].detail.mdz_switch.switch_value) txtMenuHandle[9]=txtSubMenuHandle[SUBMENU6_START+settings[GLOB_FX5].detail.mdz_switch.switch_value];
+    else txtMenuHandle[9]=txtSubMenuHandle[SUBMENU6_START+1];
+    
+    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[10]=txtSubMenuHandle[SUBMENU7_START+settings[GLOB_FXPiano].detail.mdz_switch.switch_value];
+    else txtMenuHandle[10]=txtSubMenuHandle[SUBMENU7_START+1];
+    
+    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) txtMenuHandle[11]=txtSubMenuHandle[SUBMENU8_START+settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value];
+    else txtMenuHandle[11]=txtSubMenuHandle[SUBMENU8_START+1];
+    
+    int marg=4;
+    for (int i=0;i<4;i++)
+        for (int j=0;j<4;j++) {
+            if (txtMenuHandle[i*4+j]) {
+                glBindTexture(GL_TEXTURE_2D, txtMenuHandle[i*4+j]);
+                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
+                vertices[0][2]=0.0f;
+                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
+                vertices[1][2]=0.0f;
+                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
+                vertices[2][2]=0.0f;
+                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
+                vertices[3][2]=0.0f;
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            }
+        }
+    /* Disable Vertex Pointer */
+    glDisableClientState(GL_VERTEX_ARRAY);
+    /* Disable Texture Coordinations Pointer */
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    /* Switch To A Perspective View */
+    ViewPerspective();
+    
+    /* Enable Depth Testing */
+    glEnable(GL_DEPTH_TEST);
+    /* Disable 2D Texture Mapping */
+    glDisable(GL_TEXTURE_2D);
+    /* Disable Blending */
+    glDisable(GL_BLEND);
+    /* Unbind The Blur Texture */
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void infoSubMenuShowImages(int window_width,int window_height,int start_index,int nb,int alpha_byte ) {
+    glEnable(GL_TEXTURE_2D);            /* Enable 2D Texture Mapping */
+    glDisable(GL_DEPTH_TEST);           /* Disable Depth Testing     */
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  /* Set Blending Mode         */
+    glEnable(GL_BLEND);                 /* Enable Blending           */
+    
+    /* Bind To The Blur Texture */
+    
+    
+    /* Switch To An Ortho View   */
+    ViewOrtho(window_width, window_height);
+    
+    int menu_cell_size;
+    if (window_width<window_height) {
+        menu_cell_size=window_width;
+    } else {
+        menu_cell_size=window_height;
+    }
+    
+    
+    
+    /* Begin Drawing Quads, setup vertex and texcoord array pointers */
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glTexCoordPointer(2, GL_FLOAT, 0, texcoords);
+    /* Enable Vertex Pointer */
+    glEnableClientState(GL_VERTEX_ARRAY);
+    /* Enable Texture Coordinations Pointer */
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glColor4f(1.0f, 1.0f, 1.0f, alpha_byte*1.0f/255.0f);
+    texcoords[0][0]=0.0f; texcoords[0][1]=0.0f;
+    texcoords[1][0]=0.0f; texcoords[1][1]=1.0f;
+    texcoords[2][0]=1.0f; texcoords[2][1]=0.0f;
+    texcoords[3][0]=1.0f; texcoords[3][1]=1.0f;
+    
+    
+    int marg=4;
+    int idx=start_index;
+    for (int i=0;(i<4)&&(idx<start_index+nb);i++) {
+        for (int j=0;(j<4)&&(idx<start_index+nb);j++) {
+            if (txtSubMenuHandle[idx]) {
+                glBindTexture(GL_TEXTURE_2D, txtSubMenuHandle[idx]);
+                vertices[0][0]=menu_cell_size*j/4+marg; vertices[0][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
+                vertices[0][2]=0.0f;
+                vertices[1][0]=menu_cell_size*j/4+marg; vertices[1][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
+                vertices[1][2]=0.0f;
+                vertices[2][0]=menu_cell_size*(j+1)/4-marg; vertices[2][1]=menu_cell_size*i/4+marg+(window_height-menu_cell_size)/2;
+                vertices[2][2]=0.0f;
+                vertices[3][0]=menu_cell_size*(j+1)/4-marg; vertices[3][1]=menu_cell_size*(i+1)/4-marg+(window_height-menu_cell_size)/2;
+                vertices[3][2]=0.0f;
+                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            }
+            idx++;
+        }
+    }
+    /* Disable Vertex Pointer */
+    glDisableClientState(GL_VERTEX_ARRAY);
+    /* Disable Texture Coordinations Pointer */
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    /* Switch To A Perspective View */
+    ViewPerspective();
+    
+    /* Enable Depth Testing */
+    glEnable(GL_DEPTH_TEST);
+    /* Disable 2D Texture Mapping */
+    glDisable(GL_TEXTURE_2D);
+    /* Disable Blending */
+    glDisable(GL_BLEND);
+    /* Unbind The Blur Texture */
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
 
 
 static int mOglView1Tap=0;

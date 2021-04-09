@@ -470,7 +470,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     
     if (fullpath==nil) return;
     
-    NSLog(@"upd avgrating: %@\n",[fullpath lastPathComponent]);
+    //NSLog(@"upd avgrating: %@\n",[fullpath lastPathComponent]);
     const char *tmp_str=[fullpath UTF8String];
     char tmp_str_copy[1024];
     int i=0,j=0;
@@ -557,7 +557,7 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	
     if (name==nil) return;
     
-    NSLog(@"upd: %@/%@ played:%d rating:%d\n",name,[fullpath lastPathComponent],playcount,rating);
+    //NSLog(@"upd: %@/%@ played:%d rating:%d\n",name,[fullpath lastPathComponent],playcount,rating);
     
 	pthread_mutex_lock(&db_mutex);
 	
@@ -591,7 +591,7 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
     
     if (name==nil) return;
     
-    NSLog(@"updlong: %@/%@ played:%d rating:%d ...\n",name,[fullpath lastPathComponent],playcount,rating);
+    //NSLog(@"updlong: %@/%@ played:%d rating:%d ...\n",name,[fullpath lastPathComponent],playcount,rating);
     
 	pthread_mutex_lock(&db_mutex);
 	

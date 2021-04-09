@@ -255,7 +255,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_value=2;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=1;
+    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
@@ -312,13 +312,13 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXRandom].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=0.7;
     settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value=0;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value=1;
-    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=1;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX1].detail.mdz_boolswitch.switch_value=0;
     settings[GLOB_FX2].detail.mdz_switch.switch_value=0;
     settings[GLOB_FX3].detail.mdz_switch.switch_value=0;
@@ -336,20 +336,11 @@ void optGSFChangedC(id param) {
     /////////////////////////////////////
     
     /////////////////////////////////////
-    //MODPLUG
+    //OPENMPT
     /////////////////////////////////////
-    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value=0.5;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=0;
-/*    settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
-    settings[MODPLUG_BassAmount].detail.mdz_slider.slider_value=0.7;
-    settings[MODPLUG_BassRange].detail.mdz_slider.slider_value=0.3;
-    settings[MODPLUG_Surround].detail.mdz_boolswitch.switch_value=0;
-    settings[MODPLUG_SurroundDepth].detail.mdz_slider.slider_value=0.9;
-    settings[MODPLUG_SurroundDelay].detail.mdz_slider.slider_value=0.8;
-    settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value=0;
-    settings[MODPLUG_ReverbDepth].detail.mdz_slider.slider_value=0.8;
-    settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_value=0.7;*/
-    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value=0.5;
+    settings[OMPT_MasterVolume].detail.mdz_slider.slider_value=0.5;
+    settings[OMPT_Sampling].detail.mdz_switch.switch_value=0;
+    settings[OMPT_StereoSeparation].detail.mdz_slider.slider_value=0.5;
     
     /////////////////////////////////////
     //TIMIDITY
@@ -438,7 +429,7 @@ void optGSFChangedC(id param) {
     /////////////////////////////////////
     //HC
     /////////////////////////////////////
-    settings[HC_ResampleQuality].detail.mdz_slider.slider_value=0;
+    settings[HC_ResampleQuality].detail.mdz_switch.switch_value=0;
     
     
 }
@@ -992,48 +983,48 @@ void optGSFChangedC(id param) {
     /////////////////////////////////////
     //MODPLUG
     /////////////////////////////////////
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].label=(char*)"OpenMPT";
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].description=NULL;
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].family=MDZ_SETTINGS_FAMILY_PLUGINS;
-    settings[MDZ_SETTINGS_FAMILY_MODPLUG].sub_family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MDZ_SETTINGS_FAMILY_OMPT].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_OMPT].label=(char*)"OpenMPT";
+    settings[MDZ_SETTINGS_FAMILY_OMPT].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_OMPT].family=MDZ_SETTINGS_FAMILY_PLUGINS;
+    settings[MDZ_SETTINGS_FAMILY_OMPT].sub_family=MDZ_SETTINGS_FAMILY_OMPT;
     
-    settings[MODPLUG_MasterVolume].label=(char*)"Master Volume";
-    settings[MODPLUG_MasterVolume].description=NULL;
-    settings[MODPLUG_MasterVolume].family=MDZ_SETTINGS_FAMILY_MODPLUG;
-    settings[MODPLUG_MasterVolume].sub_family=0;
-    settings[MODPLUG_MasterVolume].callback=&optMODPLUGChangedC;
-    settings[MODPLUG_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
-    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_value=0.5;
-    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_min_value=0;
-    settings[MODPLUG_MasterVolume].detail.mdz_slider.slider_max_value=1;
+    settings[OMPT_MasterVolume].label=(char*)"Master Volume";
+    settings[OMPT_MasterVolume].description=NULL;
+    settings[OMPT_MasterVolume].family=MDZ_SETTINGS_FAMILY_OMPT;
+    settings[OMPT_MasterVolume].sub_family=0;
+    settings[OMPT_MasterVolume].callback=&optMODPLUGChangedC;
+    settings[OMPT_MasterVolume].type=MDZ_SLIDER_CONTINUOUS;
+    settings[OMPT_MasterVolume].detail.mdz_slider.slider_value=0.5;
+    settings[OMPT_MasterVolume].detail.mdz_slider.slider_min_value=0;
+    settings[OMPT_MasterVolume].detail.mdz_slider.slider_max_value=1;
     
-    settings[MODPLUG_Sampling].type=MDZ_SWITCH;
-    settings[MODPLUG_Sampling].label=(char*)"Resampling";
-    settings[MODPLUG_Sampling].description=NULL;
-    settings[MODPLUG_Sampling].family=MDZ_SETTINGS_FAMILY_MODPLUG;
-    settings[MODPLUG_Sampling].sub_family=0;
-    settings[MODPLUG_Sampling].callback=&optMODPLUGChangedC;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value=0;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb=5;
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[MODPLUG_Sampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Def.";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[1]=(char*)"Near";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Lin";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[3]=(char*)"Cub";
-    settings[MODPLUG_Sampling].detail.mdz_switch.switch_labels[4]=(char*)"Win";
+    settings[OMPT_Sampling].type=MDZ_SWITCH;
+    settings[OMPT_Sampling].label=(char*)"Interpolation";
+    settings[OMPT_Sampling].description=NULL;
+    settings[OMPT_Sampling].family=MDZ_SETTINGS_FAMILY_OMPT;
+    settings[OMPT_Sampling].sub_family=0;
+    settings[OMPT_Sampling].callback=&optMODPLUGChangedC;
+    settings[OMPT_Sampling].detail.mdz_switch.switch_value=0;
+    settings[OMPT_Sampling].detail.mdz_switch.switch_value_nb=5;
+    settings[OMPT_Sampling].detail.mdz_switch.switch_labels=(char**)malloc(settings[OMPT_Sampling].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[OMPT_Sampling].detail.mdz_switch.switch_labels[0]=(char*)"Def.";
+    settings[OMPT_Sampling].detail.mdz_switch.switch_labels[1]=(char*)"Near.";
+    settings[OMPT_Sampling].detail.mdz_switch.switch_labels[2]=(char*)"Lin.";
+    settings[OMPT_Sampling].detail.mdz_switch.switch_labels[3]=(char*)"Cub.";
+    settings[OMPT_Sampling].detail.mdz_switch.switch_labels[4]=(char*)"Win.";
     
 /*    settings[MODPLUG_Megabass].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Megabass].label=(char*)"Megabass";
     settings[MODPLUG_Megabass].description=NULL;
-    settings[MODPLUG_Megabass].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_Megabass].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_Megabass].sub_family=0;
     settings[MODPLUG_Megabass].callback=&optMODPLUGChangedC;
     settings[MODPLUG_Megabass].detail.mdz_boolswitch.switch_value=0;
     
     settings[MODPLUG_BassAmount].label=(char*)"Megabass Strength";
     settings[MODPLUG_BassAmount].description=NULL;
-    settings[MODPLUG_BassAmount].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_BassAmount].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_BassAmount].sub_family=0;
     settings[MODPLUG_BassAmount].callback=&optMODPLUGChangedC;
     settings[MODPLUG_BassAmount].type=MDZ_SLIDER_CONTINUOUS;
@@ -1043,7 +1034,7 @@ void optGSFChangedC(id param) {
     
     settings[MODPLUG_BassRange].label=(char*)"Megabass Range";
     settings[MODPLUG_BassRange].description=NULL;
-    settings[MODPLUG_BassRange].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_BassRange].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_BassRange].sub_family=0;
     settings[MODPLUG_BassRange].callback=&optMODPLUGChangedC;
     settings[MODPLUG_BassRange].type=MDZ_SLIDER_CONTINUOUS;
@@ -1054,14 +1045,14 @@ void optGSFChangedC(id param) {
     settings[MODPLUG_Surround].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Surround].label=(char*)"Surround";
     settings[MODPLUG_Surround].description=NULL;
-    settings[MODPLUG_Surround].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_Surround].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_Surround].sub_family=0;
     settings[MODPLUG_Surround].callback=&optMODPLUGChangedC;
     settings[MODPLUG_Surround].detail.mdz_boolswitch.switch_value=0;
     
     settings[MODPLUG_SurroundDepth].label=(char*)"Surround Depth";
     settings[MODPLUG_SurroundDepth].description=NULL;
-    settings[MODPLUG_SurroundDepth].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_SurroundDepth].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_SurroundDepth].sub_family=0;
     settings[MODPLUG_SurroundDepth].callback=&optMODPLUGChangedC;
     settings[MODPLUG_SurroundDepth].type=MDZ_SLIDER_CONTINUOUS;
@@ -1071,7 +1062,7 @@ void optGSFChangedC(id param) {
     
     settings[MODPLUG_SurroundDelay].label=(char*)"Surround Delay";
     settings[MODPLUG_SurroundDelay].description=NULL;
-    settings[MODPLUG_SurroundDelay].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_SurroundDelay].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_SurroundDelay].sub_family=0;
     settings[MODPLUG_SurroundDelay].callback=&optMODPLUGChangedC;
     settings[MODPLUG_SurroundDelay].type=MDZ_SLIDER_CONTINUOUS;
@@ -1082,14 +1073,14 @@ void optGSFChangedC(id param) {
     settings[MODPLUG_Reverb].type=MDZ_BOOLSWITCH;
     settings[MODPLUG_Reverb].label=(char*)"Reverb";
     settings[MODPLUG_Reverb].description=NULL;
-    settings[MODPLUG_Reverb].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_Reverb].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_Reverb].sub_family=0;
     settings[MODPLUG_Reverb].callback=&optMODPLUGChangedC;
     settings[MODPLUG_Reverb].detail.mdz_boolswitch.switch_value=0;
     
     settings[MODPLUG_ReverbDepth].label=(char*)"Reverb Depth";
     settings[MODPLUG_ReverbDepth].description=NULL;
-    settings[MODPLUG_ReverbDepth].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_ReverbDepth].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_ReverbDepth].sub_family=0;
     settings[MODPLUG_ReverbDepth].callback=&optMODPLUGChangedC;
     settings[MODPLUG_ReverbDepth].type=MDZ_SLIDER_CONTINUOUS;
@@ -1099,7 +1090,7 @@ void optGSFChangedC(id param) {
     
     settings[MODPLUG_ReverbDelay].label=(char*)"Reverb Delay";
     settings[MODPLUG_ReverbDelay].description=NULL;
-    settings[MODPLUG_ReverbDelay].family=MDZ_SETTINGS_FAMILY_MODPLUG;
+    settings[MODPLUG_ReverbDelay].family=MDZ_SETTINGS_FAMILY_OMPT;
     settings[MODPLUG_ReverbDelay].sub_family=0;
     settings[MODPLUG_ReverbDelay].callback=&optMODPLUGChangedC;
     settings[MODPLUG_ReverbDelay].type=MDZ_SLIDER_CONTINUOUS;
@@ -1107,15 +1098,15 @@ void optGSFChangedC(id param) {
     settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_min_value=0;
     settings[MODPLUG_ReverbDelay].detail.mdz_slider.slider_max_value=1;*/
     
-    settings[MODPLUG_StereoSeparation].label=(char*)"Panning";
-    settings[MODPLUG_StereoSeparation].description=NULL;
-    settings[MODPLUG_StereoSeparation].family=MDZ_SETTINGS_FAMILY_MODPLUG;
-    settings[MODPLUG_StereoSeparation].sub_family=0;
-    settings[MODPLUG_StereoSeparation].callback=&optMODPLUGChangedC;
-    settings[MODPLUG_StereoSeparation].type=MDZ_SLIDER_CONTINUOUS;
-    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_value=0.5;
-    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_min_value=0;
-    settings[MODPLUG_StereoSeparation].detail.mdz_slider.slider_max_value=1;
+    settings[OMPT_StereoSeparation].label=(char*)"Panning";
+    settings[OMPT_StereoSeparation].description=NULL;
+    settings[OMPT_StereoSeparation].family=MDZ_SETTINGS_FAMILY_OMPT;
+    settings[OMPT_StereoSeparation].sub_family=0;
+    settings[OMPT_StereoSeparation].callback=&optMODPLUGChangedC;
+    settings[OMPT_StereoSeparation].type=MDZ_SLIDER_CONTINUOUS;
+    settings[OMPT_StereoSeparation].detail.mdz_slider.slider_value=0.5;
+    settings[OMPT_StereoSeparation].detail.mdz_slider.slider_min_value=0;
+    settings[OMPT_StereoSeparation].detail.mdz_slider.slider_max_value=1;
     
     
     
@@ -1457,7 +1448,7 @@ void optGSFChangedC(id param) {
     
     /////////////////////////////////////
     //GME
-    /////////////////////////////////////
+    ///////////////////////////////////// 
     
     /////////////////////////////////////
     //SID
