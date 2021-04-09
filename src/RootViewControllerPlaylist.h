@@ -31,6 +31,8 @@
     
     NSFileManager *mFileMngr;
 	
+    bool darkMode;
+    bool forceReloadCells;
 
 	IBOutlet UISearchBar *sBar;	
 	

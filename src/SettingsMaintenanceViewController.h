@@ -15,6 +15,10 @@
 @interface SettingsMaintenanceViewController : UIViewController <UIAlertViewDelegate> {
     IBOutlet UITableView *tableView;
     UIView *waitingView;
+    
+    bool darkMode;
+    bool forceReloadCells;
+
 @public
     DetailViewControllerIphone *detailViewController;
     RootViewControllerLocalBrowser *rootVC;

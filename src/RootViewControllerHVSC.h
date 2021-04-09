@@ -59,6 +59,9 @@
 	NSString *mSearchText;
 	
 	UIViewController *childController;
+    
+    bool darkMode;
+    bool forceReloadCells;
 	
 	NSString *FTPlocalPath,*FTPftpPath,*FTPfilename,*FTPfilePath;
 	int FTPfilesize;

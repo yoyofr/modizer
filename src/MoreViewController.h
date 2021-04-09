@@ -23,6 +23,9 @@
     IBOutlet UITableView *tableView;
     IBOutlet AboutViewController *aboutVC;
     
+    bool darkMode;
+    bool forceReloadCells;
+    
     IBOutlet RootViewControllerLocalBrowser *rootVC;
 }
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;

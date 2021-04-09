@@ -820,7 +820,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_FXOscillo].description=NULL;
     settings[GLOB_FXOscillo].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXOscillo].sub_family=0;
-    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=0;
+    settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=1;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXOscillo].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXOscillo].detail.mdz_switch.switch_labels[0]=(char*)"Off";
@@ -1671,6 +1671,15 @@ void optGSFChangedC(id param) {
 {
     [super viewDidLoad];
     
+    forceReloadCells=false;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
+    
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
@@ -1697,10 +1706,36 @@ void optGSFChangedC(id param) {
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
+-(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
+    [self.tableView reloadData];
+}
+
+
 - (void)viewWillAppear:(BOOL)animated {
     
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
     
     [self.tableView reloadData];
     
@@ -1835,14 +1870,15 @@ void optGSFChangedC(id param) {
     
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
+    if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,50);
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
+        NSString *imgName=(darkMode?@"tabview_gradient50Black.png":@"tabview_gradient50.png");
+        UIImage *image = [UIImage imageNamed:imgName];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
@@ -1858,8 +1894,6 @@ void optGSFChangedC(id param) {
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:14];
         topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
@@ -1872,8 +1906,6 @@ void optGSFChangedC(id param) {
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         bottomLabel.opaque=TRUE;
@@ -1885,8 +1917,19 @@ void optGSFChangedC(id param) {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
     }
-    topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-    topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+    
+    if (darkMode) {
+        topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.2 green:1-0.2 blue:1-0.2 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
+        
+    } else {
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    }
     
     if (settings[cur_settings_idx[indexPath.section]].description) {
         topLabel.frame= CGRectMake(4,

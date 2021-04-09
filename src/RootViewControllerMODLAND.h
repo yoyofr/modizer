@@ -58,6 +58,9 @@
 	int modland_browse_mode;
 	int mSearch;
 	NSString *mSearchText;
+    
+    bool darkMode;
+    bool forceReloadCells;
 	
 	int mFiletypeID,mAuthorID,mAlbumID;
 	

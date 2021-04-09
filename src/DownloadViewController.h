@@ -32,6 +32,9 @@
 	IBOutlet SearchViewController *searchViewController;
 	IBOutlet UITableView *downloadTabView;
 	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
+    
+    bool darkMode;
+    bool forceReloadCells;
 	
 	ASIHTTPRequest *mASIrequest;
     //AFHTTPSessionManager *AFmanager;

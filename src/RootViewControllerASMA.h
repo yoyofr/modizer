@@ -62,6 +62,9 @@
 	
 	NSString *FTPlocalPath,*FTPftpPath,*FTPfilename,*FTPfilePath;
 	int FTPfilesize;
+    
+    bool darkMode;
+    bool forceReloadCells;
 	
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;

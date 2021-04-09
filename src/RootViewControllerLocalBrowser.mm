@@ -1842,6 +1842,10 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 }
 
 -(void) viewWillAppear:(BOOL)animated {
+    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    [self.sBar setBarStyle:UIBarStyleDefault];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
     bool oldmode=darkMode;
     darkMode=false;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
@@ -1852,10 +1856,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
-    
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-    [self.sBar setBarStyle:UIBarStyleDefault];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     if (keys) {
         keys=nil;

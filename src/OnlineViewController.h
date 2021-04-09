@@ -24,6 +24,8 @@
     
     int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
 	
+    bool darkMode;
+    bool forceReloadCells;
     
     UIViewController *collectionViewController;
 }

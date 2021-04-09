@@ -75,6 +75,10 @@ typedef struct {
     
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
+    
+    bool darkMode;
+    bool forceReloadCells;
+
 	
 	UIAlertView *alertDownload;
 	NSString *mSearchText;

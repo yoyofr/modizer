@@ -414,6 +414,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	start_time=clock();
 	childController=NULL;
     
+    forceReloadCells=false;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
     mFileMngr=[[NSFileManager alloc] init];
 	
 	mShowSubdir=0;
@@ -1965,10 +1973,43 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 -(void) refreshViewAfterDownload {
 }
 
+-(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
+    [self.tableView reloadData];
+    
+    if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING)&&(playlist->nb_entries)) {
+        NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+        int pos=currentPlayedEntry+1;
+        if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+        if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+    }
+}
+
+
 -(void) viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
     
     if (keys) {
         //[keys release];
@@ -2217,11 +2258,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
                     playlist->playlist_id=nil;
                             
-                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    forceReloadCells=true;
+                    [self.tableView reloadData];
+                            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                     
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
                             short int playcount;
                             signed char rating;
+
                             DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].label,
                                                         playlist->entries[indexPath.row-1].fullpath,
                                                         &playcount,&rating);
@@ -2231,7 +2275,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                                            playcount,rating);
                     
                             [self loadMostPlayedList];
-                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+
+                            forceReloadCells=true;
+                            [self.tableView reloadData];
+                            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                     
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
                             short int playcount;
@@ -2245,7 +2292,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                                            playcount,rating);
                     
                             [self loadFavoritesList];
-                            [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];                                            
+                    forceReloadCells=true;
+                    [self.tableView reloadData];
+                            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                 } else if (integrated_playlist==0) {
                     if (indexPath.row>=2) {
                         //////////////////////////////////////////////////////////////////////////////////////:
@@ -2261,8 +2310,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                 }
                                 playlist->nb_entries--;
                                 [self replacePlaylistDBwithCurrent];
-                                                                
-                                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                                  
+                        forceReloadCells=true;
+                        [self.tableView reloadData];
+                                //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                         
                     }
                 }
@@ -2314,7 +2365,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (allow_delete) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier_withAction];
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    if (cell == nil) {
+    if ((cell == nil)||forceReloadCells) {
         if (!allow_delete) {
             cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
             cell.delegate=self;
@@ -2328,7 +2379,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         [cell setBackgroundColor:[UIColor clearColor]];        
         
-        UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
+        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
+        UIImage *image = [UIImage imageNamed:imgFile];
+        
         MDZUIImageView *imageView = [[MDZUIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
@@ -2344,8 +2397,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
@@ -2360,8 +2411,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
         bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
@@ -2396,10 +2445,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     
-    topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-    topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-    bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-    bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    if (darkMode) {
+        topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
+    } else {
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    }
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
@@ -2424,7 +2480,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         cellValue = [array objectAtIndex:indexPath.row];
         
         if (indexPath.row==0) { //Add playlist
-            topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
+            if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
+            else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             bottomLabel.text=[array_details objectAtIndex:indexPath.row];
             

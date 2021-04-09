@@ -143,6 +143,14 @@ static NSFileManager *mFileMngr;
 	clock_t start_time,end_time;	
 	start_time=clock();
     
+    forceReloadCells=false;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
     lastSelectedSearch=0;
     
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
@@ -197,10 +205,35 @@ static NSFileManager *mFileMngr;
 #endif
 }
 
+-(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.searchResultTabView.backgroundColor=[UIColor blackColor];
+    else self.searchResultTabView.backgroundColor=[UIColor whiteColor];
+    [self.searchResultTabView reloadData];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.searchResultTabView.backgroundColor=[UIColor blackColor];
+    else self.searchResultTabView.backgroundColor=[UIColor whiteColor];
     
 	[searchResultTabView reloadData];
 	
@@ -1102,23 +1135,36 @@ static NSFileManager *mFileMngr;
 
 - (UIView*) tableView:(UITableView*)tableView viewForHeaderInSection: (NSInteger) section {
 	UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 32.0)];
-	customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
+	
 
 	CALayer *layerU = [CALayer layer];
 	layerU.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 1.0);
-	layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
+    
 	[customView.layer insertSublayer:layerU atIndex:0];
 	
 	CAGradientLayer *gradient = [CAGradientLayer layer];
 	gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 30.0);
-	gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
-					   (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
+    
 	[customView.layer insertSublayer:gradient atIndex:0];
 	
 	CALayer *layerD = [CALayer layer];
 	layerD.frame = CGRectMake(0.0, 31.0, tableView.bounds.size.width, 1.0);
-	layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
+    
 	[customView.layer insertSublayer:layerD atIndex:0];
+    
+    if (darkMode) {
+        customView.backgroundColor = [UIColor colorWithRed: 1-0.7f green: 1-0.7f blue: 1-0.7f alpha: 1.0f];
+        layerU.backgroundColor = [[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f alpha: 1.00] CGColor];
+        gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
+                           (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
+        layerD.backgroundColor = [[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor];
+    } else {
+        customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
+        layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
+        gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
+                           (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
+        layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
+    }
 	
 	UIButton *buttonLeft = [[UIButton alloc] initWithFrame: CGRectMake(0.0, 0.0, 32, 32)];
 	UIButton *buttonRight = [[UIButton alloc] initWithFrame: CGRectMake(tableView.bounds.size.width-32, 0.0, 32, 32)];
@@ -1151,11 +1197,13 @@ static NSFileManager *mFileMngr;
 					[buttonLabel setTitle:[NSString stringWithFormat:@"Playlist (%d, limited to %d)",tooMuchPL,playlist_entries_count] forState:UIControlStateNormal];
 					buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
 				} else [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"Playlist (%d)",@""),playlist_entries_count] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-1.0f green:1-1.0f blue:1-1.0f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
 			} else  {
 				[buttonLeft setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]  forState: UIControlStateNormal];
 				[buttonLabel setTitle:[NSString stringWithString:NSLocalizedString(@"Playlist/Search off",@"")] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-0.9f green:1-0.9f blue:1-0.9f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
 			}
 			[buttonLeft addTarget: self action: @selector(headerPlaylistTappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];			
 			break;
@@ -1177,11 +1225,13 @@ static NSFileManager *mFileMngr;
 					[buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"Local (%d, limited to %d)",@""),tooMuchLO,local_entries_count] forState:UIControlStateNormal];
 					buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
 				} else [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"Local (%d)",@""),local_entries_count] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-1.0f green:1-1.0f blue:1-1.0f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
 			} else {
 				[buttonLeft setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]  forState: UIControlStateNormal];
 				[buttonLabel setTitle:[NSString stringWithString:NSLocalizedString(@"Local/Search off",@"")] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-0.9f green:1-0.9f blue:1-0.9f alpha:1.0f];
 			}
 			[buttonLeft addTarget: self action: @selector(headerLocalTappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];			
 			break;
@@ -1202,11 +1252,13 @@ static NSFileManager *mFileMngr;
 					[buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"Modland (%d, limited to %d)",@""),tooMuchDB,db_entries_count] forState:UIControlStateNormal];
 					buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
 				} else [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"Modland (%d)",@""),db_entries_count] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-1.0f green:1-1.0f blue:1-1.0f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
 			} else {
 				[buttonLeft setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]  forState: UIControlStateNormal];
 				[buttonLabel setTitle:[NSString stringWithString:NSLocalizedString(@"Modland/Search off",@"")] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-0.9f green:1-0.9f blue:1-0.9f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
 			}
 			[buttonLeft addTarget: self action: @selector(headerModlandTappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];			
 			break;
@@ -1227,11 +1279,13 @@ static NSFileManager *mFileMngr;
 					[buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"HVSC (%d, limited to %d)",@""),tooMuchDBHVSC,dbHVSC_entries_count] forState:UIControlStateNormal];
 					buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
 				} else [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"HVSC (%d)",@""),dbHVSC_entries_count] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-1.0f green:1-1.0f blue:1-1.0f alpha:1.0f];
 			} else {
 				[buttonLeft setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]  forState: UIControlStateNormal];
 				[buttonLabel setTitle:[NSString stringWithString:NSLocalizedString(@"HVSC/Search off",@"")] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-0.9f green:1-0.9f blue:1-0.9f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
 			}
 			[buttonLeft addTarget: self action: @selector(headerHVSCTappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];			
 			break;
@@ -1252,11 +1306,13 @@ static NSFileManager *mFileMngr;
 					[buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"ASMA (%d, limited to %d)",@""),tooMuchDBASMA,dbASMA_entries_count] forState:UIControlStateNormal];
 					buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
 				} else [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"ASMA (%d)",@""),dbASMA_entries_count] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-1.0f green:1-1.0f blue:1-1.0f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
 			} else {
 				[buttonLeft setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]  forState: UIControlStateNormal];
 				[buttonLabel setTitle:[NSString stringWithString:NSLocalizedString(@"ASMA/Search off",@"")] forState:UIControlStateNormal];
-				buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+				if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-0.9f green:1-0.9f blue:1-0.9f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
 			}
 			[buttonLeft addTarget: self action: @selector(headerASMATappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];
 			break;
@@ -1626,12 +1682,14 @@ static NSFileManager *mFileMngr;
 	UIButton *actionView;
 
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
+    if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
+        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
+        UIImage *image = [UIImage imageNamed:imgFile];
+        
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
@@ -1647,8 +1705,6 @@ static NSFileManager *mFileMngr;
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=(NSLineBreakMode)UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
@@ -1663,8 +1719,6 @@ static NSFileManager *mFileMngr;
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
         bottomLabel.lineBreakMode=(NSLineBreakMode)UILineBreakModeMiddleTruncation;
@@ -1709,10 +1763,17 @@ static NSFileManager *mFileMngr;
 								tableView.bounds.size.width - cell.indentationWidth*1.0-40,
 								22);
 
-    topLabel.textColor=[UIColor colorWithRed:0.1f green:0.1f blue:0.1f alpha:1.0f];
-    topLabel.highlightedTextColor=[UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
-    bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-    bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    if (darkMode) {
+        topLabel.textColor=[UIColor colorWithRed:1-0.1f green:1-0.1f blue:1-0.1f alpha:1.0f];
+        topLabel.highlightedTextColor=[UIColor colorWithRed:1-0.9f green:1-0.9f blue:1-0.9f alpha:1.0f];
+        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
+    } else {
+        topLabel.textColor=[UIColor colorWithRed:0.1f green:0.1f blue:0.1f alpha:1.0f];
+        topLabel.highlightedTextColor=[UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    }
 
     
 	// Set up the cell...

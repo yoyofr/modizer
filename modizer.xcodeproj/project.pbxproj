@@ -289,6 +289,10 @@
 		59280E9225EAF41E009205EA /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
 		5932888D261FC5AF00DB4E7C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		593288A4261FC61700DB4E7C /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 593288A3261FC61700DB4E7C /* CoreImage.framework */; };
+		593288A9262093B800DB4E7C /* tabview_gradient50Black@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */; };
+		593288AA262093B800DB4E7C /* tabview_gradient50Black@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */; };
+		593288AB262093B800DB4E7C /* tabview_gradient50Black.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A8262093B800DB4E7C /* tabview_gradient50Black.png */; };
+		593288AC262093B800DB4E7C /* tabview_gradient50Black.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A8262093B800DB4E7C /* tabview_gradient50Black.png */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
 		593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
@@ -3189,6 +3193,8 @@
 		592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxsf.xcodeproj; path = ../libxsf/libxsf/libxsf.xcodeproj; sourceTree = "<group>"; };
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
 		593288A3261FC61700DB4E7C /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient50Black@2x.png"; sourceTree = "<group>"; };
+		593288A8262093B800DB4E7C /* tabview_gradient50Black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient50Black.png; sourceTree = "<group>"; };
 		59387AED20C745BB001F0C20 /* LaunchLogo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = LaunchLogo.jpg; sourceTree = "<group>"; };
 		59387AEF20C746D3001F0C20 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
 		5939285F25CF1C0A009281DC /* Lazyusf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Lazyusf.xcodeproj; path = libLazyusf/Lazyusf.xcodeproj; sourceTree = "<group>"; };
@@ -5866,6 +5872,8 @@
 				59909B5B1E3E786700C629AA /* tabview_gradient40Red@2x.png */,
 				3317854717C6255200929E8F /* tabview_gradient50.png */,
 				3317854817C6255200929E8F /* tabview_gradient50@2x.png */,
+				593288A8262093B800DB4E7C /* tabview_gradient50Black.png */,
+				593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */,
 				33ABD4F117BD065300D50393 /* textGradient.png */,
 				33E46AF517C2B77600F70A14 /* txtMenu0.png */,
 				CCB8D98117F62A18008E6A45 /* txtMenu1_2x.png */,
@@ -6999,6 +7007,7 @@
 				5966D19C25CFF0D200520777 /* MegaMan3.rar in Resources */,
 				59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */,
 				CCB8D99817F62A18008E6A45 /* txtMenu3c_2x.png in Resources */,
+				593288AB262093B800DB4E7C /* tabview_gradient50Black.png in Resources */,
 				CC1E6312120423DF000A8A4E /* ActionAmics in Resources */,
 				CC1E6313120423DF000A8A4E /* ADPCM_mono in Resources */,
 				CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */,
@@ -7044,6 +7053,7 @@
 				59BE8FF526000FE400414A42 /* README in Resources */,
 				CC1E6328120423DF000A8A4E /* DavidWhittaker in Resources */,
 				5966D1C825CFF0D200520777 /* SOMI_title theme.laa in Resources */,
+				593288A9262093B800DB4E7C /* tabview_gradient50Black@2x.png in Resources */,
 				CC1E6329120423DF000A8A4E /* DeltaMusic1.3 in Resources */,
 				CC1E632A120423DF000A8A4E /* DeltaMusic2.0 in Resources */,
 				5966D1CC25CFF0D200520777 /* gr-b03.mdx in Resources */,
@@ -7522,6 +7532,7 @@
 				5950D87E25E0F67B00B476B2 /* MegaMan3.rar in Resources */,
 				5950D87F25E0F67B00B476B2 /* tabview_gradient40Blue@2x.png in Resources */,
 				5950D88025E0F67B00B476B2 /* txtMenu3c_2x.png in Resources */,
+				593288AC262093B800DB4E7C /* tabview_gradient50Black.png in Resources */,
 				5950D88125E0F67B00B476B2 /* ActionAmics in Resources */,
 				5950D88225E0F67B00B476B2 /* ADPCM_mono in Resources */,
 				5950D88325E0F67B00B476B2 /* Icon-Small-100.png in Resources */,
@@ -7567,6 +7578,7 @@
 				59BE8FF626000FE400414A42 /* README in Resources */,
 				5950D8A925E0F67B00B476B2 /* DavidWhittaker in Resources */,
 				5950D8AA25E0F67B00B476B2 /* SOMI_title theme.laa in Resources */,
+				593288AA262093B800DB4E7C /* tabview_gradient50Black@2x.png in Resources */,
 				5950D8AB25E0F67B00B476B2 /* DeltaMusic1.3 in Resources */,
 				5950D8AC25E0F67B00B476B2 /* DeltaMusic2.0 in Resources */,
 				5950D8AD25E0F67B00B476B2 /* gr-b03.mdx in Resources */,

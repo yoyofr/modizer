@@ -58,6 +58,15 @@ extern pthread_mutex_t db_mutex;
 {
     [super viewDidLoad];
     
+    forceReloadCells=false;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
+    
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
     btn.adjustsImageWhenHighlighted = YES;
@@ -102,9 +111,36 @@ extern pthread_mutex_t db_mutex;
 
 }
 
+-(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
+    [self.tableView reloadData];
+}
+
+
 - (void)viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
+    
     [super viewWillAppear:animated];
 }
 
@@ -333,14 +369,15 @@ extern pthread_mutex_t db_mutex;
     BButton *btn;
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
+    if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,self.view.frame.size.width,50);
         cell.autoresizingMask=UIViewAutoresizingFlexibleWidth;
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
+        NSString *imgName=(darkMode?@"tabview_gradient50Black.png":@"tabview_gradient50.png");
+        UIImage *image = [UIImage imageNamed:imgName];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
@@ -349,8 +386,7 @@ extern pthread_mutex_t db_mutex;
         
         btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
                                                       10,
-                                                      200,
-          
+                                                      200,          
                                                        30)];
         btn.tag=TOP_LABEL_TAG;
         [cell.contentView addSubview:btn];
@@ -363,7 +399,6 @@ extern pthread_mutex_t db_mutex;
         btn = (BButton *)[cell viewWithTag:TOP_LABEL_TAG];
     }    
     btn.frame=CGRectMake(self.view.frame.size.width/2-100,10,200,30);
-    
     
     NSString *txt;
     switch (indexPath.row) {            

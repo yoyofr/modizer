@@ -249,6 +249,10 @@ typedef struct {
     CFtpServer::CUserEntry *pAnonymousUser;
     CFtpServer::CUserEntry *pUser;
     bool bServerRunning;
+    
+    bool darkMode;
+    bool forceReloadCells;
+
 @public
     IBOutlet DetailViewControllerIphone *detailViewController;
     char current_family;
