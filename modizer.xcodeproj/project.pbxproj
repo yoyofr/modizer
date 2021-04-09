@@ -287,6 +287,8 @@
 		591D8E4B25DC63620013E19F /* bit_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E1F25DC63620013E19F /* bit_allocation.c */; };
 		59280E7A25EACE16009205EA /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
 		59280E9225EAF41E009205EA /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
+		5932888D261FC5AF00DB4E7C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
+		593288A4261FC61700DB4E7C /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 593288A3261FC61700DB4E7C /* CoreImage.framework */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
 		593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
@@ -3186,6 +3188,7 @@
 		59280E7325EACA3C009205EA /* SNESSystem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SNESSystem.h; path = snsf9x/SNESSystem.h; sourceTree = "<group>"; };
 		592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libxsf.xcodeproj; path = ../libxsf/libxsf/libxsf.xcodeproj; sourceTree = "<group>"; };
 		59321DD01E2560B200020079 /* vgmstream.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vgmstream.xcodeproj; path = vgmstream/vgmstream.xcodeproj; sourceTree = "<group>"; };
+		593288A3261FC61700DB4E7C /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		59387AED20C745BB001F0C20 /* LaunchLogo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = LaunchLogo.jpg; sourceTree = "<group>"; };
 		59387AEF20C746D3001F0C20 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
 		5939285F25CF1C0A009281DC /* Lazyusf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Lazyusf.xcodeproj; path = libLazyusf/Lazyusf.xcodeproj; sourceTree = "<group>"; };
@@ -4263,10 +4266,12 @@
 				5950DB8025E0F67B00B476B2 /* libgme.a in Frameworks */,
 				5950DB8125E0F67B00B476B2 /* libswresample.a in Frameworks */,
 				5950DB8425E0F67B00B476B2 /* QuartzCore.framework in Frameworks */,
+				593288A4261FC61700DB4E7C /* CoreImage.framework in Frameworks */,
 				59BDE889260F675100FB0C69 /* libpsflib.a in Frameworks */,
 				5950DB8525E0F67B00B476B2 /* SystemConfiguration.framework in Frameworks */,
 				5950DB8625E0F67B00B476B2 /* libavformat.a in Frameworks */,
 				5950DB8725E0F67B00B476B2 /* libopenmpt.a in Frameworks */,
+				5932888D261FC5AF00DB4E7C /* CoreGraphics.framework in Frameworks */,
 				5950DB8825E0F67B00B476B2 /* CoreServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4303,6 +4308,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				593288A3261FC61700DB4E7C /* CoreImage.framework */,
 				59BDE885260F674400FB0C69 /* libpsflib.a */,
 				5905362D25DBDB8600AA548E /* CoreMedia.framework */,
 				5905362A25DBDB6500AA548E /* libiconv.tbd */,

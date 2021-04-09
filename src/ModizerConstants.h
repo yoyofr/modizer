@@ -13,6 +13,11 @@
 #define ACTION_COLOR_GREEN ((float)(0x4A)/255.0)
 #define ACTION_COLOR_BLUE ((float)(0xCA)/255.0)
 
+#define ACTION_COLOR_RED_DARKMODE ((float)(0xF5)/255.0)
+#define ACTION_COLOR_GREEN_DARKMODE ((float)(0x6A)/255.0)
+#define ACTION_COLOR_BLUE_DARKMODE ((float)(0xEA)/255.0)
+
+
 #define MODIZER_COMPIL 1
 
 #define DEFAULT_WAIT_TIME_MS  0.001   //in s

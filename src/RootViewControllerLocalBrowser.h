@@ -64,7 +64,9 @@
 	
 	UIViewController *childController;
 	
-
+    bool darkMode;
+    bool forceReloadCells;
+    
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;
 @public    

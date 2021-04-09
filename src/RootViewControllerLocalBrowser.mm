@@ -479,6 +479,15 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     start_time=clock();
     childController=nil;
     
+    forceReloadCells=false;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
+    
     browser_stil_info=(char*)malloc(MAX_STIL_DATA_LENGTH);
     
     mFileMngr=[[NSFileManager alloc] init];
@@ -496,6 +505,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.tableView.sectionHeaderHeight = 18;
     self.tableView.rowHeight = 40;
+    
+    
     
     popTipViewRow=-1;
     popTipViewSection=-1;
@@ -1816,8 +1827,31 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     return;
 }
 
+-(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
+    [self.tableView reloadData];
+}
+
 -(void) viewWillAppear:(BOOL)animated {
-    
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
     
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
@@ -1906,6 +1940,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
      [tableView layoutSubviews];
      [tableView layoutIfNeeded];
      [tableView reloadData];*/
+    forceReloadCells=false;
     
     [super viewDidAppear:animated];
     //[tableView reloadData];
@@ -1951,26 +1986,30 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     else if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) lbl=[indexTitlesSpace objectAtIndex:section];
     else lbl=nil;
     
-    
     if (lbl)
         /*if ([lbl compare:@""]!=NSOrderedSame)*/{
     UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)];
-    customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
+    if (darkMode) customView.backgroundColor = [UIColor colorWithRed: 0.3f green: 0.3f blue: 0.3f alpha: 1.0f];
+    else customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
     
     CALayer *layerU = [CALayer layer];
     layerU.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 1.0);
-    layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
+    if (darkMode) layerU.backgroundColor = [[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f alpha: 1.00] CGColor];
+    else layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
     [customView.layer insertSublayer:layerU atIndex:0];
     
     CAGradientLayer *gradient = [CAGradientLayer layer];
     gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 22.0);
-    gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
-                       (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
+    if (darkMode) gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
+               (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
+    else gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
+                            (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
     [customView.layer insertSublayer:gradient atIndex:0];
     
     CALayer *layerD = [CALayer layer];
     layerD.frame = CGRectMake(0.0, 23.0, tableView.bounds.size.width, 1.0);
-    layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
+    if (darkMode) layerD.backgroundColor = [[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor];
+    else layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
     [customView.layer insertSublayer:layerD atIndex:0];
     
     UILabel *topLabel = [[UILabel alloc] init];
@@ -1980,7 +2019,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     //
     topLabel.backgroundColor = [UIColor clearColor];
     topLabel.textColor = [UIColor whiteColor];
-    topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+    if (darkMode) topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
+    else topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
     topLabel.font = [UIFont boldSystemFontOfSize:20];
     topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
     topLabel.opaque=TRUE;
@@ -2609,7 +2649,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     
-    if (cell == nil) {
+    if ((cell == nil)||(forceReloadCells)) {
             if (indexPath.section>1) {
                 cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
                 cell.delegate = self;
@@ -2633,7 +2673,16 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        UIImage *image = [UIImage imageNamed:@"tabview_gradient40.png"];
+        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
+        UIImage *image = [UIImage imageNamed:imgFile];
+        
+        /*NSURL* imageURL = [[NSBundle mainBundle] URLForResource:@"tabview_gradient40" withExtension:@"png"];
+        
+        CIImage *img=[CIImage imageWithContentsOfURL:imageURL];
+        CIFilter *filterImg=[CIFilter filterWithName:@"CIColorInvert"];
+        [filterImg setValue:img forKey:kCIInputImageKey];
+        UIImage *image = [UIImage imageWithCIImage:[filterImg outputImage]];*/
+        
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
@@ -2649,8 +2698,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        if (darkMode) {
+            topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
+            topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
+        } else {
+            topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+            topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        }
         topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
@@ -2665,8 +2719,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+        if (darkMode) {
+            bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
+            bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
+        } else {
+            bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+            bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+        }
+        
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
         bottomLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
@@ -2720,11 +2780,21 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     [cell layoutIfNeeded];
     
-    topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-    topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-    bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-    bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    if (darkMode) {
+        topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
+    } else {
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+    }
     
+    if (darkMode) {
+        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
+    } else {
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    }
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
                                tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
@@ -2748,7 +2818,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                        tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                        18);
         
-        topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
+        if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
+        else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
         
         topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                    0,
@@ -2778,7 +2849,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         
         if (cur_local_entries[section][indexPath.row].type==0) { //directory
-            topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+            if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
+            else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
