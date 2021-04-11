@@ -1364,7 +1364,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     } else {				
         if (shouldFillKeys&&(browse_depth>0)) {
             
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             
             [self fillKeys];
@@ -1862,7 +1862,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     
@@ -1922,7 +1922,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     

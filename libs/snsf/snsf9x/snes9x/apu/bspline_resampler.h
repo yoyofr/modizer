@@ -5,41 +5,32 @@
 #include <cmath>
 #include "resampler.h"
 
-class HermiteResampler : public Resampler
+class BsplineResampler : public Resampler
 {
 protected:
 	double r_step;
 	double r_frac;
-	int r_left[4], r_right[4];
+	int r_left[6], r_right[6];
 
 	template<typename T1, typename T2> static T1 CLAMP(T1 x, T2 low, T2 high) { return x > high ? high : (x < low ? low : x); }
 	template<typename T> static short SHORT_CLAMP(T n) { return static_cast<short>(CLAMP(n, -32768, 32767)); }
 
-	double hermite(double mu1, double a, double b, double c, double d)
+	double bspline(double x, double a, double b, double c, double d, double e, double f)
 	{
-		static const double tension = 0.0; //-1 = low, 0 = normal, 1 = high
-		static const double bias = 0.0; //-1 = left, 0 = even, 1 = right
-
-		double mu2, mu3, m0, m1, a0, a1, a2, a3;
-
-		mu2 = mu1 * mu1;
-		mu3 = mu2 * mu1;
-
-		m0  = (b - a) * (1 + bias) * (1 - tension) / 2;
-		m0 += (c - b) * (1 - bias) * (1 - tension) / 2;
-		m1  = (c - b) * (1 + bias) * (1 - tension) / 2;
-		m1 += (d - c) * (1 - bias) * (1 - tension) / 2;
-
-		a0 = 2 * mu3 - 3 * mu2 + 1;
-		a1 = mu3 - 2 * mu2 + mu1;
-		a2 = mu3 - mu2;
-		a3 = -2 * mu3 + 3 * mu2;
-
-		return (a0 * b) + (a1 * m0) + (a2 * m1) + (a3 * c);
+		float ym2py2 = a + e, ym1py1 = b + d;
+		float y2mym2 = e - a, y1mym1 = d - b;
+		float sixthym1py1 = 1 / 6.0 * ym1py1;
+		float c0 = 1 / 120.0 * ym2py2 + 13 / 60.0 * ym1py1 + 0.55 * c;
+		float c1 = 1 / 24.0 * y2mym2 + 5 / 12.0 * y1mym1;
+		float c2 = 1 / 12.0 * ym2py2 + sixthym1py1 - 0.5 * c;
+		float c3 = 1 / 12.0 * y2mym2 - 1 / 6.0 * y1mym1;
+		float c4 = 1 / 24.0 * ym2py2 - sixthym1py1 + 0.25 * c;
+		float c5 = 1 / 120.0 * (f - a) + 1 / 24.0 * (b - e) + 1 / 12.0 * (d - c);
+		return ((((c5 * x + c4) * x + c3) * x + c2) * x + c1) * x + c0;
 	}
 
 public:
-	HermiteResampler(int num_samples) : Resampler(num_samples)
+	BsplineResampler(int num_samples) : Resampler(num_samples)
 	{
 		this->clear();
 	}
@@ -54,8 +45,8 @@ public:
 	{
 		ring_buffer::clear();
 		this->r_frac = 1.0;
-		this->r_left[0] = this->r_left[1] = this->r_left[2] = this->r_left[3] = 0;
-		this->r_right[0] = this->r_right[1] = this->r_right[2] = this->r_right[3] = 0;
+		this->r_left[0] = this->r_left[1] = this->r_left[2] = this->r_left[3] = this->r_left[4] = this->r_left[5] = 0;
+		this->r_right[0] = this->r_right[1] = this->r_right[2] = this->r_right[3] = this->r_right[4] = this->r_right[5] = 0;
 	}
 
 	void read(short *data, int num_samples)
@@ -88,8 +79,8 @@ public:
 
 			while (this->r_frac <= 1.0 && o_position < num_samples)
 			{
-				data[o_position] = SHORT_CLAMP(hermite(this->r_frac, this->r_left[0], this->r_left[1], this->r_left[2], this->r_left[3]));
-				data[o_position + 1] = SHORT_CLAMP(hermite(this->r_frac, this->r_right[0], this->r_right[1], this->r_right[2], this->r_right[3]));
+				data[o_position] = SHORT_CLAMP(bspline(this->r_frac, this->r_left[0], this->r_left[1], this->r_left[2], this->r_left[3], this->r_left[4], this->r_left[5]));
+				data[o_position + 1] = SHORT_CLAMP(bspline(this->r_frac, this->r_right[0], this->r_right[1], this->r_right[2], this->r_right[3], this->r_right[4], this->r_right[5]));
 
 				o_position += 2;
 
@@ -101,12 +92,16 @@ public:
 				this->r_left[0] = this->r_left[1];
 				this->r_left[1] = this->r_left[2];
 				this->r_left[2] = this->r_left[3];
-				this->r_left[3] = s_left;
+				this->r_left[3] = this->r_left[4];
+				this->r_left[4] = this->r_left[5];
+				this->r_left[5] = s_left;
 
 				this->r_right[0] = this->r_right[1];
 				this->r_right[1] = this->r_right[2];
 				this->r_right[2] = this->r_right[3];
-				this->r_right[3] = s_right;
+				this->r_right[3] = this->r_right[4];
+				this->r_right[4] = this->r_right[5];
+				this->r_right[5] = s_right;
 
 				this->r_frac -= 1.0;
 

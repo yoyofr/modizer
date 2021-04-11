@@ -316,7 +316,7 @@ static int display_length_mode=0;
 
 -(void)didSelectRowInAlertArcController:(NSInteger)row {
     [mplayer selectArcEntry:(int)row];
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     [self play_loadArchiveModule];
     [self hideWaiting];
@@ -1190,7 +1190,7 @@ static float movePinchScale,movePinchScaleOld;
 		else {
             if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1)&&(mOnlyCurrentEntry==0)) {
                 [mplayer selectNextArcEntry];
-                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                [self showWaiting];
                 [self shortWait];
                 [self play_loadArchiveModule];
                 [self hideWaiting];
@@ -1511,9 +1511,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)playPrevSub {
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
-        if ([mplayer isArchive]&&(mplayer.mod_subsongs==1)) {
+        if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
             [mplayer selectArcEntry:[mplayer getArcIndex]];
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             [self play_loadArchiveModule];
             [self hideWaiting];
@@ -1524,9 +1524,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         return;
     }
     //if archive and no subsongs => change archive index
-    if ([mplayer isArchive]&&(mplayer.mod_subsongs==1)) {
+    if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub<=mplayer.mod_minsub))) {
         [mplayer selectPrevArcEntry];
-        [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        [self showWaiting];
         [self shortWait];
         [self play_loadArchiveModule];
         [self hideWaiting];
@@ -1538,9 +1538,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 - (IBAction)playNextSub {
     //if archive and no subsongs => change archive index
-    if ([mplayer isArchive]&&(mplayer.mod_subsongs==1)) {
+    if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub>=mplayer.mod_maxsub))) {
         [mplayer selectNextArcEntry];
-        [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        [self showWaiting];
         [self shortWait];
         [self play_loadArchiveModule];
         [self hideWaiting];
@@ -1554,7 +1554,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             [mplayer selectNextArcEntry];
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             [self play_loadArchiveModule];
             [self hideWaiting];
@@ -1566,7 +1566,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             [mplayer selectPrevArcEntry];
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             [self play_loadArchiveModule];
             [self hideWaiting];
@@ -1603,7 +1603,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
 	mPlaylist[mPlaylist_pos].mPlaylistCount++;
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
 	if ([self play_module:filePath fname:fileName]==FALSE) {
@@ -2081,7 +2081,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     if (mShuffle) {
         if ([mplayer isArchive]) {
-//            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+//            [self showWaiting];
             //[self shortWait];
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
@@ -2110,7 +2110,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 }
             }
 
-//            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+//            [self hideWaiting];
         }
     }
     
@@ -2445,9 +2445,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         
             do {
                 [mplayer selectNextArcEntry];
-                if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
                 mRestart_arc=[mplayer getArcIndex];
                 retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
             } while (retcode);
         }
         
@@ -2465,7 +2465,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     if (mShuffle) {
         if ([mplayer isArchive]) {
-//            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+//            [self showWaiting];
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
 
@@ -2474,9 +2474,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 do {
                     [mplayer selectNextArcEntry];
-                    if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
                     mRestart_arc=[mplayer getArcIndex];
                     retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                    if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
                 } while (retcode);
                 
                 if (retcode) {
@@ -2487,7 +2487,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 }
             }
             
-//            [self performSelectorInBackground:@selector(hideWaiting) withObject:nil];
+//            [self hideWaiting];
         }
     }
     
@@ -3952,7 +3952,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 }
 
 -(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
 -(void)showWaiting{
@@ -6012,6 +6012,9 @@ extern "C" int current_sample;
                     
                     RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan-startChan+1,((int)(movePxMOD)%size_chan));
                     
+                    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    
                     if (currentNotes) {
                         hasdrawnotes=1;
                         l=0;
@@ -6132,7 +6135,14 @@ extern "C" int current_sample;
                                 glTranslatef(NOTES_DISPLAY_LEFTMARGIN+((int)(movePxMOD)%size_chan), hh-NOTES_DISPLAY_TOPMARGIN-l*12/*+currentYoffset*/, 0.0f);
                                 
                                 if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
-                                else mText[l]->Render(3+display_note_mode);
+                                else {
+                                    if (i!=currentRow) mText[l]->Render(3+display_note_mode);
+                                    else {
+                                        
+                                        mText[l]->Render(20+display_note_mode);
+                                        
+                                    }
+                                }
                                 glPopMatrix();
                             }
                             if ((i<0)&&prevNotes) {
@@ -6191,8 +6201,8 @@ extern "C" int current_sample;
                     mHeader->Render(0);
                     glPopMatrix();
                     
-                    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
-                    else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    //if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=3) RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan-startChan,((int)(movePxMOD)%size_chan));
+                    //else RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan-startChan,((int)(movePxMOD)%size_chan));
                 }
             }
         }
@@ -6220,7 +6230,8 @@ extern "C" int current_sample;
                 RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,0); //hasdrawnotes
             } else {
                 //RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
-                RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],2,ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,1); //hasdrawnotes
+                //RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],2,ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,1); //hasdrawnotes
+                RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value); //hasdrawnotes
             }
         }
 	}

@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -280,7 +281,6 @@ static void Op##OP (void) \
 			S9xSetPCBase(ICPU.ShiftedPB + newPC.W); \
 		else \
 			Registers.PCw = newPC.W; \
-		CPUShutdown(); \
 	} \
 }
 
@@ -515,9 +515,6 @@ static inline void CPY (uint8 val)
 
 static inline void DEC16 (uint32 OpAddress, s9xwrap_t w)
 {
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	uint16	Work16 = S9xGetWord(OpAddress, w) - 1;
 	AddCycles(ONE_CYCLE);
 	S9xSetWord(Work16, OpAddress, w, WRITE_10);
@@ -527,9 +524,6 @@ static inline void DEC16 (uint32 OpAddress, s9xwrap_t w)
 
 static inline void DEC8 (uint32 OpAddress)
 {
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	uint8	Work8 = S9xGetByte(OpAddress) - 1;
 	AddCycles(ONE_CYCLE);
 	S9xSetByte(Work8, OpAddress);
@@ -551,9 +545,6 @@ static inline void EOR (uint8 val)
 
 static inline void INC16 (uint32 OpAddress, s9xwrap_t w)
 {
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	uint16	Work16 = S9xGetWord(OpAddress, w) + 1;
 	AddCycles(ONE_CYCLE);
 	S9xSetWord(Work16, OpAddress, w, WRITE_10);
@@ -563,9 +554,6 @@ static inline void INC16 (uint32 OpAddress, s9xwrap_t w)
 
 static inline void INC8 (uint32 OpAddress)
 {
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	uint8	Work8 = S9xGetByte(OpAddress) + 1;
 	AddCycles(ONE_CYCLE);
 	S9xSetByte(Work8, OpAddress);

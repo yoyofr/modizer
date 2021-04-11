@@ -121,7 +121,7 @@ void CGLString::BuildString(int msg_type)
 	float baseY = 0.0f;
 	float x = 0.0f;
 	float y;
-	unsigned char valr,valg,valb,vala;
+	unsigned int valr,valg,valb,vala;
 	vala=0xFF;
 	
 	if (msg_type==0) {
@@ -156,6 +156,9 @@ void CGLString::BuildString(int msg_type)
 		{
 			// Build a quad (two triangles) for the character
 			CCharacterData &data = mFont->mCharacterData[mText[i]];
+            
+            float adj=0;
+            if ((msg_type>=20)&&(msg_type<=20+3)) adj=1.0f;
 			
             x = baseX;
             y = baseY;
@@ -163,17 +166,17 @@ void CGLString::BuildString(int msg_type)
 			x += data.xOffset/scaleFactor;
 			y -= data.yOffset/scaleFactor;
 			
-			mVertices[vertIndex + 0] = x;
-			mVertices[vertIndex + 1] = y - data.byteHeight/scaleFactor;
-			mVertices[vertIndex + 2] = x;
-			mVertices[vertIndex + 3] = y;
+			mVertices[vertIndex + 0] = x-adj;
+			mVertices[vertIndex + 1] = y - data.byteHeight/scaleFactor-adj;
+			mVertices[vertIndex + 2] = x-adj;
+			mVertices[vertIndex + 3] = y+adj;
 			
 			x += data.byteWidth/scaleFactor;
 			
-			mVertices[vertIndex + 4] = x;
-			mVertices[vertIndex + 5] = y - data.byteHeight/scaleFactor;
-			mVertices[vertIndex + 6] = x;
-			mVertices[vertIndex + 7] = y;
+			mVertices[vertIndex + 4] = x+adj;
+			mVertices[vertIndex + 5] = y - data.byteHeight/scaleFactor-adj;
+			mVertices[vertIndex + 6] = x+adj;
+			mVertices[vertIndex + 7] = y+adj;
 			
 			memcpy(&mUVs[vertIndex], data.texCoords, sizeof(float) * 8);
 			
@@ -223,7 +226,27 @@ void CGLString::BuildString(int msg_type)
 				case 8:
 				case 9:valr=0xFF/3;valg=0xE0/3;valb=0x80/3;break;
 			}
-		} else if (msg_type==3+1) {
+		} else if (msg_type==20+0) {
+            switch (i%10) {
+                //note
+                case 0:
+                case 1:
+                case 2:valr=0xFF;valg=0xFF;valb=0xFF;break;
+                //instr
+                case 3:
+                case 4:valr=0x80;valg=0xE0;valb=0xFF;break;
+                //vol
+                case 5:
+                case 6:valr=0x80;valg=0xFF;valb=0x80;break;
+                //eff
+                case 7:valr=0xFF;valg=0x80;valb=0xE0;break;
+                //param
+                case 8:
+                case 9:valr=0xFF;valg=0xE0;valb=0x80;break;
+            }
+            valr*=1.5f;valg*=1.5f;valb*=1.5f;
+            if (valr>255) valr=255;if (valg>255) valg=255;if (valb>255) valb=255;
+        } else if (msg_type==3+1) {
 			switch (i%5) {
 					//note
 				case 0:
@@ -243,7 +266,19 @@ void CGLString::BuildString(int msg_type)
 				case 3:
 				case 4:valr=0x80/3;valg=0xE0/3;valb=0xFF/3;break;
 			}
-		} else if (msg_type==3+2) {
+		} else if (msg_type==20+1) {
+            switch (i%5) {
+                    //note
+                case 0:
+                case 1:
+                case 2:valr=0xFF;valg=0xFF;valb=0xFF;break;
+                    //instr
+                case 3:
+                case 4:valr=0x80;valg=0xE0;valb=0xFF;break;
+            }
+            valr*=1.5f;valg*=1.5f;valb*=1.5f;
+            if (valr>255) valr=255;if (valg>255) valg=255;if (valb>255) valb=255;
+        } else if (msg_type==3+2) {
 			switch (i%3) {
 					//note
 				case 0:
@@ -257,7 +292,16 @@ void CGLString::BuildString(int msg_type)
 				case 1:
 				case 2:valr=0xFF/3;valg=0xFF/3;valb=0xFF/3;break;
 			}
-		}
+		} else if (msg_type==20+2) {
+            switch (i%3) {
+                    //note
+                case 0:
+                case 1:
+                case 2:valr=0xFF;valg=0xFF;valb=0xFF;break;
+            }
+            valr*=1.5f;valg*=1.5f;valb*=1.5f;
+            if (valr>255) valr=255;if (valg>255) valg=255;if (valb>255) valb=255;
+        }
 		mColors[i*4 + 0].r=mColors[i*4 + 1].r=mColors[i*4 + 2].r=mColors[i*4 + 3].r=valr;
 		mColors[i*4 + 0].g=mColors[i*4 + 1].g=mColors[i*4 + 2].g=mColors[i*4 + 3].g=valg;
 		mColors[i*4 + 0].b=mColors[i*4 + 1].b=mColors[i*4 + 2].b=mColors[i*4 + 3].b=valb;

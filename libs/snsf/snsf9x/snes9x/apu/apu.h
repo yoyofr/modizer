@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -195,11 +196,16 @@ void S9xAPUExecute (void);
 void S9xAPUEndScanline (void);
 void S9xAPUSetReferenceTime (int32);
 void S9xAPUTimingSetSpeedup (int);
+void S9xAPUAllowTimeOverflow (bool);
 void S9xAPULoadState (uint8 *);
 void S9xAPUSaveState (uint8 *);
 void S9xDumpSPCSnapshot (void);
 
+#ifdef SNSF9X_REMOVED
 bool8 S9xInitSound (int, int);
+#else
+template<class ResamplerClass> bool8 S9xInitSound(int, int);
+#endif
 bool8 S9xOpenSoundDevice (void);
 
 bool8 S9xSyncSound (void);

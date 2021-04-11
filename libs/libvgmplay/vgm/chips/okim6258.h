@@ -23,6 +23,10 @@ struct _okim6258_interface
 #define	OUTPUT_10BITS		0
 #define	OUTPUT_12BITS		1
 
+//TODO:  MODIZER changes start / YOYOFR
+void okim6258_set_mute_mask(UINT8 ChipID, UINT32 MuteMask);
+//TODO:  MODIZER changes end / YOYOFR
+
 void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples);
 int device_start_okim6258(UINT8 ChipID, int clock, int divider, int adpcm_type, int output_12bits);
 void device_stop_okim6258(UINT8 ChipID);

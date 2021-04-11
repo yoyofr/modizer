@@ -7,6 +7,12 @@
 #include "SPC_DSP.h"
 #include "blargg_endian.h"
 
+#ifdef DEBUGGER
+#include "snes9x.h"
+#include "display.h"
+#include "debug.h"
+#endif
+
 struct SNES_SPC {
 public:
 	typedef BOOST::uint8_t uint8_t;
@@ -62,6 +68,7 @@ public:
 	// If true, prevents channels and global volumes from being phase-negated.
 	// Only supported by fast DSP.
 	void disable_surround( bool disable = true );
+	void interpolation_level(int level = 0);
 	
 	// Sets tempo, where tempo_unit = normal, tempo_unit / 2 = half speed, etc.
 	enum { tempo_unit = 0x100 };
@@ -106,11 +113,23 @@ public:
 
 //// Snes9x Accessor
 
+	void	spc_allow_time_overflow( bool );
+
 	void    dsp_set_spc_snapshot_callback( void (*callback) (void) );
 	void    dsp_dump_spc_snapshot( void );
 	void    dsp_set_stereo_switch( int );
 	uint8_t dsp_reg_value( int, int );
 	int     dsp_envx_value( int );
+
+//// Snes9x Debugger
+
+#ifdef DEBUGGER
+	void	debug_toggle_trace( void );
+	bool    debug_is_enabled( void );
+	void	debug_do_trace( int, int, int, uint8_t const *, uint8_t *, int, int, int, int );
+	void	debug_op_print( char *, int, int, int, uint8_t const *, uint8_t *, int, int, int, int );
+	void	debug_io_print( char * );
+#endif
 
 public:
 	BLARGG_DISABLE_NOTHROW
@@ -258,6 +277,14 @@ private:
 	static char const signature [signature_size + 1];
 	
 	void save_regs( uint8_t out [reg_count] );
+
+// Snes9x timing hack
+	bool allow_time_overflow;
+// Snes9x debugger
+#ifdef DEBUGGER
+	FILE *apu_trace;
+	bool debug_trace;
+#endif
 };
 
 #include <assert.h>
@@ -281,8 +308,12 @@ inline void SNES_SPC::mute_voices( int mask ) { dsp.mute_voices( mask ); }
 	
 inline void SNES_SPC::disable_surround( bool disable ) { dsp.disable_surround( disable ); }
 
+inline void SNES_SPC::interpolation_level(int level){ this->dsp.interpolation_level(level); }
+
 #if !SPC_NO_COPY_STATE_FUNCS
 inline bool SNES_SPC::check_kon() { return dsp.check_kon(); }
 #endif
+
+inline void SNES_SPC::spc_allow_time_overflow( bool allow ) { allow_time_overflow = allow; }
 
 #endif

@@ -28,7 +28,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
 -(void)showWaiting{
@@ -156,7 +156,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(void) resetSettings {
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     [SettingsGenViewController applyDefaultSettings];
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -165,7 +165,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(bool) resetRatingsDB {
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -192,7 +192,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(bool) resetPlaycountDB {
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -219,7 +219,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(bool) cleanDB {
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -296,7 +296,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(void) recreateSamplesFolder {
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     [rootVC createSamplesFromPackage:TRUE];
@@ -305,7 +305,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(void) resetDB {
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     [rootVC createEditableCopyOfDatabaseIfNeeded:TRUE quiet:TRUE];
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -313,7 +313,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 -(void) removeCurrentCover {
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     NSError *err;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];

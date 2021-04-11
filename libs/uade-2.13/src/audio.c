@@ -156,8 +156,12 @@ static void check_sound_buffers (void)
     }
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
 
-static inline void sample_backend(int left, int right)
+
+static inline void sample_backend(int left1,int left2, int right1,int right2) //0,3 1,2
 {
 #if AUDIO_DEBUG
     int nr;
@@ -168,6 +172,20 @@ static inline void sample_backend(int left, int right)
 	}
     }
 #endif
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    int left=left1+left2;
+    int right=right1+right2;
+    m_voice_buff[0][m_voice_current_ptr[0]>>8]=LIMIT8(left1>>6);
+    m_voice_buff[3][m_voice_current_ptr[3]>>8]=LIMIT8(left2>>6);
+    m_voice_buff[1][m_voice_current_ptr[1]>>8]=LIMIT8(right1>>6);
+    m_voice_buff[2][m_voice_current_ptr[2]>>8]=LIMIT8(right2>>6);
+    
+    for (int jj=0;jj<4;jj++) {
+        m_voice_current_ptr[jj]+=256/*44100*256/32000*/;
+        if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
     /* samples are in range -16384 (-128*64*2) and 16256 (127*64*2) */
     left <<= 16 - 14 - 1;
@@ -192,11 +210,15 @@ static void sample16s_handler (void)
     int i;
 
     for (i = 0; i < 4; i++) {
-	datas[i] = audio_channel[i].current_sample * audio_channel[i].vol;
-	datas[i] &= audio_channel[i].adk_mask;
+        datas[i] = audio_channel[i].current_sample * audio_channel[i].vol;
+        datas[i] &= audio_channel[i].adk_mask;
+        //TODO:  MODIZER changes start / YOYOFR
+        if (!(HC_voicesMuteMask1&(1<<i))) datas[i]=0;
+        //TODO:  MODIZER changes end / YOYOFR
     }
-
-    sample_backend(datas[0] + datas[3], datas[1] + datas[2]);
+    
+    
+    sample_backend(datas[0],datas[3], datas[1],datas[2]);
 }
 
 
@@ -209,11 +231,14 @@ static void sample16si_anti_handler (void)
 
     for (i = 0; i < 4; i += 1) {
         datas[i] = audio_channel[i].sample_accum / audio_channel[i].sample_accum_time;
+        //TODO:  MODIZER changes start / YOYOFR
+        if (!(HC_voicesMuteMask1&(1<<i))) datas[i]=0;
+        //TODO:  MODIZER changes end / YOYOFR
         audio_channel[i].sample_accum = 0;
-	audio_channel[i].sample_accum_time = 0;
+        audio_channel[i].sample_accum_time = 0;
     }
 
-    sample_backend(datas[0] + datas[3], datas[1] + datas[2]);
+    sample_backend(datas[0],datas[3], datas[1],datas[2]);
 }
 
 
@@ -249,8 +274,23 @@ static void sample16si_sinc_handler (void)
             offsetpos = (offsetpos + 1) & (SINC_QUEUE_LENGTH - 1);
         }
         datas[i] = sum >> 16;
+        //TODO:  MODIZER changes start / YOYOFR
+        if (!(HC_voicesMuteMask1&(1<<i))) datas[i]=0;
+        //TODO:  MODIZER changes end / YOYOFR
     }
 
+    //TODO:  MODIZER changes start / YOYOFR
+    m_voice_buff[0][m_voice_current_ptr[0]>>8]=LIMIT8(datas[0]>>6);
+    m_voice_buff[3][m_voice_current_ptr[3]>>8]=LIMIT8(datas[3]>>6);
+    m_voice_buff[1][m_voice_current_ptr[1]>>8]=LIMIT8(datas[1]>>6);
+    m_voice_buff[2][m_voice_current_ptr[2]>>8]=LIMIT8(datas[2]>>6);
+    
+    for (int jj=0;jj<4;jj++) {
+        m_voice_current_ptr[jj]+=256/*44100*256/32000*/;
+        if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+    
     *(sndbufpt++) = clamp_sample(datas[0] + datas[3]);
     *(sndbufpt++) = clamp_sample(datas[1] + datas[2]);
 

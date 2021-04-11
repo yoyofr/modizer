@@ -463,7 +463,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 -(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
+    //[NSThread sleepForTimeInterval:0.1f];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
 -(void)showWaiting{
@@ -826,7 +827,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -1885,7 +1886,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     } else {
         if (mShowSubdir==0) shouldFillKeys=1; //performance limit-> no update if listing all files
         
-        [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        
+        [self showWaiting];
         [self shortWait];
         [self fillKeys];
         [tableView reloadData];
@@ -1911,7 +1913,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     else {
         
         shouldFillKeys=1;
-        [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+        [self showWaiting];
         [self shortWait];
         
         int old_mSearch=mSearch;
@@ -2093,7 +2095,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -2509,7 +2511,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 break;
             }
             case 2:{//extract
-                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                [self showWaiting];
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                                 
@@ -3054,6 +3056,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 }
 
 -(IBAction)goPlayer {
+    [self showWaiting];
+    [self shortWait];
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
             @try {
@@ -3086,6 +3090,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
         [nofileplaying show];
     }
+    [self hideWaiting];
 }
 
 #pragma mark -
@@ -3096,7 +3101,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     int section=indexPath.section-2;
@@ -3160,7 +3165,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     
@@ -3266,7 +3271,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             shouldFillKeys=1;
             
             //[self showWaiting];
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             
             
@@ -3290,7 +3295,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         if (cur_local_entries[section][indexPath.row].type==0) { //Directory selected : change current directory
             
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             
             
@@ -3313,7 +3318,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             //				[childController autorelease];
         } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
             
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             
             
@@ -3339,7 +3344,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             //				[childController autorelease];
         } else {  //File selected
             
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             
             

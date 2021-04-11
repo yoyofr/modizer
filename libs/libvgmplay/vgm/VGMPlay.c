@@ -3901,9 +3901,13 @@ static void Chips_GeneralActions(UINT8 Mode)
 			else if (CAA->ChipType == 0x15)
 				multipcm_set_mute_mask(CurCSet, ChipOpts[CurCSet].MultiPCM.ChnMute1);
 			else if (CAA->ChipType == 0x16)
-				;	// UPD7759 - nothing to mute
+                //TODO:  MODIZER changes start / YOYOFR
+                okim6258_set_mute_mask(CurCSet, ChipOpts[CurCSet].UPD7759.ChnMute1);
+                //TODO:  MODIZER changes end / YOYOFR
 			else if (CAA->ChipType == 0x17)
-				;	// OKIM6258 - nothing to mute
+                //TODO:  MODIZER changes start / YOYOFR
+                okim6258_set_mute_mask(CurCSet, ChipOpts[CurCSet].OKIM6258.ChnMute1);
+                //TODO:  MODIZER changes end / YOYOFR
 			else if (CAA->ChipType == 0x18)
 				okim6295_set_mute_mask(CurCSet, ChipOpts[CurCSet].OKIM6295.ChnMute1);
 			else if (CAA->ChipType == 0x19)

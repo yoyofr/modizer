@@ -197,7 +197,7 @@ void S9xSA1Init (void)
 	SA1.Flags = 0;
 	SA1.WaitingForInterrupt = FALSE;
 #endif
-
+	
 	memset(&Memory.FillRAM[0x2200], 0, 0x200);
 	Memory.FillRAM[0x2200] = 0x20;
 	Memory.FillRAM[0x2220] = 0x00;
@@ -250,6 +250,7 @@ void S9xSA1Init (void)
 	S9xSA1FixCycles();
 
 	SA1.BWRAM = Memory.SRAM;
+
 	CPU.IRQExternal = FALSE;
 #endif
 }
@@ -321,11 +322,10 @@ static void S9xSetSA1MemMap (uint32 which1, uint8 map)
 #endif
 	}
 
+
 	for (int c = 0; c < 0x200; c += 16)
 	{
-        // conversion to int is needed here - map is promoted but which1 is not
-        int32 offset = (((map & 0x80) ? map : which1) & 7) * 0x100000 + (c << 11) - 0x8000;
-		uint8	*block = &Memory.ROM[offset];
+		uint8	*block = &Memory.ROM[(map & 7) * 0x100000 + (c << 11) - 0x8000];
 #ifdef SNSF9X_REMOVED
 		for (int i = c + 8; i < c + 16; i++)
 			Memory.Map[start2 + i] = SA1.Map[start2 + i] = block;

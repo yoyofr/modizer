@@ -196,7 +196,9 @@ loop:
 	check( (unsigned) y < 0x100 );
 	
 	opcode = *pc;
-	if ( (rel_time += m.cycle_table [opcode]) > 0 )
+	if (allow_time_overflow && rel_time >= 0 )
+		goto stop;
+	if ( (rel_time += m.cycle_table [opcode]) > 0 && !allow_time_overflow)
 		goto out_of_time;
 	
 	#ifdef SPC_CPU_OPCODE_HOOK
@@ -216,7 +218,13 @@ loop:
 	PROFILE_TIMER_LOOP( 0xEB, pc [1], 2 );
 	PROFILE_TIMER_LOOP( 0xE4, pc [1], 2 );
 	*/
-	
+
+#ifdef DEBUGGER
+	if (debug_trace)
+		debug_do_trace(a, x, y, pc, sp, psw, c, nz, dp);
+#endif
+
+
 	// TODO: if PC is at end of memory, this will get wrong operand (very obscure)
 	data = *++pc;
 	switch ( opcode )

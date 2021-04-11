@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -187,7 +188,7 @@
 #endif
 #endif
 
-#define ADD_CYCLES(n)	CPU.Cycles += (n)
+#define ADD_CYCLES(n)	{ CPU.PrevCycles = CPU.Cycles; CPU.Cycles += (n); S9xCheckInterrupts(); }
 
 extern uint8	*HDMAMemPointers[8];
 extern int		HDMA_ModeByteCounts[8];
@@ -302,7 +303,6 @@ bool8 S9xDoDMA (uint8 Channel)
 	// S-DD1
 
 	uint8	*in_sdd1_dma = NULL;
-
 #ifndef SNSF9X_REMOVED_SDD1
 	if (Settings.SDD1)
 	{
@@ -339,7 +339,6 @@ bool8 S9xDoDMA (uint8 Channel)
 	// SPC7110
 
 	uint8	*spc7110_dma = NULL;
-
 #ifdef SNSF9X_REMOVED
 	if (Settings.SPC7110)
 	{
@@ -363,7 +362,6 @@ bool8 S9xDoDMA (uint8 Channel)
 	// SA-1
 
 	bool8	in_sa1_dma = FALSE;
-
 #ifdef SNSF9X_REMOVED
 	if (Settings.SA1)
 	{
@@ -497,7 +495,7 @@ bool8 S9xDoDMA (uint8 Channel)
 		}
 	}
 #endif
-
+	
 #ifdef DEBUGGER
 	if (Settings.TraceDMA)
 	{
@@ -753,9 +751,6 @@ bool8 S9xDoDMA (uint8 Channel)
 							break;
 
 						case 0x18: // VMDATAL
-						#ifndef CORRECT_VRAM_READS
-							IPPU.FirstVRAMRead = TRUE;
-						#endif
 							if (!PPU.VMA.FullGraphicCount)
 							{
 								do
@@ -778,9 +773,6 @@ bool8 S9xDoDMA (uint8 Channel)
 							break;
 
 						case 0x19: // VMDATAH
-						#ifndef CORRECT_VRAM_READS
-							IPPU.FirstVRAMRead = TRUE;
-						#endif
 							if (!PPU.VMA.FullGraphicCount)
 							{
 								do
@@ -851,9 +843,6 @@ bool8 S9xDoDMA (uint8 Channel)
 					if (d->BAddress == 0x18)
 					{
 						// VMDATAL
-					#ifndef CORRECT_VRAM_READS
-						IPPU.FirstVRAMRead = TRUE;
-					#endif
 						if (!PPU.VMA.FullGraphicCount)
 						{
 							switch (b)
@@ -1296,7 +1285,7 @@ bool8 S9xDoDMA (uint8 Channel)
 		}
 	}
 
-	if ((CPU.Flags & NMI_FLAG) && (Timings.NMITriggerPos != 0xffff))
+	if (CPU.NMILine && (Timings.NMITriggerPos != 0xffff))
 	{
 		Timings.NMITriggerPos = CPU.Cycles + Timings.NMIDMADelay;
 		if (Timings.NMITriggerPos >= Timings.H_Max)
@@ -1387,10 +1376,7 @@ static inline bool8 HDMAReadLineCount (int d)
 
 void S9xStartHDMA (void)
 {
-	if (Settings.DisableHDMA)
-		PPU.HDMA = 0;
-	else
-		PPU.HDMA = Memory.FillRAM[0x420c];
+	PPU.HDMA = Memory.FillRAM[0x420c];
 
 #ifdef DEBUGGER
 	missing.hdma_this_frame = PPU.HDMA;

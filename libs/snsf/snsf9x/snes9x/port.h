@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -178,7 +179,6 @@
 #ifndef _PORT_H_
 #define _PORT_H_
 
-#define HAVE_STDINT_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -203,9 +203,7 @@
 #define RIGHTSHIFT_int8_IS_SAR
 #define RIGHTSHIFT_int16_IS_SAR
 #define RIGHTSHIFT_int32_IS_SAR
-#ifdef SNSF9X_REMOVED
 #define SNES_JOY_READ_CALLBACKS
-#endif
 #endif
 
 #ifdef __MACOSX__
@@ -228,11 +226,15 @@ typedef uint32_t			uint32;
 typedef int64_t				int64;
 typedef uint64_t			uint64;
 #else	// HAVE_STDINT_H
+#ifdef __WIN32__
+typedef intptr_t			pint;
+#else	// __WIN32__
 #ifdef PTR_NOT_INT
 typedef long				pint;
 #else
 typedef int					pint;
 #endif
+#endif	// __WIN32__
 #ifdef __WIN32__
 #ifdef __BORLANDC__
 #include <systypes.h>
@@ -248,6 +250,7 @@ typedef signed int			int32;
 typedef unsigned int		uint32;
 #endif
 typedef unsigned char		uint8_t;
+typedef signed char         int8_t;
 typedef signed __int64		int64;
 typedef unsigned __int64	uint64;
 typedef int					socklen_t;
@@ -262,13 +265,8 @@ typedef unsigned int		uint32;
 // long long is not part of ISO C++ 
 __extension__
 #endif
-#if _MSC_VER == 1200
-typedef signed __int64 int64;
-typedef unsigned __int64 uint64;
-#else
-typedef long long int64;
-typedef unsigned long long uint64;
-#endif
+typedef long long			int64;
+typedef unsigned long long	uint64;
 #endif	//  __WIN32__
 #endif	// HAVE_STDINT_H
 #endif	// snes9x_types_defined
@@ -287,7 +285,7 @@ typedef unsigned long long uint64;
 #ifndef PATH_MAX
 #define PATH_MAX	1024
 #endif
-#ifndef _MAX_DRIVE	
+#ifndef _MAX_DRIVE
 #define _MAX_DRIVE	1
 #endif
 #ifndef _MAX_DIR
@@ -302,7 +300,6 @@ typedef unsigned long long uint64;
 #ifndef _MAX_PATH
 #define _MAX_PATH	PATH_MAX
 #endif
-
 #else
 #ifndef PATH_MAX
 #define PATH_MAX	_MAX_PATH
@@ -315,13 +312,17 @@ typedef unsigned long long uint64;
 #endif
 void _splitpath (const char *, char *, char *, char *, char *);
 void _makepath (char *, const char *, const char *, const char *, const char *);
+#ifndef S9xDisplayString
 #define S9xDisplayString	DisplayStringFromBottom
+#endif
 #else
 #define snprintf _snprintf
 #define strcasecmp	stricmp
 #define strncasecmp	strnicmp
 void WinDisplayStringFromBottom(const char *string, int linesFromBottom, int pixelsFromLeft, bool allowWrap);
 #define S9xDisplayString	WinDisplayStringFromBottom
+void SetInfoDlgColor(unsigned char, unsigned char, unsigned char);
+#define SET_UI_COLOR(r,g,b) SetInfoDlgColor(r,g,b)
 #endif
 
 #ifdef __DJGPP
@@ -345,10 +346,9 @@ void WinDisplayStringFromBottom(const char *string, int linesFromBottom, int pix
 #define TITLE "Snes9x"
 #endif
 
-#if defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(__x86_64__) || defined(__alpha__) || defined(__MIPSEL__) || defined(_M_IX86) || defined(__arm64__)
-#ifndef LSB_FIRST
+//YOYOFR: added __arm64__
+#if defined(__arm64__) || defined(__i386__) || defined(__i486__) || defined(__i586__) || defined(__i686__) || defined(__x86_64__) || defined(__alpha__) || defined(__MIPSEL__) || defined(_M_IX86) || defined(_M_X64)
 #define LSB_FIRST
-#endif
 #define FAST_LSB_WORD_ACCESS
 #else
 #define MSB_FIRST

@@ -79,7 +79,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 -(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
 -(void)showWaiting{
@@ -1066,7 +1066,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     } else {
         if (shouldFillKeys&&(browse_depth>0)) {
             
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             
             [self fillKeys];
@@ -1213,7 +1213,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
+    if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
@@ -1465,7 +1465,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                            0,
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
                                            22);
-                topLabel.textColor=[UIColor colorWithRed:0.3f green:0.3f blue:0.8f alpha:1.0f];
+                if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
+                else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+                
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
         }
@@ -1603,7 +1605,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     
@@ -1663,7 +1665,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     

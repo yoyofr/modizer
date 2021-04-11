@@ -16,6 +16,11 @@ struct _upd7759_interface
 	void (*drqcallback)(int param);	/* drq callback (per chip, slave mode only) */
 };
 
+//TODO:  MODIZER changes start / YOYOFR
+void upd7759_set_mute_mask(UINT8 ChipID, UINT32 MuteMask);
+//TODO:  MODIZER changes end / YOYOFR
+
+
 void upd7759_update(UINT8 ChipID, stream_sample_t **outputs, int samples);
 void device_reset_upd7759(UINT8 ChipID);
 int device_start_upd7759(UINT8 ChipID, int clock);

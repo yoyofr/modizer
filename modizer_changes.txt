@@ -16,19 +16,20 @@ Todo/Requested:
 - TODO: replace vgmplay by libvgm
 - TODO: add description for Settings when relevant
 
-2.962
+3.0
 �����
 - [UI] stability improvement
 - [UI] Do not recreate samples folder automatically
 - [DB] Updated to latest versions
-- [PLAYER] AOSDK/SexyPSF replaced by Highly Complete for better compatibility (DSF,PSF,PSF2,QSF,SSF)
-- [PLAYER] LazyUSF now part of Highly Complete
+- [PLAYER] SNSF support 
+- [PLAYER] New library, Highly Complete for DSF,PSF,PSF2,QSF,SSF. AOSDK & SexyPSF removed
+- [PLAYER] LazyUSF now included in Highly Complete
 - [PLAYER] VGMSTREAM subsongs support
 - [PLAYER] FLAC support
-- [PLAYER] Voices control for ASAP/GME/SIDPLAYFP/VGMPLAY
-- [PLAYER] Oscilloscope view / channels (ASAP/GME(spc only)/SIDPLAYFP/VGMPLAY(not all chipsets))
+- [PLAYER] Voices control support when exposed by playback libraries (ASAP/OPENMPT/XMP/VGMPLAY/SIDPLAYFP/GME//SNSF/HC/UADE ...)
+- [PLAYER] New Oscilloscope view / individual channels for some formats (mostly VGMPLAY/SIDPLAYFP/GME(spc only)/SNSF/HC/UADE ...)
 - [HVSC] Fixed a bug in title/name parsing from STIL DB
-- [] Bugfixes / settings management
+- [UI] Bugfixes / settings management
 
 2.961
 �����

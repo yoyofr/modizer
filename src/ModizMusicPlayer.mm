@@ -128,18 +128,6 @@ static int mPanning,mPanningValue;
 static const XSFFile *xSFFile = nullptr;
 static XSFPlayer *xSFPlayer = nullptr;
 XSFConfig *xSFConfig = nullptr;
-//SNSF
-struct snsf_sound_out : public SNESSoundOut
-{
-    virtual ~snsf_sound_out() { }
-    // Receives signed 16-bit stereo audio and a byte count
-    virtual void write(const void * samples, unsigned long bytes)
-    {
-        /*sample_buffer.grow_size( bytes_in_buffer + bytes );
-        memcpy( &sample_buffer[ bytes_in_buffer ], samples, bytes );
-        bytes_in_buffer += bytes;*/
-    }
-};
 
 auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 
@@ -164,7 +152,7 @@ extern "C" {
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
     0x0E, 0x09, 0x09, 0x09, 0x17, 0x2F, 0x0C, 0x08,
-    0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x01,
+    0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
     0x04
@@ -173,7 +161,7 @@ const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 const UINT8 vgmREALCHN_COUNT[CHIP_COUNT] =
 {    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
     0x0E, 0x09, 0x09, 0x09, 0x12, 0x2A, 0x0C, 0x08,
-    0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x00, 0x01,
+    0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
     0x04
@@ -932,6 +920,147 @@ static int qsf_loader(void * context, const uint8_t * exe, size_t exe_size,
     return 0;
 }
 
+//SNSF
+struct snsf_loader_state
+{
+    int base_set;
+    uint32_t base;
+    uint8_t * data;
+    size_t data_size;
+    uint8_t * sram;
+    size_t sram_size;
+    snsf_loader_state() : base_set(0), data(0), data_size(0), sram(0), sram_size(0) { }
+    ~snsf_loader_state() { if (data) free(data); if (sram) free(sram); }
+};
+snsf_loader_state *snsf_rom;
+
+
+
+int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
+                                  const uint8_t * reserved, size_t reserved_size)
+{
+    if ( exe_size < 8 ) return -1;
+
+    struct snsf_loader_state * state = (struct snsf_loader_state *) context;
+
+    unsigned char *iptr;
+    unsigned isize;
+    unsigned char *xptr;
+    unsigned xofs = get_le32(exe + 0);
+    unsigned xsize = get_le32(exe + 4);
+    if ( xsize > exe_size - 8 ) return -1;
+    if (!state->base_set)
+    {
+        state->base = xofs;
+        state->base_set = 1;
+    }
+    else
+    {
+        xofs += state->base;
+    }
+    {
+        iptr = state->data;
+        isize = state->data_size;
+        state->data = 0;
+        state->data_size = 0;
+    }
+    if (!iptr)
+    {
+        unsigned rsize = xofs + xsize;
+        {
+            rsize -= 1;
+            rsize |= rsize >> 1;
+            rsize |= rsize >> 2;
+            rsize |= rsize >> 4;
+            rsize |= rsize >> 8;
+            rsize |= rsize >> 16;
+            rsize += 1;
+        }
+        iptr = (unsigned char *) malloc(rsize + 10);
+        if (!iptr)
+            return -1;
+        memset(iptr, 0, rsize + 10);
+        isize = rsize;
+    }
+    else if (isize < xofs + xsize)
+    {
+        unsigned rsize = xofs + xsize;
+        {
+            rsize -= 1;
+            rsize |= rsize >> 1;
+            rsize |= rsize >> 2;
+            rsize |= rsize >> 4;
+            rsize |= rsize >> 8;
+            rsize |= rsize >> 16;
+            rsize += 1;
+        }
+        xptr = (unsigned char *) realloc(iptr, xofs + rsize + 10);
+        if (!xptr)
+        {
+            free(iptr);
+            return -1;
+        }
+        iptr = xptr;
+        isize = rsize;
+    }
+    memcpy(iptr + xofs, exe + 8, xsize);
+    {
+        state->data = iptr;
+        state->data_size = isize;
+    }
+
+    // reserved section
+    if (reserved_size >= 8)
+    {
+        unsigned rsvtype = get_le32(reserved + 0);
+        unsigned rsvsize = get_le32(reserved + 4);
+
+        if (rsvtype == 0)
+        {
+            // SRAM block
+            if (reserved_size < 12 || rsvsize < 4)
+            {
+                printf("Reserve section (SRAM) is too short\n");
+                return -1;
+            }
+
+            // check offset and size
+            unsigned sram_offset = get_le32(reserved + 8);
+            unsigned sram_patch_size = rsvsize - 4;
+            if (sram_offset + sram_patch_size > 0x20000)
+            {
+                printf("SRAM size error\n");
+                return -1;
+            }
+
+            if (!state->sram)
+            {
+                state->sram = (unsigned char *) malloc(0x20000);
+                if (!state->sram)
+                    return -1;
+                memset(state->sram, 0, 0x20000);
+            }
+
+            // load SRAM data
+            memcpy(state->sram + sram_offset, reserved + 12, sram_patch_size);
+
+            // update SRAM size
+            if (state->sram_size < sram_offset + sram_patch_size)
+            {
+                state->sram_size = sram_offset + sram_patch_size;
+            }
+        }
+        else
+        {
+            printf("Unsupported reserve section type\n");
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
 
 
 //LAZY USF
@@ -1011,7 +1140,7 @@ double src_ratio;
 SRC_STATE *src_state;
 SRC_DATA src_data;
 
-long src_callback_he(void *cb_data, float **data);
+long src_callback_hc(void *cb_data, float **data);
 long src_callback_vgmstream(void *cb_data, float **data);
 
 ////////////////////
@@ -1671,11 +1800,13 @@ void propertyListenerCallback (void                   *inUserData,              
         
         //
         
-        //HE
+        //HC
         bios_set_image(hebios, HEBIOS_SIZE);
         psx_init();
         sega_init();
         qsound_init();
+        HC_emulatorCore=NULL;
+        HC_emulatorExtra=NULL;
         
         // NVDSP
         //
@@ -2240,12 +2371,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         if (lBytes<to_fill) {
             memcpy( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,lBytes);
             
-            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
-            for (int i=0;i<lBytes/4;i++) {
-                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs>>2)]>>8);
-                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs>>2)]>>8);
-            }
-            
             buffer_ana_subofs+=lBytes;
             lBytes=0;
             
@@ -2254,24 +2379,12 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if (song_end) {
                 memset( (char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,0,SOUND_BUFFER_SIZE_SAMPLE*2*2-buffer_ana_subofs);
                 
-                //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
-                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE-buffer_ana_subofs/4;i++) {
-                    m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs)>>2]>>8);
-                    m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs)>>2]>>8);
-                }
-                
                 buffer_ana_flag[buffer_ana_gen_ofs]=1|4;
                 buffer_ana_gen_ofs++;
                 if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
             }
         } else {
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,to_fill);
-            
-            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
-            for (int i=0;i<to_fill/4;i++) {
-                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0+(buffer_ana_subofs)>>2]>>8);
-                m_voice_buff_ana[buffer_ana_gen_ofs][(i+(buffer_ana_subofs>>2))*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1+(buffer_ana_subofs)>>2]>>8);
-            }
             
             lBytes-=to_fill;
             pSound+=to_fill;
@@ -2473,6 +2586,15 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     if (skip_first) skip_first=0;
                     else {
                         if (uade_audio_play((char*)sampledata, playbytes,subsong_end)) uade_song_end_trigger=2;
+                        
+                        //copy voice data for oscillo view
+                        if (numVoicesChannels) {
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                }
+                            }
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                        }
                     }
                 }
                 
@@ -2692,7 +2814,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     return 0;
 }
 
-long src_callback_he(void *cb_data, float **data) {
+long src_callback_hc(void *cb_data, float **data) {
     uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
     switch (HC_type) {
         case 1:
@@ -2705,6 +2827,10 @@ long src_callback_he(void *cb_data, float **data) {
             break;
         case 0x21:
             if (usf_render(lzu_state->emu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &hc_sample_rate)) return 0;
+            break;
+        case 0x23:
+            dwChannelMute=HC_voicesMuteMask1;
+            howmany=snsf_gen(hc_sample_data,howmany)>>2;
             break;
         case 0x41:
             if ( qsound_execute( HC_emulatorCore, 0x7fffffff, ( int16_t * ) hc_sample_data, &howmany ) < 0 ) return 0;
@@ -2993,6 +3119,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                     case 0x21:
                                         usf_render(lzu_state->emu_state, hc_sample_data, howmany, &hc_sample_rate);
                                         break;
+                                    case 0x23:
+                                        snsf_gen(hc_sample_data, howmany);
+                                        break;
                                     case 0x41:
                                         qsound_execute( HC_emulatorCore, 0x7fffffff, 0, &howmany );
                                         break;
@@ -3205,7 +3334,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                     [self iPhoneDrv_PlayStop];
                                     [self iPhoneDrv_PlayStart];
                                 }
-                                api68_play(sc68,mod_currentsub,1);
+                                api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
                                 api68_music_info( sc68, &info, mod_currentsub, NULL );
                                 iModuleLength=info.time_ms;
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
@@ -3216,6 +3345,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             if (mPlayType==MMP_ASAP) {//ASAP
                                 iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                                if (iModuleLength<1000) iModuleLength=1000;
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                                 
                                 
@@ -3354,7 +3484,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
                             }
-                            api68_play(sc68,mod_currentsub,1);
+                            api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
                             api68_music_info( sc68, &info, mod_currentsub, NULL );
                             iModuleLength=info.time_ms;
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
@@ -3365,6 +3495,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         }
                         if (mPlayType==MMP_ASAP) {//ASAP
                             iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                            if (iModuleLength<1000) iModuleLength=1000;
                             ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                             
                             
@@ -3490,7 +3621,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 api68_music_info_t info;
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
-                                api68_play(sc68,mod_currentsub,1);
+                                api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
                                 api68_music_info( sc68, &info, mod_currentsub, NULL );
                                 iModuleLength=info.time_ms;
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
@@ -3501,6 +3632,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             if (mPlayType==MMP_ASAP) {//ASAP
                                 iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                                if (iModuleLength<1000) iModuleLength=1000;
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                                 
                                 
@@ -3729,24 +3861,33 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                         }
                     }
-                    if (mPlayType==MMP_HC) { //Highly Experimental
+                    if (mPlayType==MMP_HC) { //Highly Complete
                         
                         //reset voice data for oscillo view
-                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                        if (numVoicesChannels) {
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                }
                             }
                         }
-                        
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                         src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         
                         //copy voice data for oscillo view
-                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                        if (numVoicesChannels) {
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                }
+                            }
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                        } else {
+                            //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                            for (int i=0;i<nbBytes/4;i++) {
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                                m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
                             }
                         }
-                        //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
                         
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
@@ -3776,7 +3917,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         if (done) nbBytes=0;
                         else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),reinterpret_cast<char *>(&xsfSampleBuffer[0]),SOUND_BUFFER_SIZE_SAMPLE*2*2);
-                        */
+                        
+                        //copy voice data for oscillo view from sound buffer as there's no possibility to catch individual channels
+                        for (int i=0;i<nbBytes/4;i++) {
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+0]=(buffer_ana[buffer_ana_gen_ofs][i*2+0]>>8);
+                            m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+1]=(buffer_ana[buffer_ana_gen_ofs][i*2+1]>>8);
+                        }*/
+                        
                         //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                         
                     }
@@ -3956,7 +4103,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                     api68_music_info_t info;
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     mod_currentsub++;
-                                    api68_play(sc68,mod_currentsub,1);
+                                    api68_play(sc68,mod_currentsub,(mLoopMode?0:-1));
                                     api68_music_info( sc68, &info, mod_currentsub, NULL );
                                     mChangeOfSong=1;
                                     mNewModuleLength=info.time_ms;
@@ -3991,6 +4138,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                     mod_currentsub++;
                                     
                                     mNewModuleLength=asap->moduleInfo.durations[mod_currentsub];
+                                    if (mNewModuleLength<1000) mNewModuleLength=1000;
                                     ASAP_PlaySong(asap, mod_currentsub, mNewModuleLength);
                                     
                                     mChangeOfSong=1;
@@ -4512,7 +4660,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -4639,7 +4787,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -5175,7 +5323,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         ymMusicInfo_t info;
         ymMusicGetInfo(ymMusic,&info);
         
-        ymMusicSetLoopMode(ymMusic,YMFALSE);
+        ymMusicSetLoopMode(ymMusic,(mLoopMode==1?YMTRUE:YMFALSE));
         ymMusicSetLowpassFiler(ymMusic,YMTRUE);
         ymMusicPlay(ymMusic);
         
@@ -5718,6 +5866,13 @@ char* loadRom(const char* path, size_t romSize)
     sprintf(mod_name," %s",mod_filename);
     sprintf(mod_message,"%s\n",mod_name);
     numChannels=4;
+    numVoicesChannels=numChannels;
+    m_voicesDataAvail=1;
+    HC_voicesMuteMask1=0xFF;
+    for (int i=0;i<numVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }    
+    
     iCurrentTime=0;
     
     iModuleLength=UADEstate.song->playtime;
@@ -6159,7 +6314,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     }
     
-    sprintf(mmp_fileext,"%s",[extension UTF8String] );
     return 0;
 }
     
@@ -6238,17 +6392,15 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     iModuleLength=1000* (long long)(xSFPlayer->GetLengthInSamples()) / 44100;
     
-    
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-    sprintf(mmp_fileext,"%s",[extension UTF8String] );
-    
     
     return 0;
 }
 
 -(int) mmp_snsfLoad:(NSString*)filePath extension:(NSString*)extension {  //SNSF
-    mPlayType=MMP_SNSF;
+    return 0;
+    /*mPlayType=MMP_SNSF;
     FILE *f;
     
     f=fopen([filePath UTF8String],"rb");
@@ -6259,8 +6411,17 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     }
     fseek(f,0L,SEEK_END);
     mp_datasize=ftell(f);
+    mp_data=(char*)malloc(mp_datasize);
+    fssek(f,0L,SEET_SET);
+    fread(mp_data, 1, mp_datasize, f);
     fclose(f);
-/*
+    
+    snsf_emu=new SNESSystem();
+    snsf_out=new SNESSoundOut();
+    
+    snsf_emu->SoundInit(snsf_out);
+    snsf_emu->Load(mp_data,mp_datasize, NULL,0);
+
     //Create config
     xSFConfigSNSF = XSFConfigSNSF::Create();
     if (!xSFConfigSNSF) {
@@ -6319,10 +6480,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     
     //Loop
-    if (mLoopMode==1) iModuleLength=-1;
-    sprintf(mmp_fileext,"%s",[extension UTF8String] );
+    if (mLoopMode==1) iModuleLength=-1;*/
     
-   */
     return 0;
 }
 
@@ -6365,7 +6524,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             
     //Initi SRC samplerate converter
     int error;
-    src_state=src_callback_new(src_callback_he,optHC_ResampleQuality,2,&error,NULL);
+    src_state=src_callback_new(src_callback_hc,optHC_ResampleQuality,2,&error,NULL);
     if (!src_state) {
         NSLog(@"Error while initializing SRC samplerate converter: %d",error);
         return -1;
@@ -6501,6 +6660,26 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         usf_render(lzu_state->emu_state, 0, 0, &hc_sample_rate);
         
         numChannels=2;
+    } else if ( HC_type == 0x23 ) { //SNSF
+        hc_sample_rate=32000;
+        snsf_rom=new snsf_loader_state;
+        if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x23, snsf_loader, snsf_rom, 0, 0, 0 ) < 0 ) {
+            NSLog(@"Error loading SNSF");
+            mPlayType=0;
+            src_delete(src_state);
+            delete snsf_rom;
+            snsf_rom=NULL;
+            return -1;
+        }
+                        
+        snsf_start(snsf_rom->data, snsf_rom->data_size, snsf_rom->sram, snsf_rom->sram_size );
+                
+        numChannels=8;
+        numVoicesChannels=8;
+        m_voicesDataAvail=1;
+        for (int i=0;i<numVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
     } else if ( HC_type == 0x41 ) { //QSF
         hc_sample_rate=24038;
         struct qsf_loader_state * state = ( struct qsf_loader_state * ) calloc( 1, sizeof( *state ) );
@@ -6740,6 +6919,8 @@ int vgmGetFileLength()
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"NES APU")==0) {
                 m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"uPD7759")==0) {
+                m_voicesDataAvail=1;
             } else if (strcmp(strChip,"OKIM6258")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"OKIM6295")==0) {
@@ -6892,12 +7073,11 @@ int vgmGetFileLength()
     mod_currentsub=song;
     ASAP_MutePokeyChannels(asap,0); //all channels active by default
     
-    
-    //ASAPInfo_GetExtDescription
+//    ASAPInfo_GetExtDescription
     
     sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap->moduleInfo.author,asap->moduleInfo.title,asap->moduleInfo.songs,asap->moduleInfo.channels);
     
-    iModuleLength=duration;
+    iModuleLength=(duration>=1000?duration:1000);
     iCurrentTime=0;
         
     numChannels=(asap->pokeys.extraPokeyMask?8:4);//asap->moduleInfo.channels;
@@ -7032,15 +7212,16 @@ int vgmGetFileLength()
             err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
         }
         
-        /* Adjust equalizer for crisp, bassy sound */
-        
-        float treble,bass;
-        treble=gme_eq.treble;
-        bass=gme_eq.bass;
         gme_equalizer( gme_emu, &gme_eq );
-        gme_eq.treble=treble;
-        gme_eq.bass=bass;
+        gme_eq.treble=optGMEEQTreble;
+        gme_eq.bass=optGMEEQBass;
         gme_set_equalizer( gme_emu, &gme_eq );
+        
+        gme_effects(gme_emu,&gme_fx);
+        gme_fx.enabled=optGMEFXon;/* If 0, no effects are added */
+        gme_fx.surround = optGMEFXSurround; /* If 1, some channels are put in "back", using phase inversion */
+        gme_fx.echo = optGMEFXEcho;/* Amount of echo, where 0.0 = none, 1.0 = lots */
+        gme_fx.stereo = optGMEFXStereo;/* Separation, where 0.0 = mono, 1.0 = hard left and right */
         gme_set_effects( gme_emu, &gme_fx);
         
         /**/
@@ -7200,7 +7381,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -7708,11 +7889,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         
     for (int i=0;i<[filetype_extADPLUG count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+            [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];// atIndex:0];
             break;
         }
         if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
+            [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];// atIndex:0];
             break;
         }
     }
@@ -7749,9 +7930,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         memset(m_voice_buff_ana[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         memset(m_voice_buff_ana_cpy[j],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
     }
-    memset(m_voice_ChipID,0,sizeof(void*)*SOUND_MAXVOICES_BUFFER_FX);
+    memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
     m_voice_current_system=0;
     mSIDSeekInProgress=0;
+    sprintf(mmp_fileext,"%s",[extension UTF8String] );
     
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
@@ -7987,7 +8169,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 mod_currentsub=subsong;
             }
             api68_music_info_t info;
-            api68_play( sc68, mod_currentsub, 1);
+            api68_play( sc68, mod_currentsub, (mLoopMode?0:-1));
             api68_music_info( sc68, &info, mod_currentsub, NULL );
             iModuleLength=info.time_ms;
             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SC68_DEFAULT_LENGTH;
@@ -8053,6 +8235,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         } else {
             free( HC_emulatorCore );
         }
+        HC_emulatorCore=NULL;
     }
     if ( HC_type == 2 && HC_emulatorExtra ) {
         psf2fs_delete( HC_emulatorExtra );
@@ -8060,6 +8243,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     } else if (HC_type==0x21) {
         usf_shutdown(lzu_state->emu_state);
         free(usf_info_data);
+    } else if ( HC_type==0x23) {
+        snsf_term();
+        delete snsf_rom;
+        snsf_rom=NULL;
     } else if ( HC_type == 0x41 && HC_emulatorExtra ) {
         struct qsf_loader_state * state = ( struct qsf_loader_state * ) HC_emulatorExtra;
         free( state->key );
@@ -8068,6 +8255,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         free( state );
         HC_emulatorExtra = nil;
     }
+    
             
     free(hc_sample_data);
     free(hc_sample_data_float);
@@ -8370,6 +8558,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 return [NSString stringWithFormat:@"SSF"];
             case 0x21:
                 return [NSString stringWithFormat:@"USF"];
+            case 0x23:
+                return [NSString stringWithFormat:@"SNSF"];
             case 0x41:
                 return [NSString stringWithFormat:@"QSF"];
             default:
@@ -8391,7 +8581,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         else return @"MDX";
     }
     if (mPlayType==MMP_GSF) return @"GSF";
-    if (mPlayType==MMP_ASAP) return @"ASAP";
+    if (mPlayType==MMP_ASAP) return [NSString stringWithFormat:@"%s",ASAPInfo_GetExtDescription(mmp_fileext)];
     if (mPlayType==MMP_TIMIDITY) return @"MIDI";
     if (mPlayType==MMP_PMDMINI) return @"PMD";
     if (mPlayType==MMP_VGMPLAY) return @"VGM";
@@ -8547,24 +8737,33 @@ extern "C" void adjust_amplification(void);
     }
 }
 
+
 -(void) optGME_EQ:(double)treble bass:(double)bass {
+    optGMEEQTreble=treble;
+    optGMEEQBass=bass;
     if (gme_emu) {
         gme_equalizer( gme_emu, &gme_eq );
-        gme_eq.treble = treble;//-14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
+        gme_eq.treble = optGMEEQTreble;//-14; // -50.0 = muffled, 0 = flat, +5.0 = extra-crisp
         //bass
         //          def:80;  1 = full bass, 90 = average, 16000 = almost no bass
         //log10 ->  def:1,9;  0 - 4,2
-        gme_eq.bass   = pow(10,4.2-bass);
+        gme_eq.bass   = pow(10,4.2-optGMEEQBass);
         gme_set_equalizer( gme_emu, &gme_eq );
     }
 }
 
+
 -(void) optGME_FX:(int)enabled surround:(int)surround echo:(double)echo stereo:(double)stereo {
+    optGMEFXon=enabled;
+    optGMEFXSurround=surround;
+    optGMEFXEcho=echo;
+    optGMEFXStereo=stereo;
     if (gme_emu) {
-        gme_fx.enabled=enabled;/* If 0, no effects are added */
-        gme_fx.surround = surround; /* If 1, some channels are put in "back", using phase inversion */
-        gme_fx.echo = echo;/* Amount of echo, where 0.0 = none, 1.0 = lots */
-        gme_fx.stereo = stereo;/* Separation, where 0.0 = mono, 1.0 = hard left and right */
+        gme_effects(gme_emu,&gme_fx);
+        gme_fx.enabled=optGMEFXon;/* If 0, no effects are added */
+        gme_fx.surround = optGMEFXSurround; /* If 1, some channels are put in "back", using phase inversion */
+        gme_fx.echo = optGMEFXEcho;/* Amount of echo, where 0.0 = none, 1.0 = lots */
+        gme_fx.stereo = optGMEFXStereo;/* Separation, where 0.0 = mono, 1.0 = hard left and right */
         gme_set_effects( gme_emu, &gme_fx);
     }
 }
@@ -8764,8 +8963,11 @@ extern "C" void adjust_amplification(void);
         case MMP_HC:
             if ((HC_type==1)||(HC_type==2)) return true;
             if ((HC_type==0x11)||(HC_type==0x12)) return true;
+            if (HC_type==0x23) return true;
             return false;
+        case MMP_UADE:
         case MMP_OPENMPT:
+        case MMP_XMP:
         case MMP_GME:
         case MMP_SIDPLAY:
         case MMP_ASAP:
@@ -8783,6 +8985,7 @@ extern "C" void adjust_amplification(void);
             else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];
             else if (HC_type==0x11) return [NSString stringWithFormat:@"#%d-SCSP",channel+1];
             else if (HC_type==0x12) return [NSString stringWithFormat:@"#%d-AICA",channel+1];
+            else if (HC_type==0x23) return [NSString stringWithFormat:@"#%d-SPC700",channel+1];
             return @"";
         case MMP_OPENMPT: {
             NSString *result;
@@ -8793,6 +8996,10 @@ extern "C" void adjust_amplification(void);
             } else result=[NSString stringWithFormat:@"#%d-OMPT",channel+1];
             return result;
         }
+        case MMP_UADE:
+            return [NSString stringWithFormat:@"#%d-PAULA",channel+1];
+        case MMP_XMP:
+            return [NSString stringWithFormat:@"#%d-XMP",channel+1];
         case MMP_ASAP:
             return [NSString stringWithFormat:@"#%d-POKEY#%d",(channel&3)+1,channel/4+1];
         case MMP_GME:
@@ -8821,13 +9028,15 @@ extern "C" void adjust_amplification(void);
             if (HC_type==1) return 1;
             else if (HC_type==2) return 2;
             else if ((HC_type==0x11)||(HC_type==0x12)) return 1;
+            else if (HC_type==0x23) return 1;
             return 1;
+        case MMP_UADE:
         case MMP_OPENMPT:
+        case MMP_XMP:
+        case MMP_GME:
             return 1;
         case MMP_ASAP:
             return numChannels/4;
-        case MMP_GME:
-            return 1;
         case MMP_VGMPLAY:
             return vgmplay_activeChipsNb;
         case MMP_SIDPLAY:
@@ -8844,9 +9053,14 @@ extern "C" void adjust_amplification(void);
             else if (HC_type==2) return [NSString stringWithFormat:@"SPU#%d",systemIdx + 1];
             else if (HC_type==0x11) return @"SCSP";
             else if (HC_type==0x12) return @"AICA";
+            else if (HC_type==0x23) return @"SPC700";
             return @"";
+        case MMP_UADE:
+            return @"PAULA";
         case MMP_OPENMPT:
             return @"OMPT";
+        case MMP_XMP:
+            return @"XMP";
         case MMP_ASAP:
             if (systemIdx==0) return @"POKEY#1";
             return @"POKEY#2";
@@ -8870,13 +9084,15 @@ extern "C" void adjust_amplification(void);
             if (HC_type==1) return 0;
             else if (HC_type==2) return voiceIdx/24;
             else if ((HC_type==0x11)||(HC_type==0x12)) return 0;
+            else if (HC_type==0x23) return 0;
             return 0;
+        case MMP_UADE:
         case MMP_OPENMPT:
+        case MMP_XMP:
+        case MMP_GME:
             return 0;
         case MMP_ASAP:
             return voiceIdx/4;
-        case MMP_GME:
-            return 0;
         case MMP_VGMPLAY: {
             int idx=0;
             for (int i=0;i<vgmplay_activeChipsNb;i++) {
@@ -8905,13 +9121,16 @@ extern "C" void adjust_amplification(void);
                 for (int i=0;i<24;i++) tmp+=(m_voicesStatus[i+systemIdx*24]?1:0);
                 if (tmp==24) return 2; //all active
                 else if (tmp>0) return 1; //partially active
-            } else if ((HC_type==0x11)||(HC_type==0x12)) { //scsp or aica
+            } else if ((HC_type==0x11)||(HC_type==0x12)||(HC_type==0x23)) { //scsp or aica or spc700
                 for (int i=0;i<numChannels;i++) tmp+=(m_voicesStatus[i]?1:0);
                 if (tmp==numChannels) return 2; //all active
                 else if (tmp>0) return 1; //partially active
             }
             return 0;
+        case MMP_UADE:
         case MMP_OPENMPT:
+        case MMP_XMP:
+        case MMP_GME:
             tmp=0;
             for (int i=0;i<numChannels;i++) {
                 tmp+=(m_voicesStatus[i]?1:0);
@@ -8925,14 +9144,6 @@ extern "C" void adjust_amplification(void);
                 tmp+=(m_voicesStatus[i+systemIdx*4]?1:0);
             }
             if (tmp==4) return 2; //all active
-            else if (tmp>0) return 1; //partially active
-            return 0; //all off
-        case MMP_GME:
-            tmp=0;
-            for (int i=0;i<numChannels;i++) {
-                tmp+=(m_voicesStatus[i]?1:0);
-            }
-            if (tmp==numChannels) return 2; //all active
             else if (tmp>0) return 1; //partially active
             return 0; //all off
         case MMP_VGMPLAY: {
@@ -8970,18 +9181,17 @@ extern "C" void adjust_amplification(void);
             else if (HC_type==2) for (int i=0;i<24;i++) [self setm_voicesStatus:active index:(i+systemIdx*24)]; //PSF2, 48voices
             else if (HC_type==0x11) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //SCSP, 32voices
             else if (HC_type==0x12) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //AICA, 64voices
+            else if (HC_type==0x23) for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i]; //SPC700, 8voices
             break;
+        case MMP_UADE:
         case MMP_OPENMPT:
+        case MMP_XMP:
+        case MMP_GME:
             for (int i=0;i<numChannels;i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_ASAP:
             for (int i=0;i<4;i++) {
                 [self setm_voicesStatus:active index:systemIdx*4+i];
-            }
-            break;
-        case MMP_GME:
-            for (int i=0;i<numChannels;i++) {
-                [self setm_voicesStatus:active index:i];
             }
             break;
         case MMP_VGMPLAY: {
@@ -9016,6 +9226,10 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     m_voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
+        case MMP_UADE:
+            if (active) HC_voicesMuteMask1|=1<<channel;
+            else HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
+            break;
         case MMP_HC:
             if ((HC_type==1)||(HC_type==2)) {//PSF1 and PSF2}
                 if (active) {
@@ -9033,10 +9247,16 @@ extern "C" void adjust_amplification(void);
                     if (channel<32) HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
                     else HC_voicesMuteMask2&=0xFFFFFFFF^(1<<(channel-32));
                 }
+            } else if (HC_type==0x23) { //SNSF
+                if (active) HC_voicesMuteMask1|=1<<channel;
+                else HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);
             }
             break;
         case MMP_OPENMPT:
             ompt_mod_interactive->set_channel_mute_status(ompt_mod,channel,!active);
+            break;
+        case MMP_XMP:
+            xmp_channel_mute(xmp_ctx,channel,!active);
             break;
         case MMP_GME:{
             //if some voices are muted, deactive silence detection as it could end current song

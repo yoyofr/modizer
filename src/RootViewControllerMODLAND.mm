@@ -71,7 +71,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 -(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
 -(void)showWaiting{
@@ -1537,7 +1537,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     } else {				
         if (shouldFillKeys&&(browse_depth>0)) {
             
-            [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+            [self showWaiting];
             [self shortWait];
             
             [self fillKeys];
@@ -2230,7 +2230,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                                    22,
                                                    tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                                    18);
-                    topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+                    if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
+                    else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];                    
                     bottomLabel.text=[NSString stringWithFormat:(cur_db_entries[section][indexPath.row].filesize>1?nbFiles:nb1File),cur_db_entries[section][indexPath.row].filesize];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;				
                 }		
@@ -2386,7 +2387,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     
@@ -2449,7 +2450,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
 
     

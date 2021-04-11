@@ -371,7 +371,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 #endif
 
 	libxmp_mixer_prepare(ctx);
-
+    
 	for (voc = 0; voc < p->virt.maxvoc; voc++) {
 		int c5spd, rampsize, delta_l, delta_r;
 
@@ -387,6 +387,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 		if (vi->chn < 0) {
 			continue;
 		}
+        
 
 		if (vi->period < 1) {
 			libxmp_virt_resetvoice(ctx, voc, 1);
@@ -525,7 +526,8 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 						mix_fn(vi, buf_pos, samples,
 							vol_l >> 8, vol_r >> 8, step * (1 << SMIX_SHIFT), rsize, delta_l, delta_r);
 					}
-
+                    
+                    
 					buf_pos += mix_size;
 					vi->old_vl += samples * delta_l;
 					vi->old_vr += samples * delta_r;

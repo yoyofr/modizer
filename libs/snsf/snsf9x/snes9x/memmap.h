@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -285,7 +286,6 @@ struct CMemory
 #else
 	bool8	LoadROMSNSF (const unsigned char *, int32, const unsigned char *, int32);
 #endif
-
 	char *	Safe (const char *);
 	char *	SafeANK (const char *);
 	void	ParseSNESHeader (uint8 *);
@@ -360,14 +360,6 @@ struct SMulti
 
 extern CMemory	Memory;
 extern SMulti	Multi;
-
-#if defined(ZSNES_FX) || defined(ZSNES_C4)
-START_EXTERN_C
-extern uint8	*ROM;
-extern uint8	*SRAM;
-extern uint8	*RegRAM;
-END_EXTERN_C
-#endif
 
 void S9xAutoSaveSRAM (void);
 bool8 LoadZip(const char *, int32 *, int32 *, uint8 *);

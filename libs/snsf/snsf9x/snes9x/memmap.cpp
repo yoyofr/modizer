@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -1149,24 +1150,14 @@ bool8 CMemory::Init (void)
 	BIOSROM = ROM + 0x300000; // BS
 	BSRAM   = ROM + 0x400000; // BS
 
-#if defined(ZSNES_FX) || defined(ZSNES_C4)
-    ::ROM    = ROM;
-    ::SRAM   = SRAM;
-    ::RegRAM = FillRAM;
-#endif
-
 #ifdef SNSF9X_REMOVED
-#ifdef ZSNES_FX
-	SFXPlotTable = ROM + 0x400000;
-#else
 	SuperFX.pvRegisters = FillRAM + 0x3000;
 	SuperFX.nRamBanks   = 2; // Most only use 1.  1=64KB=512Mb, 2=128KB=1024Mb
 	SuperFX.pvRam       = SRAM;
 	SuperFX.nRomBanks   = (2 * 1024 * 1024) / (32 * 1024);
 	SuperFX.pvRom       = (uint8 *) ROM;
 #endif
-#endif
-
+	
 	PostRomInitFunc = NULL;
 
 	return (TRUE);
@@ -1387,7 +1378,6 @@ uint32 CMemory::HeaderRemove (uint32 size, int32 &headerCount, uint8 *buf)
 
 	return (size);
 }
-
 #ifdef SNSF9X_REMOVED
 uint32 CMemory::FileLoader (uint8 *buffer, const char *filename, int32 maxsize)
 {
@@ -1528,7 +1518,6 @@ bool8 CMemory::LoadROMSNSF (const unsigned char *lrombuf, int32 lromsize, const 
 #endif
 {
 	int	retry_count = 0;
-
 #ifdef SNSF9X_REMOVED
 	if (!filename || !*filename)
 		return (FALSE);
@@ -1545,7 +1534,6 @@ again:
 	ExtendedFormat = NOPE;
 
 	int32 totalFileSize;
-
 #ifdef SNSF9X_REMOVED
 	totalFileSize = FileLoader(ROM, filename, MAX_ROM_SIZE);
 #else
@@ -1563,7 +1551,7 @@ again:
 	if (!Settings.NoPatch)
 		CheckForAnyPatch(filename, HeaderCount != 0, totalFileSize);
 #endif
-
+	
 	int	hi_score, lo_score;
 
 	hi_score = ScoreHiROM(FALSE);
@@ -1750,7 +1738,6 @@ again:
 			free(tmp);
 		}
 	}
-
 #ifdef SNSF9X_REMOVED
 	if (strncmp(LastRomFilename, filename, PATH_MAX + 1))
 	{
@@ -1758,26 +1745,20 @@ again:
 		LastRomFilename[PATH_MAX] = 0;
 	}
 #endif
-
 	ZeroMemory(&SNESGameFixes, sizeof(SNESGameFixes));
 	SNESGameFixes.SRAMInitialValue = 0x60;
-
 #ifdef SNSF9X_REMOVED
 	S9xLoadCheatFile(S9xGetFilename(".cht", CHEAT_DIR));
 #endif
-
 	InitROM();
 #ifdef SNSF9X_REMOVED
-
 	S9xInitCheatData();
 	S9xApplyCheats();
 #endif
-
 	S9xReset();
 
     return (TRUE);
 }
-
 #ifdef SNSF9X_REMOVED
 bool8 CMemory::LoadMultiCart (const char *cartA, const char *cartB)
 {
@@ -2308,12 +2289,8 @@ void CMemory::InitROM (void)
 	Settings.SRTC = FALSE;
 	Settings.BS = FALSE;
 #ifdef SNSF9X_REMOVED
-#ifndef ZSNES_FX
 	SuperFX.nRomBanks = CalculatedSize >> 15;
 #endif
-	SA1.Executing = FALSE;
-#endif
-
 	//// Parse ROM header and read ROM informatoin
 
 	CompanyId = -1;
@@ -2324,7 +2301,6 @@ void CMemory::InitROM (void)
 		RomHeader += 0x400000;
 	if (HiROM)
 		RomHeader += 0x8000;
-
 #ifdef SNSF9X_REMOVED
 	S9xInitBSX(); // Set BS header before parsing
 #endif
@@ -2353,7 +2329,6 @@ void CMemory::InitROM (void)
 		else
 			Settings.DSP = 1; // DSP1
 	}
-
 #ifdef SNSF9X_REMOVED
 	switch (Settings.DSP)
 	{
@@ -2406,7 +2381,7 @@ void CMemory::InitROM (void)
 			break;
 	}
 #endif
-
+	
 	uint32	identifier = ((ROMType & 0xff) << 8) + (ROMSpeed & 0xff);
 
 	switch (identifier)
@@ -2431,7 +2406,6 @@ void CMemory::InitROM (void)
 			Settings.OBC1 = TRUE;
 			break;
 #endif
-
 #ifndef SNSF9X_REMOVED_SA1
 		// SA1
 		case 0x3423:
@@ -2447,16 +2421,14 @@ void CMemory::InitROM (void)
 		case 0x1520:
 		case 0x1A20:
 			Settings.SuperFX = TRUE;
-		#ifndef ZSNES_FX
 			S9xInitSuperFX();
-		#endif
 			if (ROM[0x7FDA] == 0x33)
 				SRAMSize = ROM[0x7FBD];
 			else
 				SRAMSize = 5;
 			break;
 #endif
-
+		
 #ifndef SNSF9X_REMOVED_SDD1
 		// SDD1
 		case 0x4332:
@@ -2464,7 +2436,6 @@ void CMemory::InitROM (void)
 			Settings.SDD1 = TRUE;
 			break;
 #endif
-
 #ifdef SNSF9X_REMOVED
 		// ST018
 		case 0xF530:
@@ -2709,10 +2680,9 @@ void CMemory::InitROM (void)
 	if (stopMovie)
 		S9xMovieStop(TRUE);
 #endif
-
+	   	
 	if (PostRomInitFunc)
 		PostRomInitFunc();
-
 #ifdef SNSF9X_REMOVED
     S9xVerifyControllers();
 #endif
@@ -2995,7 +2965,7 @@ void CMemory::Map_LoROMMap (void)
 	if (Settings.SETA == ST_018)
 		map_SetaRISC();
 #endif
-
+	
     map_LoROMSRAM();
 	map_WRAM();
 
@@ -3213,7 +3183,6 @@ void CMemory::Map_SA1LoROMMap (void)
 	map_WRAM();
 
 	map_WriteProtectROM();
-
 #ifdef SNSF9X_REMOVED
 	// Now copy the map and correct it for the SA1 CPU.
 	memmove((void *) SA1.Map, (void *) Map, sizeof(Map));
@@ -3232,7 +3201,7 @@ void CMemory::Map_SA1LoROMMap (void)
 	for (int c = 0x600; c < 0x700; c++)
 		SA1.Map[c] = SA1.WriteMap[c] = (uint8 *) MAP_BWRAM_BITMAP;
 #endif
-
+	
 	BWRAM = SRAM;
 }
 
@@ -3427,7 +3396,6 @@ const char * CMemory::KartContents (void)
 
 	if (ROMType == 0 && !Settings.BS)
 		return ("ROM");
-
 #ifdef SNSF9X_REMOVED
 	if (Settings.BS)
 		strcpy(chip, "+BS");
@@ -3583,7 +3551,6 @@ bool8 CMemory::match_id (const char *str)
 
 void CMemory::ApplyROMFixes (void)
 {
-	Settings.Shutdown = Settings.ShutdownMaster;
 	Settings.BlockInvalidVRAMAccess = Settings.BlockInvalidVRAMAccessMaster;
 
 	//// Warnings
@@ -3603,6 +3570,7 @@ void CMemory::ApplyROMFixes (void)
 	//// APU timing hacks :(
 
 	Timings.APUSpeedup = 0;
+	Timings.APUAllowTimeOverflow = FALSE;
 
 	if (!Settings.DisableGameSpecificHacks)
 	{
@@ -3644,14 +3612,24 @@ void CMemory::ApplyROMFixes (void)
 			match_na("HEIWA Parlor!Mini8")                      || // Parlor mini 8
 			match_nn("SANKYO Fever! \xCC\xA8\xB0\xCA\xDE\xB0!"))   // SANKYO Fever! Fever!
 			Timings.APUSpeedup = 1;
+
+		if (match_na ("EARTHWORM JIM 2")						|| // Earthworm Jim 2
+			match_na ("NBA Hangtime")							|| // NBA Hang Time
+			match_na ("MSPACMAN")								|| // Ms Pacman
+			match_na ("THE MASK")								|| // The Mask
+			match_na ("PRIMAL RAGE")							|| // Primal Rage
+			match_na ("DOOM TROOPERS"))							   // Doom Troopers
+			Timings.APUAllowTimeOverflow = TRUE;
 	}
 
 	S9xAPUTimingSetSpeedup(Timings.APUSpeedup);
+	S9xAPUAllowTimeOverflow(Timings.APUAllowTimeOverflow == TRUE);
 
 	//// Other timing hacks :(
 
 	Timings.HDMAStart   = SNES_HDMA_START_HC + Settings.HDMATimingHack - 100;
 	Timings.HBlankStart = SNES_HBLANK_START_HC + Timings.HDMAStart - SNES_HDMA_START_HC;
+	Timings.IRQTriggerCycles = 10;
 
 	if (!Settings.DisableGameSpecificHacks)
 	{
@@ -3666,14 +3644,6 @@ void CMemory::ApplyROMFixes (void)
 
 	if (!Settings.DisableGameSpecificHacks)
 	{
-		// Opcode-based emulators cannot escape from "reading $4211/BPL" infinite loop...
-		// The true IRQ can be triggered inside an opcode.
-		if (match_na("TRAVERSE")) // Traverse - Starlight & Prairie
-		{
-			Timings.IRQPendCount = 1;
-			printf("IRQ count hack: %d\n", Timings.IRQPendCount);
-		}
-
 		// An infinite loop reads $4212 and waits V-blank end, whereas VIRQ is set V=0.
 		// If Snes9x succeeds to escape from the loop before jumping into the IRQ handler, the game goes further.
 		// If Snes9x jumps into the IRQ handler before escaping from the loop,
@@ -3681,12 +3651,6 @@ void CMemory::ApplyROMFixes (void)
 		if (match_na("Aero the AcroBat 2"))
 		{
 			Timings.IRQPendCount = 2;
-			printf("IRQ count hack: %d\n", Timings.IRQPendCount);
-		}
-
-		if (match_na("BATTLE BLAZE"))
-		{
-			Timings.IRQPendCount = 1;
 			printf("IRQ count hack: %d\n", Timings.IRQPendCount);
 		}
 	}
@@ -3700,244 +3664,6 @@ void CMemory::ApplyROMFixes (void)
 			printf("Invalid VRAM access hack\n");
 		}
 	}
-
-	//// CPU speed-ups (CPU_Shutdown())
-
-	// Force disabling a speed-up hack
-    // Games which spool sound samples between the SNES and sound CPU using
-    // H-DMA as the sample is playing.
-	if (match_na("EARTHWORM JIM 2") || // Earth Worm Jim 2
-		match_na("PRIMAL RAGE")     || // Primal Rage
-		match_na("CLAY FIGHTER")    || // Clay Fighter
-		match_na("ClayFighter 2")   || // Clay Fighter 2
-		match_na("WeaponLord")      || // Weapon Lord
-		match_nn("WAR 2410")        || // War 2410
-		match_id("ARF")             || // Star Ocean
-		match_id("A4WJ")            || // Mini Yonku Shining Scorpion - Let's & Go!!
-		match_nn("NHL")             ||
-		match_nc("MADDEN"))
-	{
-		if (Settings.Shutdown)
-			printf("Disabled CPU shutdown hack.\n");
-		Settings.Shutdown = FALSE;
-	}
-
-#ifdef SNSF9X_REMOVED
-	// SA-1
-	SA1.WaitAddress = 0xffffffff;
-	SA1.WaitByteAddress1 = NULL;
-	SA1.WaitByteAddress2 = NULL;
-
-	if (Settings.SA1)
-	{
-		// Itoi Shigesato no Bass Tsuri No.1 (J)
-		if (match_id("ZBPJ"))
-		{
-			SA1.WaitAddress = 0x0093f1;
-			SA1.WaitByteAddress1 = FillRAM + 0x304a;
-		}
-
-		// Daisenryaku Expert WWII (J)
-		if (match_id("AEVJ"))
-		{
-			SA1.WaitAddress = 0x0ed18d;
-			SA1.WaitByteAddress1 = FillRAM + 0x3000;
-		}
-
-		// Derby Jockey 2 (J)
-		if (match_id("A2DJ"))
-		{
-			SA1.WaitAddress = 0x008b62;
-		}
-
-		// Dragon Ball Z - Hyper Dimension (J)
-		if (match_id("AZIJ"))
-		{
-			SA1.WaitAddress = 0x008083;
-			SA1.WaitByteAddress1 = FillRAM + 0x3020;
-		}
-
-		// SD Gundam G NEXT (J)
-		if (match_id("ZX3J"))
-		{
-			SA1.WaitAddress = 0x0087f2;
-			SA1.WaitByteAddress1 = FillRAM + 0x30c4;
-		}
-
-		// Shougi no Hanamichi (J)
-		if (match_id("AARJ"))
-		{
-			SA1.WaitAddress = 0xc1f85a;
-			SA1.WaitByteAddress1 = SRAM + 0x0c64;
-			SA1.WaitByteAddress2 = SRAM + 0x0c66;
-		}
-
-		// Asahi Shinbun Rensai Katou Hifumi Kudan Shougi Shingiryu (J)
-		if (match_id("A23J"))
-		{
-			SA1.WaitAddress = 0xc25037;
-			SA1.WaitByteAddress1 = SRAM + 0x0c06;
-			SA1.WaitByteAddress2 = SRAM + 0x0c08;
-		}
-
-		// Taikyoku Igo - Idaten (J)
-		if (match_id("AIIJ"))
-		{
-			SA1.WaitAddress = 0xc100be;
-			SA1.WaitByteAddress1 = SRAM + 0x1002;
-			SA1.WaitByteAddress2 = SRAM + 0x1004;
-		}
-
-		// Takemiya Masaki Kudan no Igo Taishou (J)
-		if (match_id("AITJ"))
-		{
-			SA1.WaitAddress = 0x0080b7;
-		}
-
-		// J. League '96 Dream Stadium (J)
-		if (match_id("AJ6J"))
-		{
-			SA1.WaitAddress = 0xc0f74a;
-		}
-
-		// Jumpin' Derby (J)
-		if (match_id("AJUJ"))
-		{
-			SA1.WaitAddress = 0x00d926;
-		}
-
-		// Kakinoki Shougi (J)
-		if (match_id("AKAJ"))
-		{
-			SA1.WaitAddress = 0x00f070;
-		}
-
-		// Hoshi no Kirby 3 (J), Kirby's Dream Land 3 (U)
-		if (match_id("AFJJ") || match_id("AFJE"))
-		{
-			SA1.WaitAddress = 0x0082d4;
-			SA1.WaitByteAddress1 = SRAM + 0x72a4;
-		}
-
-		// Hoshi no Kirby - Super Deluxe (J)
-		if (match_id("AKFJ"))
-		{
-			SA1.WaitAddress = 0x008c93;
-			SA1.WaitByteAddress1 = FillRAM + 0x300a;
-			SA1.WaitByteAddress2 = FillRAM + 0x300e;
-		}
-
-		// Kirby Super Star (U)
-		if (match_id("AKFE"))
-		{
-			SA1.WaitAddress = 0x008cb8;
-			SA1.WaitByteAddress1 = FillRAM + 0x300a;
-			SA1.WaitByteAddress2 = FillRAM + 0x300e;
-		}
-
-		// Super Mario RPG (J), (U)
-		if (match_id("ARWJ") || match_id("ARWE"))
-		{
-			SA1.WaitAddress = 0xc0816f;
-			SA1.WaitByteAddress1 = FillRAM + 0x3000;
-		}
-
-		// Marvelous (J)
-		if (match_id("AVRJ"))
-		{
-			SA1.WaitAddress = 0x0085f2;
-			SA1.WaitByteAddress1 = FillRAM + 0x3024;
-		}
-
-		// Harukanaru Augusta 3 - Masters New (J)
-		if (match_id("AO3J"))
-		{
-			SA1.WaitAddress = 0x00dddb;
-			SA1.WaitByteAddress1 = FillRAM + 0x37b4;
-		}
-
-		// Jikkyou Oshaberi Parodius (J)
-		if (match_id("AJOJ"))
-		{
-			SA1.WaitAddress = 0x8084e5;
-		}
-
-		// Super Bomberman - Panic Bomber W (J)
-		if (match_id("APBJ"))
-		{
-			SA1.WaitAddress = 0x00857a;
-		}
-
-		// Pebble Beach no Hatou New - Tournament Edition (J)
-		if (match_id("AONJ"))
-		{
-			SA1.WaitAddress = 0x00df33;
-			SA1.WaitByteAddress1 = FillRAM + 0x37b4;
-		}
-
-		// PGA European Tour (U)
-		if (match_id("AEPE"))
-		{
-			SA1.WaitAddress = 0x003700;
-			SA1.WaitByteAddress1 = FillRAM + 0x3102;
-		}
-
-		// PGA Tour 96 (U)
-		if (match_id("A3GE"))
-		{
-			SA1.WaitAddress = 0x003700;
-			SA1.WaitByteAddress1 = FillRAM + 0x3102;
-		}
-
-		// Power Rangers Zeo - Battle Racers (U)
-		if (match_id("A4RE"))
-		{
-			SA1.WaitAddress = 0x009899;
-			SA1.WaitByteAddress1 = FillRAM + 0x3000;
-		}
-
-		// SD F-1 Grand Prix (J)
-		if (match_id("AGFJ"))
-		{
-			SA1.WaitAddress = 0x0181bc;
-		}
-
-		// Saikousoku Shikou Shougi Mahjong (J)
-		if (match_id("ASYJ"))
-		{
-			SA1.WaitAddress = 0x00f2cc;
-			SA1.WaitByteAddress1 = SRAM + 0x7ffe;
-			SA1.WaitByteAddress2 = SRAM + 0x7ffc;
-		}
-
-		// Shougi Saikyou II (J)
-		if (match_id("AX2J"))
-		{
-			SA1.WaitAddress = 0x00d675;
-		}
-
-		// Mini Yonku Shining Scorpion - Let's & Go!! (J)
-		if (match_id("A4WJ"))
-		{
-			SA1.WaitAddress = 0xc048be;
-		}
-
-		// Shin Shougi Club (J)
-		if (match_id("AHJJ"))
-		{
-			SA1.WaitAddress = 0xc1002a;
-			SA1.WaitByteAddress1 = SRAM + 0x0806;
-			SA1.WaitByteAddress2 = SRAM + 0x0808;
-		}
-
-		// rest games:
-		// Habu Meijin no Omoshiro Shougi (J)
-		// Hayashi Kaihou Kudan no Igo Taidou (J)
-		// Shougi Saikyou (J)
-		// Super Robot Wars Gaiden (J)
-		// Super Shougi 3 - Kitaihei (J)
-	}
-#endif
 
 	//// SRAM initial value
 
@@ -3979,7 +3705,7 @@ void CMemory::ApplyROMFixes (void)
 }
 
 #ifdef SNSF9X_REMOVED
-
+		
 // UPS % IPS
 
 static uint32 ReadUPSPointer (const uint8 *data, unsigned &addr, unsigned size)

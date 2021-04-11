@@ -329,7 +329,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 
 -(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 
 -(void)showWaiting{
@@ -1011,7 +1011,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
 	NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
 	NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
-	NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_MODPLUG componentsSeparatedByString:@","];
+	NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
@@ -2943,7 +2943,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
 
     if (browse_depth==0) {
@@ -3039,7 +3039,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
-    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+    [self showWaiting];
     [self shortWait];
     
     
@@ -3353,7 +3353,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 mShowSubdir^=1;
                 shouldFillKeys=1;
                 
-                [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                [self showWaiting];
                 [self shortWait];
                 
                 [self fillKeys];
@@ -3383,7 +3383,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     //				[childController autorelease];
                 } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
                     
-                    [self performSelectorInBackground:@selector(showWaiting) withObject:nil];
+                    [self showWaiting];
                     [self shortWait];
                     
                     NSString *newPath;

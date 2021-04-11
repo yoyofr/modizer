@@ -5,41 +5,33 @@
 #include <cmath>
 #include "resampler.h"
 
-class HermiteResampler : public Resampler
+class OsculatingResampler : public Resampler
 {
 protected:
 	double r_step;
 	double r_frac;
-	int r_left[4], r_right[4];
+	int r_left[6], r_right[6];
 
 	template<typename T1, typename T2> static T1 CLAMP(T1 x, T2 low, T2 high) { return x > high ? high : (x < low ? low : x); }
 	template<typename T> static short SHORT_CLAMP(T n) { return static_cast<short>(CLAMP(n, -32768, 32767)); }
 
-	double hermite(double mu1, double a, double b, double c, double d)
+	double osculating(double x, double a, double b, double c, double d, double e, double f)
 	{
-		static const double tension = 0.0; //-1 = low, 0 = normal, 1 = high
-		static const double bias = 0.0; //-1 = left, 0 = even, 1 = right
-
-		double mu2, mu3, m0, m1, a0, a1, a2, a3;
-
-		mu2 = mu1 * mu1;
-		mu3 = mu2 * mu1;
-
-		m0  = (b - a) * (1 + bias) * (1 - tension) / 2;
-		m0 += (c - b) * (1 - bias) * (1 - tension) / 2;
-		m1  = (c - b) * (1 + bias) * (1 - tension) / 2;
-		m1 += (d - c) * (1 - bias) * (1 - tension) / 2;
-
-		a0 = 2 * mu3 - 3 * mu2 + 1;
-		a1 = mu3 - 2 * mu2 + mu1;
-		a2 = mu3 - mu2;
-		a3 = -2 * mu3 + 3 * mu2;
-
-		return (a0 * b) + (a1 * m0) + (a2 * m1) + (a3 * c);
+		double z = x - 0.5;
+		double even1 = a + f, odd1 = a - f;
+		double even2 = b + e, odd2 = b - e;
+		double even3 = c + d, odd3 = c - d;
+		double c0 = 0.01171875 * even1 - 0.09765625 * even2 + 0.5859375 * even3;
+		double c1 = 0.2109375 * odd2 - 281 / 192.0 * odd3 - 13 / 384.0 * odd1;
+		double c2 = 0.40625 * even2 - 17 / 48.0 * even3 - 5 / 96.0 * even1;
+		double c3 = 0.1875 * odd1 - 53 / 48.0 * odd2 + 2.375 * odd3;
+		double c4 = 1 / 48.0*even1 - 0.0625 * even2 + 1 / 24.0 * even3;
+		double c5 = 25 / 24.0 * odd2 - 25 / 12.0 * odd3 - 5 / 24.0 * odd1;
+		return ((((c5 * z + c4) * z + c3) * z + c2) * z + c1) * z + c0;
 	}
 
 public:
-	HermiteResampler(int num_samples) : Resampler(num_samples)
+	OsculatingResampler(int num_samples) : Resampler(num_samples)
 	{
 		this->clear();
 	}
@@ -54,8 +46,8 @@ public:
 	{
 		ring_buffer::clear();
 		this->r_frac = 1.0;
-		this->r_left[0] = this->r_left[1] = this->r_left[2] = this->r_left[3] = 0;
-		this->r_right[0] = this->r_right[1] = this->r_right[2] = this->r_right[3] = 0;
+		this->r_left[0] = this->r_left[1] = this->r_left[2] = this->r_left[3] = this->r_left[4] = this->r_left[5] = 0;
+		this->r_right[0] = this->r_right[1] = this->r_right[2] = this->r_right[3] = this->r_right[4] = this->r_right[5] = 0;
 	}
 
 	void read(short *data, int num_samples)
@@ -88,8 +80,8 @@ public:
 
 			while (this->r_frac <= 1.0 && o_position < num_samples)
 			{
-				data[o_position] = SHORT_CLAMP(hermite(this->r_frac, this->r_left[0], this->r_left[1], this->r_left[2], this->r_left[3]));
-				data[o_position + 1] = SHORT_CLAMP(hermite(this->r_frac, this->r_right[0], this->r_right[1], this->r_right[2], this->r_right[3]));
+				data[o_position] = SHORT_CLAMP(osculating(this->r_frac, this->r_left[0], this->r_left[1], this->r_left[2], this->r_left[3], this->r_left[4], this->r_left[5]));
+				data[o_position + 1] = SHORT_CLAMP(osculating(this->r_frac, this->r_right[0], this->r_right[1], this->r_right[2], this->r_right[3], this->r_right[4], this->r_right[5]));
 
 				o_position += 2;
 
@@ -101,12 +93,16 @@ public:
 				this->r_left[0] = this->r_left[1];
 				this->r_left[1] = this->r_left[2];
 				this->r_left[2] = this->r_left[3];
-				this->r_left[3] = s_left;
+				this->r_left[3] = this->r_left[4];
+				this->r_left[4] = this->r_left[5];
+				this->r_left[5] = s_left;
 
 				this->r_right[0] = this->r_right[1];
 				this->r_right[1] = this->r_right[2];
 				this->r_right[2] = this->r_right[3];
-				this->r_right[3] = s_right;
+				this->r_right[3] = this->r_right[4];
+				this->r_right[4] = this->r_right[5];
+				this->r_right[5] = s_right;
 
 				this->r_frac -= 1.0;
 

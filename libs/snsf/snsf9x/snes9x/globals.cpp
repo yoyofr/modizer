@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -212,6 +213,8 @@ struct SDSP3			DSP3;
 struct SDSP4			DSP4;
 struct SSA1				SA1;
 struct SSA1Registers	SA1Registers;
+struct FxRegs_s			GSU;
+struct FxInfo_s			SuperFX;
 struct SST010			ST010;
 struct SST011			ST011;
 struct SST018			ST018;
@@ -233,10 +236,6 @@ struct Missing			missing;
 #ifdef SNSF9X_REMOVED
 struct SCheatData		Cheat;
 struct Watch			watches[16];
-#ifndef ZSNES_FX
-struct FxRegs_s			GSU;
-struct FxInfo_s			SuperFX;
-#endif
 #endif
 CMemory					Memory;
 
@@ -249,17 +248,6 @@ uint16	DirectColourMaps[8][256];
 SnesModel	M1SNES = { 1, 3, 2 };
 SnesModel	M2SNES = { 2, 4, 3 };
 SnesModel	*Model = &M1SNES;
-
-#ifdef SNSF9X_REMOVED
-#if defined(ZSNES_FX) || defined(ZSNES_C4)
-uint8	*ROM    = NULL;
-uint8	*SRAM   = NULL;
-uint8	*RegRAM = NULL;
-#endif
-#ifdef ZSNES_FX
-uint8	*SFXPlotTable = NULL;
-#endif
-#endif
 
 #ifdef GFX_MULTI_FORMAT
 uint32	RED_LOW_BIT_MASK           = RED_LOW_BIT_MASK_RGB565;

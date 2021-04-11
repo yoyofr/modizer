@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -184,6 +185,14 @@
 #endif
 #include "linear_resampler.h"
 #include "hermite_resampler.h"
+#ifdef SNSF9X_REMOVED
+#else
+#include "bspline_resampler.h"
+#include "osculating_resampler.h"
+#include "sinc_resampler.h"
+bool SincResampler::initializedLUTs = false;
+double SincResampler::sinc_lut[SincResampler::SINC_SAMPLES + 1];
+#endif
 
 #define APU_DEFAULT_INPUT_RATE		32000
 #define APU_MINIMUM_SAMPLE_COUNT	512
@@ -228,8 +237,8 @@ namespace spc
 	static int32		reference_time;
 	static uint32		remainder;
 
-	static const int32	timing_hack_numerator   = SNES_SPC::tempo_unit;
-	static int32		timing_hack_denominator = SNES_SPC::tempo_unit;
+	static const int	timing_hack_numerator   = SNES_SPC::tempo_unit;
+	static int			timing_hack_denominator = SNES_SPC::tempo_unit;
 	/* Set these to NTSC for now. Will change to PAL in S9xAPUTimingSetSpeedup
 	   if necessary on game load. */
 	static uint32		ratio_numerator = APU_NUMERATOR_NTSC;
@@ -419,7 +428,11 @@ static void UpdatePlaybackRate (void)
 	spc::resampler->time_ratio(time_ratio);
 }
 
+#ifdef SNSF9X_REMOVED
 bool8 S9xInitSound (int buffer_ms, int lag_ms)
+#else
+template<class ResamplerClass> bool8 S9xInitSound(int buffer_ms, int lag_ms)
+#endif
 {
 	// buffer_ms : buffer size given in millisecond
 	// lag_ms    : allowable time-lag given in millisecond
@@ -453,7 +466,11 @@ bool8 S9xInitSound (int buffer_ms, int lag_ms)
 	   arguments. Use 2x in the resampler for buffer leveling with SoundSync */
 	if (!spc::resampler)
 	{
+#ifdef SNSF9X_REMOVED
 		spc::resampler = new APU_DEFAULT_RESAMPLER(spc::buffer_size >> (Settings.SoundSync ? 0 : 1));
+#else	
+		spc::resampler = new ResamplerClass(spc::buffer_size >> (Settings.SoundSync ? 0 : 1));
+#endif
 		if (!spc::resampler)
 		{
 			delete[] spc::landing_buffer;
@@ -471,6 +488,12 @@ bool8 S9xInitSound (int buffer_ms, int lag_ms)
 
 	return (spc::sound_enabled);
 }
+
+template bool8 S9xInitSound<LinearResampler>(int, int);
+template bool8 S9xInitSound<HermiteResampler>(int, int);
+template bool8 S9xInitSound<BsplineResampler>(int, int);
+template bool8 S9xInitSound<OsculatingResampler>(int, int);
+template bool8 S9xInitSound<SincResampler>(int, int);
 
 void S9xSetSoundControl (uint8 voice_switch)
 {
@@ -513,6 +536,9 @@ bool8 S9xInitAPU (void)
 	spc::landing_buffer = NULL;
 	spc::shrink_buffer  = NULL;
 	spc::resampler      = NULL;
+
+	spc_core->interpolation_level(Settings.InterpolationLevel);
+	spc_core->disable_surround(Settings.DisableSurround ? true : false);
 
 	return (TRUE);
 }
@@ -602,7 +628,14 @@ void S9xAPUTimingSetSpeedup (int ticks)
 	spc::ratio_denominator = spc::ratio_denominator * spc::timing_hack_denominator / spc::timing_hack_numerator;
 
 	UpdatePlaybackRate();
+}
 
+void S9xAPUAllowTimeOverflow (bool allow)
+{
+	if (allow)
+		printf("APU time overflow allowed\n");
+
+	spc_core->spc_allow_time_overflow(allow);
 }
 
 void S9xResetAPU (void)

@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -197,11 +198,6 @@
 #define CLIP_XOR			2
 #define CLIP_XNOR			3
 
-#define PPU_IRQ_SOURCE		(1 << 1)
-#define GSU_IRQ_SOURCE		(1 << 2)
-#define SA1_IRQ_SOURCE		(1 << 7)
-#define SA1_DMA_IRQ_SOURCE	(1 << 5)
-
 struct ClipData
 {
 	uint8	Count;
@@ -218,11 +214,7 @@ struct InternalPPU
 	bool8	DirectColourMapsNeedRebuild;
 	uint8	*TileCache[7];
 	uint8	*TileCached[7];
-#ifdef CORRECT_VRAM_READS
 	uint16	VRAMReadBuffer;
-#else
-	bool8	FirstVRAMRead;
-#endif
 	bool8	Interlace;
 	bool8	InterlaceOBJ;
 	bool8	PseudoHires;
@@ -385,9 +377,6 @@ uint8 S9xGetPPU (uint16);
 void S9xSetCPU (uint8, uint16);
 uint8 S9xGetCPU (uint16);
 void S9xUpdateHVTimerPosition (void);
-void S9xCheckMissingHTimerPosition (int32);
-void S9xCheckMissingHTimerRange (int32, int32);
-void S9xCheckMissingHTimerHalt (int32, int32);
 void S9xFixColourBrightness (void);
 void S9xDoAutoJoypad (void);
 

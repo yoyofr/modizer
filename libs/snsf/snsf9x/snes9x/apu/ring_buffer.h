@@ -1,111 +1,65 @@
 /* Simple byte-based ring buffer. Licensed under public domain (C) BearOso. */
 
-#ifndef __RING_BUFFER_H
-#define __RING_BUFFER_H
+#pragma once
 
-#include <string.h>
-
-#undef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#include <memory>
+#include <algorithm>
+#include <cstring>
 
 class ring_buffer
 {
 protected:
-    int size;
-    int buffer_size;
-    int start;
-    unsigned char *buffer;
+	int size;
+	int buffer_size;
+	int start;
+	std::unique_ptr<unsigned char[]> buffer;
 
 public:
-    ring_buffer (int buffer_size)
-    {
-        this->buffer_size = buffer_size;
-        buffer = new unsigned char[this->buffer_size];
-        memset (buffer, 0, this->buffer_size);
+	ring_buffer(int buf_size)
+	{
+		this->buffer_size = buf_size;
+		this->buffer.reset(new unsigned char[this->buffer_size]);
+		this->clear();
+	}
 
-        size = 0;
-        start = 0;
-    }
+	bool push(unsigned char *src, int bytes)
+	{
+		if (this->space_empty() < bytes)
+			return false;
 
-    ~ring_buffer (void)
-    {
-        delete[] buffer;
-    }
+		int end = (this->start + this->size) % this->buffer_size;
+		int first_write_size = std::min(bytes, this->buffer_size - end);
 
-    bool
-    push (unsigned char *src, int bytes)
-    {
-        if (space_empty () < bytes)
-            return false;
+		std::copy_n(&src[0], first_write_size, &this->buffer[end]);
 
-        int end = (start + size) % buffer_size;
-        int first_write_size = MIN (bytes, buffer_size - end);
+		if (bytes > first_write_size)
+			std::copy(&src[first_write_size], &src[bytes], &this->buffer[0]);
 
-        memcpy (buffer + end, src, first_write_size);
+		this->size += bytes;
 
-        if (bytes > first_write_size)
-            memcpy (buffer, src + first_write_size, bytes - first_write_size);
+		return true;
+	}
 
-        size += bytes;
+	int space_empty()
+	{
+		return this->buffer_size - this->size;
+	}
 
-        return true;
-    }
+	int space_filled()
+	{
+		return this->size;
+	}
 
-    bool
-    pull (unsigned char *dst, int bytes)
-    {
-        if (space_filled () < bytes)
-            return false;
+	void clear()
+	{
+		this->start = this->size = 0;
+		std::fill_n(&this->buffer[0], this->buffer_size, 0);
+	}
 
-        memcpy (dst, buffer + start, MIN (bytes, buffer_size - start));
-
-        if (bytes > (buffer_size - start))
-            memcpy (dst + (buffer_size - start), buffer, bytes - (buffer_size - start));
-
-        start = (start + bytes) % buffer_size;
-        size -= bytes;
-
-        return true;
-    }
-
-    inline int
-    space_empty (void)
-    {
-        return buffer_size - size;
-    }
-
-    inline int
-    space_filled (void)
-    {
-        return size;
-    }
-
-    void
-    clear (void)
-    {
-        start = 0;
-        size = 0;
-        memset (buffer, 0, buffer_size);
-    }
-
-    void
-    resize (int size)
-    {
-        delete[] buffer;
-        buffer_size = size;
-        buffer = new unsigned char[buffer_size];
-        memset (buffer, 0, this->buffer_size);
-
-        size = 0;
-        start = 0;
-    }
-
-    inline void
-    cache_silence (void)
-    {
-        clear ();
-        size = buffer_size;
-    }
+	void resize(int new_size)
+	{
+		this->buffer_size = new_size;
+		this->buffer.reset(new unsigned char[this->buffer_size]);
+		this->clear();
+	}
 };
-
-#endif

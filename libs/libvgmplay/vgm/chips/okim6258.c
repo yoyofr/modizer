@@ -34,6 +34,9 @@ typedef struct _okim6258_state okim6258_state;
 struct _okim6258_state
 {
 	UINT8  status;
+    //TODO:  MODIZER changes start / YOYOFR
+    UINT8 Muted;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	UINT32 master_clock;	/* master clock frequency */
 	UINT32 divider;			/* master clock divider */
@@ -163,6 +166,16 @@ static INT16 clock_adpcm(okim6258_state *chip, UINT8 nibble)
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
+
+void okim6258_set_mute_mask(UINT8 ChipID, UINT32 MuteMask)
+{
+    okim6258_state *chip = &OKIM6258Data[ChipID];
+    UINT8 CurChn;
+    
+    chip->Muted = MuteMask & 0x01;
+    
+    return;
+}
 //TODO:  MODIZER changes end / YOYOFR
 
 /**********************************************************************************************
@@ -256,13 +269,18 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 			nibble_shift ^= 4;
 
 			//*buffer++ = sample;
-			*bufL++ = (chip->pan & 0x02) ? 0x00 : sample;
-			*bufR++ = (chip->pan & 0x01) ? 0x00 : sample;
+            if (chip->Muted) {
+                *bufL++=0;
+                *bufR++=0;
+            } else {
+                *bufL++ = (chip->pan & 0x02) ? 0x00 : sample;
+                *bufR++ = (chip->pan & 0x01) ? 0x00 : sample;
+            }
 			samples--;
             
             //TODO:  MODIZER changes start / YOYOFR
             if (m_voice_ofs>=0) {
-                if ((chip->pan&3)==3) m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
+                if (chip->Muted||((chip->pan&3)==3)) m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
                 else m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((sample>>8));
                 
                 m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
@@ -282,6 +300,15 @@ void okim6258_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 			//*buffer++ = 0;
 			*bufL++ = 0;
 			*bufR++ = 0;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
+                
+                m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 	}
 }
@@ -383,6 +410,10 @@ void device_reset_okim6258(UINT8 ChipID)
 {
 	//okim6258_state *info = get_safe_token(device);
 	okim6258_state *info = &OKIM6258Data[ChipID];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    info->Muted=0;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	//stream_update(info->stream);
 	

@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -212,9 +213,34 @@ static void S9xResetCPU (void)
 
 static void S9xSoftResetCPU (void)
 {
+	CPU.Cycles = 182; // Or 188. This is the cycle count just after the jump to the Reset Vector.
+	CPU.PrevCycles = CPU.Cycles;
+	CPU.V_Counter = 0;
+	CPU.Flags = CPU.Flags & (DEBUG_MODE_FLAG | TRACE_FLAG);
+	CPU.PCBase = NULL;
+	CPU.NMILine = FALSE;
+	CPU.IRQLine = FALSE;
+	CPU.IRQTransition = FALSE;
+	CPU.IRQLastState = FALSE;
+	CPU.IRQExternal = FALSE;
+	CPU.IRQPending = Timings.IRQPendCount;
+	CPU.MemSpeed = SLOW_ONE_CYCLE;
+	CPU.MemSpeedx2 = SLOW_ONE_CYCLE * 2;
+	CPU.FastROMSpeed = SLOW_ONE_CYCLE;
+	CPU.InDMA = FALSE;
+	CPU.InHDMA = FALSE;
+	CPU.InDMAorHDMA = FALSE;
+	CPU.InWRAMDMAorHDMA = FALSE;
+	CPU.HDMARanInDMA = 0;
+	CPU.CurrentDMAorHDMAChannel = -1;
+	CPU.WhichEvent = HC_RENDER_EVENT;
+	CPU.NextEvent  = Timings.RenderPos;
+	CPU.WaitingForInterrupt = FALSE;
+	CPU.AutoSaveTimer = 0;
+	CPU.SRAMModified = FALSE;
+
 	Registers.PBPC = 0;
 	Registers.PB = 0;
-	CPU.InDMAorHDMA = TRUE; // hangs on addCyclesInMemoryAccess_x2 when S9X_ACCURACY_LEVEL >= 2
 	Registers.PCw = S9xGetWord(0xfffc);
 	OpenBus = Registers.PCh;
 	Registers.D.W = 0;
@@ -229,31 +255,6 @@ static void S9xSoftResetCPU (void)
 	SetFlags(MemoryFlag | IndexFlag | IRQ | Emulation);
 	ClearFlags(Decimal);
 
-	CPU.Cycles = 182; // Or 188. This is the cycle count just after the jump to the Reset Vector.
-	CPU.PrevCycles = -1;
-	CPU.V_Counter = 0;
-	CPU.Flags = CPU.Flags & (DEBUG_MODE_FLAG | TRACE_FLAG);
-	CPU.PCBase = NULL;
-	CPU.IRQActive = FALSE;
-	CPU.IRQPending = 0;
-	CPU.MemSpeed = SLOW_ONE_CYCLE;
-	CPU.MemSpeedx2 = SLOW_ONE_CYCLE * 2;
-	CPU.FastROMSpeed = SLOW_ONE_CYCLE;
-	CPU.InDMA = FALSE;
-	CPU.InHDMA = FALSE;
-	CPU.InDMAorHDMA = FALSE;
-	CPU.InWRAMDMAorHDMA = FALSE;
-	CPU.HDMARanInDMA = 0;
-	CPU.CurrentDMAorHDMAChannel = -1;
-	CPU.WhichEvent = HC_RENDER_EVENT;
-	CPU.NextEvent  = Timings.RenderPos;
-	CPU.WaitingForInterrupt = FALSE;
-	CPU.WaitAddress = 0xffffffff;
-	CPU.WaitCounter = 0;
-	CPU.PBPCAtOpcodeStart = 0xffffffff;
-	CPU.AutoSaveTimer = 0;
-	CPU.SRAMModified = FALSE;
-
 	Timings.InterlaceField = FALSE;
 	Timings.H_Max = Timings.H_Max_Master;
 	Timings.V_Max = Timings.V_Max_Master;
@@ -267,7 +268,6 @@ static void S9xSoftResetCPU (void)
 
 	ICPU.S9xOpcodes = S9xOpcodesE1;
 	ICPU.S9xOpLengths = S9xOpLengthsM1X1;
-	ICPU.CPUExecuting = TRUE;
 
 	S9xUnpackStatus();
 }
@@ -292,7 +292,6 @@ void S9xReset (void)
 	S9xResetPPU();
 	S9xResetDMA();
 	S9xResetAPU();
-
 #ifdef SNSF9X_REMOVED
 	if (Settings.DSP)
 		S9xResetDSP();
@@ -327,9 +326,8 @@ void S9xSoftReset (void)
 	S9xResetSaveTimer(FALSE);
 #endif
 
-	memset(Memory.VRAM, 0x00, 0x10000);
 	ZeroMemory(Memory.FillRAM, 0x8000);
-
+	
 #ifdef SNSF9X_REMOVED
 	if (Settings.BS)
 		S9xResetBSX();
@@ -339,7 +337,7 @@ void S9xSoftReset (void)
 	S9xSoftResetPPU();
 	S9xResetDMA();
 	S9xSoftResetAPU();
-
+	
 #ifdef SNSF9X_REMOVED
 	if (Settings.DSP)
 		S9xResetDSP();

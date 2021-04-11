@@ -157,6 +157,10 @@ struct _upd7759_state
 {
 	//running_device *device;
 	//sound_stream *channel;					/* stream channel for playback */
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    UINT8 Muted;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* internal clock to output sample rate mapping */
 	UINT32		pos;						/* current output sample position */
@@ -496,6 +500,20 @@ static void advance_state(upd7759_state *chip)
 }
 
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+
+void upd7759_set_mute_mask(UINT8 ChipID, UINT32 MuteMask)
+{
+    upd7759_state *chip = &UPD7759Data[ChipID];
+    UINT8 CurChn;
+    
+    chip->Muted = MuteMask & 0x01;
+    
+    return;
+}
+//TODO:  MODIZER changes end / YOYOFR
+
 
 /************************************************************
 
@@ -514,15 +532,46 @@ void upd7759_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	UINT32 pos = chip->pos;
 	stream_sample_t *buffer = outputs[0];
 	stream_sample_t *buffer2 = outputs[1];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=1;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplFreq=chip->sample_rate;
+    int smplIncr=44100*256/smplFreq;
+    if (smplIncr>256) smplIncr=256;
+    //printf("okim clock: %d\n",smplFreq);
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* loop until done */
 	if (chip->state != STATE_IDLE)
 		while (samples != 0)
 		{
 			/* store the current sample */
-			*buffer++ = sample << 7;
-			*buffer2++ = sample << 7;
+            if (chip->Muted) {
+                *buffer++=0;
+                *buffer2++=0;
+            } else {
+                *buffer++ = sample << 7;
+                *buffer2++ = sample << 7;
+            }
 			samples--;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                if (chip->Muted) m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
+                else m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((sample>>1));
+                
+                m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 
 			/* advance by the number of clocks/output sample */
 			pos += step;
@@ -582,6 +631,16 @@ void upd7759_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	{
 		memset(buffer, 0, samples * sizeof(*buffer));
 		memset(buffer2, 0, samples * sizeof(*buffer2));
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            for (int jj=0;jj<samples;jj++) {
+                m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
+                m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
+                if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 	}
 
 	/* flush the state back */
@@ -628,6 +687,9 @@ void upd7759_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 
 static void upd7759_reset(upd7759_state *chip)
 {
+    //TODO:  MODIZER changes start / YOYOFR
+    chip->Muted=0;
+    //TODO:  MODIZER changes end / YOYOFR
 	chip->pos                = 0;
 	chip->fifo_in            = 0;
 	chip->drq                = 0;

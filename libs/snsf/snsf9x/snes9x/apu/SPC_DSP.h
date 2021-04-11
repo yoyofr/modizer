@@ -67,9 +67,11 @@ public:
 
 // Snes9x Accessor
 
-	int  stereo_switch;
-	int  take_spc_snapshot;
-	void (*spc_snapshot_callback) (void);
+	int     stereo_switch;
+	int     take_spc_snapshot;
+	int     rom_enabled;   // mirror
+	uint8_t *rom, *hi_ram; // mirror
+	void    (*spc_snapshot_callback) (void);
 
 	void    set_spc_snapshot_callback( void (*callback) (void) );
 	void    dump_spc_snapshot( void );
@@ -105,7 +107,8 @@ public:
 	enum { extra_size = 16 };
 	sample_t* extra()               { return m.extra; }
 	sample_t const* out_pos() const { return m.out; }
-	void disable_surround( bool ) { } // not supported
+	void disable_surround(bool);
+	void interpolation_level(int level = 0) { m.interpolation_level = level; }
 public:
 	BLARGG_DISABLE_NOTHROW
 	
@@ -193,6 +196,8 @@ private:
 		// non-emulation state
 		uint8_t* ram; // 64K shared RAM between DSP and SMP
 		int mute_mask;
+		int surround_threshold;
+		int interpolation_level;
 		sample_t* out;
 		sample_t* out_end;
 		sample_t* out_begin;
@@ -204,7 +209,12 @@ private:
 	void run_counters();
 	unsigned read_counter( int rate );
 	
-	int  interpolate( voice_t const* v );
+	int interpolate(const voice_t *v);
+	int interpolate_cubic(const voice_t *v);
+	int interpolate_sinc(const voice_t *v);
+	int interpolate_linear(const voice_t *v);
+	int interpolate_nearest(const voice_t *v);
+	
 	void run_envelope( voice_t* const v );
 	void decode_brr( voice_t* v );
 
@@ -291,6 +301,11 @@ inline bool SPC_DSP::check_kon()
 	bool old = m.kon_check;
 	m.kon_check = 0;
 	return old;
+}
+
+inline void SPC_DSP::disable_surround(bool disable)
+{
+	m.surround_threshold = disable ? 0 : -0x4000;
 }
 
 #if !SPC_NO_COPY_STATE_FUNCS

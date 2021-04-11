@@ -30,7 +30,7 @@
 #import "XSFConfig.h"
 
 //SNSF
-#import "SNESSystem.h"
+#import "snsf_drvimpl.h"
 
 
 //GME
@@ -125,6 +125,12 @@ enum MMP_PLAYER_TYPE {
     int optGMEIgnoreSilence;
     float optGMERatio;
     bool optGMEEnableRatio;
+    char optGMEFXon;
+    char optGMEFXSurround;
+    double optGMEFXEcho;
+    double optGMEFXStereo;
+    double optGMEEQTreble;
+    double optGMEEQBass;
     //GSF
     char optGSFsoundLowPass;
     char optGSFsoundEcho;

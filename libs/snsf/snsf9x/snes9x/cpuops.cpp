@@ -17,11 +17,12 @@
 
   (c) Copyright 2002 - 2010  Brad Jorsch (anomie@users.sourceforge.net),
                              Nach (n-a-c-h@users.sourceforge.net),
-                             zones (kasumitokoduck@yahoo.com)
+
+  (c) Copyright 2002 - 2011  zones (kasumitokoduck@yahoo.com)
 
   (c) Copyright 2006 - 2007  nitsuja
 
-  (c) Copyright 2009 - 2010  BearOso,
+  (c) Copyright 2009 - 2011  BearOso,
                              OV2
 
 
@@ -130,7 +131,7 @@
   (c) Copyright 2006 - 2007  Shay Green
 
   GTK+ GUI code
-  (c) Copyright 2004 - 2010  BearOso
+  (c) Copyright 2004 - 2011  BearOso
 
   Win32 GUI code
   (c) Copyright 2003 - 2006  blip,
@@ -138,11 +139,11 @@
                              Matthew Kendora,
                              Nach,
                              nitsuja
-  (c) Copyright 2009 - 2010  OV2
+  (c) Copyright 2009 - 2011  OV2
 
   Mac OS GUI code
   (c) Copyright 1998 - 2001  John Stiles
-  (c) Copyright 2001 - 2010  zones
+  (c) Copyright 2001 - 2011  zones
 
 
   Specific ports contains the works of other authors. See headers in
@@ -188,13 +189,9 @@
 #endif
 
 #ifdef SA1_OPCODES
-#define AddCycles(n)	{ }
+#define AddCycles(n)	{ SA1.Cycles += (n); }
 #else
-#if (S9X_ACCURACY_LEVEL >= 3)
-#define AddCycles(n)	{ CPU.Cycles += (n); while (CPU.Cycles >= CPU.NextEvent) S9xDoHEventProcessing(); }
-#else
-#define AddCycles(n)	{ CPU.Cycles += (n); }
-#endif
+#define AddCycles(n)	{ CPU.PrevCycles = CPU.Cycles; CPU.Cycles += (n); S9xCheckInterrupts(); while (CPU.Cycles >= CPU.NextEvent) S9xDoHEventProcessing(); }
 #endif
 
 #include "cpuaddr.h"
@@ -659,9 +656,6 @@ rOPX (CCSlow,   AbsoluteSlow,                     WRAP_NONE, CPY)
 static void Op3AM1 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.AL--;
 	SetZN(Registers.AL);
 }
@@ -669,9 +663,6 @@ static void Op3AM1 (void)
 static void Op3AM0 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.A.W--;
 	SetZN(Registers.A.W);
 }
@@ -679,9 +670,6 @@ static void Op3AM0 (void)
 static void Op3ASlow (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 
 	if (CheckMemory())
 	{
@@ -813,9 +801,6 @@ rOPM (53Slow,   StackRelativeIndirectIndexedSlow, WRAP_NONE, EOR)
 static void Op1AM1 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.AL++;
 	SetZN(Registers.AL);
 }
@@ -823,9 +808,6 @@ static void Op1AM1 (void)
 static void Op1AM0 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.A.W++;
 	SetZN(Registers.A.W);
 }
@@ -833,9 +815,6 @@ static void Op1AM0 (void)
 static void Op1ASlow (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 
 	if (CheckMemory())
 	{
@@ -1550,54 +1529,6 @@ mOPM (0CSlow,   AbsoluteSlow,                     WRAP_BANK, TSB)
 
 /* Branch Instructions ***************************************************** */
 
-#ifdef CPU_SHUTDOWN
-
-#ifndef SA1_OPCODES
-
-inline void CPUShutdown (void)
-{
-	if (Settings.Shutdown && Registers.PBPC == CPU.WaitAddress)
-	{
-		// Don't skip cycles with a pending NMI or IRQ - could cause delayed interrupt.
-		if (CPU.WaitCounter == 0 && !(CPU.Flags & (IRQ_FLAG | NMI_FLAG)))
-		{
-			CPU.WaitAddress = 0xffffffff;
-			if (Settings.SA1)
-				S9xSA1ExecuteDuringSleep();
-			CPU.Cycles = CPU.NextEvent;
-			ICPU.CPUExecuting = FALSE;
-			S9xAPUExecute();
-			ICPU.CPUExecuting = TRUE;
-		}
-		else
-		if (CPU.WaitCounter >= 2)
-			CPU.WaitCounter = 1;
-		else
-			CPU.WaitCounter--;
-	}
-}
-
-#else
-
-inline void CPUShutdown (void)
-{
-	if (Settings.Shutdown && Registers.PBPC == CPU.WaitAddress)
-	{
-		if (CPU.WaitCounter >= 1)
-			SA1.Executing = FALSE;
-		else
-			CPU.WaitCounter++;
-	}
-}
-
-#endif
-
-#else
-
-#define CPUShutdown()
-
-#endif
-
 // BCC
 bOP(90E0,   Relative,     !CheckCarry(),    0, 0)
 bOP(90E1,   Relative,     !CheckCarry(),    0, 1)
@@ -1692,7 +1623,7 @@ static void Op58 (void)
 {
 	ClearIRQ();
 	AddCycles(ONE_CYCLE);
-	//CHECK_FOR_IRQ();
+	CHECK_FOR_IRQ();
 }
 
 // SEI
@@ -1714,9 +1645,6 @@ static void OpB8 (void)
 static void OpCAX1 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.XL--;
 	SetZN(Registers.XL);
 }
@@ -1724,9 +1652,6 @@ static void OpCAX1 (void)
 static void OpCAX0 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.X.W--;
 	SetZN(Registers.X.W);
 }
@@ -1734,9 +1659,6 @@ static void OpCAX0 (void)
 static void OpCASlow (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 
 	if (CheckIndex())
 	{
@@ -1753,9 +1675,6 @@ static void OpCASlow (void)
 static void Op88X1 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.YL--;
 	SetZN(Registers.YL);
 }
@@ -1763,9 +1682,6 @@ static void Op88X1 (void)
 static void Op88X0 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.Y.W--;
 	SetZN(Registers.Y.W);
 }
@@ -1773,9 +1689,6 @@ static void Op88X0 (void)
 static void Op88Slow (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 
 	if (CheckIndex())
 	{
@@ -1794,9 +1707,6 @@ static void Op88Slow (void)
 static void OpE8X1 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.XL++;
 	SetZN(Registers.XL);
 }
@@ -1804,9 +1714,6 @@ static void OpE8X1 (void)
 static void OpE8X0 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.X.W++;
 	SetZN(Registers.X.W);
 }
@@ -1814,9 +1721,6 @@ static void OpE8X0 (void)
 static void OpE8Slow (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 
 	if (CheckIndex())
 	{
@@ -1833,9 +1737,6 @@ static void OpE8Slow (void)
 static void OpC8X1 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.YL++;
 	SetZN(Registers.YL);
 }
@@ -1843,9 +1744,6 @@ static void OpC8X1 (void)
 static void OpC8X0 (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 	Registers.Y.W++;
 	SetZN(Registers.Y.W);
 }
@@ -1853,9 +1751,6 @@ static void OpC8X0 (void)
 static void OpC8Slow (void)
 {
 	AddCycles(ONE_CYCLE);
-#ifdef CPU_SHUTDOWN
-	CPU.WaitAddress = 0xffffffff;
-#endif
 
 	if (CheckIndex())
 	{
@@ -2371,7 +2266,7 @@ static void Op28E1 (void)
 	SetFlags(MemoryFlag | IndexFlag);
 	S9xUnpackStatus();
 	S9xFixCycles();
-	//CHECK_FOR_IRQ();
+	CHECK_FOR_IRQ();
 }
 
 static void Op28E0 (void)
@@ -2388,7 +2283,7 @@ static void Op28E0 (void)
 	}
 
 	S9xFixCycles();
-	//CHECK_FOR_IRQ();
+	CHECK_FOR_IRQ();
 }
 
 static void Op28Slow (void)
@@ -2416,7 +2311,7 @@ static void Op28Slow (void)
 	}
 
 	S9xFixCycles();
-	//CHECK_FOR_IRQ();
+	CHECK_FOR_IRQ();
 }
 
 // PLX
@@ -2857,7 +2752,11 @@ void S9xOpcode_IRQ (void)
 {
 #ifdef DEBUGGER
 	if (CPU.Flags & TRACE_FLAG)
+	#ifdef SA1_OPCODES
+		S9xTraceMessage("*** SA1 IRQ");
+	#else
 		S9xTraceMessage("*** IRQ");
+	#endif
 #endif
 
 	// IRQ and NMI do an opcode fetch as their first "IO" cycle.
@@ -2928,7 +2827,11 @@ void S9xOpcode_NMI (void)
 {
 #ifdef DEBUGGER
 	if (CPU.Flags & TRACE_FLAG)
+	#ifdef SA1_OPCODES
+		S9xTraceMessage("*** SA1 NMI");
+	#else
 		S9xTraceMessage("*** NMI");
+	#endif
 #endif
 
 	// IRQ and NMI do an opcode fetch as their first "IO" cycle.
@@ -2949,7 +2852,7 @@ void S9xOpcode_NMI (void)
 		AddCycles(2 * SLOW_ONE_CYCLE);
 		S9xSA1SetPCBase(Memory.FillRAM[0x2205] | (Memory.FillRAM[0x2206] << 8));
 	#else
-		if (Settings.SA1 && (Memory.FillRAM[0x2209] & 0x20))
+		if (Settings.SA1 && (Memory.FillRAM[0x2209] & 0x10))
 		{
 			OpenBus = Memory.FillRAM[0x220d];
 			AddCycles(2 * SLOW_ONE_CYCLE);
@@ -2977,7 +2880,7 @@ void S9xOpcode_NMI (void)
 		AddCycles(2 * SLOW_ONE_CYCLE);
 		S9xSA1SetPCBase(Memory.FillRAM[0x2205] | (Memory.FillRAM[0x2206] << 8));
 	#else
-		if (Settings.SA1 && (Memory.FillRAM[0x2209] & 0x20))
+		if (Settings.SA1 && (Memory.FillRAM[0x2209] & 0x10))
 		{
 			OpenBus = Memory.FillRAM[0x220d];
 			AddCycles(2 * SLOW_ONE_CYCLE);
@@ -3061,17 +2964,11 @@ static void Op5CSlow (void)
 static void Op4C (void)
 {
 	S9xSetPCBase(ICPU.ShiftedPB + ((uint16) Absolute(JUMP)));
-#if defined(CPU_SHUTDOWN) && defined(SA1_OPCODES)
-	CPUShutdown();
-#endif
 }
 
 static void Op4CSlow (void)
 {
 	S9xSetPCBase(ICPU.ShiftedPB + ((uint16) AbsoluteSlow(JUMP)));
-#if defined(CPU_SHUTDOWN) && defined(SA1_OPCODES)
-	CPUShutdown();
-#endif
 }
 
 static void Op6C (void)
@@ -3417,7 +3314,7 @@ static void OpC2 (void)
 	}
 
 	S9xFixCycles();
-	//CHECK_FOR_IRQ();
+	CHECK_FOR_IRQ();
 }
 
 static void OpC2Slow (void)
@@ -3446,7 +3343,7 @@ static void OpC2Slow (void)
 	}
 
 	S9xFixCycles();
-	//CHECK_FOR_IRQ();
+	CHECK_FOR_IRQ();
 }
 
 static void OpE2 (void)
@@ -3554,7 +3451,7 @@ static void Op40Slow (void)
 	}
 
 	S9xFixCycles();
-	//CHECK_FOR_IRQ();
+	CHECK_FOR_IRQ();
 }
 
 /* STP/WAI ***************************************************************** */
@@ -3562,44 +3459,15 @@ static void Op40Slow (void)
 // WAI
 static void OpCB (void)
 {
-	// Ok, let's just C-ify the ASM versions separately.
 #ifdef SA1_OPCODES
 	SA1.WaitingForInterrupt = TRUE;
 	Registers.PCw--;
-#if 0
-	// XXX: FIXME
-	if (Settings.Shutdown)
-	{
-		SA1.Cycles = SA1.NextEvent;
-		SA1.Executing = FALSE;
-		//S9xAPUExecute(); // FIXME
-		SA1.Executing = TRUE;
-	}
+	AddCycles(TWO_CYCLES);
+#else
+	CPU.WaitingForInterrupt = TRUE;
+	Registers.PCw--;
+	AddCycles(TWO_CYCLES);
 #endif
-#else	// SA1_OPCODES
-#if 0
-	if (CPU.IRQActive)
-		AddCycles(TWO_CYCLES);
-	else
-#endif
-	{
-		CPU.WaitingForInterrupt = TRUE;
-		Registers.PCw--;
-	#ifdef CPU_SHUTDOWN
-		if (Settings.Shutdown)
-		{
-			CPU.Cycles = CPU.NextEvent;
-			ICPU.CPUExecuting = FALSE;
-			S9xAPUExecute();
-			ICPU.CPUExecuting = TRUE;
-		}
-		else
-			AddCycles(TWO_CYCLES);
-	#else
-		AddCycles(TWO_CYCLES);
-#endif
-	}
-#endif	// SA1_OPCODES
 }
 
 // STP
@@ -3642,7 +3510,7 @@ static void Op42 (void)
 				S9xMessage(S9X_DEBUG, S9X_DEBUG_OUTPUT, buf);
 				if (trace != NULL)
 					fclose(trace);
-				trace = fopen("WDMtrace.log", "ab");
+				ENSURE_TRACE_OPEN(trace, "WDMtrace.log", "ab")
 			}
 
 			break;

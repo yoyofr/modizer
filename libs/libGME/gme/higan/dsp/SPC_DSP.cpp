@@ -905,7 +905,8 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
 	CLAMP16( m.t_main_out [ch] );
     
     //TODO:  MODIZER changes start / YOYOFR
-    m_voice_buff[current_voice][m_voice_current_ptr[current_voice]>>8]=LIMIT8(amp>>7);
+    int new_val=(m.t_output * (vol+voln)) >> 7;
+    m_voice_buff[current_voice][m_voice_current_ptr[current_voice]>>8]=LIMIT8(new_val>>7);
     //TODO:  MODIZER changes end / YOYOFR
 	
 	// Optionally add to echo total
@@ -1174,6 +1175,7 @@ V(V9_V6_V3,2) -> V(V9,2) V(V6,3) V(V3,4) */
 
 // Voice      0      1      2      3      4      5      6      7
 #define GEN_DSP_TIMING \
+for (int jj=0;jj<8;jj++) m_voice_buff[jj][m_voice_current_ptr[jj]>>8]=0;\
 PHASE( 0)  V(V5,0)V(V2,1)\
 PHASE( 1)  V(V6,0)V(V3,1)\
 PHASE( 2)  V(V7_V4_V1,0)\
@@ -1242,7 +1244,7 @@ void SPC_DSP::init( void* ram_64k )
 {
 	m.ram = (uint8_t*) ram_64k;
 	mute_voices( 0 );
-	disable_surround( false );
+    disable_surround( true ); //false );
 	interpolation_level( 0 );
 	set_output( 0, 0 );
 	reset();
