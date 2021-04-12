@@ -194,9 +194,12 @@ void GSFClose(void)
   emulating = 0;
 }
 
+void GSFSoundChannelsEnable(int channels,bool active) {
+    if (active) soundEnable(channels);
+    else soundDisable(channels);
+}
 
 #define EMU_COUNT 250000
-
 
 BOOL EmulationLoop(void) 
 {

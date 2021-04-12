@@ -3,9 +3,6 @@ Todo/Requested:
 - [UI Improvement] option to keep subsong/subfiles selection screen opened
 - [PLAYER] xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
-- [DB] Modland auto update / db creation
-- [DB] Hvsc auto update / db creation
-- [DB] Asma auto update / db creation
 - [PLAYER] pxtone integration
 - [UI Improvement] Mute button / channels & playback ratio (slower/faster)
 - BUG: SID with subsongs -> global length not computed on file browser
@@ -15,6 +12,8 @@ Todo/Requested:
 - TODO: playlist view: add swipe to remove entries
 - TODO: replace vgmplay by libvgm
 - TODO: add description for Settings when relevant
+- TODO: add S98 playback library
+
 
 3.0
 �����

@@ -6137,10 +6137,8 @@ extern "C" int current_sample;
                                 if ((i<0)||(i>=numRows)) mText[l]->Render(10+display_note_mode);
                                 else {
                                     if (i!=currentRow) mText[l]->Render(3+display_note_mode);
-                                    else {
-                                        
+                                    else {                                        
                                         mText[l]->Render(20+display_note_mode);
-                                        
                                     }
                                 }
                                 glPopMatrix();

@@ -232,6 +232,11 @@ void qsoundc_write_data(void* info, UINT8 address, UINT16 data)
 	return;
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 void qsoundc_update(void* param, UINT32 samples, INT16* output)
 {
 	struct qsound_chip* chip = (struct qsound_chip*)param;
@@ -244,8 +249,21 @@ void qsoundc_update(void* param, UINT32 samples, INT16* output)
 		for (curSmpl = 0; curSmpl < samples; curSmpl++)
 		{
 			update_sample(chip);
-			output[curSmpl * 2 + 0] = chip->out[0];
-			output[curSmpl * 2 + 1] = chip->out[1];
+            output[curSmpl * 2 + 0] = chip->out[0];
+            output[curSmpl * 2 + 1] = chip->out[1];
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            //int smplIncr;
+            for (int jj=0;jj<16+3;jj++) {
+                if ((HC_voicesMuteMask1&(1<<jj))) m_voice_buff[jj][m_voice_current_ptr[jj]>>8]=LIMIT8((chip->voice_output[jj]>>6));
+                else m_voice_buff[jj][m_voice_current_ptr[jj]>>8]=0;
+                m_voice_current_ptr[jj]+=256;
+                if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
+            
+            
+			
 		}
 	}
 	else
@@ -803,8 +821,14 @@ static void state_normal_update(struct qsound_chip *chip)
 				pan_index = 97;
 			
 			// Apply different volume tables on the dry and wet inputs.
-			dry -= (chip->voice_output[v] * chip->pan_tables[ch][PANTBL_DRY][pan_index])<<2;
-			wet -= (chip->voice_output[v] * chip->pan_tables[ch][PANTBL_WET][pan_index])<<2;
+            //TODO:  MODIZER changes start / YOYOFR
+            if ((HC_voicesMuteMask1&(1<<v))) {
+            //TODO:  MODIZER changes end / YOYOFR
+                dry -= (chip->voice_output[v] * chip->pan_tables[ch][PANTBL_DRY][pan_index])<<2;
+                wet -= (chip->voice_output[v] * chip->pan_tables[ch][PANTBL_WET][pan_index])<<2;
+            //TODO:  MODIZER changes start / YOYOFR
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 		
 		// Apply FIR filter on 'wet' input

@@ -189,9 +189,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         sp[i]=(val[i]); if(sp[i]>mulfactor) sp[i]=mulfactor; if (sp[i]<-mulfactor) sp[i]=-mulfactor;
     }
     
-    
     for (int r=0;r<rows_nb;r++) {
-        
         int xpos=xofs+r*rows_width;
         int max_voices=num_voices*(r+1)/rows_nb;
         int ypos=hh-mulfactor/2-1;
@@ -1206,7 +1204,6 @@ void RenderUtils::calcNormal(GLfloat v[3][3], GLfloat out[3]) {
     
     ReduceToUnit(out);          /* Normalize The Vectors */
 }
-
 
 void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt) {
     float cr,cg,cb;

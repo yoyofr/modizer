@@ -654,7 +654,6 @@ void soundChannel1()
   }
 
   soundBuffer[0][soundIndex] = value;
-
   
   if(sound1On) {
     if(sound1ATL) {
@@ -973,61 +972,93 @@ void soundTimerOverflow(int timer)
 
 extern "C" int relvolume;
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #ifndef NO_INTERPOLATION
-void soundMix()
-{
-  int res = 0;
-  int cgbRes = 0;
-  int ratio = ioMem[0x82] & 3;
-  int dsaRatio = ioMem[0x82] & 4;
-  int dsbRatio = ioMem[0x82] & 8;
+void soundMix() {
+    //TODO:  MODIZER changes start / YOYOFR
+    int res = 0;
+    int cgbRes = 0;
+    int sndChanL[6],sndChanR[6];
+    int ratio = ioMem[0x82] & 3;
+    int dsaRatio = ioMem[0x82] & 4;
+    int dsbRatio = ioMem[0x82] & 8;
   
-  if(soundBalance & 16) {
-    cgbRes = ((s8)soundBuffer[0][soundIndex]);
-  }
-  if(soundBalance & 32) {
+    memset(sndChanL,0,6*4);
+    memset(sndChanR,0,6*4);
+    
+    if(soundBalance & 16) {
+      cgbRes = ((s8)soundBuffer[0][soundIndex]);
+      sndChanL[0]=((s8)soundBuffer[0][soundIndex]);
+    }
+      
+    if(soundBalance & 32) {
     cgbRes += ((s8)soundBuffer[1][soundIndex]);
-  }
-  if(soundBalance & 64) {
-    cgbRes += ((s8)soundBuffer[2][soundIndex]);
-  }
-  if(soundBalance & 128) {
-    cgbRes += ((s8)soundBuffer[3][soundIndex]);
-  }
+        sndChanL[1]=((s8)soundBuffer[1][soundIndex]);
+    }
+      
+    if(soundBalance & 64) {
+      cgbRes += ((s8)soundBuffer[2][soundIndex]);
+        sndChanL[1]=((s8)soundBuffer[2][soundIndex]);
+    }
+      
+    if(soundBalance & 128) {
+      cgbRes += ((s8)soundBuffer[3][soundIndex]);
+        sndChanL[3]=((s8)soundBuffer[3][soundIndex]);
+    }
 
-  if((soundControl & 0x0200) && (soundEnableFlag & 0x100)){
-    if(!dsaRatio)
-      res = ((s16)directBuffer[0][soundIndex])>>1;
-    else
-      res = ((s16)directBuffer[0][soundIndex]);
-  }
-  
-  if((soundControl & 0x2000) && (soundEnableFlag & 0x200)){
-    if(!dsbRatio)
-      res += ((s16)directBuffer[1][soundIndex])>>1;
-    else
-      res += ((s16)directBuffer[1][soundIndex]);
-  }
-  
-  res = (res * 170) >> 8;
-  cgbRes = (cgbRes * 52 * soundLevel1);
+    if((soundControl & 0x0200) && (soundEnableFlag & 0x100)){
+      if(!dsaRatio) {
+          res = ((s16)directBuffer[0][soundIndex])>>1;
+          sndChanL[4]=((s16)directBuffer[0][soundIndex])>>1;
+      } else {
+          res = ((s16)directBuffer[0][soundIndex]);
+          sndChanL[4]=((s16)directBuffer[0][soundIndex]);
+      }
+    }
 
-  switch(ratio) {
-  case 0:
-  case 3: // prohibited, but 25%    
-    cgbRes >>= 2;
-    break;
-  case 1:
-    cgbRes >>= 1;
-    break;
-  case 2:
-    break;
-  }
+    if((soundControl & 0x2000) && (soundEnableFlag & 0x200)){
+      if(!dsbRatio) {
+          res += ((s16)directBuffer[1][soundIndex])>>1;
+          sndChanL[5]=((s16)directBuffer[1][soundIndex])>>1;
+      } else {
+          res += ((s16)directBuffer[1][soundIndex]);
+          sndChanL[5]=((s16)directBuffer[1][soundIndex]);
+      }
+    }
+            
+    res = (res * 170) >> 8;
+    
+    sndChanL[4]=(sndChanL[4]*170*2)>>8;
+    sndChanL[5]=(sndChanL[5]*170*2)>>8;
+                      
+    cgbRes = (cgbRes * 52 * soundLevel1);
+    
+    for (int ii=0;ii<4;ii++) sndChanL[ii]=(sndChanL[ii]*52*soundLevel1)*4;
 
-  res += cgbRes;
+    switch(ratio) {
+        case 0:
+        case 3: // prohibited, but 25%
+                  cgbRes >>= 2;
+            for (int ii=0;ii<4;ii++) sndChanL[ii]>>=2;;
+        break;
+        case 1:
+                  cgbRes >>= 1;
+            for (int ii=0;ii<4;ii++) sndChanL[ii]>>=1;
+        break;
+        case 2:
+        break;
+    }
 
-  if(soundEcho) {
-    res *= 2;
+    res += cgbRes;
+
+    if(soundEcho) {
+        res *= 2;
     res += soundFilter[soundEchoIndex];
     res /= 2;
     soundFilter[soundEchoIndex++] = res;
@@ -1049,16 +1080,21 @@ void soundMix()
   case 2:
   case 3:
     res *= (soundVolume+1);
+    for (int ii=0;ii<6;ii++) sndChanL[ii] *= (soundVolume+1);
     break;
   case 4:
     res >>= 2;
+    for (int ii=0;ii<6;ii++) sndChanL[ii] >>= 2;
     break;
   case 5:
     res >>= 1;
+    for (int ii=0;ii<6;ii++) sndChanL[ii] >>= 1;
     break;
   }
 
   res = (int)((float) res * ((float)relvolume / 1000.0));
+    
+  for (int ii=0;ii<6;ii++) sndChanL[ii]=(int)((float) sndChanL[ii] * ((float)relvolume / 1000.0));
   
   if(res > 32767)
     res = 32767;
@@ -1075,41 +1111,60 @@ void soundMix()
   
   if(soundBalance & 1) {
     cgbRes = ((s8)soundBuffer[0][soundIndex]);
+      sndChanR[0]=((s8)soundBuffer[0][soundIndex]);
   }
   if(soundBalance & 2) {
     cgbRes += ((s8)soundBuffer[1][soundIndex]);
+      sndChanR[1]=((s8)soundBuffer[1][soundIndex]);
   }
   if(soundBalance & 4) {
     cgbRes += ((s8)soundBuffer[2][soundIndex]);
+      sndChanR[2]=((s8)soundBuffer[2][soundIndex]);
   }
   if(soundBalance & 8) {
     cgbRes += ((s8)soundBuffer[3][soundIndex]);
+      sndChanR[3]=((s8)soundBuffer[3][soundIndex]);
   }
 
   if((soundControl & 0x0100) && (soundEnableFlag & 0x100)){
-    if(!dsaRatio)
-      res = ((s16)directBuffer[0][soundIndex])>>1;
-    else
-      res = ((s16)directBuffer[0][soundIndex]);
+      if(!dsaRatio){
+          res = ((s16)directBuffer[0][soundIndex])>>1;
+          sndChanR[4]=((s16)directBuffer[0][soundIndex])>>1;
+      } else {
+          res = ((s16)directBuffer[0][soundIndex]);
+          sndChanR[4]=((s16)directBuffer[0][soundIndex]);
+      }
   }
   
   if((soundControl & 0x1000) && (soundEnableFlag & 0x200)){
-    if(!dsbRatio)
-      res += ((s16)directBuffer[1][soundIndex])>>1;
-    else
-      res += ((s16)directBuffer[1][soundIndex]);
+      if(!dsbRatio) {
+          res += ((s16)directBuffer[1][soundIndex])>>1;
+          sndChanR[5]=((s16)directBuffer[1][soundIndex])>>1;
+      }
+      else {
+          res += ((s16)directBuffer[1][soundIndex]);
+          sndChanR[5]=((s16)directBuffer[1][soundIndex]);
+      }
   }
 
   res = (res * 170) >> 8;
+    
+    sndChanR[4]=(sndChanR[4]*170*2)>>8;
+    sndChanR[5]=(sndChanR[5]*170*2)>>8;
+    
   cgbRes = (cgbRes * 52 * soundLevel1);
+    
+    for (int ii=0;ii<4;ii++) sndChanR[ii]=(sndChanR[ii]*52*soundLevel1)*4;
   
   switch(ratio) {
   case 0:
   case 3: // prohibited, but 25%
     cgbRes >>= 2;
+          for (int ii=0;ii<4;ii++) sndChanR[ii]>>=2;
     break;
   case 1:
     cgbRes >>= 1;
+          for (int ii=0;ii<4;ii++) sndChanR[ii]>>=1;
     break;
   case 2:
     break;
@@ -1143,16 +1198,21 @@ void soundMix()
   case 2:
   case 3:
     res *= (soundVolume+1);
+          for (int ii=0;ii<6;ii++) sndChanR[ii] *= (soundVolume+1);
     break;
   case 4:
     res >>= 2;
+          for (int ii=0;ii<6;ii++) sndChanR[ii] >>= 2;
     break;
   case 5:
     res >>= 1;
+          for (int ii=0;ii<6;ii++) sndChanR[ii] >>= 1;
     break;
   }
   
   res = (int)((float) res * ((float)relvolume / 1000.));
+    
+    for (int ii=0;ii<6;ii++) sndChanR[ii]=(int)((float) sndChanR[ii] *((float)relvolume / 1000.0));
 
   if(res > 32767)
     res = 32767;
@@ -1163,6 +1223,14 @@ void soundMix()
     soundFinalWave[-1+soundBufferIndex++] = res;
   else
     soundFinalWave[soundBufferIndex++] = res;
+  
+    //TODO:  MODIZER changes start / YOYOFR
+    for (int jj=0;jj<6;jj++) {
+        m_voice_buff[jj][m_voice_current_ptr[jj]>>8]=LIMIT8((sndChanL[jj]+sndChanR[jj])>>9);
+        m_voice_current_ptr[jj]+=256;
+        if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 }
 #else
 
