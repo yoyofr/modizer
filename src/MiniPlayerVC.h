@@ -21,12 +21,15 @@ NS_ASSUME_NONNULL_BEGIN
     UIView *gestureAreaView;
     
     CBAutoScrollLabel *labelMain,*labelSub;
-    UILabel *lblPlaylist;
-    UILabel *lblTime;
+    UILabel *labelPlaylist;
+    UILabel *labelTime;
+    char labelTime_mode;
     
     BButton *btnPlay,*btnPause;
     
     bool darkMode;
+    
+    NSTimer *repeatingTimer;
     
     DetailViewControllerIphone *detailVC;
 }
@@ -36,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) MiniPlayerView *mpview;
 
 -(void) refreshCoverLabels;
+-(void) pushedPause;
+-(void) pushedPlay;
 
 @end
 

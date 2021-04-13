@@ -8429,6 +8429,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         src_state=NULL;
     }
 }
+
+-(bool) isPaused {
+    return (bGlobalAudioPause?true:false);
+}
 -(void) Pause:(BOOL) paused {
     bGlobalAudioPause=(paused?1:0);
     //if (paused) [self iPhoneDrv_PlayStop];

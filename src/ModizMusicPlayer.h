@@ -247,6 +247,7 @@ enum MMP_PLAYER_TYPE {
 -(int) getSongLengthfromMD5:(int)track_nb;
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength;
 
+-(bool) isPaused;
 -(BOOL) isEndReached;
 -(void) Stop;
 -(void) Pause:(BOOL)paused;
