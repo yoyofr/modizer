@@ -111,7 +111,6 @@ static int infoIsFullscreen=0;
 static UIAlertView *alertCrash;
 static MPVolumeView *volumeView;
 
-static UIImage *cover_img,*default_cover;
 static MPMediaItemArtwork *artwork;
 
 static int txtMenuHandle[16];
@@ -144,6 +143,7 @@ static int display_length_mode=0;
 
 @implementation DetailViewControllerIphone
 
+@synthesize cover_img,default_cover;
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
 @synthesize bShowVC,bShowEQ;
 @synthesize infoButton,eqButton;
@@ -316,10 +316,12 @@ static int display_length_mode=0;
 
 -(void)didSelectRowInAlertArcController:(NSInteger)row {
     [mplayer selectArcEntry:(int)row];
+    [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
     [self showWaiting];
     [self shortWait];
     [self play_loadArchiveModule];
     [self hideWaiting];
+    
     //self.outputLabel.text = [self.data objectAtIndex:row];
 }
 
@@ -1002,6 +1004,45 @@ static float movePinchScale,movePinchScaleOld;
     display_length_mode^=1;
 }
 
+- (UIViewController *)visibleViewController:(UIViewController *)rootViewController
+{
+    if ([rootViewController isKindOfClass:[UITabBarController class]])
+    {
+        UIViewController *selectedViewController = ((UITabBarController *)rootViewController).selectedViewController;
+
+        return [self visibleViewController:selectedViewController];
+    }
+    if ([rootViewController isKindOfClass:[UINavigationController class]])
+    {
+        UIViewController *lastViewController = [[((UINavigationController *)rootViewController) viewControllers] lastObject];
+
+        return [self visibleViewController:lastViewController];
+    }
+    
+    if (rootViewController.presentedViewController == nil)
+    {
+        return rootViewController;
+    }
+    if ([rootViewController.presentedViewController isKindOfClass:[UINavigationController class]])
+    {
+        UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
+        UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
+
+        return [self visibleViewController:lastViewController];
+    }
+    if ([rootViewController.presentedViewController isKindOfClass:[UITabBarController class]])
+    {
+        UITabBarController *tabBarController = (UITabBarController *)rootViewController.presentedViewController;
+        UIViewController *selectedViewController = tabBarController.selectedViewController;
+
+        return [self visibleViewController:selectedViewController];
+    }
+
+    UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
+
+    return [self visibleViewController:presentedViewController];
+}
+
 //define the targetmethod
 -(void) updateInfos: (NSTimer *) theTimer {
     static int updMPNowCnt=0;
@@ -1018,6 +1059,13 @@ static float movePinchScale,movePinchScaleOld;
 	}
 	int mpl_upd=[mplayer shouldUpdateInfos];
 	if (mpl_upd||mShouldUpdateInfos) {
+        
+        ///////////////////////////////////////////////////
+        // Update miniplayer
+        ///////////////////////////////////////////////////
+        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+        mdz_safe_execute_sel(vc,@selector(updateMiniPlayer),nil)
+        
         
         /////////////////////////////////////////////////////////////////////////////
         //update rating
@@ -1167,10 +1215,12 @@ static float movePinchScale,movePinchScaleOld;
 	
 	int seekinprogress=[mplayer isSeeking];
 	if (seekinprogress) {
-		labelSeeking.hidden=FALSE;
-		if (seekinprogress>0) labelSeeking.text=[NSString stringWithFormat:NSLocalizedString(@"Seeking %d%%",@""),seekinprogress];
-		else labelSeeking.text=NSLocalizedString(@"Seeking",@"");
-	} else labelSeeking.hidden=TRUE;
+		labelSeeking.hidden=FALSE;		
+        labelSeeking.text=NSLocalizedString(@"Seeking",@"");
+    } else {
+        labelSeeking.hidden=TRUE;
+        //[self hideWaiting];
+    }
 	
 	if (/*(mPaused==0)&&*/(mplayer.bGlobalAudioPause==2)&&[mplayer isEndReached]) {//mod ended
 		//have to update the pause button
@@ -1190,6 +1240,7 @@ static float movePinchScale,movePinchScaleOld;
 		else {
             if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1)&&(mOnlyCurrentEntry==0)) {
                 [mplayer selectNextArcEntry];
+                [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
                 [self showWaiting];
                 [self shortWait];
                 [self play_loadArchiveModule];
@@ -1513,6 +1564,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
             [mplayer selectArcEntry:[mplayer getArcIndex]];
+            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
             [self shortWait];
             [self play_loadArchiveModule];
@@ -1526,6 +1578,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     //if archive and no subsongs => change archive index
     if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub<=mplayer.mod_minsub))) {
         [mplayer selectPrevArcEntry];
+        [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
         [self showWaiting];
         [self shortWait];
         [self play_loadArchiveModule];
@@ -1539,13 +1592,18 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 - (IBAction)playNextSub {
     //if archive and no subsongs => change archive index
     if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub>=mplayer.mod_maxsub))) {
-        [mplayer selectNextArcEntry];
-        [self showWaiting];
-        [self shortWait];
-        [self play_loadArchiveModule];
-        [self hideWaiting];
+        if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) [self playNext];
+        else {
+            [mplayer selectNextArcEntry];
+            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
+            [self showWaiting];
+            [self shortWait];
+            [self play_loadArchiveModule];
+            [self hideWaiting];
+        }
     } else {
-        [mplayer playNextSub];
+        if (mplayer.mod_currentsub>=mplayer.mod_maxsub) [self playNext];
+        else [mplayer playNextSub];
         if (mPaused) [self playPushed:nil];
     }
 }
@@ -1554,6 +1612,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             [mplayer selectNextArcEntry];
+            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
             [self shortWait];
             [self play_loadArchiveModule];
@@ -1566,6 +1625,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             [mplayer selectPrevArcEntry];
+            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
             [self shortWait];
             [self play_loadArchiveModule];
@@ -1589,7 +1649,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	mIsPlaying=FALSE;
     
 	if (mPlaylist_size==0) {
-        [repeatingTimer invalidate];
+        if (repeatingTimer) [repeatingTimer invalidate];
 		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 		[mplayer Stop];
         mPaused=1;
@@ -1603,6 +1663,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
 	mPlaylist[mPlaylist_pos].mPlaylistCount++;
     
+    [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
     [self showWaiting];
     [self shortWait];
     
@@ -1637,7 +1698,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)play_prevEntry {
     if (mPlaylist_size==0) {
-        [repeatingTimer invalidate];
+        if (repeatingTimer) [repeatingTimer invalidate];
 		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 		[mplayer Stop];
         mPaused=1;
@@ -1666,7 +1727,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)play_nextEntry {
     if (mPlaylist_size==0) {
-        [repeatingTimer invalidate];
+        if (repeatingTimer) [repeatingTimer invalidate];
 		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 		[mplayer Stop];
         mPaused=1;
@@ -2023,6 +2084,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     return mPlaylist[mPlaylist_pos].mPlaylistFilepath;
 }
 
+
+
 -(BOOL) play_loadArchiveModule {
 	short int playcount=0;
 	int retcode;
@@ -2037,7 +2100,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	mSendStatTimer=0;
 	
 	// if already playing, stop
-	if ([mplayer isPlaying]) {
+	if (repeatingTimer) {
 		[repeatingTimer invalidate];
 		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 		[mplayer Stop];
@@ -2055,7 +2118,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	// load module
 
-	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self])) {
 		//error while loading
         
         if ( [mplayer isArchive] &&
@@ -2067,7 +2130,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 [mplayer selectNextArcEntry];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
             } while (retcode);
         }
         
@@ -2081,12 +2144,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     if (mShuffle) {
         if ([mplayer isArchive]) {
-//            [self showWaiting];
-            //[self shortWait];
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
 
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self])) {
                 //error while loading
                 if ( [mplayer isArchive] &&
                     ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
@@ -2097,7 +2158,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                         [mplayer selectNextArcEntry];
                         if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
                         mRestart_arc=[mplayer getArcIndex];
-                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value  archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value  archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
                     } while (retcode);
                     
                 }
@@ -2377,7 +2438,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (!fileName) return FALSE;
     
     // if already playing, stop
-	if ([mplayer isPlaying]) {
+	if (repeatingTimer) {
 		[repeatingTimer invalidate];
 		repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 		[mplayer Stop];
@@ -2434,7 +2495,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mOnlyCurrentEntry=1;
     }
 
-	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry])) {
+	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self])) {
 		
         //error while loading
         //if it is an archive, try to load next entry until end or valid one reached
@@ -2446,7 +2507,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             do {
                 [mplayer selectNextArcEntry];
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
             } while (retcode);
         }
@@ -2465,17 +2526,16 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     if (mShuffle) {
         if ([mplayer isArchive]) {
-//            [self showWaiting];
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
 
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry])) {
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self])) {
                 //error while loading
                 
                 do {
                     [mplayer selectNextArcEntry];
                     mRestart_arc=[mplayer getArcIndex];
-                    retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry];
+                    retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
                     if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
                 } while (retcode);
                 
@@ -3951,17 +4011,37 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //[fileMngr release];
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
 -(void) shortWait {
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
-
+-(void)hideWaitingCancel {
+    [waitingView hideCancel];
+}
+-(void)showWaitingCancel {
+    [waitingView showCancel];
+}
 -(void)showWaiting{
     waitingView.hidden=FALSE;
 }
-
 -(void)hideWaiting{
     waitingView.hidden=TRUE;
 }
+-(bool) isCancelPending {
+    return [waitingView isCancelPending];
+}
+-(void) resetCancelStatus {
+    [waitingView resetCancelStatus];
+}
+-(void) updateWaitingDetail:(NSString *)text {
+    [waitingView setDetail:text];
+}
+-(void) updateWaitingTitle:(NSString *)text {
+    [waitingView setTitle:text];
+}
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 
 -(void)orientationDidChange:(NSNotification*)notification
@@ -4026,7 +4106,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     mLoadIssueMessage=0;
     
-    
+    repeatingTimer=0;
     
     temp_playlist=NULL;
     
@@ -4427,42 +4507,19 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
-    waitingView = [[UIView alloc] init];
-	waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-	waitingView.opaque=YES;
-	waitingView.hidden=FALSE;
-	waitingView.layer.cornerRadius=20;
-	
-	UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-30,40,40)];
-	indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-	[waitingView addSubview:indView];
-    UILabel *lblLoading=[[UILabel alloc] initWithFrame:CGRectMake(10,70,80,20)];
-    lblLoading.text=@"Loading";
-    lblLoading.backgroundColor=[UIColor blackColor];
-    lblLoading.opaque=YES;
-    lblLoading.textColor=[UIColor whiteColor];
-    lblLoading.textAlignment=NSTextAlignmentCenter;
-    lblLoading.font=[UIFont italicSystemFontOfSize:16];
-    [waitingView addSubview:lblLoading];
-    //[lblLoading autorelease];
-    
-	[indView startAnimating];
-	//[indView autorelease];
-    
-    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    waitingView = [[WaitingView alloc] init];
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
     // height constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
-    
-	//init pattern notes buffer
+    //init pattern notes buffer
 	for (int i=0;i<128;i++) {
 		mText[i]=nil;
 	}
@@ -4886,12 +4943,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         [self checkForCover:filePathTmp];
 	}
     
-    if (shouldRestart) {
-        shouldRestart=0;
-        [self play_restart];
-    }
-    
-	//update play/pause bars...
+    //update play/pause bars...
     
 	self.pauseBarSub.hidden=YES;
 	self.playBarSub.hidden=YES;
@@ -4972,8 +5024,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewDidAppear:(BOOL)animated {
 	mHasFocus=1;
     
-    nowplayingPL=nil;
+/*    if (shouldRestart) {
+        shouldRestart=0;
+        [self play_restart];
+    }*/
     
+    nowplayingPL=nil;
     // if temp_playlist, free it
     if (temp_playlist) {
         

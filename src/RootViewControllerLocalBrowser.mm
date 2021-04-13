@@ -34,6 +34,9 @@ static volatile int mPopupAnimation=0;
 #import "DetailViewControllerIphone.h"
 #import "QuartzCore/CAAnimation.h"
 #import "SettingsGenViewController.h"
+
+
+
 extern volatile t_settings settings[MAX_SETTINGS];
 
 @implementation RootViewControllerLocalBrowser
@@ -65,6 +68,50 @@ static char *browser_stil_info;//[MAX_STIL_DATA_LENGTH];
 static char browser_song_md5[33];
 static char **browser_sidtune_title,**browser_sidtune_name;
 
+-(void)hideMiniPlayer {
+    if (miniplayerVC) {
+        [miniplayerVC removeFromParentViewController];
+        [miniplayerVC.view removeFromSuperview];
+        miniplayerVC=nil;
+        
+        self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height+48);
+        [tableView reloadData];
+    }
+}
+-(void)updateMiniPlayer {
+    miniplayerVC.coverImg=(detailViewController.cover_img?detailViewController.cover_img:detailViewController.default_cover);
+    [miniplayerVC refreshCoverLabels];
+}
+
+- (void)showMiniPlayer {
+    [self hideMiniPlayer];
+    
+    miniplayerVC = [[MiniPlayerVC alloc] init];
+    //set new title
+    miniplayerVC.title = @"Mini Player";
+    miniplayerVC.detailVC=detailViewController;
+    miniplayerVC.coverImg=(detailViewController.cover_img?detailViewController.cover_img:detailViewController.default_cover);
+    //miniplayerVC.view.frame=CGRectMake(0,self.tableView.frame.origin.y+self.tableView.frame.size.height-48+48,self.tableView.frame.size.width,48);
+    miniplayerVC.view.translatesAutoresizingMaskIntoConstraints=false;
+    //self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48+48);
+    //[tableView reloadData];
+    
+    
+    [self addChildViewController:miniplayerVC];
+    [self.view addSubview:miniplayerVC.view];
+    
+    UIView *miniplayerVCview=miniplayerVC.view;
+    NSDictionary *views = NSDictionaryOfVariableBindings(miniplayerVCview);
+    // height constraint
+    [miniplayerVCview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[miniplayerVCview(48)]" options:0 metrics:nil views:views]];
+    //positioning constraints
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    
+    self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48);
+    [tableView reloadData];
+}
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
 {
@@ -266,7 +313,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     fileManager=nil;
 }
 // Creates a writable copy of the bundled default database in the application Documents directory.
-- (void)createSamplesFromPackage:(BOOL)forceCreate {
+- (void) createSamplesFromPackage:(BOOL)forceCreate {
     BOOL success;
     NSFileManager *fileManager = [[NSFileManager alloc] init];
     NSError *error;
@@ -292,7 +339,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 // Creates a writable copy of the bundled default database in the application Documents directory.
-- (void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet {
+- (void) createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet {
     // First, test for existence.
     BOOL success=FALSE;
     BOOL wrongversion=FALSE;
@@ -354,7 +401,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 #pragma mark -
 #pragma mark View lifecycle
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
@@ -363,7 +410,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return self;
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (mDatabaseCreationInProgress) {
         [self recreateDB];
         UIAlertView *alert2 = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Database created.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -430,7 +477,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
 }
 
-- (BOOL)alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView
+- (BOOL) alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView
 {
     NSString *inputText = [[alertView textFieldAtIndex:0] text];
     if( [inputText length] >= 1 ) {
@@ -462,23 +509,46 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return machine;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
 -(void) shortWait {
-    //[NSThread sleepForTimeInterval:0.1f];
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
-
--(void)showWaiting{
+-(void) hideWaitingCancel {
+    [waitingView hideCancel];
+}
+-(void) showWaitingCancel {
+    [waitingView showCancel];
+}
+-(void) showWaiting{
     waitingView.hidden=FALSE;
 }
-
--(void)hideWaiting{
+-(void) hideWaiting{
     waitingView.hidden=TRUE;
 }
+-(bool) isCancelPending {
+    return [waitingView isCancelPending];
+}
+-(void) resetCancelStatus {
+    [waitingView resetCancelStatus];
+}
+-(void) updateWaitingDetail:(NSString *)text {
+    [waitingView setDetail:text];
+}
+-(void) updateWaitingTitle:(NSString *)text {
+    [waitingView setTitle:text];
+}
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 
 - (void)viewDidLoad {
     clock_t start_time,end_time;
     start_time=clock();
     childController=nil;
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
     
     forceReloadCells=false;
     darkMode=false;
@@ -610,31 +680,17 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
-    waitingView = [[UIView alloc] init];
-    waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-    waitingView.opaque=YES;
-    waitingView.hidden=FALSE;
-    waitingView.layer.cornerRadius=20;
-    
-    UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-20,40,40)];
-    indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-    [waitingView addSubview:indView];
-    
-    [indView startAnimating];
-    //[indView autorelease];
-    
-    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    waitingView = [[WaitingView alloc] init];
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
     // height constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-    /////////////////////////////////////////
     
     
     [super viewDidLoad];
@@ -1842,10 +1898,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     [self.tableView reloadData];
 }
 
+static int shouldRestart=1;
+
 -(void) viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+        
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -1857,6 +1916,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+    
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+        //[self hideMiniPlayer];
+    }
     
     if (keys) {
         keys=nil;
@@ -1946,13 +2013,26 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     
     [super viewDidAppear:animated];
     //[tableView reloadData];
+    
+    if (shouldRestart) {
+        shouldRestart=0;
+        [detailViewController play_restart];
+    }
+
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
-    if (childController) {
+    [self hideMiniPlayer];
+    /*if (childController) {
         [childController viewDidDisappear:FALSE];
-    }
+    }*/
+        
     [super viewDidDisappear:animated];
 }
 
@@ -2334,7 +2414,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     return found;
 }
 
-
 -(void) fex_extractToPath:(const char *)archivePath path:(const char *)extractPath {
     fex_type_t type;
     fex_t* fex;
@@ -2628,7 +2707,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
  @param side The side of the buttons which the cell will show.
  */
 //- (void)slideTableViewCell:(SESlideTableViewCell *)cell wilShowButtonsOfSide:(SESlideTableViewCellSide)side;
-
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
@@ -3130,6 +3208,9 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         }
         if (pl->nb_entries) {
             [detailViewController play_listmodules:pl start_index:-1];
+            
+            if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+            
             if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
             else [tableView reloadData];
         }
@@ -3203,6 +3284,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         
         if (total_entries) {
             if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                
                 if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 else [tableView reloadData];
             }
@@ -3215,6 +3298,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         if (cur_local_entries[section][indexPath.row].type&3) {//File selected
             cur_local_entries[section][indexPath.row].rating=-1;
             if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:1]) {
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                
                 if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 else [tableView reloadData];
             }
@@ -3250,7 +3335,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     [self fillKeys];
     [tableView reloadData];
 }
-
 
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
@@ -3310,6 +3394,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;
             ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
+            
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
             
@@ -3358,6 +3443,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 pl->entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
                 pl->entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
                 [detailViewController play_listmodules:pl start_index:0];
+                
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
                 cur_local_entries[section][indexPath.row].rating=-1;
                 if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
@@ -3480,7 +3567,6 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     self.popTipView = nil;
 }
 
-
 #pragma mark -
 #pragma mark Memory management
 
@@ -3497,7 +3583,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
 }
 - (void)dealloc {
     [waitingView removeFromSuperview];
-    //[waitingView release];
+    waitingView=nil;
     
     //[currentPath release];
     if (mSearchText) {
@@ -3543,6 +3629,5 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     browser_stil_info=nil;
     //[super dealloc];
 }
-
 
 @end

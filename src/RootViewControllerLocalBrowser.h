@@ -14,8 +14,11 @@
 #import "fex.h"
 #import "CMPopTipView.h"
 
+#import "MiniPlayerVC.h"
 
 #import "SESlideTableViewCell.h"
+
+#import "WaitingView.h"
 
 @class DetailViewControllerIphone;
 
@@ -24,11 +27,14 @@
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     NSFileManager *mFileMngr;
-	
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
+    
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	UIView *waitingView;
+	WaitingView *waitingView;
     
     UIAlertView *alertRename;
     int renameFile,renameSec,renameIdx;
@@ -90,6 +96,7 @@
 
 -(IBAction)goPlayer;
 -(void) refreshViewAfterDownload;
+-(void)updateMiniPlayer;
 -(void)listLocalFiles;
 -(void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
 -(void)createSamplesFromPackage:(BOOL)forceCreate;

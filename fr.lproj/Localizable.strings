@@ -118,6 +118,8 @@
 "File cannot be played. Skipping to next playable file."="Ne pas jouer le fichier. Saut jusqu'au prochain fichier jouable.";
 "Seeking %d%%"="Recherche %d%%";
 "Seeking"="Recherche";
+"Loading"="Chargement";
+"Extracting"="Décompression";
 "Too much entries! Playlist will be limited to %d first entries."="Trop d'entrées! La liste est limitée à %d entrées.";
 "Size: %dKB"="Taille: %dKB";
 

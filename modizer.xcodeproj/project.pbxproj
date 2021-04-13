@@ -270,8 +270,6 @@
 		5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362D25DBDB8600AA548E /* CoreMedia.framework */; };
 		5918E0AC26177CB1004B85DA /* VoicesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5918E0AA26177CB1004B85DA /* VoicesViewController.mm */; };
 		5918E0AD26177CB1004B85DA /* VoicesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5918E0AA26177CB1004B85DA /* VoicesViewController.mm */; };
-		5918E0AE26177CB1004B85DA /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5918E0AB26177CB1004B85DA /* VoicesViewController.xib */; };
-		5918E0AF26177CB1004B85DA /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5918E0AB26177CB1004B85DA /* VoicesViewController.xib */; };
 		591D8E3F25DC63620013E19F /* tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0525DC63620013E19F /* tables.c */; };
 		591D8E4025DC63620013E19F /* libatrac9.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0625DC63620013E19F /* libatrac9.c */; };
 		591D8E4125DC63620013E19F /* huffCodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0725DC63620013E19F /* huffCodes.c */; };
@@ -1506,7 +1504,6 @@
 		595D4A17262187BC000B7187 /* GlueMon in Resources */ = {isa = PBXBuildFile; fileRef = CC1E629A120423DF000A8A4E /* GlueMon */; };
 		595D4A18262187BC000B7187 /* HowieDavies in Resources */ = {isa = PBXBuildFile; fileRef = CC1E629B120423DF000A8A4E /* HowieDavies */; };
 		595D4A19262187BC000B7187 /* ImagesMusicSystem in Resources */ = {isa = PBXBuildFile; fileRef = CC1E629C120423DF000A8A4E /* ImagesMusicSystem */; };
-		595D4A1A262187BC000B7187 /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5918E0AB26177CB1004B85DA /* VoicesViewController.xib */; };
 		595D4A1B262187BC000B7187 /* Infogrames in Resources */ = {isa = PBXBuildFile; fileRef = CC1E629D120423DF000A8A4E /* Infogrames */; };
 		595D4A1C262187BC000B7187 /* InStereo in Resources */ = {isa = PBXBuildFile; fileRef = CC1E629E120423DF000A8A4E /* InStereo */; };
 		595D4A1D262187BC000B7187 /* bach_cs1-1pre.mid in Resources */ = {isa = PBXBuildFile; fileRef = 5966D16C25CFF0D100520777 /* bach_cs1-1pre.mid */; };
@@ -2632,6 +2629,16 @@
 		59909B611E3E7F2400C629AA /* tabview_gradient40Black@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B5F1E3E7F2400C629AA /* tabview_gradient40Black@2x.png */; };
 		59909B641E3E81AD00C629AA /* tabview_gradient40Gray.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B621E3E81AD00C629AA /* tabview_gradient40Gray.png */; };
 		59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */; };
+		59A65C6D2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C6C2624D40000BC99D1 /* MiniPlayerVC.mm */; };
+		59A65C6E2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C6C2624D40000BC99D1 /* MiniPlayerVC.mm */; };
+		59A65C762624E9B800BC99D1 /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59A65C752624E9B700BC99D1 /* VoicesViewController.xib */; };
+		59A65C772624E9B800BC99D1 /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59A65C752624E9B700BC99D1 /* VoicesViewController.xib */; };
+		59A65C80262501A000BC99D1 /* MiniPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C7F262501A000BC99D1 /* MiniPlayerView.m */; };
+		59A65C81262501A000BC99D1 /* MiniPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C7F262501A000BC99D1 /* MiniPlayerView.m */; };
+		59A65C882625947500BC99D1 /* CBAutoScrollLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C872625947500BC99D1 /* CBAutoScrollLabel.m */; };
+		59A65C892625947500BC99D1 /* CBAutoScrollLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C872625947500BC99D1 /* CBAutoScrollLabel.m */; };
+		59A65C922625F3DB00BC99D1 /* WaitingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C912625F3DB00BC99D1 /* WaitingView.m */; };
+		59A65C932625F3DB00BC99D1 /* WaitingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C912625F3DB00BC99D1 /* WaitingView.m */; };
 		59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */; };
 		59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A665311E4B04E700EB110E /* txtMenu2e_2x.png */; };
 		59B2B31D25BDA239006FA3D0 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
@@ -2684,6 +2691,9 @@
 		59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB325BC8C3B003FEDBF /* libxml2.tbd */; };
 		59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB725BC8CFF003FEDBF /* Security.framework */; };
 		59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */; };
+		59D2643F262496F800C9D510 /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
+		59D2646D2624D15A00C9D510 /* MiniPlayer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59D2646C2624D15A00C9D510 /* MiniPlayer.xib */; };
+		59D2646E2624D15A00C9D510 /* MiniPlayer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59D2646C2624D15A00C9D510 /* MiniPlayer.xib */; };
 		59E4A380261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
 		59E4A381261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
 		59E4A382261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
@@ -4467,7 +4477,6 @@
 		591054D525EAC21F00A194FF /* snsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = snsf.xcodeproj; sourceTree = "<group>"; };
 		5918E0A926177CB1004B85DA /* VoicesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoicesViewController.h; sourceTree = "<group>"; };
 		5918E0AA26177CB1004B85DA /* VoicesViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VoicesViewController.mm; sourceTree = "<group>"; };
-		5918E0AB26177CB1004B85DA /* VoicesViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VoicesViewController.xib; sourceTree = "<group>"; };
 		591D8E0525DC63620013E19F /* tables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tables.c; sourceTree = "<group>"; };
 		591D8E0625DC63620013E19F /* libatrac9.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libatrac9.c; sourceTree = "<group>"; };
 		591D8E0725DC63620013E19F /* huffCodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = huffCodes.c; sourceTree = "<group>"; };
@@ -4664,6 +4673,15 @@
 		59909B5F1E3E7F2400C629AA /* tabview_gradient40Black@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Black@2x.png"; sourceTree = "<group>"; };
 		59909B621E3E81AD00C629AA /* tabview_gradient40Gray.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Gray.png; sourceTree = "<group>"; };
 		59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Gray@2x.png"; sourceTree = "<group>"; };
+		59A65C6B2624D40000BC99D1 /* MiniPlayerVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MiniPlayerVC.h; sourceTree = "<group>"; };
+		59A65C6C2624D40000BC99D1 /* MiniPlayerVC.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MiniPlayerVC.mm; sourceTree = "<group>"; };
+		59A65C752624E9B700BC99D1 /* VoicesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VoicesViewController.xib; sourceTree = "<group>"; };
+		59A65C7E262501A000BC99D1 /* MiniPlayerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MiniPlayerView.h; sourceTree = "<group>"; };
+		59A65C7F262501A000BC99D1 /* MiniPlayerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MiniPlayerView.m; sourceTree = "<group>"; };
+		59A65C862625947500BC99D1 /* CBAutoScrollLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBAutoScrollLabel.h; sourceTree = "<group>"; };
+		59A65C872625947500BC99D1 /* CBAutoScrollLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBAutoScrollLabel.m; sourceTree = "<group>"; };
+		59A65C902625F3DB00BC99D1 /* WaitingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaitingView.h; sourceTree = "<group>"; };
+		59A65C912625F3DB00BC99D1 /* WaitingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaitingView.m; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
 		59B9992C25CFDFDF0071E144 /* fex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fex.h; path = utils/File_Extractor/fex/fex.h; sourceTree = "<group>"; };
@@ -4727,6 +4745,7 @@
 		59C22AB325BC8C3B003FEDBF /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		59C22AB725BC8CFF003FEDBF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = modizer_icon.icns; sourceTree = "<group>"; };
+		59D2646C2624D15A00C9D510 /* MiniPlayer.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MiniPlayer.xib; sourceTree = "<group>"; };
 		59E4A37E261E7219000A31BA /* yrw801.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = yrw801.rom; sourceTree = "<group>"; };
 		59E4A37F261E7219000A31BA /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGMPlay.ini; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
@@ -5569,6 +5588,7 @@
 				5950DB7625E0F67B00B476B2 /* AVFoundation.framework in Frameworks */,
 				5950DB7725E0F67B00B476B2 /* libFileExtractor.a in Frameworks */,
 				5950DB7925E0F67B00B476B2 /* libavcodec.a in Frameworks */,
+				59D2643F262496F800C9D510 /* libsnsf.a in Frameworks */,
 				5950DB7A25E0F67B00B476B2 /* CFNetwork.framework in Frameworks */,
 				5950DB7B25E0F67B00B476B2 /* libtim.a in Frameworks */,
 				5950DB7C25E0F67B00B476B2 /* MediaPlayer.framework in Frameworks */,
@@ -6532,9 +6552,19 @@
 			path = Classical;
 			sourceTree = "<group>";
 		};
+		59A65C852625947500BC99D1 /* CBAutoScrollLabel */ = {
+			isa = PBXGroup;
+			children = (
+				59A65C862625947500BC99D1 /* CBAutoScrollLabel.h */,
+				59A65C872625947500BC99D1 /* CBAutoScrollLabel.m */,
+			);
+			path = CBAutoScrollLabel;
+			sourceTree = "<group>";
+		};
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				59A65C852625947500BC99D1 /* CBAutoScrollLabel */,
 				33ABE5A617B17A5100AE0EA1 /* BButton */,
 				33BB80CC14D4679B00EA4B32 /* OBSlider */,
 				CC1E5A021200B3B8000A8A4E /* Misc */,
@@ -6957,6 +6987,8 @@
 				33525D7C1222567600E6E517 /* DBHelper.mm */,
 				CC1E622012041177000A8A4E /* DetailViewControllerIphone.h */,
 				CC1E622112041177000A8A4E /* DetailViewControllerIphone.mm */,
+				59A65C902625F3DB00BC99D1 /* WaitingView.h */,
+				59A65C912625F3DB00BC99D1 /* WaitingView.m */,
 				CC1E622212041177000A8A4E /* DownloadViewController.h */,
 				CC1E622312041177000A8A4E /* DownloadViewController.mm */,
 				CC6CBDF417DC615F006DCBC7 /* EQView.h */,
@@ -6968,6 +7000,10 @@
 				CCD4631D123CB8F600D063FE /* main.mm */,
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
 				CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */,
+				59A65C6B2624D40000BC99D1 /* MiniPlayerVC.h */,
+				59A65C6C2624D40000BC99D1 /* MiniPlayerVC.mm */,
+				59A65C7E262501A000BC99D1 /* MiniPlayerView.h */,
+				59A65C7F262501A000BC99D1 /* MiniPlayerView.m */,
 				CC9B97161221739A007A156C /* ModizerConstants.h */,
 				59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */,
 				5950D83825DF1A2500B476B2 /* ModizerWebView.h */,
@@ -7056,32 +7092,33 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				59E4A37D261E7219000A31BA /* vgmplay */,
-				59BE93A32600D3F500414A42 /* c64 */,
-				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
-				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
-				59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */,
-				59387AED20C745BB001F0C20 /* LaunchLogo.jpg */,
 				59387AEF20C746D3001F0C20 /* AppStore512.png */,
-				CCFA9ADC1AC75830007C658A /* WebTools */,
-				3356548817B52EFF003AE763 /* browser_home.html */,
-				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
-				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
-				5918E0AB26177CB1004B85DA /* VoicesViewController.xib */,
-				CCFE183B17EF586200C1682F /* MainWindow.xib */,
-				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
-				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
+				33888A7C122318C60030C82E /* backgrounds */,
 				33ABE5B617B23DF900AE0EA1 /* BookmarksViewController.xib */,
+				3356548817B52EFF003AE763 /* browser_home.html */,
+				59BE93A32600D3F500414A42 /* c64 */,
+				CC1E5A171200B3B8000A8A4E /* DB */,
+				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
+				CC1E5A2A1200B3B8000A8A4E /* Fonts */,
+				CC1E5E961200CF6C000A8A4E /* Icons */,
+				CC1E5A2C1200B3B8000A8A4E /* Images */,
+				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
+				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
+				59387AED20C745BB001F0C20 /* LaunchLogo.jpg */,
+				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
+				CCFE183B17EF586200C1682F /* MainWindow.xib */,
+				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
+				59D2646C2624D15A00C9D510 /* MiniPlayer.xib */,
+				59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */,
 				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
-				3396B55613297F8C001792E0 /* timidity */,
 				CCB21D9C124690E000A30F62 /* Samples */,
 				CC9F0E39123DEFCC00D8EE6D /* sc68 */,
-				33888A7C122318C60030C82E /* backgrounds */,
+				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
+				3396B55613297F8C001792E0 /* timidity */,
 				CC1E6260120423DF000A8A4E /* UADE */,
-				CC1E5E961200CF6C000A8A4E /* Icons */,
-				CC1E5A171200B3B8000A8A4E /* DB */,
-				CC1E5A2A1200B3B8000A8A4E /* Fonts */,
-				CC1E5A2C1200B3B8000A8A4E /* Images */,
+				59E4A37D261E7219000A31BA /* vgmplay */,
+				59A65C752624E9B700BC99D1 /* VoicesViewController.xib */,
+				CCFA9ADC1AC75830007C658A /* WebTools */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -8494,7 +8531,6 @@
 				CC1E6346120423DF000A8A4E /* GlueMon in Resources */,
 				CC1E6347120423DF000A8A4E /* HowieDavies in Resources */,
 				CC1E6348120423DF000A8A4E /* ImagesMusicSystem in Resources */,
-				5918E0AE26177CB1004B85DA /* VoicesViewController.xib in Resources */,
 				CC1E6349120423DF000A8A4E /* Infogrames in Resources */,
 				CC1E634A120423DF000A8A4E /* InStereo in Resources */,
 				5966D1DE25CFF0D200520777 /* bach_cs1-1pre.mid in Resources */,
@@ -8605,6 +8641,7 @@
 				5966D1B125CFF0D200520777 /* monkey island 2 - intro.jpg in Resources */,
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
 				CC1E6394120423E0000A8A4E /* SoundControl in Resources */,
+				59D2646D2624D15A00C9D510 /* MiniPlayer.xib in Resources */,
 				CC1E6395120423E0000A8A4E /* SoundFactory in Resources */,
 				5966D1C925CFF0D200520777 /* unreal title.jt in Resources */,
 				CC1E6396120423E0000A8A4E /* SoundImages in Resources */,
@@ -8702,6 +8739,7 @@
 				CCB8D97C17F62356008E6A45 /* txtMenu7f_2x.png in Resources */,
 				CCB21EDC1246C9F200A30F62 /* zoom@2x.png in Resources */,
 				CCB21EE21246CA5100A30F62 /* close@2x.png in Resources */,
+				59A65C762624E9B800BC99D1 /* VoicesViewController.xib in Resources */,
 				5966D19225CFF0D200520777 /* sleeping waste.mod in Resources */,
 				CC4D69B312472B5C0074E94B /* info@2x.png in Resources */,
 				3370BC14124A853F00691400 /* sin_tab.dat in Resources */,
@@ -9019,7 +9057,6 @@
 				5950D8DD25E0F67B00B476B2 /* GlueMon in Resources */,
 				5950D8DE25E0F67B00B476B2 /* HowieDavies in Resources */,
 				5950D8DF25E0F67B00B476B2 /* ImagesMusicSystem in Resources */,
-				5918E0AF26177CB1004B85DA /* VoicesViewController.xib in Resources */,
 				5950D8E025E0F67B00B476B2 /* Infogrames in Resources */,
 				5950D8E125E0F67B00B476B2 /* InStereo in Resources */,
 				5950D8E225E0F67B00B476B2 /* bach_cs1-1pre.mid in Resources */,
@@ -9130,6 +9167,7 @@
 				5950D94A25E0F67B00B476B2 /* monkey island 2 - intro.jpg in Resources */,
 				5950D94B25E0F67B00B476B2 /* tabview_gradient40Gray@2x.png in Resources */,
 				5950D94C25E0F67B00B476B2 /* SoundControl in Resources */,
+				59D2646E2624D15A00C9D510 /* MiniPlayer.xib in Resources */,
 				5950D94D25E0F67B00B476B2 /* SoundFactory in Resources */,
 				5950D94E25E0F67B00B476B2 /* unreal title.jt in Resources */,
 				5950D94F25E0F67B00B476B2 /* SoundImages in Resources */,
@@ -9227,6 +9265,7 @@
 				5950D9A925E0F67B00B476B2 /* txtMenu7f_2x.png in Resources */,
 				5950D9AA25E0F67B00B476B2 /* zoom@2x.png in Resources */,
 				5950D9AB25E0F67B00B476B2 /* close@2x.png in Resources */,
+				59A65C772624E9B800BC99D1 /* VoicesViewController.xib in Resources */,
 				5950D9AC25E0F67B00B476B2 /* sleeping waste.mod in Resources */,
 				5950D9AD25E0F67B00B476B2 /* info@2x.png in Resources */,
 				5950D9AE25E0F67B00B476B2 /* sin_tab.dat in Resources */,
@@ -9544,7 +9583,6 @@
 				595D4A17262187BC000B7187 /* GlueMon in Resources */,
 				595D4A18262187BC000B7187 /* HowieDavies in Resources */,
 				595D4A19262187BC000B7187 /* ImagesMusicSystem in Resources */,
-				595D4A1A262187BC000B7187 /* VoicesViewController.xib in Resources */,
 				595D4A1B262187BC000B7187 /* Infogrames in Resources */,
 				595D4A1C262187BC000B7187 /* InStereo in Resources */,
 				595D4A1D262187BC000B7187 /* bach_cs1-1pre.mid in Resources */,
@@ -9978,6 +10016,8 @@
 				CC1E5C7A1200B3B8000A8A4E /* FrameBuffer.mm in Sources */,
 				CC1E5C7B1200B3B8000A8A4E /* GLString.cpp in Sources */,
 				CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */,
+				59A65C6D2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */,
+				59A65C882625947500BC99D1 /* CBAutoScrollLabel.m in Sources */,
 				CC1E5C7E1200B3B8000A8A4E /* OGLView.mm in Sources */,
 				CC1E5C801200B3B8000A8A4E /* TextureUtils.mm in Sources */,
 				33416A9024AA2491000ACF57 /* sop.cpp in Sources */,
@@ -10162,10 +10202,12 @@
 				CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */,
 				5950D83A25DF1A2500B476B2 /* ModizerWebView.m in Sources */,
 				CCFDC53717DB105500C6692C /* NVBandpassFilter.m in Sources */,
+				59A65C80262501A000BC99D1 /* MiniPlayerView.m in Sources */,
 				33ABE5B517B2364D00AE0EA1 /* WB_BookmarksViewController.mm in Sources */,
 				33AB276B17B3D48F00C12189 /* MoreViewController.mm in Sources */,
 				3399D61217B5A143009E2AE9 /* RootViewControllerASMA.mm in Sources */,
 				3399D61617B5A5C6009E2AE9 /* asap.c in Sources */,
+				59A65C922625F3DB00BC99D1 /* WaitingView.m in Sources */,
 				33FDFF6717B6E99A00B61B65 /* SettingsGenViewController.mm in Sources */,
 				59B9994325CFE0D10071E144 /* ASIAuthenticationDialog.m in Sources */,
 				33F6A94217B9A36A002369E7 /* MNEValueTrackingSlider.m in Sources */,
@@ -10258,6 +10300,8 @@
 				5950DA8225E0F67B00B476B2 /* FrameBuffer.mm in Sources */,
 				5950DA8325E0F67B00B476B2 /* GLString.cpp in Sources */,
 				5950DA8425E0F67B00B476B2 /* HardwareClock.cpp in Sources */,
+				59A65C6E2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */,
+				59A65C892625947500BC99D1 /* CBAutoScrollLabel.m in Sources */,
 				5950DA8525E0F67B00B476B2 /* OGLView.mm in Sources */,
 				5950DA8625E0F67B00B476B2 /* TextureUtils.mm in Sources */,
 				5950DA8725E0F67B00B476B2 /* sop.cpp in Sources */,
@@ -10442,10 +10486,12 @@
 				5950DB4425E0F67B00B476B2 /* EQView.m in Sources */,
 				5950DB4525E0F67B00B476B2 /* ModizerWebView.m in Sources */,
 				5950DB4625E0F67B00B476B2 /* NVBandpassFilter.m in Sources */,
+				59A65C81262501A000BC99D1 /* MiniPlayerView.m in Sources */,
 				5950DB4725E0F67B00B476B2 /* WB_BookmarksViewController.mm in Sources */,
 				5950DB4825E0F67B00B476B2 /* MoreViewController.mm in Sources */,
 				5950DB4925E0F67B00B476B2 /* RootViewControllerASMA.mm in Sources */,
 				5950DB4A25E0F67B00B476B2 /* asap.c in Sources */,
+				59A65C932625F3DB00BC99D1 /* WaitingView.m in Sources */,
 				5950DB4B25E0F67B00B476B2 /* SettingsGenViewController.mm in Sources */,
 				5950DB4C25E0F67B00B476B2 /* ASIAuthenticationDialog.m in Sources */,
 				5950DB4D25E0F67B00B476B2 /* MNEValueTrackingSlider.m in Sources */,

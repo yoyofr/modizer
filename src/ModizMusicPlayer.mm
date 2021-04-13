@@ -6,6 +6,8 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
+
+
 #include <pthread.h>
 #include <sqlite3.h>
 #include <sys/xattr.h>
@@ -1500,6 +1502,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 
 @implementation ModizMusicPlayer
+@synthesize detailViewControllerIphone;
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @synthesize mod_currentfile,mod_currentext;
 @synthesize mCurrentSamples,mTgtSamples;
@@ -2068,16 +2071,19 @@ void propertyListenerCallback (void                   *inUserData,              
             memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
             memcpy(m_voice_buff_ana_cpy[buffer_ana_play_ofs],m_voice_buff_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             
-            if (buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
+            if (bGlobalEndReached && buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
                 //iCurrentTime=0;
                 bGlobalAudioPause=2;
+                bGlobalEndReached=0;
+                for (int ii=0;ii<SOUND_BUFFER_NB;ii++) buffer_ana_flag[ii]&=0xFFFFFFFF^0x4;
             }
             
-            if (buffer_ana_flag[buffer_ana_play_ofs]&8) { //end reached but continue to play
+            if (mChangeOfSong && (buffer_ana_flag[buffer_ana_play_ofs]&8)) { //end reached but continue to play
                 iCurrentTime=0;
                 iModuleLength=mNewModuleLength;
                 mChangeOfSong=0;
                 mod_message_updated=1;
+                for (int ii=0;ii<SOUND_BUFFER_NB;ii++) buffer_ana_flag[ii]&=0xFFFFFFFF^0x8;
             }
             
             
@@ -2966,6 +2972,26 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                 } else if (buffer_ana_flag[buffer_ana_gen_ofs]==0) {
                     if (mNeedSeek==1) { //SEEK
                         mNeedSeek=2;  //taken into account
+                                  
+                        //get the current viewcontroller from mainthread
+                        __block UIViewController *vc;
+                        NSOperationQueue *myQueue = [NSOperationQueue mainQueue];
+                        [myQueue addOperationWithBlock:^{
+                           // Background work
+                            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                                // Main thread work (UI usually)
+                                vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+                            }];
+                        }];
+                        
+                        [myQueue waitUntilAllOperationsAreFinished];
+                        
+                        mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
+                        mdz_safe_execute_sel(vc,@selector(showWaitingCancel),nil)
+                        mdz_safe_execute_sel(vc,@selector(updateWaitingTitle:),NSLocalizedString(@"Seeking",@""))
+                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
+                        mdz_safe_execute_sel(vc,@selector(shortWait),nil)
+                        
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             long mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;                            
                             bGlobalSeekProgress=-1;
@@ -2977,15 +3003,47 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             mSIDSeekInProgress=1;
                             mSidEmuEngine->fastForward( 100 * 32 );
+                            bool cancelSeek=false;
                             while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
                                 nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                 mCurrentSamples+=(nbBytes/4)*32;
+                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                
+                                [invo.result getValue:&cancelSeek];
+                                
+                                if (cancelSeek) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    mSeekSamples=mCurrentSamples;
+                                    iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    printf("stopped at: %d:%d\n",(((int)iCurrentTime/1000)/60),(((int)iCurrentTime/1000)%60));
+                                    break;
+                                }
                             }
                             mSidEmuEngine->fastForward( 100 );
                             
                             while (mCurrentSamples<mSeekSamples) {
                                 nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                 mCurrentSamples+=(nbBytes/4);
+                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
+                                
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                                                                                
+                                if (cancelSeek) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    mSeekSamples=mCurrentSamples;
+                                    iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
                             }
                             mSIDSeekInProgress=0;
                         }
@@ -3073,6 +3131,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                         break;
                                 }
                                 hc_currentSample += howmany;
+                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",hc_currentSample*100/seekSample]))
                             }
                             //
                             // fine tune
@@ -3098,6 +3158,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 hc_currentSample += howmany;
                                 
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",hc_currentSample*100/seekSample]))
                             }
                         }
                         if (mPlayType==MMP_2SF) { //2SF
@@ -3113,11 +3174,15 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             while (seekSample - xSFPlayer->currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
                                 xSFPlayer->GenerateSamples(xsfSampleBuffer, 0, SOUND_BUFFER_SIZE_SAMPLE);
                                 xSFPlayer->currentSample += SOUND_BUFFER_SIZE_SAMPLE;
+                                                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",xSFPlayer->currentSample*100/seekSample]))
                             }
                             if (seekSample - xSFPlayer->currentSample > 0)
                             {
                                 xSFPlayer->GenerateSamples(xsfSampleBuffer, 0, seekSample - xSFPlayer->currentSample);
                                 xSFPlayer->currentSample = seekSample;
+                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",xSFPlayer->currentSample*100/seekSample]))
                             }
                             
                             //mNeedSeek=0;
@@ -3156,10 +3221,15 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 if (nbSamplesToRender>SOUND_BUFFER_SIZE_SAMPLE) nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
                                 render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
                                 mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
+                                                                
+                                mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mVGMSTREAM_decode_pos_samples*100/mVGMSTREAM_seek_needed_samples]))
                             }
                             
                             //mNeedSeek=0;
                         }
+                        
+                        mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
+                        mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
                     }
                     if (moveToNextSubSong) {
                         if (mod_currentsub<mod_maxsub) {
@@ -4045,13 +4115,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             *dest++=lv;
                             *dest++=rv;
                         }
-                        buffer_ana_flag[buffer_ana_gen_ofs]=buffer_ana_flag[buffer_ana_gen_ofs]|4; //end reached
+                        
                         bGlobalEndReached=1;
                     }
-                    if (mChangeOfSong==1) {
-                        buffer_ana_flag[buffer_ana_gen_ofs]=buffer_ana_flag[buffer_ana_gen_ofs]|8; //end reached but continue
-                        mChangeOfSong=2;
-                    }
+                    if (bGlobalEndReached) buffer_ana_flag[buffer_ana_gen_ofs]=buffer_ana_flag[buffer_ana_gen_ofs]|4; //end reached
+                    if (mChangeOfSong) buffer_ana_flag[buffer_ana_gen_ofs]=buffer_ana_flag[buffer_ana_gen_ofs]|8; //end reached but continue
+                    
                     buffer_ana_gen_ofs++;
                     if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
                 }
@@ -4079,7 +4148,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     FILE *f;
     NSString *extractFilename,*extractPathFile;
     NSError *err;
-    int idx;
+    int idx,idxAll;
     /* Determine file's type */
     if (fex_identify_file( &type, archivePath )) {
         NSLog(@"fex cannot determine type of %s",archivePath);
@@ -4091,7 +4160,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
         } else{
             mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
 //            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
-            idx=0;
+            idx=0;idxAll=0;
             while ( !fex_done( fex ) ) {
                 
                 if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:0]) {
@@ -4114,6 +4183,13 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
                     } else {
                         char *archive_data;
+                        
+                        idxAll++;
+                        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d/%d",idxAll,mdz_ArchiveFilesCnt]))
+                        
+                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        
                         archive_data=(char*)malloc(64*1024*1024); //buffer
                         while (arc_size) {
                             if (arc_size>64*1024*1024) {
@@ -4128,6 +4204,8 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         }
                         free(archive_data);
                         fclose(f);
+                        
+                        
                         
                         NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
                         
@@ -7255,7 +7333,48 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     return fullFilePath;
 }
 
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode {
+    
+
+- (UIViewController *)visibleViewController:(UIViewController *)rootViewController
+{
+    if ([rootViewController isKindOfClass:[UITabBarController class]])
+    {
+        UIViewController *selectedViewController = ((UITabBarController *)rootViewController).selectedViewController;
+
+        return [self visibleViewController:selectedViewController];
+    }
+    if ([rootViewController isKindOfClass:[UINavigationController class]])
+    {
+        UIViewController *lastViewController = [[((UINavigationController *)rootViewController) viewControllers] lastObject];
+
+        return [self visibleViewController:lastViewController];
+    }
+    
+    if (rootViewController.presentedViewController == nil)
+    {
+        return rootViewController;
+    }
+    if ([rootViewController.presentedViewController isKindOfClass:[UINavigationController class]])
+    {
+        UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
+        UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
+
+        return [self visibleViewController:lastViewController];
+    }
+    if ([rootViewController.presentedViewController isKindOfClass:[UITabBarController class]])
+    {
+        UITabBarController *tabBarController = (UITabBarController *)rootViewController.presentedViewController;
+        UIViewController *selectedViewController = tabBarController.selectedViewController;
+
+        return [self visibleViewController:selectedViewController];
+    }
+
+    UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
+
+    return [self visibleViewController:presentedViewController];
+}
+
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC {
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extLHA_ARCHIVE=[SUPPORTED_FILETYPE_LHA_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -7284,6 +7403,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSMutableArray *available_player=[NSMutableArray arrayWithCapacity:1];
     
     int found=0;
+    
+    detailViewControllerIphone=detailVC;
     
     mplayer_error_msg[0]=0;
     mSingleSubMode=singleSubMode;
@@ -7348,7 +7469,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             strcpy(archive_filename,mod_filename);
             
             if (found==1) { //FEX
+                //NSLog(@"scan");
                 [self fex_scanarchive:[filePath UTF8String]];
+                //NSLog(@"scan done");
                 if (mdz_ArchiveFilesCnt) {
                     FILE *f;
                     f = fopen([filePath UTF8String], "rb");
@@ -7377,6 +7500,15 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                             NSString *tmpstr=[self fex_getfilename:[filePath UTF8String] index:archiveIndex];
                             //NSLog(@"yo:%@",tmpstr);
                         }
+                                                
+                        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+                        
+                        mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
+                        mdz_safe_execute_sel(vc,@selector(showWaitingCancel),nil)
+                        mdz_safe_execute_sel(vc,@selector(updateWaitingTitle:),NSLocalizedString(@"Extracting",@""))
+                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
+                        mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
+                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
                         
                         if (mSingleFileType&&singleArcMode&&(archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) {
                             mdz_ArchiveFilesCnt=1;
@@ -7385,6 +7517,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                             
                             [self fex_extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String]];
                         }
+                        
+                        mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
+                        mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
+                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        
                     } else {
                     }
                     mdz_currentArchiveIndex=0;
@@ -8138,18 +8275,16 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         free( state );
         HC_emulatorExtra = nil;
     }
-    
-            
-    free(hc_sample_data);
-    free(hc_sample_data_float);
-    free(hc_sample_converted_data_float);
+
+    mdz_safe_free(hc_sample_data);
+    mdz_safe_free(hc_sample_data_float);
+    mdz_safe_free(hc_sample_converted_data_float);
     
     if (src_state) src_delete(src_state);
     src_state=NULL;
 }
 
 -(void) Stop {
-    
     if (mPlayType==MMP_TIMIDITY) { //Timidity
         intr = 1;
     }
@@ -8315,6 +8450,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         if (modMessage==nil) return @"";
     }
     return modMessage;
+}
+
+-(NSString*) getModFileTitle {
+    //TODO: use title tag when available
+    return [NSString stringWithFormat:@"%s",mod_filename];
 }
 
 -(NSString*) getModName {

@@ -14,6 +14,7 @@
 
 #import "AppDelegate_Phone.h"
 
+
 //libopenmpt
 #import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt.h"
 #import "../libs/libopenmpt/openmpt-trunk/libopenmpt/libopenmpt_ext.h"
@@ -91,9 +92,10 @@ enum MMP_PLAYER_TYPE {
     MMP_HC
 };
 
-
+@class DetailViewControllerIphone;
 
 @interface ModizMusicPlayer : NSObject {
+    DetailViewControllerIphone *detailViewControllerIphone;
 	//General infos
 	int mod_subsongs;
 	int mod_currentsub,mod_minsub,mod_maxsub;
@@ -214,6 +216,8 @@ enum MMP_PLAYER_TYPE {
 @property AudioQueueBufferRef *mBuffers;
 @property int mQueueIsBeingStopped;
 //SID
+//
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewControllerIphone;
 
 -(id) initMusicPlayer;
 
@@ -234,6 +238,7 @@ enum MMP_PLAYER_TYPE {
 
 
 -(NSString*) getModMessage;
+-(NSString*) getModFileTitle;
 -(NSString*) getModName;
 -(NSString*) getModType;
 -(NSString*) getPlayerName;
@@ -248,7 +253,7 @@ enum MMP_PLAYER_TYPE {
 -(void) Play;
 -(void) PlaySeek:(int)startPos subsong:(int)subsong;
 -(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode;
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;

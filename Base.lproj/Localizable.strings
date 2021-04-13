@@ -114,6 +114,8 @@
 "File cannot be played. Skipping to next playable file."="File cannot be played. Skipping to next playable file.";
 "Seeking %d%%"="Seeking %d%%";
 "Seeking"="Seeking";
+"Loading"="Loading";
+"Extracting"="Extracting";
 "Too much entries! Playlist will be limited to %d first entries."="Too much entries! Playlist will be limited to %d first entries.";
 "Size: %dKB"="Size: %dKB";
 

@@ -13,6 +13,8 @@
 
 #import "BButton.h"
 
+#import "WaitingView.h"
+
 //#import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
@@ -73,8 +75,8 @@ class CGLString;
     UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
     //
 	
-	UIView *waitingView;
-	
+	WaitingView *waitingView;
+    
 	ModizMusicPlayer *mplayer;
 	
 	NSString *ratingImg[6];
@@ -166,6 +168,8 @@ class CGLString;
 	int mHasFocus;
 	float mScaleFactor;
 	int mPaused;
+    
+    UIImage *cover_img,*default_cover;
 }
 
 @property t_plPlaylist_entry *mPlaylist;
@@ -176,6 +180,7 @@ class CGLString;
 @property BOOL mShuffle;
 @property int mShouldUpdateInfos;
 @property bool bShowVC,bShowEQ;
+@property (retain,nonatomic) UIImage *cover_img,*default_cover;
 
 -(IBAction)pushedRating1;
 -(IBAction)pushedRating2;
@@ -313,8 +318,15 @@ class CGLString;
 
 - (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context;
 
--(void)showWaiting;
+-(bool) isCancelPending;
+-(void) resetCancelStatus;
 
+-(void)showWaitingCancel;
+-(void)hideWaitingCancel;
+-(void)showWaiting;
+-(void)shortWait;
+-(void) updateWaitingDetail:(NSString *)text;
+-(void) updateWaitingTitle:(NSString *)text;
 -(void)hideWaiting;
 
 

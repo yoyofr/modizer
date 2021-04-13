@@ -38,12 +38,12 @@
 	return YES;
 }
 
-/*- (void)viewDidLoad {
+- (void)viewDidLoad {
 	[super viewDidLoad];
-	
+    
 //    UINavigationController *moreController = self.moreNavigationController;
 //    moreController.navigationBar.barStyle = UIBarStyleBlackOpaque;
 //	moreController.navigationBar.hidden=TRUE;
 }
-*/
+
 @end

@@ -9,6 +9,11 @@
 
 //#define LOAD_PROFILE
 
+#define mdz_safe_free(x) if (x) {free(x);x=NULL;}
+#define mdz_safe_delete(x) if(x) {delete x;x=NULL;}
+#define mdz_safe_execute_sel(cont,sel,arg) if ([cont respondsToSelector:sel]) [cont performSelectorOnMainThread:sel withObject:arg waitUntilDone:NO];
+
+
 #define ACTION_COLOR_RED ((float)(0xD5)/255.0)
 #define ACTION_COLOR_GREEN ((float)(0x4A)/255.0)
 #define ACTION_COLOR_BLUE ((float)(0xCA)/255.0)
