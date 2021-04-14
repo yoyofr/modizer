@@ -43,6 +43,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 UIAlertView *alertPlFull,*alertChooseName;
 
+#import "TTFadeAnimator.h"
+
+
 @implementation RootViewControllerPlaylist
 
 @synthesize mFileMngr,mDetailPlayerMode;
@@ -57,7 +60,8 @@ UIAlertView *alertPlFull,*alertChooseName;
 @synthesize currentPlayedEntry;
 
 #pragma mark -
-#pragma mark View lifecycle
+
+#include "MiniPlayerImplementTableView.h"
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {
     [super setEditing:editing animated:animated];
@@ -203,6 +207,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             
             
             [detailViewController play_listmodules:playlist start_index:pos];
+            if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
         }
     } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Sort A->Z",@"")]) {
         if (playlist->nb_entries) {
@@ -413,6 +418,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	clock_t start_time,end_time;
 	start_time=clock();
 	childController=NULL;
+    
+    self.navigationController.delegate = self;
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
     
     forceReloadCells=false;
     darkMode=false;
@@ -2000,6 +2010,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [self.sBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
+    self.navigationController.delegate = self;
+    
     bool oldmode=darkMode;
     darkMode=false;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
@@ -2010,6 +2022,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+    
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
     
     if (keys) {
         //[keys release];
@@ -2086,13 +2105,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }
     
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
-    if (childController) {
+    /*if (childController) {
         [childController viewDidDisappear:FALSE];
-    }
+    }*/
         
     [super viewDidDisappear:animated];
     
@@ -2514,13 +2534,15 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 cellValue=NSLocalizedString(@"Add/Remove files...",@"");
                 bottomLabel.text = NSLocalizedString(@"Add or remove entries from browser.",@"");
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
+                if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
+                else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             }
             else if (row==1) {  //playlist/rename
                 cellValue=NSLocalizedString(@"More actions...",@"");
                 bottomLabel.text = NSLocalizedString(@"",@"");
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
+                if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
+                else topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED green:ACTION_COLOR_GREEN blue:ACTION_COLOR_BLUE alpha:1.0];
             } else {  //playlist entries
                 cellValue=playlist->entries[row-2].label;
                 cell.accessoryType = UITableViewCellAccessoryNone;
@@ -2565,7 +2587,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         } else {
             if (indexPath.section==1) {
                 cellValue=(mShowSubdir?NSLocalizedString(@"DisplayDir_MainKey",""):NSLocalizedString(@"DisplayAll_MainKey",""));
-                topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.9f alpha:1.0];
+                if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.9f alpha:1.0];
+                else topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.9f alpha:1.0];
                 bottomLabel.text=(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey",""));
                 bottomLabel.text=[NSString stringWithFormat:@"%@ %d files",(mShowSubdir?NSLocalizedString(@"DisplayDir_SubKey",""):NSLocalizedString(@"DisplayAll_SubKey","")),(search_local?search_local_nb_entries:local_nb_entries)];
                 
@@ -2603,6 +2626,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 
                 if (cur_local_entries[indexPath.section-2][indexPath.row].type==0) { //directory
                     cellValue=cur_local_entries[indexPath.section-2][indexPath.row].label;
+                    if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
                     topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
@@ -2663,7 +2687,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         
                         if (nb_occur==1) bottomLabel.text=[NSString stringWithFormat:@"Added 1 time. %@",tmp_str];
                         else bottomLabel.text=[NSString stringWithFormat:@"Added %d times. %@",nb_occur,tmp_str];
-                        topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.4f alpha:1.0f];
+                        if (darkMode) topLabel.textColor=[UIColor colorWithRed:1-0.4f green:1-0.4f blue:1-0.4f alpha:1.0f];
+                        else topLabel.textColor=[UIColor colorWithRed:0.4f green:0.4f blue:0.4f alpha:1.0f];
                     } else {
                         bottomLabel.text=[NSString stringWithFormat:@"Not in playlist. %@",tmp_str];
                     }
@@ -2902,6 +2927,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         if (detailViewController) {
             @try {
+                //1st try to find the player viewcontroller in the navigation stack
+                NSArray *vcList=[self.navigationController viewControllers];
+                if ([vcList count]>=2) {
+                    for (int i=[vcList count]-1;i>0;i--) {
+                        if ([[vcList objectAtIndex:i] isEqual:detailViewController]) {
+                            [self.navigationController popToViewController:detailViewController animated:YES];
+                            return;
+                        }
+                    }
+                }
+                //2nd push the player viewcontroller if not found above
                 [self.navigationController pushViewController:detailViewController animated:YES];
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
@@ -2966,6 +3002,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             if (playlist->nb_entries) {
                 if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 [detailViewController play_listmodules:playlist start_index:0];
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                                 
                 keys=nil;
                 list=nil;
@@ -3254,6 +3291,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 else [tabView reloadData];
                 
                 [detailViewController play_listmodules:playlist start_index:(row-2)];
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
             } else if (row==0 ){ //add new entry to current playlist
                 if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -3545,6 +3583,16 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
     
     //[super dealloc];
+}
+
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    return [[TTFadeAnimator alloc] init];
 }
 
 

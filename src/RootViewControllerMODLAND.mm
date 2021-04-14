@@ -30,6 +30,8 @@ static volatile int mPopupAnimation=0;
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
+#import "TTFadeAnimator.h"
+
 
 @implementation RootViewControllerMODLAND
 
@@ -47,6 +49,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #pragma mark -
 #pragma mark View lifecycle
 
+#include "MiniPlayerImplementTableView.h"
 
 - (NSString *)machine {
 	size_t size;
@@ -151,6 +154,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	clock_t start_time,end_time;	
 	start_time=clock();	
 	childController=NULL;
+    
+    self.navigationController.delegate = self;
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
     
     forceReloadCells=false;
     darkMode=false;
@@ -1494,6 +1502,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [self.sBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
+    self.navigationController.delegate = self;
+    
     bool oldmode=darkMode;
     darkMode=false;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
@@ -1504,6 +1514,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+    
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
     
     if (keys) {
         //[keys release];
@@ -1573,14 +1590,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (void)viewDidAppear:(BOOL)animated {        
     [self hideWaiting];
 
-    [super viewDidAppear:animated];		
+    [super viewDidAppear:animated];
+    
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     [self hideWaiting];
-    if (childController) {
+    /*if (childController) {
         [childController viewDidDisappear:FALSE];
-    }
+    }*/
     [super viewDidDisappear:animated];
 }
 
@@ -2421,6 +2440,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 [array_path addObject:localPath];
                 cur_db_entries[section][indexPath.row].rating=-1;
                 [detailViewController play_listmodules:(NSArray*)array_label start_index:(int)0 path:(NSArray*)array_path];
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                
                 if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                 else [tableView reloadData];
             } else {
@@ -2475,6 +2496,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
             
             if (cur_db_entries[section][indexPath.row].downloaded==1) {
                 if ([detailViewController add_to_playlist:localPath fileName:modFilename forcenoplay:1]) {
+                    if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                    
                     cur_db_entries[section][indexPath.row].rating=-1;
                     if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                     else [tableView reloadData];
@@ -2756,11 +2779,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                         [array_label addObject:modFilename];
                                         [array_path addObject:localPath];
                                         [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                                        if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                                        
                                         cur_db_entries[section][indexPath.row].rating=-1;
                                         if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                                         else [tabView reloadData];
                                     } else {
                                         if ([detailViewController add_to_playlist:localPath fileName:modFilename forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
+                                            if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                                            
                                             cur_db_entries[section][indexPath.row].rating=-1;
                                             if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
                                             else [tabView reloadData];
@@ -2889,6 +2916,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
     
     //[super dealloc];
+}
+
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    return [[TTFadeAnimator alloc] init];
 }
 
 

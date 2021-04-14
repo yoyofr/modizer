@@ -14,6 +14,7 @@
 #import "DownloadViewController.h"
 #import "RootViewControllerLocalBrowser.h"
 #import "CMPopTipView.h"
+#import "MiniPlayerVC.h"
 
 @class DetailViewControllerIphone;
 @class DownloadViewController;
@@ -67,11 +68,14 @@ typedef struct {
 	IBOutlet DetailViewControllerIphone *detailViewController;
 	IBOutlet DownloadViewController *downloadViewController;
 	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
-	IBOutlet UITableView *searchResultTabView;
+	IBOutlet UITableView *tableView;
 	IBOutlet UISearchBar *sBar;
 	IBOutlet UIView *searchPrgView;
 	IBOutlet UILabel *searchLabel;
 	IBOutlet UIProgressView *prgView;
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
     
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
@@ -113,7 +117,7 @@ typedef struct {
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
-@property (nonatomic, retain) IBOutlet UITableView *searchResultTabView;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 @property (nonatomic, retain) IBOutlet UIView *searchPrgView;
 @property (nonatomic, retain) IBOutlet UILabel *searchLabel;
@@ -125,5 +129,7 @@ typedef struct {
 -(void) refreshViewAfterDownload;
 -(void) doPrimAction:(NSIndexPath *)indexPath;
 -(void) doSecAction:(NSIndexPath *)indexPath;
+
+-(void) updateMiniPlayer;
 
 @end

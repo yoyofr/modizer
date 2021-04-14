@@ -14,6 +14,8 @@
 #include <arpa/inet.h>
 #include <sys/xattr.h>
 
+#import "TTFadeAnimator.h"
+
 
 @interface SettingsGenViewController ()
 @end
@@ -23,6 +25,8 @@
 @synthesize tableView,detailViewController;
 
 volatile t_settings settings[MAX_SETTINGS];
+
+#include "MiniPlayerImplementTableView.h"
 
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
@@ -1342,7 +1346,7 @@ void optGSFChangedC(id param) {
     settings[VGMPLAY_Maxloop].callback=&optVGMPLAYChangedC;
     settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
-    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=0;
+    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
     
     settings[VGMPLAY_YM2612Emulator].type=MDZ_SWITCH;
@@ -1662,6 +1666,11 @@ void optGSFChangedC(id param) {
 {
     [super viewDidLoad];
     
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
+    
+    self.navigationController.delegate = self;
+    
     forceReloadCells=false;
     darkMode=false;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
@@ -1711,11 +1720,17 @@ void optGSFChangedC(id param) {
     [self.tableView reloadData];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    self.navigationController.delegate = self;
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -1727,6 +1742,13 @@ void optGSFChangedC(id param) {
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+    
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
     
     [self.tableView reloadData];
     
@@ -2384,5 +2406,16 @@ void optGSFChangedC(id param) {
     
     //[super dealloc];
 }
+
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    return [[TTFadeAnimator alloc] init];
+}
+
 
 @end

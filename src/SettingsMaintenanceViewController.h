@@ -11,10 +11,14 @@
 #import "DetailViewControllerIphone.h"
 #import "SettingsGenViewController.h"
 #import "RootViewControllerLocalBrowser.h"
+#import "MiniPlayerVC.h"
 
-@interface SettingsMaintenanceViewController : UIViewController <UIAlertViewDelegate> {
+@interface SettingsMaintenanceViewController : UIViewController <UINavigationControllerDelegate,UIAlertViewDelegate> {
     IBOutlet UITableView *tableView;
     UIView *waitingView;
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
     
     bool darkMode;
     bool forceReloadCells;
@@ -27,5 +31,8 @@
 @property (nonatomic,retain) IBOutlet UITableView *tableView;
 @property (nonatomic,retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic,retain) RootViewControllerLocalBrowser *rootVC;
+
+-(IBAction) goPlayer;
+-(void) updateMiniPlayer;
 
 @end

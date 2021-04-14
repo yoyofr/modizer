@@ -20,7 +20,14 @@
         
         UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20+10,50-30+20+3,40,40)];
         indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
+        indView.translatesAutoresizingMaskIntoConstraints=false;
         [self addSubview:indView];
+        [indView startAnimating];
+        
+        // center align
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:indView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:indView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+        
         lblDetail=[[UILabel alloc] initWithFrame:CGRectMake(10,90,80+20,20)];
         lblDetail.text=@"";
         lblDetail.backgroundColor=[UIColor blackColor];
@@ -28,7 +35,12 @@
         lblDetail.textColor=[UIColor whiteColor];
         lblDetail.textAlignment=NSTextAlignmentCenter;
         lblDetail.font=[UIFont italicSystemFontOfSize:16];
+        lblDetail.translatesAutoresizingMaskIntoConstraints=false;
         [self addSubview:lblDetail];
+        
+        // center align
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:lblDetail attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:lblDetail attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-36]];
         
         lblTitle=[[UILabel alloc] initWithFrame:CGRectMake(10,10,80+20,20)];
         lblTitle.text=@"";
@@ -36,9 +48,14 @@
         lblTitle.opaque=YES;
         lblTitle.textColor=[UIColor whiteColor];
         lblTitle.textAlignment=NSTextAlignmentCenter;
+        lblTitle.translatesAutoresizingMaskIntoConstraints=false;
         [self addSubview:lblTitle];
         
-        [indView startAnimating];
+        // center align
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:lblTitle attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:lblTitle attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0 constant:8]];
+        
+        
         
         self.translatesAutoresizingMaskIntoConstraints = NO;
         
@@ -58,8 +75,8 @@
         // height constraint
         [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[btnStopCurrentAction(32)]" options:0 metrics:nil views:views]];
         // center align
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:btnStopCurrentAction attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:lblDetail attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:btnStopCurrentAction attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:btnStopCurrentAction attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:btnStopCurrentAction attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-4]];
     }
     return self;
 }

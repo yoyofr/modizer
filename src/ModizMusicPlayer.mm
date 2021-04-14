@@ -4186,11 +4186,11 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                     } else {
                         char *archive_data;
                         
-                        idxAll++;
+                        //idxAll++;
                         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d/%d",idxAll,mdz_ArchiveFilesCnt]))
+                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d/%d",idx,mdz_ArchiveFilesCnt]))
                         
-                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]]; 
                         
                         archive_data=(char*)malloc(64*1024*1024); //buffer
                         while (arc_size) {

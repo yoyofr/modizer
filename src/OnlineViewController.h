@@ -14,13 +14,17 @@
 #import "RootViewControllerHVSC.h"
 #import "RootViewControllerASMA.h"
 #import "DownloadViewController.h"
+#import "MiniPlayerVC.h"
 
-@interface OnlineViewController : UITableViewController {
+@interface OnlineViewController : UITableViewController <UINavigationControllerDelegate>{
 
     IBOutlet DownloadViewController *downloadViewController;
     IBOutlet WebBrowser *webBrowser;
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet UITableView *tableView;
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
     
     int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
 	
@@ -40,5 +44,6 @@
 
 -(IBAction) goPlayer;
 -(void) refreshViewAfterDownload;
+-(void) updateMiniPlayer;
 
 @end

@@ -14,14 +14,18 @@
 #import "SettingsMaintenanceViewController.h"
 #import "RootViewControllerLocalBrowser.h"
 #import "DownloadViewController.h"
+#import "MiniPlayerVC.h"
 
 
 @class DownloadViewController;
-@interface MoreViewController : UITableViewController {
+@interface MoreViewController : UITableViewController <UINavigationControllerDelegate>{
     IBOutlet DownloadViewController *downloadViewController;
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet UITableView *tableView;
     IBOutlet AboutViewController *aboutVC;
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
     
     bool darkMode;
     bool forceReloadCells;
@@ -36,5 +40,6 @@
 
 -(IBAction) goPlayer;
 -(void) refreshViewAfterDownload;
+-(void) updateMiniPlayer;
 
 @end

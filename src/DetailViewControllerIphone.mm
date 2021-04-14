@@ -158,7 +158,7 @@ static int display_length_mode=0;
 //@synthesize locManager;
 @synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
-@synthesize labelModuleName,labelModuleLength, labelTime, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
+@synthesize labelModuleLength, labelTime, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
 @synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,btnLoopInf;
 @synthesize repeatingTimer;
 @synthesize sliderProgressModule;
@@ -659,8 +659,11 @@ static float movePinchScale,movePinchScaleOld;
         
         if ((mPlaylist_pos>=0)&&(mPlaylist_pos<mPlaylist_size)) {
             NSString *fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
-            if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
-            else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+            if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
+                labelModuleName.text=[NSString stringWithString:fileName];
+            } else {
+                labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+            }
             lblCurrentSongCFlow.text=labelModuleName.text;
         }
     }
@@ -1418,7 +1421,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             temp_playlist->entries[i].playcounts=-1;
         }
         temp_playlist->nb_entries=mPlaylist_size;
-        temp_playlist->playlist_name=[[NSString alloc] initWithString:@"Now playing"];
+        temp_playlist->playlist_name=@"Now playing";
         temp_playlist->playlist_id=nil;
         
         nowplayingPL = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -1570,21 +1573,27 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self play_loadArchiveModule];
             [self hideWaiting];
         } else {
-            [mplayer playGoToSub:mplayer.mod_currentsub];
+            //restart
+            if (mplayer.mod_subsongs>1) [mplayer playGoToSub:mplayer.mod_currentsub];
+            else [self play_curEntry];
             if (mPaused) [self playPushed:nil];
         }
         return;
     }
     //if archive and no subsongs => change archive index
     if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub<=mplayer.mod_minsub))) {
-        [mplayer selectPrevArcEntry];
-        [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-        [self showWaiting];
-        [self shortWait];
-        [self play_loadArchiveModule];
-        [self hideWaiting];
+        if ([mplayer getArcIndex]>0) {
+            [mplayer selectPrevArcEntry];
+            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
+            [self showWaiting];
+            [self shortWait];
+            [self play_loadArchiveModule];
+            [self hideWaiting];
+        } else [self playPrev];
+        if (mPaused) [self playPushed:nil];
     } else {
-        [mplayer playPrevSub];
+        if ((mplayer.mod_subsongs>1)&&(mplayer.mod_currentsub>mplayer.mod_minsub)) [mplayer playPrevSub];
+        else [self playPrev];
         if (mPaused) [self playPushed:nil];
     }
 }
@@ -2230,15 +2239,14 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	//Update song info if required
 	labelModuleName.hidden=NO;
-    if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
-    else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+    if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
+        labelModuleName.text=[NSString stringWithString:fileName];
+    } else {
+        labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
+    }
     lblCurrentSongCFlow.text=labelModuleName.text;
-	labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
-	labelModuleName.glowColor = [UIColor colorWithRed:0.40 green:0.40 blue:0.99 alpha:1.0];
-	labelModuleName.glowOffset = CGSizeMake(0.0, 0.0);
-	labelModuleName.glowAmount = 15.0;
-	[labelModuleName setNeedsDisplay];
-	self.navigationItem.titleView=labelModuleName;
+	
+    self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
 	
 	labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
@@ -2653,11 +2661,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
     else labelModuleName.text=[NSString stringWithString:[mplayer getModName]];
 	lblCurrentSongCFlow.text=labelModuleName.text;
-    labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
-    labelModuleName.glowColor = [UIColor colorWithRed:0.40 green:0.40 blue:0.99 alpha:1.0];
-    labelModuleName.glowOffset = CGSizeMake(0.0, 0.0);
-    labelModuleName.glowAmount = 15.0;
-    [labelModuleName setNeedsDisplay];
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
     
@@ -4104,6 +4107,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     [super viewDidLoad];
     
+    labelModuleName=[[CBAutoScrollLabel alloc] init];
+    labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+    labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
+    [labelModuleName setFont:[UIFont systemFontOfSize:18]];
+    labelModuleName.textColor = [UIColor whiteColor];
+    labelModuleName.labelSpacing = 35; // distance between start and end labels
+    labelModuleName.pauseInterval = 3; // seconds of pause before scrolling starts again
+    labelModuleName.scrollSpeed = 30; // pixels per second
+    labelModuleName.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
+    labelModuleName.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+    
     mLoadIssueMessage=0;
     
     repeatingTimer=0;
@@ -4866,11 +4880,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	}
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
+    //[waitingView setNeedsLayout]
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     alertCannotPlay_displayed=0;
     
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+    
+    labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
     
     //coverflow
     if (coverflow && (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value==FALSE)) {

@@ -46,6 +46,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 };
 
 #import "OnlineViewController.h"
+#import "TTFadeAnimator.h"
+
 
 @interface OnlineViewController ()
 
@@ -57,6 +59,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 @synthesize downloadViewController,webBrowser,collectionViewController,detailViewController;
 @synthesize mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
 
+#include "MiniPlayerImplementTableView.h"
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -70,6 +73,11 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    self.navigationController.delegate = self;
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
     
     forceReloadCells=false;
     darkMode=false;
@@ -131,6 +139,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
+    self.navigationController.delegate = self;
+    
     bool oldmode=darkMode;
     darkMode=false;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
@@ -142,8 +152,21 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
+    
     [self.tableView reloadData];
     collectionViewController=nil;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
 - (void)didReceiveMemoryWarning
@@ -532,6 +555,16 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     [tableView reloadData];
     if (collectionViewController) [(RootViewControllerASMA*)collectionViewController refreshViewAfterDownload];
     //TODO: review how to manage: build a new virtual class ?
+}
+
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    return [[TTFadeAnimator alloc] init];
 }
 
 @end

@@ -12,6 +12,7 @@
 #import "TPKeyboardAvoidingTableView.h"
 
 #import "CFtpServer.h"
+#import "MiniPlayerVC.h"
 
 enum MDZ_SETTINGS_TYPE {
     MDZ_FAMILY=1,
@@ -230,10 +231,13 @@ typedef struct {
 
 
 
-@interface SettingsGenViewController : UIViewController <UITextFieldDelegate> {
+@interface SettingsGenViewController : UIViewController <UINavigationControllerDelegate,UITextFieldDelegate> {
     IBOutlet TPKeyboardAvoidingTableView *tableView;
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
     
     //FTP
     CFtpServer *ftpserver;
@@ -256,5 +260,7 @@ typedef struct {
 + (void) restoreSettings;
 + (void) backupSettings;
 + (void) applyDefaultSettings;
+-(IBAction) goPlayer;
+-(void) updateMiniPlayer;
 
 @end

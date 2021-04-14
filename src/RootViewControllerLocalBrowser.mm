@@ -35,9 +35,10 @@ static volatile int mPopupAnimation=0;
 #import "QuartzCore/CAAnimation.h"
 #import "SettingsGenViewController.h"
 
-
-
 extern volatile t_settings settings[MAX_SETTINGS];
+
+#import "TTFadeAnimator.h"
+
 
 @implementation RootViewControllerLocalBrowser
 
@@ -68,50 +69,9 @@ static char *browser_stil_info;//[MAX_STIL_DATA_LENGTH];
 static char browser_song_md5[33];
 static char **browser_sidtune_title,**browser_sidtune_name;
 
--(void)hideMiniPlayer {
-    if (miniplayerVC) {
-        [miniplayerVC removeFromParentViewController];
-        [miniplayerVC.view removeFromSuperview];
-        miniplayerVC=nil;
-        
-        self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height+48);
-        [tableView reloadData];
-    }
-}
--(void)updateMiniPlayer {
-    miniplayerVC.coverImg=(detailViewController.cover_img?detailViewController.cover_img:detailViewController.default_cover);
-    [miniplayerVC refreshCoverLabels];
-}
+#include "MiniPlayerImplementTableView.h"
 
-- (void)showMiniPlayer {
-    [self hideMiniPlayer];
-    
-    miniplayerVC = [[MiniPlayerVC alloc] init];
-    //set new title
-    miniplayerVC.title = @"Mini Player";
-    miniplayerVC.detailVC=detailViewController;
-    miniplayerVC.coverImg=(detailViewController.cover_img?detailViewController.cover_img:detailViewController.default_cover);
-    //miniplayerVC.view.frame=CGRectMake(0,self.tableView.frame.origin.y+self.tableView.frame.size.height-48+48,self.tableView.frame.size.width,48);
-    miniplayerVC.view.translatesAutoresizingMaskIntoConstraints=false;
-    //self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48+48);
-    //[tableView reloadData];
-    
-    
-    [self addChildViewController:miniplayerVC];
-    [self.view addSubview:miniplayerVC.view];
-    
-    UIView *miniplayerVCview=miniplayerVC.view;
-    NSDictionary *views = NSDictionaryOfVariableBindings(miniplayerVCview);
-    // height constraint
-    [miniplayerVCview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[miniplayerVCview(48)]" options:0 metrics:nil views:views]];
-    //positioning constraints
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
-    
-    self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48);
-    [tableView reloadData];
-}
+
 
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString*)path
 {
@@ -559,6 +519,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
+    self.navigationController.delegate = self;
     
     forceReloadCells=false;
     darkMode=false;
@@ -1915,6 +1876,7 @@ static int shouldRestart=1;
     [self.sBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
         
+    self.navigationController.delegate = self;
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -1932,7 +1894,6 @@ static int shouldRestart=1;
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
-        //[self hideMiniPlayer];
     }
     
     if (keys) {
@@ -1963,7 +1924,9 @@ static int shouldRestart=1;
     } else {
         if (mShowSubdir==0) shouldFillKeys=1; //performance limit-> no update if listing all files
         
-        
+        [self updateWaitingTitle:@""];
+        [self updateWaitingDetail:@""];
+        [self hideWaitingCancel];
         [self showWaiting];
         [self shortWait];
         
@@ -1998,6 +1961,9 @@ static int shouldRestart=1;
         
         
         shouldFillKeys=1;
+        [self updateWaitingTitle:@""];
+        [self updateWaitingDetail:@""];
+        [self hideWaitingCancel];
         [self showWaiting];
         [self shortWait];
         
@@ -2613,7 +2579,11 @@ static int shouldRestart=1;
                 break;
             }
             case 2:{//extract
+                [self updateWaitingTitle:NSLocalizedString(@"Extracting",@"")];
+                [self updateWaitingDetail:@""];
+                [self showWaitingCancel];
                 [self showWaiting];
+                [self shortWait];
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                                 
@@ -3168,7 +3138,11 @@ static int shouldRestart=1;
     [searchBar resignFirstResponder];
 }
 
+
 -(IBAction)goPlayer {
+    [self updateWaitingTitle:@""];
+    [self updateWaitingDetail:@""];
+    [self hideWaitingCancel];
     [self showWaiting];
     [self shortWait];
     if (detailViewController.mPlaylist_size) {
@@ -3214,6 +3188,9 @@ static int shouldRestart=1;
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
+    [self updateWaitingTitle:@""];
+    [self updateWaitingDetail:@""];
+    [self hideWaitingCancel];
     [self showWaiting];
     [self shortWait];
     
@@ -3281,6 +3258,9 @@ static int shouldRestart=1;
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
+    [self updateWaitingTitle:@""];
+    [self updateWaitingDetail:@""];
+    [self hideWaitingCancel];
     [self showWaiting];
     [self shortWait];
     
@@ -3389,7 +3369,9 @@ static int shouldRestart=1;
             mShowSubdir^=1;
             shouldFillKeys=1;
             
-            //[self showWaiting];
+            [self updateWaitingTitle:@""];
+            [self updateWaitingDetail:@""];
+            [self hideWaitingCancel];
             [self showWaiting];
             [self shortWait];
             
@@ -3414,6 +3396,9 @@ static int shouldRestart=1;
         
         if (cur_local_entries[section][indexPath.row].type==0) { //Directory selected : change current directory
             
+            [self updateWaitingTitle:@""];
+            [self updateWaitingDetail:@""];
+            [self hideWaitingCancel];
             [self showWaiting];
             [self shortWait];
             
@@ -3438,6 +3423,9 @@ static int shouldRestart=1;
             //				[childController autorelease];
         } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
             
+            [self updateWaitingTitle:@""];
+            [self updateWaitingDetail:@""];
+            [self hideWaitingCancel];
             [self showWaiting];
             [self shortWait];
             
@@ -3464,6 +3452,9 @@ static int shouldRestart=1;
             //				[childController autorelease];
         } else {  //File selected
             
+            [self updateWaitingTitle:@""];
+            [self updateWaitingDetail:@""];
+            [self hideWaitingCancel];
             [self showWaiting];
             [self shortWait];
             
@@ -3663,6 +3654,16 @@ static int shouldRestart=1;
     if (browser_stil_info) free(browser_stil_info);
     browser_stil_info=nil;
     //[super dealloc];
+}
+
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    return [[TTFadeAnimator alloc] init];
 }
 
 @end

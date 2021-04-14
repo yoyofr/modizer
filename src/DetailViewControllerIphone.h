@@ -9,7 +9,6 @@
 #import "Queue.h"
 #import "DBHelper.h"
 #import "HardwareClock.h"
-#import "RRSGlowLabel.h"
 
 #import "BButton.h"
 
@@ -40,6 +39,8 @@
 
 #import <UIKit/UIKit.h>
 #import "TapkuLibrary.h"
+
+#import "CBAutoScrollLabel.h"
 
 #define TOUCH_SCROLL_THRESHOLD 33.0f
 #define MIN_DELAY_PREV_ENTRY 5000
@@ -94,7 +95,7 @@ class CGLString;
 	UIView *mInWasView;
 	BOOL mInWasViewHidden;
 
-	IBOutlet RRSGlowLabel *labelModuleName;
+    CBAutoScrollLabel *labelModuleName;
 
     //Subsongs and Archive entries picker
 	IBOutlet UIButton *btnChangeTime;
@@ -274,7 +275,6 @@ class CGLString;
 
 @property (nonatomic, retain) IBOutlet UIView *detailView,*commandViewU,*volWin;
 
-@property (nonatomic, retain) IBOutlet RRSGlowLabel *labelModuleName;
 @property (nonatomic, retain) IBOutlet UILabel *labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking;

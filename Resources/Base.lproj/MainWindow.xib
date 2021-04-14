@@ -65,11 +65,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="LlD-1b-KE0"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1984">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1985">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" id="1993">
@@ -209,7 +209,7 @@
                                         </connections>
                                     </searchBar>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="486"/>
+                                        <rect key="frame" x="0.0" y="56" width="375" height="474"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -257,7 +257,7 @@
                                 <outlet property="sBar" destination="716" id="724"/>
                                 <outlet property="searchLabel" destination="748" id="750"/>
                                 <outlet property="searchPrgView" destination="747" id="754"/>
-                                <outlet property="searchResultTabView" destination="722" id="723"/>
+                                <outlet property="tableView" destination="722" id="UbZ-CE-C54"/>
                             </connections>
                         </viewController>
                     </viewControllers>
@@ -276,11 +276,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="9zf-eA-E19"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="2020">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -309,7 +309,7 @@
                 <outlet property="rootViewControllerIphone" destination="1979" id="jD3-8a-hYZ"/>
                 <outlet property="webBrowser" destination="444" id="464"/>
             </connections>
-            <point key="canvasLocation" x="593" y="31"/>
+            <point key="canvasLocation" x="592.79999999999995" y="30.134932533733135"/>
         </tabBarController>
         <viewController title="File" modalTransitionStyle="flipHorizontal" id="11" userLabel="Player Controller" customClass="DetailViewControllerIphone">
             <layoutGuides>
@@ -338,16 +338,6 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                             </imageView>
-                            <label hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="middleTruncation" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="22" customClass="RRSGlowLabel">
-                                <rect key="frame" x="40" y="0.0" width="243" height="30"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="18"/>
-                                <color key="textColor" red="0.80220067501068115" green="0.81463974714279175" blue="0.99942600727081299" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <color key="highlightedColor" red="0.81521739130000004" green="0.65219345289999997" blue="0.55354267310000005" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                <color key="shadowColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
-                                <size key="shadowOffset" width="1" height="1"/>
-                            </label>
                             <view clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="293" userLabel="Command view up">
                                 <rect key="frame" x="2" y="46" width="316" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -1053,7 +1043,6 @@
                 <outlet property="infoZoom" destination="1439" id="1446"/>
                 <outlet property="labelLibName" destination="680" id="681"/>
                 <outlet property="labelModuleLength" destination="1890" id="1891"/>
-                <outlet property="labelModuleName" destination="22" id="59"/>
                 <outlet property="labelModuleSize" destination="32" id="60"/>
                 <outlet property="labelModuleType" destination="31" id="61"/>
                 <outlet property="labelNumChannels" destination="30" id="62"/>
@@ -1312,7 +1301,7 @@
                         <rect key="frame" x="0.0" y="81" width="320" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <mutableString key="text">v3.0 © Yohann Magnien / YoyoFR
+                        <string key="text">v3.0 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: http://yoyofr.blogspot.com/p/modizer.html
@@ -1346,7 +1335,7 @@ Integrated player libs:
 - VGMStream
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                         <color key="textColor" systemColor="labelColor"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>

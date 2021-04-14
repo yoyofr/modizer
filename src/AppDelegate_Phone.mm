@@ -156,8 +156,8 @@ BOOL is_retina;
             for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
                 if ([scene isKindOfClass:[UIWindowScene class]]) {
                     UIWindowScene* windowScene = (UIWindowScene*) scene;
-                    windowScene.sizeRestrictions.minimumSize = CGSizeMake(480*1.5f, 480*1.5f);
-                    windowScene.sizeRestrictions.maximumSize = CGSizeMake(480*1.5f, 480*1.5f);
+                    windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN,MODIZER_MACM1_HEIGHT_MIN);
+                    windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX,MODIZER_MACM1_HEIGHT_MAX);
                 }
             }
         }else{

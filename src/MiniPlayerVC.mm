@@ -91,6 +91,10 @@
     if (labelTime_mode>=3) labelTime_mode=0;
 }
 
+-(void) pushedPlaylist {
+    [self.parentViewController performSelector:@selector(goCurrentPlaylist)];
+}
+
 -(void) refreshTime {
     int l=[detailVC.mplayer getSongLength]/1000;
     int t=[detailVC.mplayer getCurrentTime]/1000;
@@ -150,7 +154,7 @@
                 labelSub.text=[NSString stringWithFormat:@"%@",[detailVC.mplayer getModName]];
             }
         }
-        labelPlaylist.text=[NSString stringWithFormat:@"%d/%d",detailVC.mPlaylist_pos+1,detailVC.mPlaylist_size];
+        labelPlaylist.text=[NSString stringWithFormat:@"%d\n-\n%d",detailVC.mPlaylist_pos+1,detailVC.mPlaylist_size];
         //labelTime.text=[NSString stringWithFormat:@"%d:%.2d",t/60,t%60];
         [self refreshTime];
     } else {
@@ -166,15 +170,15 @@
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    labelMain.frame=CGRectMake(50,0,(size.width-50-100),24);
-    labelSub.frame=CGRectMake(50,24,(size.width-50-100),24);
+    labelMain.frame=CGRectMake(50,0,(size.width-50-150),24);
+    labelSub.frame=CGRectMake(50,24,(size.width-50-150),24);
     labelTime.frame=CGRectMake(size.width-100,0,50,24);
-    labelPlaylist.frame=CGRectMake(size.width-100,24,50,24);
+    labelPlaylist.frame=CGRectMake(size.width-150,0,50,24);        
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-        
+    
     darkMode=false;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
         if (@available(iOS 12.0, *)) {
@@ -190,11 +194,23 @@
     coverView.frame=CGRectMake(0,0,48,48);
     [mpview addSubview:coverView];
     
-    
     //Labels
     int ww=self.view.frame.size.width;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
+    if (@available(iOS 14.0, *)) {
+        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+            for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
+                if ([scene isKindOfClass:[UIWindowScene class]]) {
+                    UIWindowScene* windowScene = (UIWindowScene*) scene;
+                    ww=MODIZER_MACM1_WIDTH_MIN;
+                }
+            }
+        }
+    }
+
+    
     labelMain=[[CBAutoScrollLabel alloc] init];
-    labelMain.frame=CGRectMake(50,0,(ww-50-100),24);
+    labelMain.frame=CGRectMake(50,0,(ww-50-150),24);
     [labelMain setFont:[UIFont systemFontOfSize:12]];
     if (darkMode) labelMain.textColor = [UIColor whiteColor];
     else labelMain.textColor = [UIColor blackColor];
@@ -205,7 +221,7 @@
     labelMain.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
     
     labelSub=[[CBAutoScrollLabel alloc] init];
-    labelSub.frame=CGRectMake(50,24,(ww-50-100),24);
+    labelSub.frame=CGRectMake(50,24,(ww-50-150),24);
     [labelSub setFont:[UIFont systemFontOfSize:10]];
     if (darkMode) labelSub.textColor = [UIColor whiteColor];
     else labelSub.textColor = [UIColor blackColor];
@@ -216,21 +232,22 @@
     labelSub.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
     
     labelTime=[[UILabel alloc] init];
-    labelTime.frame=CGRectMake(ww-100,0,50,24);
+    labelTime.frame=CGRectMake(ww-100,0,50,48);
     [labelTime setFont:[UIFont systemFontOfSize:11]];
     if (darkMode) labelTime.textColor = [UIColor whiteColor];
     else labelTime.textColor = [UIColor blackColor];
     labelTime.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
     labelTime.userInteractionEnabled=true;
+    labelTime.numberOfLines=0;
     
     labelPlaylist=[[UILabel alloc] init];
-    labelPlaylist.frame=CGRectMake(ww-100,24,50,24);
+    labelPlaylist.frame=CGRectMake(ww-150,0,50,48);
     [labelPlaylist setFont:[UIFont systemFontOfSize:10]];
     if (darkMode) labelPlaylist.textColor = [UIColor whiteColor];
     else labelPlaylist.textColor = [UIColor blackColor];
     labelPlaylist.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
     labelPlaylist.userInteractionEnabled=true;
-    
+    labelPlaylist.numberOfLines=0;
     [self refreshCoverLabels];
     
     
@@ -259,12 +276,16 @@
     // Add the gesture to the view
     [labelTime addGestureRecognizer:tapGesture];
     
-    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedTime)];
-    // Set required taps and number of touches
-    [tapGesture setNumberOfTapsRequired:1];
-    [tapGesture setNumberOfTouchesRequired:1];
-    // Add the gesture to the view
-    [labelPlaylist addGestureRecognizer:tapGesture];
+    if (![[[self parentViewController] title] isEqualToString:@"Now playing"]) {
+        //not already on the NowPlaying screen, allow button activtation
+        tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedPlaylist)];
+        // Set required taps and number of touches
+        [tapGesture setNumberOfTapsRequired:1];
+        [tapGesture setNumberOfTouchesRequired:1];
+        // Add the gesture to the view
+        [labelPlaylist addGestureRecognizer:tapGesture];
+    }
+    
     
     // new gesture recognizer
     UISwipeGestureRecognizer *swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeLeft)];
@@ -283,7 +304,8 @@
     gestureAreaView.translatesAutoresizingMaskIntoConstraints=false;
     
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeWidth multiplier:1.0 constant:-100]];
+    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:labelMain attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
     
     //Buttons@
     btnPlay=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV3];
@@ -326,7 +348,15 @@
     //Timer
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.10f target:self selector:@selector(refreshTime) userInfo:nil repeats: YES]; //10 times/second
     
-    
+    if ([detailVC.mplayer isPlaying]) {
+        if ([detailVC.mplayer isPaused]) {
+            btnPlay.hidden=false;
+            btnPause.hidden=true;
+        } else {
+            btnPlay.hidden=true;
+            btnPause.hidden=false;
+        }
+    }
 }
 
 -(void)viewDidDisappear:(BOOL)animated {

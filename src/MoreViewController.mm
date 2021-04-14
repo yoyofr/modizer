@@ -10,6 +10,8 @@
 #import "SettingsGenViewController.h"
 #import "ModizerConstants.h"
 
+#import "TTFadeAnimator.h"
+
 @interface MoreViewController ()
 
 @end
@@ -17,6 +19,8 @@
 @implementation MoreViewController
 
 @synthesize detailViewController,tableView,aboutVC,rootVC,downloadViewController;
+
+#include "MiniPlayerImplementTableView.h"
 
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
@@ -40,6 +44,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
+    
+    self.navigationController.delegate = self;
     
     forceReloadCells=false;
     darkMode=false;
@@ -77,12 +86,17 @@
     [self.tableView reloadData];
 }
 
-
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    self.navigationController.delegate = self;
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -94,6 +108,13 @@
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+    
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
     
     [self.tableView reloadData];
 
@@ -372,6 +393,16 @@
 
 -(void) refreshViewAfterDownload {
     [tableView reloadData];
+}
+
+#pragma mark - UINavigationControllerDelegate
+
+- (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
+                                   animationControllerForOperation:(UINavigationControllerOperation)operation
+                                                fromViewController:(UIViewController *)fromVC
+                                                  toViewController:(UIViewController *)toVC
+{
+    return [[TTFadeAnimator alloc] init];
 }
 
 

@@ -1037,7 +1037,6 @@
 		5950DB2325E0F67B00B476B2 /* UIImageResize.m in Sources */ = {isa = PBXBuildFile; fileRef = 332CD2DF13A2C30E0021E86E /* UIImageResize.m */; };
 		5950DB2425E0F67B00B476B2 /* AnimatedGif.m in Sources */ = {isa = PBXBuildFile; fileRef = 331EB22713A6C45000703140 /* AnimatedGif.m */; };
 		5950DB2525E0F67B00B476B2 /* AFURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0C25B992D9003FEDBF /* AFURLRequestSerialization.m */; };
-		5950DB2625E0F67B00B476B2 /* RRSGlowLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996425CFE42A0071E144 /* RRSGlowLabel.m */; };
 		5950DB2725E0F67B00B476B2 /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9993D25CFE0A00071E144 /* ASINSStringAdditions.m */; };
 		5950DB2825E0F67B00B476B2 /* nukedopl.c in Sources */ = {isa = PBXBuildFile; fileRef = 33416A7C24AA248C000ACF57 /* nukedopl.c */; };
 		5950DB2925E0F67B00B476B2 /* RootViewControllerLocalBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */; };
@@ -2078,7 +2077,6 @@
 		595D4C57262187BC000B7187 /* UIImageResize.m in Sources */ = {isa = PBXBuildFile; fileRef = 332CD2DF13A2C30E0021E86E /* UIImageResize.m */; };
 		595D4C58262187BC000B7187 /* AnimatedGif.m in Sources */ = {isa = PBXBuildFile; fileRef = 331EB22713A6C45000703140 /* AnimatedGif.m */; };
 		595D4C59262187BC000B7187 /* AFURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0C25B992D9003FEDBF /* AFURLRequestSerialization.m */; };
-		595D4C5A262187BC000B7187 /* RRSGlowLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996425CFE42A0071E144 /* RRSGlowLabel.m */; };
 		595D4C5B262187BC000B7187 /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9993D25CFE0A00071E144 /* ASINSStringAdditions.m */; };
 		595D4C5C262187BC000B7187 /* nukedopl.c in Sources */ = {isa = PBXBuildFile; fileRef = 33416A7C24AA248C000ACF57 /* nukedopl.c */; };
 		595D4C5D262187BC000B7187 /* RootViewControllerLocalBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */; };
@@ -2639,6 +2637,8 @@
 		59A65C892625947500BC99D1 /* CBAutoScrollLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C872625947500BC99D1 /* CBAutoScrollLabel.m */; };
 		59A65C922625F3DB00BC99D1 /* WaitingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C912625F3DB00BC99D1 /* WaitingView.m */; };
 		59A65C932625F3DB00BC99D1 /* WaitingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C912625F3DB00BC99D1 /* WaitingView.m */; };
+		59A65CA126277C4D00BC99D1 /* TTFadeAnimator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C9F26277C4D00BC99D1 /* TTFadeAnimator.mm */; };
+		59A65CA226277C4E00BC99D1 /* TTFadeAnimator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C9F26277C4D00BC99D1 /* TTFadeAnimator.mm */; };
 		59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */; };
 		59A665351E4B04E700EB110E /* txtMenu2e_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59A665311E4B04E700EB110E /* txtMenu2e_2x.png */; };
 		59B2B31D25BDA239006FA3D0 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
@@ -2648,7 +2648,6 @@
 		59B9994925CFE0DC0071E144 /* ASIInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9993B25CFE0A00071E144 /* ASIInputStream.m */; };
 		59B9994B25CFE0E10071E144 /* ASINetworkQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9993F25CFE0A10071E144 /* ASINetworkQueue.m */; };
 		59B9994D25CFE0E50071E144 /* ASINSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9993D25CFE0A00071E144 /* ASINSStringAdditions.m */; };
-		59B9996625CFE42A0071E144 /* RRSGlowLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996425CFE42A0071E144 /* RRSGlowLabel.m */; };
 		59B9996B25CFE45D0071E144 /* FXFluid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996925CFE45D0071E144 /* FXFluid.cpp */; };
 		59B9997025CFE4680071E144 /* RenderUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59B9996E25CFE4680071E144 /* RenderUtils.mm */; };
 		59B9997C25CFE5690071E144 /* UIColor+BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AE17B17A5100AE0EA1 /* UIColor+BButton.m */; };
@@ -4682,6 +4681,10 @@
 		59A65C872625947500BC99D1 /* CBAutoScrollLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CBAutoScrollLabel.m; sourceTree = "<group>"; };
 		59A65C902625F3DB00BC99D1 /* WaitingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaitingView.h; sourceTree = "<group>"; };
 		59A65C912625F3DB00BC99D1 /* WaitingView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WaitingView.m; sourceTree = "<group>"; };
+		59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MiniPlayerImplementTableView.h; sourceTree = "<group>"; };
+		59A65C9F26277C4D00BC99D1 /* TTFadeAnimator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TTFadeAnimator.mm; sourceTree = "<group>"; };
+		59A65CA026277C4D00BC99D1 /* TTFadeAnimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TTFadeAnimator.h; sourceTree = "<group>"; };
+		59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniPlayerImplementNoTableView.h; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
 		59B9992C25CFDFDF0071E144 /* fex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fex.h; path = utils/File_Extractor/fex/fex.h; sourceTree = "<group>"; };
@@ -4700,8 +4703,6 @@
 		59B9993F25CFE0A10071E144 /* ASINetworkQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ASINetworkQueue.m; sourceTree = "<group>"; };
 		59B9994025CFE0A10071E144 /* ASIHTTPRequestDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestDelegate.h; sourceTree = "<group>"; };
 		59B9994125CFE0A10071E144 /* ASIHTTPRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ASIHTTPRequest.m; sourceTree = "<group>"; };
-		59B9996425CFE42A0071E144 /* RRSGlowLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RRSGlowLabel.m; sourceTree = "<group>"; };
-		59B9996525CFE42A0071E144 /* RRSGlowLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RRSGlowLabel.h; sourceTree = "<group>"; };
 		59B9996925CFE45D0071E144 /* FXFluid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FXFluid.cpp; path = utils/Misc/FXFluid.cpp; sourceTree = "<group>"; };
 		59B9996A25CFE45D0071E144 /* FXFluid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FXFluid.h; path = utils/Misc/FXFluid.h; sourceTree = "<group>"; };
 		59B9996E25CFE4680071E144 /* RenderUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RenderUtils.mm; path = utils/Misc/RenderUtils.mm; sourceTree = "<group>"; };
@@ -5780,6 +5781,8 @@
 			children = (
 				330F36C717A683FB00EEC84A /* OnlineViewController.h */,
 				330F36C817A683FB00EEC84A /* OnlineViewController.mm */,
+				59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */,
+				59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */,
 				3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */,
 				3399D61017B59CD6009E2AE9 /* RootViewControllerASMA.mm */,
 				33EDF0EB145939850038C673 /* RootViewControllerHVSC.h */,
@@ -6561,9 +6564,19 @@
 			path = CBAutoScrollLabel;
 			sourceTree = "<group>";
 		};
+		59A65C9E26277C4D00BC99D1 /* Transitions */ = {
+			isa = PBXGroup;
+			children = (
+				59A65C9F26277C4D00BC99D1 /* TTFadeAnimator.mm */,
+				59A65CA026277C4D00BC99D1 /* TTFadeAnimator.h */,
+			);
+			path = Transitions;
+			sourceTree = "<group>";
+		};
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				59A65C9E26277C4D00BC99D1 /* Transitions */,
 				59A65C852625947500BC99D1 /* CBAutoScrollLabel */,
 				33ABE5A617B17A5100AE0EA1 /* BButton */,
 				33BB80CC14D4679B00EA4B32 /* OBSlider */,
@@ -6987,8 +7000,6 @@
 				33525D7C1222567600E6E517 /* DBHelper.mm */,
 				CC1E622012041177000A8A4E /* DetailViewControllerIphone.h */,
 				CC1E622112041177000A8A4E /* DetailViewControllerIphone.mm */,
-				59A65C902625F3DB00BC99D1 /* WaitingView.h */,
-				59A65C912625F3DB00BC99D1 /* WaitingView.m */,
 				CC1E622212041177000A8A4E /* DownloadViewController.h */,
 				CC1E622312041177000A8A4E /* DownloadViewController.mm */,
 				CC6CBDF417DC615F006DCBC7 /* EQView.h */,
@@ -7027,6 +7038,8 @@
 				33B7AD0B17C74AE700C1E404 /* SettingsMaintenanceViewController.mm */,
 				5918E0A926177CB1004B85DA /* VoicesViewController.h */,
 				5918E0AA26177CB1004B85DA /* VoicesViewController.mm */,
+				59A65C902625F3DB00BC99D1 /* WaitingView.h */,
+				59A65C912625F3DB00BC99D1 /* WaitingView.m */,
 				33ABE5B317B2364C00AE0EA1 /* WB_BookmarksViewController.h */,
 				33ABE5B417B2364C00AE0EA1 /* WB_BookmarksViewController.mm */,
 				CC1E623912041177000A8A4E /* WebBrowser.h */,
@@ -7075,8 +7088,6 @@
 				CC1E5A0F1200B3B8000A8A4E /* OGLView.h */,
 				CC1E5A101200B3B8000A8A4E /* OGLView.mm */,
 				CC1E5A111200B3B8000A8A4E /* Queue.h */,
-				59B9996525CFE42A0071E144 /* RRSGlowLabel.h */,
-				59B9996425CFE42A0071E144 /* RRSGlowLabel.m */,
 				CC1E5A141200B3B8000A8A4E /* TextureUtils.h */,
 				CC1E5A151200B3B8000A8A4E /* TextureUtils.mm */,
 				3317853F17C56EAC00929E8F /* TPKeyboardAvoidingTableView.h */,
@@ -10114,6 +10125,7 @@
 				CCCE9CF2123D807A007D9462 /* mfpemul.c in Sources */,
 				5918E0AC26177CB1004B85DA /* VoicesViewController.mm in Sources */,
 				CCCE9CF3123D807A007D9462 /* mw_io.c in Sources */,
+				59A65CA126277C4D00BC99D1 /* TTFadeAnimator.mm in Sources */,
 				CCCE9CF4123D807A007D9462 /* mwemul.c in Sources */,
 				CCCE9CF5123D807A007D9462 /* paula_io.c in Sources */,
 				CCCE9CF6123D807A007D9462 /* paulaemul.c in Sources */,
@@ -10169,7 +10181,6 @@
 				332CD2E013A2C30E0021E86E /* UIImageResize.m in Sources */,
 				331EB22813A6C45000703140 /* AnimatedGif.m in Sources */,
 				59C22A1D25B992D9003FEDBF /* AFURLRequestSerialization.m in Sources */,
-				59B9996625CFE42A0071E144 /* RRSGlowLabel.m in Sources */,
 				59B9994D25CFE0E50071E144 /* ASINSStringAdditions.m in Sources */,
 				33416A8F24AA2491000ACF57 /* nukedopl.c in Sources */,
 				336BF215144FF4BE0086700A /* RootViewControllerLocalBrowser.mm in Sources */,
@@ -10398,6 +10409,7 @@
 				5950DAED25E0F67B00B476B2 /* mfpemul.c in Sources */,
 				5918E0AD26177CB1004B85DA /* VoicesViewController.mm in Sources */,
 				5950DAEE25E0F67B00B476B2 /* mw_io.c in Sources */,
+				59A65CA226277C4E00BC99D1 /* TTFadeAnimator.mm in Sources */,
 				5950DAEF25E0F67B00B476B2 /* mwemul.c in Sources */,
 				5950DAF025E0F67B00B476B2 /* paula_io.c in Sources */,
 				5950DAF125E0F67B00B476B2 /* paulaemul.c in Sources */,
@@ -10453,7 +10465,6 @@
 				5950DB2325E0F67B00B476B2 /* UIImageResize.m in Sources */,
 				5950DB2425E0F67B00B476B2 /* AnimatedGif.m in Sources */,
 				5950DB2525E0F67B00B476B2 /* AFURLRequestSerialization.m in Sources */,
-				5950DB2625E0F67B00B476B2 /* RRSGlowLabel.m in Sources */,
 				5950DB2725E0F67B00B476B2 /* ASINSStringAdditions.m in Sources */,
 				5950DB2825E0F67B00B476B2 /* nukedopl.c in Sources */,
 				5950DB2925E0F67B00B476B2 /* RootViewControllerLocalBrowser.mm in Sources */,
@@ -10735,7 +10746,6 @@
 				595D4C57262187BC000B7187 /* UIImageResize.m in Sources */,
 				595D4C58262187BC000B7187 /* AnimatedGif.m in Sources */,
 				595D4C59262187BC000B7187 /* AFURLRequestSerialization.m in Sources */,
-				595D4C5A262187BC000B7187 /* RRSGlowLabel.m in Sources */,
 				595D4C5B262187BC000B7187 /* ASINSStringAdditions.m in Sources */,
 				595D4C5C262187BC000B7187 /* nukedopl.c in Sources */,
 				595D4C5D262187BC000B7187 /* RootViewControllerLocalBrowser.mm in Sources */,

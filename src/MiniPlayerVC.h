@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(void) refreshCoverLabels;
 -(void) pushedPause;
 -(void) pushedPlay;
+-(void) pushedPlaylist;
 
 @end
 

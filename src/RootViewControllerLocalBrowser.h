@@ -22,7 +22,7 @@
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
@@ -96,9 +96,10 @@
 
 -(IBAction)goPlayer;
 -(void) refreshViewAfterDownload;
--(void)updateMiniPlayer;
 -(void)listLocalFiles;
 -(void)createEditableCopyOfDatabaseIfNeeded:(bool)forceInit quiet:(int)quiet;
 -(void)createSamplesFromPackage:(BOOL)forceCreate;
+
+-(void)updateMiniPlayer;
 
 @end

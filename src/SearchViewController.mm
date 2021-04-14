@@ -34,9 +34,11 @@ static NSFileManager *mFileMngr;
 
 @implementation SearchViewController 
 
-@synthesize searchResultTabView,sBar,detailViewController,searchPrgView,searchLabel,prgView;
+@synthesize tableView,sBar,detailViewController,searchPrgView,searchLabel,prgView;
 @synthesize downloadViewController,rootViewControllerIphone;
 @synthesize popTipView;
+
+#include "MiniPlayerImplementTableView.h"
 
 -(IBAction)goPlayer {
     if (detailViewController.mPlaylist_size) {
@@ -74,9 +76,9 @@ static NSFileManager *mFileMngr;
 }
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
-    CGPoint p = [gestureRecognizer locationInView:self.searchResultTabView];
+    CGPoint p = [gestureRecognizer locationInView:self.tableView];
     
-    NSIndexPath *indexPath = [self.searchResultTabView indexPathForRowAtPoint:p];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
     if (indexPath != nil) {
         if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
             int crow=indexPath.row;
@@ -109,13 +111,13 @@ static NSFileManager *mFileMngr;
                     self.popTipView.backgroundColor = [UIColor lightGrayColor];
                     self.popTipView.textColor = [UIColor darkTextColor];
                     
-                    [self.popTipView presentPointingAtView:[self.searchResultTabView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                    [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
                     popTipViewRow=crow;
                     popTipViewSection=csection;
                 } else {
                     if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
                         self.popTipView.message=str;
-                        [self.popTipView presentPointingAtView:[self.searchResultTabView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
                         popTipViewRow=crow;
                         popTipViewSection=csection;
                     }
@@ -142,6 +144,9 @@ static NSFileManager *mFileMngr;
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
 	start_time=clock();
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
     
     forceReloadCells=false;
     darkMode=false;
@@ -170,8 +175,8 @@ static NSFileManager *mFileMngr;
 	
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	//self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    //searchResultTabView.rowHeight = 28;
-	searchResultTabView.sectionHeaderHeight = 32;
+    //tableView.rowHeight = 28;
+	tableView.sectionHeaderHeight = 32;
     //self.tableView.backgroundColor = [UIColor clearColor];
     
     popTipViewRow=-1;
@@ -180,7 +185,7 @@ static NSFileManager *mFileMngr;
                                           initWithTarget:self action:@selector(handleLongPress:)];
     lpgr.minimumPressDuration = 1.0; //seconds
     lpgr.delegate = self;
-    [self.searchResultTabView addGestureRecognizer:lpgr];
+    [self.tableView addGestureRecognizer:lpgr];
     //[lpgr release];
     
 	
@@ -214,9 +219,14 @@ static NSFileManager *mFileMngr;
         }
     }
     if (oldmode!=darkMode) forceReloadCells=true;
-    if (darkMode) self.searchResultTabView.backgroundColor=[UIColor blackColor];
-    else self.searchResultTabView.backgroundColor=[UIColor whiteColor];
-    [self.searchResultTabView reloadData];
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
+    [self.tableView reloadData];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -232,10 +242,17 @@ static NSFileManager *mFileMngr;
         }
     }
     if (oldmode!=darkMode) forceReloadCells=true;
-    if (darkMode) self.searchResultTabView.backgroundColor=[UIColor blackColor];
-    else self.searchResultTabView.backgroundColor=[UIColor whiteColor];
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
     
-	[searchResultTabView reloadData];
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
+    
+	[tableView reloadData];
 	
 	[super viewWillAppear:animated];
 }
@@ -245,7 +262,7 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 // Override to allow orientations other than the default portrait orientation.
@@ -820,7 +837,7 @@ static NSFileManager *mFileMngr;
             }
         }
 		
-		[searchResultTabView reloadData];
+		[tableView reloadData];
 	} else {
 		if (mSearchProgress==0) searchLabel.text=NSLocalizedString(@"Searching Playlists...",@"");
 		if (mSearchProgress==1) searchLabel.text=NSLocalizedString(@"Searching Local files...",@"");
@@ -889,7 +906,7 @@ static NSFileManager *mFileMngr;
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
 	[searchBar resignFirstResponder];
 	[self doSearch:15];
-//	[searchResultTabView reloadData];
+//	[tableView reloadData];
 }
 
 #pragma mark -
@@ -898,37 +915,37 @@ static NSFileManager *mFileMngr;
 - (void) headerPlaylistTapped: (UIButton*) sender {
 	/* do what you want in response to section header tap */
 	playlist_expanded^=1;
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 //	NSIndexSet *_index=[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0,1)];
-//	[searchResultTabView reloadSections:_index withRowAnimation: UITableViewRowAnimationFade];
+//	[tableView reloadSections:_index withRowAnimation: UITableViewRowAnimationFade];
 }
 
 - (void) headerLocalTapped: (UIButton*) sender {
 	/* do what you want in response to section header tap */
 	local_expanded^=1;
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 //	NSIndexSet *_index=[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1,1)];
-//	[searchResultTabView reloadSections:_index withRowAnimation: UITableViewRowAnimationFade];
+//	[tableView reloadSections:_index withRowAnimation: UITableViewRowAnimationFade];
 }
 
 - (void) headerModlandTapped: (UIButton*) sender {
 	/* do what you want in response to section header tap */
 	modland_expanded^=1;
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 //	NSIndexSet *_index=[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(2,1)];
-//	[searchResultTabView reloadSections:_index withRowAnimation: UITableViewRowAnimationFade];
+//	[tableView reloadSections:_index withRowAnimation: UITableViewRowAnimationFade];
 }
 
 - (void) headerHVSCTapped: (UIButton*) sender {
 	/* do what you want in response to section header tap */
 	HVSC_expanded^=1;
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 - (void) headerASMATapped: (UIButton*) sender {
 	/* do what you want in response to section header tap */
 	ASMA_expanded^=1;
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 - (void) headerPlaylistTappedSearchOn: (UIButton*) sender {
@@ -952,7 +969,7 @@ static NSFileManager *mFileMngr;
 		}
 		playlist_expanded=0;
 	}
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 - (void) headerLocalTappedSearchOn: (UIButton*) sender {
@@ -976,7 +993,7 @@ static NSFileManager *mFileMngr;
 		}
 		local_expanded=0;
 	}
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 - (void) headerModlandTappedSearchOn: (UIButton*) sender {
@@ -1000,7 +1017,7 @@ static NSFileManager *mFileMngr;
 		}
 		modland_expanded=0;
 	}
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 - (void) headerHVSCTappedSearchOn: (UIButton*) sender {
@@ -1031,7 +1048,7 @@ static NSFileManager *mFileMngr;
 		}
 		HVSC_expanded=0;
 	}
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 - (void) headerASMATappedSearchOn: (UIButton*) sender {
@@ -1060,7 +1077,7 @@ static NSFileManager *mFileMngr;
 		}
 		ASMA_expanded=0;
 	}
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 -(NSString*) getCompleteLocalPath:(int)id_mod {
@@ -1385,7 +1402,7 @@ static NSFileManager *mFileMngr;
 			checkPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@%@",ASMA_BASEDIR,dbASMA_entries[i].fullpath]];
 			if ([fileManager fileExistsAtPath:checkPath]) dbASMA_entries[i].downloaded=1;
 		}
-	[searchResultTabView reloadData];
+	[tableView reloadData];
 }
 
 -(void) loadPlayListsFromDB:(NSString *)_id_playlist intoPlaylist:(t_playlistS *)_playlist  {
@@ -1652,14 +1669,14 @@ static NSFileManager *mFileMngr;
 }
 
 - (void) primaryActionTapped: (UIButton*) sender {
-	NSIndexPath *indexPath = [searchResultTabView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.searchResultTabView]];
-	[searchResultTabView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+	NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+	[tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
 	[self doPrimAction:indexPath];
 }
 
 - (void) secondaryActionTapped: (UIButton*) sender {
-	NSIndexPath *indexPath = [searchResultTabView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.searchResultTabView]];
-	[searchResultTabView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+	NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+	[tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
 	[self doSecAction:indexPath];
 }
 

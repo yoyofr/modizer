@@ -14,14 +14,17 @@
 #import "CMPopTipView.h"
 
 #import "SESlideTableViewCell.h"
-
+#import "MiniPlayerVC.h"
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerPlaylist : UIViewController <UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
+@interface RootViewControllerPlaylist : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
     
     
 	CMPopTipView *popTipView;
@@ -115,5 +118,6 @@
 
 -(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries;
 
+-(void)updateMiniPlayer;
 
 @end

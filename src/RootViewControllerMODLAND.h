@@ -14,12 +14,15 @@
 #import "DetailViewControllerIphone.h"
 #import "DownloadViewController.h"
 #import "CMPopTipView.h"
+#import "MiniPlayerVC.h"
 
-
-@interface RootViewControllerMODLAND : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface RootViewControllerMODLAND : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[6];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
     
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
@@ -107,5 +110,7 @@
 -(void) fillKeysWithDB_filename:(int)filetypeID fileAuthorID:(int)authorID fileAlbumID:(int)albumID;
 
 -(NSString*) getCompleteLocalPath:(int)id_mod;
+
+-(void)updateMiniPlayer;
 
 @end
