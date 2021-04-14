@@ -12,7 +12,7 @@
 //#define NB_ASMA_ENTRIES 4630
 
 #define WEBLINKS_VGM_NB 11
-#define WEBLINKS_MODS_NB 5
+#define WEBLINKS_MODS_NB 6
 #define WEBLINKS_Others_NB 2
 NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
     //VGM & assimilated
@@ -34,6 +34,7 @@ NSString *weblinks_MODS[WEBLINKS_MODS_NB][2]={
     {@"https://modarchive.org/",@"The Mod Archive"},
     {@"http://amp.dascene.net/",@"Amiga Music Preservation"},
     {@"http://2a03.free.fr/",@"2A03 - Chiptunes"},
+    {@"http://sc68.atari.org/musics.html",@"Atari ST - SC68"},
     {@"http://sndh.atari.org/sndh/browser/index.php?dir=sndh_lf%2F",@"Atari ST SNDH Archive"},
     {@"https://www.exotica.org.uk/wiki/Main_Page",@"Exotica"}
 };

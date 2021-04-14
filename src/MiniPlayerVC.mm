@@ -144,7 +144,7 @@
         } else {
             if (detailVC.mplayer.mod_subsongs>1) {
                 //subsongs
-                labelSub.text=[NSString stringWithFormat:@"(%d/%d) %@",detailVC.mplayer.mod_currentsub,detailVC.mplayer.mod_maxsub-detailVC.mplayer.mod_minsub,[detailVC.mplayer getModName]];
+                labelSub.text=[NSString stringWithFormat:@"(%d/%d) %@",detailVC.mplayer.mod_currentsub-detailVC.mplayer.mod_minsub+1,detailVC.mplayer.mod_subsongs,[detailVC.mplayer getModName]];
             } else {
                 //no subsong
                 labelSub.text=[NSString stringWithFormat:@"%@",[detailVC.mplayer getModName]];
@@ -286,38 +286,42 @@
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeWidth multiplier:1.0 constant:-100]];
     
     //Buttons@
-    btnPlay=[[BButton alloc] initWithFrame:CGRectMake(0,0,48,48) type:BButtonTypeGray style:BButtonStyleBootstrapV2];
+    btnPlay=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV3];
     [btnPlay addAwesomeIcon:FAIconPlay beforeTitle:YES];
     [btnPlay addTarget:self action:@selector(pushedPlay) forControlEvents:UIControlEventTouchUpInside];
     btnPlay.userInteractionEnabled=true;
     btnPlay.translatesAutoresizingMaskIntoConstraints = false;
     btnPlay.hidden=false;
     [btnPlay setColor:mpview.backgroundColor];
+    [btnPlay setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
     [mpview addSubview:btnPlay];
     
-    btnPause=[[BButton alloc] initWithFrame:CGRectMake(0,0,48,48) type:BButtonTypeGray style:BButtonStyleBootstrapV2];
+    btnPause=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV3];
     [btnPause addAwesomeIcon:FAIconPause beforeTitle:YES];
     [btnPause addTarget:self action:@selector(pushedPause) forControlEvents:UIControlEventTouchUpInside];
     btnPause.translatesAutoresizingMaskIntoConstraints = false;
     btnPause.hidden=true;
+    [btnPause setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
     [btnPause setColor:mpview.backgroundColor];
     [mpview addSubview:btnPause];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(btnPlay);
     // width constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[btnPlay(48)]" options:0 metrics:nil views:views]];
+    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[btnPlay(46)]" options:0 metrics:nil views:views]];
     // height constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[btnPlay(48)]" options:0 metrics:nil views:views]];
+    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[btnPlay(46)]" options:0 metrics:nil views:views]];
     // center align
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPlay attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPlay attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-1]];
     
     views = NSDictionaryOfVariableBindings(btnPause);
     // width constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[btnPause(48)]" options:0 metrics:nil views:views]];
+    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[btnPause(46)]" options:0 metrics:nil views:views]];
     // height constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[btnPause(48)]" options:0 metrics:nil views:views]];
+    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[btnPause(46)]" options:0 metrics:nil views:views]];
     // center align
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPause attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPause attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-1]];
     
     //Timer
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.10f target:self selector:@selector(refreshTime) userInfo:nil repeats: YES]; //10 times/second

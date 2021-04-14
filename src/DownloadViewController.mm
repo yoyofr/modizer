@@ -521,58 +521,73 @@ static NSFileManager *mFileMngr;
 			if (isMODLAND) { //check if secondary files are required
 				//1/ TFMX => if mdat, smpl should be downloaded too
 				NSRange r;
+                
+                //if TFMX-ST, change name from mdat to mdst
 				r.location=NSNotFound;
 				r = [fileName rangeOfString:@".mdat" options:NSCaseInsensitiveSearch];
 				if (r.location != NSNotFound) {
-					char *tmp_str_ptr;
-					char tmp_str[1024];
-					strcpy(tmp_str,[filePath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
-					mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.smpl",tmp_str];
-					
-					strcpy(tmp_str,[ftpPath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
-					mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.smpl",tmp_str];
-					
-					mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
-					
-					strcpy(tmp_str,[fileName UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
-					mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.smpl",tmp_str];
-					
-					mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
-					mFileSize[mFTPDownloadQueueDepth]=-1;
-					mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
-					
-					mFTPDownloadQueueDepth++;
-					
+                    r.location=NSNotFound;
+                    r = [ftpPath rangeOfString:@"TFMX ST" options:NSCaseInsensitiveSearch];
+                    if (r.location != NSNotFound) {
+                        //if TFMX st, no smpl to load
+                    } else {
+                        char *tmp_str_ptr;
+                        char tmp_str[1024];
+                        strcpy(tmp_str,[filePath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                        mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.smpl",tmp_str];
+                        
+                        strcpy(tmp_str,[ftpPath UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                        mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.smpl",tmp_str];
+                        
+                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                        
+                        strcpy(tmp_str,[fileName UTF8String]);tmp_str_ptr=strrchr(tmp_str,'.');*tmp_str_ptr=0;
+                        mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s.smpl",tmp_str];
+                        
+                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                        mFileSize[mFTPDownloadQueueDepth]=-1;
+                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                        
+                        mFTPDownloadQueueDepth++;
+                    }
 				}
                 r = [fileName rangeOfString:@"mdat." options:NSCaseInsensitiveSearch];
                 if (r.location != NSNotFound) {
-                    char *tmp_str_ptr;
-                    char tmp_str[1024];
-                    strcpy(tmp_str,[filePath UTF8String]);
-                    tmp_str_ptr=strrchr(tmp_str,'/');tmp_str_ptr++;
-                    *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
-                    mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
                     
-                    strcpy(tmp_str,[ftpPath UTF8String]);
-                    tmp_str_ptr=strrchr(tmp_str,'/');tmp_str_ptr++;
-                    *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
-                    mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
                     
-                    mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
-                    
-                    strcpy(tmp_str,[fileName UTF8String]);
-                    tmp_str_ptr=strrchr(tmp_str,'/');
-                    if (!tmp_str_ptr) tmp_str_ptr=tmp_str;
-                    else tmp_str_ptr++;
-                    *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
-                    mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
-                    
-                    mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
-                    mFileSize[mFTPDownloadQueueDepth]=-1;
-                    mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
-                    
-                    mFTPDownloadQueueDepth++;
-                    
+                    r.location=NSNotFound;
+                    r = [ftpPath rangeOfString:@"TFMX ST" options:NSCaseInsensitiveSearch];
+                    if (r.location != NSNotFound) {
+                        //if TFMX st, no smpl to load
+                    } else {
+                        char *tmp_str_ptr;
+                        char tmp_str[1024];
+                        
+                        strcpy(tmp_str,[filePath UTF8String]);
+                        tmp_str_ptr=strrchr(tmp_str,'/');tmp_str_ptr++;
+                        *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
+                        mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
+                        
+                        strcpy(tmp_str,[ftpPath UTF8String]);
+                        tmp_str_ptr=strrchr(tmp_str,'/');tmp_str_ptr++;
+                        *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
+                        mFTPpath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
+                        
+                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                        
+                        strcpy(tmp_str,[fileName UTF8String]);
+                        tmp_str_ptr=strrchr(tmp_str,'/');
+                        if (!tmp_str_ptr) tmp_str_ptr=tmp_str;
+                        else tmp_str_ptr++;
+                        *tmp_str_ptr++='s';*tmp_str_ptr++='m';*tmp_str_ptr++='p';*tmp_str_ptr++='l';
+                        mFTPFilename[mFTPDownloadQueueDepth]=[[NSString alloc] initWithFormat:@"%s",tmp_str];
+                        
+                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                        mFileSize[mFTPDownloadQueueDepth]=-1;
+                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                        
+                        mFTPDownloadQueueDepth++;
+                    }
                 }
                 //2/SCI => if .sci the .003 patch file should be downloaded as well
                 r.location=NSNotFound;

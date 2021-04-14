@@ -90,6 +90,7 @@ static char *stil_info;//[MAX_STIL_DATA_LENGTH];
 char *mod_message;//[8192+MAX_STIL_DATA_LENGTH];
 static char mod_name[256];
 static char mod_filename[512];
+static NSString *mod_title;
 static char archive_filename[512];
 
 static int mSingleFileType;
@@ -2357,6 +2358,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
     
     return 0;
 }
+
 -(int) uade_playloop {
     struct uade_state *state=&UADEstate;
     uint16_t *sm;
@@ -6702,6 +6704,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
                 (usf_info_data->inf_track?usf_info_data->inf_track:""),
                 hc_sample_rate,
                 iModuleLength/1000);
+                        
+        if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithFormat:@"%s",usf_info_data->inf_game];
     } else {
         sprintf(mod_name,"");
         if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
@@ -6711,6 +6715,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             id value = info.info[key];
             NSString *tmpstr=[NSString stringWithFormat:@"%@:%@\n",key,value];
             strcat(mod_message,[tmpstr UTF8String]);
+            
+            if ([key isEqualToString:@"album"]&&([value length]>0)) mod_title=[NSString stringWithString:value];
         }
         strcat(mod_message,[[NSString stringWithFormat:@"Sample rate: %dHz\nLength: %ds\n",hc_sample_rate,iModuleLength/1000] UTF8String]);
     }
@@ -6911,6 +6917,9 @@ int vgmGetFileLength()
                 [[self wcharToNS:VGMTag.strCreator] UTF8String],
                 [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
+    mod_title=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)];
+    if (mod_title && ([mod_title length]==0)) mod_title=nil;
+    
     //NSLog(@"loop: %d\n",VGMMaxLoopM);
     iModuleLength=vgmGetFileLength();//(VGMHead.lngTotalSamples+VGMMaxLoopM*VGMHead.lngLoopSamples)*10/441;//ms
     //NSLog(@"VGM length %d",iModuleLength);
@@ -7047,7 +7056,10 @@ int vgmGetFileLength()
     mod_maxsub=asap->moduleInfo.songs-1;
     mod_subsongs=asap->moduleInfo.songs;
     
-    if (asap->moduleInfo.title[0]) sprintf(mod_name," %s",asap->moduleInfo.title);
+    if (asap->moduleInfo.title[0]) {
+        sprintf(mod_name," %s",asap->moduleInfo.title);
+        mod_title=[NSString stringWithFormat:@"%s",asap->moduleInfo.title];
+    }
     else sprintf(mod_name," %s",mod_filename);
     
     stil_info[0]=0;
@@ -7286,7 +7298,9 @@ int vgmGetFileLength()
             if (gme_info->song){
                 if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
             }
-            
+            if (gme_info->game){
+                if (gme_info->game[0]) mod_title=[NSString stringWithFormat:@"%s",gme_info->game];
+            }
             
             gme_free_info(gme_info);
         } else {
@@ -7909,11 +7923,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         
     for (int i=0;i<[filetype_extADPLUG count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];// atIndex:0];
+            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
             break;
         }
         if ([file_no_ext caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_ADPLUG]];// atIndex:0];
+            [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
             break;
         }
     }
@@ -7954,6 +7968,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     m_voice_current_system=0;
     mSIDSeekInProgress=0;
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
+    mod_title=nil;
     
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];        
@@ -8138,6 +8153,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             iCurrentTime=startPos;
             break;
         case MMP_OPENMPT:  //MODPLUG
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
+            iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
+            
             if (startPos) [self Seek:startPos];
             [self Play];
             iCurrentTime=startPos;
@@ -8157,8 +8178,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             [self Play];
             break;
         case MMP_HVL://HVL/AHX
-            moveToSubSongIndex=1;
-            moveToSubSongIndex=subsong;
+            //moveToSubSong=1;
+            //moveToSubSongIndex=subsong;
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            hvl_InitSubsong( hvl_song,mod_currentsub );
+            iModuleLength=hvl_GetPlayTime(hvl_song);
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -8209,8 +8235,15 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             [self Play];
             break;
         case MMP_ASAP: //ASAP
-            moveToSubSong=1;
-            moveToSubSongIndex=subsong;
+            //moveToSubSong=1;
+            //moveToSubSongIndex=;
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            iModuleLength=asap->moduleInfo.durations[mod_currentsub];
+            if (iModuleLength<1000) iModuleLength=1000;
+            ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
+            
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -8238,9 +8271,19 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             [self Play];
             break;
         case MMP_VGMSTREAM: //VGMSTREAM
-            moveToSubSongIndex=1;
-            moveToSubSongIndex=subsong;
-            
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            if (mod_subsongs>1) {
+                if (vgmStream != NULL) close_vgmstream(vgmStream);
+                vgmStream = NULL;
+                free(vgm_sample_data);
+                free(vgm_sample_data_float);
+                free(vgm_sample_converted_data_float);
+                if (src_state) src_delete(src_state);
+                src_state=NULL;
+                [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
+            }
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -8458,6 +8501,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 
 -(NSString*) getModFileTitle {
     //TODO: use title tag when available
+    if (mod_title) return mod_title;
     return [NSString stringWithFormat:@"%s",mod_filename];
 }
 

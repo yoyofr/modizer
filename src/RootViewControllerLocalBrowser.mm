@@ -441,6 +441,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 
                 //[cur_local_entries[renameSec][renameIdx].fullpath release];
                 cur_local_entries[renameSec][renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
+                if (mSearch) {
+                    mSearch=0;
+                    [self listLocalFiles];
+                    mSearch=1;
+                }
                 shouldFillKeys=1;
                 [self fillKeys];
                 
@@ -466,6 +471,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             } else {
                 [self addSkipBackupAttributeToItemAtPath:newPath];
                 
+                if (mSearch) {
+                    mSearch=0;
+                    [self listLocalFiles];
+                    mSearch=1;
+                }
                 [self listLocalFiles];
                 
                 [self.tableView reloadData];
@@ -1956,6 +1966,13 @@ static int shouldRestart=1;
         
         [self showWaiting];
         [self shortWait];
+        
+        if (mSearch) {
+            mSearch=0;
+            [self listLocalFiles];
+            mSearch=1;
+        }
+        
         [self fillKeys];
         [tableView reloadData];
         [self hideWaiting];
@@ -1978,6 +1995,7 @@ static int shouldRestart=1;
     //TODO: review how to manage -> generic virtual class ?
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
+        
         
         shouldFillKeys=1;
         [self showWaiting];
@@ -2548,6 +2566,11 @@ static int shouldRestart=1;
             } else {
                 //[cutpaste_filesrcpath release];
                 cutpaste_filesrcpath=nil;
+                if (mSearch) {
+                    mSearch=0;
+                    [self listLocalFiles];
+                    mSearch=1;
+                }
                 [self listLocalFiles];
             }
     } else {
@@ -2601,6 +2624,11 @@ static int shouldRestart=1;
                 if (files_found) {
                     NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
                     [self fex_extractToPath:[filePath UTF8String] path:[tgtPath UTF8String]];
+                    if (mSearch) {
+                        mSearch=0;
+                        [self listLocalFiles];
+                        mSearch=1;
+                    }
                     [self listLocalFiles];
                     //[self.tableView reloadData];
                 } else {
@@ -2660,16 +2688,19 @@ static int shouldRestart=1;
                 if (cur_local_entries[section][indexPath.row].type&3) { //File
                     DBHelper::deleteStatsFileDB(fullpath);
                 }
-                
+                if (mSearch) {
+                    mSearch=0;
+                    [self listLocalFiles]; //force a refresh
+                    mSearch=1;
+                }
                 [self listLocalFiles];
-                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-                //[self.tableView reloadData];
+                //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [self.tableView reloadData];
             }
             
             //            [self.tableView deleteRowsAtIndexPaths:@[cellIndexPath]
             //                                  withRowAnimation:UITableViewRowAnimationAutomatic];
     }
-    
     [self.tableView reloadData];
 }
 /**
@@ -3055,7 +3086,11 @@ static int shouldRestart=1;
             if (cur_local_entries[section][indexPath.row].type&3) { //File
                 DBHelper::deleteStatsFileDB(fullpath);
             }
-            
+            if (mSearch) {
+                mSearch=0;
+                [self listLocalFiles];
+                mSearch=1;
+            }
             [self listLocalFiles];
             [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
             [tabView reloadData];
