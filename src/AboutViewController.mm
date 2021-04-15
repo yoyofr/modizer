@@ -10,10 +10,12 @@
 
 @implementation AboutViewController
 
-@synthesize detailViewControllerIphone,textView;
+@synthesize detailViewController,textView;
+
+#include "MiniPlayerImplementNoTableView.h"
 
 -(IBAction) goPlayer {
-    if (detailViewControllerIphone.mPlaylist_size) [self.navigationController pushViewController:detailViewControllerIphone animated:YES];
+    if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
         UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
                                                                message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -38,11 +40,48 @@
 }
 */
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+}
+
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	textView.font=[UIFont systemFontOfSize:14];
     [super viewDidLoad];
+    
+    forceReloadCells=false;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
+    
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[WaitingView alloc] init];
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
@@ -56,6 +95,14 @@
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     [super viewWillAppear:animated];
+    
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
+    [self hideWaiting];
 }
 
 /*
@@ -81,6 +128,9 @@
 
 
 - (void)dealloc {
+    [waitingView removeFromSuperview];
+    waitingView=nil;
+    
     //[super dealloc];
 }
 

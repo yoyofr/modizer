@@ -11,8 +11,9 @@ Todo/Requested:
 
 - TODO: change file decompression library + ensure .tar.gz works
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
-- TODO: miniplayer on all tabs
+- TODO: miniplayer on all tabs : remaning -> download / webbrowser / about
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
+- BUG: if taping multiple times during initialization (initial launch / reloading previous file) it crashes (try to push same VC multiple times)
 
 3.0
 �����

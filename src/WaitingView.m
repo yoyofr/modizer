@@ -28,9 +28,10 @@
         [self addConstraint:[NSLayoutConstraint constraintWithItem:indView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
         [self addConstraint:[NSLayoutConstraint constraintWithItem:indView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
         
-        lblDetail=[[UILabel alloc] initWithFrame:CGRectMake(10,90,80+20,20)];
+        lblDetail=[[UILabel alloc] initWithFrame:CGRectMake(10,90,80+20,30)];
         lblDetail.text=@"";
         lblDetail.backgroundColor=[UIColor blackColor];
+        lblDetail.numberOfLines=0;
         lblDetail.opaque=YES;
         lblDetail.textColor=[UIColor whiteColor];
         lblDetail.textAlignment=NSTextAlignmentCenter;
@@ -40,11 +41,12 @@
         
         // center align
         [self addConstraint:[NSLayoutConstraint constraintWithItem:lblDetail attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-        [self addConstraint:[NSLayoutConstraint constraintWithItem:lblDetail attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-36]];
+        [self addConstraint:[NSLayoutConstraint constraintWithItem:lblDetail attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:indView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:4]];
         
         lblTitle=[[UILabel alloc] initWithFrame:CGRectMake(10,10,80+20,20)];
         lblTitle.text=@"";
         lblTitle.backgroundColor=[UIColor blackColor];
+        lblTitle.numberOfLines=0;
         lblTitle.opaque=YES;
         lblTitle.textColor=[UIColor whiteColor];
         lblTitle.textAlignment=NSTextAlignmentCenter;
@@ -55,10 +57,7 @@
         [self addConstraint:[NSLayoutConstraint constraintWithItem:lblTitle attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
         [self addConstraint:[NSLayoutConstraint constraintWithItem:lblTitle attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0 constant:8]];
         
-        
-        
         self.translatesAutoresizingMaskIntoConstraints = NO;
-        
         
         btnStopCurrentActionPending=false;
         btnStopCurrentAction=[[BButton alloc] initWithFrame:CGRectMake(0,0,64,32) type:BButtonTypeDanger style:BButtonStyleBootstrapV2 icon:FAIconVolumeDown fontSize:12];

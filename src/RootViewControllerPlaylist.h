@@ -15,6 +15,7 @@
 
 #import "SESlideTableViewCell.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 @class DetailViewControllerIphone;
 
@@ -30,7 +31,7 @@
 	CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	UIView *waitingView;
+	WaitingView *waitingView;
     
     NSFileManager *mFileMngr;
 	

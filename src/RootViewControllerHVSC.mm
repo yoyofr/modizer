@@ -84,17 +84,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	return machine;
 }
 
--(void) shortWait {
-    [NSThread sleepForTimeInterval:0.1f];
-}
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
 
--(void)showWaiting{
-	waitingView.hidden=FALSE;
-}
-
--(void)hideWaiting{
-	waitingView.hidden=TRUE;
-}
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
@@ -302,31 +297,17 @@ extern volatile t_settings settings[MAX_SETTINGS];
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
-    waitingView = [[UIView alloc] init];
-    waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-    waitingView.opaque=YES;
-    waitingView.hidden=FALSE;
-    waitingView.layer.cornerRadius=20;
-    
-    UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-20,40,40)];
-    indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-    [waitingView addSubview:indView];
-    
-    [indView startAnimating];
-    //[indView autorelease];
-    
-    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    waitingView = [[WaitingView alloc] init];
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
     // height constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-    /////////////////////////////////////////
 	
 	[super viewDidLoad];
 	
@@ -1385,7 +1366,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (shouldFillKeys&&(browse_depth>0)) {
             
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             
             [self fillKeys];
             [tableView reloadData];
@@ -1885,7 +1866,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     
     
     if (browse_depth==0) {
@@ -1947,7 +1928,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     
     
     if (browse_depth==0) {
@@ -2277,6 +2258,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 - (void)dealloc {
     [waitingView removeFromSuperview];
+    waitingView=nil;
     //[waitingView release];
     
     //[currentPath release];

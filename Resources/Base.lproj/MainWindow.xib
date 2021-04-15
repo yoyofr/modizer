@@ -197,7 +197,7 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <searchBar contentMode="redraw" barStyle="black" id="716">
@@ -209,7 +209,7 @@
                                         </connections>
                                     </searchBar>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="474"/>
+                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -218,7 +218,7 @@
                                         </connections>
                                     </tableView>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="530"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -1173,11 +1173,11 @@
                 <outlet property="downloadLabelName" destination="333" id="675"/>
                 <outlet property="downloadLabelSize" destination="336" id="674"/>
                 <outlet property="downloadPrgView" destination="332" id="673"/>
-                <outlet property="downloadTabView" destination="758" id="759"/>
                 <outlet property="moreVC" destination="2018" id="3iY-w1-GEf"/>
                 <outlet property="onlineVC" destination="1934" id="2030"/>
                 <outlet property="rootViewController" destination="1979" id="2031"/>
                 <outlet property="searchViewController" destination="684" id="767"/>
+                <outlet property="tableView" destination="758" id="Zz3-FN-5xn"/>
             </connections>
             <point key="canvasLocation" x="-133" y="-920"/>
         </viewController>
@@ -1351,7 +1351,7 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <size key="freeformSize" width="320" height="480"/>
             <connections>
-                <outlet property="detailViewControllerIphone" destination="11" id="1477"/>
+                <outlet property="detailViewController" destination="11" id="n50-cJ-UpW"/>
                 <outlet property="textView" destination="1468" id="1481"/>
             </connections>
             <point key="canvasLocation" x="-256" y="-1871"/>

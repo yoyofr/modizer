@@ -15,6 +15,7 @@
 #import "RootViewControllerLocalBrowser.h"
 #import "DownloadViewController.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 
 @class DownloadViewController;
@@ -26,6 +27,8 @@
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
+    
+    WaitingView *waitingView;
     
     bool darkMode;
     bool forceReloadCells;

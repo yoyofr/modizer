@@ -324,7 +324,7 @@ class CGLString;
 -(void)showWaitingCancel;
 -(void)hideWaitingCancel;
 -(void)showWaiting;
--(void)shortWait;
+-(void)flushMainLoop;
 -(void) updateWaitingDetail:(NSString *)text;
 -(void) updateWaitingTitle:(NSString *)text;
 -(void)hideWaiting;

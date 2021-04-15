@@ -333,17 +333,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	return machine;
 }
 
--(void) shortWait {
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-}
-
--(void)showWaiting{
-	waitingView.hidden=FALSE;
-}
-
--(void)hideWaiting{
-	waitingView.hidden=TRUE;
-}
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -562,31 +556,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
-    waitingView = [[UIView alloc] init];
-    waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-    waitingView.opaque=YES;
-    waitingView.hidden=FALSE;
-    waitingView.layer.cornerRadius=20;
-    
-    UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-20,40,40)];
-    indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-    [waitingView addSubview:indView];
-    
-    [indView startAnimating];
-    //[indView autorelease];
-    
-    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    waitingView = [[WaitingView alloc] init];
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
     // height constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-    /////////////////////////////////////////
 	
 	[super viewDidLoad];
 	
@@ -2980,7 +2960,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
 
     if (browse_depth==0) {
         if (indexPath.row>=2) { //start selected playlist
@@ -3077,7 +3057,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     
     
     int section=indexPath.section-1;
@@ -3392,7 +3372,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 shouldFillKeys=1;
                 
                 [self showWaiting];
-                [self shortWait];
+                [self flushMainLoop];
                 
                 [self fillKeys];
                 [tabView reloadData];
@@ -3422,7 +3402,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton)) { //Archive selected or multisongs: display files inside
                     
                     [self showWaiting];
-                    [self shortWait];
+                    [self flushMainLoop];
                     
                     NSString *newPath;
                     //                    NSLog(@"currentPath:%@\ncellValue:%@\nfullpath:%@",currentPath,cellValue,cur_local_entries[section][indexPath.row].fullpath);
@@ -3539,6 +3519,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 - (void)dealloc {
     
     [waitingView removeFromSuperview];
+    waitingView=nil;
     //[waitingView release];
     
     //[currentPath release];

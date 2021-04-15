@@ -13,6 +13,7 @@
 #import "fex.h"
 #import "CMPopTipView.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 @class DetailViewControllerIphone;
 @class DownloadViewController;
@@ -29,7 +30,7 @@
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	UIView *waitingView;
+    WaitingView *waitingView;
     IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;

@@ -139,6 +139,12 @@ static NSFileManager *mFileMngr;
     self.popTipView = nil;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
@@ -155,6 +161,22 @@ static NSFileManager *mFileMngr;
             if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         }
     }
+    
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[WaitingView alloc] init];
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    
     
     lastSelectedSearch=0;
     
@@ -233,6 +255,8 @@ static NSFileManager *mFileMngr;
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+        
+    [self hideWaiting];
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -286,6 +310,9 @@ static NSFileManager *mFileMngr;
 }
 
 - (void)dealloc {
+    [waitingView removeFromSuperview];
+    waitingView=nil;
+    
 	if (dbHVSC_entries_count) {
 		for (int i=0;i<dbHVSC_entries_count;i++) {
 			/*if (dbHVSC_entries[i].label) [dbHVSC_entries[i].label release];

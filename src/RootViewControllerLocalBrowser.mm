@@ -482,33 +482,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 /////////////////////////////////////////////////////////////////////////////////////////////
 // WaitingView methods
 /////////////////////////////////////////////////////////////////////////////////////////////
--(void) shortWait {
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-}
--(void) hideWaitingCancel {
-    [waitingView hideCancel];
-}
--(void) showWaitingCancel {
-    [waitingView showCancel];
-}
--(void) showWaiting{
-    waitingView.hidden=FALSE;
-}
--(void) hideWaiting{
-    waitingView.hidden=TRUE;
-}
--(bool) isCancelPending {
-    return [waitingView isCancelPending];
-}
--(void) resetCancelStatus {
-    [waitingView resetCancelStatus];
-}
--(void) updateWaitingDetail:(NSString *)text {
-    [waitingView setDetail:text];
-}
--(void) updateWaitingTitle:(NSString *)text {
-    [waitingView setTitle:text];
-}
+#include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1928,7 +1902,7 @@ static int shouldRestart=1;
         [self updateWaitingDetail:@""];
         [self hideWaitingCancel];
         [self showWaiting];
-        [self shortWait];
+        [self flushMainLoop];
         
         if (mSearch) {
             mSearch=0;
@@ -1949,7 +1923,7 @@ static int shouldRestart=1;
     //[self.view setNeedsLayout];
     //[self.view layoutIfNeeded];
     //[tableView reloadData];
-    //[self shortWait];
+    //[self flushMainLoop];
 }
 
 -(void) refreshViewAfterDownload {
@@ -1965,7 +1939,7 @@ static int shouldRestart=1;
         [self updateWaitingDetail:@""];
         [self hideWaitingCancel];
         [self showWaiting];
-        [self shortWait];
+        [self flushMainLoop];
         
         int old_mSearch=mSearch;
         NSString *old_mSearchText=mSearchText;
@@ -1999,10 +1973,16 @@ static int shouldRestart=1;
     //[tableView reloadData];
     
     if (shouldRestart) {
+        [self hideWaitingCancel];
+        [self updateWaitingTitle:@"Loading"];
+        [self updateWaitingDetail:@"Resuming last\nplayed file"];
+        [self showWaiting];
+        [self flushMainLoop];
         shouldRestart=0;
         [detailViewController play_restart];
+        [self hideWaiting];
     }
-
+    
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
@@ -2583,7 +2563,7 @@ static int shouldRestart=1;
                 [self updateWaitingDetail:@""];
                 [self showWaitingCancel];
                 [self showWaiting];
-                [self shortWait];
+                [self flushMainLoop];
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                                 
@@ -3144,7 +3124,7 @@ static int shouldRestart=1;
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
             @try {
@@ -3192,7 +3172,7 @@ static int shouldRestart=1;
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     
     int section=indexPath.section-2;
     
@@ -3262,7 +3242,7 @@ static int shouldRestart=1;
     [self updateWaitingDetail:@""];
     [self hideWaitingCancel];
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     
     
     //local  browser & favorites
@@ -3373,7 +3353,7 @@ static int shouldRestart=1;
             [self updateWaitingDetail:@""];
             [self hideWaitingCancel];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             
             
             int old_mSearch=mSearch;
@@ -3400,7 +3380,7 @@ static int shouldRestart=1;
             [self updateWaitingDetail:@""];
             [self hideWaitingCancel];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             
             
             NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
@@ -3427,7 +3407,7 @@ static int shouldRestart=1;
             [self updateWaitingDetail:@""];
             [self hideWaitingCancel];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             
             
             NSString *newPath;
@@ -3456,7 +3436,7 @@ static int shouldRestart=1;
             [self updateWaitingDetail:@""];
             [self hideWaitingCancel];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {

@@ -41,6 +41,13 @@
     return self;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -57,6 +64,21 @@
             if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         }
     }
+    
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[WaitingView alloc] init];
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
@@ -97,6 +119,8 @@
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     self.navigationController.delegate = self;
+    
+    [self hideWaiting];
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -403,6 +427,11 @@
                                                   toViewController:(UIViewController *)toVC
 {
     return [[TTFadeAnimator alloc] init];
+}
+
+- (void)dealloc {
+    [waitingView removeFromSuperview];
+    waitingView=nil;
 }
 
 

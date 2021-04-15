@@ -20,7 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
     UIImage *coverImg;
     UIView *gestureAreaView;
     
+    UIView *songInfoView;
     CBAutoScrollLabel *labelMain,*labelSub;
+    UILabel *labelPrev,*labelNext;
+    UILabel *labelPrevEntry,*labelNextEntry;
     UILabel *labelPlaylist;
     UILabel *labelTime;
     char labelTime_mode;

@@ -1661,6 +1661,12 @@ void optGSFChangedC(id param) {
     return self;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 
 - (void)viewDidLoad
 {
@@ -1678,6 +1684,21 @@ void optGSFChangedC(id param) {
             if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         }
     }
+    
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[WaitingView alloc] init];
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
@@ -1749,6 +1770,8 @@ void optGSFChangedC(id param) {
     } else {
         wasMiniPlayerOn=false;
     }
+    
+    [self hideWaiting];
     
     [self.tableView reloadData];
     
@@ -2387,6 +2410,9 @@ void optGSFChangedC(id param) {
 }
 
 -(void) dealloc {
+    [waitingView removeFromSuperview];
+    waitingView=nil;
+    
     if (bServerRunning) { // Stop FTP server
         // Stop the server
         ftpserver->StopListening();

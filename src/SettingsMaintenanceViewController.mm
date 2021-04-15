@@ -32,17 +32,12 @@ extern pthread_mutex_t db_mutex;
     }
 }
 
--(void) shortWait {
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-}
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
 
--(void)showWaiting{
-	waitingView.hidden=FALSE;
-}
-
--(void)hideWaiting{
-	waitingView.hidden=TRUE;
-}
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
     [self hideWaiting];
@@ -63,8 +58,7 @@ extern pthread_mutex_t db_mutex;
 {
     [super viewDidLoad];
     
-    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
-    miniplayerVC=nil;
+    
     
     self.navigationController.delegate = self;
     
@@ -75,6 +69,9 @@ extern pthread_mutex_t db_mutex;
             if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         }
     }
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
     
     
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
@@ -93,31 +90,18 @@ extern pthread_mutex_t db_mutex;
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
-    waitingView = [[UIView alloc] init];
-    waitingView.backgroundColor=[UIColor blackColor];//[UIColor colorWithRed:0 green:0 blue:0 alpha:0.8f];
-    waitingView.opaque=YES;
-    waitingView.hidden=TRUE;
-    waitingView.layer.cornerRadius=20;
-    
-    UIActivityIndicatorView *indView=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(50-20,50-20,40,40)];
-    indView.activityIndicatorViewStyle=UIActivityIndicatorViewStyleWhiteLarge;
-    [waitingView addSubview:indView];
-    
-    [indView startAnimating];
-    //[indView autorelease];
-    
-    waitingView.translatesAutoresizingMaskIntoConstraints = NO;
+    waitingView = [[WaitingView alloc] init];
     [self.view addSubview:waitingView];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
     // width constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
     // height constraint
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(100)]" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-    /////////////////////////////////////////
+    
 
 }
 
@@ -160,6 +144,8 @@ extern pthread_mutex_t db_mutex;
         wasMiniPlayerOn=false;
     }
     
+    [self hideWaiting];
+    
     [super viewWillAppear:animated];
 }
 
@@ -177,7 +163,7 @@ extern pthread_mutex_t db_mutex;
 
 -(void) resetSettings {
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     [SettingsGenViewController applyDefaultSettings];
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
@@ -186,7 +172,7 @@ extern pthread_mutex_t db_mutex;
 
 -(bool) resetRatingsDB {
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -213,7 +199,7 @@ extern pthread_mutex_t db_mutex;
 
 -(bool) resetPlaycountDB {
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -240,7 +226,7 @@ extern pthread_mutex_t db_mutex;
 
 -(bool) cleanDB {
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
@@ -317,7 +303,7 @@ extern pthread_mutex_t db_mutex;
 
 -(void) recreateSamplesFolder {
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     
     [rootVC createSamplesFromPackage:TRUE];
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Samples folder created",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
@@ -326,7 +312,7 @@ extern pthread_mutex_t db_mutex;
 
 -(void) resetDB {
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     [rootVC createEditableCopyOfDatabaseIfNeeded:TRUE quiet:TRUE];
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
     [alert show];
@@ -334,7 +320,7 @@ extern pthread_mutex_t db_mutex;
 
 -(void) removeCurrentCover {
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     NSError *err;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSString *currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
@@ -524,6 +510,12 @@ extern pthread_mutex_t db_mutex;
                                                   toViewController:(UIViewController *)toVC
 {
     return [[TTFadeAnimator alloc] init];
+}
+
+- (void)dealloc
+{
+    [waitingView removeFromSuperview];
+    waitingView=nil;
 }
 
 

@@ -15,6 +15,7 @@
 #import "DownloadViewController.h"
 #import "CMPopTipView.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 @interface RootViewControllerMODLAND : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[6];
@@ -27,7 +28,7 @@
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	UIView *waitingView;
+	WaitingView *waitingView;
 	
     IBOutlet UITableView *tableView;
 

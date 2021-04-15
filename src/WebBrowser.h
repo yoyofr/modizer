@@ -11,13 +11,15 @@
 #import "DownloadViewController.h"
 #import "DetailViewControllerIphone.h"
 #import "ModizerWebView.h"
+#import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 #define MAX_CUSTOM_URL 256
 
 @class DownloadViewController;
 @class DetailViewControllerIphone;
 
-@interface WebBrowser : UIViewController <WKNavigationDelegate,UITextFieldDelegate> {
+@interface WebBrowser : UIViewController <UINavigationControllerDelegate,WKNavigationDelegate,UITextFieldDelegate> {
 	ModizerWebView *webView;
     IBOutlet UIView *view;
 	IBOutlet UIToolbar *toolBar;
@@ -26,6 +28,13 @@
 	IBOutlet UITextField *addressTestField;
 	IBOutlet DownloadViewController *downloadViewController;
 	IBOutlet DetailViewControllerIphone *detailViewController;
+    
+    WaitingView *waitingView;
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
+    
+    bool darkMode;
+    bool forceReloadCells;
 	
 	IBOutlet UIView *infoDownloadView;
 	IBOutlet UILabel *infoDownloadLbl;
@@ -47,6 +56,8 @@
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
 
 -(IBAction) goPlayer;
+-(void) updateMiniPlayer;
+
 -(IBAction) goBack:(id)sender;
 -(IBAction) goForward:(id)sender;
 -(IBAction) newBookmark:(id)sender;

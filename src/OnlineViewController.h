@@ -15,6 +15,7 @@
 #import "RootViewControllerASMA.h"
 #import "DownloadViewController.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 @interface OnlineViewController : UITableViewController <UINavigationControllerDelegate>{
 
@@ -22,6 +23,8 @@
     IBOutlet WebBrowser *webBrowser;
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet UITableView *tableView;
+    
+    WaitingView *waitingView;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;

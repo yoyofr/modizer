@@ -70,6 +70,13 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     return self;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -78,6 +85,21 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
+    
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[WaitingView alloc] init];
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     forceReloadCells=false;
     darkMode=false;
@@ -159,6 +181,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         wasMiniPlayerOn=false;
     }
     
+    [self hideWaiting];
+    
     [self.tableView reloadData];
     collectionViewController=nil;
 }
@@ -173,6 +197,11 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)dealloc {
+    [waitingView removeFromSuperview];
+    waitingView=nil;
 }
 
 -(IBAction) goPlayer {

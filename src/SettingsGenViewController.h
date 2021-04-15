@@ -13,6 +13,7 @@
 
 #import "CFtpServer.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 enum MDZ_SETTINGS_TYPE {
     MDZ_FAMILY=1,
@@ -235,6 +236,8 @@ typedef struct {
     IBOutlet TPKeyboardAvoidingTableView *tableView;
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];
+    
+    WaitingView *waitingView;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;

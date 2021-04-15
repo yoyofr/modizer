@@ -12,10 +12,11 @@
 #import "SettingsGenViewController.h"
 #import "RootViewControllerLocalBrowser.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 @interface SettingsMaintenanceViewController : UIViewController <UINavigationControllerDelegate,UIAlertViewDelegate> {
     IBOutlet UITableView *tableView;
-    UIView *waitingView;
+    WaitingView *waitingView;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;

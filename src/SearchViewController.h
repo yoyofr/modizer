@@ -15,6 +15,7 @@
 #import "RootViewControllerLocalBrowser.h"
 #import "CMPopTipView.h"
 #import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 @class DetailViewControllerIphone;
 @class DownloadViewController;
@@ -76,6 +77,8 @@ typedef struct {
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
+    
+    WaitingView *waitingView;
     
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;

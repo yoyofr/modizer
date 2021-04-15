@@ -17,10 +17,10 @@
 //const char *XSFPlayer::WinampDescription = "2SF Decoder";
 //const char *XSFPlayer::WinampExts = "2sf;mini2sf\0DS Sound Format files (*.2sf;*.mini2sf)\0";
 
-XSFPlayer *XSFPlayer::Create(const std::string &fn)
+/*XSFPlayer *XSFPlayer::Create(const std::string &fn)
 {
 	return new XSFPlayer_2SF(fn);
-}
+}*/
 
 #ifdef _WIN32
 XSFPlayer *XSFPlayer::Create(const std::wstring &fn)

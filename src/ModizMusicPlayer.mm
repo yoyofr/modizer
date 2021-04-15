@@ -12,6 +12,7 @@
 #include <sqlite3.h>
 #include <sys/xattr.h>
 
+
 #include "fex.h"
 
 extern pthread_mutex_t db_mutex;
@@ -141,9 +142,9 @@ int optHC_ResampleQuality=1;
 
 extern "C" {
     //VGMPPLAY
-    CHIPS_OPTION ChipOpts[0x02];
-    bool EndPlay;
-    char* AppPaths[8];
+    extern CHIPS_OPTION ChipOpts[0x02];
+    extern bool EndPlay;
+    extern char* AppPaths[8];
 
 /*
 "SN76496", "YM2413", "YM2612", "YM2151", "SegaPCM", "RF5C68", "YM2203", "YM2608",
@@ -2992,7 +2993,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         mdz_safe_execute_sel(vc,@selector(showWaitingCancel),nil)
                         mdz_safe_execute_sel(vc,@selector(updateWaitingTitle:),NSLocalizedString(@"Seeking",@""))
                         mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
-                        mdz_safe_execute_sel(vc,@selector(shortWait),nil)
+                        mdz_safe_execute_sel(vc,@selector(flushMainLoop),nil)
                         
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             long mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;                            
@@ -3241,9 +3242,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self Stop];
                                 if (vgmStream != NULL) close_vgmstream(vgmStream);
                                 vgmStream = NULL;
-                                free(vgm_sample_data);
-                                free(vgm_sample_data_float);
-                                free(vgm_sample_converted_data_float);
+                                mdz_safe_free(vgm_sample_data);
+                                mdz_safe_free(vgm_sample_data_float);
+                                mdz_safe_free(vgm_sample_converted_data_float);
                                 if (src_state) src_delete(src_state);
                                 src_state=NULL;
                                 [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
@@ -3391,9 +3392,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             //[self Stop];
                             if (vgmStream != NULL) close_vgmstream(vgmStream);
                             vgmStream = NULL;
-                            free(vgm_sample_data);
-                            free(vgm_sample_data_float);
-                            free(vgm_sample_converted_data_float);
+                            mdz_safe_free(vgm_sample_data);
+                            mdz_safe_free(vgm_sample_data_float);
+                            mdz_safe_free(vgm_sample_converted_data_float);
                             if (src_state) src_delete(src_state);
                             src_state=NULL;
                             [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
@@ -3542,9 +3543,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 //[self Stop];
                                 if (vgmStream != NULL) close_vgmstream(vgmStream);
                                 vgmStream = NULL;
-                                free(vgm_sample_data);
-                                free(vgm_sample_data_float);
-                                free(vgm_sample_converted_data_float);
+                                mdz_safe_free(vgm_sample_data);
+                                mdz_safe_free(vgm_sample_data_float);
+                                mdz_safe_free(vgm_sample_converted_data_float);
                                 if (src_state) src_delete(src_state);
                                 src_state=NULL;
                                 [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
@@ -3832,9 +3833,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             if ((!nbBytes) && (mod_subsongs>1) && (mod_currentsub<mod_maxsub) ) {
                                 if (vgmStream != NULL) close_vgmstream(vgmStream);
                                 vgmStream = NULL;
-                                free(vgm_sample_data);
-                                free(vgm_sample_data_float);
-                                free(vgm_sample_converted_data_float);
+                                mdz_safe_free(vgm_sample_data);
+                                mdz_safe_free(vgm_sample_data_float);
+                                mdz_safe_free(vgm_sample_converted_data_float);
                                 if (src_state) src_delete(src_state);
                                 src_state=NULL;
                                 mod_currentsub++;
@@ -7483,7 +7484,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             strcpy(archive_filename,mod_filename);
             
             if (found==1) { //FEX
-                //NSLog(@"scan");
                 [self fex_scanarchive:[filePath UTF8String]];
                 //NSLog(@"scan done");
                 if (mdz_ArchiveFilesCnt) {
@@ -7543,7 +7543,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     //sort the file list
                     if (mdz_ArchiveFilesCnt>1) qsort(mdz_ArchiveFilesList, mdz_ArchiveFilesCnt, sizeof(char*), &mdz_ArchiveFiles_compare);
 
-                    
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
                     //extension = [_filePath pathExtension];
@@ -8277,9 +8276,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if (mod_subsongs>1) {
                 if (vgmStream != NULL) close_vgmstream(vgmStream);
                 vgmStream = NULL;
-                free(vgm_sample_data);
-                free(vgm_sample_data_float);
-                free(vgm_sample_converted_data_float);
+                mdz_safe_free(vgm_sample_data);
+                mdz_safe_free(vgm_sample_data_float);
+                mdz_safe_free(vgm_sample_converted_data_float);
                 if (src_state) src_delete(src_state);
                 src_state=NULL;
                 [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
@@ -8465,9 +8464,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
         if (vgmStream != NULL) close_vgmstream(vgmStream);
         vgmStream = NULL;
-        free(vgm_sample_data);
-        free(vgm_sample_data_float);
-        free(vgm_sample_converted_data_float);
+        mdz_safe_free(vgm_sample_data);
+        mdz_safe_free(vgm_sample_data_float);
+        mdz_safe_free(vgm_sample_converted_data_float);
         if (src_state) src_delete(src_state);
         src_state=NULL;
     }

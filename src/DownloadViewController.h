@@ -14,6 +14,8 @@
 #import "ASIHTTPRequest.h"
 //#import "AFNetworking.h"
 #import "BButton.h"
+#import "MiniPlayerVC.h"
+#import "WaitingView.h"
 
 #define MAX_DOWNLOAD_QUEUE 256
 
@@ -30,8 +32,13 @@
     IBOutlet OnlineViewController *onlineVC;
     IBOutlet MoreViewController *moreVC;
 	IBOutlet SearchViewController *searchViewController;
-	IBOutlet UITableView *downloadTabView;
+	IBOutlet UITableView *tableView;
 	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
+    
+    MiniPlayerVC *miniplayerVC;
+    bool wasMiniPlayerOn;
+    
+    WaitingView *waitingView;
     
     bool darkMode;
     bool forceReloadCells;
@@ -97,7 +104,7 @@
 @property (nonatomic, retain) IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 @property (nonatomic, retain) IBOutlet UIProgressView *downloadPrgView;
 @property (nonatomic, retain) IBOutlet UITabBarItem *barItem;
-@property (nonatomic, retain) IBOutlet UITableView *downloadTabView;
+@property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
 
 @property (nonatomic, retain) NSInputStream *networkStream;
@@ -108,6 +115,8 @@
 -(IBAction) goPlayer;
 -(IBAction)cancelCurrent;
 - (void)_stopReceiveWithStatus:(NSString *)statusString status:(int)status;
+
+-(void) updateMiniPlayer;
 
 //-(void)play_listmodules:(t_playlist*)pl start_index:(int)index;
 //-(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths;

@@ -194,6 +194,15 @@
 					HAVE_STDINT_H,
 					EMU_LITTLE_ENDIAN,
 					EMU_COMPILE,
+					"qsoundc_w=HQqsoundc_w",
+					"qsoundc_r=HQqsoundc_r",
+					"qsoundc_update=HQqsoundc_update",
+					"device_start_qsound_ctr=HQdevice_start_qsound_ctr",
+					"device_reset_qsound_ctr=HQdevice_reset_qsound_ctr",
+					"device_stop_qsound_ctr=HQdevice_stop_qsound_ctr",
+					"qsoundc_write_rom=HQqsoundc_write_rom",
+					"qsoundc_set_mute_mask=HQqsoundc_set_mute_mask",
+					"qsoundc_write_data=HQqsoundc_write_data",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -252,6 +261,15 @@
 					HAVE_STDINT_H,
 					EMU_LITTLE_ENDIAN,
 					EMU_COMPILE,
+					"qsoundc_w=HQqsoundc_w",
+					"qsoundc_r=HQqsoundc_r",
+					"qsoundc_update=HQqsoundc_update",
+					"device_start_qsound_ctr=HQdevice_start_qsound_ctr",
+					"device_reset_qsound_ctr=HQdevice_reset_qsound_ctr",
+					"device_stop_qsound_ctr=HQdevice_stop_qsound_ctr",
+					"qsoundc_write_rom=HQqsoundc_write_rom",
+					"qsoundc_set_mute_mask=HQqsoundc_set_mute_mask",
+					"qsoundc_write_data=HQqsoundc_write_data",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;

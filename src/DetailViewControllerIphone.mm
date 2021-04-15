@@ -320,7 +320,7 @@ static int display_length_mode=0;
     [mplayer selectArcEntry:(int)row];
     [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     [self play_loadArchiveModule];
     [self hideWaiting];
     
@@ -1247,7 +1247,7 @@ static float movePinchScale,movePinchScaleOld;
                 [mplayer selectNextArcEntry];
                 [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
                 [self showWaiting];
-                [self shortWait];
+                [self flushMainLoop];
                 [self play_loadArchiveModule];
                 [self hideWaiting];
             } else [self play_nextEntry];
@@ -1571,7 +1571,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer selectArcEntry:[mplayer getArcIndex]];
             [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
         } else {
@@ -1588,7 +1588,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer selectPrevArcEntry];
             [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
         } else [self playPrev];
@@ -1608,7 +1608,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer selectNextArcEntry];
             [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
         }
@@ -1625,7 +1625,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer selectNextArcEntry];
             [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
         }
@@ -1638,7 +1638,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer selectPrevArcEntry];
             [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
             [self showWaiting];
-            [self shortWait];
+            [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
         }
@@ -1676,7 +1676,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
     [self showWaiting];
-    [self shortWait];
+    [self flushMainLoop];
     
 	if ([self play_module:filePath fname:fileName]==FALSE) {
 		[self remove_from_playlist:mPlaylist_pos];
@@ -4019,7 +4019,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 /////////////////////////////////////////////////////////////////////////////////////////////
 // WaitingView methods
 /////////////////////////////////////////////////////////////////////////////////////////////
--(void) shortWait {
+-(void) flushMainLoop {
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 }
 -(void)hideWaitingCancel {

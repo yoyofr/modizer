@@ -4727,6 +4727,7 @@
 		59BE93A52600D3F500414A42 /* kernal.c64 */ = {isa = PBXFileReference; lastKnownFileType = file; path = kernal.c64; sourceTree = "<group>"; };
 		59BE93A62600D3F500414A42 /* c1541.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = c1541.rom; sourceTree = "<group>"; };
 		59BE93A72600D3F500414A42 /* basic.c64 */ = {isa = PBXFileReference; lastKnownFileType = file; path = basic.c64; sourceTree = "<group>"; };
+		59BF54EE2628C8B70064EF5E /* WaitingViewCommonMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaitingViewCommonMethods.h; sourceTree = "<group>"; };
 		59C22A0425B992D9003FEDBF /* AFSecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFSecurityPolicy.h; sourceTree = "<group>"; };
 		59C22A0525B992D9003FEDBF /* AFNetworkReachabilityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkReachabilityManager.h; sourceTree = "<group>"; };
 		59C22A0625B992D9003FEDBF /* AFURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLSessionManager.h; sourceTree = "<group>"; };
@@ -5781,8 +5782,6 @@
 			children = (
 				330F36C717A683FB00EEC84A /* OnlineViewController.h */,
 				330F36C817A683FB00EEC84A /* OnlineViewController.mm */,
-				59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */,
-				59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */,
 				3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */,
 				3399D61017B59CD6009E2AE9 /* RootViewControllerASMA.mm */,
 				33EDF0EB145939850038C673 /* RootViewControllerHVSC.h */,
@@ -6735,6 +6734,16 @@
 			path = c64;
 			sourceTree = "<group>";
 		};
+		59BF54EF2628C9F50064EF5E /* CommonFunctions */ = {
+			isa = PBXGroup;
+			children = (
+				59BF54EE2628C8B70064EF5E /* WaitingViewCommonMethods.h */,
+				59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */,
+				59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */,
+			);
+			name = CommonFunctions;
+			sourceTree = "<group>";
+		};
 		59C04EAE25DBD3AD00D77115 /* FFmpeg-iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -7029,6 +7038,7 @@
 				CC1E622B12041177000A8A4E /* myNavViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
+				59BF54EF2628C9F50064EF5E /* CommonFunctions */,
 				336BF216144FF4CA0086700A /* RootViewControllers */,
 				CC1E623512041177000A8A4E /* SearchViewController.h */,
 				CC1E623612041177000A8A4E /* SearchViewController.mm */,
@@ -11239,6 +11249,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
 					libs/libLazyusf/libLazyusf,
 					libs/sid/libsidplayfp/src,
+					utils/SARUnArchiveANY/SARUnArchiveANY/SSZipArchive/SSZipArchive,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11302,6 +11313,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
 					libs/libLazyusf/libLazyusf,
 					libs/sid/libsidplayfp/src,
+					utils/SARUnArchiveANY/SARUnArchiveANY/SSZipArchive/SSZipArchive,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11365,6 +11377,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
 					libs/libLazyusf/libLazyusf,
 					libs/sid/libsidplayfp/src,
+					utils/SARUnArchiveANY/SARUnArchiveANY/SSZipArchive/SSZipArchive,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

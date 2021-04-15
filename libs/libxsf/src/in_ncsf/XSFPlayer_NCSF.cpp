@@ -25,10 +25,10 @@
 
 extern XSFConfig *xSFConfig;
 
-XSFPlayer *XSFPlayer::Create(const std::string &fn)
+/*XSFPlayer *XSFPlayer::Create(const std::string &fn)
 {
 	return new XSFPlayer_NCSF(fn);
-}
+}*/
 
 
 void XSFPlayer_NCSF::MapNCSFSection(const std::vector<uint8_t> &section)

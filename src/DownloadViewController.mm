@@ -29,7 +29,7 @@ static NSFileManager *mFileMngr;
 
 @implementation DownloadViewController
 
-@synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,downloadTabView,downloadPrgView,detailViewController,barItem,rootViewController,onlineVC;
+@synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,tableView,downloadPrgView,detailViewController,barItem,rootViewController,onlineVC;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
 @synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth,moreVC;
 
@@ -52,6 +52,9 @@ static NSFileManager *mFileMngr;
 
 }
 */
+
+#include "MiniPlayerImplementTableView.h"
+
 - (BOOL)addSkipBackupAttributeToItemAtPath:(NSString* )path
 {
     const char* filePath = [path fileSystemRepresentation];
@@ -108,7 +111,7 @@ static NSFileManager *mFileMngr;
     
 	barItem.badgeValue=nil;
 	
-	[downloadTabView reloadData];
+	[tableView reloadData];
 	pthread_mutex_unlock(&download_mutex);
     
     if (mGetFTPInProgress||mGetURLInProgress) [self cancelCurrent];
@@ -157,6 +160,12 @@ static NSFileManager *mFileMngr;
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// WaitingView methods
+/////////////////////////////////////////////////////////////////////////////////////////////
+#include "WaitingViewCommonMethods.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
@@ -170,6 +179,24 @@ static NSFileManager *mFileMngr;
             if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         }
     }
+    
+    wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
+    miniplayerVC=nil;
+    
+    /////////////////////////////////////
+    // Waiting view
+    /////////////////////////////////////
+    waitingView = [[WaitingView alloc] init];
+    [self.view addSubview:waitingView];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(waitingView);
+    // width constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
+    // center align
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     mFileMngr=[[NSFileManager alloc] init];
     
@@ -199,7 +226,7 @@ static NSFileManager *mFileMngr;
 	downloadLabelSize.text=@"";
 	downloadPrgView.progress=0.0f;
 	
-	downloadTabView.rowHeight=40;
+	tableView.rowHeight=40;
 	
 	for (int i=0;i<MAX_DOWNLOAD_QUEUE;i++) {
 		mFTPDownloaded[i]=0;
@@ -225,7 +252,7 @@ static NSFileManager *mFileMngr;
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
     
-    self.downloadTabView.editing=TRUE;
+    self.tableView.editing=TRUE;
     
     [super viewDidLoad];
 	end_time=clock();
@@ -243,14 +270,22 @@ static NSFileManager *mFileMngr;
         }
     }
     if (oldmode!=darkMode) forceReloadCells=true;
-    if (darkMode) self.downloadTabView.backgroundColor=[UIColor blackColor];
-    else self.downloadTabView.backgroundColor=[UIColor whiteColor];
-    [self.downloadTabView reloadData];
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
+    [self.tableView reloadData];
 }
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+}
+
 
 - (void)viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    [self hideWaiting];
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -260,10 +295,17 @@ static NSFileManager *mFileMngr;
         }
     }
     if (oldmode!=darkMode) forceReloadCells=true;
-    if (darkMode) self.downloadTabView.backgroundColor=[UIColor blackColor];
-    else self.downloadTabView.backgroundColor=[UIColor whiteColor];
+    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+    else self.tableView.backgroundColor=[UIColor whiteColor];
     
     [super viewWillAppear:animated];
+    
+    if ([detailViewController mPlaylist_size]>0) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    } else {
+        wasMiniPlayerOn=false;
+    }
 }
 
 
@@ -289,6 +331,9 @@ static NSFileManager *mFileMngr;
 
 
 - (void)dealloc {
+    [waitingView removeFromSuperview];
+    waitingView=nil;
+    
 	for (int i=0;i<MAX_DOWNLOAD_QUEUE;i++) {
 		if (mFilePath[i]) {mFilePath[i]=nil;}
 		if (mFTPpath[i])  {mFTPpath[i]=nil;}
@@ -831,7 +876,7 @@ static NSFileManager *mFileMngr;
 		btnCancel.enabled=NO;
         btnClear.enabled=NO;
 	}
-	[downloadTabView reloadData];
+	[tableView reloadData];
 	
 }
 
@@ -1291,7 +1336,7 @@ static NSFileManager *mFileMngr;
 
 - (void) cancelTapped: (UIButton*) sender {
 	pthread_mutex_lock(&download_mutex);
-	NSIndexPath *indexPath = [downloadTabView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.downloadTabView]];
+	NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
 	int pos=indexPath.row;
 	if (indexPath.section==0) {//FTP
         if (mGetFTPInProgress) pos++;
@@ -1337,7 +1382,7 @@ static NSFileManager *mFileMngr;
 	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
     else barItem.badgeValue=nil;
 	
-	[downloadTabView reloadData];
+	[tableView reloadData];
 	pthread_mutex_unlock(&download_mutex);
 }
 
@@ -1585,7 +1630,7 @@ static NSFileManager *mFileMngr;
 	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
     else barItem.badgeValue=nil;
 	
-	[downloadTabView reloadData];
+	[tableView reloadData];
 	pthread_mutex_unlock(&download_mutex);
     }
 }
