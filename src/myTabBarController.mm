@@ -7,6 +7,7 @@
 //
 
 #import "myTabBarController.h"
+#import "TTFadeAnimator.h"
 
 
 @implementation myTabBarController
@@ -19,8 +20,6 @@
     return UIInterfaceOrientationMaskAll;
     //    return UIInterfaceOrientationMaskAllButUpsideDown;
 }
-
-
 
 - (BOOL)shouldAutorotate {
     [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
@@ -38,9 +37,14 @@
 	return YES;
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    self.navigationController.delegate = self;
+}
+
 - (void)viewDidLoad {
 	[super viewDidLoad];
-    
+    self.navigationController.delegate = self;
 //    UINavigationController *moreController = self.moreNavigationController;
 //    moreController.navigationBar.barStyle = UIBarStyleBlackOpaque;
 //	moreController.navigationBar.hidden=TRUE;

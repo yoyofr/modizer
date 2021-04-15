@@ -56,7 +56,7 @@ struct Resources;
 class CFont;
 class CGLString;
 
-@interface DetailViewControllerIphone : UIViewController <UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
     
     //EQ

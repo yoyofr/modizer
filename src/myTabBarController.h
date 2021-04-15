@@ -17,7 +17,7 @@
 @class RootViewControllerLocalBrowser;
 //@class AboutViewController;
 
-@interface myTabBarController : UITabBarController <UITabBarDelegate> {
+@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate> {
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 	//IBOutlet AboutViewController *aboutViewController;
 	IBOutlet WebBrowser *webBrowser;

@@ -74,6 +74,8 @@ static int *fft_freqAvgCount;
 
 #import "AnimatedGif.h"
 
+#import "TTFadeAnimator.h"
+
 extern "C" signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
 
 
@@ -3216,8 +3218,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 labelModuleLength.frame=CGRectMake(2,0,45,20);
                 labelTime.frame=CGRectMake(2,20,45,20);
                 btnChangeTime.frame=CGRectMake(2,17,45,20);
-                
-                sliderProgressModule.frame = CGRectMake(48,16-3,mDevice_hh-200-60,23);
+                                                
+                sliderProgressModule.frame = CGRectMake(48,16-3,mDevice_hh-(24*5+36*3+10+48),23);
             }
         }
 	}
@@ -4107,6 +4109,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     [super viewDidLoad];
     
+    self.navigationController.delegate = self;
+    
     labelModuleName=[[CBAutoScrollLabel alloc] init];
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
     labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
@@ -4882,12 +4886,15 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
+    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
     //[waitingView setNeedsLayout]
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    alertCannotPlay_displayed=0;
+    [super viewWillAppear:animated];
     
+    
+    alertCannotPlay_displayed=0;
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
@@ -5003,7 +5010,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
-    
+    self.navigationController.delegate = self;
 }
 
 
