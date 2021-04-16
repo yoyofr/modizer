@@ -138,6 +138,19 @@ auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 int optHC_ResampleQuality=1;
 
 
+/////////////////////////////////
+// V2M Player
+/////////////////////////////////
+#include "v2mplayer.h"
+#include "libv2.h"
+#include "v2mconv.h"
+#include "sounddef.h"
+
+int v2m_voices_mask;
+static float *v2m_sample_data_float;
+
+static V2MPlayer *v2m_player;
+/////////////////////////////////
 
 
 extern "C" {
@@ -2995,6 +3008,12 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
                         mdz_safe_execute_sel(vc,@selector(flushMainLoop),nil)
                         
+                        if (mPlayType==MMP_V2M) { //V2M
+                            bGlobalSeekProgress=-1;
+                            //v2m_player->Stop();
+                            v2m_player->Play(mNeedSeekTime);
+                            mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                        }
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             long mSeekSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;                            
                             bGlobalSeekProgress=-1;
@@ -3187,28 +3206,6 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                                                 
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",xSFPlayer->currentSample*100/seekSample]))
                             }
-                            
-                            //mNeedSeek=0;
-                        }
-                        if (mPlayType==MMP_SNSF) { //SNSF
-                            
-                            /*int seekSample=(double)mNeedSeekTime*(double)(xSFPlayerSNSF->GetSampleRate())/1000.0f;
-                            bGlobalSeekProgress=-1;
-                            if (xSFPlayerSNSF->currentSample >seekSample) {
-                                xSFPlayerSNSF->Terminate();
-                                xSFPlayerSNSF->Load();
-                                xSFPlayerSNSF->SeekTop();
-                            }
-                            
-                            while (seekSample - xSFPlayerSNSF->currentSample > SOUND_BUFFER_SIZE_SAMPLE) {
-                                xSFPlayerSNSF->GenerateSamples(xsfSampleBuffer, 0, SOUND_BUFFER_SIZE_SAMPLE);
-                                xSFPlayerSNSF->currentSample += SOUND_BUFFER_SIZE_SAMPLE;
-                            }
-                            if (seekSample - xSFPlayerSNSF->currentSample > 0)
-                            {
-                                xSFPlayerSNSF->GenerateSamples(xsfSampleBuffer, 0, seekSample - xSFPlayerSNSF->currentSample);
-                                xSFPlayerSNSF->currentSample = seekSample;
-                            }*/
                             
                             //mNeedSeek=0;
                         }
@@ -3885,19 +3882,41 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                         
                     }
-                    if (mPlayType==MMP_SNSF) { //SNSF
-                        /*bool done;
-                        unsigned int samplesWritten;
+                    if (mPlayType==MMP_V2M) { //V2M
                         
-                        done= xSFPlayerSNSF->FillBuffer(xsfSampleBuffer,samplesWritten);
-                        if (done) nbBytes=0;
-                        else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                        memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),reinterpret_cast<char *>(&xsfSampleBuffer[0]),SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                        v2m_player->Render((float*) v2m_sample_data_float, SOUND_BUFFER_SIZE_SAMPLE);
+                        mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                        //copy voice data for oscillo view
+                        if (numVoicesChannels) {
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                }
+                            }
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                        }
                         
-                        */
-                        
-                        //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
-                        
+                        if (mCurrentSamples<mTgtSamples) {
+                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        } else {
+                            //end reached
+                            if (mLoopMode==1) {
+                                //looping
+                                v2m_player->Stop();
+                                v2m_player->Play();
+                                v2m_player->Render((float*) v2m_sample_data_float, SOUND_BUFFER_SIZE_SAMPLE);
+                                nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                mCurrentSamples=0;
+                            } else {
+                                //stopping
+                                nbBytes=0;
+                            }
+                        }
+                            
+#define LIMIT16(a) (a<-32768?-32768:(a>32767?32767:a))
+                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            buffer_ana[buffer_ana_gen_ofs][i*2+0]=LIMIT16((32768*v2m_sample_data_float[i*2+0]));
+                            buffer_ana[buffer_ana_gen_ofs][i*2+1]=LIMIT16((32768*v2m_sample_data_float[i*2+1]));
+                        }
                     }
                     if (mPlayType==MMP_ADPLUG) {  //ADPLUG
                         if (opl_towrite) {
@@ -4619,7 +4638,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
-    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
@@ -4630,7 +4649,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
                                   [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extSNSF count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     
@@ -4652,7 +4671,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extGME];
     [filetype_ext addObjectsFromArray:filetype_extADPLUG];
     [filetype_ext addObjectsFromArray:filetype_ext2SF];
-    [filetype_ext addObjectsFromArray:filetype_extSNSF];
+    [filetype_ext addObjectsFromArray:filetype_extV2M];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extHC];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
@@ -4746,7 +4765,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=(no_aux_file?[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","]);
-    NSArray *filetype_extSNSF=(no_aux_file?[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SNSF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extHC=(no_aux_file?[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
@@ -4870,25 +4889,9 @@ long src_callback_vgmstream(void *cb_data, float **data) {
             }
         }
     if (!found)
-        for (int i=0;i<[filetype_extSNSF count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
-                //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_SNSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;j<[singlefile count];j++)
-                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
-                        mSingleFileType=0;break;
-                    }
-                found=MMP_SNSF;break;
-            }
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
-                //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_SNSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;j<[singlefile count];j++)
-                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
-                        mSingleFileType=0;break;
-                    }
-                found=MMP_SNSF;break;
-            }
+        for (int i=0;i<[filetype_extV2M count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {found=MMP_V2M;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {found=MMP_V2M;break;}
         }
     if (!found)
         for (int i=0;i<[filetype_extHC count];i++) {
@@ -6356,89 +6359,99 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     return 0;
 }
 
--(int) mmp_snsfLoad:(NSString*)filePath extension:(NSString*)extension {  //SNSF
-    return 0;
-    /*mPlayType=MMP_SNSF;
+static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* length)
+{
+    sdInit();
+
+    if (tune[2] != 0 || tune[3] != 0)
+    {
+        printf("No valid input file\n");
+        return NULL;
+    }
+    int version = CheckV2MVersion(tune, *length);
+    if (version < 0)
+    {
+        printf("Failed to Check Version on input file\n");
+        return NULL;
+    }
+
+    uint8_t* converted;
+    int converted_length;
+    ConvertV2M(tune, *length, &converted, &converted_length);
+    *length = converted_length;
+    free(tune);
+
+    return converted;
+}
+
+-(int) mmp_v2mLoad:(NSString*)filePath extension:(NSString*)extension {  //SNSF
+    mPlayType=MMP_V2M;
     FILE *f;
     
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"SNSF Cannot open file %@",filePath);
+        NSLog(@"V2M Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
     fseek(f,0L,SEEK_END);
     mp_datasize=ftell(f);
     mp_data=(char*)malloc(mp_datasize);
-    fssek(f,0L,SEET_SET);
+    fseek(f,0L,SEEK_SET);
     fread(mp_data, 1, mp_datasize, f);
     fclose(f);
     
-    snsf_emu=new SNESSystem();
-    snsf_out=new SNESSoundOut();
-    
-    snsf_emu->SoundInit(snsf_out);
-    snsf_emu->Load(mp_data,mp_datasize, NULL,0);
-
-    //Create config
-    xSFConfigSNSF = XSFConfigSNSF::Create();
-    if (!xSFConfigSNSF) {
-        NSLog(@"SNSF Cannot initiate config");
-        mPlayType=0;
-        return 1;
-    }
-    xSFConfigSNSF->LoadConfig();
-    
-    //Create player
-    
-    xSFPlayerSNSF=nil;
-    if (([extension caseInsensitiveCompare:@"SNSF"]==NSOrderedSame)||
-    ([extension caseInsensitiveCompare:@"MINISNSF"]==NSOrderedSame)) xSFPlayerSNSF=new XSFPlayer_SNSF([filePath UTF8String]);
-    
-    if (!xSFPlayerSNSF) {
-        NSLog(@"SNSF Cannot initiate player");
-        delete xSFConfigSNSF;
+    //prepare the tune
+    mp_data=(char*)v2m_check_and_convert((unsigned char*)mp_data,(unsigned int*)&mp_datasize);
+    if (!mp_data) {
+        NSLog(@"V2M: issue with file format %@",filePath);
+        delete mp_data;
         mPlayType=0;
         return -2;
     }
     
-    //Apply config to player
-    xSFConfigSNSF->CopyConfigToMemory(xSFPlayerSNSF, true);
-    if (mLoopMode==1) xSFConfigSNSF->playInfinitely=true;
+    //Create player    
+    v2m_player=new V2MPlayer;
+    v2m_player->Init(1000);
+    //Load tune
+    v2m_player->Open(mp_data,PLAYBACK_FREQ);
     
-    //Load file
-    if (!xSFPlayerSNSF->Load()) {
-        NSLog(@"SNSF Cannot load file %@",filePath);
-        delete xSFPlayerSNSF;
-        delete xSFConfigSNSF;
-        mPlayType=0;
-        return -3;
-    }
-    xSFConfigSNSF->CopyConfigToMemory(xSFPlayerSNSF, false);
-    xSFFileSNSF = xSFPlayerSNSF->GetXSFFileSNSF();
+    
+    v2m_voices_mask=0xFFFFFFFF;
+    v2m_player->Play(0);
+    
+    v2m_sample_data_float=(float*)calloc(1,sizeof(float)*2*SOUND_BUFFER_SIZE_SAMPLE);
+    
+    mod_subsongs=1;
+    mod_minsub=0;
+    mod_maxsub=0;
+    mod_currentsub=0;
     
     sprintf(mod_name," %s",mod_filename);
     
     mod_message[0]=0;
-    auto tags = xSFFileSNSF->GetAllTags();
-    auto keys = tags.GetKeys();
-    std::wstring info;
-    for (unsigned x = 0, numTags = keys.size(); x < numTags; ++x)
-    {
-        if (x) concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,"\n");
-        concatn(8192+MAX_STIL_DATA_LENGTH,mod_message,(keys[x] + "=" + tags[keys[x]]).c_str());
-    }
-    int fadeInMS=xSFFileSNSF->GetFadeMS(xSFPlayerSNSF->fadeInMS);
-    xSFPlayerSNSF->fadeInMS=fadeInMS;
-    xSFPlayerSNSF->fadeSample=(long long)(fadeInMS)*(long long)(xSFPlayerSNSF->sampleRate)/1000;
     
     iCurrentTime=0;
-    numChannels=2;
-    iModuleLength=1000* (long long)(xSFPlayerSNSF->GetLengthInSamples()) / 44100;
+    numChannels=16;
+    numVoicesChannels=numChannels;
+    m_voicesDataAvail=1;
+    for (int i=0;i<numVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
     
+    int32_t *timeline;
+    int tllen;
+    timeline=NULL;
+    tllen=v2m_player->CalcPositions(&timeline);
+    
+    iModuleLength=timeline[2*(tllen-1)]+2000; // 2secs after last event //v2m_player->Length()*1000;
+    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+    mCurrentSamples=0;
+    if (timeline) delete timeline;
+    timeline=NULL;
     
     //Loop
-    if (mLoopMode==1) iModuleLength=-1;*/
+    if (mLoopMode==1) iModuleLength=-1;
     
     return 0;
 }
@@ -7403,7 +7416,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
-    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
@@ -7795,13 +7808,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
-    for (int i=0;i<[filetype_extSNSF count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_SNSF]];
+    for (int i=0;i<[filetype_extV2M count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_V2M]];
             break;
         }
-        if ([file_no_ext caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_SNSF]];
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_V2M]];
             break;
         }
     }
@@ -7982,8 +7995,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             case MMP_2SF:
                 if ([self mmp_2sfLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
                 break;
-            case MMP_SNSF:
-                if ([self mmp_snsfLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
+            case MMP_V2M:
+                if ([self mmp_v2mLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
                 break;
             case MMP_VGMPLAY:
                 if ([self mmp_vgmplayLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
@@ -8265,7 +8278,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
-        case MMP_SNSF: //SNSF
+        case MMP_V2M: //V2M
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -8457,9 +8470,15 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         delete xSFPlayer;
         delete xSFConfig;
     }
-    if (mPlayType==MMP_SNSF) { //SNSF
-        /*delete xSFPlayerSNSF;
-        delete xSFConfigSNSF;*/
+    if (mPlayType==MMP_V2M) { //V2M
+        if (v2m_player) {
+            v2m_player->Close();
+            delete v2m_player;
+            v2m_player=NULL;
+        }
+        if (mp_data) delete mp_data;
+        mp_data=NULL;
+        mdz_safe_free(v2m_sample_data_float);
     }
     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
         if (vgmStream != NULL) close_vgmstream(vgmStream);
@@ -8531,7 +8550,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_PMDMINI) return @"PMDMini";
     if (mPlayType==MMP_VGMPLAY) return @"VGMPlay";
     if (mPlayType==MMP_2SF) return @"2SF";
-    if (mPlayType==MMP_SNSF) return @"SNSF";
+    if (mPlayType==MMP_V2M) return @"V2M";
     if (mPlayType==MMP_VGMSTREAM) return @"VGMSTREAM";
     return @"";
 }
@@ -8656,7 +8675,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_PMDMINI) return @"PMD";
     if (mPlayType==MMP_VGMPLAY) return @"VGM";
     if (mPlayType==MMP_2SF) return [NSString stringWithFormat:@"%s",mmp_fileext];
-    if (mPlayType==MMP_SNSF) return [NSString stringWithFormat:@"%s",mmp_fileext];
+    if (mPlayType==MMP_V2M) return [NSString stringWithFormat:@"%s",mmp_fileext];
     if (mPlayType==MMP_VGMSTREAM) return [NSString stringWithFormat:@"%s",mmp_fileext];
     return @" ";
 }
@@ -9036,6 +9055,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_V2M:
         case MMP_GSF:
         case MMP_UADE:
         case MMP_OPENMPT:
@@ -9052,6 +9072,8 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getVoicesName:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
+        case MMP_V2M:
+            return [NSString stringWithFormat:@"#%d-V2",channel+1];
         case MMP_HC:
             if (HC_type==1) return [NSString stringWithFormat:@"#%d-SPU",channel+1];
             else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];
@@ -9109,6 +9131,7 @@ extern "C" void adjust_amplification(void);
             return 1;
         case MMP_GSF:
             return 2;
+        case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
         case MMP_XMP:
@@ -9127,6 +9150,8 @@ extern "C" void adjust_amplification(void);
 
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
+        case MMP_V2M:
+            return @"V2";
         case MMP_HC:
             if (HC_type==1) return @"SPU";
             else if (HC_type==2) return [NSString stringWithFormat:@"SPU#%d",systemIdx + 1];
@@ -9173,6 +9198,7 @@ extern "C" void adjust_amplification(void);
         case MMP_GSF:
             if (voiceIdx<4) return 0;
             return 1;
+        case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
         case MMP_XMP:
@@ -9232,6 +9258,7 @@ extern "C" void adjust_amplification(void);
                 else if (tmp>0) return 1; //partially active
                 return 0; //all off
             }
+        case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
         case MMP_XMP:
@@ -9293,6 +9320,7 @@ extern "C" void adjust_amplification(void);
             if (systemIdx==0) for (int i=0;i<4;i++) [self setm_voicesStatus:active index:i];
             else for (int i=4;i<6;i++) [self setm_voicesStatus:active index:i];
             break;
+        case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
         case MMP_XMP:
@@ -9336,6 +9364,10 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     m_voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
+        case MMP_V2M:
+            if (active) v2m_voices_mask|=1<<channel;
+            else v2m_voices_mask&=0xFFFFFFFF^(1<<channel);
+            break;
         case MMP_UADE:
             if (active) HC_voicesMuteMask1|=1<<channel;
             else HC_voicesMuteMask1&=0xFFFFFFFF^(1<<channel);

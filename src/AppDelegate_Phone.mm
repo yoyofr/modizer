@@ -98,7 +98,7 @@ BOOL is_retina;
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","];
-    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF_EXT componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     
     NSMutableArray *supportedExtension=[[NSMutableArray alloc] init];
@@ -120,7 +120,7 @@ BOOL is_retina;
     [supportedExtension addObjectsFromArray:filetype_extARCHIVE];
     [supportedExtension addObjectsFromArray:filetype_extPMD];
     [supportedExtension addObjectsFromArray:filetype_ext2SF];
-    [supportedExtension addObjectsFromArray:filetype_extSNSF];
+    [supportedExtension addObjectsFromArray:filetype_extV2M];
     [supportedExtension addObjectsFromArray:filetype_extVGMSTREAM];
     
     NSOrderedSet *orderedSet = [NSOrderedSet orderedSetWithArray:supportedExtension];

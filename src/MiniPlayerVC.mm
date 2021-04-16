@@ -84,14 +84,14 @@
 }
 
 -(void) swipeRight:(bool)prevFile {
-    [self.parentViewController performSelector:@selector(showWaiting)];
+    [self.parentViewController performSelector:@selector(showWaitingLoading)];
     if (prevFile) [detailVC playPrev];
     else [detailVC playPrevSub];
     [self.parentViewController performSelector:@selector(hideWaiting)];
 }
 
 -(void) swipeLeft:(bool)nextFile {
-    [self.parentViewController performSelector:@selector(showWaiting)];
+    [self.parentViewController performSelector:@selector(showWaitingLoading)];
     if (nextFile) [detailVC playNext];
     else [detailVC playNextSub];
     [self.parentViewController performSelector:@selector(hideWaiting)];
@@ -268,8 +268,11 @@
     } else {
         labelMain.text=@"Initializing";
         labelSub.text=@"...";
-        labelTime.text=@"0:00";
-        labelPlaylist.text=@"...";
+        labelTime.text=@"-:--";
+                
+        if (detailVC.mPlaylist_size) labelPlaylist.text=[NSString stringWithFormat:@"%d\n-\n%d",detailVC.mPlaylist_pos+1,detailVC.mPlaylist_size];
+        else labelPlaylist.text=@"...\n-\n...";
+        
         btnPause.hidden=true;
         btnPlay.hidden=false;
     }

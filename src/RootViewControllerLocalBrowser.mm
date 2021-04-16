@@ -833,7 +833,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
-    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
@@ -843,7 +843,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
     NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
                                   [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
-                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extSNSF count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
                                   [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
@@ -920,7 +920,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     [filetype_ext addObjectsFromArray:filetype_extGME];
     [filetype_ext addObjectsFromArray:filetype_extADPLUG];
     [filetype_ext addObjectsFromArray:filetype_ext2SF];
-    [filetype_ext addObjectsFromArray:filetype_extSNSF];
+    [filetype_ext addObjectsFromArray:filetype_extV2M];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extHC];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
@@ -2144,7 +2144,7 @@ static int shouldRestart=1;
     NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_ext2SF=(no_aux_file?[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_2SF_EXT componentsSeparatedByString:@","]);
-    NSArray *filetype_extSNSF=(no_aux_file?[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_SNSF_EXT componentsSeparatedByString:@","]);
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extHC=(no_aux_file?[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
@@ -2259,25 +2259,9 @@ static int shouldRestart=1;
             }
         }
     if (!found)
-        for (int i=0;i<[filetype_extSNSF count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
-                //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_SNSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;j<[singlefile count];j++)
-                    if ([extension caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
-                        break;
-                    }
-                found=MMP_SNSF;break;
-            }
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extSNSF objectAtIndex:i]]==NSOrderedSame) {
-                //check if .miniXXX or .XXX
-                NSArray *singlefile=[SUPPORTED_FILETYPE_SNSF_WITHEXTFILE componentsSeparatedByString:@","];
-                for (int j=0;j<[singlefile count];j++)
-                    if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
-                        break;
-                    }
-                found=MMP_SNSF;break;
-            }
+        for (int i=0;i<[filetype_extV2M count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {found=MMP_V2M;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {found=MMP_V2M;break;}
         }
     if (!found)
         for (int i=0;i<[filetype_extHC count];i++) {
@@ -3084,7 +3068,8 @@ static int shouldRestart=1;
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    mSearch=1;
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
     // flush the previous search content
     //[tableData removeAllObjects];
 }
@@ -3098,6 +3083,8 @@ static int shouldRestart=1;
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
     shouldFillKeys=1;
     [self fillKeys];
     [tableView reloadData];

@@ -554,7 +554,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 							NSLog(@"********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
-					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                    
+                    db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					db_entries[index][db_entries_count[index]].filesize=sqlite3_column_int(stmt, 1);
 					db_entries[index][db_entries_count[index]].id_type=sqlite3_column_int(stmt, 2);
 					db_entries[index][db_entries_count[index]].id_author=db_entries[index][db_entries_count[index]].id_album=db_entries[index][db_entries_count[index]].id_mod=-1;
@@ -2308,7 +2309,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    mSearch=1;
+    if (mSearchText&&([mSearchText length]>0)) mSearch=1;
+    else mSearch=0;
+    
+    shouldFillKeys=1;
+    search_db=0;
+    [self fillKeys];
+    
+    [tableView reloadData];
     // flush the previous search content
     //[tableData removeAllObjects];
 }
@@ -2317,14 +2325,27 @@ extern volatile t_settings settings[MAX_SETTINGS];
     //[tableView reloadData];
     //mSearch=0;
     sBar.showsCancelButton = NO;
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    
+    shouldFillKeys=1;
+    search_db=0;
+    [self fillKeys];
+    
+    [tableView reloadData];
 }
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     //if (mSearchText) [mSearchText release];
     mSearchText=nil;
     
     mSearchText=[[NSString alloc] initWithString:searchText];
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    
     shouldFillKeys=1;
+    search_db=0;
     [self fillKeys];
+        
     [tableView reloadData];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
@@ -2334,13 +2355,17 @@ extern volatile t_settings settings[MAX_SETTINGS];
     mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
+    
     shouldFillKeys=1;
+    search_db=0;
     [self fillKeys];
     
     [tableView reloadData];
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
+    
+    NSLog(@"search clicked");
 }
 
 

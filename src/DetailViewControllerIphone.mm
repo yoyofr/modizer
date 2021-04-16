@@ -4892,7 +4892,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
+    self.navigationController.delegate = self;
     
     alertCannotPlay_displayed=0;
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
@@ -5010,11 +5010,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
-    self.navigationController.delegate = self;
 }
 
 
 - (void)viewWillDisappear:(BOOL)animated {
+    self.navigationController.delegate = self;
     is_macOS=false;
     if (@available(iOS 14.0, *)) {
             if ([NSProcessInfo processInfo].isiOSAppOnMac) {

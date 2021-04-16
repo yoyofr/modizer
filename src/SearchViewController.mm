@@ -919,6 +919,7 @@ static NSFileManager *mFileMngr;
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
 	//if (mSearchText) [mSearchText release];
 	mSearchText=[[NSString alloc] initWithString:searchText];
+    
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {

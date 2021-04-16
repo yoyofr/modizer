@@ -2374,6 +2374,8 @@
 		595D4D8E262187BC000B7187 /* liszt_mazeppa.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17425CFF0D100520777 /* liszt_mazeppa.mid */; };
 		595D4D8F262187BC000B7187 /* beethoven_op125_3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17525CFF0D100520777 /* beethoven_op125_3.mid */; };
 		595D4D90262187BC000B7187 /* chopin_fantaisie.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17625CFF0D100520777 /* chopin_fantaisie.mid */; };
+		596117942629612900B0F991 /* libv2mplayer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BF55122628ED5D0064EF5E /* libv2mplayer.a */; };
+		596117952629613100B0F991 /* libv2mplayer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BF55122628ED5D0064EF5E /* libv2mplayer.a */; };
 		5966D0B625CFEDDF00520777 /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
 		5966D0B925CFEDF000520777 /* libopenmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C67FFE25CFCF2A001595B7 /* libopenmpt.a */; };
 		5966D0BB25CFEDFC00520777 /* libgsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6800C25CFCF2A001595B7 /* libgsf.a */; };
@@ -3252,6 +3254,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 33A961E7140E0E9C007F22F5;
 			remoteInfo = sidplayfp;
+		};
+		59BF55112628ED5D0064EF5E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 59BF550D2628ED5D0064EF5E /* v2mplayer.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 59BF54FC2628ED320064EF5E;
+			remoteInfo = v2mplayer;
 		};
 		59C67FFD25CFCF2A001595B7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -4728,6 +4737,7 @@
 		59BE93A62600D3F500414A42 /* c1541.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = c1541.rom; sourceTree = "<group>"; };
 		59BE93A72600D3F500414A42 /* basic.c64 */ = {isa = PBXFileReference; lastKnownFileType = file; path = basic.c64; sourceTree = "<group>"; };
 		59BF54EE2628C8B70064EF5E /* WaitingViewCommonMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaitingViewCommonMethods.h; sourceTree = "<group>"; };
+		59BF550D2628ED5D0064EF5E /* v2mplayer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = v2mplayer.xcodeproj; sourceTree = "<group>"; };
 		59C22A0425B992D9003FEDBF /* AFSecurityPolicy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFSecurityPolicy.h; sourceTree = "<group>"; };
 		59C22A0525B992D9003FEDBF /* AFNetworkReachabilityManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworkReachabilityManager.h; sourceTree = "<group>"; };
 		59C22A0625B992D9003FEDBF /* AFURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFURLSessionManager.h; sourceTree = "<group>"; };
@@ -5528,6 +5538,7 @@
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				5966D0B625CFEDDF00520777 /* libuade.a in Frameworks */,
 				59BDE8A7260FDC6C00FB0C69 /* libpsflib.a in Frameworks */,
+				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
 				5958B42625C601AB00724722 /* WebKit.framework in Frameworks */,
 				5950D82525DF00AF00B476B2 /* libavdevice.a in Frameworks */,
@@ -5587,6 +5598,7 @@
 				5950DB7325E0F67B00B476B2 /* WebKit.framework in Frameworks */,
 				5950DB7425E0F67B00B476B2 /* libavdevice.a in Frameworks */,
 				5950DB7525E0F67B00B476B2 /* libavutil.a in Frameworks */,
+				596117942629612900B0F991 /* libv2mplayer.a in Frameworks */,
 				5950DB7625E0F67B00B476B2 /* AVFoundation.framework in Frameworks */,
 				5950DB7725E0F67B00B476B2 /* libFileExtractor.a in Frameworks */,
 				5950DB7925E0F67B00B476B2 /* libavcodec.a in Frameworks */,
@@ -6295,6 +6307,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				59BF55092628ED5D0064EF5E /* v2mplayer */,
 				CC1E57321200B3B7000A8A4E /* Adplug */,
 				333157371207699700815317 /* AHX */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
@@ -6742,6 +6755,22 @@
 				59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */,
 			);
 			name = CommonFunctions;
+			sourceTree = "<group>";
+		};
+		59BF55092628ED5D0064EF5E /* v2mplayer */ = {
+			isa = PBXGroup;
+			children = (
+				59BF550D2628ED5D0064EF5E /* v2mplayer.xcodeproj */,
+			);
+			path = v2mplayer;
+			sourceTree = "<group>";
+		};
+		59BF550E2628ED5D0064EF5E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				59BF55122628ED5D0064EF5E /* libv2mplayer.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		59C04EAE25DBD3AD00D77115 /* FFmpeg-iOS */ = {
@@ -8226,6 +8255,10 @@
 					ProjectRef = 59392A0925CF5E03009281DC /* uade.xcodeproj */;
 				},
 				{
+					ProductGroup = 59BF550E2628ED5D0064EF5E /* Products */;
+					ProjectRef = 59BF550D2628ED5D0064EF5E /* v2mplayer.xcodeproj */;
+				},
+				{
 					ProductGroup = 593928C925CF4E81009281DC /* Products */;
 					ProjectRef = CC13436F1AC17B3900CAB284 /* vgmplay.xcodeproj */;
 				},
@@ -8340,6 +8373,13 @@
 			fileType = archive.ar;
 			path = libsidplayfp.a;
 			remoteRef = 59BE8FA126000FE400414A42 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		59BF55122628ED5D0064EF5E /* libv2mplayer.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libv2mplayer.a;
+			remoteRef = 59BF55112628ED5D0064EF5E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		59C67FFE25CFCF2A001595B7 /* libopenmpt.a */ = {
@@ -11249,7 +11289,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
 					libs/libLazyusf/libLazyusf,
 					libs/sid/libsidplayfp/src,
-					utils/SARUnArchiveANY/SARUnArchiveANY/SSZipArchive/SSZipArchive,
+					libs/v2mplayer/v2mplayer/src,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11313,7 +11353,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
 					libs/libLazyusf/libLazyusf,
 					libs/sid/libsidplayfp/src,
-					utils/SARUnArchiveANY/SARUnArchiveANY/SSZipArchive/SSZipArchive,
+					libs/v2mplayer/v2mplayer/src,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11377,7 +11417,7 @@
 					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
 					libs/libLazyusf/libLazyusf,
 					libs/sid/libsidplayfp/src,
-					utils/SARUnArchiveANY/SARUnArchiveANY/SSZipArchive/SSZipArchive,
+					libs/v2mplayer/v2mplayer/src,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

@@ -360,6 +360,8 @@
 					<string>PPM</string>
 					<string>MMCMP</string>
 					<string>MPTM</string>
+					<string>V2M</string>
+					<string>V2MZ</string>
 				</array>
 			</dict>
 		</dict>

@@ -1006,7 +1006,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
 	NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
 	NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
-    NSArray *filetype_extSNSF=[SUPPORTED_FILETYPE_SNSF componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
 	NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
@@ -1016,7 +1016,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
 	NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
 								  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
-								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extSNSF count]+[filetype_extVGMSTREAM count]+
+								  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
 								  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
 								  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     NSArray *filetype_extARCHIVEFILE=[SUPPORTED_FILETYPE_ARCFILE componentsSeparatedByString:@","];
@@ -1093,7 +1093,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [filetype_ext addObjectsFromArray:filetype_extGME];
 	[filetype_ext addObjectsFromArray:filetype_extADPLUG];
 	[filetype_ext addObjectsFromArray:filetype_ext2SF];
-    [filetype_ext addObjectsFromArray:filetype_extSNSF];
+    [filetype_ext addObjectsFromArray:filetype_extV2M];
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extHC];
 	[filetype_ext addObjectsFromArray:filetype_extHVL];
@@ -2868,7 +2868,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    mSearch=1;
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
     // flush the previous search content
     //[tableData removeAllObjects];
 }
@@ -2882,7 +2883,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
     shouldFillKeys=1;
+    search_local=0;
     [self fillKeys];
     [tableView reloadData];
 }
@@ -2894,6 +2898,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
     shouldFillKeys=1;
+    search_local=0;
     [self fillKeys];
     
     [tableView reloadData];

@@ -1529,7 +1529,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    mSearch=1;
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    
     // flush the previous search content
     //[tableData removeAllObjects];
 }
@@ -1543,7 +1545,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
     shouldFillKeys=1;
+    search_dbASMA=0;
     [self fillKeys];
     [tableView reloadData];
 }
@@ -1555,6 +1560,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
     shouldFillKeys=1;
+    search_dbASMA=0;
     [self fillKeys];
     
     [tableView reloadData];
