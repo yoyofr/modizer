@@ -19,6 +19,13 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include "XSFCommon.h"
 
 #include <queue>
@@ -1129,6 +1136,7 @@ static inline void _SPU_ChanUpdate(bool actuallyMix, SPU_struct *const SPU, chan
 	}
 }
 
+
 // ENTERNEW
 static void SPU_MixAudio_Advanced(bool, SPU_struct *SPU, int length)
 {
@@ -1163,6 +1171,7 @@ static void SPU_MixAudio_Advanced(bool, SPU_struct *SPU, int length)
 		// generate each channel, and helpfully mix it at the same time
 		for (int i = 0; i < 16; ++i)
 		{
+            bool outputToMix;
 			channel_struct *chan = &SPU->channels[i];
 
 			if (chan->status == CHANSTAT_PLAY)
@@ -1177,7 +1186,7 @@ static void SPU_MixAudio_Advanced(bool, SPU_struct *SPU, int length)
 
 				// output to mixer unless we are bypassed.
 				// dont output to mixer if the user muted us
-				bool outputToMix = true;
+				outputToMix = true;
 				if (CommonSettings.spu_muteChannels[i])
 					outputToMix = false;
 				if (bypass)
@@ -1217,6 +1226,13 @@ static void SPU_MixAudio_Advanced(bool, SPU_struct *SPU, int length)
 			}
 			else
 				chanout[i] = submix[i * 2] = submix[i * 2 + 1] = 0;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (outputToMix) m_voice_buff[i][m_voice_current_ptr[i]>>8]=LIMIT8((chanout[i]>>8));
+            else m_voice_buff[i][m_voice_current_ptr[i]>>8]=0;
+            m_voice_current_ptr[i]+=256;
+            if ((m_voice_current_ptr[i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            //TODO:  MODIZER changes end / YOYOFR
 		} // foreach channel
 
 		int32_t mixout[] = { mix[0], mix[1] };

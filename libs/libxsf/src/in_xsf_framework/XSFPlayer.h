@@ -48,6 +48,7 @@ public:
 	bool FillBuffer(std::vector<uint8_t> &buf, unsigned &samplesWritten);
 	virtual void GenerateSamples(std::vector<uint8_t> &buf, unsigned offset, unsigned samples) = 0;
 	void SeekTop();
-	
+    virtual void MuteChannels(int channel,bool active) = 0;
+    
 	virtual void Terminate() = 0;
 };

@@ -12,7 +12,7 @@ Todo/Requested:
 - TODO: .tar.gz support, i.e. tar support (gz ok / fex)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
-
+- TODO: oscillo => propose also stereo, 2 channels view (for multi voices format)
 return false
 
 3.0

@@ -3925,10 +3925,19 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         bool done;
                         unsigned int samplesWritten;
                         
-                        done= xSFPlayer->FillBuffer(xsfSampleBuffer,samplesWritten);
+                        done=xSFPlayer->FillBuffer(xsfSampleBuffer,samplesWritten);
                         if (done) nbBytes=0;
                         else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                         memcpy((char*)(buffer_ana[buffer_ana_gen_ofs]),reinterpret_cast<char *>(&xsfSampleBuffer[0]),SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                        
+                        //copy voice data for oscillo view
+                        if (numVoicesChannels) {
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                }
+                            }
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                        }
                         
                         //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                         
@@ -6411,7 +6420,12 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     xSFPlayer->fadeSample=(long long)(fadeInMS)*(long long)(xSFPlayer->sampleRate)/1000;
     
     iCurrentTime=0;
-    numChannels=2;
+    numChannels=16;
+    numVoicesChannels=numChannels;
+    m_voicesDataAvail=1;
+    for (int i=0;i<numVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
     
     iModuleLength=1000* (long long)(xSFPlayer->GetLengthInSamples()) / 44100;
     
@@ -8538,8 +8552,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         }
     }
     if (mPlayType==MMP_2SF) { //2SF
-        delete xSFPlayer;
-        delete xSFConfig;
+        if (xSFPlayer) delete xSFPlayer;
+        xSFPlayer=NULL;
+        if (xSFConfig) delete xSFConfig;
+        xSFConfig=NULL;
     }
     if (mPlayType==MMP_V2M) { //V2M
         if (v2m_player) {
@@ -9126,6 +9142,7 @@ extern "C" void adjust_amplification(void);
             if (HC_type==0x23) return true;
             if (HC_type==0x41) return true;
             return false;
+        case MMP_2SF:
         case MMP_V2M:
         case MMP_GSF:
         case MMP_UADE:
@@ -9143,6 +9160,8 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getVoicesName:(unsigned int)channel {
     if (channel>=SOUND_MAXMOD_CHANNELS) return nil;
     switch (mPlayType) {
+        case MMP_2SF:
+            return [NSString stringWithFormat:@"#%d-NDS",channel+1];
         case MMP_V2M:
             return [NSString stringWithFormat:@"#%d-V2",channel+1];
         case MMP_HC:
@@ -9202,6 +9221,7 @@ extern "C" void adjust_amplification(void);
             return 1;
         case MMP_GSF:
             return 2;
+        case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
@@ -9221,6 +9241,8 @@ extern "C" void adjust_amplification(void);
 
 -(NSString*) getSystemsName:(int)systemIdx {
     switch (mPlayType) {
+        case MMP_2SF:
+            return @"NDS";
         case MMP_V2M:
             return @"V2";
         case MMP_HC:
@@ -9269,6 +9291,7 @@ extern "C" void adjust_amplification(void);
         case MMP_GSF:
             if (voiceIdx<4) return 0;
             return 1;
+        case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
@@ -9329,6 +9352,7 @@ extern "C" void adjust_amplification(void);
                 else if (tmp>0) return 1; //partially active
                 return 0; //all off
             }
+        case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
@@ -9391,6 +9415,7 @@ extern "C" void adjust_amplification(void);
             if (systemIdx==0) for (int i=0;i<4;i++) [self setm_voicesStatus:active index:i];
             else for (int i=4;i<6;i++) [self setm_voicesStatus:active index:i];
             break;
+        case MMP_2SF:
         case MMP_V2M:
         case MMP_UADE:
         case MMP_OPENMPT:
@@ -9435,6 +9460,9 @@ extern "C" void adjust_amplification(void);
     if (channel>=SOUND_MAXMOD_CHANNELS) return;
     m_voicesStatus[channel]=(active?1:0);
     switch (mPlayType) {
+        case MMP_2SF:
+            xSFPlayer->MuteChannels(channel,active);
+            break;
         case MMP_V2M:
             if (active) v2m_voices_mask|=1<<channel;
             else v2m_voices_mask&=0xFFFFFFFF^(1<<channel);

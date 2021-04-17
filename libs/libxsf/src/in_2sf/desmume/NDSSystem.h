@@ -281,8 +281,8 @@ template<bool FORCE> void NDS_exec(int32_t nb = 560190 << 1);
 
 extern struct TCommonSettings
 {
-	TCommonSettings() : UseExtBIOS(false), SWIFromBIOS(false), PatchSWI3(false), UseExtFirmware(false), BootFromFirmware(false), ConsoleType(NDS_CONSOLE_TYPE_FAT), rigorous_timing(false), advanced_timing(true),
-		spuInterpolationMode(SPUInterpolation_Linear), manualBackupType(0), spu_captureMuted(false), spu_advanced(false)
+	TCommonSettings() : UseExtBIOS(false), SWIFromBIOS(false), PatchSWI3(false), UseExtFirmware(false), BootFromFirmware(false), ConsoleType(NDS_CONSOLE_TYPE_FAT), rigorous_timing(true), advanced_timing(true),
+		spuInterpolationMode(SPUInterpolation_Linear), manualBackupType(0), spu_captureMuted(false), spu_advanced(true)
 	{
 		strcpy(this->ARM9BIOS, "biosnds9.bin");
 		strcpy(this->ARM7BIOS, "biosnds7.bin");

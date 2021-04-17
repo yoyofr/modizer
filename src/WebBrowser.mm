@@ -826,8 +826,6 @@ static UIAlertView *alertChooseName;
         NSRange rModizerdb;
         rModizerdb.location=NSNotFound;
         rModizerdb=[addressTestField.text rangeOfString:@"modizerdb.appspot.com" options:NSCaseInsensitiveSearch];
-        
-        [self textFieldShouldReturn:addressTestField];
     }
     
     

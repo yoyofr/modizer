@@ -20,6 +20,13 @@
 #include "SSEQPlayer/SDAT.h"
 #include "SSEQPlayer/Player.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
+
 //const char *XSFPlayer::WinampDescription = "NCSF Decoder";
 //const char *XSFPlayer::WinampExts = "ncsf;minincsf\0DS Nitro Composer Sound Format files (*.ncsf;*.minincsf)\0";
 
@@ -161,6 +168,12 @@ void XSFPlayer_NCSF::GenerateSamples(std::vector<uint8_t> &buf, unsigned offset,
 
 				leftChannel += muldiv7(sample, 127 - chn.reg.panning);
 				rightChannel += muldiv7(sample, chn.reg.panning);
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                m_voice_buff[i][m_voice_current_ptr[i]>>8]=LIMIT8((sample>>8));
+                m_voice_current_ptr[i]+=256;
+                if ((m_voice_current_ptr[i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 		}
 
@@ -194,5 +207,13 @@ void XSFPlayer_NCSF::SetInterpolation(unsigned interpolation)
 void XSFPlayer_NCSF::SetMutes(const std::bitset<16> &newMutes)
 {
 	this->mutes = newMutes;
+}
+
+void XSFPlayer_NCSF::MuteChannels(int channel,bool active) {
+    unsigned int newMutes;
+    newMutes=(unsigned int )(this->mutes.to_ulong());
+    if (!active) newMutes|=1<<channel;
+    else newMutes&=0xFFFFFFFF^(1<<channel);
+    this->mutes = newMutes;
 }
 

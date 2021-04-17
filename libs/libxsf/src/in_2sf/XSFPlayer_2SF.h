@@ -36,5 +36,6 @@ public:
 	bool Load();
 	void GenerateSamples(std::vector<uint8_t> &buf, unsigned offset, unsigned samples);
 	void Terminate();
+    void MuteChannels(int channel,bool active);
 };
 

@@ -39,5 +39,5 @@ public:
 
 	void SetInterpolation(unsigned interpolation);
 	void SetMutes(const std::bitset<16> &newMutes);
-
+    void MuteChannels(int channel,bool active);
 };

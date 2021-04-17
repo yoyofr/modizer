@@ -287,3 +287,7 @@ void XSFPlayer_2SF::Terminate()
 
 	this->rom.clear();
 }
+
+void XSFPlayer_2SF::MuteChannels(int channel,bool active) {
+    CommonSettings.spu_muteChannels[channel] = !active;
+}
