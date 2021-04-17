@@ -910,7 +910,6 @@
 		5950DAA425E0F67B00B476B2 /* DetailViewControllerIphone.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622112041177000A8A4E /* DetailViewControllerIphone.mm */; };
 		5950DAA525E0F67B00B476B2 /* DownloadViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622312041177000A8A4E /* DownloadViewController.mm */; };
 		5950DAA625E0F67B00B476B2 /* ModizMusicPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */; };
-		5950DAA725E0F67B00B476B2 /* myNavViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622B12041177000A8A4E /* myNavViewController.mm */; };
 		5950DAA825E0F67B00B476B2 /* bit_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E1A25DC63620013E19F /* bit_reader.c */; };
 		5950DAA925E0F67B00B476B2 /* myTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622D12041177000A8A4E /* myTabBarController.mm */; };
 		5950DAAA25E0F67B00B476B2 /* SearchViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623612041177000A8A4E /* SearchViewController.mm */; };
@@ -1949,7 +1948,6 @@
 		595D4BD7262187BC000B7187 /* DetailViewControllerIphone.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622112041177000A8A4E /* DetailViewControllerIphone.mm */; };
 		595D4BD8262187BC000B7187 /* DownloadViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622312041177000A8A4E /* DownloadViewController.mm */; };
 		595D4BD9262187BC000B7187 /* ModizMusicPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */; };
-		595D4BDA262187BC000B7187 /* myNavViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622B12041177000A8A4E /* myNavViewController.mm */; };
 		595D4BDB262187BC000B7187 /* bit_reader.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E1A25DC63620013E19F /* bit_reader.c */; };
 		595D4BDC262187BC000B7187 /* myTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622D12041177000A8A4E /* myTabBarController.mm */; };
 		595D4BDD262187BC000B7187 /* SearchViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623612041177000A8A4E /* SearchViewController.mm */; };
@@ -2693,8 +2691,6 @@
 		59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB725BC8CFF003FEDBF /* Security.framework */; };
 		59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */; };
 		59D2643F262496F800C9D510 /* libsnsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5910551925EAC21F00A194FF /* libsnsf.a */; };
-		59D2646D2624D15A00C9D510 /* MiniPlayer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59D2646C2624D15A00C9D510 /* MiniPlayer.xib */; };
-		59D2646E2624D15A00C9D510 /* MiniPlayer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59D2646C2624D15A00C9D510 /* MiniPlayer.xib */; };
 		59E4A380261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
 		59E4A381261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
 		59E4A382261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
@@ -2825,7 +2821,6 @@
 		CC1E623D12041177000A8A4E /* DetailViewControllerIphone.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622112041177000A8A4E /* DetailViewControllerIphone.mm */; };
 		CC1E623E12041177000A8A4E /* DownloadViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622312041177000A8A4E /* DownloadViewController.mm */; };
 		CC1E624112041177000A8A4E /* ModizMusicPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */; };
-		CC1E624212041177000A8A4E /* myNavViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622B12041177000A8A4E /* myNavViewController.mm */; };
 		CC1E624312041177000A8A4E /* myTabBarController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E622D12041177000A8A4E /* myTabBarController.mm */; };
 		CC1E624812041177000A8A4E /* SearchViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623612041177000A8A4E /* SearchViewController.mm */; };
 		CC1E624A12041177000A8A4E /* WebBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC1E623A12041177000A8A4E /* WebBrowser.mm */; };
@@ -4757,7 +4752,6 @@
 		59C22AB325BC8C3B003FEDBF /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		59C22AB725BC8CFF003FEDBF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = modizer_icon.icns; sourceTree = "<group>"; };
-		59D2646C2624D15A00C9D510 /* MiniPlayer.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MiniPlayer.xib; sourceTree = "<group>"; };
 		59E4A37E261E7219000A31BA /* yrw801.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = yrw801.rom; sourceTree = "<group>"; };
 		59E4A37F261E7219000A31BA /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGMPlay.ini; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
@@ -4969,8 +4963,6 @@
 		CC1E622312041177000A8A4E /* DownloadViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DownloadViewController.mm; sourceTree = "<group>"; };
 		CC1E622812041177000A8A4E /* ModizMusicPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModizMusicPlayer.h; sourceTree = "<group>"; };
 		CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ModizMusicPlayer.mm; sourceTree = "<group>"; };
-		CC1E622A12041177000A8A4E /* myNavViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = myNavViewController.h; sourceTree = "<group>"; };
-		CC1E622B12041177000A8A4E /* myNavViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = myNavViewController.mm; sourceTree = "<group>"; };
 		CC1E622C12041177000A8A4E /* myTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = myTabBarController.h; sourceTree = "<group>"; };
 		CC1E622D12041177000A8A4E /* myTabBarController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = myTabBarController.mm; sourceTree = "<group>"; };
 		CC1E623512041177000A8A4E /* SearchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchViewController.h; sourceTree = "<group>"; };
@@ -5692,6 +5684,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				596117D5262AC74000B0F991 /* XIB */,
 				59B9991425CFDF8F0071E144 /* utils */,
 				593925CB25CF0C56009281DC /* libs */,
 				CC1E58BA1200B3B7000A8A4E /* src */,
@@ -5703,6 +5696,7 @@
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				5950DC6425E0F67D00B476B2 /* modizer sim-Info.plist */,
 				595D4D97262187BD000B7187 /* modizer mac-Info.plist */,
+				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -6307,7 +6301,6 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				59BF55092628ED5D0064EF5E /* v2mplayer */,
 				CC1E57321200B3B7000A8A4E /* Adplug */,
 				333157371207699700815317 /* AHX */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
@@ -6334,6 +6327,7 @@
 				591054D125EAC21F00A194FF /* snsf */,
 				CCBF0FF91221788200E8DE4E /* STSound */,
 				CC1E60371202F25B000A8A4E /* uade-2.13 */,
+				59BF55092628ED5D0064EF5E /* v2mplayer */,
 			);
 			path = libs;
 			sourceTree = "<group>";
@@ -6399,6 +6393,21 @@
 				595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */,
 			);
 			path = libxmp;
+			sourceTree = "<group>";
+		};
+		596117D5262AC74000B0F991 /* XIB */ = {
+			isa = PBXGroup;
+			children = (
+				33ABE5B617B23DF900AE0EA1 /* BookmarksViewController.xib */,
+				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
+				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
+				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
+				CCFE183B17EF586200C1682F /* MainWindow.xib */,
+				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
+				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
+				59A65C752624E9B700BC99D1 /* VoicesViewController.xib */,
+			);
+			path = XIB;
 			sourceTree = "<group>";
 		};
 		59627F3E25CFE90E00711C05 /* Products */ = {
@@ -6588,25 +6597,25 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				59A65C9E26277C4D00BC99D1 /* Transitions */,
-				59A65C852625947500BC99D1 /* CBAutoScrollLabel */,
-				33ABE5A617B17A5100AE0EA1 /* BButton */,
-				33BB80CC14D4679B00EA4B32 /* OBSlider */,
-				CC1E5A021200B3B8000A8A4E /* Misc */,
-				33BA5B4F1431B3F200C87F5B /* VisuFX */,
-				CC1E597C1200B3B8000A8A4E /* FTPServer */,
-				CC1E58CC1200B3B7000A8A4E /* FFT */,
-				59C22A2F25B99ACA003FEDBF /* Reachability */,
-				59B9995125CFE2A00071E144 /* Resample */,
-				CCFDC4EB17DB105400C6692C /* NVDSP */,
-				CCC6776E17F6B92500F16A54 /* CMPopTipView */,
-				59517DE61E40778D00FAA0BF /* SESlideTableViewCell */,
 				59C22A0325B992D9003FEDBF /* AFNetworking */,
 				59B9993225CFE09F0071E144 /* ASI */,
-				CC1E5B131200B3B8000A8A4E /* unzip */,
+				33ABE5A617B17A5100AE0EA1 /* BButton */,
+				59A65C852625947500BC99D1 /* CBAutoScrollLabel */,
+				CCC6776E17F6B92500F16A54 /* CMPopTipView */,
+				CC1E58CC1200B3B7000A8A4E /* FFT */,
+				CC1E597C1200B3B8000A8A4E /* FTPServer */,
 				33114CA713430A0A00C7CC19 /* lha */,
-				33C7395613A0AA700012221C /* tapkulib */,
 				33E0157512FBF08100345BE2 /* libFileExtractor */,
+				CC1E5A021200B3B8000A8A4E /* Misc */,
+				CCFDC4EB17DB105400C6692C /* NVDSP */,
+				33BB80CC14D4679B00EA4B32 /* OBSlider */,
+				59C22A2F25B99ACA003FEDBF /* Reachability */,
+				59B9995125CFE2A00071E144 /* Resample */,
+				59517DE61E40778D00FAA0BF /* SESlideTableViewCell */,
+				33C7395613A0AA700012221C /* tapkulib */,
+				59A65C9E26277C4D00BC99D1 /* Transitions */,
+				CC1E5B131200B3B8000A8A4E /* unzip */,
+				33BA5B4F1431B3F200C87F5B /* VisuFX */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -7063,8 +7072,6 @@
 				CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */,
 				33AB276917B3D48F00C12189 /* MoreViewController.h */,
 				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
-				CC1E622A12041177000A8A4E /* myNavViewController.h */,
-				CC1E622B12041177000A8A4E /* myNavViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
 				59BF54EF2628C9F50064EF5E /* CommonFunctions */,
@@ -7144,30 +7151,20 @@
 			children = (
 				59387AEF20C746D3001F0C20 /* AppStore512.png */,
 				33888A7C122318C60030C82E /* backgrounds */,
-				33ABE5B617B23DF900AE0EA1 /* BookmarksViewController.xib */,
 				3356548817B52EFF003AE763 /* browser_home.html */,
 				59BE93A32600D3F500414A42 /* c64 */,
 				CC1E5A171200B3B8000A8A4E /* DB */,
-				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				CC1E5A2A1200B3B8000A8A4E /* Fonts */,
 				CC1E5E961200CF6C000A8A4E /* Icons */,
 				CC1E5A2C1200B3B8000A8A4E /* Images */,
 				CC17F07E1AC87866006C1E82 /* Images-2.xcassets */,
-				337FE6A724A8D20800CEE44D /* Launch Screen.storyboard */,
 				59387AED20C745BB001F0C20 /* LaunchLogo.jpg */,
-				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
-				CCFE183B17EF586200C1682F /* MainWindow.xib */,
-				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
-				59D2646C2624D15A00C9D510 /* MiniPlayer.xib */,
 				59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */,
-				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
 				CCB21D9C124690E000A30F62 /* Samples */,
 				CC9F0E39123DEFCC00D8EE6D /* sc68 */,
-				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
 				3396B55613297F8C001792E0 /* timidity */,
 				CC1E6260120423DF000A8A4E /* UADE */,
 				59E4A37D261E7219000A31BA /* vgmplay */,
-				59A65C752624E9B700BC99D1 /* VoicesViewController.xib */,
 				CCFA9ADC1AC75830007C658A /* WebTools */,
 			);
 			path = Resources;
@@ -8702,7 +8699,6 @@
 				5966D1B125CFF0D200520777 /* monkey island 2 - intro.jpg in Resources */,
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
 				CC1E6394120423E0000A8A4E /* SoundControl in Resources */,
-				59D2646D2624D15A00C9D510 /* MiniPlayer.xib in Resources */,
 				CC1E6395120423E0000A8A4E /* SoundFactory in Resources */,
 				5966D1C925CFF0D200520777 /* unreal title.jt in Resources */,
 				CC1E6396120423E0000A8A4E /* SoundImages in Resources */,
@@ -9228,7 +9224,6 @@
 				5950D94A25E0F67B00B476B2 /* monkey island 2 - intro.jpg in Resources */,
 				5950D94B25E0F67B00B476B2 /* tabview_gradient40Gray@2x.png in Resources */,
 				5950D94C25E0F67B00B476B2 /* SoundControl in Resources */,
-				59D2646E2624D15A00C9D510 /* MiniPlayer.xib in Resources */,
 				5950D94D25E0F67B00B476B2 /* SoundFactory in Resources */,
 				5950D94E25E0F67B00B476B2 /* unreal title.jt in Resources */,
 				5950D94F25E0F67B00B476B2 /* SoundImages in Resources */,
@@ -10102,7 +10097,6 @@
 				CC1E623D12041177000A8A4E /* DetailViewControllerIphone.mm in Sources */,
 				CC1E623E12041177000A8A4E /* DownloadViewController.mm in Sources */,
 				CC1E624112041177000A8A4E /* ModizMusicPlayer.mm in Sources */,
-				CC1E624212041177000A8A4E /* myNavViewController.mm in Sources */,
 				591D8E4925DC63620013E19F /* bit_reader.c in Sources */,
 				CC1E624312041177000A8A4E /* myTabBarController.mm in Sources */,
 				CC1E624812041177000A8A4E /* SearchViewController.mm in Sources */,
@@ -10386,7 +10380,6 @@
 				5950DAA425E0F67B00B476B2 /* DetailViewControllerIphone.mm in Sources */,
 				5950DAA525E0F67B00B476B2 /* DownloadViewController.mm in Sources */,
 				5950DAA625E0F67B00B476B2 /* ModizMusicPlayer.mm in Sources */,
-				5950DAA725E0F67B00B476B2 /* myNavViewController.mm in Sources */,
 				5950DAA825E0F67B00B476B2 /* bit_reader.c in Sources */,
 				5950DAA925E0F67B00B476B2 /* myTabBarController.mm in Sources */,
 				5950DAAA25E0F67B00B476B2 /* SearchViewController.mm in Sources */,
@@ -10668,7 +10661,6 @@
 				595D4BD7262187BC000B7187 /* DetailViewControllerIphone.mm in Sources */,
 				595D4BD8262187BC000B7187 /* DownloadViewController.mm in Sources */,
 				595D4BD9262187BC000B7187 /* ModizMusicPlayer.mm in Sources */,
-				595D4BDA262187BC000B7187 /* myNavViewController.mm in Sources */,
 				595D4BDB262187BC000B7187 /* bit_reader.c in Sources */,
 				595D4BDC262187BC000B7187 /* myTabBarController.mm in Sources */,
 				595D4BDD262187BC000B7187 /* SearchViewController.mm in Sources */,

@@ -2218,7 +2218,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) openPopup:(NSString *)msg {
     CGRect frame;
     if (mPopupAnimation) return;
-    mPopupAnimation=1;	
+    mPopupAnimation=1;
+    infoMsgView.layer.zPosition=0xFFFF;
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
@@ -2229,7 +2230,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [UIView setAnimationDuration:0.5];
     [UIView setAnimationDelegate:self];
     frame=infoMsgView.frame;
-    frame.origin.y=self.view.frame.size.height-64;
+    frame.origin.y=self.view.frame.size.height-64-32;
     infoMsgView.frame=frame;
     [UIView setAnimationDidStopSelector:@selector(closePopup)];
     [UIView commitAnimations];
@@ -2315,6 +2316,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     //[super dealloc];
 }
+
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
 
 #pragma mark - UINavigationControllerDelegate
 

@@ -36,7 +36,8 @@ typedef NS_ENUM(NSUInteger, BButtonStyle) {
     /**
      *  Styles the button like bootstrap version 3.x.x.
      */
-    BButtonStyleBootstrapV3
+    BButtonStyleBootstrapV3,
+    BButtonStyleBootstrapV4
 };
 
 

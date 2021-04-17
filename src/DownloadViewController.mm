@@ -1397,7 +1397,7 @@ static NSFileManager *mFileMngr;
 //	BButton *lCancelButton;
 	
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
+    if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
@@ -1634,5 +1634,13 @@ static NSFileManager *mFileMngr;
 	pthread_mutex_unlock(&download_mutex);
     }
 }
+
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
 
 @end

@@ -26,6 +26,24 @@
 - (void)showMiniPlayer {
     [self hideMiniPlayer];
     
+    CGFloat safe_bottom=0;
+    CGFloat device_height=[[UIApplication sharedApplication] keyWindow].frame.size.height;
+    CGFloat device_winy=[[UIApplication sharedApplication] keyWindow].frame.origin.y;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        if (@available(iOS 11.0, *)) {
+            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+            
+        }
+    }
+    CGFloat max_y=device_height+device_winy-safe_bottom;
+    CGFloat miniplayer_y=self.view.frame.origin.y+self.view.frame.size.height;
+    CGFloat adjust_y=max_y-miniplayer_y;
+    if (adjust_y<0) adjust_y=-safe_bottom;
+    else adjust_y=0;
+    
+    //NSLog(@"win height %f|win y %f|safe bottom: %f | v orgin y %f | v height %f",device_height,device_winy,safe_bottom,self.view.frame.origin.y,self.view.frame.size.height);
+    
+        
     miniplayerVC = [[MiniPlayerVC alloc] init];
     //set new title
     miniplayerVC.title = @"Mini Player";
@@ -43,9 +61,9 @@
     //positioning constraints
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-adjust_y]];
     
-    self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48);
+    self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48+adjust_y);
     [tableView reloadData];    
 }
 

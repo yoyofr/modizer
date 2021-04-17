@@ -99,6 +99,7 @@
 }
 
 -(void) pushedCancel {
+    NSLog(@"cancel");
     btnStopCurrentActionPending=true;
 }
 

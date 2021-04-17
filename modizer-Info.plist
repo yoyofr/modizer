@@ -288,8 +288,6 @@
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>Launch Screen</string>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleBlackOpaque</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -307,7 +305,9 @@
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	<true/>
+	<key>CFBundleIconFile</key>
+	<string></string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

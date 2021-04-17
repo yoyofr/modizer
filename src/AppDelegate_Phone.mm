@@ -14,6 +14,7 @@
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
 #import "SettingsGenViewController.h"
+
 extern volatile t_settings settings[MAX_SETTINGS];
 
 //#import <AVFoundation/AVFoundation.h>
@@ -37,6 +38,27 @@ pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
 BOOL is_retina;
+
+/*
+@interface MyClass : NSObject
+- (void)updateMainLoopObjC;
+@end
+
+@implementation MyClass
+- (void)updateMainLoopObjC {
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+}
+extern "C" void updateMainLoopC(void) {
+    @autoreleasepool {
+        MyClass *obj = [[MyClass alloc] init];
+        IMP methodIMP = [obj methodForSelector:@selector(updateMainLoopObjC)];
+        void (*functionPointer)(id, SEL) = (void (*)(id, SEL))methodIMP;
+
+        // Then call it:
+        functionPointer(obj, @selector(updateMainLoopObjC));
+    }
+}
+@end*/
 
 
 @implementation AppDelegate_Phone
@@ -230,11 +252,17 @@ BOOL is_retina;
         }
     }
     
+
+    modizerWin.rootViewController=(UITabBarController*)tabBarController;
     
-    modizerWin.rootViewController=tabBarController;
-	[modizerWin addSubview:[tabBarController view]];
+    
+
+	[modizerWin addSubview:[(UITabBarController*)tabBarController view]];
 	[modizerWin makeKeyAndVisible];
 	
+    
+    
+    
     
 //    playlistVC->browse_depth=0;
 //    playlistVC->detailViewController=detailViewControlleriPhone;

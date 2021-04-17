@@ -3461,6 +3461,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     CGRect frame;
     if (mPopupAnimation) return;
     mPopupAnimation=1;
+    infoMsgView.layer.zPosition=0xFFFF;
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
@@ -3471,7 +3472,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [UIView setAnimationDuration:0.5];
     [UIView setAnimationDelegate:self];
     frame=infoMsgView.frame;
-    frame.origin.y=self.view.frame.size.height-64;
+    frame.origin.y=self.view.frame.size.height-64-32;
     infoMsgView.frame=frame;
     [UIView setAnimationDidStopSelector:@selector(closePopup)];
     [UIView commitAnimations];
@@ -3570,6 +3571,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
     //[super dealloc];
 }
+
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
 
 #pragma mark - UINavigationControllerDelegate
 

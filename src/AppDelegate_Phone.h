@@ -14,11 +14,12 @@
 @class RootViewControllerLocalBrowser;
 @class DetailViewControllerIphone;
 @class RootViewControllerPlaylist;
+@class myTabBarController;
 
 @interface AppDelegate_Phone : UIResponder <UIApplicationDelegate> {
 	IBOutlet ModizerWin *modizerWin;
 //    IBOutlet UIWindow *window;
-	IBOutlet UITabBarController *tabBarController;
+	IBOutlet myTabBarController *tabBarController;
 	
 	IBOutlet RootViewControllerLocalBrowser *rootViewControlleriPhone;
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
@@ -32,7 +33,7 @@
 @property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControlleriPhone;
 @property (nonatomic, retain) IBOutlet RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
-@property (nonatomic, retain) IBOutlet UITabBarController *tabBarController;
+@property (nonatomic, retain) IBOutlet myTabBarController *tabBarController;
 
 -(int) isSlowDevice;
 -(void) batteryChanged:(NSNotification*)notification;

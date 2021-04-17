@@ -404,7 +404,7 @@ extern pthread_mutex_t db_mutex;
     } else {
         btn = (BButton *)[cell viewWithTag:TOP_LABEL_TAG];
     }    
-    btn.frame=CGRectMake(self.view.frame.size.width/2-100,10,200,30);
+    btn.frame=CGRectMake((self.view.frame.size.width-self.view.frame.size.width*2/3)/2,10,self.view.frame.size.width*2/3,30);
     
     NSString *txt;
     switch (indexPath.row) {            
@@ -497,6 +497,20 @@ extern pthread_mutex_t db_mutex;
  }
  */
 
+- (void)dealloc
+{
+    [waitingView removeFromSuperview];
+    waitingView=nil;
+}
+
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
+
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -511,13 +525,6 @@ extern pthread_mutex_t db_mutex;
 {
     return [[TTFadeAnimator alloc] init];
 }
-
-- (void)dealloc
-{
-    [waitingView removeFromSuperview];
-    waitingView=nil;
-}
-
 
 
 @end

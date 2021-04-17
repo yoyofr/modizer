@@ -43,9 +43,10 @@
 	NSString *custom_URL_name[MAX_CUSTOM_URL];
 	int custom_url_count;
 	
+    NSLayoutConstraint *bottomConstraint,*topConstraint;
 }
 
-@property (nonatomic,retain) IBOutlet UIView *infoDownloadView,*view;
+@property (nonatomic,retain) IBOutlet UIView *infoDownloadView;
 @property (nonatomic,retain) IBOutlet UILabel *infoDownloadLbl;
 @property (nonatomic,strong) ModizerWebView *webView;
 @property (nonatomic,retain) IBOutlet UIToolbar *toolBar;
@@ -57,7 +58,9 @@
 
 -(IBAction) goPlayer;
 -(void) updateMiniPlayer;
+-(void) refreshMiniplayer;
 
+-(IBAction) goBackRootVC:(id)sender;
 -(IBAction) goBack:(id)sender;
 -(IBAction) goForward:(id)sender;
 -(IBAction) newBookmark:(id)sender;

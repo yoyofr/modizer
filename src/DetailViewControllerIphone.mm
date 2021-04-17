@@ -154,7 +154,7 @@ static int display_length_mode=0;
 
 @synthesize mOnlyCurrentSubEntry,mOnlyCurrentEntry;
 
-@synthesize mDeviceType,mDeviceIPhoneX;
+@synthesize mDeviceType;
 @synthesize is_macOS;
 @synthesize cover_view,cover_viewBG,gifAnimation;
 //@synthesize locManager;
@@ -179,6 +179,12 @@ static int display_length_mode=0;
 
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
+
+
+-(void) refreshCurrentVCforMiniplayer {
+    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    if ([vc respondsToSelector:@selector(refreshMiniplayer)]) [vc performSelector:@selector(refreshMiniplayer)];
+}
 
 -(void)didSelectRowInAlertSubController:(NSInteger)row {
     mPaused=0;
@@ -1822,6 +1828,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
 	
 	[self play_curEntry];
+    
+    [self refreshCurrentVCforMiniplayer];
 }
 
 -(void)play_listmodules:(t_playlist*)pl start_index:(int)index {
@@ -1875,6 +1883,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     }
     
 	[self play_curEntry];
+    
+    [self refreshCurrentVCforMiniplayer];
 }
 
 -(void)play_restart {
@@ -1980,6 +1990,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     /*	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
      if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
      [myindex autorelease];*/
+    
+    [self refreshCurrentVCforMiniplayer];
+    
 	return playLaunched;
 }
 
@@ -2058,6 +2071,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		[self play_curEntry];
 		playLaunched=1;
 	}
+    
+    [self refreshCurrentVCforMiniplayer];
 	
 	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
     /*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
@@ -2913,7 +2928,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
 		if (oglViewFullscreen) {
             if (mHasFocus) {
-                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+                statusbarHidden=YES;
+                [self setNeedsStatusBarAppearanceUpdate];
             }
             [self.navigationController setNavigationBarHidden:YES animated:YES];
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
@@ -2922,26 +2938,27 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 		} else {
             if (mHasFocus) {
-                [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+                statusbarHidden=NO;
+                [self setNeedsStatusBarAppearanceUpdate];
             }
             [self.navigationController setNavigationBarHidden:NO animated:YES];
             
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
             
 			mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
-            cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-(mDeviceIPhoneX?32:0));
-            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-(mDeviceIPhoneX?32:0));
+			m_oglView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
+            cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
+            cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
             
             if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
             if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
             
             
             if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
+			oglButton.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
             
             volWin.hidden=NO;
-            volWin.frame= CGRectMake(0, mDevice_hh-64-42-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
+            volWin.frame= CGRectMake(0, mDevice_hh-64-42-safe_bottom, mDevice_ww, 44);
 			volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,
                                           volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
             //			volumeView.center = CGPointMake((mDevice_ww)/2,32);
@@ -2949,7 +2966,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 			
 			
 			if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-(mDeviceIPhoneX?32:0));
+			else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
             
             
 			//commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
@@ -2990,7 +3007,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         //waitingView.frame=CGRectMake(mDevice_hh/2-60,mDevice_ww/2-60,120,110);
         if ((mPlaylist_size>0)&&(settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value)) {
             if (mHasFocus) {
-                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+                statusbarHidden=YES;
+                [self setNeedsStatusBarAppearanceUpdate];
             }
             [self.navigationController setNavigationBarHidden:YES animated:YES];
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww);
@@ -3139,7 +3157,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             
             if (oglViewFullscreen) {
                 if (mHasFocus) {
-                [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationFade];
+                    statusbarHidden=YES;
+                    [self setNeedsStatusBarAppearanceUpdate];
                 }
                 [self.navigationController setNavigationBarHidden:YES animated:YES];
                 
@@ -3150,7 +3169,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
             } else {
                 if (mHasFocus) {
-                    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+                    statusbarHidden=NO;
+                    [self setNeedsStatusBarAppearanceUpdate];
                 }
                 [self.navigationController setNavigationBarHidden:NO animated:YES];
                 
@@ -3255,10 +3275,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 -(void)updateBarPos {
 	if ((orientationHV==UIInterfaceOrientationPortrait)||(orientationHV==UIInterfaceOrientationPortraitUpsideDown)) {
-		playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
-		pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
-		playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
-		pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-(mDeviceIPhoneX?32:0), mDevice_ww, 44);
+		playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+		pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+		playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+		pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
 	} else {
         int xofs=24*5+36*3+10;
 		playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
@@ -4111,6 +4131,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
     self.navigationController.delegate = self;
     
+    statusbarHidden=false;
+    
     labelModuleName=[[CBAutoScrollLabel alloc] init];
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
     labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
@@ -4236,7 +4258,12 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             }
         }
     
-    mDeviceIPhoneX=1;
+    safe_bottom=0;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        if (@available(iOS 11.0, *)) {
+            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+        }
+    }
     
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 		if (!is_macOS) mDeviceType=1; //ipad
@@ -4284,7 +4311,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             mDevice_hh=mainscr.bounds.size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
-        if (mainscr.bounds.size.height==812) mDeviceIPhoneX=1;
         mScaleFactor=mainscr.scale;
         
         if (mScaleFactor>=2) mDeviceType=2;
@@ -4496,19 +4522,11 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	
 	infoZoom.hidden=NO;
 	infoUnzoom.hidden=YES;
-	
-	volWin.frame= CGRectMake(0, mDevice_hh-64-42-32, mDevice_ww, 44);
-    //debug
-    /*[volWin setBackgroundColor:[UIColor colorWithRed:66
-                                               green:79
-                                                blue:91
-                                               alpha:1]];
-     */
-	volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
-    //	volumeView.center = CGPointMake(mDevice_ww/2,32);
-    //  [volumeView setShowsRouteButton:YES];
-    //	[volumeView sizeToFit];
-	[volWin addSubview:volumeView];
+    
+    
+	volWin.frame= CGRectMake(0, mDevice_hh-64-42-safe_bottom, mDevice_ww, 44);
+    volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
+    [volWin addSubview:volumeView];
     
 	
 	mRestart=0;
@@ -4890,12 +4908,29 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     //[waitingView setNeedsLayout]
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return UIStatusBarStyleLightContent;
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return statusbarHidden;
+}
+
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.navigationController.delegate = self;
     
+    safe_bottom=0;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        if (@available(iOS 11.0, *)) {
+            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+        }
+    }
+    //NSLog(@"safe bottom %f",safe_bottom);
+    
     alertCannotPlay_displayed=0;
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
     
@@ -5005,15 +5040,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         }
         [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
     }
-    CATransition *transition=[CATransition animation];
+    /*CATransition *transition=[CATransition animation];
     transition.duration=0.2;
     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-    [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
+    [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];*/
     [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
 }
 
 
 - (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    
     self.navigationController.delegate = self;
     is_macOS=false;
     if (@available(iOS 14.0, *)) {
@@ -5024,18 +5061,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             }
         }
     if (!is_macOS) if (m_displayLink) [m_displayLink invalidate];
-    self.navigationController.navigationBar.hidden = NO;
-    
-    CATransition *transition=[CATransition animation];
+        
+    [[self navigationController] setNavigationBarHidden:NO animated:NO];
+    /*CATransition *transition=[CATransition animation];
     transition.duration=0.2;
     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
-    
+    */
 //    [[UIDevice currentDevice] systemVersion]
-    
-    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
-    
-    
+    statusbarHidden=NO;
+    [self setNeedsStatusBarAppearanceUpdate];
 	
 	for (int i=0;i<3;i++) if (viewTapInfoStr[i]) {
 		delete viewTapInfoStr[i];

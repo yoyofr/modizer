@@ -17,8 +17,7 @@
 	IBOutlet DetailViewControllerIphone *detailViewController;
 	IBOutlet UITextView *textView;
     
-    bool darkMode;
-    bool forceReloadCells;
+    bool darkMode;    
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;

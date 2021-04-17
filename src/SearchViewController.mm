@@ -1893,4 +1893,12 @@ static NSFileManager *mFileMngr;
 	else [self doPrimAction:indexPath];
 }
 
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
+
 @end

@@ -318,6 +318,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         if ((maj==VERSION_MAJOR)&&(min==VERSION_MINOR)) {
             db_checked=1;
             fileManager=nil;
+            //check if Samples folder has to be recreated
+            if (settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value==1) [self createSamplesFromPackage:FALSE];
             return;
         } else {
             mUpdateToNewDB=1;
@@ -333,8 +335,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     mDatabaseCreationInProgress=1;
     
-    //if (mUpdateToNewDB) [self createSamplesFromPackage:TRUE];  //If upgrade to new version, recreate Samples dir
-    //else [self createSamplesFromPackage:FALSE];
+    if (settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value==1) {
+        if (mUpdateToNewDB) [self createSamplesFromPackage:TRUE];  //If upgrade to new version, recreate Samples dir
+        else [self createSamplesFromPackage:FALSE];
+    }
     
     if (quiet) [self recreateDB];
     else {
@@ -485,6 +489,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
 
 - (void)viewDidLoad {
     clock_t start_time,end_time;
@@ -1841,15 +1851,26 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     [self.tableView reloadData];
+    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
 }
 
 static int shouldRestart=1;
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return UIStatusBarStyleDefault;
+}
+
+/*- (UIViewController *)childViewControllerForStatusBarStyle {
+    return self.topViewController;
+}*/
+
 -(void) viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    //[self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
         
+    [self.navigationController setNeedsStatusBarAppearanceUpdate];
+    
     self.navigationController.delegate = self;
     
     bool oldmode=darkMode;
@@ -1862,6 +1883,11 @@ static int shouldRestart=1;
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+    
+        
+    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+    [[self navigationController] setNavigationBarHidden:NO animated:YES];
+    
     
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
@@ -1916,6 +1942,8 @@ static int shouldRestart=1;
     }
     
     [super viewWillAppear:animated];
+    
+    
     [self hideWaiting];
     
     
@@ -1961,8 +1989,6 @@ static int shouldRestart=1;
 
 - (void)viewDidAppear:(BOOL)animated {
     [self hideWaiting];
-    
-    
     /*[tableView setNeedsLayout];
      [tableView layoutSubviews];
      [tableView layoutIfNeeded];
@@ -1971,19 +1997,30 @@ static int shouldRestart=1;
     
     [super viewDidAppear:animated];
     //[tableView reloadData];
+    //[[self navigationController] setNavigationBarHidden:NO animated:NO];
     
     if (shouldRestart) {
+        
+        self.view.userInteractionEnabled = NO;
+        //self.view.alpha=0.5f;
+        
         [self hideWaitingCancel];
         [self updateWaitingTitle:@"Loading"];
         [self updateWaitingDetail:@"Resuming last\nplayed file"];
         [self showWaiting];
         [self flushMainLoop];
         shouldRestart=0;
+                        
         [detailViewController play_restart];
+        
+        self.view.userInteractionEnabled = YES;
+        //self.view.alpha=1.0f;
+        
         [self hideWaiting];
     }
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -1996,7 +2033,6 @@ static int shouldRestart=1;
     /*if (childController) {
         [childController viewDidDisappear:FALSE];
     }*/
-        
     [super viewDidDisappear:animated];
 }
 
@@ -3471,6 +3507,7 @@ static int shouldRestart=1;
     CGRect frame;
     if (mPopupAnimation) return;
     mPopupAnimation=1;
+    infoMsgView.layer.zPosition=0xFFFF;
     frame=infoMsgView.frame;
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
@@ -3481,7 +3518,7 @@ static int shouldRestart=1;
     [UIView setAnimationDuration:0.5];
     [UIView setAnimationDelegate:self];
     frame=infoMsgView.frame;
-    frame.origin.y=self.view.frame.size.height-64;
+    frame.origin.y=self.view.frame.size.height-64-32;
     infoMsgView.frame=frame;
     [UIView setAnimationDidStopSelector:@selector(closePopup)];
     [UIView commitAnimations];

@@ -107,7 +107,7 @@
 
 -(void) pushedTime {
     labelTime_mode++;
-    if (labelTime_mode>=3) labelTime_mode=0;
+    if (labelTime_mode>=2) labelTime_mode=0;
 }
 
 -(void) pushedPlaylist {
@@ -175,8 +175,8 @@
             //NSLog(@"trX: %d, max velocity %f",translationX,(float)(max_velocity.x));
             if (translationX>TRIGGER_SUB_MIN_TRANSLATION) [self swipeLeft:bEntryInsteadOfSub];
             else if (translationX<-TRIGGER_SUB_MIN_TRANSLATION) [self swipeRight:bEntryInsteadOfSub];
-            else if ((translationX<-SWIPE_MIN_TRANSLATION)&&(max_velocity.x>SWIPE_MIN_VELOCITY)) [self swipeLeft:bEntryInsteadOfSub];
-            else if ((translationX>SWIPE_MIN_TRANSLATION)&&(max_velocity.x<-SWIPE_MIN_VELOCITY)) [self swipeRight:bEntryInsteadOfSub];
+            else if ((translationX<-SWIPE_MIN_TRANSLATION)&&(max_velocity.x>SWIPE_MIN_VELOCITY)) [self swipeRight:bEntryInsteadOfSub];
+            else if ((translationX>SWIPE_MIN_TRANSLATION)&&(max_velocity.x<-SWIPE_MIN_VELOCITY)) [self swipeLeft:bEntryInsteadOfSub];
             
             [UIView beginAnimations:@"miniplayer_recenterinfoview" context:nil];
             [UIView setAnimationDelegate:self];
@@ -208,15 +208,11 @@
     int t=[detailVC.mplayer getCurrentTime]/1000;
     switch (labelTime_mode) {
         case 0:
-            if (l>0) labelTime.text=[NSString stringWithFormat:@"-%d:%.2d",(l-t)/60,(l-t)%60];
+            if (l>0) labelTime.text=[NSString stringWithFormat:@"-%d:%.2d\n-\n%d:%.2d",(l-t)/60,(l-t)%60,l/60,l%60];
             else labelTime.text=[NSString stringWithFormat:@"--:--"];
             break;
         case 1:
-            labelTime.text=[NSString stringWithFormat:@"%d:%.2d",(t)/60,(t)%60];
-            break;
-        case 2:
-            if (l>0) labelTime.text=[NSString stringWithFormat:@"%d:%.2d",(l)/60,(l)%60];
-            else labelTime.text=[NSString stringWithFormat:@"--:--"];
+            labelTime.text=[NSString stringWithFormat:@"%d:%.2d\n-\n%d:%.2d",(t)/60,(t)%60,l/60,l%60];
             break;
     }
     
@@ -343,10 +339,16 @@
     labelPrev.textAlignment=NSTextAlignmentCenter;
     [songInfoView addSubview:labelPrev];
     
+    UIFont *font = [UIFont systemFontOfSize:12];
+    UIFontDescriptor *fontDescriptor = [font fontDescriptor];
+    UIFontDescriptor *styleDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:[fontDescriptor symbolicTraits]| UIFontDescriptorTraitBold|UIFontDescriptorTraitItalic];
+    UIFont *myFont = [UIFont fontWithDescriptor:styleDescriptor size:font.pointSize];
+    
+    
     labelPrevEntry=[[UILabel alloc] init];
     labelPrevEntry.text=NSLocalizedString(@"Previous file",@"");
     labelPrevEntry.frame=CGRectMake(-120-[labelPrevEntry.text sizeWithFont:labelPrevEntry.font].width/2,0,100,48);
-    [labelPrevEntry setFont:[UIFont italicSystemFontOfSize:12]];
+    [labelPrevEntry setFont:myFont];
     if (darkMode) labelPrevEntry.textColor = [UIColor whiteColor];
     else labelPrevEntry.textColor = [UIColor blackColor];
     labelPrevEntry.textAlignment=NSTextAlignmentCenter;
@@ -356,7 +358,9 @@
     labelNextEntry=[[UILabel alloc] init];
     labelNextEntry.text=NSLocalizedString(@"Next file",@"");
     labelNextEntry.frame=CGRectMake((ww-50-150)+[labelNextEntry.text sizeWithFont:labelNextEntry.font].width/2,0,100,48);
-    [labelNextEntry setFont:[UIFont italicSystemFontOfSize:12]];
+    
+    
+    [labelNextEntry setFont:myFont];
     if (darkMode) labelNextEntry.textColor = [UIColor whiteColor];
     else labelNextEntry.textColor = [UIColor blackColor];
     labelNextEntry.alpha=0;
@@ -478,7 +482,7 @@
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
     
     //Buttons@
-    btnPlay=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV3];
+    btnPlay=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV4];
     [btnPlay addAwesomeIcon:FAIconPlay beforeTitle:YES];
     [btnPlay addTarget:self action:@selector(pushedPlay) forControlEvents:UIControlEventTouchUpInside];
     btnPlay.userInteractionEnabled=true;
@@ -486,15 +490,17 @@
     btnPlay.hidden=false;
     [btnPlay setColor:mpview.backgroundColor];
     [btnPlay setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
+    btnPlay.layer.borderWidth=0;
     [mpview addSubview:btnPlay];
     
-    btnPause=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV3];
+    btnPause=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV4];
     [btnPause addAwesomeIcon:FAIconPause beforeTitle:YES];
     [btnPause addTarget:self action:@selector(pushedPause) forControlEvents:UIControlEventTouchUpInside];
     btnPause.translatesAutoresizingMaskIntoConstraints = false;
     btnPause.hidden=true;
     [btnPause setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
     [btnPause setColor:mpview.backgroundColor];
+    btnPause.layer.borderWidth=0;
     [mpview addSubview:btnPause];
     
     NSDictionary *views = NSDictionaryOfVariableBindings(btnPlay);

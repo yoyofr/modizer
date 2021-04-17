@@ -42,6 +42,7 @@ static CGFloat const kBButtonCornerRadiusV3 = 4.0f;
 
 - (void)drawBButtonStyleV2InRect:(CGRect)rect withContext:(CGContextRef *)context;
 - (void)drawBButtonStyleV3InRect:(CGRect)rect withContext:(CGContextRef *)context;
+- (void)drawBButtonStyleV4InRect:(CGRect)rect withContext:(CGContextRef *)context;
 
 @end
 
@@ -391,6 +392,9 @@ static CGFloat const kBButtonCornerRadiusV3 = 4.0f;
         case BButtonStyleBootstrapV3:
             [self drawBButtonStyleV3InRect:rect withContext:&context];
             break;
+        case BButtonStyleBootstrapV4:
+            [self drawBButtonStyleV4InRect:rect withContext:&context];
+            break;
     }
 }
 
@@ -489,5 +493,27 @@ static CGFloat const kBButtonCornerRadiusV3 = 4.0f;
     
     CGContextRestoreGState(*context);
 }
+
+- (void)drawBButtonStyleV4InRect:(CGRect)rect withContext:(CGContextRef *)context
+{
+    CGContextSaveGState(*context);
+    
+    UIColor *fill = (!self.highlighted) ? self.color : [self.color bb_darkenColorWithValue:0.06f];
+    if (!self.enabled) {
+        fill = [fill bb_desaturatedColorToPercentSaturation:0.60f];
+    }
+    
+    CGContextSetFillColorWithColor(*context, fill.CGColor);
+    
+    UIColor *border = (!self.highlighted) ? [self.color bb_darkenColorWithValue:0.06f] : [self.color bb_darkenColorWithValue:0.12f];
+    if (!self.enabled) {
+        border = [border bb_desaturatedColorToPercentSaturation:0.60f];
+    }
+    
+    CGContextSetStrokeColorWithColor(*context, border.CGColor);
+    
+    CGContextRestoreGState(*context);
+}
+
 
 @end

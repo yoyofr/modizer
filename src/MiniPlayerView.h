@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
     bool darkMode;
     CGFloat componentsH[4];
     CGFloat componentsL[4];
+    CGFloat componentsM[4];
 }
 
 @end

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
     <dependencies>
-        <deployment version="1792" identifier="iOS"/>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -33,6 +34,7 @@
                     <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                 </imageView>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="2JQ-Bl-Z7l"/>
             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackOpaque"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
@@ -65,11 +67,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="LlD-1b-KE0"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1984">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1985">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" id="1993">
@@ -86,6 +88,7 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <viewLayoutGuide key="safeArea" id="a2I-Gn-AXe"/>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Library" id="1980"/>
@@ -116,11 +119,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="cyz-3o-0H6"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1956">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1965">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -129,6 +132,7 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <viewLayoutGuide key="safeArea" id="zKT-lV-0W2"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
@@ -155,11 +159,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="SHc-ts-rSI"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="1936">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1942">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -168,6 +172,7 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <viewLayoutGuide key="safeArea" id="3xo-p6-QjQ"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
@@ -197,7 +202,7 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <searchBar contentMode="redraw" barStyle="black" id="716">
@@ -209,7 +214,7 @@
                                         </connections>
                                     </searchBar>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
+                                        <rect key="frame" x="0.0" y="56" width="375" height="756"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -218,7 +223,7 @@
                                         </connections>
                                     </tableView>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -245,6 +250,7 @@
                                         <color key="backgroundColor" red="0.01420286763459444" green="0.0" blue="2.4540675440221094e-05" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
                                 </subviews>
+                                <viewLayoutGuide key="safeArea" id="tIb-b2-rFY"/>
                                 <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
@@ -276,11 +282,11 @@
                                 <viewControllerLayoutGuide type="bottom" id="9zf-eA-E19"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="2020">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -289,6 +295,7 @@
                                         </connections>
                                     </tableView>
                                 </subviews>
+                                <viewLayoutGuide key="safeArea" id="Wc3-Ix-kEC"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
@@ -312,16 +319,12 @@
             <point key="canvasLocation" x="592.79999999999995" y="30.134932533733135"/>
         </tabBarController>
         <viewController title="File" modalTransitionStyle="flipHorizontal" id="11" userLabel="Player Controller" customClass="DetailViewControllerIphone">
-            <layoutGuides>
-                <viewControllerLayoutGuide type="top" id="8f1-EX-jSA"/>
-                <viewControllerLayoutGuide type="bottom" id="xNg-gz-N0C"/>
-            </layoutGuides>
             <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="15" userLabel="PlayerView">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="392"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="1237346308.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="X7f-i5-f7a">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="392"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                     </imageView>
                     <view clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="442" userLabel="main view">
@@ -983,7 +986,7 @@
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <view userInteractionEnabled="NO" alpha="0.69999999999999973" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1620" userLabel="Info Msg Player">
-                        <rect key="frame" x="0.0" y="190" width="320" height="140"/>
+                        <rect key="frame" x="0.0" y="162" width="320" height="140"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" minimumFontSize="16" translatesAutoresizingMaskIntoConstraints="NO" id="1621" userLabel="Pri Msg Label">
@@ -1010,6 +1013,7 @@
                         <color key="backgroundColor" red="0.0" green="0.0058736313869999996" blue="0.25806911500000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                 </subviews>
+                <viewLayoutGuide key="safeArea" id="Skn-Jh-snX"/>
                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
@@ -1077,10 +1081,6 @@
             <point key="canvasLocation" x="-70" y="-460"/>
         </viewController>
         <viewController modalTransitionStyle="flipHorizontal" id="642" customClass="DownloadViewController">
-            <layoutGuides>
-                <viewControllerLayoutGuide type="top" id="Y4Y-L0-lBt"/>
-                <viewControllerLayoutGuide type="bottom" id="NPH-XI-Qyf"/>
-            </layoutGuides>
             <view key="view" contentMode="scaleToFill" id="331" userLabel="DownloadView">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="411"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -1155,6 +1155,7 @@
                         </connections>
                     </button>
                 </subviews>
+                <viewLayoutGuide key="safeArea" id="ePH-Kf-jsN"/>
                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
@@ -1182,38 +1183,40 @@
             <point key="canvasLocation" x="-133" y="-920"/>
         </viewController>
         <viewController title="web browser" modalTransitionStyle="flipHorizontal" id="444" customClass="WebBrowser">
-            <layoutGuides>
-                <viewControllerLayoutGuide type="top" id="eoL-iY-KFy"/>
-                <viewControllerLayoutGuide type="bottom" id="aGb-Vx-W6l"/>
-            </layoutGuides>
-            <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="445" userLabel="WB View">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="436"/>
+            <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="445" userLabel="WB View">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="toto" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" clearButtonMode="whileEditing" id="cXo-Rl-RbO">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="40"/>
+                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Search or input a site url" textAlignment="center" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" clearButtonMode="whileEditing" id="cXo-Rl-RbO">
+                        <rect key="frame" x="4" y="22" width="367" height="34"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="webSearch" returnKeyType="go"/>
+                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="webSearch" returnKeyType="go" textContentType="url"/>
                         <connections>
                             <outlet property="delegate" destination="444" id="Qwj-Zp-EpB"/>
                         </connections>
                     </textField>
                     <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="12A-ZI-b5d">
-                        <rect key="frame" x="0.0" y="34" width="320" height="4"/>
+                        <rect key="frame" x="0.0" y="37" width="375" height="4"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                     </progressView>
-                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1925" userLabel="Bottom Toolbar">
-                        <rect key="frame" x="0.0" y="38" width="320" height="44"/>
+                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1925" userLabel="Top Toolbar">
+                        <rect key="frame" x="0.0" y="41" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                         <items>
-                            <barButtonItem image="bb_home.png" id="1165">
+                            <barButtonItem image="chevron.backward.2" catalog="system" id="1165" userLabel="BackVC">
                                 <connections>
-                                    <action selector="goHome:" destination="444" id="2028"/>
+                                    <action selector="goBackRootVC:" destination="444" id="6gL-H2-d5d"/>
                                 </connections>
                             </barButtonItem>
                             <barButtonItem style="plain" systemItem="flexibleSpace" id="2010"/>
+                            <barButtonItem image="bb_home.png" id="Xcy-p1-TJB" userLabel="Home">
+                                <connections>
+                                    <action selector="goHome:" destination="444" id="HAy-dN-AfE"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem style="plain" systemItem="flexibleSpace" id="ZOQ-5u-E6i"/>
                             <barButtonItem tag="1" image="bb_caret-left.png" style="plain" id="452" userLabel="Prev">
                                 <connections>
                                     <action selector="goBack:" destination="444" id="764"/>
@@ -1244,11 +1247,11 @@
                         </items>
                     </toolbar>
                     <view userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1613" userLabel="Info download">
-                        <rect key="frame" x="0.0" y="376" width="320" height="60"/>
+                        <rect key="frame" x="0.0" y="752" width="375" height="60"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." lineBreakMode="characterWrap" numberOfLines="2" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="1614" userLabel="Download Label">
-                                <rect key="frame" x="10" y="5" width="300" height="50"/>
+                                <rect key="frame" x="10" y="5" width="355" height="50"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="18"/>
@@ -1261,15 +1264,14 @@
                         <color key="backgroundColor" red="0.0" green="0.0027321362860000002" blue="0.26020408160000003" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                 </subviews>
-                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <viewLayoutGuide key="safeArea" id="8fe-KC-8aS"/>
+                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
             <toolbarItems/>
             <navigationItem key="navigationItem" title="Internet" id="1921"/>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="blackOpaque"/>
-            <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
-            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <size key="freeformSize" width="320" height="480"/>
+            <nil key="simulatedTopBarMetrics"/>
             <connections>
                 <outlet property="addressTestField" destination="cXo-Rl-RbO" id="3uD-4X-JEn"/>
                 <outlet property="backButton" destination="452" id="454"/>
@@ -1285,10 +1287,6 @@
             <point key="canvasLocation" x="-195.19999999999999" y="-1380.8095952023989"/>
         </viewController>
         <viewController modalTransitionStyle="flipHorizontal" id="1466" userLabel="View Controller (About)" customClass="AboutViewController">
-            <layoutGuides>
-                <viewControllerLayoutGuide type="top" id="YGd-C0-33u"/>
-                <viewControllerLayoutGuide type="bottom" id="Spj-mO-qdP"/>
-            </layoutGuides>
             <view key="view" contentMode="scaleToFill" id="1471">
                 <rect key="frame" x="0.0" y="0.0" width="320" height="431"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1342,6 +1340,7 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
                         <dataDetectorType key="dataDetectorTypes" link="YES"/>
                     </textView>
                 </subviews>
+                <viewLayoutGuide key="safeArea" id="oqM-p6-NS0"/>
                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
@@ -1370,6 +1369,7 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
         <image name="bb_home.png" width="24" height="24"/>
         <image name="bb_list.png" width="24" height="24"/>
         <image name="bb_music.png" width="24" height="24"/>
+        <image name="chevron.backward.2" catalog="system" width="128" height="105"/>
         <image name="close.png" width="20" height="20"/>
         <image name="modizer_logo.png" width="264" height="80"/>
         <image name="star1.png" width="24" height="24"/>
@@ -1381,6 +1381,9 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
         <image name="zoom.png" width="32" height="32"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

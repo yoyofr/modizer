@@ -70,6 +70,8 @@ class CGLString;
 	IBOutlet UISegmentedControl *sc_allowPopup;
 	///////////////////////
     
+    bool statusbarHidden;
+    
     //CoverFlow
     TKCoverflowView *coverflow; 
     UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
@@ -137,7 +139,8 @@ class CGLString;
 	CGLString *viewTapInfoStr[9];
 	CGLString *mHeader;
 	
-	int mDeviceType,mDeviceIPhoneX;
+	int mDeviceType;
+    CGFloat safe_bottom;
     char is_macOS;
 	
 	short int real_spectrumL[SPECTRUM_BANDS*2],oreal_spectrumL[SPECTRUM_BANDS];
@@ -251,7 +254,7 @@ class CGLString;
 -(IBAction) oglButtonPushed;
 
 @property int mShouldHaveFocus,mHasFocus,mPaused;
-@property int mPlaylist_size,mPlaylist_pos,mDeviceType,mDeviceIPhoneX;
+@property int mPlaylist_size,mPlaylist_pos,mDeviceType;
 @property char is_macOS;
 @property BOOL mIsPlaying;
 @property float mScaleFactor;
@@ -329,6 +332,6 @@ class CGLString;
 -(void) updateWaitingTitle:(NSString *)text;
 -(void)hideWaiting;
 
-
+- (UIViewController *)visibleViewController:(UIViewController *)rootViewController;
 
 @end

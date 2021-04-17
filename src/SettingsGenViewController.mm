@@ -260,6 +260,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value=1;
     settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value=1;
     settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
@@ -635,6 +636,14 @@ void optGSFChangedC(id param) {
     settings[GLOB_PlayerViewOnPlay].callback=&optGLOBALChangedC;
     settings[GLOB_PlayerViewOnPlay].type=MDZ_BOOLSWITCH;
     settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value=0;
+    
+    settings[GLOB_RecreateSamplesFolder].label=(char*)"Auto. restore Samples folder";
+    settings[GLOB_RecreateSamplesFolder].description=NULL;
+    settings[GLOB_RecreateSamplesFolder].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_RecreateSamplesFolder].sub_family=0;
+    settings[GLOB_RecreateSamplesFolder].callback=&optGLOBALChangedC;
+    settings[GLOB_RecreateSamplesFolder].type=MDZ_BOOLSWITCH;
+    settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value=0;
     
     /////////////////////////////////////
     //GLOBAL FTP
@@ -2432,6 +2441,14 @@ void optGSFChangedC(id param) {
     
     //[super dealloc];
 }
+
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
 
 #pragma mark - UINavigationControllerDelegate
 

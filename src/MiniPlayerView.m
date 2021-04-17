@@ -57,6 +57,10 @@
         componentsL[1] = 0.05;
         componentsL[2] = 0.05;
         componentsL[3] = 1.0;
+        componentsM[0] = 0.2;
+        componentsM[1] = 0.2;
+        componentsM[2] = 0.2;
+        componentsM[3] = 1.0;
     } else {
         componentsH[0] = 0.95;
         componentsH[1] = 0.95;
@@ -66,20 +70,45 @@
         componentsL[1] = 0.85;
         componentsL[2] = 0.85;
         componentsL[3] = 1.0;
+        componentsM[0] = 0.85;
+        componentsM[1] = 0.85;
+        componentsM[2] = 0.85;
+        componentsM[3] = 1.0;
     }
     CGColorRef color = CGColorCreate(colorspace, componentsH);
     CGContextSetStrokeColorWithColor(context, color);
     CGContextMoveToPoint(context, self.frame.origin.x, self.frame.origin.y+0);
     CGContextAddLineToPoint(context, self.frame.size.width, self.frame.origin.y+0);
+        
     CGContextStrokePath(context);
+    
+    
+    CGColorRelease(color);
 
     color = CGColorCreate(colorspace, componentsL);
     CGContextSetStrokeColorWithColor(context, color);
     CGContextMoveToPoint(context, self.frame.origin.x, self.frame.origin.y+self.frame.size.height-1);
     CGContextAddLineToPoint(context, self.frame.size.width, self.frame.origin.y+self.frame.size.height-1);
     CGContextStrokePath(context);
-    CGColorSpaceRelease(colorspace);
     CGColorRelease(color);
+    
+    CGContextSetLineWidth(context, 1.0);
+    color = CGColorCreate(colorspace, componentsM);
+    CGContextSetStrokeColorWithColor(context, color);
+    CGContextMoveToPoint(context, self.frame.size.width-50, self.frame.origin.y+24-20);
+    CGContextAddLineToPoint(context, self.frame.size.width-50, self.frame.origin.y+24+20);
+    CGContextMoveToPoint(context, self.frame.size.width-100, self.frame.origin.y+24-20);
+    CGContextAddLineToPoint(context, self.frame.size.width-100, self.frame.origin.y+24+20);
+    CGContextMoveToPoint(context, self.frame.size.width-150, self.frame.origin.y+24-20);
+    CGContextAddLineToPoint(context, self.frame.size.width-150, self.frame.origin.y+24+20);
+    CGContextStrokePath(context);
+    
+    CGColorRelease(color);
+    
+    CGColorSpaceRelease(colorspace);
+    
+    
+    
 }
 
 

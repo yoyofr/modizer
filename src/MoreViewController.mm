@@ -419,6 +419,14 @@
     [tableView reloadData];
 }
 
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
+
 #pragma mark - UINavigationControllerDelegate
 
 - (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController

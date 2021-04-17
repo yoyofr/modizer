@@ -9,25 +9,27 @@ Todo/Requested:
 - TODO: add description for Settings when relevant
 - TODO: add S98 playback library
 
-- TODO: change file decompression library + ensure .tar.gz works
+- TODO: .tar.gz support, i.e. tar support (gz ok / fex)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
-- TODO: miniplayer on all tabs : remaning -> download / webbrowser / about
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
-- BUG: if taping multiple times during initialization (initial launch / reloading previous file) it crashes (try to push same VC multiple times)
+
+return false
 
 3.0
 �����
-- [UI] stability improvement
-- [UI] Do not recreate samples folder automatically
-- [DB] Updated to latest versions
-- [PLAYER] SNSF support 
-- [PLAYER] New library, Highly Complete for DSF,PSF,PSF2,QSF,SSF. AOSDK & SexyPSF removed
+- [UI] New: Miniplayer view
+- [PLAYER] New: SNSF support
+- [PLAYER] New: V2M/V2MZ support - V2 synthesizer from Farbrausch demogroup
+- [PLAYER] New: Highly Complete plugin for DSF,PSF,PSF2,QSF,SSF (AOSDK & SexyPSF removed)
 - [PLAYER] LazyUSF now included in Highly Complete
-- [PLAYER] VGMSTREAM subsongs support
-- [PLAYER] FLAC support
-- [PLAYER] Voices control support when exposed by playback libraries (ASAP/OPENMPT/XMP/VGMPLAY/SIDPLAYFP/GME//SNSF/HC/UADE ...)
-- [PLAYER] New Oscilloscope view / individual channels for some formats (mostly VGMPLAY/SIDPLAYFP/GME(spc only)/SNSF/HC/UADE ...)
-- [HVSC] Fixed a bug in title/name parsing from STIL DB
+- [PLAYER] New: FLAC support
+- [PLAYER] New: VGMSTREAM subsongs support
+- [PLAYER] New: Voices control support for some of the formats
+- [PLAYER] New Oscilloscope view / individual channels for some of the formats
+- [DB] Updated to latest versions
+- [UI] Do not recreate samples folder automatically
+- [HVSC] Bugfix / title/name parsing from STIL DB
+- [UI] Stability improvements
 - [UI] Bugfixes / settings management
 
 2.961

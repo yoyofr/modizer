@@ -51,13 +51,17 @@
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
+-(void) adjustViewForMiniplayer:(NSNumber*)value {
+    self.textView.frame=CGRectMake(0,self.textView.frame.origin.y,self.textView.frame.size.width,self.textView.frame.size.height-value.floatValue);
+}
+
+
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	textView.font=[UIFont systemFontOfSize:14];
     [super viewDidLoad];
-    
-    forceReloadCells=false;
+        
     darkMode=false;
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
         if (@available(iOS 12.0, *)) {

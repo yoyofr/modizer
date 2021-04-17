@@ -41,11 +41,32 @@ int found_img;
 static UIAlertView *alertChooseName;
 
 
-@synthesize webView,progressIndicator,backButton,forwardButton,downloadViewController,addressTestField;//,view;
+@synthesize webView,progressIndicator,backButton,forwardButton,downloadViewController,addressTestField;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
 
 #include "MiniPlayerImplementNoTableView.h"
+
+-(void) adjustViewForMiniplayer:(NSNumber*)value {
+}
+
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+        
+        if (bottomConstraint) [self.view removeConstraint:bottomConstraint];
+        if (wasMiniPlayerOn) bottomConstraint = [NSLayoutConstraint
+                                                     constraintWithItem:webView attribute:NSLayoutAttributeBottom
+                                                     relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:
+                                                     NSLayoutAttributeTop multiplier:1.0f constant:0];
+        else  bottomConstraint = [NSLayoutConstraint
+                                  constraintWithItem:webView attribute:NSLayoutAttributeBottom
+                                  relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
+                                  NSLayoutAttributeBottom multiplier:1.0f constant:0];
+        [self.view addConstraint:bottomConstraint];
+    }
+}
 
 -(IBAction) goBookmarks {
     bookmarksVC = [[WB_BookmarksViewController alloc]  initWithNibName:@"BookmarksViewController" bundle:[NSBundle mainBundle]];
@@ -70,6 +91,9 @@ static UIAlertView *alertChooseName;
     }
 }
 
+-(IBAction) goBackRootVC:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 -(IBAction) goBack:(id)sender {
 	if ([webView canGoBack]) [webView goBack];
@@ -356,7 +380,7 @@ static UIAlertView *alertChooseName;
 	if (buttonIndex==1) { //save as folder cover
         if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
         if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-        if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+        if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
@@ -391,11 +415,8 @@ static UIAlertView *alertChooseName;
 	BOOL asdf = [downloadMIMETypes containsObject:MIME];
     
     NSLog(@"Connection : %@",MIME);
-        
-	
+        	
 	if (asdf==NO) {
-        
-        
         r.location=NSNotFound;
 		r=[MIME rangeOfString:@"application/"];
 		if (r.location!=NSNotFound) {
@@ -576,6 +597,7 @@ static UIAlertView *alertChooseName;
 
 -(void) openPopup:(NSString *)msg {
 	CGRect frame;
+    infoDownloadView.layer.zPosition=0xFFFF;
     infoDownloadLbl.text=[NSString stringWithString:msg];
 	if (mPopupAnimation) return;
 	mPopupAnimation=1;	
@@ -589,7 +611,7 @@ static UIAlertView *alertChooseName;
 	[UIView setAnimationDuration:0.5];
 	[UIView setAnimationDelegate:self];
 	frame=infoDownloadView.frame;
-	frame.origin.y=self.view.frame.size.height-64;
+    frame.origin.y=self.view.frame.size.height-64-32;
 	infoDownloadView.frame=frame;
 	[UIView setAnimationDidStopSelector:@selector(closePopup)];
 	[UIView commitAnimations];
@@ -902,41 +924,6 @@ didFinishNavigation:(WKNavigation *)navigation {
     }
 }
 
-- (CGSize)windowSize {
-    __block CGSize size;
-    __block BOOL finished1 = NO;
-    __block BOOL finished2 = NO;
-    //size.width = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] integerValue];
-    //size.height = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerHeight"] integerValue];
-    
-    [self.webView evaluateJavaScript:@"window.innerWidth" completionHandler:^(id _Nullable data, NSError * _Nullable error) {
-            if (data) {
-                //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
-                size.width=[(NSNumber*)data integerValue];
-                //NSLog(@"result: w %f",size.width);
-                finished1=YES;
-            }
-        }];
-
-    
-    [self.webView evaluateJavaScript:@"window.innerHeight" completionHandler:^(id _Nullable data, NSError * _Nullable error) {
-            if (data) {
-                //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
-                size.height=[(NSNumber*)data integerValue];
-                //NSLog(@"result: h %f",size.height);
-                finished2=YES;
-            }
-        }];
-
-    while ((!finished1)||(!finished2))
-        {
-            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-        }
-    
-    
-    return size;
-}
-
 - (CGPoint)scrollOffset {
     __block CGPoint pt;
     __block BOOL finished1 = NO;
@@ -995,10 +982,8 @@ didFinishNavigation:(WKNavigation *)navigation {
 
     CGPoint point = [sender locationInView:self.webView];
     // convert point from view to HTML coordinate system
-    CGSize viewSize = [webView frame].size;
-    CGSize windowSize = [self windowSize];
+    CGFloat f = 1/self.webView.scrollView.zoomScale;
     
-    CGFloat f = windowSize.width / viewSize.width;
     if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 5.) {
         point.x = point.x * f;
         point.y = point.y * f;
@@ -1017,7 +1002,6 @@ didFinishNavigation:(WKNavigation *)navigation {
     //[webView stringByEvaluatingJavaScriptFromString: jsCode];
     [self.webView evaluateJavaScript:jsCode completionHandler:^(id _Nullable data, NSError * _Nullable error) {
                 finished=YES;
-            
         }];
     
     while (!finished)
@@ -1119,6 +1103,9 @@ didFinishNavigation:(WKNavigation *)navigation {
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     
+    bottomConstraint=nil;
+    
+    //self.view.autoresizesSubviews = YES;
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
@@ -1131,10 +1118,32 @@ didFinishNavigation:(WKNavigation *)navigation {
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:waitingView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:waitingView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
+    views = NSDictionaryOfVariableBindings(addressTestField);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[addressTestField(32)]" options:0 metrics:nil views:views]];
+    //adressfield
     
+    addressTestField.translatesAutoresizingMaskIntoConstraints=false;
+    progressIndicator.translatesAutoresizingMaskIntoConstraints=false;
+    toolBar.translatesAutoresizingMaskIntoConstraints=false;
+    
+    CGFloat statusbarHeight;
+    CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
+    statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    topConstraint=[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
+    [self.view addConstraint:topConstraint];
+    
+    //progressbar
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:addressTestField attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    
+    //toolbar
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:progressIndicator attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
     
     // Create the new configuration object to set useful options
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
@@ -1145,54 +1154,24 @@ didFinishNavigation:(WKNavigation *)navigation {
     }
     
 
-    // Set the position - Use the full page, but above my tabBar
-    CGRect frame = self.view.bounds;
-    CGFloat tabBarHeight = 34+4+44;//frame.size.height - self.tabBarController.tabBar.frame.origin.y;
-    //frame.size.height -= tabBarHeight;
-    //frame.origin.y=tabBarHeight;
-
     // Create the new WKWebView
-    webView = [[WKWebView alloc] initWithFrame:frame configuration:configuration];
+    webView = [[ModizerWebView alloc] initWithFrame:CGRectMake(0,0,0,0) configuration:configuration];
     
     //webView.scalesPageToFit = YES;
-    webView.autoresizesSubviews = YES;
-    webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
+    //webView.autoresizesSubviews = YES;
+    //webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     webView.translatesAutoresizingMaskIntoConstraints = NO;
-
     
-    /* Top space to superview Y*/
-    NSLayoutConstraint *topConstraint = [NSLayoutConstraint
-                                                 constraintWithItem:webView attribute:NSLayoutAttributeTop
-                                                 relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
-                                                 NSLayoutAttributeTop multiplier:1.0f constant:34+4+44];
-    /* Bottom space to superview Y*/
-    NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint
-                                                 constraintWithItem:webView attribute:NSLayoutAttributeBottom
-                                                 relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
-                                                 NSLayoutAttributeBottom multiplier:1.0f constant:0];
-    /* Fixed width */
-    NSLayoutConstraint *widthConstraint = [NSLayoutConstraint constraintWithItem:webView
-                                                                       attribute:NSLayoutAttributeWidth
-                                                                       relatedBy:NSLayoutRelationEqual
-                                                                          toItem:self.view
-                                                                       attribute:NSLayoutAttributeWidth
-                                                                      multiplier:1.0
-                                                                        constant:0];
-    /* Fixed height */
-    /*NSLayoutConstraint *heightConstraint = [NSLayoutConstraint constraintWithItem:webView
-                                                                       attribute:NSLayoutAttributeHeight
-                                                                       relatedBy:NSLayoutRelationEqual
-                                                                          toItem:self.view
-                                                                       attribute:NSLayoutAttributeHeight
-                                                                      multiplier:1.0
-                                                                        constant:0];*/
-    [self.view addConstraints:@[widthConstraint,topConstraint,bottomConstraint]];
     // Set the delegate - note this is 'navigationDelegate' not just 'delegate'
     self.webView.navigationDelegate = self;
     
     // Add it to the view
     [self.view addSubview:webView];
     [self.view sendSubviewToBack:webView];
+    
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:toolBar attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    
 
     // Load a blank page
     [webView loadHTMLString:@"<html style='margin:0;padding:0;height:100%;width:100%;background:#fff'><body style='margin:0;padding:0;height:100%;width:100%;background:#fff'></body><html>" baseURL:nil];
@@ -1201,7 +1180,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     
     bookmarksVC=nil;
     
-	self.hidesBottomBarWhenPushed = YES;
+	//self.hidesBottomBarWhenPushed = YES;
     
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
@@ -1259,23 +1238,59 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     return YES;
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+    [super viewWillDisappear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    //if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+}
+
+- (void)viewWillLayoutSubviews {
+    CGFloat statusbarHeight;
+    CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
+    statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
+    //NSLog(@"status bar %f %f",statusBarSize.width, statusBarSize.height);
+    
+    if (topConstraint) [self.view removeConstraint:topConstraint];
+    topConstraint=[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
+    [self.view addConstraint:topConstraint];
+    
+    [super viewWillLayoutSubviews];
+}
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    
-    [super viewWillAppear:animated];
-    
+    //[self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+        
     [self loadBookmarks];
     bookmarksVC=nil;
     
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
     self.navigationController.delegate = self;
     
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    
+    CGFloat safe_top=0;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"11.0")) {
+        if (@available(iOS 11.0, *)) {
+            safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
+        }
+    }
+        
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
@@ -1283,7 +1298,20 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
         wasMiniPlayerOn=false;
     }
     
+    if (bottomConstraint) [self.view removeConstraint:bottomConstraint];
+    if (wasMiniPlayerOn) bottomConstraint = [NSLayoutConstraint
+                                                 constraintWithItem:webView attribute:NSLayoutAttributeBottom
+                                                 relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:
+                                                 NSLayoutAttributeTop multiplier:1.0f constant:0];
+    else  bottomConstraint = [NSLayoutConstraint
+                              constraintWithItem:webView attribute:NSLayoutAttributeBottom
+                              relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
+                              NSLayoutAttributeBottom multiplier:1.0f constant:0];
+    
+    [self.view addConstraint:bottomConstraint];
+    
     [self hideWaiting];
+    [super viewWillAppear:animated];
 }
 // Override to allow orientations other than the default portrait orientation.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {

@@ -586,6 +586,14 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     //TODO: review how to manage: build a new virtual class ?
 }
 
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
+}
+
+
 #pragma mark - UINavigationControllerDelegate
 
 - (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController

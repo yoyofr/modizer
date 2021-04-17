@@ -3025,24 +3025,21 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             mSIDSeekInProgress=1;
                             mSidEmuEngine->fastForward( 100 * 32 );
-                            bool cancelSeek=false;
                             while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
                                 nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                 mCurrentSamples+=(nbBytes/4)*32;
                                 
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mCurrentSamples*100/mSeekSamples]))
-                                
                                 NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
                                 [invo start];
-                                
+                                bool cancelSeek=false;
                                 [invo.result getValue:&cancelSeek];
-                                
                                 if (cancelSeek) {
                                     mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
                                     mSeekSamples=mCurrentSamples;
                                     iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
                                     mNeedSeekTime=iCurrentTime;
-                                    printf("stopped at: %d:%d\n",(((int)iCurrentTime/1000)/60),(((int)iCurrentTime/1000)%60));
+                                    //printf("stopped at: %d:%d\n",(((int)iCurrentTime/1000)/60),(((int)iCurrentTime/1000)%60));
                                     break;
                                 }
                             }
@@ -3058,8 +3055,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 [invo start];
                                 bool result=false;
                                 [invo.result getValue:&result];
-                                                                                                
-                                if (cancelSeek) {
+                                if (result) {
                                     mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
                                     mSeekSamples=mCurrentSamples;
                                     iCurrentTime=mSeekSamples*1000/PLAYBACK_FREQ;
@@ -3155,6 +3151,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 hc_currentSample += howmany;
                                                                 
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",hc_currentSample*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=hc_currentSample;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
                             }
                             //
                             // fine tune
@@ -3181,6 +3188,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 hc_currentSample += howmany;
                                 
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",hc_currentSample*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=hc_currentSample;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
                             }
                         }
                         if (mPlayType==MMP_2SF) { //2SF
@@ -3198,6 +3216,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 xSFPlayer->currentSample += SOUND_BUFFER_SIZE_SAMPLE;
                                                                                                 
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",xSFPlayer->currentSample*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=xSFPlayer->currentSample;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
                             }
                             if (seekSample - xSFPlayer->currentSample > 0)
                             {
@@ -3205,6 +3234,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 xSFPlayer->currentSample = seekSample;
                                                                 
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",xSFPlayer->currentSample*100/seekSample]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    seekSample=xSFPlayer->currentSample;
+                                    iCurrentTime=seekSample*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
                             }
                             
                             //mNeedSeek=0;
@@ -3223,6 +3263,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                                 mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
                                                                 
                                 mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d%%",mVGMSTREAM_decode_pos_samples*100/mVGMSTREAM_seek_needed_samples]))
+                                NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                                [invo start];
+                                bool result=false;
+                                [invo.result getValue:&result];
+                                if (result) {
+                                    mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                                    mVGMSTREAM_seek_needed_samples=mVGMSTREAM_decode_pos_samples;
+                                    iCurrentTime=mVGMSTREAM_seek_needed_samples*1000/PLAYBACK_FREQ;
+                                    mNeedSeekTime=iCurrentTime;
+                                    break;
+                                }
                             }
                             
                             //mNeedSeek=0;
@@ -4167,6 +4218,7 @@ long src_callback_vgmstream(void *cb_data, float **data) {
     fex_type_t type;
     fex_t* fex;
     int arc_size;
+    bool cancelExtract;
     FILE *f;
     NSString *extractFilename,*extractPathFile;
     NSError *err;
@@ -4210,7 +4262,17 @@ long src_callback_vgmstream(void *cb_data, float **data) {
                         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
                         mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d/%d",idx,mdz_ArchiveFilesCnt]))
                         
-                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]]; 
+                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+                        
+                        NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
+                        [invo start];
+                        cancelExtract=false;
+                        [invo.result getValue:&cancelExtract];
+                        if (cancelExtract) {
+                            mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
+                            fclose(f);
+                            break;
+                        }
                         
                         archive_data=(char*)malloc(64*1024*1024); //buffer
                         while (arc_size) {
@@ -6623,6 +6685,10 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
             NSLog(@"Error loading USF");
             mPlayType=0;
             src_delete(src_state);
+            mdz_safe_free(lzu_state->emu_state);
+            mdz_safe_free(usf_info_data);
+            delete lzu_state;
+            lzu_state=NULL;
             return -1;
         }
         usf_set_compare( lzu_state->emu_state, lzu_state->enable_compare );
@@ -8316,8 +8382,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         psf2fs_delete( HC_emulatorExtra );
         HC_emulatorExtra = NULL;
     } else if (HC_type==0x21) {
-        usf_shutdown(lzu_state->emu_state);
-        free(usf_info_data);
+        if (lzu_state) {
+            if (lzu_state->emu_state) usf_shutdown(lzu_state->emu_state);
+            mdz_safe_free(lzu_state->emu_state);
+            delete lzu_state;
+        }
+        lzu_state=NULL;
+        mdz_safe_free(usf_info_data);
     } else if ( HC_type==0x23) {
         snsf_term();
         delete snsf_rom;
@@ -8945,18 +9016,18 @@ extern "C" void adjust_amplification(void);
 //Openmpt
 ///////////////////////////
 -(void) optOMPT_Sampling:(int) mode {
-    int val;
+    int val;    
     switch(mode) {
-        case 0: //no interpolation (zero order hold)
-            val=1;break;
-        case 1: //linear interpolation
-            val=2;break;
-        case 2: //cubic interpolation
-            val=4;break;
-        case 3: //windowed sinc with 8 taps
-            val=8;break;
-        default: //internal default
+        case 0: //internal default
             val=0;break;
+        case 1://no interpolation (zero order hold)
+            val=1;break;
+        case 2: //linear interpolation
+            val=2;break;
+        case 3: //cubic interpolation
+            val=4;break;
+        case 4: //windowed sinc with 8 taps
+            val=8;break;
     }
     optOMPT_SamplingVal=val;
     if (ompt_mod) openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,optOMPT_SamplingVal);

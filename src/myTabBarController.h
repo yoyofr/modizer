@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
 //#import "AboutViewController.h"
-#import "webBrowser.h"
+#import "WebBrowser.h"
 #import "RootViewControllerLocalBrowser.h"
 
 

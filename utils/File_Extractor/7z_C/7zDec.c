@@ -123,6 +123,10 @@ static SRes SzDecodePpmd(CSzCoderInfo *coder, UInt64 inSize, ILookInStream *inSt
 
 #endif
 
+#include <stdio.h>
+#include <time.h>
+
+extern void updateMainLoopC(void);
 
 static SRes SzDecodeLzma(CSzCoderInfo *coder, UInt64 inSize, ILookInStream *inStream,
     Byte *outBuffer, SizeT outSize, ISzAlloc *allocMain)
@@ -136,8 +140,17 @@ static SRes SzDecodeLzma(CSzCoderInfo *coder, UInt64 inSize, ILookInStream *inSt
   state.dicBufSize = outSize;
   LzmaDec_Init(&state);
 
+   // long start_time=clock()/CLOCKS_PER_SEC;
+   // long now;
   for (;;)
   {
+    //TODO: YOYOFR add a check and cancel if requested
+     /* now=clock()/CLOCKS_PER_SEC;
+      if (now-start_time>0) { //check each seconds
+          start_time=now;
+          updateMainLoopC();
+      }*/
+      
     Byte *inBuf = NULL;
     size_t lookahead = (1 << 18);
     if (lookahead > inSize)
