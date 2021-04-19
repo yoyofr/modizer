@@ -524,6 +524,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerMODLAND*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerMODLAND*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerMODLAND*)collectionViewController)->downloadViewController=downloadViewController;
+                    collectionViewController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
@@ -535,6 +536,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerHVSC*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerHVSC*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerHVSC*)collectionViewController)->downloadViewController=downloadViewController;
+                    collectionViewController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
@@ -546,6 +548,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerASMA*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerASMA*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerASMA*)collectionViewController)->downloadViewController=downloadViewController;
+                    collectionViewController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;

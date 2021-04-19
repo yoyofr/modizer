@@ -3417,7 +3417,7 @@ static int shouldRestart=1;
             ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;
             ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-            
+            childController.view.frame=self.view.frame;
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
             
@@ -3447,6 +3447,7 @@ static int shouldRestart=1;
             ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;
             ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
+            childController.view.frame=self.view.frame;
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
             

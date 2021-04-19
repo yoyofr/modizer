@@ -1920,7 +1920,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 ((RootViewControllerASMA*)childController)->mDir1 = mDir1;
                 ((RootViewControllerASMA*)childController)->mDir2 = mDir2;
                 ((RootViewControllerASMA*)childController)->mDir3 = mDir3;
-                
+                childController.view.frame=self.view.frame;
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];
             }

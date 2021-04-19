@@ -8,12 +8,13 @@ Todo/Requested:
 - TODO: replace vgmplay by libvgm
 - TODO: add description for Settings when relevant
 - TODO: add S98 playback library
+- TODO: add WSR playback library
 
 - TODO: .tar.gz support, i.e. tar support (gz ok / fex)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: oscillo => propose also stereo, 2 channels view (for multi voices format)
-return false
+- TODO: tuning of swipe/move detection for miniplayer / screen width
 
 3.0
 �����
@@ -27,7 +28,8 @@ return false
 - [PLAYER] New: Voices control support for some of the formats
 - [PLAYER] New Oscilloscope view / individual channels for some of the formats
 - [DB] Updated to latest versions
-- [UI] Do not recreate samples folder automatically
+- [GLOBAL] Better compatibiltiy with older devices running on iOS 9 (4S, ...)
+- [UI] Option to not recreate samples folder automatically
 - [HVSC] Bugfix / title/name parsing from STIL DB
 - [UI] Stability improvements
 - [UI] Bugfixes / settings management

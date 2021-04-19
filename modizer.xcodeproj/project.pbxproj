@@ -270,6 +270,10 @@
 		5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362D25DBDB8600AA548E /* CoreMedia.framework */; };
 		5918E0AC26177CB1004B85DA /* VoicesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5918E0AA26177CB1004B85DA /* VoicesViewController.mm */; };
 		5918E0AD26177CB1004B85DA /* VoicesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5918E0AA26177CB1004B85DA /* VoicesViewController.mm */; };
+		591A7FBC262C4504001ABB99 /* web-browser-back@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 591A7FBA262C4503001ABB99 /* web-browser-back@2x.png */; };
+		591A7FBD262C4504001ABB99 /* web-browser-back@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 591A7FBA262C4503001ABB99 /* web-browser-back@2x.png */; };
+		591A7FBE262C4504001ABB99 /* web-browser-back.png in Resources */ = {isa = PBXBuildFile; fileRef = 591A7FBB262C4503001ABB99 /* web-browser-back.png */; };
+		591A7FBF262C4504001ABB99 /* web-browser-back.png in Resources */ = {isa = PBXBuildFile; fileRef = 591A7FBB262C4503001ABB99 /* web-browser-back.png */; };
 		591D8E3F25DC63620013E19F /* tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0525DC63620013E19F /* tables.c */; };
 		591D8E4025DC63620013E19F /* libatrac9.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0625DC63620013E19F /* libatrac9.c */; };
 		591D8E4125DC63620013E19F /* huffCodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0725DC63620013E19F /* huffCodes.c */; };
@@ -4480,6 +4484,10 @@
 		591054D525EAC21F00A194FF /* snsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = snsf.xcodeproj; sourceTree = "<group>"; };
 		5918E0A926177CB1004B85DA /* VoicesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoicesViewController.h; sourceTree = "<group>"; };
 		5918E0AA26177CB1004B85DA /* VoicesViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VoicesViewController.mm; sourceTree = "<group>"; };
+		591A7F99262C0EE8001ABB99 /* RootViewControllerWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerWebParser.h; sourceTree = "<group>"; };
+		591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerWebParser.mm; sourceTree = "<group>"; };
+		591A7FBA262C4503001ABB99 /* web-browser-back@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "web-browser-back@2x.png"; sourceTree = "<group>"; };
+		591A7FBB262C4503001ABB99 /* web-browser-back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "web-browser-back.png"; sourceTree = "<group>"; };
 		591D8E0525DC63620013E19F /* tables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tables.c; sourceTree = "<group>"; };
 		591D8E0625DC63620013E19F /* libatrac9.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libatrac9.c; sourceTree = "<group>"; };
 		591D8E0725DC63620013E19F /* huffCodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = huffCodes.c; sourceTree = "<group>"; };
@@ -5786,6 +5794,8 @@
 		336BF216144FF4CA0086700A /* RootViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				591A7F99262C0EE8001ABB99 /* RootViewControllerWebParser.h */,
+				591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */,
 				330F36C717A683FB00EEC84A /* OnlineViewController.h */,
 				330F36C817A683FB00EEC84A /* OnlineViewController.mm */,
 				3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */,
@@ -7193,6 +7203,8 @@
 		CC1E5A2C1200B3B8000A8A4E /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				591A7FBB262C4503001ABB99 /* web-browser-back.png */,
+				591A7FBA262C4503001ABB99 /* web-browser-back@2x.png */,
 				CC1E5A2D1200B3B8000A8A4E /* 02-redo-green.png */,
 				33C722D51691F882001D77A5 /* 02-redo-green@2x.png */,
 				CC1E5A2E1200B3B8000A8A4E /* 02-redo.png */,
@@ -8590,6 +8602,7 @@
 				CC1E6347120423DF000A8A4E /* HowieDavies in Resources */,
 				CC1E6348120423DF000A8A4E /* ImagesMusicSystem in Resources */,
 				CC1E6349120423DF000A8A4E /* Infogrames in Resources */,
+				591A7FBC262C4504001ABB99 /* web-browser-back@2x.png in Resources */,
 				CC1E634A120423DF000A8A4E /* InStereo in Resources */,
 				5966D1DE25CFF0D200520777 /* bach_cs1-1pre.mid in Resources */,
 				CC8A8D4717F9FF5500A56E0C /* Icon-Small-40.png in Resources */,
@@ -8792,6 +8805,7 @@
 				CCB21ED21246C91800A30F62 /* playlist_add@2x.png in Resources */,
 				5966D18325CFF0D100520777 /* reverie of truth.compo.mod in Resources */,
 				59BE93A82600D3F500414A42 /* chargen.c64 in Resources */,
+				591A7FBE262C4504001ABB99 /* web-browser-back.png in Resources */,
 				CCB21EDA1246C9E900A30F62 /* unzoom@2x.png in Resources */,
 				CCB8D97C17F62356008E6A45 /* txtMenu7f_2x.png in Resources */,
 				CCB21EDC1246C9F200A30F62 /* zoom@2x.png in Resources */,
@@ -9115,6 +9129,7 @@
 				5950D8DE25E0F67B00B476B2 /* HowieDavies in Resources */,
 				5950D8DF25E0F67B00B476B2 /* ImagesMusicSystem in Resources */,
 				5950D8E025E0F67B00B476B2 /* Infogrames in Resources */,
+				591A7FBD262C4504001ABB99 /* web-browser-back@2x.png in Resources */,
 				5950D8E125E0F67B00B476B2 /* InStereo in Resources */,
 				5950D8E225E0F67B00B476B2 /* bach_cs1-1pre.mid in Resources */,
 				5950D8E325E0F67B00B476B2 /* Icon-Small-40.png in Resources */,
@@ -9317,6 +9332,7 @@
 				5950D9A625E0F67B00B476B2 /* playlist_add@2x.png in Resources */,
 				5950D9A725E0F67B00B476B2 /* reverie of truth.compo.mod in Resources */,
 				59BE93A92600D3F500414A42 /* chargen.c64 in Resources */,
+				591A7FBF262C4504001ABB99 /* web-browser-back.png in Resources */,
 				5950D9A825E0F67B00B476B2 /* unzoom@2x.png in Resources */,
 				5950D9A925E0F67B00B476B2 /* txtMenu7f_2x.png in Resources */,
 				5950D9AA25E0F67B00B476B2 /* zoom@2x.png in Resources */,
@@ -11297,7 +11313,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";

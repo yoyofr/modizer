@@ -706,7 +706,7 @@ void SID::clock(cycle_count delta_t)
   for (i = 0; i < 3; i++) {
     voice[i].envelope.clock(delta_t);
   }
-
+        
   // Clock and synchronize oscillators.
   // Loop until we reach the current cycle.
   cycle_count delta_t_osc = delta_t;
@@ -751,7 +751,6 @@ void SID::clock(cycle_count delta_t)
     for (i = 0; i < 3; i++) {
       voice[i].wave.synchronize();
     }
-
     delta_t_osc -= delta_t_min;
   }
 

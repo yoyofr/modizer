@@ -97,7 +97,7 @@
             ((RootViewControllerPlaylist*)nowplayingPL)->mDetailPlayerMode=1;
             ((RootViewControllerPlaylist*)nowplayingPL)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
             ((RootViewControllerPlaylist*)nowplayingPL)->currentPlayedEntry=detailViewController.mPlaylist_pos+1;
-            
+            ((RootViewControllerPlaylist*)nowplayingPL).view.frame=self.view.frame;
             // And push the window
             [self.navigationController pushViewController:nowplayingPL animated:YES];
         }

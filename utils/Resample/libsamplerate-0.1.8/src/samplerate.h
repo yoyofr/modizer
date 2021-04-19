@@ -65,7 +65,7 @@ typedef struct
 ** function must return the number of frames that **data points to.
 */
 
-typedef long (*src_callback_t) (void *cb_data, float **data) ;
+typedef int64_t (*src_callback_t) (void *cb_data, float **data) ;
 
 /*
 **	Standard initialisation function : return an anonymous pointer to the

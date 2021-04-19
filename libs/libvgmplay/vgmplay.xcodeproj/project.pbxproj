@@ -853,6 +853,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-DDISABLE_HW_SUPPORT",
 					"-DENABLE_ALL_CORES",
@@ -896,7 +897,6 @@
 					"ym2612_init=VGMym2612_init",
 					"ym2612_update_one=VGMym2612_update_one",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -933,7 +933,6 @@
 					"ym2612_init=VGMym2612_init",
 					"ym2612_update_one=VGMym2612_update_one",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

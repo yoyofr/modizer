@@ -548,6 +548,9 @@ public:
   // SID audio output (16 bits).
   short output();
 
+    int v3;
+    int v2;
+    int v1;
 protected:
   void set_sum_mix();
   void set_w0();
@@ -588,9 +591,9 @@ protected:
   int Vlp_x, Vlp_vc;
   // Filter / mixer inputs.
   int ve;
-  int v3;
-  int v2;
-  int v1;
+  //int v3;
+  //int v2;
+  //int v1;
 
   chip_model sid_model;
 

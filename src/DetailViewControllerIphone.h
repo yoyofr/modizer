@@ -82,7 +82,7 @@ class CGLString;
     
 	ModizMusicPlayer *mplayer;
 	
-	NSString *ratingImg[6];
+	NSString *ratingImg[2];
     
     int mOnlyCurrentEntry;
     int mOnlyCurrentSubEntry;
@@ -109,7 +109,7 @@ class CGLString;
 	IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*btnLoopInf;
 	IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
     IBOutlet BButton *infoButton,*eqButton;
-	IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
+	IBOutlet UIButton *mainRating5,*mainRating5off;
 	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
     IBOutlet UIBarButtonItem *playBarSubRewind,*playBarSubFFwd;
     IBOutlet UIBarButtonItem *pauseBarSubRewind,*pauseBarSubFFwd;
@@ -186,10 +186,6 @@ class CGLString;
 @property bool bShowVC,bShowEQ;
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
 
--(IBAction)pushedRating1;
--(IBAction)pushedRating2;
--(IBAction)pushedRating3;
--(IBAction)pushedRating4;
 -(IBAction)pushedRating5;
 
 -(IBAction)changeLoopMode;
@@ -269,7 +265,7 @@ class CGLString;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *sc_allowPopup;
 @property (nonatomic, retain) IBOutlet UIButton *btnChangeTime;
 @property (nonatomic, retain) IBOutlet UIView *mainView,*infoView;
-@property (nonatomic, retain) IBOutlet UIButton *mainRating1,*mainRating1off,*mainRating2,*mainRating2off,*mainRating3,*mainRating3off,*mainRating4,*mainRating4off,*mainRating5,*mainRating5off;
+@property (nonatomic, retain) IBOutlet UIButton *mainRating5,*mainRating5off;
 @property (nonatomic, retain) IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
 @property (nonatomic, retain) IBOutlet BButton *infoButton,*eqButton;
 @property (nonatomic, retain) IBOutlet UIButton *oglButton;

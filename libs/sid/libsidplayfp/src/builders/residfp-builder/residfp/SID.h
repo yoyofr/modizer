@@ -319,7 +319,6 @@ extern "C" {
 #include "../../../../src/ModizerVoicesData.h"
 extern char mSIDSeekInProgress;
 }
-
 //TODO:  MODIZER changes end / YOYOFR
 
 RESID_INLINE

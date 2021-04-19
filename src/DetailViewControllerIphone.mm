@@ -168,7 +168,7 @@ static int display_length_mode=0;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
 @synthesize playBarSubRewind,playBarSubFFwd,pauseBarSubRewind,pauseBarSubFFwd;
 @synthesize mainView,infoView;
-@synthesize mainRating1,mainRating1off,mainRating2,mainRating2off,mainRating3,mainRating3off,mainRating4,mainRating4off,mainRating5,mainRating5off;
+@synthesize mainRating5,mainRating5off;
 @synthesize mShouldHaveFocus,mHasFocus,mScaleFactor;
 @synthesize backInfo;
 @synthesize mPlaylist_pos,mPlaylist_size;
@@ -518,24 +518,13 @@ static int display_length_mode=0;
 }
 
 - (void)showRating:(int)rating {
-	mainRating1.hidden=TRUE;mainRating2.hidden=TRUE;mainRating3.hidden=TRUE;mainRating4.hidden=TRUE;mainRating5.hidden=TRUE;
-	mainRating1off.hidden=FALSE;mainRating2off.hidden=FALSE;mainRating3off.hidden=FALSE;mainRating4off.hidden=FALSE;mainRating5off.hidden=FALSE;
-	
-	switch (rating) {
-		case 5:
-			mainRating5.hidden=FALSE;mainRating5off.hidden=TRUE;
-		case 4:
-			mainRating4.hidden=FALSE;mainRating4off.hidden=TRUE;
-		case 3:
-			mainRating3.hidden=FALSE;mainRating3off.hidden=TRUE;
-		case 2:
-			mainRating2.hidden=FALSE;mainRating2off.hidden=TRUE;
-		case 1:
-			mainRating1.hidden=FALSE;mainRating1off.hidden=TRUE;
-		case 0:
-			break;
-			
-	}
+    if (rating) {
+        mainRating5.hidden=FALSE;
+        mainRating5off.hidden=TRUE;
+    } else {
+        mainRating5.hidden=TRUE;
+        mainRating5off.hidden=FALSE;
+    }
 }
 
 -(void) pushedRatingCommon:(signed char)rating{
@@ -613,31 +602,10 @@ static int display_length_mode=0;
 }
 
 
--(IBAction)pushedRating1{
-	if (!mPlaylist_size) return;
-	
-	if (mRating==1) mRating=0;
-	else mRating=1;
-	[self pushedRatingCommon:mRating];
-}
--(IBAction)pushedRating2{
-	if (!mPlaylist_size) return;
-	mRating=2;
-	[self pushedRatingCommon:mRating];
-}
--(IBAction)pushedRating3{
-	if (!mPlaylist_size) return;
-	mRating=3;
-	[self pushedRatingCommon:mRating];
-}
--(IBAction)pushedRating4{
-	if (!mPlaylist_size) return;
-	mRating=4;
-	[self pushedRatingCommon:mRating];
-}
 -(IBAction)pushedRating5{
 	if (!mPlaylist_size) return;
-	mRating=5;
+    if (mRating==5) mRating=0;
+    else mRating=5;
 	[self pushedRatingCommon:mRating];
 }
 
@@ -782,6 +750,8 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optSIDForceLoop:settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDClock:settings[SID_CLOCK].detail.mdz_boolswitch.switch_value];
         [mplayer optSIDModel:settings[SID_MODEL].detail.mdz_boolswitch.switch_value];
+        [mplayer optSIDEngine:(char)(settings[SID_Engine].detail.mdz_switch.switch_value)];
+        [mplayer optSIDInterpolation:(char)(settings[SID_Interpolation].detail.mdz_switch.switch_value)];
 
         if (settings[SID_SecondSIDOn].detail.mdz_boolswitch.switch_value) {
             long x = strtol(settings[SID_SecondSIDAddress].detail.mdz_textbox.text, 0, 0);
@@ -2144,7 +2114,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	// load module
 
-	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self])) {
+	if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:-1 singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart])) {
 		//error while loading
         
         if ( [mplayer isArchive] &&
@@ -2156,7 +2126,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 [mplayer selectNextArcEntry];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
+                retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart];
             } while (retcode);
         }
         
@@ -2173,7 +2143,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
 
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self])) {
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart])) {
                 //error while loading
                 if ( [mplayer isArchive] &&
                     ([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1) &&
@@ -2184,7 +2154,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                         [mplayer selectNextArcEntry];
                         if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]) break;
                         mRestart_arc=[mplayer getArcIndex];
-                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value  archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
+                        retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value  archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart];
                     } while (retcode);
                     
                 }
@@ -2520,7 +2490,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         mOnlyCurrentEntry=1;
     }
 
-	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self])) {
+	if ((retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:0 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart])) {
 		
         //error while loading
         //if it is an archive, try to load next entry until end or valid one reached
@@ -2532,7 +2502,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             do {
                 [mplayer selectNextArcEntry];
                 mRestart_arc=[mplayer getArcIndex];
-                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
+                retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart];
                 if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
             } while (retcode);
         }
@@ -2554,13 +2524,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [mplayer Stop]; //deallocate relevant items
             mRestart_arc=arc4random()%[mplayer getArcEntriesCnt];
 
-            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self])) {
+            if ((retcode=[mplayer LoadModule:filePath defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry  singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart])) {
                 //error while loading
                 
                 do {
                     [mplayer selectNextArcEntry];
                     mRestart_arc=[mplayer getArcIndex];
-                    retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self];
+                    retcode=[mplayer LoadModule:filePathTmp defaultMODPLAYER:settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value defaultSAPPLAYER:settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value defaultVGMPLAYER:settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value archiveMode:1 archiveIndex:mRestart_arc singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart];
                     if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) break;
                 } while (retcode);
                 
@@ -2614,7 +2584,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     //Restart management
     if (mRestart) {
-        mRestart=0;
+        //mRestart=0;
         self.pauseBarSub.hidden=YES;
         self.playBarSub.hidden=YES;
         self.pauseBar.hidden=YES;
@@ -2654,7 +2624,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         if ( ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&(mOnlyCurrentEntry==0))|| ([mplayer isMultiSongs]&&(mOnlyCurrentSubEntry==0))) self.pauseBarSub.hidden=NO;
         else self.pauseBar.hidden=NO;
         [self updateBarPos];
-        mRestart=0;
+        //mRestart=0;
         [mplayer PlaySeek:mPlayingPosRestart subsong:mRestart_sub];
         if (mPlayingPosRestart) {
             mPlayingPosRestart=0;
@@ -2852,6 +2822,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         nowplayingPL.currentPlayedEntry=mPlaylist_pos;
         [nowplayingPL.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }
+    mRestart=0;
 	
 	return TRUE;
 }
@@ -2982,16 +2953,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             btnShowArcList.frame = CGRectMake(mDevice_ww-36*2,0+48,32,32);
             btnShowVoices.frame = CGRectMake(mDevice_ww-36*3,0+48,32,32);
 			
-			mainRating1.frame = CGRectMake(130+2,3+48+4,20,20);
-			mainRating2.frame = CGRectMake(130+24+2,3+48+4,20,20);
-			mainRating3.frame = CGRectMake(130+24*2+2,3+48+4,20,20);
-			mainRating4.frame = CGRectMake(130+24*3+2,3+48+4,20,20);
-			mainRating5.frame = CGRectMake(130+24*4+2,3+48+4,20,20);
-			mainRating1off.frame = CGRectMake(130+2,3+48+4,20,20);
-			mainRating2off.frame = CGRectMake(130+24+2,3+48+4,20,20);
-			mainRating3off.frame = CGRectMake(130+24*2+2,3+48+4,20,20);
-			mainRating4off.frame = CGRectMake(130+24*3+2,3+48+4,20,20);
-			mainRating5off.frame = CGRectMake(130+24*4+2,3+48+4,20,20);
+			mainRating5.frame = CGRectMake(130+2,3+48+4,20,20);
+			mainRating5off.frame = CGRectMake(130+2,3+48+4,20,20);
 			
 			infoButton.frame = CGRectMake(mDevice_ww-40,4,36,36);
             eqButton.frame = CGRectMake(mDevice_ww-40-40,4,36,36);
@@ -3215,16 +3178,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 				buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
 				btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
                 
-                mainRating1.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
-                mainRating2.frame = CGRectMake(xofs+6+24+2,yofs+42+2,20,20);
-                mainRating3.frame = CGRectMake(xofs+6+24*2+2,yofs+42+2,20,20);
-                mainRating4.frame = CGRectMake(xofs+6+24*3+2,yofs+42+2,20,20);
-                mainRating5.frame = CGRectMake(xofs+6+24*4+2,yofs+42+2,20,20);
-                mainRating1off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
-                mainRating2off.frame = CGRectMake(xofs+6+24+2,yofs+42+2,20,20);
-                mainRating3off.frame = CGRectMake(xofs+6+24*2+2,yofs+42+2,20,20);
-                mainRating4off.frame = CGRectMake(xofs+6+24*3+2,yofs+42+2,20,20);
-                mainRating5off.frame = CGRectMake(xofs+6+24*4+2,yofs+42+2,20,20);
+                mainRating5.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
+                mainRating5off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
                                 
                 btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
                 btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
@@ -4504,11 +4459,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	/**/
 	
 	ratingImg[0] = @"rating0.png";
-	ratingImg[1] = @"rating1.png";
-	ratingImg[2] = @"rating2.png";
-	ratingImg[3] = @"rating3.png";
-	ratingImg[4] = @"rating4.png";
-	ratingImg[5] = @"rating5.png";
+	ratingImg[1] = @"rating5.png";
 	
 	for (int i=0;i<3;i++) viewTapInfoStr[i]=NULL;
 	

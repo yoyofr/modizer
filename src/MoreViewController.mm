@@ -378,6 +378,7 @@
         case 0://About
             //AboutViewController *aboutVC = [[[AboutViewController alloc]  initWithNibName:@"AboutViewController" bundle:[NSBundle mainBundle]] autorelease];
             // And push the window
+            aboutVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:aboutVC animated:YES];
             break;
         case 1://Mail support
@@ -392,13 +393,20 @@
             NSString *strmail=[NSString stringWithFormat:@"%@%@---------------------------------------\n\n%@:\n",MODIZER_SUPPORT_EMAIL,strSystemDetails,NSLocalizedString(@"[Please describe your request below]",@"")];
             NSString * encodedString = [strmail stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
             UIApplication *application = [UIApplication sharedApplication];
+            
+            if (@available(iOS 10.0, *)) {
                 [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];
+            } else {
+                [application openURL:[NSURL URLWithString: encodedString]];
+            }
+            
         }
             break;
         case 2://Settings
             settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
             settingsVC->detailViewController=detailViewController;
             settingsVC.title=NSLocalizedString(@"General Settings",@"");
+            settingsVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:settingsVC animated:YES];
             break;
         case 3://Maintenance
@@ -406,9 +414,11 @@
             mntVC->detailViewController=detailViewController;
             mntVC->rootVC=rootVC;
             mntVC.title=NSLocalizedString(@"Maintenance",@"");
+            mntVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:mntVC animated:YES];
             break;
         case 4://downloads
+            downloadViewController.view.frame=self.view.frame;
             [self.navigationController pushViewController:downloadViewController animated:YES];
             break;
             

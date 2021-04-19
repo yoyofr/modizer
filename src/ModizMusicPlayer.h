@@ -103,7 +103,7 @@ enum MMP_PLAYER_TYPE {
 	unsigned int mPlayType;
 	int mp_datasize,numChannels,numVoicesChannels;
     int mLoopMode; //0:off, 1:infinite
-    long mCurrentSamples,mTgtSamples;
+    int64_t mCurrentSamples,mTgtSamples;
     NSString *mod_currentfile;
     NSString *mod_currentext;
 
@@ -178,7 +178,7 @@ enum MMP_PLAYER_TYPE {
 	int mQueueIsBeingStopped;
 };
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
-@property long mCurrentSamples,mTgtSamples;
+@property int64_t mCurrentSamples,mTgtSamples;
 @property int optForceMono;
 @property unsigned int mPlayType;
 @property int mp_datasize,mPatternDataAvail;
@@ -255,7 +255,7 @@ enum MMP_PLAYER_TYPE {
 -(void) Play;
 -(void) PlaySeek:(int)startPos subsong:(int)subsong;
 -(int) isAcceptedFile:(NSString*)_filePath;
--(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC;
+-(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting;
 
 -(float) getIphoneVolume;
 -(void) setIphoneVolume:(float) vol;
@@ -306,6 +306,8 @@ enum MMP_PLAYER_TYPE {
 -(void) optSIDFilter:(int)onoff;
 -(void) optSIDClock:(int)clockMode;
 -(void) optSIDModel:(int)modelMode;
+-(void) optSIDEngine:(char)engine;
+-(void) optSIDInterpolation:(char)mode;
 
 -(void) optADPLUG:(int)opltype;
 

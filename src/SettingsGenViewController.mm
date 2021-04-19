@@ -382,6 +382,8 @@ void optGSFChangedC(id param) {
     /////////////////////////////////////
     //SID
     /////////////////////////////////////
+    settings[SID_Engine].detail.mdz_boolswitch.switch_value=1;
+    settings[SID_Interpolation].detail.mdz_switch.switch_value=2;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     settings[SID_CLOCK].detail.mdz_switch.switch_value=0;
@@ -1472,6 +1474,31 @@ void optGSFChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_SID].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_SID].sub_family=MDZ_SETTINGS_FAMILY_SID;
     
+    settings[SID_Engine].type=MDZ_SWITCH;
+    settings[SID_Engine].label=(char*)"Engine";
+    settings[SID_Engine].description=NULL;
+    settings[SID_Engine].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_Engine].sub_family=0;
+    settings[SID_Engine].callback=&optSIDChangedC;
+    settings[SID_Engine].detail.mdz_switch.switch_value=1;
+    settings[SID_Engine].detail.mdz_switch.switch_value_nb=2;
+    settings[SID_Engine].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_Engine].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_Engine].detail.mdz_switch.switch_labels[0]=(char*)"ReSID";
+    settings[SID_Engine].detail.mdz_switch.switch_labels[1]=(char*)"ReSIDFP";
+    
+    settings[SID_Interpolation].type=MDZ_SWITCH;
+    settings[SID_Interpolation].label=(char*)"Interpolation";
+    settings[SID_Interpolation].description=NULL;
+    settings[SID_Interpolation].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_Interpolation].sub_family=0;
+    settings[SID_Interpolation].callback=&optSIDChangedC;
+    settings[SID_Interpolation].detail.mdz_switch.switch_value=2;
+    settings[SID_Interpolation].detail.mdz_switch.switch_value_nb=3;
+    settings[SID_Interpolation].detail.mdz_switch.switch_labels=(char**)malloc(settings[SID_Interpolation].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_Interpolation].detail.mdz_switch.switch_labels[0]=(char*)"Fast";
+    settings[SID_Interpolation].detail.mdz_switch.switch_labels[1]=(char*)"Med";
+    settings[SID_Interpolation].detail.mdz_switch.switch_labels[2]=(char*)"Best";
+    
     settings[SID_Filter].type=MDZ_BOOLSWITCH;
     settings[SID_Filter].label=(char*)"Filter";
     settings[SID_Filter].description=NULL;
@@ -1752,7 +1779,7 @@ void optGSFChangedC(id param) {
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+    //if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -2182,6 +2209,7 @@ void optGSFChangedC(id param) {
         settingsVC->detailViewController=detailViewController;
         settingsVC.title=NSLocalizedString(([NSString stringWithFormat:@"%s",settings[cur_settings_idx[indexPath.section]].label]),@"");
         settingsVC->current_family=settings[cur_settings_idx[indexPath.section]].sub_family;
+        settingsVC.view.frame=self.view.frame;
         [self.navigationController pushViewController:settingsVC animated:YES];
     }
 }

@@ -1477,7 +1477,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [self.tableView reloadData];
 }
 
-
 -(void) viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
@@ -2578,6 +2577,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
             ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
+            childController.view.frame=self.view.frame;
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];	
             keys=nil;
@@ -2606,7 +2606,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 ((RootViewControllerMODLAND*)childController)->modland_browse_mode=modland_browse_mode;
                 ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
                 ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
-                
+                childController.view.frame=self.view.frame;
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];
                 
@@ -2673,7 +2673,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     
                     ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
-                    
+                    childController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
                     
@@ -2767,6 +2767,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             
                             ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
                             ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
+                            childController.view.frame=self.view.frame;
                             // And push the window
                             [self.navigationController pushViewController:childController animated:YES];
                             

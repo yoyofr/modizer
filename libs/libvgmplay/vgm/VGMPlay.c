@@ -1937,7 +1937,7 @@ INLINE UINT32 MulDivRound(UINT64 Number, UINT64 Numerator, UINT64 Denominator)
 	return (UINT32)((Number * Numerator + Denominator / 2) / Denominator);
 }
 
-UINT32 CalcSampleMSec(UINT64 Value, UINT8 Mode)
+UINT32 CalcSampleMSec(UINT32 Value, UINT8 Mode)
 {
 	// Mode:
 	//	Bit 0 (01):	Calculation Mode
@@ -1950,8 +1950,8 @@ UINT32 CalcSampleMSec(UINT64 Value, UINT8 Mode)
 	UINT32 PbMul;
 	UINT32 PbDiv;
 	UINT32 RetVal;
-	
-	if (! (Mode & 0x02))
+    
+    if (! (Mode & 0x02))
 	{
 		SmplRate = SampleRate;
 		PbMul = 1;

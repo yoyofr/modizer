@@ -22,6 +22,7 @@
 #ifndef RESID_SID_H
 #define RESID_SID_H
 
+
 #include "resid-config.h"
 #include "voice.h"
 #if NEW_8580_FILTER
@@ -193,7 +194,8 @@ RESID_INLINE
 void SID::clock()
 {
   int i;
-
+    
+    
   // Clock amplitude modulators.
   for (i = 0; i < 3; i++) {
     voice[i].envelope.clock();
@@ -219,7 +221,7 @@ void SID::clock()
 
   // Clock external filter.
   extfilt.clock(filter.output());
-
+    
   // Pipelined writes on the MOS8580.
   if (unlikely(write_pipeline)) {
     write();

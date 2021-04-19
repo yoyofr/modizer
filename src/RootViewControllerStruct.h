@@ -65,3 +65,11 @@ typedef struct {
 	signed char rating;
 	char channels_nb;
 } t_dbHVSC_browse_entry;
+
+typedef struct {
+    NSString *label;
+    NSString *fullpath;
+    int filesize;
+    signed char downloaded;
+    signed char isFile;
+} t_dbWEB_browse_entry;

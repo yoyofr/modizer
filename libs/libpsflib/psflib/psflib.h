@@ -27,7 +27,7 @@ typedef struct psf_file_callbacks
     int    (* fclose)(void * handle);
 
     /* returns current file offset */
-    long   (* ftell )(void * handle);
+    int64_t   (* ftell )(void * handle);
 } psf_file_callbacks;
 
 /* Receives exe and reserved bodies, with deepest _lib->_lib->_lib etc head first, followed

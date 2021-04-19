@@ -259,7 +259,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
-                    
+                    childController.view.frame=self.view.frame;
                     keys=nil;
                     list=nil;
                     mFreePlaylist=1;
@@ -3191,7 +3191,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
-            
+            childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
             mFreePlaylist=1;
@@ -3214,7 +3214,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_MOSTPLAYED;
-            
+            childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
             mFreePlaylist=1;
@@ -3237,7 +3237,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_FAVORITES;
-            
+            childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
             mFreePlaylist=1;
@@ -3257,7 +3257,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
-            
+            childController.view.frame=self.view.frame;
             keys=nil;
             list=nil;
             mFreePlaylist=1;
@@ -3290,6 +3290,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                 ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                 ((RootViewControllerPlaylist*)childController)->show_playlist=0;
+                childController.view.frame=self.view.frame;
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];
             } else if (row==1 ){ //playlist actions
@@ -3400,6 +3401,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+                    childController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
                     
@@ -3424,6 +3426,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+                    childController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
                     

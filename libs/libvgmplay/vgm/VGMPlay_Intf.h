@@ -33,7 +33,7 @@ void CloseVGMFile(void);
 
 void FreeGD3Tag(GD3_TAG* TagData);
 UINT32 GetVGMFileInfo(const char* FileName, VGM_HEADER* RetVGMHead, GD3_TAG* RetGD3Tag);
-UINT32 CalcSampleMSec(UINT64 Value, UINT8 Mode);
+UINT32 CalcSampleMSec(UINT32 Value, UINT8 Mode);
 UINT32 CalcSampleMSecExt(UINT64 Value, UINT8 Mode, VGM_HEADER* FileHead);
 const char* GetChipName(UINT8 ChipID);
 const char* GetAccurateChipName(UINT8 ChipID, UINT8 SubType);

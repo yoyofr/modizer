@@ -5,10 +5,18 @@
 //  Created by Yohann Magnien on 12/04/2021.
 //
 
+int gesture_swipe_min_vel;
+int gesture_swipe_min_trans;
+int gesture_move_sub_min_trans;
+int gesture_move_file_min_trans;
 #define SWIPE_MIN_VELOCITY 500
 #define SWIPE_MIN_TRANSLATION 50
 #define TRIGGER_SUB_MIN_TRANSLATION 100
 #define TRIGGER_ENTRY_MIN_TRANSLATION 150
+#define TRIGGER_SUB_MIN_WIDTH_RATIO 0.25f
+#define TRIGGER_ENTRY_MIN_WIDTH_RATIO 0.5f
+
+#define LABEL_PREVNEXTENTRY_OFFSET 100
 
 #import "ModizerConstants.h"
 #import "MiniPlayerVC.h"
@@ -80,6 +88,7 @@
 }
 
 -(void) pushedGoPlayer {
+    detailVC.view.frame=self.view.frame;
     [self.parentViewController performSelector:@selector(goPlayer)];
 }
 
@@ -121,6 +130,8 @@
     float alpha,alpha2;
     bool bEntryInsteadOfSub=false;
     CGPoint translation = [gesture translationInView:gesture.view];
+    
+    
      
     switch (gesture.state) {
         case UIGestureRecognizerStateBegan:
@@ -128,6 +139,12 @@
             org_centerx=labelMain.center.x;
             orgPrev_centerx=labelPrev.center.x;
             orgNext_centerx=labelNext.center.x;
+            
+            gesture_swipe_min_vel=SWIPE_MIN_VELOCITY;
+            gesture_swipe_min_trans=SWIPE_MIN_TRANSLATION;
+            gesture_move_sub_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_SUB_MIN_WIDTH_RATIO,TRIGGER_SUB_MIN_TRANSLATION);
+            gesture_move_file_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_ENTRY_MIN_WIDTH_RATIO,TRIGGER_ENTRY_MIN_TRANSLATION);
+            
             break;
         case UIGestureRecognizerStateChanged:
             // move label
@@ -137,12 +154,20 @@
             } else {
                 if (cur_velocity.x<max_velocity.x) max_velocity.x=cur_velocity.x;
             }
+            
+            labelMain.center = CGPointMake(labelMain.center.x + translation.x, labelMain.center.y);
+            labelSub.center = CGPointMake(labelSub.center.x + translation.x, labelSub.center.y);
+            labelPrev.center= CGPointMake(labelPrev.center.x + translation.x, labelPrev.center.y);
+            labelNext.center= CGPointMake(labelNext.center.x + translation.x, labelNext.center.y);
+            labelPrevEntry.center= CGPointMake(labelPrevEntry.center.x + translation.x, labelPrevEntry.center.y);
+            labelNextEntry.center= CGPointMake(labelNextEntry.center.x + translation.x, labelNextEntry.center.y);
+            
             translationX=org_centerx-labelMain.center.x;
-            alpha=(float)translationX*1.0f/(TRIGGER_SUB_MIN_TRANSLATION*2);
+            alpha=(float)translationX*1.0f/(gesture_move_sub_min_trans*2);
             if (alpha<0) alpha=-alpha;
             if (alpha>0.75f) alpha=0.75f;
             
-            if ((translationX<-TRIGGER_ENTRY_MIN_TRANSLATION)||(translationX>TRIGGER_ENTRY_MIN_TRANSLATION)) {
+            if ((translationX<-gesture_move_file_min_trans)||(translationX>gesture_move_file_min_trans)) {
                 alpha2=1;
             } else {
                 alpha2=0;
@@ -154,13 +179,8 @@
             labelNextEntry.alpha=(0.25f+alpha)*alpha2;
             labelMain.alpha=(1-alpha);
             labelSub.alpha=(1-alpha);
-                                                
-            labelMain.center = CGPointMake(labelMain.center.x + translation.x, labelMain.center.y);
-            labelSub.center = CGPointMake(labelSub.center.x + translation.x, labelSub.center.y);
-            labelPrev.center= CGPointMake(labelPrev.center.x + translation.x, labelPrev.center.y);
-            labelNext.center= CGPointMake(labelNext.center.x + translation.x, labelNext.center.y);
-            labelPrevEntry.center= CGPointMake(labelPrevEntry.center.x + translation.x, labelPrevEntry.center.y);
-            labelNextEntry.center= CGPointMake(labelNextEntry.center.x + translation.x, labelNextEntry.center.y);
+                        
+            //NSLog(@"current trans X: %d / %d",translationX,gesture_move_file_min_trans);
             break;
         case UIGestureRecognizerStateFailed:
         case UIGestureRecognizerStateCancelled:
@@ -169,14 +189,14 @@
             
             translationX=org_centerx-labelMain.center.x;
                         
-            if (translationX>TRIGGER_ENTRY_MIN_TRANSLATION) bEntryInsteadOfSub=true;
-            if (translationX<-TRIGGER_ENTRY_MIN_TRANSLATION) bEntryInsteadOfSub=true;
+            if (translationX>gesture_move_file_min_trans) bEntryInsteadOfSub=true;
+            if (translationX<-gesture_move_file_min_trans) bEntryInsteadOfSub=true;
             
             //NSLog(@"trX: %d, max velocity %f",translationX,(float)(max_velocity.x));
-            if (translationX>TRIGGER_SUB_MIN_TRANSLATION) [self swipeLeft:bEntryInsteadOfSub];
-            else if (translationX<-TRIGGER_SUB_MIN_TRANSLATION) [self swipeRight:bEntryInsteadOfSub];
-            else if ((translationX<-SWIPE_MIN_TRANSLATION)&&(max_velocity.x>SWIPE_MIN_VELOCITY)) [self swipeRight:bEntryInsteadOfSub];
-            else if ((translationX>SWIPE_MIN_TRANSLATION)&&(max_velocity.x<-SWIPE_MIN_VELOCITY)) [self swipeLeft:bEntryInsteadOfSub];
+            if (translationX>gesture_move_sub_min_trans) [self swipeLeft:bEntryInsteadOfSub];
+            else if (translationX<-gesture_move_sub_min_trans) [self swipeRight:bEntryInsteadOfSub];
+            else if ((translationX>gesture_swipe_min_trans)&&(max_velocity.x<-gesture_swipe_min_vel)) [self swipeLeft:bEntryInsteadOfSub];
+            else if ((translationX<-gesture_swipe_min_trans)&&(max_velocity.x>gesture_swipe_min_vel)) [self swipeRight:bEntryInsteadOfSub];
             
             [UIView beginAnimations:@"miniplayer_recenterinfoview" context:nil];
             [UIView setAnimationDelegate:self];
@@ -276,22 +296,31 @@
     [coverView setImage:coverImg];
 }
 
+- (void)viewDidLayoutSubviews {
+    gesture_swipe_min_vel=SWIPE_MIN_VELOCITY;
+    gesture_swipe_min_trans=SWIPE_MIN_TRANSLATION;
+    gesture_move_sub_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_SUB_MIN_WIDTH_RATIO,TRIGGER_SUB_MIN_TRANSLATION);
+    gesture_move_file_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_ENTRY_MIN_WIDTH_RATIO,TRIGGER_ENTRY_MIN_TRANSLATION);
+}
+
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     songInfoView.frame=CGRectMake(50,0,(size.width-50-150),48);
     labelMain.frame=CGRectMake(0,0,(size.width-50-150),24);
     labelSub.frame=CGRectMake(0,24,(size.width-50-150),24);
         
-    labelPrev.frame=CGRectMake(-100-[labelPrev.text sizeWithFont:labelPrev.font].width/2,0,100,48);
-    labelPrevEntry.frame=CGRectMake(-100-[labelPrevEntry.text sizeWithFont:labelPrevEntry.font].width/2,0,100,48);
-    labelNextEntry.frame=CGRectMake((size.width-50-150)+[labelNextEntry.text sizeWithFont:labelNextEntry.font].width/2,0,100,48);
-    labelNext.frame=CGRectMake((size.width-50-150)+[labelNext.text sizeWithFont:labelNext.font].width/2,0,100,48);
+    labelPrev.frame=CGRectMake(-[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,0,[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,48);
+    labelPrevEntry.frame=CGRectMake(-[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,0,[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,48);
+    labelNextEntry.frame=CGRectMake((size.width-50-150),0,[labelNextEntry.text sizeWithAttributes:@{NSFontAttributeName:labelNextEntry.font}].width,48);
+    labelNext.frame=CGRectMake((size.width-50-150),0,[labelNext.text sizeWithAttributes:@{NSFontAttributeName:labelNext.font}].width,48);
     
     labelTime.frame=CGRectMake(size.width-100,0,50,48);
     labelPlaylist.frame=CGRectMake(size.width-150,0,50,48);
+    
+    
     [self refreshCoverLabels];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
     darkMode=false;
@@ -316,7 +345,7 @@
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
             for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
                 if ([scene isKindOfClass:[UIWindowScene class]]) {
-                    UIWindowScene* windowScene = (UIWindowScene*) scene;
+                    //UIWindowScene* windowScene = (UIWindowScene*) scene;
                     ww=MODIZER_MACM1_WIDTH_MIN;
                 }
             }
@@ -332,7 +361,7 @@
     
     labelPrev=[[UILabel alloc] init];
     labelPrev.text=NSLocalizedString(@"Previous",@"");
-    labelPrev.frame=CGRectMake(-120-[labelPrev.text sizeWithFont:labelPrev.font].width/2,0,100,48);
+    labelPrev.frame=CGRectMake(-[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,0,[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,48);
     [labelPrev setFont:[UIFont italicSystemFontOfSize:12]];
     if (darkMode) labelPrev.textColor = [UIColor whiteColor];
     else labelPrev.textColor = [UIColor blackColor];
@@ -347,7 +376,7 @@
     
     labelPrevEntry=[[UILabel alloc] init];
     labelPrevEntry.text=NSLocalizedString(@"Previous file",@"");
-    labelPrevEntry.frame=CGRectMake(-120-[labelPrevEntry.text sizeWithFont:labelPrevEntry.font].width/2,0,100,48);
+    labelPrevEntry.frame=CGRectMake(-[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,0,[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,48);
     [labelPrevEntry setFont:myFont];
     if (darkMode) labelPrevEntry.textColor = [UIColor whiteColor];
     else labelPrevEntry.textColor = [UIColor blackColor];
@@ -357,7 +386,7 @@
     
     labelNextEntry=[[UILabel alloc] init];
     labelNextEntry.text=NSLocalizedString(@"Next file",@"");
-    labelNextEntry.frame=CGRectMake((ww-50-150)+[labelNextEntry.text sizeWithFont:labelNextEntry.font].width/2,0,100,48);
+    labelNextEntry.frame=CGRectMake((ww-50-150),0,[labelNextEntry.text sizeWithAttributes:@{NSFontAttributeName:labelNextEntry.font}].width,48);
     
     
     [labelNextEntry setFont:myFont];
@@ -369,7 +398,7 @@
     
     labelNext=[[UILabel alloc] init];
     labelNext.text=NSLocalizedString(@"Next",@"");
-    labelNext.frame=CGRectMake((ww-50-150)+[labelNext.text sizeWithFont:labelNext.font].width/2,0,100,48);
+    labelNext.frame=CGRectMake((ww-50-150),0,[labelNext.text sizeWithAttributes:@{NSFontAttributeName:labelNext.font}].width,48);
     [labelNext setFont:[UIFont italicSystemFontOfSize:12]];
     if (darkMode) labelNext.textColor = [UIColor whiteColor];
     else labelNext.textColor = [UIColor blackColor];
@@ -432,6 +461,9 @@
     gestureAreaView.translatesAutoresizingMaskIntoConstraints=false;
     [gestureAreaView setBackgroundColor:[UIColor clearColor]];
     [mpview addSubview:gestureAreaView];
+    
+    
+    
     // new gesture recognizer
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedGoPlayer)];
     // Set required taps and number of touches
@@ -478,6 +510,7 @@
     
     
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
+    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:labelMain attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
     

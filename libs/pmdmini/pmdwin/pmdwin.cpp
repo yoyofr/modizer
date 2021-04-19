@@ -8453,7 +8453,7 @@ int WINAPI PMDWIN::getpos2(void)
 //=============================================================================
 //	曲の長さの取得(pos : ms)
 //=============================================================================
-bool WINAPI PMDWIN::getlength(char *filename, long *length, int *loop)
+bool WINAPI PMDWIN::getlength(char *filename, int64_t *length, int *loop)
 {
 	int		us;
 	int		result;
@@ -8525,7 +8525,7 @@ bool WINAPI PMDWIN::getlength(char *filename, long *length, int *loop)
 //=============================================================================
 //	曲の長さの取得(pos : count 単位)
 //=============================================================================
-bool WINAPI PMDWIN::getlength2(char *filename, long *length, int *loop)
+bool WINAPI PMDWIN::getlength2(char *filename, int64_t *length, int *loop)
 {
 	int		us;
 	int		result;
@@ -9323,7 +9323,7 @@ __declspec(dllexport) int WINAPI getpos2(void)
 //=============================================================================
 //	曲の長さの取得(pos : ms)
 //=============================================================================
-__declspec(dllexport) bool WINAPI getlength(char *filename, long *length, int *loop)
+__declspec(dllexport) bool WINAPI getlength(char *filename, int64_t *length, int *loop)
 {
 	return pmdwin2->getlength(filename, length, loop);
 }
@@ -9332,7 +9332,7 @@ __declspec(dllexport) bool WINAPI getlength(char *filename, long *length, int *l
 //=============================================================================
 //	曲の長さの取得(pos : count 単位)
 //=============================================================================
-__declspec(dllexport) bool WINAPI getlength2(char *filename, long *length, int *loop)
+__declspec(dllexport) bool WINAPI getlength2(char *filename, int64_t *length, int *loop)
 {
 	return pmdwin2->getlength2(filename, length, loop);
 }
