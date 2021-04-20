@@ -58,8 +58,6 @@ static int *fft_freqAvgCount;
 
 #import "EQViewController.h"
 
-//#import "modplug.h"
-//#import "../../libopenmpt/libmodplug/modplug.h"
 #import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 
 
@@ -834,15 +832,25 @@ static float movePinchScale,movePinchScaleOld;
     }
     
     /////////////////////
-    //MODPLUG
+    //OMPT
     /////////////////////
-    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_MODPLUG)) {
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_OMPT)) {
         [mplayer optOMPT_Sampling:settings[OMPT_Sampling].detail.mdz_switch.switch_value];
         [mplayer optOMPT_StereoSeparation:settings[OMPT_StereoSeparation].detail.mdz_slider.slider_value];
         [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
-        
     }
 	
+    /////////////////////
+    //XMP
+    /////////////////////
+    if ((scope==SETTINGS_ALL)||(scope==SETTINGS_XMP)) {
+        [mplayer optXMP_SetStereoSeparation:settings[XMP_StereoSeparation].detail.mdz_slider.slider_value];
+        [mplayer optXMP_SetMasterVol:settings[XMP_MasterVolume].detail.mdz_slider.slider_value];
+        [mplayer optXMP_SetInterpolation:settings[XMP_Interpolation].detail.mdz_switch.switch_value];
+        [mplayer optXMP_SetAmp:settings[XMP_Amplification].detail.mdz_switch.switch_value];
+        [mplayer optXMP_SetDSP:settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value];
+        [mplayer optXMP_SetFLAGS:settings[XMP_FLAGS_A500F].detail.mdz_boolswitch.switch_value];
+    }
 }
 
 -(void) checkGLViewCanDisplay{
@@ -2171,7 +2179,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         }
     }
     
-    //fix issue with modplug settings reset after load
+    //fix issue with OMPT settings reset after load
     [self settingsChanged:(int)SETTINGS_ALL];
     
     [self checkForCover:filePath];
@@ -2548,7 +2556,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     
     
-    //fix issue with modplug settings reset after load
+    //fix issue with OMPT settings reset after load
     [self settingsChanged:(int)SETTINGS_ALL];
     
     [self checkForCover:filePathTmp];

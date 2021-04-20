@@ -138,7 +138,6 @@ auto xsfSampleBuffer = std::vector<uint8_t>(SOUND_BUFFER_SIZE_SAMPLE*2*2);
 
 int optHC_ResampleQuality=1;
 
-
 /////////////////////////////////
 // V2M Player
 /////////////////////////////////
@@ -220,7 +219,7 @@ UINT8 vgmGetVoicesChannelsUsedNb(UINT8 chipId) {
     //xmp
 #include "xmp.h"
     static xmp_context xmp_ctx;
-    static struct xmp_module_info xmp_mi;
+    static struct xmp_module_info *xmp_mi;
 }
 
 
@@ -1700,7 +1699,7 @@ void propertyListenerCallback (void                   *inUserData,              
         //Timidity
         
         
-        //MODPLUG specific
+        //OMPT specific
         genPattern=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         genRow=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
         //genOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
@@ -1710,6 +1709,17 @@ void propertyListenerCallback (void                   *inUserData,              
         genVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
         playVolData=(unsigned char*)malloc(SOUND_BUFFER_NB*SOUND_MAXMOD_CHANNELS);
         //playOffset=(int*)malloc(SOUND_BUFFER_NB*sizeof(int));
+        //
+        
+        //XMP
+        xmp_ctx=NULL;
+        xmp_mi=NULL;
+        optXMP_InterpolationValue=XMP_INTERP_LINEAR;
+        optXMP_AmpValue=1; //0 to 3
+        optXMP_DSP=XMP_DSP_LOWPASS;
+        optXMP_Flags=0;//XMP_FLAGS_A500;
+        optXMP_MasterVol=100; //between 0 and 200
+        optXMP_StereoSeparationVal=100; //default panning
         //
         
         
@@ -3290,6 +3300,23 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mod_currentsub<mod_maxsub) {
                             mod_currentsub++;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_XMP) {
+                                xmp_set_position(xmp_ctx,mod_currentsub);
+                                
+                                iModuleLength=xmp_mi->seq_data[mod_currentsub].duration;
+                                iCurrentTime=0;
+                                
+                                if (moveToNextSubSong==2) {
+                                    //[self iPhoneDrv_PlayWaitStop];
+                                    //[self iPhoneDrv_PlayStart];
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_VGMSTREAM) {
                                 //[self Stop];
                                 if (vgmStream != NULL) close_vgmstream(vgmStream);
@@ -3440,6 +3467,23 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     if (moveToSubSong) {
                         mod_currentsub=moveToSubSongIndex;
                         mod_message_updated=1;
+                        if (mPlayType==MMP_XMP) {
+                            xmp_set_position(xmp_ctx,mod_currentsub);
+                            
+                            iModuleLength=xmp_mi->seq_data[mod_currentsub].duration;
+                            iCurrentTime=0;
+                            
+                            if (moveToNextSubSong==2) {
+                                //[self iPhoneDrv_PlayWaitStop];
+                                //[self iPhoneDrv_PlayStart];
+                            } else {
+                                [self iPhoneDrv_PlayStop];
+                                [self iPhoneDrv_PlayStart];
+                            }
+                            //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                            if (mLoopMode) iModuleLength=-1;
+                            mod_message_updated=1;
+                        }
                         if (mPlayType==MMP_VGMSTREAM) {
                             //[self Stop];
                             if (vgmStream != NULL) close_vgmstream(vgmStream);
@@ -3591,6 +3635,23 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mod_currentsub>mod_minsub) {
                             mod_currentsub--;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_XMP) {
+                                xmp_set_position(xmp_ctx,mod_currentsub);
+                                
+                                iModuleLength=xmp_mi->seq_data[mod_currentsub].duration;
+                                iCurrentTime=0;
+                                
+                                if (moveToNextSubSong==2) {
+                                    //[self iPhoneDrv_PlayWaitStop];
+                                    //[self iPhoneDrv_PlayStart];
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_VGMSTREAM) {
                                 //[self Stop];
                                 if (vgmStream != NULL) close_vgmstream(vgmStream);
@@ -3788,6 +3849,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         }
                     }
                     if (mPlayType==MMP_XMP) {  //XMP
+                        if (m_voicesDataAvail) {
+                            //copy voice data for oscillo view
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
+                                }
+                            }
+                        }
+                        
                         if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
                             struct xmp_frame_info xmp_fi;
                             xmp_get_frame_info(xmp_ctx, &xmp_fi);
@@ -3796,12 +3865,19 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
                             genRow[buffer_ana_gen_ofs]=xmp_fi.row;
-                            
+                                                        
                             for (int i=0;i<numChannels;i++) {
-                                int v=xmp_channel_vol(xmp_ctx, i,-1);
+                                int v=xmp_fi.channel_info[i].volume*4;
                                 genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
                             }
                             
+                            if (m_voicesDataAvail) {
+                                //copy voice data for oscillo view
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                    }
+                                }
+                            }
                         } else {
                             NSLog(@"XMP: end of song");
                             nbBytes=0;
@@ -5941,7 +6017,7 @@ char* loadRom(const char* path, size_t romSize)
         NSLog(@"XMP: Cannot create context");
         return 1;
     }
-    
+                        
     if (xmp_load_module(xmp_ctx, (char*)[filePath UTF8String]) < 0) {
         NSLog(@"XMP: error loading %s\n", [filePath UTF8String]);
         xmp_free_context(xmp_ctx);
@@ -5949,52 +6025,74 @@ char* loadRom(const char* path, size_t romSize)
     }
     
     if (xmp_start_player(xmp_ctx, 44100, 0) != 0) {
-        NSLog(@"XMP: error loading %s\n", [filePath UTF8String]);
+        NSLog(@"XMP: error initializing player");
         xmp_release_module(xmp_ctx);
         xmp_free_context(xmp_ctx);
         return 3;
     }
     
+    xmp_set_player(xmp_ctx,XMP_PLAYER_AMP,optXMP_AmpValue);
+    xmp_set_player(xmp_ctx,XMP_PLAYER_VOLUME,optXMP_MasterVol);
+    xmp_set_player(xmp_ctx,XMP_PLAYER_DEFPAN,optXMP_StereoSeparationVal);
+    
+    xmp_set_player(xmp_ctx,XMP_PLAYER_INTERP,optXMP_InterpolationValue);
+    
+    xmp_set_player(xmp_ctx,XMP_PLAYER_DSP,optXMP_DSP);
+    xmp_set_player(xmp_ctx,XMP_PLAYER_FLAGS,optXMP_Flags);
+
     /* Show module data */
     
-    xmp_get_module_info(xmp_ctx, &xmp_mi);
+    xmp_mi=(struct xmp_module_info*)calloc(1,sizeof(struct xmp_module_info));
+    xmp_get_module_info(xmp_ctx, xmp_mi);
     
-    sprintf(mod_name," %s",xmp_mi.mod->name);
-    if (xmp_mi.mod->name[0]==0) {
+    sprintf(mod_name," %s",xmp_mi->mod->name);
+    if (xmp_mi->mod->name[0]==0) {
         sprintf(mod_name," %s",mod_filename);
     }
     
-    if (xmp_mi.comment) sprintf(mod_message,"%s\n", xmp_mi.comment);
+    if (xmp_mi->comment) sprintf(mod_message,"%s\n", xmp_mi->comment);
     else {
         mod_message[0]=0;
-        if (xmp_mi.mod->ins) {
-            for (int i=0;i<xmp_mi.mod->ins;i++) {
-                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,xmp_mi.mod->xxi[i].name);
+        if (xmp_mi->mod->ins) {
+            for (int i=0;i<xmp_mi->mod->ins;i++) {
+                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,xmp_mi->mod->xxi[i].name);
                 concatn(MAX_STIL_DATA_LENGTH*2,mod_message,"\n");
             }
         }
-        if (xmp_mi.mod->smp) {
-            for (int i=0;i<xmp_mi.mod->smp;i++) {
-                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,xmp_mi.mod->xxs[i].name);
+        if (xmp_mi->mod->smp) {
+            for (int i=0;i<xmp_mi->mod->smp;i++) {
+                concatn(MAX_STIL_DATA_LENGTH*2,mod_message,xmp_mi->mod->xxs[i].name);
                 concatn(MAX_STIL_DATA_LENGTH*2,mod_message,"\n");
             }
         }
     }
     
-    /*NSLog(@"XMP num sequence: %d",xmp_mi.num_sequences);
-     for (int i=0;i<xmp_mi.num_sequences;i++) {
-     NSLog(@"XMP sequence %d duration: %d",i,xmp_mi.seq_data[i].duration);
+    /*NSLog(@"XMP num sequence: %d",xmp_mi->num_sequences);
+     for (int i=0;i<xmp_mi->num_sequences;i++) {
+     NSLog(@"XMP sequence %d duration: %d",i,xmp_mi->seq_data[i].duration);
      }
      */
-    iModuleLength=xmp_mi.seq_data[0].duration;
+    mod_subsongs=xmp_mi->num_sequences;
+    mod_minsub=0;
+    mod_maxsub=xmp_mi->num_sequences-1;
+    
+    iModuleLength=xmp_mi->seq_data[0].duration;
     
     iCurrentTime=0;
-    numChannels=xmp_mi.mod->chn;
+    numChannels=xmp_mi->mod->chn;
+    numVoicesChannels=numChannels;
+    m_voicesDataAvail=1;
+    for (int i=0;i<numVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
     
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
+    mPatternDataAvail=2; //XMP style
+    numPatterns=xmp_mi->mod->pat;
     
+    ompt_patterns = (ModPlugNote**)calloc(1,sizeof(ModPlugNote*)*numPatterns);
     
     return 0;
 }
@@ -6084,7 +6182,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     iModuleLength=(int)(openmpt_module_get_duration_seconds(openmpt_module_ext_get_module(ompt_mod))*1000);//  ModPlug_GetLength(mp_file);
     iCurrentTime=0;
-    mPatternDataAvail=1;
+    mPatternDataAvail=1; //OMPT/MODPLUG style
     
     numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumChannels(mp_file);
     numPatterns=openmpt_module_get_num_patterns(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumPatterns(mp_file);
@@ -6144,7 +6242,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     }
     
     ompt_patterns = (ModPlugNote**)calloc(1,sizeof(ModPlugNote*)*numPatterns);
-    if(!ompt_patterns) return NULL;
     
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT,optOMPT_StereoSeparationVal);
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,optOMPT_SamplingVal);
@@ -6153,12 +6250,63 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     return 0;
 }
 
+-(ModPlugNote*) xmp_getPattern:(int)pattern numrows:(unsigned int*)numrows {
+    int c;
+    int r;
+    int numr,numc;
+    ModPlugNote note;
+    
+    //safety checks
+    if ((!xmp_ctx)||(!xmp_mi)) return NULL;
+    
+    if(pattern<0||pattern>=xmp_mi->mod->pat ){
+        return NULL;
+    }
+    
+    //compute rows number
+    numr = xmp_mi->mod->xxp[pattern]->rows;
+        
+    if(numrows){
+        *numrows = numr;
+    }
+    
+    //allocate pattern if not already done
+    if(!ompt_patterns[pattern]){
+        ompt_patterns[pattern] = (ModPlugNote*)calloc(1,sizeof(ModPlugNote)*numr*numChannels);
+        if(!ompt_patterns[pattern]) return NULL;
+    }
+    
+    //fill pattern data
+    numc=numChannels;
+    for(r=0;r<numr;r++){
+        for(c=0;c<numc;c++){
+            //get track number / pattern & channels
+            int track = xmp_mi->mod->xxp[pattern]->index[c];
+            //get event / current row
+            struct xmp_event *event = &xmp_mi->mod->xxt[track]->event[r];
+            
+            memset(&note,0,sizeof(ModPlugNote));
+            
+            note.Note = event->note;
+            note.Instrument = event->ins;
+            note.VolumeEffect = 0;
+            note.Effect = event->fxt+1;
+            note.Volume = event->vol;
+            note.Parameter = event->fxp;
+            memcpy(&ompt_patterns[pattern][r*numc+c],&note,sizeof(ModPlugNote));
+        }
+    }
+    return ompt_patterns[pattern];
+}
+
 -(ModPlugNote*) ompt_getPattern:(int)pattern numrows:(unsigned int*)numrows {
     int c;
     int r;
     int numr;
     int numc;
     ModPlugNote note;
+    
+    if (mPlayType==MMP_XMP) return [self xmp_getPattern:pattern numrows:numrows];
     
     if(!ompt_mod) return NULL;
     if (!openmpt_module_ext_get_module(ompt_mod)) return NULL;
@@ -8451,6 +8599,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         xmp_release_module(xmp_ctx);
         xmp_free_context(xmp_ctx);
         xmp_ctx=NULL;
+        mdz_safe_free(xmp_mi);
     }
     if (mPlayType==MMP_OPENMPT) {
         if (ompt_patterns) {
@@ -8713,7 +8862,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         return [NSString stringWithFormat:@"%s",gmetype];
     }
     if (mPlayType==MMP_XMP) {
-        return [NSString stringWithFormat:@"%s",xmp_mi.mod->type];
+        return [NSString stringWithFormat:@"%s",xmp_mi->mod->type];
     }
     if (mPlayType==MMP_OPENMPT) {
         char *str_type=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"type_long");//(char*)ModPlug_GetModuleTypeLStr(mp_file);
@@ -9039,6 +9188,48 @@ extern "C" void adjust_amplification(void);
 }
 
 ///////////////////////////
+//XMP
+///////////////////////////
+-(void) optXMP_SetInterpolation:(int) mode {
+    switch (mode) {
+        case 0:
+            optXMP_InterpolationValue=XMP_INTERP_NEAREST;
+            break;
+        case 1:
+            optXMP_InterpolationValue=XMP_INTERP_LINEAR;
+            break;
+        case 2:
+            optXMP_InterpolationValue=XMP_INTERP_SPLINE;
+            break;
+    }
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_INTERP,optXMP_InterpolationValue);
+    
+}
+-(void) optXMP_SetStereoSeparation:(int) value {
+    optXMP_StereoSeparationVal=value;
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_DEFPAN,optXMP_StereoSeparationVal);
+}
+-(void) optXMP_SetAmp:(int) value {
+    optXMP_AmpValue=value;
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_AMP,optXMP_AmpValue);
+}
+-(void) optXMP_SetDSP:(int) value {
+    if (value) optXMP_DSP=XMP_DSP_LOWPASS;
+    else optXMP_DSP=0;
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_DSP,optXMP_DSP);
+}
+-(void) optXMP_SetFLAGS:(int) value {
+    if (value) optXMP_Flags=XMP_FLAGS_A500;
+    else optXMP_Flags=0;
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_FLAGS,optXMP_Flags);
+}
+-(void) optXMP_SetMasterVol:(int) value {
+    optXMP_MasterVol=value;
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_VOLUME,optXMP_MasterVol);
+}
+
+
+///////////////////////////
 //Openmpt
 ///////////////////////////
 -(void) optOMPT_Sampling:(int) mode {
@@ -9128,20 +9319,6 @@ extern "C" void adjust_amplification(void);
 }
 -(void) setInfosUpdated {
     mod_message_updated=0;
-}
-
--(int) getChannelVolume:(int)channel {
-    int res;
-    switch (mPlayType){
-        case MMP_OPENMPT://Modplug
-            res=openmpt_module_get_current_channel_vu_mono(openmpt_module_ext_get_module(ompt_mod),channel)*255;
-            break;
-        case MMP_XMP://XMP
-            res=xmp_channel_vol(xmp_ctx, channel,-1);
-            break;
-        default:res=0;
-    }
-    return res;
 }
 
 -(bool) isVoicesMutingSupported {

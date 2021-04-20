@@ -147,6 +147,14 @@ enum MMP_PLAYER_TYPE {
     int optOMPT_SamplingVal;
     int optOMPT_StereoSeparationVal;
     int optOMPT_MasterVol;
+    
+    //XMP
+    int optXMP_InterpolationValue;
+    int optXMP_StereoSeparationVal;
+    int optXMP_AmpValue;
+    int optXMP_MasterVol;
+    int optXMP_DSP;
+    int optXMP_Flags;
 
 	//adplug
     int mADPLUGopltype;
@@ -331,6 +339,13 @@ enum MMP_PLAYER_TYPE {
 
 -(void) optGSF_UpdateParam;
 
+-(void) optXMP_SetInterpolation:(int) mode;
+-(void) optXMP_SetStereoSeparation:(int) value;
+-(void) optXMP_SetAmp:(int) value;
+-(void) optXMP_SetDSP:(int) value;
+-(void) optXMP_SetFLAGS:(int) value;
+-(void) optXMP_SetMasterVol:(int) value;
+
 -(void) setLoopInf:(int)val;
 
 -(BOOL) isMultiSongs;
@@ -347,7 +362,6 @@ enum MMP_PLAYER_TYPE {
 -(int) getCurrentTime;
 -(int) shouldUpdateInfos;
 -(void) setInfosUpdated;
--(int) getChannelVolume:(int)channel;
 
 //loaders
 -(int) mmp_gsfLoad:(NSString*)filePath;

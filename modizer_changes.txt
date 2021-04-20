@@ -14,11 +14,11 @@ Todo/Requested:
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: oscillo => propose also stereo, 2 channels view (for multi voices format)
-- TODO: tuning of swipe/move detection for miniplayer / screen width
 
 3.0
 �����
-- [UI] New: Miniplayer view
+- [UI] New: Miniplayer view (swipe left or right to change songs)
+- [UI] Adapt to light / dark mode automatically (realtime)
 - [PLAYER] New: SNSF support
 - [PLAYER] New: V2M/V2MZ support - V2 synthesizer from Farbrausch demogroup
 - [PLAYER] New: Highly Complete plugin for DSF,PSF,PSF2,QSF,SSF (AOSDK & SexyPSF removed)
@@ -27,6 +27,7 @@ Todo/Requested:
 - [PLAYER] New: VGMSTREAM subsongs support
 - [PLAYER] New: Voices control support for some of the formats
 - [PLAYER] New Oscilloscope view / individual channels for some of the formats
+- [PLAYER] pattern view for XMP
 - [DB] Updated to latest versions
 - [GLOBAL] Better compatibiltiy with older devices running on iOS 9 (4S, ...)
 - [UI] Option to not recreate samples folder automatically

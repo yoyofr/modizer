@@ -324,6 +324,13 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 	}
 	memset(s->buf32, 0, bytelen);
 }
+
+
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /* Fill the output buffer calling one of the handlers. The buffer contains
  * sound for one tick (a PAL frame or 1/50s for standard vblank-timed mods)
  */
@@ -523,8 +530,24 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 					}
 
 					if (mix_fn != NULL) {
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (vi->chn<SOUND_MAXVOICES_BUFFER_FX) {
+                            for (int ii=0;ii<samples;ii++)
+                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>8) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (-buf_pos[ii*2]-buf_pos[ii*2+1])>>19 );
+                            
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
+                        
 						mix_fn(vi, buf_pos, samples,
 							vol_l >> 8, vol_r >> 8, step * (1 << SMIX_SHIFT), rsize, delta_l, delta_r);
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (vi->chn<SOUND_MAXVOICES_BUFFER_FX) {
+                            for (int ii=0;ii<samples;ii++)
+                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>8) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (buf_pos[ii*2]+buf_pos[ii*2+1])>>19 );
+                            
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
                     
                     
@@ -538,6 +561,8 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 						vi->sright = buf_pos[-2] - prev_r;
 					}
 					vi->sleft = buf_pos[-1] - prev_l;
+                    
+                    
 				}
 			}
 
@@ -565,10 +590,16 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 
 			loop_reposition(ctx, vi, xxs);
 		}
-
 		vi->old_vl = vol_l;
 		vi->old_vr = vol_r;
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
+        m_voice_current_ptr[ii]+=256*s->ticksize;
+        while ((m_voice_current_ptr[ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* Render final frame */
 

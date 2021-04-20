@@ -202,7 +202,7 @@
                                 <viewControllerLayoutGuide type="bottom" id="Ue6-U4-h8x"/>
                             </layoutGuides>
                             <view key="view" contentMode="scaleToFill" id="715">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="597"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <searchBar contentMode="redraw" barStyle="black" id="716">
@@ -214,16 +214,16 @@
                                         </connections>
                                     </searchBar>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="756"/>
+                                        <rect key="frame" x="0.0" y="56" width="375" height="541"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <connections>
                                             <outlet property="dataSource" destination="684" id="725"/>
                                             <outlet property="delegate" destination="684" id="726"/>
                                         </connections>
                                     </tableView>
                                     <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="597"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
@@ -251,7 +251,7 @@
                                     </view>
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="tIb-b2-rFY"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <toolbarItems/>
@@ -1169,7 +1169,7 @@
                         <rect key="frame" x="0.0" y="81" width="320" height="350"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <string key="text">v3.0 © Yohann Magnien / YoyoFR
+                        <mutableString key="text">v3.0 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: http://yoyofr.blogspot.com/p/modizer.html
@@ -1184,8 +1184,9 @@ Number of file formats/extension supported: 1016.
 Integrated player libs:
 - Adplug
 - Another Slight Atari Player(ASAP)
+- ffmpeg/mpg123/vorbis
 - Game Music Emu: 8/16 bits video game
-- High Complete
+- Highly Complete
 - AHX/Hively tracker
 - LazyUSF
 - Mdxplay 
@@ -1193,17 +1194,19 @@ Integrated player libs:
 - PlayGSF
 - Pmdmini
 - SC68
-- Sidplay2/resid, Sidplay1
+- Sidplayfp
+- Snes9x/snsf
 - ST-Sound
 - Timidity(using Merlin_gold SF2 soundfont)
 - UADE
 - XSF (2SF, NCSF)
 - XMP
+-V2M tinyplayer
 - VGMPlay
 - VGMStream
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
                         <color key="textColor" systemColor="labelColor"/>
                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="17"/>
                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no"/>

@@ -416,7 +416,7 @@ static NSFileManager *mFileMngr;
         
 		sprintf(sqlStatement,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
 				WHERE pe.id_playlist=p.id \
-				AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[mSearchText UTF8String]);
+				AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[[mSearchText stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {	
@@ -434,7 +434,7 @@ static NSFileManager *mFileMngr;
 			playlist_entries=(t_playlist_entryS*)calloc(playlist_entries_count,sizeof(t_playlist_entryS));
 			sprintf(sqlStatement,"SELECT p.name,p.id,pe.name,pe.fullpath FROM playlists_entries pe,playlists p \
 					WHERE pe.id_playlist=p.id \
-					AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[mSearchText UTF8String]);
+					AND pe.name LIKE \"%%%s%%\" ORDER BY pe.name COLLATE NOCASE",[[mSearchText stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
 			if (err==SQLITE_OK){
@@ -496,8 +496,8 @@ static NSFileManager *mFileMngr;
 			}
 			
 			sprintf(sqlStatement,"SELECT filename,filesize,id,fullpath FROM mod_file \
-					WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
-			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+					WHERE fullpath LIKE \"%%%s%%\"",[[(NSString*)[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
@@ -524,8 +524,8 @@ static NSFileManager *mFileMngr;
 			}
 			if (db_entries_count==MAX_SEARCH_RESULT) {
 				sprintf(sqlStatement,"SELECT count(1) FROM mod_file \
-						WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
-				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+						WHERE fullpath LIKE \"%%%s%%\"",[[(NSString*)[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 				if (err==SQLITE_OK){
 					int nb_row;
@@ -587,8 +587,8 @@ static NSFileManager *mFileMngr;
 			memset(dbASMA_entries,0,dbASMA_entries_count*sizeof(t_dbASMA_browse_entryS));
 			
 			sprintf(sqlStatement,"SELECT filename,id_md5,fullpath FROM asma_file \
-					WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
-			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+					WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
@@ -613,8 +613,8 @@ static NSFileManager *mFileMngr;
 			}
 			if (dbASMA_entries_count==MAX_SEARCH_RESULT) {
 				sprintf(sqlStatement,"SELECT count(1) FROM asma_file \
-						WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
-				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+						WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 				if (err==SQLITE_OK){
 					int nb_row;
@@ -675,8 +675,8 @@ static NSFileManager *mFileMngr;
 			memset(dbHVSC_entries,0,dbHVSC_entries_count*sizeof(t_dbHVSC_browse_entryS));
 			
 			sprintf(sqlStatement,"SELECT filename,id_md5,fullpath FROM hvsc_file \
-					WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
-			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+					WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+			for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 			sprintf(sqlStatement,"%s ORDER BY filename COLLATE NOCASE",sqlStatement);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			
@@ -701,8 +701,8 @@ static NSFileManager *mFileMngr;
 			}
 			if (dbHVSC_entries_count==MAX_SEARCH_RESULT) {
 				sprintf(sqlStatement,"SELECT count(1) FROM hvsc_file \
-						WHERE fullpath LIKE \"%%%s%%\"",[[mSearchTextArray objectAtIndex:0] UTF8String]);
-				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[mSearchTextArray objectAtIndex:i] UTF8String]);
+						WHERE fullpath LIKE \"%%%s%%\"",[[[mSearchTextArray objectAtIndex:0] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
+				for (int i=1;i<[mSearchTextArray count];i++) sprintf(sqlStatement,"%s AND fullpath LIKE \"%%%s%%\"",sqlStatement,[[[mSearchTextArray objectAtIndex:i] stringByReplacingOccurrencesOfString:@"*" withString:@"%"] UTF8String]);
 				err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 				if (err==SQLITE_OK){
 					int nb_row;

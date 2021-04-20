@@ -34,12 +34,13 @@ enum MDZ_SETTINGS_SCOPE {
     SETTINGS_GME,
     SETTINGS_GSF,
     SETTINGS_HC,
-    SETTINGS_MODPLUG,
+    SETTINGS_OMPT,
     SETTINGS_SID,
     SETTINGS_UADE,
     SETTINGS_TIMIDITY,
     SETTINGS_VGMPLAY,
     SETTINGS_VGMSTREAM,
+    SETTINGS_XMP,
     SETTINGS_ONLINE
 };
 
@@ -157,8 +158,13 @@ enum MDZ_SETTINGS {
         VGMSTREAM_Maxloop,
         VGMSTREAM_Fadeouttime,
     
-        
-    
+        MDZ_SETTINGS_FAMILY_XMP,
+        XMP_Interpolation,
+        XMP_MasterVolume,
+        XMP_Amplification,
+        XMP_StereoSeparation,
+        XMP_DSPLowPass,
+        XMP_FLAGS_A500F,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
     GLOB_FXAlpha,
