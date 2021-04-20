@@ -18,8 +18,6 @@
 #include <unistd.h>
 #include "common.h"
 #include "depacker.h"
-#include "readrle.h"
-#include "readhuff.h"
 #include "readlzw.h"
 
 
@@ -27,10 +25,10 @@ struct archived_file_header_tag {
 	unsigned char method;
 	unsigned char bits;
 	char name[13];
-	unsigned long compressed_size;
+	unsigned int compressed_size;
 	unsigned int date, time, crc;
-	unsigned long orig_size;
-	unsigned long offset;
+	unsigned int orig_size;
+	unsigned int offset;
 };
 
 
@@ -44,6 +42,7 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
 		return -1;
 	hlen = read32l(in, &error) / 36;
 	if (error != 0) return -1;
+	if (hlen < 1) return -1;
 	start = read32l(in, &error);
 	if (error != 0) return -1;
 	/*ver =*/ read32l(in, &error);
@@ -87,11 +86,11 @@ static int read_file_header(FILE *in, struct archived_file_header_tag *hdrp)
 
 		if (hdrp->offset & 0x80000000)		/* directory */
 			continue;
-		
+
 		hdrp->crc = x >> 16;
 		hdrp->bits = (x & 0xff00) >> 8;
-		hdrp->offset &= 0x7fffffff;	
-		hdrp->offset += start;	
+		hdrp->offset &= 0x7fffffff;
+		hdrp->offset += start;
 
 		break;
 	}
@@ -110,7 +109,7 @@ static unsigned char *read_file_data(FILE *in,
 	unsigned char *data;
 	int siz = hdrp->compressed_size;
 
-	if ((data = malloc(siz)) == NULL) {
+	if (siz <= 0 || (data = malloc(siz)) == NULL) {
 		goto err;
 	}
 	if (fseek(in, hdrp->offset, SEEK_SET) < 0) {
@@ -153,6 +152,10 @@ static int arcfs_extract(FILE *in, FILE *out)
 	 */
 	switch (hdr.method) {
 	case 2:		/* no compression */
+		if (hdr.orig_size != hdr.compressed_size) {
+			free(data);
+			return -1;
+		}
 		orig_data = data;
 		break;
 

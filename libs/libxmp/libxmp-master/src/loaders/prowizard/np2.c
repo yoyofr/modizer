@@ -24,8 +24,8 @@ static int depack_np2(HIO_HANDLE *in, FILE *out)
 	int i, j, k;
 	int trk_start;
 
-	memset(ptable, 0, 128);
-	memset(trk_addr, 0, 128 * 4 * 4);
+	memset(ptable, 0, sizeof(ptable));
+	memset(trk_addr, 0, sizeof(trk_addr));
 
 	c1 = hio_read8(in);			/* read number of samples */
 	c2 = hio_read8(in);
@@ -83,6 +83,11 @@ static int depack_np2(HIO_HANDLE *in, FILE *out)
 	}
 	npat++;
 
+	/* Sanity check */
+	if (npat > 128) {
+		return -1;
+	}
+
 	fwrite(ptable, 128, 1, out);	/* write pattern table */
 	write32b(out, PW_MOD_MAGIC);	/* write ptk ID */
 
@@ -102,7 +107,7 @@ static int depack_np2(HIO_HANDLE *in, FILE *out)
 
 	/* the track data now ... */
 	for (i = 0; i < npat; i++) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (j = 0; j < 4; j++) {
 			hio_seek(in, trk_start + trk_addr[i][3 - j], SEEK_SET);
 			for (k = 0; k < 64; k++) {
@@ -113,7 +118,7 @@ static int depack_np2(HIO_HANDLE *in, FILE *out)
 				c3 = hio_read8(in);
 				c4 = (c1 & 0xfe) / 2;
 
-				if (hio_error(in) || c4 >= 37) {
+				if (hio_error(in) || !PTK_IS_VALID_NOTE(c4)) {
 					return -1;
 				}
 

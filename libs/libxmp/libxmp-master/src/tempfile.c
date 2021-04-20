@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -36,6 +36,7 @@
 #include <sys/stat.h>
 #endif
 
+#include "common.h" /* for libxmp_snprintf */
 #include "tempfile.h"
 
 #ifdef _WIN32
@@ -68,7 +69,7 @@ static int get_temp_dir(char *buf, size_t size)
 	return 0;
 }
 
-#elif defined __AMIGA__
+#elif defined LIBXMP_AMIGA
 
 static int get_temp_dir(char *buf, size_t size)
 {

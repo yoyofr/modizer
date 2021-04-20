@@ -25,9 +25,9 @@ static int depack_tp1(HIO_HANDLE *in, FILE *out)
 	int size, ssize = 0;
 	int smp_ofs;
 
-	memset(paddr, 0, 128 * 4);
-	memset(paddr_ord, 0, 128 * 4);
-	memset(pnum, 0, 128);
+	memset(paddr, 0, sizeof(paddr));
+	memset(paddr_ord, 0, sizeof(paddr_ord));
+	memset(pnum, 0, sizeof(pnum));
 
 	hio_read32b(in);			/* skip magic */
 	hio_read32b(in);			/* skip size */
@@ -93,7 +93,7 @@ static int depack_tp1(HIO_HANDLE *in, FILE *out)
 		if (hio_seek(in, 794 + paddr_ord[i] - pat_ofs, SEEK_SET) < 0) {
 			return -1;
 		}
-		memset(pdata, 0, 1024);
+		memset(pdata, 0, sizeof(pdata));
 		for (j = 0; j < 256; j++) {
 			uint8 *p = pdata + j * 4;
 
@@ -114,10 +114,10 @@ static int depack_tp1(HIO_HANDLE *in, FILE *out)
 
 			note = (c1 & 0xfe) >> 1;
 
-			if (note > 36) {
+			if (!PTK_IS_VALID_NOTE(note)) {
 				return -1;
 			}
-			
+
 			ins = ((c2 >> 4) & 0x0f) | ((c1 << 4) & 0x10);
 			fxt = c2 & 0x0f;
 			fxp = c3;
@@ -193,8 +193,8 @@ static int test_tp1(const uint8 *data, char *t, int s)
 	}
 
 	/* pattern list size */
-	len = data[281];
-	if (len == 0 || len > 128) {
+	len = readmem16b(data + 280) + 1;
+	if (len > 128) {
 		return -1;
 	}
 

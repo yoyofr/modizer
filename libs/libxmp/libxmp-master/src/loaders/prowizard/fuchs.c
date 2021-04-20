@@ -22,9 +22,9 @@ static int depack_fuchs(HIO_HANDLE *in, FILE *out)
 	unsigned pat_size;
 	unsigned i;
 
-	memset(smp_len, 0, 16 * 4);
-	memset(loop_start, 0, 16 * 4);
-	memset(data, 0, 1080);
+	memset(smp_len, 0, sizeof(smp_len));
+	memset(loop_start, 0, sizeof(loop_start));
+	memset(data, 0, sizeof(data));
 
 	hio_read(data, 1, 10, in);		/* read/write title */
 	/*ssize =*/ hio_read32b(in);		/* read all sample data size */
@@ -96,7 +96,7 @@ static int depack_fuchs(HIO_HANDLE *in, FILE *out)
 	pat_size = hio_read32b(in);
 
 	/* Sanity check */
-	if (!pat_size || pat_size > 0x20000)
+	if (!pat_size || pat_size > 0x20000 || (pat_size & 0x3))
 		return -1;
 
 	/* read pattern data */
@@ -134,14 +134,7 @@ static int test_fuchs (const uint8 *data, char *t, int s)
 	int i;
 	int ssize, hdr_ssize;
 
-#if 0
-	/* test #1 */
-	if (i < 192) {
-		Test = BAD;
-		return;
-	}
-	start = i - 192;
-#endif
+	PW_REQUEST_DATA(s, 196);
 
 	if (readmem32b(data + 192) != 0x534f4e47)	/* SONG */
 		return -1;

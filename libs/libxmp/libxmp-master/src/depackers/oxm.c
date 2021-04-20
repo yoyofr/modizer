@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -294,8 +294,24 @@ static int decrunch_oxm(FILE *f, FILE *fo)
 				xi[j].len = newlen;
 
 				if (pcm[j] == NULL) {
+					/* cleanup */
+					for (i = 0; i < j; ++i) {
+						if (xi[i].len > 0)
+						    free(pcm[i]);
+					}
 					return -1;
 				}
+#ifdef WORDS_BIGENDIAN
+				if (res == 16) {
+				/* convert host-endian to little-endian */
+					uint16 *p = (uint16 *)pcm[j]; int k;
+					newlen /= 2;
+					for (k = 0; k < newlen; ++k, ++p) {
+						*p = ((*p & 0xFF) << 8) |
+						     ((*p >> 8) & 0xFF);
+					}
+				}
+#endif
 			}
 		}
 

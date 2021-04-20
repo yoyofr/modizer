@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -212,7 +212,10 @@ static int mod_test(HIO_HANDLE * f, char *t, const int start)
 	/* validate pattern data in an attempt to catch UNICs with MOD size */
 	for (count = i = 0; i < num_pat; i++) {
 		hio_seek(f, start + 1084 + 1024 * i, SEEK_SET);
-		hio_read(pat_buf, 1024, 1, f);
+		if (!hio_read(pat_buf, 1024, 1, f)) {
+			D_(D_WARN "pattern %d: failed to read pattern data", i);
+			return -1;
+		}
 		if (validate_pattern(pat_buf) < 0) {
 			D_(D_WARN "pattern %d: error in pattern data", i);
 			/* Allow a few errors, "lexstacy" has 0x52 */
@@ -357,8 +360,8 @@ static int get_tracker_id(struct module_data *m, struct mod_header *mh, int id)
 		}
 	} else { /* Has loops with size 0 */
 		for (i = 15; i < 31; i++) {
-			if (strlen((char *)mh->ins[i].name)
-			    || mh->ins[i].size > 0)
+			/* Is the name or size set? */
+			if (mh->ins[i].name[0] || mh->ins[i].size > 0)
 				break;
 		}
 		if (i == 31 && is_st_ins((char *)mh->ins[14].name)) {
@@ -392,13 +395,13 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct xmp_event *event;
     struct mod_header mh;
     uint8 mod_event[4];
-    char pathname[PATH_MAX] = "";
-    const char *x, *tracker = "";
+    const char *tracker = "";
     int detected = 0;
     char magic[8], idbuffer[32];
     int ptkloop = 0;			/* Protracker loop */
     int tracker_id = TRACKER_PROTRACKER;
     int out_of_range = 0;
+    int maybe_wow = 1;
 
     LOAD_INIT();
 
@@ -410,25 +413,37 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     m->period_type = PERIOD_MODRNG;
 
-    hio_read(&mh.name, 20, 1, f);
+    hio_read(mh.name, 20, 1, f);
     for (i = 0; i < 31; i++) {
-	hio_read(&mh.ins[i].name, 22, 1, f);	/* Instrument name */
+	hio_read(mh.ins[i].name, 22, 1, f);	/* Instrument name */
 	mh.ins[i].size = hio_read16b(f);	/* Length in 16-bit words */
 	mh.ins[i].finetune = hio_read8(f);	/* Finetune (signed nibble) */
 	mh.ins[i].volume = hio_read8(f);	/* Linear playback volume */
 	mh.ins[i].loop_start = hio_read16b(f);	/* Loop start in 16-bit words */
 	mh.ins[i].loop_size = hio_read16b(f);	/* Loop size in 16-bit words */
 
+	/* Mod's Grave WOW files are converted from 669s and have default
+	 * finetune and volume.
+	 */
+	if (mh.ins[i].size && (mh.ins[i].finetune != 0 || mh.ins[i].volume != 64))
+	    maybe_wow = 0;
+
 	smp_size += 2 * mh.ins[i].size;
     }
     mh.len = hio_read8(f);
     mh.restart = hio_read8(f);
-    hio_read(&mh.order, 128, 1, f);
-    memset(magic, 0, 8);
+    hio_read(mh.order, 128, 1, f);
+    memset(magic, 0, sizeof(magic));
     hio_read(magic, 1, 4, f);
     if (hio_error(f)) {
         return -1;
     }
+
+    /* Mod's Grave WOW files always have a 0 restart byte; 6692WOW implements
+     * 669 repeating by inserting a pattern jump and ignores this byte.
+     */
+    if (mh.restart != 0)
+	maybe_wow = 0;
 
     for (i = 0; mod_magic[i].ch; i++) {
 	if (!(strncmp (magic, mod_magic[i].magic, 4))) {
@@ -513,7 +528,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     /*
      * Experimental tracker-detection routine
-     */ 
+     */
 
     if (detected)
 	goto skip_test;
@@ -547,25 +562,34 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
      *
      * Stefan Danes <sdanes@marvels.hacktic.nl> said:
      * This weird format is identical to '8CHN' but still uses the 'M.K.' ID.
-     * You can only test for WOW by calculating the size of the module for 8 
-     * channels and comparing this to the actual module length. If it's equal, 
+     * You can only test for WOW by calculating the size of the module for 8
+     * channels and comparing this to the actual module length. If it's equal,
      * the module is an 8 channel WOW.
+     *
+     * Addendum: very rarely, WOWs will have an odd length due to an extra byte,
+     * so round the filesize down in this check. False positive WOWs can be ruled
+     * out by checking the restart byte and sample volume (see above).
+     *
+     * Worst case if there are still issues with this, OpenMPT validates later
+     * patterns in potential WOW files (where sample data would be located in a
+     * regular M.K. MOD) to rule out false positives.
      */
 
-    if ((!strncmp(magic, "M.K.", 4) &&
-		(0x43c + mod->pat * 32 * 0x40 + smp_size == m->size))) {
+    if (!strncmp(magic, "M.K.", 4) && maybe_wow &&
+		(0x43c + mod->pat * 32 * 0x40 + smp_size) == (m->size & ~1)) {
 	mod->chn = 8;
 	tracker_id = TRACKER_MODSGRAVE;
-    }
-    /* Test for Protracker song files */
-    else if ((ptsong = (!strncmp((char *)magic, "M.K.", 4) &&
-		(0x43c + mod->pat * 0x400 == m->size)))) {
-	tracker_id = TRACKER_PROTRACKER;
-	goto skip_test;
-    }
-    /* something else */
-    else {
-        tracker_id = get_tracker_id(m, &mh, tracker_id);
+    } else {
+	/* Test for Protracker song files */
+	ptsong = !strncmp((char *)magic, "M.K.", 4) &&
+		 (0x43c + mod->pat * 0x400 == m->size);
+	if (ptsong) {
+		tracker_id = TRACKER_PROTRACKER;
+		goto skip_test;
+	} else {
+	/* something else */
+		tracker_id = get_tracker_id(m, &mh, tracker_id);
+	}
     }
 
 skip_test:
@@ -605,10 +629,12 @@ skip_test:
 	}
 
 	for (j = 0; j < (64 * mod->chn); j++) {
-            int period;
+	    int period;
 
 	    event = &EVENT(i, j % mod->chn, j / mod->chn);
-	    hio_read(mod_event, 1, 4, f);
+	    if (hio_read(mod_event, 1, 4, f) < 4) {
+		return -1;
+	    }
 
 	    period = ((int)(LSN(mod_event[0])) << 8) | mod_event[1];
 	    if (period != 0 && (period < 108 || period > 907)) {
@@ -620,38 +646,41 @@ skip_test:
 		unsigned char fxt = LSN(mod_event[2]);
 		unsigned char fxp = LSN(mod_event[3]);
 
-        	if ((fxt > 0x06 && fxt < 0x0a) || (fxt == 0x0e && fxp > 1)) {
+		if ((fxt > 0x06 && fxt < 0x0a) || (fxt == 0x0e && fxp > 1)) {
 		    tracker_id = TRACKER_UNKNOWN;
 		}
 	    }
 	}
 
         if (out_of_range) {
-            if (tracker_id == TRACKER_UNKNOWN && mh.restart == 0x7f) {
-	        tracker_id = TRACKER_SCREAMTRACKER3;
-            }
+	    if (tracker_id == TRACKER_UNKNOWN && mh.restart == 0x7f) {
+		tracker_id = TRACKER_SCREAMTRACKER3;
+	    }
 
 	    /* Check out-of-range notes in Amiga trackers */
-            if (tracker_id == TRACKER_PROTRACKER ||
-                    tracker_id == TRACKER_NOISETRACKER ||
-                    tracker_id == TRACKER_PROBABLY_NOISETRACKER ||
-                    tracker_id == TRACKER_SOUNDTRACKER) {   /* note > B-3 */
-                tracker_id = TRACKER_UNKNOWN;
-            }
-        }
+	    if (tracker_id == TRACKER_PROTRACKER ||
+		tracker_id == TRACKER_NOISETRACKER ||
+		tracker_id == TRACKER_PROBABLY_NOISETRACKER ||
+		tracker_id == TRACKER_SOUNDTRACKER) {   /* note > B-3 */
+
+		tracker_id = TRACKER_UNKNOWN;
+	    }
+	}
 
 	hio_seek(f, pos, SEEK_SET);
 
 	for (j = 0; j < (64 * mod->chn); j++) {
 	    event = &EVENT(i, j % mod->chn, j / mod->chn);
-	    hio_read(mod_event, 1, 4, f);
+	    if (hio_read(mod_event, 1, 4, f) < 4) {
+		return -1;
+	    }
 
 	    switch (tracker_id) {
 	    case TRACKER_PROBABLY_NOISETRACKER:
 	    case TRACKER_NOISETRACKER:
 	    	libxmp_decode_noisetracker_event(event, mod_event);
 		break;
-	    default:	
+	    default:
 	        libxmp_decode_protracker_event(event, mod_event);
 	    }
 	}
@@ -728,11 +757,7 @@ skip_test:
 
     MODULE_INFO();
 
-
     /* Load samples */
-
-    if (m->filename && (x = strrchr(m->filename, '/')))
-	strncpy(pathname, m->filename, x - m->filename);
 
     D_(D_INFO "Stored samples: %d", mod->smp);
 
@@ -746,10 +771,19 @@ skip_test:
 
 	if (ptsong) {
 	    HIO_HANDLE *s;
-	    char sn[256];
-	    snprintf(sn, XMP_NAME_SIZE, "%s%s", pathname, mod->xxi[i].name);
-	
-	    if ((s = hio_open(sn, "rb"))) {
+	    char sn[PATH_MAX];
+	    char tmpname[32];
+	    const char *instname = mod->xxi[i].name;
+
+	    if (!instname[0] || !m->dirname)
+		continue;
+
+	    if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
+		continue;
+
+	    snprintf(sn, PATH_MAX, "%s%s", m->dirname, tmpname);
+
+	    if ((s = hio_open(sn, "rb")) != NULL) {
 	        if (libxmp_load_sample(m, s, flags, &mod->xxs[i], NULL) < 0) {
 		    hio_close(s);
 		    return -1;
@@ -758,13 +792,13 @@ skip_test:
 	    }
 	} else {
 	    uint8 buf[5];
-            long pos;
-            int num;
+	    long pos;
+	    int num;
 
 	    if ((pos = hio_tell(f)) < 0) {
-                return -1;
-            }
-            num = hio_read(buf, 1, 5, f);
+		return -1;
+	    }
+	    num = hio_read(buf, 1, 5, f);
 
 	    if (num == 5 && !memcmp(buf, "ADPCM", 5)) {
 		flags |= SAMPLE_FLAG_ADPCM;

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,34 +36,40 @@
 #include "list.h"
 #include "hio.h"
 #include "tempfile.h"
+#include "loaders/loader.h"
 
-#ifndef LIBXMP_CORE_PLAYER
-#if !defined(HAVE_POPEN) && defined(WIN32)
+#ifndef LIBXMP_NO_DEPACKERS
+#if !defined(HAVE_POPEN) && defined(_WIN32)
 #include "win32/ptpopen.h"
 #define HAVE_POPEN 1
-#endif
-#if defined(__WATCOMC__)
+#elif defined(__WATCOMC__)
 #define popen  _popen
 #define pclose _pclose
 #define HAVE_POPEN 1
 #endif
+#endif
+#ifndef LIBXMP_CORE_PLAYER
 #include "md5.h"
 #include "extras.h"
 #endif
 
 
-extern struct format_loader *format_loader[];
+extern struct format_loader *format_loaders[];
 
 void libxmp_load_prologue(struct context_data *);
 void libxmp_load_epilogue(struct context_data *);
 int  libxmp_prepare_scan(struct context_data *);
 
 #ifndef LIBXMP_CORE_PLAYER
+#define BUFLEN 16384
+#endif
+
+#ifndef LIBXMP_NO_DEPACKERS
 
 #include "depacker.h"
 
 static struct depacker *depacker_list[] = {
-#if defined __AMIGA__ && !defined __AROS__
+#if defined LIBXMP_AMIGA && !defined __AROS__
 	&libxmp_depacker_xfd,
 #endif
 	&libxmp_depacker_zip,
@@ -84,8 +91,6 @@ static struct depacker *depacker_list[] = {
 
 int test_oxm		(FILE *);
 
-#define BUFLEN 16384
-
 #ifndef HAVE_POPEN
 static int execute_command(const char *cmd, const char *filename, FILE *t) {
 	return -1;
@@ -105,7 +110,7 @@ static int execute_command(const char *cmd, const char *filename, FILE *t)
 	 * indefinitely. _popen works properly in a Console application.
 	 * To create a Windows application that redirects input and output,
 	 * read the section "Creating a Child Process with Redirected Input
-	 * and Output" in the Win32 SDK. -- Mirko 
+	 * and Output" in the Win32 SDK. -- Mirko
 	 */
 	p = popen(line, "rb");
 #else
@@ -132,13 +137,11 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	unsigned char b[1024];
 	const char *cmd;
 	FILE *f, *t;
-	int res;
 	int headersize;
 	int i;
 	struct depacker *depacker = NULL;
 
 	cmd = NULL;
-	res = 0;
 	*temp = NULL;
 	f = (*h)->handle.file;
 
@@ -190,6 +193,13 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	}
 #endif
 
+	/* When the filename is unknown (because it is a stream) don't use
+	 * external helpers
+	 */
+	if (cmd && filename == NULL) {
+		return 0;
+	}
+
 	D_(D_WARN "Depacking file... ");
 
 	if ((t = make_temp_file(temp)) == NULL) {
@@ -219,26 +229,23 @@ static int decrunch(HIO_HANDLE **h, const char *filename, char **temp)
 	}
 
 	hio_close(*h);
-	*h = hio_open_file(t);
+	*h = hio_open_file2(t);
 
-	return res;
+	return (*h == NULL)? -1 : 0;
 
     err2:
 	fclose(t);
     err:
 	return -1;
 }
+#endif /* LIBXMP_NO_DEPACKERS */
 
+#ifndef LIBXMP_CORE_PLAYER
 static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
 {
 	unsigned char buf[BUFLEN];
 	MD5_CTX ctx;
 	int bytes_read;
-
-	if (hio_size(f) <= 0) {
-		memset(digest, 0, 16);
-		return;
-	}
 
 	hio_seek(f, 0, SEEK_SET);
 
@@ -249,12 +256,13 @@ static void set_md5sum(HIO_HANDLE *f, unsigned char *digest)
 	MD5Final(digest, &ctx);
 }
 
-static char *get_dirname(char *name)
+static char *get_dirname(const char *name)
 {
-	char *div, *dirname;
-	int len;
+	char *dirname;
+	const char *div;
+	ptrdiff_t len;
 
-	if ((div = strrchr(name, '/'))) {
+	if ((div = strrchr(name, '/')) != NULL) {
 		len = div - name + 1;
 		dirname = malloc(len + 1);
 		if (dirname != NULL) {
@@ -268,11 +276,12 @@ static char *get_dirname(char *name)
 	return dirname;
 }
 
-static char *get_basename(char *name)
+static char *get_basename(const char *name)
 {
-	char *div, *basename;
+	const char *div;
+	char *basename;
 
-	if ((div = strrchr(name, '/'))) {
+	if ((div = strrchr(name, '/')) != NULL) {
 		basename = strdup(div + 1);
 	} else {
 		basename = strdup(name);
@@ -282,31 +291,64 @@ static char *get_basename(char *name)
 }
 #endif /* LIBXMP_CORE_PLAYER */
 
-int xmp_test_module(char *path, struct xmp_test_info *info)
+static int test_module(struct xmp_test_info *info, HIO_HANDLE *h)
+{
+	char buf[XMP_NAME_SIZE];
+	int i;
+
+	if (info != NULL) {
+		*info->name = 0;	/* reset name prior to testing */
+		*info->type = 0;	/* reset type prior to testing */
+	}
+
+	for (i = 0; format_loaders[i] != NULL; i++) {
+		hio_seek(h, 0, SEEK_SET);
+		if (format_loaders[i]->test(h, buf, 0) == 0) {
+			int is_prowizard = 0;
+
+#if !defined(LIBXMP_CORE_PLAYER) && !defined(LIBXMP_NO_PROWIZARD)
+			if (strcmp(format_loaders[i]->name, "prowizard") == 0) {
+				hio_seek(h, 0, SEEK_SET);
+				pw_test_format(h, buf, 0, info);
+				is_prowizard = 1;
+			}
+#endif
+
+			if (info != NULL && !is_prowizard) {
+				strncpy(info->name, buf, XMP_NAME_SIZE - 1);
+				info->name[XMP_NAME_SIZE - 1] = '\0';
+
+				strncpy(info->type, format_loaders[i]->name,
+							XMP_NAME_SIZE - 1);
+				info->type[XMP_NAME_SIZE - 1] = '\0';
+			}
+			return 0;
+		}
+	}
+	return -XMP_ERROR_FORMAT;
+}
+
+int xmp_test_module(const char *path, struct xmp_test_info *info)
 {
 	HIO_HANDLE *h;
 	struct stat st;
-	char buf[XMP_NAME_SIZE];
-	int i;
-	int ret = -XMP_ERROR_FORMAT;
-#ifndef LIBXMP_CORE_PLAYER
+	int ret;
+#ifndef LIBXMP_NO_DEPACKERS
 	char *temp = NULL;
 #endif
 
 	if (stat(path, &st) < 0)
 		return -XMP_ERROR_SYSTEM;
 
-#ifndef _MSC_VER
 	if (S_ISDIR(st.st_mode)) {
 		errno = EISDIR;
 		return -XMP_ERROR_SYSTEM;
 	}
-#endif
 
 	if ((h = hio_open(path, "rb")) == NULL)
 		return -XMP_ERROR_SYSTEM;
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	if (decrunch(&h, path, &temp) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
@@ -319,40 +361,63 @@ int xmp_test_module(char *path, struct xmp_test_info *info)
 	}
 #endif
 
-	if (info != NULL) {
-		*info->name = 0;	/* reset name prior to testing */
-		*info->type = 0;	/* reset type prior to testing */
+	ret = test_module(info, h);
+
+#ifndef LIBXMP_NO_DEPACKERS
+    err:
+	hio_close(h);
+	unlink_temp_file(temp);
+#else
+	hio_close(h);
+#endif
+	return ret;
+}
+
+int xmp_test_module_from_memory(const void *mem, long size, struct xmp_test_info *info)
+{
+	HIO_HANDLE *h;
+	int ret;
+
+	if (size <= 0) {
+		return -XMP_ERROR_INVALID;
 	}
 
-	for (i = 0; format_loader[i] != NULL; i++) {
-		hio_seek(h, 0, SEEK_SET);
-		if (format_loader[i]->test(h, buf, 0) == 0) {
-			int is_prowizard = 0;
+	if ((h = hio_open_mem(mem, size)) == NULL)
+		return -XMP_ERROR_SYSTEM;
 
-#ifndef LIBXMP_CORE_PLAYER
-			if (strcmp(format_loader[i]->name, "prowizard") == 0) {
-				hio_seek(h, 0, SEEK_SET);
-				pw_test_format(h, buf, 0, info);
-				is_prowizard = 1;
-			}
+	ret = test_module(info, h);
+
+	hio_close(h);
+	return ret;
+}
+
+int xmp_test_module_from_file(void *file, struct xmp_test_info *info)
+{
+	HIO_HANDLE *h;
+	int ret;
+#ifndef LIBXMP_NO_DEPACKERS
+	char *temp = NULL;
 #endif
 
-			fclose(h->handle.file);
+	if ((h = hio_open_file((FILE *)file)) == NULL)
+		return -XMP_ERROR_SYSTEM;
 
-#ifndef LIBXMP_CORE_PLAYER
-			unlink_temp_file(temp);
-#endif
-
-			if (info != NULL && !is_prowizard) {
-				strncpy(info->name, buf, XMP_NAME_SIZE - 1);
-				strncpy(info->type, format_loader[i]->name,
-							XMP_NAME_SIZE - 1);
-			}
-			return 0;
-		}
+#ifndef LIBXMP_NO_DEPACKERS
+	if (decrunch(&h, NULL, &temp) < 0) {
+		ret = -XMP_ERROR_DEPACK;
+		goto err;
 	}
 
-#ifndef LIBXMP_CORE_PLAYER
+	/* get size after decrunch */
+	if (hio_size(h) < 256) {	/* set minimum valid module size */
+		ret = -XMP_ERROR_FORMAT;
+		goto err;
+	}
+#endif
+
+	ret = test_module(info, h);
+
+#ifndef LIBXMP_NO_DEPACKERS
     err:
 	hio_close(h);
 	unlink_temp_file(temp);
@@ -374,19 +439,16 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 
 	D_(D_WARN "load");
 	test_result = load_result = -1;
-	for (i = 0; format_loader[i] != NULL; i++) {
+	for (i = 0; format_loaders[i] != NULL; i++) {
 		hio_seek(h, 0, SEEK_SET);
+		hio_error(h); /* reset error flag */
 
-		if (hio_error(h)) {
-			/* reset error flag */
-		}
-
-		D_(D_WARN "test %s", format_loader[i]->name);
-		test_result = format_loader[i]->test(h, NULL, 0);
+		D_(D_WARN "test %s", format_loaders[i]->name);
+		test_result = format_loaders[i]->test(h, NULL, 0);
 		if (test_result == 0) {
 			hio_seek(h, 0, SEEK_SET);
-			D_(D_WARN "load format: %s", format_loader[i]->name);
-			load_result = format_loader[i]->loader(m, h, 0);
+			D_(D_WARN "load format: %s", format_loaders[i]->name);
+			load_result = format_loaders[i]->loader(m, h, 0);
 			break;
 		}
 	}
@@ -397,8 +459,7 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 #endif
 
 	if (test_result < 0) {
-		free(m->basename);
-		free(m->dirname);
+		xmp_release_module(opaque);
 		return -XMP_ERROR_FORMAT;
 	}
 
@@ -453,7 +514,11 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 		return ret;
 	}
 
-	libxmp_scan_sequences(ctx);
+	ret = libxmp_scan_sequences(ctx);
+	if (ret < 0) {
+		xmp_release_module(opaque);
+		return -XMP_ERROR_LOAD;
+	}
 
 	ctx->state = XMP_STATE_LOADED;
 
@@ -464,12 +529,14 @@ static int load_module(xmp_context opaque, HIO_HANDLE *h)
 	return -XMP_ERROR_LOAD;
 }
 
-int xmp_load_module(xmp_context opaque, char *path)
+int xmp_load_module(xmp_context opaque, const char *path)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 #ifndef LIBXMP_CORE_PLAYER
 	struct module_data *m = &ctx->m;
 	long size;
+#endif
+#ifndef LIBXMP_NO_DEPACKERS
 	char *temp_name;
 #endif
 	HIO_HANDLE *h;
@@ -482,24 +549,24 @@ int xmp_load_module(xmp_context opaque, char *path)
 		return -XMP_ERROR_SYSTEM;
 	}
 
-#ifndef _MSC_VER
 	if (S_ISDIR(st.st_mode)) {
 		errno = EISDIR;
 		return -XMP_ERROR_SYSTEM;
 	}
-#endif
 
 	if ((h = hio_open(path, "rb")) == NULL) {
 		return -XMP_ERROR_SYSTEM;
 	}
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	D_(D_INFO "decrunch");
 	if (decrunch(&h, path, &temp_name) < 0) {
 		ret = -XMP_ERROR_DEPACK;
 		goto err;
 	}
+#endif
 
+#ifndef LIBXMP_CORE_PLAYER
 	size = hio_size(h);
 	if (size < 256) {		/* get size after decrunch */
 		ret = -XMP_ERROR_FORMAT;
@@ -525,12 +592,16 @@ int xmp_load_module(xmp_context opaque, char *path)
 
 	m->filename = path;	/* For ALM, SSMT, etc */
 	m->size = size;
+#else
+	ctx->m.filename = NULL;
+	ctx->m.dirname = NULL;
+	ctx->m.basename = NULL;
 #endif
 
 	ret = load_module(opaque, h);
 	hio_close(h);
 
-#ifndef LIBXMP_CORE_PLAYER
+#ifndef LIBXMP_NO_DEPACKERS
 	unlink_temp_file(temp_name);
 #endif
 
@@ -539,21 +610,23 @@ int xmp_load_module(xmp_context opaque, char *path)
 #ifndef LIBXMP_CORE_PLAYER
     err:
 	hio_close(h);
+#ifndef LIBXMP_NO_DEPACKERS
 	unlink_temp_file(temp_name);
+#endif
 	return ret;
 #endif
 }
 
-int xmp_load_module_from_memory(xmp_context opaque, void *mem, long size)
+int xmp_load_module_from_memory(xmp_context opaque, const void *mem, long size)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct module_data *m = &ctx->m;
 	HIO_HANDLE *h;
 	int ret;
 
-	/* Use size < 0 for unknown/undetermined size */
-	if (size == 0)
-		size--;
+	if (size <= 0) {
+		return -XMP_ERROR_INVALID;
+	}
 
 	if ((h = hio_open_mem(mem, size)) == NULL)
 		return -XMP_ERROR_SYSTEM;
@@ -578,10 +651,9 @@ int xmp_load_module_from_file(xmp_context opaque, void *file, long size)
 	struct context_data *ctx = (struct context_data *)opaque;
 	struct module_data *m = &ctx->m;
 	HIO_HANDLE *h;
-	FILE *f = fdopen(fileno((FILE *)file), "rb");
 	int ret;
 
-	if ((h = hio_open_file(f)) == NULL)
+	if ((h = hio_open_file((FILE *)file)) == NULL)
 		return -XMP_ERROR_SYSTEM;
 
 	if (ctx->state > XMP_STATE_UNLOADED)
@@ -628,6 +700,7 @@ void xmp_release_module(xmp_context opaque)
 			free(mod->xxt[i]);
 		}
 		free(mod->xxt);
+		mod->xxt = NULL;
 	}
 
 	if (mod->xxp != NULL) {
@@ -635,6 +708,7 @@ void xmp_release_module(xmp_context opaque)
 			free(mod->xxp[i]);
 		}
 		free(mod->xxp);
+		mod->xxp = NULL;
 	}
 
 	if (mod->xxi != NULL) {
@@ -643,40 +717,40 @@ void xmp_release_module(xmp_context opaque)
 			free(mod->xxi[i].extra);
 		}
 		free(mod->xxi);
+		mod->xxi = NULL;
 	}
 
 	if (mod->xxs != NULL) {
 		for (i = 0; i < mod->smp; i++) {
-			if (mod->xxs[i].data != NULL) {
-				free(mod->xxs[i].data - 4);
-			}
+			libxmp_free_sample(&mod->xxs[i]);
 		}
 		free(mod->xxs);
-		free(m->xtra);
+		mod->xxs = NULL;
 	}
+
+	free(m->xtra);
+	m->xtra = NULL;
 
 #ifndef LIBXMP_CORE_DISABLE_IT
 	if (m->xsmp != NULL) {
 		for (i = 0; i < mod->smp; i++) {
-			if (m->xsmp[i].data != NULL) {
-				free(m->xsmp[i].data - 4);
-			}
+			libxmp_free_sample(&m->xsmp[i]);
 		}
 		free(m->xsmp);
+		m->xsmp = NULL;
 	}
 #endif
 
-	if (m->scan_cnt) {
-		for (i = 0; i < mod->len; i++)
-			free(m->scan_cnt[i]);
-		free(m->scan_cnt);
-	}
+	libxmp_free_scan(ctx);
 
 	free(m->comment);
+	m->comment = NULL;
 
 	D_("free dirname/basename");
 	free(m->dirname);
 	free(m->basename);
+	m->basename = NULL;
+	m->dirname = NULL;
 }
 
 void xmp_scan_module(xmp_context opaque)

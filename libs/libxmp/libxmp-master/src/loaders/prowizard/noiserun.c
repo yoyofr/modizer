@@ -78,7 +78,7 @@ static int depack_nru(HIO_HANDLE *in, FILE *out)
 	/* pattern data */
 	hio_seek(in, 0x043c, SEEK_SET);
 	for (i = 0; i < max_pat; i++) {
-		memset(pat_data, 0, 1025);
+		memset(pat_data, 0, sizeof(pat_data));
 		hio_read(tmp, 1024, 1, in);
 		for (j = 0; j < 256; j++) {
 			ins = (tmp[j * 4 + 3] >> 3) & 0x1f;
@@ -97,8 +97,10 @@ static int depack_nru(HIO_HANDLE *in, FILE *out)
 				break;
 			}
 			pat_data[j * 4] = ins & 0xf0;
-			pat_data[j * 4] |= ptk_table[note / 2][0];
-			pat_data[j * 4 + 1] = ptk_table[note / 2][1];
+			if (PTK_IS_VALID_NOTE(note / 2)) {
+				pat_data[j * 4] |= ptk_table[note / 2][0];
+				pat_data[j * 4 + 1] = ptk_table[note / 2][1];
+			}
 			pat_data[j * 4 + 2] = (ins << 4) & 0xf0;
 			pat_data[j * 4 + 2] |= fxt;
 			pat_data[j * 4 + 3] = fxp;
@@ -167,6 +169,8 @@ static int test_nru(const uint8 *data, char *t, int s)
 
 	psize++;
 	psize <<= 8;
+
+	PW_REQUEST_DATA(s, psize * 4 + 1084);
 
 	/* test #5 pattern data ... */
 	for (i = 0; i < psize; i++) {

@@ -1,0 +1,41 @@
+CFLAGS += -DHAVE_ALLOCA_H -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK -DLIBXMP_CORE_PLAYER -DLIBXMP_NO_PROWIZARD -DLIBXMP_NO_DEPACKERS
+#CFLAGS += -DDEBUG
+CFLAGS += -I"include/libxmp-lite" -Isrc
+
+DLLFLAGS=-bd -DBUILDING_DLL
+
+DLLNAME=libxmp.dll
+EXPNAME=libxmp.exp
+LIBNAME=libxmp.lib
+LIBSTATIC=xmp_static.lib
+
+!ifeq target static
+BLD_TARGET=$(LIBSTATIC)
+!else
+CFLAGS+= $(DLLFLAGS)
+BLD_TARGET=$(DLLNAME)
+!endif
+
+OBJS=@OBJS@
+
+#.SUFFIXES: .obj .c
+
+.c: src;src/loaders
+.c.obj:
+	$(CC) $(CFLAGS) -fo=$^@ $<
+
+all: $(BLD_TARGET)
+
+# rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
+$(DLLNAME): $(OBJS)
+	wlink NAM $@ SYSTEM $(SYSTEM) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(OBJS)} OPTION IMPF=$(EXPNAME)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
+
+$(LIBSTATIC): $(OBJS)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
+
+clean: .symbolic
+	rm -f $(OBJS)
+
+distclean: clean .symbolic
+	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)

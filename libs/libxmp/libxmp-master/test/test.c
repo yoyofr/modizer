@@ -98,7 +98,7 @@ int main()
 
 	MD5Final(digest, &ctx);
 
-	if (compare_md5(digest, "8ddeaa84bf9d90fd3b3c0a19453d005b") < 0) {
+	if (compare_md5(digest, "769a03855bac202597a581a8628424d5") < 0) {
 		printf("rendering error\n");
 		goto err;
 	}
@@ -110,9 +110,15 @@ int main()
 
 	printf(" pass\n");
 
+	xmp_release_module(c);
+	xmp_free_context(c);
 	exit(0);
 
     err:
 	printf(" fail\n");
+	if (c) {
+		xmp_release_module(c);
+		xmp_free_context(c);
+	}
 	exit(1);
 }

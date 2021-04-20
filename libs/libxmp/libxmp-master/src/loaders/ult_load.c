@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -52,7 +52,7 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
     if (memcmp(buf, "MAS_UTrack_V000", 14))
 	return -1;
 
-    if (buf[14] < '0' || buf[14] > '4')
+    if (buf[14] < '1' || buf[14] > '4')
 	return -1;
 
     libxmp_read_title(f, t, 32);
@@ -113,14 +113,14 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     LOAD_INIT();
 
-    hio_read(&ufh.magic, 15, 1, f);
-    hio_read(&ufh.name, 32, 1, f);
+    hio_read(ufh.magic, 15, 1, f);
+    hio_read(ufh.name, 32, 1, f);
     ufh.msgsize = hio_read8(f);
 
     ver = ufh.magic[14] - '0';
 
     strncpy(mod->name, (char *)ufh.name, 32);
-    ufh.name[0] = 0;
+    mod->name[32] = '\0';
     libxmp_set_type(m, "Ultra Tracker %s ULT V%04d", verstr[ver - 1], ver);
 
     m->c4rate = C4_NTSC_RATE;
@@ -143,8 +143,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 	    return -1;
 
-	hio_read(&uih.name, 32, 1, f);
-	hio_read(&uih.dosname, 12, 1, f);
+	hio_read(uih.name, 32, 1, f);
+	hio_read(uih.dosname, 12, 1, f);
 	uih.loop_start = hio_read32l(f);
 	uih.loopend = hio_read32l(f);
 	uih.sizestart = hio_read32l(f);
@@ -153,6 +153,10 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uih.bidiloop = hio_read8(f);
 	uih.finetune = hio_read16l(f);
 	uih.c2spd = ver < 4 ? 0 : hio_read16l(f);
+	if (hio_error(f)) {
+	    D_(D_CRIT "read error at instrument %d", i);
+	    return -1;
+	}
 
 	if (ver > 3) {			/* Incorrect in ult_form.txt */
 	    uih.c2spd ^= uih.finetune;
@@ -211,7 +215,7 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	libxmp_instrument_name(mod, i, uih.name, 24);
 
 	D_(D_INFO "[%2X] %-32.32s %05x%c%05x %05x %c V%02x F%04x %5d",
-		i, uih.name, mod->xxs[i].len,
+		i, mod->xxi[i].name, mod->xxs[i].len,
 		mod->xxs[i].flg & XMP_SAMPLE_16BIT ? '+' : ' ',
 		mod->xxs[i].lps, mod->xxs[i].lpe,
 		mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
@@ -221,9 +225,13 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    libxmp_c2spd_to_note(uih.c2spd, &mod->xxi[i].sub[0].xpo, &mod->xxi[i].sub[0].fin);
     }
 
-    hio_read(&ufh2.order, 256, 1, f);
+    hio_read(ufh2.order, 256, 1, f);
     ufh2.channels = hio_read8(f);
     ufh2.patterns = hio_read8(f);
+
+    if (hio_error(f)) {
+	return -1;
+    }
 
     for (i = 0; i < 256; i++) {
 	if (ufh2.order[i] == 0xff)
@@ -236,6 +244,11 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
     mod->spd = 6;
     mod->bpm = 125;
     mod->trk = mod->chn * mod->pat;
+
+    /* Sanity check */
+    if (mod->chn > XMP_MAX_CHANNELS) {
+	return -1;
+    }
 
     for (i = 0; i < mod->chn; i++) {
 	if (ver >= 3) {
@@ -267,10 +280,18 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		cnt = hio_read8(f);		/* Read repeat count */
 		x8 = hio_read8(f);		/* Read note */
 	    }
-	    hio_read(&ue, 4, 1, f);		/* Read rest of the event */
+	    if (hio_read(&ue, 1, 4, f) < 4) {	/* Read rest of the event */
+		D_(D_CRIT "read error at channel %d pos %d", i, j);
+		return -1;
+	    }
 
 	    if (cnt == 0)
 		cnt++;
+
+	    if (j + cnt > 64 * mod->pat) {
+		D_(D_WARN "invalid track data packing");
+		return -1;
+	    }
 
 	    for (k = 0; k < cnt; k++, j++) {
 		event = &EVENT (j >> 6, i , j & 0x3f);

@@ -95,7 +95,7 @@ static int depack_titanics(HIO_HANDLE *in, FILE *out)
 
 		hio_seek(in, pat_addr_final[i], SEEK_SET);
 
-		memset(buf, 0, 1024);
+		memset(buf, 0, sizeof(buf));
 		x = hio_read8(in);
 
 		for (k = 0; k < 64; ) {			/* row number */
@@ -104,7 +104,7 @@ static int depack_titanics(HIO_HANDLE *in, FILE *out)
 
 			note = y & 0x3f;
 
-			if (note <= 36) {
+			if (PTK_IS_VALID_NOTE(note)) {
 				buf[k * 16 + c] = ptk_table[note][0];
 				buf[k * 16 + c + 1] = ptk_table[note][1];
 			}
@@ -149,7 +149,7 @@ static int test_titanics(const uint8 *data, char *t, int s)
 
 		if (d[7] > 0x40)
 			return -1;
-			
+
 		if (d[6] != 0)
 			return -1;
 
@@ -182,15 +182,16 @@ static int test_titanics(const uint8 *data, char *t, int s)
 		int addr = 0;
 
 		for (i = 0; i < 256; i += 2) {
+			PW_REQUEST_DATA(s, i + 182);
 			addr = readmem16b(data + i + 180);
-	
+
 			if (addr == 0xffff)
 				break;
-	
+
 			if (addr < 180)
 				return -1;
 		}
-	
+
 		if (addr != 0xffff) {
 			return -1;
 		}

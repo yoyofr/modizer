@@ -30,8 +30,8 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 	/*int tsize1, tsize2, tsize3;*/
 	int i, j, k;
 
-	memset(paddr, 0, 128 * 4);
-	memset(psize, 0, 128 * 4);
+	memset(paddr, 0, sizeof(paddr));
+	memset(psize, 0, sizeof(psize));
 
 	npos = hio_read8(in);
 	ntk_byte = hio_read8(in);
@@ -70,7 +70,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 
 	hio_seek(in, 0x300, SEEK_SET);	/* go to pattern table .. */
 	pw_move_data(out, in, 128);	/* pattern table */
-	
+
 	write32b(out, PW_MOD_MAGIC);	/* M.K. */
 
 	/* pattern data */
@@ -80,7 +80,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 		/*tsize2 =*/ hio_read32b(in);
 		/*tsize3 =*/ hio_read32b(in);
 
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (k = 0; k < 4; k++) {
 			for (j = 0; j < 64; j++) {
 				int x = j * 16 + k * 4;
@@ -106,7 +106,7 @@ static int depack_ac1d(HIO_HANDLE *in, FILE *out)
 
 				tmp[x] = ins & 0xf0;
 
-				if (note != NO_NOTE) {
+				if (note != NO_NOTE && PTK_IS_VALID_NOTE(note)) {
 					tmp[x] |= ptk_table[note][0];
 					tmp[x + 1] = ptk_table[note][1];
 				}

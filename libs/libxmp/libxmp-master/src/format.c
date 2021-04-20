@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -22,8 +22,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "loaders/prowizard/prowiz.h"
 #include "format.h"
+
+#ifndef LIBXMP_NO_PROWIZARD
+#include "loaders/prowizard/prowiz.h"
+#endif
 
 extern const struct format_loader libxmp_loader_xm;
 extern const struct format_loader libxmp_loader_mod;
@@ -71,7 +74,7 @@ extern const struct format_loader libxmp_loader_sfx;
 extern const struct format_loader libxmp_loader_far;
 extern const struct format_loader libxmp_loader_umx;
 extern const struct format_loader libxmp_loader_stim;
-/* extern const struct format_loader libxmp_loader_coco; */
+extern const struct format_loader libxmp_loader_coco;
 /* extern const struct format_loader libxmp_loader_mtp; */
 extern const struct format_loader libxmp_loader_ims;
 extern const struct format_loader libxmp_loader_669;
@@ -88,9 +91,11 @@ extern const struct format_loader libxmp_loader_hmn;
 extern const struct format_loader libxmp_loader_chip;
 extern const struct format_loader libxmp_loader_abk;
 
-extern const struct pw_format *const pw_format[];
+#ifndef LIBXMP_NO_PROWIZARD
+extern const struct pw_format *const pw_formats[];
+#endif
 
-const struct format_loader *const format_loader[NUM_FORMATS + 2] = {
+const struct format_loader *const format_loaders[NUM_FORMATS + 2] = {
 	&libxmp_loader_xm,
 	&libxmp_loader_mod,
 	&libxmp_loader_flt,
@@ -139,7 +144,7 @@ const struct format_loader *const format_loader[NUM_FORMATS + 2] = {
 	&libxmp_loader_umx,
 	&libxmp_loader_hmn,
 	&libxmp_loader_stim,
-	/* &libxmp_loader_coco, */
+	&libxmp_loader_coco,
 	/* &libxmp_loader_mtp, */
 	&libxmp_loader_ims,
 	&libxmp_loader_669,
@@ -152,32 +157,35 @@ const struct format_loader *const format_loader[NUM_FORMATS + 2] = {
 	/* &libxmp_loader_alm, */
 	/* &libxmp_loader_polly, */
 	/* &libxmp_loader_stc, */
+#ifndef LIBXMP_NO_PROWIZARD
 	&libxmp_loader_pw,
+#endif
 	NULL
 };
 
 static const char *_farray[NUM_FORMATS + NUM_PW_FORMATS + 1] = { NULL };
 
-char **format_list()
+const char *const *format_list(void)
 {
 	int count, i;
 
 	if (_farray[0] == NULL) {
-		for (count = i = 0; format_loader[i] != NULL; i++) {
-
-			if (strcmp(format_loader[i]->name, "prowizard") == 0) {
+		for (count = i = 0; format_loaders[i] != NULL; i++) {
+#ifndef LIBXMP_NO_PROWIZARD
+			if (strcmp(format_loaders[i]->name, "prowizard") == 0) {
 				int j;
 
-				for (j = 0; pw_format[j] != NULL; j++) {
-					_farray[count++] = pw_format[j]->name;
+				for (j = 0; pw_formats[j] != NULL; j++) {
+					_farray[count++] = pw_formats[j]->name;
 				}
-			} else {
-				_farray[count++] = format_loader[i]->name;
+				continue;
 			}
+#endif
+			_farray[count++] = format_loaders[i]->name;
 		}
 
 		_farray[count] = NULL;
 	}
 
-	return (char **)_farray;
+	return _farray;
 }

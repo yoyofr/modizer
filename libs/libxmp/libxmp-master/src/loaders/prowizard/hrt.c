@@ -17,11 +17,13 @@ static int depack_hrt(HIO_HANDLE *in, FILE *out)
 	int ssize = 0;
 	int i, j;
 
-	memset(buf, 0, 950);
+	memset(buf, 0, sizeof(buf));
 
 	hio_read(buf, 950, 1, in);			/* read header */
-	for (i = 0; i < 31; i++)		/* erase addresses */
-		*(uint32 *)(buf + 38 + 30 * i) = 0;
+	for (i = 0; i < 31; i++) {			/* erase addresses */
+		uint8 *pos = buf + 38 + 30 * i;
+		pos[0] = pos[1] = pos[2] = pos[3] = 0;
+	}
 	fwrite(buf, 950, 1, out);		/* write header */
 
 	for (i = 0; i < 31; i++)		/* samples size */
@@ -31,6 +33,7 @@ static int depack_hrt(HIO_HANDLE *in, FILE *out)
 	write8(out, hio_read8(in));			/* nst byte */
 
 	hio_read(buf, 1, 128, in);			/* pattern list */
+	fwrite(buf, 128, 1, out);
 
 	npat = 0;				/* number of patterns */
 	for (i = 0; i < 128; i++) {
@@ -53,7 +56,7 @@ static int depack_hrt(HIO_HANDLE *in, FILE *out)
 			buf[0] /= 2;
 			c1 = buf[0] & 0xf0;
 
-			if (buf[1] == 0)
+			if (buf[1] == 0 || !PTK_IS_VALID_NOTE(buf[1] / 2))
 				c2 = 0;
 			else {
 				c1 |= ptk_table[buf[1] / 2][0];

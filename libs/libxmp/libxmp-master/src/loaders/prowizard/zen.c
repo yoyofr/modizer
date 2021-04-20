@@ -27,9 +27,9 @@ static int depack_zen(HIO_HANDLE *in, FILE *out)
 	int sdata_addr = 999999l;
 	int i, j, k;
 
-	memset(paddr, 0, 128 * 4);
-	memset(paddr2, 0, 128 * 4);
-	memset(ptable, 0, 128);
+	memset(paddr, 0, sizeof(paddr));
+	memset(paddr2, 0, sizeof(paddr2));
+	memset(ptable, 0, sizeof(ptable));
 
 	ptable_addr = hio_read32b(in);	/* read pattern table address */
 	pat_max = hio_read8(in);	/* read patmax */
@@ -106,7 +106,7 @@ static int depack_zen(HIO_HANDLE *in, FILE *out)
 	/* pattern data */
 	/*printf ( "converting pattern datas " ); */
 	for (i = 0; i <= pat_max; i++) {
-		memset(pat, 0, 1024);
+		memset(pat, 0, sizeof(pat));
 		hio_seek(in, paddr2[i], SEEK_SET);
 		for (j = 0; j < 256; j++) {
 			uint8 *p;
@@ -117,6 +117,11 @@ static int depack_zen(HIO_HANDLE *in, FILE *out)
 			c4 = hio_read8(in);
 
 			note = (c2 & 0x7f) / 2;
+
+			if (hio_error(in) || !PTK_IS_VALID_NOTE(note)) {
+				return -1;
+			}
+
 			fxp = c4;
 			ins = ((c2 << 4) & 0x10) | ((c3 >> 4) & 0x0f);
 			fxt = c3 & 0x0f;

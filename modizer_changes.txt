@@ -28,6 +28,7 @@ Todo/Requested:
 - [PLAYER] New: Voices control support for some of the formats
 - [PLAYER] New Oscilloscope view / individual channels for some of the formats
 - [PLAYER] pattern view for XMP
+- [PLAYER] LIBXMP updated to latest version 
 - [DB] Updated to latest versions
 - [GLOBAL] Better compatibiltiy with older devices running on iOS 9 (4S, ...)
 - [UI] Option to not recreate samples folder automatically

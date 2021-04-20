@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -46,7 +46,7 @@ static int mmd3_test(HIO_HANDLE *f, char *t, const int start)
 
 	hio_seek(f, 28, SEEK_CUR);
 	offset = hio_read32b(f);		/* expdata_offset */
-	
+
 	if (offset) {
 		hio_seek(f, start + offset + 44, SEEK_SET);
 		offset = hio_read32b(f);
@@ -92,6 +92,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int playseq_offset;
 	int pos;
 	int bpm_on, bpmlen, med_8ch, hexvol;
+	char name[40];
 
 	LOAD_INIT();
 
@@ -266,6 +267,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read32b(f);
 		hio_read32b(f);
 		songname_offset = hio_read32b(f);
+		D_(D_INFO "songname_offset = 0x%08x", songname_offset);
 		expdata.songnamelen = hio_read32b(f);
 		hio_read32b(f);		/* dumps */
 		mmdinfo_offset = hio_read32b(f);
@@ -283,6 +285,7 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		}
 
 		if (mmdinfo_offset != 0) {
+			D_(D_INFO "mmdinfo_offset = 0x%08x", mmdinfo_offset);
 			hio_seek(f, start + mmdinfo_offset, SEEK_SET);
 			mmd_info_text(f, m, mmdinfo_offset);
 		}
@@ -299,12 +302,18 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_seek(f, start + blockarr_offset + i * 4, SEEK_SET);
 		block_offset = hio_read32b(f);
 		D_(D_INFO "block %d block_offset = 0x%08x", i, block_offset);
+		if (hio_error(f)) {
+			return -1;
+		}
 		if (block_offset == 0)
 			continue;
 		hio_seek(f, start + block_offset, SEEK_SET);
 
 		block.numtracks = hio_read16b(f);
 		/* block.lines = */ hio_read16b(f);
+		if (hio_error(f)) {
+			return -1;
+		}
 
 		if (block.numtracks > mod->chn) {
 			mod->chn = block.numtracks;
@@ -349,7 +358,13 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		block.lines = hio_read16b(f);
 		hio_read32b(f);
 
-		if (libxmp_alloc_pattern_tracks(mod, i, block.lines + 1) < 0)
+		/* Sanity check--Amiga OctaMED files have an upper bound of 3200 lines per block,
+		 * but MED Soundstudio for Windows allows up to 9999 lines.
+		  */
+		if (block.lines + 1 > 9999)
+			return -1;
+
+		if (libxmp_alloc_pattern_tracks_long(mod, i, block.lines + 1) < 0)
 			return -1;
 
 		for (j = 0; j < mod->xxp[i]->rows; j++) {
@@ -423,11 +438,17 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (expdata_offset && i < expdata.i_ext_entries) {
 			struct xmp_instrument *xxi = &mod->xxi[i];
 			int offset = iinfo_offset + i * expdata.i_ext_entrsz;
+			D_(D_INFO "sample %d iinfo_offset = 0x%08x", i, offset);
 
-			if (offset < 0 || hio_seek(f, offset, SEEK_SET) < 0) {
+			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
 				return -1;
 			}
-			hio_read(&xxi->name, 40, 1, f);
+			if (hio_read(name, 40, 1, f) < 1) {
+				D_(D_CRIT "read error at iinfo %d", i);
+				return -1;
+			}
+			strncpy(xxi->name, name, 32);
+			xxi->name[31] = '\0';
 			D_(D_INFO "[%2x] %-40.40s %d", i, mod->xxi[i].name, instr.type);
 		}
 
@@ -435,8 +456,9 @@ static int mmd3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		if (expdata_offset && i < expdata.s_ext_entries) {
 			int offset = expsmp_offset + i * expdata.s_ext_entrsz;
+			D_(D_INFO "sample %d expsmp_offset = 0x%08x", i, offset);
 
-			if (offset < 0 || hio_seek(f, offset, SEEK_SET) < 0) {
+			if (offset < 0 || hio_seek(f, start + offset, SEEK_SET) < 0) {
 				return -1;
 			}
 			exp_smp.hold = hio_read8(f);

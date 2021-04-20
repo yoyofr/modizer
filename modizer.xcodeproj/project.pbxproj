@@ -299,7 +299,6 @@
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
 		593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
 		593928EE25CF5379009281DC /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928E525CF524A009281DC /* libvgmstream.a */; };
-		593928FF25CF5814009281DC /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
 		5939290525CF59CB009281DC /* hvl_replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5939290425CF59CB009281DC /* hvl_replay.cpp */; };
 		59392A1A25CF610C009281DC /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
 		5950D7F825DEFF8C00B476B2 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F125DEFF8C00B476B2 /* libavfilter.a */; };
@@ -1089,13 +1088,11 @@
 		5950DB6125E0F67B00B476B2 /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
 		5950DB6225E0F67B00B476B2 /* libswscale.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F725DEFF8C00B476B2 /* libswscale.a */; };
 		5950DB6325E0F67B00B476B2 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362325DBDB1600AA548E /* VideoToolbox.framework */; };
-		5950DB6425E0F67B00B476B2 /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
 		5950DB6525E0F67B00B476B2 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928E525CF524A009281DC /* libvgmstream.a */; };
 		5950DB6625E0F67B00B476B2 /* libResample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F4925CFE90E00711C05 /* libResample.a */; };
 		5950DB6725E0F67B00B476B2 /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
 		5950DB6925E0F67B00B476B2 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB325BC8C3B003FEDBF /* libxml2.tbd */; };
 		5950DB6A25E0F67B00B476B2 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
-		5950DB6B25E0F67B00B476B2 /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
 		5950DB6C25E0F67B00B476B2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB725BC8CFF003FEDBF /* Security.framework */; };
 		5950DB6D25E0F67B00B476B2 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
 		5950DB6E25E0F67B00B476B2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
@@ -2114,13 +2111,11 @@
 		595D4C97262187BC000B7187 /* libgsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6800C25CFCF2A001595B7 /* libgsf.a */; };
 		595D4C98262187BC000B7187 /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
 		595D4C9A262187BC000B7187 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362325DBDB1600AA548E /* VideoToolbox.framework */; };
-		595D4C9B262187BC000B7187 /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
 		595D4C9C262187BC000B7187 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928E525CF524A009281DC /* libvgmstream.a */; };
 		595D4C9D262187BC000B7187 /* libResample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F4925CFE90E00711C05 /* libResample.a */; };
 		595D4C9E262187BC000B7187 /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
 		595D4C9F262187BC000B7187 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB325BC8C3B003FEDBF /* libxml2.tbd */; };
 		595D4CA0262187BC000B7187 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
-		595D4CA1262187BC000B7187 /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
 		595D4CA2262187BC000B7187 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C22AB725BC8CFF003FEDBF /* Security.framework */; };
 		595D4CA3262187BC000B7187 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
 		595D4CA4262187BC000B7187 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
@@ -2348,7 +2343,6 @@
 		5966D0BC25CFEE0100520777 /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6802025CFCF2A001595B7 /* libgme.a */; };
 		5966D0C125CFEE1B00520777 /* libFileExtractor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F5625CFE90E00711C05 /* libFileExtractor.a */; };
-		5966D0C325CFEE2600520777 /* liblibxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928FB25CF5797009281DC /* liblibxmp.a */; };
 		5966D0C525CFEE3000520777 /* libLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801125CFCF2A001595B7 /* libLazyusf.a */; };
 		5966D0C725CFEE3600520777 /* libtim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6800725CFCF2A001595B7 /* libtim.a */; };
 		5966D0C825CFEE3D00520777 /* libResample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59627F4925CFE90E00711C05 /* libResample.a */; };
@@ -2613,6 +2607,8 @@
 		5980521A262E210E00BB0309 /* condom corruption-maxi.png in Resources */ = {isa = PBXBuildFile; fileRef = 59805217262E210E00BB0309 /* condom corruption-maxi.png */; };
 		5980521E262E211900BB0309 /* condom corruption-maxi.png in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 59805217262E210E00BB0309 /* condom corruption-maxi.png */; };
 		59805222262E212100BB0309 /* condom corruption-maxi.png in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = 59805217262E210E00BB0309 /* condom corruption-maxi.png */; };
+		5980544E262F221600BB0309 /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
+		5980544F262F221C00BB0309 /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
 		59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B431E3D103100C629AA /* tabview_gradient40Blue.png */; };
 		59909B461E3D103100C629AA /* tabview_gradient40Blue@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */; };
 		59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */; };
@@ -3180,13 +3176,6 @@
 			remoteGlobalIDString = 59321B451E24CB8B00020079;
 			remoteInfo = vgmstream;
 		};
-		593928FA25CF5797009281DC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 595F9C081E54B906009DBEED;
-			remoteInfo = libxmp;
-		};
 		59392A0D25CF5E04009281DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 59392A0925CF5E03009281DC /* uade.xcodeproj */;
@@ -3214,6 +3203,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 59BDE84C260F663C00FB0C69;
 			remoteInfo = psflib;
+		};
+		59805448262F21CA00BB0309 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 59805444262F21CA00BB0309 /* xmp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 5980522F262F0B8000BB0309;
+			remoteInfo = xmp;
 		};
 		59B9998725CFE5F50071E144 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -4543,7 +4539,6 @@
 		5958B42725C601B300724722 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
 		595D4D96262187BC000B7187 /* modizer mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "modizer mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		595D4D97262187BD000B7187 /* modizer mac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "modizer mac-Info.plist"; path = "/Users/yohannmagnien/Documents/dev/modizer/modizer mac-Info.plist"; sourceTree = "<absolute>"; };
-		595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libxmp.xcodeproj; sourceTree = "<group>"; };
 		5966D0FE25CFEFED00520777 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		5966D10225CFF0D100520777 /* james_bond.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = james_bond.jpg; sourceTree = "<group>"; };
 		5966D10325CFF0D100520777 /* james_bond.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = james_bond.mid; sourceTree = "<group>"; };
@@ -4660,6 +4655,7 @@
 		598051EB262E1EBA00BB0309 /* KB--fr-08_the_product-loader.v2mz */ = {isa = PBXFileReference; lastKnownFileType = file; path = "KB--fr-08_the_product-loader.v2mz"; sourceTree = "<group>"; };
 		59805202262E1FC300BB0309 /* condom corruption-maxi.mod */ = {isa = PBXFileReference; lastKnownFileType = file; path = "condom corruption-maxi.mod"; sourceTree = "<group>"; };
 		59805217262E210E00BB0309 /* condom corruption-maxi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "condom corruption-maxi.png"; sourceTree = "<group>"; };
+		59805444262F21CA00BB0309 /* xmp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = xmp.xcodeproj; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
 		59909B4E1E3E204E00C629AA /* tabview_gradient40Orange.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Orange.png; sourceTree = "<group>"; };
@@ -5514,19 +5510,18 @@
 				59392A1A25CF610C009281DC /* libuade.a in Frameworks */,
 				5950D7FE25DEFF8C00B476B2 /* libswscale.a in Frameworks */,
 				5905362425DBDB1600AA548E /* VideoToolbox.framework in Frameworks */,
-				593928FF25CF5814009281DC /* liblibxmp.a in Frameworks */,
 				593928EE25CF5379009281DC /* libvgmstream.a in Frameworks */,
 				5966D0C825CFEE3D00520777 /* libResample.a in Frameworks */,
 				593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */,
 				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
 				59B2B31D25BDA239006FA3D0 /* liblibxsf.a in Frameworks */,
-				5966D0C325CFEE2600520777 /* liblibxmp.a in Frameworks */,
 				59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */,
 				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				5966D0B625CFEDDF00520777 /* libuade.a in Frameworks */,
+				5980544E262F221600BB0309 /* libxmp.a in Frameworks */,
 				59BDE8A7260FDC6C00FB0C69 /* libpsflib.a in Frameworks */,
 				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
@@ -5570,13 +5565,11 @@
 				5950DB6125E0F67B00B476B2 /* libuade.a in Frameworks */,
 				5950DB6225E0F67B00B476B2 /* libswscale.a in Frameworks */,
 				5950DB6325E0F67B00B476B2 /* VideoToolbox.framework in Frameworks */,
-				5950DB6425E0F67B00B476B2 /* liblibxmp.a in Frameworks */,
 				5950DB6525E0F67B00B476B2 /* libvgmstream.a in Frameworks */,
 				5950DB6625E0F67B00B476B2 /* libResample.a in Frameworks */,
 				5950DB6725E0F67B00B476B2 /* libvgmplay.a in Frameworks */,
 				5950DB6925E0F67B00B476B2 /* libxml2.tbd in Frameworks */,
 				5950DB6A25E0F67B00B476B2 /* liblibxsf.a in Frameworks */,
-				5950DB6B25E0F67B00B476B2 /* liblibxmp.a in Frameworks */,
 				59BDE96F260FE5B200FB0C69 /* libHighlyQuixotic.a in Frameworks */,
 				5950DB6C25E0F67B00B476B2 /* Security.framework in Frameworks */,
 				5950DB6D25E0F67B00B476B2 /* Accelerate.framework in Frameworks */,
@@ -5587,6 +5580,7 @@
 				5950DB7225E0F67B00B476B2 /* AudioToolbox.framework in Frameworks */,
 				5950DB7325E0F67B00B476B2 /* WebKit.framework in Frameworks */,
 				5950DB7425E0F67B00B476B2 /* libavdevice.a in Frameworks */,
+				5980544F262F221C00BB0309 /* libxmp.a in Frameworks */,
 				5950DB7525E0F67B00B476B2 /* libavutil.a in Frameworks */,
 				596117942629612900B0F991 /* libv2mplayer.a in Frameworks */,
 				5950DB7625E0F67B00B476B2 /* AVFoundation.framework in Frameworks */,
@@ -5633,13 +5627,11 @@
 				595D4C97262187BC000B7187 /* libgsf.a in Frameworks */,
 				595D4C98262187BC000B7187 /* libuade.a in Frameworks */,
 				595D4C9A262187BC000B7187 /* VideoToolbox.framework in Frameworks */,
-				595D4C9B262187BC000B7187 /* liblibxmp.a in Frameworks */,
 				595D4C9C262187BC000B7187 /* libvgmstream.a in Frameworks */,
 				595D4C9D262187BC000B7187 /* libResample.a in Frameworks */,
 				595D4C9E262187BC000B7187 /* libvgmplay.a in Frameworks */,
 				595D4C9F262187BC000B7187 /* libxml2.tbd in Frameworks */,
 				595D4CA0262187BC000B7187 /* liblibxsf.a in Frameworks */,
-				595D4CA1262187BC000B7187 /* liblibxmp.a in Frameworks */,
 				595D4CA2262187BC000B7187 /* Security.framework in Frameworks */,
 				595D4CA3262187BC000B7187 /* Accelerate.framework in Frameworks */,
 				595D4CA4262187BC000B7187 /* Foundation.framework in Frameworks */,
@@ -6348,14 +6340,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		593928F725CF5797009281DC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				593928FB25CF5797009281DC /* liblibxmp.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		59392A0A25CF5E03009281DC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -6390,7 +6374,7 @@
 		595F9C1C1E54B90D009DBEED /* libxmp */ = {
 			isa = PBXGroup;
 			children = (
-				595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */,
+				59805444262F21CA00BB0309 /* xmp.xcodeproj */,
 			);
 			path = libxmp;
 			sourceTree = "<group>";
@@ -6575,6 +6559,14 @@
 				5966D17625CFF0D100520777 /* chopin_fantaisie.mid */,
 			);
 			path = Classical;
+			sourceTree = "<group>";
+		};
+		59805445262F21CA00BB0309 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				59805449262F21CA00BB0309 /* libxmp.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		59A65C852625947500BC99D1 /* CBAutoScrollLabel */ = {
@@ -8215,10 +8207,6 @@
 					ProjectRef = 5939285F25CF1C0A009281DC /* Lazyusf.xcodeproj */;
 				},
 				{
-					ProductGroup = 593928F725CF5797009281DC /* Products */;
-					ProjectRef = 595F9C0F1E54B906009DBEED /* libxmp.xcodeproj */;
-				},
-				{
 					ProductGroup = 592862BB1E2D4D7A00A08A4E /* Products */;
 					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
 				},
@@ -8266,6 +8254,10 @@
 					ProductGroup = 593928E125CF524A009281DC /* Products */;
 					ProjectRef = 59321DD01E2560B200020079 /* vgmstream.xcodeproj */;
 				},
+				{
+					ProductGroup = 59805445262F21CA00BB0309 /* Products */;
+					ProjectRef = 59805444262F21CA00BB0309 /* xmp.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -8305,13 +8297,6 @@
 			remoteRef = 593928E425CF524A009281DC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		593928FB25CF5797009281DC /* liblibxmp.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = liblibxmp.a;
-			remoteRef = 593928FA25CF5797009281DC /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		59392A0E25CF5E04009281DC /* libuade.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -8338,6 +8323,13 @@
 			fileType = archive.ar;
 			path = libpsflib.a;
 			remoteRef = 596642BD2611263C007DAE70 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		59805449262F21CA00BB0309 /* libxmp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libxmp.a;
+			remoteRef = 59805448262F21CA00BB0309 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		59B9998825CFE5F50071E144 /* libTapkuLibrary.a */ = {

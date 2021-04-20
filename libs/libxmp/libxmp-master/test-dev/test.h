@@ -20,8 +20,14 @@
 #define END_TEST \
 	return 0; }
 
+#ifdef _WIN32
+/* exit() prevents the failure message from being printed! */
+#define FAIL_MSG "**fail**\n"
+#else
+#define FAIL_MSG
+#endif
 #define fail_unless(x, y) do { \
-	if (!(x)) { printf("%d: %s: ", __LINE__, y); exit(1); } \
+	if (!(x)) { printf("at %s:%d: %s: " FAIL_MSG, __FILE__, __LINE__, y); exit(1); } \
 } while (0)
 
 static inline int is_big_endian() {
@@ -34,6 +40,7 @@ int play_frame(struct context_data *);
 
 
 int compare_module(struct xmp_module *, FILE *);
+void dump_module(struct xmp_module *, FILE *);
 int compare_md5(unsigned char *, char *);
 int check_md5(char *, char *);
 int check_randomness(int *, int, double);

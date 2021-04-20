@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -19,6 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #include <stdlib.h>
 #include <string.h>
@@ -87,9 +92,9 @@ MIX_FN(stereo_a500_filter);
  * bit 2: 0=unfiltered, 1=filtered
  */
 
-typedef void (*mixer_set[])(struct mixer_voice *, int32 *, int, int, int, int, int, int, int);
+typedef void (*MIX_FP) (struct mixer_voice *, int32 *, int, int, int, int, int, int, int);
 
-static mixer_set nearest_mixers = {
+static MIX_FP nearest_mixers[] = {
 	libxmp_mix_mono_8bit_nearest,
 	libxmp_mix_mono_16bit_nearest,
 	libxmp_mix_stereo_8bit_nearest,
@@ -103,7 +108,7 @@ static mixer_set nearest_mixers = {
 #endif
 };
 
-static mixer_set linear_mixers = {
+static MIX_FP linear_mixers[] = {
 	libxmp_mix_mono_8bit_linear,
 	libxmp_mix_mono_16bit_linear,
 	libxmp_mix_stereo_8bit_linear,
@@ -117,7 +122,7 @@ static mixer_set linear_mixers = {
 #endif
 };
 
-static mixer_set spline_mixers = {
+static MIX_FP spline_mixers[] = {
 	libxmp_mix_mono_8bit_spline,
 	libxmp_mix_mono_16bit_spline,
 	libxmp_mix_stereo_8bit_spline,
@@ -132,7 +137,7 @@ static mixer_set spline_mixers = {
 };
 
 #ifdef LIBXMP_PAULA_SIMULATOR
-static mixer_set a500_mixers = {
+static MIX_FP a500_mixers[] = {
 	libxmp_mix_mono_a500,
 	NULL,
 	libxmp_mix_stereo_a500,
@@ -144,7 +149,7 @@ static mixer_set a500_mixers = {
 };
 
 
-static mixer_set a500led_mixers = {
+static MIX_FP a500led_mixers[] = {
 	libxmp_mix_mono_a500_filter,
 	NULL,
 	libxmp_mix_stereo_a500_filter,
@@ -324,13 +329,6 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 	}
 	memset(s->buf32, 0, bytelen);
 }
-
-
-//TODO:  MODIZER changes start / YOYOFR
-#include "../../../../src/ModizerVoicesData.h"
-//TODO:  MODIZER changes end / YOYOFR
-
-
 /* Fill the output buffer calling one of the handlers. The buffer contains
  * sound for one tick (a PAL frame or 1/50s for standard vblank-timed mods)
  */
@@ -348,37 +346,37 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 	int prev_l, prev_r = 0;
 	int lps, lpe;
 	int32 *buf_pos;
-	void (*mix_fn)(struct mixer_voice *, int32 *, int, int, int, int, int, int, int);
-	mixer_set *mixers;
+	MIX_FP  mix_fn;
+	MIX_FP *mixerset;
 
 	switch (s->interp) {
 	case XMP_INTERP_NEAREST:
-		mixers = &nearest_mixers;
+		mixerset = nearest_mixers;
 		break;
 	case XMP_INTERP_LINEAR:
-		mixers = &linear_mixers;
+		mixerset = linear_mixers;
 		break;
 	case XMP_INTERP_SPLINE:
-		mixers = &spline_mixers;
+		mixerset = spline_mixers;
 		break;
 	default:
-		mixers = &linear_mixers;
+		mixerset = linear_mixers;
 	}
 
 #ifdef LIBXMP_PAULA_SIMULATOR
 	if (p->flags & XMP_FLAGS_A500) {
 		if (IS_AMIGA_MOD()) {
 			if (p->filter) {
-				mixers = &a500led_mixers;
+				mixerset = a500led_mixers;
 			} else {
-				mixers = &a500_mixers;
+				mixerset = a500_mixers;
 			}
 		}
 	}
 #endif
 
 	libxmp_mixer_prepare(ctx);
-    
+
 	for (voc = 0; voc < p->virt.maxvoc; voc++) {
 		int c5spd, rampsize, delta_l, delta_r;
 
@@ -394,7 +392,6 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 		if (vi->chn < 0) {
 			continue;
 		}
-        
 
 		if (vi->period < 1) {
 			libxmp_virt_resetvoice(ctx, voc, 1);
@@ -487,7 +484,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 
 			if (vi->vol) {
 				int mix_size = samples;
-				int mixer = vi->fidx & FIDX_FLAGMASK;
+				int mixer_id = vi->fidx & FIDX_FLAGMASK;
 
 				if (~s->format & XMP_FORMAT_MONO) {
 					mix_size *= 2;
@@ -507,11 +504,11 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 				/* See OpenMPT env-flt-max.it */
 				if (vi->filter.cutoff >= 0xfe &&
                                     vi->filter.resonance == 0) {
-					mixer &= ~FLAG_FILTER;
+					mixer_id &= ~FLAG_FILTER;
 				}
 #endif
 
-				mix_fn = (*mixers)[mixer];
+				mix_fn = mixerset[mixer_id];
 
 				/* Call the output handler */
 				if (samples > 0 && vi->sptr != NULL) {
@@ -549,8 +546,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
                         }
                         //TODO:  MODIZER changes end / YOYOFR
 					}
-                    
-                    
+
 					buf_pos += mix_size;
 					vi->old_vl += samples * delta_l;
 					vi->old_vr += samples * delta_r;
@@ -561,8 +557,6 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 						vi->sright = buf_pos[-2] - prev_r;
 					}
 					vi->sleft = buf_pos[-1] - prev_l;
-                    
-                    
 				}
 			}
 
@@ -590,9 +584,12 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 
 			loop_reposition(ctx, vi, xxs);
 		}
+
 		vi->old_vl = vol_l;
 		vi->old_vr = vol_r;
 	}
+
+	/* Render final frame */
     
     //TODO:  MODIZER changes start / YOYOFR
     for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
@@ -600,8 +597,6 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
         while ((m_voice_current_ptr[ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
     }
     //TODO:  MODIZER changes end / YOYOFR
-
-	/* Render final frame */
 
 	size = s->ticksize;
 	if (~s->format & XMP_FORMAT_MONO) {
@@ -836,11 +831,11 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 {
 	struct mixer_data *s = &ctx->s;
 
-	s->buffer = calloc(2, XMP_MAX_FRAMESIZE);
+	s->buffer = (char *) calloc(2, XMP_MAX_FRAMESIZE);
 	if (s->buffer == NULL)
 		goto err;
 
-	s->buf32 = calloc(sizeof(int), XMP_MAX_FRAMESIZE);
+	s->buf32 = (int32 *) calloc(sizeof(int32), XMP_MAX_FRAMESIZE);
 	if (s->buf32 == NULL)
 		goto err1;
 
@@ -848,7 +843,7 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 	s->format = format;
 	s->amplify = DEFAULT_AMPLIFY;
 	s->mix = DEFAULT_MIX;
-	/* s->pbase = C4_PERIOD * c4rate / s->freq; */
+	/* s->pbase = C4_PERIOD * c4rate / s->freq; */(void) c4rate;
 	s->interp = XMP_INTERP_LINEAR;	/* default interpolation type */
 	s->dsp = XMP_DSP_LOWPASS;	/* enable filters by default */
 	/* s->numvoc = SMIX_NUMVOC; */
@@ -858,6 +853,7 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 
     err1:
 	free(s->buffer);
+	s->buffer = NULL;
     err:
 	return -1;
 }

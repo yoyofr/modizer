@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -36,7 +36,7 @@
 #include <unistd.h>
 #endif
 
-#include <fnmatch.h>
+#include "xfnmatch.h"
 
 /*
  * Handle special "module quirks" that can't be detected automatically
@@ -131,7 +131,7 @@ static void module_quirks(struct context_data *ctx)
 	}
 }
 
-/* 
+/*
  * Check whether the given string matches one of the blacklisted glob
  * patterns. Used to filter file names stored in archive files.
  */
@@ -324,7 +324,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		return 0;
 	}
 
-	m->scan_cnt = calloc(sizeof (char *), mod->len);
+	m->scan_cnt = calloc(sizeof (uint8 *), mod->len);
 	if (m->scan_cnt == NULL)
 		return -XMP_ERROR_SYSTEM;
 
@@ -344,8 +344,23 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		if (m->scan_cnt[i] == NULL)
 			return -XMP_ERROR_SYSTEM;
 	}
- 
+
 	return 0;
+}
+
+void libxmp_free_scan(struct context_data *ctx)
+{
+	struct module_data *m = &ctx->m;
+	struct xmp_module *mod = &m->mod;
+	int i;
+
+	if (m->scan_cnt) {
+		for (i = 0; i < mod->len; i++)
+			free(m->scan_cnt[i]);
+
+		free(m->scan_cnt);
+		m->scan_cnt = NULL;
+	}
 }
 
 /* Process player personality flags */

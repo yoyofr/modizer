@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -113,7 +113,7 @@ static int s3m_test(HIO_HANDLE *f, char *t, const int start)
 	} while (0)
 
 /* Effect conversion table */
-static const uint8 fx[] = {
+static const uint8 fx[27] = {
 	NONE,
 	FX_S3M_SPEED,		/* Axx  Set speed to xx (the default is 06) */
 	FX_JUMP,		/* Bxx  Jump to order xx (hexadecimal) */
@@ -148,7 +148,7 @@ static void xlat_fx(int c, struct xmp_event *e)
 {
 	uint8 h = MSN(e->fxp), l = LSN(e->fxp);
 
-	if (e->fxt > 26) {
+	if (e->fxt >= ARRAY_SIZE(fx)) {
 		D_(D_WARN "invalid effect %02x", e->fxt);
 		e->fxt = e->fxp = 0;
 		return;
@@ -247,7 +247,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		goto err;
 	}
 
-	memcpy(&sfh.name, buf, 28);		/* Song name */
+	memcpy(sfh.name, buf, 28);		/* Song name */
 	sfh.type = buf[30];			/* File type */
 	sfh.ordnum = readmem16l(buf + 32);	/* Number of orders (must be even) */
 	sfh.insnum = readmem16l(buf + 34);	/* Number of instruments */
@@ -271,7 +271,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	sfh.mv = buf[51];			/* Master volume */
 	sfh.uc = buf[52];			/* Ultra click removal */
 	sfh.dp = buf[53];			/* Default pan positions if 0xfc */
-	/* 54-61 reserved */
+	memcpy(sfh.rsvd2, buf + 54, 8);		/* Reserved */
 	sfh.special = readmem16l(buf + 62);	/* Ptr to special custom data */
 	memcpy(sfh.chset, buf + 64, 32);	/* Channel settings */
 
@@ -418,9 +418,8 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		break;
 	case 4:
 		if (sfh.version != 0x4100) {
-			snprintf(tracker_name, 40, "Schism Tracker %d.%02x",
-				 (sfh.version & 0x0f00) >> 8,
-				 sfh.version & 0xff);
+			libxmp_schism_tracker_string(tracker_name, 40,
+				(sfh.version & 0x0fff), sfh.rsvd2[0] | (sfh.rsvd2[1] << 8));
 			break;
 		}
 		/* fall through */
@@ -518,6 +517,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		struct xmp_instrument *xxi = &mod->xxi[i];
 		struct xmp_sample *xxs = &mod->xxs[i];
 		struct xmp_subinstrument *sub;
+		int load_sample_flags;
 
 		xxi->sub = calloc(sizeof(struct xmp_subinstrument), 1);
 		if (xxi->sub == NULL) {
@@ -560,7 +560,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			sub->xpo += 12;
 			ret =
 			    libxmp_load_sample(m, f, SAMPLE_FLAG_ADLIB, xxs,
-					(char *)&sah.reg);
+					(char *)sah.reg);
 			if (ret < 0)
 				goto err3;
 
@@ -589,7 +589,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		sih.loopbeg = readmem32l(buf + 20);	/* Loop begin */
 		sih.loopend = readmem32l(buf + 24);	/* Loop end */
 		sih.vol = buf[28];			/* Volume */
-		sih.pack = buf[30];			/* Packing type (not used) */
+		sih.pack = buf[30];			/* Packing type */
 		sih.flags = buf[31];			/* Loop/stereo/16bit flags */
 		sih.c2spd = readmem16l(buf + 32);	/* C4 speed */
 		memcpy(sih.name, buf + 48, 28);		/* Instrument name */
@@ -619,6 +619,11 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			xxs->flg |= XMP_SAMPLE_16BIT;
 		}
 
+		load_sample_flags = (sfh.ffi == 1) ? 0 : SAMPLE_FLAG_UNS;
+		if (sih.pack == 4) {
+			load_sample_flags = SAMPLE_FLAG_ADPCM;
+		}
+
 		sub->vol = sih.vol;
 		sih.magic = 0;
 
@@ -636,8 +641,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			goto err3;
 		}
 
-		ret = libxmp_load_sample(m, f, sfh.ffi == 1 ? 0 : SAMPLE_FLAG_UNS,
-								xxs, NULL);
+		ret = libxmp_load_sample(m, f, load_sample_flags, xxs, NULL);
 		if (ret < 0) {
 			goto err3;
 		}

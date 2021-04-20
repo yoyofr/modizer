@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -115,7 +115,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		if (mh.ins[i].loop_size > 0x8000)
 			return -1;
 
-		/* This test fails in atmosfer.mod, disable it 
+		/* This test fails in atmosfer.mod, disable it
 		 *
 		 * if (mh.ins[i].loop_size > 1 && mh.ins[i].loop_size > mh.ins[i].size)
 		 *    return -1;
@@ -142,7 +142,9 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		for (j = 0; j < (64 * 4); j++) {
 			int p, s;
 
-			hio_read(mod_event, 1, 4, f);
+			if (hio_read(mod_event, 1, 4, f) < 4) {
+				return -1;
+			}
 
 			s = (mod_event[0] & 0xf0) | MSN(mod_event[2]);
 
@@ -188,7 +190,7 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	/* Check if file was cut before any unused samples */
 	if (size < 600 + pat * 1024 + smp_size) {
 		int ss;
-		for (ss = i = 0; i < ins; i++) {
+		for (ss = i = 0; i < 15 && i < ins; i++) {
 			ss += 2 * mh.ins[i].size;
 		}
 

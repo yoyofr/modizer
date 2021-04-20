@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -111,6 +111,7 @@ void libxmp_hmn_reset_channel_extras(struct channel_data *xc)
 void libxmp_hmn_release_channel_extras(struct channel_data *xc)
 {
 	free(xc->extra);
+	xc->extra = NULL;
 }
 
 int libxmp_hmn_new_module_extras(struct module_data *m)
@@ -126,6 +127,7 @@ int libxmp_hmn_new_module_extras(struct module_data *m)
 void libxmp_hmn_release_module_extras(struct module_data *m)
 {
 	free(m->extra);
+	m->extra = NULL;
 }
 
 void libxmp_hmn_extras_process_fx(struct context_data *ctx, struct channel_data *xc,

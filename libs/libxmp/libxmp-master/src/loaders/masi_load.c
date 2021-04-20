@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -130,9 +130,11 @@ static int get_titl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	char buf[40];
-	
+
 	hio_read(buf, 1, 40, f);
-	strncpy(mod->name, buf, size > 32 ? 32 : size);
+	size = size > 32 ? 32 : size;
+	strncpy(mod->name, buf, size);
+	mod->name[size] = '\0';
 
 	return 0;
 }
@@ -154,7 +156,10 @@ static int get_pbod_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	char buf[20];
 
 	mod->pat++;
-	hio_read(buf, 1, 20, f);
+	if (hio_read(buf, 1, 20, f) < 20) {
+		D_(D_CRIT "read error at pat %d", mod->pat - 1);
+		return -1;
+	}
 	if (buf[9] != 0 && buf[13] == 0)
 		data->sinaria = 1;
 
@@ -184,7 +189,7 @@ static int get_dsmp(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	sub = &xxi->sub[0];
 	xxs = &mod->xxs[i];
 
-	hio_read(&xxi->name, 1, 31, f);
+	hio_read(xxi->name, 1, 31, f);
 	hio_seek(f, 8, SEEK_CUR);
 	hio_read8(f);		/* insno */
 	hio_read8(f);
@@ -274,15 +279,15 @@ static int get_pbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		}
 		while (rowlen > 0) {
 			flag = hio_read8(f);
-	
+
 			if (rowlen == 1)
 				break;
-	
+
 			chan = hio_read8(f);
 			rowlen -= 2;
-	
+
 			event = chan < mod->chn ? &EVENT(i, chan, r) : &dummy;
-	
+
 			if (flag & 0x80) {
 				uint8 note = hio_read8(f);
 				rowlen--;
@@ -297,12 +302,12 @@ static int get_pbod(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 				event->ins = hio_read8(f) + 1;
 				rowlen--;
 			}
-	
+
 			if (flag & 0x20) {
 				event->vol = hio_read8(f) / 2 + 1;
 				rowlen--;
 			}
-	
+
 			if (flag & 0x10) {
 				uint8 fxt = hio_read8(f);
 				uint8 fxp = hio_read8(f);
@@ -355,7 +360,7 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					fxp = (EX_F_PORTA_UP << 4) |
 						convert_porta(fxp, data->sinaria);
 					break;
-			    	case 0x0c:		/* portamento up */
+				case 0x0c:		/* portamento up */
 					fxt = FX_PORTA_UP;
 					fxp = convert_porta(fxp, data->sinaria);
 					break;
@@ -445,7 +450,7 @@ D_(D_CRIT "p%d r%d c%d: compressed event %02x %02x\n", i, r, chan, fxt, fxp);
 					hio_read8(f);
 					rowlen--;
 					break;
-			    	case 0x34:		/* pattern break */
+				case 0x34:		/* pattern break */
 					/* not used in MASI */
 					fxt = FX_BREAK;
 					break;
@@ -537,6 +542,9 @@ static int subchunk_oplh(struct module_data *m, int size, HIO_HANDLE *f, void *p
 		 */
 		switch (opcode) {
 		case 0x01:			/* Play order list item */
+			if (mod->len >= XMP_MAX_MOD_LENGTH) {
+				return -1;
+			}
 			hio_read(data->pord + mod->len * 8, 1, data->sinaria ? 8 : 4, f);
 			size -= data->sinaria ? 8 : 4;
 			mod->len++;
@@ -679,7 +687,7 @@ static int get_song_2(struct module_data *m, int size, HIO_HANDLE *f, void *parm
 
 		magic = hio_read32b(f);
 		subchunk_size = hio_read32l(f);
-		if (subchunk_size == 0) {
+		if (subchunk_size <= 0 || hio_error(f)) {
 			return -1;
 		}
 
@@ -756,7 +764,7 @@ static int masi_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (data.pnam == NULL)
 		goto err;
 
-	data.pord = malloc(255 * 8);		/* pattern orders */
+	data.pord = malloc(XMP_MAX_MOD_LENGTH * 8);	/* pattern orders */
 	if (data.pord == NULL)
 		goto err2;
 

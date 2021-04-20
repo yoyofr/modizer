@@ -21,14 +21,19 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 
 	pw_move_data(out, in, 16);		/* title */
 	write32b(out, 0);
-	
+
 	body_addr = hio_read16b(in) + 4;		/* get 'BODY' address */
 	nins = hio_read16b(in);			/* number of samples */
 	len = hio_read16b(in);			/* size of pattern list */
 	npat = hio_read16b(in);			/* number of patterns stored */
 	smp_addr = hio_read16b(in) + body_addr + 4;	/* get 'SAMP' address */
 
-	memset(buf, 0, 930);
+	/* Sanity check */
+	if (npat > 128 || len > 128) {
+		return -1;
+	}
+
+	memset(buf, 0, sizeof(buf));
 
 	/* instruments */
 	for (i = 0; i < nins; i++) {
@@ -61,13 +66,19 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 
 	/* pattern list */
 	memset(buf, 0, 128);
-	for (i = 0; i < len; i++)
-		buf[i] = hio_read16b(in);
+	for (i = 0; i < len; i++) {
+		int pat = hio_read16b(in);
+		/* Sanity check */
+		if (pat >= npat)
+			return -1;
+
+		buf[i] = pat;
+	}
 	fwrite(buf, 128, 1, out);
 
 	/* pattern addresses now */
 	/* Where is on it */
-	memset(pat_addr, 0, 256);
+	memset(pat_addr, 0, sizeof(pat_addr));
 	for (i = 0; i < npat; i++)
 		pat_addr[i] = hio_read16b(in);
 
@@ -76,7 +87,7 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 	/* pattern data now ... *gee* */
 	for (i = 0; i < npat; i++) {
 		hio_seek(in, body_addr + 4 + pat_addr[i], SEEK_SET);
-		memset(buf, 0, 1024);
+		memset(buf, 0, sizeof(buf));
 
 		for (j = 0; j < 64; j++) {
 			int x = hio_read16b(in);
@@ -96,7 +107,7 @@ static int depack_ntp(HIO_HANDLE *in, FILE *out)
 	/* samples */
 	hio_seek(in, smp_addr, SEEK_SET);
 	pw_move_data(out, in, ssize);
-	
+
 	return 0;
 }
 

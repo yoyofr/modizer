@@ -29,12 +29,17 @@ TEST(test_depack_vorbis)
 	fclose(f);
 
 	pcm16 = (int16 *)info.mod->xxs[0].data;
+	if (is_big_endian()) { /* convert little-endian to host-endian */
+		convert_endian((unsigned char *)buf, st.st_size / 2);
+	}
 
 	for (i = 0; i < (9376 / 2); i++) {
 		if (pcm16[i] != buf[i])
 			fail_unless(abs(pcm16[i] - buf[i]) <= 1, "data error");
 	}
 
-
+	xmp_release_module(c);
+	xmp_free_context(c);
+	free(buf);
 }
 END_TEST

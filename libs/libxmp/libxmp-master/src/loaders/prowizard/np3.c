@@ -27,8 +27,8 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 	int i, j, k;
 	int trk_start;
 
-	memset(ptable, 0, 128);
-	memset(trk_addr, 0, 128 * 4 * 4);
+	memset(ptable, 0, sizeof(ptable));
+	memset(trk_addr, 0, sizeof(trk_addr));
 
 	c1 = hio_read8(in);			/* read number of samples */
 	c2 = hio_read8(in);
@@ -95,7 +95,7 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 	/* the track data now ... */
 	smp_addr = 0;
 	for (i = 0; i < npat; i++) {
-		memset(tmp, 0, 1024);
+		memset(tmp, 0, sizeof(tmp));
 		for (j = 0; j < 4; j++) {
 			int x;
 
@@ -110,6 +110,10 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 				c2 = hio_read8(in);
 				c3 = hio_read8(in);
 				c4 = (c1 & 0xfe) / 2;
+
+				if (hio_error(in) || !PTK_IS_VALID_NOTE(c4)) {
+					return -1;
+				}
 
 				tmp[x] = ((c1 << 4) & 0x10) | ptk_table[c4][0];
 				tmp[x + 1] = ptk_table[c4][1];
@@ -221,7 +225,7 @@ static int test_np3(const uint8 *data, char *t, int s)
 	max_pptr = 0;
 	for (i = 0; i < ptab_size; i += 2) {
 		int pptr = readmem16b(data + hdr_size + i);
-		if (pptr & 0x07 || pptr > 0x400)
+		if (pptr & 0x07 || pptr >= 0x400)
 			return -1;
 		if (pptr > max_pptr)
 			max_pptr = pptr;

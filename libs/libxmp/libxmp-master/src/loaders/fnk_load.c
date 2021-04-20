@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -42,10 +42,10 @@ static int fnk_test(HIO_HANDLE *f, char *t, const int start)
     if (hio_read32b(f) != MAGIC_Funk)
 	return -1;
 
-    hio_read8(f); 
+    hio_read8(f);
     a = hio_read8(f);
-    b = hio_read8(f); 
-    hio_read8(f); 
+    b = hio_read8(f);
+    hio_read8(f);
 
     if ((a >> 1) < 10)			/* creation year (-1980) */
 	return -1;
@@ -100,13 +100,13 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     LOAD_INIT();
 
-    hio_read(&ffh.marker, 4, 1, f);
-    hio_read(&ffh.info, 4, 1, f);
+    hio_read(ffh.marker, 4, 1, f);
+    hio_read(ffh.info, 4, 1, f);
     ffh.filesize = hio_read32l(f);
-    hio_read(&ffh.fmt, 4, 1, f);
+    hio_read(ffh.fmt, 4, 1, f);
     ffh.loop = hio_read8(f);
-    hio_read(&ffh.order, 256, 1, f);
-    hio_read(&ffh.pbrk, 128, 1, f);
+    hio_read(ffh.order, 256, 1, f);
+    hio_read(ffh.pbrk, 128, 1, f);
 
     for (i = 0; i < 128; i++) {
         if (ffh.pbrk[i] >= 64) {
@@ -115,7 +115,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     for (i = 0; i < 64; i++) {
-	hio_read(&ffh.fih[i].name, 19, 1, f);
+	hio_read(ffh.fih[i].name, 19, 1, f);
 	ffh.fih[i].loop_start = hio_read32l(f);
 	ffh.fih[i].length = hio_read32l(f);
 	ffh.fih[i].volume = hio_read8(f);
@@ -123,6 +123,10 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ffh.fih[i].shifter = hio_read8(f);
 	ffh.fih[i].waveform = hio_read8(f);
 	ffh.fih[i].retrig = hio_read8(f);
+	/* Sanity check */
+	if (ffh.fih[i].length >= ffh.filesize) {
+	    return -1;
+	}
     }
 
     /* day = ffh.info[0] & 0x1f;
@@ -136,6 +140,11 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    mod->pat = ffh.order[i];
     }
     mod->pat++;
+
+    /* Sanity check */
+    if (mod->pat > 128) {
+	return -1;
+    }
 
     mod->len = i;
     memcpy (mod->xxo, ffh.order, mod->len);
@@ -166,6 +175,10 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	mod->chn = (ffh.fmt[2] < '0') || (ffh.fmt[2] > '9') ||
 		(ffh.fmt[3] < '0') || (ffh.fmt[3] > '9') ? 8 :
 		(ffh.fmt[2] - '0') * 10 + ffh.fmt[3] - '0';
+
+	/* Sanity check */
+	if (mod->chn <= 0 || mod->chn > XMP_MAX_CHANNELS)
+		return -1;
     }
 
     mod->bpm = 4 * mod->bpm / 5;
@@ -221,7 +234,7 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (j = 0; j < 64 * mod->chn; j++) {
 	    event = &EVENT(i, j % mod->chn, j / mod->chn);
-	    hio_read(&ev, 1, 3, f);
+	    hio_read(ev, 1, 3, f);
 
 	    switch (ev[0] >> 2) {
 	    case 0x3f:
@@ -288,11 +301,11 @@ static int fnk_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		    break;
 		case 0xe:
 		    event->fxt = FX_SETPAN;
-		    event->fxp = 8 + (LSN(ev[2]) << 4);	
+		    event->fxp = 8 + (LSN(ev[2]) << 4);
 		    break;
 		case 0xf:
 		    event->fxt = FX_SPEED;
-		    event->fxp = LSN(ev[2]);	
+		    event->fxp = LSN(ev[2]);
 		    break;
 		}
 	    }

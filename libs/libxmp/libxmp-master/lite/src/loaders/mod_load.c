@@ -93,9 +93,9 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	m->quirk |= QUIRK_PROTRACK;
 	m->period_type = PERIOD_MODRNG;
 
-	hio_read(&mh.name, 20, 1, f);
+	hio_read(mh.name, 20, 1, f);
 	for (i = 0; i < 31; i++) {
-		hio_read(&mh.ins[i].name, 22, 1, f);	/* Instrument name */
+		hio_read(mh.ins[i].name, 22, 1, f);	/* Instrument name */
 		mh.ins[i].size = hio_read16b(f);	/* Length in 16-bit words */
 		mh.ins[i].finetune = hio_read8(f);	/* Finetune (signed nibble) */
 		mh.ins[i].volume = hio_read8(f);	/* Linear playback volume */
@@ -104,7 +104,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 	mh.len = hio_read8(f);
 	mh.restart = hio_read8(f);
-	hio_read(&mh.order, 128, 1, f);
+	hio_read(mh.order, 128, 1, f);
 	memset(magic, 0, 8);
 	hio_read(magic, 4, 1, f);
 
@@ -119,7 +119,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	strncpy(mod->name, (char *)mh.name, 20);
+	strncpy(mod->name, (char *) mh.name, 20);
 
 	mod->len = mh.len;
 	/* mod->rst = mh.restart; */
@@ -173,7 +173,7 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	mod->trk = mod->chn * mod->pat;
 
-	libxmp_set_type(m, mod->chn == 4 ? "Protracker" : "Fasttracker");
+	libxmp_set_type(m, (mod->chn == 4) ? "Protracker" : "Fasttracker");
 
 	MODULE_INFO();
 
@@ -200,7 +200,9 @@ static int mod_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		for (j = 0; j < (64 * mod->chn); j++) {
 			event = &EVENT(i, j % mod->chn, j / mod->chn);
-			hio_read(mod_event, 1, 4, f);
+			if (hio_read(mod_event, 1, 4, f) < 4) {
+				return -1;
+			}
 			libxmp_decode_protracker_event(event, mod_event);
 		}
 	}

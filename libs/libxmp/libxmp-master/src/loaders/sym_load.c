@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,12 @@
  */
 
 #include "loader.h"
-#include "../depackers/readlzw.h"
+#ifndef LIBXMP_NO_DEPACKERS
+#include "depackers/readlzw.h"
+#else
+#include "depackers/readrle.c"
+#include "depackers/readlzw.c"
+#endif
 
 
 static int sym_test(HIO_HANDLE *, char *, const int);
@@ -301,7 +306,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		hio_read(mod->name, 1, a, f);
 	}
 
-	hio_read(&allowed_effects, 1, 8, f);
+	hio_read(allowed_effects, 1, 8, f);
 
 	MODULE_INFO();
 
@@ -346,14 +351,14 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			int idx = 2 * (i * mod->chn + j);
 			int t = readptr16l(&buf[idx]);
 
-			/* Sanity check */
-			if (t >= mod->trk - 1) {
+			if (t == 0x1000) {
+				/* empty trk */
+				t = mod->trk - 1;
+			} else if (t >= mod->trk - 1) {
+				/* Sanity check */
 				free(buf);
 				return -1;
 			}
-	
-			if (t == 0x1000) /* empty trk */
-				t = mod->trk - 1;
 
 			mod->xxp[i]->index[j] = t;
 		}
@@ -429,7 +434,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	for (i = 0; i < mod->ins; i++) {
 		uint8 buf[128];
 
-		memset(buf, 0, 128);
+		memset(buf, 0, sizeof(buf));
 		hio_read(buf, 1, sn[i] & 0x7f, f);
 		libxmp_instrument_name(mod, i, buf, 32);
 
@@ -461,7 +466,7 @@ static int sym_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		a = hio_read8(f);
 
 		if (a != 0 && a != 1) {
-			fprintf(stderr, "libxmp: unsupported sample type\n");
+			D_(D_WARN "libxmp: unsupported sample type %d\n", a);
 			//return -1;
 		}
 

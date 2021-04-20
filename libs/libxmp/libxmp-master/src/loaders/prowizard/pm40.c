@@ -20,7 +20,7 @@ void Depack_PM40 (FILE * in, FILE * out)
 	uint8 c1 = 0x00, c2 = 0x00, c3 = 0x00, c4 = 0x00;
 	uint8 PatPos = 0x00;
 	short pat_max = 0;
-	long tmp_ptr, tmp1, tmp2;
+	long tmp1, tmp2;
 	short refmax = 0;
 	uint8 pnum[128];
 	uint8 pnum_tmp[128];
@@ -49,12 +49,12 @@ void Depack_PM40 (FILE * in, FILE * out)
 	// sprintf ( Depacked_OutName , "%ld.mod" , Cpt_Filename-1 );
 	// out = fdopen (fd_out, "w+b");
 
-	memset(pnum, 0, 128);
-	memset(pnum_tmp, 0, 128);
-	memset(pptr, 0, 64 << 8);
-	memset(Pattern, 0, 128 * 1024);
-	memset(paddr, 0, 128 * 4);
-	memset(paddr_tmp, 0, 128 * 4);
+	memset(pnum, 0, sizeof(pnum));
+	memset(pnum_tmp, 0, sizeof(pnum_tmp));
+	memset(pptr, 0, sizeof(pptr));
+	memset(Pattern, 0, sizeof(Pattern));
+	memset(paddr, 0, sizeof(paddr));
+	memset(paddr_tmp, 0, sizeof(paddr_tmp));
 	for (i = 0; i < 128; i++)
 		paddr_tmp2[i] = 9999l;
 
@@ -111,11 +111,10 @@ void Depack_PM40 (FILE * in, FILE * out)
 	/* ordering of patterns addresses */
 	/* PatPos contains the size of the pattern list .. */
 	/*printf ( "Creating pattern list ... " ); */
-	tmp_ptr = 0;
+	pat_max = 0;
 	for (i = 0; i < PatPos; i++) {
 		if (i == 0) {
 			pnum[0] = 0x00;
-			tmp_ptr++;
 			continue;
 		}
 
@@ -126,10 +125,8 @@ void Depack_PM40 (FILE * in, FILE * out)
 			}
 		}
 		if (j == i)
-			pnum[i] = tmp_ptr++;
+			pnum[i] = (++pat_max);
 	}
-
-	pat_max = tmp_ptr - 1;
 
 	/* correct re-order */
   /********************/

@@ -1,0 +1,58 @@
+!ifeq USE_PROWIZARD 0
+CFLAGS += -DLIBXMP_NO_PROWIZARD
+!endif
+!ifeq USE_DEPACKERS 0
+CFLAGS += -DLIBXMP_NO_DEPACKERS
+!endif
+CFLAGS += -DHAVE_ALLOCA_H -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK
+#CFLAGS += -DDEBUG
+CFLAGS += -Iinclude -Isrc
+
+DLLFLAGS=-bd -DBUILDING_DLL
+
+DLLNAME=libxmp.dll
+EXPNAME=libxmp.exp
+LIBNAME=libxmp.lib
+LIBSTATIC=xmp_static.lib
+
+!ifeq target static
+BLD_TARGET=$(LIBSTATIC)
+!else
+CFLAGS+= $(DLLFLAGS)
+BLD_TARGET=$(DLLNAME)
+!endif
+
+OBJS=@OBJS@
+PROWIZ_OBJS=@POBJS@
+DEPACKER_OBJS=@DOBJS@
+ALL_OBJS=$(OBJS) $(OS_OBJS)
+!ifeq USE_PROWIZARD 1
+ALL_OBJS+= $(PROWIZ_OBJS)
+!endif
+!ifeq USE_DEPACKERS 1
+ALL_OBJS+= $(DEPACKER_OBJS)
+!endif
+
+#.SUFFIXES: .obj .c
+
+.c: src;src/depackers;src/loaders;src/loaders/prowizard
+.c.obj:
+	$(CC) $(CFLAGS) -fo=$^@ $<
+
+all: $(BLD_TARGET)
+
+# rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
+$(DLLNAME): $(ALL_OBJS)
+	wlink NAM $@ SYSTEM $(SYSTEM) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(ALL_OBJS)} OPTION IMPF=$(EXPNAME)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
+
+$(LIBSTATIC): $(ALL_OBJS)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(ALL_OBJS)
+
+clean: .symbolic
+	rm -f $(OBJS)
+	rm -f $(DEPACKER_OBJS)
+	rm -f $(PROWIZ_OBJS)
+
+distclean: clean .symbolic
+	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)

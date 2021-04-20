@@ -17,7 +17,7 @@ static int write_event(uint8 c1, uint8 c2, uint8 fxp, FILE *out)
 	uint8 p[4];
 
 	note = ((c1 << 4) & 0x30) | ((c2 >> 4) & 0x0f);
-	if (note >= 37) {
+	if (!PTK_IS_VALID_NOTE(note)) {
 		/* di.nightmare has note 49! */
 		uint32 x = 0;
 		fwrite(&x, 4, 1, out);
@@ -48,8 +48,8 @@ static int depack_di(HIO_HANDLE *in, FILE *out)
 	int size, ssize;
 	int pos;
 
-	memset(ptable, 0, 128);
-	memset(paddr, 0, 256);
+	memset(ptable, 0, sizeof(ptable));
+	memset(paddr, 0, sizeof(paddr));
 
 	pw_write_zero(out, 20);			/* title */
 
@@ -74,7 +74,7 @@ static int depack_di(HIO_HANDLE *in, FILE *out)
 		write16b(out, hio_read16b(in));		/* loop size */
 	}
 
-	memset(tmp, 0, 50);
+	memset(tmp, 0, sizeof(tmp));
 	for (i = nins; i < 31; i++) {
 		fwrite(tmp, 30, 1, out);
 	}
@@ -99,6 +99,11 @@ static int depack_di(HIO_HANDLE *in, FILE *out)
 		write8(out, ptable[i]);
 		if (ptable[i] > max)
 			max = ptable[i];
+	}
+
+	/* Sanity check */
+	if (max >= 128) {
+		return -1;
 	}
 
 	write32b(out, PW_MOD_MAGIC);
@@ -216,7 +221,7 @@ static int test_di(const uint8 *data, char *t, int s)
 	}
 #endif
 
-	PW_REQUEST_DATA(s, pat_offs - 1);
+	PW_REQUEST_DATA(s, pat_offs);
 
 	/* test pattern table reliability */
 	for (i = ptab_offs; i < pat_offs - 1; i++) {

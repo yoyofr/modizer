@@ -1,0 +1,13 @@
+//
+//  xmp_prefix.pch
+//  xmp
+//
+//  Created by Yohann Magnien on 20/04/2021.
+//
+
+#ifndef xmp_prefix_h
+#define xmp_prefix_h
+
+#include "common.h"
+
+#endif /* xmp_prefix_h */

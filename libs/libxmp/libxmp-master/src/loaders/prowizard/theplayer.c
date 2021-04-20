@@ -16,8 +16,13 @@ static uint8 set_event(uint8 *x, uint8 c1, uint8 c2, uint8 c3)
 {
 	uint8 b;
 
-	*x++ = ((c1 << 4) & 0x10) | ptk_table[c1 / 2][0];
-	*x++ = ptk_table[c1 / 2][1];
+	if (PTK_IS_VALID_NOTE(c1 / 2)) {
+		*x++ = ((c1 << 4) & 0x10) | ptk_table[c1 / 2][0];
+		*x++ = ptk_table[c1 / 2][1];
+	} else {
+		*x++ = ((c1 << 4) & 0x10);
+		*x++ = 0;
+	}
 
 	b = c2 & 0x0f;
 	if (b == 0x08)
@@ -205,16 +210,16 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 	return -1;
     }
 
-    memset(taddr, 0, 128 * 4 * 4);
-    memset(ptable, 0, 128);
-    memset(smp_size, 0, 31 * 4);
-    memset(isize, 0, 31 * sizeof(int));
+    memset(taddr, 0, sizeof(taddr));
+    memset(ptable, 0, sizeof(ptable));
+    memset(smp_size, 0, sizeof(smp_size));
+    memset(isize, 0, sizeof(isize));
+    memset(saddr, 0, sizeof(saddr));
     /*for (i = 0; i < 31; i++) {
 	PACK[i] = 0;
         DELTA[i] = 0;
     }*/
 
-    saddr[0] = 0;
     sdata_addr = hio_read16b(in);		/* read sample data address */
     npat = hio_read8(in);			/* read real number of patterns */
 
@@ -324,7 +329,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 
     /* write pattern data */
     for (i = 0; i < npat; i++) {
-	memset(buf, 0, 1024);
+	memset(buf, 0, sizeof(buf));
 	for (j = 0; j < 64; j++) {
 	    for (k = 0; k < 4; k++)
 		memcpy(&buf[j * 16 + k * 4], &track(i, k, j), 4);
@@ -363,7 +368,7 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	int i;
 	int len, num_pat, num_ins, sdata;
 
-	/* FIXME: add PW_REQUEST_DATA */
+	PW_REQUEST_DATA(s, 4);
 
 	/* number of pattern (real) */
 	num_pat = data[2];
@@ -374,6 +379,8 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	num_ins = (data[3] & 0x3f);
 	if (num_ins == 0 || num_ins > 0x1f)
 		return -1;
+
+	PW_REQUEST_DATA(s, num_ins * 6 + 4);
 
 	for (i = 0; i < num_ins; i++) {
 		/* test volumes */
@@ -388,7 +395,7 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	for (i = 0; i < num_ins; i++) {
 		int start, size = readmem16b(data + i * 6 + 4);
 
-		if ((size < 0xffdf && size > 0x8000) || size == 0)
+		if ((size <= 0xffdf && size > 0x8000) || size == 0)
 			return -1;
 
 		/* if (size < 0xff00)
@@ -410,6 +417,8 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 	if (sdata < num_ins * 6 + 4 + num_pat * 8)
 		return -1;
 
+	PW_REQUEST_DATA(s, num_pat * 8 + num_ins * 6 + 4);
+
 	/* test track table */
 	for (i = 0; i < num_pat * 4; i++) {
 		int x = readmem16b(data + 4 + num_ins * 6 + i * 2);
@@ -417,9 +426,7 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 			return -1;
 	}
 
-
-	/* first, test if we dont oversize the input file */
-	PW_REQUEST_DATA(s, num_ins * 6 + 4 + num_pat * 8);
+	PW_REQUEST_DATA(s, num_pat * 8 + num_ins * 6 + 4 + 128);
 
 	/* test pattern table */
 	len = 0;

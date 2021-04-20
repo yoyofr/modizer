@@ -26,8 +26,8 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 	int size, ssize = 0;
 	int max_trk_ofs = 0;
 
-	memset(trk_ofs, 0, 128 * 4 * 4);
-	memset(pnum, 0, 128);
+	memset(trk_ofs, 0, sizeof(trk_ofs));
+	memset(pnum, 0, sizeof(pnum));
 
 	hio_seek(in, 8, SEEK_CUR);
 	pw_move_data(out, in, 20);		/* title */
@@ -49,7 +49,7 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 		write16b(out, hio_read16b(in));	/* loop size */
 	}
 
-	memset(tmp, 0, 30);
+	memset(tmp, 0, sizeof(tmp));
 	tmp[29] = 0x01;
 
 	for (; i < 31; i++) {
@@ -73,6 +73,11 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 			npat = pnum[i];
 	}
 
+	/* Sanity check */
+	if (npat >= 128) {
+		return -1;
+	}
+
 	/* read tracks addresses */
 	/* bypass 4 bytes or not ?!? */
 	/* Here, I choose not :) */
@@ -92,7 +97,7 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 
 	/* pattern datas */
 	for (i = 0; i <= npat; i++) {
-		memset(pdata, 0, 1024);
+		memset(pdata, 0, sizeof(pdata));
 
 		for (j = 0; j < 4; j++) {
 			int where;
@@ -137,7 +142,7 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 				if (ver == 2) {
 					note = (c1 & 0xfe) >> 1;
 
-					if (note >= 37) {
+					if (!PTK_IS_VALID_NOTE(note)) {
 						return -1;
 					}
 
@@ -156,13 +161,13 @@ static int depack_tp23(HIO_HANDLE *in, FILE *out, int ver)
 					} else {
 						note = c1 & 0x3f;
 					}
-	
-					if (note >= 37) {
+
+					if (!PTK_IS_VALID_NOTE(note)) {
 						return -1;
 					}
-	
+
 					fxt = c2 & 0x0f;
-	
+
 					if (fxt == 0x00) {
 						p[0] = ins & 0xf0;
 						p[0] |= ptk_table[note][0];
@@ -236,7 +241,7 @@ static int test_tp23(const uint8 *data, char *t, int s, const char *magic)
 	/* number of sample */
 	nins = readmem16b(data + 28);
 
-	if (nins == 0 || nins & 0x07)
+	if (nins == 0 || nins & 0x07 || (nins >> 3) > 31)
 		return -1;
 
 	nins >>= 3;

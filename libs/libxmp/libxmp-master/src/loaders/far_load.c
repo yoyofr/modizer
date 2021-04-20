@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -101,7 +101,7 @@ static int far_test(HIO_HANDLE *f, char *t, const int start)
 #define FX_FAR_PORTA_UP		0xf9
 #define FX_FAR_PORTA_DN		0xf8
 
-static const uint8 fx[] = {
+static const uint8 fx[16] = {
     NONE,
     FX_FAR_PORTA_UP,		/* 0x1?  Pitch Adjust */
     FX_FAR_PORTA_DN,		/* 0x2?  Pitch Adjust */
@@ -134,14 +134,14 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
     LOAD_INIT();
 
     hio_read32b(f);			/* File magic: 'FAR\xfe' */
-    hio_read(&ffh.name, 40, 1, f);	/* Song name */
-    hio_read(&ffh.crlf, 3, 1, f);	/* 0x0d 0x0a 0x1A */
+    hio_read(ffh.name, 40, 1, f);	/* Song name */
+    hio_read(ffh.crlf, 3, 1, f);	/* 0x0d 0x0a 0x1A */
     ffh.headersize = hio_read16l(f);	/* Remaining header size in bytes */
     ffh.version = hio_read8(f);		/* Version MSN=major, LSN=minor */
-    hio_read(&ffh.ch_on, 16, 1, f);	/* Channel on/off switches */
+    hio_read(ffh.ch_on, 16, 1, f);	/* Channel on/off switches */
     hio_seek(f, 9, SEEK_CUR);		/* Current editing values */
     ffh.tempo = hio_read8(f);		/* Default tempo */
-    hio_read(&ffh.pan, 16, 1, f);	/* Channel pan definitions */
+    hio_read(ffh.pan, 16, 1, f);	/* Channel pan definitions */
     hio_read32l(f);			/* Grid, mode (for editor) */
     ffh.textlen = hio_read16l(f);	/* Length of embedded text */
 
@@ -152,7 +152,7 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     hio_seek(f, ffh.textlen, SEEK_CUR);	/* Skip song text */
 
-    hio_read(&ffh2.order, 256, 1, f);	/* Orders */
+    hio_read(ffh2.order, 256, 1, f);	/* Orders */
     ffh2.patterns = hio_read8(f);	/* Number of stored patterns (?) */
     ffh2.songlen = hio_read8(f);	/* Song length in patterns */
     ffh2.restart = hio_read8(f);	/* Restart pos */
@@ -220,7 +220,7 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	    if ((j % mod->chn) == 0 && (j / mod->chn) == brk)
 		event->f2t = FX_BREAK;
-	
+
 	    note = hio_read8(f);
 	    ins = hio_read8(f);
 	    vol = hio_read8(f);
@@ -231,10 +231,8 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    if (event->note || ins)
 		event->ins = ins + 1;
 
-	    vol = 16 * LSN(vol) + MSN(vol);
-
-	    if (vol)
-		event->vol = vol - 0x10;	/* ? */
+	    if (vol >= 0x01 && vol <= 0x10)
+		event->vol = (vol - 1) * 16 + 1;
 
 	    event->fxt = fx[MSN(fxb)];
 	    event->fxp = LSN(fxb);
@@ -286,10 +284,17 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		break;
 	    }
 	}
+	if(hio_error(f)) {
+		D_(D_CRIT "read error at pat %d", i);
+		return -1;
+	}
     }
 
     mod->ins = -1;
-    hio_read(sample_map, 1, 8, f);
+    if (hio_read(sample_map, 1, 8, f) < 8) {
+	D_(D_CRIT "read error at sample map");
+	return -1;
+    }
     for (i = 0; i < 64; i++) {
 	if (sample_map[i / 8] & (1 << (i % 8)))
 		mod->ins = i;
@@ -310,7 +315,7 @@ static int far_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 	    return -1;
 
-	hio_read(&fih.name, 32, 1, f);	/* Instrument name */
+	hio_read(fih.name, 32, 1, f);	/* Instrument name */
 	fih.length = hio_read32l(f);	/* Length of sample (up to 64Kb) */
 	fih.finetune = hio_read8(f);	/* Finetune (unsuported) */
 	fih.volume = hio_read8(f);	/* Volume (unsuported?) */

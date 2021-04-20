@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2016 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * This file is part of the Extended Module Player and is distributed
  * under the terms of the GNU Lesser General Public License. See COPYING.LIB
@@ -181,18 +181,21 @@ static int mtp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Instruments    : %d ", mod->ins);
 
 	for (i = 0; i < mod->ins; i++) {
+		struct xmp_instrument *xxi = &mod->xxi[i];
 		HIO_HANDLE *s;
 		char filename[1024];
+		char tmpname[32];
 
-		if (!mod->xxi[i].name[0])
+		if (!m->dirname) {
+			return -1;
+		}
+
+		if (!xxi->name[0] || libxmp_copy_name_for_fopen(tmpname, xxi->name, 32))
 			continue;
 
-		strncpy(filename, m->dirname, NAME_SIZE);
-		if (*filename)
-			strncat(filename, "/", NAME_SIZE);
-		strncat(filename, (char *)mod->xxi[i].name, NAME_SIZE);
+		snprintf(filename, 1024, "%s%s", m->dirname, tmpname);
 
-		if ((s = hio_open_file(filename, "rb")) != NULL) {
+		if ((s = hio_open(filename, "rb")) != NULL) {
 			asif_load(m, s, i);
 			hio_close(s);
 		}
