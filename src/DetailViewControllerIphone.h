@@ -335,4 +335,7 @@ class CGLString;
 
 - (UIViewController *)visibleViewController:(UIViewController *)rootViewController;
 
+-(void) stop;
+-(void) clearQueue;
+
 @end

@@ -274,6 +274,7 @@ static NSFileManager *mFileMngr;
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
 	[tableView reloadData];

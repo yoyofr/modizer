@@ -2004,6 +2004,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
     if (keys) {
@@ -2071,8 +2072,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 
 - (void)viewDidAppear:(BOOL)animated {
     [self hideWaiting];
-    
-    
+        
     [super viewDidAppear:animated];
     if (show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING)) {
         NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
@@ -2958,6 +2958,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
     
+    
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self showWaiting];
@@ -3268,11 +3269,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             if (playlist->playlist_id==nil) row++;
             if (row>=2) {//start playlist and position it at selected entry
                 //						self.navigationController.navigationBar.hidden = YES;
-                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                else [tabView reloadData];
-                
                 [detailViewController play_listmodules:playlist start_index:(row-2)];
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                
+                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                else [tabView reloadData];
+                                                                
+                [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
                 
             } else if (row==0 ){ //add new entry to current playlist
                 if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -3378,6 +3381,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 
                 [self fillKeys];
                 [tabView reloadData];
+                [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
                 
                 [self hideWaiting];
             } else {
@@ -3437,6 +3441,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         
                         [self addToPlaylistDB:playlist->playlist_id label:playlist->entries[playlist->nb_entries-1].label fullPath:playlist->entries[playlist->nb_entries-1].fullpath];
                         [tabView reloadData];
+                        
+                        [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
                     } else {
                         alertPlFull=[[UIAlertView alloc] initWithTitle:@"Warning" message:@"Playlist is full. Delete some entries to add more." delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                         if (alertPlFull) [alertPlFull show];
@@ -3575,6 +3581,17 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
+    }
+    currentPlayedEntry=detailViewController.mPlaylist_pos;
+    if ((browse_depth==1)&&show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING)&&(playlist->nb_entries)) {
+        NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+        
+        int pos=currentPlayedEntry+1;
+        if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+
+        if (pos<[self.tableView numberOfRowsInSection:0]) {
+            [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+        }
     }
 }
 

@@ -179,6 +179,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
     [self hideWaiting];

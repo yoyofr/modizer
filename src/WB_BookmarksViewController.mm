@@ -219,6 +219,7 @@
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
     [self hideWaiting];

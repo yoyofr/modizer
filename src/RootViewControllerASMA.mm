@@ -1026,6 +1026,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
     if (keys) {

@@ -1557,11 +1557,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
+            [self refreshCurrentVCforMiniplayer];
         } else {
             //restart
             if (mplayer.mod_subsongs>1) [mplayer playGoToSub:mplayer.mod_currentsub];
             else [self play_curEntry];
             if (mPaused) [self playPushed:nil];
+            [self refreshCurrentVCforMiniplayer];
         }
         return;
     }
@@ -1576,10 +1578,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self hideWaiting];
         } else [self playPrev];
         if (mPaused) [self playPushed:nil];
+        [self refreshCurrentVCforMiniplayer];
     } else {
         if ((mplayer.mod_subsongs>1)&&(mplayer.mod_currentsub>mplayer.mod_minsub)) [mplayer playPrevSub];
         else [self playPrev];
         if (mPaused) [self playPushed:nil];
+        [self refreshCurrentVCforMiniplayer];
     }
 }
 
@@ -1594,11 +1598,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
+            [self refreshCurrentVCforMiniplayer];
         }
     } else {
         if (mplayer.mod_currentsub>=mplayer.mod_maxsub) [self playNext];
         else [mplayer playNextSub];
         if (mPaused) [self playPushed:nil];
+        [self refreshCurrentVCforMiniplayer];
     }
 }
 
@@ -1611,6 +1617,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
+            [self refreshCurrentVCforMiniplayer];
         }
     }
 }
@@ -1624,8 +1631,25 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
+            [self refreshCurrentVCforMiniplayer];
         }
     }
+}
+
+-(void) stop {
+    [mplayer Stop];
+    [repeatingTimer invalidate];
+    repeatingTimer = nil;
+    mPaused=TRUE;
+    mIsPlaying=0;
+}
+
+-(void) clearQueue {
+    for (int i=0;i<mPlaylist_size;i++) {
+        mPlaylist[i].mPlaylistFilename=nil;
+        mPlaylist[i].mPlaylistFilepath=nil;
+    }
+    mPlaylist_size=0;
 }
 
 - (IBAction)playNext {
@@ -1681,11 +1705,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         
         
         [self hideWaiting];
+        [self refreshCurrentVCforMiniplayer];
 		
 		return FALSE;
 	}
     
     [self hideWaiting];
+    [self refreshCurrentVCforMiniplayer];
     
 	return TRUE;
 }
@@ -1872,7 +1898,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	//[playlistTabView reloadData];
     
 	//if (segcont_resumeLaunch.selectedSegmentIndex==0) return;
-	mRestart=1;
+	if (mPlaylist_size>0) mRestart=1;
+    else mRestart=0;
     
 	if ([self play_curEntry]) {
 		//	self.tabBarController.selectedViewController = self; //detailViewController;

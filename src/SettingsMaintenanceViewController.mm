@@ -142,6 +142,7 @@ extern pthread_mutex_t db_mutex;
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
     [self hideWaiting];
@@ -222,6 +223,15 @@ extern pthread_mutex_t db_mutex;
     [alert show];
     
 	return TRUE;
+}
+
+-(bool) clearPNqueue {
+    if (detailViewController) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [self hideMiniPlayer];
+        //[detailViewController refresh]
+    }
 }
 
 -(bool) cleanDB {
@@ -349,7 +359,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 7;
+    return 8;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -357,14 +367,10 @@ extern pthread_mutex_t db_mutex;
     return title;
 }
 
-
-
-
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
     NSString *footer=nil;
     return footer;
 }
-
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -414,37 +420,43 @@ extern pthread_mutex_t db_mutex;
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(cleanDB) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 1: //Recreate Samples folder
+        case 1: //Clean listening now
+            txt=NSLocalizedString(@"Clear 'Playing now...' queue",@"");
+            [btn setType:BButtonTypePrimary];
+            [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+            [btn addTarget:self action:@selector(clearPNqueue) forControlEvents:UIControlEventTouchUpInside];
+            break;
+        case 2: //Recreate Samples folder
             txt=NSLocalizedString(@"Recreate Samples folder",@"");
             [btn setType:BButtonTypePrimary];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(recreateSamplesFolder) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 2: //Reset settings to default
+        case 3: //Reset settings to default
             txt=NSLocalizedString(@"Reset settings to default",@"");
             [btn setType:BButtonTypeWarning];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetSettings) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 3: //Remove current cover
+        case 4: //Remove current cover
             txt=NSLocalizedString(@"Remove current cover",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(removeCurrentCover) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 4: //Reset Ratings
+        case 5: //Reset Ratings
             txt=NSLocalizedString(@"Reset Ratings",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetRatingsDB) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 5: //Reset played counter
+        case 6: //Reset played counter
             txt=NSLocalizedString(@"Reset Played Counters",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetPlaycountDB) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 6: //Reset DB
+        case 7: //Reset DB
             txt=NSLocalizedString(@"Reset Database",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];

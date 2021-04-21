@@ -1890,6 +1890,7 @@ static int shouldRestart=1;
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
     if (keys) {
@@ -2730,19 +2731,19 @@ static int shouldRestart=1;
             if (indexPath.section>1) {
                 cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
                 cell.delegate = self;
-                                 
-                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
-                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
+
+                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
                 if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor orangeColor]];
+                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
                 }
                 [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
             } else {
                 cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
                 cell.delegate = self;
                 
-                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
-                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
+                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
+                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
                 
                 
             }
@@ -2825,15 +2826,17 @@ static int shouldRestart=1;
         [cell removeAllRightButtons];
         
         if (indexPath.section>1) {
-            [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
-            [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
+            
+            [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+            [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
             if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor orangeColor]];
+                [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
             }
+            
             [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
         } else {
-            [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor purpleColor]];
-            [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor blueColor]];
+            [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1.0]];
+            [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
             
             
         }

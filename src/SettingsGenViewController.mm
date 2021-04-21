@@ -1806,6 +1806,7 @@ void optGSFChangedC(id param) {
         [self showMiniPlayer];
     } else {
         wasMiniPlayerOn=false;
+        [self hideMiniPlayer];
     }
     
     [self hideWaiting];
