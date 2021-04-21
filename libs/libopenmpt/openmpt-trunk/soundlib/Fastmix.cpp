@@ -16,6 +16,13 @@
 // - Loop wraparound works pretty well in general, but not at the start of bidi samples.
 // - The loop lookahead stuff might still fail for samples with backward loops.
 
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #include "stdafx.h"
 #include "Sndfile.h"
 #include "MixerLoops.h"
@@ -404,6 +411,15 @@ void CSoundFile::CreateStereoMix(int count)
 				mixsample_t *pbufmax = pbuffer + (nSmpCount * 2);
 				chn.nROfs = -*(pbufmax - 2);
 				chn.nLOfs = -*(pbufmax - 1);
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                int chn_idx=m_PlayState.ChnMix[nChn];
+                if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
+                    for (int ii=0;ii<nSmpCount;ii++)
+                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>8) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]-=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>20 );
+                    
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 
 #ifdef MPT_BUILD_DEBUG
 				SamplePosition targetpos = chn.position + chn.increment * nSmpCount;
@@ -412,6 +428,14 @@ void CSoundFile::CreateStereoMix(int count)
 #ifdef MPT_BUILD_DEBUG
 				MPT_ASSERT(chn.position.GetUInt() == targetpos.GetUInt());
 #endif
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
+                    for (int ii=0;ii<nSmpCount;ii++)
+                        m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>8) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8( (pbuffer[ii*2]+pbuffer[ii*2+1])>>20 );
+                    
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 
 				chn.nROfs += *(pbufmax - 2);
 				chn.nLOfs += *(pbufmax - 1);
@@ -479,6 +503,14 @@ void CSoundFile::CreateStereoMix(int count)
 		}
 #endif // NO_PLUGINS
 	}
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
+        m_voice_current_ptr[ii]+=256*count;
+        while ((m_voice_current_ptr[ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+    }
+    //TODO:  MODIZER changes end / YOYOFR
+    
 	m_nMixStat = std::max(m_nMixStat, nchmixed);
 }
 

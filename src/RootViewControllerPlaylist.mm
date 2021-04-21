@@ -430,12 +430,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	
 	mShowSubdir=0;
 	
-	ratingImg[0] = @"rating0.png";
-    ratingImg[1] = @"rating1.png";
-	ratingImg[2] = @"rating2.png";
-	ratingImg[3] = @"rating3.png";
-	ratingImg[4] = @"rating4.png";
-	ratingImg[5] = @"rating5.png";
+    ratingImg[0] = @"heart-empty.png";
+    ratingImg[1] = @"heart-filled.png"; //rating5.png";
 	
 	/* Init popup view*/
 	/**/
@@ -2419,8 +2415,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
-                                           26,
-                                           50,9);
+                                           22,
+                                           14,14);
         bottomImageView.tag = BOTTOM_IMAGE_TAG;
         bottomImageView.opaque=TRUE;
         [cell.contentView addSubview:bottomImageView];
@@ -2446,15 +2442,15 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     secActionView.hidden=TRUE;
     
     if (darkMode) {
-        topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
-        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
+        topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
@@ -2540,7 +2536,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     }
                 }
 
-                bottomImageView.image=[UIImage imageNamed:ratingImg[playlist->entries[row-2].ratings]];
+                if (playlist->entries[row-2].ratings>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(playlist->entries[row-2].ratings?1:0)]];
                 NSArray *filename_parts=[playlist->entries[row-2].fullpath componentsSeparatedByString:@"/"];
                 
                 NSString *tmp_str;
@@ -2558,9 +2554,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 bottomLabel.text=[tmp_str stringByAppendingFormat:@"Pl:%d",playlist->entries[row-2].playcounts];
                 
                 
-                bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+                bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                                22,
-                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-60,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-20,
                                                18);
                 
             }
@@ -2648,12 +2644,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].playcount,
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].rating);
                     }
-                    if (cur_local_entries[indexPath.section-2][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_local_entries[indexPath.section-2][indexPath.row].rating]];
+                    if (cur_local_entries[indexPath.section-2][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(cur_local_entries[indexPath.section-2][indexPath.row].rating?1:0)]];
                     tmp_str = [NSString stringWithFormat:@"Pl:%d",cur_local_entries[indexPath.section-2][indexPath.row].playcount];
                     
-                    bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+                    bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                                    22,
-                                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
+                                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20-actionicon_offsetx,
                                                    18);
                     if ((nb_occur=[self isLocalEntryInPlaylist:cur_local_entries[indexPath.section-2][indexPath.row].fullpath])) {
                         

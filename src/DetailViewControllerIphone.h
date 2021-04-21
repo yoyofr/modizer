@@ -59,6 +59,11 @@ class CGLString;
 @interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate> { //,CLLocationManagerDelegate, MKReverseGeocoderDelegate> {
 //	CLLocationManager *locManager;
     
+    bool darkMode;
+    bool forceReloadCells;
+    
+    UITableView *alertTableView;
+    
     //EQ
     EQViewController *eqVC;
     bool bShowEQ;

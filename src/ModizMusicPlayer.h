@@ -341,10 +341,10 @@ enum MMP_PLAYER_TYPE {
 
 -(void) optXMP_SetInterpolation:(int) mode;
 -(void) optXMP_SetStereoSeparation:(int) value;
--(void) optXMP_SetAmp:(int) value;
--(void) optXMP_SetDSP:(int) value;
--(void) optXMP_SetFLAGS:(int) value;
 -(void) optXMP_SetMasterVol:(int) value;
+-(void) optXMP_SetAmp:(int) value;
+-(void) optXMP_SetDSP:(bool) value;
+-(void) optXMP_SetFLAGS:(bool) value;
 
 -(void) setLoopInf:(int)val;
 

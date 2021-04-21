@@ -3850,7 +3850,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     }
                     if (mPlayType==MMP_XMP) {  //XMP
                         if (m_voicesDataAvail) {
-                            //copy voice data for oscillo view
+                            //reset to 0 buffer
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
                                 for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
                                 }
@@ -3888,6 +3888,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         int prev_ofs=buffer_ana_gen_ofs-1;
                         if (prev_ofs<0) prev_ofs=SOUND_BUFFER_NB-1;
                         
+                        if (m_voicesDataAvail) {
+                            //reset to 0 buffer
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
+                                }
+                            }
+                        }
+                        
                         genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
                         genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
                         
@@ -3897,6 +3905,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         for (int i=0;i<numChannels;i++) {
                             int v=openmpt_module_get_current_channel_vu_mono(openmpt_module_ext_get_module(ompt_mod),i)*255;
                             genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=(v>255?255:v);
+                        }
+                        
+                        if (m_voicesDataAvail) {
+                            //copy voice data for oscillo view
+                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                }
+                            }
                         }
                         
                         if (mChangeOfSong==0) {
@@ -6033,12 +6049,12 @@ char* loadRom(const char* path, size_t romSize)
     
     xmp_set_player(xmp_ctx,XMP_PLAYER_AMP,optXMP_AmpValue);
     xmp_set_player(xmp_ctx,XMP_PLAYER_VOLUME,optXMP_MasterVol);
-    xmp_set_player(xmp_ctx,XMP_PLAYER_DEFPAN,optXMP_StereoSeparationVal);
+    xmp_set_player(xmp_ctx,XMP_PLAYER_MIX,optXMP_StereoSeparationVal);
     
     xmp_set_player(xmp_ctx,XMP_PLAYER_INTERP,optXMP_InterpolationValue);
     
     xmp_set_player(xmp_ctx,XMP_PLAYER_DSP,optXMP_DSP);
-    xmp_set_player(xmp_ctx,XMP_PLAYER_FLAGS,optXMP_Flags);
+    xmp_set_player(xmp_ctx,XMP_PLAYER_CFLAGS,optXMP_Flags);
 
     /* Show module data */
     
@@ -6239,6 +6255,12 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if (mLoopMode==1) {
         iModuleLength=-1;
         openmpt_module_set_repeat_count(openmpt_module_ext_get_module(ompt_mod),-1);
+    }
+    
+    numVoicesChannels=numChannels;
+    m_voicesDataAvail=1;
+    for (int i=0;i<numVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
     }
     
     ompt_patterns = (ModPlugNote**)calloc(1,sizeof(ModPlugNote*)*numPatterns);
@@ -8880,9 +8902,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             case 2:
                 return [NSString stringWithFormat:@"PS2"];
             case 0x11:
-                return [NSString stringWithFormat:@"DSF"];
-            case 0x12:
                 return [NSString stringWithFormat:@"SSF"];
+            case 0x12:
+                return [NSString stringWithFormat:@"DSF"];
             case 0x21:
                 return [NSString stringWithFormat:@"USF"];
             case 0x23:
@@ -9207,21 +9229,21 @@ extern "C" void adjust_amplification(void);
 }
 -(void) optXMP_SetStereoSeparation:(int) value {
     optXMP_StereoSeparationVal=value;
-    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_DEFPAN,optXMP_StereoSeparationVal);
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_MIX,optXMP_StereoSeparationVal);
 }
 -(void) optXMP_SetAmp:(int) value {
     optXMP_AmpValue=value;
     if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_AMP,optXMP_AmpValue);
 }
--(void) optXMP_SetDSP:(int) value {
+-(void) optXMP_SetDSP:(bool) value {
     if (value) optXMP_DSP=XMP_DSP_LOWPASS;
     else optXMP_DSP=0;
     if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_DSP,optXMP_DSP);
 }
--(void) optXMP_SetFLAGS:(int) value {
+-(void) optXMP_SetFLAGS:(bool) value {
     if (value) optXMP_Flags=XMP_FLAGS_A500;
     else optXMP_Flags=0;
-    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_FLAGS,optXMP_Flags);
+    if (xmp_ctx) xmp_set_player(xmp_ctx,XMP_PLAYER_CFLAGS,optXMP_Flags);
 }
 -(void) optXMP_SetMasterVol:(int) value {
     optXMP_MasterVol=value;

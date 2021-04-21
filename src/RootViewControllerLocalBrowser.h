@@ -23,7 +23,7 @@
 @class DetailViewControllerIphone;
 
 @interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate> {
-	NSString *ratingImg[6];
+	NSString *ratingImg[2];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     NSFileManager *mFileMngr;

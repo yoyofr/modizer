@@ -163,7 +163,7 @@ enum MDZ_SETTINGS {
         XMP_MasterVolume,
         XMP_Amplification,
         XMP_StereoSeparation,
-        XMP_DSPLowPass,
+        //XMP_DSPLowPass,
         XMP_FLAGS_A500F,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,

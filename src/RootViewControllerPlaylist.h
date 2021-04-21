@@ -20,7 +20,7 @@
 @class DetailViewControllerIphone;
 
 @interface RootViewControllerPlaylist : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
-	NSString *ratingImg[6];
+	NSString *ratingImg[2];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     

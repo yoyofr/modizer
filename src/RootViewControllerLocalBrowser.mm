@@ -520,12 +520,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     mShowSubdir=0;
     
-    ratingImg[0] = @"rating0.png";
-    ratingImg[1] = @"rating1.png";
-    ratingImg[2] = @"rating2.png";
-    ratingImg[3] = @"rating3.png";
-    ratingImg[4] = @"rating4.png";
-    ratingImg[5] = @"rating5.png";
+    ratingImg[0] = @"heart-empty.png";
+    ratingImg[1] = @"heart-filled.png"; //rating5.png";
     
     //self.tableView.pagingEnabled;
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -2779,13 +2775,6 @@ static int shouldRestart=1;
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        if (darkMode) {
-            topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
-            topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
-        } else {
-            topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-            topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-        }
         topLabel.font = [UIFont boldSystemFontOfSize:18];
         topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
@@ -2800,13 +2789,6 @@ static int shouldRestart=1;
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        if (darkMode) {
-            bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
-            bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
-        } else {
-            bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-            bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
-        }
         
         bottomLabel.font = [UIFont systemFontOfSize:12];
         //bottomLabel.font = [UIFont fontWithName:@"courier" size:12];
@@ -2815,8 +2797,8 @@ static int shouldRestart=1;
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
-                                           26,
-                                           50,9);
+                                           22,
+                                           14,14);
         bottomImageView.tag = BOTTOM_IMAGE_TAG;
         bottomImageView.opaque=TRUE;
         [cell.contentView addSubview:bottomImageView];
@@ -2862,20 +2844,17 @@ static int shouldRestart=1;
     [cell layoutIfNeeded];
     
     if (darkMode) {
-        topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
+        topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
     
-    if (darkMode) {
-        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
-    } else {
-        bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
-    }
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
                                tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
@@ -2990,7 +2969,7 @@ static int shouldRestart=1;
                                             &cur_local_entries[section][indexPath.row].channels_nb,
                                             &cur_local_entries[section][indexPath.row].songs);
             }
-            if (cur_local_entries[section][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_local_entries[section][indexPath.row].rating]];
+            if (cur_local_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(cur_local_entries[section][indexPath.row].rating?1:0)]];
             
             NSString *bottomStr;
             int isMonoSong=cur_local_entries[section][indexPath.row].songs==1;
@@ -3021,7 +3000,7 @@ static int shouldRestart=1;
             
             bottomLabel.text=bottomStr;
             
-            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                            22,
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
                                            18);

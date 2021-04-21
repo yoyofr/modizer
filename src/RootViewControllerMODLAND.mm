@@ -164,12 +164,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     mFileMngr=[[NSFileManager alloc] init];
 	
-	ratingImg[0] = @"rating0.png";
-    ratingImg[1] = @"rating1.png";
-	ratingImg[2] = @"rating2.png";
-	ratingImg[3] = @"rating3.png";
-	ratingImg[4] = @"rating4.png";
-	ratingImg[5] = @"rating5.png";
+    ratingImg[0] = @"heart-empty.png";
+    ratingImg[1] = @"heart-filled.png"; //rating5.png";
 	
 	/* Init popup view*/
 	/**/
@@ -2037,8 +2033,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
-                                           26,
-                                           50,9);
+                                           22,
+                                           14,14);
         bottomImageView.tag = BOTTOM_IMAGE_TAG;
         bottomImageView.opaque=TRUE;
         [cell.contentView addSubview:bottomImageView];
@@ -2064,17 +2060,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
     secActionView.hidden=TRUE;
     
     if (darkMode) {
-        topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
-        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
+        topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
-    
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
@@ -2158,7 +2153,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                                         &cur_db_entries[section][indexPath.row].songs);
                             
                         }
-                        if (cur_db_entries[section][indexPath.row].rating>=0) bottomImageView.image=[UIImage imageNamed:ratingImg[cur_db_entries[section][indexPath.row].rating]];
+                        if (cur_db_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(cur_db_entries[section][indexPath.row].rating?1:0)]];
                         
                         /*if (!cur_db_entries[section][indexPath.row].playcount) bottomLabel.text = [NSString stringWithString:played0time]; 
                          else if (cur_db_entries[section][indexPath.row].playcount==1) bottomLabel.text = [NSString stringWithString:played1time];
@@ -2180,15 +2175,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
                         
                         bottomLabel.text=bottomStr;
                         
-                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                                        22,
-                                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20,
                                                        18);
                     } else {
                         bottomLabel.text=[NSString stringWithFormat:@"%dKB",cur_db_entries[section][indexPath.row].filesize/1024];
-                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+60,
+                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                                        22,
-                                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20,
                                                        18);
                     }
                     

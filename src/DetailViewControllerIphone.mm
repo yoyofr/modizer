@@ -217,7 +217,6 @@ static int display_length_mode=0;
 
 -(IBAction)showSubSongSelector:(id)sender {
     UIViewController *controller = [[UIViewController alloc]init];
-    UITableView *alertTableView;
     CGRect rect,recttv;
     const NSInteger kAlertTableViewTag = 10001;
     
@@ -338,7 +337,7 @@ static int display_length_mode=0;
 
 -(IBAction)showArcSelector:(id)sender {
     UIViewController *controller = [[UIViewController alloc]init];
-    UITableView *alertTableView;
+    
     CGRect rect,recttv;
     const NSInteger kAlertTableViewTag = 10001;
     
@@ -848,7 +847,7 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optXMP_SetMasterVol:settings[XMP_MasterVolume].detail.mdz_slider.slider_value];
         [mplayer optXMP_SetInterpolation:settings[XMP_Interpolation].detail.mdz_switch.switch_value];
         [mplayer optXMP_SetAmp:settings[XMP_Amplification].detail.mdz_switch.switch_value];
-        [mplayer optXMP_SetDSP:settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value];
+        //[mplayer optXMP_SetDSP:settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value];
         [mplayer optXMP_SetFLAGS:settings[XMP_FLAGS_A500F].detail.mdz_boolswitch.switch_value];
     }
 }
@@ -4085,6 +4084,19 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     }*/
 }
 
+-(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (alertTableView) [alertTableView reloadData];
+}
+
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	clock_t start_time,end_time;
@@ -4095,6 +4107,17 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     self.navigationController.delegate = self;
     
     statusbarHidden=false;
+    
+    alertTableView=nil;
+    
+    forceReloadCells=false;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    
     
     labelModuleName=[[CBAutoScrollLabel alloc] init];
     labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
@@ -4466,8 +4489,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
 	/**/
 	
-	ratingImg[0] = @"rating0.png";
-	ratingImg[1] = @"rating5.png";
+	ratingImg[0] = @"heart-empty.png";
+    ratingImg[1] = @"heart-filled.png"; //rating5.png";
 	
 	for (int i=0;i<3;i++) viewTapInfoStr[i]=NULL;
 	
@@ -4887,6 +4910,16 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         }
     }
     //NSLog(@"safe bottom %f",safe_bottom);
+    
+    bool oldmode=darkMode;
+    darkMode=false;
+    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"12.0")) {
+        if (@available(iOS 12.0, *)) {
+            if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+        }
+    }
+    if (oldmode!=darkMode) forceReloadCells=true;
+    if (alertTableView) [alertTableView reloadData];
     
     alertCannotPlay_displayed=0;
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
@@ -6771,14 +6804,15 @@ extern "C" int current_sample;
     
     
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
+    if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,SELECTOR_TABVIEWCELL_HEIGHT);
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        UIImage *image = [UIImage imageNamed:@"tabview_gradient50.png"];
+        NSString *imgFile=(darkMode?@"tabview_gradient50Black.png":@"tabview_gradient50.png");
+        UIImage *image = [UIImage imageNamed:imgFile];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
         cell.backgroundView = imageView;
@@ -6794,8 +6828,6 @@ extern "C" int current_sample;
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
         topLabel.font = [UIFont boldSystemFontOfSize:14];
         topLabel.lineBreakMode=NSLineBreakByTruncatingMiddle;
         topLabel.opaque=TRUE;
@@ -6806,9 +6838,14 @@ extern "C" int current_sample;
     } else {
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
     }
-    topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-    topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
-    
+    if (darkMode) {
+        topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
+        
+    } else {
+        topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+    }
     topLabel.frame= CGRectMake(4,
                                0,
                                tabView.bounds.size.width-8,

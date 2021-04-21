@@ -452,7 +452,7 @@ void optGSFChangedC(id param) {
     settings[XMP_MasterVolume].detail.mdz_slider.slider_value=100;
     settings[XMP_Amplification].detail.mdz_switch.switch_value=1;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_value=100;
-    settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value=1;
+    //settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_value=1;
     settings[XMP_FLAGS_A500F].detail.mdz_boolswitch.switch_value=0;
     
     
@@ -1642,7 +1642,7 @@ void optGSFChangedC(id param) {
     settings[XMP_StereoSeparation].description=NULL;
     settings[XMP_StereoSeparation].family=MDZ_SETTINGS_FAMILY_XMP;
     settings[XMP_StereoSeparation].sub_family=0;
-    settings[XMP_StereoSeparation].callback=&optOMPTChangedC;
+    settings[XMP_StereoSeparation].callback=&optXMPChangedC;
     settings[XMP_StereoSeparation].type=MDZ_SLIDER_DISCRETE;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_min_value=0;
     settings[XMP_StereoSeparation].detail.mdz_slider.slider_max_value=100;
@@ -1672,12 +1672,12 @@ void optGSFChangedC(id param) {
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[XMP_Amplification].detail.mdz_switch.switch_labels[3]=(char*)"3";
     
-    settings[XMP_DSPLowPass].type=MDZ_BOOLSWITCH;
+    /*settings[XMP_DSPLowPass].type=MDZ_BOOLSWITCH;
     settings[XMP_DSPLowPass].label=(char*)"Lowpass filter";
     settings[XMP_DSPLowPass].description=NULL;
     settings[XMP_DSPLowPass].family=MDZ_SETTINGS_FAMILY_XMP;
     settings[XMP_DSPLowPass].sub_family=0;
-    settings[XMP_DSPLowPass].callback=&optXMPChangedC;
+    settings[XMP_DSPLowPass].callback=&optXMPChangedC;*/
     
     settings[XMP_FLAGS_A500F].type=MDZ_BOOLSWITCH;
     settings[XMP_FLAGS_A500F].label=(char*)"Amiga 500 Filter";
@@ -1992,16 +1992,15 @@ void optGSFChangedC(id param) {
     }
     
     if (darkMode) {
-        topLabel.textColor = [UIColor colorWithRed:1-0.1 green:1-0.1 blue:1-0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.2 green:1-0.2 blue:1-0.2 alpha:1.0];
-        bottomLabel.textColor = [UIColor colorWithRed:1-0.4 green:1-0.4 blue:1-0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:1-0.8 green:1-0.8 blue:1-0.8 alpha:1.0];
-        
+        topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+        bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
     
     if (settings[cur_settings_idx[indexPath.section]].description) {

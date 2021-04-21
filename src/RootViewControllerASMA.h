@@ -20,7 +20,7 @@
 
 
 @interface RootViewControllerASMA : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
-	NSString *ratingImg[6];
+	NSString *ratingImg[2];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
     
