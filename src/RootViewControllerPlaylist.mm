@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
+#define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define ROW_HEIGHT 40
@@ -431,8 +432,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	mShowSubdir=0;
 	
     ratingImg[0] = @"heart-empty.png";
-    ratingImg[1] = @"heart-filled.png"; //rating5.png";
-	
+    ratingImg[1] = @"heart-half-filled.png";
+    ratingImg[2] = @"heart-filled.png";
 	/* Init popup view*/
 	/**/
 	
@@ -1897,7 +1898,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
-            sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE rating>0 ORDER BY rating DESC,name");
+            sprintf(sqlStatement,"SELECT name,fullpath,rating,play_count,length,channels,songs FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
             if (err==SQLITE_OK){
                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -2536,7 +2537,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     }
                 }
 
-                if (playlist->entries[row-2].ratings>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(playlist->entries[row-2].ratings?1:0)]];
+                if (playlist->entries[row-2].ratings>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(playlist->entries[row-2].ratings)]];
                 NSArray *filename_parts=[playlist->entries[row-2].fullpath componentsSeparatedByString:@"/"];
                 
                 NSString *tmp_str;
@@ -2580,8 +2581,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                            0,
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            22);
-                
-                
                 
                 [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
                 [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
@@ -2644,7 +2643,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].playcount,
                                                     &cur_local_entries[indexPath.section-2][indexPath.row].rating);
                     }
-                    if (cur_local_entries[indexPath.section-2][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(cur_local_entries[indexPath.section-2][indexPath.row].rating?1:0)]];
+                    if (cur_local_entries[indexPath.section-2][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[indexPath.section-2][indexPath.row].rating)]];
                     tmp_str = [NSString stringWithFormat:@"Pl:%d",cur_local_entries[indexPath.section-2][indexPath.row].playcount];
                     
                     bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,

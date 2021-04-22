@@ -87,7 +87,7 @@ class CGLString;
     
 	ModizMusicPlayer *mplayer;
 	
-	NSString *ratingImg[2];
+	NSString *ratingImg[3];
     
     int mOnlyCurrentEntry;
     int mOnlyCurrentSubEntry;

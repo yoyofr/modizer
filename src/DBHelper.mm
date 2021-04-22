@@ -521,13 +521,19 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
                     if (tmp_rating<0) tmp_rating=0;
                     if (tmp_rating>5) tmp_rating=5;
                     avg_rating+=tmp_rating;
-                    if (tmp_rating>0) entries_nb++;
+                    //if (tmp_rating>0)
+                    entries_nb++;
                 } else {
                     //printf("skipping: %s\n",tmp_fullpath);
                     playcount=(short int)sqlite3_column_int(stmt, 1);
                 }
             }
-            if (entries_nb) avg_rating=avg_rating/entries_nb;
+            if (entries_nb) {
+                if (avg_rating>0) {
+                    avg_rating=avg_rating/entries_nb;
+                    if (avg_rating==0) avg_rating=1;
+                }
+            }
             sqlite3_finalize(stmt);
         } else NSLog(@"ErrSQL : %d",err);
         

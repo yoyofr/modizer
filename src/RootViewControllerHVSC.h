@@ -20,7 +20,7 @@
 
 
 @interface RootViewControllerHVSC : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
-	NSString *ratingImg[2];
+	NSString *ratingImg[3];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
 	

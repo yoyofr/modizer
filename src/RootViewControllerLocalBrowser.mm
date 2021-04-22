@@ -6,6 +6,8 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
+
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define LIMITED_LIST_SIZE 1024
 
@@ -521,7 +523,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     mShowSubdir=0;
     
     ratingImg[0] = @"heart-empty.png";
-    ratingImg[1] = @"heart-filled.png"; //rating5.png";
+    ratingImg[1] = @"heart-half-filled.png";
+    ratingImg[2] = @"heart-filled.png";
     
     //self.tableView.pagingEnabled;
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -2972,7 +2975,7 @@ static int shouldRestart=1;
                                             &cur_local_entries[section][indexPath.row].channels_nb,
                                             &cur_local_entries[section][indexPath.row].songs);
             }
-            if (cur_local_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(cur_local_entries[section][indexPath.row].rating?1:0)]];
+            if (cur_local_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[section][indexPath.row].rating)]];
             
             NSString *bottomStr;
             int isMonoSong=cur_local_entries[section][indexPath.row].songs==1;

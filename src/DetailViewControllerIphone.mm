@@ -4516,8 +4516,9 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
 	/**/
 	
-	ratingImg[0] = @"heart-empty.png";
-    ratingImg[1] = @"heart-filled.png"; //rating5.png";
+    ratingImg[0] = @"heart-empty.png";
+    ratingImg[1] = @"heart-half-filled.png";
+    ratingImg[2] = @"heart-filled.png";
 	
 	for (int i=0;i<3;i++) viewTapInfoStr[i]=NULL;
 	

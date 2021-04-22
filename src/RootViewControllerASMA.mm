@@ -6,6 +6,9 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
+
+
 #define GET_NB_ENTRIES 1
 //#define NB_ASMA_ENTRIES 4630
 
@@ -170,7 +173,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     mFileMngr=[[NSFileManager alloc] init];
     
     ratingImg[0] = @"heart-empty.png";
-    ratingImg[1] = @"heart-filled.png"; //rating5.png";
+    ratingImg[1] = @"heart-half-filled.png";
+    ratingImg[2] = @"heart-filled.png";
     
     /* Init popup view*/
     /**/
@@ -1403,7 +1407,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                                     &cur_db_entries[section][indexPath.row].channels_nb,
                                                     &cur_db_entries[section][indexPath.row].songs);
                     }
-                    if (cur_db_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[(cur_db_entries[section][indexPath.row].rating?1:0)]];
+                    if (cur_db_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_db_entries[section][indexPath.row].rating)]];
                     
                     /*if (!cur_db_entries[section][indexPath.row].playcount) bottomLabel.text = [NSString stringWithString:played0time];
                      else if (cur_db_entries[section][indexPath.row].playcount==1) bottomLabel.text = [NSString stringWithString:played1time];
