@@ -53,14 +53,12 @@
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
-    cmdCenter.seekForwardCommand
-    
     [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
     
     MPPlayableContentManager *contMngr=[MPPlayableContentManager sharedContentManager];
     [contMngr setDelegate:self];
     [contMngr setDataSource:self];
-    [contMngt setNowPlayingIdentifiers:[NSArray arrayWithObject:@"item1"]];
+    [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"item1"]];
     
     return TRUE;
 }

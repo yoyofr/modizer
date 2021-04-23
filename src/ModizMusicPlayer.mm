@@ -8422,7 +8422,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             }
             openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
             iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
-            
+            if (mLoopMode) iModuleLength=-1;
             if (startPos) [self Seek:startPos];
             [self Play];
             iCurrentTime=startPos;
