@@ -26,30 +26,68 @@
         [command setEnabled:NO];
     }
     
+    [cmdCenter.playCommand setEnabled:YES];
     [cmdCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    [cmdCenter.pauseCommand setEnabled:YES];
     [cmdCenter.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         [self.detailViewController performSelectorOnMainThread:@selector(pausePushed:) withObject:nil waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    [cmdCenter.previousTrackCommand setEnabled:YES];
     [cmdCenter.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         [self.detailViewController performSelectorOnMainThread:@selector(playPrevSub) withObject:nil waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    [cmdCenter.nextTrackCommand setEnabled:YES];
     [cmdCenter.nextTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         [self.detailViewController performSelectorOnMainThread:@selector(playNextSub) withObject:nil waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    [cmdCenter.changePlaybackPositionCommand setEnabled:YES];
     [cmdCenter.changePlaybackPositionCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        NSNumber *seekTime=[[NSNumber alloc] initWithInt:event.timestamp*1000];
+        
+        
+        NSNumber *seekTime=[[NSNumber alloc] initWithDouble:((MPChangePlaybackPositionCommandEvent*)event).positionTime*1000];
         [self.detailViewController performSelectorOnMainThread:@selector(seek:) withObject:seekTime waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    /*[cmdCenter.skipForwardCommand setEnabled:YES];
+    [cmdCenter.skipForwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        
+        
+        NSNumber *seekTime=[[NSNumber alloc] initWithDouble:10*1000];
+        
+        
+        [self.detailViewController performSelectorOnMainThread:@selector(skipForward:) withObject:seekTime waitUntilDone:YES];
+        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];*/
+    
+    [cmdCenter.seekForwardCommand setEnabled:YES];
+    [cmdCenter.seekForwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        
+        if ( ((MPSeekCommandEvent*)event).type==MPSeekCommandEventTypeBeginSeeking) {
+            [self.detailViewController performSelectorOnMainThread:@selector(playNext) withObject:nil waitUntilDone:YES];
+            [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        }
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    [cmdCenter.seekBackwardCommand setEnabled:YES];
+    [cmdCenter.seekBackwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        if ( ((MPSeekCommandEvent*)event).type==MPSeekCommandEventTypeBeginSeeking) {
+            [self.detailViewController performSelectorOnMainThread:@selector(playPrev) withObject:nil waitUntilDone:YES];
+            [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        }
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
@@ -61,6 +99,10 @@
     [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"item1"]];
     
     return TRUE;
+}
+
+- (void) initPlaylistList {
+    
 }
 
 ///////////////////////

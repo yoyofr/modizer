@@ -977,6 +977,7 @@ static float movePinchScale,movePinchScaleOld;
 -(void) seek:(NSNumber*)seekTime {
     int curTime;
     if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    
     [mplayer Seek:seekTime.intValue];
         
     if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
