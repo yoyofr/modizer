@@ -41,7 +41,7 @@ encode_lzhuf(infp, outfp, size, original_size_var, packed_size_var,
         *original_size_var = interface.original;
     } else {
         *packed_size_var = *original_size_var =
-            copyfile(infp, outfp, size, 0, &crc);
+            lha_copyfile(infp, outfp, size, 0, &crc);
     }
     memcpy(hdr_method, "-lh -", 5);
     hdr_method[3] = interface.method + '0';

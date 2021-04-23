@@ -15,6 +15,7 @@
 @class DetailViewControllerIphone;
 @class RootViewControllerPlaylist;
 @class myTabBarController;
+@class CarPlayAndRemoteManagement;
 
 @interface AppDelegate_Phone : UIResponder <UIApplicationDelegate> {
 	IBOutlet ModizerWin *modizerWin;
@@ -24,6 +25,8 @@
 	IBOutlet RootViewControllerLocalBrowser *rootViewControlleriPhone;
 	IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
     IBOutlet RootViewControllerPlaylist *playlistVC;
+    
+    CarPlayAndRemoteManagement *cpMngt;
 	
 	UIBackgroundTaskIdentifier bgTask;
 }
@@ -34,8 +37,8 @@
 @property (nonatomic, retain) IBOutlet RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
 @property (nonatomic, retain) IBOutlet myTabBarController *tabBarController;
+@property (nonatomic, retain) CarPlayAndRemoteManagement *cpMngt;
 
--(int) isSlowDevice;
 -(void) batteryChanged:(NSNotification*)notification;
 
 @end

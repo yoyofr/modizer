@@ -332,7 +332,7 @@ temporary_to_new_archive_file(new_archive_size)
 
     oafp = xfopen(temporary_name, READ_BINARY);
     reading_filename = temporary_name;
-    copyfile(oafp, nafp, new_archive_size, 0, 0);
+    lha_copyfile(oafp, nafp, new_archive_size, 0, 0);
     if (nafp != stdout)
         fclose(nafp);
     fclose(oafp);

@@ -26,7 +26,7 @@
 
 #import "ModizMusicPlayer.h"
 
-#import "AppDelegate_Phone.h"
+//#import "AppDelegate_Phone.h"
 #import "RootViewControllerPlaylist.h"
 
 #import "SettingsGenViewController.h"
@@ -337,5 +337,7 @@ class CGLString;
 
 -(void) stop;
 -(void) clearQueue;
+-(void) seek:(NSNumber*)seekTime;
+-(void) updMediaCenter;
 
 @end

@@ -93,7 +93,7 @@ fwrite_crc(crcp, p, n, fp)
 /* ------------------------------------------------------------------------ */
 void
 init_code_cache( /* void */ )
-{               /* called from copyfile() in util.c */
+{               /* called from lha_copyfile() in util.c */
 #ifdef EUC
     putc_euc_cache = EOF;
 #endif

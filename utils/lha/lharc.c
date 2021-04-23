@@ -1387,7 +1387,7 @@ copy_old_one(oafp, nafp, hdr)
     else {
         reading_filename = archive_name;
         writing_filename = temporary_name;
-        copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
+        lha_copyfile(oafp, nafp, hdr->header_size + hdr->packed_size, 0, 0);
     }
 }
 

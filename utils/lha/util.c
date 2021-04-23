@@ -16,7 +16,7 @@
 #include <errno.h>
 
 size_t
-copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
+lha_copyfile(f1, f2, size, text_flg, crcp)  /* return: size of source file */
     FILE *f1;
     FILE *f2;
     size_t size;
@@ -95,7 +95,7 @@ encode_stored_crc(ifp, ofp, size, original_size_var, write_size_var)
 
     save_quiet = quiet;
     quiet = 1;
-    size = copyfile(ifp, ofp, size, 1, &crc);
+    size = lha_copyfile(ifp, ofp, size, 1, &crc);
     *original_size_var = *write_size_var = size;
     quiet = save_quiet;
     return crc;

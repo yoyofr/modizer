@@ -12,7 +12,7 @@
 //#import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
-#import "AppDelegate_Phone.h"
+//#import "AppDelegate_Phone.h"
 
 
 //libopenmpt

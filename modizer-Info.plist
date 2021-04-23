@@ -237,6 +237,8 @@
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
 	<string></string>
+	<key>CFBundleIconFile</key>
+	<string></string>
 	<key>CFBundleIcons</key>
 	<dict/>
 	<key>CFBundleIcons~ipad</key>
@@ -306,8 +308,6 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>CFBundleIconFile</key>
-	<string></string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -1605,7 +1605,5 @@
 	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array/>
-	<key>com.apple.developer.playable-content</key>
-	<true/>
 </dict>
 </plist>

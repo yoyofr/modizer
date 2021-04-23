@@ -2614,6 +2614,8 @@
 		59805483262F7D8300BB0309 /* heart-filled.png in Resources */ = {isa = PBXBuildFile; fileRef = 59805480262F7D8200BB0309 /* heart-filled.png */; };
 		59805484262F7D8300BB0309 /* heart-empty.png in Resources */ = {isa = PBXBuildFile; fileRef = 59805481262F7D8300BB0309 /* heart-empty.png */; };
 		59805485262F7D8300BB0309 /* heart-empty.png in Resources */ = {isa = PBXBuildFile; fileRef = 59805481262F7D8300BB0309 /* heart-empty.png */; };
+		59809D2B2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */; };
+		59809D2C2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */; };
 		5988EC8C2630AACC005F2D23 /* heart-half-filled.png in Resources */ = {isa = PBXBuildFile; fileRef = 5988EC772630AACC005F2D23 /* heart-half-filled.png */; };
 		5988EC8D2630AACC005F2D23 /* heart-half-filled.png in Resources */ = {isa = PBXBuildFile; fileRef = 5988EC772630AACC005F2D23 /* heart-half-filled.png */; };
 		59909B451E3D103100C629AA /* tabview_gradient40Blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B431E3D103100C629AA /* tabview_gradient40Blue.png */; };
@@ -4665,6 +4667,8 @@
 		59805444262F21CA00BB0309 /* xmp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = xmp.xcodeproj; sourceTree = "<group>"; };
 		59805480262F7D8200BB0309 /* heart-filled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-filled.png"; sourceTree = "<group>"; };
 		59805481262F7D8300BB0309 /* heart-empty.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-empty.png"; sourceTree = "<group>"; };
+		59809D292632A93300CCCF42 /* CarPlayAndRemoteManagement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CarPlayAndRemoteManagement.h; sourceTree = "<group>"; };
+		59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CarPlayAndRemoteManagement.mm; sourceTree = "<group>"; };
 		5988EC772630AACC005F2D23 /* heart-half-filled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-half-filled.png"; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
@@ -7072,6 +7076,8 @@
 				5950D83925DF1A2500B476B2 /* ModizerWebView.m */,
 				CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */,
 				CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */,
+				59809D292632A93300CCCF42 /* CarPlayAndRemoteManagement.h */,
+				59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */,
 				CC1E622812041177000A8A4E /* ModizMusicPlayer.h */,
 				CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */,
 				33AB276917B3D48F00C12189 /* MoreViewController.h */,
@@ -10112,6 +10118,7 @@
 				33416A7624AA23FB000ACF57 /* woodyopl.cpp in Sources */,
 				591D8E4325DC63620013E19F /* utility.c in Sources */,
 				CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */,
+				59809D2B2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm in Sources */,
 				CCFDC53C17DB105500C6692C /* NVLowShelvingFilter.m in Sources */,
 				CCFDC54017DB105500C6692C /* NVDSP.mm in Sources */,
 				59C22A1F25B992D9003FEDBF /* AFSecurityPolicy.m in Sources */,
@@ -10395,6 +10402,7 @@
 				5950DA9D25E0F67B00B476B2 /* woodyopl.cpp in Sources */,
 				5950DA9E25E0F67B00B476B2 /* utility.c in Sources */,
 				5950DA9F25E0F67B00B476B2 /* AudioFileReader.mm in Sources */,
+				59809D2C2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm in Sources */,
 				5950DAA025E0F67B00B476B2 /* NVLowShelvingFilter.m in Sources */,
 				5950DAA125E0F67B00B476B2 /* NVDSP.mm in Sources */,
 				5950DAA225E0F67B00B476B2 /* AFSecurityPolicy.m in Sources */,
@@ -10987,6 +10995,7 @@
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
@@ -11014,7 +11023,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "modizer carplay";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
@@ -11032,6 +11041,7 @@
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
@@ -11059,7 +11069,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "modizer carplay";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
@@ -11076,7 +11086,8 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 3.0;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
@@ -11103,7 +11114,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "modizer carplay";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;

@@ -73,7 +73,7 @@ decode_lzhuf(infp, outfp, original_size, packed_size, name, method, read_sizep)
                         original_size,
                         verify_mode ? "Testing " : "Melting ",
                         2048);
-        *read_sizep = copyfile(infp, (verify_mode ? NULL : outfp),
+        *read_sizep = lha_copyfile(infp, (verify_mode ? NULL : outfp),
                                original_size, 2, &crc);
     }
     else {

@@ -12,6 +12,10 @@
 
 #import "TTFadeAnimator.h"
 
+#include <sys/types.h>
+#include <sys/sysctl.h>
+
+
 @interface MoreViewController ()
 
 @end
@@ -371,6 +375,30 @@
 
 #pragma mark - Table view delegate
 
+- (NSString *)machine
+{
+    size_t size;
+    
+    // Set 'oldp' parameter to NULL to get the size of the data
+    // returned so we can allocate appropriate amount of space
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    
+    // Allocate the space to store name
+    char *name = (char*)malloc(size);
+    
+    // Get the platform name
+    sysctlbyname("hw.machine", name, &size, NULL, 0);
+    
+    // Place name into a string
+    NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
+    
+    // Done with this
+    free(name);
+    
+    return machine;
+}
+
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     SettingsGenViewController *settingsVC;
@@ -388,7 +416,9 @@
             if (@available(iOS 14.0, *)) {
                 isiOSAppOnMac = [NSProcessInfo processInfo].isiOSAppOnMac;
             }
-            NSString *strSystemDetails=[NSString stringWithFormat:@"model:%@\nsystem name:%@\nsystem version:%@\nPref language:%@\nMac M1:%s\nModizer version:%s.%s\n",[[UIDevice currentDevice] model],[[UIDevice currentDevice] systemName],[[UIDevice currentDevice] systemVersion],[[NSLocale preferredLanguages] objectAtIndex:0],(isiOSAppOnMac?"Yes":"No"),VERSION_MAJOR_STR,VERSION_MINOR_STR];
+            
+            NSString *strSystemDetails=[NSString stringWithFormat:@"model:%@\nsystem name:%@\nsystem version:%@\nPref language:%@\nMac M1:%s\nModizer version:%s.%s\n",[self machine],[[UIDevice currentDevice] systemName],[[UIDevice currentDevice] systemVersion],[[NSLocale preferredLanguages] objectAtIndex:0],(isiOSAppOnMac?"Yes":"No"),VERSION_MAJOR_STR,VERSION_MINOR_STR];
+            //NSLog(@"%@",strSystemDetails);
             //get device model, ios version, language settings, modizer version
             
             NSString *strmail=[NSString stringWithFormat:@"%@%@---------------------------------------\n\n%@:\n",MODIZER_SUPPORT_EMAIL,strSystemDetails,NSLocalizedString(@"[Please describe your request below]",@"")];

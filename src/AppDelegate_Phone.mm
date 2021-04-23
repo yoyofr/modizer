@@ -8,17 +8,19 @@
 
 //#define GEN_EXT_LIST
 #import "AppDelegate_Phone.h"
+#import <MediaPlayer/MediaPlayer.h>
 
 #import "ModizerWin.h"
 #import "RootViewControllerLocalBrowser.h"
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
 #import "SettingsGenViewController.h"
+#import "CarPlayAndRemoteManagement.h"
 
 extern volatile t_settings settings[MAX_SETTINGS];
 
 //#import <AVFoundation/AVFoundation.h>
-#import <AudioToolbox/AudioToolbox.h>
+//#import <AudioToolbox/AudioToolbox.h>
 #include <sys/xattr.h>
 
 char* strlower(char *Str);
@@ -64,6 +66,7 @@ extern "C" void updateMainLoopC(void) {
 @implementation AppDelegate_Phone
 
 @synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC;
+@synthesize cpMngt;
 
 
 - (BOOL)addSkipBackupAttributeToItemAtURL
@@ -270,7 +273,7 @@ extern "C" void updateMainLoopC(void) {
     if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
 		[detailViewControlleriPhone enterBackground];
 		[modizerWin becomeFirstResponder];
-		[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+		//[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 	}	
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryLevelDidChangeNotification" object:[UIDevice currentDevice]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryStateDidChangeNotification" object:[UIDevice currentDevice]];
@@ -304,12 +307,14 @@ extern "C" void updateMainLoopC(void) {
     
 	if (detailViewControlleriPhone.mPlaylist_size) {		
 		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
-        
 	}
-	
+    
+    cpMngt=[[CarPlayAndRemoteManagement alloc] init];
+    cpMngt.detailViewController=detailViewControlleriPhone;
+    [cpMngt initCarPlayAndRemote];
+    
 	return YES;
 }
-
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
     if ([url isFileURL]) {
@@ -336,8 +341,8 @@ extern "C" void updateMainLoopC(void) {
                     [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:url error:NULL];
     //                NSLog(@"file has to be downloaded");
                     
-                    UIAlertView *alertDownlading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-                    if (alertDownlading) [alertDownlading show];
+                    UIAlertView *alertDownloading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+                    if (alertDownloading) [alertDownloading show];
                     
                     return YES;
                 }

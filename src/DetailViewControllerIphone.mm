@@ -178,7 +178,6 @@ static int display_length_mode=0;
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
 
-
 -(void) refreshCurrentVCforMiniplayer {
     UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     if ([vc respondsToSelector:@selector(refreshMiniplayer)]) [vc performSelector:@selector(refreshMiniplayer)];
@@ -975,6 +974,58 @@ static float movePinchScale,movePinchScaleOld;
 	return;
 }
 
+-(void) seek:(NSNumber*)seekTime {
+    int curTime;
+    if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
+    [mplayer Seek:seekTime.intValue];
+        
+    if (display_length_mode&&([mplayer getSongLength]>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", (([mplayer getSongLength]-[mplayer getCurrentTime])/1000)/60,(([mplayer getSongLength]-[mplayer getCurrentTime])/1000)%60];
+    else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+    //sliderProgressModuleChanged=0;
+    //sliderProgressModuleEdit=0;
+    return;
+}
+
+-(void) updMediaCenter {
+    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+    
+    if (artwork==nil) {
+        if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
+        else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
+    }
+        
+    if (mPlaylist_size) {
+        infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithString:lblCurrentSongCFlow.text],
+                                 MPMediaItemPropertyTitle,
+                                 [NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath],
+                                 MPMediaItemPropertyArtist,
+                                 [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
+                                 MPMediaItemPropertyPlaybackDuration,
+                                 [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
+                                 MPNowPlayingInfoPropertyElapsedPlaybackTime,
+                                 [NSNumber numberWithInt:mPaused],
+                                 MPNowPlayingInfoPropertyPlaybackRate,
+                                 [NSNumber numberWithInt:mPlaylist_size],
+                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                 [NSNumber numberWithInt:mPlaylist_pos],
+                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                 artwork,
+                                 MPMediaItemPropertyArtwork,
+                                 nil];
+    } else {
+        infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 0,
+                                 MPNowPlayingInfoPropertyPlaybackRate,
+                                 0,
+                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                 0,
+                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                 artwork,
+                                 MPMediaItemPropertyArtwork,
+                                 nil];
+    }
+}
+
 - (IBAction)sliderProgressModuleValueChanged:(id)sender {
 	int curTime;
 	if ([mplayer getSongLength]>0) curTime=(int)(sliderProgressModule.value*(float)([mplayer getSongLength]-1));
@@ -1345,25 +1396,7 @@ static float movePinchScale,movePinchScaleOld;
 	}
 	
 	if (updMPNowCnt==0) {
-        MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
-        
-        infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithString:lblCurrentSongCFlow.text],
-                                     MPMediaItemPropertyTitle,
-                                     [NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath],
-                                     MPMediaItemPropertyArtist,
-                                     [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
-                                     MPMediaItemPropertyPlaybackDuration,
-                                     [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
-                                     MPNowPlayingInfoPropertyElapsedPlaybackTime,
-                                     [NSNumber numberWithInt:1],
-                                     MPNowPlayingInfoPropertyPlaybackRate,
-                                     [NSNumber numberWithInt:mPlaylist_size],
-                                     MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                     [NSNumber numberWithInt:mPlaylist_pos],
-                                     MPNowPlayingInfoPropertyPlaybackQueueIndex,
-                                     artwork,
-                                     MPMediaItemPropertyArtwork,
-                                     nil];
+        [self updMediaCenter];
         updMPNowCnt=10;
     } else updMPNowCnt--;
 	return;
@@ -1642,6 +1675,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     repeatingTimer = nil;
     mPaused=TRUE;
     mIsPlaying=0;
+    
+    [self updMediaCenter];
 }
 
 -(void) clearQueue {
@@ -2828,23 +2863,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
     else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
     
-    infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithString:lblCurrentSongCFlow.text],
-                                 MPMediaItemPropertyTitle,
-                                 [NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath],
-                                 MPMediaItemPropertyArtist,
-                                 [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
-                                 MPMediaItemPropertyPlaybackDuration,
-                                 [NSNumber numberWithFloat:(float)([mplayer getCurrentTime])/1000],
-                                 MPNowPlayingInfoPropertyElapsedPlaybackTime,
-                                 [NSNumber numberWithInt:1],
-                                 MPNowPlayingInfoPropertyPlaybackRate,
-                                 [NSNumber numberWithInt:mPlaylist_size],
-                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                 [NSNumber numberWithInt:mPlaylist_pos],
-                                 MPNowPlayingInfoPropertyPlaybackQueueIndex,
-                                 artwork,
-                                 MPMediaItemPropertyArtwork,
-                                 nil];
+    [self updMediaCenter];
 
     
 	//Activate timer for play infos
