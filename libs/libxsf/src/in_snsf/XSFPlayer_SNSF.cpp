@@ -1,7 +1,6 @@
 /*
  * xSF - SNSF Player
  * By Naram Qashat (CyberBotX) [cyberbotx@cyberbotx.com]
- * Last modification on 2014-09-25
  *
  * Based on a modified in_snsf by Caitsith2
  * http://snsf.caitsith2.net/
@@ -12,53 +11,55 @@
  * http://www.snes9x.com/
  */
 
+#include <algorithm>
+#include <filesystem>
+#include <memory>
+#include <string>
+#include <vector>
+#include <cstddef>
+#include <cstdint>
 #include <zlib.h>
-#include "convert.h"
-#include "XSFPlayer.h"
-#include "XSFConfig_SNSF.h"
-#include "XSFPlayer_SNSF.h"
 #include "XSFCommon.h"
+#include "XSFConfig.h"
+#include "XSFPlayer.h"
 
 #undef min
 #undef max
 
 #include "snes9x/apu/apu.h"
-#include "snes9x/apu/linear_resampler.h"
-#include "snes9x/apu/hermite_resampler.h"
-#include "snes9x/apu/bspline_resampler.h"
-#include "snes9x/apu/osculating_resampler.h"
-#include "snes9x/apu/sinc_resampler.h"
 #include "snes9x/memmap.h"
 
+class XSFPlayer_SNSF : public XSFPlayer
+{
+public:
+	XSFPlayer_SNSF(const std::string &path);
+	~XSFPlayer_SNSF() override { this->Terminate(); }
+	bool Load() override;
+	void GenerateSamples(std::vector<std::uint8_t> &buf, unsigned offset, unsigned samples) override;
+	void Terminate() override;
+};
 
 //const char *XSFPlayer::WinampDescription = "SNSF Decoder";
 //const char *XSFPlayer::WinampExts = "snsf;minisnsf\0SNES Sound Format files (*.snsf;*.minisnsf)\0";
 
-extern XSFConfig *xSFConfig;
+extern std::unique_ptr<XSFConfig> xSFConfig;
 
-XSFPlayer *XSFPlayer::Create(const std::string &fn)
+/*XSFPlayer *XSFPlayer::Create(const std::string &path)
 {
-	return new XSFPlayer_SNSF(fn);
-}
-
-#ifdef _WIN32
-XSFPlayer *XSFPlayer::Create(const std::wstring &fn)
-{
-	return new XSFPlayer_SNSF(fn);
-}
-#endif
+	return new XSFPlayer_SNSF(path);
+}*/
 
 static struct
 {
-	std::vector<uint8_t> rom, sram;
+	std::vector<std::uint8_t> rom, sram;
 	bool first;
 	unsigned base;
-} loaderwork;
+} loaderwork = { std::vector<std::uint8_t>(), std::vector<std::uint8_t>(), false, 0 };
 
 class BUFFER
 {
 public:
-	std::vector<uint8_t> buf;
+	std::vector<std::uint8_t> buf;
 	unsigned fil, cur, len;
 	BUFFER() : buf(), fil(0), cur(0), len(0) { }
 	bool Init()
@@ -84,7 +85,7 @@ public:
 			return;
 		if (bytes > bleft)
 			bytes = bleft;
-		std::fill_n(&this->buf[this->fil], bytes, 0);
+		std::fill_n(&this->buf[this->fil], bytes, static_cast<std::uint8_t>(0));
 		S9xMixSamples(&this->buf[this->fil], bytes >> 1);
 		this->fil += bytes;
 	}
@@ -96,11 +97,11 @@ bool S9xOpenSoundDevice()
 	return true;
 }
 
-static void Map2SFSection(const std::vector<uint8_t> &section)
+static void MapSNSFSection(const std::vector<std::uint8_t> &section)
 {
 	auto &data = loaderwork.rom;
 
-	uint32_t offset = Get32BitsLE(&section[0]), size = Get32BitsLE(&section[4]), finalSize = size + offset;
+	std::uint32_t offset = Get32BitsLE(&section[0]), size = Get32BitsLE(&section[4]), finalSize = size + offset;
 	if (!loaderwork.first)
 	{
 		loaderwork.first = true;
@@ -116,7 +117,7 @@ static void Map2SFSection(const std::vector<uint8_t> &section)
 	std::copy_n(&section[8], size, &data[offset]);
 }
 
-static bool Map2SF(XSFFile *xSF)
+static bool MapSNSF(XSFFile *xSF)
 {
 	if (!xSF->IsValidType(0x23))
 		return false;
@@ -125,22 +126,21 @@ static bool Map2SF(XSFFile *xSF)
 
 	if (!reservedSection.empty())
 	{
-		size_t reservedPosition = 0, reservedSize = reservedSection.size();
+		std::size_t reservedPosition = 0, reservedSize = reservedSection.size();
 		while (reservedPosition + 8 < reservedSize)
 		{
-			uint32_t type = Get32BitsLE(&reservedSection[reservedPosition]), size = Get32BitsLE(&reservedSection[reservedPosition + 4]);
+			std::uint32_t type = Get32BitsLE(&reservedSection[reservedPosition]), size = Get32BitsLE(&reservedSection[reservedPosition + 4]);
 			if (!type)
 			{
 				if (loaderwork.sram.empty())
 					loaderwork.sram.resize(0x20000, 0xFF);
 				if (reservedPosition + 8 + size > reservedSize)
 					return false;
-				uint32_t offset = Get32BitsLE(&reservedSection[reservedPosition + 8]);
+				std::uint32_t offset = Get32BitsLE(&reservedSection[reservedPosition + 8]);
 				if (size > 4 && loaderwork.sram.size() > offset)
 				{
-					//auto len = std::min(size - 4, loaderwork.sram.size() - offset);
-                    auto len = loaderwork.sram.size() - offset;
-                    if (size - 4 < len) len=size - 4;
+					auto len = loaderwork.sram.size() - offset;
+                    if (len > size - 4) len=size-4;
 					std::copy_n(&reservedSection[reservedPosition + 12], len, &loaderwork.sram[offset]);
 				}
 			}
@@ -149,25 +149,23 @@ static bool Map2SF(XSFFile *xSF)
 	}
 
 	if (!programSection.empty())
-		Map2SFSection(programSection);
+		MapSNSFSection(programSection);
 
 	return true;
 }
 
-static bool RecursiveLoad2SF(XSFFile *xSF, int level)
+static bool RecursiveLoadSNSF(XSFFile *xSF, int level)
 {
 	if (level <= 10 && xSF->GetTagExists("_lib"))
 	{
-#ifdef _WIN32
-		auto libxSF = std::unique_ptr<XSFFile>(new XSFFile(ConvertFuncs::StringToWString(ExtractDirectoryFromPath(xSF->GetFilename()) + xSF->GetTagValue("_lib")), 4, 8));
-#else
-		auto libxSF = std::unique_ptr<XSFFile>(new XSFFile(ExtractDirectoryFromPath(xSF->GetFilename()) + xSF->GetTagValue("_lib"), 4, 8));
-#endif
-		if (!RecursiveLoad2SF(libxSF.get(), level + 1))
+		//auto libxSF = std::make_unique<XSFFile>(xSF->GetFilepath().parent_path() / xSF->GetTagValue("_lib"), 4, 8);
+        auto libxSF = std::unique_ptr<XSFFile>(new XSFFile(ExtractDirectoryFromPath(xSF->GetFilename()) + xSF->GetTagValue("_lib"), 4, 8));
+        
+		if (!RecursiveLoadSNSF(libxSF.get(), level + 1))
 			return false;
 	}
 
-	if (!Map2SF(xSF))
+	if (!MapSNSF(xSF))
 		return false;
 
 	unsigned n = 2;
@@ -175,16 +173,13 @@ static bool RecursiveLoad2SF(XSFFile *xSF, int level)
 	do
 	{
 		found = false;
-		std::string libTag = "_lib" + stringify(n++);
+		std::string libTag = "_lib" + std::to_string(n++);
 		if (xSF->GetTagExists(libTag))
 		{
 			found = true;
-#ifdef _WIN32
-			auto libxSF = std::unique_ptr<XSFFile>(new XSFFile(ConvertFuncs::StringToWString(ExtractDirectoryFromPath(xSF->GetFilename()) + xSF->GetTagValue(libTag)), 4, 8));
-#else
-			auto libxSF = std::unique_ptr<XSFFile>(new XSFFile(ExtractDirectoryFromPath(xSF->GetFilename()) + xSF->GetTagValue(libTag), 4, 8));
-#endif
-			if (!RecursiveLoad2SF(libxSF.get(), level + 1))
+			//auto libxSF = std::make_unique<XSFFile>(xSF->GetFilepath().parent_path() / xSF->GetTagValue(libTag), 4, 8);
+            auto libxSF = std::unique_ptr<XSFFile>(new XSFFile(ExtractDirectoryFromPath(xSF->GetFilename()) + xSF->GetTagValue(libTag), 4, 8));
+			if (!RecursiveLoadSNSF(libxSF.get(), level + 1))
 				return false;
 		}
 	} while (found);
@@ -192,53 +187,35 @@ static bool RecursiveLoad2SF(XSFFile *xSF, int level)
 	return true;
 }
 
-static bool Load2SF(XSFFile *xSF)
+static bool LoadSNSF(XSFFile *xSF)
 {
 	loaderwork.rom.clear();
 	loaderwork.sram.clear();
 	loaderwork.first = false;
 	loaderwork.base = 0;
 
-	return RecursiveLoad2SF(xSF, 1);
+	return RecursiveLoadSNSF(xSF, 1);
 }
 
-XSFPlayer_SNSF::XSFPlayer_SNSF(const std::string &filename) : XSFPlayer()
+XSFPlayer_SNSF::XSFPlayer_SNSF(const std::string &path) : XSFPlayer()
 {
-	this->xSF.reset(new XSFFile(filename, 4, 8));
+	this->xSF.reset(new XSFFile(path, 4, 8));
 }
-
-#ifdef _WIN32
-XSFPlayer_SNSF::XSFPlayer_SNSF(const std::wstring &filename) : XSFPlayer()
-{
-	this->xSF.reset(new XSFFile(filename, 4, 8));
-}
-#endif
 
 bool XSFPlayer_SNSF::Load()
 {
-	if (!Load2SF(this->xSF.get()))
+	if (!LoadSNSF(this->xSF.get()))
 		return false;
 
 	Settings.SoundSync = true;
 	Settings.Mute = false;
 	Settings.SoundPlaybackRate = this->sampleRate;
-	Settings.SixteenBitSound = true;
 	Settings.Stereo = true;
 
 	Memory.Init();
 
 	S9xInitAPU();
-	XSFConfig_SNSF *xSFConfig_SNSF = dynamic_cast<XSFConfig_SNSF *>(xSFConfig);
-	if (xSFConfig_SNSF->resampler == 4)
-		S9xInitSound<SincResampler>(10, 0);
-	else if (xSFConfig_SNSF->resampler == 3)
-		S9xInitSound<OsculatingResampler>(10, 0);
-	else if (xSFConfig_SNSF->resampler == 2)
-		S9xInitSound<BsplineResampler>(10, 0);
-	else if (xSFConfig_SNSF->resampler == 1)
-		S9xInitSound<HermiteResampler>(10, 0);
-	else
-		S9xInitSound<LinearResampler>(10, 0);
+	S9xInitSound(10);
 
 	if (!buffer.Init())
 		return false;
@@ -255,7 +232,7 @@ bool XSFPlayer_SNSF::Load()
 	return XSFPlayer::Load();
 }
 
-void XSFPlayer_SNSF::GenerateSamples(std::vector<uint8_t> &buf, unsigned offset, unsigned samples)
+void XSFPlayer_SNSF::GenerateSamples(std::vector<std::uint8_t> &buf, unsigned offset, unsigned samples)
 {
 	unsigned bytes = samples << 2;
 	while (bytes)

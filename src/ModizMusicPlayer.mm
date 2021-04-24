@@ -8576,9 +8576,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         lzu_state=NULL;
         mdz_safe_free(usf_info_data);
     } else if ( HC_type==0x23) {
-        snsf_term();
-        delete snsf_rom;
-        snsf_rom=NULL;
+        if (snsf_rom) {
+            snsf_term();
+            delete snsf_rom;
+            snsf_rom=NULL;
+        }
     } else if ( HC_type == 0x41 && HC_emulatorExtra ) {
         struct qsf_loader_state * state = ( struct qsf_loader_state * ) HC_emulatorExtra;
         free( state->key );
