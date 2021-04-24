@@ -4722,68 +4722,69 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     
 #define SUBMENU0_START 0
 #define SUBMENU0_SIZE 6
-	txtSubMenuHandle[0]=0;
-    txtSubMenuHandle[1]=txtMenuHandle[1];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
-	txtSubMenuHandle[2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
-	txtSubMenuHandle[3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
-    txtSubMenuHandle[4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
-    txtSubMenuHandle[5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
+	txtSubMenuHandle[SUBMENU0_START]=0;
+    txtSubMenuHandle[SUBMENU0_START+1]=txtMenuHandle[1];//TextureUtils::Create([UIImage imageNamed:@"txtMenu2a.png"]);
+	txtSubMenuHandle[SUBMENU0_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2b_2x.png"]);
+	txtSubMenuHandle[SUBMENU0_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2c_2x.png"]);
+    txtSubMenuHandle[SUBMENU0_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2d_2x.png"]);
+    txtSubMenuHandle[SUBMENU0_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu2e_2x.png"]);
     
 #define SUBMENU1_START 6
 #define SUBMENU1_SIZE 4
-    txtSubMenuHandle[6]=0;
-	txtSubMenuHandle[7]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
-	txtSubMenuHandle[8]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
-	txtSubMenuHandle[9]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
+    txtSubMenuHandle[SUBMENU1_START]=0;
+	txtSubMenuHandle[SUBMENU1_START+1]=txtMenuHandle[2];//TextureUtils::Create([UIImage imageNamed:@"txtMenu3a.png"]);
+	txtSubMenuHandle[SUBMENU1_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3b_2x.png"]);
+	txtSubMenuHandle[SUBMENU1_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu3c_2x.png"]);
     
 #define SUBMENU2_START 10
 #define SUBMENU2_SIZE 3
-    txtSubMenuHandle[10]=0;
-	txtSubMenuHandle[11]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
-    txtSubMenuHandle[12]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
+    txtSubMenuHandle[SUBMENU2_START]=0;
+	txtSubMenuHandle[SUBMENU2_START+1]=txtMenuHandle[3];//TextureUtils::Create([UIImage imageNamed:@"txtMenu4a.png"]);
+    txtSubMenuHandle[SUBMENU2_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu4b_2x.png"]);
     
 #define SUBMENU3_START 13
-#define SUBMENU3_SIZE 3
-    txtSubMenuHandle[13]=0;
-    txtSubMenuHandle[14]=txtMenuHandle[4];//TextureUtils::Create([UIImage imageNamed:@"txtMenu5a.png"]);
-    txtSubMenuHandle[15]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
+#define SUBMENU3_SIZE 4
+    txtSubMenuHandle[SUBMENU3_START]=0;
+    txtSubMenuHandle[SUBMENU3_START+1]=txtMenuHandle[4];//TextureUtils::Create([UIImage imageNamed:@"txtMenu5a.png"]);
+    txtSubMenuHandle[SUBMENU3_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5b_2x.png"]);
+    txtSubMenuHandle[SUBMENU3_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu5c_2x.png"]);
     
-#define SUBMENU4_START 16
+#define SUBMENU4_START 17
 #define SUBMENU4_SIZE 7
-    txtSubMenuHandle[16]=0;
-    txtSubMenuHandle[17]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
-    txtSubMenuHandle[18]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
-    txtSubMenuHandle[19]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
-    txtSubMenuHandle[20]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
-    txtSubMenuHandle[21]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
-    txtSubMenuHandle[22]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START]=0;
+    txtSubMenuHandle[SUBMENU4_START+1]=txtMenuHandle[6];//TextureUtils::Create([UIImage imageNamed:@"txtMenu7a.png"]);
+    txtSubMenuHandle[SUBMENU4_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7b_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7c_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+4]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7d_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+5]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7e_2x.png"]);
+    txtSubMenuHandle[SUBMENU4_START+6]=TextureUtils::Create([UIImage imageNamed:@"txtMenu7f_2x.png"]);
     
-#define SUBMENU5_START 23
+#define SUBMENU5_START 24
 #define SUBMENU5_SIZE 3
-    txtSubMenuHandle[23]=0;
-    txtSubMenuHandle[24]=txtMenuHandle[7];
-    txtSubMenuHandle[25]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b_2x.png"]);
+    txtSubMenuHandle[SUBMENU5_START]=0;
+    txtSubMenuHandle[SUBMENU5_START+1]=txtMenuHandle[7];
+    txtSubMenuHandle[SUBMENU5_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu8b_2x.png"]);
     
-#define SUBMENU6_START 26
+#define SUBMENU6_START 27
 #define SUBMENU6_SIZE 3
-	txtSubMenuHandle[26]=0;
-    txtSubMenuHandle[27]=txtMenuHandle[9];
-    txtSubMenuHandle[28]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b_2x.png"]);
+	txtSubMenuHandle[SUBMENU6_START]=0;
+    txtSubMenuHandle[SUBMENU6_START+1]=txtMenuHandle[9];
+    txtSubMenuHandle[SUBMENU6_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu10b_2x.png"]);
 
-#define SUBMENU7_START 29
+#define SUBMENU7_START 30
 #define SUBMENU7_SIZE 5
-    txtSubMenuHandle[29]=0;
-    txtSubMenuHandle[30]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
-    txtSubMenuHandle[31]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
-    txtSubMenuHandle[32]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
-    txtSubMenuHandle[33]=txtMenuHandle[10];
+    txtSubMenuHandle[SUBMENU7_START]=0;
+    txtSubMenuHandle[SUBMENU7_START+1]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11a_2x.png"]);
+    txtSubMenuHandle[SUBMENU7_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11b_2x.png"]);
+    txtSubMenuHandle[SUBMENU7_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu11c_2x.png"]);
+    txtSubMenuHandle[SUBMENU7_START+4]=txtMenuHandle[10];
 
-#define SUBMENU8_START 34
+#define SUBMENU8_START 35
 #define SUBMENU8_SIZE 4
-	txtSubMenuHandle[34]=0;
-    txtSubMenuHandle[35]=txtMenuHandle[11];
-    txtSubMenuHandle[36]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
-    txtSubMenuHandle[37]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
+	txtSubMenuHandle[SUBMENU8_START]=0;
+    txtSubMenuHandle[SUBMENU8_START+1]=txtMenuHandle[11];
+    txtSubMenuHandle[SUBMENU8_START+2]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12b_2x.png"]);
+    txtSubMenuHandle[SUBMENU8_START+3]=TextureUtils::Create([UIImage imageNamed:@"txtMenu12c_2x.png"]);
     
 	end_time=clock();
 #ifdef LOAD_PROFILE
@@ -5773,6 +5774,9 @@ extern "C" int current_sample;
                         settings[GLOB_FX4].detail.mdz_boolswitch.switch_value=0;
                         settings[GLOB_FX5].detail.mdz_switch.switch_value=0;
                         break;
+                    case SUBMENU3_START://11: //Oscillo
+                        settings[GLOB_FXOscillo].detail.mdz_switch.switch_value=3;
+                        break;
                     case SUBMENU4_START://14: //MOD Pattern
                         settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
                         size_chan=4*6;
@@ -6381,14 +6385,20 @@ extern "C" int current_sample;
             RenderUtils::DrawSpectrum3DBarFlat(real_spectrumL,real_spectrumR,ww,hh,
                                   settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands);
 		if (settings[GLOB_FXBeat].detail.mdz_boolswitch.switch_value) RenderUtils::DrawBeat(real_beatDetectedL,real_beatDetectedR,ww,hh,hasdrawnotes,pos_fx,nb_spectrum_bands);
-        if (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
-            if ([mplayer m_voicesDataAvail]) {
-                RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,0); //hasdrawnotes
-            } else {
-                //RenderUtils::DrawOscillo(curBuffer,SOUND_BUFFER_SIZE_SAMPLE,ww,hh,hasdrawnotes,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,pos_fx);
-                //RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],2,ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value,1); //hasdrawnotes
-                RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,settings[GLOB_FXOscillo].detail.mdz_switch.switch_value); //hasdrawnotes
-            }
+        switch (settings[GLOB_FXOscillo].detail.mdz_switch.switch_value) {
+            case 1:
+                if ([mplayer m_voicesDataAvail]) {
+                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,0);
+                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1);
+                break;
+            case 2:
+                if ([mplayer m_voicesDataAvail]) {
+                    RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy[cur_pos],(mplayer.numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?mplayer.numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,0);
+                } else RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1);
+                break;
+            case 3:
+                RenderUtils::DrawOscilloStereo(curBuffer,ww,hh,1);
+                break;
         }
 	}
     

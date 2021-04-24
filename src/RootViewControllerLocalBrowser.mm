@@ -1572,10 +1572,14 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
         else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
         
-        NSArray *sortedDirContent = [dirContent sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+        //NSArray *sortedDirContent = [dirContent sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+        NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+            NSString *str1=[(NSString *)obj1 lastPathComponent];
+            NSString *str2=[(NSString *)obj2 lastPathComponent];
+            return [str1 caseInsensitiveCompare:str2];
+        }];
         
         for (file in sortedDirContent) {
-            //NSLog(@"%@",file);
             //check if dir
             //rdir.location=NSNotFound;
             //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
@@ -1921,7 +1925,7 @@ static int shouldRestart=1;
         detailViewController.mShouldHaveFocus=0;
         [self.navigationController pushViewController:detailViewController animated:YES];
     } else {
-        if (mShowSubdir==0) shouldFillKeys=1; //performance limit-> no update if listing all files
+        shouldFillKeys=1;
         
         [self updateWaitingTitle:@""];
         [self updateWaitingDetail:@""];

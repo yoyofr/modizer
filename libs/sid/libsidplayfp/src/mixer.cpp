@@ -43,7 +43,8 @@ void clockChip(sidemu *s) {
     m_voice_current_system++;
     if (m_voice_current_system>3)
     {
-        m_voice_current_system=m_voice_current_system; //HAck to check some bugs
+        printf("SID current_system overflow\n");
+        m_voice_current_system=0; //HAck to check some bugs
     }
     //TODO:  MODIZER changes end / YOYOFR
 }

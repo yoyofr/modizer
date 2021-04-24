@@ -316,6 +316,7 @@ bool Player::config(const SidConfig &cfg, bool force)
             m_c64.setModel(model);
             m_c64.setCiaModel(cfg.ciaModel);
 
+            //printf("c64 %l freq %d\n",m_c64.getMainCpuSpeed(), cfg.frequency);
             sidParams(m_c64.getMainCpuSpeed(), cfg.frequency, cfg.samplingMethod, cfg.fastSampling);
 
             // Configure, setup and install C64 environment/events

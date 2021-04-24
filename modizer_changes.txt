@@ -15,8 +15,13 @@ Todo/Requested:
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: oscillo => propose also stereo, 2 channels view (for multi voices format)
 
+3.1
+----
+- [PLAYER] Adplug/Rad bugfix for rad v1 file
+- [UI] Carplay support
+
 3.0
-�����
+---
 - [UI] New: Miniplayer view (swipe left or right to change songs)
 - [UI] Adapt to light / dark mode automatically (realtime)
 - [PLAYER] New: SNSF support

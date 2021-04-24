@@ -433,6 +433,8 @@
 		594CB8AD2633236900D154E5 /* nukedopl.c in Sources */ = {isa = PBXBuildFile; fileRef = 594CB81E2633236900D154E5 /* nukedopl.c */; };
 		594CB8B62633262100D154E5 /* rad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 594CB8B52633262100D154E5 /* rad.cpp */; };
 		594CB8B72633262100D154E5 /* rad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 594CB8B52633262100D154E5 /* rad.cpp */; };
+		594CB8C2263358D900D154E5 /* txtMenu5c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 594CB8BF263358D900D154E5 /* txtMenu5c_2x.png */; };
+		594CB8C3263358D900D154E5 /* txtMenu5c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 594CB8BF263358D900D154E5 /* txtMenu5c_2x.png */; };
 		5950D7F825DEFF8C00B476B2 /* libavfilter.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F125DEFF8C00B476B2 /* libavfilter.a */; };
 		5950D7FB25DEFF8C00B476B2 /* libswresample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F425DEFF8C00B476B2 /* libswresample.a */; };
 		5950D7FD25DEFF8C00B476B2 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5950D7F625DEFF8C00B476B2 /* libavutil.a */; };
@@ -4581,6 +4583,7 @@
 		594CB81F2633236900D154E5 /* mdi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mdi.h; sourceTree = "<group>"; };
 		594CB8B42633262100D154E5 /* rad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rad.h; sourceTree = "<group>"; };
 		594CB8B52633262100D154E5 /* rad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rad.cpp; sourceTree = "<group>"; };
+		594CB8BF263358D900D154E5 /* txtMenu5c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu5c_2x.png; sourceTree = "<group>"; };
 		5950D7F125DEFF8C00B476B2 /* libavfilter.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavfilter.a; sourceTree = "<group>"; };
 		5950D7F225DEFF8C00B476B2 /* libavdevice.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavdevice.a; sourceTree = "<group>"; };
 		5950D7F325DEFF8C00B476B2 /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libavcodec.a; sourceTree = "<group>"; };
@@ -7289,6 +7292,7 @@
 				CCB8D98817F62A18008E6A45 /* txtMenu4b_2x.png */,
 				CCB8D98917F62A18008E6A45 /* txtMenu5a_2x.png */,
 				CCB8D98A17F62A18008E6A45 /* txtMenu5b_2x.png */,
+				594CB8BF263358D900D154E5 /* txtMenu5c_2x.png */,
 				CCB8D98B17F62A18008E6A45 /* txtMenu6_2x.png */,
 				CCB8D96F17F6172D008E6A45 /* txtMenu7a_2x.png */,
 				CCC6776917F62BCC00F16A54 /* txtMenu7b_2x.png */,
@@ -8789,6 +8793,7 @@
 				5966D19825CFF0D200520777 /* odyssey-part5.mod in Resources */,
 				33554E1514C326EE00018161 /* btnplay.png in Resources */,
 				33554E1914C3299F00018161 /* btnback.png in Resources */,
+				594CB8C2263358D900D154E5 /* txtMenu5c_2x.png in Resources */,
 				59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */,
 				5966D1D325CFF0D200520777 /* liszt_feux.mid in Resources */,
 				33554E1A14C3299F00018161 /* btnpause@2x.png in Resources */,
@@ -9320,6 +9325,7 @@
 				5950D9C525E0F67B00B476B2 /* odyssey-part5.mod in Resources */,
 				5950D9C625E0F67B00B476B2 /* btnplay.png in Resources */,
 				5950D9C725E0F67B00B476B2 /* btnback.png in Resources */,
+				594CB8C3263358D900D154E5 /* txtMenu5c_2x.png in Resources */,
 				5950D9C825E0F67B00B476B2 /* tabview_gradient40Orange.png in Resources */,
 				5950D9CA25E0F67B00B476B2 /* liszt_feux.mid in Resources */,
 				5950D9CB25E0F67B00B476B2 /* btnpause@2x.png in Resources */,

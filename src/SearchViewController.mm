@@ -269,6 +269,11 @@ static NSFileManager *mFileMngr;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     
+    
+    for (int i=0;i<dbASMA_entries_count;i++) dbASMA_entries[i].downloaded=-1;
+    for (int i=0;i<dbHVSC_entries_count;i++) dbHVSC_entries[i].downloaded=-1;
+    for (int i=0;i<db_entries_count;i++) db_entries[i].downloaded=-1;
+    
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];

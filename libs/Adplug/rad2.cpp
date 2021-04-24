@@ -436,7 +436,7 @@ sound and reset the OPL3 hardware.
 */
 
 #ifndef RAD_DETECT_REPEATS
-#define RAD_DETECT_REPEATS  0
+#define RAD_DETECT_REPEATS  1
 #endif
 
 //==================================================================================================

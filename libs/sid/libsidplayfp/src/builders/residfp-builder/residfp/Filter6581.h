@@ -404,7 +404,8 @@ unsigned short Filter6581::clock(int voice1, int voice2, int voice3)
     (filt2 ? Vi : Vo) += voice2;
     (filt3 ? Vi : Vo) += voice3;
     (filtE ? Vi : Vo) += ve;
-
+    
+    
     Vhp = currentSummer[currentResonance[Vbp] + Vlp + Vi];
     Vbp = hpIntegrator->solve(Vhp);
     Vlp = bpIntegrator->solve(Vbp);
