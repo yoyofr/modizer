@@ -5787,7 +5787,7 @@ char* loadRom(const char* path, size_t romSize)
                 DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
                 //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSubsong,sid_subsong_length,rating);
                 
-                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,(mSidEmuEngine->info()).channels(),sidtune_info->songs());
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,sid_subsong_length,numChannels,sidtune_info->songs());
                 
                 if (i==sidtune_info->songs()-1) {// Global file stats update
                     fileName=[filePath lastPathComponent];
@@ -5795,7 +5795,7 @@ char* loadRom(const char* path, size_t romSize)
                     
                     //NSLog(@"%@||%@||sl:%d||ra:%d",fileName,filePathSid,mod_total_length,rating);
                     
-                    DBHelper::updateFileStatsDBmod(fileName,filePathSid,playcount,rating,mod_total_length,(mSidEmuEngine->info()).channels(),sidtune_info->songs());
+                    DBHelper::updateFileStatsDBmod(fileName,filePathSid,playcount,rating,mod_total_length,numChannels,sidtune_info->songs());
                 }
             }
             
@@ -8821,7 +8821,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if ((subsong<mod_minsub)||(subsong>mod_maxsub)) return @"";
     if (mPlayType==MMP_VGMSTREAM) {
         if (subsong==mod_currentsub) {
-            if (vgmStream && vgmStream->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong,vgmStream->stream_name];
+            if (vgmStream && vgmStream->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStream->stream_name];
             else result=[NSString stringWithFormat:@"%.3d"];
         } else {
             VGMSTREAM* vgmStreamTmp = NULL;
@@ -8829,24 +8829,24 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             
             vgmFileTmp = open_stdio_streamfile([mod_currentfile UTF8String]);
             if (!vgmFileTmp) {
-                result=[NSString stringWithFormat:@"%.3d"];
+                result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
             } else {
                 vgmFileTmp->stream_index=subsong;
                 vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFileTmp);
                 close_streamfile(vgmFileTmp);
                 if (vgmStreamTmp) {
-                    if (vgmStreamTmp->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong,vgmStreamTmp->stream_name];
-                    else result=[NSString stringWithFormat:@"%.3d"];
+                    if (vgmStreamTmp->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStreamTmp->stream_name];
+                    else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
                     close_vgmstream(vgmStreamTmp);
-                } else result=[NSString stringWithFormat:@"%.3d"];
+                } else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
             }
         }
         return result;
     } else if (mPlayType==MMP_OPENMPT) {
         const char *ret=openmpt_module_get_subsong_name(openmpt_module_ext_get_module(ompt_mod), subsong);
         if (ret) {
-            result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:ret]];
-        } else result=[NSString stringWithFormat:@"%.3d",subsong];
+            result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:ret]];
+        } else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
         return result;
     } else if (mPlayType==MMP_GME) {
         if (gme_track_info( gme_emu, &gme_info, subsong )==0) {
@@ -8855,30 +8855,30 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             
             result=nil;
             if (gme_info->song){
-                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:gme_info->song]];
+                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:gme_info->song]];
             }
             if ((!result)&&(gme_info->game)) {
-                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:gme_info->game]];
+                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:gme_info->game]];
             }
-            if (!result) result=[NSString stringWithFormat:@"%.3d",subsong];
+            if (!result) result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
             gme_free_info(gme_info);
             return result;
         }
     } else if (mPlayType==MMP_SIDPLAY) {
         if (sidtune_name) {
-            if (sidtune_name[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_name[subsong]]];
+            if (sidtune_name[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]];
         }
         if (sidtune_title) {
-            if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_title[subsong]]];
+            if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]];
         }
         
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
-        if (sidtune_info->infoString(0)[0]) return [NSString stringWithFormat:@"%.3d-%@",subsong,[NSString stringWithUTF8String:sidtune_info->infoString(0)]];
+        if (sidtune_info->infoString(0)[0]) return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_info->infoString(0)]];
         
-        return [NSString stringWithFormat:@"%.3d",subsong];
+        return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
     }
-    return [NSString stringWithFormat:@"%.3d",subsong];
+    return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
 }
 -(NSString*) getModType {
     if (mPlayType==MMP_GME) {

@@ -586,7 +586,7 @@ static int display_length_mode=0;
         //Update file stats
         DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
         if (rating==-1) rating=tmp_rating;
-        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,rating,[mplayer getSongLength],mplayer.numChannels,-1);
+        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,rating,[mplayer getSongLength],mplayer.numChannels,mplayer.mod_subsongs);
     }
     
 	if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
@@ -1163,7 +1163,7 @@ static float movePinchScale,movePinchScaleOld;
                 
                 //Update file stats
                 DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
-                DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
+                DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,mplayer.mod_subsongs);
             }
             
             
@@ -1187,9 +1187,9 @@ static float movePinchScale,movePinchScaleOld;
             if (mpl_arcCnt) {
                 playlistPos.text=[NSString stringWithFormat:@"%d of %d/arc %d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,
                                   [mplayer getArcIndex]+1,mpl_arcCnt,
-                                  mplayer.mod_currentsub,mplayer.mod_minsub,mplayer.mod_maxsub];
+                                  mplayer.mod_currentsub-mplayer.mod_minsub+1,1,mplayer.mod_subsongs];
             } else {
-                playlistPos.text=[NSString stringWithFormat:@"%d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,mplayer.mod_currentsub,mplayer.mod_minsub,mplayer.mod_maxsub];
+                playlistPos.text=[NSString stringWithFormat:@"%d of %d/sub %d(%d,%d)",mPlaylist_pos+1,mPlaylist_size,mplayer.mod_currentsub-mplayer.mod_minsub+1,1,mplayer.mod_subsongs];
             }
 			//[pvSubSongSel reloadAllComponents];
             
@@ -2808,7 +2808,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         if (!mRestart) playcount++;
         
         //Update file stats
-        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
+        DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,mplayer.mod_subsongs);
         
     }
     
@@ -3621,6 +3621,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
     int retcode=0;
+    
+    [prefs synchronize];
 	
 	valNb=[prefs objectForKey:@"ModizerRunning"];if (DEBUG_NO_SETTINGS) valNb=nil;
 	if (valNb == nil) retcode=1;
@@ -3666,6 +3668,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
 	int not_expected_version;
+    
+    [prefs synchronize];
     
     not_expected_version=0;
 	valNb=[prefs objectForKey:@"VERSION_MAJOR"];if (safe_mode) valNb=nil;
@@ -4297,6 +4301,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
         }
     }
+    if (safe_bottom>0) safe_bottom+=20;
+    //NSLog(@"saf bottom: %f\n",safe_bottom);
     
 	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 		if (!is_macOS) mDeviceType=1; //ipad
@@ -4958,7 +4964,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
             safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
         }
     }
-    //NSLog(@"safe bottom %f",safe_bottom);
+    if (safe_bottom>0) safe_bottom+=20;
+    
     
     bool oldmode=darkMode;
     darkMode=false;

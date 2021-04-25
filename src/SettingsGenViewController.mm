@@ -149,6 +149,8 @@ void optGSFChangedC(id param) {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
     NSString *str;
+    
+    [prefs synchronize];
 
 	for (int i=0;i<MAX_SETTINGS;i++)
         if (settings[i].label) {

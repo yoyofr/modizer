@@ -264,7 +264,7 @@ int gesture_move_file_min_trans;
             //archive with multiple files
             if (detailVC.mplayer.mod_subsongs>1) {
                 //and also subsongs
-                labelSub.text=[NSString stringWithFormat:@"(%d/%d)(%d/%d) %@",[detailVC.mplayer getArcIndex]+1,[detailVC.mplayer getArcEntriesCnt],detailVC.mplayer.mod_currentsub,detailVC.mplayer.mod_maxsub-detailVC.mplayer.mod_minsub,[detailVC.mplayer getModName]];
+                labelSub.text=[NSString stringWithFormat:@"(%d/%d)(%d/%d) %@",[detailVC.mplayer getArcIndex]+1,[detailVC.mplayer getArcEntriesCnt],detailVC.mplayer.mod_currentsub-detailVC.mplayer.mod_minsub+1,detailVC.mplayer.mod_subsongs,[detailVC.mplayer getModName]];
             } else {
                 //no subsong
                 labelSub.text=[NSString stringWithFormat:@"(%d/%d) %@",[detailVC.mplayer getArcIndex]+1,[detailVC.mplayer getArcEntriesCnt],[detailVC.mplayer getModName]];

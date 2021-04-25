@@ -60,7 +60,7 @@
 -(void) saveBookmarks {
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
-    
+            
 	valNb=[[NSNumber alloc] initWithInt:custom_url_count];
 	[prefs setObject:valNb forKey:@"Bookmarks_count"];
 	for (int i=0;i<custom_url_count;i++) {
@@ -68,6 +68,7 @@
 		[prefs setObject:custom_URL_name[i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
 	}
 	
+    [prefs synchronize];
 }
 
 -(void) addbuiltinURL:(NSString *)URL name:(NSString *)name{
@@ -98,6 +99,8 @@
 -(void) loadBookmarks {
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
+    
+    [prefs synchronize];
 	
 	valNb=[prefs objectForKey:@"Bookmarks_count"];
     if (valNb == nil) custom_url_count = 0;
@@ -183,6 +186,8 @@
 		[prefs setObject:custom_URL[i] forKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
 		[prefs setObject:custom_URL_name[i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
 	}
+    
+    [prefs synchronize];
     
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;

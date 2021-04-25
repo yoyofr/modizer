@@ -147,11 +147,15 @@ static UIAlertView *alertChooseName;
 		[prefs setObject:custom_URL[i] forKey:[NSString stringWithFormat:@"Bookmark_URL%d",i]];
 		[prefs setObject:custom_URL_name[i] forKey:[NSString stringWithFormat:@"Bookmark_URL_name%d",i]];
 	}
+    
+    [prefs synchronize];
 	
 }
 -(void) loadBookmarks {
 	NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
 	NSNumber *valNb;
+    
+    [prefs synchronize];
 	
 	valNb=[prefs objectForKey:@"Bookmarks_count"];
 	if (valNb == nil) custom_url_count = 0;

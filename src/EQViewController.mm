@@ -77,6 +77,8 @@ extern BOOL nvdsp_EQ;
 	NSNumber *valNb;
     NSString *str;
     
+    [prefs synchronize];
+    
     for (int i=0;i<EQUALIZER_NB_BANDS;i++) {
         str=[NSString stringWithFormat:@"eq_centerFrequencies_%d",i];
         valNb=[prefs objectForKey:str];

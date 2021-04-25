@@ -1039,10 +1039,10 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 mSidTune->selectSong(i);
                 s_info=mSidTune->getInfo();
                 
-                if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_name[i]];
-                else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_title[i]];
-                else if (s_info->infoString(0)[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info->infoString(0)];
-                else file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,browser_sidtune_name[i]];
+                else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,browser_sidtune_title[i]];
+                else if (s_info->infoString(0)[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,s_info->infoString(0)];
+                else file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
                 
                 int filtered=0;
                 if ((mSearch)&&([mSearchText length]>0)) {
@@ -1109,10 +1109,10 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         mSidTune->selectSong(i);
                         s_info=mSidTune->getInfo();
                         
-                        if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_name[i]];
-                        else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i,browser_sidtune_title[i]];
-                        else if (s_info->infoString(0)[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,s_info->infoString(0)];
-                        else file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                        if (browser_sidtune_name[i]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,browser_sidtune_name[i]];
+                        else if (browser_sidtune_title[i]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,browser_sidtune_title[i]];
+                        else if (s_info->infoString(0)[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,s_info->infoString(0)];
+                        else file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
@@ -1206,15 +1206,15 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     if (gme_track_info( gme_emu, &gme_info, i )==0) {
                         file=nil;
                         if (gme_info->song) {
-                            if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->song];
+                            if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->song];
                         }
                         if (!file) {
                             if (gme_info->game) {
-                                if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->game];
+                                if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->game];
                             }
                         }
                         if (!file) {
-                            file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                            file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
                         }
                         
                         int filtered=0;
@@ -1295,15 +1295,15 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         if (gme_track_info( gme_emu, &gme_info, i )==0) {
                             file=nil;
                             if (gme_info->song) {
-                                if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->song];
+                                if (gme_info->song[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->song];
                             }
                             if (!file) {
                                 if (gme_info->game) {
-                                    if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i,gme_info->game];
+                                    if (gme_info->game[0]) file=[NSString stringWithFormat:@"%.3d-%s",i+1,gme_info->game];
                                 }
                             }
                             if (!file) {
-                                file=[NSString stringWithFormat:@"%.3d-%@",i,[cpath lastPathComponent]];
+                                file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
                             }
                             
                             int filtered=0;
@@ -2013,8 +2013,10 @@ static int shouldRestart=1;
         [self showWaiting];
         [self flushMainLoop];
         shouldRestart=0;
-                        
+              
+        
         [detailViewController play_restart];
+        //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
         
         self.view.userInteractionEnabled = YES;
         //self.view.alpha=1.0f;

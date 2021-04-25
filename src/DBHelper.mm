@@ -466,7 +466,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     int err;
     int avg_rating;
     int entries_nb;
-    int playcount;
+    int playcount,sng_length,channels,songs;
     
     if (fullpath==nil) return;
     
@@ -525,7 +525,10 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
                     entries_nb++;
                 } else {
                     //printf("skipping: %s\n",tmp_fullpath);
-                    playcount=(short int)sqlite3_column_int(stmt, 1);
+                    playcount=(int)sqlite3_column_int(stmt, 1);
+                    sng_length=(int)sqlite3_column_int(stmt, 3);
+                    channels=(int)sqlite3_column_int(stmt, 4);
+                    songs=(int)sqlite3_column_int(stmt, 5);
                 }
             }
             if (entries_nb) {
@@ -544,7 +547,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     if (err==SQLITE_OK){
     } else NSLog(@"ErrSQL : %d",err);
         
-    sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",[[fullpathCleaned lastPathComponent] UTF8String],[fullpathCleaned UTF8String],playcount,avg_rating);
+    sprintf(sqlStatement,"INSERT INTO user_stats (name,fullpath,play_count,rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d",[[fullpathCleaned lastPathComponent] UTF8String],[fullpathCleaned UTF8String],playcount,avg_rating,sng_length,channels,songs);
     err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
     if (err==SQLITE_OK){
     } else NSLog(@"ErrSQL : %d",err);
@@ -597,7 +600,7 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
     
     if (name==nil) return;
     
-    //NSLog(@"updlong: %@/%@ played:%d rating:%d ...\n",name,[fullpath lastPathComponent],playcount,rating);
+    //NSLog(@"updlong: %@/%@ played:%d rating:%d length:%d ...\n",name,[fullpath lastPathComponent],playcount,rating,song_length);
     
 	pthread_mutex_lock(&db_mutex);
 	
