@@ -458,8 +458,7 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
             break;
         }
     }
-    int smplIncr=44100*256/psg->rate;
-    if (smplIncr>256) smplIncr=256;
+    int smplIncr=44100*256/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
   for (i = 0; i < samples; i ++)
@@ -473,12 +472,19 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             for (int jj=0;jj<3;jj++) {
-                m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((psg->cout[jj])<<1);
-                m_voice_current_ptr[m_voice_ofs+jj]+=smplIncr;
-                if ((m_voice_current_ptr[m_voice_ofs+jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                for (;;) {
+                    if (psg->stereo_mask[jj]&3) m_voice_buff[m_voice_ofs+jj][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((psg->cout[jj])>>1);
+                    ofs_start+=256;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
         }
         //TODO:  MODIZER changes end / YOYOFR
+                
     }
     else
     {
@@ -499,11 +505,18 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
             for (int jj=0;jj<3;jj++) {
-                m_voice_buff[m_voice_ofs+jj][m_voice_current_ptr[m_voice_ofs+jj]>>8]=LIMIT8((psg->cout[jj]));
-                m_voice_current_ptr[m_voice_ofs+jj]+=256;
-                if ((m_voice_current_ptr[m_voice_ofs+jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
+                
+                
+                for (;;) {
+                    if (psg->stereo_mask[jj]) m_voice_buff[m_voice_ofs+jj][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((psg->cout[jj])>>1);
+                    ofs_start+=256;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
-            
         }
         //TODO:  MODIZER changes end / YOYOFR
     }

@@ -74,6 +74,7 @@ char mSIDSeekInProgress;
 char m_voicesDataAvail;
 char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 int m_voicesForceOfs;
+int m_voice_current_samplerate;
 
 
 
@@ -3955,6 +3956,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (EndPlay) {
                             nbBytes=0;
                         } else {
+                            
+                            if (numVoicesChannels) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                        memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                    }
+                                }
+                            }
+                            
                             nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                             
                             //copy voice data for oscillo view
@@ -7134,6 +7144,8 @@ int vgmGetFileLength()
             } else if (strcmp(strChip,"YM2151")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"SegaPCM")==0) {
+                m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"RF5C68")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2203")==0) {
                 m_voicesDataAvail=1;

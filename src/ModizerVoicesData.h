@@ -19,6 +19,7 @@ extern char vgmVRC7,vgm2610b;
 extern int HC_voicesMuteMask1,HC_voicesMuteMask2;
 extern int v2m_voices_mask;
 extern signed char m_voice_current_system,m_voice_current_systemSub;
+extern int m_voice_current_samplerate;
 extern char m_voice_current_systemPairedOfs;
 extern char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 

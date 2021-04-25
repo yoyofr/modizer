@@ -5831,6 +5831,7 @@ static void SetupResampler(CAUD_ATTR* CAA)
         m_voice_current_system=CAA->ChipType;
         m_voice_current_systemSub=CAA->ChipID;
         m_voice_current_systemPairedOfs=0;
+        m_voice_current_samplerate=CAA->SmpRate;
         //TODO:  MODIZER changes end / YOYOFR
 		// Pregenerate first Sample (the upsampler is always one too late)
 		CAA->StreamUpdate(CAA->ChipID, StreamBufs, 1);
@@ -5950,6 +5951,7 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
     m_voice_current_system=CAA->ChipType;
     m_voice_current_systemSub=CAA->ChipID;
     m_voice_current_systemPairedOfs=0;
+    m_voice_current_samplerate=CAA->SmpRate;
     //TODO:  MODIZER changes end / YOYOFR
 	
 	// This Do-While-Loop gets and resamples the chip output of one or more chips.

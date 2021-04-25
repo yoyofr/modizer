@@ -1061,6 +1061,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
     
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
+    int outp[5];
     int m_voice_ofs=-1;
     int m_total_channels=(vgmVRC7?6:9);
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
@@ -1069,9 +1070,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
             break;
         }
     }
-    int smplIncr=44100*256/opll->rate;
-    if (smplIncr>256) smplIncr=256;
-    //printf("okim clock: %d\n",smplFreq);
+    int smplIncr=44100*256/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
     
   out[0] = out[1] = 0;
@@ -1084,14 +1083,42 @@ INLINE static void mix_output_stereo(OPLL *opll) {
       
       //TODO:  MODIZER changes start / YOYOFR
       if ((m_voice_ofs>=0)&&(i<m_total_channels)) {
-        if (i<6) m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>4));
-        else if (i<9) {
-          if (opll->rhythm_mode) {
-            
-          } else m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>4));
-        }
-        m_voice_current_ptr[m_voice_ofs+i]+=smplIncr;
-        if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;              
+          
+          int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+          int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+          
+          for (;;) {
+              
+              if (opll->rhythm_mode==0) {
+                  if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+              } else {
+                  if (i<6) m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+                  else {
+                      //add rhythm channels
+                      if (i==6) {
+                          int out6= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
+                                    ((int16_t)(opll->ch_out[9] * (opll->pan_fine[9][0]+opll->pan_fine[9][1]))>>5);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out6>>1);
+                      } else if (i==7) {
+                          int out7= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
+                                    ((int16_t)(opll->ch_out[10] * (opll->pan_fine[10][0]+opll->pan_fine[10][1]))>>5) +
+                                    ((int16_t)(opll->ch_out[11] * (opll->pan_fine[11][0]+opll->pan_fine[11][1]))>>5);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out7>>1);
+                      } else if (i==8) {
+                          int out8= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
+                                    ((int16_t)(opll->ch_out[12] * (opll->pan_fine[12][0]+opll->pan_fine[12][1]))>>5) +
+                                    ((int16_t)(opll->ch_out[13] * (opll->pan_fine[13][0]+opll->pan_fine[13][1]))>>5);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out8>>1);
+                      }
+                  }
+              }
+              
+              ofs_start+=256;
+              if (ofs_start>=ofs_end) break;
+          }
+          while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+          m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+          
       }
       //TODO:  MODIZER changes end / YOYOFR
   }

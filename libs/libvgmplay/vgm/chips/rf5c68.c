@@ -15,6 +15,9 @@
 #define  NUM_CHANNELS    (8)
 #define STEAM_STEP		0x800
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
 
 
 typedef struct _pcm_channel pcm_channel;
@@ -111,6 +114,8 @@ static void memstream_sample_check(rf5c68_state *chip, UINT32 addr, UINT16 Speed
 	return;
 }
 
+#include <stdio.h>
+
 //static STREAM_UPDATE( rf5c68_update )
 void rf5c68_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
@@ -124,11 +129,27 @@ void rf5c68_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	/* start with clean buffers */
 	memset(left, 0, samples * sizeof(*left));
 	memset(right, 0, samples * sizeof(*right));
-
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=NUM_CHANNELS;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*256/m_voice_current_samplerate;    
+    //TODO:  MODIZER changes end / YOYOFR
+    
 	/* bail if not enabled */
 	if (!chip->enable)
 		return;
 
+    
+
+    
 	/* loop over channels */
 	for (i = 0; i < NUM_CHANNELS; i++)
 	{
@@ -172,12 +193,44 @@ void rf5c68_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 					sample &= 0x7f;
 					left[j] += (sample * lv) >> 5;
 					right[j] += (sample * rv) >> 5;
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                        int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                        
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8( (sample*(lv+rv))>>(5+7)  );
+                            ofs_start+=256;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
 				else
 				{
 					left[j] -= (sample * lv) >> 5;
 					right[j] -= (sample * rv) >> 5;
+                    
+                    //TODO:  MODIZER changes start / YOYOFR
+                    if (m_voice_ofs>=0) {
+                        int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                        int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                        
+                        for (;;) {
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=-LIMIT8( (sample*(lv+rv))>>(5+7)  );
+                            ofs_start+=256;
+                            if (ofs_start>=ofs_end) break;
+                        }
+                        while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                    }
+                    //TODO:  MODIZER changes end / YOYOFR
 				}
+                
+                
 			}
 		}
 	}
