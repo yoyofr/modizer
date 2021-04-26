@@ -13,7 +13,9 @@ Todo/Requested:
 - TODO: .tar.gz support, i.e. tar support (gz ok / fex)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
-- TODO: oscillo => propose also stereo, 2 channels view (for multi voices format)
+- TODO: rework all oscillo view catch code / libraries to include new model (adapt to sample rate correctly)
+- TODO: subsongs correct management / compute whole file length & update DB at loading
+(SID/GME/ASAP:ok, to check SC68/HVL/XMP/OMPT/VGMSTREAM/UADE(not possible/before playing file/subsong once) / )
 
 3.1
 ----

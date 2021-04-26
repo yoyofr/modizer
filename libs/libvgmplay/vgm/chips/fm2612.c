@@ -2305,6 +2305,7 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
             break;
         }
     }
+    int smplIncr=44100*256/m_voice_current_samplerate;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* buffering */
@@ -2385,21 +2386,23 @@ void ym2612_update_one(void *chip, FMSAMPLE **buffer, int length)
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((out_fm[0]>>6));
-            m_voice_buff[m_voice_ofs+1][m_voice_current_ptr[m_voice_ofs+1]>>8]=LIMIT8((out_fm[1]>>6));
-            m_voice_buff[m_voice_ofs+2][m_voice_current_ptr[m_voice_ofs+2]>>8]=LIMIT8((out_fm[2]>>6));
-            m_voice_buff[m_voice_ofs+3][m_voice_current_ptr[m_voice_ofs+3]>>8]=LIMIT8((out_fm[3]>>6));
-            if (F2612->dac_test) m_voice_buff[m_voice_ofs+4][m_voice_current_ptr[m_voice_ofs+4]>>8]=LIMIT8((dacout>>6));
-            else m_voice_buff[m_voice_ofs+4][m_voice_current_ptr[m_voice_ofs+4]>>8]=LIMIT8((out_fm[4]>>6));
-            m_voice_buff[m_voice_ofs+5][m_voice_current_ptr[m_voice_ofs+5]>>8]=LIMIT8((out_fm[5]>>6));
-            
-            for (int ii=0;ii<6;ii++) {
-                m_voice_current_ptr[m_voice_ofs+ii]+=441*256/533;
-                if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            for (;;) {
+                for (int jj=0;jj<4;jj++) m_voice_buff[m_voice_ofs+jj][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[jj]>>6));
+                
+                if (F2612->dac_test) m_voice_buff[m_voice_ofs+4][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((dacout>>6));
+                else m_voice_buff[m_voice_ofs+4][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[4]>>6));
+                m_voice_buff[m_voice_ofs+5][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[5]>>6));
+                
+                ofs_start+=256;
+                if (ofs_start>=ofs_end) break;
             }
+            while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+            for (int jj=0;jj<6;jj++) m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
-
+        
 
 		/* 6-channels mixing  */
 		lt  = ((out_fm[0]>>0) & OPN->pan[0]);

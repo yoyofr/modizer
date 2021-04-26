@@ -4200,7 +4200,7 @@ void ym2610_update_one(void *chip, FMSAMPLE **buffer, int length)
                         }
                     }
                     
-                    if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+12][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2610->deltaT.adpcml)>>15);
+                    if( DELTAT->portstate&0x80 && ! F2610->MuteDeltaT ) m_voice_buff[m_voice_ofs+10][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2610->deltaT.adpcml)>>15);
                     
                     ofs_start+=256;
                     if (ofs_start>=ofs_end) break;
@@ -4391,7 +4391,7 @@ void ym2610b_update_one(void *chip, FMSAMPLE **buffer, int length)
                         m_voice_buff[m_voice_ofs+jj][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((out_fm[jj]>>6));
                         
                         if( F2610->adpcm[jj].flag ) {
-                            m_voice_buff[m_voice_ofs+jj+4][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2610->adpcm[jj].adpcm_out>>6));
+                            m_voice_buff[m_voice_ofs+jj+6][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((F2610->adpcm[jj].adpcm_out>>6));
                         }
                     }
                     

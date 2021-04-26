@@ -235,8 +235,6 @@ enum MMP_PLAYER_TYPE {
 -(BOOL) isPlaying;
 -(int) isSeeking;
 
--(int) isPlayingTrackedMusic;
-
 -(void) playPrevSub;
 -(void) playNextSub;
 -(void) playGoToSub:(int)sub_index;
