@@ -255,10 +255,10 @@ void qsoundc_update(void* param, UINT32 samples, INT16* output)
             //TODO:  MODIZER changes start / YOYOFR
             //int smplIncr;
             for (int jj=0;jj<16+3;jj++) {
-                if ((HC_voicesMuteMask1&(1<<jj))) m_voice_buff[jj][m_voice_current_ptr[jj]>>8]=LIMIT8((chip->voice_output[jj]>>6));
-                else m_voice_buff[jj][m_voice_current_ptr[jj]>>8]=0;
-                m_voice_current_ptr[jj]+=256;
-                if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                if ((HC_voicesMuteMask1&(1<<jj))) m_voice_buff[jj][m_voice_current_ptr[jj]>>10]=LIMIT8((chip->voice_output[jj]>>6));
+                else m_voice_buff[jj][m_voice_current_ptr[jj]>>10]=0;
+                m_voice_current_ptr[jj]+=1024;
+                if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
             }
             //TODO:  MODIZER changes end / YOYOFR
             

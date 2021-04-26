@@ -5958,6 +5958,11 @@ static void ResampleChipStream(CA_LIST* CLst, WAVE_32BS* RetSample, UINT32 Lengt
 	// It's a loop to support the AY8910 paired with the YM2203/YM2608/YM2610.
 	do
 	{
+        //TODO:  MODIZER changes start / YOYOFR
+        m_voice_current_system=CAA->ChipType;
+        m_voice_current_systemSub=CAA->ChipID;
+        m_voice_current_samplerate=CAA->SmpRate;
+        //TODO:  MODIZER changes end / YOYOFR
 		switch(CAA->Resampler)
 		{
 		case 0x00:	// old, but very fast resampler

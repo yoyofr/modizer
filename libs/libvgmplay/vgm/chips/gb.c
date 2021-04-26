@@ -1130,10 +1130,7 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             break;
         }
     }
-    int smplFreq=gb->rate;
-    int smplIncr=44100*256/smplFreq;
-    if (smplIncr>256) smplIncr=256;
-    //printf("okim clock: %d\n",smplFreq);
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
     
 
@@ -1158,13 +1155,20 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		}
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            if (gb->snd_1.on && !gb->snd_1.Muted) m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8(((sample*(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
-            else m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
             
-            m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            for (;;) {
+                if (gb->snd_1.on && !gb->snd_1.Muted)
+                    m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
+        
 
 		/* Mode 2 - Wave with Envelope */
 		if (gb->snd_2.on && !gb->snd_2.Muted)
@@ -1177,14 +1181,20 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		}
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            if (gb->snd_2.on && !gb->snd_2.Muted) m_voice_buff[m_voice_ofs+1][m_voice_current_ptr[m_voice_ofs+1]>>8]=LIMIT8(((sample*(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
-            else m_voice_buff[m_voice_ofs+1][m_voice_current_ptr[m_voice_ofs+1]>>8]=0;
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+1];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+1]+smplIncr);
             
-            m_voice_current_ptr[m_voice_ofs+1]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_ofs+1]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            for (;;) {
+                if (gb->snd_2.on && !gb->snd_2.Muted)
+                    m_voice_buff[m_voice_ofs+1][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            m_voice_current_ptr[m_voice_ofs+1]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
-
+        
 		/* Mode 3 - Wave patterns from WaveRAM */
 		if (gb->snd_3.on && !gb->snd_3.Muted)
 		{
@@ -1196,14 +1206,21 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		}
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            if (gb->snd_3.on && !gb->snd_3.Muted) m_voice_buff[m_voice_ofs+2][m_voice_current_ptr[m_voice_ofs+2]>>8]=LIMIT8(((sample*(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
-            else m_voice_buff[m_voice_ofs+2][m_voice_current_ptr[m_voice_ofs+2]>>8]=0;
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+2];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+2]+smplIncr);
             
-            m_voice_current_ptr[m_voice_ofs+2]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_ofs+2]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            for (;;) {
+                if (gb->snd_3.on && !gb->snd_3.Muted)
+                    m_voice_buff[m_voice_ofs+2][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            m_voice_current_ptr[m_voice_ofs+2]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
-
+        
+        
 		/* Mode 4 - Noise with Envelope */
 		if (gb->snd_4.on && !gb->snd_4.Muted)
 		{
@@ -1215,14 +1232,21 @@ void gameboy_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		}
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            if (gb->snd_4.on && !gb->snd_4.Muted) m_voice_buff[m_voice_ofs+3][m_voice_current_ptr[m_voice_ofs+3]>>8]=LIMIT8(((sample*(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
-            else m_voice_buff[m_voice_ofs+3][m_voice_current_ptr[m_voice_ofs+3]>>8]=0;
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+3];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+3]+smplIncr);
             
-            m_voice_current_ptr[m_voice_ofs+3]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_ofs+3]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+3]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            for (;;) {
+                if (gb->snd_4.on && !gb->snd_4.Muted)
+                    m_voice_buff[m_voice_ofs+3][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((sample*(int)(gb->snd_control.vol_left+gb->snd_control.vol_right))>>2));
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            m_voice_current_ptr[m_voice_ofs+3]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
-
+        
+        
 		/* Adjust for master volume */
 		left *= gb->snd_control.vol_left;
 		right *= gb->snd_control.vol_right;

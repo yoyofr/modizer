@@ -543,10 +543,7 @@ void upd7759_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             break;
         }
     }
-    int smplFreq=chip->sample_rate;
-    int smplIncr=44100*256/smplFreq;
-    if (smplIncr>256) smplIncr=256;
-    //printf("okim clock: %d\n",smplFreq);
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* loop until done */
@@ -565,14 +562,20 @@ void upd7759_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             
             //TODO:  MODIZER changes start / YOYOFR
             if (m_voice_ofs>=0) {
-                if (chip->Muted) m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
-                else m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=LIMIT8((sample>>1));
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
                 
-                m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
-                if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                if ((ofs_end>>10)>(ofs_start>>10))
+                for (;;) {
+                    if (!(chip->Muted)) m_voice_buff[m_voice_ofs+0][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((sample>>1));
+                    ofs_start+=1024;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR
-
+            
 			/* advance by the number of clocks/output sample */
 			pos += step;
 
@@ -634,13 +637,13 @@ void upd7759_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            for (int jj=0;jj<samples;jj++) {
-                m_voice_buff[m_voice_ofs+0][m_voice_current_ptr[m_voice_ofs+0]>>8]=0;
-                m_voice_current_ptr[m_voice_ofs+0]+=smplIncr;
-                if ((m_voice_current_ptr[m_voice_ofs+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
-            }
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            m_voice_current_ptr[m_voice_ofs+0]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
+        
 	}
 
 	/* flush the state back */

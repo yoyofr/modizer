@@ -143,6 +143,12 @@ static void k054539_keyoff(k054539_state *info, int channel)
 		info->regs[0x22c] &= ~(1 << channel);
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
+
 //static STREAM_UPDATE( k054539_update )
 void k054539_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
@@ -175,6 +181,20 @@ void k054539_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	if(!(info->regs[0x22f] & 1))
 		return;
 
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    //TODO:  MODIZER changes end / YOYOFR
+    
+    
 	rom = info->rom;
 	rom_mask = info->rom_mask;
 
@@ -337,6 +357,22 @@ void k054539_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 					LOG(("Unknown sample type %x for channel %d\n", base2[0] & 0xc, ch));
 					break;
 				}
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
+                    int ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+                    
+                    for (;;) {
+                        m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8( ((int)(cur_val*(lvol+rvol)))>>6 );
+                        ofs_start+=1024;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                    m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
+                
 				lval += cur_val * lvol;
 				rval += cur_val * rvol;
 				rbase[(rdelta + info->reverb_pos) & 0x1fff] += (INT16)(cur_val*rbvol);

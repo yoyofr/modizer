@@ -96,8 +96,7 @@ void IremGA20_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             break;
         }
     }
-    int smplIncr=44100*256/44100;
-    if (smplIncr>256) smplIncr=256;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 
 	/* precache some values */
@@ -119,6 +118,26 @@ void IremGA20_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	for (i = 0; i < samples; i++)
 	{
 		sampleout = 0;
+        
+        //TODO:  MODIZER changes start / YOYOFR
+        if (m_voice_ofs>=0) {
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            
+            if ((ofs_end>>10)>(ofs_start>>10))
+            for (;;) {
+                for (int ii=0;ii<4;ii++) {
+                    if (play[ii]) { m_voice_buff[m_voice_ofs+ii][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((((int)(pSamples[pos[ii]])-0x80)*(int)(vol[ii]))>>8);
+                        //LIMIT8(((((int)(pSamples[pos[ii]]) - 0x80) * vol[ii])>>8));
+                    }
+                }
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            for (int ii=0;ii<4;ii++) m_voice_current_ptr[m_voice_ofs+ii]=ofs_end;
+        }
+        //TODO:  MODIZER changes end / YOYOFR
 
 		// update the 4 channels inline
 		if (play[0])
@@ -157,16 +176,6 @@ void IremGA20_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 		sampleout >>= 2;
 		outL[i] = sampleout;
 		outR[i] = sampleout;
-        
-        //TODO:  MODIZER changes start / YOYOFR
-        if (m_voice_ofs>=0) {
-            for (int ii=0;ii<4;ii++) {
-                m_voice_buff[m_voice_ofs+ii][m_voice_current_ptr[m_voice_ofs+ii]>>8]=LIMIT8((((pSamples[pos[ii]] - 0x80) * vol[ii])>>12));
-                m_voice_current_ptr[m_voice_ofs+ii]+=smplIncr;
-                if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
-            }
-        }
-        //TODO:  MODIZER changes end / YOYOFR
 	}
 
 	/* update the regs now */

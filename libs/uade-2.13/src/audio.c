@@ -176,14 +176,14 @@ static inline void sample_backend(int left1,int left2, int right1,int right2) //
     //TODO:  MODIZER changes start / YOYOFR
     int left=left1+left2;
     int right=right1+right2;
-    m_voice_buff[0][m_voice_current_ptr[0]>>8]=LIMIT8(left1>>6);
-    m_voice_buff[3][m_voice_current_ptr[3]>>8]=LIMIT8(left2>>6);
-    m_voice_buff[1][m_voice_current_ptr[1]>>8]=LIMIT8(right1>>6);
-    m_voice_buff[2][m_voice_current_ptr[2]>>8]=LIMIT8(right2>>6);
+    m_voice_buff[0][m_voice_current_ptr[0]>>10]=LIMIT8(left1>>6);
+    m_voice_buff[3][m_voice_current_ptr[3]>>10]=LIMIT8(left2>>6);
+    m_voice_buff[1][m_voice_current_ptr[1]>>10]=LIMIT8(right1>>6);
+    m_voice_buff[2][m_voice_current_ptr[2]>>10]=LIMIT8(right2>>6);
     
     for (int jj=0;jj<4;jj++) {
-        m_voice_current_ptr[jj]+=256/*44100*256/32000*/;
-        if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        m_voice_current_ptr[jj]+=1024/*44100*256/32000*/;
+        if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
     }
     //TODO:  MODIZER changes end / YOYOFR
 
@@ -280,14 +280,14 @@ static void sample16si_sinc_handler (void)
     }
 
     //TODO:  MODIZER changes start / YOYOFR
-    m_voice_buff[0][m_voice_current_ptr[0]>>8]=LIMIT8(datas[0]>>6);
-    m_voice_buff[3][m_voice_current_ptr[3]>>8]=LIMIT8(datas[3]>>6);
-    m_voice_buff[1][m_voice_current_ptr[1]>>8]=LIMIT8(datas[1]>>6);
-    m_voice_buff[2][m_voice_current_ptr[2]>>8]=LIMIT8(datas[2]>>6);
+    m_voice_buff[0][m_voice_current_ptr[0]>>10]=LIMIT8(datas[0]>>6);
+    m_voice_buff[3][m_voice_current_ptr[3]>>10]=LIMIT8(datas[3]>>6);
+    m_voice_buff[1][m_voice_current_ptr[1]>>10]=LIMIT8(datas[1]>>6);
+    m_voice_buff[2][m_voice_current_ptr[2]>>10]=LIMIT8(datas[2]>>6);
     
     for (int jj=0;jj<4;jj++) {
-        m_voice_current_ptr[jj]+=256/*44100*256/32000*/;
-        if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        m_voice_current_ptr[jj]+=1024/*44100*256/32000*/;
+        if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
     }
     //TODO:  MODIZER changes end / YOYOFR
     

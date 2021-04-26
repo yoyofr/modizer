@@ -2424,8 +2424,7 @@ void ym2151_update_one(void *chip, SAMP **buffers, int length)
             break;
         }
     }    
-    int smplIncr=44100*256/PSG->sampfreq;
-    if (smplIncr>256) smplIncr=256;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;    
     //TODO:  MODIZER changes end / YOYOFR
 
 #ifdef USE_MAME_TIMERS
@@ -2496,14 +2495,21 @@ void ym2151_update_one(void *chip, SAMP **buffers, int length)
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            for (int ii=0;ii<8;ii++) {
-                m_voice_buff[m_voice_ofs+ii][m_voice_current_ptr[m_voice_ofs+ii]>>8]=LIMIT8((chanout[ii]>>6));
-                m_voice_current_ptr[m_voice_ofs+ii]+=smplIncr;
-                if ((m_voice_current_ptr[m_voice_ofs+ii]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+0];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+0]+smplIncr);
+            
+            if ((ofs_end>>10)>(ofs_start>>10))
+            for (;;) {
+                for (int ii=0;ii<8;ii++)
+                    m_voice_buff[m_voice_ofs+ii][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chanout[ii]>>6));
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
             }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            for (int ii=0;ii<8;ii++) m_voice_current_ptr[m_voice_ofs+ii]=ofs_end;
         }
         //TODO:  MODIZER changes end / YOYOFR
-
+        
 		outl >>= FINAL_SH;
 		outr >>= FINAL_SH;
 		//if (outl > MAXOUT) outl = MAXOUT;

@@ -122,8 +122,7 @@ void k051649_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
             break;
         }
     }
-    int smplIncr=44100*256/info->rate;
-    if (smplIncr>256) smplIncr=256;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 
 	// zap the contents of the mixer buffer
@@ -153,9 +152,16 @@ void k051649_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
                 
                 //TODO:  MODIZER changes start / YOYOFR
                 if (m_voice_ofs>=0) {
-                    m_voice_buff[m_voice_ofs+j][m_voice_current_ptr[m_voice_ofs+j]>>8]=LIMIT8((w[offs] * v)>>4);
-                    m_voice_current_ptr[m_voice_ofs+j]+=smplIncr;
-                    if ((m_voice_current_ptr[m_voice_ofs+j]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+j]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    int ofs_start=m_voice_current_ptr[m_voice_ofs+j];
+                    int ofs_end=(m_voice_current_ptr[m_voice_ofs+j]+smplIncr);
+                    
+                    for (;;) {
+                        m_voice_buff[m_voice_ofs+j][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int)(w[offs]) * v)>>4);
+                        ofs_start+=1024;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                    m_voice_current_ptr[m_voice_ofs+j]=ofs_end;
                 }
                 //TODO:  MODIZER changes end / YOYOFR
 			}

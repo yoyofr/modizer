@@ -458,7 +458,7 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
             break;
         }
     }
-    int smplIncr=44100*256/m_voice_current_samplerate;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
 
   for (i = 0; i < samples; i ++)
@@ -475,11 +475,11 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
                 int ofs_start=m_voice_current_ptr[m_voice_ofs+jj];
                 int ofs_end=(m_voice_current_ptr[m_voice_ofs+jj]+smplIncr);
                 for (;;) {
-                    if (psg->stereo_mask[jj]&3) m_voice_buff[m_voice_ofs+jj][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((psg->cout[jj])>>1);
-                    ofs_start+=256;
+                    if (psg->stereo_mask[jj]&3) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((psg->cout[jj])>>1);
+                    ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
                 m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
         }
@@ -510,11 +510,11 @@ PSG_calc_stereo (PSG * psg, e_int32 **out, e_int32 samples)
                 
                 
                 for (;;) {
-                    if (psg->stereo_mask[jj]) m_voice_buff[m_voice_ofs+jj][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((psg->cout[jj])>>1);
-                    ofs_start+=256;
+                    if (psg->stereo_mask[jj]) m_voice_buff[m_voice_ofs+jj][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((psg->cout[jj])>>1);
+                    ofs_start+=1024;
                     if (ofs_start>=ofs_end) break;
                 }
-                while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
                 m_voice_current_ptr[m_voice_ofs+jj]=ofs_end;
             }
         }

@@ -332,7 +332,7 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
             break;
         }
     }
-    int smplIncr=44100*256/m_voice_current_samplerate;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
     
 	
@@ -440,12 +440,13 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                         int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
                         int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
                         
+                        if ((ofs_end>>10)>(ofs_start>>10))
                         for (;;) {
-                            m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
-                            ofs_start+=256;
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
+                            ofs_start+=1024;
                             if (ofs_start>=ofs_end) break;
                         }
-                        while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                        while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
                         m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
                     }
                     //TODO:  MODIZER changes end / YOYOFR
@@ -464,12 +465,13 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                         int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
                         int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
                         
+                        if ((ofs_end>>10)>(ofs_start>>10))
                         for (;;) {
-                            m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((R->Volume[i] * ggst[0]>>5));
-                            ofs_start+=256;
+                            m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((R->Volume[i] * ggst[0]>>5));
+                            ofs_start+=1024;
                             if (ofs_start>=ofs_end) break;
                         }
-                        while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                        while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
                         m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
                     }
                     //TODO:  MODIZER changes end / YOYOFR
@@ -512,15 +514,17 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                             int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
                             int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
                             
+                            if ((ofs_end>>10)>(ofs_start>>10))
                             for (;;) {
-                                m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
-                                ofs_start+=256;
+                                m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
+                                ofs_start+=1024;
                                 if (ofs_start>=ofs_end) break;
                             }
-                            while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
                             m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
                         }
                         //TODO:  MODIZER changes end / YOYOFR
+                        
 					}
 					else if (R->MuteMsk[i])
 					{
@@ -533,12 +537,13 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                             int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
                             int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
                             
+                            if ((ofs_end>>10)>(ofs_start>>10))
                             for (;;) {
-                                m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
-                                ofs_start+=256;
+                                m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[i] * R->Volume[i] * ggst[0]>>5));
+                                ofs_start+=1024;
                                 if (ofs_start>=ofs_end) break;
                             }
-                            while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
                             m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
                         }
                         //TODO:  MODIZER changes end / YOYOFR
@@ -578,12 +583,13 @@ void SN76496Update(void *chip, stream_sample_t **outputs, int samples)
                     int ofs_start=m_voice_current_ptr[m_voice_ofs+3];
                     int ofs_end=(m_voice_current_ptr[m_voice_ofs+3]+smplIncr);
                     
+                    if ((ofs_end>>10)>(ofs_start>>10))
                     for (;;) {
-                        m_voice_buff[m_voice_ofs+3][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[3] * R2->Volume[3] * ggst[0]>>5));
-                        ofs_start+=256;
+                        m_voice_buff[m_voice_ofs+3][(ofs_start>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((vol[3] * R2->Volume[3] * ggst[0]>>5));
+                        ofs_start+=1024;
                         if (ofs_start>=ofs_end) break;
                     }
-                    while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
                     m_voice_current_ptr[m_voice_ofs+3]=ofs_end;
                 }
                 //TODO:  MODIZER changes end / YOYOFR

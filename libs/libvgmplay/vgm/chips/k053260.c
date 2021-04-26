@@ -119,8 +119,14 @@ INLINE int limit( int val, int max, int min )
 	return val;
 }
 
-//#define MAXOUT 0x7fff
-#define MAXOUT +0x8000
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
+
+
+#define MAXOUT 0x7fff
+//#define MAXOUT +0x8000
 #define MINOUT -0x8000
 
 //static STREAM_UPDATE( k053260_update )
@@ -136,6 +142,19 @@ void k053260_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	INT8 d;
 	//k053260_state *ic = (k053260_state *)param;
 	k053260_state *ic = &K053260Data[ChipID];
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=4;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* precache some values */
 	for ( i = 0; i < 4; i++ ) {
@@ -216,12 +235,29 @@ void k053260_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 					if ( ic->mode & 2 ) {
 						dataL += ( d * lvol[i] ) >> 2;
 						dataR += ( d * rvol[i] ) >> 2;
+                        
+                        //TODO:  MODIZER changes start / YOYOFR
+                        if (m_voice_ofs>=0) {
+                            int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                            int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                            
+                            for (;;) {
+                                m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((dataL+dataR)>>8);
+                                ofs_start+=1024;
+                                if (ofs_start>=ofs_end) break;
+                            }
+                            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                            m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+                        }
+                        //TODO:  MODIZER changes end / YOYOFR
 					}
 				}
 			}
 
 			outputs[1][j] = limit( dataL, MAXOUT, MINOUT );
 			outputs[0][j] = limit( dataR, MAXOUT, MINOUT );
+            
+            
 		}
 
 	/* update the regs now */

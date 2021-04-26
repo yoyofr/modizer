@@ -3212,9 +3212,9 @@ private:
             if (voice == POLY) {
                 //TODO:  MODIZER changes start / YOYOFR
                 for (int jj=0;jj<nsamples;jj++) {
-                    m_voice_buff[chan][m_voice_current_ptr[chan]>>8]=0;
-                    m_voice_current_ptr[chan]+=256;
-                    if ((m_voice_current_ptr[chan]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                    m_voice_buff[chan][m_voice_current_ptr[chan]>>10]=0;
+                    m_voice_current_ptr[chan]+=1024;
+                    if ((m_voice_current_ptr[chan]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
                 }
                 //TODO:  MODIZER changes end / YOYOFR
                 
@@ -3245,9 +3245,9 @@ private:
             
             //TODO:  MODIZER changes start / YOYOFR
             for (int jj=0;jj<nsamples;jj++) {
-                m_voice_buff[chan][m_voice_current_ptr[chan]>>8]=LIMIT8(  (int)((instance.chanbuf[jj].l+instance.chanbuf[jj].r)*64)  );
-                m_voice_current_ptr[chan]+=256;
-                if ((m_voice_current_ptr[chan]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                m_voice_buff[chan][m_voice_current_ptr[chan]>>10]=LIMIT8(  (int)((instance.chanbuf[jj].l+instance.chanbuf[jj].r)*64)  );
+                m_voice_current_ptr[chan]+=1024;
+                if ((m_voice_current_ptr[chan]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[chan]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
             }
             //TODO:  MODIZER changes end / YOYOFR
         }

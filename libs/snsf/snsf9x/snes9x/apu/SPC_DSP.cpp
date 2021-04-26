@@ -904,7 +904,7 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
     
     //TODO:  MODIZER changes start / YOYOFR
     int new_val=(m.t_output*(vol+voln))>>7;
-    m_voice_buff[v->voice_number][m_voice_current_ptr[v->voice_number]>>8]=LIMIT8(new_val>>7);
+    m_voice_buff[v->voice_number][m_voice_current_ptr[v->voice_number]>>10]=LIMIT8(new_val>>7);
     //TODO:  MODIZER changes end / YOYOFR
 }
 VOICE_CLOCK( V4 )
@@ -1201,7 +1201,7 @@ PHASE(28) misc_28();                                                 echo_28();\
 PHASE(29) misc_29();                                                 echo_29();\
 PHASE(30) misc_30();V(V3c,0)                                         echo_30();\
 PHASE(31)  V(V4,0)       V(V1,2)\
-for (int jj=0;jj<8;jj++) {m_voice_current_ptr[jj]+=256/*44100*256/32000*/;if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;}\
+for (int jj=0;jj<8;jj++) {m_voice_current_ptr[jj]+=1024/*44100*256/32000*/;if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;}\
 
 #if !SPC_DSP_CUSTOM_RUN
 

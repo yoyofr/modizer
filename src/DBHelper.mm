@@ -564,6 +564,8 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	sqlite3 *db;
 	int err;	
 	
+    //NSLog(@"upFS pl %d ra %d %@ %@",playcount,rating,name,fullpath);
+    
     if (name==nil) return;
     
     //NSLog(@"upd: %@/%@ played:%d rating:%d\n",name,[fullpath lastPathComponent],playcount,rating);
@@ -597,6 +599,8 @@ void DBHelper::updateFileStatsDBmod(NSString*name,NSString *fullpath,short int p
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
+    
+    //NSLog(@"upFS pl %d ra %d le %d ch %d sg %d %@ %@",playcount,rating,song_length,channels_nb,songs,name,fullpath);
     
     if (name==nil) return;
     

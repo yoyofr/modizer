@@ -170,9 +170,9 @@ void XSFPlayer_NCSF::GenerateSamples(std::vector<uint8_t> &buf, unsigned offset,
 				rightChannel += muldiv7(sample, chn.reg.panning);
                 
                 //TODO:  MODIZER changes start / YOYOFR
-                m_voice_buff[i][m_voice_current_ptr[i]>>8]=LIMIT8((sample>>8));
-                m_voice_current_ptr[i]+=256;
-                if ((m_voice_current_ptr[i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                m_voice_buff[i][m_voice_current_ptr[i]>>10]=LIMIT8((sample>>8));
+                m_voice_current_ptr[i]+=1024;
+                if ((m_voice_current_ptr[i]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
                 //TODO:  MODIZER changes end / YOYOFR
 			}
 		}

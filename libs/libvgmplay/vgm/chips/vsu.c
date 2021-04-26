@@ -300,9 +300,17 @@ INLINE void VSU_CalcCurrentOutput(vsu_state* chip, int ch, int* left, int* right
     
     //TODO:  MODIZER changes start / YOYOFR
     if (m_voice_ofs>=0) {
-        m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>8]=LIMIT8(((WD*(l_ol+r_ol))>>5));
-        m_voice_current_ptr[m_voice_ofs+ch]+=smplIncr;
-        if ((m_voice_current_ptr[m_voice_ofs+ch]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        int ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
+        int ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+        
+        if ((ofs_end>>10)>(ofs_start>>10))
+        for (;;) {
+            m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((WD*(l_ol+r_ol))>>5));
+            ofs_start+=1024;
+            if (ofs_start>=ofs_end) break;
+        }
+        while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+        m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
     }
     //TODO:  MODIZER changes end / YOYOFR
 
@@ -598,8 +606,7 @@ void vsu_stream_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
         }
     }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
-    smplIncr=44100*256/chip->smplrate;
-    if (smplIncr>256) smplIncr=256;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
 	

@@ -14,15 +14,15 @@ Todo/Requested:
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: rework all oscillo view catch code / libraries to include new model (adapt to sample rate correctly)
-- TODO: subsongs correct management / compute whole file length & update DB at loading
-(SID/GME/ASAP:ok, to check SC68/HVL/XMP/OMPT/VGMSTREAM/UADE(not possible/before playing file/subsong once) / )
+
 
 3.1
 ----
 - [PLAYER] Adplug/Rad bugfix for rad v1 file
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
-- [UI] Carplay support
+- [UI] Carplay support (WIP)
 - [UI] Volume bar adjustement for devices without physical home button
+- [UI] Fixes / subsong management
 
 3.0
 ---

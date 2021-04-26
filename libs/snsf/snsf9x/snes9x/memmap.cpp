@@ -2944,7 +2944,7 @@ void CMemory::Map_Initialize (void)
 
 void CMemory::Map_LoROMMap (void)
 {
-	printf("Map_LoROMMap\n");
+	//printf("Map_LoROMMap\n");
 	map_System();
 
 	map_lorom(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize);
@@ -2974,7 +2974,7 @@ void CMemory::Map_LoROMMap (void)
 
 void CMemory::Map_NoMAD1LoROMMap (void)
 {
-	printf("Map_NoMAD1LoROMMap\n");
+	//printf("Map_NoMAD1LoROMMap\n");
 	map_System();
 
 	map_lorom(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize);
@@ -2993,7 +2993,7 @@ void CMemory::Map_NoMAD1LoROMMap (void)
 void CMemory::Map_JumboLoROMMap (void)
 {
 	// XXX: Which game uses this?
-	printf("Map_JumboLoROMMap\n");
+	//printf("Map_JumboLoROMMap\n");
 	map_System();
 
 	map_lorom_offset(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize - 0x400000, 0x400000);
@@ -3010,7 +3010,7 @@ void CMemory::Map_JumboLoROMMap (void)
 void CMemory::Map_ROM24MBSLoROMMap (void)
 {
 	// PCB: BSC-1A5M-01, BSC-1A7M-10
-	printf("Map_ROM24MBSLoROMMap\n");
+	//printf("Map_ROM24MBSLoROMMap\n");
 	map_System();
 
 	map_lorom_offset(0x00, 0x1f, 0x8000, 0xffff, 0x100000, 0);
@@ -3026,7 +3026,7 @@ void CMemory::Map_ROM24MBSLoROMMap (void)
 
 void CMemory::Map_SRAM512KLoROMMap (void)
 {
-	printf("Map_SRAM512KLoROMMap\n");
+	//printf("Map_SRAM512KLoROMMap\n");
 	map_System();
 
 	map_lorom(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize);
@@ -3046,7 +3046,7 @@ void CMemory::Map_SRAM512KLoROMMap (void)
 
 void CMemory::Map_SufamiTurboLoROMMap (void)
 {
-	printf("Map_SufamiTurboLoROMMap\n");
+	//printf("Map_SufamiTurboLoROMMap\n");
 	map_System();
 
 	map_lorom_offset(0x00, 0x1f, 0x8000, 0xffff, 0x40000, 0);
@@ -3076,7 +3076,7 @@ void CMemory::Map_SufamiTurboLoROMMap (void)
 void CMemory::Map_SufamiTurboPseudoLoROMMap (void)
 {
 	// for combined images
-	printf("Map_SufamiTurboPseudoLoROMMap\n");
+	//printf("Map_SufamiTurboPseudoLoROMMap\n");
 	map_System();
 
 	map_lorom_offset(0x00, 0x1f, 0x8000, 0xffff, 0x40000, 0);
@@ -3099,7 +3099,7 @@ void CMemory::Map_SufamiTurboPseudoLoROMMap (void)
 
 void CMemory::Map_SuperFXLoROMMap (void)
 {
-	printf("Map_SuperFXLoROMMap\n");
+	//printf("Map_SuperFXLoROMMap\n");
 	map_System();
 
 	// Replicate the first 2Mb of the ROM at ROM + 2MB such that each 32K
@@ -3128,7 +3128,7 @@ void CMemory::Map_SuperFXLoROMMap (void)
 
 void CMemory::Map_SetaDSPLoROMMap (void)
 {
-	printf("Map_SetaDSPLoROMMap\n");
+	//printf("Map_SetaDSPLoROMMap\n");
 	map_System();
 
 	map_lorom(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize);
@@ -3146,7 +3146,7 @@ void CMemory::Map_SetaDSPLoROMMap (void)
 
 void CMemory::Map_SDD1LoROMMap (void)
 {
-	printf("Map_SDD1LoROMMap\n");
+	//printf("Map_SDD1LoROMMap\n");
 	map_System();
 
 	map_lorom(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize);
@@ -3164,7 +3164,7 @@ void CMemory::Map_SDD1LoROMMap (void)
 
 void CMemory::Map_SA1LoROMMap (void)
 {
-	printf("Map_SA1LoROMMap\n");
+	//printf("Map_SA1LoROMMap\n");
 	map_System();
 
 	map_lorom(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize);
@@ -3207,7 +3207,7 @@ void CMemory::Map_SA1LoROMMap (void)
 
 void CMemory::Map_HiROMMap (void)
 {
-	printf("Map_HiROMMap\n");
+	//printf("Map_HiROMMap\n");
 	map_System();
 
 	map_hirom(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize);
@@ -3226,7 +3226,7 @@ void CMemory::Map_HiROMMap (void)
 
 void CMemory::Map_ExtendedHiROMMap (void)
 {
-	printf("Map_ExtendedHiROMMap\n");
+	//printf("Map_ExtendedHiROMMap\n");
 	map_System();
 
 	map_hirom_offset(0x00, 0x3f, 0x8000, 0xffff, CalculatedSize - 0x400000, 0x400000);
@@ -3242,7 +3242,7 @@ void CMemory::Map_ExtendedHiROMMap (void)
 
 void CMemory::Map_SameGameHiROMMap (void)
 {
-	printf("Map_SameGameHiROMMap\n");
+	//printf("Map_SameGameHiROMMap\n");
 	map_System();
 
 	map_hirom_offset(0x00, 0x1f, 0x8000, 0xffff, Multi.cartSizeA, Multi.cartOffsetA);
@@ -3262,7 +3262,7 @@ void CMemory::Map_SameGameHiROMMap (void)
 
 void CMemory::Map_SPC7110HiROMMap (void)
 {
-	printf("Map_SPC7110HiROMMap\n");
+	//printf("Map_SPC7110HiROMMap\n");
 	map_System();
 
 	map_index(0x00, 0x00, 0x6000, 0x7fff, MAP_HIROM_SRAM, MAP_TYPE_RAM);

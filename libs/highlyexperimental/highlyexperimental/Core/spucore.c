@@ -1713,8 +1713,7 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
     int m_total_channels=24;
     
     int smplFreq=44100;
-    int smplIncr=44100*256/smplFreq;
-    if (smplIncr>256) smplIncr=256;
+    int smplIncr=44100*1024/smplFreq;
     //TODO:  MODIZER changes end / YOYOFR
     
 
@@ -1796,9 +1795,9 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>8]=LIMIT8((q_l+q_r)>>7);
+            m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>10]=LIMIT8((q_l+q_r)>>7);
             m_voice_current_ptr[m_voice_ofs+ch]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_ofs+ch]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            if ((m_voice_current_ptr[m_voice_ofs+ch]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
         }
         //TODO:  MODIZER changes end / YOYOFR
     }

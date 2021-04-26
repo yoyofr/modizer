@@ -222,6 +222,8 @@ char *vgmGetVoiceDetailName(UINT8 chipdId,UINT8 channel) {
                 else if (channel<4+6+1) sprintf(vgm_voice_name,"ADPCM-B");
                 else sprintf(vgm_voice_name,"SSG %d",channel-4-6-1+1);
             }
+        case 0x28: //IREM GA20
+            sprintf(vgm_voice_name,"PCM %d",channel+1);
             break;
             
     }
@@ -2293,7 +2295,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         
         //copy voice data for oscillo view
         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-            for (int j=0;j<6;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+            for (int j=0;j<6;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
             }
         }
         
@@ -2613,10 +2615,10 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                 }
                             }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
                         }
                     }
                 }
@@ -2883,6 +2885,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     // render audio into sound buffer
     int16_t *sampleData;
     int64_t sampleGenerated;
+    
     int nbSamplesToRender=mVGMSTREAM_total_samples - mVGMSTREAM_decode_pos_samples;
     if (mVGMSTREAM_total_samples<0) {
         nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
@@ -2892,7 +2895,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         nbSamplesToRender = SOUND_BUFFER_SIZE_SAMPLE;
     }
     
-    if (nbSamplesToRender<=0) return 0;
+    if (nbSamplesToRender<=0) {
+        memset(vgm_sample_data,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        src_short_to_float_array (vgm_sample_data, vgm_sample_data_float,SOUND_BUFFER_SIZE_SAMPLE*2);
+        *data=vgm_sample_data_float;
+        return SOUND_BUFFER_SIZE_SAMPLE;
+    }
     
     sampleGenerated=nbSamplesToRender;
     
@@ -2900,7 +2908,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     if (mVGMSTREAM_total_samples<0) {
         real_available_samples=SOUND_BUFFER_SIZE_SAMPLE;
     }
-    
     
     short int *snd_ptr;
     sampleData=vgm_sample_data;
@@ -2953,7 +2960,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         default:
             break;
     }
-    
     
     src_short_to_float_array (vgm_sample_data, vgm_sample_data_float,sampleGenerated*2);
     *data=vgm_sample_data_float;
@@ -3376,16 +3382,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_VGMSTREAM) {
-                                //[self Stop];
-                                if (vgmStream != NULL) close_vgmstream(vgmStream);
-                                vgmStream = NULL;
-                                mdz_safe_free(vgm_sample_data);
-                                mdz_safe_free(vgm_sample_data_float);
-                                mdz_safe_free(vgm_sample_converted_data_float);
-                                if (src_state) src_delete(src_state);
-                                src_state=NULL;
-                                [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
-                                
+                                [self vgmStream_ChangeToSub:mod_currentsub];
+                                iCurrentTime=0;
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
@@ -3393,12 +3391,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     [self iPhoneDrv_PlayStop];
                                     [self iPhoneDrv_PlayStart];
                                 }
-                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
-                                if (mLoopMode) iModuleLength=-1;
+                                                                
                                 while (mod_message_updated) {
                                     //wait
                                     usleep(1);
                                 }
+                                if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=2;
                             }
                             if (mPlayType==MMP_OPENMPT) {
@@ -3560,16 +3558,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mod_message_updated=1;
                         }
                         if (mPlayType==MMP_VGMSTREAM) {
-                            //[self Stop];
-                            if (vgmStream != NULL) close_vgmstream(vgmStream);
-                            vgmStream = NULL;
-                            mdz_safe_free(vgm_sample_data);
-                            mdz_safe_free(vgm_sample_data_float);
-                            mdz_safe_free(vgm_sample_converted_data_float);
-                            if (src_state) src_delete(src_state);
-                            src_state=NULL;
-                            [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
-                            
+                            [self vgmStream_ChangeToSub:mod_currentsub];
+                            iCurrentTime=0;
                             if (moveToNextSubSong==2) {
                                 //[self iPhoneDrv_PlayWaitStop];
                                 //[self iPhoneDrv_PlayStart];
@@ -3577,12 +3567,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
                             }
-                            //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
-                            if (mLoopMode) iModuleLength=-1;
+                                                        
                             while (mod_message_updated) {
                                 //wait
                                 usleep(1);
                             }
+                            if (mLoopMode) iModuleLength=-1;
                             mod_message_updated=2;
                         }
                         if (mPlayType==MMP_OPENMPT) {
@@ -3745,16 +3735,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mod_message_updated=1;
                             }
                             if (mPlayType==MMP_VGMSTREAM) {
-                                //[self Stop];
-                                if (vgmStream != NULL) close_vgmstream(vgmStream);
-                                vgmStream = NULL;
-                                mdz_safe_free(vgm_sample_data);
-                                mdz_safe_free(vgm_sample_data_float);
-                                mdz_safe_free(vgm_sample_converted_data_float);
-                                if (src_state) src_delete(src_state);
-                                src_state=NULL;
-                                [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
-                                
+                                [self vgmStream_ChangeToSub:mod_currentsub];
+                                iCurrentTime=0;
                                 if (moveToNextSubSong==2) {
                                     //[self iPhoneDrv_PlayWaitStop];
                                     //[self iPhoneDrv_PlayStart];
@@ -3762,12 +3744,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     [self iPhoneDrv_PlayStop];
                                     [self iPhoneDrv_PlayStart];
                                 }
-                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
-                                if (mLoopMode) iModuleLength=-1;
+                                
+                                
                                 while (mod_message_updated) {
                                     //wait
                                     usleep(1);
                                 }
+                                if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=2;
                             }
                             if (mPlayType==MMP_OPENMPT) {
@@ -3930,11 +3913,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (m_voicesDataAvail) {
                                 //copy voice data for oscillo view
                                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                     }
                                 }
                             }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
                             
                             
                             
@@ -3944,7 +3927,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (m_voicesDataAvail) {
                             //reset to 0 buffer
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
                                 }
                             }
                         }
@@ -3966,7 +3949,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (m_voicesDataAvail) {
                                 //copy voice data for oscillo view
                                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                     }
                                 }
                             }
@@ -3983,7 +3966,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (m_voicesDataAvail) {
                             //reset to 0 buffer
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
                                 }
                             }
                         }
@@ -4002,7 +3985,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (m_voicesDataAvail) {
                             //copy voice data for oscillo view
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                 }
                             }
                         }
@@ -4059,42 +4042,54 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                             
                             //copy voice data for oscillo view
+                            /*for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                                }
+                            }*/
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
                             }
-                            //printf("vptr: %d\n",m_voice_current_ptr[0]>>8);
+                            //printf("vptr: %d\n",m_voice_current_ptr[0]>>10);
                         }
                     }
                     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
                         
-                        nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
-                        src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         
+                        nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, vgm_sample_converted_data_float)*2*2;
+                        
+                        src_float_to_short_array (vgm_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                                                
                         if (mVGMSTREAM_total_samples>=0) {
                             if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
-                            if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
-                            
-                            if ((!nbBytes) && (mod_subsongs>1) && (mod_currentsub<mod_maxsub) ) {
-                                if (vgmStream != NULL) close_vgmstream(vgmStream);
-                                vgmStream = NULL;
-                                mdz_safe_free(vgm_sample_data);
-                                mdz_safe_free(vgm_sample_data_float);
-                                mdz_safe_free(vgm_sample_converted_data_float);
-                                if (src_state) src_delete(src_state);
-                                src_state=NULL;
-                                mod_currentsub++;
-                                [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
-                                while (mod_message_updated) {
-                                    //wait
-                                    usleep(1);
+                            //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
+                        }
+                                                                        
+                        if (mChangeOfSong==0) {
+                            if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) {
+                                if ((mSingleSubMode==0)&&(mod_currentsub<mod_maxsub)) {
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    
+                                    while (mod_message_updated) {
+                                        //wait
+                                        usleep(1);
+                                    }
+                                    mod_currentsub++;
+                                    
+                                    int64_t saveML=iModuleLength;
+                                    [self vgmStream_ChangeToSub:mod_currentsub];
+                                    mNewModuleLength=iModuleLength;
+                                    iModuleLength=saveML;
+                                    
+                                    mChangeOfSong=1;
+                                    
+                                    mod_message_updated=2;
+                                } else {
+                                    NSLog(@"Stop");
                                 }
-                                mod_message_updated=2;
-                                
-                                nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             }
                         }
-                    }
+                                           }
                     if (mPlayType==MMP_HC) { //Highly Complete
                         
                         //reset voice data for oscillo view
@@ -4111,10 +4106,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                 }
                             }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
                         }
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
@@ -4130,10 +4125,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                 }
                             }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
                         }
                         
                         //if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
@@ -4146,10 +4141,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                                 }
                             }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>8);
+                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
                         }
                         
                         if (mCurrentSamples<mTgtSamples) {
@@ -4275,9 +4270,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                                 
                         //copy voice data for oscillo view
                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>8))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
                             }
                         }
+                        
+                        //printf("sid %d\n",m_voice_current_ptr[0]>>10);
                         
                         if (mChangeOfSong==0) {
                             if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (mLoopMode==0)&&(iModuleLength>0)&&(iCurrentTime>iModuleLength)) ) {
@@ -5511,7 +5508,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         //////////////////////////////////
         //update DB with songlength
         //////////////////////////////////
-        mod_total_length=0;
         for (int i=0;i<mod_subsongs; i++) {
             api68_music_info_t info_sub;
             api68_music_info( sc68, &info_sub, i+1, NULL );
@@ -5901,7 +5897,6 @@ char* loadRom(const char* path, size_t romSize)
             //////////////////////////////////
             //update DB with songlength
             //////////////////////////////////
-            mod_total_length=0;
             for (int i=0;i<sidtune_info->songs(); i++) {
                 int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
                 if (!sid_subsong_length) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
@@ -5993,7 +5988,6 @@ char* loadRom(const char* path, size_t romSize)
         //////////////////////////////////
         //update DB with songlength
         //////////////////////////////////
-        mod_total_length=0;
         for (int i=0;i<mod_subsongs; i++) {
             if (!hvl_InitSubsong( hvl_song,i )) {
                 NSLog(@"HVL issue in initsubsong %d",i);
@@ -6288,6 +6282,45 @@ char* loadRom(const char* path, size_t romSize)
     
     iModuleLength=xmp_mi->seq_data[0].duration;
     
+    //////////////////////////////////
+    //update DB with songlength
+    //////////////////////////////////
+    for (int i=0;i<mod_subsongs; i++) {
+        int subsong_length=xmp_mi->seq_data[i].duration;
+        mod_total_length+=subsong_length;
+        
+        short int playcount;
+        signed char rating;
+        int song_length;
+        char channels_nb;
+        int songs;
+        NSString *filePathMain;
+        NSString *fileName=[self getSubTitle:i];
+        
+        NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+        for (;;) {
+            if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                break;
+            }
+            [tmp_path removeObjectAtIndex:0];
+            if ([tmp_path count]==0) break;
+        }
+        filePathMain=[tmp_path componentsJoinedByString:@"/"];
+        
+        NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+        
+        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+        
+        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
+        
+        if (i==mod_subsongs-1) {// Global file stats update
+            fileName=[filePath lastPathComponent];
+            DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+            
+            DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
+        }
+    }
+    
     iCurrentTime=0;
     numChannels=xmp_mi->mod->chn;
     numVoicesChannels=numChannels;
@@ -6390,12 +6423,12 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         return -1;
     }
     
-    iModuleLength=(int)(openmpt_module_get_duration_seconds(openmpt_module_ext_get_module(ompt_mod))*1000);//  ModPlug_GetLength(mp_file);
+    iModuleLength=(int)(openmpt_module_get_duration_seconds(openmpt_module_ext_get_module(ompt_mod))*1000);
     iCurrentTime=0;
     mPatternDataAvail=1; //OMPT/MODPLUG style
     
-    numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumChannels(mp_file);
-    numPatterns=openmpt_module_get_num_patterns(openmpt_module_ext_get_module(ompt_mod));// ModPlug_NumPatterns(mp_file);
+    numChannels=openmpt_module_get_num_channels(openmpt_module_ext_get_module(ompt_mod));
+    numPatterns=openmpt_module_get_num_patterns(openmpt_module_ext_get_module(ompt_mod));
     
     //LIBOPENMPT_API const char * openmpt_module_get_metadata_keys( openmpt_module * mod );
     //LIBOPENMPT_API const char * openmpt_module_get_metadata( openmpt_module * mod, const char * key );
@@ -6419,6 +6452,47 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     mod_minsub=0;
     mod_maxsub=mod_subsongs-1;
     mod_currentsub=openmpt_module_get_selected_subsong(openmpt_module_ext_get_module(ompt_mod)); //mp_file->mod );
+    
+    //////////////////////////////////
+    //update DB with songlength
+    //////////////////////////////////
+    for (int i=0;i<mod_subsongs; i++) {
+        openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), i);
+        int subsong_length=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
+        mod_total_length+=subsong_length;
+        
+        short int playcount;
+        signed char rating;
+        int song_length;
+        char channels_nb;
+        int songs;
+        NSString *filePathMain;
+        NSString *fileName=[self getSubTitle:i];
+        
+        NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+        for (;;) {
+            if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                break;
+            }
+            [tmp_path removeObjectAtIndex:0];
+            if ([tmp_path count]==0) break;
+        }
+        filePathMain=[tmp_path componentsJoinedByString:@"/"];
+        
+        NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+        
+        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+        
+        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
+        
+        if (i==mod_subsongs-1) {// Global file stats update
+            fileName=[filePath lastPathComponent];
+            DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+            
+            DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
+        }
+    }
+    openmpt_module_select_subsong(openmpt_module_ext_get_module(ompt_mod), mod_currentsub);
     
     numSamples=openmpt_module_get_num_samples(openmpt_module_ext_get_module(ompt_mod)); //ModPlug_NumSamples(mp_file);
     numInstr=openmpt_module_get_num_instruments(openmpt_module_ext_get_module(ompt_mod)); //ModPlug_NumInstruments(mp_file);
@@ -6599,7 +6673,53 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     return 0;
 }
 
--(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension subsong:(int)subindex{  //VGMSTREAM
+-(void) vgmStream_ChangeToSub:(int) subsong {
+    if (vgmStream) close_vgmstream(vgmStream);
+    vgmFile->stream_index=subsong;
+    vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
+    
+    vgmstream_cfg_t vcfg = {0};
+    vcfg.allow_play_forever = (mLoopMode==1?1:0);
+    vcfg.play_forever =(mLoopMode==1?1:0);
+    
+    vcfg.loop_count = optVGMSTREAM_loop_count;
+    vcfg.fade_time = optVGMSTREAM_fadeouttime;
+    vcfg.fade_delay = 0.0f;
+    vcfg.ignore_fade = 0; //1;
+    vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
+    vcfg.ignore_loop = 0;//ignore_loop;
+    numChannels=2;
+    
+    vgmstream_apply_config(vgmStream, &vcfg);
+    vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
+    vgmstream_mixing_autodownmix(vgmStream, 2);
+    vgmstream_mixing_enable(vgmStream, SOUND_BUFFER_SIZE_SAMPLE, NULL /*&input_channels*/, &numChannels);
+    
+    src_ratio=PLAYBACK_FREQ/(double)(vgmStream->sample_rate);
+    
+    if (mLoopMode==1) {
+        mVGMSTREAM_total_samples = -1;
+        mVGMSTREAM_totalinternal_samples=-1;
+    } else {
+        mVGMSTREAM_total_samples = vgmstream_get_samples(vgmStream);
+        mVGMSTREAM_totalinternal_samples = mVGMSTREAM_total_samples;
+    }
+    //Loop
+    if (mLoopMode==1) iModuleLength=-1;
+    else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
+    
+    mVGMSTREAM_seek_needed_samples=-1;
+    mVGMSTREAM_decode_pos_samples=0;
+    
+    numChannels=vgmStream->channels;
+    if (vgmStream->stream_name[0]) sprintf(mod_name," %s",vgmStream->stream_name);
+    else sprintf(mod_name," %s",mod_filename);
+    
+    mod_message[0]=0;
+    describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
+}
+
+-(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension{  //VGMSTREAM
     mPlayType=MMP_VGMSTREAM;
     FILE *f;
     
@@ -6639,15 +6759,16 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         return -1;
     }
     
-    vgmFile->stream_index=subindex;
+    vgmFile->stream_index=0;
     
     vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
-    close_streamfile(vgmFile);
     
     if (!vgmStream) {
         NSLog(@"Error init_vgmstream_from_STREAMFILE %@",filePath);
         mPlayType=0;
         src_delete(src_state);
+        close_streamfile(vgmFile);
+        vgmFile=NULL;
         return -1;
     }
     /////////////////////////
@@ -6677,6 +6798,8 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         vgmStream = NULL;
         NSLog(@"Error vgmStream->channels: %d",vgmStream->channels);
         src_delete(src_state);
+        close_streamfile(vgmFile);
+        vgmFile=NULL;
         return -1;
     }
     
@@ -6714,6 +6837,51 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     }
     
+    //////////////////////////////////
+    //update DB with songlength
+    //////////////////////////////////
+    for (int i=0;i<mod_subsongs; i++) {
+        //change subsong
+        vgmFile->stream_index=i;
+        VGMSTREAM* vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFile);
+        
+        int subsong_length= vgmstream_get_samples(vgmStreamTmp);
+        mod_total_length+=(double)subsong_length*1000.0f/(double)(vgmStream->sample_rate);;
+        
+        close_vgmstream(vgmStreamTmp);
+        
+        short int playcount;
+        signed char rating;
+        int song_length;
+        char channels_nb;
+        int songs;
+        NSString *filePathMain;
+        NSString *fileName=[self getSubTitle:i];
+        
+        NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
+        for (;;) {
+            if ([(NSString *)[tmp_path firstObject] compare:@"Documents"]==NSOrderedSame) {
+                break;
+            }
+            [tmp_path removeObjectAtIndex:0];
+            if ([tmp_path count]==0) break;
+        }
+        filePathMain=[tmp_path componentsJoinedByString:@"/"];
+        
+        NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+        
+        DBHelper::getFileStatsDBmod(fileName,filePathSubsong,&playcount,&rating,&song_length,&channels_nb,&songs);
+        
+        DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,playcount,rating,subsong_length,numChannels,mod_subsongs);
+        
+        if (i==mod_subsongs-1) {// Global file stats update
+            fileName=[filePath lastPathComponent];
+            DBHelper::getFileStatsDBmod(fileName,filePathMain,&playcount,&rating,&song_length,&channels_nb,&songs);
+            
+            DBHelper::updateFileStatsDBmod(fileName,filePathMain,playcount,rating,mod_total_length,numChannels,mod_subsongs);
+        }
+    }
+    vgmFile->stream_index=mod_currentsub;
     return 0;
 }
     
@@ -7359,9 +7527,13 @@ int vgmGetFileLength()
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"K051649")==0) {
                 m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"K054539")==0) {
+                m_voicesDataAvail=1;
             } else if (strcmp(strChip,"HuC6280")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"C140")==0) {
+                m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"K053260")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"VSU")==0) {
                 m_voicesDataAvail=1;
@@ -7513,7 +7685,6 @@ int vgmGetFileLength()
     //////////////////////////////////
     //update DB with songlength
     //////////////////////////////////
-    mod_total_length=0;
     for (int i=0;i<mod_subsongs; i++) {
         int subsong_length=asap->moduleInfo.durations[i];
         mod_total_length+=subsong_length;
@@ -7728,7 +7899,6 @@ int vgmGetFileLength()
         //////////////////////////////////
         //update DB with songlength
         //////////////////////////////////
-        mod_total_length=0;
         for (int i=0;i<mod_subsongs; i++) {
             if (gme_track_info( gme_emu, &gme_info, i )==0) {
                 short int playcount;
@@ -8028,8 +8198,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                                                 
                         UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
                         
-                        mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
-                        mdz_safe_execute_sel(vc,@selector(showWaitingCancel),nil)
+                        mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
                         mdz_safe_execute_sel(vc,@selector(updateWaitingTitle:),NSLocalizedString(@"Extracting",@""))
                         mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),@"")
                         mdz_safe_execute_sel(vc,@selector(showWaiting),nil)
@@ -8043,7 +8212,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                             [self fex_extractToPath:[filePath UTF8String] path:[tmpArchivePath UTF8String] isRestarting:isRestarting];
                         }
                         
-                        mdz_safe_execute_sel(vc,@selector(hideWaitingCancel),nil)
                         mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
                         [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
                         
@@ -8483,7 +8651,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 if ([self mmp_timidityLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
                 break;
             case MMP_VGMSTREAM:
-                if ([self mmp_vgmstreamLoad:filePath extension:extension subsong:0]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_vgmstreamLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
                 break;
             case MMP_2SF:
                 if ([self mmp_2sfLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
@@ -8778,17 +8946,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         case MMP_VGMSTREAM: //VGMSTREAM
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
                 mod_currentsub=subsong;
+                [self vgmStream_ChangeToSub:mod_currentsub];
             }
-            if (mod_subsongs>1) {
-                if (vgmStream != NULL) close_vgmstream(vgmStream);
-                vgmStream = NULL;
-                mdz_safe_free(vgm_sample_data);
-                mdz_safe_free(vgm_sample_data_float);
-                mdz_safe_free(vgm_sample_converted_data_float);
-                if (src_state) src_delete(src_state);
-                src_state=NULL;
-                [self mmp_vgmstreamLoad:mod_currentfile extension:mod_currentext subsong:mod_currentsub];
-            }
+            
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -8984,6 +9144,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         mdz_safe_free(v2m_sample_data_float);
     }
     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
+        if (vgmFile) close_streamfile(vgmFile);
+        vgmFile=NULL;
         if (vgmStream != NULL) close_vgmstream(vgmStream);
         vgmStream = NULL;
         mdz_safe_free(vgm_sample_data);

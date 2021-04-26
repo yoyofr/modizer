@@ -570,18 +570,13 @@ static int display_length_mode=0;
             DBHelper::getFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],&playcount,&tmp_rating);
             if (rating==-1) rating=tmp_rating;
             DBHelper::updateFileStatsDBmod([mplayer getSubTitle:mplayer.mod_currentsub],[NSString stringWithFormat:@"%@?%d",filePath,mplayer.mod_currentsub],playcount,rating,[mplayer getSongLength],mplayer.numChannels,-1);
-            
-            //Update Global file stats
-            //DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
-            //DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getGlobalLength],mplayer.numChannels,mplayer.mod_subsongs);
-            
         }
         
         DBHelper::updateFileStatsAvgRatingDBmod(filePath);
     } else {
-        /////////////////////////////////////////////////////////////////////////////:
+        /////////////////////////////////////////////////////////////////////////////
         //No archive, no multisongs: simple file
-        /////////////////////////////////////////////////////////////////////////////:
+        /////////////////////////////////////////////////////////////////////////////
         
         //Update file stats
         DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
@@ -1128,17 +1123,15 @@ static float movePinchScale,movePinchScaleOld;
                     //Update archive entry stats
                     DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,&playcount,&tmp_rating);
                     DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
-                    
                 } else { //All entries
                     //Update Global file stats
                     DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&tmp_rating);
-                    DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,[mplayer getGlobalLength],mplayer.numChannels,-[mplayer getArcEntriesCnt]);
+                    DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,tmp_rating,-1/*[mplayer getGlobalLength]*/,mplayer.numChannels,-[mplayer getArcEntriesCnt]);
                     
                     //Update current entry stats
                     DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&tmp_rating);
                     DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],playcount,tmp_rating,[mplayer getSongLength],mplayer.numChannels,-1);
                 }
-                
             } else if ([mplayer isMultiSongs]) {
                 /////////////////////////////////////////////////////////////////////////////:
                 //No archive but Multisubsongs
@@ -2636,8 +2629,6 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([mplayer isVoicesMutingSupported]) btnShowVoices.hidden=false;
     else btnShowVoices.hidden=true;
     
-	
-	
 	alertCannotPlay_displayed=0;
 	//Visiulization stuff
 	startChan=0;
@@ -2747,7 +2738,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             //Update archive entry stats
             DBHelper::updateFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],filePath,playcount,mRating,[mplayer getSongLength],mplayer.numChannels,-1);
             
-        } else { //All entries
+        } else { //Archive - All entries
             //Update rating info for playlist view
             mRating=0;
             DBHelper::getFileStatsDBmod(fileName,filePath,&playcount,&mRating);
@@ -2756,7 +2747,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (!mRestart) playcount++;
             
             //Update Global file stats
-            DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,[mplayer getGlobalLength],mplayer.numChannels,-[mplayer getArcEntriesCnt]);
+            DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,mRating,-1/*[mplayer getGlobalLength]*/,mplayer.numChannels,-[mplayer getArcEntriesCnt]);
             
             //Update 1st entry stats
             DBHelper::getFileStatsDBmod([mplayer getArcEntryTitle:[mplayer getArcIndex]],[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]],&playcount,&mRating);

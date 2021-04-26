@@ -454,7 +454,7 @@ template<class ResamplerClass> bool8 S9xInitSound(int buffer_ms, int lag_ms)
 	if (Settings.SixteenBitSound)
 		spc::buffer_size <<= 1;
 
-	printf("Sound buffer size: %d (%d samples)\n", spc::buffer_size, sample_count);
+	//printf("Sound buffer size: %d (%d samples)\n", spc::buffer_size, sample_count);
 
 	if (spc::landing_buffer)
 		delete[] spc::landing_buffer;

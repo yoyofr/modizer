@@ -1226,9 +1226,9 @@ void soundMix() {
   
     //TODO:  MODIZER changes start / YOYOFR
     for (int jj=0;jj<6;jj++) {
-        m_voice_buff[jj][m_voice_current_ptr[jj]>>8]=LIMIT8((sndChanL[jj]+sndChanR[jj])>>9);
-        m_voice_current_ptr[jj]+=256;
-        if ((m_voice_current_ptr[jj]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+        m_voice_buff[jj][m_voice_current_ptr[jj]>>10]=LIMIT8((sndChanL[jj]+sndChanR[jj])>>9);
+        m_voice_current_ptr[jj]+=1024;
+        if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
     }
     //TODO:  MODIZER changes end / YOYOFR
 }

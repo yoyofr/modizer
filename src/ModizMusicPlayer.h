@@ -371,7 +371,7 @@ enum MMP_PLAYER_TYPE {
 -(int) mmp_uadeLoad:(NSString*)filePath;
 -(int) mmp_openmptLoad:(NSString*)filePath;
 -(int) mmp_timidityLoad:(NSString*)filePath;
--(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension subsong:(int)subindex;
+-(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension;
 -(int) MMP_HCLoad:(NSString*)filePath;
 -(void) MMP_HCClose;
 -(int) mmp_2sfLoad:(NSString*)filePath;
@@ -397,5 +397,6 @@ enum MMP_PLAYER_TYPE {
 -(NSString*) getVoicesName:(unsigned int)channel;
 -(bool) getm_voicesStatus:(unsigned int)channel;
 -(void) setm_voicesStatus:(bool)active index:(unsigned int)channel;
+-(void) vgmStream_ChangeToSub:(int) subsong;
 
 @end

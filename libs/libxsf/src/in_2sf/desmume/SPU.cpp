@@ -1228,10 +1228,10 @@ static void SPU_MixAudio_Advanced(bool, SPU_struct *SPU, int length)
 				chanout[i] = submix[i * 2] = submix[i * 2 + 1] = 0;
             
             //TODO:  MODIZER changes start / YOYOFR
-            if (outputToMix) m_voice_buff[i][m_voice_current_ptr[i]>>8]=LIMIT8((chanout[i]>>8));
-            else m_voice_buff[i][m_voice_current_ptr[i]>>8]=0;
-            m_voice_current_ptr[i]+=256;
-            if ((m_voice_current_ptr[i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            if (outputToMix) m_voice_buff[i][m_voice_current_ptr[i]>>10]=LIMIT8((chanout[i]>>8));
+            else m_voice_buff[i][m_voice_current_ptr[i]>>10]=0;
+            m_voice_current_ptr[i]+=1024;
+            if ((m_voice_current_ptr[i]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
             //TODO:  MODIZER changes end / YOYOFR
 		} // foreach channel
 

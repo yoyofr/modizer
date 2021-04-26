@@ -144,7 +144,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     int rows_nb=((num_voices-1)/FX_OSCILLO_MAXROWS)+1;
     int rows_width=ww/rows_nb;
     int xofs=(ww-rows_width*rows_nb)/2;
-    int smpl_ofs_incr=(SOUND_BUFFER_SIZE_SAMPLE)*256/rows_width;
+    int smpl_ofs_incr=(SOUND_BUFFER_SIZE_SAMPLE)*1024/rows_width;
     int cur_voices=0;
         
     int max_voices_by_row=(num_voices+rows_nb-1)/rows_nb;
@@ -156,31 +156,34 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
     if (rows_width>SOUND_BUFFER_SIZE_SAMPLE) bufflen=SOUND_BUFFER_SIZE_SAMPLE;
     else bufflen=rows_width;
     //compute sample increment fixed point 24.8
-    int smplincr=SOUND_BUFFER_SIZE_SAMPLE*256/bufflen;
+    int smplincr=SOUND_BUFFER_SIZE_SAMPLE*1024/bufflen;
     // min gap to match/allow
     int min_gap_threshold=0;//bufflen;
     for (int j=0;j<num_voices;j++) {
+        
+        
         // for each voices
         min_gap=bufflen*256;
         //reset start offset / previous frame
-        old_ofs=snd_data_ofs[j]<<8;
+        old_ofs=snd_data_ofs[j]<<10;
         //start at 1/4 before previous one to help tuning
-        ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<8;
+        ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<10;
         for (int l=0;l<bufflen-1;l++) {
             // start analyzing
             tmp_gap=0;
             for (int i=0,smplindex=0;i<bufflen;i++,smplindex+=smplincr) {
                 //compute diff between 2 samples with respective offset
-                tmp_gap=tmp_gap+absint(((int)(snd_data[(((ofs+smplindex)>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[(((old_ofs+smplindex)>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])));
+                tmp_gap=tmp_gap+absint(((int)(snd_data[(((ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[(((old_ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])));
                 if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
             }
             if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
                 min_gap=tmp_gap;
-                snd_data_ofs[j]=(ofs>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1);
+                snd_data_ofs[j]=(ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1);
                 if (min_gap<=min_gap_threshold) break;
             }
             ofs+=smplincr;
         }
+        //snd_data_ofs[j]=0;
     }
     memcpy(prev_snd_data,snd_data,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
     
@@ -196,7 +199,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         
         for (;cur_voices<max_voices;cur_voices++,ypos-=mulfactor) {
             
-            int smpl_ofs=snd_data_ofs[cur_voices]<<8;
+            int smpl_ofs=snd_data_ofs[cur_voices]<<10;
             
             if (color_mode==1) {
                 colR=0;
@@ -220,7 +223,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
                 
             } else */for (int i=0; i<rows_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
-                val[cur_voices]=snd_data[((smpl_ofs>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+cur_voices];
+                val[cur_voices]=snd_data[((smpl_ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+cur_voices];
                 osp[cur_voices]=sp[cur_voices];
                 sp[cur_voices]=(val[cur_voices])*mulfactor>>8; if(sp[cur_voices]>mulfactor) sp[cur_voices]=mulfactor; if (sp[cur_voices]<-mulfactor) sp[cur_voices]=-mulfactor;
                 
@@ -290,7 +293,7 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
     int rows_nb=((2-1)/FX_OSCILLO_MAXROWS)+1;
     int rows_width=ww/rows_nb;
     int xofs=(ww-rows_width*rows_nb)/2;
-    int smpl_ofs_incr=(SOUND_BUFFER_SIZE_SAMPLE)*256/rows_width;
+    int smpl_ofs_incr=(SOUND_BUFFER_SIZE_SAMPLE)*1024/rows_width;
     int cur_voices=0;
         
     int max_voices_by_row=(2+rows_nb-1)/rows_nb;
@@ -302,27 +305,27 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
     if (rows_width>SOUND_BUFFER_SIZE_SAMPLE) bufflen=SOUND_BUFFER_SIZE_SAMPLE;
     else bufflen=rows_width;
     //compute sample increment fixed point 24.8
-    int smplincr=SOUND_BUFFER_SIZE_SAMPLE*256/bufflen;
+    int smplincr=SOUND_BUFFER_SIZE_SAMPLE*1024/bufflen;
     // min gap to match/allow
     int min_gap_threshold=0;//bufflen;
     for (int j=0;j<2;j++) {
         // for each voices
         min_gap=bufflen*256;
         //reset start offset / previous frame
-        old_ofs=snd_data_ofs[j]<<8;
+        old_ofs=snd_data_ofs[j]<<10;
         //start at 1/4 before previous one to help tuning
-        ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<8;
+        ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<10;
         for (int l=0;l<bufflen-1;l++) {
             // start analyzing
             tmp_gap=0;
             for (int i=0,smplindex=0;i<bufflen;i++,smplindex+=smplincr) {
                 //compute diff between 2 samples with respective offset
-                tmp_gap=tmp_gap+absint(((int)(snd_data[(((ofs+smplindex)>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+j]>>8)-(int)(prev_snd_dataStereo[(((old_ofs+smplindex)>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+j])));
+                tmp_gap=tmp_gap+absint(((int)(snd_data[(((ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+j]>>8)-(int)(prev_snd_dataStereo[(((old_ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+j])));
                 if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
             }
             if (tmp_gap<min_gap) { //if more aligned, use ofs as new ref
                 min_gap=tmp_gap;
-                snd_data_ofs[j]=(ofs>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1);
+                snd_data_ofs[j]=(ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1);
                 if (min_gap<=min_gap_threshold) break;
             }
             ofs+=smplincr;
@@ -348,7 +351,7 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
         
         for (;cur_voices<max_voices;cur_voices++,ypos-=mulfactor) {
             
-            int smpl_ofs=snd_data_ofs[cur_voices]<<8;
+            int smpl_ofs=snd_data_ofs[cur_voices]<<10;
             
             if (color_mode==1) {
                 colR=0;
@@ -372,7 +375,7 @@ void RenderUtils::DrawOscilloStereo(short int *snd_data,uint ww,uint hh,uint col
                 
             } else */for (int i=0; i<rows_width-2; i++) {
                 oval[cur_voices]=val[cur_voices];
-                val[cur_voices]=snd_data[((smpl_ofs>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+cur_voices]>>8;
+                val[cur_voices]=snd_data[((smpl_ofs>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*2+cur_voices]>>8;
                 osp[cur_voices]=sp[cur_voices];
                 sp[cur_voices]=(val[cur_voices])*mulfactor>>8; if(sp[cur_voices]>mulfactor) sp[cur_voices]=mulfactor; if (sp[cur_voices]<-mulfactor) sp[cur_voices]=-mulfactor;
                 

@@ -1070,7 +1070,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
             break;
         }
     }
-    int smplIncr=44100*256/m_voice_current_samplerate;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
     
   out[0] = out[1] = 0;
@@ -1090,33 +1090,33 @@ INLINE static void mix_output_stereo(OPLL *opll) {
           for (;;) {
               
               if (opll->rhythm_mode==0) {
-                  if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+                  if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
               } else {
-                  if (i<6) m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+                  if (i<6) m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
                   else {
                       //add rhythm channels
                       if (i==6) {
                           int out6= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
                                     ((int16_t)(opll->ch_out[9] * (opll->pan_fine[9][0]+opll->pan_fine[9][1]))>>5);
-                          m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out6>>1);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out6>>1);
                       } else if (i==7) {
                           int out7= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
                                     ((int16_t)(opll->ch_out[10] * (opll->pan_fine[10][0]+opll->pan_fine[10][1]))>>5) +
                                     ((int16_t)(opll->ch_out[11] * (opll->pan_fine[11][0]+opll->pan_fine[11][1]))>>5);
-                          m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out7>>1);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out7>>1);
                       } else if (i==8) {
                           int out8= ((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5) +
                                     ((int16_t)(opll->ch_out[12] * (opll->pan_fine[12][0]+opll->pan_fine[12][1]))>>5) +
                                     ((int16_t)(opll->ch_out[13] * (opll->pan_fine[13][0]+opll->pan_fine[13][1]))>>5);
-                          m_voice_buff[m_voice_ofs+i][(ofs_start>>8)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out8>>1);
+                          m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out8>>1);
                       }
                   }
               }
               
-              ofs_start+=256;
+              ofs_start+=1024;
               if (ofs_start>=ofs_end) break;
           }
-          while ((ofs_end>>8)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<8);
+          while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
           m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
           
       }

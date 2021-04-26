@@ -582,9 +582,8 @@ PSG_Mix(
             break;
         }
     }
-    int smplIncr=44100*256/info->SAMPLE_RATE;
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     int smplOut;
-    if (smplIncr>256) smplIncr=256;
     //TODO:  MODIZER changes end / YOYOFR
 
 	for (j=0; j<nSample; j++)
@@ -683,9 +682,18 @@ PSG_Mix(
             smplOut+=(info->DdaFadeOutL[i]+info->DdaFadeOutR[i])/2;
             
             if (m_voice_ofs>=0) {
-                m_voice_buff[m_voice_ofs+i][m_voice_current_ptr[m_voice_ofs+i]>>8]=LIMIT8((((Sint32)((double)smplOut * info->VOL))>>5));
-                m_voice_current_ptr[m_voice_ofs+i]+=256;
-                if ((m_voice_current_ptr[m_voice_ofs+i]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+i]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+i];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr);
+                
+                if ((ofs_end>>10)>(ofs_start>>10))
+                for (;;) {
+                    
+                    m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((((Sint32)((double)smplOut * info->VOL))>>5));
+                    ofs_start+=1024;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
             }
             //TODO:  MODIZER changes end / YOYOFR
 		}

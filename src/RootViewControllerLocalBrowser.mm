@@ -2012,16 +2012,17 @@ static int shouldRestart=1;
         [self updateWaitingDetail:@"Resuming last\nplayed file"];
         [self showWaiting];
         [self flushMainLoop];
+        [self flushMainLoop];
         shouldRestart=0;
               
         
         [detailViewController play_restart];
         //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
-        
-        self.view.userInteractionEnabled = YES;
+                
         //self.view.alpha=1.0f;
         
         [self hideWaiting];
+        self.view.userInteractionEnabled = YES;
     }
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];

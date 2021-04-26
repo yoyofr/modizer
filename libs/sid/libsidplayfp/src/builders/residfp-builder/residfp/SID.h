@@ -331,8 +331,7 @@ int SID::clock(unsigned int cycles, short* buf)
     //TODO:  MODIZER changes start / YOYOFR
     //check current active sid
     int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
-    int smplIncr=256;//(44100*256/985248.6111f);
-    if (smplIncr>256) smplIncr=256;
+    int smplIncr=1024;//44100*1024/985248.6111f+1;
     //TODO:  MODIZER changes end / YOYOFR
     
 
@@ -361,27 +360,23 @@ int SID::clock(unsigned int cycles, short* buf)
                         //TODO:  MODIZER changes start / YOYOFR
                         int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
                         
-                        m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>8]=LIMIT8((v1>>14));
-                        m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>8]=LIMIT8((v2>>14));
-                        m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>8]=LIMIT8((v3>>14));
+                        m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>10]=LIMIT8((v1>>14));
+                        m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>10]=LIMIT8((v2>>14));
+                        m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>10]=LIMIT8((v3>>14));
                         
                         //TODO:  MODIZER changes end / YOYOFR
                         //TODO:  MODIZER changes start / YOYOFR
                         m_voice_current_ptr[sid_idx+0]+=smplIncr;m_voice_current_ptr[sid_idx+1]+=smplIncr;m_voice_current_ptr[sid_idx+2]+=smplIncr;
-                        if ((m_voice_current_ptr[sid_idx+0]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
-                        if ((m_voice_current_ptr[sid_idx+1]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
-                        if ((m_voice_current_ptr[sid_idx+2]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+                        if ((m_voice_current_ptr[sid_idx+0]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+0]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                        if ((m_voice_current_ptr[sid_idx+1]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+1]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+                        if ((m_voice_current_ptr[sid_idx+2]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[sid_idx+2]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
                         //TODO:  MODIZER changes end / YOYOFR
                     }
                 } else {
                     if (unlikely(resampler->input(0))) {
-                        s++;
+                        s++;                                                
                     }
                 }
-                
-                
-                
-                
                 
             }
             

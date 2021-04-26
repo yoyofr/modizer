@@ -2362,10 +2362,10 @@ static void render_and_add_channel(
       directout += 2;
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>8]=\
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=\
             LIMIT8( ( ((localbuf[i]*lin_l) >> att_l)+((localbuf[i]*lin_r) >> att_r) )>>11 );
             m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_currentChannel]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            if ((m_voice_current_ptr[m_voice_currentChannel]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
@@ -2380,10 +2380,10 @@ static void render_and_add_channel(
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>8]=\
+            m_voice_buff[m_voice_currentChannel][m_voice_current_ptr[m_voice_currentChannel]>>10]=\
             LIMIT8( ((localbuf[i]*lin) >> att) >>10 );
             m_voice_current_ptr[m_voice_currentChannel]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_currentChannel]>>8)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<8;
+            if ((m_voice_current_ptr[m_voice_currentChannel]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_currentChannel]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
@@ -3005,8 +3005,7 @@ static void render(struct YAM_STATE *state, uint32 odometer, uint32 samples) {
             break;
         }
     }
-    smplIncr=44100*256/44100;
-    if (smplIncr>256) smplIncr=256;
+    smplIncr=44100*1024/44100;    
     //TODO:  MODIZER changes end / YOYOFR
 
 //  st=odometer;

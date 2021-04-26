@@ -28,5 +28,4 @@ extern int m_voicesForceOfs;
 
 #define LIMIT8(a) (a>127?127:(a<-128?-128:a))
 
-
 #endif /* ModizerVoicesData_h */
