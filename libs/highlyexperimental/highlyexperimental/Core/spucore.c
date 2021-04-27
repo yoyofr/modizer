@@ -1711,9 +1711,8 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
     //search first voice linked to current chip
     int m_voice_ofs=m_voice_current_system*24;//-1;
     int m_total_channels=24;
-    
-    int smplFreq=44100;
-    int smplIncr=44100*1024/smplFreq;
+        
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
     //TODO:  MODIZER changes end / YOYOFR
     
 
@@ -1795,11 +1794,18 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
         
         //TODO:  MODIZER changes start / YOYOFR
         if (m_voice_ofs>=0) {
-            m_voice_buff[m_voice_ofs+ch][m_voice_current_ptr[m_voice_ofs+ch]>>10]=LIMIT8((q_l+q_r)>>7);
-            m_voice_current_ptr[m_voice_ofs+ch]+=smplIncr;
-            if ((m_voice_current_ptr[m_voice_ofs+ch]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[m_voice_ofs+ch]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
+            int ofs_start=m_voice_current_ptr[m_voice_ofs+ch];
+            int ofs_end=(m_voice_current_ptr[m_voice_ofs+ch]+smplIncr);
+            
+            for (;;) {
+                m_voice_buff[m_voice_ofs+ch][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((q_l+q_r)>>7);
+                ofs_start+=1024;
+                if (ofs_start>=ofs_end) break;
+            }
+            while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+            m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
         }
-        //TODO:  MODIZER changes end / YOYOFR
+        //TODO:  MODIZER changes end / YOYOFR        
     }
   }
 

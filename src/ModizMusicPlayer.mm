@@ -7120,6 +7120,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     src_data.data_in=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     if (HC_type==1) { //PSF1
         hc_sample_rate=44100;
+        m_voice_current_samplerate=hc_sample_rate;
         HC_emulatorCore = ( uint8_t * ) calloc( 1,psx_get_state_size( 1 ) );
         psx_clear_state( HC_emulatorCore, 1 );
         struct psf1_load_state state;
@@ -7148,6 +7149,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         iop_set_compat( pIOP, IOP_COMPAT_HARSH );
     } else if (HC_type==2) { //PSF2
         hc_sample_rate=48000;
+        m_voice_current_samplerate=hc_sample_rate;
         HC_emulatorExtra = psf2fs_create();
         struct psf1_load_state state;
         state.refresh = 0;
@@ -7178,6 +7180,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         iop_set_compat( pIOP, IOP_COMPAT_HARSH );
     } else if ( HC_type == 0x11 || HC_type == 0x12 ) { //DSL/SSF
         hc_sample_rate=44100;
+        m_voice_current_samplerate=hc_sample_rate;
         struct sdsf_loader_state state;
         memset( &state, 0, sizeof(state) );
         if ( psf_load( [filePath UTF8String], &psf_file_system, HC_type, sdsf_loader, &state, 0, 0, 0 ) <= 0 ) {
@@ -7249,6 +7252,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         numChannels=2;
     } else if ( HC_type == 0x23 ) { //SNSF
         hc_sample_rate=32000;
+        m_voice_current_samplerate=hc_sample_rate;
         snsf_rom=new snsf_loader_state;
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x23, snsf_loader, snsf_rom, 0, 0, 0 ) < 0 ) {
             NSLog(@"Error loading SNSF");
@@ -7269,6 +7273,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         }
     } else if ( HC_type == 0x41 ) { //QSF
         hc_sample_rate=24038;
+        m_voice_current_samplerate=hc_sample_rate;
         struct qsf_loader_state * state = ( struct qsf_loader_state * ) calloc( 1, sizeof( *state ) );
         
         HC_emulatorExtra = state;
