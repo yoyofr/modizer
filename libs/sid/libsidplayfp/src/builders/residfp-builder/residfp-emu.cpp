@@ -62,7 +62,7 @@ ReSIDfp::ReSIDfp(sidbuilder *builder) :
     sidemu(builder),
     m_sid(*(new reSIDfp::SID))
 {
-    m_buffer = new short[OUTPUTBUFFERSIZE];
+    m_buffer = new short[OUTPUTBUFFERSIZE];    
     reset(0);
 }
 

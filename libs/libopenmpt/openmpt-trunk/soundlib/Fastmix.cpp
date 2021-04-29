@@ -289,7 +289,7 @@ void CSoundFile::CreateStereoMix(int count)
 
 	if(!count)
 		return;
-
+    
 	// Resetting sound buffer
 	StereoFill(MixSoundBuffer, count, m_dryROfsVol, m_dryLOfsVol);
 	if(m_MixerSettings.gnChannels > 2)

@@ -8,12 +8,6 @@
 #error "Hi I forgot to set EMU_COMPILE"
 #endif
 
-//TODO:  MODIZER changes start / YOYOFR
-#include "../../../src/ModizerVoicesData.h"
-static int m_voice_ofs;
-static int smplIncr;
-static int m_voice_currentChannel;
-//TODO:  MODIZER changes end / YOYOFR
 
 
 #include "yam.h"
@@ -29,6 +23,14 @@ static int m_voice_currentChannel;
 
 #include <stdlib.h>
 #include <math.h>
+
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../src/ModizerVoicesData.h"
+static int m_voice_ofs;
+static int smplIncr;
+static int m_voice_currentChannel;
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #ifndef _WIN32
 #define __cdecl

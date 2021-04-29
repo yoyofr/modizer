@@ -37,7 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) removeVoicesButtons;
 - (void) resetVoicesButtons;
 - (void) recomputeFrames;
-- (void) checkPlayer;
 
 -(IBAction) closeView;
 

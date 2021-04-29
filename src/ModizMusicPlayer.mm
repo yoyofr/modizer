@@ -75,6 +75,7 @@ char m_voicesDataAvail;
 char m_voicesStatus[SOUND_MAXMOD_CHANNELS];
 int m_voicesForceOfs;
 int m_voice_current_samplerate;
+int m_voice_current_sample;
 
 
 
@@ -2295,7 +2296,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         
         //copy voice data for oscillo view
         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-            for (int j=0;j<6;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+            for (int j=0;j<6;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
             }
         }
         
@@ -2615,7 +2616,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
                             }
                             //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
@@ -3083,6 +3084,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mSidTune->selectSong(mod_currentsub+1);
                                 mSidEmuEngine->load(mSidTune);
                                 mCurrentSamples=0;
+                                m_voice_current_sample=0;
                             }
                             mSIDSeekInProgress=1;
                             mSidEmuEngine->fastForward( 100 * 32 );
@@ -3473,6 +3475,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
+                                m_voice_current_sample=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -3649,6 +3652,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                             iCurrentTime=0;
                             mCurrentSamples=0;
+                            m_voice_current_sample=0;
                             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                             if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -3818,6 +3822,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [self iPhoneDrv_PlayStart];
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
+                                m_voice_current_sample=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                 if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -3913,7 +3918,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (m_voicesDataAvail) {
                                 //copy voice data for oscillo view
                                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                     }
                                 }
                             }
@@ -3926,10 +3931,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     if (mPlayType==MMP_XMP) {  //XMP
                         if (m_voicesDataAvail) {
                             //reset to 0 buffer
-                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
-                                }
-                            }
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)  memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                
                         }
                         
                         if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
@@ -3949,7 +3952,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (m_voicesDataAvail) {
                                 //copy voice data for oscillo view
                                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                    for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                     }
                                 }
                             }
@@ -3965,10 +3968,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                         if (m_voicesDataAvail) {
                             //reset to 0 buffer
-                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)]=0;
-                                }
-                            }
+                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)  memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                         }
                         
                         genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
@@ -3985,7 +3985,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (m_voicesDataAvail) {
                             //copy voice data for oscillo view
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
                             }
                         }
@@ -4032,20 +4032,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         } else {
                             
                             if (numVoicesChannels) {
-                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
                                     for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                         memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                                     }
-                                }
                             }
                             
                             nbBytes=VGMFillBuffer((WAVE_16BS*)(buffer_ana[buffer_ana_gen_ofs]), SOUND_BUFFER_SIZE_SAMPLE)*2*2;
                             
                             //copy voice data for oscillo view
-                            /*for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-                                }
-                            }*/
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
                                 for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][i&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
@@ -4092,24 +4086,24 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                            }
                     if (mPlayType==MMP_HC) { //Highly Complete
                         
-                        //reset voice data for oscillo view
-                        if (numVoicesChannels) {
-                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                    memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
-                                }
+                        //reset voice data for oscillo view if not SNSF
+                        if (numVoicesChannels&&(HC_type!=0x23)) {
+                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                             }
                         }
+                        
                         nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
+                        
+                        
                         src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
                         
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
-                            }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
+                            }                            
                         }
                         if ((iModuleLength!=-1)&&(iCurrentTime>iModuleLength)) nbBytes=0;
                     }
@@ -4125,7 +4119,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
                             }
                             //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
@@ -4141,7 +4135,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         //copy voice data for oscillo view
                         if (numVoicesChannels) {
                             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                                 }
                             }
                             //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
@@ -4267,10 +4261,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     if (mPlayType==MMP_SIDPLAY) { //SID
                         nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                         mCurrentSamples+=nbBytes/4;
-                                                
+                        m_voice_current_sample+=nbBytes/4;
                         //copy voice data for oscillo view
                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))%(SOUND_BUFFER_SIZE_SAMPLE)];
+                            for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
                             }
                         }
                         
@@ -4287,6 +4281,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     mChangeOfSong=1;
                                     mCurrentSamples=0;
+                                    m_voice_current_sample=0;
                                     mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                                     if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
                                     mTgtSamples=mNewModuleLength*PLAYBACK_FREQ/1000;
@@ -4300,6 +4295,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mSidTune->selectSong(mod_currentsub+1);
                                     mSidEmuEngine->load(mSidTune);
                                     mCurrentSamples=0;
+                                    m_voice_current_sample=0;
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 }
                             }
@@ -8101,6 +8097,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSMutableArray *available_player=[NSMutableArray arrayWithCapacity:1];
     
     int found=0;
+    volatile static bool no_reentrant=false;
+    
+    if (no_reentrant) {
+        return 2;
+    }
+    no_reentrant=true;
     
     detailViewControllerIphone=detailVC;
     
@@ -8174,6 +8176,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     f = fopen([filePath UTF8String], "rb");
                     if (f == NULL) {
                         NSLog(@"Cannot open file %@",filePath);
+                        no_reentrant=false;
                         return -1;
                     }
                     fseek(f,0L,SEEK_END);
@@ -8243,7 +8246,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     
                     //NSLog(@"%@",_filePath);
                     
-                } else return -1;
+                } else {
+                    no_reentrant=false;
+                    return -1;
+                }
             } else { //LHA
                 int argc;
                 char *argv[7];
@@ -8255,6 +8261,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 f = fopen([filePath UTF8String], "rb");
                 if (f == NULL) {
                     NSLog(@"Cannot open file %@",filePath);
+                    no_reentrant=false;
                     return -1;
                 }
                 fseek(f,0L,SEEK_END);
@@ -8314,6 +8321,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     filePath=[self getFullFilePath:_filePath];
                     sprintf(mod_filename,"%s/%s",archive_filename,[[filePath lastPathComponent] UTF8String]);
                 } else {
+                    no_reentrant=false;
                     return -1;
                 }
                 
@@ -8645,6 +8653,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
     m_voice_current_system=0;
     mSIDSeekInProgress=0;
+    m_voice_current_sample=0;
     sprintf(mmp_fileext,"%s",[extension UTF8String] );
     mod_title=nil;
     
@@ -8653,67 +8662,68 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         //NSLog(@"pl_idx: %d",i);
         switch (pl_idx) {
             case MMP_TIMIDITY:
-                if ([self mmp_timidityLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_timidityLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_VGMSTREAM:
-                if ([self mmp_vgmstreamLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_vgmstreamLoad:filePath extension:extension]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_2SF:
-                if ([self mmp_2sfLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_2sfLoad:filePath extension:extension]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_V2M:
-                if ([self mmp_v2mLoad:filePath extension:extension]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_v2mLoad:filePath extension:extension]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_VGMPLAY:
-                if ([self mmp_vgmplayLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_vgmplayLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_PMDMINI:
-                if ([self mmp_pmdminiLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_pmdminiLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_ASAP:
-                if ([self mmp_asapLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_asapLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_GSF:
-                if ([self mmp_gsfLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_gsfLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_MDXPDX:
-                if ([self mmp_mdxpdxLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_mdxpdxLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_SC68:
-                if ([self mmp_sc68Load:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_sc68Load:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_STSOUND:
-                if ([self mmp_stsoundLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_stsoundLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_SIDPLAY:
-                if ([self mmp_sidplayLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_sidplayLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_HVL:
-                if ([self mmp_hvlLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_hvlLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_XMP:
-                if ([self mmp_xmpLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_xmpLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_UADE:
-                if ([self mmp_uadeLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_uadeLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_HC:
-                if ([self MMP_HCLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self MMP_HCLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_ADPLUG:
-                if ([self mmp_adplugLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_adplugLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_OPENMPT:
-                if ([self mmp_openmptLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_openmptLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_GME:
-                if ([self mmp_gmeLoad:filePath]==0) return 0; //SUCCESSFULLY LOADED
+                if ([self mmp_gmeLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             default:
                 NSLog(@"Unsupported player: %d",pl_idx); //Should never happen
                 break;
         }
     }
+    no_reentrant=false;
     return 1;  //Could not find a lib to load module
 }
 //*****************************************

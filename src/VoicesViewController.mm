@@ -45,8 +45,6 @@
     voicesAllOn=NULL;
     voicesAllOff=NULL;
     
-    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(checkPlayer) userInfo:nil repeats:YES];
-    
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
 }
@@ -69,6 +67,8 @@
     
     [self resetVoicesButtons];
     [self recomputeFrames];
+    
+    
     
     [super viewWillAppear:animated];
 }
@@ -225,16 +225,6 @@
     }
 }
 
--(void) checkPlayer {
-    if ([detailViewController.mplayer isPlaying]&&([currentPlayingFile compare:[detailViewController.mplayer mod_currentfile]]==NSOrderedSame)) {
-    } else {
-        [self resetVoicesButtons];
-        [self recomputeFrames];
-    }
-}
-
-
-
 - (void) recomputeFrames {
     static bool no_reentrant=false;
     if (no_reentrant) return;
@@ -295,7 +285,6 @@
     }
     no_reentrant=false;
 }
-
 
 - (void) removeVoicesButtons {
     for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {

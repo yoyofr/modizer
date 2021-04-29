@@ -178,9 +178,15 @@ static int display_length_mode=0;
 @synthesize infoZoom,infoUnzoom;
 @synthesize mInWasView;
 
--(void) refreshCurrentVCforMiniplayer {
+-(void) refreshCurrentVC {
     UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     if ([vc respondsToSelector:@selector(refreshMiniplayer)]) [vc performSelector:@selector(refreshMiniplayer)];
+    
+    //also check if voices control UI is to be updated
+    if (voicesVC) {
+        [voicesVC resetVoicesButtons];
+        [voicesVC recomputeFrames];
+    }
 }
 
 -(void)didSelectRowInAlertSubController:(NSInteger)row {
@@ -199,6 +205,7 @@ static int display_length_mode=0;
         [voicesVC viewWillDisappear:YES];
         [voicesVC.view removeFromSuperview];
         [voicesVC removeFromParentViewController];
+        voicesVC=nil;
     } else {
         voicesVC = [[VoicesViewController alloc]  initWithNibName:@"VoicesViewController" bundle:[NSBundle mainBundle]];
         //set new title
@@ -1576,6 +1583,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 
 - (IBAction)playPrevSub {
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
             [mplayer selectArcEntry:[mplayer getArcIndex]];
@@ -1584,13 +1594,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
-            [self refreshCurrentVCforMiniplayer];
+            [self refreshCurrentVC];
         } else {
             //restart
             if (mplayer.mod_subsongs>1) [mplayer playGoToSub:mplayer.mod_currentsub];
             else [self play_curEntry];
             if (mPaused) [self playPushed:nil];
-            [self refreshCurrentVCforMiniplayer];
+            [self refreshCurrentVC];
         }
         return;
     }
@@ -1605,16 +1615,20 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self hideWaiting];
         } else [self playPrev];
         if (mPaused) [self playPushed:nil];
-        [self refreshCurrentVCforMiniplayer];
+        [self refreshCurrentVC];
     } else {
         if ((mplayer.mod_subsongs>1)&&(mplayer.mod_currentsub>mplayer.mod_minsub)) [mplayer playPrevSub];
         else [self playPrev];
         if (mPaused) [self playPushed:nil];
-        [self refreshCurrentVCforMiniplayer];
+        [self refreshCurrentVC];
     }
+    no_reentrant=false;
 }
 
 - (IBAction)playNextSub {
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
     //if archive and no subsongs => change archive index
     if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub>=mplayer.mod_maxsub))) {
         if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) [self playNext];
@@ -1625,17 +1639,21 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
-            [self refreshCurrentVCforMiniplayer];
+            [self refreshCurrentVC];
         }
     } else {
         if (mplayer.mod_currentsub>=mplayer.mod_maxsub) [self playNext];
         else [mplayer playNextSub];
         if (mPaused) [self playPushed:nil];
-        [self refreshCurrentVCforMiniplayer];
+        [self refreshCurrentVC];
     }
+    no_reentrant=false;
 }
 
 -(void) longPressNextSubArc:(UIGestureRecognizer *)gestureRecognizer {
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             [mplayer selectNextArcEntry];
@@ -1644,9 +1662,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
-            [self refreshCurrentVCforMiniplayer];
+            [self refreshCurrentVC];
         }
     }
+    no_reentrant=false;
 }
 
 -(void) longPressPrevSubArc:(UIGestureRecognizer *)gestureRecognizer {
@@ -1658,7 +1677,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             [self flushMainLoop];
             [self play_loadArchiveModule];
             [self hideWaiting];
-            [self refreshCurrentVCforMiniplayer];
+            [self refreshCurrentVC];
         }
     }
 }
@@ -1682,13 +1701,21 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 - (IBAction)playNext {
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
 	[self play_nextEntry];
+    no_reentrant=false;
 }
 
 - (IBAction)playPrev {
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
 	if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
 		[self play_curEntry];
 	} else [self play_prevEntry];
+    no_reentrant=false;
 }
 -(BOOL)play_curEntry {
 	NSString *fileName;
@@ -1734,13 +1761,13 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         
         
         [self hideWaiting];
-        [self refreshCurrentVCforMiniplayer];
+        [self refreshCurrentVC];
 		
 		return FALSE;
 	}
     
     [self hideWaiting];
-    [self refreshCurrentVCforMiniplayer];
+    [self refreshCurrentVC];
     
 	return TRUE;
 }
@@ -1861,7 +1888,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	[self play_curEntry];
     
-    [self refreshCurrentVCforMiniplayer];
+    [self refreshCurrentVC];
 }
 
 -(void)play_listmodules:(t_playlist*)pl start_index:(int)index {
@@ -1916,7 +1943,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	[self play_curEntry];
     
-    [self refreshCurrentVCforMiniplayer];
+    [self refreshCurrentVC];
 }
 
 -(void)play_restart {
@@ -2024,7 +2051,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
      if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];
      [myindex autorelease];*/
     
-    [self refreshCurrentVCforMiniplayer];
+    [self refreshCurrentVC];
     
 	return playLaunched;
 }
@@ -2105,7 +2132,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		playLaunched=1;
 	}
     
-    [self refreshCurrentVCforMiniplayer];
+    [self refreshCurrentVC];
 	
 	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
     /*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/

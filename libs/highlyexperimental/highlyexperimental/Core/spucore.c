@@ -1805,7 +1805,7 @@ static void EMU_CALL render(struct SPUCORE_STATE *state, uint16 *ram, sint16 *bu
             while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
             m_voice_current_ptr[m_voice_ofs+ch]=ofs_end;
         }
-        //TODO:  MODIZER changes end / YOYOFR        
+        //TODO:  MODIZER changes end / YOYOFR
     }
   }
 

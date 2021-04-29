@@ -332,6 +332,7 @@ int SID::clock(unsigned int cycles, short* buf)
     //check current active sid
     int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
     int smplIncr=1024;//44100*1024/985248.6111f+1;
+    
     //TODO:  MODIZER changes end / YOYOFR
     
 
@@ -355,6 +356,8 @@ int SID::clock(unsigned int cycles, short* buf)
                 if (!mSIDSeekInProgress) {
                     if (unlikely(resampler->input(output())))
                     {
+                        //if (m_voice_current_sample<44100/10) buf[s++]=0;
+                        //else
                         buf[s++] = resampler->getOutput();
                         
                         //TODO:  MODIZER changes start / YOYOFR
@@ -374,7 +377,8 @@ int SID::clock(unsigned int cycles, short* buf)
                     }
                 } else {
                     if (unlikely(resampler->input(0))) {
-                        s++;                                                
+                        //s++;
+                        buf[s++]=0;
                     }
                 }
                 
