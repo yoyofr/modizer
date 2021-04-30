@@ -1,0 +1,219 @@
+==============================================================================
+                     PMD for Windows 「PMDWin」 Ver.0.39
+                        Copyright & Programmed by C60
+                           COM 風 Interface 仕様書
+==============================================================================
+
+
+------------------------------------------------------------------------------
+▼はじめに
+
+    本仕様書は、PMDWin.dll の COM 風インターフェイスを使用して
+    PMDWin のインスタンスを取得、使用する方法について記したものです。
+    PMDWin Ver0.17 以降で使用できます。
+    
+    
+------------------------------------------------------------------------------
+▼注意点
+
+    １）インスタンスを１つ確保するごとに、約 700kBytes のメモリを消費します。
+        （PPZ8 を用いるとさらに P?I ファイル分のメモリを消費します)
+    ２）getlength() または  getlength2() メソッドを実行すると内部ワークを
+        書き換えるため、演奏用のインスタンスとは別のインスタンスを利用する
+        ことをお勧めします。
+    ３）同じインスタンスを別のスレッドからアクセスする場合はスレッドセーフ
+        ではありません。
+    ４）異なるインスタンスを別のスレッドからアクセスする場合、ハードウェア
+        LFO を使うとスレッドセーフではなくなります。
+    ５）Delphi3 以降では、取得したインスタンスを明示的に開放しないと
+        終了時にアクセス違反が発生します。理由は DLL 解放後（インスタンスの
+        メモリも開放されている）にインスタンスを開放するために Delphi が
+        _Release メソッドを呼び出しているためですが、現在のところ回避する
+        方法が見付かっていません。お手数ですが明示的に「インターフェイス =
+        nil」でインスタンスを開放してください(_Release メソッドは使わないで
+        下さい)
+        
+    
+
+------------------------------------------------------------------------------
+▼使用手順(例)
+    getdllversion(), getinterfaceversion() でバージョンチェック
+    （getinterfaceversion() が117 以上 200 未満で使用可）
+    　↓
+    pmd_CoCreateInstance() でインスタンス生成。
+    　↓
+    メソッド init() で初期化
+    　↓
+    DLL から export されている関数とほぼ同名、同機能のメソッドを使って
+    インスタンスを利用する。
+    　↓
+    メソッド Release() でインスタンス破棄(C++, Delphi2.0 の場合)
+    「インスタンス = nil」でインスタンス破棄(Delphi3 以降の場合)
+    
+
+
+------------------------------------------------------------------------------
+▼インスタンス生成
+
+
+===============================================================================
+    HRESULT WINAPI pmd_CoCreateInstance(REFCLSID rclsid, LPUNKNOWN pUnkOuter,
+        DWORD dwClsContext, REFIID riid, LPVOID * ppv);
+    function pmd_CoCreateInstance(const rclsid: TCLSID; pUnkOuter: IUnknown;
+        dwClsContext: Longint; const riid: TIID; var ppv): HResult; stdcall;
+-------------------------------------------------------------------------------
+    input
+        rclsid          COM クラスの GUID
+        pUnkOuter       NULL を指定
+        dwClsContext    CLSCTX_ALL を指定
+        riid            インターフェイスの GUID
+        ppv             インターフェイスを格納する変数
+    output
+        初期化に成功したら S_OK, 成功しなかったら REGDB_E_CLASSNOTREG
+-------------------------------------------------------------------------------
+    PMDWin の インスタンスを生成し、インターフェイスポインタを取得します。
+    
+    rclsid, riid は以下の値のいずれかを設定してください。
+    
+    rclsid  : 97C7C3F0-35D8-4304-8C1B-AA926E7AEC5C
+    riid    : C07008F4-CAE0-421C-B08F-D8B319AFA4B4(IPMDWIN)または
+              81977D60-9496-4F20-A3BB-19B19943DA6D(IFMPMD )または
+              9D4D6317-F40A-455E-9E2C-CB517556BA02(IPCMMUSICDRIVER)
+
+        IPCMMUSICDRIVER(IUnknowm を継承)
+            PCM出力形式の音源ドライバの基本的なインターフェイスを
+            定義したクラス
+        
+        IFMPMD(IPCMMUSICDRIVER を継承)
+            WinFMP, PMDWin に共通のインターフェイスを定義したクラス
+        
+        IPMDWIN(IFMPMD を継承)
+            PMDWin 独自のインターフェイスを定義したクラス
+        
+
+    以下、C++ と Delphi の例を示します。
+
+
+    -------------------------------------------------------------------------
+    ・C++
+    -------------------------------------------------------------------------
+        #include "pmdwinimport.h"
+        
+        
+        IPMDWIN *pmdwin;
+        IPMDWIN *pmdwin2;
+        
+        if(getinterfaceversion() < 117 || getinterfaceversion() >= 200) {
+                // エラー処理(PMDWin.dll が COM に対応していない)
+        }
+
+        if(FAILED(pmd_CoCreateInstance(CLSID_PMDWIN, NULL, CLSCTX_ALL,
+            IID_IPMDWIN,  (void**)&pmdwin))) {
+                // エラー処理
+        }
+        
+        if(FAILED(pmd_CoCreateInstance(CLSID_PMDWIN, NULL, CLSCTX_ALL,
+            IID_IPMDWIN, (void**)&pmdwin2))) {
+                // エラー処理
+        }
+        
+        pmdwin->init(〜);
+        pmdwin2->init(〜);
+        
+        // インスタンス利用
+        ・・・
+        
+        // インスタンス開放
+        pmdwin->Release();
+        pmdwin2->Release();
+        
+        
+    -------------------------------------------------------------------------
+    ・Delphi2.0J
+    -------------------------------------------------------------------------
+        uses PMDWin;
+        
+        var
+            pPMDWin  : IPMDWIN;
+            pPMDWin2 : IPMDWIN;
+
+
+        if(getinterfaceversion < 117) or (getinterfaceversion >= 200)
+            then begin
+                // エラー処理(PMDWin.dll が COM に対応していない)
+        end;
+
+        if(pmd_CoCreateInstance(CLSID_PMDWIN, Nil, CLSCTX_ALL, IID_IPMDWIN,
+            pPMDWin) <> S_OK) then begin
+                // エラー処理
+        end;
+
+        if(pmd_CoCreateInstance(CLSID_PMDWIN, Nil, CLSCTX_ALL, IID_IPMDWIN,
+            pPMDWin2) <> S_OK) then begin
+                // エラー処理
+        end;
+        
+        pPMDWin.init(〜);
+        pPMDWin2.init(〜);
+        
+        // インスタンス利用
+        ・・・
+        
+        // インスタンス開放
+        pPMDWin.Release;
+        pPMDWin2.Release;
+        
+        
+    -------------------------------------------------------------------------
+    ・Delphi3 以降
+    -------------------------------------------------------------------------
+        uses PMDWin;
+        
+        var
+            pPMDWin  : IPMDWIN;
+            pPMDWin2 : IPMDWIN;
+        
+        
+        if(getinterfaceversion < 117) or (getinterfaceversion >= 200)
+            then begin
+                // エラー処理(PMDWin.dll が COM に対応していない)
+        end;
+
+        if(pmd_CoCreateInstance(CLSID_PMDWIN, Nil, CLSCTX_ALL, IID_IPMDWIN, 
+            pPMDWin) <> S_OK) then begin
+                // エラー処理
+        end;
+
+        if(pmd_CoCreateInstance(CLSID_PMDWIN, Nil, CLSCTX_ALL, IID_IPMDWIN,
+            pPMDWin2) <> S_OK) then begin
+                // エラー処理
+        end;
+        
+        pPMDWin.init(〜);
+        pPMDWin2.init(〜);
+        
+        // メソッド利用
+        
+        pPMDWin := nil;
+        pPMDWin2 := nil;
+
+
+
+------------------------------------------------------------------------------
+▼メソッドの説明
+
+    DLLInfop.txt を参照してください。
+    （一部名前の異なるものもありますが）
+    戻り値はすべて DLL API と同一です。
+
+
+
+------------------------------------------------------------------------------
+▼連絡先
+
+    E-mail                  HQD00151@nifty.com
+    Homepage                http://c60.la.coocan.jp/
+
+
+
+                                                                Ｃ６０

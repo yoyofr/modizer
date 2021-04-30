@@ -1562,6 +1562,7 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 
 @implementation ModizMusicPlayer
+@synthesize artist,album;
 @synthesize detailViewControllerIphone;
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @synthesize mod_currentfile,mod_currentext;
@@ -5881,6 +5882,9 @@ char* loadRom(const char* path, size_t romSize)
             for (int i=0;i<sidtune_info->numberOfInfoStrings();i++)
                 sprintf(mod_message,"%s%s\n",mod_message,sidtune_info->infoString(i));
             
+            for (int i=0;i<sidtune_info->numberOfCommentStrings();i++)
+                sprintf(mod_message,"%s%s\n",mod_message,sidtune_info->commentString(i));
+            
             sprintf(mod_message,"%s\n[STIL Information]\n%s\n",mod_message,stil_info);
             //Loop
             if (mLoopMode==1) iModuleLength=-1;
@@ -7556,6 +7560,8 @@ int vgmGetFileLength()
                 [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
     artist=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)];
+    album=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)];
+    if ([album length]==0) album=[filePath lastPathComponent];
     
     mod_title=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)];
     if (mod_title && ([mod_title length]==0)) mod_title=nil;
@@ -7589,7 +7595,7 @@ int vgmGetFileLength()
     tmp_mod_message[0] = 0;
     
     mPlayType=MMP_PMDMINI;
-    pmd_init();
+    pmd_init((char*)[[filePath stringByDeletingLastPathComponent] UTF8String]);
     pmd_setrate(PLAYBACK_FREQ); // 22kHz or 44.1kHz?
     
     FILE *f=fopen([filePath UTF8String],"rb");
@@ -7608,13 +7614,15 @@ int vgmGetFileLength()
         return 1;
     } else {
         // doesn't actually play, just loads file into RAM & extracts data
-        pmd_play((char*)[filePath UTF8String], (char*)[[filePath stringByDeletingLastPathComponent] UTF8String]);
+        char *arg[4];
+        arg[0]=NULL;
+        arg[1]=(char*)[filePath UTF8String];
+        arg[2]=NULL;
+        arg[3]=NULL;
+        pmd_play(arg, (char*)[[filePath stringByDeletingLastPathComponent] UTF8String]);
         
-        //iModuleLength=pmd_length_sec()*1000;
-        // pmdmini's convenience pmd_get_length function returns seconds
-        // w/ loss of precision; use pmdwinimport.h's getlength for ms
-        int loop_length;
-        getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
+        //getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
+        iModuleLength=pmd_loop_msec();
         if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//PMD_DEFAULT_LENGTH;
         iCurrentTime=0;
         
@@ -7630,6 +7638,9 @@ int vgmGetFileLength()
         
         if (tmp_mod_message[0]) {
             artist=[self sjisToNS:tmp_mod_message];
+        }
+        if (tmp_mod_message[0]) {
+            album=[filePath lastPathComponent];
         }
         
         // PMD doesn't have subsongs
@@ -7985,12 +7996,17 @@ int vgmGetFileLength()
                 if (gme_info->song[0]) sprintf(mod_name," %s",gme_info->song);
             }
             if (gme_info->game){
-                if (gme_info->game[0]) mod_title=[NSString stringWithFormat:@"%s",gme_info->game];
+                if (gme_info->game[0]) {
+                    mod_title=[NSString stringWithFormat:@"%s",gme_info->game];
+                    album=[NSString stringWithFormat:@"%s",gme_info->game];
+                }
             }
             
             if (gme_info->author) {
                 artist=[NSString stringWithFormat:@"%s",gme_info->author];
             }
+            
+            if ([album length]==0) album=[filePath lastPathComponent];
             
             gme_free_info(gme_info);
         } else {

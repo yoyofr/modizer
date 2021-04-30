@@ -237,20 +237,6 @@
 		33F6A93F17B99FB8002369E7 /* SettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */; };
 		33F6A94217B9A36A002369E7 /* MNEValueTrackingSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 33F6A94117B9A36A002369E7 /* MNEValueTrackingSlider.m */; };
 		33FDFF6717B6E99A00B61B65 /* SettingsGenViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33FDFF6617B6E99A00B61B65 /* SettingsGenViewController.mm */; };
-		50819A2714B3E06F0062FA86 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0214B3E06F0062FA86 /* file.cpp */; };
-		50819A2814B3E06F0062FA86 /* fmgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0414B3E06F0062FA86 /* fmgen.cpp */; };
-		50819A2914B3E06F0062FA86 /* fmtimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0814B3E06F0062FA86 /* fmtimer.cpp */; };
-		50819A2A14B3E06F0062FA86 /* opm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0C14B3E06F0062FA86 /* opm.cpp */; };
-		50819A2B14B3E06F0062FA86 /* opna.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0E14B3E06F0062FA86 /* opna.cpp */; };
-		50819A2C14B3E06F0062FA86 /* psg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1014B3E06F0062FA86 /* psg.cpp */; };
-		50819A2D14B3E06F0062FA86 /* pmdmini.c in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1314B3E06F0062FA86 /* pmdmini.c */; };
-		50819A2E14B3E06F0062FA86 /* opnaw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1714B3E06F0062FA86 /* opnaw.cpp */; };
-		50819A2F14B3E06F0062FA86 /* p86drv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1914B3E06F0062FA86 /* p86drv.cpp */; };
-		50819A3014B3E06F0062FA86 /* pmdwin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1C14B3E06F0062FA86 /* pmdwin.cpp */; };
-		50819A3114B3E06F0062FA86 /* ppsdrv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */; };
-		50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
-		50819A3314B3E0700062FA86 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
-		50819A3414B3E0700062FA86 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
 		5905362125DBDB0500AA548E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362025DBDB0500AA548E /* CoreVideo.framework */; };
 		5905362425DBDB1600AA548E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362325DBDB1600AA548E /* VideoToolbox.framework */; };
 		5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362625DBDB2E00AA548E /* libbz2.tbd */; };
@@ -1101,20 +1087,6 @@
 		5950DB2925E0F67B00B476B2 /* RootViewControllerLocalBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */; };
 		5950DB2A25E0F67B00B476B2 /* RootViewControllerMODLAND.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF2191451E96F0086700A /* RootViewControllerMODLAND.mm */; };
 		5950DB2B25E0F67B00B476B2 /* RootViewControllerHVSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */; };
-		5950DB2C25E0F67B00B476B2 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0214B3E06F0062FA86 /* file.cpp */; };
-		5950DB2D25E0F67B00B476B2 /* fmgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0414B3E06F0062FA86 /* fmgen.cpp */; };
-		5950DB2E25E0F67B00B476B2 /* fmtimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0814B3E06F0062FA86 /* fmtimer.cpp */; };
-		5950DB2F25E0F67B00B476B2 /* opm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0C14B3E06F0062FA86 /* opm.cpp */; };
-		5950DB3025E0F67B00B476B2 /* opna.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0E14B3E06F0062FA86 /* opna.cpp */; };
-		5950DB3125E0F67B00B476B2 /* psg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1014B3E06F0062FA86 /* psg.cpp */; };
-		5950DB3225E0F67B00B476B2 /* pmdmini.c in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1314B3E06F0062FA86 /* pmdmini.c */; };
-		5950DB3325E0F67B00B476B2 /* opnaw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1714B3E06F0062FA86 /* opnaw.cpp */; };
-		5950DB3425E0F67B00B476B2 /* p86drv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1914B3E06F0062FA86 /* p86drv.cpp */; };
-		5950DB3625E0F67B00B476B2 /* pmdwin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1C14B3E06F0062FA86 /* pmdwin.cpp */; };
-		5950DB3725E0F67B00B476B2 /* ppsdrv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */; };
-		5950DB3825E0F67B00B476B2 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
-		5950DB3925E0F67B00B476B2 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
-		5950DB3A25E0F67B00B476B2 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
 		5950DB3B25E0F67B00B476B2 /* OBSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BB80CE14D4679B00EA4B32 /* OBSlider.m */; };
 		5950DB3C25E0F67B00B476B2 /* RootViewControllerPlaylist.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EE145939850038C673 /* RootViewControllerPlaylist.mm */; };
 		5950DB3D25E0F67B00B476B2 /* mdx_ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = 333DC09616CAD92800720CA2 /* mdx_ym2151.c */; };
@@ -2049,20 +2021,6 @@
 		595D4C5D262187BC000B7187 /* RootViewControllerLocalBrowser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */; };
 		595D4C5E262187BC000B7187 /* RootViewControllerMODLAND.mm in Sources */ = {isa = PBXBuildFile; fileRef = 336BF2191451E96F0086700A /* RootViewControllerMODLAND.mm */; };
 		595D4C5F262187BC000B7187 /* RootViewControllerHVSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */; };
-		595D4C60262187BC000B7187 /* file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0214B3E06F0062FA86 /* file.cpp */; };
-		595D4C61262187BC000B7187 /* fmgen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0414B3E06F0062FA86 /* fmgen.cpp */; };
-		595D4C62262187BC000B7187 /* fmtimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0814B3E06F0062FA86 /* fmtimer.cpp */; };
-		595D4C63262187BC000B7187 /* opm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0C14B3E06F0062FA86 /* opm.cpp */; };
-		595D4C64262187BC000B7187 /* opna.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A0E14B3E06F0062FA86 /* opna.cpp */; };
-		595D4C65262187BC000B7187 /* psg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1014B3E06F0062FA86 /* psg.cpp */; };
-		595D4C66262187BC000B7187 /* pmdmini.c in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1314B3E06F0062FA86 /* pmdmini.c */; };
-		595D4C67262187BC000B7187 /* opnaw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1714B3E06F0062FA86 /* opnaw.cpp */; };
-		595D4C68262187BC000B7187 /* p86drv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1914B3E06F0062FA86 /* p86drv.cpp */; };
-		595D4C6A262187BC000B7187 /* pmdwin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1C14B3E06F0062FA86 /* pmdwin.cpp */; };
-		595D4C6B262187BC000B7187 /* ppsdrv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */; };
-		595D4C6C262187BC000B7187 /* ppz8l.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2114B3E06F0062FA86 /* ppz8l.cpp */; };
-		595D4C6D262187BC000B7187 /* table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2314B3E06F0062FA86 /* table.cpp */; };
-		595D4C6E262187BC000B7187 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 50819A2514B3E06F0062FA86 /* util.cpp */; };
 		595D4C6F262187BC000B7187 /* OBSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 33BB80CE14D4679B00EA4B32 /* OBSlider.m */; };
 		595D4C70262187BC000B7187 /* RootViewControllerPlaylist.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33EDF0EE145939850038C673 /* RootViewControllerPlaylist.mm */; };
 		595D4C71262187BC000B7187 /* mdx_ym2151.c in Sources */ = {isa = PBXBuildFile; fileRef = 333DC09616CAD92800720CA2 /* mdx_ym2151.c */; };
@@ -2692,6 +2650,8 @@
 		59E4A381261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
 		59E4A382261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
 		59E4A383261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
+		59FF9942263C324E004152B8 /* libpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9941263C27D0004152B8 /* libpmdmini.a */; };
+		59FF9943263C3256004152B8 /* libpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9941263C27D0004152B8 /* libpmdmini.a */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
@@ -3229,6 +3189,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = gme;
+		};
+		59FF9940263C27D0004152B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 59FF993C263C27D0004152B8 /* pmdmini.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 59FF98ED263C2769004152B8;
+			remoteInfo = pmdmini;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -4214,44 +4181,6 @@
 		33F6A94117B9A36A002369E7 /* MNEValueTrackingSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MNEValueTrackingSlider.m; sourceTree = "<group>"; };
 		33FDFF6517B6E99A00B61B65 /* SettingsGenViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsGenViewController.h; sourceTree = "<group>"; };
 		33FDFF6617B6E99A00B61B65 /* SettingsGenViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SettingsGenViewController.mm; sourceTree = "<group>"; };
-		50819A0014B3E06F0062FA86 /* compat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
-		50819A0114B3E06F0062FA86 /* diag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = diag.h; sourceTree = "<group>"; };
-		50819A0214B3E06F0062FA86 /* file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file.cpp; sourceTree = "<group>"; };
-		50819A0314B3E06F0062FA86 /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
-		50819A0414B3E06F0062FA86 /* fmgen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fmgen.cpp; sourceTree = "<group>"; };
-		50819A0514B3E06F0062FA86 /* fmgen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmgen.h; sourceTree = "<group>"; };
-		50819A0614B3E06F0062FA86 /* fmgeninl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmgeninl.h; sourceTree = "<group>"; };
-		50819A0714B3E06F0062FA86 /* fmgenx86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmgenx86.h; sourceTree = "<group>"; };
-		50819A0814B3E06F0062FA86 /* fmtimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fmtimer.cpp; sourceTree = "<group>"; };
-		50819A0914B3E06F0062FA86 /* fmtimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fmtimer.h; sourceTree = "<group>"; };
-		50819A0A14B3E06F0062FA86 /* headers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = headers.h; sourceTree = "<group>"; };
-		50819A0B14B3E06F0062FA86 /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
-		50819A0C14B3E06F0062FA86 /* opm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opm.cpp; sourceTree = "<group>"; };
-		50819A0D14B3E06F0062FA86 /* opm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opm.h; sourceTree = "<group>"; };
-		50819A0E14B3E06F0062FA86 /* opna.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opna.cpp; sourceTree = "<group>"; };
-		50819A0F14B3E06F0062FA86 /* opna.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opna.h; sourceTree = "<group>"; };
-		50819A1014B3E06F0062FA86 /* psg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = psg.cpp; sourceTree = "<group>"; };
-		50819A1114B3E06F0062FA86 /* psg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = psg.h; sourceTree = "<group>"; };
-		50819A1214B3E06F0062FA86 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
-		50819A1314B3E06F0062FA86 /* pmdmini.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pmdmini.c; sourceTree = "<group>"; };
-		50819A1414B3E06F0062FA86 /* pmdmini.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdmini.h; sourceTree = "<group>"; };
-		50819A1614B3E06F0062FA86 /* compat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compat.h; sourceTree = "<group>"; };
-		50819A1714B3E06F0062FA86 /* opnaw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opnaw.cpp; sourceTree = "<group>"; };
-		50819A1814B3E06F0062FA86 /* opnaw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opnaw.h; sourceTree = "<group>"; };
-		50819A1914B3E06F0062FA86 /* p86drv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = p86drv.cpp; sourceTree = "<group>"; };
-		50819A1A14B3E06F0062FA86 /* p86drv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = p86drv.h; sourceTree = "<group>"; };
-		50819A1B14B3E06F0062FA86 /* PCMMusDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCMMusDriver.h; sourceTree = "<group>"; };
-		50819A1C14B3E06F0062FA86 /* pmdwin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pmdwin.cpp; sourceTree = "<group>"; };
-		50819A1D14B3E06F0062FA86 /* pmdwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdwin.h; sourceTree = "<group>"; };
-		50819A1E14B3E06F0062FA86 /* pmdwinimport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pmdwinimport.h; sourceTree = "<group>"; };
-		50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppsdrv.cpp; sourceTree = "<group>"; };
-		50819A2014B3E06F0062FA86 /* ppsdrv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppsdrv.h; sourceTree = "<group>"; };
-		50819A2114B3E06F0062FA86 /* ppz8l.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ppz8l.cpp; sourceTree = "<group>"; };
-		50819A2214B3E06F0062FA86 /* ppz8l.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ppz8l.h; sourceTree = "<group>"; };
-		50819A2314B3E06F0062FA86 /* table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = table.cpp; sourceTree = "<group>"; };
-		50819A2414B3E06F0062FA86 /* table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
-		50819A2514B3E06F0062FA86 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
-		50819A2614B3E06F0062FA86 /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		5902026D2622F3800034D785 /* snsf_drvimpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = snsf_drvimpl.h; path = snsf9x/snsf_drvimpl.h; sourceTree = "<group>"; };
 		59047C6F26331BE700623C08 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		59047C7426331C0100623C08 /* libc++abi.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++abi.tbd"; path = "usr/lib/libc++abi.tbd"; sourceTree = SDKROOT; };
@@ -4823,6 +4752,7 @@
 		59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = modizer_icon.icns; sourceTree = "<group>"; };
 		59E4A37E261E7219000A31BA /* yrw801.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = yrw801.rom; sourceTree = "<group>"; };
 		59E4A37F261E7219000A31BA /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGMPlay.ini; sourceTree = "<group>"; };
+		59FF993C263C27D0004152B8 /* pmdmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = pmdmini.xcodeproj; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -5493,6 +5423,7 @@
 				CC1E56CB1200B391000A8A4E /* OpenGLES.framework in Frameworks */,
 				5966D0C525CFEE3000520777 /* libLazyusf.a in Frameworks */,
 				5950D7F825DEFF8C00B476B2 /* libavfilter.a in Frameworks */,
+				59FF9943263C3256004152B8 /* libpmdmini.a in Frameworks */,
 				5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */,
 				5950D7FB25DEFF8C00B476B2 /* libswresample.a in Frameworks */,
 				CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */,
@@ -5518,6 +5449,7 @@
 				5950DB6025E0F67B00B476B2 /* libgsf.a in Frameworks */,
 				5950DB6125E0F67B00B476B2 /* libuade.a in Frameworks */,
 				5950DB6225E0F67B00B476B2 /* libswscale.a in Frameworks */,
+				59FF9942263C324E004152B8 /* libpmdmini.a in Frameworks */,
 				5950DB6325E0F67B00B476B2 /* VideoToolbox.framework in Frameworks */,
 				5950DB6525E0F67B00B476B2 /* libvgmstream.a in Frameworks */,
 				5950DB6625E0F67B00B476B2 /* libResample.a in Frameworks */,
@@ -5896,62 +5828,9 @@
 		508199FE14B3E06F0062FA86 /* pmdmini */ = {
 			isa = PBXGroup;
 			children = (
-				508199FF14B3E06F0062FA86 /* fmgen */,
-				50819A1314B3E06F0062FA86 /* pmdmini.c */,
-				50819A1414B3E06F0062FA86 /* pmdmini.h */,
-				50819A1514B3E06F0062FA86 /* pmdwin */,
+				59FF993C263C27D0004152B8 /* pmdmini.xcodeproj */,
 			);
 			path = pmdmini;
-			sourceTree = "<group>";
-		};
-		508199FF14B3E06F0062FA86 /* fmgen */ = {
-			isa = PBXGroup;
-			children = (
-				50819A0014B3E06F0062FA86 /* compat.h */,
-				50819A0114B3E06F0062FA86 /* diag.h */,
-				50819A0214B3E06F0062FA86 /* file.cpp */,
-				50819A0314B3E06F0062FA86 /* file.h */,
-				50819A0414B3E06F0062FA86 /* fmgen.cpp */,
-				50819A0514B3E06F0062FA86 /* fmgen.h */,
-				50819A0614B3E06F0062FA86 /* fmgeninl.h */,
-				50819A0714B3E06F0062FA86 /* fmgenx86.h */,
-				50819A0814B3E06F0062FA86 /* fmtimer.cpp */,
-				50819A0914B3E06F0062FA86 /* fmtimer.h */,
-				50819A0A14B3E06F0062FA86 /* headers.h */,
-				50819A0B14B3E06F0062FA86 /* misc.h */,
-				50819A0C14B3E06F0062FA86 /* opm.cpp */,
-				50819A0D14B3E06F0062FA86 /* opm.h */,
-				50819A0E14B3E06F0062FA86 /* opna.cpp */,
-				50819A0F14B3E06F0062FA86 /* opna.h */,
-				50819A1014B3E06F0062FA86 /* psg.cpp */,
-				50819A1114B3E06F0062FA86 /* psg.h */,
-				50819A1214B3E06F0062FA86 /* types.h */,
-			);
-			path = fmgen;
-			sourceTree = "<group>";
-		};
-		50819A1514B3E06F0062FA86 /* pmdwin */ = {
-			isa = PBXGroup;
-			children = (
-				50819A1614B3E06F0062FA86 /* compat.h */,
-				50819A1714B3E06F0062FA86 /* opnaw.cpp */,
-				50819A1814B3E06F0062FA86 /* opnaw.h */,
-				50819A1914B3E06F0062FA86 /* p86drv.cpp */,
-				50819A1A14B3E06F0062FA86 /* p86drv.h */,
-				50819A1B14B3E06F0062FA86 /* PCMMusDriver.h */,
-				50819A1C14B3E06F0062FA86 /* pmdwin.cpp */,
-				50819A1D14B3E06F0062FA86 /* pmdwin.h */,
-				50819A1E14B3E06F0062FA86 /* pmdwinimport.h */,
-				50819A1F14B3E06F0062FA86 /* ppsdrv.cpp */,
-				50819A2014B3E06F0062FA86 /* ppsdrv.h */,
-				50819A2114B3E06F0062FA86 /* ppz8l.cpp */,
-				50819A2214B3E06F0062FA86 /* ppz8l.h */,
-				50819A2314B3E06F0062FA86 /* table.cpp */,
-				50819A2414B3E06F0062FA86 /* table.h */,
-				50819A2514B3E06F0062FA86 /* util.cpp */,
-				50819A2614B3E06F0062FA86 /* util.h */,
-			);
-			path = pmdwin;
 			sourceTree = "<group>";
 		};
 		5905363325DBF87300AA548E /* include */ = {
@@ -6978,6 +6857,14 @@
 				59E4A37F261E7219000A31BA /* VGMPlay.ini */,
 			);
 			path = vgmplay;
+			sourceTree = "<group>";
+		};
+		59FF993D263C27D0004152B8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				59FF9941263C27D0004152B8 /* libpmdmini.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		CC1343751AC17B4D00CAB284 /* libvgmplay */ = {
@@ -8180,6 +8067,10 @@
 					ProjectRef = 5939287125CF1F07009281DC /* openmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = 59FF993D263C27D0004152B8 /* Products */;
+					ProjectRef = 59FF993C263C27D0004152B8 /* pmdmini.xcodeproj */;
+				},
+				{
 					ProductGroup = 596642AF2611263C007DAE70 /* Products */;
 					ProjectRef = 59BDE85E260F666C00FB0C69 /* psflib.xcodeproj */;
 				},
@@ -8372,6 +8263,13 @@
 			fileType = archive.ar;
 			path = libgme.a;
 			remoteRef = 59C6801F25CFCF2A001595B7 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		59FF9941263C27D0004152B8 /* libpmdmini.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libpmdmini.a;
+			remoteRef = 59FF9940263C27D0004152B8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -10196,25 +10094,11 @@
 				336BF215144FF4BE0086700A /* RootViewControllerLocalBrowser.mm in Sources */,
 				336BF21A1451E96F0086700A /* RootViewControllerMODLAND.mm in Sources */,
 				33EDF0EF145939850038C673 /* RootViewControllerHVSC.mm in Sources */,
-				50819A2714B3E06F0062FA86 /* file.cpp in Sources */,
-				50819A2814B3E06F0062FA86 /* fmgen.cpp in Sources */,
-				50819A2914B3E06F0062FA86 /* fmtimer.cpp in Sources */,
-				50819A2A14B3E06F0062FA86 /* opm.cpp in Sources */,
 				594CB8822633236900D154E5 /* cmfmcsop.cpp in Sources */,
-				50819A2B14B3E06F0062FA86 /* opna.cpp in Sources */,
-				50819A2C14B3E06F0062FA86 /* psg.cpp in Sources */,
-				50819A2D14B3E06F0062FA86 /* pmdmini.c in Sources */,
-				50819A2E14B3E06F0062FA86 /* opnaw.cpp in Sources */,
-				50819A2F14B3E06F0062FA86 /* p86drv.cpp in Sources */,
 				594CB88E2633236900D154E5 /* xsm.cpp in Sources */,
 				594CB8562633236900D154E5 /* mtk.cpp in Sources */,
-				50819A3014B3E06F0062FA86 /* pmdwin.cpp in Sources */,
-				50819A3114B3E06F0062FA86 /* ppsdrv.cpp in Sources */,
 				594CB8962633236900D154E5 /* binfile.cpp in Sources */,
-				50819A3214B3E0700062FA86 /* ppz8l.cpp in Sources */,
 				594CB8A22633236900D154E5 /* rix.cpp in Sources */,
-				50819A3314B3E0700062FA86 /* table.cpp in Sources */,
-				50819A3414B3E0700062FA86 /* util.cpp in Sources */,
 				33BB80CF14D4679B00EA4B32 /* OBSlider.m in Sources */,
 				334C998D14EAB1ED0003CF9B /* RootViewControllerPlaylist.mm in Sources */,
 				594CB8542633236900D154E5 /* xad.cpp in Sources */,
@@ -10481,25 +10365,11 @@
 				5950DB2925E0F67B00B476B2 /* RootViewControllerLocalBrowser.mm in Sources */,
 				5950DB2A25E0F67B00B476B2 /* RootViewControllerMODLAND.mm in Sources */,
 				5950DB2B25E0F67B00B476B2 /* RootViewControllerHVSC.mm in Sources */,
-				5950DB2C25E0F67B00B476B2 /* file.cpp in Sources */,
-				5950DB2D25E0F67B00B476B2 /* fmgen.cpp in Sources */,
-				5950DB2E25E0F67B00B476B2 /* fmtimer.cpp in Sources */,
-				5950DB2F25E0F67B00B476B2 /* opm.cpp in Sources */,
 				594CB8832633236900D154E5 /* cmfmcsop.cpp in Sources */,
-				5950DB3025E0F67B00B476B2 /* opna.cpp in Sources */,
-				5950DB3125E0F67B00B476B2 /* psg.cpp in Sources */,
-				5950DB3225E0F67B00B476B2 /* pmdmini.c in Sources */,
-				5950DB3325E0F67B00B476B2 /* opnaw.cpp in Sources */,
-				5950DB3425E0F67B00B476B2 /* p86drv.cpp in Sources */,
 				594CB88F2633236900D154E5 /* xsm.cpp in Sources */,
 				594CB8572633236900D154E5 /* mtk.cpp in Sources */,
-				5950DB3625E0F67B00B476B2 /* pmdwin.cpp in Sources */,
-				5950DB3725E0F67B00B476B2 /* ppsdrv.cpp in Sources */,
 				594CB8972633236900D154E5 /* binfile.cpp in Sources */,
-				5950DB3825E0F67B00B476B2 /* ppz8l.cpp in Sources */,
 				594CB8A32633236900D154E5 /* rix.cpp in Sources */,
-				5950DB3925E0F67B00B476B2 /* table.cpp in Sources */,
-				5950DB3A25E0F67B00B476B2 /* util.cpp in Sources */,
 				5950DB3B25E0F67B00B476B2 /* OBSlider.m in Sources */,
 				5950DB3C25E0F67B00B476B2 /* RootViewControllerPlaylist.mm in Sources */,
 				594CB8552633236900D154E5 /* xad.cpp in Sources */,
@@ -10704,20 +10574,6 @@
 				595D4C5D262187BC000B7187 /* RootViewControllerLocalBrowser.mm in Sources */,
 				595D4C5E262187BC000B7187 /* RootViewControllerMODLAND.mm in Sources */,
 				595D4C5F262187BC000B7187 /* RootViewControllerHVSC.mm in Sources */,
-				595D4C60262187BC000B7187 /* file.cpp in Sources */,
-				595D4C61262187BC000B7187 /* fmgen.cpp in Sources */,
-				595D4C62262187BC000B7187 /* fmtimer.cpp in Sources */,
-				595D4C63262187BC000B7187 /* opm.cpp in Sources */,
-				595D4C64262187BC000B7187 /* opna.cpp in Sources */,
-				595D4C65262187BC000B7187 /* psg.cpp in Sources */,
-				595D4C66262187BC000B7187 /* pmdmini.c in Sources */,
-				595D4C67262187BC000B7187 /* opnaw.cpp in Sources */,
-				595D4C68262187BC000B7187 /* p86drv.cpp in Sources */,
-				595D4C6A262187BC000B7187 /* pmdwin.cpp in Sources */,
-				595D4C6B262187BC000B7187 /* ppsdrv.cpp in Sources */,
-				595D4C6C262187BC000B7187 /* ppz8l.cpp in Sources */,
-				595D4C6D262187BC000B7187 /* table.cpp in Sources */,
-				595D4C6E262187BC000B7187 /* util.cpp in Sources */,
 				595D4C6F262187BC000B7187 /* OBSlider.m in Sources */,
 				595D4C70262187BC000B7187 /* RootViewControllerPlaylist.mm in Sources */,
 				595D4C71262187BC000B7187 /* mdx_ym2151.c in Sources */,
@@ -10903,6 +10759,30 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = (
+					"libs/uade-2.13/src/include",
+					"libs/uade-2.13/",
+					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
+					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
+					libs/libxsf/src/in_xsf_framework,
+					libs/libxsf/src/in_ncsf,
+					libs/libxsf/src/in_2sf,
+					SESlideTableViewCell/lib,
+					"libs/libxmp/libxmp-master/include",
+					libs/libdumb/src/include,
+					libs/libtim/libarc,
+					libs/libtim/timidity,
+					libs/libtim/utils,
+					"libs/uade-2.13/src/frontends",
+					"libs/uade-2.13/src/frontends/common",
+					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
+					libs/libLazyusf/libLazyusf,
+					libs/sid/libsidplayfp/src,
+					libs/v2mplayer/v2mplayer/src,
+					libs/adplug/adplug,
+					libs/pmdmini/pmdmini,
+				);
 			};
 			name = Debug;
 		};
@@ -10946,6 +10826,30 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = (
+					"libs/uade-2.13/src/include",
+					"libs/uade-2.13/",
+					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
+					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
+					libs/libxsf/src/in_xsf_framework,
+					libs/libxsf/src/in_ncsf,
+					libs/libxsf/src/in_2sf,
+					SESlideTableViewCell/lib,
+					"libs/libxmp/libxmp-master/include",
+					libs/libdumb/src/include,
+					libs/libtim/libarc,
+					libs/libtim/timidity,
+					libs/libtim/utils,
+					"libs/uade-2.13/src/frontends",
+					"libs/uade-2.13/src/frontends/common",
+					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
+					libs/libLazyusf/libLazyusf,
+					libs/sid/libsidplayfp/src,
+					libs/v2mplayer/v2mplayer/src,
+					libs/adplug/adplug,
+					libs/pmdmini/pmdmini,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -10988,6 +10892,30 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				USER_HEADER_SEARCH_PATHS = (
+					"libs/uade-2.13/src/include",
+					"libs/uade-2.13/",
+					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
+					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
+					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
+					libs/libxsf/src/in_xsf_framework,
+					libs/libxsf/src/in_ncsf,
+					libs/libxsf/src/in_2sf,
+					SESlideTableViewCell/lib,
+					"libs/libxmp/libxmp-master/include",
+					libs/libdumb/src/include,
+					libs/libtim/libarc,
+					libs/libtim/timidity,
+					libs/libtim/utils,
+					"libs/uade-2.13/src/frontends",
+					"libs/uade-2.13/src/frontends/common",
+					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
+					libs/libLazyusf/libLazyusf,
+					libs/sid/libsidplayfp/src,
+					libs/v2mplayer/v2mplayer/src,
+					libs/adplug/adplug,
+					libs/pmdmini/pmdmini,
+				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;

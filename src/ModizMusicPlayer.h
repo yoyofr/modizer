@@ -51,14 +51,16 @@
 //SC68
 #import "api68.h"
 
+#import "pmdmini.h"
+//#import "pmdwin/pmdwinimport.h"
+
 extern "C" {
     
 #import <dirent.h>
 // MDX
 #import "mdx.h"
 // PMD
-#import "pmdmini.h"
-#import "pmdwinimport.h"
+
 
 //VGM
 #import "../libs/libvgmplay/vgm/chips/mamedef.h"
@@ -186,6 +188,7 @@ enum MMP_PLAYER_TYPE {
 	AudioQueueBufferRef *mBuffers;
 	int mQueueIsBeingStopped;
 };
+@property NSString *artist,*album;
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @property int64_t mCurrentSamples,mTgtSamples;
 @property int optForceMono;

@@ -664,7 +664,7 @@ void optGSFChangedC(id param) {
     settings[GLOB_RecreateSamplesFolder].sub_family=0;
     settings[GLOB_RecreateSamplesFolder].callback=&optGLOBALChangedC;
     settings[GLOB_RecreateSamplesFolder].type=MDZ_BOOLSWITCH;
-    settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value=0;
+    settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value=1;
     
     /////////////////////////////////////
     //GLOBAL FTP
