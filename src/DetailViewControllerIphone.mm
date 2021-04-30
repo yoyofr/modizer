@@ -998,9 +998,19 @@ static float movePinchScale,movePinchScaleOld;
     }
         
     if (mPlaylist_size) {
+        NSString *artist=mplayer.artist;
+        NSString *album=mplayer.album;
+        /*if (artist==nil) {
+            artist=[NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
+        }
+        if (album==nil) {
+            album=[NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
+        }*/
         infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:[NSString stringWithString:lblCurrentSongCFlow.text],
                                  MPMediaItemPropertyTitle,
-                                 [NSString stringWithString:mPlaylist[mPlaylist_pos].mPlaylistFilepath],
+                                 album,
+                                 MPMediaItemPropertyAlbumTitle,
+                                 artist,
                                  MPMediaItemPropertyArtist,
                                  [NSNumber numberWithFloat:(float)([mplayer getSongLength])/1000],
                                  MPMediaItemPropertyPlaybackDuration,

@@ -7555,6 +7555,8 @@ int vgmGetFileLength()
                 [[self wcharToNS:VGMTag.strCreator] UTF8String],
                 [[self wcharToNS:VGMTag.strNotes] UTF8String]);
     
+    artist=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strAuthorNameE,VGMTag.strAuthorNameJ)];
+    
     mod_title=[self wcharToNS:GetTagStrEJ(optVGMPLAY_preferJapTag,VGMTag.strGameNameE,VGMTag.strGameNameJ)];
     if (mod_title && ([mod_title length]==0)) mod_title=nil;
     
@@ -7625,6 +7627,10 @@ int vgmGetFileLength()
         
         pmd_get_compo(tmp_mod_message);
         if (tmp_mod_message[0]) sprintf(mod_message,"Title: %s\nComposer: %s",[[self sjisToNS:tmp_mod_name] UTF8String], [[self sjisToNS:tmp_mod_message] UTF8String]);
+        
+        if (tmp_mod_message[0]) {
+            artist=[self sjisToNS:tmp_mod_message];
+        }
         
         // PMD doesn't have subsongs
         mod_subsongs=1;
@@ -7980,6 +7986,10 @@ int vgmGetFileLength()
             }
             if (gme_info->game){
                 if (gme_info->game[0]) mod_title=[NSString stringWithFormat:@"%s",gme_info->game];
+            }
+            
+            if (gme_info->author) {
+                artist=[NSString stringWithFormat:@"%s",gme_info->author];
             }
             
             gme_free_info(gme_info);
@@ -8637,6 +8647,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     
     mod_currentfile=[NSString stringWithString:filePath];
     mod_currentext=[NSString stringWithString:extension];
+    
+    artist=nil;
+    album=nil;
     
     
     m_voicesDataAvail=0;

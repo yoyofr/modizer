@@ -106,6 +106,7 @@ enum MMP_PLAYER_TYPE {
     int64_t mCurrentSamples,mTgtSamples;
     NSString *mod_currentfile;
     NSString *mod_currentext;
+    NSString *artist,*album;
 
 	//Player status
 	int bGlobalAudioPause;
@@ -232,8 +233,37 @@ enum MMP_PLAYER_TYPE {
 
 -(void) generateSoundThread;
 
+-(NSString*) getModMessage;
+-(NSString*) getModFileTitle;
+-(NSString*) getModName;
+-(NSString*) getModType;
+-(NSString*) getPlayerName;
+
+-(BOOL) isMultiSongs;
+-(BOOL) isArchive;
+-(int) getArcEntriesCnt;
+-(int) getArcIndex;
+
+-(NSString*) getArcEntryTitle:(int)arc_index;
+
+-(NSString*) getSubTitle:(int)subsong;
+
+-(int) getSongLength;
+-(int) getGlobalLength;
+-(int) getCurrentTime;
+-(int) shouldUpdateInfos;
+-(void) setInfosUpdated;
+
 -(BOOL) isPlaying;
+
+-(void) Seek:(int)seek_time;
 -(int) isSeeking;
+-(bool) isPaused;
+-(BOOL) isEndReached;
+-(void) Stop;
+-(void) Pause:(BOOL)paused;
+-(void) Play;
+-(void) PlaySeek:(int)startPos subsong:(int)subsong;
 
 -(void) playPrevSub;
 -(void) playNextSub;
@@ -243,23 +273,9 @@ enum MMP_PLAYER_TYPE {
 -(void) selectNextArcEntry;
 -(void) selectArcEntry:(int)arc_index;
 
-
--(NSString*) getModMessage;
--(NSString*) getModFileTitle;
--(NSString*) getModName;
--(NSString*) getModType;
--(NSString*) getPlayerName;
--(void) Seek:(int)seek_time;
-
 -(int) getSongLengthfromMD5:(int)track_nb;
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength;
 
--(bool) isPaused;
--(BOOL) isEndReached;
--(void) Stop;
--(void) Pause:(BOOL)paused;
--(void) Play;
--(void) PlaySeek:(int)startPos subsong:(int)subsong;
 -(int) isAcceptedFile:(NSString*)_filePath;
 -(int) LoadModule:(NSString*)_filePath defaultMODPLAYER:(int)defaultMODPLAYER defaultSAPPLAYER:(int)defaultSAPPLAYER defaultVGMPLAYER:(int)defaultVGMPLAYER archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting;
 
@@ -346,20 +362,6 @@ enum MMP_PLAYER_TYPE {
 
 -(void) setLoopInf:(int)val;
 
--(BOOL) isMultiSongs;
--(BOOL) isArchive;
--(int) getArcEntriesCnt;
--(int) getArcIndex;
-
--(NSString*) getArcEntryTitle:(int)arc_index;
-
--(NSString*) getSubTitle:(int)subsong;
-
--(int) getSongLength;
--(int) getGlobalLength;
--(int) getCurrentTime;
--(int) shouldUpdateInfos;
--(void) setInfosUpdated;
 
 //loaders
 -(int) mmp_gsfLoad:(NSString*)filePath;
