@@ -64,15 +64,53 @@ XSFFile::XSFFile(const std::string &filename, uint32_t programSizeOffset, uint32
 	this->ReadXSF(filename, programSizeOffset, programHeaderSize);
 }
 
+#include <dirent.h>
+#include <string.h>
+#include <stdio.h>
+
 
 void XSFFile::ReadXSF(const std::string &filename, uint32_t programSizeOffset, uint32_t programHeaderSize, bool readTagsOnly)
 {
-	if (!FileExists(filename))
-		throw std::logic_error("File " + filename + " does not exist.");
-
+    char fname[1024];
+    bool res=false;
+    if (!FileExists(filename)) {
+		//throw std::logic_error("File " + filename + " does not exist.");
+        FILE *f;
+        f=fopen(filename.c_str(),"rb");
+        if (!f) {
+            //browse dir
+            DIR *dir;
+            struct dirent *ent;
+            char *dirstr=strdup(filename.c_str());
+            char *ext=strrchr(dirstr,'/');
+            char *fstr=ext+1;
+            ext[0]=0;
+            
+            if ((dir = opendir (dirstr)) != NULL) {
+              /* print all the files and directories within directory */
+              while ((ent = readdir (dir)) != NULL) {
+                //printf ("%s\n", ent->d_name);
+                  if (strcasecmp(ent->d_name,fstr)==0) {
+                      sprintf(fname,"%s/%s",dirstr,ent->d_name);
+                      res=true;
+                      break;
+                  }
+              }
+              closedir (dir);
+            } else {
+              /* could not open directory */
+            }
+            free(dirstr);
+        } else res=true;
+    } else {
+        res=true;
+        strcpy(fname,filename.c_str());
+    }
+    if (!res) return;
+    
 	std::ifstream xSF;
 	xSF.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-	xSF.open(filename.c_str(), std::ifstream::in | std::ifstream::binary);
+	xSF.open(fname, std::ifstream::in | std::ifstream::binary);
 
 	this->ReadXSF(xSF, programSizeOffset, programHeaderSize, readTagsOnly);
 

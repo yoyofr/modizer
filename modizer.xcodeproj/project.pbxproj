@@ -10631,7 +10631,6 @@
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -10654,7 +10653,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -10676,7 +10674,6 @@
 		1D6058950D05DD3E006BFB54 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -10698,7 +10695,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -10722,7 +10718,6 @@
 		5950DC5E25E0F67B00B476B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
@@ -10743,7 +10738,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer sim-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -10759,37 +10753,12 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = (
-					"libs/uade-2.13/src/include",
-					"libs/uade-2.13/",
-					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
-					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
-					libs/libxsf/src/in_xsf_framework,
-					libs/libxsf/src/in_ncsf,
-					libs/libxsf/src/in_2sf,
-					SESlideTableViewCell/lib,
-					"libs/libxmp/libxmp-master/include",
-					libs/libdumb/src/include,
-					libs/libtim/libarc,
-					libs/libtim/timidity,
-					libs/libtim/utils,
-					"libs/uade-2.13/src/frontends",
-					"libs/uade-2.13/src/frontends/common",
-					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
-					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
-					libs/v2mplayer/v2mplayer/src,
-					libs/adplug/adplug,
-					libs/pmdmini/pmdmini,
-				);
 			};
 			name = Debug;
 		};
 		5950DC5F25E0F67C00B476B2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
@@ -10809,7 +10778,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer sim-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -10826,30 +10794,6 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = (
-					"libs/uade-2.13/src/include",
-					"libs/uade-2.13/",
-					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
-					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
-					libs/libxsf/src/in_xsf_framework,
-					libs/libxsf/src/in_ncsf,
-					libs/libxsf/src/in_2sf,
-					SESlideTableViewCell/lib,
-					"libs/libxmp/libxmp-master/include",
-					libs/libdumb/src/include,
-					libs/libtim/libarc,
-					libs/libtim/timidity,
-					libs/libtim/utils,
-					"libs/uade-2.13/src/frontends",
-					"libs/uade-2.13/src/frontends/common",
-					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
-					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
-					libs/v2mplayer/v2mplayer/src,
-					libs/adplug/adplug,
-					libs/pmdmini/pmdmini,
-				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -10857,7 +10801,6 @@
 		5950DC6025E0F67C00B476B2 /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
@@ -10875,7 +10818,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer sim-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -10892,30 +10834,6 @@
 				SKIP_INSTALL = NO;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = (
-					"libs/uade-2.13/src/include",
-					"libs/uade-2.13/",
-					"libs/node-lame-master/deps/mpg123/ports/Xcode/",
-					"libs/libopenmpt/openmpt-trunk/include/vorbis/include",
-					"libs/libopenmpt/openmpt-trunk/include/ogg/include",
-					libs/libxsf/src/in_xsf_framework,
-					libs/libxsf/src/in_ncsf,
-					libs/libxsf/src/in_2sf,
-					SESlideTableViewCell/lib,
-					"libs/libxmp/libxmp-master/include",
-					libs/libdumb/src/include,
-					libs/libtim/libarc,
-					libs/libtim/timidity,
-					libs/libtim/utils,
-					"libs/uade-2.13/src/frontends",
-					"libs/uade-2.13/src/frontends/common",
-					"libs/FFmpeg-iOS-build-script-master/FFmpeg-iOS/include",
-					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
-					libs/v2mplayer/v2mplayer/src,
-					libs/adplug/adplug,
-					libs/pmdmini/pmdmini,
-				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Distribution;
@@ -11114,6 +11032,7 @@
 					libs/sid/libsidplayfp/src,
 					libs/v2mplayer/v2mplayer/src,
 					libs/adplug/adplug,
+					libs/pmdmini/pmdmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11180,6 +11099,7 @@
 					libs/sid/libsidplayfp/src,
 					libs/v2mplayer/v2mplayer/src,
 					libs/adplug/adplug,
+					libs/pmdmini/pmdmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11246,6 +11166,7 @@
 					libs/sid/libsidplayfp/src,
 					libs/v2mplayer/v2mplayer/src,
 					libs/adplug/adplug,
+					libs/pmdmini/pmdmini,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11254,7 +11175,6 @@
 		CC1E56AB1200B2B2000A8A4E /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -11275,7 +11195,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = "modizer-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LIBRARY_SEARCH_PATHS = (

@@ -60,18 +60,6 @@
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
-    /*[cmdCenter.skipForwardCommand setEnabled:YES];
-    [cmdCenter.skipForwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        
-        
-        NSNumber *seekTime=[[NSNumber alloc] initWithDouble:10*1000];
-        
-        
-        [self.detailViewController performSelectorOnMainThread:@selector(skipForward:) withObject:seekTime waitUntilDone:YES];
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
-        return MPRemoteCommandHandlerStatusSuccess;
-    }];*/
-    
     [cmdCenter.seekForwardCommand setEnabled:YES];
     [cmdCenter.seekForwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         

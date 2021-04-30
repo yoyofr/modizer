@@ -81,7 +81,8 @@ template<typename T1, typename T2> inline void clamp(T1 &valueToClamp, const T2 
 
 inline bool FileExists(const std::string &filename)
 {
-	std::ifstream file(filename.c_str());
+    std::ifstream file(filename.c_str());
+    
 	return !!file;
 }
 

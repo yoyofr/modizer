@@ -1018,12 +1018,18 @@ static float movePinchScale,movePinchScaleOld;
                                  MPNowPlayingInfoPropertyElapsedPlaybackTime,
                                  [NSNumber numberWithInt:mPaused],
                                  MPNowPlayingInfoPropertyPlaybackRate,
-                                 [NSNumber numberWithInt:mPlaylist_size],
-                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
                                  [NSNumber numberWithInt:mPlaylist_pos],
                                  MPNowPlayingInfoPropertyPlaybackQueueIndex,
+                                 [NSNumber numberWithInt:mPlaylist_size],
+                                 MPNowPlayingInfoPropertyPlaybackQueueCount,
+                                     //[NSNumber numberWithInt:mplayer.mod_currentsub-mplayer.mod_minsub],
+                                     //MPNowPlayingInfoPropertyChapterNumber,
+                                     //[NSNumber numberWithInt:mplayer.mod_subsongs],
+                                     //MPNowPlayingInfoPropertyChapterCount,
                                  artwork,
                                  MPMediaItemPropertyArtwork,
+                                 [NSNumber numberWithInt:MPNowPlayingInfoMediaTypeAudio],
+                                 MPNowPlayingInfoPropertyMediaType,
                                  nil];
     } else {
         infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -1612,6 +1618,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             if (mPaused) [self playPushed:nil];
             [self refreshCurrentVC];
         }
+        no_reentrant=false;
         return;
     }
     //if archive and no subsongs => change archive index

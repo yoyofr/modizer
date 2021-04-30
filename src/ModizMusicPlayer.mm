@@ -5279,8 +5279,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     fclose(f);
     
-    
-    
     gsf_libfile[0]=0;
     char tmp_file[2048];
     strcpy(tmp_file,(char*)[filePath UTF8String]);
@@ -5329,12 +5327,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         //BOLD(); printf("Artist: "); NORMAL();
         //printf("%s\n", tmp_str);
         sprintf(mod_message,"%sArtist:%s\n",mod_message,tmp_str);
+        artist=[NSString stringWithFormat:@"%s",tmp_str];
     }
     
     if (!psftag_getvar(tag, "game", tmp_str, sizeof(tmp_str)-1)) {
         //BOLD(); printf("Game: "); NORMAL();
         //printf("%s\n", tmp_str);
         sprintf(mod_message,"%sGame:%s\n",mod_message,tmp_str);
+        album=[NSString stringWithFormat:@"%s",tmp_str];
     }
     
     if (!psftag_getvar(tag, "year", tmp_str, sizeof(tmp_str)-1)) {
@@ -5436,6 +5436,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         char *tmp_mod_name=(char*)mdx_get_title(mdx);
         if (tmp_mod_name) sprintf(mod_name," %s",tmp_mod_name);
         else sprintf(mod_name," %s",mod_filename);
+        
         
         mod_subsongs=1;
         mod_minsub=1;
@@ -5548,6 +5549,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         sprintf(mod_message,"Title.....: %s\nAuthor...: %s\nComposer...: %s\nHardware...: %s\nConverter.....: %s\nRipper...: %s\n",
                 info.title,info.author,info.composer,info.hwname,info.converter,info.ripper);
+        artist=[NSString stringWithFormat:@"%s",info.author];
         
         return 0;
     }
@@ -5594,7 +5596,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         numChannels=2;
         
         sprintf(mod_message,"Name.....: %s\nAuthor...: %s\nType.....: %s\nPlayer...: %s\nComment..: %s\n",info.pSongName,info.pSongAuthor,info.pSongType,info.pSongPlayer,info.pSongComment);
-        
+        artist=[NSString stringWithFormat:@"%s",info.pSongAuthor];
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         
@@ -5878,6 +5880,13 @@ char* loadRom(const char* path, size_t romSize)
             stil_info[0]=0;
             [self getStilInfo:(char*)[filePath UTF8String]];
             
+            //if sid file, assuming 2nd infoString is artist
+            if (strcasecmp([[filePath pathExtension] UTF8String],"sid")==0) {
+                if (sidtune_info->numberOfInfoStrings()>=2) {
+                    artist=[NSString stringWithFormat:@"%s",sidtune_info->infoString(1)];
+                }
+            }
+                                                
             sprintf(mod_message,"");
             for (int i=0;i<sidtune_info->numberOfInfoStrings();i++)
                 sprintf(mod_message,"%s%s\n",mod_message,sidtune_info->infoString(i));
@@ -6438,7 +6447,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         free(keys_list);
     }
     
-    modName=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"title"); //ModPlug_GetName(mp_file);
+    modName=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"title");
     if (!modName) {
         sprintf(mod_name," %s",mod_filename);
     } else if (modName[0]==0) {
@@ -6447,6 +6456,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         sprintf(mod_name," %s", modName);
     }
     if (modName) free(modName);
+    
+    char *artistStr=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"artist");
+    if (!artistStr) {
+    } else if (artistStr[0]==0) {
+    } else {
+        artist=[NSString stringWithFormat:@"%s",artistStr];
+    }
+    if (artistStr) free(artistStr);
     
     mod_subsongs=openmpt_module_get_num_subsongs(openmpt_module_ext_get_module(ompt_mod)); //mp_file->mod);
     mod_minsub=0;
@@ -8664,8 +8681,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     mod_currentfile=[NSString stringWithString:filePath];
     mod_currentext=[NSString stringWithString:extension];
     
-    artist=nil;
-    album=nil;
+    artist=@"";
+    album=[filePath lastPathComponent];
     
     
     m_voicesDataAvail=0;
