@@ -1,9 +1,7 @@
 Todo/Requested:
 ���������
-- [PLAYER] xmp: ajouter option pour filtre (A500, A500F) et mixer (nearest, linear, spline)
 - [UI] settings => when value available (not combo list or on/off switch), display it below label
 - [PLAYER] pxtone integration
-- BUG: multisong length when within an archive (ex: a GBS or a NSF in a ZIP)
 - [DOWNLOAD] improve download resilience (keep track of queue in case of crash, auto restart, ...)
 - TODO: replace vgmplay by libvgm
 - TODO: add description for Settings when relevant
@@ -22,7 +20,7 @@ Todo/Requested:
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
 - [UI] Carplay support (WIP)
 - [UI] Volume bar adjustement for devices without physical home button
-- [UI] Fixes / subsong management
+- [ALL] Several Fixes / stability improvements
 
 3.0
 ---
