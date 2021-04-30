@@ -20,6 +20,7 @@ Todo/Requested:
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
 - [UI] Carplay support (WIP)
 - [UI] Volume bar adjustement for devices without physical home button
+- [PLAYER] Fixed a bug when PMD (.M, .M2, .MZ) are compressed in an archive (zip, 7z, ...)
 - [ALL] Several Fixes / stability improvements
 
 3.0
