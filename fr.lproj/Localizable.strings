@@ -162,7 +162,7 @@
 "Confirm_DBClean"="Lancer le nettoyage de la base (potentiellement long) ?";
 "Confirm_Reset_PlCnt"="Voulez vous reinitialiser les compteurs de lecture ?";
 "Confirm_Reset_Ratings"="Voulez vous reinitialiser les notes ?";
-"Confirm_ResetDB"="Voulez vous reinitialiser toute la base de donées ? Les playlists, notes et compteurs de lecture seront effacés.";
+"Confirm_ResetDB"="Voulez vous reinitialiser toute la base de donées ? Les listes, notes et compteurs de lecture seront effacés.";
 "Confirm_RecreateSamples"="Voulez vous recréer le dossier 'Samples' ?";
 "Confirm_FormatDownloads"="Voulez vous formater le dossier 'Downloads' ?";
 "Confirm_CheckFiles"="Voulez vous effectuer la maintenance des fichiers locaux ?";
@@ -195,9 +195,9 @@
 
 "Filter"="Filtre";
 
-"Create a new playlist"="Créer une nouvelle playlist";
+"Create a new playlist"="Créer une nouvelle liste";
 "Most played files"="Fichiers les plus joués";
-"Add a playlist..."="Ajouter une playlist";
+"Add a playlist..."="Ajouter une liste";
 "Now playing..."="Lecture en cours...";
 "No entry"="Aucune entrée";
 "%d entries"="%d entrées";
@@ -214,18 +214,18 @@
 
 "Rename"="Renommer";
 "Edit"="Editer";
-"Shuffle & Play"="Mélanger & Jouer";
+"Shuffle"="Mélanger";
 "Sort A->Z"="Tri A->Z";
 "Sort Z->A"="Tri Z->A";
 "Delete"="Supprimer";
 "Cancel"="Annuler";
 "Save"="Sauver";
-"Playlist name"="Nom de la playlist";
+"Playlist name"="Nom de la liste";
 "Now playing"="Lecture en cours";
 "Most played"="Les plus joués";
 "Favorites"="Favoris";
 "Enter new name"="Entrez le nouveau nom";
-"Enter playlist name"="Entrez le nom de la playlist";
+"Enter playlist name"="Entrez le nom de la liste";
 
 "About"="A propos";
 "Some general informations"="Informations générales";
@@ -246,7 +246,7 @@
 "Paste" = "Coller";
 "New folder" = "Nv.dossier";
 
-"Are you sure you want to delete this playlist ?" = "Etes vous sûr de vouloir supprimer cette playlist ?";
+"Are you sure you want to delete this playlist ?" = "Etes vous sûr de vouloir supprimer cette liste ?";
 "Are you sure you want to delete this entry ?" = "Etes vous sûr de vouloir supprimer cette entrée ?";
 
 "Nothing to paste"="Rien à coller";
@@ -272,4 +272,13 @@
 "Next file"="Fichier suivant";
 "Next"="Suivant";
 
-"Clear 'Playing now...' queue"="Reset 'Lecture en cours...'";
+"Clear 'Now Playing' queue"="Reset 'Lecture en cours'";
+
+"Now playing"="Lecture en cours";
+"Most played"="Plus joués";
+"Favorites"="Favoris";
+
+"Resuming last\nplayed file"="Reprise du dernier\nfichier en cours";
+
+"Add to a playlist"="Ajouter à une liste";
+"Choose a playlist"="Choisissez une liste";

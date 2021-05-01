@@ -4753,6 +4753,7 @@
 		59E4A37E261E7219000A31BA /* yrw801.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = yrw801.rom; sourceTree = "<group>"; };
 		59E4A37F261E7219000A31BA /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGMPlay.ini; sourceTree = "<group>"; };
 		59FF993C263C27D0004152B8 /* pmdmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = pmdmini.xcodeproj; sourceTree = "<group>"; };
+		59FF9944263D65CD004152B8 /* PlaylistCommonFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistCommonFunctions.h; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -6746,6 +6747,7 @@
 		59BF54EF2628C9F50064EF5E /* CommonFunctions */ = {
 			isa = PBXGroup;
 			children = (
+				59FF9944263D65CD004152B8 /* PlaylistCommonFunctions.h */,
 				59BF54EE2628C8B70064EF5E /* WaitingViewCommonMethods.h */,
 				59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */,
 				59A65C9A2627600100BC99D1 /* MiniPlayerImplementTableView.h */,

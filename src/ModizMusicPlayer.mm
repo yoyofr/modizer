@@ -2529,6 +2529,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_currentsub=us->cur_subsong;
                         iCurrentTime=0;
                         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+                        
                         //Loop
                         if (mLoopMode==1) iModuleLength=-1;
                         mod_message_updated=1;
@@ -2566,6 +2567,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 if (us->cur_subsong<us->min_subsong) us->cur_subsong=us->min_subsong;
                 mod_currentsub=us->cur_subsong;
                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+                
                 //Loop
                 if (mLoopMode==1) iModuleLength=-1;
                 mod_message_updated=1;
@@ -3478,7 +3480,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 m_voice_current_sample=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                else if (iModuleLength==0) iModuleLength=1000;
+                                
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
@@ -3655,7 +3659,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mCurrentSamples=0;
                             m_voice_current_sample=0;
                             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-                            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                            if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                            else if (iModuleLength==0) iModuleLength=1000;
+                            
                             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                             if (mLoopMode) iModuleLength=-1;
                             mod_message_updated=1;
@@ -3825,7 +3831,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=0;
                                 m_voice_current_sample=0;
                                 iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-                                if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                else if (iModuleLength==0) iModuleLength=1000;
+                                
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
                                 mod_message_updated=1;
@@ -4284,7 +4292,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples=0;
                                     m_voice_current_sample=0;
                                     mNewModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-                                    if (mNewModuleLength<=0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                    if (mNewModuleLength<0) mNewModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                                    else if (mNewModuleLength==0) mNewModuleLength=1000;
+                                    
                                     mTgtSamples=mNewModuleLength*PLAYBACK_FREQ/1000;
                                     if (mLoopMode) mNewModuleLength=-1;
                                 } else {
@@ -5855,7 +5865,8 @@ char* loadRom(const char* path, size_t romSize)
                        
         mSidTune->selectSong(mod_currentsub);
         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-        if (!iModuleLength) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+        if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+        else if (iModuleLength==0) iModuleLength=1000;
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         
         if (mSidEmuEngine->load(mSidTune)) {
@@ -5908,7 +5919,8 @@ char* loadRom(const char* path, size_t romSize)
             //////////////////////////////////
             for (int i=0;i<sidtune_info->songs(); i++) {
                 int sid_subsong_length=[self getSongLengthfromMD5:i-mod_minsub+1];
-                if (!sid_subsong_length) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                if (sid_subsong_length<0) sid_subsong_length=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+                else if (sid_subsong_length==0) sid_subsong_length=1000;
                 mod_total_length+=sid_subsong_length;
                 
                 short int playcount;
@@ -6967,7 +6979,12 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     {
         if (x) concatn(MAX_STIL_DATA_LENGTH*2,mod_message,"\n");
         concatn(MAX_STIL_DATA_LENGTH*2,mod_message,(keys[x] + "=" + tags[keys[x]]).c_str());
+        if (keys[x]=="artist") artist=[NSString stringWithFormat:@"%s",tags[keys[x]].c_str()];
+        else if (keys[x]=="game") album=[NSString stringWithFormat:@"%s",tags[keys[x]].c_str()];
+        else if (keys[x]=="title") mod_title=[NSString stringWithFormat:@"%s",tags[keys[x]].c_str()];
     }
+    if (mod_title) sprintf(mod_name," %s",[mod_title UTF8String]);
+    
     int fadeInMS=xSFFile->GetFadeMS(xSFPlayer->fadeInMS);
     xSFPlayer->fadeInMS=fadeInMS;
     xSFPlayer->fadeSample=(int64_t)(fadeInMS)*(int64_t)(xSFPlayer->sampleRate)/1000;
@@ -7358,6 +7375,9 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
                 iModuleLength/1000);
                         
         if (usf_info_data->inf_game && usf_info_data->inf_game[0]) mod_title=[NSString stringWithFormat:@"%s",usf_info_data->inf_game];
+        
+        if (usf_info_data->inf_artist) artist=[NSString stringWithFormat:@"%s",usf_info_data->inf_artist];
+        if (usf_info_data->inf_game) album=[NSString stringWithFormat:@"%s",usf_info_data->inf_game];
     } else {
         sprintf(mod_name,"");
         if (mod_name[0]==0) sprintf(mod_name," %s",mod_filename);
@@ -7368,7 +7388,13 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
             NSString *tmpstr=[NSString stringWithFormat:@"%@:%@\n",key,value];
             strcat(mod_message,[tmpstr UTF8String]);
             
-            if ([key isEqualToString:@"album"]&&([value length]>0)) mod_title=[NSString stringWithString:value];
+            if ([key isEqualToString:@"album"]&&([value length]>0)) {
+                mod_title=[NSString stringWithString:value];
+                album=[NSString stringWithString:value];
+            }
+            if ([key isEqualToString:@"artist"]&&([value length]>0)) {
+                artist=[NSString stringWithString:value];
+            }
         }
         strcat(mod_message,[[NSString stringWithFormat:@"Sample rate: %dHz\nLength: %ds\n",hc_sample_rate,iModuleLength/1000] UTF8String]);
     }
@@ -7765,6 +7791,8 @@ int vgmGetFileLength()
     
     sprintf(mod_message,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",asap->moduleInfo.author,asap->moduleInfo.title,asap->moduleInfo.songs,asap->moduleInfo.channels);
     
+    artist=[NSString stringWithFormat:@"%s",asap->moduleInfo.author];
+    
     iModuleLength=(duration>=1000?duration:1000);
     iCurrentTime=0;
         
@@ -7843,7 +7871,10 @@ int vgmGetFileLength()
         else sprintf(mod_name," %s",mod_filename);
         sprintf(mod_message,"%s",mod_name);
         
-        if ((adPlugPlayer->getauthor()).length()>0)	sprintf(mod_message,"%sAuthor: %s\n", mod_message,adPlugPlayer->getauthor().c_str());
+        if ((adPlugPlayer->getauthor()).length()>0)	{
+            sprintf(mod_message,"%sAuthor: %s\n", mod_message,adPlugPlayer->getauthor().c_str());
+            artist=[NSString stringWithFormat:@"%s",adPlugPlayer->getauthor().c_str()];
+        }
         if ((adPlugPlayer->getdesc()).length()>0) sprintf(mod_message,"%sDescription: %s\n",mod_message, adPlugPlayer->getdesc().c_str());
         /*		Author: %s\nDesc:%s\n",
          (adPlugPlayer->getauthor()).c_str(),
@@ -8683,7 +8714,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     
     artist=@"";
     album=[filePath lastPathComponent];
-    
+    mod_title=nil;
     
     m_voicesDataAvail=0;
     m_voicesForceOfs=-1;
@@ -8930,7 +8961,9 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             mSidEmuEngine->load(mSidTune);
             
             iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-            if (iModuleLength<=0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            if (iModuleLength<0) iModuleLength=optGENDefaultLength;//SID_DEFAULT_LENGTH;
+            else if (iModuleLength==0) iModuleLength=1000;
+            
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
             

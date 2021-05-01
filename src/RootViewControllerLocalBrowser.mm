@@ -2008,13 +2008,12 @@ static int shouldRestart=1;
         //self.view.alpha=0.5f;
         
         [self hideWaitingCancel];
-        [self updateWaitingTitle:@"Loading"];
-        [self updateWaitingDetail:@"Resuming last\nplayed file"];
+        [self updateWaitingTitle:NSLocalizedString(@"Loading",@"")];
+        [self updateWaitingDetail:NSLocalizedString(@"Resuming last\nplayed file",@"")];
         [self showWaiting];
         [self flushMainLoop];
         [self flushMainLoop];
         shouldRestart=0;
-              
         
         [detailViewController play_restart];
         //[detailViewController performSelectorInBackground:@selector(play_restart) withObject:nil];
@@ -3216,9 +3215,8 @@ static int shouldRestart=1;
             [detailViewController play_listmodules:pl start_index:-1];
             
             if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-            
-            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-            else [tableView reloadData];
+                        
+            [tableView reloadData];
         }
         free(pl);
     } else {
@@ -3235,8 +3233,8 @@ static int shouldRestart=1;
             
             cur_local_entries[section][indexPath.row].rating=-1;
             [detailViewController play_listmodules:pl start_index:0];
-            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-            else [tableView reloadData];
+            
+            [tableView reloadData];
             
             free(pl);
         }
@@ -3245,6 +3243,8 @@ static int shouldRestart=1;
     [self hideWaiting];
     
 }
+
+#import "PlaylistCommonFunctions.h"
 
 - (void) secondaryActionTapped: (UIButton*) sender {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
@@ -3294,9 +3294,8 @@ static int shouldRestart=1;
         if (total_entries) {
             if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-                
-                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                else [tableView reloadData];
+                                
+                [tableView reloadData];
             }
         }
         
@@ -3305,13 +3304,9 @@ static int shouldRestart=1;
         
     } else {
         if (cur_local_entries[section][indexPath.row].type&3) {//File selected
-            cur_local_entries[section][indexPath.row].rating=-1;
-            if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:1]) {
-                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-                
-                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                else [tableView reloadData];
-            }
+            
+            //add to playlist
+            [self addToPlaylistSelView:&(cur_local_entries[section][indexPath.row])];
         }
     }
     [self hideWaiting];
@@ -3468,15 +3463,15 @@ static int shouldRestart=1;
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
                 cur_local_entries[section][indexPath.row].rating=-1;
-                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                else [tabView reloadData];
+                
+                [tabView reloadData];
                 
                 free(pl);
                 
             } else {
                 if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:0]) {
-                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                    else [tabView reloadData];
+                    
+                    [tabView reloadData];
                 }
             }
             

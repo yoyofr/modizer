@@ -1903,8 +1903,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                     
-                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                    else [tableView reloadData];
+                    [tableView reloadData];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
@@ -1965,8 +1964,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                     
                     cur_db_entries[section][indexPath.row].rating=-1;
-                    if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                    else [tableView reloadData];
+                    [tableView reloadData];
                 } else {
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     mCurrentWinAskedDownload=1;
@@ -2143,15 +2141,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                             if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                             
-                            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                            else [tabView reloadData];
+                            [tabView reloadData];
                         } else {
                             if ([detailViewController add_to_playlist:localPath fileName:sidFilename forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                                 
                                 cur_db_entries[section][indexPath.row].rating=-1;
-                                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                                else [tabView reloadData];
+                                [tabView reloadData];
                             }
                         }
                     } else {

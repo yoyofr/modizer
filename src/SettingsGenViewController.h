@@ -60,7 +60,6 @@ enum MDZ_SETTINGS {
     GLOB_AfterDownloadAction,    
     GLOB_BackgroundMode,
     GLOB_TitleFilename,
-    GLOB_PlayerViewOnPlay,
     GLOB_RecreateSamplesFolder,
     GLOB_StatsUpload,
     

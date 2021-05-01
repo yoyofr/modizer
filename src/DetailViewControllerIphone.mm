@@ -84,7 +84,6 @@ extern "C" signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
 
 static RootViewControllerPlaylist *nowplayingPL;
 
-
 static t_playlist* temp_playlist;
 
 extern volatile t_settings settings[MAX_SETTINGS];
@@ -108,7 +107,6 @@ int mDevice_hh,mDevice_ww;
 static int mShouldHaveFocusAfterBackground,mLoadIssueMessage;
 static int mRandomFXCpt,mRandomFXCptRev;
 static int infoIsFullscreen=0;
-static UIAlertView *alertCrash;
 static MPVolumeView *volumeView;
 
 static MPMediaItemArtwork *artwork;
@@ -120,8 +118,7 @@ static int txtSubMenuHandle[38];
 
 static volatile int mPopupAnimation=0;
 
-//static UIAlertView *alertCannotPlay;
-static int alertCannotPlay_displayed;
+static volatile int alertCannotPlay_displayed;
 
 static int viewTapHelpInfo=0;
 static int viewTapHelpShow=0;
@@ -1760,26 +1757,47 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
 	if ([self play_module:filePath fname:fileName]==FALSE) {
 		[self remove_from_playlist:mPlaylist_pos];
+        
+        [self hideWaiting];
+        [self refreshCurrentVC];
+        ///////////////////////////////////////////////////
+        // Update miniplayer
+        ///////////////////////////////////////////////////
+        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+        mdz_safe_execute_sel(vc,@selector(updateMiniPlayer),nil)
+        
 		if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
             NSString *alertMsg;
 			alertCannotPlay_displayed=1;
             if (mplayer_error_msg[0]) alertMsg=[NSString stringWithFormat:@"%@\n%s", NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@""),mplayer_error_msg];
             else alertMsg=NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"");
             
-            UIAlertView *alertCannotPlay = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                                       message:alertMsg delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-            if (alertCannotPlay) [alertCannotPlay show];
+            UIAlertController *alertCannotPlay = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                           message:alertMsg
+                                           preferredStyle:UIAlertControllerStyleAlert];
             
+            UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
+               handler:^(UIAlertAction * action) {
+                alertCannotPlay_displayed=0;
+                }];
+             
+            [alertCannotPlay addAction:closeAction];
+                         
+            //[self presentViewController:alertCannotPlay animated:YES completion:nil];
+            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+            [vc presentViewController:alertCannotPlay animated:YES completion:nil];
+            
+            //wait for alert to close
+            /*while (alertCannotPlay_displayed) {
+                [self flushMainLoop];
+            }*/
             
 			[self play_curEntry];
-			
-		} else [self play_curEntry];
-		//remove
-        
-        
-        [self hideWaiting];
-        [self refreshCurrentVC];
-		
+            
+        } else {
+            
+            [self play_curEntry];
+        }
 		return FALSE;
 	}
     
@@ -2151,7 +2169,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     
     [self refreshCurrentVC];
 	
-	NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+	//NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
     /*	if (mPlaylist_size) [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
 	//[myindex autorelease];
 	return playLaunched;
@@ -4892,9 +4910,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	mMoveStartChanLeft=mMoveStartChanRight=0;
 	
 	if ([self checkFlagOnStartup]) {
-/*		alertCrash = [[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning" ,@"")
-                                                 message:NSLocalizedString(@"First launch or issue encountered last time Modizer was running. Apply default settings ?",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"Yes",@""),nil] autorelease];
-		if (alertCrash) [alertCrash show];*/
 		[self loadSettings:1];
 		mShouldUpdateInfos=1;
 	} else [self loadSettings:0];
@@ -6619,17 +6634,6 @@ extern "C" int current_sample;
     [super didReceiveMemoryWarning];
     
     // Release any cached data, images, etc that aren't in use.
-}
-
-
-/* ALERT VIEW actions*/
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    /*	if (alertView==alertCannotPlay) {
-     [self play_curEntry];
-     }*/
-	if (alertView==alertCrash) {
-		if (buttonIndex==0) [self loadSettings:0];
-	}
 }
 
 /* POPUP functions */

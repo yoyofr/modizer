@@ -520,7 +520,6 @@ static UIAlertView *alertChooseName;
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
 						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-						//[self goPlayer];
 					} else { //start download
 						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
@@ -545,7 +544,7 @@ static UIAlertView *alertChooseName;
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
 						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-						//[self goPlayer];
+						
 					} else { //start download
 						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
@@ -569,7 +568,7 @@ static UIAlertView *alertChooseName;
 							[array_path addObject:localPath];
 							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
 						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-						//[self goPlayer];
+						
 					} else { //start download
 						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
 						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
@@ -766,7 +765,7 @@ static UIAlertView *alertChooseName;
                         [array_path addObject:localPath];
                         [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                     } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-                    //[self goPlayer];
+                    
                 } else { //start download
                     [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
                     
@@ -793,7 +792,7 @@ static UIAlertView *alertChooseName;
                         [array_path addObject:localPath];
                         [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                     } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-                    //[self goPlayer];
+                    
                 } else { //start download
                     [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[localPath lastPathComponent]]];
                     
@@ -1070,14 +1069,61 @@ didFinishNavigation:(WKNavigation *)navigation {
         if ([[url pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
         
         if (found_img) {
-            UIAlertView *msgAlert;  
-            cover_currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
+            cover_currentPlayFilepath = [detailViewController getCurrentModuleFilepath];
             if (cover_currentPlayFilepath) {
-                msgAlert=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Image detected",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]] delegate:self cancelButtonTitle:NSLocalizedString(@"No",@"") otherButtonTitles:NSLocalizedString(@"CoverFolder",@""),NSLocalizedString(@"CoverFile",@""),nil];
+                UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
+                                               message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
+                                               preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction* saveCoverFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFolder",@"") style:UIAlertActionStyleDefault
+                   handler:^(UIAlertAction * action) {
+                        if (detailViewController.mPlaylist_size) {
+                            NSString *filename;
+                            NSError *err;
+                            if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                            if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                            if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                            NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                            
+                            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
+                            [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
+                        }
+                    }];
+                [msgAlert addAction:saveCoverFolderAction];
+                
+                UIAlertAction* saveCoverFileAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFile",@"") style:UIAlertActionStyleDefault
+                   handler:^(UIAlertAction * action) {
+                    
+                        if (detailViewController.mPlaylist_size) {
+                            NSString *filename;
+                            NSError *err;
+                            if (found_img==1) filename=[NSString stringWithFormat:@"%@.jpg",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                            if (found_img==2) filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                            if (found_img==3) filename=[NSString stringWithFormat:@"%@.gif",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                            NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                            
+                            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
+                            [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
+                        }
+                    }];
+                [msgAlert addAction:saveCoverFileAction];
+                
+                UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
+                   handler:^(UIAlertAction * action) {
+                    }];
+                [msgAlert addAction:cancelAction];
                 
                 cover_url_string=[[NSString alloc] initWithString:url];
                 cover_expectedContentLength=-1;
-                [msgAlert show];
+                
+                [self presentViewController:msgAlert animated:YES completion:nil];
+                //[msgAlert show];
             }
         }
     }

@@ -393,7 +393,7 @@ static NSFileManager *mFileMngr;
                     [array_label addObject:mCurrentFilename];
                     [array_path addObject:mCurrentFilePath];
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                    //[self goPlayer];
+                    
                 } else {
                     if (mIsMODLAND[0]==1) {
                         [detailViewController add_to_playlist:mCurrentFilePath fileName:mCurrentFilename forcenoplay:(mCurrentUsePrimaryAction==2)];
@@ -894,7 +894,7 @@ static NSFileManager *mFileMngr;
 			[array_label addObject:_filename];
 			[array_path addObject:_filepath];
 			[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-			//[self goPlayer];
+			
 			break;
 	}
 }
@@ -1074,7 +1074,7 @@ static NSFileManager *mFileMngr;
 				break;
 			case 2://Play
 				[detailViewController play_listmodules:fileNames start_index:0 path:filePaths];
-				//[self goPlayer];
+				
 				break;
 		}
 	}
@@ -1180,7 +1180,7 @@ static NSFileManager *mFileMngr;
                 [array_label addObject:mCurrentURLFilename];
                 [array_path addObject:mURLFilePath[0]];
                 [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                //[self goPlayer];
+                
             } else {
                 if (mURLIsMODLAND[0]==1) {
                     [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];

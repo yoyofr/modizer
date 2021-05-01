@@ -208,4 +208,15 @@
 "Next file"="Next file";
 "Next"="Next";
 
-"Clear 'Playing now...' queue"="Clear 'Playing now...' queue";
+"Clear 'Now Playing' queue"="Clear 'Now Playing' queue";
+
+"Now playing"="Now playing";
+"Most played"="Most played";
+"Favorites"="Favorites";
+
+"Resuming last\nplayed file"="Resuming last\nplayed file";
+
+"Add to a playlist"="Add to a playlist";
+"Choose a playlist"="Choose a playlist";
+
+"Shuffle"="Shuffle";

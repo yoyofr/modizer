@@ -237,6 +237,9 @@ int gesture_move_file_min_trans;
     }
     
     if ([detailVC.mplayer isPlaying]) {
+        
+        if (![[detailVC.mplayer getModFileTitle] isEqualToString:labelMain.text]) [self refreshCoverLabels];
+        
         if ([detailVC.mplayer isPaused]) {
             btnPlay.hidden=false;
             btnPause.hidden=true;
@@ -555,7 +558,7 @@ int gesture_move_file_min_trans;
     [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPause attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-1]];
     
     //Timer
-    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.10f target:self selector:@selector(refreshTime) userInfo:nil repeats: YES]; //10 times/second
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(refreshTime) userInfo:nil repeats: YES]; //5 times/second
     
     if ([detailVC.mplayer isPlaying]) {
         if ([detailVC.mplayer isPaused]) {

@@ -421,7 +421,7 @@ extern pthread_mutex_t db_mutex;
             [btn addTarget:self action:@selector(cleanDB) forControlEvents:UIControlEventTouchUpInside];
             break;
         case 1: //Clean listening now
-            txt=NSLocalizedString(@"Clear 'Playing now...' queue",@"");
+            txt=NSLocalizedString(@"Clear 'Now Playing' queue",@"");
             [btn setType:BButtonTypePrimary];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(clearPNqueue) forControlEvents:UIControlEventTouchUpInside];

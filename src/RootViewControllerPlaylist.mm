@@ -119,11 +119,11 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             self.navigationItem.rightBarButtonItem = self.editButtonItem;
             [self setEditing:YES animated:YES];
         }
-    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Shuffle & Play",@"")]) {
+    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Shuffle",@"")]) {
         if (playlist->nb_entries) {
             int pos=0;
-            if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-            else [tableView reloadData];
+            
+            [tableView reloadData];
             
             //Shuffle playlist
             srand(time(NULL));
@@ -132,96 +132,136 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             for (int from_idx=0;from_idx<playlist->nb_entries;from_idx++) {
                 int to_idx=rand()%(playlist->nb_entries);
                 if (from_idx!=to_idx) {
-                if (show_playlist) {
-                    signed char tmpR=playlist->entries[from_idx].ratings;
-                    short int tmpC=playlist->entries[from_idx].playcounts;
-                    NSString *tmpF=playlist->entries[from_idx].fullpath;
-                    NSString *tmpL=playlist->entries[from_idx].label;
+                    if (show_playlist) {
+                        signed char tmpR=playlist->entries[from_idx].ratings;
+                        short int tmpC=playlist->entries[from_idx].playcounts;
+                        NSString *tmpF=playlist->entries[from_idx].fullpath;
+                        NSString *tmpL=playlist->entries[from_idx].label;
+                        
+                        playlist->entries[from_idx].label=playlist->entries[to_idx].label;
+                        playlist->entries[from_idx].fullpath=playlist->entries[to_idx].fullpath;
+                        playlist->entries[from_idx].ratings=playlist->entries[to_idx].ratings;
+                        playlist->entries[from_idx].playcounts=playlist->entries[to_idx].playcounts;
                     
-                    playlist->entries[from_idx].label=playlist->entries[to_idx].label;
-                    playlist->entries[from_idx].fullpath=playlist->entries[to_idx].fullpath;
-                    playlist->entries[from_idx].ratings=playlist->entries[to_idx].ratings;
-                    playlist->entries[from_idx].playcounts=playlist->entries[to_idx].playcounts;
-                
-                    playlist->entries[to_idx].label=tmpL;
-                    playlist->entries[to_idx].fullpath=tmpF;
-                    playlist->entries[to_idx].ratings=tmpR;
-                    playlist->entries[to_idx].playcounts=tmpC;
-                    
-                /*if (to_idx<from_idx) {
-                    for (int i=from_idx;i>to_idx;i--) {
-                        playlist->entries[i].label=playlist->entries[i-1].label;
-                        playlist->entries[i].fullpath=playlist->entries[i-1].fullpath;
-                        playlist->entries[i].ratings=playlist->entries[i-1].ratings;
-                        playlist->entries[i].playcounts=playlist->entries[i-1].playcounts;
-                    }
-                    playlist->entries[to_idx].label=tmpL;
-                    playlist->entries[to_idx].fullpath=tmpF;
-                    playlist->entries[to_idx].ratings=tmpR;
-                    playlist->entries[to_idx].playcounts=tmpC;
-                } else {
-                    for (int i=from_idx;i<to_idx;i++) {
-                        playlist->entries[i].label=playlist->entries[i+1].label;
-                        playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
-                        playlist->entries[i].ratings=playlist->entries[i+1].ratings;
-                        playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
-                    }
-                    playlist->entries[to_idx].label=tmpL;
-                    playlist->entries[to_idx].fullpath=tmpF;
-                    playlist->entries[to_idx].ratings=tmpR;
-                    playlist->entries[to_idx].playcounts=tmpC;
-                }*/
-                
-                //if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
-                //else {
-                if (!(playlist->playlist_id)) {
-                    t_plPlaylist_entry tmpF;
-                    tmpF=detailViewController.mPlaylist[from_idx];
-                    detailViewController.mPlaylist[from_idx]=detailViewController.mPlaylist[to_idx];
-                    detailViewController.mPlaylist[to_idx]=tmpF;
-                    /*if (to_idx<from_idx) {
-                        for (int i=from_idx;i>to_idx;i--) {
-                            detailViewController.mPlaylist[i]=detailViewController.mPlaylist[i-1];
+                        playlist->entries[to_idx].label=tmpL;
+                        playlist->entries[to_idx].fullpath=tmpF;
+                        playlist->entries[to_idx].ratings=tmpR;
+                        playlist->entries[to_idx].playcounts=tmpC;
+                                      
+                        if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                            t_plPlaylist_entry tmpF;
+                            tmpF=detailViewController.mPlaylist[from_idx];
+                            detailViewController.mPlaylist[from_idx]=detailViewController.mPlaylist[to_idx];
+                            detailViewController.mPlaylist[to_idx]=tmpF;
+                            
+                            /*if ((from_idx>detailViewController.mPlaylist_pos)&&(to_idx<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
+                            else if ((from_idx<detailViewController.mPlaylist_pos)&&(to_idx>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
+                            else if (from_idx==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=to_idx;*/
+                            if (detailViewController.mPlaylist_pos==from_idx) detailViewController.mPlaylist_pos=to_idx;
+                            else if (detailViewController.mPlaylist_pos==to_idx) detailViewController.mPlaylist_pos=from_idx;
+                                                        
+                            detailViewController.mShouldUpdateInfos=1;
                         }
-                        detailViewController.mPlaylist[to_idx]=tmpF;
-                    } else {
-                        for (int i=from_idx;i<to_idx;i++) {
-                            detailViewController.mPlaylist[i]=detailViewController.mPlaylist[i+1];
-                        }
-                        detailViewController.mPlaylist[to_idx]=tmpF;
-                    }*/
-                    
-                    if ((from_idx>detailViewController.mPlaylist_pos)&&(to_idx<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
-                    else if ((from_idx<detailViewController.mPlaylist_pos)&&(to_idx>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
-                    else if (from_idx==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=to_idx;
-                    
-                    detailViewController.mShouldUpdateInfos=1;
-                }
+                    }
                 }
             }
-            }
+            
+            [tableView reloadData];
             
             if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
             
-            
-            
-            
-            
-            [detailViewController play_listmodules:playlist start_index:pos];
-            if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                currentPlayedEntry=detailViewController.mPlaylist_pos;
+                NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+                int pos=currentPlayedEntry+1;
+                if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+                if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+            }
+            [self updateMiniPlayer];
         }
     } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Sort A->Z",@"")]) {
         if (playlist->nb_entries) {
+            
+            NSString *tmpFP;
+            if (!(playlist->playlist_id)) {
+                tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
+            }
+                        
             qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntries);
+            
+            
+            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+                    detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
+                    detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
+                        
+                    detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
+                    detailViewController.mPlaylist[i].mPlaylistCount=0;
+
+                    detailViewController.mPlaylist[i].cover_flag=-1;
+                    if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
+                            detailViewController.mPlaylist_pos=i;
+                    }
+                }
+                
+                detailViewController.mShouldUpdateInfos=1;
+            }
+            
             if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
             [self.tableView reloadData];
+            
+            
+            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                currentPlayedEntry=detailViewController.mPlaylist_pos;
+                NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+                int pos=currentPlayedEntry+1;
+                if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+                if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+            }
+            
+            
+            [self updateMiniPlayer];
         }
         
     } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Sort Z->A",@"")]) {
         if (playlist->nb_entries) {
+            NSString *tmpFP;
+            if (!(playlist->playlist_id)) {
+                tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
+            }
+            
             qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesRev);
+            
+            
+            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+                    detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
+                    detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
+                        
+                    detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
+                    detailViewController.mPlaylist[i].mPlaylistCount=0;
+
+                    detailViewController.mPlaylist[i].cover_flag=-1;
+                    if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
+                            detailViewController.mPlaylist_pos=i;
+                    }
+                }
+                
+                detailViewController.mShouldUpdateInfos=1;
+            }
             if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
             [self.tableView reloadData];
+            
+            
+            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                currentPlayedEntry=detailViewController.mPlaylist_pos;
+                NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+                int pos=currentPlayedEntry+1;
+                if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+                if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+            }
+            
+            [self updateMiniPlayer];
         }
     } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Delete",@"")]) {
         //TODO
@@ -2981,7 +3021,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-4)] intoPlaylist:playlist];
             
             if (playlist->nb_entries) {
-                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
+                
                 [detailViewController play_listmodules:playlist start_index:0];
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                                 
@@ -3271,8 +3311,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [detailViewController play_listmodules:playlist start_index:(row-2)];
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
-                if (settings[GLOB_PlayerViewOnPlay].detail.mdz_boolswitch.switch_value) [self goPlayer];
-                else [tabView reloadData];
+                
+                [tabView reloadData];
                                                                 
                 [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
                 
@@ -3296,7 +3336,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     //NSString *actionSheetTitle = @""; //Action Sheet Title
                     NSString *other1 = NSLocalizedString(@"Rename",@"");
                     NSString *other2 = NSLocalizedString(@"Edit",@"");
-                    NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
+                    NSString *other3 = NSLocalizedString(@"Shuffle",@"");
                     NSString *other4 = NSLocalizedString(@"Sort A->Z",@"");
                     NSString *other5 = NSLocalizedString(@"Sort Z->A",@"");
                     NSString *destructiveTitle = NSLocalizedString(@"Delete",@"");
@@ -3323,7 +3363,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     //NSString *actionSheetTitle = @""; //Action Sheet Title
                     NSString *other1 = NSLocalizedString(@"Save",@"");
                     NSString *other2 = NSLocalizedString(@"Edit",@"");
-                        NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
+                        NSString *other3 = NSLocalizedString(@"Shuffle",@"");
                         NSString *other4 = NSLocalizedString(@"Sort A->Z",@"");
                         NSString *other5 = NSLocalizedString(@"Sort Z->A",@"");
                         NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
@@ -3341,7 +3381,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         //NSString *actionSheetTitle = @""; //Action Sheet Title
                         NSString *other1 = NSLocalizedString(@"Save",@"");
                         NSString *other2 = NSLocalizedString(@"Edit",@"");
-                        NSString *other3 = NSLocalizedString(@"Shuffle & Play",@"");
+                        NSString *other3 = NSLocalizedString(@"Shuffle",@"");
                         NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
 
                         
