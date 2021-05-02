@@ -19,7 +19,8 @@ Todo/Requested:
 - [PLAYER] Adplug/Rad bugfix for rad v1 file
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
 - [PLAYER] PMDMINI updated to latest version
-- [UI] Carplay support (WIP)
+- [UI] Improved playlists management
+- [UI] Carplay support (playlist based)
 - [UI] Volume bar adjustement for devices without physical home button
 - [PLAYER] Fixed a bug when PMD (.M, .M2, .MZ) are compressed in an archive (zip, 7z, ...)
 - [ALL] Several Fixes / stability improvements

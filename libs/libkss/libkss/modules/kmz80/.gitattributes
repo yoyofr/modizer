@@ -1,0 +1,5 @@
+# Encoding restriction for Visual C++
+[attr]msvc encoding=ascii-dos,utf8-with-signature-dos
+*.c msvc
+*.cpp msvc
+*.h msvc

@@ -156,6 +156,11 @@ static V2MPlayer *v2m_player;
 
 
 extern "C" {
+    //KSS
+#include "kssplay.h"
+KSSPLAY *kssplay;
+KSS *kss;
+
     //VGMPPLAY
     extern CHIPS_OPTION ChipOpts[0x02];
     extern bool EndPlay;
@@ -1818,6 +1823,10 @@ void propertyListenerCallback (void                   *inUserData,              
         sprintf(UADEconfigname, "%s/uaerc",UADEstate.config.basedir.name);
         sprintf(UADEscorename, "%s/score",UADEstate.config.basedir.name);
         
+        //KSS specific
+        kssplay=NULL;
+        kss=NULL;
+
         //HVL specific
         mHVLinit=0;
         //
@@ -4267,6 +4276,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         } else nbBytes=0;
                         
                     }
+                    if (mPlayType==MMP_KSS) {
+                        KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                        nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                        int tmpint;
+                        for (int i = 0; i < SOUND_BUFFER_SIZE_SAMPLE*2; i++) {
+                            //tmpint=buffer_ana[buffer_ana_gen_ofs][i];
+                            //buffer_ana[buffer_ana_gen_ofs][i]=((tmpint&0xFF)<<8)|((tmpint>>8)&0xFF);
+                        }
+                    }
                     if (mPlayType==MMP_SIDPLAY) { //SID
                         nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                         mCurrentSamples+=nbBytes/4;
@@ -4903,6 +4921,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
+    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
@@ -4911,7 +4931,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                   [filetype_extSTSOUND count]+[filetype_extPMD count]+
                                   [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
-                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
+                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
                                   [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
     
     int err;
@@ -4936,6 +4956,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
     [filetype_ext addObjectsFromArray:filetype_extHC];
     [filetype_ext addObjectsFromArray:filetype_extHVL];
+    [filetype_ext addObjectsFromArray:filetype_extS98];
+    [filetype_ext addObjectsFromArray:filetype_extKSS];
     [filetype_ext addObjectsFromArray:filetype_extGSF];
     [filetype_ext addObjectsFromArray:filetype_extASAP];
     [filetype_ext addObjectsFromArray:filetype_extVGM];
@@ -5029,6 +5051,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
     NSArray *filetype_extHC=(no_aux_file?[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
+    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
@@ -5238,6 +5262,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         for (int i=0;i<[filetype_extHVL count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
+        }
+    }
+    if (!found) {
+        for (int i=0;i<[filetype_extS98 count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {found=MMP_S98;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {found=MMP_S98;break;}
+        }
+    }
+    if (!found) {
+        for (int i=0;i<[filetype_extKSS count];i++) {
+            if ([extension caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {found=MMP_KSS;break;}
+            if ([file_no_ext caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {found=MMP_KSS;break;}
         }
     }
     
@@ -5964,6 +6000,69 @@ char* loadRom(const char* path, size_t romSize)
         }
     }
     return 1;
+}
+
+-(int) mmp_s98Load:(NSString*)filePath {  //S98
+    return -1;
+}
+
+-(int) mmp_kssLoad:(NSString*)filePath {  //KSS
+    mPlayType=MMP_KSS;
+    
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        NSLog(@"HSS Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fclose(f);
+    
+    if ((kss = KSS_load_file((char*)[filePath UTF8String])) == NULL) {
+        NSLog(@"KSS Cannot load file %@",filePath);
+        return -2;
+    }
+    
+    mod_subsongs=kss->info_num;
+    mod_minsub=0;
+    mod_maxsub=mod_subsongs-1;
+    mod_currentsub=0;
+    
+    /* INIT KSSPLAY */
+    kssplay = KSSPLAY_new(PLAYBACK_FREQ, 2, 16);
+    KSSPLAY_set_data(kssplay, kss);
+    KSSPLAY_reset(kssplay, mod_currentsub, 0);
+
+    KSSPLAY_set_device_quality(kssplay, EDSC_PSG, 1);
+    KSSPLAY_set_device_quality(kssplay, EDSC_SCC, 1);
+    KSSPLAY_set_device_quality(kssplay, EDSC_OPLL, 1);
+    
+    KSSPLAY_set_device_pan(kssplay, EDSC_PSG, -32);
+    KSSPLAY_set_device_pan(kssplay, EDSC_SCC,  32);
+    kssplay->opll_stereo = 1;
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 0, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 1, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 2, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 3, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 4, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 5, 2);
+    
+    
+    numChannels=2;
+            
+    if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
+    else iModuleLength=optGENDefaultLength;
+    if (mLoopMode) iModuleLength=-1;
+    iCurrentTime=0;
+    
+    if (kss->title[0]) sprintf(mod_name," %s",kss->title);
+    else sprintf(mod_name," %s",[[filePath lastPathComponent] UTF8String]);
+        
+    KSSPLAY_get_MGStext(kssplay,mod_message,MAX_STIL_DATA_LENGTH*2);
+            
+    return 0;
 }
 
 -(int) mmp_hvlLoad:(NSString*)filePath {  //HVL
@@ -7919,6 +8018,18 @@ int vgmGetFileLength()
         NSLog(@"gme_open_file error: %s",err);
         return -1;
     } else {
+        bool let_libkss_takeover=false;
+        if (gme_track_info( gme_emu, &gme_info, 0 )==0) {
+            if ((strcmp(gme_info->system,"MSX")==0)||(strcmp(gme_info->system,"MSX + FM Sound")==0)) let_libkss_takeover=true;
+            gme_free_info(gme_info);
+            gme_info=NULL;
+        }
+        if (let_libkss_takeover) {
+            mPlayType=0;
+            if (gme_emu) gme_delete( gme_emu );
+            gme_emu=NULL;
+            return -10;
+        }
         /* Register cleanup function and confirmation string as data */
         gme_set_user_data( gme_emu, my_data );
         gme_set_user_cleanup( gme_emu, my_cleanup );
@@ -8160,6 +8271,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
+    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
@@ -8629,6 +8742,29 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         }
     }
     
+    for (int i=0;i<[filetype_extS98 count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_S98]];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_S98]];
+            break;
+        }
+    }
+    
+    for (int i=0;i<[filetype_extKSS count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
+            break;
+        }
+        if ([file_no_ext caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
+            break;
+        }
+    }
+    
+    
     for (int i=0;i<[filetype_extUADE count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
             if (mdz_defaultMODPLAYER==DEFAULT_UADE) [available_player insertObject:[NSNumber numberWithInt:MMP_UADE] atIndex:0];
@@ -8666,7 +8802,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     // 1. PMDMINI
     // 2. ADPLUG
     // 3. SID
-    // 3. The rest
+    // 4. The rest
     //****************************************************************************************
     
     for (int i=0;i<[filetype_extSID count];i++) {
@@ -8679,8 +8815,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         }
     }
-    
-        
+            
     for (int i=0;i<[filetype_extADPLUG count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extADPLUG objectAtIndex:i]]==NSOrderedSame) {
             [available_player insertObject:[NSNumber numberWithInt:MMP_ADPLUG] atIndex:0];
@@ -8703,7 +8838,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         }
     }
 
-    
     //NSLog(@"Loading file:%@ ",filePath);
     //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
     
@@ -8776,6 +8910,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 break;
             case MMP_HVL:
                 if ([self mmp_hvlLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
+                break;
+            case MMP_S98:
+                if ([self mmp_s98Load:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
+                break;
+            case MMP_KSS:
+                if ([self mmp_kssLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
                 break;
             case MMP_XMP:
                 if ([self mmp_xmpLoad:filePath]==0) {no_reentrant=false;return 0;} //SUCCESSFULLY LOADED
@@ -8939,6 +9079,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             break;
         case MMP_UADE:  //UADE
             mod_wantedcurrentsub=subsong;
+            if (startPos) [self Seek:startPos];
+            [self Play];
+            break;
+        case MMP_KSS:  //KSS
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -9154,6 +9298,12 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         //		NSLog(@"ok");
         uade_unalloc_song(&UADEstate);
     }
+    if (mPlayType==MMP_KSS) { //KSS
+        if (kssplay) KSSPLAY_delete(kssplay);
+        kssplay=NULL;
+        if (kss) KSS_delete(kss);
+        kss=NULL;
+    }
     if (mPlayType==MMP_HVL) { //HVL
         hvl_FreeTune(hvl_song);
         hvl_song=NULL;
@@ -9299,6 +9449,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_HC) return @"Highly Complete";
     if (mPlayType==MMP_UADE) return @"UADE";
     if (mPlayType==MMP_HVL) return @"HVL";
+    if (mPlayType==MMP_KSS) return @"LIBKSS";
     if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/ReSID"));
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_SC68) return @"SC68";
@@ -9374,6 +9525,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         if (sidtune_info->infoString(0)[0]) return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_info->infoString(0)]];
         
         return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
+    } else if (mPlayType==MMP_KSS) {
+        if (kss->info) {
+            return [NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,kss->info[subsong].title];
+        }
     }
     return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
 }
@@ -9415,6 +9570,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         }
     }
     if (mPlayType==MMP_UADE) return [NSString stringWithFormat:@"%s",UADEstate.ep->playername];
+    if (mPlayType==MMP_KSS) return @"KSS";
     if (mPlayType==MMP_HVL) return (hvl_song->ht_ModType?@"HVL":@"AHX");
     if (mPlayType==MMP_SIDPLAY) return @"SID";
     if (mPlayType==MMP_STSOUND) return @"YM";

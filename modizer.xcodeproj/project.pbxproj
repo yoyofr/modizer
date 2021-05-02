@@ -2652,6 +2652,8 @@
 		59E4A383261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
 		59FF9942263C324E004152B8 /* libpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9941263C27D0004152B8 /* libpmdmini.a */; };
 		59FF9943263C3256004152B8 /* libpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9941263C27D0004152B8 /* libpmdmini.a */; };
+		59FF9ACB263F350A004152B8 /* liblibkss.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9A4A263F34BE004152B8 /* liblibkss.a */; };
+		59FF9ACC263F3511004152B8 /* liblibkss.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9A4A263F34BE004152B8 /* liblibkss.a */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
 		CC03F2CD12160E9500F2AC65 /* button-highlight.png in Resources */ = {isa = PBXBuildFile; fileRef = CC03F2CB12160E9500F2AC65 /* button-highlight.png */; };
@@ -3196,6 +3198,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 59FF98ED263C2769004152B8;
 			remoteInfo = pmdmini;
+		};
+		59FF9A49263F34BE004152B8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 59FF994E263F3312004152B8;
+			remoteInfo = libkss;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -4754,6 +4763,7 @@
 		59E4A37F261E7219000A31BA /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGMPlay.ini; sourceTree = "<group>"; };
 		59FF993C263C27D0004152B8 /* pmdmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = pmdmini.xcodeproj; sourceTree = "<group>"; };
 		59FF9944263D65CD004152B8 /* PlaylistCommonFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistCommonFunctions.h; sourceTree = "<group>"; };
+		59FF99DD263F34BD004152B8 /* libkss.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libkss.xcodeproj; sourceTree = "<group>"; };
 		CC03F2CB12160E9500F2AC65 /* button-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-highlight.png"; sourceTree = "<group>"; };
 		CC03F2CC12160E9500F2AC65 /* button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button.png; sourceTree = "<group>"; };
 		CC03F2D512160FE000F2AC65 /* buttonB-highlight.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "buttonB-highlight.png"; sourceTree = "<group>"; };
@@ -5403,6 +5413,7 @@
 				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
+				59FF9ACB263F350A004152B8 /* liblibkss.a in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				5966D0B625CFEDDF00520777 /* libuade.a in Frameworks */,
 				5980544E262F221600BB0309 /* libxmp.a in Frameworks */,
@@ -5450,6 +5461,7 @@
 				5950DB6025E0F67B00B476B2 /* libgsf.a in Frameworks */,
 				5950DB6125E0F67B00B476B2 /* libuade.a in Frameworks */,
 				5950DB6225E0F67B00B476B2 /* libswscale.a in Frameworks */,
+				59FF9ACC263F3511004152B8 /* liblibkss.a in Frameworks */,
 				59FF9942263C324E004152B8 /* libpmdmini.a in Frameworks */,
 				5950DB6325E0F67B00B476B2 /* VideoToolbox.framework in Frameworks */,
 				5950DB6525E0F67B00B476B2 /* libvgmstream.a in Frameworks */,
@@ -6129,6 +6141,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				59FF99DC263F34BD004152B8 /* libkss */,
 				594CB7892633236900D154E5 /* Adplug */,
 				333157371207699700815317 /* AHX */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
@@ -6865,6 +6878,22 @@
 			isa = PBXGroup;
 			children = (
 				59FF9941263C27D0004152B8 /* libpmdmini.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		59FF99DC263F34BD004152B8 /* libkss */ = {
+			isa = PBXGroup;
+			children = (
+				59FF99DD263F34BD004152B8 /* libkss.xcodeproj */,
+			);
+			path = libkss;
+			sourceTree = "<group>";
+		};
+		59FF99DE263F34BD004152B8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				59FF9A4A263F34BE004152B8 /* liblibkss.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -8061,6 +8090,10 @@
 					ProjectRef = 5939285F25CF1C0A009281DC /* Lazyusf.xcodeproj */;
 				},
 				{
+					ProductGroup = 59FF99DE263F34BD004152B8 /* Products */;
+					ProjectRef = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
+				},
+				{
 					ProductGroup = 592862BB1E2D4D7A00A08A4E /* Products */;
 					ProjectRef = 592862BA1E2D4D7A00A08A4E /* libxsf.xcodeproj */;
 				},
@@ -8272,6 +8305,13 @@
 			fileType = archive.ar;
 			path = libpmdmini.a;
 			remoteRef = 59FF9940263C27D0004152B8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		59FF9A4A263F34BE004152B8 /* liblibkss.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibkss.a;
+			remoteRef = 59FF9A49263F34BE004152B8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -11035,6 +11075,8 @@
 					libs/v2mplayer/v2mplayer/src,
 					libs/adplug/adplug,
 					libs/pmdmini/pmdmini,
+					libs/libkss/libkss/src,
+					libs/libkss/libkss/modules,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11102,6 +11144,8 @@
 					libs/v2mplayer/v2mplayer/src,
 					libs/adplug/adplug,
 					libs/pmdmini/pmdmini,
+					libs/libkss/libkss/src,
+					libs/libkss/libkss/modules,
 				);
 				VALIDATE_PRODUCT = YES;
 			};
@@ -11169,6 +11213,8 @@
 					libs/v2mplayer/v2mplayer/src,
 					libs/adplug/adplug,
 					libs/pmdmini/pmdmini,
+					libs/libkss/libkss/src,
+					libs/libkss/libkss/modules,
 				);
 				VALIDATE_PRODUCT = YES;
 			};

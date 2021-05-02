@@ -92,7 +92,9 @@ enum MMP_PLAYER_TYPE {
     MMP_2SF,
     MMP_SNSF,
     MMP_HC,
-    MMP_V2M
+    MMP_V2M,
+    MMP_S98,
+    MMP_KSS
 };
 
 @class DetailViewControllerIphone;

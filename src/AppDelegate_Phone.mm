@@ -116,6 +116,8 @@ extern "C" void updateMainLoopC(void) {
     NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
+    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","];
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
@@ -138,6 +140,8 @@ extern "C" void updateMainLoopC(void) {
     [supportedExtension addObjectsFromArray:filetype_extADPLUG];
     [supportedExtension addObjectsFromArray:filetype_extHC];
     [supportedExtension addObjectsFromArray:filetype_extHVL];
+    [supportedExtension addObjectsFromArray:filetype_extS98];
+    [supportedExtension addObjectsFromArray:filetype_extKSS];
     [supportedExtension addObjectsFromArray:filetype_extGSF];
     [supportedExtension addObjectsFromArray:filetype_extASAP];
     [supportedExtension addObjectsFromArray:filetype_extVGM];
