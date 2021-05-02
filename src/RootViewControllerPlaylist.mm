@@ -644,7 +644,23 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         //NSDictionary *mode_entries_detailsDict = [NSDictionary dictionaryWithObject:mode_entries_details forKey:@"entries_details"];
         [keys addObject:mode_entriesDict];
         //[keys addObject:mode_entries_detailsDict];
-    } else if (show_playlist==0) {
+    } else if (show_playlist) {
+        switch (integrated_playlist) {
+            case 0: //not integrated playlist, refresh currently selected playlist
+                [self loadPlayListsFromDB:playlist->playlist_id intoPlaylist:playlist];
+                break;
+            case INTEGRATED_PLAYLIST_NOWPLAYING:
+                [self reloadNowPlaying];
+                break;
+            case INTEGRATED_PLAYLIST_FAVORITES:
+                [self loadFavoritesList];
+                break;
+            case INTEGRATED_PLAYLIST_MOSTPLAYED:
+                [self loadMostPlayedList];
+                break;
+        }
+    } else {
+        //do not show playlist -> in browsing mode
         [self listLocalFiles];
     }
 }
@@ -1996,6 +2012,24 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     
 }
 
+-(void) reloadNowPlaying {
+    for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+        playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
+        playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
+        
+            DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
+                                        detailViewController.mPlaylist[i].mPlaylistFilepath,
+                                        &(playlist->entries[i].playcounts),
+                                        &(detailViewController.mPlaylist[i].mPlaylistRating),
+                                        &(playlist->entries[i].song_length),
+                                        &(playlist->entries[i].channels_nb),
+                                        &(playlist->entries[i].songs));
+        playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
+    }
+    playlist->nb_entries=detailViewController.mPlaylist_size;
+    playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
+    playlist->playlist_id=nil;
+}
 
 -(void) refreshViewAfterDownload {
 }
@@ -2075,14 +2109,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     /////////////
     
     if (show_playlist) self.navigationItem.title=[NSString stringWithFormat:@"%@",playlist->playlist_name];
+    else self.navigationItem.title=NSLocalizedString(@"Browser_Playlists_MainKey",@"");
     
-    if (detailViewController.mShouldHaveFocus) {
-        detailViewController.mShouldHaveFocus=0;
-        [self.navigationController pushViewController:detailViewController animated:YES];
-    } else {
-        [self fillKeys];
-        [self.tableView reloadData];
-    }
+    [self fillKeys];
+    [self.tableView reloadData];
     
     /*if (currentPlayedEntry>=0) {
         NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
@@ -2278,22 +2308,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                             if ((indexPath.row-1)<=detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos--;
                             detailViewController.mShouldUpdateInfos=1;
                     
-                    for (int i=0;i<detailViewController.mPlaylist_size;i++) {
-                        playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
-                        playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
-                        
-                            DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
-                                                        detailViewController.mPlaylist[i].mPlaylistFilepath,
-                                                        &(playlist->entries[i].playcounts),
-                                                        &(detailViewController.mPlaylist[i].mPlaylistRating),
-                                                        &(playlist->entries[i].song_length),
-                                                        &(playlist->entries[i].channels_nb),
-                                                        &(playlist->entries[i].songs));
-                        playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
-                    }
-                    playlist->nb_entries=detailViewController.mPlaylist_size;
-                    playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
-                    playlist->playlist_id=nil;
+                    
+                    [self reloadNowPlaying];
                             
                     forceReloadCells=true;
                     [self.tableView reloadData];
@@ -2737,22 +2753,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 if ((indexPath.row-1)<=detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos--;
                 detailViewController.mShouldUpdateInfos=1;
                 
-                for (int i=0;i<detailViewController.mPlaylist_size;i++) {
-                    playlist->entries[i].label=[[NSString alloc] initWithString:detailViewController.mPlaylist[i].mPlaylistFilename];
-                    playlist->entries[i].fullpath=[[NSString alloc ] initWithString:detailViewController.mPlaylist[i].mPlaylistFilepath];
-                    
-                        DBHelper::getFileStatsDBmod(detailViewController.mPlaylist[i].mPlaylistFilename,
-                                                    detailViewController.mPlaylist[i].mPlaylistFilepath,
-                                                    &(playlist->entries[i].playcounts),
-                                                    &(detailViewController.mPlaylist[i].mPlaylistRating),
-                                                    &(playlist->entries[i].song_length),
-                                                    &(playlist->entries[i].channels_nb),
-                                                    &(playlist->entries[i].songs));
-                    playlist->entries[i].ratings=detailViewController.mPlaylist[i].mPlaylistRating;
-                }
-                playlist->nb_entries=detailViewController.mPlaylist_size;
-                playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Now playing",@"")];
-                playlist->playlist_id=nil;
+                [self reloadNowPlaying];
                         
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else  if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
@@ -2777,7 +2778,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating);
-                [self loadMostPlayedList];
+                [self loadFavoritesList];
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else {
                 playlist->entries[indexPath.row-rowofs].label=nil;

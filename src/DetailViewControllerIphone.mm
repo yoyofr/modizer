@@ -14,6 +14,10 @@
 #define ARCSUB_MODE_SUB 2
 static int current_selmode;
 
+#include <pthread.h>
+extern pthread_mutex_t db_mutex;
+
+
 extern BOOL nvdsp_EQ;
 
 #import <mach/mach.h>
@@ -140,6 +144,7 @@ static int display_length_mode=0;
 
 @implementation DetailViewControllerIphone
 
+@synthesize btnAddToPl;
 @synthesize cover_img,default_cover;
 @synthesize coverflow,lblMainCoverflow,lblSecCoverflow,lblCurrentSongCFlow,lblTimeFCflow;
 @synthesize bShowVC,bShowEQ;
@@ -164,7 +169,7 @@ static int display_length_mode=0;
 @synthesize playBarSubRewind,playBarSubFFwd,pauseBarSubRewind,pauseBarSubFFwd;
 @synthesize mainView,infoView;
 @synthesize mainRating5,mainRating5off;
-@synthesize mShouldHaveFocus,mHasFocus,mScaleFactor;
+@synthesize mHasFocus,mScaleFactor;
 @synthesize backInfo;
 @synthesize mPlaylist_pos,mPlaylist_size;
 
@@ -596,6 +601,12 @@ static int display_length_mode=0;
 	[self showRating:mRating];
 }
 
+#import "PlaylistCommonFunctions.h"
+
+-(IBAction)pushedAddToPl {
+    //add to playlist
+    [self addToPlaylistSelView:mPlaylist[mPlaylist_pos].mPlaylistFilepath label:mPlaylist[mPlaylist_pos].mPlaylistFilename showNowListening:false];
+}
 
 -(IBAction)pushedRating5{
 	if (!mPlaylist_size) return;
@@ -3055,13 +3066,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
             buttonLoopListSel.frame = CGRectMake(10,0+48,32,32);
             buttonShuffle.frame = CGRectMake(50,0+48,32,32);
             buttonShuffleSel.frame = CGRectMake(50,0+48,32,32);
-            btnLoopInf.frame = CGRectMake(88,-12+48,35,57);
+            
+            btnLoopInf.frame = CGRectMake(88,48+3,28,28);
+            
             btnShowSubSong.frame = CGRectMake(mDevice_ww-36,0+48,32,32);
             btnShowArcList.frame = CGRectMake(mDevice_ww-36*2,0+48,32,32);
             btnShowVoices.frame = CGRectMake(mDevice_ww-36*3,0+48,32,32);
 			
 			mainRating5.frame = CGRectMake(130+2,3+48+4,20,20);
 			mainRating5off.frame = CGRectMake(130+2,3+48+4,20,20);
+            
+            btnAddToPl.frame = CGRectMake(130+2+34,48,28,28);
 			
 			infoButton.frame = CGRectMake(mDevice_ww-40,4,36,36);
             eqButton.frame = CGRectMake(mDevice_ww-40-40,4,36,36);
@@ -3287,6 +3302,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
                 
                 mainRating5.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
                 mainRating5off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
+                
+                btnAddToPl.frame = CGRectMake(xofs+6+2+28,yofs+42+2,20,20);
                                 
                 btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
                 btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
@@ -4601,9 +4618,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 	
 	for (int i=0;i<3;i++) viewTapInfoStr[i]=NULL;
 	
-	mShouldHaveFocus=0;
-    
-    mPlaylist_size=0;
+	mPlaylist_size=0;
 	mIsPlaying=FALSE;
 	oglViewFullscreenChanged=0;
     mOglViewIsHidden=YES;

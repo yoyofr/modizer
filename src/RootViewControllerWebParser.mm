@@ -467,19 +467,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
     }
     /////////////
     
-    if (detailViewController.mShouldHaveFocus) {
-        detailViewController.mShouldHaveFocus=0;
-        [self.navigationController pushViewController:detailViewController animated:YES];
-    } else {
-        if (shouldFillKeys) {
-            
-            [self showWaiting];
-            [self flushMainLoop];
-            
-            [self fillKeys];
-            [tableView reloadData];
-            [self hideWaiting];
-        }
+    
+    if (shouldFillKeys) {
+        
+        [self showWaiting];
+        [self flushMainLoop];
+        
+        [self fillKeys];
+        [tableView reloadData];
+        [self hideWaiting];
     }
     [super viewWillAppear:animated];
     

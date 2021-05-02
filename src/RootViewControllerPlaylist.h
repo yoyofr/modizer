@@ -111,6 +111,7 @@
 
 -(void) loadFavoritesList;
 -(void) loadMostPlayedList;
+-(void) reloadNowPlaying;
 
 
 -(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath;

@@ -115,6 +115,7 @@ class CGLString;
 	IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
     IBOutlet BButton *infoButton,*eqButton;
 	IBOutlet UIButton *mainRating5,*mainRating5off;
+    IBOutlet UIButton *btnAddToPl;
 	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
     IBOutlet UIBarButtonItem *playBarSubRewind,*playBarSubFFwd;
     IBOutlet UIBarButtonItem *pauseBarSubRewind,*pauseBarSubFFwd;
@@ -172,8 +173,6 @@ class CGLString;
 	int mRestart,mRestart_sub,mRestart_arc;
 	signed char mRating;
 	
-	int mShouldHaveFocus;
-	
 	int mHasFocus;
 	float mScaleFactor;
 	int mPaused;
@@ -185,12 +184,13 @@ class CGLString;
 //Cover flow
 @property (retain,nonatomic) TKCoverflowView *coverflow; 
 @property (retain,nonatomic) UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
-@property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow;
+@property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow,*btnAddToPl;
 @property BOOL mShuffle;
 @property int mShouldUpdateInfos;
 @property bool bShowVC,bShowEQ;
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
 
+-(IBAction)pushedAddToPl;
 -(IBAction)pushedRating5;
 
 -(IBAction)changeLoopMode;
@@ -254,7 +254,7 @@ class CGLString;
 
 -(IBAction) oglButtonPushed;
 
-@property int mShouldHaveFocus,mHasFocus,mPaused;
+@property int mHasFocus,mPaused;
 @property int mPlaylist_size,mPlaylist_pos,mDeviceType;
 @property char is_macOS;
 @property BOOL mIsPlaying;
@@ -303,9 +303,7 @@ class CGLString;
 
 -(IBAction)showVoicesSelector:(id)sender;
 -(IBAction)showSubSongSelector:(id)sender;
--(IBAction)playSelectedSubSong;
 -(IBAction)showArcSelector:(id)sender;
--(IBAction)playSelectedArc;
 
 
 - (void)titleTap:(UITapGestureRecognizer *)sender;

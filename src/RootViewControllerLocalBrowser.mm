@@ -1921,28 +1921,23 @@ static int shouldRestart=1;
         }
     }
     /////////////
-    if (detailViewController.mShouldHaveFocus) {
-        detailViewController.mShouldHaveFocus=0;
-        [self.navigationController pushViewController:detailViewController animated:YES];
-    } else {
-        shouldFillKeys=1;
-        
-        [self updateWaitingTitle:@""];
-        [self updateWaitingDetail:@""];
-        [self hideWaitingCancel];
-        [self showWaiting];
-        [self flushMainLoop];
-        
-        if (mSearch) {
-            mSearch=0;
-            [self listLocalFiles];
-            mSearch=1;
-        }
-        
-        [self fillKeys];
-        [tableView reloadData];
-        [self hideWaiting];
+    shouldFillKeys=1;
+    
+    [self updateWaitingTitle:@""];
+    [self updateWaitingDetail:@""];
+    [self hideWaitingCancel];
+    [self showWaiting];
+    [self flushMainLoop];
+    
+    if (mSearch) {
+        mSearch=0;
+        [self listLocalFiles];
+        mSearch=1;
     }
+    
+    [self fillKeys];
+    [tableView reloadData];
+    [self hideWaiting];
     
     [super viewWillAppear:animated];
     
@@ -3244,7 +3239,12 @@ static int shouldRestart=1;
     
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+// Playlist common functions
+/////////////////////////////////////////////////////////////////////////////////////////////
+#define HAS_DETAILVIEW_CONT
 #import "PlaylistCommonFunctions.h"
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 - (void) secondaryActionTapped: (UIButton*) sender {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
@@ -3263,7 +3263,9 @@ static int shouldRestart=1;
     int section=indexPath.section-2;
     
     if (indexPath.section==1) {
-        // launch Play of current dir
+        // enqueue current dir
+        
+        
         int pos=0;
         int total_entries=0;
         NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -3279,7 +3281,10 @@ static int shouldRestart=1;
                         if (j<indexPath.row) pos++;
                 }
         
-        signed char *tmp_ratings;
+        //add to playlist
+        if (total_entries) [self addMultipleToPlaylistSelView:array_path label:array_label showNowListening:true];
+        
+/*        signed char *tmp_ratings;
         short int *tmp_playcounts;
         tmp_ratings=(signed char*)calloc(total_entries,sizeof(signed char));
         tmp_playcounts=(short int*)calloc(total_entries,sizeof(short int));
@@ -3300,13 +3305,13 @@ static int shouldRestart=1;
         }
         
         free(tmp_ratings);
-        free(tmp_playcounts);
+        free(tmp_playcounts);*/
         
     } else {
         if (cur_local_entries[section][indexPath.row].type&3) {//File selected
             
             //add to playlist
-            [self addToPlaylistSelView:&(cur_local_entries[section][indexPath.row])];
+            [self addToPlaylistSelView:cur_local_entries[section][indexPath.row].fullpath label:cur_local_entries[section][indexPath.row].label showNowListening:true];
         }
     }
     [self hideWaiting];
