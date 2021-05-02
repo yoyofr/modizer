@@ -102,4 +102,6 @@
 
 -(void)updateMiniPlayer;
 
+-(int) loadPlayListsListFromDB:(t_playlist_DB**)plList;
+
 @end

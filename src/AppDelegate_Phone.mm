@@ -311,6 +311,7 @@ extern "C" void updateMainLoopC(void) {
     
     cpMngt=[[CarPlayAndRemoteManagement alloc] init];
     cpMngt.detailViewController=detailViewControlleriPhone;
+    cpMngt.rootVCLocalB=rootViewControlleriPhone;
     [cpMngt initCarPlayAndRemote];
     
 	return YES;

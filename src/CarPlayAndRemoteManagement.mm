@@ -8,14 +8,99 @@
 #import "CarPlayAndRemoteManagement.h"
 #import "DetailViewControllerIphone.h"
 
+#include <pthread.h>
+
 @implementation CarPlayAndRemoteManagement
 
 @synthesize detailViewController;
+@synthesize rootVCLocalB;
+
+-(void) flushMainLoop {
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
+}
+
+-(void) refreshMPItems {
+    MPPlayableContentManager *contMngr=[MPPlayableContentManager sharedContentManager];
+    if (plArray) {
+        MPContentItem *item=(MPContentItem*)([plArray objectAtIndex:0]);
+        if (detailViewController.mPlaylist_size) {
+            [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Now playing(%d)",@""),detailViewController.mPlaylist_size]];
+            [item setPlayable:TRUE];
+            [item setPlaybackProgress:(float)(detailViewController.mPlaylist_pos+1)/(float)(detailViewController.mPlaylist_size)];
+        } else {
+            [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Nothing playing",@"")]];
+            [item setPlayable:FALSE];
+        }
+        if (detailViewController.mIsPlaying) {
+            if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
+            else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
+        }
+    }
+}
 
 -(bool) initCarPlayAndRemote {
     ///////////////////////
-    //Carplay
+    //Carplay data
     ///////////////////////
+    t_playlist_DB *plList;
+    int plListsize=[rootVCLocalB loadPlayListsListFromDB:&plList];
+    
+    plArray=[[NSMutableArray alloc] init];
+    
+    //Integrated playlists
+    if (1/*detailViewController.mPlaylist_size*/) {
+        MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_NP"];
+        
+        if (detailViewController.mPlaylist_size) {
+            [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Now playing(%d)",@""),detailViewController.mPlaylist_size]];
+            [item setPlayable:TRUE];
+            [item setPlaybackProgress:(float)(detailViewController.mPlaylist_pos+1)/(float)(detailViewController.mPlaylist_size)];
+        } else {
+            [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Nothing playing",@"")]];
+            [item setPlayable:FALSE];
+        }
+        
+        [plArray addObject:item];
+    }
+    if (1) {
+        MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_MP"];
+        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Most played",@"")]];
+        [item setPlayable:TRUE];
+        
+        [plArray addObject:item];
+    }
+    if (1) {
+        MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_FV"];
+        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Favorites",@"")]];
+        [item setPlayable:TRUE];
+        
+        [plArray addObject:item];
+    }
+    if (1) {
+        MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_RD"];
+        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Random",@"")]];
+        [item setPlayable:TRUE];
+        [item setPlaybackProgress:(float)(detailViewController.mPlaylist_pos)/(float)(detailViewController.mPlaylist_size)];
+        
+        [plArray addObject:item];
+    }
+        
+    //free playlists list
+    for (int i=0;i<plListsize;i++) {
+        MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:[NSString stringWithFormat:@"pl_#%d",plList[i].pl_id]];
+        [item setTitle:[NSString stringWithFormat:@"%s(%d)",plList[i].pl_name,plList[i].pl_size]];
+        [item setPlayable:TRUE];
+        [item setPlaybackProgress:0];
+        
+        [plArray addObject:item];
+        
+        mdz_safe_free(plList[i].pl_name);
+    }
+    mdz_safe_free(plList);
+    
+    ////////////////////////
+    //Remote control mngt
+    //////////////////////////
     MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
     
     NSArray *commands = @[cmdCenter.playCommand, cmdCenter.pauseCommand, cmdCenter.nextTrackCommand, cmdCenter.previousTrackCommand, cmdCenter.bookmarkCommand, cmdCenter.changePlaybackPositionCommand, cmdCenter.changePlaybackRateCommand, cmdCenter.dislikeCommand, cmdCenter.enableLanguageOptionCommand, cmdCenter.likeCommand, cmdCenter.ratingCommand, cmdCenter.seekBackwardCommand, cmdCenter.seekForwardCommand, cmdCenter.skipBackwardCommand, cmdCenter.skipForwardCommand, cmdCenter.stopCommand, cmdCenter.togglePlayPauseCommand];
@@ -84,13 +169,16 @@
     MPPlayableContentManager *contMngr=[MPPlayableContentManager sharedContentManager];
     [contMngr setDelegate:self];
     [contMngr setDataSource:self];
-    [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"item1"]];
+    [contMngr reloadData];
+    if (detailViewController.mIsPlaying) {
+        if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
+        else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
+    }
+    
+    
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(refreshMPItems) userInfo:nil repeats: YES]; //1 times/second
     
     return TRUE;
-}
-
-- (void) initPlaylistList {
-    
 }
 
 ///////////////////////
@@ -121,7 +209,7 @@
     //NSLog(@"yo2");
     return YES;
 }
-/*
+
 /// Provides a content item for the provided identifier.
 /// Provide nil if there is no content item corresponding to the identifier.
 /// Provide an error if there is an error that will not allow content items
@@ -130,32 +218,29 @@
 /// has finished, if this method is implemented.
 - (void)contentItemForIdentifier:(NSString *)identifier completionHandler:(void(^)(MPContentItem *__nullable, NSError * __nullable))completionHandler {
     
-    NSLog(@"yo3");
+    NSLog(@"yo3 %@",identifier);
     if (completionHandler) completionHandler(nil,nil);
 }
 
-*/
+
 
 /// Returns the number of child nodes at the specified index path. In a virtual
 /// filesystem, this would be the number of files in a specific folder. An empty
 /// index path represents the root node.
 - (NSInteger)numberOfChildItemsAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"indexPath len %lu",indexPath.length);
+    //NSLog(@"indexPath len %lu",indexPath.length);
     if (indexPath.length) {
         return 0;
     }
-    return 3;
+    return [plArray count];
 }
 
 /// Returns the content item at the specified index path. If the content item is
 /// mutated after returning, its updated contents will be sent to MediaPlayer.
 - (nullable MPContentItem *)contentItemAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"%lu",indexPath.section);
-    //if (indexPath.length) NSLog(@"%lu",indexPath.row);
-    MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:[NSString stringWithFormat:@"item%d",indexPath.section]];
-    [item setTitle:[NSString stringWithFormat:@"item%lu",indexPath.section]];
-    [item setPlayable:TRUE];
-    [item setPlaybackProgress:0.1f*indexPath.section];
+    //NSLog(@"%lu",indexPath.section);
+    
+    MPContentItem *item=(MPContentItem*)([plArray objectAtIndex:indexPath.section]);
     return item;
 }
 

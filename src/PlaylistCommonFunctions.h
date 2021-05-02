@@ -8,13 +8,6 @@
 #ifndef PlaylistCommonFunctions_h
 #define PlaylistCommonFunctions_h
 
-#include <string.h>
-typedef struct {
-    char *pl_name;
-    int pl_id;
-    int pl_size;
-} t_playlist_DB;
-
 -(int) loadPlayListsListFromDB:(t_playlist_DB**)plList {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
@@ -201,6 +194,11 @@ typedef struct {
         [self flushMainLoop];
     }
  
+    //free playlists list
+    for (int i=0;i<plListsize;i++) {
+        mdz_safe_free(plList[i].pl_name);
+    }
+    mdz_safe_free(plList);
 }
 
 - (void) addMultipleToPlaylistSelView:(NSArray*)arrayPath label:(NSArray*)arrayLabel showNowListening:(bool)showNL{
@@ -255,6 +253,11 @@ typedef struct {
         [self flushMainLoop];
     }
  
+    //free playlists list
+    for (int i=0;i<plListsize;i++) {
+        mdz_safe_free(plList[i].pl_name);
+    }
+    mdz_safe_free(plList);
 }
 
 

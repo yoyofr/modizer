@@ -7,6 +7,7 @@
 //
 
 #import "ModizerConstants.h"
+#include <string.h>
 
 typedef struct {
 	NSString *label;
@@ -35,6 +36,12 @@ typedef struct {
 	int nb_entries;
 	t_playlist_entry entries[MAX_PL_ENTRIES];
 } t_playlist;
+
+typedef struct {
+    char *pl_name;
+    int pl_id;
+    int pl_size;
+} t_playlist_DB;
 
 
 typedef struct {

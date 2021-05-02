@@ -10,6 +10,7 @@
 #import <MediaPlayer/MediaPlayer.h>
 
 #import "ModizerConstants.h"
+#import "RootViewControllerLocalBrowser.h"
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,10 +18,15 @@ NS_ASSUME_NONNULL_BEGIN
 @class DetailViewControllerIphone;
 
 @interface CarPlayAndRemoteManagement : NSObject <MPPlayableContentDataSource,MPPlayableContentDelegate> {
-    DetailViewControllerIphone *detailViewController;    
+    DetailViewControllerIphone *detailViewController;
+    RootViewControllerLocalBrowser *rootVCLocalB;
+    
+    NSMutableArray *plArray;
+    NSTimer *repeatingTimer;
 }
 
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) RootViewControllerLocalBrowser *rootVCLocalB;
 
 -(bool) initCarPlayAndRemote;
 

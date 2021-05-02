@@ -221,9 +221,15 @@
 "Cancel"="Annuler";
 "Save"="Sauver";
 "Playlist name"="Nom de la liste";
+
 "Now playing"="Lecture en cours";
+"Now playing (%d)"="Lecture en cours (%d)";
 "Most played"="Les plus joués";
+"Most played (%d)"="Les plus joués (%d)";
 "Favorites"="Favoris";
+"Favorites (%d)"="Favoris (%d)";
+"Random"="Au hasard";
+
 "Enter new name"="Entrez le nouveau nom";
 "Enter playlist name"="Entrez le nom de la liste";
 
@@ -274,9 +280,6 @@
 
 "Clear 'Now Playing' queue"="Reset 'Lecture en cours'";
 
-"Now playing"="Lecture en cours";
-"Most played"="Plus joués";
-"Favorites"="Favoris";
 
 "Resuming last\nplayed file"="Reprise du dernier\nfichier en cours";
 
