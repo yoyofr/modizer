@@ -103,5 +103,12 @@
 -(void)updateMiniPlayer;
 
 -(int) loadPlayListsListFromDB:(t_playlist_DB**)plList;
+-(int) getFavoritesCountFromDB;
+-(int) getMostPlayedCountFromDB;
+-(int) loadFavoritesList:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths;
+-(int) loadMostPlayedList:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths;
+-(int) loadUserList:(int)pl_id  labels:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths;
+-(int) getLocalFilesCount;
+-(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths;
 
 @end

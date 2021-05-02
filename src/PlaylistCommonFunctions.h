@@ -56,6 +56,160 @@
     return pl_number;
 }
 
+-(int) getFavoritesCountFromDB {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int pl_number=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        sprintf(sqlStatement,"SELECT COUNT(*) FROM user_stats WHERE rating=5");
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                pl_number=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    return pl_number;
+}
+
+-(int) getMostPlayedCountFromDB {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int pl_number=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        sprintf(sqlStatement,"SELECT COUNT(*) FROM user_stats WHERE play_count>0");
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                pl_number=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    return pl_number;
+}
+
+-(int) loadMostPlayedList:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int pl_entries=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+            sprintf(sqlStatement,"SELECT name,fullpath FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    [labels addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]];
+                    [fullpaths addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
+                    pl_entries++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return pl_entries;
+}
+
+-(int) loadFavoritesList:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int pl_entries=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+            sprintf(sqlStatement,"SELECT name,fullpath FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    [labels addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]];
+                    [fullpaths addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
+                    pl_entries++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return pl_entries;
+}
+
+-(int) loadUserList:(int)pl_id  labels:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    int pl_entries=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+                    
+            sprintf(sqlStatement,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",pl_id);
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    [labels addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 0)]];
+                    [fullpaths addObject:[NSString stringWithFormat:@"%s",sqlite3_column_text(stmt, 1)]];
+                    pl_entries++;
+                }
+                sqlite3_finalize(stmt);
+            } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return pl_entries;
+}
+
+
 -(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;

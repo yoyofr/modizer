@@ -118,6 +118,8 @@
 
 #define MAX_PL_ENTRIES 65536
 
+#define MAX_CARPLAY_RANDOM_PL_SIZE 128
+
 #define MAX_RANDFX_TIME 15   //max is in fact min + max (seconds)
 #define MIN_RANDFX_TIME 15
 #define ALLOW_CHANGE_ON_BEAT_TIME 10   //change on beat is allowed after this threashold (seconds)

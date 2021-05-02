@@ -3246,6 +3246,196 @@ static int shouldRestart=1;
 #import "PlaylistCommonFunctions.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+-(int) getLocalFilesCount {
+    int pl_entries=0;
+    NSString *file,*cpath;
+    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
+    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
+    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
+    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
+    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
+    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
+    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
+    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
+                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
+                                  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
+    
+    [filetype_ext addObjectsFromArray:filetype_extMDX];
+    [filetype_ext addObjectsFromArray:filetype_extPMD];
+    [filetype_ext addObjectsFromArray:filetype_extSID];
+    [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
+    [filetype_ext addObjectsFromArray:filetype_extSC68];
+    [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
+    [filetype_ext addObjectsFromArray:filetype_extUADE];
+    [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
+    [filetype_ext addObjectsFromArray:filetype_extXMP];
+    [filetype_ext addObjectsFromArray:filetype_extGME];
+    [filetype_ext addObjectsFromArray:filetype_extADPLUG];
+    [filetype_ext addObjectsFromArray:filetype_ext2SF];
+    [filetype_ext addObjectsFromArray:filetype_extV2M];
+    [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
+    [filetype_ext addObjectsFromArray:filetype_extHC];
+    [filetype_ext addObjectsFromArray:filetype_extHVL];
+    [filetype_ext addObjectsFromArray:filetype_extGSF];
+    [filetype_ext addObjectsFromArray:filetype_extASAP];
+    [filetype_ext addObjectsFromArray:filetype_extWMIDI];
+    [filetype_ext addObjectsFromArray:filetype_extVGM];
+    
+    // First check count for each section
+    cpath=[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+    NSError *error;
+    NSArray *dirContent;//
+    BOOL isDir;
+        
+    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+    
+    NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+        NSString *str1=[(NSString *)obj1 lastPathComponent];
+        NSString *str2=[(NSString *)obj2 lastPathComponent];
+        return [str1 caseInsensitiveCompare:str2];
+    }];
+    
+    for (file in sortedDirContent) {
+        //check if dir
+        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        if (isDir) {
+        } else {
+            
+            NSString *extension;// = [[file pathExtension] uppercaseString];
+            NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+            extension = (NSString *)[temparray_filepath lastObject];
+            [temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                                                
+            int found=0;
+            
+            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+            
+            if (found)  {
+                pl_entries++;
+            }
+        }
+    }
+    return pl_entries;
+}
+-(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
+    int pl_entries=0;
+    NSString *file,*cpath;
+    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
+    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
+    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
+    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
+    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
+    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
+    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
+    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
+                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extGSF count]+
+                                  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
+    
+    [filetype_ext addObjectsFromArray:filetype_extMDX];
+    [filetype_ext addObjectsFromArray:filetype_extPMD];
+    [filetype_ext addObjectsFromArray:filetype_extSID];
+    [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
+    [filetype_ext addObjectsFromArray:filetype_extSC68];
+    [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
+    [filetype_ext addObjectsFromArray:filetype_extUADE];
+    [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
+    [filetype_ext addObjectsFromArray:filetype_extXMP];
+    [filetype_ext addObjectsFromArray:filetype_extGME];
+    [filetype_ext addObjectsFromArray:filetype_extADPLUG];
+    [filetype_ext addObjectsFromArray:filetype_ext2SF];
+    [filetype_ext addObjectsFromArray:filetype_extV2M];
+    [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
+    [filetype_ext addObjectsFromArray:filetype_extHC];
+    [filetype_ext addObjectsFromArray:filetype_extHVL];
+    [filetype_ext addObjectsFromArray:filetype_extGSF];
+    [filetype_ext addObjectsFromArray:filetype_extASAP];
+    [filetype_ext addObjectsFromArray:filetype_extWMIDI];
+    [filetype_ext addObjectsFromArray:filetype_extVGM];
+    
+    // First check count for each section
+    cpath=[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+    NSError *error;
+    NSArray *dirContent;//
+    BOOL isDir;
+        
+    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+    
+    NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+        NSString *str1=[(NSString *)obj1 lastPathComponent];
+        NSString *str2=[(NSString *)obj2 lastPathComponent];
+        return [str1 caseInsensitiveCompare:str2];
+    }];
+    
+    for (file in sortedDirContent) {
+        //check if dir
+        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        if (isDir) {
+        } else {
+            NSString *extension;// = [[file pathExtension] uppercaseString];
+            NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+            extension = (NSString *)[temparray_filepath lastObject];
+            [temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                                                
+            int found=0;
+            
+            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+            
+            if (found)  {
+                [labels addObject:[NSString stringWithString:[file lastPathComponent]]];
+                [fullpaths addObject:[NSString stringWithFormat:@"Documents/%@",file]];
+                pl_entries++;
+                if (pl_entries>MAX_CARPLAY_RANDOM_PL_SIZE) break;
+            }
+        }
+    }
+    
+    //now shuffle the list
+    for (int i=0;i<pl_entries;i++) {
+        int newidx = (arc4random() % (pl_entries - i)) + i;
+        [labels exchangeObjectAtIndex:i withObjectAtIndex:newidx];
+        [fullpaths exchangeObjectAtIndex:i withObjectAtIndex:newidx];
+    }
+    
+    return pl_entries;
+}
+
+
 - (void) secondaryActionTapped: (UIButton*) sender {
     NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
     t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
@@ -3283,30 +3473,7 @@ static int shouldRestart=1;
         
         //add to playlist
         if (total_entries) [self addMultipleToPlaylistSelView:array_path label:array_label showNowListening:true];
-        
-/*        signed char *tmp_ratings;
-        short int *tmp_playcounts;
-        tmp_ratings=(signed char*)calloc(total_entries,sizeof(signed char));
-        tmp_playcounts=(short int*)calloc(total_entries,sizeof(short int));
-        total_entries=0;
-        for (int i=0;i<27;i++)
-            for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                if (cur_local_entries[i][j].type&3) {
-                    tmp_ratings[total_entries]=cur_local_entries[i][j].rating;
-                    tmp_playcounts[total_entries++]=cur_local_entries[i][j].playcount;
-                }
-        
-        if (total_entries) {
-            if ([detailViewController add_to_playlist:array_path fileNames:array_label forcenoplay:1]) {
-                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-                                
-                [tableView reloadData];
-            }
-        }
-        
-        free(tmp_ratings);
-        free(tmp_playcounts);*/
-        
+                
     } else {
         if (cur_local_entries[section][indexPath.row].type&3) {//File selected
             

@@ -63,24 +63,29 @@
         [plArray addObject:item];
     }
     if (1) {
+        int nb_entries=[rootVCLocalB getMostPlayedCountFromDB];
         MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_MP"];
-        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Most played",@"")]];
-        [item setPlayable:TRUE];
+        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Most played (%d)",@""),nb_entries]];
+        if (nb_entries) [item setPlayable:TRUE];
+        else [item setPlayable:FALSE];
         
         [plArray addObject:item];
     }
     if (1) {
+        int nb_entries=[rootVCLocalB getFavoritesCountFromDB];
         MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_FV"];
-        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Favorites",@"")]];
-        [item setPlayable:TRUE];
+        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Favorites (%d)",@""),nb_entries]];
+        if (nb_entries) [item setPlayable:TRUE];
+        else [item setPlayable:FALSE];
         
         [plArray addObject:item];
     }
     if (1) {
+        int nb_entries=[rootVCLocalB getLocalFilesCount];
         MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_RD"];
-        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Random",@"")]];
-        [item setPlayable:TRUE];
-        [item setPlaybackProgress:(float)(detailViewController.mPlaylist_pos)/(float)(detailViewController.mPlaylist_size)];
+        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Random (%d)",@""),nb_entries]];
+        if (nb_entries) [item setPlayable:TRUE];
+        else [item setPlayable:FALSE];
         
         [plArray addObject:item];
     }
@@ -210,6 +215,7 @@
     return YES;
 }
 
+/*
 /// Provides a content item for the provided identifier.
 /// Provide nil if there is no content item corresponding to the identifier.
 /// Provide an error if there is an error that will not allow content items
@@ -221,7 +227,7 @@
     NSLog(@"yo3 %@",identifier);
     if (completionHandler) completionHandler(nil,nil);
 }
-
+*/
 
 
 /// Returns the number of child nodes at the specified index path. In a virtual
@@ -248,9 +254,123 @@
 /// content item. The application should call the completion handler with an
 /// appropriate error if there was an error beginning playback for the item.
 
+- (void)launchMostPlayedPL {
+    NSMutableArray *arrayLabels=[[NSMutableArray alloc] init];
+    NSMutableArray *arrayFullpaths=[[NSMutableArray alloc] init];
+    int pl_entries;
+    pl_entries=[rootVCLocalB loadMostPlayedList:arrayLabels fullpaths:arrayFullpaths];
+    if (pl_entries) {
+        t_playlist* playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
+                    
+        playlist->playlist_name=[[NSString alloc] initWithFormat:@"Most played"];
+        playlist->playlist_id=nil;
+        playlist->nb_entries=pl_entries;
+        for (int i=0;i<[arrayLabels count];i++) {
+            playlist->entries[i].label=[arrayLabels objectAtIndex:i];
+            playlist->entries[i].fullpath=[arrayFullpaths objectAtIndex:i];
+            playlist->entries[i].ratings=-1;
+        }
+        
+        [detailViewController play_listmodules:playlist start_index:0];
+        [detailViewController playPushed:nil];
+        
+        mdz_safe_free(playlist);
+    }
+}
+
+- (void)launchFavoritesPL {
+    NSMutableArray *arrayLabels=[[NSMutableArray alloc] init];
+    NSMutableArray *arrayFullpaths=[[NSMutableArray alloc] init];
+    int pl_entries;
+    pl_entries=[rootVCLocalB loadFavoritesList:arrayLabels fullpaths:arrayFullpaths];
+    if (pl_entries) {
+        t_playlist* playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
+                    
+        playlist->playlist_name=[[NSString alloc] initWithFormat:@"Favorites"];
+        playlist->playlist_id=nil;
+        playlist->nb_entries=pl_entries;
+        for (int i=0;i<[arrayLabels count];i++) {
+            playlist->entries[i].label=[arrayLabels objectAtIndex:i];
+            playlist->entries[i].fullpath=[arrayFullpaths objectAtIndex:i];
+            playlist->entries[i].ratings=-1;
+        }
+        
+        [detailViewController play_listmodules:playlist start_index:0];
+        [detailViewController playPushed:nil];
+        
+        mdz_safe_free(playlist);
+    }
+}
+
+- (void)launchRandomPL {
+    NSMutableArray *arrayLabels=[[NSMutableArray alloc] init];
+    NSMutableArray *arrayFullpaths=[[NSMutableArray alloc] init];
+    int pl_entries;
+    pl_entries=[rootVCLocalB loadLocalFilesRandomPL:arrayLabels fullpaths:arrayFullpaths];
+    if (pl_entries) {
+        t_playlist* playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
+                    
+        playlist->playlist_name=[[NSString alloc] initWithFormat:@"Random"];
+        playlist->playlist_id=nil;
+        playlist->nb_entries=pl_entries;
+        for (int i=0;i<[arrayLabels count];i++) {
+            playlist->entries[i].label=[arrayLabels objectAtIndex:i];
+            playlist->entries[i].fullpath=[arrayFullpaths objectAtIndex:i];
+            playlist->entries[i].ratings=-1;
+        }
+        
+        [detailViewController play_listmodules:playlist start_index:0];
+        [detailViewController playPushed:nil];
+        
+        mdz_safe_free(playlist);
+    }
+}
+
+- (void)launchUserPL:(NSNumber*)pl_id {
+    NSMutableArray *arrayLabels=[[NSMutableArray alloc] init];
+    NSMutableArray *arrayFullpaths=[[NSMutableArray alloc] init];
+    int pl_entries;
+    pl_entries=[rootVCLocalB loadUserList:[pl_id intValue] labels:arrayLabels fullpaths:arrayFullpaths];
+    if (pl_entries) {
+        t_playlist* playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
+                    
+        playlist->playlist_name=[[NSString alloc] initWithFormat:@"User playlist"];
+        playlist->playlist_id=[NSString stringWithFormat:@"%d",[pl_id intValue]];
+        playlist->nb_entries=pl_entries;
+        for (int i=0;i<[arrayLabels count];i++) {
+            playlist->entries[i].label=[arrayLabels objectAtIndex:i];
+            playlist->entries[i].fullpath=[arrayFullpaths objectAtIndex:i];
+            playlist->entries[i].ratings=-1;
+        }
+        
+        [detailViewController play_listmodules:playlist start_index:0];
+        [detailViewController playPushed:nil];
+        
+        mdz_safe_free(playlist);
+    }
+}
+
 - (void)playableContentManager:(MPPlayableContentManager *)contentManager initiatePlaybackOfContentItemAtIndexPath:(NSIndexPath *)indexPath completionHandler:(void(^)(NSError * __nullable))completionHandler {
-    
-    [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];
+    MPContentItem *item=(MPContentItem*)[plArray objectAtIndex:indexPath.section];
+    if ([item.identifier isEqualToString:@"pl_NP"]) {
+        //Now playing
+        [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];
+    } else if ([item.identifier isEqualToString:@"pl_MP"]) {
+        //Most played
+        [self performSelectorOnMainThread:@selector(launchMostPlayedPL) withObject:nil waitUntilDone:YES];
+    } else if ([item.identifier isEqualToString:@"pl_FV"]) {
+        //Favorites
+        [self performSelectorOnMainThread:@selector(launchFavoritesPL) withObject:nil waitUntilDone:YES];
+    } else if ([item.identifier isEqualToString:@"pl_RD"]) {
+        //Random
+        [self performSelectorOnMainThread:@selector(launchRandomPL) withObject:nil waitUntilDone:YES];
+    } else {
+        //User playlist, id is pl_#xxx where xxx is the id
+        const char *tmpstr=[item.identifier UTF8String];
+        int id_pl=atoi(tmpstr+4);
+        
+        [self performSelectorOnMainThread:@selector(launchUserPL:) withObject:[NSNumber numberWithInt:id_pl] waitUntilDone:YES];
+    }
     completionHandler(nil);
 }
 
