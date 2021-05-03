@@ -149,7 +149,7 @@ KSS *KSS_opx2kss(uint8_t *data, uint32_t size) {
     memcpy(OFFSET(buf, load_adr, 0x4000), FMBIOS, fmbios_size);
   else {
     memset(OFFSET(buf, load_adr, 0x4000), 0, 0x4000);
-    memcpy(OFFSET(buf, load_adr, 0x401C), "OPLL", 4);
+    memcpy(OFFSET(buf, load_adr, 0x401C), "KSSOPLL", 4);
     memcpy(OFFSET(buf, load_adr, 0x4C00), FMTONE, sizeof(FMTONE));
     for (i = 0; i < 62; i++) {
       memcpy(OFFSET(buf, load_adr, 0x62EC + i * 32), "Pia34567"

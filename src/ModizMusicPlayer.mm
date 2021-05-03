@@ -3361,6 +3361,21 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mod_currentsub<mod_maxsub) {
                             mod_currentsub++;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_KSS) {
+                                KSSPLAY_reset(kssplay, mod_currentsub, 0);
+                                
+                                iModuleLength=optGENDefaultLength;
+                                iCurrentTime=0;
+                                
+                                if (moveToNextSubSong==2) {
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_HVL) {
                                 hvl_InitSubsong( hvl_song,mod_currentsub );
                                 
@@ -3368,8 +3383,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 
                                 if (moveToNextSubSong==2) {
-                                    //[self iPhoneDrv_PlayWaitStop];
-                                    //[self iPhoneDrv_PlayStart];
                                 } else {
                                     [self iPhoneDrv_PlayStop];
                                     [self iPhoneDrv_PlayStart];
@@ -3540,6 +3553,21 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     if (moveToSubSong) {
                         mod_currentsub=moveToSubSongIndex;
                         mod_message_updated=1;
+                        if (mPlayType==MMP_KSS) {
+                            KSSPLAY_reset(kssplay, mod_currentsub, 0);
+                            
+                            iModuleLength=optGENDefaultLength;
+                            iCurrentTime=0;
+                            
+                            if (moveToNextSubSong==2) {
+                            } else {
+                                [self iPhoneDrv_PlayStop];
+                                [self iPhoneDrv_PlayStart];
+                            }
+                            //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                            if (mLoopMode) iModuleLength=-1;
+                            mod_message_updated=1;
+                        }
                         if (mPlayType==MMP_HVL) {
                             hvl_InitSubsong( hvl_song,mod_currentsub );
                             
@@ -3547,8 +3575,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             iCurrentTime=0;
                             
                             if (moveToNextSubSong==2) {
-                                //[self iPhoneDrv_PlayWaitStop];
-                                //[self iPhoneDrv_PlayStart];
                             } else {
                                 [self iPhoneDrv_PlayStop];
                                 [self iPhoneDrv_PlayStart];
@@ -3720,6 +3746,21 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mod_currentsub>mod_minsub) {
                             mod_currentsub--;
                             mod_message_updated=1;
+                            if (mPlayType==MMP_KSS) {
+                                KSSPLAY_reset(kssplay, mod_currentsub, 0);
+                                
+                                iModuleLength=optGENDefaultLength;
+                                iCurrentTime=0;
+                                
+                                if (moveToNextSubSong==2) {
+                                } else {
+                                    [self iPhoneDrv_PlayStop];
+                                    [self iPhoneDrv_PlayStart];
+                                }
+                                //if (iModuleLength<=0) iModuleLength=optGENDefaultLength;
+                                if (mLoopMode) iModuleLength=-1;
+                                mod_message_updated=1;
+                            }
                             if (mPlayType==MMP_HVL) {
                                 hvl_InitSubsong( hvl_song,mod_currentsub );
                                 
@@ -6025,9 +6066,9 @@ char* loadRom(const char* path, size_t romSize)
         return -2;
     }
     
-    mod_subsongs=kss->info_num;
-    mod_minsub=0;
-    mod_maxsub=mod_subsongs-1;
+    mod_subsongs=kss->trk_max-kss->trk_min+1;
+    mod_minsub=kss->trk_min;
+    mod_maxsub=kss->trk_max;
     mod_currentsub=0;
     
     /* INIT KSSPLAY */
@@ -6037,17 +6078,21 @@ char* loadRom(const char* path, size_t romSize)
 
     KSSPLAY_set_device_quality(kssplay, EDSC_PSG, 1);
     KSSPLAY_set_device_quality(kssplay, EDSC_SCC, 1);
-    KSSPLAY_set_device_quality(kssplay, EDSC_OPLL, 1);
+    KSSPLAY_set_device_quality(kssplay, EDSC_KSSOPLL, 1);
+    
+    kssplay->opll_stereo = 1;
+    
+    KSSPLAY_set_master_volume(kssplay, 64);
     
     KSSPLAY_set_device_pan(kssplay, EDSC_PSG, -32);
     KSSPLAY_set_device_pan(kssplay, EDSC_SCC,  32);
     kssplay->opll_stereo = 1;
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 0, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 1, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 2, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 3, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 4, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 5, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 0, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 1, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 2, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 3, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 4, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 5, 2);
     
     
     numChannels=2;

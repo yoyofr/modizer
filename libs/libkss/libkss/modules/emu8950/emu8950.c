@@ -1,5 +1,5 @@
 /**
- * emu8950 v1.1.0
+ * emu8950 v1.0.1
  * https://github.com/digital-sound-antiques/emu8950
  * Copyright (C) 2001-2020 Mitsutaka Okazaki
  */
@@ -21,8 +21,8 @@
 
 #define _PI_ 3.14159265358979323846264338327950288
 
-enum __OPL_EG_STATE { ATTACK, DECAY, SUSTAIN, RELEASE, UNKNOWN };
-enum __OPL_TYPE { TYPE_Y8950 = 0, TYPE_YM3526, TYPE_YM3812, TYPE_MAX };
+enum __KSSOPL_EG_STATE { ATTACK, DECAY, SUSTAIN, RELEASE, UNKNOWN };
+enum __KSSOPL_TYPE { TYPE_Y8950 = 0, TYPE_YM3526, TYPE_YM3812, TYPE_MAX };
 
 /* phase increment counter */
 #define DP_BITS 20
@@ -155,7 +155,7 @@ static double kl_table[16] = {dB2(0.000),  dB2(9.000),  dB2(12.000), dB2(13.875)
                               dB2(19.875), dB2(20.250), dB2(20.625), dB2(21.000)};
 
 static uint32_t tll_table[8 * 16][1 << TL_BITS][4];
-static int32_t rks_table[2][32][2];
+static int32_t rks_table[8 * 2][2];
 
 #define min(i, j) (((i) < (j)) ? (i) : (j))
 #define max(i, j) (((i) > (j)) ? (i) : (j))
@@ -186,8 +186,8 @@ static double sinc(double x) { return (x == 0.0 ? 1.0 : sin(_PI_ * x) / (_PI_ * 
 static double windowed_sinc(double x) { return blackman(0.5 + 0.5 * x / (LW / 2)) * sinc(x); }
 
 /* f_inp: input frequency. f_out: output frequencey, ch: number of channels */
-OPL_RateConv *OPL_RateConv_new(double f_inp, double f_out, int ch) {
-  OPL_RateConv *conv = malloc(sizeof(OPL_RateConv));
+KSSOPL_RateConv *KSSOPL_RateConv_new(double f_inp, double f_out, int ch) {
+  KSSOPL_RateConv *conv = malloc(sizeof(KSSOPL_RateConv));
   int i;
 
   conv->ch = ch;
@@ -220,7 +220,7 @@ static INLINE int16_t lookup_sinc_table(int16_t *table, double x) {
   return table[min(SINC_RESO * LW / 2 - 1, index)];
 }
 
-void OPL_RateConv_reset(OPL_RateConv *conv) {
+void KSSOPL_RateConv_reset(KSSOPL_RateConv *conv) {
   int i;
   conv->timer = 0;
   for (i = 0; i < conv->ch; i++) {
@@ -229,7 +229,7 @@ void OPL_RateConv_reset(OPL_RateConv *conv) {
 }
 
 /* put original data to this converter at f_inp. */
-void OPL_RateConv_putData(OPL_RateConv *conv, int ch, int16_t data) {
+void KSSOPL_RateConv_putData(KSSOPL_RateConv *conv, int ch, int16_t data) {
   int16_t *buf = conv->buf[ch];
   int i;
   for (i = 0; i < LW - 1; i++) {
@@ -240,7 +240,7 @@ void OPL_RateConv_putData(OPL_RateConv *conv, int ch, int16_t data) {
 
 /* get resampled data from this converter at f_out. */
 /* this function must be called f_out / f_inp times per one putData call. */
-int16_t OPL_RateConv_getData(OPL_RateConv *conv, int ch) {
+int16_t KSSOPL_RateConv_getData(KSSOPL_RateConv *conv, int ch) {
   int16_t *buf = conv->buf[ch];
   int32_t sum = 0;
   int k;
@@ -256,7 +256,7 @@ int16_t OPL_RateConv_getData(OPL_RateConv *conv, int ch) {
   return sum >> SINC_AMP_BITS;
 }
 
-void OPL_RateConv_delete(OPL_RateConv *conv) {
+void KSSOPL_RateConv_delete(KSSOPL_RateConv *conv) {
   int i;
   for (i = 0; i < conv->ch; i++) {
     free(conv->buf[i]);
@@ -339,17 +339,12 @@ static void makeTllTable(void) {
 }
 
 static void makeRksTable(void) {
-  int fnum8, fnum9, blk;
-  int blk_fnum98;
-  for (fnum8 = 0; fnum8 < 2; fnum8++)
-    for (fnum9 = 0; fnum9 < 2; fnum9++)
-      for (blk = 0; blk < 8; blk++) {
-        blk_fnum98 = (blk << 2) | (fnum9 << 1) | fnum8;
-        rks_table[0][blk_fnum98][1] = (blk << 1) + fnum9;
-        rks_table[0][blk_fnum98][0] = blk >> 1;
-        rks_table[1][blk_fnum98][1] = (blk << 1) + (fnum9 & fnum8);
-        rks_table[1][blk_fnum98][0] = blk >> 1;
-      }
+  int fnum9, block;
+  for (fnum9 = 0; fnum9 < 2; fnum9++)
+    for (block = 0; block < 8; block++) {
+      rks_table[(block << 1) | fnum9][1] = (block << 1) + fnum9;
+      rks_table[(block << 1) | fnum9][0] = block >> 1;
+    }
 }
 
 static uint8_t table_initialized = 0;
@@ -378,16 +373,16 @@ static void initializeTables() {
 #define CAR(o, x) (&(o)->slot[((x) << 1) | 1])
 #define BIT(s, b) (((s) >> (b)) & 1)
 
-#if OPL_DEBUG
-static void _debug_print_patch(OPL_SLOT_8950 *slot) {
-  OPL_PATCH *p = slot->patch;
+#if KSSOPL_DEBUG
+static void _debug_print_patch(KSSOPL_SLOT *slot) {
+  KSSOPL_PATCH *p = slot->patch;
   printf("[slot#%d am:%d pm:%d eg:%d kr:%d ml:%d kl:%d tl:%d ws:%d fb:%d A:%d D:%d S:%d R:%d]\n", slot->number, //
          p->AM, p->PM, p->EG, p->KR, p->ML,                                                                     //
          p->KL, p->TL, p->WS, p->FB,                                                                            //
          p->AR, p->DR, p->SL, p->RR);
 }
 
-static char *_debug_eg_state_name(OPL_SLOT_8950 *slot) {
+static char *_debug_eg_state_name(KSSOPL_SLOT *slot) {
   switch (slot->eg_state) {
   case ATTACK:
     return "attack";
@@ -404,7 +399,7 @@ static char *_debug_eg_state_name(OPL_SLOT_8950 *slot) {
   }
 }
 
-static INLINE void _debug_print_slot_info(OPL_SLOT_8950 *slot) {
+static INLINE void _debug_print_slot_info(KSSOPL_SLOT *slot) {
   char *name = _debug_eg_state_name(slot);
   _debug_print_patch(slot);
   printf("[slot#%d state:%s fnum:%03x rate:%d-%d]\n", slot->number, name, slot->blk_fnum, slot->eg_rate_h,
@@ -413,7 +408,7 @@ static INLINE void _debug_print_slot_info(OPL_SLOT_8950 *slot) {
 }
 #endif
 
-static INLINE int get_parameter_rate(OPL_SLOT_8950 *slot) {
+static INLINE int get_parameter_rate(KSSOPL_SLOT *slot) {
   switch (slot->eg_state) {
   case ATTACK:
     return slot->patch->AR;
@@ -436,9 +431,9 @@ enum SLOT_UPDATE_FLAG {
   UPDATE_ALL = 255,
 };
 
-static INLINE void request_update(OPL_SLOT_8950 *slot, int flag) { slot->update_requests |= flag; }
+static INLINE void request_update(KSSOPL_SLOT *slot, int flag) { slot->update_requests |= flag; }
 
-static void commit_slot_update(OPL_SLOT_8950 *slot, uint8_t notesel) {
+static void commit_slot_update(KSSOPL_SLOT *slot) {
 
   if (slot->update_requests & UPDATE_WS) {
     slot->wave_table = wave_table_map[slot->patch->WS & 3];
@@ -453,7 +448,7 @@ static void commit_slot_update(OPL_SLOT_8950 *slot, uint8_t notesel) {
   }
 
   if (slot->update_requests & UPDATE_RKS) {
-    slot->rks = rks_table[notesel][slot->blk_fnum >> 8][slot->patch->KR];
+    slot->rks = rks_table[slot->blk_fnum >> 9][slot->patch->KR];
   }
 
   if (slot->update_requests & (UPDATE_RKS | UPDATE_EG)) {
@@ -474,7 +469,7 @@ static void commit_slot_update(OPL_SLOT_8950 *slot, uint8_t notesel) {
     }
   }
 
-#if OPL_DEBUG
+#if KSSOPL_DEBUG
   if (slot->last_eg_state != slot->eg_state) {
     _debug_print_slot_info(slot);
     slot->last_eg_state = slot->eg_state;
@@ -484,9 +479,9 @@ static void commit_slot_update(OPL_SLOT_8950 *slot, uint8_t notesel) {
   slot->update_requests = 0;
 }
 
-static void reset_slot(OPL_SLOT_8950 *slot, int number) {
+static void reset_slot(KSSOPL_SLOT *slot, int number) {
   slot->patch = &(slot->__patch);
-  memset(slot->patch, 0, sizeof(OPL_PATCH));
+  memset(slot->patch, 0, sizeof(KSSOPL_PATCH));
   slot->number = number;
   slot->type = number % 2;
   slot->pg_keep = 0;
@@ -505,8 +500,8 @@ static void reset_slot(OPL_SLOT_8950 *slot, int number) {
   slot->eg_out = EG_MUTE;
 }
 
-static INLINE void slotOn(OPL *opl, int i) {
-  OPL_SLOT_8950 *slot = &opl->slot[i];
+static INLINE void slotOn(KSSOPL *opl, int i) {
+  KSSOPL_SLOT *slot = &opl->slot[i];
   if (min(15, slot->patch->AR + (slot->rks >> 2)) == 15) {
     slot->eg_state = DECAY;
     slot->eg_out = 0;
@@ -519,22 +514,18 @@ static INLINE void slotOn(OPL *opl, int i) {
   request_update(slot, UPDATE_EG);
 }
 
-static INLINE void slotOff(OPL *opl, int i) {
-  OPL_SLOT_8950 *slot = &opl->slot[i];
+static INLINE void slotOff(KSSOPL *opl, int i) {
+  KSSOPL_SLOT *slot = &opl->slot[i];
   slot->eg_state = RELEASE;
   request_update(slot, UPDATE_EG);
 }
 
-static INLINE void update_key_status(OPL *opl) {
+static INLINE void update_key_status(KSSOPL *opl) {
   const uint8_t r14 = opl->reg[0xbd];
   const uint8_t rhythm_mode = BIT(r14, 5);
   uint32_t new_slot_key_status = 0;
   uint32_t updated_status;
   int ch;
-
-  if (opl->csm_mode && opl->csm_key_count) {
-    new_slot_key_status = 0x3ffff;
-  }
 
   for (ch = 0; ch < 9; ch++)
     if (opl->reg[0xB0 + ch] & 0x20)
@@ -575,9 +566,9 @@ static INLINE void update_key_status(OPL *opl) {
 }
 
 /* set f-Nnmber ( fnum : 10bit ) */
-static INLINE void set_fnumber(OPL *opl, int ch, int fnum) {
-  OPL_SLOT_8950 *car = CAR(opl, ch);
-  OPL_SLOT_8950 *mod = MOD(opl, ch);
+static INLINE void set_fnumber(KSSOPL *opl, int ch, int fnum) {
+  KSSOPL_SLOT *car = CAR(opl, ch);
+  KSSOPL_SLOT *mod = MOD(opl, ch);
   car->fnum = fnum;
   car->blk_fnum = (car->blk_fnum & 0x1c00) | (fnum & 0x3ff);
   mod->fnum = fnum;
@@ -587,9 +578,9 @@ static INLINE void set_fnumber(OPL *opl, int ch, int fnum) {
 }
 
 /* set block data (blk : 3bit ) */
-static INLINE void set_block(OPL *opl, int ch, int blk) {
-  OPL_SLOT_8950 *car = CAR(opl, ch);
-  OPL_SLOT_8950 *mod = MOD(opl, ch);
+static INLINE void set_block(KSSOPL *opl, int ch, int blk) {
+  KSSOPL_SLOT *car = CAR(opl, ch);
+  KSSOPL_SLOT *mod = MOD(opl, ch);
   car->blk = blk;
   car->blk_fnum = ((blk & 7) << 10) | (car->blk_fnum & 0x3ff);
   mod->blk = blk;
@@ -598,7 +589,7 @@ static INLINE void set_block(OPL *opl, int ch, int blk) {
   request_update(mod, UPDATE_EG | UPDATE_RKS | UPDATE_TLL);
 }
 
-static INLINE void update_rhythm_mode(OPL *opl) {
+static INLINE void update_rhythm_mode(KSSOPL *opl) {
   const uint8_t new_rhythm_mode = (opl->reg[0xbd] >> 5) & 1;
 
   if (opl->rhythm_mode != new_rhythm_mode) {
@@ -621,7 +612,7 @@ static INLINE void update_rhythm_mode(OPL *opl) {
   opl->rhythm_mode = new_rhythm_mode;
 }
 
-static void update_ampm(OPL *opl) {
+static void update_ampm(KSSOPL *opl) {
   const uint32_t pm_inc = (opl->test_flag & 8) ? opl->pm_dphase << 10 : opl->pm_dphase;
   const uint32_t am_inc = (opl->test_flag & 8) ? 64 : 1;
   if (opl->test_flag & 2) {
@@ -634,7 +625,7 @@ static void update_ampm(OPL *opl) {
   opl->lfo_am = am_table[(opl->am_phase >> 6) % sizeof(am_table)] >> (opl->am_mode ? 0 : 2);
 }
 
-static void update_noise(OPL *opl, int cycle) {
+static void update_noise(KSSOPL *opl, int cycle) {
   int i;
   for (i = 0; i < cycle; i++) {
     if (opl->noise & 1) {
@@ -644,7 +635,7 @@ static void update_noise(OPL *opl, int cycle) {
   }
 }
 
-static void update_short_noise(OPL *opl) {
+static void update_short_noise(KSSOPL *opl) {
   const uint32_t pg_hh = opl->slot[SLOT_HH].pg_out;
   const uint32_t pg_cym = opl->slot[SLOT_CYM].pg_out;
 
@@ -658,7 +649,7 @@ static void update_short_noise(OPL *opl) {
   opl->short_noise = (h_bit2 ^ h_bit7) | (h_bit3 ^ c_bit5) | (c_bit3 ^ c_bit5);
 }
 
-static INLINE void calc_phase(OPL_SLOT_8950 *slot, int32_t pm_phase, uint8_t pm_mode, uint8_t reset) {
+static INLINE void calc_phase(KSSOPL_SLOT *slot, int32_t pm_phase, uint8_t pm_mode, uint8_t reset) {
   int8_t pm = 0;
   if (slot->patch->PM) {
     pm = pm_table[(slot->fnum >> 7) & 7][pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
@@ -673,7 +664,7 @@ static INLINE void calc_phase(OPL_SLOT_8950 *slot, int32_t pm_phase, uint8_t pm_
   slot->pg_out = slot->pg_phase >> DP_BASE_BITS;
 }
 
-static INLINE uint8_t lookup_attack_step(OPL_SLOT_8950 *slot, uint32_t counter) {
+static INLINE uint8_t lookup_attack_step(KSSOPL_SLOT *slot, uint32_t counter) {
   int index = (counter >> slot->eg_shift) & 7;
   switch (slot->eg_rate_h) {
   case 13:
@@ -688,7 +679,7 @@ static INLINE uint8_t lookup_attack_step(OPL_SLOT_8950 *slot, uint32_t counter) 
   }
 }
 
-static INLINE uint8_t lookup_decay_step(OPL_SLOT_8950 *slot, uint32_t counter) {
+static INLINE uint8_t lookup_decay_step(KSSOPL_SLOT *slot, uint32_t counter) {
   int index = (counter >> slot->eg_shift) & 7;
   switch (slot->eg_rate_h) {
   case 0:
@@ -704,7 +695,7 @@ static INLINE uint8_t lookup_decay_step(OPL_SLOT_8950 *slot, uint32_t counter) {
   }
 }
 
-static INLINE void calc_envelope(OPL_SLOT_8950 *slot, uint16_t eg_counter, uint8_t test) {
+static INLINE void calc_envelope(KSSOPL_SLOT *slot, uint16_t eg_counter, uint8_t test) {
 
   uint16_t mask = (1 << slot->eg_shift) - 1;
   uint8_t s;
@@ -746,14 +737,14 @@ static INLINE void calc_envelope(OPL_SLOT_8950 *slot, uint16_t eg_counter, uint8
   }
 }
 
-static void update_slots(OPL *opl) {
+static void update_slots(KSSOPL *opl) {
   int i;
   opl->eg_counter++;
 
   for (i = 0; i < 18; i++) {
-    OPL_SLOT_8950 *slot = &opl->slot[i];
+    KSSOPL_SLOT *slot = &opl->slot[i];
     if (slot->update_requests) {
-      commit_slot_update(slot, opl->notesel);
+      commit_slot_update(slot);
     }
     calc_envelope(slot, opl->eg_counter, opl->test_flag & 1);
     calc_phase(slot, opl->pm_phase, opl->pm_mode, opl->test_flag & 4);
@@ -768,7 +759,7 @@ static INLINE int16_t lookup_exp_table(uint16_t i) {
   return ((i & 0x8000) ? ~res : res) << 1;
 }
 
-static INLINE int16_t to_linear(uint16_t h, OPL_SLOT_8950 *slot, int16_t am) {
+static INLINE int16_t to_linear(uint16_t h, KSSOPL_SLOT *slot, int16_t am) {
   uint16_t att;
   if (slot->eg_out >= EG_MAX)
     return 0;
@@ -777,8 +768,8 @@ static INLINE int16_t to_linear(uint16_t h, OPL_SLOT_8950 *slot, int16_t am) {
   return lookup_exp_table(h + att);
 }
 
-static INLINE int16_t calc_slot_car(OPL *opl, int ch, int16_t fm) {
-  OPL_SLOT_8950 *slot = CAR(opl, ch);
+static INLINE int16_t calc_slot_car(KSSOPL *opl, int ch, int16_t fm) {
+  KSSOPL_SLOT *slot = CAR(opl, ch);
 
   uint8_t am = slot->patch->AM ? opl->lfo_am : 0;
 
@@ -788,8 +779,8 @@ static INLINE int16_t calc_slot_car(OPL *opl, int ch, int16_t fm) {
   return slot->output[0];
 }
 
-static INLINE int16_t calc_slot_mod(OPL *opl, int ch) {
-  OPL_SLOT_8950 *slot = MOD(opl, ch);
+static INLINE int16_t calc_slot_mod(KSSOPL *opl, int ch) {
+  KSSOPL_SLOT *slot = MOD(opl, ch);
 
   int16_t fm = slot->patch->FB > 0 ? (slot->output[1] + slot->output[0]) >> (9 - slot->patch->FB) : 0;
   uint8_t am = slot->patch->AM ? opl->lfo_am : 0;
@@ -800,8 +791,8 @@ static INLINE int16_t calc_slot_mod(OPL *opl, int ch) {
   return slot->output[0];
 }
 
-static INLINE int16_t calc_slot_tom(OPL *opl) {
-  OPL_SLOT_8950 *slot = &(opl->slot[SLOT_TOM]);
+static INLINE int16_t calc_slot_tom(KSSOPL *opl) {
+  KSSOPL_SLOT *slot = &(opl->slot[SLOT_TOM]);
 
   return to_linear(slot->wave_table[slot->pg_out], slot, 0);
 }
@@ -809,8 +800,8 @@ static INLINE int16_t calc_slot_tom(OPL *opl) {
 /* Specify phase offset directly based on 10-bit (1024-length) sine table */
 #define _PD(phase) ((PG_BITS < 10) ? (phase >> (10 - PG_BITS)) : (phase << (PG_BITS - 10)))
 
-static INLINE int16_t calc_slot_snare(OPL *opl) {
-  OPL_SLOT_8950 *slot = &(opl->slot[SLOT_SD]);
+static INLINE int16_t calc_slot_snare(KSSOPL *opl) {
+  KSSOPL_SLOT *slot = &(opl->slot[SLOT_SD]);
 
   uint32_t phase;
 
@@ -822,16 +813,16 @@ static INLINE int16_t calc_slot_snare(OPL *opl) {
   return to_linear(slot->wave_table[phase], slot, 0);
 }
 
-static INLINE int16_t calc_slot_cym(OPL *opl) {
-  OPL_SLOT_8950 *slot = &(opl->slot[SLOT_CYM]);
+static INLINE int16_t calc_slot_cym(KSSOPL *opl) {
+  KSSOPL_SLOT *slot = &(opl->slot[SLOT_CYM]);
 
   uint32_t phase = opl->short_noise ? _PD(0x300) : _PD(0x100);
 
   return to_linear(slot->wave_table[phase], slot, 0);
 }
 
-static INLINE int16_t calc_slot_hat(OPL *opl) {
-  OPL_SLOT_8950 *slot = &(opl->slot[SLOT_HH]);
+static INLINE int16_t calc_slot_hat(KSSOPL *opl) {
+  KSSOPL_SLOT *slot = &(opl->slot[SLOT_HH]);
 
   uint32_t phase;
 
@@ -846,68 +837,17 @@ static INLINE int16_t calc_slot_hat(OPL *opl) {
 #define _MO(x) (-(x) >> 1)
 #define _RO(x) (x)
 
-static INLINE int16_t calc_fm(OPL *opl, int ch) {
+static INLINE int16_t calc_fm(KSSOPL *opl, int ch) {
   if (opl->ch_alg[ch]) {
     return calc_slot_car(opl, ch, 0) + calc_slot_mod(opl, ch);
   }
   return calc_slot_car(opl, ch, calc_slot_mod(opl, ch));
 }
 
-static void latch_timer1(OPL *opl) {
-  opl->timer1_counter = opl->reg[0x02] << 2;
-}
-
-static void latch_timer2(OPL *opl) {
-  opl->timer2_counter = opl->reg[0x03] << 4;
-}
-
-static void csm_key_on(OPL *opl) {
-  opl->csm_key_count = 1;
-  update_key_status(opl);
-}
-
-static void csm_key_off(OPL *opl) {
-  opl->csm_key_count = 0;
-  update_key_status(opl);
-}
-
-static void update_timer(OPL *opl) {
-  if (opl->csm_mode && 0 < opl->csm_key_count) {
-    csm_key_off(opl);
-  }
-
-  if (opl->reg[0x04] & 0x01) {
-    opl->timer1_counter++;
-    if (opl->timer1_counter >> 10) {
-      opl->status |= 0x40; // timer1 overflow
-      if (opl->csm_mode) {
-        csm_key_on(opl);
-      }
-      if (opl->timer1_func) {
-        opl->timer1_func(opl->timer1_user_data);
-      }
-      latch_timer1(opl);
-    }
-  }
-
-  if (opl->reg[0x04] & 0x02) {
-    opl->timer2_counter++;
-    if (opl->timer2_counter >> 12) {
-      opl->status |= 0x20; // timer2 overflow
-      if (opl->timer2_func) {
-        opl->timer2_func(opl->timer2_user_data);
-      }
-      latch_timer2(opl);
-    }
-  }
-
-}
-
-static void update_output(OPL *opl) {
+static void update_output(KSSOPL *opl) {
   int16_t *out;
   int i;
 
-  update_timer(opl);
   update_ampm(opl);
   update_short_noise(opl);
   update_slots(opl);
@@ -916,18 +856,18 @@ static void update_output(OPL *opl) {
 
   /* CH1-6 */
   for (i = 0; i < 6; i++) {
-    if (!(opl->mask & OPL_MASK_CH(i))) {
+    if (!(opl->mask & KSSOPL_MASK_CH(i))) {
       out[i] = _MO(calc_fm(opl, i));
     }
   }
 
   /* CH7 */
   if (!opl->rhythm_mode) {
-    if (!(opl->mask & OPL_MASK_CH(6))) {
+    if (!(opl->mask & KSSOPL_MASK_CH(6))) {
       out[6] = _MO(calc_fm(opl, 6));
     }
   } else {
-    if (!(opl->mask & OPL_MASK_BD)) {
+    if (!(opl->mask & KSSOPL_MASK_BD)) {
       out[9] = _RO(calc_fm(opl, 6));
     }
   }
@@ -935,14 +875,14 @@ static void update_output(OPL *opl) {
 
   /* CH8 */
   if (!opl->rhythm_mode) {
-    if (!(opl->mask & OPL_MASK_CH(7))) {
+    if (!(opl->mask & KSSOPL_MASK_CH(7))) {
       out[7] = _MO(calc_fm(opl, 7));
     }
   } else {
-    if (!(opl->mask & OPL_MASK_HH)) {
+    if (!(opl->mask & KSSOPL_MASK_HH)) {
       out[10] = _RO(calc_slot_hat(opl));
     }
-    if (!(opl->mask & OPL_MASK_SD)) {
+    if (!(opl->mask & KSSOPL_MASK_SD)) {
       out[11] = _RO(calc_slot_snare(opl));
     }
   }
@@ -950,39 +890,39 @@ static void update_output(OPL *opl) {
 
   /* CH9 */
   if (!opl->rhythm_mode) {
-    if (!(opl->mask & OPL_MASK_CH(8))) {
+    if (!(opl->mask & KSSOPL_MASK_CH(8))) {
       out[8] = _MO(calc_fm(opl, 8));
     }
   } else {
-    if (!(opl->mask & OPL_MASK_TOM)) {
+    if (!(opl->mask & KSSOPL_MASK_TOM)) {
       out[12] = _RO(calc_slot_tom(opl));
     }
-    if (!(opl->mask & OPL_MASK_CYM)) {
+    if (!(opl->mask & KSSOPL_MASK_CYM)) {
       out[13] = _RO(calc_slot_cym(opl));
     }
   }
   update_noise(opl, 2);
 
   /* ADPCM */
-  if (opl->adpcm != NULL && !(opl->mask & OPL_MASK_ADPCM)) {
-    out[14] = OPL_ADPCM_calc(opl->adpcm);
+  if (opl->adpcm != NULL && !(opl->mask & KSSOPL_MASK_ADPCM)) {
+    out[14] = KSSOPL_ADPCM_calc(opl->adpcm);
   }
 }
 
-INLINE static void mix_output(OPL *opl) {
+INLINE static void mix_output(KSSOPL *opl) {
   int16_t out = 0;
   int i;
   for (i = 0; i < 15; i++) {
     out += opl->ch_out[i];
   }
   if (opl->conv) {
-    OPL_RateConv_putData(opl->conv, 0, out);
+    KSSOPL_RateConv_putData(opl->conv, 0, out);
   } else {
     opl->mix_out[0] = out;
   }
 }
 
-INLINE static void mix_output_stereo(OPL *opl) {
+INLINE static void mix_output_stereo(KSSOPL *opl) {
   int16_t *out = opl->mix_out;
   int i;
   out[0] = out[1] = 0;
@@ -993,8 +933,8 @@ INLINE static void mix_output_stereo(OPL *opl) {
       out[1] += (int16_t)(opl->ch_out[i] * opl->pan_fine[i][1]);
   }
   if (opl->conv) {
-    OPL_RateConv_putData(opl->conv, 0, out[0]);
-    OPL_RateConv_putData(opl->conv, 1, out[1]);
+    KSSOPL_RateConv_putData(opl->conv, 0, out[0]);
+    KSSOPL_RateConv_putData(opl->conv, 1, out[1]);
   }
 }
 
@@ -1004,14 +944,14 @@ INLINE static void mix_output_stereo(OPL *opl) {
 
 ***********************************************************/
 
-OPL *OPL_new(uint32_t clk, uint32_t rate) {
-  OPL *opl;
+KSSOPL *KSSOPL_new(uint32_t clk, uint32_t rate) {
+  KSSOPL *opl;
 
   if (!table_initialized) {
     initializeTables();
   }
 
-  opl = (OPL *)calloc(sizeof(OPL), 1);
+  opl = (KSSOPL *)calloc(sizeof(KSSOPL), 1);
   if (opl == NULL)
     return NULL;
 
@@ -1022,29 +962,25 @@ OPL *OPL_new(uint32_t clk, uint32_t rate) {
   opl->conv = NULL;
   opl->mix_out[0] = 0;
   opl->mix_out[1] = 0;
-  opl->timer1_func = NULL;
-  opl->timer1_user_data = NULL;
-  opl->timer2_func = NULL;
-  opl->timer2_user_data = NULL;
 
-  OPL_reset(opl);
+  KSSOPL_reset(opl);
 
   return opl;
 }
 
-void OPL_delete(OPL *opl) {
+void KSSOPL_delete(KSSOPL *opl) {
   if (opl->conv) {
-    OPL_RateConv_delete(opl->conv);
+    KSSOPL_RateConv_delete(opl->conv);
     opl->conv = NULL;
   }
   if (opl->adpcm) {
-    OPL_ADPCM_delete(opl->adpcm);
+    KSSOPL_ADPCM_delete(opl->adpcm);
     opl->adpcm = NULL;
   }
   free(opl);
 }
 
-static void reset_rate_conversion_params(OPL *opl) {
+static void reset_rate_conversion_params(KSSOPL *opl) {
   const double f_out = opl->rate;
   const double f_inp = opl->clk / 72;
 
@@ -1053,23 +989,23 @@ static void reset_rate_conversion_params(OPL *opl) {
   opl->inp_step = ((uint32_t)f_out) << 8;
 
   if (opl->conv) {
-    OPL_RateConv_delete(opl->conv);
+    KSSOPL_RateConv_delete(opl->conv);
     opl->conv = NULL;
   }
 
   if (floor(f_inp) != f_out && floor(f_inp + 0.5) != f_out) {
-    opl->conv = OPL_RateConv_new(f_inp, f_out, 2);
+    opl->conv = KSSOPL_RateConv_new(f_inp, f_out, 2);
   }
 
   if (opl->conv) {
-    OPL_RateConv_reset(opl->conv);
+    KSSOPL_RateConv_reset(opl->conv);
   }
 }
 
-void refresh_adpcm_object(OPL *opl) {
+void refresh_adpcm_object(KSSOPL *opl) {
   if (opl->chip_type == TYPE_Y8950) {
     if (opl->adpcm == NULL) {
-      opl->adpcm = OPL_ADPCM_new(opl->clk);
+      opl->adpcm = KSSOPL_ADPCM_new(opl->clk, opl->clk / 72);
     }
   } else {
     if (opl->adpcm != NULL) {
@@ -1078,25 +1014,17 @@ void refresh_adpcm_object(OPL *opl) {
     }
   }
   if (opl->adpcm != NULL) {
-    OPL_ADPCM_reset(opl->adpcm);
+    KSSOPL_ADPCM_reset(opl->adpcm);
   }
 }
 
-void OPL_reset(OPL *opl) {
+void KSSOPL_reset(KSSOPL *opl) {
   int i;
 
   if (!opl)
     return;
 
   opl->adr = 0;
-
-  opl->csm_mode = 0;
-  opl->csm_key_count = 0;
-  opl->notesel = 0;
-
-  opl->status = 0;
-  opl->timer1_counter = 0;
-  opl->timer2_counter = 0;
 
   opl->pm_phase = 0;
   opl->am_phase = 0;
@@ -1119,9 +1047,8 @@ void OPL_reset(OPL *opl) {
   }
 
   for (i = 0; i < 0x100; i++) {
-    opl->reg[i] = 0;
+    KSSOPL_writeReg(opl, i, 0);
   }
-  opl->reg[0x04] = 0x18; // MASK_EOS | MASK_BUF_RDY
 
   opl->pm_dphase = PM_DP_WIDTH / (1024 * 8);
 
@@ -1137,35 +1064,35 @@ void OPL_reset(OPL *opl) {
   refresh_adpcm_object(opl);
 }
 
-void OPL_setRate(OPL *opl, uint32_t rate) {
+void KSSOPL_setRate(KSSOPL *opl, uint32_t rate) {
   opl->rate = rate;
   reset_rate_conversion_params(opl);
 }
 
-void OPL_setQuality(OPL *opl, uint8_t q) {}
+void KSSOPL_setQuality(KSSOPL *opl, uint8_t q) {}
 
-void OPL_setChipType(OPL *opl, uint8_t type) {
+void KSSOPL_setChipType(KSSOPL *opl, uint8_t type) {
   if (type < TYPE_MAX) {
     opl->chip_type = type;
     refresh_adpcm_object(opl);
   }
 }
 
-void OPL_writeIO(OPL *opl, uint32_t adr, uint8_t val) {
+void KSSOPL_writeIO(KSSOPL *opl, uint32_t adr, uint8_t val) {
   if (adr & 1)
-    OPL_writeReg(opl, opl->adr, val);
+    KSSOPL_writeReg(opl, opl->adr, val);
   else
     opl->adr = val;
 }
 
-void OPL_setPan(OPL *opl, uint32_t ch, uint8_t pan) { opl->pan[ch & 15] = pan; }
+void KSSOPL_setPan(KSSOPL *opl, uint32_t ch, uint8_t pan) { opl->pan[ch & 15] = pan; }
 
-void OPL_setPanFine(OPL *opl, uint32_t ch, float pan[2]) {
+void KSSOPL_setPanFine(KSSOPL *opl, uint32_t ch, float pan[2]) {
   opl->pan_fine[ch & 15][0] = pan[0];
   opl->pan_fine[ch & 15][1] = pan[1];
 }
 
-int16_t OPL_calc(OPL *opl) {
+int16_t KSSOPL_calc(KSSOPL *opl) {
   while (opl->out_step > opl->out_time) {
     opl->out_time += opl->inp_step;
     update_output(opl);
@@ -1173,12 +1100,12 @@ int16_t OPL_calc(OPL *opl) {
   }
   opl->out_time -= opl->out_step;
   if (opl->conv) {
-    opl->mix_out[0] = OPL_RateConv_getData(opl->conv, 0);
+    opl->mix_out[0] = KSSOPL_RateConv_getData(opl->conv, 0);
   }
   return opl->mix_out[0];
 }
 
-void OPL_calcStereo(OPL *opl, int32_t out[2]) {
+void KSSOPL_calcStereo(KSSOPL *opl, int32_t out[2]) {
   while (opl->out_step > opl->out_time) {
     opl->out_time += opl->inp_step;
     update_output(opl);
@@ -1186,15 +1113,15 @@ void OPL_calcStereo(OPL *opl, int32_t out[2]) {
   }
   opl->out_time -= opl->out_step;
   if (opl->conv) {
-    out[0] = OPL_RateConv_getData(opl->conv, 0);
-    out[1] = OPL_RateConv_getData(opl->conv, 1);
+    out[0] = KSSOPL_RateConv_getData(opl->conv, 0);
+    out[1] = KSSOPL_RateConv_getData(opl->conv, 1);
   } else {
     out[0] = opl->mix_out[0];
     out[1] = opl->mix_out[1];
   }
 }
 
-uint32_t OPL_setMask(OPL *opl, uint32_t mask) {
+uint32_t KSSOPL_setMask(KSSOPL *opl, uint32_t mask) {
   uint32_t ret;
 
   if (opl) {
@@ -1205,7 +1132,7 @@ uint32_t OPL_setMask(OPL *opl, uint32_t mask) {
     return 0;
 }
 
-uint32_t OPL_toggleMask(OPL *opl, uint32_t mask) {
+uint32_t KSSOPL_toggleMask(KSSOPL *opl, uint32_t mask) {
   uint32_t ret;
 
   if (opl) {
@@ -1216,7 +1143,7 @@ uint32_t OPL_toggleMask(OPL *opl, uint32_t mask) {
     return 0;
 }
 
-void OPL_writeReg(OPL *opl, uint32_t reg, uint8_t data) {
+void KSSOPL_writeReg(KSSOPL *opl, uint32_t reg, uint8_t data) {
 
   int32_t s, c;
 
@@ -1225,40 +1152,16 @@ void OPL_writeReg(OPL *opl, uint32_t reg, uint8_t data) {
 
   reg = reg & 0xff;
 
-  if ((reg == 0x04) && (data & 0x80)) {
-    // IRQ RESET
-    opl->status = 0;
-    opl->reg[0x04] &= 0x7f;
-    if (opl->adpcm) {
-      OPL_ADPCM_resetStatus(opl->adpcm);
-    }
-    return;
-  }
-
   opl->reg[reg] = data;
 
   if (reg == 0x01) {
 
     opl->test_flag = data;
 
-  } else if (reg == 0x04) {
-
-    if (data & 0x01) {
-      latch_timer1(opl);
-    }
-    if (data & 0x02) {
-      latch_timer2(opl);
-    }
-
   } else if (0x07 <= reg && reg <= 0x12) {
 
-    if (reg == 0x08) {
-      opl->csm_mode = (data >> 7) & 1;
-      opl->notesel = (data >> 6) & 1;
-    }
-
     if (opl->adpcm != NULL && opl->chip_type == TYPE_Y8950) {
-      OPL_ADPCM_writeReg(opl->adpcm, reg, data);
+      KSSOPL_ADPCM_writeReg(opl->adpcm, reg, data);
     }
 
   } else if (0x20 <= reg && reg < 0x40) {
@@ -1336,29 +1239,21 @@ void OPL_writeReg(OPL *opl, uint32_t reg, uint8_t data) {
   }
 }
 
-uint8_t OPL_readIO(OPL *opl) { return opl->reg[opl->adr]; }
+uint8_t KSSOPL_readIO(KSSOPL *opl) { return opl->reg[opl->adr]; }
 
-uint8_t OPL_status(OPL *opl) {
-  uint8_t status = opl->status;
-
+uint8_t KSSOPL_status(KSSOPL *opl) {
   if (opl->adpcm) {
-    status |= OPL_ADPCM_status(opl->adpcm);
+    return KSSOPL_ADPCM_status(opl->adpcm);
   }
-
-  status &= ~(opl->reg[0x04] & 0x78); // IRQ MASK
-
-  if (status & 0x78) {
-    return status | 0x80; // IRQ=1
-  }
-  return status & 0x7f; // IRQ = 0
+  return 0;
 }
 
-void OPL_writeADPCMData(OPL *opl, uint8_t type, uint32_t start, uint32_t length, const uint8_t *data) {
+void KSSOPL_writeADPCMData(KSSOPL *opl, uint8_t type, uint32_t start, uint32_t length, const uint8_t *data) {
   if (opl->adpcm != NULL) {
     if (type == 0) {
-      OPL_ADPCM_writeRAM(opl->adpcm, start, length, data);
+      KSSOPL_ADPCM_writeRAM(opl->adpcm, start, length, data);
     } else {
-      OPL_ADPCM_writeROM(opl->adpcm, start, length, data);
+      KSSOPL_ADPCM_writeROM(opl->adpcm, start, length, data);
     }
   }
 }

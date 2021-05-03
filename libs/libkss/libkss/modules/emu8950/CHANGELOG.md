@@ -13,10 +13,10 @@
 - Support per-channel output.
 
 # v0.13 (2003-09-19)
-- Add OPL_setMask & OPL_toggleMask.
+- Add KSSOPL_setMask & KSSOPL_toggleMask.
 
 # v0.12 (2002-03-02)
-- Remove OPL_init & OPL_close.
+- Remove KSSOPL_init & KSSOPL_close.
 
 # v0.11 (2001-??-??)
 - Add ADPCM emulation.

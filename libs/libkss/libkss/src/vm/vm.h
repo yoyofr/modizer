@@ -56,8 +56,8 @@ struct tagVM {
 
   PSG *psg;
   SCC *scc;
-  OPLL *opll;
-  OPL *opl;
+  KSSOPLL *opll;
+  KSSOPL *opl;
   SNG *sng;
 
   void *fp;
@@ -74,8 +74,8 @@ enum { VM_MAIN_SLOT = 0, VM_BANK_SLOT = 1 };
 
 enum { VM_PSG_AUTO = 0, VM_PSG_AY, VM_PSG_YM };
 enum { VM_SCC_AUTO = 0, VM_SCC_STANDARD, VM_SCC_ENHANCED };
-enum { VM_OPLL_2413 = 0, VM_OPLL_VRC7, VM_OPLL_281B };
-enum { VM_OPL_PANA = 0, VM_OPL_TOSH, VM_OPL_PHIL };
+enum { VM_KSSOPLL_2413 = 0, VM_KSSOPLL_VRC7, VM_KSSOPLL_281B };
+enum { VM_KSSOPL_PANA = 0, VM_KSSOPL_TOSH, VM_KSSOPL_PHIL };
 
 VM *VM_new();
 void VM_delete(VM *vm);
@@ -91,8 +91,8 @@ void VM_set_wioproc(VM *vm, uint32_t a, VM_WIOPROC p);
 
 void VM_set_PSG_type(VM *vm, uint32_t psg_type);
 void VM_set_SCC_type(VM *vm, uint32_t scc_type);
-void VM_set_OPLL_type(VM *vm, uint32_t opll_type);
-void VM_set_OPL_type(VM *vm, uint32_t opl_type);
+void VM_set_KSSOPLL_type(VM *vm, uint32_t opll_type);
+void VM_set_KSSOPL_type(VM *vm, uint32_t opl_type);
 
 void VM_write_memory(VM *vm, uint32_t a, uint32_t d);
 void VM_write_io(VM *vm, uint32_t a, uint32_t d);

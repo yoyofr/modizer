@@ -42,9 +42,6 @@
 
 #import "CBAutoScrollLabel.h"
 
-#define TOUCH_SCROLL_THRESHOLD 33.0f
-#define MIN_DELAY_PREV_ENTRY 5000
-
 struct Resources;
 
 @class OGLView;

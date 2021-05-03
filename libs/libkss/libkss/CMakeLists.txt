@@ -31,23 +31,7 @@ if(NOT TARGET kmz80)
 	add_subdirectory(modules/kmz80)
 endif()
 
-set(SOURCES
-	src/filters/dc_filter.c
-	src/filters/filter.c
-	src/filters/rc_filter.c
-	src/kss/bgm2kss.c
-	src/kss/kss.c
-	src/kss/kss2kss.c
-	src/kss/kssload.c
-	src/kss/mbm2kss.c
-	src/kss/mgs2kss.c
-	src/kss/mpk2kss.c
-	src/kss/opx2kss.c
-	src/kssplay.c
-	src/vm/detect.c
-	src/vm/mmap.c
-	src/vm/vm.c
-)
+file(GLOB SOURCES src/*.c src/**/*.c)
 
 include_directories(modules)
 

@@ -7,17 +7,17 @@
 extern "C" {
 #endif
 
-#define OPLL_DEBUG 0
+#define KSSOPLL_DEBUG 0
 
-enum OPLL_TONE_ENUM { OPLL_2413_TONE = 0, OPLL_VRC7_TONE = 1, OPLL_281B_TONE = 2 };
+enum KSSOPLL_TONE_ENUM { KSSOPLL_2413_TONE = 0, KSSOPLL_VRC7_TONE = 1, KSSOPLL_281B_TONE = 2 };
 
 /* voice data */
-typedef struct __OPLL_PATCH {
+typedef struct __KSSOPLL_PATCH {
   uint32_t TL, FB, EG, ML, AR, DR, SL, RR, KR, KL, AM, PM, WS;
-} OPLL_PATCH;
+} KSSOPLL_PATCH;
 
 /* slot */
-typedef struct __OPLL_SLOT {
+typedef struct __KSSOPLL_SLOT {
   uint8_t number;
 
   /* type flags:
@@ -27,7 +27,7 @@ typedef struct __OPLL_SLOT {
    */
   uint8_t type;
 
-  OPLL_PATCH *patch; /* voice parameter */
+  KSSOPLL_PATCH *patch; /* voice parameter */
 
   /* slot output */
   int32_t output[2]; /* output value, latest and previous. */
@@ -55,36 +55,36 @@ typedef struct __OPLL_SLOT {
 
   uint32_t update_requests; /* flags to debounce update */
 
-#if OPLL_DEBUG
+#if KSSOPLL_DEBUG
   uint8_t last_eg_state;
 #endif
-} OPLL_SLOT;
+} KSSOPLL_SLOT;
 
 /* mask */
-#define OPLL_MASK_CH(x) (1 << (x))
-#define OPLL_MASK_HH (1 << (9))
-#define OPLL_MASK_CYM (1 << (10))
-#define OPLL_MASK_TOM (1 << (11))
-#define OPLL_MASK_SD (1 << (12))
-#define OPLL_MASK_BD (1 << (13))
-#define OPLL_MASK_RHYTHM (OPLL_MASK_HH | OPLL_MASK_CYM | OPLL_MASK_TOM | OPLL_MASK_SD | OPLL_MASK_BD)
+#define KSSOPLL_MASK_CH(x) (1 << (x))
+#define KSSOPLL_MASK_HH (1 << (9))
+#define KSSOPLL_MASK_CYM (1 << (10))
+#define KSSOPLL_MASK_TOM (1 << (11))
+#define KSSOPLL_MASK_SD (1 << (12))
+#define KSSOPLL_MASK_BD (1 << (13))
+#define KSSOPLL_MASK_RHYTHM (KSSOPLL_MASK_HH | KSSOPLL_MASK_CYM | KSSOPLL_MASK_TOM | KSSOPLL_MASK_SD | KSSOPLL_MASK_BD)
 
 /* rate conveter */
-typedef struct __OPLL_RateConv {
+typedef struct __KSSOPLL_RateConv {
   int ch;
   double timer;
   double f_ratio;
   int16_t *sinc_table;
   int16_t **buf;
-} OPLL_RateConv;
+} KSSOPLL_RateConv;
 
-OPLL_RateConv *OPLL_RateConv_new(double f_inp, double f_out, int ch);
-void OPLL_RateConv_reset(OPLL_RateConv *conv);
-void OPLL_RateConv_putData(OPLL_RateConv *conv, int ch, int16_t data);
-int16_t OPLL_RateConv_getData(OPLL_RateConv *conv, int ch);
-void OPLL_RateConv_delete(OPLL_RateConv *conv);
+KSSOPLL_RateConv *KSSOPLL_RateConv_new(double f_inp, double f_out, int ch);
+void KSSOPLL_RateConv_reset(KSSOPLL_RateConv *conv);
+void KSSOPLL_RateConv_putData(KSSOPLL_RateConv *conv, int ch, int16_t data);
+int16_t KSSOPLL_RateConv_getData(KSSOPLL_RateConv *conv, int ch);
+void KSSOPLL_RateConv_delete(KSSOPLL_RateConv *conv);
 
-typedef struct __OPLL {
+typedef struct __KSSOPLL {
   uint32_t clk;
   uint32_t rate;
 
@@ -112,8 +112,8 @@ typedef struct __OPLL {
   uint8_t short_noise;
 
   int32_t patch_number[9];
-  OPLL_SLOT slot[18];
-  OPLL_PATCH patch[19 * 2];
+  KSSOPLL_SLOT slot[18];
+  KSSOPLL_PATCH patch[19 * 2];
 
   uint8_t pan[16];
   float pan_fine[16][2];
@@ -126,27 +126,27 @@ typedef struct __OPLL {
 
   int16_t mix_out[2];
 
-  OPLL_RateConv *conv;
-} OPLL;
+  KSSOPLL_RateConv *conv;
+} KSSOPLL;
 
-OPLL *OPLL_new(uint32_t clk, uint32_t rate);
-void OPLL_delete(OPLL *);
+KSSOPLL *KSSOPLL_new(uint32_t clk, uint32_t rate);
+void KSSOPLL_delete(KSSOPLL *);
 
-void OPLL_reset(OPLL *);
-void OPLL_resetPatch(OPLL *, uint8_t);
+void KSSOPLL_reset(KSSOPLL *);
+void KSSOPLL_resetPatch(KSSOPLL *, uint8_t);
 
 /**
  * Set output wave sampling rate.
  * @param rate sampling rate. If clock / 72 (typically 49716 or 49715 at 3.58MHz) is set, the internal rate converter is
  * disabled.
  */
-void OPLL_setRate(OPLL *opll, uint32_t rate);
+void KSSOPLL_setRate(KSSOPLL *opll, uint32_t rate);
 
 /**
  * Set internal calcuration quality. Currently no effects, just for compatibility.
  * >= v1.0.0 always synthesizes internal output at clock/72 Hz.
  */
-void OPLL_setQuality(OPLL *opll, uint8_t q);
+void KSSOPLL_setQuality(KSSOPLL *opll, uint8_t q);
 
 /**
  * Set pan pot (extra function - not YM2413 chip feature)
@@ -158,7 +158,7 @@ void OPLL_setQuality(OPLL *opll, uint8_t q);
  *            +-- bit 0: enable Right output
  * ```
  */
-void OPLL_setPan(OPLL *opll, uint32_t ch, uint8_t pan);
+void KSSOPLL_setPan(KSSOPLL *opll, uint32_t ch, uint8_t pan);
 
 /**
  * Set fine-grained panning
@@ -166,69 +166,69 @@ void OPLL_setPan(OPLL *opll, uint32_t ch, uint8_t pan);
  * @param pan output strength of left/right channel.
  *            pan[0]: left, pan[1]: right. pan[0]=pan[1]=1.0f for center.
  */
-void OPLL_setPanFine(OPLL *opll, uint32_t ch, float pan[2]);
+void KSSOPLL_setPanFine(KSSOPLL *opll, uint32_t ch, float pan[2]);
 
 /**
  * Set chip type. If vrc7 is selected, r#14 is ignored.
  * This method not change the current ROM patch set.
- * To change ROM patch set, use OPLL_resetPatch.
+ * To change ROM patch set, use KSSOPLL_resetPatch.
  * @param type 0:YM2413 1:VRC7
  */
-void OPLL_setChipType(OPLL *opll, uint8_t type);
+void KSSOPLL_setChipType(KSSOPLL *opll, uint8_t type);
 
-void OPLL_writeIO(OPLL *opll, uint32_t reg, uint8_t val);
-void OPLL_writeReg(OPLL *opll, uint32_t reg, uint8_t val);
+void KSSOPLL_writeIO(KSSOPLL *opll, uint32_t reg, uint8_t val);
+void KSSOPLL_writeReg(KSSOPLL *opll, uint32_t reg, uint8_t val);
 
 /**
  * Calculate one sample
  */
-int16_t OPLL_calc(OPLL *opll);
+int16_t KSSOPLL_calc(KSSOPLL *opll);
 
 /**
  * Calulate stereo sample
  */
-void OPLL_calcStereo(OPLL *opll, int32_t out[2]);
+void KSSOPLL_calcStereo(KSSOPLL *opll, int32_t out[2]);
 
-void OPLL_setPatch(OPLL *, const uint8_t *dump);
-void OPLL_copyPatch(OPLL *, int32_t, OPLL_PATCH *);
+void KSSOPLL_setPatch(KSSOPLL *, const uint8_t *dump);
+void KSSOPLL_copyPatch(KSSOPLL *, int32_t, KSSOPLL_PATCH *);
 
 /**
  * Force to refresh.
  * External program should call this function after updating patch parameters.
  */
-void OPLL_forceRefresh(OPLL *);
+void KSSOPLL_forceRefresh(KSSOPLL *);
 
-void OPLL_dumpToPatch(const uint8_t *dump, OPLL_PATCH *patch);
-void OPLL_patchToDump(const OPLL_PATCH *patch, uint8_t *dump);
-void OPLL_getDefaultPatch(int32_t type, int32_t num, OPLL_PATCH *);
+void KSSOPLL_dumpToPatch(const uint8_t *dump, KSSOPLL_PATCH *patch);
+void KSSOPLL_patchToDump(const KSSOPLL_PATCH *patch, uint8_t *dump);
+void KSSOPLL_getDefaultPatch(int32_t type, int32_t num, KSSOPLL_PATCH *);
 
 /**
  *  Set channel mask
- *  @param mask mask flag: OPLL_MASK_* can be used.
- *  - bit 0..8: mask for ch 1 to 9 (OPLL_MASK_CH(i))
- *  - bit 9: mask for Hi-Hat (OPLL_MASK_HH)
- *  - bit 10: mask for Top-Cym (OPLL_MASK_CYM)
- *  - bit 11: mask for Tom (OPLL_MASK_TOM)
- *  - bit 12: mask for Snare Drum (OPLL_MASK_SD)
- *  - bit 13: mask for Bass Drum (OPLL_MASK_BD)
+ *  @param mask mask flag: KSSOPLL_MASK_* can be used.
+ *  - bit 0..8: mask for ch 1 to 9 (KSSOPLL_MASK_CH(i))
+ *  - bit 9: mask for Hi-Hat (KSSOPLL_MASK_HH)
+ *  - bit 10: mask for Top-Cym (KSSOPLL_MASK_CYM)
+ *  - bit 11: mask for Tom (KSSOPLL_MASK_TOM)
+ *  - bit 12: mask for Snare Drum (KSSOPLL_MASK_SD)
+ *  - bit 13: mask for Bass Drum (KSSOPLL_MASK_BD)
  */
-uint32_t OPLL_setMask(OPLL *, uint32_t mask);
+uint32_t KSSOPLL_setMask(KSSOPLL *, uint32_t mask);
 
 /**
  * Toggler channel mask flag
  */
-uint32_t OPLL_toggleMask(OPLL *, uint32_t mask);
+uint32_t KSSOPLL_toggleMask(KSSOPLL *, uint32_t mask);
 
 /* for compatibility */
-#define OPLL_set_rate OPLL_setRate
-#define OPLL_set_quality OPLL_setQuality
-#define OPLL_set_pan OPLL_setPan
-#define OPLL_set_pan_fine OPLL_setPanFine
-#define OPLL_calc_stereo OPLL_calcStereo
-#define OPLL_reset_patch OPLL_resetPatch
-#define OPLL_dump2patch OPLL_dumpToPatch
-#define OPLL_patch2dump OPLL_patchToDump
-#define OPLL_setChipMode OPLL_setChipType
+#define KSSOPLL_set_rate KSSOPLL_setRate
+#define KSSOPLL_set_quality KSSOPLL_setQuality
+#define KSSOPLL_set_pan KSSOPLL_setPan
+#define KSSOPLL_set_pan_fine KSSOPLL_setPanFine
+#define KSSOPLL_calc_stereo KSSOPLL_calcStereo
+#define KSSOPLL_reset_patch KSSOPLL_resetPatch
+#define KSSOPLL_dump2patch KSSOPLL_dumpToPatch
+#define KSSOPLL_patch2dump KSSOPLL_patchToDump
+#define KSSOPLL_setChipMode KSSOPLL_setChipType
 
 #ifdef __cplusplus
 }

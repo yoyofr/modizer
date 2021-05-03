@@ -214,18 +214,18 @@ int main(int argc, char *argv[]) {
 
   KSSPLAY_set_device_quality(kssplay, EDSC_PSG, opt.quality);
   KSSPLAY_set_device_quality(kssplay, EDSC_SCC, opt.quality);
-  KSSPLAY_set_device_quality(kssplay, EDSC_OPLL, opt.quality);
+  KSSPLAY_set_device_quality(kssplay, EDSC_KSSOPLL, opt.quality);
 
   if(opt.nch > 1) {
     KSSPLAY_set_device_pan(kssplay, EDSC_PSG, -32);
     KSSPLAY_set_device_pan(kssplay, EDSC_SCC,  32);
     kssplay->opll_stereo = 1;
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 0, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 1, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 2, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 3, 2);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 4, 1);
-    KSSPLAY_set_channel_pan(kssplay, EDSC_OPLL, 5, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 0, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 1, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 2, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 3, 2);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 4, 1);
+    KSSPLAY_set_channel_pan(kssplay, EDSC_KSSOPLL, 5, 2);
   }
 
   int16_t *wavebuf = malloc(opt.rate * opt.nch * sizeof(int16_t));

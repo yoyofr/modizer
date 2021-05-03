@@ -10,8 +10,8 @@ extern "C" {
 enum EmuDeviceSerialCode {
   EDSC_PSG = 0,
   EDSC_SCC = 1,
-  EDSC_OPLL = 2,
-  EDSC_OPL = 3,
+  EDSC_KSSOPLL = 2,
+  EDSC_KSSOPL = 3,
   EDSC_MAX = 4,
 };
 
