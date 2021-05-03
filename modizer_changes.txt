@@ -12,10 +12,12 @@ Todo/Requested:
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: rework all oscillo view catch code / libraries to include new model (adapt to sample rate correctly)
-
+- BUG: miniplayer should disappear after failure of launching a file if playlist if empty
+- LIBKSS: some files not playing
 
 3.1
 ----
+- [PLAYER] LIBKSS added to improve MSX based format playback (KSS, ...)
 - [PLAYER] Adplug/Rad bugfix for rad v1 file
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
 - [PLAYER] PMDMINI updated to latest version

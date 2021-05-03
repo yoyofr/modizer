@@ -11,4 +11,4 @@ emu2413 refers to the following documents. The author would like to thank all th
 - ymf262.c by Jarek Burczynski
 - [VRC7 presets](https://siliconpr0n.org/archive/doku.php?id=vendor:yamaha:opl2#opll_vrc7_patch_format) by Nuke.YKT
 - YMF281B presets by Chabin
-- [plgDavid's YMF281 ROM patches](https://github.com/plgDavid/misc/wiki/Copyright-free-OPLL(x)-ROM-patches) 
+- [plgDavid's YMF281 ROM patches](https://github.com/plgDavid/misc/wiki/Copyright-free-KSSOPLL(x)-ROM-patches) 

@@ -6,7 +6,7 @@
 
 # <s>v1.5.4 (2021 02-04)</s>
 - Fix the problem where the internal sample rate is calculated as int instead of double.
-- Replace older "OPLL_dump2patch" to "OPLL_dumpToPatch".
+- Replace older "KSSOPLL_dump2patch" to "KSSOPLL_dumpToPatch".
 
 # v1.5.3 (2021 01-31)
 - Change min/max macros to inline functions to suppress compiler errors/warnings.
@@ -27,10 +27,10 @@
 
 # v1.4.0 (2020 02-08)
 - Refactor API and internals.
-- Add OPLL_setChipType. OPLL_setChipMode is deprecated.
+- Add KSSOPLL_setChipType. KSSOPLL_setChipMode is deprecated.
 
 # v1.3.0 (2020 02-03)
-- Add fine-grained panning (OPLL_setPanFine).
+- Add fine-grained panning (KSSOPLL_setPanFine).
 
 # v1.2.7 (2020 01-12)
 - Reactivate output array of carrier slot for backward compatibility.

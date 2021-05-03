@@ -1,5 +1,5 @@
 /**
- * emu8950 v1.0.1
+ * emu8950 v1.1.0
  * https://github.com/digital-sound-antiques/emu8950
  * Copyright (C) 2001-2020 Mitsutaka Okazaki
  */
@@ -155,7 +155,7 @@ static double kl_table[16] = {dB2(0.000),  dB2(9.000),  dB2(12.000), dB2(13.875)
                               dB2(19.875), dB2(20.250), dB2(20.625), dB2(21.000)};
 
 static uint32_t tll_table[8 * 16][1 << TL_BITS][4];
-static int32_t rks_table[8 * 2][2];
+static int32_t rks_table[2][32][2];
 
 #define min(i, j) (((i) < (j)) ? (i) : (j))
 #define max(i, j) (((i) > (j)) ? (i) : (j))
@@ -339,12 +339,17 @@ static void makeTllTable(void) {
 }
 
 static void makeRksTable(void) {
-  int fnum9, block;
-  for (fnum9 = 0; fnum9 < 2; fnum9++)
-    for (block = 0; block < 8; block++) {
-      rks_table[(block << 1) | fnum9][1] = (block << 1) + fnum9;
-      rks_table[(block << 1) | fnum9][0] = block >> 1;
-    }
+  int fnum8, fnum9, blk;
+  int blk_fnum98;
+  for (fnum8 = 0; fnum8 < 2; fnum8++)
+    for (fnum9 = 0; fnum9 < 2; fnum9++)
+      for (blk = 0; blk < 8; blk++) {
+        blk_fnum98 = (blk << 2) | (fnum9 << 1) | fnum8;
+        rks_table[0][blk_fnum98][1] = (blk << 1) + fnum9;
+        rks_table[0][blk_fnum98][0] = blk >> 1;
+        rks_table[1][blk_fnum98][1] = (blk << 1) + (fnum9 & fnum8);
+        rks_table[1][blk_fnum98][0] = blk >> 1;
+      }
 }
 
 static uint8_t table_initialized = 0;
@@ -433,7 +438,7 @@ enum SLOT_UPDATE_FLAG {
 
 static INLINE void request_update(KSSOPL_SLOT *slot, int flag) { slot->update_requests |= flag; }
 
-static void commit_slot_update(KSSOPL_SLOT *slot) {
+static void commit_slot_update(KSSOPL_SLOT *slot, uint8_t notesel) {
 
   if (slot->update_requests & UPDATE_WS) {
     slot->wave_table = wave_table_map[slot->patch->WS & 3];
@@ -448,7 +453,7 @@ static void commit_slot_update(KSSOPL_SLOT *slot) {
   }
 
   if (slot->update_requests & UPDATE_RKS) {
-    slot->rks = rks_table[slot->blk_fnum >> 9][slot->patch->KR];
+    slot->rks = rks_table[notesel][slot->blk_fnum >> 8][slot->patch->KR];
   }
 
   if (slot->update_requests & (UPDATE_RKS | UPDATE_EG)) {
@@ -526,6 +531,10 @@ static INLINE void update_key_status(KSSOPL *opl) {
   uint32_t new_slot_key_status = 0;
   uint32_t updated_status;
   int ch;
+
+  if (opl->csm_mode && opl->csm_key_count) {
+    new_slot_key_status = 0x3ffff;
+  }
 
   for (ch = 0; ch < 9; ch++)
     if (opl->reg[0xB0 + ch] & 0x20)
@@ -744,7 +753,7 @@ static void update_slots(KSSOPL *opl) {
   for (i = 0; i < 18; i++) {
     KSSOPL_SLOT *slot = &opl->slot[i];
     if (slot->update_requests) {
-      commit_slot_update(slot);
+      commit_slot_update(slot, opl->notesel);
     }
     calc_envelope(slot, opl->eg_counter, opl->test_flag & 1);
     calc_phase(slot, opl->pm_phase, opl->pm_mode, opl->test_flag & 4);
@@ -844,10 +853,61 @@ static INLINE int16_t calc_fm(KSSOPL *opl, int ch) {
   return calc_slot_car(opl, ch, calc_slot_mod(opl, ch));
 }
 
+static void latch_timer1(KSSOPL *opl) {
+  opl->timer1_counter = opl->reg[0x02] << 2;
+}
+
+static void latch_timer2(KSSOPL *opl) {
+  opl->timer2_counter = opl->reg[0x03] << 4;
+}
+
+static void csm_key_on(KSSOPL *opl) {
+  opl->csm_key_count = 1;
+  update_key_status(opl);
+}
+
+static void csm_key_off(KSSOPL *opl) {
+  opl->csm_key_count = 0;
+  update_key_status(opl);
+}
+
+static void update_timer(KSSOPL *opl) {
+  if (opl->csm_mode && 0 < opl->csm_key_count) {
+    csm_key_off(opl);
+  }
+
+  if (opl->reg[0x04] & 0x01) {
+    opl->timer1_counter++;
+    if (opl->timer1_counter >> 10) {
+      opl->status |= 0x40; // timer1 overflow
+      if (opl->csm_mode) {
+        csm_key_on(opl);
+      }
+      if (opl->timer1_func) {
+        opl->timer1_func(opl->timer1_user_data);
+      }
+      latch_timer1(opl);
+    }
+  }
+
+  if (opl->reg[0x04] & 0x02) {
+    opl->timer2_counter++;
+    if (opl->timer2_counter >> 12) {
+      opl->status |= 0x20; // timer2 overflow
+      if (opl->timer2_func) {
+        opl->timer2_func(opl->timer2_user_data);
+      }
+      latch_timer2(opl);
+    }
+  }
+
+}
+
 static void update_output(KSSOPL *opl) {
   int16_t *out;
   int i;
 
+  update_timer(opl);
   update_ampm(opl);
   update_short_noise(opl);
   update_slots(opl);
@@ -962,6 +1022,10 @@ KSSOPL *KSSOPL_new(uint32_t clk, uint32_t rate) {
   opl->conv = NULL;
   opl->mix_out[0] = 0;
   opl->mix_out[1] = 0;
+  opl->timer1_func = NULL;
+  opl->timer1_user_data = NULL;
+  opl->timer2_func = NULL;
+  opl->timer2_user_data = NULL;
 
   KSSOPL_reset(opl);
 
@@ -1005,7 +1069,7 @@ static void reset_rate_conversion_params(KSSOPL *opl) {
 void refresh_adpcm_object(KSSOPL *opl) {
   if (opl->chip_type == TYPE_Y8950) {
     if (opl->adpcm == NULL) {
-      opl->adpcm = KSSOPL_ADPCM_new(opl->clk, opl->clk / 72);
+      opl->adpcm = KSSOPL_ADPCM_new(opl->clk);
     }
   } else {
     if (opl->adpcm != NULL) {
@@ -1025,6 +1089,14 @@ void KSSOPL_reset(KSSOPL *opl) {
     return;
 
   opl->adr = 0;
+
+  opl->csm_mode = 0;
+  opl->csm_key_count = 0;
+  opl->notesel = 0;
+
+  opl->status = 0;
+  opl->timer1_counter = 0;
+  opl->timer2_counter = 0;
 
   opl->pm_phase = 0;
   opl->am_phase = 0;
@@ -1047,8 +1119,9 @@ void KSSOPL_reset(KSSOPL *opl) {
   }
 
   for (i = 0; i < 0x100; i++) {
-    KSSOPL_writeReg(opl, i, 0);
+    opl->reg[i] = 0;
   }
+  opl->reg[0x04] = 0x18; // MASK_EOS | MASK_BUF_RDY
 
   opl->pm_dphase = PM_DP_WIDTH / (1024 * 8);
 
@@ -1152,13 +1225,37 @@ void KSSOPL_writeReg(KSSOPL *opl, uint32_t reg, uint8_t data) {
 
   reg = reg & 0xff;
 
+  if ((reg == 0x04) && (data & 0x80)) {
+    // IRQ RESET
+    opl->status = 0;
+    opl->reg[0x04] &= 0x7f;
+    if (opl->adpcm) {
+      KSSOPL_ADPCM_resetStatus(opl->adpcm);
+    }
+    return;
+  }
+
   opl->reg[reg] = data;
 
   if (reg == 0x01) {
 
     opl->test_flag = data;
 
+  } else if (reg == 0x04) {
+
+    if (data & 0x01) {
+      latch_timer1(opl);
+    }
+    if (data & 0x02) {
+      latch_timer2(opl);
+    }
+
   } else if (0x07 <= reg && reg <= 0x12) {
+
+    if (reg == 0x08) {
+      opl->csm_mode = (data >> 7) & 1;
+      opl->notesel = (data >> 6) & 1;
+    }
 
     if (opl->adpcm != NULL && opl->chip_type == TYPE_Y8950) {
       KSSOPL_ADPCM_writeReg(opl->adpcm, reg, data);
@@ -1242,10 +1339,18 @@ void KSSOPL_writeReg(KSSOPL *opl, uint32_t reg, uint8_t data) {
 uint8_t KSSOPL_readIO(KSSOPL *opl) { return opl->reg[opl->adr]; }
 
 uint8_t KSSOPL_status(KSSOPL *opl) {
+  uint8_t status = opl->status;
+
   if (opl->adpcm) {
-    return KSSOPL_ADPCM_status(opl->adpcm);
+    status |= KSSOPL_ADPCM_status(opl->adpcm);
   }
-  return 0;
+
+  status &= ~(opl->reg[0x04] & 0x78); // IRQ MASK
+
+  if (status & 0x78) {
+    return status | 0x80; // IRQ=1
+  }
+  return status & 0x7f; // IRQ = 0
 }
 
 void KSSOPL_writeADPCMData(KSSOPL *opl, uint8_t type, uint32_t start, uint32_t length, const uint8_t *data) {

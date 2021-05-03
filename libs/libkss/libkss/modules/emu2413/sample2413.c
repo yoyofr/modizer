@@ -51,7 +51,7 @@ int main(void) {
   clock_t start, finish;
 
   FILE *fp;
-  OPLL *opll;
+  KSSOPLL *opll;
 
   /*
    * Create WAVE header
@@ -70,11 +70,11 @@ int main(void) {
   chunkID(header + 36, "data");
   DWORD(header + 40, 2 * DATALENGTH);
 
-  opll = OPLL_new(MSX_CLK, SAMPLERATE);
-  OPLL_reset(opll);
-  OPLL_writeReg(opll, 0x30, 0x30); /* select PIANO Voice to ch1. */
-  OPLL_writeReg(opll, 0x10, 0x80); /* set F-Number(L). */
-  OPLL_writeReg(opll, 0x20, 0x15); /* set BLK & F-Number(H) and
+  opll = KSSOPLL_new(MSX_CLK, SAMPLERATE);
+  KSSOPLL_reset(opll);
+  KSSOPLL_writeReg(opll, 0x30, 0x30); /* select PIANO Voice to ch1. */
+  KSSOPLL_writeReg(opll, 0x10, 0x80); /* set F-Number(L). */
+  KSSOPLL_writeReg(opll, 0x20, 0x15); /* set BLK & F-Number(H) and
                                     * keyon. */
 
   start = clock();
@@ -82,11 +82,11 @@ int main(void) {
   i = 0;
 
   for (i = 0; i < DATALENGTH; i++) {
-    WORD(wave + i * 2, OPLL_calc(opll));
+    WORD(wave + i * 2, KSSOPLL_calc(opll));
   }
 
   finish = clock();
-  OPLL_delete(opll);
+  KSSOPLL_delete(opll);
 
   printf("It has been %f sec to calc %d waves.\n", (double)(finish - start) / CLOCKS_PER_SEC, DATALENGTH);
   printf("%f times faster than real YM2413.\n",

@@ -91,6 +91,10 @@ typedef struct __KSSOPL {
 
   uint32_t adr;
 
+  uint8_t csm_mode;
+  uint8_t csm_key_count;
+  uint8_t notesel;
+
   uint32_t inp_step;
   uint32_t out_step;
   uint32_t out_time;
@@ -129,6 +133,15 @@ typedef struct __KSSOPL {
   int16_t mix_out[2];
 
   KSSOPL_RateConv *conv;
+
+  uint32_t timer1_counter; //  80us counter
+  uint32_t timer2_counter; // 320us counter
+  void *timer1_user_data;
+  void *timer2_user_data;
+  void (*timer1_func)(void *user);
+  void (*timer2_func)(void *user);
+  uint8_t status;
+
 } KSSOPL;
 
 KSSOPL *KSSOPL_new(uint32_t clk, uint32_t rate);
@@ -205,6 +218,18 @@ uint32_t KSSOPL_setMask(KSSOPL *, uint32_t mask);
 uint32_t KSSOPL_toggleMask(KSSOPL *, uint32_t mask);
 
 uint8_t KSSOPL_readIO(KSSOPL *opl);
+
+/**
+ * Read KSSOPL status register
+ * @returns
+ * 76543210
+ * |||||  +- D0: PCM/BSY
+ * ||||+---- D3: BUF/RDY
+ * |||+----- D4: EOS
+ * ||+------ D5: TIMER2
+ * |+------- D6: TIMER1
+ * +-------- D7: IRQ
+ */
 uint8_t KSSOPL_status(KSSOPL *opl);
 
 void KSSOPL_writeADPCMData(KSSOPL *opl, uint8_t type, uint32_t start, uint32_t length, const uint8_t *data);

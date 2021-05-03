@@ -107,7 +107,7 @@ enum MMP_PLAYER_TYPE {
 	unsigned int mPlayType;
 	int mp_datasize,numChannels,numVoicesChannels;
     int mLoopMode; //0:off, 1:infinite
-    int64_t mCurrentSamples,mTgtSamples;
+    int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
     NSString *mod_currentfile;
     NSString *mod_currentext;
     NSString *artist,*album;
@@ -128,6 +128,8 @@ enum MMP_PLAYER_TYPE {
 	int mUADE_OptChange;
 	int mUADE_OptLED,mUADE_OptNORM,mUADE_OptPOSTFX,mUADE_OptPAN,mUADE_OptHEAD,mUADE_OptGAIN,mUADE_OptNTSC;
 	float mUADE_OptGAINValue,mUADE_OptPANValue;
+    //KSS
+    int kssOptLoopNb;
 	//GME
 	int optGMEFadeOut;
     int optGMEIgnoreSilence;
@@ -192,7 +194,7 @@ enum MMP_PLAYER_TYPE {
 };
 @property NSString *artist,*album;
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
-@property int64_t mCurrentSamples,mTgtSamples;
+@property int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
 @property int optForceMono;
 @property unsigned int mPlayType;
 @property int mp_datasize,mPatternDataAvail;

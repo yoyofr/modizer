@@ -6,5 +6,4 @@ else()
   set(CMAKE_C_FLAGS "-O3 -Wall")
 endif()
 
-file(GLOB SOURCES *.c)
-add_library(emu8950 STATIC ${SOURCES})
+add_library(emu8950 STATIC emu8950.c emuadpcm.c)
