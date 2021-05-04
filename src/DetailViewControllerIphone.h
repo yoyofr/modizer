@@ -307,7 +307,7 @@ class CGLString;
 
 -(void) pushedRatingCommon:(signed char)rating;
 -(void) hidePopup;
--(void) openPopup:(NSString *)msg secmsg:(NSString *)secmsg;
+-(void) openPopup:(NSString *)msg secmsg:(NSString *)secmsg style:(int)style;
 -(void) closePopup;
 -(BOOL) play_loadArchiveModule;
 

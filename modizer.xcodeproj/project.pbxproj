@@ -4668,6 +4668,7 @@
 		59805481262F7D8300BB0309 /* heart-empty.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-empty.png"; sourceTree = "<group>"; };
 		59809D292632A93300CCCF42 /* CarPlayAndRemoteManagement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CarPlayAndRemoteManagement.h; sourceTree = "<group>"; };
 		59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CarPlayAndRemoteManagement.mm; sourceTree = "<group>"; };
+		5985FB1226412C7C00F859C4 /* AlertsCommonFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AlertsCommonFunctions.h; sourceTree = "<group>"; };
 		5988EC772630AACC005F2D23 /* heart-half-filled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "heart-half-filled.png"; sourceTree = "<group>"; };
 		59909B431E3D103100C629AA /* tabview_gradient40Blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Blue.png; sourceTree = "<group>"; };
 		59909B441E3D103100C629AA /* tabview_gradient40Blue@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Blue@2x.png"; sourceTree = "<group>"; };
@@ -6760,6 +6761,7 @@
 		59BF54EF2628C9F50064EF5E /* CommonFunctions */ = {
 			isa = PBXGroup;
 			children = (
+				5985FB1226412C7C00F859C4 /* AlertsCommonFunctions.h */,
 				59FF9944263D65CD004152B8 /* PlaylistCommonFunctions.h */,
 				59BF54EE2628C8B70064EF5E /* WaitingViewCommonMethods.h */,
 				59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */,

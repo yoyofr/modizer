@@ -28,7 +28,7 @@
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
-static 	int	mValidatePlName,newPlaylist;
+static 	int	newPlaylist;
 //static int shouldFillKeys;
 static int local_flag;
 static volatile int mPopupAnimation=0;
@@ -42,7 +42,7 @@ static volatile int mPopupAnimation=0;
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
-UIAlertView *alertPlFull,*alertChooseName;
+UIAlertView *alertChooseName;
 
 #import "TTFadeAnimator.h"
 
@@ -63,6 +63,8 @@ UIAlertView *alertPlFull,*alertChooseName;
 #pragma mark -
 
 #include "MiniPlayerImplementTableView.h"
+#include "AlertsCommonFunctions.h"
+#include "WaitingViewCommonMethods.h"
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {
     [super setEditing:editing animated:animated];
@@ -103,182 +105,281 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	return 1; //NSOrderedDescending
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    //Get the name of the current pressed button
-    NSString *buttonTitle = [actionSheet buttonTitleAtIndex:buttonIndex];
-    if  ([buttonTitle isEqualToString:NSLocalizedString(@"Rename",@"")]) {
-        mRenamePlaylist=1;
-        mValidatePlName=0;
-        alertChooseName=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
-        [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
-        UITextField *tf=[alertChooseName textFieldAtIndex:0];
-        tf.text=playlist->playlist_name;
-        [alertChooseName show];
-    } else if  ([buttonTitle isEqualToString:NSLocalizedString(@"Edit",@"")]) {
-        if (playlist->nb_entries) {
-            self.navigationItem.rightBarButtonItem = self.editButtonItem;
-            [self setEditing:YES animated:YES];
+- (void)createNewPlaylist {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
+                                        message:nil
+                                        preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakAlert = alertC;
+    [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"";
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [self freePlaylist];
+        mFreePlaylist=0;
+    }];
+    [alertC addAction:cancelAction];
+    
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *plName = weakAlert.textFields.firstObject;
+        if (![plName.text isEqualToString:@""]) {
+            if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+            
+            ((RootViewControllerPlaylist*)childController)->show_playlist=1;
+            
+            if (playlist->playlist_id) playlist->playlist_id=nil;
+            if (playlist->playlist_name) playlist->playlist_name=nil;
+            playlist->playlist_name=[[NSString alloc] initWithString:plName.text];
+            playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
+            self.navigationItem.title=playlist->playlist_name;
+            
+            //set new title
+            childController.title = playlist->playlist_name;
+            
+            ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
+            ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
+            ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+            childController.view.frame=self.view.frame;
+            keys=nil;
+            list=nil;
+            mFreePlaylist=1;
+            
+            // And push the window
+            [self.navigationController pushViewController:childController animated:YES];
         }
-    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Shuffle",@"")]) {
-        if (playlist->nb_entries) {
-            int pos=0;
-            
-            [tableView reloadData];
-            
-            //Shuffle playlist
-            srand(time(NULL));
-            
-            int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
-            for (int from_idx=0;from_idx<playlist->nb_entries;from_idx++) {
-                int to_idx=rand()%(playlist->nb_entries);
-                if (from_idx!=to_idx) {
-                    if (show_playlist) {
-                        signed char tmpR=playlist->entries[from_idx].ratings;
-                        short int tmpC=playlist->entries[from_idx].playcounts;
-                        NSString *tmpF=playlist->entries[from_idx].fullpath;
-                        NSString *tmpL=playlist->entries[from_idx].label;
-                        
-                        playlist->entries[from_idx].label=playlist->entries[to_idx].label;
-                        playlist->entries[from_idx].fullpath=playlist->entries[to_idx].fullpath;
-                        playlist->entries[from_idx].ratings=playlist->entries[to_idx].ratings;
-                        playlist->entries[from_idx].playcounts=playlist->entries[to_idx].playcounts;
-                    
-                        playlist->entries[to_idx].label=tmpL;
-                        playlist->entries[to_idx].fullpath=tmpF;
-                        playlist->entries[to_idx].ratings=tmpR;
-                        playlist->entries[to_idx].playcounts=tmpC;
-                                      
-                        if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-                            t_plPlaylist_entry tmpF;
-                            tmpF=detailViewController.mPlaylist[from_idx];
-                            detailViewController.mPlaylist[from_idx]=detailViewController.mPlaylist[to_idx];
-                            detailViewController.mPlaylist[to_idx]=tmpF;
-                            
-                            /*if ((from_idx>detailViewController.mPlaylist_pos)&&(to_idx<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
-                            else if ((from_idx<detailViewController.mPlaylist_pos)&&(to_idx>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
-                            else if (from_idx==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=to_idx;*/
-                            if (detailViewController.mPlaylist_pos==from_idx) detailViewController.mPlaylist_pos=to_idx;
-                            else if (detailViewController.mPlaylist_pos==to_idx) detailViewController.mPlaylist_pos=from_idx;
-                                                        
-                            detailViewController.mShouldUpdateInfos=1;
-                        }
-                    }
-                }
-            }
-            
-            [tableView reloadData];
-            
-            if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
-            
-            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-                currentPlayedEntry=detailViewController.mPlaylist_pos;
-                NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-                int pos=currentPlayedEntry+1;
-                if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
-                if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-            }
-            [self updateMiniPlayer];
+        else{
+            [self presentViewController:weakAlert animated:YES completion:nil];
         }
-    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Sort A->Z",@"")]) {
-        if (playlist->nb_entries) {
-            
-            NSString *tmpFP;
-            if (!(playlist->playlist_id)) {
-                tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
-            }
-                        
-            qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntries);
-            
-            
-            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-                for (int i=0;i<detailViewController.mPlaylist_size;i++) {
-                    detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
-                    detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
-                        
-                    detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
-                    detailViewController.mPlaylist[i].mPlaylistCount=0;
+    }];
+    [alertC addAction:saveAction];
+    
+    [self showAlert:alertC];
+}
 
-                    detailViewController.mPlaylist[i].cover_flag=-1;
-                    if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
-                            detailViewController.mPlaylist_pos=i;
+- (void)saveToNewPlaylist {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
+                                        message:nil
+                                        preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakAlert = alertC;
+    [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"";
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [alertC addAction:cancelAction];
+    
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *plName = weakAlert.textFields.firstObject;
+        if (![plName.text isEqualToString:@""]) {
+             if (playlist->playlist_id) playlist->playlist_id=nil;
+             if (playlist->playlist_name) playlist->playlist_name=nil;
+             playlist->playlist_name=[[NSString alloc] initWithString:plName.text];
+             playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
+             integrated_playlist=0;
+             [self addListToPlaylistDB];
+             self.navigationItem.title=playlist->playlist_name;
+             [self.tableView reloadData];
+        }
+        else{
+            [self presentViewController:weakAlert animated:YES completion:nil];
+        }
+    }];
+    [alertC addAction:saveAction];
+    
+    [self showAlert:alertC];
+}
+
+-(void) deletePlaylist {
+    
+    
+}
+
+- (void)renamePlaylist {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
+                                        message:nil
+                                        preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakAlert = alertC;
+    [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.text = playlist->playlist_name;
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [alertC addAction:cancelAction];
+    
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Rename",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *plName = weakAlert.textFields.firstObject;
+        if (![plName.text isEqualToString:@""]) {
+            if (playlist->playlist_name) playlist->playlist_name=nil;;
+            playlist->playlist_name=[[NSString alloc] initWithString:plName.text];
+            [self updatePlaylistNameDB:playlist->playlist_id playlist_name:playlist->playlist_name];
+            self.navigationItem.title=[NSString stringWithFormat:@"%@",playlist->playlist_name];
+        }
+        else{
+            [self presentViewController:weakAlert animated:YES completion:nil];
+        }
+    }];
+    [alertC addAction:saveAction];
+    
+    [self showAlert:alertC];
+}
+- (void)shufflePlaylist {
+    if (playlist->nb_entries) {
+        int pos=0;
+        
+        [tableView reloadData];
+        
+        //Shuffle playlist
+        srand(time(NULL));
+        
+        int rowofs=(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING?1:2);
+        for (int from_idx=0;from_idx<playlist->nb_entries;from_idx++) {
+            int to_idx=rand()%(playlist->nb_entries);
+            if (from_idx!=to_idx) {
+                if (show_playlist) {
+                    signed char tmpR=playlist->entries[from_idx].ratings;
+                    short int tmpC=playlist->entries[from_idx].playcounts;
+                    NSString *tmpF=playlist->entries[from_idx].fullpath;
+                    NSString *tmpL=playlist->entries[from_idx].label;
+                    
+                    playlist->entries[from_idx].label=playlist->entries[to_idx].label;
+                    playlist->entries[from_idx].fullpath=playlist->entries[to_idx].fullpath;
+                    playlist->entries[from_idx].ratings=playlist->entries[to_idx].ratings;
+                    playlist->entries[from_idx].playcounts=playlist->entries[to_idx].playcounts;
+                
+                    playlist->entries[to_idx].label=tmpL;
+                    playlist->entries[to_idx].fullpath=tmpF;
+                    playlist->entries[to_idx].ratings=tmpR;
+                    playlist->entries[to_idx].playcounts=tmpC;
+                                  
+                    if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                        t_plPlaylist_entry tmpF;
+                        tmpF=detailViewController.mPlaylist[from_idx];
+                        detailViewController.mPlaylist[from_idx]=detailViewController.mPlaylist[to_idx];
+                        detailViewController.mPlaylist[to_idx]=tmpF;
+                        
+                        /*if ((from_idx>detailViewController.mPlaylist_pos)&&(to_idx<=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos++;
+                        else if ((from_idx<detailViewController.mPlaylist_pos)&&(to_idx>=detailViewController.mPlaylist_pos)) detailViewController.mPlaylist_pos--;
+                        else if (from_idx==detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos=to_idx;*/
+                        if (detailViewController.mPlaylist_pos==from_idx) detailViewController.mPlaylist_pos=to_idx;
+                        else if (detailViewController.mPlaylist_pos==to_idx) detailViewController.mPlaylist_pos=from_idx;
+                                                    
+                        detailViewController.mShouldUpdateInfos=1;
                     }
                 }
-                
-                detailViewController.mShouldUpdateInfos=1;
             }
-            
-            if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
-            [self.tableView reloadData];
-            
-            
-            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-                currentPlayedEntry=detailViewController.mPlaylist_pos;
-                NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-                int pos=currentPlayedEntry+1;
-                if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
-                if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-            }
-            
-            
-            [self updateMiniPlayer];
         }
         
-    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Sort Z->A",@"")]) {
-        if (playlist->nb_entries) {
-            NSString *tmpFP;
-            if (!(playlist->playlist_id)) {
-                tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
-            }
-            
-            qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesRev);
-            
-            
-            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-                for (int i=0;i<detailViewController.mPlaylist_size;i++) {
-                    detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
-                    detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
-                        
-                    detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
-                    detailViewController.mPlaylist[i].mPlaylistCount=0;
-
-                    detailViewController.mPlaylist[i].cover_flag=-1;
-                    if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
-                            detailViewController.mPlaylist_pos=i;
-                    }
-                }
-                
-                detailViewController.mShouldUpdateInfos=1;
-            }
-            if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
-            [self.tableView reloadData];
-            
-            
-            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-                currentPlayedEntry=detailViewController.mPlaylist_pos;
-                NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
-                int pos=currentPlayedEntry+1;
-                if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
-                if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
-            }
-            
-            [self updateMiniPlayer];
+        [tableView reloadData];
+        
+        if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
+        
+        if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+            currentPlayedEntry=detailViewController.mPlaylist_pos;
+            NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+            int pos=currentPlayedEntry+1;
+            if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+            if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
         }
-    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Delete",@"")]) {
-        //TODO
-    } else if ([buttonTitle isEqualToString:NSLocalizedString(@"Save",@"")]) {
-        newPlaylist=2;
-        alertChooseName=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter playlist name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
-        [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
-        UITextField *tf=[alertChooseName textFieldAtIndex:0];
-        tf.text=@"";
-        [alertChooseName show];
+        [self updateMiniPlayer];
+    }
+}
+- (void)sortAZPlaylist {
+    if (playlist->nb_entries) {
+        
+        NSString *tmpFP;
+        if (!(playlist->playlist_id)) {
+            tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
+        }
+                    
+        qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntries);
+        
+        
+        if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+            for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+                detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
+                detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
+                    
+                detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
+                detailViewController.mPlaylist[i].mPlaylistCount=0;
+
+                detailViewController.mPlaylist[i].cover_flag=-1;
+                if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
+                        detailViewController.mPlaylist_pos=i;
+                }
+            }
+            
+            detailViewController.mShouldUpdateInfos=1;
+        }
+        
+        if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
+        [self.tableView reloadData];
+        
+        
+        if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+            currentPlayedEntry=detailViewController.mPlaylist_pos;
+            NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+            int pos=currentPlayedEntry+1;
+            if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+            if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+        }
+        
+        
+        [self updateMiniPlayer];
+    }
+}
+- (void)sortZAPlaylist {
+    if (playlist->nb_entries) {
+        NSString *tmpFP;
+        if (!(playlist->playlist_id)) {
+            tmpFP=[NSString stringWithString:detailViewController.mPlaylist[detailViewController.mPlaylist_pos].mPlaylistFilepath];
+        }
+        
+        qsort(playlist->entries,playlist->nb_entries,sizeof(t_playlist_entry),qsort_ComparePlaylistEntriesRev);
+        
+        
+        if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+            for (int i=0;i<detailViewController.mPlaylist_size;i++) {
+                detailViewController.mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:playlist->entries[i].label];
+                detailViewController.mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:playlist->entries[i].fullpath];
+                    
+                detailViewController.mPlaylist[i].mPlaylistRating=playlist->entries[i].ratings;
+                detailViewController.mPlaylist[i].mPlaylistCount=0;
+
+                detailViewController.mPlaylist[i].cover_flag=-1;
+                if ([detailViewController.mPlaylist[i].mPlaylistFilepath isEqualToString:tmpFP]) {
+                        detailViewController.mPlaylist_pos=i;
+                }
+            }
+            
+            detailViewController.mShouldUpdateInfos=1;
+        }
+        if (playlist->playlist_id) [self replacePlaylistDBwithCurrent];
+        [self.tableView reloadData];
+        
+        
+        if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+            currentPlayedEntry=detailViewController.mPlaylist_pos;
+            NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
+            int pos=currentPlayedEntry+1;
+            if ((mDetailPlayerMode==0) && (integrated_playlist==0)) pos++;
+            if (pos<[self.tableView numberOfRowsInSection:0]) [self.tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:pos] animated:NO scrollPosition:UITableViewScrollPositionMiddle];
+        }
+        
+        [self updateMiniPlayer];
+    }
+}
+- (void)editPlaylist {
+    if (playlist->nb_entries) {
+        self.navigationItem.rightBarButtonItem = self.editButtonItem;
+        [self setEditing:YES animated:YES];
     }
 }
 
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-	if (alertView==alertPlFull) {
-	} else if (alertView==alertChooseName) {
+	if (alertView==alertChooseName) {
         UITextField *plname = [alertView textFieldAtIndex:0];
         if (newPlaylist) {
             
@@ -374,11 +475,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	return machine;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-// WaitingView methods
-/////////////////////////////////////////////////////////////////////////////////////////////
-#include "WaitingViewCommonMethods.h"
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -633,11 +729,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         }
         
         [mode_entries addObject:NSLocalizedString(@"Most played...",@"")];
-        [mode_entries_details addObject:NSLocalizedString(@"Most played files",@"")];
+        [mode_entries_details addObject:NSLocalizedString(@"Most played entries",@"")];
         
         [mode_entries addObject:NSLocalizedString(@"Favorites...",@"")];
-        [mode_entries_details addObject:NSLocalizedString(@"Rated files",@"")];
-        
+        [mode_entries_details addObject:NSLocalizedString(@"Liked entries",@"")];
         
         [self loadPlayListsListFromDB:mode_entries list_id:list entries_details:mode_entries_details];
         NSDictionary *mode_entriesDict = [NSDictionary dictionaryWithObjectsAndKeys:mode_entries,@"entries",mode_entries_details,@"entries_details", nil];
@@ -735,7 +830,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 				_playlist->entries[_playlist->nb_entries].ratings=tmpsc;
 				_playlist->entries[_playlist->nb_entries].playcounts=(short int)sqlite3_column_int(stmt, 3);
 				_playlist->nb_entries++;
-				if (_playlist->nb_entries==MAX_PL_ENTRIES) break;
+				if (_playlist->nb_entries>=MAX_PL_ENTRIES) break;
 			}
 			sqlite3_finalize(stmt);
 		} else NSLog(@"ErrSQL : %d",err);
@@ -3111,37 +3206,36 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     } else { //browsing for playlist, add selected file to playlist
         if (indexPath.section==1) {
             //add all
-            for (int i=0;i<27;i++)
-                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++) {
                     if (cur_local_entries[i][j].type&3) {
-                        playlist->nb_entries++;
-                        
-                        playlist->entries[playlist->nb_entries-1].label=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[i][j].label];
-                        playlist->entries[playlist->nb_entries-1].fullpath=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[i][j].fullpath];
-                        
-                        playlist->entries[playlist->nb_entries-1].ratings=cur_local_entries[i][j].rating;
-                        playlist->entries[playlist->nb_entries-1].playcounts=cur_local_entries[i][j].playcount;
-                        //TODO : optimization is possible => to do only 1 insert into DB
-                        [self addToPlaylistDB:playlist->playlist_id label:playlist->entries[playlist->nb_entries-1].label fullPath:playlist->entries[playlist->nb_entries-1].fullpath];
+                        if (playlist->nb_entries<MAX_PL_ENTRIES) {
+                            playlist->nb_entries++;
+                            
+                            playlist->entries[playlist->nb_entries-1].label=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[i][j].label];
+                            playlist->entries[playlist->nb_entries-1].fullpath=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[i][j].fullpath];
+                            
+                            playlist->entries[playlist->nb_entries-1].ratings=cur_local_entries[i][j].rating;
+                            playlist->entries[playlist->nb_entries-1].playcounts=cur_local_entries[i][j].playcount;
+                            //TODO : optimization is possible => to do only 1 insert into DB
+                            [self addToPlaylistDB:playlist->playlist_id label:playlist->entries[playlist->nb_entries-1].label fullPath:playlist->entries[playlist->nb_entries-1].fullpath];
+                        } else {
+                            UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                                               message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.", @"")
+                                                               preferredStyle:UIAlertControllerStyleAlert];
+                            UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleCancel
+                                handler:^(UIAlertAction * action) {
+                                }];
+                            [alertC addAction:closeAction];
+                            [self showAlert:alertC];
+                            break;
+                        }
                     }
+                }
+                if (playlist->nb_entries>=MAX_PL_ENTRIES) break;
+            }
             [tableView reloadData];
             
-        } else {
-            if (playlist->nb_entries<MAX_PL_ENTRIES) {
-                playlist->nb_entries++;
-                playlist->entries[playlist->nb_entries-1].label=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[section][indexPath.row].label];
-                playlist->entries[playlist->nb_entries-1].fullpath=[[NSString alloc] initWithFormat:@"%@",cur_local_entries[section][indexPath.row].fullpath];
-                
-                playlist->entries[playlist->nb_entries-1].ratings=cur_local_entries[section][indexPath.row].rating;
-                playlist->entries[playlist->nb_entries-1].playcounts=cur_local_entries[section][indexPath.row].playcount;
-                
-                [self addToPlaylistDB:playlist->playlist_id label:playlist->entries[playlist->nb_entries-1].label fullPath:playlist->entries[playlist->nb_entries-1].fullpath];
-                [tableView reloadData];
-            } else {
-                alertPlFull=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                        message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                if (alertPlFull) [alertPlFull show];
-            }
         }
     }
     [self hideWaiting];
@@ -3195,12 +3289,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         
         if (indexPath.row==0) { //new playlist
-            newPlaylist=1;
-            mValidatePlName=0;
+            /*newPlaylist=1;
             
             alertChooseName=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Playlist name",@"") message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
             [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
-            [alertChooseName show];
+            [alertChooseName show];*/
+            [self createNewPlaylist];
             
         }
         if ((indexPath.row==1)&&(detailViewController.mPlaylist_size)) { //display current queue
@@ -3338,82 +3432,123 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [self.navigationController pushViewController:childController animated:YES];
             } else if (row==1 ){ //playlist actions
                 if (playlist->playlist_id) {
-                    //NSString *actionSheetTitle = @""; //Action Sheet Title
-                    NSString *other1 = NSLocalizedString(@"Rename",@"");
-                    NSString *other2 = NSLocalizedString(@"Edit",@"");
-                    NSString *other3 = NSLocalizedString(@"Shuffle",@"");
-                    NSString *other4 = NSLocalizedString(@"Sort A->Z",@"");
-                    NSString *other5 = NSLocalizedString(@"Sort Z->A",@"");
-                    NSString *destructiveTitle = NSLocalizedString(@"Delete",@"");
-                    NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
-                    UIActionSheet *actionSheet = [[UIActionSheet alloc]
-                                                  initWithTitle:nil
-                                                  delegate:self
-                                                  cancelButtonTitle:nil
-                                                  destructiveButtonTitle:nil
-                                                  otherButtonTitles:other1, other2, other3, other4, other5, nil];
-                    [actionSheet addButtonWithTitle:destructiveTitle];
-                    [actionSheet addButtonWithTitle:cancelTitle];
-                    [actionSheet setDestructiveButtonIndex:5];
-                    [actionSheet setCancelButtonIndex:6];
+                    UIAlertController *alertC;
                     
-                    if (SYSTEM_VERSION_LESS_THAN(@"8.0")) {
-                        if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
-                        else[ actionSheet showFromToolbar:self.navigationController.toolbar];
-                    } else [actionSheet showInView:self.view];
-
+                    alertC = [UIAlertController alertControllerWithTitle:nil
+                                                       message:nil
+                                                       preferredStyle:UIAlertControllerStyleActionSheet];
+                        
+                    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                        handler:^(UIAlertAction * action) {
+                        }];
+                    [alertC addAction:cancelAction];
+                        
+                    UIAlertAction* renameAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Rename",@"") style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction * action) {
+                            [self renamePlaylist];
+                        }];
+                    [alertC addAction:renameAction];
+                    
+                    UIAlertAction* editAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Edit",@"") style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction * action) {
+                            [self editPlaylist];
+                        }];
+                    [alertC addAction:editAction];
+                    
+                    UIAlertAction* shuffleAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Shuffle",@"") style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction * action) {
+                            [self shufflePlaylist];
+                        }];
+                    [alertC addAction:shuffleAction];
+                    
+                    UIAlertAction* sortAZAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z",@"") style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction * action) {
+                            [self sortAZPlaylist];
+                        }];
+                    [alertC addAction:sortAZAction];
+                    
+                    UIAlertAction* sortZAAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A",@"") style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction * action) {
+                            [self sortZAPlaylist];
+                        }];
+                    [alertC addAction:sortZAAction];
+                    
+                    UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive
+                        handler:^(UIAlertAction * action) {
+                            [self deletePlaylist];
+                        }];
+                    [alertC addAction:deleteAction];
+                                            
+                    [self showAlert:alertC];
                 } else { //"now playing", "most played", "favorites" playlists -> does not exist in DB
-                    UIActionSheet *actionSheet;
-                    if (integrated_playlist<=INTEGRATED_PLAYLIST_NOWPLAYING) {
-                    //NSString *actionSheetTitle = @""; //Action Sheet Title
-                    NSString *other1 = NSLocalizedString(@"Save",@"");
-                    NSString *other2 = NSLocalizedString(@"Edit",@"");
-                        NSString *other3 = NSLocalizedString(@"Shuffle",@"");
-                        NSString *other4 = NSLocalizedString(@"Sort A->Z",@"");
-                        NSString *other5 = NSLocalizedString(@"Sort Z->A",@"");
-                        NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
-                        
-                        
-                    actionSheet = [[UIActionSheet alloc]
-                                                  initWithTitle:nil
-                                                  delegate:self
-                                                  cancelButtonTitle:nil
-                                                  destructiveButtonTitle:nil
-                                                  otherButtonTitles:other1, other2, other3, other4, other5, nil];
-                    [actionSheet addButtonWithTitle:cancelTitle];
-                    [actionSheet setCancelButtonIndex:5];
-                    } else if ((integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED)||(integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES)) {
-                        //NSString *actionSheetTitle = @""; //Action Sheet Title
-                        NSString *other1 = NSLocalizedString(@"Save",@"");
-                        NSString *other2 = NSLocalizedString(@"Edit",@"");
-                        NSString *other3 = NSLocalizedString(@"Shuffle",@"");
-                        NSString *cancelTitle = NSLocalizedString(@"Cancel",@"");
+                    UIAlertController *alertC;
 
+                    if (integrated_playlist<=INTEGRATED_PLAYLIST_NOWPLAYING) {
+                        alertC = [UIAlertController alertControllerWithTitle:nil
+                                                           message:nil
+                                                           preferredStyle:UIAlertControllerStyleActionSheet];
+                            
+                        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                            handler:^(UIAlertAction * action) {
+                            }];
+                        [alertC addAction:cancelAction];
+                            
+                        UIAlertAction* saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self saveToNewPlaylist];
+                            }];
+                        [alertC addAction:saveAction];
                         
-                        actionSheet = [[UIActionSheet alloc]
-                                                      initWithTitle:nil
-                                                      delegate:self
-                                                      cancelButtonTitle:nil
-                                                      destructiveButtonTitle:nil
-                                                      otherButtonTitles:other1, other2, other3, nil];
-                        [actionSheet addButtonWithTitle:cancelTitle];
-                        [actionSheet setCancelButtonIndex:3];
+                        UIAlertAction* editAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Edit",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self editPlaylist];
+                            }];
+                        [alertC addAction:editAction];
+                        
+                        UIAlertAction* shuffleAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Shuffle",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self shufflePlaylist];
+                            }];
+                        [alertC addAction:shuffleAction];
+                        
+                        UIAlertAction* sortAZAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort A->Z",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self sortAZPlaylist];
+                            }];
+                        [alertC addAction:sortAZAction];
+                        
+                        UIAlertAction* sortZAAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Sort Z->A",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self sortZAPlaylist];
+                            }];
+                        [alertC addAction:sortZAAction];
+                                                
+                        [self showAlert:alertC];
+                    } else if ((integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED)||(integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES)) {
+                        alertC = [UIAlertController alertControllerWithTitle:nil
+                                                           message:nil
+                                                           preferredStyle:UIAlertControllerStyleActionSheet];
+                        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                            handler:^(UIAlertAction * action) {
+                            }];
+                        [alertC addAction:cancelAction];
+                            
+                        UIAlertAction* saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self saveToNewPlaylist];
+                            }];
+                        [alertC addAction:saveAction];
+                        
+                        UIAlertAction* editAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Edit",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self editPlaylist];
+                            }];
+                        [alertC addAction:editAction];
+                        
+                        [self showAlert:alertC];
                         
                     }
-                    if (SYSTEM_VERSION_LESS_THAN(@"8.0")) {
-                        if (self.tabBarController.tabBar.hidden) [actionSheet showInView:self.view];
-                        else[ actionSheet showFromToolbar:self.navigationController.toolbar];
-                    } else [actionSheet showInView:self.view];
                 }
-                
-                
-                /*                mRenamePlaylist=1;
-                 mValidatePlName=0;
-                 alertChooseName=[[[UIAlertView alloc] initWithTitle:@"Playlist name" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil] autorelease];
-                 [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
-                 UITextField *tf=[alertChooseName textFieldAtIndex:0];
-                 tf.text=playlist->playlist_name;
-                 [alertChooseName show];*/
             }
         } else { //browsing for playlist
             if (indexPath.section==1) {
@@ -3488,17 +3623,14 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         
                         [self.tableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
                     } else {
-                        alertPlFull=[[UIAlertView alloc] initWithTitle:@"Warning" message:@"Playlist is full. Delete some entries to add more." delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                        if (alertPlFull) [alertPlFull show];
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Playlist is full. Delete some entries to add more.", @"")];                        
                     }
-                    
                 }
             }
         }
     }
     mAccessoryButton=0;
     }
-
 
 /* POPUP functions */
 -(void) hidePopup {

@@ -32,7 +32,7 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
 
 @interface CBAutoScrollLabel ()
 
-@property (nonatomic, strong) NSArray<UILabel *> *labels;
+@property (nonatomic, strong) NSArray *labels;
 @property (nonatomic, strong, readonly) UILabel *mainLabel;
 @property (nonatomic, strong) UIScrollView *scrollView;
 
@@ -56,7 +56,7 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
 
 - (void)commonInit {
     // create the labels
-    NSMutableSet<UILabel *> *labelSet = [[NSMutableSet alloc] initWithCapacity:kLabelCount];
+    NSMutableSet *labelSet = [[NSMutableSet alloc] initWithCapacity:kLabelCount];
 
     for (int index = 0; index < kLabelCount; ++index) {
         UILabel *label = [[UILabel alloc] init];
@@ -104,14 +104,6 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
     [self didChangeFrame];
 }
 
-- (void)didMoveToWindow {
-    [super didMoveToWindow];
-    
-    if (self.window) {
-        [self scrollLabelIfNeeded];
-    }
-}
-
 #pragma mark - Properties
 
 - (UIScrollView *)scrollView {
@@ -135,7 +127,7 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
 }
 
 - (UILabel *)mainLabel {
-    return [self.labels firstObject];
+    return self.labels[0];
 }
 
 - (void)setText:(NSString *)theText {
@@ -226,10 +218,24 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
     return self.mainLabel.shadowOffset;
 }
 
+- (void)setPaused:(BOOL)paused {
+    _paused = paused;
+
+    if (_paused) {
+        [self.scrollView.layer removeAllAnimations];
+        self.scrollView.contentOffset = CGPointZero;
+    }
+    else {
+        if (!self.scrolling) {
+            [self scrollLabelIfNeeded];
+        }
+    }
+}
+
 #pragma mark - Autolayout
 
 - (CGSize)intrinsicContentSize {
-    return CGSizeMake(0, [self.mainLabel intrinsicContentSize].height);
+    return CGSizeMake(0.0f, [self.mainLabel intrinsicContentSize].height);
 }
 
 #pragma mark - Misc
@@ -264,7 +270,7 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
 }
 
 - (void)scrollLabelIfNeeded {
-    if (!self.text.length)
+    if (!self.text.length || self.paused)
         return;
 
     CGFloat labelWidth = CGRectGetWidth(self.mainLabel.bounds);
@@ -287,8 +293,8 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
     [UIView animateWithDuration:duration delay:self.pauseInterval options:self.animationOptions | UIViewAnimationOptionAllowUserInteraction animations:^{
          // adjust offset
          self.scrollView.contentOffset = (doScrollLeft ? CGPointMake(labelWidth + self.labelSpacing, 0) : CGPointZero);
-     } completion:^(BOOL finished) {
-         self->_scrolling = NO;
+     } completion: ^(BOOL finished) {
+         _scrolling = NO;
 
          // remove the left shadow
          [self applyGradientMaskForFadeLength:self.fadeLength enableFade:NO];
@@ -349,7 +355,7 @@ static void each_object(NSArray *objects, void (^block)(id object)) {
     }
 }
 
-// bounds or frame has been changed
+// bounds or frame has been changeds
 - (void)didChangeFrame {
     [self refreshLabels];
     [self applyGradientMaskForFadeLength:self.fadeLength enableFade:self.scrolling];

@@ -43,6 +43,7 @@
     //Carplay data
     ///////////////////////
     t_playlist_DB *plList;
+    plList=NULL;
     int plListsize=[rootVCLocalB loadPlayListsListFromDB:&plList];
     
     plArray=[[NSMutableArray alloc] init];

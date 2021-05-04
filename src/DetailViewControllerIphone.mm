@@ -1041,11 +1041,11 @@ static float movePinchScale,movePinchScaleOld;
                                  nil];
     } else {
         infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 0,
+                                 @0,
                                  MPNowPlayingInfoPropertyPlaybackRate,
-                                 0,
+                                 @0,
                                  MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                 0,
+                                 @0,
                                  MPNowPlayingInfoPropertyPlaybackQueueIndex,
                                  artwork,
                                  MPMediaItemPropertyArtwork,
@@ -1070,44 +1070,6 @@ static float movePinchScale,movePinchScaleOld;
     display_length_mode^=1;
 }
 
-- (UIViewController *)visibleViewController:(UIViewController *)rootViewController
-{
-    if ([rootViewController isKindOfClass:[UITabBarController class]])
-    {
-        UIViewController *selectedViewController = ((UITabBarController *)rootViewController).selectedViewController;
-
-        return [self visibleViewController:selectedViewController];
-    }
-    if ([rootViewController isKindOfClass:[UINavigationController class]])
-    {
-        UIViewController *lastViewController = [[((UINavigationController *)rootViewController) viewControllers] lastObject];
-
-        return [self visibleViewController:lastViewController];
-    }
-    
-    if (rootViewController.presentedViewController == nil)
-    {
-        return rootViewController;
-    }
-    if ([rootViewController.presentedViewController isKindOfClass:[UINavigationController class]])
-    {
-        UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
-        UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
-
-        return [self visibleViewController:lastViewController];
-    }
-    if ([rootViewController.presentedViewController isKindOfClass:[UITabBarController class]])
-    {
-        UITabBarController *tabBarController = (UITabBarController *)rootViewController.presentedViewController;
-        UIViewController *selectedViewController = tabBarController.selectedViewController;
-
-        return [self visibleViewController:selectedViewController];
-    }
-
-    UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
-
-    return [self visibleViewController:presentedViewController];
-}
 
 //define the targetmethod
 -(void) updateInfos: (NSTimer *) theTimer {
@@ -1780,28 +1742,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 		if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
             NSString *alertMsg;
 			alertCannotPlay_displayed=1;
-            if (mplayer_error_msg[0]) alertMsg=[NSString stringWithFormat:@"%@\n%s", NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@""),mplayer_error_msg];
-            else alertMsg=NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"");
-            
-            UIAlertController *alertCannotPlay = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
-                                           message:alertMsg
-                                           preferredStyle:UIAlertControllerStyleAlert];
-            
-            UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
-               handler:^(UIAlertAction * action) {
-                alertCannotPlay_displayed=0;
-                }];
-             
-            [alertCannotPlay addAction:closeAction];
-                         
-            //[self presentViewController:alertCannotPlay animated:YES completion:nil];
-            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-            [vc presentViewController:alertCannotPlay animated:YES completion:nil];
-            
-            //wait for alert to close
-            /*while (alertCannotPlay_displayed) {
-                [self flushMainLoop];
-            }*/
+            [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:1];
             
 			[self play_curEntry];
             
@@ -2014,8 +1955,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	int add_entries_nb=[fileNames count];
     
     coverflow_needredraw=1;
-    
-    //    [self openPopup:@"Playlist updated"];
+        
 	if (mPlaylist_size+add_entries_nb>=MAX_PL_ENTRIES) {
 		NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
 		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
@@ -2449,8 +2389,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 - (void)titleTap:(UITapGestureRecognizer *)sender {
-    //    NSLog(@"%@",labelModuleName.text);
-    [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath];
+    [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath style:0];
 }
 
 -(NSString*) getFullFilePath:(NSString *)_filePath {
@@ -4246,7 +4185,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     [labelModuleName setFont:[UIFont systemFontOfSize:18]];
     labelModuleName.textColor = [UIColor whiteColor];
     labelModuleName.labelSpacing = 35; // distance between start and end labels
-    labelModuleName.pauseInterval = 3; // seconds of pause before scrolling starts again
+    labelModuleName.pauseInterval = 3.7; // seconds of pause before scrolling starts again
     labelModuleName.scrollSpeed = 30; // pixels per second
     labelModuleName.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
     labelModuleName.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
@@ -6657,9 +6596,20 @@ extern "C" int current_sample;
 	mPopupAnimation=0;
 }
 
--(void) openPopup:(NSString *)msg secmsg:(NSString*)secmsg{
+-(void) openPopup:(NSString *)msg secmsg:(NSString*)secmsg style:(int)style{
 	CGRect frame;
 	if (mPopupAnimation) return;
+    UIColor *bgcol;
+    switch (style){
+        case 0://info
+            bgcol=[UIColor colorWithRed:(float)(0x00)/255.0f green:(float)(0x02)/255.0f blue:(float)(0x41)/255.0f alpha:1.0];
+            break;
+        case 1://alert
+            bgcol=[UIColor colorWithRed:(float)(0xB0)/255.0f green:(float)(0x02)/255.0f blue:(float)(0x00)/255.0f alpha:1.0];
+            break;
+    }
+    
+    infoMsgView.backgroundColor=bgcol;
     
 	mPopupAnimation=1;
     infoMsgLbl.text=[NSString stringWithString:msg];

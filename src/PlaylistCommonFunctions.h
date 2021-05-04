@@ -8,10 +8,14 @@
 #ifndef PlaylistCommonFunctions_h
 #define PlaylistCommonFunctions_h
 
+#include "AlertsCommonFunctions.h"
+
 -(int) loadPlayListsListFromDB:(t_playlist_DB**)plList {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int pl_number=0;
+    
+    *plList=NULL;
     
     pthread_mutex_lock(&db_mutex);
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -297,10 +301,8 @@
 
 
 - (void) addToPlaylistSelView:(NSString*)fullPath label:(NSString*)label showNowListening:(bool)showNL{
-    t_playlist_DB *plList;
-    __block bool selDone=false;
+    __block t_playlist_DB *plList;
     int plListsize=[self loadPlayListsListFromDB:&plList];
-    
     
     UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Add to a playlist",@"")
                                    message:[NSString stringWithFormat:NSLocalizedString(@"Choose a playlist",@"")]
@@ -308,9 +310,12 @@
 
     UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
        handler:^(UIAlertAction * action) {
-        if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
-        
-        selDone=true;
+            if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+            //free playlists list
+            for (int i=0;i<plListsize;i++) {
+                mdz_safe_free(plList[i].pl_name);
+            }
+            mdz_safe_free(plList);
         }];
     [msgAlert addAction:cancelAction];
 
@@ -323,9 +328,11 @@
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 }
                 if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
-            
-                selDone=true;
-                
+                //free playlists list
+                for (int i=0;i<plListsize;i++) {
+                    mdz_safe_free(plList[i].pl_name);
+                }
+                mdz_safe_free(plList);
             }];
         [msgAlert addAction:nowplayingAction];
 #endif
@@ -335,52 +342,21 @@
         UIAlertAction* userplaylistAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%s",plList[i].pl_name] style:UIAlertActionStyleDefault
            handler:^(UIAlertAction * action) {
                 [self addToPlaylistDB:[NSString stringWithFormat:@"%d",plList[i].pl_id]  label:label fullPath:fullPath];
-            
                 if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
-                selDone=true;
-                
+                //free playlists list
+                for (int i=0;i<plListsize;i++) {
+                    mdz_safe_free(plList[i].pl_name);
+                }
+                mdz_safe_free(plList);
             }];
         [msgAlert addAction:userplaylistAction];
     }
-    
-    //if iPhone
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        [self presentViewController:msgAlert animated:YES completion:nil];
-    }
-    //if iPad
-    else {
-        // Remove arrow from action sheet.
-        [msgAlert.popoverPresentationController setPermittedArrowDirections:0];
-        // Change Rect to position Popover
-        UIPopoverController *popup = [[UIPopoverController alloc] initWithContentViewController:msgAlert];
-        [popup presentPopoverFromRect:CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0)inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
-    }
-
-    // Remove arrow from action sheet.
-    //[msgAlert.popoverPresentationController setPermittedArrowDirections:0];
-
-    //For set action sheet to middle of view.
-    /*CGRect rect = self.view.frame;
-    rect.origin.x = self.view.frame.size.width / 20;
-    rect.origin.y = self.view.frame.size.height / 20;
-    msgAlert.popoverPresentationController.sourceView = self.view;
-    msgAlert.popoverPresentationController.sourceRect = rect;
-    
-    [self presentViewController:msgAlert animated:YES completion:nil];*/
-    while (!selDone) {
-        [self flushMainLoop];
-    }
- 
-    //free playlists list
-    for (int i=0;i<plListsize;i++) {
-        mdz_safe_free(plList[i].pl_name);
-    }
-    mdz_safe_free(plList);
+    [self showAlert:msgAlert];
 }
 
 - (void) addMultipleToPlaylistSelView:(NSArray*)arrayPath label:(NSArray*)arrayLabel showNowListening:(bool)showNL{
-    t_playlist_DB *plList;
-    __block bool selDone=false;
+    __block t_playlist_DB *plList;
+    plList=NULL;
     int plListsize=[self loadPlayListsListFromDB:&plList];
     
     
@@ -390,9 +366,12 @@
 
     UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
        handler:^(UIAlertAction * action) {
-        if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
-        
-        selDone=true;
+            if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+            //free playlists list
+            for (int i=0;i<plListsize;i++) {
+                mdz_safe_free(plList[i].pl_name);
+            }
+            mdz_safe_free(plList);
         }];
     [msgAlert addAction:cancelAction];
 
@@ -405,9 +384,11 @@
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 }
                 if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
-            
-                selDone=true;
-                
+                //free playlists list
+                for (int i=0;i<plListsize;i++) {
+                    mdz_safe_free(plList[i].pl_name);
+                }
+                mdz_safe_free(plList);
             }];
         [msgAlert addAction:nowplayingAction];
 #endif
@@ -417,36 +398,17 @@
         UIAlertAction* userplaylistAction = [UIAlertAction actionWithTitle:[NSString stringWithFormat:@"%s",plList[i].pl_name] style:UIAlertActionStyleDefault
            handler:^(UIAlertAction * action) {
                 [self addMultipleToPlaylistDB:[NSString stringWithFormat:@"%d",plList[i].pl_id]  labels:arrayLabel fullPaths:arrayPath];
-            
                 if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
-                selDone=true;
-                
+                //free playlists list
+                for (int i=0;i<plListsize;i++) {
+                    mdz_safe_free(plList[i].pl_name);
+                }
+                mdz_safe_free(plList);
             }];
         [msgAlert addAction:userplaylistAction];
     }
-    //if iPhone
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
-        [self presentViewController:msgAlert animated:YES completion:nil];
-    }
-    //if iPad
-    else {
-        // Remove arrow from action sheet.
-        [msgAlert.popoverPresentationController setPermittedArrowDirections:0];
-        // Change Rect to position Popover
-        UIPopoverController *popup = [[UIPopoverController alloc] initWithContentViewController:msgAlert];
-        [popup presentPopoverFromRect:CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0)inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
-    }
 
-    //[self presentViewController:msgAlert animated:YES completion:nil];
-    while (!selDone) {
-        [self flushMainLoop];
-    }
- 
-    //free playlists list
-    for (int i=0;i<plListsize;i++) {
-        mdz_safe_free(plList[i].pl_name);
-    }
-    mdz_safe_free(plList);
+    [self showAlert:msgAlert];
 }
 
 

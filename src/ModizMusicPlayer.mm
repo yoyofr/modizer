@@ -3103,8 +3103,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (iModuleLength<1000) iModuleLength=1000;
                                 } else {
                                     KSSPLAY_reset(kssplay, mod_currentsub, 0);
-                                    if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                    else iModuleLength=optGENDefaultLength;
+                                    if (kss->info) {
+                                        iModuleLength=kss->info[mod_currentsub].time_in_ms;
+                                    } else iModuleLength=optGENDefaultLength;
                                     if (iModuleLength<1000) iModuleLength=1000;
                                 }
                             }
@@ -3422,10 +3423,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         else iModuleLength=optGENDefaultLength;
                                     }
                                     if (iModuleLength<1000) iModuleLength=1000;
+                                    if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
                                 } else {
                                     KSSPLAY_reset(kssplay, mod_currentsub, 0);
-                                    if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                    else iModuleLength=optGENDefaultLength;
+                                    if (kss->info) {
+                                        iModuleLength=kss->info[mod_currentsub].time_in_ms;
+                                        if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
+                                    } else iModuleLength=optGENDefaultLength;
                                     if (iModuleLength<1000) iModuleLength=1000;
                                 }
                                 mCurrentSamples=0;
@@ -3440,7 +3444,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode) iModuleLength=-1;
                                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
                                 else mFadeSamplesStart=1<<31;
-                                mod_message_updated=1;
+                                mod_message_updated=2;
                             }
                             if (mPlayType==MMP_HVL) {
                                 hvl_InitSubsong( hvl_song,mod_currentsub );
@@ -3628,10 +3632,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     else iModuleLength=optGENDefaultLength;
                                 }
                                 if (iModuleLength<1000) iModuleLength=1000;
+                                if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
                             } else {
                                 KSSPLAY_reset(kssplay, mod_currentsub, 0);
-                                if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                else iModuleLength=optGENDefaultLength;
+                                if (kss->info) {
+                                    iModuleLength=kss->info[mod_currentsub].time_in_ms;
+                                    if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
+                                } else iModuleLength=optGENDefaultLength;
                                 if (iModuleLength<1000) iModuleLength=1000;
                             }
                             mCurrentSamples=0;
@@ -3645,7 +3652,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (mLoopMode) iModuleLength=-1;
                             if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
                             else mFadeSamplesStart=1<<31;
-                            mod_message_updated=1;
+                            mod_message_updated=2;
                         }
                         if (mPlayType==MMP_HVL) {
                             hvl_InitSubsong( hvl_song,mod_currentsub );
@@ -3834,10 +3841,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         else iModuleLength=optGENDefaultLength;
                                     }
                                     if (iModuleLength<1000) iModuleLength=1000;
+                                    if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
                                 } else {
                                     KSSPLAY_reset(kssplay, mod_currentsub, 0);
-                                    if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                    else iModuleLength=optGENDefaultLength;
+                                    if (kss->info) {
+                                        iModuleLength=kss->info[mod_currentsub].time_in_ms;
+                                        if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
+                                    } else iModuleLength=optGENDefaultLength;
                                     if (iModuleLength<1000) iModuleLength=1000;
                                 }
                                 mCurrentSamples=0;
@@ -3851,7 +3861,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (mLoopMode) iModuleLength=-1;
                                 if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
                                 else mFadeSamplesStart=1<<31;
-                                mod_message_updated=1;
+                                mod_message_updated=2;
                             }
                             if (mPlayType==MMP_HVL) {
                                 hvl_InitSubsong( hvl_song,mod_currentsub );
@@ -4414,7 +4424,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         KSSPLAY_calc(kssplay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                         mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                         /* If looped, start fadeout */
-                        if ( (KSSPLAY_get_loop_count(kssplay) >= kssOptLoopNb) && (KSSPLAY_get_fade_flag(kssplay) == KSSPLAY_FADE_NONE) ) {
+                        if ( (KSSPLAY_get_loop_count(kssplay) > kssOptLoopNb) && (KSSPLAY_get_fade_flag(kssplay) == KSSPLAY_FADE_NONE) ) {
                           KSSPLAY_fade_start(kssplay, 5000); //5s fadeout when looping
                         } else if ( (mCurrentSamples >= mFadeSamplesStart) && (KSSPLAY_get_fade_flag(kssplay) == KSSPLAY_FADE_NONE) ) {
                           KSSPLAY_fade_start(kssplay, 1000); //1s fadeout when not looping
@@ -4438,14 +4448,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             else mNewModuleLength=optGENDefaultLength;
                                         }
                                         if (mNewModuleLength<1000) mNewModuleLength=1000;
+                                        if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
                                     } else {
                                         KSSPLAY_reset(kssplay, mod_currentsub, 0);
-                                        if (kss->info) mNewModuleLength=kss->info[mod_currentsub].time_in_ms;
-                                        else mNewModuleLength=optGENDefaultLength;
+                                        if (kss->info) {
+                                            mNewModuleLength=kss->info[mod_currentsub].time_in_ms;
+                                            if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
+                                        } else mNewModuleLength=optGENDefaultLength;
                                         if (mNewModuleLength<1000) mNewModuleLength=1000;
                                     }
                                     
                                     mChangeOfSong=1;
+                                    mCurrentSamples=0;
                                                                         
                                     if (mLoopMode) mNewModuleLength=-1;
                                     if (mNewModuleLength>0) mFadeSamplesStart=(int64_t)(mNewModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
@@ -6223,6 +6237,16 @@ char* loadRom(const char* path, size_t romSize)
     kssplay = KSSPLAY_new(PLAYBACK_FREQ, 2, 16);
     KSSPLAY_set_data(kssplay, kss);
     
+    kssOptLoopNb=1;
+    
+    sprintf(mod_name," %s",mod_filename);
+    if (kss->title[0]) sprintf(mod_name," %s",kss->title);
+    if (m3uReader.info().title)
+        if (m3uReader.info().title[0]) sprintf(mod_name," %s",m3uReader.info().title);
+    
+    if (m3uReader.info().artist)
+        if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
+
     if (m3uReader.size()) {
         KSSPLAY_reset(kssplay, m3uReader[mod_currentsub].track, 0);
         iModuleLength=m3uReader[mod_currentsub].length;
@@ -6231,15 +6255,17 @@ char* loadRom(const char* path, size_t romSize)
             else iModuleLength=optGENDefaultLength;
         }
         if (iModuleLength<1000) iModuleLength=1000;
+        if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
     } else {
         KSSPLAY_reset(kssplay, mod_currentsub, 0);
-        if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
+        if (kss->info) {
+            iModuleLength=kss->info[mod_currentsub].time_in_ms;
+            if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
+        }
         else iModuleLength=optGENDefaultLength;
         if (iModuleLength<1000) iModuleLength=1000;
     }
     
-    kssOptLoopNb=1;
-
     KSSPLAY_set_device_quality(kssplay, EDSC_PSG, 1);
     KSSPLAY_set_device_quality(kssplay, EDSC_SCC, 1);
     KSSPLAY_set_device_quality(kssplay, EDSC_KSSOPLL, 1);
@@ -6261,15 +6287,7 @@ char* loadRom(const char* path, size_t romSize)
     
     numChannels=2;
     
-    if (kss->title[0]) sprintf(mod_name," %s",kss->title);
-    else sprintf(mod_name," %s",[[filePath lastPathComponent] UTF8String]);
-        
-    KSSPLAY_get_MGStext(kssplay,mod_message,MAX_STIL_DATA_LENGTH*2);
-        
-    if (m3uReader.info().title)
-        if (m3uReader.info().title[0]) sprintf(mod_name," %s",m3uReader.info().title);
-    if (m3uReader.info().artist)
-        if (m3uReader.info().artist[0]) artist=[NSString stringWithFormat:@"%s",m3uReader.info().artist];
+    KSSPLAY_get_MGStext(kssplay,mod_message,MAX_STIL_DATA_LENGTH*2);                
     
     if (mLoopMode) iModuleLength=-1;
     iCurrentTime=0;
@@ -8372,13 +8390,13 @@ int vgmGetFileLength()
             }
             if (gme_info->game){
                 if (gme_info->game[0]) {
-                    mod_title=[NSString stringWithFormat:@"%s",gme_info->game];
-                    album=[NSString stringWithFormat:@"%s",gme_info->game];
+                    mod_title=[NSString stringWithCString:gme_info->game encoding:NSShiftJISStringEncoding];
+                    album=[NSString stringWithCString:gme_info->game encoding:NSShiftJISStringEncoding];
                 }
             }
             
             if (gme_info->author) {
-                artist=[NSString stringWithFormat:@"%s",gme_info->author];
+                artist=[NSString stringWithCString:gme_info->author encoding:NSShiftJISStringEncoding];
             }
             
             if ([album length]==0) album=[filePath lastPathComponent];
@@ -9299,6 +9317,27 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             [self Play];
             break;
         case MMP_KSS:  //KSS
+            
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            if (m3uReader.size()) {
+                KSSPLAY_reset(kssplay, m3uReader[mod_currentsub].track, 0);
+                iModuleLength=m3uReader[mod_currentsub].length;
+                if (iModuleLength<=0) {
+                    if (kss->info) iModuleLength=kss->info[mod_currentsub].time_in_ms;
+                    else iModuleLength=optGENDefaultLength;
+                }
+                if (iModuleLength<1000) iModuleLength=1000;
+                if (m3uReader[mod_currentsub].name) sprintf(mod_name," %s",m3uReader[mod_currentsub].name);
+            } else {
+                KSSPLAY_reset(kssplay, mod_currentsub, 0);
+                if (kss->info) {
+                    iModuleLength=kss->info[mod_currentsub].time_in_ms;
+                    if (kss->info[mod_currentsub].title[0]) sprintf(mod_name," %s",kss->info[mod_currentsub].title);
+                } else iModuleLength=optGENDefaultLength;
+                if (iModuleLength<1000) iModuleLength=1000;
+            }
             if (startPos) [self Seek:startPos];
             [self Play];
             break;
@@ -9634,7 +9673,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 //Playback infos
 -(NSString*) getModMessage {
     NSString *modMessage=nil;
-    if (mPlayType==MMP_MDXPDX) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
+    if ((mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)) return [NSString stringWithCString:mod_message encoding:NSShiftJISStringEncoding];
     if (mod_message[0]) modMessage=[NSString stringWithUTF8String:mod_message];
     if (modMessage==nil) {
         modMessage=[NSString stringWithFormat:@"%s",mod_message];
@@ -9651,7 +9690,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 
 -(NSString*) getModName {
     NSString *modName;
-    if (mPlayType==MMP_MDXPDX) return [NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
+    if  ( (mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX) ) return [NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
     modName=[NSString stringWithUTF8String:mod_name];
     
     if (modName==nil) return @"";
@@ -9687,7 +9726,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_VGMSTREAM) {
         if (subsong==mod_currentsub) {
             if (vgmStream && vgmStream->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStream->stream_name];
-            else result=[NSString stringWithFormat:@"%.3d"];
+            else result=[NSString stringWithFormat:@"%.3d",subsong];
         } else {
             VGMSTREAM* vgmStreamTmp = NULL;
             STREAMFILE* vgmFileTmp = NULL;
@@ -9720,10 +9759,11 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             
             result=nil;
             if (gme_info->song){
-                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:gme_info->song]];
+                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding]];
+                
             }
             if ((!result)&&(gme_info->game)) {
-                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:gme_info->game]];
+                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->game encoding:NSShiftJISStringEncoding]];
             }
             if (!result) result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
             gme_free_info(gme_info);
@@ -9744,10 +9784,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
     } else if (mPlayType==MMP_KSS) {
         if (m3uReader.size()-1>=subsong) {
-            return [NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,m3uReader[subsong].name];
+            return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ];
         }
         if (kss->info) {
-            return [NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,kss->info[subsong].title];
+            return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:kss->info[subsong].title encoding:NSShiftJISStringEncoding] ];
         }
     }
     return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
