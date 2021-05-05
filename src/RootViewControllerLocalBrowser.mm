@@ -679,7 +679,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         sqlite3_stmt *stmt;
         char *realPath=strstr(fullPath,"/HVSC");
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         

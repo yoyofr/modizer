@@ -13,6 +13,59 @@
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
+NSMutableArray *DBHelper::getMissingLibsNameFromFilePath(NSString *localPath) {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int err;
+    NSMutableArray *result=[[NSMutableArray alloc] init];
+    
+    if (localPath==nil) return nil;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024],sqltmp[512];
+        sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else NSLog(@"ErrSQL : %d",err);
+        
+        //removing the /Documents/MODLAND
+        NSString *strTmpPath = [localPath stringByDeletingLastPathComponent];
+        NSUInteger index = [strTmpPath rangeOfString:@"/"].location;
+        strTmpPath = [strTmpPath substringFromIndex:index+1];
+        index = [strTmpPath rangeOfString:@"/"].location;
+        strTmpPath = [strTmpPath substringFromIndex:index+1];
+                
+        sprintf(sqltmp,"%s",[strTmpPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        
+        sprintf(sqlStatement,"SELECT fullpath,localpath FROM mod_file WHERE localpath like \"%s/%%lib\"",sqltmp);
+        //NSLog(@"sql: %s",sqlStatement);
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                NSString *localPath=[NSString stringWithFormat:@"%@/Documents/%s",[[NSBundle mainBundle] resourcePath],(const char*)sqlite3_column_text(stmt, 1)];
+                //NSLog(@"checking %@",localPath);
+                FILE *f=fopen([localPath UTF8String],"rb");
+                if (!f) {
+                    //NSLog(@"adding");
+                    [result addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]];
+                    [result addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
+                }
+                else fclose(f);
+            }
+            sqlite3_finalize(stmt);
+        } else NSLog(@"ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    
+    pthread_mutex_unlock(&db_mutex);
+    return result;
+}
+
+
 NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
@@ -27,7 +80,7 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
 		int adjusted=0;
 		sqlite3_stmt *stmt;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
@@ -66,7 +119,7 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 		int adjusted=0;
 		sqlite3_stmt *stmt;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
@@ -316,7 +369,7 @@ int DBHelper::getNbFormatEntries() {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
@@ -347,7 +400,7 @@ int DBHelper::getNbAuthorEntries() {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
 		
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -378,7 +431,7 @@ int DBHelper::getNbHVSCFilesEntries() {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
@@ -409,7 +462,7 @@ int DBHelper::getNbASMAFilesEntries() {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
@@ -440,7 +493,7 @@ int DBHelper::getNbMODLANDFilesEntries() {
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		

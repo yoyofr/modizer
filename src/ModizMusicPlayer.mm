@@ -1204,7 +1204,6 @@ extern "C" {
 #define SRC_DEFAULT_CONVERTER SRC_SINC_MEDIUM_QUALITY
 double src_ratio;
 SRC_STATE *src_state;
-SRC_DATA src_data;
 
 int64_t src_callback_hc(void *cb_data, float **data);
 int64_t src_callback_vgmstream(void *cb_data, float **data);
@@ -4084,16 +4083,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             }
                             //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
-                            
-                            
-                            
                         }
                     }
                     if (mPlayType==MMP_XMP) {  //XMP
                         if (m_voicesDataAvail) {
                             //reset to 0 buffer
                                 for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)  memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
-                                
                         }
                         
                         if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
@@ -4240,7 +4235,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     mod_message_updated=2;
                                 } else {
-                                    NSLog(@"Stop");
+                                    //NSLog(@"Stop");
                                 }
                             }
                         }
@@ -4910,11 +4905,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         char sqlStatement[1024];
         sqlite3_stmt *stmt;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
-        if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
-        
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -4997,7 +4988,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         sqlite3_stmt *stmt;
         char *realPath=strstr(fullPath,"/HVSC");
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -5048,7 +5039,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         sqlite3_stmt *stmt;
         char *realPath=strstr(fullPath,"/ASMA");
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -6800,7 +6791,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     } else {
         sprintf(mod_name," %s", modName);
     }
-    if (modName) free(modName);
+    mdz_safe_free(modName);
     
     char *artistStr=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"artist");
     if (!artistStr) {
@@ -7483,8 +7474,6 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     HC_voicesMuteMask1=0xFFFFFFFF;
     HC_voicesMuteMask2=0xFFFFFFFF;
     
-    src_data.data_out=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
-    src_data.data_in=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*sizeof(float)*2);
     if (HC_type==1) { //PSF1
         hc_sample_rate=44100;
         m_voice_current_samplerate=hc_sample_rate;
@@ -7604,6 +7593,8 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x21, usf_loader, lzu_state, usf_info, lzu_state,1 ) < 0 ) {
             NSLog(@"Error loading USF");
             mPlayType=0;
+            usf_shutdown(lzu_state->emu_state);
+            
             src_delete(src_state);
             mdz_safe_free(lzu_state->emu_state);
             mdz_safe_free(usf_info_data);
@@ -9449,15 +9440,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 }
 
 -(void) MMP_HCClose {
-    if (HC_emulatorCore) {
-        if ( HC_type == 0x21 ) {
-            usf_shutdown( HC_emulatorCore );
-            free( HC_emulatorCore );
-        } else {
-            free( HC_emulatorCore );
-        }
-        HC_emulatorCore=NULL;
-    }
+    mdz_safe_free(HC_emulatorCore);
+    
     if ( HC_type == 2 && HC_emulatorExtra ) {
         psf2fs_delete( HC_emulatorExtra );
         HC_emulatorExtra = NULL;
@@ -9750,6 +9734,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         const char *ret=openmpt_module_get_subsong_name(openmpt_module_ext_get_module(ompt_mod), subsong);
         if (ret) {
             result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:ret]];
+            free((char*)ret);
         } else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
         return result;
     } else if (mPlayType==MMP_GME) {
@@ -9760,7 +9745,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             result=nil;
             if (gme_info->song){
                 if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding]];
-                
             }
             if ((!result)&&(gme_info->game)) {
                 if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->game encoding:NSShiftJISStringEncoding]];

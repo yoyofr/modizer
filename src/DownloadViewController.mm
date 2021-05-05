@@ -16,7 +16,7 @@
 extern volatile t_settings settings[MAX_SETTINGS];
 #import <CFNetwork/CFNetwork.h>
 #include <sys/xattr.h>
-
+#import "DBHelper.h"
 
 int lCancelURL;
 extern pthread_mutex_t download_mutex;
@@ -140,6 +140,7 @@ static NSFileManager *mFileMngr;
     
     [self checkNextQueuedItem];
 }
+
 
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
@@ -758,6 +759,35 @@ static NSFileManager *mFileMngr;
                     mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
                     
                     mFTPDownloadQueueDepth++;
+                }
+                r.location=NSNotFound;
+                r = [fileName rangeOfString:@".mini" options:NSCaseInsensitiveSearch];
+                if (r.location != NSNotFound) {  //trying to download
+                    char *tmp_str_ptr;
+                    char tmp_str[1024];
+                    NSMutableArray *libsList=DBHelper::getMissingLibsNameFromFilePath(filePath);
+                    for (int i=0;i<[libsList count]/2;i++) {
+                        NSString *fullP=(NSString *)[libsList objectAtIndex:i*2];
+                        NSString *localP=(NSString *)[libsList objectAtIndex:i*2+1];
+                        
+                        NSString *filePath=fullP;
+                        NSString *modFilename=[fullP lastPathComponent];
+                        NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",filePath];
+                        NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
+                        
+                        
+                        mFilePath[mFTPDownloadQueueDepth]=localPath;
+                        mFTPpath[mFTPDownloadQueueDepth]=ftpPath;
+                        mFTPhost[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:ftpHost];
+                        mFTPFilename[mFTPDownloadQueueDepth]=modFilename;
+                        
+                        mIsMODLAND[mFTPDownloadQueueDepth]=2; //will be treated as modland but not played
+                        mFileSize[mFTPDownloadQueueDepth]=-1;
+                        mUsePrimaryAction[mFTPDownloadQueueDepth]=useDefaultAction;
+                        
+                        mFTPDownloadQueueDepth++;
+                    }
+                    
                 }
 			}
 			

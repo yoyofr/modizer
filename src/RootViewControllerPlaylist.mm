@@ -42,8 +42,6 @@ static volatile int mPopupAnimation=0;
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
-UIAlertView *alertChooseName;
-
 #import "TTFadeAnimator.h"
 
 
@@ -191,8 +189,21 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 }
 
 -(void) deletePlaylist {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                        message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
+                                        preferredStyle:UIAlertControllerStyleAlert];
     
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [alertC addAction:cancelAction];
     
+    UIAlertAction *deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+        [self deletePlaylistDB:playlist->playlist_id];
+        [self.navigationController popViewControllerAnimated:YES];
+    }];
+    [alertC addAction:deleteAction];
+    
+    [self showAlert:alertC];
 }
 
 - (void)renamePlaylist {
@@ -377,105 +388,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
 }
 
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-	if (alertView==alertChooseName) {
-        UITextField *plname = [alertView textFieldAtIndex:0];
-        if (newPlaylist) {
-            
-            if (newPlaylist==1) {
-                if (buttonIndex==1) {  //Create a new playlist
-                    if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                    
-                    ((RootViewControllerPlaylist*)childController)->show_playlist=1;
-                    
-                    if (playlist->playlist_id) playlist->playlist_id=nil;
-                    if (playlist->playlist_name) playlist->playlist_name=nil;
-                    playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
-                    playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
-                    self.navigationItem.title=playlist->playlist_name;
-                    
-                    //set new title
-                    childController.title = playlist->playlist_name;
-                    
-                    ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
-                    ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
-                    ((RootViewControllerPlaylist*)childController)->playlist=playlist;
-                    childController.view.frame=self.view.frame;
-                    keys=nil;
-                    list=nil;
-                    mFreePlaylist=1;
-                    
-                    
-                    newPlaylist=0;
-                    // And push the window
-                    [self.navigationController pushViewController:childController animated:YES];
-                }
-                else {  //cancel => no playlist created
-                    [self freePlaylist];
-                    mFreePlaylist=0;
-                }
-            }
-            else if (newPlaylist==2) {
-                if (buttonIndex==1) {  //new playlist from current played list
-                    if (playlist->playlist_id) playlist->playlist_id=nil;
-                    if (playlist->playlist_name) playlist->playlist_name=nil;
-                    playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
-                    playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
-                    integrated_playlist=0;
-                    [self addListToPlaylistDB];
-                    self.navigationItem.title=playlist->playlist_name;
-                    [self.tableView reloadData];
-                }
-            }
-            
-            
-        }
-        
-        if (mRenamePlaylist && (buttonIndex==1)) {
-            mRenamePlaylist=0;
-            if (playlist->playlist_name) playlist->playlist_name=nil;;
-            playlist->playlist_name=[[NSString alloc] initWithString:plname.text];
-            [self updatePlaylistNameDB:playlist->playlist_id playlist_name:playlist->playlist_name];
-            self.navigationItem.title=[NSString stringWithFormat:@"%@",playlist->playlist_name];
-        }
-        
-    }
-}
-
-- (BOOL)alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView
-{
-    NSString *inputText = [[alertView textFieldAtIndex:0] text];
-    if( [inputText length] >= 1 ) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-- (NSString *)machine {
-	size_t size;
-	
-	// Set 'oldp' parameter to NULL to get the size of the data
-	// returned so we can allocate appropriate amount of space
-	sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-	
-	// Allocate the space to store name
-	char *name = (char*)malloc(size);
-	
-	// Get the platform name
-	sysctlbyname("hw.machine", name, &size, NULL, 0);
-	
-	// Place name into a string
-	NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
-	
-	// Done with this
-	free(name);
-	
-	return machine;
-}
-
-
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -576,10 +488,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	//self.tableView.pagingEnabled;
 	self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 	self.tableView.sectionHeaderHeight = 18;
-	//self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 	self.tableView.rowHeight = 40;
-    //self.tableView.backgroundColor = [UIColor clearColor];
-    //	self.tableView.backgroundColor = [UIColor blackColor];
     
     popTipViewRow=-1;
     popTipViewSection=-1;
@@ -728,6 +637,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             [mode_entries_details addObject:NSLocalizedString(@"No entry",@"")];
         }
         
+        [mode_entries addObject:NSLocalizedString(@"Random picks",@"")];
+        [mode_entries_details addObject:NSLocalizedString(@"Generate a randomized playlist",@"")];
+        
         [mode_entries addObject:NSLocalizedString(@"Most played...",@"")];
         [mode_entries_details addObject:NSLocalizedString(@"Most played entries",@"")];
         
@@ -752,6 +664,9 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 break;
             case INTEGRATED_PLAYLIST_MOSTPLAYED:
                 [self loadMostPlayedList];
+                break;
+            case INTEGRATED_PLAYLIST_RANDOM:
+                //no real refresh needed
                 break;
         }
     } else {
@@ -1338,12 +1253,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                     if (local_entries_data==NULL) {
                         //show alert : cannot list
-                        UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                        [memAlert show];
+                        [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"")];
                     } else {
                         //show alert : limited list
-                        UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                        [memAlert show];
+                        [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                         local_nb_entries=local_nb_entries_limit;
                     }
                 } else local_nb_entries_limit=0;
@@ -1496,12 +1409,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"")];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                     local_nb_entries=local_nb_entries_limit;
                 }
             } else local_nb_entries_limit=0;
@@ -1672,12 +1583,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"")];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                     local_nb_entries=local_nb_entries_limit;
                 }
             } else local_nb_entries_limit=0;
@@ -1875,12 +1784,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"")];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                     local_nb_entries=local_nb_entries_limit;
                 }
             } else local_nb_entries_limit=0;
@@ -2414,6 +2321,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     [self.tableView reloadData];
                             //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
                     
+                } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
+                    //to check
                 } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
                             short int playcount;
                             signed char rating;
@@ -2499,11 +2408,13 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     allow_delete=false;
     if (browse_depth==0) {
         //main playlist screen with builtin ones + user specific
-        if (indexPath.row>=4) allow_delete=true;
+        if (indexPath.row>=5) allow_delete=true;
     } else if (browse_depth==1) {
         if (show_playlist) {
             if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
                 if (indexPath.row>=1) allow_delete=true;
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
+                if (indexPath.row>=1) allow_delete=false;
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
                 if (indexPath.row>=1) allow_delete=true;
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
@@ -2637,7 +2548,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             bottomLabel.text=[array_details objectAtIndex:indexPath.row];
             
-        } else if (indexPath.row==1) {
+        } else if (indexPath.row<=2) {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             bottomLabel.text=[array_details objectAtIndex:indexPath.row];
             
@@ -2855,7 +2766,10 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [self reloadNowPlaying];
                         
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-            } else  if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) { //random, TODO
+                
+                //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) { //most played: reset playcount
                 short int playcount;
                 signed char rating;
                 DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
@@ -3085,9 +2999,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         
     } else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:@"Warning" message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -3271,6 +3183,110 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [tableView reloadData];
 }
 
+-(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
+    int pl_entries=0;
+    NSString *file,*cpath;
+    NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
+    NSArray *filetype_extPMD=[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","];
+    NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+    NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
+    NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
+    NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
+    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+    NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
+    NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
+    NSArray *filetype_extGME=[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","];
+    NSArray *filetype_extADPLUG=[SUPPORTED_FILETYPE_ADPLUG componentsSeparatedByString:@","];
+    NSArray *filetype_ext2SF=[SUPPORTED_FILETYPE_2SF componentsSeparatedByString:@","];
+    NSArray *filetype_extV2M=[SUPPORTED_FILETYPE_V2M componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
+    NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
+    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
+    NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
+    NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
+    NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
+    NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
+    NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
+    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extPMD count]+[filetype_extSID count]+[filetype_extSTSOUND count]+
+                                  [filetype_extSC68 count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
+                                  [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extV2M count]+[filetype_extVGMSTREAM count]+
+                                  [filetype_extHC count]+[filetype_extHVL count]+[filetype_extS98 count]+[filetype_extKSS count]+[filetype_extGSF count]+
+                                  [filetype_extASAP count]+[filetype_extWMIDI count]+[filetype_extVGM count]];
+    
+    [filetype_ext addObjectsFromArray:filetype_extMDX];
+    [filetype_ext addObjectsFromArray:filetype_extPMD];
+    [filetype_ext addObjectsFromArray:filetype_extSID];
+    [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
+    [filetype_ext addObjectsFromArray:filetype_extSC68];
+    [filetype_ext addObjectsFromArray:filetype_extARCHIVE];
+    [filetype_ext addObjectsFromArray:filetype_extUADE];
+    [filetype_ext addObjectsFromArray:filetype_extMODPLUG];
+    [filetype_ext addObjectsFromArray:filetype_extXMP];
+    [filetype_ext addObjectsFromArray:filetype_extGME];
+    [filetype_ext addObjectsFromArray:filetype_extADPLUG];
+    [filetype_ext addObjectsFromArray:filetype_ext2SF];
+    [filetype_ext addObjectsFromArray:filetype_extV2M];
+    [filetype_ext addObjectsFromArray:filetype_extVGMSTREAM];
+    [filetype_ext addObjectsFromArray:filetype_extHC];
+    [filetype_ext addObjectsFromArray:filetype_extHVL];
+    [filetype_ext addObjectsFromArray:filetype_extS98];
+    [filetype_ext addObjectsFromArray:filetype_extKSS];
+    [filetype_ext addObjectsFromArray:filetype_extGSF];
+    [filetype_ext addObjectsFromArray:filetype_extASAP];
+    [filetype_ext addObjectsFromArray:filetype_extWMIDI];
+    [filetype_ext addObjectsFromArray:filetype_extVGM];
+    
+    // First check count for each section
+    cpath=[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+    NSError *error;
+    NSArray *dirContent;//
+    BOOL isDir;
+        
+    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+    
+    NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+        NSString *str1=[(NSString *)obj1 lastPathComponent];
+        NSString *str2=[(NSString *)obj2 lastPathComponent];
+        return [str1 caseInsensitiveCompare:str2];
+    }];
+    
+    for (file in sortedDirContent) {
+        //check if dir
+        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        if (isDir) {
+        } else {
+            NSString *extension;// = [[file pathExtension] uppercaseString];
+            NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+            extension = (NSString *)[temparray_filepath lastObject];
+            [temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                                                
+            int found=0;
+            
+            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+            
+            if (found)  {
+                [labels addObject:[NSString stringWithString:[file lastPathComponent]]];
+                [fullpaths addObject:[NSString stringWithFormat:@"Documents/%@",file]];
+                pl_entries++;
+                if (pl_entries>=MAX_CARPLAY_RANDOM_PL_SIZE) break;
+            }
+        }
+    }
+    
+    //now shuffle the list
+    for (int i=0;i<pl_entries;i++) {
+        int newidx = (arc4random() % (pl_entries - i)) + i;
+        [labels exchangeObjectAtIndex:i withObjectAtIndex:newidx];
+        [fullpaths exchangeObjectAtIndex:i withObjectAtIndex:newidx];
+    }
+    
+    return pl_entries;
+}
+
 
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // Navigation logic may go here. Create and push another view controller.
@@ -3289,13 +3305,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         
         if (indexPath.row==0) { //new playlist
-            /*newPlaylist=1;
-            
-            alertChooseName=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Playlist name",@"") message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
-            [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
-            [alertChooseName show];*/
             [self createNewPlaylist];
-            
         }
         if ((indexPath.row==1)&&(detailViewController.mPlaylist_size)) { //display current queue
             for (int i=0;i<detailViewController.mPlaylist_size;i++) {
@@ -3334,7 +3344,40 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
         }
-        if (indexPath.row==2) { //most played
+        if (indexPath.row==2) { //random picks
+            NSMutableArray *arrayLabels=[[NSMutableArray alloc] init];
+            NSMutableArray *arrayFullpaths=[[NSMutableArray alloc] init];
+            int pl_entries;
+            pl_entries=[self loadLocalFilesRandomPL:arrayLabels fullpaths:arrayFullpaths];
+            
+            playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Random picks",@"")];
+            playlist->playlist_id=nil;
+            playlist->nb_entries=pl_entries;
+            for (int i=0;i<[arrayLabels count];i++) {
+                playlist->entries[i].label=[arrayLabels objectAtIndex:i];
+                playlist->entries[i].fullpath=[arrayFullpaths objectAtIndex:i];
+                playlist->entries[i].ratings=-1;
+            }
+            
+            if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+            //set new title
+            childController.title = playlist->playlist_name;
+            ((RootViewControllerPlaylist*)childController)->show_playlist=1;
+            
+            // Set new directory
+            ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;
+            ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
+            ((RootViewControllerPlaylist*)childController)->playlist=playlist;
+            ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_RANDOM;
+            childController.view.frame=self.view.frame;
+            keys=nil;
+            list=nil;
+            mFreePlaylist=1;
+            
+            // And push the window
+            [self.navigationController pushViewController:childController animated:YES];
+        }
+        if (indexPath.row==3) { //most played
             [self loadMostPlayedList];
             playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Most played",@"")];
             playlist->playlist_id=nil;
@@ -3357,7 +3400,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
         }
-        if (indexPath.row==3) { //favorites
+        if (indexPath.row==4) { //favorites
             [self loadFavoritesList];
             playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Favorites",@"")];
             playlist->playlist_id=nil;
@@ -3380,7 +3423,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
         }
-        if (indexPath.row>=4) {
+        if (indexPath.row>=5) {
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
             //set new title
             childController.title = cellValue;
@@ -3544,6 +3587,23 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                                 [self editPlaylist];
                             }];
                         [alertC addAction:editAction];
+                        
+                        [self showAlert:alertC];
+                        
+                    } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
+                        alertC = [UIAlertController alertControllerWithTitle:nil
+                                                           message:nil
+                                                           preferredStyle:UIAlertControllerStyleActionSheet];
+                        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                            handler:^(UIAlertAction * action) {
+                            }];
+                        [alertC addAction:cancelAction];
+                            
+                        UIAlertAction* saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction * action) {
+                                [self saveToNewPlaylist];
+                            }];
+                        [alertC addAction:saveAction];
                         
                         [self showAlert:alertC];
                         

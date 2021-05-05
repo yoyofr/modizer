@@ -233,6 +233,8 @@
 "Favorites"="Favoris";
 "Favorites (%d)"="Favoris (%d)";
 "Random"="Au hasard";
+"Random picks"="Choix aléatoires";
+"Generate a randomized playlist"="Générer une liste aléatoire";
 
 "Enter new name"="Entrez le nouveau nom";
 "Enter playlist name"="Entrez le nom de la liste";

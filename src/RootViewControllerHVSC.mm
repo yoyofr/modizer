@@ -402,7 +402,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -530,7 +530,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -658,7 +658,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -806,7 +806,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -954,7 +954,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -1102,7 +1102,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -1188,7 +1188,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
 		
@@ -1218,7 +1218,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;
         
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -1249,7 +1249,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;		
 		
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         
@@ -1276,7 +1276,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		sqlite3_stmt *stmt;
 		int err;		
 		
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
         

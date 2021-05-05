@@ -224,6 +224,12 @@ int gesture_move_file_min_trans;
 }
 
 -(void) refreshTime {
+    if (detailVC.mPlaylist_size==0) {
+        self.view.hidden=TRUE;
+        return;
+    }
+    if (self.view.hidden) self.view.hidden=FALSE;
+    
     int l=[detailVC.mplayer getSongLength]/1000;
     int t=[detailVC.mplayer getCurrentTime]/1000;
     switch (labelTime_mode) {
@@ -255,6 +261,7 @@ int gesture_move_file_min_trans;
 
 -(void) refreshCoverLabels {
     if ([detailVC.mplayer isPlaying]) {
+        
         if ([detailVC.mplayer isPaused]) {
             btnPlay.hidden=false;
             btnPause.hidden=true;

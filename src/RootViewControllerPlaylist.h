@@ -47,8 +47,6 @@
 	int mShowSubdir,shouldFillKeys;
     
     int mAccessoryButton;
-    
-    
 
 	t_local_browse_entry *local_entries_data;
 	int local_entries_count[27];

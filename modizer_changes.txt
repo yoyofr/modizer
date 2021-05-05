@@ -13,7 +13,6 @@ Todo/Requested:
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
 - TODO: rework all oscillo view catch code / libraries to include new model (adapt to sample rate correctly)
 - BUG: miniplayer should disappear after failure of launching a file if playlist if empty
-- LIBKSS: some files not playing
 
 3.1
 ----
@@ -26,6 +25,7 @@ Todo/Requested:
 - [UI] Volume bar adjustement for devices without physical home button
 - [PLAYER] Fixed a bug when PMD (.M, .M2, .MZ) are compressed in an archive (zip, 7z, ...)
 - [ALL] Several Fixes / stability improvements
+- [MODLAND] Auto downloading "lib" files for "miniXXX" files (minipsf, miniusf, mini2sf, ...)
 
 3.0
 ---
