@@ -905,8 +905,16 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
 	CLAMP16( m.t_main_out [ch] );
     
     //TODO:  MODIZER changes start / YOYOFR
-    int new_val=(m.t_output * (vol+voln)) >> 7;
-    m_voice_buff[current_voice][m_voice_current_ptr[current_voice]>>10]=LIMIT8(new_val>>7);
+    current_voice=0;
+    while ((1<<current_voice)!=v->vbit) {
+        current_voice++;
+        if (current_voice>7) {
+            current_voice=0;
+            break;
+        }
+    }
+    int newamp=LIMIT8((m.t_output * (vol+voln)) >> 14);    
+    m_voice_buff[current_voice][m_voice_current_ptr[current_voice]>>10]=newamp;
     //TODO:  MODIZER changes end / YOYOFR
 	
 	// Optionally add to echo total
@@ -916,7 +924,7 @@ inline void SPC_DSP::voice_output( voice_t const* v, int ch )
 		CLAMP16( m.t_echo_out [ch] );
 	}
 }
-VOICE_CLOCK( V4 )
+inline VOICE_CLOCK( V4 )
 {
 	// Decode BRR
 	m.t_looped = 0;
@@ -1162,7 +1170,6 @@ ECHO_CLOCK( 30 )
 // Execute clock for a particular voice
 //TODO:  MODIZER changes start / YOYOFR
 #define V( clock, voice )   \
-current_voice=voice; \
 voice_##clock( &m.voices [voice] );
 
 /* The most common sequence of clocks uses composite operations

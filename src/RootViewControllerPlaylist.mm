@@ -62,6 +62,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 #include "MiniPlayerImplementTableView.h"
 #include "AlertsCommonFunctions.h"
+#include "PlaylistCommonFunctions.h"
 #include "WaitingViewCommonMethods.h"
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {
@@ -807,46 +808,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 	pthread_mutex_unlock(&db_mutex);
 	return listName;
 }
--(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath {
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-	sqlite3 *db;
-	int err;
-	bool result;
-	pthread_mutex_lock(&db_mutex);
-	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-		char sqlStatement[1024];
-		
-        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
-        if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
-        
-		sprintf(sqlStatement,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
-				[id_playlist UTF8String],[label UTF8String],[fullPath UTF8String]);
-		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-		if (err==SQLITE_OK){
-			result=TRUE;
-		} else {
-			result=FALSE;
-			NSLog(@"ErrSQL : %d",err);
-		}
-		if (result) {
-			sprintf(sqlStatement,"UPDATE playlists SET num_files=\
-					(SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%s)\
-					WHERE id=%s",
-					[id_playlist UTF8String],[id_playlist UTF8String]);
-			err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
-			if (err==SQLITE_OK){
-				result=TRUE;
-			} else {
-				result=FALSE;
-				NSLog(@"ErrSQL : %d",err);
-			}
-		}
-	};
-	sqlite3_close(db);
-	pthread_mutex_unlock(&db_mutex);
-	return result;
-}
+
 -(bool) addListToPlaylistDB {
 	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
@@ -2061,7 +2023,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     }
 }
 
-
 -(void) viewWillAppear:(BOOL)animated {
     [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
@@ -3183,6 +3144,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
     [tableView reloadData];
 }
 
+
+
 -(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
     int pl_entries=0;
     NSString *file,*cpath;
@@ -3245,11 +3208,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
     dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
     
-    NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
-        NSString *str1=[(NSString *)obj1 lastPathComponent];
-        NSString *str2=[(NSString *)obj2 lastPathComponent];
-        return [str1 caseInsensitiveCompare:str2];
-    }];
+    NSArray *sortedDirContent = imp_RandomizeUsingMutableCopy(dirContent);
     
     for (file in sortedDirContent) {
         //check if dir
@@ -3275,13 +3234,6 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 if (pl_entries>=MAX_CARPLAY_RANDOM_PL_SIZE) break;
             }
         }
-    }
-    
-    //now shuffle the list
-    for (int i=0;i<pl_entries;i++) {
-        int newidx = (arc4random() % (pl_entries - i)) + i;
-        [labels exchangeObjectAtIndex:i withObjectAtIndex:newidx];
-        [fullpaths exchangeObjectAtIndex:i withObjectAtIndex:newidx];
     }
     
     return pl_entries;

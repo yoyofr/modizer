@@ -411,5 +411,20 @@
     [self showAlert:msgAlert];
 }
 
+static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
+    if (1 >= arr.count) {
+        return arr.copy;
+    }
+    NSMutableArray * cp = arr.mutableCopy;
+    u_int32_t i = (u_int32_t)cp.count;
+    while (i > 1) {
+        --i;
+        const u_int32_t j = arc4random_uniform(i);
+        [cp exchangeObjectAtIndex:i withObjectAtIndex:j];
+    }
+    // you may not favor creating the concrete copy
+    return cp.copy;
+}
+
 
 #endif /* PlaylistCommonFunctions_h */

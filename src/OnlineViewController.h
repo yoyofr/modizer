@@ -13,6 +13,7 @@
 #import "RootViewControllerMODLAND.h"
 #import "RootViewControllerHVSC.h"
 #import "RootViewControllerASMA.h"
+#import "RootViewControllerWebParser.h"
 #import "DownloadViewController.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"

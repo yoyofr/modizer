@@ -23,6 +23,7 @@ Todo/Requested:
 - [UI] Improved playlists management
 - [UI] Carplay support (playlist based)
 - [UI] Volume bar adjustement for devices without physical home button
+- [FX] Fixed some issues / oscilloscope voices view
 - [PLAYER] Fixed a bug when PMD (.M, .M2, .MZ) are compressed in an archive (zip, 7z, ...)
 - [ALL] Several Fixes / stability improvements
 - [MODLAND] Auto downloading "lib" files for "miniXXX" files (minipsf, miniusf, mini2sf, ...)

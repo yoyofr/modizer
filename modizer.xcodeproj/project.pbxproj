@@ -269,6 +269,14 @@
 		593288AA262093B800DB4E7C /* tabview_gradient50Black@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */; };
 		593288AB262093B800DB4E7C /* tabview_gradient50Black.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A8262093B800DB4E7C /* tabview_gradient50Black.png */; };
 		593288AC262093B800DB4E7C /* tabview_gradient50Black.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A8262093B800DB4E7C /* tabview_gradient50Black.png */; };
+		5937EE492645314600270715 /* RootViewControllerWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */; };
+		5937EE612645314800270715 /* RootViewControllerWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */; };
+		5937EEE626453B0800270715 /* TFHpple.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE126453B0800270715 /* TFHpple.m */; };
+		5937EEE726453B0800270715 /* TFHpple.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE126453B0800270715 /* TFHpple.m */; };
+		5937EEE826453B0800270715 /* TFHppleElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE426453B0800270715 /* TFHppleElement.m */; };
+		5937EEE926453B0800270715 /* TFHppleElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE426453B0800270715 /* TFHppleElement.m */; };
+		5937EEEA26453B0800270715 /* XPathQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE526453B0800270715 /* XPathQuery.m */; };
+		5937EEEB26453B0800270715 /* XPathQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE526453B0800270715 /* XPathQuery.m */; };
 		59387AEE20C745BC001F0C20 /* LaunchLogo.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 59387AED20C745BB001F0C20 /* LaunchLogo.jpg */; };
 		59387AF020C746D4001F0C20 /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = 59387AEF20C746D3001F0C20 /* AppStore512.png */; };
 		593928DB25CF5043009281DC /* libvgmplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928CD25CF4E81009281DC /* libvgmplay.a */; };
@@ -4361,6 +4369,12 @@
 		593288A3261FC61700DB4E7C /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient50Black@2x.png"; sourceTree = "<group>"; };
 		593288A8262093B800DB4E7C /* tabview_gradient50Black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient50Black.png; sourceTree = "<group>"; };
+		5937EEE026453B0800270715 /* TFHppleElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFHppleElement.h; sourceTree = "<group>"; };
+		5937EEE126453B0800270715 /* TFHpple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFHpple.m; sourceTree = "<group>"; };
+		5937EEE226453B0800270715 /* XPathQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XPathQuery.h; sourceTree = "<group>"; };
+		5937EEE326453B0800270715 /* TFHpple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFHpple.h; sourceTree = "<group>"; };
+		5937EEE426453B0800270715 /* TFHppleElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFHppleElement.m; sourceTree = "<group>"; };
+		5937EEE526453B0800270715 /* XPathQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XPathQuery.m; sourceTree = "<group>"; };
 		59387AED20C745BB001F0C20 /* LaunchLogo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = LaunchLogo.jpg; sourceTree = "<group>"; };
 		59387AEF20C746D3001F0C20 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = "<group>"; };
 		5939285F25CF1C0A009281DC /* Lazyusf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Lazyusf.xcodeproj; path = libLazyusf/Lazyusf.xcodeproj; sourceTree = "<group>"; };
@@ -6139,6 +6153,19 @@
 			path = libvgmstream;
 			sourceTree = "<group>";
 		};
+		5937EEDF26453B0800270715 /* Hpple */ = {
+			isa = PBXGroup;
+			children = (
+				5937EEE326453B0800270715 /* TFHpple.h */,
+				5937EEE126453B0800270715 /* TFHpple.m */,
+				5937EEE026453B0800270715 /* TFHppleElement.h */,
+				5937EEE426453B0800270715 /* TFHppleElement.m */,
+				5937EEE226453B0800270715 /* XPathQuery.h */,
+				5937EEE526453B0800270715 /* XPathQuery.m */,
+			);
+			path = Hpple;
+			sourceTree = "<group>";
+		};
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
@@ -6599,6 +6626,7 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				5937EEDF26453B0800270715 /* Hpple */,
 				59C22A0325B992D9003FEDBF /* AFNetworking */,
 				59B9993225CFE09F0071E144 /* ASI */,
 				33ABE5A617B17A5100AE0EA1 /* BButton */,
@@ -10043,6 +10071,8 @@
 				CCCE9CE5123D807A007D9462 /* gzip68.c in Sources */,
 				CCCE9CE6123D807A007D9462 /* ice68.c in Sources */,
 				CCCE9CE7123D807A007D9462 /* init68.c in Sources */,
+				5937EE492645314600270715 /* RootViewControllerWebParser.mm in Sources */,
+				5937EEE826453B0800270715 /* TFHppleElement.m in Sources */,
 				594CB8622633236900D154E5 /* debug.c in Sources */,
 				CCCE9CE8123D807A007D9462 /* istream68.c in Sources */,
 				CCCE9CE9123D807A007D9462 /* istream68_fd.c in Sources */,
@@ -10103,6 +10133,7 @@
 				33114CFB13430A0B00C7CC19 /* dhuf.c in Sources */,
 				CCFDC53D17DB105500C6692C /* NVNotchFilter.m in Sources */,
 				33114CFC13430A0B00C7CC19 /* extract.c in Sources */,
+				5937EEEA26453B0800270715 /* XPathQuery.m in Sources */,
 				594CB8462633236900D154E5 /* psi.cpp in Sources */,
 				33114CFF13430A0B00C7CC19 /* header.c in Sources */,
 				33114D0013430A0B00C7CC19 /* huf.c in Sources */,
@@ -10113,6 +10144,7 @@
 				33114D0313430A0B00C7CC19 /* lhadd.c in Sources */,
 				33114D0413430A0B00C7CC19 /* lharc.c in Sources */,
 				594CB8B62633262100D154E5 /* rad.cpp in Sources */,
+				5937EEE626453B0800270715 /* TFHpple.m in Sources */,
 				33114D0613430A0B00C7CC19 /* lhext.c in Sources */,
 				33114D0713430A0B00C7CC19 /* lhlist.c in Sources */,
 				594CB8522633236900D154E5 /* dro2.cpp in Sources */,
@@ -10314,6 +10346,8 @@
 				5950DAE025E0F67B00B476B2 /* gzip68.c in Sources */,
 				5950DAE125E0F67B00B476B2 /* ice68.c in Sources */,
 				5950DAE225E0F67B00B476B2 /* init68.c in Sources */,
+				5937EE612645314800270715 /* RootViewControllerWebParser.mm in Sources */,
+				5937EEE926453B0800270715 /* TFHppleElement.m in Sources */,
 				594CB8632633236900D154E5 /* debug.c in Sources */,
 				5950DAE325E0F67B00B476B2 /* istream68.c in Sources */,
 				5950DAE425E0F67B00B476B2 /* istream68_fd.c in Sources */,
@@ -10374,6 +10408,7 @@
 				5950DB0B25E0F67B00B476B2 /* dhuf.c in Sources */,
 				5950DB0C25E0F67B00B476B2 /* NVNotchFilter.m in Sources */,
 				5950DB0D25E0F67B00B476B2 /* extract.c in Sources */,
+				5937EEEB26453B0800270715 /* XPathQuery.m in Sources */,
 				594CB8472633236900D154E5 /* psi.cpp in Sources */,
 				5950DB0E25E0F67B00B476B2 /* header.c in Sources */,
 				5950DB0F25E0F67B00B476B2 /* huf.c in Sources */,
@@ -10384,6 +10419,7 @@
 				5950DB1325E0F67B00B476B2 /* lhadd.c in Sources */,
 				5950DB1425E0F67B00B476B2 /* lharc.c in Sources */,
 				594CB8B72633262100D154E5 /* rad.cpp in Sources */,
+				5937EEE726453B0800270715 /* TFHpple.m in Sources */,
 				5950DB1525E0F67B00B476B2 /* lhext.c in Sources */,
 				5950DB1625E0F67B00B476B2 /* lhlist.c in Sources */,
 				594CB8532633236900D154E5 /* dro2.cpp in Sources */,

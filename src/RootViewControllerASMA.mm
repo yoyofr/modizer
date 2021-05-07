@@ -2,7 +2,7 @@
 //  RootViewControllerASMA.mm
 //  modizer1
 //
-//  Created by Yohann Magnien on 04/06/10.
+//  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
@@ -1379,7 +1379,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 if (pathToCheck) {
                     if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[section][indexPath.row].downloaded=1;
                     else cur_db_entries[section][indexPath.row].downloaded=0;
-                } else cur_db_entries[section][indexPath.row].downloaded=1;
+                } else cur_db_entries[section][indexPath.row].downloaded=0;
             }
             
             if(cur_db_entries[section][indexPath.row].downloaded==1) {
@@ -1795,7 +1795,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                             if (pathToCheck) {
                                 if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[i][j].downloaded=1;
                                 else existing=cur_db_entries[i][j].downloaded=0;
-                            } else existing=cur_db_entries[i][j].downloaded=1;
+                            } else existing=cur_db_entries[i][j].downloaded=0;
                         }
                         if (existing==0) {
                             

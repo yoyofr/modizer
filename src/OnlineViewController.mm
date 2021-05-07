@@ -6,6 +6,14 @@
 //
 //
 
+enum {
+    ONLINE_COLLECTIONS_MODLAND=0,
+    ONLINE_COLLECTIONS_HVSC,
+    ONLINE_COLLECTIONS_ASMA,
+    ONLINE_COLLECTIONS_JOSHW,
+    ONLINE_COLLECTIONS_NUMBER
+};
+
 #define GET_NB_ENTRIES 1
 //#define NB_MODLAND_ENTRIES 319746
 //#define NB_HVSC_ENTRIES 43856
@@ -314,7 +322,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     // Return the number of rows in the section.
     switch (section) {
         case 0: //collections
-            return 3;
+            return ONLINE_COLLECTIONS_NUMBER;
         case 1: //internet
             return 2;
         case 2: //VGM
@@ -419,14 +427,17 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         case 0: //collections
         {
             switch (indexPath.row) {
-                case 0:topLabel.text=NSLocalizedString(@"MODLAND collection",@"");
+                case ONLINE_COLLECTIONS_MODLAND:topLabel.text=NSLocalizedString(@"MODLAND collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbMODLANDFileEntries];
                     break;
-                case 1:topLabel.text=NSLocalizedString(@"HVSC collection",@"");
+                case ONLINE_COLLECTIONS_HVSC:topLabel.text=NSLocalizedString(@"HVSC collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbHVSCFileEntries];
                     break;
-                case 2:topLabel.text=NSLocalizedString(@"ASMA collection",@"");
+                case ONLINE_COLLECTIONS_ASMA:topLabel.text=NSLocalizedString(@"ASMA collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbASMAFileEntries];
+                    break;
+                case ONLINE_COLLECTIONS_JOSHW:topLabel.text=NSLocalizedString(@"JOSHW collection",@"");
+                    bottomLabel.text=@"";
                     break;
             }
         }
@@ -514,7 +525,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     switch (indexPath.section) {
         case 0: {//collection
             switch (indexPath.row) {
-                case 0: //MODLAND
+                case ONLINE_COLLECTIONS_MODLAND: //MODLAND
                     collectionViewController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"MODLAND";
@@ -526,7 +537,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
-                case 1: //HVSC
+                case ONLINE_COLLECTIONS_HVSC: //HVSC
                     collectionViewController =[[RootViewControllerHVSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"HVSC";
@@ -538,7 +549,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
-                case 2: //ASMA
+                case ONLINE_COLLECTIONS_ASMA: //ASMA
                     collectionViewController = [[RootViewControllerASMA alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"ASMA";
@@ -546,6 +557,21 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerASMA*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerASMA*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerASMA*)collectionViewController)->downloadViewController=downloadViewController;
+                    collectionViewController.view.frame=self.view.frame;
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
+                case ONLINE_COLLECTIONS_JOSHW: //JOSHW
+                    collectionViewController = [[RootViewControllerWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"JOSHW";
+                    // Set new directory
+                    ((RootViewControllerWebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerWebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    ((RootViewControllerWebParser*)collectionViewController)->mWebBaseURL=@"http://usf.joshw.info";
+                    ((RootViewControllerWebParser*)collectionViewController)->mWebBaseDir=@"JoshW/N64";
+                    
                     collectionViewController.view.frame=self.view.frame;
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
