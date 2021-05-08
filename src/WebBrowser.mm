@@ -823,22 +823,24 @@ static UIAlertView *alertChooseName;
     if ((navigationAction.navigationType==WKNavigationTypeLinkActivated)||
         (navigationAction.navigationType==WKNavigationTypeReload)||
         (navigationAction.navigationType==WKNavigationTypeBackForward)) {
+        
         addressTestField.text=[[navigationAction.request URL] absoluteString];
         if ([addressTestField.text caseInsensitiveCompare:@"about:blank"]==NSOrderedSame) addressTestField.text=@"";
         
-        NSRange rModizerdb;
-        rModizerdb.location=NSNotFound;
-        rModizerdb=[addressTestField.text rangeOfString:@"modizerdb.appspot.com" options:NSCaseInsensitiveSearch];
+        //[self textFieldShouldReturn:addressTestField];
         
-        [self textFieldShouldReturn:addressTestField];
-        NSLog(@"navigating to : %@",addressTestField.text);
-        NSLog(@"action: %d",navigationAction.navigationType);
+        //[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
+        
+        //NSLog(@"navigating to : %@",addressTestField.text);
+        //NSLog(@"action: %d",navigationAction.navigationType);
     }
     
     
     decisionHandler(WKNavigationActionPolicyAllow);
     return;
 }
+
+
 
 //- (void)webViewDidStartLoad:(WKWebView*)webV {
 - (void)webView:(WKWebView *)webView
@@ -1136,6 +1138,15 @@ didFinishNavigation:(WKNavigation *)navigation {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+  if (!navigationAction.targetFrame.isMainFrame) {
+    [webView loadRequest:navigationAction.request];
+  }
+
+  return nil;
+}
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
@@ -1150,8 +1161,7 @@ didFinishNavigation:(WKNavigation *)navigation {
             if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
         }
     }
-    
-    
+        
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     
@@ -1216,6 +1226,8 @@ didFinishNavigation:(WKNavigation *)navigation {
     
     // Set the delegate - note this is 'navigationDelegate' not just 'delegate'
     self.webView.navigationDelegate = self;
+    self.webView.UIDelegate=self;
+    
     
     // Add it to the view
     [self.view addSubview:webView];

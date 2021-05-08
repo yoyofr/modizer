@@ -517,6 +517,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (previndex!=index) {
             if (previndex>index) {
                 NSLog(@"********* %s",str);
+                if (previndex>=0) index=previndex;
+                else {
+                    index=0;
+                    dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
+                }
+                
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -658,6 +664,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
         if (previndex!=index) {
             if (previndex>index) {
                 NSLog(@"********* %s",str);
+                if (previndex>=0) index=previndex;
+                else {
+                    index=0;
+                    dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
+                }
+                
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -753,7 +765,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) refreshViewAfterDownload {
     if (childController) [(RootViewControllerWebParser*)childController refreshViewAfterDownload];
     else {
-        if (mSearch) [self fillKeys];
+        [self fillKeys];
         [tableView reloadData];
     }
 }

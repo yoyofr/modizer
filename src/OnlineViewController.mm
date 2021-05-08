@@ -19,7 +19,7 @@ enum {
 //#define NB_HVSC_ENTRIES 43856
 //#define NB_ASMA_ENTRIES 4630
 
-#define WEBLINKS_VGM_NB 11
+#define WEBLINKS_VGM_NB 10
 #define WEBLINKS_MODS_NB 6
 #define WEBLINKS_Others_NB 2
 NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
@@ -30,7 +30,6 @@ NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
     {@"http://snesmusic.org/pmh/",@"Portable Music History"},
     {@"http://snesmusic.org/cmh/",@"Console Music History"},
     {@"https://www.smspower.org/",@"Sega Master System"},
-    {@"https://hcs64.com/mboard/forum.php?showthread=26929",@"JoshW archives lists"},
     {@"http://www.midishrine.com/",@"Midishrine"},
     {@"https://www.vgmusic.com/",@"VGMusic"},
     {@"http://www.mirsoft.info/gamemods-archive.php",@"Mirsoft MODS"},
