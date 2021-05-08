@@ -142,10 +142,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     mFileMngr=[[NSFileManager alloc] init];
     
     //check if folders exist, create if required
-    rootDir=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingFormat:@"/Documents/%@",mWebBaseDir]];
-    BOOL dirExist = [mFileMngr fileExistsAtPath:rootDir];
-    if (!dirExist) {
-        [mFileMngr createDirectoryAtPath:rootDir withIntermediateDirectories:TRUE attributes:NULL error:NULL];
+    if (mWebBaseDir) {
+        rootDir=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingFormat:@"/Documents/%@",mWebBaseDir]];
+        BOOL dirExist = [mFileMngr fileExistsAtPath:rootDir];
+        if (!dirExist) {
+            [mFileMngr createDirectoryAtPath:rootDir withIntermediateDirectories:TRUE attributes:NULL error:NULL];
+        }
     }
  
     ratingImg[0] = @"heart-empty.png";
@@ -249,7 +251,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) fillKeys {
     if (shouldFillKeys) {
         shouldFillKeys=0;
-        if (browse_depth==0) [self fillKeysWithRepoList];
+        if (browse_depth==0) [self fillKeysWithRepoCateg];
+        else if (browse_depth==1) [self fillKeysWithRepoList];
         else [self fillKeysWithWEBSource];
        
     } else { //reset downloaded, rating & playcount flags
@@ -259,11 +262,128 @@ extern volatile t_settings settings[MAX_SETTINGS];
             dbWEB_entries_data[i].playcount=-1;
         }
         if (mSearch) {
-            if (browse_depth==0) [self fillKeysWithRepoList];
+            if (browse_depth==0) [self fillKeysWithRepoCateg];
+            else if (browse_depth==1) [self fillKeysWithRepoList];
             else [self fillKeysWithWEBSource];
         }
     }
 }
+
+-(void) fillKeysWithRepoCateg {
+    int dbWEB_entries_index;
+    int index,previndex;
+    
+    NSRange r;
+    
+    dbWEB_hasFiles=search_dbWEB_hasFiles=0;
+    // in case of search, do not ask DB again => duplicate already found entries & filter them
+    if (mSearch) {
+        search_dbWEB=1;
+        
+        if (search_dbWEB_nb_entries) {
+            search_dbWEB_nb_entries=0;
+            free(search_dbWEB_entries_data);
+        }
+        search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+        
+        for (int i=0;i<27;i++) {
+            search_dbWEB_entries_count[i]=0;
+            if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
+            for (int j=0;j<dbWEB_entries_count[i];j++)  {
+                r.location=NSNotFound;
+                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].label=dbWEB_entries[i][j].label;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].downloaded=dbWEB_entries[i][j].downloaded;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].rating=dbWEB_entries[i][j].rating;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].playcount=dbWEB_entries[i][j].playcount;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].fullpath=dbWEB_entries[i][j].fullpath;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].filesize=dbWEB_entries[i][j].filesize;
+                    search_dbWEB_entries_count[i]++;
+                    search_dbWEB_nb_entries++;
+                }
+            }
+        }
+        return;
+    }
+    if (dbWEB_nb_entries) {
+        for (int i=0;i<dbWEB_nb_entries;i++) {
+            dbWEB_entries_data[i].label=nil;
+            dbWEB_entries_data[i].fullpath=nil;
+            dbWEB_entries_data[i].URL=nil;
+        }
+        free(dbWEB_entries_data);dbWEB_entries_data=NULL;
+        dbWEB_nb_entries=0;
+    }
+    
+    typedef struct {
+        NSString *category;
+        NSString *detail;
+    } t_categ_entry;
+    NSArray *sortedArray;
+    NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
+    t_categ_entry webs_entry[]= {
+        {@"Computers",@"Computers"},
+        {@"Consoles",@"Consoles"},
+        {@"Portables",@"Portables"}
+        
+    };
+        
+    for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
+    
+    sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+        NSString *str1=[((t_categ_entry*)[obj1 pointerValue])->category  lastPathComponent];
+        NSString *str2=[((t_categ_entry*)[obj2 pointerValue])->category lastPathComponent];
+        return [str1 caseInsensitiveCompare:str2];
+    }];
+
+    
+    ////
+
+    dbWEB_nb_entries=[sortedArray count];
+    
+    //2nd initialize array to receive entries
+    dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+    memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+    dbWEB_entries_index=0;
+    for (int i=0;i<27;i++) {
+        dbWEB_entries_count[i]=0;
+        dbWEB_entries[i]=NULL;
+    }
+    
+    char str[1024];
+    index=-1;
+    for (int i=0;i<dbWEB_nb_entries;i++) {
+        t_categ_entry *wentry = (t_categ_entry *)[[sortedArray objectAtIndex:i] pointerValue];
+        sprintf(str,"%s",[wentry->category UTF8String]);
+        
+        previndex=index;
+        index=0;
+        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+        //sections are determined 'on the fly' since result set is already sorted
+        if (previndex!=index) {
+            if (previndex>index) {
+                NSLog(@"********* %s",str);
+            } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
+        }
+        
+        dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",str];
+                
+        dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithString:wentry->detail];
+                
+        dbWEB_entries[index][dbWEB_entries_count[index]].URL=nil;
+                                
+        dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
+                
+        dbWEB_entries_count[index]++;
+        dbWEB_entries_index++;
+    }
+    //populate entries
+}
+
 
 -(void) fillKeysWithRepoList {
     int dbWEB_entries_index;
@@ -296,6 +416,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].fullpath=dbWEB_entries[i][j].fullpath;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].filesize=dbWEB_entries[i][j].filesize;
                     search_dbWEB_entries_count[i]++;
                     search_dbWEB_nb_entries++;
                 }
@@ -317,56 +438,58 @@ extern volatile t_settings settings[MAX_SETTINGS];
         NSString *webSite_URL;
         NSString *webSite_name;
         NSString *webSite_baseDir;
+        NSString *category;
     } t_webSite_entry;
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_webSite_entry webs_entry[]= {
         //computers
-        {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC"},
-        //{@"http://amiga.joshw.info",@"Amiga Music",@"JoshW/Amiga"},
-        {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT"},
-        //{@"http://hoot.joshw.info",@"Hoot Music",@"JoshW/Hoot"},
-        //{@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98"},
-        {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX"},
+        {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers"},
+        //{@"http://amiga.joshw.info",@"Amiga Music",@"JoshW/Amiga",@"Computers"},
+        {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers"},
+        //{@"http://hoot.joshw.info",@"Hoot Music",@"JoshW/Hoot",@"Computers"},
+        //{@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers"},
+        {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers"},
         //consoles
-        {@"http://nsf.joshw.info",@"NES Music",@"JoshW/NES"},
-        {@"http://spc.joshw.info",@"SNES Music",@"JoshW/SNES"},
-        {@"http://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64"},
-        {@"http://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC"},
-        {@"http://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii"},
-        {@"http://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU"},
-        {@"http://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS"},
-        {@"http://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD"},
-        {@"http://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn"},
-        {@"http://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC"},
-        {@"http://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE"},
-        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD"},
-        {@"http://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1"},
-        {@"http://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2"},
-        {@"http://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3"},
-        {@"http://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox"},
-        {@"http://x360.joshw.info",@"XBox360 Music",@"JoshW/X360"},
-        {@"http://3do.joshw.info",@"3DO Music",@"JoshW/3DO"},
+        {@"http://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles"},
+        {@"http://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles"},
+        {@"http://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles"},
+        {@"http://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles"},
+        {@"http://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles"},
+        {@"http://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles"},
+        {@"http://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles"},
+        {@"http://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles"},
+        {@"http://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles"},
+        {@"http://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles"},
+        {@"http://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles"},
+        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles"},
+        {@"http://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles"},
+        {@"http://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles"},
+        {@"http://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles"},
+        {@"http://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles"},
+        {@"http://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles"},
+        {@"http://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles"},
         //portables
-        {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB"},
-        {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA"},
-        {@"http://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS"},
-        {@"http://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS"},
-        {@"http://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG"},
-        {@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS"},
-        {@"http://psp.joshw.info",@"PSP Music",@"JoshW/PSP"},
-        {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita"}
+        {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables"},
+        {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables"},
+        {@"http://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables"},
+        {@"http://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables"},
+        {@"http://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables"},
+        //{@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables"},
+        {@"http://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables"},
+        {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables"}
     };
         
-    for (int i=0;i<sizeof(webs_entry)/sizeof(t_webSite_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
+    //NSLog(@"categ: %@",mWebBaseDir);
+    for (int i=0;i<sizeof(webs_entry)/sizeof(t_webSite_entry);i++) {
+        if ([mWebBaseDir isEqualToString:webs_entry[i].category]) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
+    }
     
     sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
         NSString *str1=[((t_webSite_entry*)[obj1 pointerValue])->webSite_name  lastPathComponent];
         NSString *str2=[((t_webSite_entry*)[obj2 pointerValue])->webSite_name lastPathComponent];
         return [str1 caseInsensitiveCompare:str2];
     }];
-
-    
     ////
 
     dbWEB_nb_entries=[sortedArray count];
@@ -386,8 +509,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
         t_webSite_entry *wentry = (t_webSite_entry *)[[sortedArray objectAtIndex:i] pointerValue];
         sprintf(str,"%s",[wentry->webSite_name UTF8String]);
         
-        //NSLog(@"raw: %@\ntagname: %@\ncontent: %@\ntext: %@",[element raw],[element tagName],[element content],[element text]);
-    
         previndex=index;
         index=0;
         if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -448,6 +569,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].fullpath=dbWEB_entries[i][j].fullpath;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].filesize=dbWEB_entries[i][j].filesize;
                     search_dbWEB_entries_count[i]++;
                     search_dbWEB_nb_entries++;
                 }
@@ -465,16 +587,20 @@ extern volatile t_settings settings[MAX_SETTINGS];
         dbWEB_nb_entries=0;
     }
     
+    typedef struct {
+        NSString *file_URL;
+        NSString *file_size;
+    } t_web_file_entry;
+    
     //Browse page
-        
     //Download html data
     NSURL *url;
     NSData  *urlData;
     TFHpple * doc;
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
-    
-    for (int i=0;i<26;i++) {
+    t_web_file_entry *we[27];
+    for (int i=0;i<27;i++) {
         [self updateWaitingDetail:[NSString stringWithFormat:@"%d/27",i+1]];
         [self flushMainLoop];
         
@@ -484,30 +610,30 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
         
-        [tmpArray addObjectsFromArray:[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/@href"]];
+        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/@href"];
+        NSArray *arr_text=[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/following-sibling::text()[1]"];
+        if (arr_url&&[arr_url count]) {
+            we[i]=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
+            for (int j=0;j<[arr_url count];j++) {
+                TFHppleElement *e_url=[arr_url objectAtIndex:j];
+                TFHppleElement *e_text=[arr_text objectAtIndex:j];
+                we[i][j].file_URL=[NSString stringWithString:[e_url text]];
+                NSArray *arrtmp=[[e_text raw] componentsSeparatedByString:@" "];
+                we[i][j].file_size=[NSString stringWithString:[arrtmp objectAtIndex:[arrtmp count]-3]];
+                //NSLog(@"fs:%@",we[i][j].file_size);
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[i][j])]];
+            }
+        } else we[i]=NULL;
     }
-    
+
     sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
-        NSString *str1=[[(TFHppleElement *)obj1 text] lastPathComponent];
-        NSString *str2=[[(TFHppleElement *)obj2 text] lastPathComponent];
+        NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_URL lastPathComponent];
+        NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_URL lastPathComponent];
         return [str1 caseInsensitiveCompare:str2];
     }];
 
-    
-    //NSArray * elements  = [doc searchWithXPathQuery:@"/html/body//a[position()>4]/@href"];
-
-    /*TFHppleElement * element = [elements objectAtIndex:0];
-    [e text];                       // The text inside the HTML element (the content of the first text node)
-    [e tagName];                    // "a"
-    [e attributes];                 // NSDictionary of href, class, id, etc.
-    [e objectForKey:@"href"];       // Easy access to single attribute
-    [e firstChildWithTagName:@"b"]; // The first "b" child node
-    */
-    
-    ////
-    
     dbWEB_nb_entries=[sortedArray count];
-    
+
     //2nd initialize array to receive entries
     dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
@@ -516,15 +642,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
         dbWEB_entries_count[i]=0;
         dbWEB_entries[i]=NULL;
     }
-    
+
     char str[1024];
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
-        TFHppleElement * element = [sortedArray objectAtIndex:i];
-        sprintf(str,"%s",[[[element text] stringByRemovingPercentEncoding] UTF8String]);
+        t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
+        sprintf(str,"%s",[[wef->file_URL stringByRemovingPercentEncoding] UTF8String]);
         
-        //NSLog(@"raw: %@\ntagname: %@\ncontent: %@\ntext: %@",[element raw],[element tagName],[element content],[element text]);
-    
+        //NSLog(@"%@",wef->file_size);
         previndex=index;
         index=0;
         if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -542,21 +667,24 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         
         if (index==0) {
-            dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/0-9/%@",mWebBaseURL,[element text]];
+            dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/0-9/%@",mWebBaseURL,wef->file_URL];
         } else {
-            dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/%c/%@",mWebBaseURL,'a'+index-1,[element text]];
+            dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithFormat:@"%@/%c/%@",mWebBaseURL,'a'+index-1,wef->file_URL];
         }
-        
-        
         
         if (str[strlen(str)-1]!='/') dbWEB_entries[index][dbWEB_entries_count[index]].isFile=1;
         else dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
         dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
+        dbWEB_entries[index][dbWEB_entries_count[index]].filesize=[NSString stringWithString:wef->file_size];
         
         dbWEB_entries[index][dbWEB_entries_count[index]].rating=-1;
         dbWEB_entries[index][dbWEB_entries_count[index]].playcount=-1;
         dbWEB_entries_count[index]++;
         dbWEB_entries_index++;
+    }
+    
+    for (int i=0;i<27;i++) {
+        mdz_safe_free(we[i]);
     }
     //populate entries
 }
@@ -896,12 +1024,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
             else bottomStr=[NSString stringWithFormat:@"%@|- song",bottomStr];
             bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_db_entries[section][indexPath.row].playcount];
             
-            bottomLabel.text=bottomStr;
+            bottomLabel.text=[NSString stringWithFormat:@"%@|%@",cur_db_entries[section][indexPath.row].filesize,bottomStr];
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                            22,
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20,
                                            18);
+        } else {
+            bottomLabel.text=cur_db_entries[section][indexPath.row].filesize;
         }
         if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
             [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];

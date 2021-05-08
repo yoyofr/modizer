@@ -20,6 +20,7 @@ Todo/Requested:
 - [PLAYER] Adplug/Rad bugfix for rad v1 file
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
 - [PLAYER] PMDMINI updated to latest version
+- [DB] Better integration for JoshW repositories
 - [UI] Improved playlists management
 - [UI] Carplay support (playlist based)
 - [UI] Volume bar adjustement for devices without physical home button

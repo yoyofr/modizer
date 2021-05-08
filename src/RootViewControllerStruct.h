@@ -77,11 +77,12 @@ typedef struct {
     NSString *label;
     NSString *fullpath;
     NSString *URL;
+    NSString *filesize;
     bool isFile;
     signed char downloaded;
     int song_length;
     int songs;
     short int playcount;
     signed char rating;
-    char channels_nb;
+    char channels_nb;    
 } t_WEB_browse_entry;

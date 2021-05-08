@@ -72,6 +72,7 @@
     IBOutlet DownloadViewController *downloadViewController;
     NSString *mWebBaseURL;
     NSString *mWebBaseDir;
+    char category;
 
 }
 
