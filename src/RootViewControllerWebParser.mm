@@ -9,23 +9,13 @@
 
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
-
-
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define ROW_HEIGHT 40
-
-#define LIMITED_LIST_SIZE 1024
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
-#include "gme.h"
-
-#include "unzip.h"
-
 #include <pthread.h>
-extern pthread_mutex_t db_mutex;
-static int local_flag;
 static volatile int mPopupAnimation=0;
 
 #import "AppDelegate_Phone.h"
@@ -38,7 +28,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 #import "TFHpple.h"
 
-
 #import "QuartzCore/CAAnimation.h"
 #import "TTFadeAnimator.h"
 
@@ -48,18 +37,25 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize detailViewController;
 @synthesize downloadViewController;
 @synthesize tableView,sBar;
-@synthesize list;
-@synthesize keys;
 @synthesize childController;
 @synthesize mSearchText;
 @synthesize popTipView;
 @synthesize mWebBaseURL,mWebBaseDir,rootDir;
 
 #pragma mark -
+#pragma mark Alert functions
 
+#import "AlertsCommonFunctions.h"
+
+#pragma mark -
+#pragma mark Miniplayer
 #include "MiniPlayerImplementTableView.h"
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+-(void) refreshMiniplayer {
+    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
+        wasMiniPlayerOn=true;
+        [self showMiniPlayer];
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,8 +185,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     mSearchText=nil;
     mClickedPrimAction=0;
-    list=nil;
-    keys=nil;        
         
     UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
     [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
@@ -228,38 +222,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [indexTitles addObject:@"X"];
     [indexTitles addObject:@"Y"];
     [indexTitles addObject:@"Z"];
-    
-    indexTitlesDownload = [[NSMutableArray alloc] init];
-    [indexTitlesDownload addObject:@"{search}"];
-    [indexTitlesDownload addObject:@" "];
-    [indexTitlesDownload addObject:@"#"];
-    [indexTitlesDownload addObject:@"A"];
-    [indexTitlesDownload addObject:@"B"];
-    [indexTitlesDownload addObject:@"C"];
-    [indexTitlesDownload addObject:@"D"];
-    [indexTitlesDownload addObject:@"E"];
-    [indexTitlesDownload addObject:@"F"];
-    [indexTitlesDownload addObject:@"G"];
-    [indexTitlesDownload addObject:@"H"];
-    [indexTitlesDownload addObject:@"I"];
-    [indexTitlesDownload addObject:@"J"];
-    [indexTitlesDownload addObject:@"K"];
-    [indexTitlesDownload addObject:@"L"];
-    [indexTitlesDownload addObject:@"M"];
-    [indexTitlesDownload addObject:@"N"];
-    [indexTitlesDownload addObject:@"O"];
-    [indexTitlesDownload addObject:@"P"];
-    [indexTitlesDownload addObject:@"Q"];
-    [indexTitlesDownload addObject:@"R"];
-    [indexTitlesDownload addObject:@"S"];
-    [indexTitlesDownload addObject:@"T"];
-    [indexTitlesDownload addObject:@"U"];
-    [indexTitlesDownload addObject:@"V"];
-    [indexTitlesDownload addObject:@"W"];
-    [indexTitlesDownload addObject:@"X"];
-    [indexTitlesDownload addObject:@"Y"];
-    [indexTitlesDownload addObject:@"Z"];
-    
+        
     /////////////////////////////////////
     // Waiting view
     /////////////////////////////////////
@@ -284,11 +247,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 -(void) fillKeys {
-    
-    
     if (shouldFillKeys) {
         shouldFillKeys=0;
-        [self fillKeysWithWEBSource];
+        if (browse_depth==0) [self fillKeysWithRepoList];
+        else [self fillKeysWithWEBSource];
        
     } else { //reset downloaded, rating & playcount flags
         for (int i=0;i<dbWEB_nb_entries;i++) {
@@ -296,8 +258,163 @@ extern volatile t_settings settings[MAX_SETTINGS];
             dbWEB_entries_data[i].rating=-1;
             dbWEB_entries_data[i].playcount=-1;
         }
-        if (mSearch) [self fillKeysWithWEBSource];
+        if (mSearch) {
+            if (browse_depth==0) [self fillKeysWithRepoList];
+            else [self fillKeysWithWEBSource];
+        }
     }
+}
+
+-(void) fillKeysWithRepoList {
+    int dbWEB_entries_index;
+    int index,previndex;
+    
+    NSRange r;
+    
+    dbWEB_hasFiles=search_dbWEB_hasFiles=0;
+    // in case of search, do not ask DB again => duplicate already found entries & filter them
+    if (mSearch) {
+        search_dbWEB=1;
+        
+        if (search_dbWEB_nb_entries) {
+            search_dbWEB_nb_entries=0;
+            free(search_dbWEB_entries_data);
+        }
+        search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+        
+        for (int i=0;i<27;i++) {
+            search_dbWEB_entries_count[i]=0;
+            if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
+            for (int j=0;j<dbWEB_entries_count[i];j++)  {
+                r.location=NSNotFound;
+                r = [dbWEB_entries[i][j].label rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                if  ((r.location!=NSNotFound)||([mSearchText length]==0)) {
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].label=dbWEB_entries[i][j].label;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].downloaded=dbWEB_entries[i][j].downloaded;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].rating=dbWEB_entries[i][j].rating;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].playcount=dbWEB_entries[i][j].playcount;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].fullpath=dbWEB_entries[i][j].fullpath;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
+                    search_dbWEB_entries_count[i]++;
+                    search_dbWEB_nb_entries++;
+                }
+            }
+        }
+        return;
+    }
+    if (dbWEB_nb_entries) {
+        for (int i=0;i<dbWEB_nb_entries;i++) {
+            dbWEB_entries_data[i].label=nil;
+            dbWEB_entries_data[i].fullpath=nil;
+            dbWEB_entries_data[i].URL=nil;
+        }
+        free(dbWEB_entries_data);dbWEB_entries_data=NULL;
+        dbWEB_nb_entries=0;
+    }
+    
+    typedef struct {
+        NSString *webSite_URL;
+        NSString *webSite_name;
+        NSString *webSite_baseDir;
+    } t_webSite_entry;
+    NSArray *sortedArray;
+    NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
+    t_webSite_entry webs_entry[]= {
+        //computers
+        {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC"},
+        //{@"http://amiga.joshw.info",@"Amiga Music",@"JoshW/Amiga"},
+        {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT"},
+        //{@"http://hoot.joshw.info",@"Hoot Music",@"JoshW/Hoot"},
+        //{@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98"},
+        {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX"},
+        //consoles
+        {@"http://nsf.joshw.info",@"NES Music",@"JoshW/NES"},
+        {@"http://spc.joshw.info",@"SNES Music",@"JoshW/SNES"},
+        {@"http://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64"},
+        {@"http://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC"},
+        {@"http://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii"},
+        {@"http://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU"},
+        {@"http://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS"},
+        {@"http://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD"},
+        {@"http://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn"},
+        {@"http://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC"},
+        {@"http://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE"},
+        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD"},
+        {@"http://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1"},
+        {@"http://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2"},
+        {@"http://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3"},
+        {@"http://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox"},
+        {@"http://x360.joshw.info",@"XBox360 Music",@"JoshW/X360"},
+        {@"http://3do.joshw.info",@"3DO Music",@"JoshW/3DO"},
+        //portables
+        {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB"},
+        {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA"},
+        {@"http://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS"},
+        {@"http://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS"},
+        {@"http://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG"},
+        {@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS"},
+        {@"http://psp.joshw.info",@"PSP Music",@"JoshW/PSP"},
+        {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita"}
+    };
+        
+    for (int i=0;i<sizeof(webs_entry)/sizeof(t_webSite_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
+    
+    sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+        NSString *str1=[((t_webSite_entry*)[obj1 pointerValue])->webSite_name  lastPathComponent];
+        NSString *str2=[((t_webSite_entry*)[obj2 pointerValue])->webSite_name lastPathComponent];
+        return [str1 caseInsensitiveCompare:str2];
+    }];
+
+    
+    ////
+
+    dbWEB_nb_entries=[sortedArray count];
+    
+    //2nd initialize array to receive entries
+    dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+    memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+    dbWEB_entries_index=0;
+    for (int i=0;i<27;i++) {
+        dbWEB_entries_count[i]=0;
+        dbWEB_entries[i]=NULL;
+    }
+    
+    char str[1024];
+    index=-1;
+    for (int i=0;i<dbWEB_nb_entries;i++) {
+        t_webSite_entry *wentry = (t_webSite_entry *)[[sortedArray objectAtIndex:i] pointerValue];
+        sprintf(str,"%s",[wentry->webSite_name UTF8String]);
+        
+        //NSLog(@"raw: %@\ntagname: %@\ncontent: %@\ntext: %@",[element raw],[element tagName],[element content],[element text]);
+    
+        previndex=index;
+        index=0;
+        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+        //sections are determined 'on the fly' since result set is already sorted
+        if (previndex!=index) {
+            if (previndex>index) {
+                NSLog(@"********* %s",str);
+            } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
+        }
+        
+        dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%s",str];
+                
+        dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithString:wentry->webSite_baseDir];
+                
+        dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wentry->webSite_URL];
+                                
+        dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
+        
+/*        dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
+        dbWEB_entries[index][dbWEB_entries_count[index]].rating=-1;
+        dbWEB_entries[index][dbWEB_entries_count[index]].playcount=-1;*/
+        
+        dbWEB_entries_count[index]++;
+        dbWEB_entries_index++;
+    }
+    //populate entries
 }
 
 -(void) fillKeysWithWEBSource {
@@ -342,6 +459,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].label=nil;
             dbWEB_entries_data[i].fullpath=nil;
+            dbWEB_entries_data[i].URL=nil;
         }
         free(dbWEB_entries_data);dbWEB_entries_data=NULL;
         dbWEB_nb_entries=0;
@@ -443,24 +561,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     //populate entries
 }
 
--(NSString*) getCompletePath:(int)id_mod {
-    
-    return @"";
-}
--(NSString*) getCompleteLocalPath:(int)id_mod {
-    
-    return @"";
-}
--(int) getFileSize:(NSString*)fileName {
-    
-    return 0;
-}
-
--(NSString *) getModFilename:(int)idmod {
-    
-    return @"";
-}
-
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     bool oldmode=darkMode;
     darkMode=false;
@@ -501,14 +601,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [self hideMiniPlayer];
     }
     
-    if (keys) {
-        //[keys release];
-        keys=nil;
-    }
-    if (list) {
-        //[list release];
-        list=nil;
-    }
     if (childController) {
         //[childController release];
         childController = NULL;
@@ -533,13 +625,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) refreshViewAfterDownload {
     if (childController) [(RootViewControllerWebParser*)childController refreshViewAfterDownload];
     else {
-        //reset downloaded status
-        for (int i=0;i<dbWEB_nb_entries;i++) {
-            if (dbWEB_entries_data[i].downloaded==0) dbWEB_entries_data[i].downloaded=-1; //force a recheck
-        }
-        if (mSearch) [self fillKeysWithWEBSource];
-        //shouldFillKeys=1;
-        //[self fillKeys];
+        if (mSearch) [self fillKeys];
         [tableView reloadData];
     }
 }
@@ -597,43 +683,24 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
     if (mSearch) return nil;
-    if (search_dbWEB) {
-        if (search_dbWEB_hasFiles) return indexTitlesDownload;
-    } else {
-        if (dbWEB_hasFiles) return indexTitlesDownload;
-    }
+    
     return indexTitles;
 }
 
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-
     if (mSearch) return nil;
     if (section==0) return 0;
-    //Check if "Get all entries" has to be displayed
     if (search_dbWEB) {
-        if (search_dbWEB_hasFiles) {
-            if (section==1) return @"";
-            if (search_dbWEB_entries_count[section-2]) return [indexTitlesDownload objectAtIndex:section];
-            return nil;
-        }
         if (search_dbWEB_entries_count[section-1]) return [indexTitles objectAtIndex:section];
         return nil;
     } else {
-        if (dbWEB_hasFiles) {
-            if (section==1) return @"";
-            if (dbWEB_entries_count[section-2]) return [indexTitlesDownload objectAtIndex:section];
-            return nil;
-        }
         if (dbWEB_entries_count[section-1]) return [indexTitles objectAtIndex:section];
         return nil;
     }
     return nil;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    local_flag=0;
-    //if (browse_depth==0) return [keys count];
-    //Check if "Get all entries" has to be displayed
     if (search_dbWEB) {
         if (search_dbWEB_hasFiles) return 28+1;
         return 28;
@@ -646,16 +713,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (section==0) return 0;
     //Check if "Get all entries" has to be displayed
     if (search_dbWEB) {
-        if (search_dbWEB_hasFiles) {
-            if (section==1) return 1;
-            return search_dbWEB_entries_count[section-2];
-        }
         return search_dbWEB_entries_count[section-1];
     } else {
-        if (dbWEB_hasFiles) {
-            if (section==1) return 1;
-            return dbWEB_entries_count[section-2];
-        }
         return dbWEB_entries_count[section-1];
     }
 }
@@ -994,9 +1053,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
     }
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -1127,11 +1184,27 @@ extern volatile t_settings settings[MAX_SETTINGS];
             [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
             
         }
+    } else {
+        childController = [[RootViewControllerWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        //set new title
+        childController.title = cur_db_entries[section][indexPath.row].fullpath;
+        // Set new directory
+        ((RootViewControllerWebParser*)childController)->browse_depth = browse_depth+1;
+        ((RootViewControllerWebParser*)childController)->detailViewController=detailViewController;
+        ((RootViewControllerWebParser*)childController)->downloadViewController=downloadViewController;
+        ((RootViewControllerWebParser*)childController)->mWebBaseURL=cur_db_entries[section][indexPath.row].URL;
+        ((RootViewControllerWebParser*)childController)->mWebBaseDir=cur_db_entries[section][indexPath.row].fullpath;
+        
+        childController.view.frame=self.view.frame;
+        // And push the window
+        [self.navigationController pushViewController:childController animated:YES];
     }
 }
 
 
-/* POPUP functions */
+#pragma mark -
+#pragma mark popup functions
+
 -(void) hidePopup {
     infoMsgView.hidden=YES;
     mPopupAnimation=0;
@@ -1187,25 +1260,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (void)dealloc {
     [waitingView removeFromSuperview];
     waitingView=nil;
-    //[waitingView release];
     
     if (mSearchText) {
-        //[mSearchText release];
         mSearchText=nil;
-    }
-    if (keys) {
-        //[keys release];
-        keys=nil;
-    }
-    if (list) {
-        //[list release];
-        list=nil;
     }
     
     if (dbWEB_nb_entries) {
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].label=nil;
             dbWEB_entries_data[i].fullpath=nil;
+            dbWEB_entries_data[i].URL=nil;
         }
         free(dbWEB_entries_data);
     }
@@ -1214,31 +1278,17 @@ extern volatile t_settings settings[MAX_SETTINGS];
     }
     
     if (indexTitles) {
-        //[indexTitles release];
         indexTitles=nil;
     }
-    if (indexTitlesDownload) {
-        //[indexTitlesDownload release];
-        indexTitlesDownload=nil;
-    }
-    
     
     if (mFileMngr) {
-        //[mFileMngr release];
         mFileMngr=nil;
     }
     
     //[super dealloc];
 }
 
--(void) refreshMiniplayer {
-    if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
-        wasMiniPlayerOn=true;
-        [self showMiniPlayer];
-    }
-}
-
-
+#pragma mark -
 #pragma mark - UINavigationControllerDelegate
 
 - (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController

@@ -564,13 +564,11 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_JOSHW: //JOSHW
                     collectionViewController = [[RootViewControllerWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
-                    collectionViewController.title = @"JOSHW";
+                    collectionViewController.title = @"JoshW";
                     // Set new directory
                     ((RootViewControllerWebParser*)collectionViewController)->browse_depth = 0;
                     ((RootViewControllerWebParser*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerWebParser*)collectionViewController)->downloadViewController=downloadViewController;
-                    ((RootViewControllerWebParser*)collectionViewController)->mWebBaseURL=@"http://usf.joshw.info";
-                    ((RootViewControllerWebParser*)collectionViewController)->mWebBaseDir=@"JoshW/N64";
                     
                     collectionViewController.view.frame=self.view.frame;
                     // And push the window

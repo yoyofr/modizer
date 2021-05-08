@@ -37,9 +37,7 @@
     
     NSFileManager *mFileMngr;
     
-    NSMutableArray *list;
-    NSMutableArray *keys;
-    NSMutableArray *indexTitles,*indexTitlesDownload;
+    NSMutableArray *indexTitles;
     
     int shouldFillKeys;
     
@@ -55,9 +53,6 @@
     int search_dbWEB;
     int search_dbWEB_nb_entries,search_dbWEB_hasFiles;
         
-    NSString *mDir1,*mDir2,*mDir3;
-    
-
     NSString *rootDir;
     int mSearch;
     NSString *mSearchText;
@@ -88,21 +83,18 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
-@property (nonatomic, retain) NSArray *list;
-@property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *mSearchText,*mWebBaseURL,*mWebBaseDir,*rootDir;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 
 -(IBAction)goPlayer;
 
 -(void) refreshViewAfterDownload;
--(void)checkCreate:(NSString *)filePath;
 
--(NSString*) getCompletePath:(int)id_mod;
+-(void) checkCreate:(NSString *)filePath;
+
+-(void) fillKeysWithRepoList;
 
 -(void) fillKeysWithWEBSource;
-
--(NSString*) getCompleteLocalPath:(int)id_mod;
 
 -(void)updateMiniPlayer;
 
