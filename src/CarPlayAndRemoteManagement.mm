@@ -192,7 +192,7 @@
 ///////////////////////
 
 - (void)playableContentManager:(MPPlayableContentManager *)contentManager didUpdateContext:(MPPlayableContentManagerContext *)context {
-    NSLog(@"yo");
+    //called when connecting/disconnecting    
 }
 
 

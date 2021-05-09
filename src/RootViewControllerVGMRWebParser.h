@@ -1,5 +1,5 @@
 //
-//  RootViewControllerWebParser.h
+//  RootViewControllerVGMRWebParser.h
 //  modizer1
 //
 //  Created by Yohann Magnien on 07/05/21.
@@ -14,18 +14,21 @@
 #import "CMPopTipView.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
+#import "ImagesCache.h"
 
 @class DetailViewControllerIphone;
 @class DownloadViewController;
 
 
-@interface RootViewControllerWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface RootViewControllerVGMRWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
     NSString *ratingImg[3];
     UIView *infoMsgView;
     UILabel *infoMsgLbl;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
+    
+    ImagesCache *imagesCache;
     
     CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;

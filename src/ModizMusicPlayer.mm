@@ -2424,6 +2424,13 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
         } else {
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,to_fill);
             
+            //copy voice data for oscillo view
+            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                for (int j=0;j<4;j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                }
+            }
+            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
+            
             lBytes-=to_fill;
             pSound+=to_fill;
             buffer_ana_subofs=0;
@@ -2628,14 +2635,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     else {
                         if (uade_audio_play((char*)sampledata, playbytes,subsong_end)) uade_song_end_trigger=2;
                         
-                        //copy voice data for oscillo view
-                        if (numVoicesChannels) {
-                            for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                                for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>10))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-                                }
-                            }
-                            //printf("voice_ptr: %d\n",m_voice_current_ptr[0]>>10);
-                        }
+                        
                     }
                 }
                 

@@ -248,6 +248,12 @@
 		591A7FBD262C4504001ABB99 /* web-browser-back@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 591A7FBA262C4503001ABB99 /* web-browser-back@2x.png */; };
 		591A7FBE262C4504001ABB99 /* web-browser-back.png in Resources */ = {isa = PBXBuildFile; fileRef = 591A7FBB262C4503001ABB99 /* web-browser-back.png */; };
 		591A7FBF262C4504001ABB99 /* web-browser-back.png in Resources */ = {isa = PBXBuildFile; fileRef = 591A7FBB262C4503001ABB99 /* web-browser-back.png */; };
+		591CA87726483DB600168C7E /* RootViewControllerVGMRWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */; };
+		591CA87826483DB600168C7E /* RootViewControllerVGMRWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */; };
+		591CA87D264850D300168C7E /* ImagesCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 591CA87A264850D300168C7E /* ImagesCache.m */; };
+		591CA87E264850D300168C7E /* ImagesCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 591CA87A264850D300168C7E /* ImagesCache.m */; };
+		591CA87F264850D300168C7E /* placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 591CA87B264850D300168C7E /* placeholder.png */; };
+		591CA880264850D300168C7E /* placeholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 591CA87B264850D300168C7E /* placeholder.png */; };
 		591D8E3F25DC63620013E19F /* tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0525DC63620013E19F /* tables.c */; };
 		591D8E4025DC63620013E19F /* libatrac9.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0625DC63620013E19F /* libatrac9.c */; };
 		591D8E4125DC63620013E19F /* huffCodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 591D8E0725DC63620013E19F /* huffCodes.c */; };
@@ -269,8 +275,8 @@
 		593288AA262093B800DB4E7C /* tabview_gradient50Black@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */; };
 		593288AB262093B800DB4E7C /* tabview_gradient50Black.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A8262093B800DB4E7C /* tabview_gradient50Black.png */; };
 		593288AC262093B800DB4E7C /* tabview_gradient50Black.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A8262093B800DB4E7C /* tabview_gradient50Black.png */; };
-		5937EE492645314600270715 /* RootViewControllerWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */; };
-		5937EE612645314800270715 /* RootViewControllerWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */; };
+		5937EE492645314600270715 /* RootViewControllerJoshWWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591A7FAE262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.mm */; };
+		5937EE612645314800270715 /* RootViewControllerJoshWWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 591A7FAE262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.mm */; };
 		5937EEE626453B0800270715 /* TFHpple.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE126453B0800270715 /* TFHpple.m */; };
 		5937EEE726453B0800270715 /* TFHpple.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE126453B0800270715 /* TFHpple.m */; };
 		5937EEE826453B0800270715 /* TFHppleElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 5937EEE426453B0800270715 /* TFHppleElement.m */; };
@@ -4332,10 +4338,15 @@
 		591054D525EAC21F00A194FF /* snsf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = snsf.xcodeproj; sourceTree = "<group>"; };
 		5918E0A926177CB1004B85DA /* VoicesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoicesViewController.h; sourceTree = "<group>"; };
 		5918E0AA26177CB1004B85DA /* VoicesViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VoicesViewController.mm; sourceTree = "<group>"; };
-		591A7F99262C0EE8001ABB99 /* RootViewControllerWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerWebParser.h; sourceTree = "<group>"; };
-		591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerWebParser.mm; sourceTree = "<group>"; };
+		591A7F99262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerJoshWWebParser.h; sourceTree = "<group>"; };
+		591A7FAE262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerJoshWWebParser.mm; sourceTree = "<group>"; };
 		591A7FBA262C4503001ABB99 /* web-browser-back@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "web-browser-back@2x.png"; sourceTree = "<group>"; };
 		591A7FBB262C4503001ABB99 /* web-browser-back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "web-browser-back.png"; sourceTree = "<group>"; };
+		591CA87526483DB600168C7E /* RootViewControllerVGMRWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerVGMRWebParser.h; sourceTree = "<group>"; };
+		591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerVGMRWebParser.mm; sourceTree = "<group>"; };
+		591CA87A264850D300168C7E /* ImagesCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesCache.m; sourceTree = "<group>"; };
+		591CA87B264850D300168C7E /* placeholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = placeholder.png; sourceTree = "<group>"; };
+		591CA87C264850D300168C7E /* ImagesCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagesCache.h; sourceTree = "<group>"; };
 		591D8E0525DC63620013E19F /* tables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tables.c; sourceTree = "<group>"; };
 		591D8E0625DC63620013E19F /* libatrac9.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libatrac9.c; sourceTree = "<group>"; };
 		591D8E0725DC63620013E19F /* huffCodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = huffCodes.c; sourceTree = "<group>"; };
@@ -5692,8 +5703,10 @@
 		336BF216144FF4CA0086700A /* RootViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				591A7F99262C0EE8001ABB99 /* RootViewControllerWebParser.h */,
-				591A7FAE262C0EE8001ABB99 /* RootViewControllerWebParser.mm */,
+				591CA87526483DB600168C7E /* RootViewControllerVGMRWebParser.h */,
+				591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */,
+				591A7F99262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.h */,
+				591A7FAE262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.mm */,
 				330F36C717A683FB00EEC84A /* OnlineViewController.h */,
 				330F36C817A683FB00EEC84A /* OnlineViewController.mm */,
 				3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */,
@@ -6076,6 +6089,16 @@
 				5910551925EAC21F00A194FF /* libsnsf.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		591CA879264850D300168C7E /* AsyncImageView */ = {
+			isa = PBXGroup;
+			children = (
+				591CA87A264850D300168C7E /* ImagesCache.m */,
+				591CA87B264850D300168C7E /* placeholder.png */,
+				591CA87C264850D300168C7E /* ImagesCache.h */,
+			);
+			path = AsyncImageView;
 			sourceTree = "<group>";
 		};
 		591D8DE125DC63620013E19F /* LibAtrac9-master */ = {
@@ -6626,6 +6649,7 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				591CA879264850D300168C7E /* AsyncImageView */,
 				5937EEDF26453B0800270715 /* Hpple */,
 				59C22A0325B992D9003FEDBF /* AFNetworking */,
 				59B9993225CFE09F0071E144 /* ASI */,
@@ -8662,6 +8686,7 @@
 				5966D1B625CFF0D200520777 /* dune - ecolove.mod in Resources */,
 				5966D1E225CFF0D200520777 /* chopin_ballade1.mid in Resources */,
 				CC1E63A7120423E0000A8A4E /* SynTracker in Resources */,
+				591CA87F264850D300168C7E /* placeholder.png in Resources */,
 				CC1E63A8120423E0000A8A4E /* TFMX in Resources */,
 				CC1E63A9120423E0000A8A4E /* TFMX-7V in Resources */,
 				CC1E63AA120423E0000A8A4E /* TFMX-7V-TFHD in Resources */,
@@ -9194,6 +9219,7 @@
 				5950D96725E0F67B00B476B2 /* dune - ecolove.mod in Resources */,
 				5950D96925E0F67B00B476B2 /* chopin_ballade1.mid in Resources */,
 				5950D96A25E0F67B00B476B2 /* SynTracker in Resources */,
+				591CA880264850D300168C7E /* placeholder.png in Resources */,
 				5950D96B25E0F67B00B476B2 /* TFMX in Resources */,
 				5950D96C25E0F67B00B476B2 /* TFMX-7V in Resources */,
 				5950D96D25E0F67B00B476B2 /* TFMX-7V-TFHD in Resources */,
@@ -9987,6 +10013,7 @@
 				CC1E623C12041177000A8A4E /* AppDelegate_Phone.mm in Sources */,
 				CC1E623D12041177000A8A4E /* DetailViewControllerIphone.mm in Sources */,
 				CC1E623E12041177000A8A4E /* DownloadViewController.mm in Sources */,
+				591CA87D264850D300168C7E /* ImagesCache.m in Sources */,
 				CC1E624112041177000A8A4E /* ModizMusicPlayer.mm in Sources */,
 				591D8E4925DC63620013E19F /* bit_reader.c in Sources */,
 				CC1E624312041177000A8A4E /* myTabBarController.mm in Sources */,
@@ -10016,6 +10043,7 @@
 				33525D7D1222567600E6E517 /* DBHelper.mm in Sources */,
 				CCD4631E123CB8F600D063FE /* main.mm in Sources */,
 				CCCE9CB4123D807A007D9462 /* api68.c in Sources */,
+				591CA87726483DB600168C7E /* RootViewControllerVGMRWebParser.mm in Sources */,
 				594CB8922633236900D154E5 /* flash.cpp in Sources */,
 				594CB8602633236900D154E5 /* mad.cpp in Sources */,
 				CCCE9CB5123D807A007D9462 /* conf68.c in Sources */,
@@ -10071,7 +10099,7 @@
 				CCCE9CE5123D807A007D9462 /* gzip68.c in Sources */,
 				CCCE9CE6123D807A007D9462 /* ice68.c in Sources */,
 				CCCE9CE7123D807A007D9462 /* init68.c in Sources */,
-				5937EE492645314600270715 /* RootViewControllerWebParser.mm in Sources */,
+				5937EE492645314600270715 /* RootViewControllerJoshWWebParser.mm in Sources */,
 				5937EEE826453B0800270715 /* TFHppleElement.m in Sources */,
 				594CB8622633236900D154E5 /* debug.c in Sources */,
 				CCCE9CE8123D807A007D9462 /* istream68.c in Sources */,
@@ -10262,6 +10290,7 @@
 				5950DAA325E0F67B00B476B2 /* AppDelegate_Phone.mm in Sources */,
 				5950DAA425E0F67B00B476B2 /* DetailViewControllerIphone.mm in Sources */,
 				5950DAA525E0F67B00B476B2 /* DownloadViewController.mm in Sources */,
+				591CA87E264850D300168C7E /* ImagesCache.m in Sources */,
 				5950DAA625E0F67B00B476B2 /* ModizMusicPlayer.mm in Sources */,
 				5950DAA825E0F67B00B476B2 /* bit_reader.c in Sources */,
 				5950DAA925E0F67B00B476B2 /* myTabBarController.mm in Sources */,
@@ -10291,6 +10320,7 @@
 				5950DAB725E0F67B00B476B2 /* DBHelper.mm in Sources */,
 				5950DAB825E0F67B00B476B2 /* main.mm in Sources */,
 				5950DAB925E0F67B00B476B2 /* api68.c in Sources */,
+				591CA87826483DB600168C7E /* RootViewControllerVGMRWebParser.mm in Sources */,
 				594CB8932633236900D154E5 /* flash.cpp in Sources */,
 				594CB8612633236900D154E5 /* mad.cpp in Sources */,
 				5950DABA25E0F67B00B476B2 /* conf68.c in Sources */,
@@ -10346,7 +10376,7 @@
 				5950DAE025E0F67B00B476B2 /* gzip68.c in Sources */,
 				5950DAE125E0F67B00B476B2 /* ice68.c in Sources */,
 				5950DAE225E0F67B00B476B2 /* init68.c in Sources */,
-				5937EE612645314800270715 /* RootViewControllerWebParser.mm in Sources */,
+				5937EE612645314800270715 /* RootViewControllerJoshWWebParser.mm in Sources */,
 				5937EEE926453B0800270715 /* TFHppleElement.m in Sources */,
 				594CB8632633236900D154E5 /* debug.c in Sources */,
 				5950DAE325E0F67B00B476B2 /* istream68.c in Sources */,

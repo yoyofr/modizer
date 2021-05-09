@@ -77,6 +77,7 @@ typedef struct {
     NSString *label;
     NSString *fullpath;
     NSString *URL;
+    NSString *img_URL;
     NSString *filesize;
     bool isFile;
     signed char downloaded;

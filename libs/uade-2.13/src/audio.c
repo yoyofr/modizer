@@ -172,10 +172,11 @@ static inline void sample_backend(int left1,int left2, int right1,int right2) //
 	}
     }
 #endif
-    
-    //TODO:  MODIZER changes start / YOYOFR
     int left=left1+left2;
     int right=right1+right2;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    
     m_voice_buff[0][m_voice_current_ptr[0]>>10]=LIMIT8(left1>>6);
     m_voice_buff[3][m_voice_current_ptr[3]>>10]=LIMIT8(left2>>6);
     m_voice_buff[1][m_voice_current_ptr[1]>>10]=LIMIT8(right1>>6);
@@ -185,6 +186,7 @@ static inline void sample_backend(int left1,int left2, int right1,int right2) //
         m_voice_current_ptr[jj]+=1024/*44100*256/32000*/;
         if ((m_voice_current_ptr[jj]>>10)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[jj]-=(SOUND_BUFFER_SIZE_SAMPLE)<<10;
     }
+        
     //TODO:  MODIZER changes end / YOYOFR
 
     /* samples are in range -16384 (-128*64*2) and 16256 (127*64*2) */

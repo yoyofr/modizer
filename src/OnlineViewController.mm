@@ -11,6 +11,7 @@ enum {
     ONLINE_COLLECTIONS_HVSC,
     ONLINE_COLLECTIONS_ASMA,
     ONLINE_COLLECTIONS_JOSHW,
+    ONLINE_COLLECTIONS_VGMRips,
     ONLINE_COLLECTIONS_NUMBER
 };
 
@@ -19,12 +20,11 @@ enum {
 //#define NB_HVSC_ENTRIES 43856
 //#define NB_ASMA_ENTRIES 4630
 
-#define WEBLINKS_VGM_NB 10
+#define WEBLINKS_VGM_NB 9
 #define WEBLINKS_MODS_NB 6
 #define WEBLINKS_Others_NB 2
 NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
     //VGM & assimilated
-    {@"https://vgmrips.net/packs/",@"VGM Rips"},
     {@"https://project2612.org/",@"Megadrive/Genesis Music"},
     {@"http://snesmusic.org/v2/",@"SNES Music"},
     {@"http://snesmusic.org/pmh/",@"Portable Music History"},
@@ -436,7 +436,10 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbASMAFileEntries];
                     break;
                 case ONLINE_COLLECTIONS_JOSHW:topLabel.text=NSLocalizedString(@"JOSHW collection",@"");
-                    bottomLabel.text=@"";
+                    bottomLabel.text=NSLocalizedString(@"Thousends of entries",@"");
+                    break;
+                case ONLINE_COLLECTIONS_VGMRips:topLabel.text=NSLocalizedString(@"VGMRips collection",@"");
+                    bottomLabel.text=NSLocalizedString(@"2K+ packs / 40K+ songs",@"");
                     break;
             }
         }
@@ -561,13 +564,26 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
                 case ONLINE_COLLECTIONS_JOSHW: //JOSHW
-                    collectionViewController = [[RootViewControllerWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    collectionViewController = [[RootViewControllerJoshWWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"JoshW";
                     // Set new directory
-                    ((RootViewControllerWebParser*)collectionViewController)->browse_depth = 0;
-                    ((RootViewControllerWebParser*)collectionViewController)->detailViewController=detailViewController;
-                    ((RootViewControllerWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    ((RootViewControllerJoshWWebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerJoshWWebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerJoshWWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    
+                    collectionViewController.view.frame=self.view.frame;
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
+                case ONLINE_COLLECTIONS_VGMRips: //VGMRips
+                    collectionViewController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"VGMRips";
+                    // Set new directory
+                    ((RootViewControllerVGMRWebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerVGMRWebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerVGMRWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                     
                     collectionViewController.view.frame=self.view.frame;
                     // And push the window

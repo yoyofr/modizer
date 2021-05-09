@@ -492,7 +492,8 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
     
     NSArray *sortedDirContent = imp_RandomizeUsingMutableCopy(dirContent);
     
-    for (file in sortedDirContent) {
+    for (int i=0;i<[sortedDirContent count];i++) {
+        NSString *file=[sortedDirContent objectAtIndex:i];
         //check if dir
         [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
         if (isDir) {

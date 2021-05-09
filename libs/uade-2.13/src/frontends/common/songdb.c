@@ -654,11 +654,14 @@ int uade_test_silence(void *buf, size_t size, struct uade_state *state)
 
 void uade_unalloc_song(struct uade_state *state)
 {
-	free(state->song->buf);
-	state->song->buf = NULL;
+    
+    if (state->song) {
+        if (state->song->buf) free(state->song->buf);
+        state->song->buf = NULL;
 
-	free(state->song);
-	state->song = NULL;
+        if (state->song) free(state->song);
+        state->song = NULL;
+    }
 }
 
 int uade_update_song_conf(const char *songconfin, const char *songconfout,

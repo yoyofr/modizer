@@ -26,6 +26,7 @@ Todo/Requested:
 - [UI] Volume bar adjustement for devices without physical home button
 - [FX] Fixed some issues / oscilloscope voices view
 - [PLAYER] Fixed a bug when PMD (.M, .M2, .MZ) are compressed in an archive (zip, 7z, ...)
+- [PLAYER] Fixed a bug in UADE (crash when changing subsongs)
 - [ALL] Several Fixes / stability improvements
 
 
