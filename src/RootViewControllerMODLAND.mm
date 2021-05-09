@@ -79,6 +79,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 /////////////////////////////////////////////////////////////////////////////////////////////
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
+#define HAS_DETAILVIEW_CONT
+#include "PlaylistCommonFunctions.h"
+
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 }
@@ -2490,6 +2493,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             mClickedPrimAction=2;
             
             if (cur_db_entries[section][indexPath.row].downloaded==1) {
+                
                 if ([detailViewController add_to_playlist:localPath fileName:modFilename forcenoplay:1]) {
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                     

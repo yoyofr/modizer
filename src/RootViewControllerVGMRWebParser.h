@@ -44,6 +44,8 @@
     
     int shouldFillKeys;
     
+    int indexTitleMode;
+    
     int mAccessoryButton;
 
     t_WEB_browse_entry *dbWEB_entries_data;

@@ -523,7 +523,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
     
     if (fullpath==nil) return;
     
-    //NSLog(@"upd avgrating: %@\n",[fullpath lastPathComponent]);
+    //NSLog(@"upd avgrating: %@\n",fullpath);
     const char *tmp_str=[fullpath UTF8String];
     char tmp_str_copy[1024];
     int i=0,j=0;
@@ -584,10 +584,14 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
                     songs=(int)sqlite3_column_int(stmt, 5);
                 }
             }
-            if (entries_nb) {
-                if (avg_rating>0) {
+            if (entries_nb&&songs) {
+                /*if (avg_rating>0) {
                     avg_rating=avg_rating/entries_nb;
                     if (avg_rating==0) avg_rating=1;
+                }*/
+                if (avg_rating>0) {
+                    avg_rating=abs(avg_rating/songs+1);
+                    if (!avg_rating) avg_rating=1;
                 }
             }
             sqlite3_finalize(stmt);

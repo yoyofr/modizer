@@ -3285,7 +3285,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             childController.title = cellValue;
             ((RootViewControllerPlaylist*)childController)->show_playlist=1;
             //get list id
-            [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-4)] intoPlaylist:playlist];
+            [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-5)] intoPlaylist:playlist];
             
             // Set new directory
             ((RootViewControllerPlaylist*)childController)->browse_depth = browse_depth+1;

@@ -31,6 +31,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "QuartzCore/CAAnimation.h"
 #import "TTFadeAnimator.h"
 
+#include <pthread.h>
+extern pthread_mutex_t db_mutex;
+
+
 @implementation RootViewControllerJoshWWebParser
 
 @synthesize mFileMngr;
@@ -63,6 +67,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 /////////////////////////////////////////////////////////////////////////////////////////////
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
+#define HAS_DETAILVIEW_CONT
+#include "PlaylistCommonFunctions.h"
+
 
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
@@ -1265,12 +1272,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         mClickedPrimAction=2;
         
         if (cur_db_entries[section][indexPath.row].downloaded==1) {
-            NSMutableArray *array_label = [[NSMutableArray alloc] init];
-            NSMutableArray *array_path = [[NSMutableArray alloc] init];
-            [array_label addObject:cur_db_entries[section][indexPath.row].label];
-            [array_path addObject:cur_db_entries[section][indexPath.row].fullpath];
-            [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-            if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+            //add to playlist
+            [self addToPlaylistSelView:cur_db_entries[section][indexPath.row].fullpath label:cur_db_entries[section][indexPath.row].label showNowListening:true];
             
             cur_db_entries[section][indexPath.row].rating=-1;
             [tableView reloadData];

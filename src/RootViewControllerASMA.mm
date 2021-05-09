@@ -59,29 +59,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 #include "MiniPlayerImplementTableView.h"
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-}
 
-- (NSString *)machine {
-    size_t size;
-    
-    // Set 'oldp' parameter to NULL to get the size of the data
-    // returned so we can allocate appropriate amount of space
-    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    
-    // Allocate the space to store name
-    char *name = (char*)malloc(size);
-    
-    // Get the platform name
-    sysctlbyname("hw.machine", name, &size, NULL, 0);
-    
-    // Place name into a string
-    NSString *machine = [[NSString alloc] initWithFormat:@"%s",name];
-    
-    // Done with this
-    free(name);
-    
-    return machine;
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +68,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 /////////////////////////////////////////////////////////////////////////////////////////////
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
+#define HAS_DETAILVIEW_CONT
+#include "PlaylistCommonFunctions.h"
+
 
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
@@ -1694,12 +1676,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
             mClickedPrimAction=2;
             
             if (cur_db_entries[section][indexPath.row].downloaded==1) {
-                NSMutableArray *array_label = [[NSMutableArray alloc] init];
-                NSMutableArray *array_path = [[NSMutableArray alloc] init];
-                [array_label addObject:sidFilename];
-                [array_path addObject:localPath];
-                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                //add to playlist
+                [self addToPlaylistSelView:localPath label:sidFilename showNowListening:true];
                 
                 cur_db_entries[section][indexPath.row].rating=-1;
                 [tableView reloadData];

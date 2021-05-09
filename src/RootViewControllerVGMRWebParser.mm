@@ -31,6 +31,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "QuartzCore/CAAnimation.h"
 #import "TTFadeAnimator.h"
 
+#include <pthread.h>
+extern pthread_mutex_t db_mutex;
+
+
 @implementation RootViewControllerVGMRWebParser
 
 @synthesize mFileMngr;
@@ -63,7 +67,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 /////////////////////////////////////////////////////////////////////////////////////////////
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
-
+#define HAS_DETAILVIEW_CONT
+#include "PlaylistCommonFunctions.h"
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
@@ -125,6 +130,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     clock_t start_time,end_time;
     start_time=clock();
     childController=NULL;
+    
+    indexTitleMode=0;
     
     self.navigationController.delegate = self;
             
@@ -195,36 +202,38 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
-    
+        
     indexTitles = [[NSMutableArray alloc] init];
     [indexTitles addObject:@"{search}"];
-    [indexTitles addObject:@"#"];
-    [indexTitles addObject:@"A"];
-    [indexTitles addObject:@"B"];
-    [indexTitles addObject:@"C"];
-    [indexTitles addObject:@"D"];
-    [indexTitles addObject:@"E"];
-    [indexTitles addObject:@"F"];
-    [indexTitles addObject:@"G"];
-    [indexTitles addObject:@"H"];
-    [indexTitles addObject:@"I"];
-    [indexTitles addObject:@"J"];
-    [indexTitles addObject:@"K"];
-    [indexTitles addObject:@"L"];
-    [indexTitles addObject:@"M"];
-    [indexTitles addObject:@"N"];
-    [indexTitles addObject:@"O"];
-    [indexTitles addObject:@"P"];
-    [indexTitles addObject:@"Q"];
-    [indexTitles addObject:@"R"];
-    [indexTitles addObject:@"S"];
-    [indexTitles addObject:@"T"];
-    [indexTitles addObject:@"U"];
-    [indexTitles addObject:@"V"];
-    [indexTitles addObject:@"W"];
-    [indexTitles addObject:@"X"];
-    [indexTitles addObject:@"Y"];
-    [indexTitles addObject:@"Z"];
+    if (indexTitleMode) {
+        [indexTitles addObject:@"#"];
+        [indexTitles addObject:@"A"];
+        [indexTitles addObject:@"B"];
+        [indexTitles addObject:@"C"];
+        [indexTitles addObject:@"D"];
+        [indexTitles addObject:@"E"];
+        [indexTitles addObject:@"F"];
+        [indexTitles addObject:@"G"];
+        [indexTitles addObject:@"H"];
+        [indexTitles addObject:@"I"];
+        [indexTitles addObject:@"J"];
+        [indexTitles addObject:@"K"];
+        [indexTitles addObject:@"L"];
+        [indexTitles addObject:@"M"];
+        [indexTitles addObject:@"N"];
+        [indexTitles addObject:@"O"];
+        [indexTitles addObject:@"P"];
+        [indexTitles addObject:@"Q"];
+        [indexTitles addObject:@"R"];
+        [indexTitles addObject:@"S"];
+        [indexTitles addObject:@"T"];
+        [indexTitles addObject:@"U"];
+        [indexTitles addObject:@"V"];
+        [indexTitles addObject:@"W"];
+        [indexTitles addObject:@"X"];
+        [indexTitles addObject:@"Y"];
+        [indexTitles addObject:@"Z"];
+    }
         
     /////////////////////////////////////
     // Waiting view
@@ -262,8 +271,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             dbWEB_entries_data[i].playcount=-1;
         }
         if (mSearch) {
-            if (browse_depth==0) [self fillKeysWithRepoCateg];
-            else if (browse_depth==1) [self fillKeysWithRepoList];
+            if (browse_depth==0) [self fillKeysWithRepoCateg];            
             else [self fillKeysWithWEBSource];
         }
     }
@@ -286,7 +294,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
         search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
         
-        for (int i=0;i<27;i++) {
+        for (int i=0;i<(indexTitleMode?27:1);i++) {
             search_dbWEB_entries_count[i]=0;
             if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
             for (int j=0;j<dbWEB_entries_count[i];j++)  {
@@ -337,11 +345,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
     
-    sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
-        NSString *str1=[((t_categ_entry*)[obj1 pointerValue])->category  lastPathComponent];
-        NSString *str2=[((t_categ_entry*)[obj2 pointerValue])->category lastPathComponent];
-        return [str1 caseInsensitiveCompare:str2];
-    }];
+    if (indexTitleMode) {
+        sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+            NSString *str1=[((t_categ_entry*)[obj1 pointerValue])->category  lastPathComponent];
+            NSString *str2=[((t_categ_entry*)[obj2 pointerValue])->category lastPathComponent];
+            return [str1 caseInsensitiveCompare:str2];
+        }];
+    } else {
+        sortedArray=tmpArray;
+    }
 
     
     ////
@@ -352,7 +364,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     dbWEB_entries_index=0;
-    for (int i=0;i<27;i++) {
+    for (int i=0;i<(indexTitleMode?27:1);i++) {
         dbWEB_entries_count[i]=0;
         dbWEB_entries[i]=NULL;
     }
@@ -365,8 +377,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         
         previndex=index;
         index=0;
-        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+        if (indexTitleMode) {
+            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+        }
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
@@ -405,7 +419,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
         search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
         
-        for (int i=0;i<27;i++) {
+        for (int i=0;i<(indexTitleMode?27:1);i++) {
             search_dbWEB_entries_count[i]=0;
             if (dbWEB_entries_count[i]) search_dbWEB_entries[i]=&(search_dbWEB_entries_data[search_dbWEB_nb_entries]);
             for (int j=0;j<dbWEB_entries_count[i];j++)  {
@@ -491,11 +505,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
     } else we=NULL;
 
-    sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
-        NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_URL lastPathComponent];
-        NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_URL lastPathComponent];
-        return [str1 caseInsensitiveCompare:str2];
-    }];
+    if (indexTitleMode) {
+        sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+            NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_URL lastPathComponent];
+            NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_URL lastPathComponent];
+            return [str1 caseInsensitiveCompare:str2];
+        }];
+    } else {
+        sortedArray=tmpArray;
+    }
 
     dbWEB_nb_entries=[sortedArray count];
 
@@ -503,7 +521,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     dbWEB_entries_index=0;
-    for (int i=0;i<27;i++) {
+    for (int i=0;i<(indexTitleMode?27:1);i++) {
         dbWEB_entries_count[i]=0;
         dbWEB_entries[i]=NULL;
     }
@@ -517,8 +535,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //NSLog(@"%@",wef->file_size);
         previndex=index;
         index=0;
-        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+        if (indexTitleMode) {
+            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+        }
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
@@ -681,6 +701,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    if (!indexTitleMode) return nil;
     if (mSearch) return nil;
     if (section==0) return 0;
     if (search_dbWEB) {
@@ -694,11 +715,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     if (search_dbWEB) {
-        if (search_dbWEB_hasFiles) return 28+1;
-        return 28;
+        if (indexTitleMode) return 28;
+        return 2;
     } else {
-        if (dbWEB_hasFiles) return 28+1;
-        return 28;
+        if (indexTitleMode) return 28;
+        return 2;
     }
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -874,7 +895,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             if (cur_db_entries[section][indexPath.row].rating==-1) {
                 DBHelper::getFileStatsDBmod(
                                             cur_db_entries[section][indexPath.row].label,
-                                            [NSString stringWithFormat:@"Documents/%@%@",mWebBaseDir,cur_db_entries[section][indexPath.row].fullpath],
+                                            cur_db_entries[section][indexPath.row].fullpath,
                                             &cur_db_entries[section][indexPath.row].playcount,
                                             &cur_db_entries[section][indexPath.row].rating,
                                             &cur_db_entries[section][indexPath.row].song_length,
@@ -917,16 +938,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
             [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
             [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
         }
-        actionView.frame = CGRectMake(35+tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+        actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                      0,
+                                      PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                      PRI_SEC_ACTIONS_IMAGE_SIZE);
         actionView.enabled=YES;
         actionView.hidden=NO;
         
         if (cur_db_entries[section][indexPath.row].img_URL) {
-            //coverImgView.image
-//            NSURL *url = [NSURL URLWithString:cur_db_entries[section][indexPath.row].img_URL];
-//            NSData *data = [NSData dataWithContentsOfURL:url];
-//            coverImgView.image = [UIImage imageWithData: data];
-            
               coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
                                                            prefix:@"vgmrips_mini"
                                                              size:CGSizeMake(34.0f, 34.0f)
@@ -982,11 +1001,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     // Return NO if you do not want the item to be re-orderable.
     t_WEB_browse_entry **cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
     int section =indexPath.section-1;
-    if (search_dbWEB) {
-        if (search_dbWEB_hasFiles) section--;
-    } else {
-        if (dbWEB_hasFiles) section--;
-    }
     if (section>=0) {
         if (cur_db_entries[section][indexPath.row].downloaded==1) return YES;
     }
@@ -1133,12 +1147,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
         mClickedPrimAction=2;
         
         if (cur_db_entries[section][indexPath.row].downloaded==1) {
-            NSMutableArray *array_label = [[NSMutableArray alloc] init];
-            NSMutableArray *array_path = [[NSMutableArray alloc] init];
-            [array_label addObject:cur_db_entries[section][indexPath.row].label];
-            [array_path addObject:cur_db_entries[section][indexPath.row].fullpath];
-            [detailViewController play_listmodules:array_label start_index:0 path:array_path];
-            if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+            //add to playlist
+            [self addToPlaylistSelView:cur_db_entries[section][indexPath.row].fullpath label:cur_db_entries[section][indexPath.row].label showNowListening:true];
             
             cur_db_entries[section][indexPath.row].rating=-1;
             [tableView reloadData];
