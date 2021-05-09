@@ -366,7 +366,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                NSLog(@"********* %s",str);
+                //NSLog(@"********* %s",str);
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -516,7 +516,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                NSLog(@"********* %s",str);
+                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;
@@ -663,7 +663,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                NSLog(@"********* %s",str);
+                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;

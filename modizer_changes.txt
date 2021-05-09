@@ -11,23 +11,23 @@ Todo/Requested:
 - TODO: .tar.gz support, i.e. tar support (gz ok / fex)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
-- TODO: rework all oscillo view catch code / libraries to include new model (adapt to sample rate correctly)
-- BUG: miniplayer should disappear after failure of launching a file if playlist if empty
 
 3.1
 ----
-- [PLAYER] LIBKSS added to improve MSX based format playback (KSS, ...)
+- [PLAYER] LibKSS added to improve MSX based format playback (KSS, ...)
 - [PLAYER] Adplug/Rad bugfix for rad v1 file
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
-- [PLAYER] PMDMINI updated to latest version
+- [PLAYER] PmdMini updated to latest version
+- [DB] MODLAND & ASMA updated with latest version
 - [DB] Better integration for JoshW repositories
+- [DB] MODLAND auto downloading "lib" files for "miniXXX" files (minipsf, miniusf, mini2sf, ...)
 - [UI] Improved playlists management
 - [UI] Carplay support (playlist based)
 - [UI] Volume bar adjustement for devices without physical home button
 - [FX] Fixed some issues / oscilloscope voices view
 - [PLAYER] Fixed a bug when PMD (.M, .M2, .MZ) are compressed in an archive (zip, 7z, ...)
 - [ALL] Several Fixes / stability improvements
-- [MODLAND] Auto downloading "lib" files for "miniXXX" files (minipsf, miniusf, mini2sf, ...)
+
 
 3.0
 ---
