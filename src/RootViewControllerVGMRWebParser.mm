@@ -475,35 +475,52 @@ extern pthread_mutex_t db_mutex;
     url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
     urlData = [NSData dataWithContentsOfURL:url];
 
-    doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-            
-    NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/@href"];
-    NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/small/text()"];
-    NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@alt"];
-    NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@src"];
-    NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a/text()"];
+    NSLog(@"%@ | %@",mWebBaseDir,mWebBaseURL);
     
-    if (arr_url&&[arr_url count]) {
-        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-        for (int j=0;j<[arr_url count];j++) {
-            TFHppleElement *el=[arr_url objectAtIndex:j];
-            we[j].file_URL=[NSString stringWithString:[el text]];
-            
-            el=[arr_img objectAtIndex:j];
-            we[j].file_img_URL=[NSString stringWithString:[el text]];
-            
-            el=[arr_name objectAtIndex:j];
-            we[j].file_name=[NSString stringWithString:[el text]];
-            
-            el=[arr_details objectAtIndex:j];
-            we[j].file_details=[NSString stringWithString:[el raw]];
-            
-            el=[arr_companies objectAtIndex:j];
-            we[j].file_company=[NSString stringWithString:[el raw]];
-            
-            [tmpArray addObject:[NSValue valueWithPointer:&(we[j])]];
-        }
-    } else we=NULL;
+    doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+    
+    if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/systems"]) {
+        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@class='system']//div[@class='name']//a"];
+        
+        NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/small/text()"];
+        NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@alt"];
+        NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@src"];
+        NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a/text()"];
+        
+    } else if (([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/top"])||
+        ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/latest"])) {
+        
+        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/@href"];
+        NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/small/text()"];
+        NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@alt"];
+        NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@src"];
+        NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a/text()"];
+        
+        if (arr_url&&[arr_url count]) {
+            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
+            for (int j=0;j<[arr_url count];j++) {
+                TFHppleElement *el=[arr_url objectAtIndex:j];
+                we[j].file_URL=[NSString stringWithString:[el text]];
+                
+                el=[arr_img objectAtIndex:j];
+                we[j].file_img_URL=[NSString stringWithString:[el text]];
+                
+                el=[arr_name objectAtIndex:j];
+                we[j].file_name=[NSString stringWithString:[el text]];
+                
+                el=[arr_details objectAtIndex:j];
+                we[j].file_details=[NSString stringWithString:[el raw]];
+                
+                el=[arr_companies objectAtIndex:j];
+                we[j].file_company=[NSString stringWithString:[el raw]];
+                
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[j])]];
+            }
+        } else we=NULL;
+    }
+        
+    
+    
 
     if (indexTitleMode) {
         sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
