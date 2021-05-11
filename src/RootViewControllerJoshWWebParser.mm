@@ -307,7 +307,7 @@ extern pthread_mutex_t db_mutex;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].fullpath=dbWEB_entries[i][j].fullpath;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
-                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].filesize=dbWEB_entries[i][j].filesize;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].info=dbWEB_entries[i][j].info;
                     search_dbWEB_entries_count[i]++;
                     search_dbWEB_nb_entries++;
                 }
@@ -320,7 +320,7 @@ extern pthread_mutex_t db_mutex;
             dbWEB_entries_data[i].label=nil;
             dbWEB_entries_data[i].fullpath=nil;
             dbWEB_entries_data[i].URL=nil;
-            dbWEB_entries_data[i].filesize=nil;
+            dbWEB_entries_data[i].info=nil;
         }
         free(dbWEB_entries_data);dbWEB_entries_data=NULL;
         dbWEB_nb_entries=0;
@@ -423,7 +423,7 @@ extern pthread_mutex_t db_mutex;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].fullpath=dbWEB_entries[i][j].fullpath;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
-                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].filesize=dbWEB_entries[i][j].filesize;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].info=dbWEB_entries[i][j].info;
                     search_dbWEB_entries_count[i]++;
                     search_dbWEB_nb_entries++;
                 }
@@ -436,7 +436,7 @@ extern pthread_mutex_t db_mutex;
             dbWEB_entries_data[i].label=nil;
             dbWEB_entries_data[i].fullpath=nil;
             dbWEB_entries_data[i].URL=nil;
-            dbWEB_entries_data[i].filesize=nil;
+            dbWEB_entries_data[i].info=nil;
         }
         free(dbWEB_entries_data);dbWEB_entries_data=NULL;
         dbWEB_nb_entries=0;
@@ -586,7 +586,7 @@ extern pthread_mutex_t db_mutex;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].fullpath=dbWEB_entries[i][j].fullpath;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].URL=dbWEB_entries[i][j].URL;
                     search_dbWEB_entries[i][search_dbWEB_entries_count[i]].isFile=dbWEB_entries[i][j].isFile;
-                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].filesize=dbWEB_entries[i][j].filesize;
+                    search_dbWEB_entries[i][search_dbWEB_entries_count[i]].info=dbWEB_entries[i][j].info;
                     search_dbWEB_entries_count[i]++;
                     search_dbWEB_nb_entries++;
                 }
@@ -599,7 +599,7 @@ extern pthread_mutex_t db_mutex;
             dbWEB_entries_data[i].label=nil;
             dbWEB_entries_data[i].fullpath=nil;
             dbWEB_entries_data[i].URL=nil;
-            dbWEB_entries_data[i].filesize=nil;
+            dbWEB_entries_data[i].info=nil;
         }
         free(dbWEB_entries_data);dbWEB_entries_data=NULL;
         dbWEB_nb_entries=0;
@@ -699,7 +699,7 @@ extern pthread_mutex_t db_mutex;
         if (str[strlen(str)-1]!='/') dbWEB_entries[index][dbWEB_entries_count[index]].isFile=1;
         else dbWEB_entries[index][dbWEB_entries_count[index]].isFile=0;
         dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
-        dbWEB_entries[index][dbWEB_entries_count[index]].filesize=[NSString stringWithString:wef->file_size];
+        dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithString:wef->file_size];
         
         dbWEB_entries[index][dbWEB_entries_count[index]].rating=-1;
         dbWEB_entries[index][dbWEB_entries_count[index]].playcount=-1;
@@ -1047,14 +1047,14 @@ extern pthread_mutex_t db_mutex;
             else bottomStr=[NSString stringWithFormat:@"%@|- song",bottomStr];
             bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_db_entries[section][indexPath.row].playcount];
             
-            bottomLabel.text=[NSString stringWithFormat:@"%@|%@",cur_db_entries[section][indexPath.row].filesize,bottomStr];
+            bottomLabel.text=[NSString stringWithFormat:@"%@|%@",cur_db_entries[section][indexPath.row].info,bottomStr];
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                            22,
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20,
                                            18);
         } else {
-            bottomLabel.text=cur_db_entries[section][indexPath.row].filesize;
+            bottomLabel.text=cur_db_entries[section][indexPath.row].info;
         }
         if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
             [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
@@ -1419,7 +1419,7 @@ extern pthread_mutex_t db_mutex;
             dbWEB_entries_data[i].label=nil;
             dbWEB_entries_data[i].fullpath=nil;
             dbWEB_entries_data[i].URL=nil;
-            dbWEB_entries_data[i].filesize=nil;
+            dbWEB_entries_data[i].info=nil;
         }
         free(dbWEB_entries_data);
     }

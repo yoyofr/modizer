@@ -260,6 +260,9 @@ int gesture_move_file_min_trans;
 }
 
 -(void) refreshCoverLabels {
+    static bool no_reentrant=false;
+    if (no_reentrant) return;
+    no_reentrant=true;
     if ([detailVC.mplayer isPlaying]) {
         
         if ([detailVC.mplayer isPaused]) {
@@ -304,6 +307,7 @@ int gesture_move_file_min_trans;
     }
     
     [coverView setImage:coverImg];
+    no_reentrant=false;
 }
 
 - (void)viewDidLayoutSubviews {

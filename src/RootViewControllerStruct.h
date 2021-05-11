@@ -78,7 +78,7 @@ typedef struct {
     NSString *fullpath;
     NSString *URL;
     NSString *img_URL;
-    NSString *filesize;
+    NSString *info;
     bool isFile;
     signed char downloaded;
     int song_length;

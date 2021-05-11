@@ -2458,7 +2458,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         NSFileManager *fileMngr=[[NSFileManager alloc] init];
         
         cpath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
-        dirContent=[fileMngr contentsOfDirectoryAtPath:cpath error:&error];
+        dirContent=[[fileMngr contentsOfDirectoryAtPath:cpath error:&error] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
         for (file in dirContent) {
             [fileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
             if (!isDir) {
@@ -3915,7 +3915,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
         } else{
             while ( !fex_done( fex ) ) {
                 NSString *strFilename=[NSString stringWithFormat:@"%s",fex_name(fex)];
-                //NSLog(@"%@",strFilename);
+                NSLog(@"%@",strFilename);
                 bool found_img=false;
                 if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
                     //PNG detected
@@ -3939,7 +3939,7 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
                     fex_data(fex,(const void**)&data_ptr);
                     if (data_ptr) {
                         long long size_data=fex_size(fex);
-                        //NSLog(@"read img data, size: %d",size_data);
+                        NSLog(@"read img data, size: %d",size_data);
                         res_image=[UIImage imageWithData:[NSData dataWithBytes:data_ptr length:size_data]];
                         break;
                     }

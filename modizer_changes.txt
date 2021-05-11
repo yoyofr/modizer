@@ -11,6 +11,7 @@ Todo/Requested:
 - TODO: .tar.gz support, i.e. tar support (gz ok / fex)
 - TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
 - TODO: add an option to show all files in file browser (for ex swipe right the top line)
+- TODO: when liking an archive/subsong entry, ask if for entry or file with a popup
 
 3.1
 ----
