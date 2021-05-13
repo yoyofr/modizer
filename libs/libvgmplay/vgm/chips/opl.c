@@ -1232,16 +1232,14 @@ void ADLIBEMU(write_index)(void *chip, UINT32 port, UINT8 val)
 		outbufr[i] += chanval*cptr[chn].right_pan;	\
 /*TODO:  MODIZER changes start / YOYOFR */    \
 if (m_voice_ofs>=0) {     \
-    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel];     \
-    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr);     \
+    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
+    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
     if ((ofs_end>>10)>(ofs_start>>10))     \
     for (;;) {     \
-        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chanval>>6));     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8(((chanval*(cptr[chn].left_pan+cptr[chn].right_pan))>>6));     \
         ofs_start+=1024;     \
         if (ofs_start>=ofs_end) break;     \
     }     \
-    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);     \
-    m_voice_current_ptr[m_voice_ofs+channel]=ofs_end;     \
 }     \
 /*TODO:  MODIZER changes end / YOYOFR*/     \
 	} else {										\
@@ -1249,16 +1247,14 @@ if (m_voice_ofs>=0) {     \
 		outbufr[i] += chanval;						\
 /*TODO:  MODIZER changes start / YOYOFR */    \
 if (m_voice_ofs>=0) {     \
-    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel];     \
-    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr);     \
+    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
+    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
     if ((ofs_end>>10)>(ofs_start>>10))     \
     for (;;) {     \
-        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chanval>>6));     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8((chanval>>6));     \
         ofs_start+=1024;     \
         if (ofs_start>=ofs_end) break;     \
     }     \
-    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);     \
-    m_voice_current_ptr[m_voice_ofs+channel]=ofs_end;     \
 }     \
 /*TODO:  MODIZER changes end / YOYOFR*/     \
 	}
@@ -1268,16 +1264,14 @@ if (m_voice_ofs>=0) {     \
 	outbufr[i] += chanval;                            \
 /*TODO:  MODIZER changes start / YOYOFR */    \
 if (m_voice_ofs>=0) {     \
-    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel];     \
-    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr);     \
+    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel]+i*smplIncr;     \
+    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+(i+1)*smplIncr);     \
     if ((ofs_end>>10)>(ofs_start>>10))     \
     for (;;) {     \
-        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chanval>>6));     \
+        m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]+=LIMIT8((chanval>>6));     \
         ofs_start+=1024;     \
         if (ofs_start>=ofs_end) break;     \
     }     \
-    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);     \
-    m_voice_current_ptr[m_voice_ofs+channel]=ofs_end;     \
 }     \
 /*TODO:  MODIZER changes end / YOYOFR*/
 #endif
@@ -1292,22 +1286,6 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 	Bits i, endsamples;
 	op_type* cptr;
     
-    //TODO:  MODIZER changes start / YOYOFR
-    //search first voice linked to current chip
-    int m_voice_ofs=-1;
-    int m_total_channels=9;
-    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
-            m_voice_ofs=ii;
-            break;
-        }
-    }
-    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
-    m_voice_current_systemPairedOfs=m_total_channels;
-    //TODO:  MODIZER changes end / YOYOFR
-
-
 	//Bit32s outbufl[BLOCKBUF_SIZE];
 #if defined(OPLTYPE_IS_OPL3)
 	// second output buffer (right channel for opl3 stereo)
@@ -1333,6 +1311,21 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 #if defined(OPLTYPE_IS_OPL3)
 	if ((OPL->adlibreg[0x105]&1)==0) max_channel = NUM_CHANNELS/2;
 #endif
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=max_channel+5;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    m_voice_current_systemPairedOfs=m_total_channels;
+    //TODO:  MODIZER changes end / YOYOFR
 	
 	if (! samples_to_process)
 	{
@@ -1427,7 +1420,7 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 						operator_output(&cptr[9],0,tremval1[i]);
 						
 						chanval = cptr[9].cval*2;
-						CHANVAL_OUT(0,0)
+						CHANVAL_OUT(0,max_channel+0)
 					}
 				}
 			}
@@ -1475,7 +1468,7 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 						operator_output(&cptr[9],cptr[0].cval*FIXEDPT,tremval2[i]);
 						
 						chanval = cptr[9].cval*2;
-						CHANVAL_OUT(0,0)
+						CHANVAL_OUT(0,max_channel+0)
 					}
 				}
 			}
@@ -1508,7 +1501,7 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 					opfuncs[cptr[0].op_state](&cptr[0]);		//TomTom
 					operator_output(&cptr[0],0,tremval3[i]);
 					chanval = cptr[0].cval*2;
-					CHANVAL_OUT(0,0)
+					CHANVAL_OUT(0,max_channel+2)
 				}
 			}
 
@@ -1591,10 +1584,17 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 					//chanval = (OPL->op[7].cval + OPL->op[7+9].cval + OPL->op[8+9].cval)*2;
 					//CHANVAL_OUT(0)
 					// fix panning of the snare -Valley Bell
-					chanval = (OPL->op[7].cval + OPL->op[7+9].cval)*2;
-					CHANVAL_OUT(7,7)
+					/*chanval = (OPL->op[7].cval + OPL->op[7+9].cval)*2;
+					CHANVAL_OUT(7,0)
 					chanval = OPL->op[8+9].cval*2;
-					CHANVAL_OUT(8,8)
+					CHANVAL_OUT(8,0)*/
+                    
+                    chanval = (OPL->op[7].cval)*2;
+                    CHANVAL_OUT(7,max_channel+4)
+                    chanval = (OPL->op[7+9].cval)*2;
+                    CHANVAL_OUT(7,max_channel+1)
+                    chanval = OPL->op[8+9].cval*2;
+                    CHANVAL_OUT(8,max_channel+3)
 				}
 			}
 		}
@@ -2075,6 +2075,12 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
 #endif*/
 
 	}
+        
+    for (int i=0;i<max_channel+5;i++) {
+        int ofs_end=(m_voice_current_ptr[m_voice_ofs+i]+smplIncr*samples_to_process);
+        while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+        m_voice_current_ptr[m_voice_ofs+i]=ofs_end;
+    }
 }
 
 void ADLIBEMU(set_mute_mask)(void *chip, UINT32 MuteMask)

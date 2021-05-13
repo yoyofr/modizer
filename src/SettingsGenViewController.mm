@@ -429,8 +429,9 @@ void optGSFChangedC(id param) {
     //VGMPLAY
     /////////////////////////////////////
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
-    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
     settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
+    settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
     
     /////////////////////////////////////
     //VGMSTREAM
@@ -1287,6 +1288,14 @@ void optGSFChangedC(id param) {
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value=2;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=1;
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
+            
+    settings[VGMPLAY_PreferJTAG].type=MDZ_BOOLSWITCH;
+    settings[VGMPLAY_PreferJTAG].label=(char*)"Japanese Tag";
+    settings[VGMPLAY_PreferJTAG].description=NULL;
+    settings[VGMPLAY_PreferJTAG].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_PreferJTAG].sub_family=0;
+    settings[VGMPLAY_PreferJTAG].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
     
     settings[VGMPLAY_YM2612Emulator].type=MDZ_SWITCH;
     settings[VGMPLAY_YM2612Emulator].label=(char*)"YM2612 Type";
@@ -1301,14 +1310,17 @@ void optGSFChangedC(id param) {
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[1]=(char*)"Nuked OPN2";
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Gens";
     
-    settings[VGMPLAY_PreferJTAG].type=MDZ_BOOLSWITCH;
-    settings[VGMPLAY_PreferJTAG].label=(char*)"Japanese Tag";
-    settings[VGMPLAY_PreferJTAG].description=NULL;
-    settings[VGMPLAY_PreferJTAG].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
-    settings[VGMPLAY_PreferJTAG].sub_family=0;
-    settings[VGMPLAY_PreferJTAG].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
-    
+    settings[VGMPLAY_YMF262Emulator].type=MDZ_SWITCH;
+    settings[VGMPLAY_YMF262Emulator].label=(char*)"YMF262 Type";
+    settings[VGMPLAY_YMF262Emulator].description=NULL;
+    settings[VGMPLAY_YMF262Emulator].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+    settings[VGMPLAY_YMF262Emulator].sub_family=0;
+    settings[VGMPLAY_YMF262Emulator].callback=&optVGMPLAYChangedC;
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value=0;
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value_nb=2;
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels=(char**)malloc(settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[0]=(char*)"DOSBox (AdLibEmu)";
+    settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[1]=(char*)"MAME";
     
     /////////////////////////////////////
     //VGMSTREAM

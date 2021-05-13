@@ -76,7 +76,6 @@
     IBOutlet DetailViewControllerIphone *detailViewController;
     IBOutlet DownloadViewController *downloadViewController;
     NSString *mWebBaseURL;
-    NSString *mWebBaseDir;
     char category;
 
 }
@@ -89,7 +88,7 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
-@property (nonatomic, retain) NSString *mSearchText,*mWebBaseURL,*mWebBaseDir,*rootDir;
+@property (nonatomic, retain) NSString *mSearchText,*mWebBaseURL,*rootDir;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 
 -(IBAction)goPlayer;

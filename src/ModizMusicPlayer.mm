@@ -175,8 +175,8 @@ KSS *kss;
 "SCSP", "WSwan", "VSU", "SAA1099", "ES5503", "ES5506", "X1-010", "C352",
 "GA20"*/
 const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
-{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
-    0x0E, 0x09, 0x09, 0x09, 0x17, 0x2F, 0x0C, 0x08,
+{    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
+    0x0E, 0x09+5, 0x09+5, 0x09, 0x17, 0x2F, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
@@ -184,8 +184,8 @@ const UINT8 vgmCHN_COUNT[CHIP_COUNT] =
 };
 
 const UINT8 vgmREALCHN_COUNT[CHIP_COUNT] =
-{    0x04, 0x09, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
-    0x0E, 0x09, 0x09, 0x09, 0x12, 0x2A, 0x0C, 0x08,
+{    0x04, 0x09+5, 0x06, 0x08, 0x10, 0x08, 0x06, 0x10,
+    0x0E, 0x09+5, 0x06+5, 0x09, 0x12+5, 0x2A, 0x0C, 0x08,
     0x08, 0x02, 0x03, 0x04, 0x05, 0x1C, 0x01, 0x01,
     0x04, 0x05, 0x08, 0x06, 0x18, 0x04, 0x04, 0x10,
     0x20, 0x04, 0x06, 0x06, 0x20, 0x20, 0x10, 0x20,
@@ -1584,7 +1584,7 @@ void propertyListenerCallback (void                   *inUserData,              
 @synthesize gme_emu;
 //SID
 //VGMPLAY stuff
-@synthesize optVGMPLAY_maxloop,optVGMPLAY_ym2612emulator,optVGMPLAY_preferJapTag;
+@synthesize optVGMPLAY_maxloop,optVGMPLAY_preferJapTag;
 //Modplug stuff
 @synthesize mp_settings;
 @synthesize ompt_mod;
@@ -1858,6 +1858,7 @@ void propertyListenerCallback (void                   *inUserData,              
         //VGMPLAY
         optVGMPLAY_maxloop = 2;
         optVGMPLAY_ym2612emulator=0;
+        optVGMPLAY_ymf262emulator=0;
         optVGMPLAY_preferJapTag=false;
         
         //
@@ -7786,9 +7787,9 @@ int vgmGetFileLength()
     ChipOpts[0].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     ChipOpts[1].YM2612.EmuCore=optVGMPLAY_ym2612emulator;
     
-    //ChipOpts[0].YM3812.EmuCore=optVGMPLAY_ym2612emulator;
-    //ChipOpts[1].YM3812.EmuCore=optVGMPLAY_ym2612emulator;
-        
+    ChipOpts[0].YMF262.EmuCore=optVGMPLAY_ymf262emulator;
+    ChipOpts[1].YMF262.EmuCore=optVGMPLAY_ymf262emulator;
+    
     VGMMaxLoop=optVGMPLAY_maxloop;
     if (mLoopMode==1) VGMMaxLoop=-1;
     
@@ -7877,11 +7878,15 @@ int vgmGetFileLength()
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"YM2610")==0) {
                 m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM3812")==0) {
+                m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"YM3526")==0) {
+                m_voicesDataAvail=1;
             } else if (strcmp(strChip,"YMF262")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"YMF278B")==0) {
                 m_voicesDataAvail=1;
-            } else if (strcmp(strChip,"YM3812")==0) {
+            } else if (strcmp(strChip,"YMZ280B")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"PWM")==0) {
                 m_voicesDataAvail=1;
@@ -10078,6 +10083,9 @@ extern "C" void adjust_amplification(void);
 -(void) optVGMPLAY_YM2612emulator:(unsigned char)val {
     optVGMPLAY_ym2612emulator=val;
 }
+-(void) optVGMPLAY_YMF262emulator:(unsigned char)val {
+    optVGMPLAY_ymf262emulator=val;
+}
 -(void) optVGMPLAY_PreferedJTag:(bool)val {
     optVGMPLAY_preferJapTag=val;
 }
@@ -10728,7 +10736,7 @@ extern "C" void adjust_amplification(void);
                             }
                             break;
                         }
-                        case 9: //YM3812: 9voices
+                        case 9: //YM3812: 9voices+5perc
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YM3812.ChnMute1|=1<<(channel-idx);
                             break;
@@ -10744,7 +10752,7 @@ extern "C" void adjust_amplification(void);
                             if (active) ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1&=0xFFFFFFFF^(1<<(channel-idx));
                             else ChipOpts[vgmplay_activeChipsID[i]].YMF262.ChnMute1|=1<<(channel-idx);
                             break;
-                        case 0x0D: //YMF278B:47voices fm: 18 channels + 5 drums pcm: 24 channels
+                        case 0x0D: //YMF278B:47voices:23(ymf262)+24pcm(wave table) fm: 18 channels + 5 drums pcm: 24 channels
                                     //  mute1: dddddffffffffffffffffff
                                     //  mute2: pppppppppppppppppppppppp
                             if (channel-idx<23) {

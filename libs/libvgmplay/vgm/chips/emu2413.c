@@ -1063,7 +1063,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
     //search first voice linked to current chip
     int outp[5];
     int m_voice_ofs=-1;
-    int m_total_channels=(vgmVRC7?6:9);
+    int m_total_channels=(vgmVRC7?6:9)+5;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
         if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;
@@ -1089,7 +1089,9 @@ INLINE static void mix_output_stereo(OPLL *opll) {
           
           for (;;) {
               
-              if (opll->rhythm_mode==0) {
+              m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
+              
+              /*if (opll->rhythm_mode==0) {
                   if (i<9) m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
               } else {
                   if (i<6) m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((int16_t)(opll->ch_out[i] * (opll->pan_fine[i][0]+opll->pan_fine[i][1]))>>5));
@@ -1111,7 +1113,7 @@ INLINE static void mix_output_stereo(OPLL *opll) {
                           m_voice_buff[m_voice_ofs+i][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(out8>>1);
                       }
                   }
-              }
+              }*/
               
               ofs_start+=1024;
               if (ofs_start>=ofs_end) break;

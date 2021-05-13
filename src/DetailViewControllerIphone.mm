@@ -744,8 +744,9 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMPLAY)) {
         [mplayer optVGMPLAY_MaxLoop:(unsigned int)settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value];
-        [mplayer optVGMPLAY_YM2612emulator:(unsigned char)settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value];
         [mplayer optVGMPLAY_PreferedJTag:(bool)settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value];
+        [mplayer optVGMPLAY_YM2612emulator:(unsigned char)settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_value];
+        [mplayer optVGMPLAY_YMF262emulator:(unsigned char)settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_value];
     }
     
     /////////////////////

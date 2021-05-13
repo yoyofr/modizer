@@ -2570,7 +2570,7 @@ void ymf262_update_one(void *_chip, OPL3SAMPLE **buffers, int length)
     //TODO:  MODIZER changes start / YOYOFR
     //search first voice linked to current chip
     int m_voice_ofs=-1;
-    int m_total_channels=18;
+    int m_total_channels=18+5;
     if (m_voicesForceOfs>=0) {
         m_voice_ofs=m_voicesForceOfs;
         m_voicesForceOfs=-1;
@@ -2749,7 +2749,12 @@ void ymf262_update_one(void *_chip, OPL3SAMPLE **buffers, int length)
             if ((ofs_end>>10)>(ofs_start>>10))
             for (;;) {
                 for (int ii=0;ii<18;ii++)
-                    m_voice_buff[m_voice_ofs+ii][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((chip->chanout[ii])>>8);
+                    m_voice_buff[m_voice_ofs+ii][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(
+                    ( ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4]))+
+                      ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4+1]))+
+                      ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4+2]))+
+                      ((int)(chip->chanout[ii]) & (int)(chip->pan[ii*4+3]))
+                     )>>7);
                 ofs_start+=1024;
                 if (ofs_start>=ofs_end) break;
             }

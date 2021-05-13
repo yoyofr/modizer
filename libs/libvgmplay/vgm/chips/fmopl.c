@@ -989,6 +989,29 @@ INLINE signed int op_calc1(UINT32 phase, unsigned int env, signed int pm, unsign
 	return tl_tab[p];
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+static int smplIncr,cur_channel,m_voice_ofs;
+//TODO:  MODIZER changes end / YOYOFR
+
+
+//TODO:  MODIZER changes start / YOYOFR
+#define MDZ_OUTPUT(val,channel) \
+if (m_voice_ofs>=0) { \
+    int ofs_start=m_voice_current_ptr[m_voice_ofs+channel]; \
+    int ofs_end=(m_voice_current_ptr[m_voice_ofs+channel]+smplIncr); \
+\
+    if ((ofs_end>>10)>(ofs_start>>10)) \
+    for (;;) { \
+            m_voice_buff[m_voice_ofs+channel][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((val)>>5);  \
+        ofs_start+=1024; \
+        if (ofs_start>=ofs_end) break; \
+    } \
+    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10); \
+    m_voice_current_ptr[m_voice_ofs+channel]=ofs_end; \
+}
+//TODO:  MODIZER changes end / YOYOFR
+
 
 #define volume_calc(OP) ((OP)->TLL + ((UINT32)(OP)->volume) + (OPL->LFO_AM & (OP)->AMmask))
 
@@ -1021,8 +1044,10 @@ INLINE void OPL_CALC_CH( FM_OPL *OPL, OPL_CH *CH )
 	/* SLOT 2 */
 	SLOT++;
 	env = volume_calc(SLOT);
-	if( env < ENV_QUIET )
+    if( env < ENV_QUIET ) {
 		OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable);
+        MDZ_OUTPUT(op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable),cur_channel)
+    }
 }
 
 /*
@@ -1099,8 +1124,10 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 	/* SLOT 2 */
 	SLOT++;
 	env = volume_calc(SLOT);
-	if( env < ENV_QUIET && ! OPL->MuteSpc[0] )
+    if( env < ENV_QUIET && ! OPL->MuteSpc[0] ) {
 		OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2;
+        MDZ_OUTPUT((op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2), 6)
+    }
 
 
 	/* Phase generation is based on: */
@@ -1169,6 +1196,7 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 		}
 
 		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2;
+        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2), 7)
 	}
 
 	/* Snare Drum (verified on real YM3812) */
@@ -1190,12 +1218,15 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 			phase ^= 0x100;
 
 		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2;
+        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2), 8)
 	}
 
 	/* Tom Tom (verified on real YM3812) */
 	env = volume_calc(SLOT8_1);
-	if( env < ENV_QUIET && ! OPL->MuteSpc[2] )
+    if( env < ENV_QUIET && ! OPL->MuteSpc[2] ) {
 		OPL->output[0] += op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2;
+        MDZ_OUTPUT((op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2), 9)
+    }
 
 	/* Top Cymbal (verified on real YM3812) */
 	env = volume_calc(SLOT8_2);
@@ -1223,6 +1254,7 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 			phase = 0x300;
 
 		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2;
+        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2), 10)
 	}
 }
 
@@ -2456,6 +2488,8 @@ void ym3526_set_update_handler(void *chip,OPL_UPDATEHANDLER UpdateHandler,void *
 }
 
 
+
+
 /*
 ** Generate samples for one of the YM3526's
 **
@@ -2470,6 +2504,20 @@ void ym3526_update_one(void *chip, OPLSAMPLE **buffer, int length)
 	OPLSAMPLE	*bufL = buffer[0];
 	OPLSAMPLE	*bufR = buffer[1];
 	int i;
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int outp[5];
+    m_voice_ofs=-1;
+    int m_total_channels=9+5;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    smplIncr=44100*1024/m_voice_current_samplerate+1;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	for( i=0; i < length ; i++ )
 	{
@@ -2480,17 +2528,26 @@ void ym3526_update_one(void *chip, OPLSAMPLE **buffer, int length)
 		advance_lfo(OPL);
 
 		/* FM part */
+        cur_channel=0;
 		OPL_CALC_CH(OPL, &OPL->P_CH[0]);
+        cur_channel=1;
 		OPL_CALC_CH(OPL, &OPL->P_CH[1]);
+        cur_channel=2;
 		OPL_CALC_CH(OPL, &OPL->P_CH[2]);
+        cur_channel=3;
 		OPL_CALC_CH(OPL, &OPL->P_CH[3]);
+        cur_channel=4;
 		OPL_CALC_CH(OPL, &OPL->P_CH[4]);
+        cur_channel=5;
 		OPL_CALC_CH(OPL, &OPL->P_CH[5]);
 
 		if(!rhythm)
 		{
+            cur_channel=6;
 			OPL_CALC_CH(OPL, &OPL->P_CH[6]);
+            cur_channel=7;
 			OPL_CALC_CH(OPL, &OPL->P_CH[7]);
+            cur_channel=8;
 			OPL_CALC_CH(OPL, &OPL->P_CH[8]);
 		}
 		else		/* Rhythm part */

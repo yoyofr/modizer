@@ -627,6 +627,10 @@ static int generate_pcm16(struct YMZ280BVoice *voice, UINT8 *base, UINT32 size, 
 }
 
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 
 /**********************************************************************************************
 
@@ -646,6 +650,19 @@ void ymz280b_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 	/* clear out the accumulator */
 	memset(lacc, 0, samples * sizeof(lacc[0]));
 	memset(racc, 0, samples * sizeof(racc[0]));
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=8;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	/* loop over voices */
 	for (v = 0; v < 8; v++)
@@ -693,6 +710,21 @@ void ymz280b_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 #endif
 			voice->output_pos += voice->output_step;
 			remaining--;
+            
+            //TODO:  MODIZER changes start / YOYOFR
+            if (m_voice_ofs>=0) {
+                int ofs_start=m_voice_current_ptr[m_voice_ofs+v];
+                int ofs_end=(m_voice_current_ptr[m_voice_ofs+v]+smplIncr);
+                
+                for (;;) {
+                    m_voice_buff[m_voice_ofs+v][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((interp_sample*(lvol+rvol))>>16));
+                    ofs_start+=1024;
+                    if (ofs_start>=ofs_end) break;
+                }
+                while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                m_voice_current_ptr[m_voice_ofs+v]=ofs_end;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 
 		/* if we're over, continue; otherwise, we're done */
@@ -764,6 +796,21 @@ void ymz280b_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 #endif
 				voice->output_pos += voice->output_step;
 				remaining--;
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int ofs_start=m_voice_current_ptr[m_voice_ofs+v];
+                    int ofs_end=(m_voice_current_ptr[m_voice_ofs+v]+smplIncr);
+                    
+                    for (;;) {
+                        m_voice_buff[m_voice_ofs+v][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8(((interp_sample*(lvol+rvol))>>16));
+                        ofs_start+=1024;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                    m_voice_current_ptr[m_voice_ofs+v]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 
 			/* if we're over, grab the next samples */
