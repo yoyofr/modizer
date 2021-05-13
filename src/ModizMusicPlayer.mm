@@ -4644,11 +4644,15 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
 //            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
             idx=0;idxAll=0;
             while ( !fex_done( fex ) ) {
-                
-                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:0]) {
+                NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
+                if (tmp_filename==nil) {
+                    tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
+                    if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                }
+                if ([self isAcceptedFile:tmp_filename no_aux_file:0]) {
                     fex_stat(fex);
                     arc_size=fex_size(fex);
-                    extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,[NSString stringWithUTF8String:fex_name(fex)]];
+                    extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,tmp_filename];
                     extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                     
                     
@@ -4660,7 +4664,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         //2nd extract file
                         f=fopen([extractFilename fileSystemRepresentation],"wb");
                         if (!f) {
-                            NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePath);
+                            NSLog(@"Cannot open %@ to extract %@",extractFilename,extractPathFile);
                         } else {
                             char *archive_data;
                             
@@ -4695,11 +4699,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             free(archive_data);
                             fclose(f);
                             
-                            
-                            
-                            NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
-                            
-                            if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
+                            if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
                                 mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                                 strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
                                 
@@ -4712,9 +4712,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         }
                     } else {
                         //restarting, skip extract
-                        NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
                         
-                        if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
+                        if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
                             mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
                             
@@ -4761,12 +4760,16 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
 //            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
             idx=0;
             while ( !fex_done( fex ) ) {
-                
-                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
+                NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
+                if (tmp_filename==nil) {
+                    tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
+                    if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                }
+                if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
                     if (index==idx) {
                         fex_stat(fex);
                         arc_size=fex_size(fex);
-                        extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,[NSString stringWithUTF8String:fex_name(fex)]];
+                        extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,tmp_filename];
                         extractPathFile=[extractFilename stringByDeletingLastPathComponent];
                         //NSLog(@"file : %s, size : %dKo, output %@",fex_name(fex),arc_size/1024,extractFilename);
                         
@@ -4794,14 +4797,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 free(archive_data);
                                 fclose(f);
-                                NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
                                 
                                 mdz_ArchiveFilesList[0]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                                 strcpy(mdz_ArchiveFilesList[0],[tmp_filename fileSystemRepresentation]);
                                 break;
                             }
                         } else {
-                            NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
                             
                             mdz_ArchiveFilesList[0]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
                             strcpy(mdz_ArchiveFilesList[0],[tmp_filename fileSystemRepresentation]);
@@ -4841,7 +4842,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             mdz_IsArchive=1;
             mdz_ArchiveFilesCnt=0;
             while ( !fex_done( fex ) ) {
-                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
+                NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
+                if (tmp_filename==nil) {
+                    tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
+                    if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                }
+                if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
                     mdz_ArchiveFilesCnt++;
                     //NSLog(@"file : %s",fex_name(fex));
                 }
@@ -4871,9 +4877,14 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             NSLog(@"cannot fex open : %s / type : %d",path,type);
         } else{
             while ( !fex_done( fex ) ) {
-                if ([self isAcceptedFile:[NSString stringWithUTF8String:fex_name(fex)] no_aux_file:1]) {
+                NSString *tmp_filename=[NSString stringWithUTF8String:fex_name(fex)];
+                if (tmp_filename==nil) {
+                    tmp_filename=[NSString stringWithCString:fex_name(fex) encoding:NSISOLatin1StringEncoding];
+                    if (tmp_filename==nil) tmp_filename=[NSString stringWithFormat:@"%s",fex_name(fex)];
+                }
+                if ([self isAcceptedFile:tmp_filename no_aux_file:1]) {
                     if (!idx) {
-                        NSString *result=[NSString stringWithUTF8String:fex_name(fex)];
+                        NSString *result=tmp_filename;
                         fex_close( fex );
                         return result;
                     }

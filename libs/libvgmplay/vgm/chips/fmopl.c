@@ -1126,7 +1126,7 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 	env = volume_calc(SLOT);
     if( env < ENV_QUIET && ! OPL->MuteSpc[0] ) {
 		OPL->output[0] += op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 2), 6)
+        MDZ_OUTPUT((op_calc(SLOT->Cnt, env, OPL->phase_modulation, SLOT->wavetable) * 1), 6+0)
     }
 
 
@@ -1196,7 +1196,7 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 		}
 
 		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 2), 7)
+        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_1->wavetable) * 1), 6+4)
 	}
 
 	/* Snare Drum (verified on real YM3812) */
@@ -1218,14 +1218,14 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 			phase ^= 0x100;
 
 		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 2), 8)
+        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT7_2->wavetable) * 1), 6+1)
 	}
 
 	/* Tom Tom (verified on real YM3812) */
 	env = volume_calc(SLOT8_1);
     if( env < ENV_QUIET && ! OPL->MuteSpc[2] ) {
 		OPL->output[0] += op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 2), 9)
+        MDZ_OUTPUT((op_calc(SLOT8_1->Cnt, env, 0, SLOT8_1->wavetable) * 1), 6+2)
     }
 
 	/* Top Cymbal (verified on real YM3812) */
@@ -1254,7 +1254,7 @@ INLINE void OPL_CALC_RH( FM_OPL *OPL, OPL_CH *CH, unsigned int noise )
 			phase = 0x300;
 
 		OPL->output[0] += op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2;
-        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 2), 10)
+        MDZ_OUTPUT((op_calc(phase<<FREQ_SH, env, 0, SLOT8_2->wavetable) * 1), 6+3)
 	}
 }
 
