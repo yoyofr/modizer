@@ -1708,10 +1708,10 @@ void propertyListenerCallback (void                   *inUserData,              
         memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
         
         for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
-            CGFloat hue=(250.0f/360.0f)+i*(30.0f/360.0f);
+            CGFloat hue=(240.0f/360.0f)+i*(70.0f/360.0f);
             while (hue>1.0) hue-=1.0f;
             while (hue<0.0) hue+=1.0f;
-            UIColor *col=[UIColor colorWithHue:hue saturation:0.6f brightness:1.0f alpha:1.0f];
+            UIColor *col=[UIColor colorWithHue:hue saturation:0.5f brightness:1.0f alpha:1.0f];
             CGFloat red,green,blue;
             //voicesChipColHalf[i]=[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.7f brightness:0.4f alpha:1.0f];
             [col getRed:&red green:&green blue:&blue alpha:NULL];
@@ -5628,7 +5628,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     numChannels=6;
     numVoicesChannels=numChannels;
     for (int i=0;i<numVoicesChannels;i++) {
-        m_voice_voiceColor[i]=m_voice_systemColor[i/3];
+        m_voice_voiceColor[i]=m_voice_systemColor[i/3];        
     }
     m_voicesDataAvail=1;
     

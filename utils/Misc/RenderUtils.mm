@@ -209,6 +209,9 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
                 colR=((m_voice_voiceColor[cur_voices]>>16)&0xFF);
                 colG=((m_voice_voiceColor[cur_voices]>>8)&0xFF);
                 colB=((m_voice_voiceColor[cur_voices]>>0)&0xFF);
+                colR*=1.2f;
+                colG*=1.2f;
+                colB*=1.2f;
             }
             /*colR+=(colR+colG+colB)/(3*4);
             colG+=(colR+colG+colB)/(3*4);

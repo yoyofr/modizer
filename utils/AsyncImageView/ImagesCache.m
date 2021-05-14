@@ -185,13 +185,34 @@
             return NO;
 }
 
+
 //Helper function for resize image
 //Вспомогательная функция для изменения размера картинки
 -(UIImage*)scaleImage:(UIImage*)image
                toSize:(CGSize)newSize
 {
     UIGraphicsBeginImageContext( newSize );
-    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    //[image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    
+    CGRect recto=CGRectMake(0,0,newSize.width,newSize.height);
+    if (newSize.width <= CGSizeZero.width && newSize.height <= CGSizeZero.height ) {
+        [image drawInRect:recto];
+    }
+
+    float widthRatio = newSize.width  / image.size.width;
+    float heightRatio   = newSize.height / image.size.height;
+    float scalingFactor = fmin(widthRatio, heightRatio);
+    CGSize newSizeImg = CGSizeMake(image.size.width  * scalingFactor, image.size.height * scalingFactor);
+
+    CGPoint origin = CGPointMake((newSize.width-newSizeImg.width)/2,(newSize.height - newSizeImg.height) / 2);
+
+    [image drawInRect:CGRectMake(origin.x, origin.y, newSizeImg.width, newSizeImg.height)];
+    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    [scaledImage drawInRect:recto];
+    
+    
+    
     UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
