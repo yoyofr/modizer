@@ -463,6 +463,10 @@ static void WriteSlot(MultiPCM *ptChip,struct _SLOT *slot,int reg,unsigned char 
 	}
 }
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+//TODO:  MODIZER changes end / YOYOFR
+
 //static STREAM_UPDATE( MultiPCM_update )
 void MultiPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 {
@@ -476,7 +480,22 @@ void MultiPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 
 	memset(datap[0], 0, sizeof(*datap[0])*samples);
 	memset(datap[1], 0, sizeof(*datap[1])*samples);
-
+    
+    //TODO:  MODIZER changes start / YOYOFR
+    //search first voice linked to current chip
+    int m_voice_ofs=-1;
+    int m_total_channels=3;
+    for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
+        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+            m_voice_ofs=ii;
+            break;
+        }
+    }
+    //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
+    int smplIncr;
+    smplIncr=44100*1024/m_voice_current_samplerate+1;
+    m_voice_current_systemPairedOfs=m_total_channels;
+    //TODO:  MODIZER changes end / YOYOFR
 
 	for(i=0;i<samples;++i)
 	{
@@ -524,6 +543,20 @@ void MultiPCM_update(UINT8 ChipID, stream_sample_t **outputs, int samples)
 
 				smpl+=(LPANTABLE[vol]*sample)>>SHIFT;
 				smpr+=(RPANTABLE[vol]*sample)>>SHIFT;
+                
+                //TODO:  MODIZER changes start / YOYOFR
+                if (m_voice_ofs>=0) {
+                    int ofs_start=m_voice_current_ptr[m_voice_ofs+sl];
+                    int ofs_end=(m_voice_current_ptr[m_voice_ofs+sl]+smplIncr);
+                    for (;;) {
+                        m_voice_buff[m_voice_ofs+sl][(ofs_start>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8((smpl+smpr)>>9);
+                        ofs_start+=1024;
+                        if (ofs_start>=ofs_end) break;
+                    }
+                    while ((ofs_end>>10)>SOUND_BUFFER_SIZE_SAMPLE) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE<<10);
+                    m_voice_current_ptr[m_voice_ofs+sl]=ofs_end;
+                }
+                //TODO:  MODIZER changes end / YOYOFR
 			}
 		}
 /*#define ICLIP16(x) (x<-32768)?-32768:((x>32767)?32767:x)

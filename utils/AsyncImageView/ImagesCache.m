@@ -263,6 +263,11 @@
     return cachePath;
 }
 
+-(void) cleanCache {
+    [[NSFileManager defaultManager] removeItemAtPath:[self cacheDirectory] error:NULL];
+    [self createDirectory:directoryInCache atFilePath:[self cacheDirectory]];
+}
+
 -(void)createDirectory:(NSString *)directoryName atFilePath:(NSString *)filePath
 {
     NSString *filePathAndDirectory = [filePath stringByAppendingPathComponent:directoryName];

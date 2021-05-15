@@ -24,6 +24,7 @@
     NSString *ratingImg[3];
     UIView *infoMsgView;
     UILabel *infoMsgLbl;
+    UILabel *navbarTitle;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -41,6 +42,8 @@
     NSFileManager *mFileMngr;
     
     NSMutableArray *indexTitles;
+    
+    int sort_mode;
     
     int shouldFillKeys;
     

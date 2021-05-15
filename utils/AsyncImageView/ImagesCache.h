@@ -18,8 +18,11 @@
     NSCache *imagesScaledRetina;
 }
 
--(id)init;
--(UIImage*)getImageWithURL:(NSString*)url
+-(id) init;
+
+-(void) cleanCache;
+
+-(UIImage*) getImageWithURL:(NSString*)url
                     prefix:(NSString*)prefix
                       size:(CGSize)size
             forUIImageView:(UIImageView*)uiimageview;

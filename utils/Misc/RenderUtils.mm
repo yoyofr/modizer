@@ -127,7 +127,8 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         prev_snd_data=(signed char*)malloc(SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         memcpy(prev_snd_data,snd_data,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         
-        memset(snd_data_ofs,0,SOUND_MAXVOICES_BUFFER_FX*4);
+        for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++)
+            snd_data_ofs[i]=(SOUND_BUFFER_SIZE_SAMPLE/8)<<10;
         first_call=0;
     }
     
@@ -168,10 +169,10 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         old_ofs=snd_data_ofs[j]<<10;
         //start at 1/4 before previous one to help tuning
         ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<10;
-        for (int l=0;l<bufflen-1;l++) {
+        for (int l=0;l<bufflen;l++) {
             // start analyzing
             tmp_gap=0;
-            for (int i=0,smplindex=0;i<bufflen;i++,smplindex+=smplincr) {
+            for (int i=0,smplindex=0;i<bufflen-0*rows_width/SOUND_BUFFER_SIZE_SAMPLE;i++,smplindex+=smplincr) {
                 //compute diff between 2 samples with respective offset
                 tmp_gap=tmp_gap+absint(((int)(snd_data[(((ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])-(int)(prev_snd_data[(((old_ofs+smplindex)>>10)&(SOUND_BUFFER_SIZE_SAMPLE-1))*SOUND_MAXVOICES_BUFFER_FX+j])));
                 if (tmp_gap>=min_gap) break; //do not need to pursue, already more gap/previous one
@@ -241,7 +242,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
                 pts[count++] = LineVertex(xpos+i+1, sp[cur_voices]+ypos,tmpR,tmpG,tmpB,220);
                 
                 
-                smpl_ofs+=smpl_ofs_incr;
+                smpl_ofs+=smpl_ofs_incr;//*3/4;
             }
         }
     }

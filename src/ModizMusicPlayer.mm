@@ -4190,7 +4190,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             if (numVoicesChannels) {
                                     for (int j=0;j<(numVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?numVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
-                                        memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                        memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);                                        
                                     }
                             }
                             
@@ -7906,6 +7906,8 @@ int vgmGetFileLength()
             } else if (strcmp(strChip,"GameBoy")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"NES APU")==0) {
+                m_voicesDataAvail=1;
+            } else if (strcmp(strChip,"YMW258")==0) {
                 m_voicesDataAvail=1;
             } else if (strcmp(strChip,"uPD7759")==0) {
                 m_voicesDataAvail=1;

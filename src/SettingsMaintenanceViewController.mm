@@ -7,12 +7,12 @@
 //
 
 #import "SettingsMaintenanceViewController.h"
+#import "ImagesCache.h"
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
 #import "TTFadeAnimator.h"
-
 
 @interface SettingsMaintenanceViewController ()
 @end
@@ -22,13 +22,12 @@ extern pthread_mutex_t db_mutex;
 @synthesize tableView,detailViewController,rootVC;
 
 #include "MiniPlayerImplementTableView.h"
+#include "AlertsCommonFunctions.h"
 
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -37,11 +36,6 @@ extern pthread_mutex_t db_mutex;
 /////////////////////////////////////////////////////////////////////////////////////////////
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
-
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex {
-    [self hideWaiting];
-}
 
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -166,8 +160,8 @@ extern pthread_mutex_t db_mutex;
     [self showWaiting];
     [self flushMainLoop];
     [SettingsGenViewController applyDefaultSettings];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Settings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-    [alert show];
+    
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Settings reseted",@"")];
     
 }
 
@@ -192,8 +186,7 @@ extern pthread_mutex_t db_mutex;
 	};
 	sqlite3_close(db);
 
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Ratings reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-    [alert show];
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Ratings reseted",@"")];
     
 	return TRUE;
 }
@@ -219,8 +212,7 @@ extern pthread_mutex_t db_mutex;
 	};
 	sqlite3_close(db);
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Played Counters reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-    [alert show];
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Played Counters reseted",@"")];
     
 	return TRUE;
 }
@@ -305,8 +297,7 @@ extern pthread_mutex_t db_mutex;
 	pthread_mutex_unlock(&db_mutex);
     fileManager=nil;
 	
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database cleaned",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-    [alert show];
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database cleaned",@"")];
     
 	return TRUE;
 }
@@ -316,16 +307,22 @@ extern pthread_mutex_t db_mutex;
     [self flushMainLoop];
     
     [rootVC createSamplesFromPackage:TRUE];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Samples folder created",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-    [alert show];
+    
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Samples folder created",@"")];
+}
+
+-(void) clearImageCache {
+    ImagesCache *imagesCache = [[ImagesCache alloc] init];
+    [imagesCache cleanCache];
+    
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Cache cleaned",@"")];
 }
 
 -(void) resetDB {
     [self showWaiting];
     [self flushMainLoop];
     [rootVC createEditableCopyOfDatabaseIfNeeded:TRUE quiet:TRUE];
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Database reseted",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-    [alert show];
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database reseted",@"")];
 }
 
 -(void) removeCurrentCover {
@@ -335,8 +332,8 @@ extern pthread_mutex_t db_mutex;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSString *currentPlayFilepath =[detailViewController getCurrentModuleFilepath];
     if (currentPlayFilepath==nil) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"No cover to remove",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [alert show];
+        
+        [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"No cover to remove",@"")];
         return;
     }
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
@@ -347,8 +344,7 @@ extern pthread_mutex_t db_mutex;
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
     mFileMngr=nil;
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"Info" message:NSLocalizedString(@"Cover removed",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-    [alert show];
+    [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Cover removed",@"")];
 }
 
 
@@ -359,7 +355,7 @@ extern pthread_mutex_t db_mutex;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 8;
+    return 9;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -462,6 +458,14 @@ extern pthread_mutex_t db_mutex;
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetDB) forControlEvents:UIControlEventTouchUpInside];
             break;
+        case 8: //Clear image cache
+            txt=NSLocalizedString(@"Clear images cache",@"");
+            [btn setType:BButtonTypeDanger];
+            [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+            [btn addTarget:self action:@selector(clearImageCache) forControlEvents:UIControlEventTouchUpInside];
+            
+            break;
+            
 
     }
     [btn setTitle:txt forState:UIControlStateNormal];
