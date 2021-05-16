@@ -492,6 +492,7 @@
 		5966D25C25CFF14D00520777 /* liszt_mazeppa.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17425CFF0D100520777 /* liszt_mazeppa.mid */; };
 		5966D25D25CFF14D00520777 /* beethoven_op125_3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17525CFF0D100520777 /* beethoven_op125_3.mid */; };
 		5966D25E25CFF14D00520777 /* chopin_fantaisie.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17625CFF0D100520777 /* chopin_fantaisie.mid */; };
+		596BB20C26507734000E63A6 /* RootViewControllerP2612WebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */; };
 		598051D3262E1D7500BB0309 /* Battle_Garegga_(Toaplan_2).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 598051A0262E1D0A00BB0309 /* Battle_Garegga_(Toaplan_2).zip */; };
 		598051D4262E1D7500BB0309 /* Dune_(IBM_PC_AT).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5980519D262E1D0A00BB0309 /* Dune_(IBM_PC_AT).zip */; };
 		598051D5262E1D7500BB0309 /* Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5980519C262E1D0A00BB0309 /* Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip */; };
@@ -1943,6 +1944,8 @@
 		5966D17425CFF0D100520777 /* liszt_mazeppa.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = liszt_mazeppa.mid; sourceTree = "<group>"; };
 		5966D17525CFF0D100520777 /* beethoven_op125_3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = beethoven_op125_3.mid; sourceTree = "<group>"; };
 		5966D17625CFF0D100520777 /* chopin_fantaisie.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = chopin_fantaisie.mid; sourceTree = "<group>"; };
+		596BB1F426507733000E63A6 /* RootViewControllerP2612WebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerP2612WebParser.h; sourceTree = "<group>"; };
+		596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerP2612WebParser.mm; sourceTree = "<group>"; };
 		5980519B262E1D0A00BB0309 /* Skate_or_Die_intro.sid */ = {isa = PBXFileReference; lastKnownFileType = file; path = Skate_or_Die_intro.sid; sourceTree = "<group>"; };
 		5980519C262E1D0A00BB0309 /* Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip"; sourceTree = "<group>"; };
 		5980519D262E1D0A00BB0309 /* Dune_(IBM_PC_AT).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "Dune_(IBM_PC_AT).zip"; sourceTree = "<group>"; };
@@ -2870,6 +2873,8 @@
 		336BF216144FF4CA0086700A /* RootViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				596BB1F426507733000E63A6 /* RootViewControllerP2612WebParser.h */,
+				596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */,
 				591CA87526483DB600168C7E /* RootViewControllerVGMRWebParser.h */,
 				591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */,
 				591A7F99262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.h */,
@@ -5966,6 +5971,7 @@
 				594CB8722633236900D154E5 /* rat.cpp in Sources */,
 				59B9994725CFE0D80071E144 /* ASIHTTPRequest.m in Sources */,
 				330F36C917A683FB00EEC84A /* OnlineViewController.mm in Sources */,
+				596BB20C26507734000E63A6 /* RootViewControllerP2612WebParser.mm in Sources */,
 				594CB8A82633236900D154E5 /* realopl.cpp in Sources */,
 				59C22A1C25B992D9003FEDBF /* AFURLSessionManager.m in Sources */,
 				CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */,

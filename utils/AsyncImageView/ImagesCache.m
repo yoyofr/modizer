@@ -42,8 +42,8 @@
     NSArray *imageNameParts = [lastObjectInImageURLParts componentsSeparatedByString:@"."];
     //Create strings with image name and image extension
     //Создаем строки содержащие название файла и расширение файла
-    NSString *imageName = [NSString stringWithFormat:@"%@_%@", prefix, [imageNameParts objectAtIndex:0]];
-    NSString *imageExtension = [imageNameParts objectAtIndex:1];
+    NSString *imageExtension = [[imageNameParts objectAtIndex:1] stringByReplacingOccurrencesOfString:@"?" withString:@""];
+    NSString *imageName = [NSString stringWithFormat:@"%@_%@_%@", prefix, [[imageNameParts objectAtIndex:0] stringByReplacingOccurrencesOfString:@"?" withString:@""],imageExtension];
     //Create link to cache object by checking retina display or not
     //Создаем ссылку на объект кэша выбирая нужный взависимости от того retina дисплей или нет
     NSCache *cache = ([self isRetina]) ? imagesScaledRetina : imagesScaled;
@@ -59,7 +59,7 @@
         return image;
     //So let's try to open image from saved file on disk (if he is exists)
     //Ну что ж пробуем открыть картинку из сохраненного файла на диске (если он существует)
-    image = [self getImageWithName:[self makeNameWithPrefix:prefix name:imageName] type:ICTypeScaled extension:imageExtension];
+    image = [self getImageWithName:imageName type:ICTypeScaled extension:imageExtension];
     //Check if image is exists on disk and return it
     //Проверяем получили ли мы картинку с диска и возвращаем ее
     if(image)
@@ -97,7 +97,7 @@
                 realImage = [[UIImage alloc] initWithData:nsdata];
                 //Save downloaded real image to file on disk
                 //Сохраняем загруженную оригинальную картинку в файл на диск
-                [self saveImage:realImage toFileWithName:[self makeNameWithPrefix:prefix name:imageName] type:ICTypeReal extension:imageExtension];
+                [self saveImage:realImage toFileWithName:imageName type:ICTypeReal extension:imageExtension];
             }
         @catch (NSException *exception) {
             NSLog(@"Error downloading image with name: %@", imageName);
@@ -119,7 +119,7 @@
                 [cache setObject:scaledImage forKey:imageName];
             //Save scaled real image to file on disk
             //Сохраняем сжатую оригинальную картинку в файл на диск
-            [self saveImage:scaledImage toFileWithName:[self makeNameWithPrefix:prefix name:imageName] type:ICTypeScaled extension:imageExtension];
+            [self saveImage:scaledImage toFileWithName:imageName type:ICTypeScaled extension:imageExtension];
             //In main thread we set scaled image object to uiimage
             //В главном потоке мы зададим сжатую картинку в uiimage
             dispatch_async(dispatch_get_main_queue(), ^{

@@ -12,6 +12,7 @@ enum {
     ONLINE_COLLECTIONS_ASMA,
     ONLINE_COLLECTIONS_JOSHW,
     ONLINE_COLLECTIONS_VGMRips,
+    ONLINE_COLLECTIONS_P2612,
     ONLINE_COLLECTIONS_NUMBER
 };
 
@@ -441,6 +442,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_VGMRips:topLabel.text=NSLocalizedString(@"VGMRips collection",@"");
                     bottomLabel.text=NSLocalizedString(@"2K+ packs / 40K+ songs",@"");
                     break;
+                case ONLINE_COLLECTIONS_P2612:topLabel.text=NSLocalizedString(@"P2612 collection",@"");
+                    bottomLabel.text=NSLocalizedString(@"700+ set / Sega Geneis/Megadrive",@"");
+                    break;
             }
         }
             break;
@@ -584,6 +588,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerVGMRWebParser*)collectionViewController)->browse_depth = 0;
                     ((RootViewControllerVGMRWebParser*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerVGMRWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    
+                    collectionViewController.view.frame=self.view.frame;
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
+                case ONLINE_COLLECTIONS_P2612: //P2612
+                    collectionViewController = [[RootViewControllerP2612WebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"P2612";
+                    // Set new directory
+                    ((RootViewControllerP2612WebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerP2612WebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerP2612WebParser*)collectionViewController)->downloadViewController=downloadViewController;
                     
                     collectionViewController.view.frame=self.view.frame;
                     // And push the window
