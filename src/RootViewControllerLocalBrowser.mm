@@ -1391,8 +1391,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     
                     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
                     extension = (NSString *)[temparray_filepath lastObject];
-                    [temparray_filepath removeLastObject];
-                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    //[temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath firstObject];
                     
                     
                     
@@ -1479,8 +1479,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                         
                         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
                         extension = (NSString *)[temparray_filepath lastObject];
-                        [temparray_filepath removeLastObject];
-                        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                        //[temparray_filepath removeLastObject];
+                        file_no_ext=[temparray_filepath firstObject];
                         
                         
                         int filtered=0;
@@ -1621,8 +1621,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                     NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
                     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
                     extension = (NSString *)[temparray_filepath lastObject];
-                    [temparray_filepath removeLastObject];
-                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    //[temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath firstObject];
                     
                     
                     int filtered=0;
@@ -1745,8 +1745,8 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             
                             NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
                             extension = (NSString *)[temparray_filepath lastObject];
-                            [temparray_filepath removeLastObject];
-                            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                            //[temparray_filepath removeLastObject];
+                            file_no_ext=[temparray_filepath firstObject];
                             
                             
                             int filtered=0;
@@ -2205,8 +2205,8 @@ static int shouldRestart=1;
     //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
     extension = (NSString *)[temparray_filepath lastObject];
-    [temparray_filepath removeLastObject];
-    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+    //[temparray_filepath removeLastObject];
+    file_no_ext=[temparray_filepath firstObject];
         
     if (!found)
         for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
@@ -3342,8 +3342,8 @@ static int shouldRestart=1;
             NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
             NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
             extension = (NSString *)[temparray_filepath lastObject];
-            [temparray_filepath removeLastObject];
-            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+            //[temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath firstObject];
                                                 
             int found=0;
             

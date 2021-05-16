@@ -502,8 +502,8 @@ static NSArray * imp_RandomizeUsingMutableCopy(NSArray * arr) {
             NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
             NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
             extension = (NSString *)[temparray_filepath lastObject];
-            [temparray_filepath removeLastObject];
-            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+            //[temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath firstObject];
                                                 
             int found=0;
             

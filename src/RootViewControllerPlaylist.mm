@@ -1496,7 +1496,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 while ( !fex_done( fex ) ) {
                     file=[NSString stringWithFormat:@"%s",fex_name(fex)];
                     NSString *extension = [[file pathExtension] uppercaseString];
-                    NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                    
+                    NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
                     
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
@@ -1575,7 +1576,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                     while ( !fex_done( fex ) ) {
                         file=[NSString stringWithFormat:@"%s",fex_name(fex)];
                         NSString *extension = [[file pathExtension] uppercaseString];
-                        NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                        NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
                         
                         int filtered=0;
                         if ((mSearch)&&([mSearchText length]>0)) {
@@ -1702,7 +1703,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                 if ((rdir.location==NSNotFound)||(mShowSubdir)) {
                     NSString *extension = [[file pathExtension] uppercaseString];
-                    NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                    NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
                     
                     int filtered=0;
                     if ((mSearch)&&([mSearchText length]>0)) {
@@ -1816,7 +1817,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                         rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
                         if ((rdir.location==NSNotFound)||(mShowSubdir)) {
                             NSString *extension = [[file pathExtension] uppercaseString];
-                            NSString *file_no_ext = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+                            NSString *file_no_ext = [[[[file lastPathComponent] componentsSeparatedByString:@"."] firstObject] uppercaseString];
                             
                             int filtered=0;
                             if ((mSearch)&&([mSearchText length]>0)) {

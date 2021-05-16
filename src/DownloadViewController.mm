@@ -957,8 +957,8 @@ static NSFileManager *mFileMngr;
     
     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[file lastPathComponent] componentsSeparatedByString:@"."]];
     extension = (NSString *)[temparray_filepath lastObject];
-    [temparray_filepath removeLastObject];
-    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+    //[temparray_filepath removeLastObject];
+    file_no_ext=[temparray_filepath firstObject];
 	
 	int found=0;
 	for (int i=0;i<[filetype_extUADE count];i++) {

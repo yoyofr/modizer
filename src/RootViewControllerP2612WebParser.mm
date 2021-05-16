@@ -181,7 +181,10 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
 
 -(void) titleTap {
     if (!dbWEB_nb_entries) return;
-    sort_mode^=1;
+    if (sort_mode==0) {
+        if (dbWEB_entries_data->isFile) sort_mode=1;
+        else sort_mode=2;
+    } else sort_mode=0;
     
     if (sort_mode==0) {
         navbarTitle.text=[NSString stringWithFormat:@"%@ (name)",self.title];
@@ -189,7 +192,7 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortP2612_entries_alpha);
         [self fillKeys]; //update search if active
     } else {
-        if (dbWEB_entries_data->isFile) {
+        if (sort_mode==1) {
             navbarTitle.text=[NSString stringWithFormat:@"%@ (rating)",self.title];
             self.navigationItem.title=navbarTitle.text;
         } else {
@@ -211,6 +214,9 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     indexTitleMode=0;
     
     sort_mode=0;
+    //set default sort mode
+    if ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?sort=rating"]) sort_mode=1;
+    
     
     self.navigationController.delegate = self;
             
@@ -235,8 +241,18 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     if (browse_depth>0) {
         self.navigationItem.titleView=navbarTitle;
         
-        navbarTitle.text=[NSString stringWithFormat:@"%@ (name)   ",self.title];
-        self.navigationItem.title=navbarTitle.text;
+        if (sort_mode==0) {
+            navbarTitle.text=[NSString stringWithFormat:@"%@ (name)   ",self.title];
+            self.navigationItem.title=navbarTitle.text;
+        } else {
+            if (sort_mode==1) {
+                navbarTitle.text=[NSString stringWithFormat:@"%@ (rating)",self.title];
+                self.navigationItem.title=navbarTitle.text;
+            } else {
+                navbarTitle.text=[NSString stringWithFormat:@"%@ (packs) ",self.title];
+                self.navigationItem.title=navbarTitle.text;
+            }
+        }
         
         UITapGestureRecognizer *tapGesture =
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap)];
@@ -558,14 +574,14 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we=NULL;
           
-    if ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?page=all"]) {
+    if ( ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?page=all"]) ||
+         ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?sort=rating"]) ) {
         ///////////////////////////////////////////////////////////////////////:
         // P2612 All
         ///////////////////////////////////////////////////////////////////////:
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
             
         NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//tr/td/a[contains(@href,'details')]"];
         NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][1]"];
@@ -615,8 +631,25 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
             return [str1 caseInsensitiveCompare:str2];
         }];
     } else {
-        if (sort_mode) sortedArray=tmpArray;
-        else sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+        if (sort_mode) {
+            sortedArray=[tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+                t_web_file_entry *e1=((t_web_file_entry*)[obj1 pointerValue]);
+                t_web_file_entry *e2=((t_web_file_entry*)[obj2 pointerValue]);
+                if (e1->file_type) {
+                    if (e1->file_rating>e2->file_rating) return NSOrderedAscending;
+                    if (e1->file_rating<e2->file_rating) return NSOrderedDescending;
+                    NSString *str1=[e1->file_name lastPathComponent];
+                    NSString *str2=[e2->file_name lastPathComponent];
+                    return [str1 caseInsensitiveCompare:str2];
+                } else {
+                    if (e1->entries_nb>e2->entries_nb) return NSOrderedAscending;
+                    if (e1->entries_nb<e2->entries_nb) return NSOrderedDescending;
+                    NSString *str1=[e1->file_name lastPathComponent];
+                    NSString *str2=[e2->file_name lastPathComponent];
+                    return [str1 caseInsensitiveCompare:str2];
+                }
+            }];
+        } else sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
             NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_name lastPathComponent];
             NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_name lastPathComponent];
             return [str1 caseInsensitiveCompare:str2];
@@ -1076,7 +1109,6 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         actionView.hidden=NO;
         
         if (cur_db_entries[section][indexPath.row].img_URL) {
-            NSLog(@"access image: %@",cur_db_entries[section][indexPath.row].img_URL);
             coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
                                                            prefix:@"P2612_mini"
                                                              size:CGSizeMake(34.0f, 34.0f)

@@ -4654,8 +4654,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     arc_size=fex_size(fex);
                     extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,tmp_filename];
                     extractPathFile=[extractFilename stringByDeletingLastPathComponent];
-                    
-                    
+                                        
                     if (!isRestarting) {
                         //1st create path if not existing yet
                         [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
@@ -5165,8 +5164,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             
             NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
             extension = (NSString *)[temparray_filepath lastObject];
-            [temparray_filepath removeLastObject];
-            file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+            //[temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath firstObject];
             
             
             if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
@@ -5199,8 +5198,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                 
                 NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
                 extension = (NSString *)[temparray_filepath lastObject];
-                [temparray_filepath removeLastObject];
-                file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                //[temparray_filepath removeLastObject];
+                file_no_ext=[temparray_filepath firstObject];
                 
                 
                 if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
@@ -5229,7 +5228,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
-    NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+    NSArray *filetype_extUADE=(no_aux_file?[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_UADE_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extMODPLUG=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
     NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
     NSArray *filetype_extGME=(no_aux_file?[SUPPORTED_FILETYPE_GME componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GME_EXT componentsSeparatedByString:@","]);
@@ -5257,8 +5256,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
     extension = (NSString *)[temparray_filepath lastObject];
-    [temparray_filepath removeLastObject];
-    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+    //[temparray_filepath removeLastObject];
+    file_no_ext=[temparray_filepath firstObject];
     
     
     //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
@@ -5423,6 +5422,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         mSingleFileType=0;break;
                     }
                 
+                // If 'smus' file, do not try to play .ss files (instruments)
+                if (no_aux_file&&[extension caseInsensitiveCompare:@"SS"]==NSOrderedSame) {
+                    if ([[_filePath uppercaseString] containsString:@"INSTRUMENTS/"]) {
+                        break;
+                    }
+                }
                 found=MMP_UADE;break;
             }
             if ([file_no_ext caseInsensitiveCompare:[filetype_extUADE objectAtIndex:i]]==NSOrderedSame) {
@@ -5432,6 +5437,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     if ([file_no_ext caseInsensitiveCompare:[singlefile objectAtIndex:j]]==NSOrderedSame) {
                         mSingleFileType=0;break;
                     }
+                
+                // If 'smus' file, do not try to play .ss files (instruments)
+                if (no_aux_file&&[file_no_ext caseInsensitiveCompare:@"SS"]==NSOrderedSame) {
+                    if ([[_filePath uppercaseString] containsString:@"INSTRUMENTS/"]) {
+                        break;
+                    }
+                }
                 found=MMP_UADE;break;
             }
         }
@@ -8547,8 +8559,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         
         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
         extension = (NSString *)[temparray_filepath lastObject];
-        [temparray_filepath removeLastObject];
-        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+        //[temparray_filepath removeLastObject];
+        file_no_ext=[temparray_filepath firstObject];
         
         
         
@@ -8666,8 +8678,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
                     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
                     extension = (NSString *)[temparray_filepath lastObject];
-                    [temparray_filepath removeLastObject];
-                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    //[temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath firstObject];
                     
                     
                     //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
@@ -8743,8 +8755,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                     //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
                     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
                     extension = (NSString *)[temparray_filepath lastObject];
-                    [temparray_filepath removeLastObject];
-                    file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+                    //[temparray_filepath removeLastObject];
+                    file_no_ext=[temparray_filepath firstObject];
                     
                     
                     //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
@@ -8778,8 +8790,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
         extension = (NSString *)[temparray_filepath lastObject];
-        [temparray_filepath removeLastObject];
-        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+        //[temparray_filepath removeLastObject];
+        file_no_ext=[temparray_filepath firstObject];
         
         
         //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
@@ -8795,8 +8807,8 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
         extension = (NSString *)[temparray_filepath lastObject];
-        [temparray_filepath removeLastObject];
-        file_no_ext=[temparray_filepath componentsJoinedByString:@"."];
+        //[temparray_filepath removeLastObject];
+        file_no_ext=[temparray_filepath firstObject];
         
         
         //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];

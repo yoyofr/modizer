@@ -181,7 +181,10 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
 
 -(void) titleTap {
     if (!dbWEB_nb_entries) return;
-    sort_mode^=1;
+    if (sort_mode==0) {
+        if (dbWEB_entries_data->isFile) sort_mode=1;
+        else sort_mode=2;
+    } else sort_mode=0;
     
     if (sort_mode==0) {
         navbarTitle.text=[NSString stringWithFormat:@"%@ (name)",self.title];
@@ -189,7 +192,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortVGMR_entries_alpha);
         [self fillKeys]; //update search if active
     } else {
-        if (dbWEB_entries_data->isFile) {
+        if (sort_mode==1) {
             navbarTitle.text=[NSString stringWithFormat:@"%@ (rating)",self.title];
             self.navigationItem.title=navbarTitle.text;
         } else {
@@ -211,6 +214,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     indexTitleMode=0;
     
     sort_mode=0;
+    //set default sort_mode
+    if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/top"]) sort_mode=1;
+    
     
     self.navigationController.delegate = self;
             
@@ -235,8 +241,18 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     if (browse_depth>0) {
         self.navigationItem.titleView=navbarTitle;
         
-        navbarTitle.text=[NSString stringWithFormat:@"%@ (name)   ",self.title];
-        self.navigationItem.title=navbarTitle.text;
+        if (sort_mode==0) {
+            navbarTitle.text=[NSString stringWithFormat:@"%@ (name)   ",self.title];
+            self.navigationItem.title=navbarTitle.text;
+        } else {
+            if (sort_mode==1) {
+                navbarTitle.text=[NSString stringWithFormat:@"%@ (rating)",self.title];
+                self.navigationItem.title=navbarTitle.text;
+            } else {
+                navbarTitle.text=[NSString stringWithFormat:@"%@ (packs) ",self.title];
+                self.navigationItem.title=navbarTitle.text;
+            }
+        }
         
         UITapGestureRecognizer *tapGesture =
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap)];
@@ -913,6 +929,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
         
+        
         int pageNb=1; //top 20 to start
         //NSLog(@"Page nb: %d",pageNb);
         
@@ -991,8 +1008,25 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             return [str1 caseInsensitiveCompare:str2];
         }];
     } else {
-        if (sort_mode) sortedArray=tmpArray;
-        else sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+        if (sort_mode) {
+            sortedArray=[tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
+                t_web_file_entry *e1=((t_web_file_entry*)[obj1 pointerValue]);
+                t_web_file_entry *e2=((t_web_file_entry*)[obj2 pointerValue]);
+                if (e1->file_type) {
+                    if (e1->file_rating>e2->file_rating) return NSOrderedAscending;
+                    if (e1->file_rating<e2->file_rating) return NSOrderedDescending;
+                    NSString *str1=[e1->file_name lastPathComponent];
+                    NSString *str2=[e2->file_name lastPathComponent];
+                    return [str1 caseInsensitiveCompare:str2];
+                } else {
+                    if (e1->entries_nb>e2->entries_nb) return NSOrderedAscending;
+                    if (e1->entries_nb<e2->entries_nb) return NSOrderedDescending;
+                    NSString *str1=[e1->file_name lastPathComponent];
+                    NSString *str2=[e2->file_name lastPathComponent];
+                    return [str1 caseInsensitiveCompare:str2];
+                }
+            }];
+        } else sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
             NSString *str1=[((t_web_file_entry*)[obj1 pointerValue])->file_name lastPathComponent];
             NSString *str2=[((t_web_file_entry*)[obj2 pointerValue])->file_name lastPathComponent];
             return [str1 caseInsensitiveCompare:str2];
