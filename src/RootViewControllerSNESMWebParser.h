@@ -1,5 +1,5 @@
 //
-//  RootViewControllerP2612WebParser.h
+//  RootViewControllerSNESMWebParser.h
 //  modizer1
 //
 //  Created by Yohann Magnien on 07/05/21.
@@ -20,7 +20,7 @@
 @class DownloadViewController;
 
 
-@interface RootViewControllerP2612WebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface RootViewControllerSNESMWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
     NSString *ratingImg[3];
     UIView *infoMsgView;
     UILabel *infoMsgLbl;

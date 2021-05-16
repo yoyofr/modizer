@@ -13,6 +13,7 @@ enum {
     ONLINE_COLLECTIONS_JOSHW,
     ONLINE_COLLECTIONS_VGMRips,
     ONLINE_COLLECTIONS_P2612,
+    ONLINE_COLLECTIONS_SNESM,
     ONLINE_COLLECTIONS_NUMBER
 };
 
@@ -21,12 +22,11 @@ enum {
 //#define NB_HVSC_ENTRIES 43856
 //#define NB_ASMA_ENTRIES 4630
 
-#define WEBLINKS_VGM_NB 9
+#define WEBLINKS_VGM_NB 8
 #define WEBLINKS_MODS_NB 6
 #define WEBLINKS_Others_NB 2
 NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
     //VGM & assimilated
-    {@"https://project2612.org/",@"Megadrive/Genesis Music"},
     {@"http://snesmusic.org/v2/",@"SNES Music"},
     {@"http://snesmusic.org/pmh/",@"Portable Music History"},
     {@"http://snesmusic.org/cmh/",@"Console Music History"},
@@ -445,6 +445,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_P2612:topLabel.text=NSLocalizedString(@"P2612 collection",@"");
                     bottomLabel.text=NSLocalizedString(@"700+ set / Sega Geneis/Megadrive",@"");
                     break;
+                case ONLINE_COLLECTIONS_SNESM:topLabel.text=NSLocalizedString(@"SNESmusic collection",@"");
+                    bottomLabel.text=NSLocalizedString(@"1500+ set / Super Nintendo/Famicom",@"");
+                    break;
             }
         }
             break;
@@ -601,6 +604,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerP2612WebParser*)collectionViewController)->browse_depth = 0;
                     ((RootViewControllerP2612WebParser*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerP2612WebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    
+                    collectionViewController.view.frame=self.view.frame;
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
+                case ONLINE_COLLECTIONS_SNESM: //SnesMusic
+                    collectionViewController = [[RootViewControllerSNESMWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"SNESmusic";
+                    // Set new directory
+                    ((RootViewControllerSNESMWebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerSNESMWebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerSNESMWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                     
                     collectionViewController.view.frame=self.view.frame;
                     // And push the window

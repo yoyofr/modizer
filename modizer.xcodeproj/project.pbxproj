@@ -524,6 +524,7 @@
 		59909B611E3E7F2400C629AA /* tabview_gradient40Black@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B5F1E3E7F2400C629AA /* tabview_gradient40Black@2x.png */; };
 		59909B641E3E81AD00C629AA /* tabview_gradient40Gray.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B621E3E81AD00C629AA /* tabview_gradient40Gray.png */; };
 		59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */; };
+		599148872651632B005DEB44 /* RootViewControllerSNESMWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 599148862651632B005DEB44 /* RootViewControllerSNESMWebParser.mm */; };
 		59A65C6D2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C6C2624D40000BC99D1 /* MiniPlayerVC.mm */; };
 		59A65C762624E9B800BC99D1 /* VoicesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 59A65C752624E9B700BC99D1 /* VoicesViewController.xib */; };
 		59A65C80262501A000BC99D1 /* MiniPlayerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 59A65C7F262501A000BC99D1 /* MiniPlayerView.m */; };
@@ -1977,6 +1978,8 @@
 		59909B5F1E3E7F2400C629AA /* tabview_gradient40Black@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Black@2x.png"; sourceTree = "<group>"; };
 		59909B621E3E81AD00C629AA /* tabview_gradient40Gray.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tabview_gradient40Gray.png; sourceTree = "<group>"; };
 		59909B631E3E81AD00C629AA /* tabview_gradient40Gray@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tabview_gradient40Gray@2x.png"; sourceTree = "<group>"; };
+		5991486F2651632B005DEB44 /* RootViewControllerSNESMWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerSNESMWebParser.h; sourceTree = "<group>"; };
+		599148862651632B005DEB44 /* RootViewControllerSNESMWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerSNESMWebParser.mm; sourceTree = "<group>"; };
 		59A65C6B2624D40000BC99D1 /* MiniPlayerVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MiniPlayerVC.h; sourceTree = "<group>"; };
 		59A65C6C2624D40000BC99D1 /* MiniPlayerVC.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = MiniPlayerVC.mm; sourceTree = "<group>"; };
 		59A65C752624E9B700BC99D1 /* VoicesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = VoicesViewController.xib; sourceTree = "<group>"; };
@@ -2873,6 +2876,8 @@
 		336BF216144FF4CA0086700A /* RootViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				5991486F2651632B005DEB44 /* RootViewControllerSNESMWebParser.h */,
+				599148862651632B005DEB44 /* RootViewControllerSNESMWebParser.mm */,
 				596BB1F426507733000E63A6 /* RootViewControllerP2612WebParser.h */,
 				596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */,
 				591CA87526483DB600168C7E /* RootViewControllerVGMRWebParser.h */,
@@ -5766,6 +5771,7 @@
 				594CB85C2633236900D154E5 /* binstr.cpp in Sources */,
 				CCFDC53C17DB105500C6692C /* NVLowShelvingFilter.m in Sources */,
 				CCFDC54017DB105500C6692C /* NVDSP.mm in Sources */,
+				599148872651632B005DEB44 /* RootViewControllerSNESMWebParser.mm in Sources */,
 				59C22A1F25B992D9003FEDBF /* AFSecurityPolicy.m in Sources */,
 				594CB8382633236900D154E5 /* sop.cpp in Sources */,
 				CC1E623C12041177000A8A4E /* AppDelegate_Phone.mm in Sources */,

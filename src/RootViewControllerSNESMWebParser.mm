@@ -1,5 +1,5 @@
 //
-//  RootViewControllerVGMRWebParser.mm
+//  RootViewControllerSNESMWebParser.mm
 //  modizer1
 //
 //  Created by Yohann Magnien on 07/05/21.
@@ -20,7 +20,7 @@
 static volatile int mPopupAnimation=0;
 
 #import "AppDelegate_Phone.h"
-#import "RootViewControllerVGMRWebParser.h"
+#import "RootViewControllerSNESMWebParser.h"
 #import "DetailViewControllerIphone.h"
 #import "DownloadViewController.h"
 #import "WebBrowser.h"
@@ -41,8 +41,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
+enum {
+    BROWSE_DEFAULT=0,
+    BROWSE_ALL,
+    BROWSE_COMPOSERS,
+    BROWSE_COMPANIES
+};
 
-@implementation RootViewControllerVGMRWebParser
+
+@implementation RootViewControllerSNESMWebParser
 
 @synthesize mFileMngr;
 @synthesize detailViewController;
@@ -132,7 +139,7 @@ extern pthread_mutex_t db_mutex;
     self.popTipView = nil;
 }
 
-int qsortVGMR_entries_alpha(const void *entryA, const void *entryB) {
+int qsortSNESM_entries_alpha(const void *entryA, const void *entryB) {
     NSString *strA,*strB;
     NSComparisonResult res;
     strA=((t_WEB_browse_entry*)entryA)->label;
@@ -143,7 +150,7 @@ int qsortVGMR_entries_alpha(const void *entryA, const void *entryB) {
     return 1; //NSOrderedDescending
 }
 
-int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) {
+int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB) {
     if (((t_WEB_browse_entry*)entryA)->isFile) {
         float rA,rB;
         rA=((t_WEB_browse_entry*)entryA)->webRating;
@@ -189,7 +196,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     if (sort_mode==0) {
         navbarTitle.text=[NSString stringWithFormat:@"%@ (name)",self.title];
         self.navigationItem.title=navbarTitle.text;
-        qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortVGMR_entries_alpha);
+        qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortSNESM_entries_alpha);
         [self fillKeys]; //update search if active
     } else {
         if (sort_mode==1) {
@@ -199,7 +206,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             navbarTitle.text=[NSString stringWithFormat:@"%@ (packs)",self.title];
             self.navigationItem.title=navbarTitle.text;
         }
-        qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortVGMR_entries_rating_or_entries);
+        qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortSNESM_entries_rating_or_entries);
         [self fillKeys]; //update search if active
     }
     
@@ -214,9 +221,18 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     indexTitleMode=0;
     
     sort_mode=0;
-    //set default sort_mode
-    if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/top"]) sort_mode=1;
+    //set default sort mode
+    if ([mWebBaseURL isEqualToString:@"http://snesmusic.org/v2/stats.php"]) sort_mode=1;
     
+    
+    browse_mode=BROWSE_DEFAULT;
+    if ([self.title isEqualToString:@"All"]) {
+        browse_mode=BROWSE_ALL;
+    } else if ([self.title isEqualToString:@"Composers"]) {
+        browse_mode=BROWSE_COMPOSERS;
+    } else if ([self.title isEqualToString:@"Companies"]) {
+        browse_mode=BROWSE_COMPANIES;
+    }
     
     self.navigationController.delegate = self;
             
@@ -437,13 +453,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
-        {@"All",@"All"},
-        {@"Top Packs",@"https://vgmrips.net/packs/top"},
-        {@"Latest Packs",@"https://vgmrips.net/packs/latest"},
-        {@"Companies",@"https://vgmrips.net/packs/companies"},
-        {@"Composers",@"https://vgmrips.net/packs/composers"},
-        {@"Sound Chips",@"https://vgmrips.net/packs/chips"},
-        {@"Systems",@"https://vgmrips.net/packs/systems"}
+        {@"All",@""},
+        {@"Top Packs",@"http://snesmusic.org/v2/stats.php"},
+        {@"Composers",@""}
     };
 
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
@@ -493,7 +505,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@",wentry->category];
                 
-        dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@",wentry->category];//@"VGMRips";
+        dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@",wentry->category];
                 
         dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wentry->url];
                                 
@@ -503,6 +515,58 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         dbWEB_entries_index++;
     }
     //populate entries
+}
+
+-(bool) getSNESMDetails:(NSString*)url fullpath:(NSString*)fullpath web_entry:(t_WEB_browse_entry*)we  {
+    //get id
+    TFHppleElement *el;
+    int entry_id=[[[url componentsSeparatedByString:@"="] lastObject] intValue];
+    
+    NSString *urlEntry=[NSString stringWithFormat:@"http://snesmusic.org/v2/profile.php?profile=set&selected=%d",entry_id];
+
+    NSData *urlDataEntry = [NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithString:urlEntry]]];
+    TFHpple *docEntry       = [[TFHpple alloc] initWithHTMLData:urlDataEntry];
+                        
+    //NSArray *arr_entry_name=[docEntry searchWithXPathQuery:@"/html/body/div[@id='contContainer']/h2[1]/text()"];
+    NSArray *arr_entry_file=[docEntry searchWithXPathQuery:@"/html/body//a[@class='download']"];
+    NSArray *arr_entry_img=[docEntry searchWithXPathQuery:@"/html/body//img[@class='screen']"];
+    
+    //TFHppleElement *el=[arr_entry_name firstObject];
+    //we[we_index].file_name=[NSString stringWithFormat:@"%@",[el raw]];
+    
+    if (!arr_entry_file) return false;
+    if (![arr_entry_file count]) return false;
+    
+    el=[arr_entry_file firstObject];
+    we->URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"href"]];
+    
+    el=[arr_entry_img firstObject];
+    we->img_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"src"]];
+    
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    NSURL *URL = [NSURL URLWithString:we->img_URL];
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    
+    NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
+        uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+    }
+        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+    }
+        completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+            if (error) {
+                NSLog(@"Error: %@", error);
+            } else {
+                NSData *data=responseObject;
+                [data writeToFile:[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]] atomically:NO];
+            }
+    }];
+    
+    [dataTask resume];
+    
+    return true;
 }
 
 -(void) fillKeysWithWEBSource {
@@ -578,161 +642,223 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we=NULL;
-          
-    if ([mWebBaseURL rangeOfString:@"All"].location!=NSNotFound) {
+    
+    if (browse_mode==BROWSE_ALL) {
         ///////////////////////////////////////////////
         // All entries / letter
         ////////////////////////////////////////////////
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*27);
-        we[0].file_URL=@"https://vgmrips.net/packs/top?letter=%23";
+        we[0].file_URL=@"http://snesmusic.org/v2/select.php?view=games&char=n1-9&limit=0";
         we[0].file_name=@"#";
         we[0].file_type=0;
         [tmpArray addObject:[NSValue valueWithPointer:&(we[0])]];
         for (int i=0;i<26;i++) {
-            we[i+1].file_URL=[NSString stringWithFormat:@"https://vgmrips.net/packs/top?letter=%c",'A'+i];
+            we[i+1].file_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/select.php?view=games&char=%c&limit=0",'A'+i];
             we[i+1].file_name=[NSString stringWithFormat:@"%c",'A'+i];
             we[i+1].file_type=0;
             [tmpArray addObject:[NSValue valueWithPointer:&(we[i+1])]];
         }
-    } else if ( ([mWebBaseURL rangeOfString:@"https://vgmrips.net/packs/system/"].location!=NSNotFound) ||
-         ([mWebBaseURL rangeOfString:@"https://vgmrips.net/packs/composer/"].location!=NSNotFound) ||
-         ([mWebBaseURL rangeOfString:@"https://vgmrips.net/packs/chip/"].location!=NSNotFound) ||
-         ([mWebBaseURL rangeOfString:@"https://vgmrips.net/packs/top?letter"].location!=NSNotFound) ||
-         ([mWebBaseURL rangeOfString:@"/developed"].location!=NSNotFound)
-         ){
+    } else if (browse_mode==BROWSE_COMPOSERS) {
         ///////////////////////////////////////////////////////////////////////:
-        // Entries for a given system / chip / composer
+        // SNESM All
         ///////////////////////////////////////////////////////////////////////:
-                
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
         urlData = [NSData dataWithContentsOfURL:url];
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-                
-        NSArray *arr_pageNb=[doc searchWithXPathQuery:@"((/html/body//select[@class='form-control'])[last()]/option)[last()]"];
-        
-        TFHppleElement *el=[arr_pageNb objectAtIndex:0];
-        if (el) {
-            int pageNb=[[el text] intValue];
-            //NSLog(@"Page nb: %d",pageNb);
             
-            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
-            int we_index=0;
-            
-            NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-            AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-            manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-            manager.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            
-            NSMutableArray *sem_arr=nil;
-            NSMutableDictionary *urlData_dic=nil;
-                        
-            //download all remaining pages if pages nb>1
-            if (pageNb>1) {
-                sem_arr=[[NSMutableArray alloc] initWithCapacity:pageNb-1];
-                urlData_dic=[[NSMutableDictionary alloc] initWithCapacity:pageNb-1];
-                                                                
-                for (int i=1;i<pageNb;i++) {
-                    //build URL
-                    if ([mWebBaseURL rangeOfString:@"?"].location!=NSNotFound) {
-                        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&p=%d",mWebBaseURL,i]];
-                    } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i]];
-                                                                
-                    //build semaphore
-                    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                    [sem_arr addObject:semaphore];
-                                        
-                    //prepare request
-                    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-                    NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
-                        uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-                    }
-                        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                    }
-                        completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-                            if (error) {
-                                NSLog(@"Error: %@", error);
-                            } else {
-                                //urlData_pages=responseObject;
-                                [urlData_dic setObject:responseObject forKey:[NSString stringWithFormat:@"data%d",i]];
-                                //NSLog(@"%@ %@", response, responseObject);
-                            }
-                            dispatch_semaphore_signal(semaphore);
-                    }];
-                    [dataTask resume];
+        NSArray *arr_url_dirty=[doc searchWithXPathQuery:@"/html/body//tr/td/a[contains(@href,'field=composer') and not(contains(@href,'%E'))]"];
+        NSMutableArray *arr_url=[[NSMutableArray alloc] init];
+        NSMutableArray *arr_name=[[NSMutableArray alloc] init];
+        NSMutableDictionary *dic_entries=[[NSMutableDictionary alloc] init];
+        for (int i=0;i<[arr_url_dirty count];i++) {
+            TFHppleElement *el=[arr_url_dirty objectAtIndex:i];
+            NSString *url=[el objectForKey:@"href"];
+            //NSLog(@"url: %@",url);
+            NSString *name=[el text];
+            //NSLog(@"name: %@",name);
+            if (name==nil) {
+                //NSLog(@"yo");
+            } else {
+                if (![arr_name containsObject:name]) {
+                    [arr_name addObject:name];
+                    [arr_url addObject:url];
+                    [dic_entries setValue:@1 forKey:name];
+                } else {
+                    int nb_entries=[[dic_entries valueForKey:name] intValue];
+                    nb_entries++;
+                    [dic_entries setValue:[NSNumber numberWithInt:nb_entries] forKey:name];
                 }
             }
-            
-            for (int i=0;i<pageNb;i++) {
-                [self flushMainLoop];
-                [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
-                [self flushMainLoop];
+        }
+        
+        /*NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][1]"];
+        NSArray *arr_size=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][2]"];
+        NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][3]"];*/
+        
+        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
+        int we_index=0;
                 
-                if (i>0) {
-                    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i+1]];
-                    //urlData = [NSData dataWithContentsOfURL:url];
+        if (arr_url&&[arr_url count]) {
+            
+            for (int j=0;j<[arr_url count];j++) {
+                we[we_index].file_URL=[NSString stringWithFormat:@"https://project2612.org/%@",[arr_url objectAtIndex:j]];
+                                                          
+                //el=[arr_url objectAtIndex:j];
+                we[we_index].file_name=[NSString stringWithString:[arr_name objectAtIndex:j]];
+                
+                we[we_index].file_type=0;
+                
+                we[we_index].entries_nb=[[dic_entries valueForKey:we[we_index].file_name] intValue];
+                
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                
+                we_index++;
+            }
+        }
+    } else if ([mWebBaseURL isEqualToString:@"http://snesmusic.org/v2/stats.php"]) {
+        ///////////////////////////////////////////////////////////////////////:
+        // SNESM Top 100
+        ///////////////////////////////////////////////////////////////////////:
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        urlData = [NSData dataWithContentsOfURL:url];
+        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+            
+        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//ol[2]//a"];
+        //NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][1]"];
+        //NSArray *arr_size=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][2]"];
+        //NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][3]"];
+        
+        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
+        int we_index=0;
+                
+        if (arr_url&&[arr_url count]) {
+            
+            for (int j=0;j<[arr_url count];j++) {
+                TFHppleElement *el=[arr_url objectAtIndex:j];
+                
+                we[we_index].file_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"href"]];
+                we[we_index].file_name=[NSString stringWithFormat:@"%@",[el text]];
+                we[we_index].file_type=2;
+                
+                we[we_index].file_rating=100-j;
+                                
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                
+                we_index++;
+            }
+        }
+    } else if ([mWebBaseURL containsString:@"http://snesmusic.org/v2/select.php?view=games&char="]) {
+        ///////////////////////////////////////////////////////////////////////:
+        // Games - #-A-Z page
+        ///////////////////////////////////////////////////////////////////////:
+        int pageNb,total_entries;
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        urlData = [NSData dataWithContentsOfURL:url];
+        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+        
+        //check page nb
+        NSArray *arr_pageNb=[doc searchWithXPathQuery:@"/html/body/div[@id='contContainer']/text()[2]"];
+        //mutiple page
+        TFHppleElement *el=[arr_pageNb firstObject];
+        total_entries=[[[[el raw] componentsSeparatedByString:@" "] lastObject] intValue];
+        
+        pageNb=(total_entries-1)/30 + 1;
+            
+        
+        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_entries);
+        int we_index=0;
+        
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        manager.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        
+        NSMutableArray *sem_arr=nil;
+        NSMutableDictionary *urlData_dic=nil;
                     
-                    //ensure thread has finished
-                    dispatch_semaphore_t semaphore=[sem_arr objectAtIndex:i-1];
-                    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //10s timeout
-                    semaphore=nil;
-                    //get NSData
-                    urlData=[urlData_dic objectForKey:[NSString stringWithFormat:@"data%d",i]];
-                    if (urlData) doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-                    else {
-                        doc=nil;
-                        NSLog(@"no data for page %d",i);
-                    }
+        //download all remaining pages if pages nb>1
+        if (pageNb>1) {
+            sem_arr=[[NSMutableArray alloc] initWithCapacity:pageNb-1];
+            urlData_dic=[[NSMutableDictionary alloc] initWithCapacity:pageNb-1];
+                                                            
+            for (int i=1;i<pageNb;i++) {
+                //build URL
+                NSMutableArray *tmparr=[[mWebBaseURL componentsSeparatedByString:@"="] mutableCopy];
+                [tmparr removeLastObject];
+                NSString *tmpstr=[tmparr componentsJoinedByString:@"="];
+                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@=%d",tmpstr,i*30]];
+                                                            
+                //build semaphore
+                dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+                [sem_arr addObject:semaphore];
+                                    
+                //prepare request
+                NSURLRequest *request = [NSURLRequest requestWithURL:url];
+                NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
+                    uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
                 }
-                                 
-                if (doc){
-                    NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/@href"];
-                    NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/small/text()"];
-                    NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@alt"];
-                    NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@src"];
-                    NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a[last()]/text()"];
-                    NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']//a[1]/text()"];
-                    NSArray *arr_chips=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='chips']/td"];
-                    NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//div[@class='rating']/div/@class"];
+                    downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+                }
+                    completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+                        if (error) {
+                            NSLog(@"Error: %@", error);
+                        } else {
+                            //urlData_pages=responseObject;
+                            [urlData_dic setObject:responseObject forKey:[NSString stringWithFormat:@"data%d",i]];
+                            //NSLog(@"%@ %@", response, responseObject);
+                        }
+                        dispatch_semaphore_signal(semaphore);
+                }];
+                [dataTask resume];
+            }
+        }
+        
+        for (int i=0;i<pageNb;i++) {
+            [self flushMainLoop];
+            [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
+            [self flushMainLoop];
+            
+            if (i>0) {
+                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i+1]];
+                //urlData = [NSData dataWithContentsOfURL:url];
+                
+                //ensure thread has finished
+                dispatch_semaphore_t semaphore=[sem_arr objectAtIndex:i-1];
+                dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //10s timeout
+                semaphore=nil;
+                //get NSData
+                urlData=[urlData_dic objectForKey:[NSString stringWithFormat:@"data%d",i]];
+                if (urlData) doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+                else {
+                    doc=nil;
+                    NSLog(@"no data for page %d",i);
+                }
+            }
+                             
+            if (doc){
+                NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/div[@id='contContainer']//a[contains(@href,'profile.php?profile=set')]"];
+                NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body/div[@id='contContainer']//img[(@alt='NTSC-J') or (@alt='NTSC') or (@alt='PAL') or (@alt='Beta') or (@alt='SatellaView') or(@alt='SGB') or (@alt='PublicDomain') or (@alt='Bios')]"];
+                
+                if (arr_url&&[arr_url count]) {
                     
-                    if (arr_url&&[arr_url count]) {
+                    for (int j=0;j<[arr_url count];j++) {
+                        TFHppleElement *el;
+                        bool skip_entry;
                         
-                        for (int j=0;j<[arr_url count];j++) {
-                            TFHppleElement *el=[arr_url objectAtIndex:j];
-                            we[we_index].file_URL=[NSString stringWithString:[el text]];
+                        skip_entry=false;
+                        el=[arr_details objectAtIndex:j];
+                        if (el) {
+                            we[we_index].file_details=[NSString stringWithString:[el objectForKey:@"alt"]];
+                            if ([we[we_index].file_details isEqualToString:@"Bios"]) skip_entry=true;
+                        }
+                        if (!skip_entry) {
+                            el=[arr_url objectAtIndex:j];
+                            we[we_index].file_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"href"]];
+                            we[we_index].file_name=[NSString stringWithFormat:@"%@",[el text]];
+                            we[we_index].file_type=2;
                             
-                            el=[arr_img objectAtIndex:j];
-                            we[we_index].file_img_URL=[NSString stringWithString:[el text]];
-                            
-                            el=[arr_name objectAtIndex:j];
-                            we[we_index].file_name=[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
-                            
-                            el=[arr_details objectAtIndex:j];
-                            we[we_index].file_details=[NSString stringWithString:[el raw]];
-                            
-                            el=[arr_companies objectAtIndex:j];
-                            we[we_index].file_company=[NSString stringWithString:[el raw]];
-                            
-                            el=[arr_systems objectAtIndex:j];
-                            we[we_index].file_systems=[NSString stringWithString:[el raw]];
-                            
-                            el=[arr_chips objectAtIndex:j];
-                            NSString *chipset=nil;
-                            if ([el hasChildren]) {
-                                NSArray *el_ar=[el childrenWithTagName:@"a"];
-                                for (int ii=0;ii<[el_ar count];ii++) {
-                                    TFHppleElement *ela=[el_ar objectAtIndex:ii];
-                                    if (chipset) chipset=[NSString stringWithFormat:@"%@-%@",chipset,[ela text]];
-                                    else chipset=[NSString stringWithFormat:@"%@",[ela text]];
-                                }
-                            }
-                            we[we_index].file_chipsets=[NSString stringWithFormat:@"%@",chipset];
-                                                        
-                            el=[arr_rating objectAtIndex:j];
-                            NSString *rating=[[[el text] stringByReplacingOccurrencesOfString:@"stars" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
-                            we[we_index].file_rating=[rating floatValue]/10;
-                            
-                            we[we_index].file_type=1;
-                            
+                            we[we_index].file_rating=0;
+                                            
                             [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
                             
                             we_index++;
@@ -740,265 +866,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     }
                 }
             }
-            
-            if (urlData_dic) urlData_dic=nil;
-            if (sem_arr) sem_arr=nil;
-            
-        } else we=NULL;
-    } else if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/companies"]) {
-        ///////////////////////////////////////////////////////////////////////:
-        // Companies
-        ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_tr=[doc searchWithXPathQuery:@"/html/body//table//tr[position()>1]"];
-        
-        if (arr_tr&&[arr_tr count]) {
-            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_tr count]);
-            int we_index=0;
-            for (int j=0;j<[arr_tr count];j++) {
-                TFHppleElement *el=[arr_tr objectAtIndex:j];
-                //NSLog(@"%@",[el raw]);
-                if ([el hasChildren]) {
-                    NSArray *el_childs=[el childrenWithTagName:@"td"];
-                    for (int i=0;i<[el_childs count];i++) {
-                        TFHppleElement *elc=[el_childs objectAtIndex:i];
-                        
-                        if ([[elc objectForKey:@"class"] isEqualToString:@"link"]) {
-                            TFHppleElement *elc_a=[elc firstChildWithTagName:@"a"];
-                            //NSLog(@"found title: %@",[elc_a objectForKey:@"title"]);
-                            we[we_index].file_name=[NSString stringWithString:[elc_a objectForKey:@"title"]];
-                            elc_a=[elc firstChildWithTagName:@"div"];
-                            if (elc_a) {
-                                elc_a=[elc_a firstChildWithTagName:@"a"];
-                                if (elc_a) {
-                                    elc_a=[elc_a firstChildWithTagName:@"img"];
-                                    if (elc_a) {
-                                        //NSLog(@"found image: %@",[elc_a objectForKey:@"src"]);
-                                        we[we_index].file_img_URL=[NSString stringWithString:[elc_a objectForKey:@"src"]];
-                                    }
-                                }
-                            }
-                            //check in the 1st a tag for title & div then img for an image (optional)
-                        } else {
-                        TFHppleElement *elc_a=[elc firstChildWithTagName:@"span"];
-                            if (elc_a) {
-                                elc_a=[elc_a firstChildWithTagName:@"a"];
-                                if (elc_a && [elc_a objectForKey:@"href"] && ([[elc_a objectForKey:@"href"] rangeOfString:@"/developed"].location!=NSNotFound)) {
-                                    //NSLog(@"found link: %@",[elc_a objectForKey:@"href"]);
-                                    we[we_index].file_URL=[elc_a objectForKey:@"href"];
-                                    //NSLog(@"count: %@",[elc_a text]);
-                                    
-                                    if ([[elc_a text] isEqualToString:@"1"]) we[we_index].file_details=[NSString stringWithFormat:@"1 pack"];
-                                    else we[we_index].file_details=[NSString stringWithFormat:@"%@ packs",[elc_a text]];
-                                    we[we_index].entries_nb=[[elc_a text] intValue];
-                                                                        
-                                    we[we_index].file_type=0;
-                                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                                    
-                                    we_index++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else we=NULL;
-        
-    } else if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/systems"]) {
-        ///////////////////////////////////////////////////////////////////////:
-        // Systems
-        ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@class='system']//div[@class='name']//a"];
-        NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='system']//div[@class='pic']//a[child::img|child::div[@class='icon']]"];
-        NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='system']//div[@class='pic']//a//div[@class='overlay']/span/text()"];
-        
-        if (arr_url&&[arr_url count]) {
-            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-            for (int j=0;j<[arr_url count];j++) {
-                TFHppleElement *el=[arr_url objectAtIndex:j];
-                we[j].file_URL=[NSString stringWithString:[el objectForKey:@"href"]];
-                
-                we[j].file_name=[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
-                
-                el=[arr_details objectAtIndex:j];
-                we[j].file_details=[NSString stringWithString:[el raw]];
-                we[j].entries_nb=[[el raw] intValue];
-                
-                el=[[arr_img objectAtIndex:j] firstChildWithTagName:@"img"];
-                if (el) we[j].file_img_URL=[NSString stringWithString:[el objectForKey:@"src"]];
-                else we[j].file_img_URL=nil;
-                
-                we[j].file_company=nil;
-                
-                we[j].file_systems=nil;
-                
-                we[j].file_type=0;
-                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[j])]];
-            }
-        } else we=NULL;
-        
-    } else if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/chips"]) {
-        ///////////////////////////////////////////////////////////////////////:
-        // sound chips
-        ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@class='chip']//a[last()]"];
-        NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='chip']//img"];
-        NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='chip']//span/text()"];
-        
-        if (arr_url&&[arr_url count]) {
-            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-            for (int j=0;j<[arr_url count];j++) {
-                TFHppleElement *el=[arr_url objectAtIndex:j];
-                we[j].file_URL=[NSString stringWithString:[el objectForKey:@"href"]];
-                
-                we[j].file_name=[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
-                
-                el=[arr_details objectAtIndex:j];
-                if ([[el raw] isEqualToString:@"1"]) we[j].file_details=[NSString stringWithFormat:@"1 pack"];
-                else we[j].file_details=[NSString stringWithFormat:@"%@ packs",[el raw]];
-                we[j].entries_nb=[[el raw] intValue];
-                
-                el=[arr_img objectAtIndex:j];
-                if (el) we[j].file_img_URL=[NSString stringWithString:[el objectForKey:@"src"]];
-                else we[j].file_img_URL=nil;
-                
-                we[j].file_company=nil;
-                
-                we[j].file_systems=nil;
-                                
-                we[j].file_type=0;
-                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[j])]];
-            }
-        } else we=NULL;
-        
-    } else if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/composers"]) {
-        ///////////////////////////////////////////////////////////////////////:
-        // composers
-        ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//li[@class='composer']/a"];
-        NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//li[@class='composer']/a/text()[3]"];
-        NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//li[@class='composer']/a//span[@class='badge']/text()"];
-        
-        if (arr_url&&[arr_url count]) {
-            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-            for (int j=0;j<[arr_url count];j++) {
-                TFHppleElement *el=[arr_url objectAtIndex:j];
-                we[j].file_URL=[NSString stringWithString:[el objectForKey:@"href"]];
-                
-                el=[arr_name objectAtIndex:j];
-                we[j].file_name=[[[[[[el raw] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"\t" withString:@""] stringByReplacingOccurrencesOfString:@"&#13;" withString:@""];
-                
-                el=[arr_details objectAtIndex:j];
-                if ([[el raw] isEqualToString:@"1"]) we[j].file_details=[NSString stringWithFormat:@"1 pack"];
-                else we[j].file_details=[NSString stringWithFormat:@"%@ packs",[el raw]];
-                we[j].entries_nb=[[el raw] intValue];
-                
-                we[j].file_company=nil;
-                
-                we[j].file_systems=nil;
-                
-                we[j].file_type=0;
-                                                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[j])]];
-            }
-        } else we=NULL;
-        
-    } else if (([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/top"])||
-        ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/latest"])) {
-        ///////////////////////////////////////////////////////////////////////:
-        // Latest & Top entries
-        ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        
-        int pageNb=1; //top 20 to start
-        //NSLog(@"Page nb: %d",pageNb);
-        
-        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
-        int we_index=0;
-        for (int i=0;i<pageNb;i++) {
-            [self flushMainLoop];
-            [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
-            [self flushMainLoop];
-            
-            if (i>0) {
-                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i]];
-                urlData = [NSData dataWithContentsOfURL:url];
-                doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-            }
-            NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/@href"];
-            NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/small/text()"];
-            NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@alt"];
-            NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@src"];
-            NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a[last()]/text()"];
-            NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']//a[1]/text()"];
-            NSArray *arr_chips=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='chips']/td"];
-            NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//div[@class='rating']/div/@class"];
-            
-            if (arr_url&&[arr_url count]) {
-                
-                for (int j=0;j<[arr_url count];j++) {
-                    TFHppleElement *el=[arr_url objectAtIndex:j];
-                    we[we_index].file_URL=[NSString stringWithString:[el text]];
-                    
-                    el=[arr_img objectAtIndex:j];
-                    we[we_index].file_img_URL=[NSString stringWithString:[el text]];
-                    
-                    el=[arr_name objectAtIndex:j];
-                    we[we_index].file_name=[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
-                    
-                    el=[arr_details objectAtIndex:j];
-                    we[we_index].file_details=[NSString stringWithString:[el raw]];
-                    
-                    el=[arr_companies objectAtIndex:j];
-                    we[we_index].file_company=[NSString stringWithString:[el raw]];
-                    
-                    el=[arr_systems objectAtIndex:j];
-                    we[we_index].file_systems=[NSString stringWithString:[el raw]];
-                    
-                    el=[arr_chips objectAtIndex:j];
-                    NSString *chipset=nil;
-                    if ([el hasChildren]) {
-                        NSArray *el_ar=[el childrenWithTagName:@"a"];
-                        for (int ii=0;ii<[el_ar count];ii++) {
-                            TFHppleElement *ela=[el_ar objectAtIndex:ii];
-                            if (chipset) chipset=[NSString stringWithFormat:@"%@,%@",chipset,[ela text]];
-                            else chipset=[NSString stringWithFormat:@"%@",[ela text]];
-                        }
-                    }
-                    we[we_index].file_chipsets=[NSString stringWithFormat:@"%@",chipset];
-                    
-                    el=[arr_rating objectAtIndex:j];
-                    NSString *rating=[[[el text] stringByReplacingOccurrencesOfString:@"stars" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
-                    we[we_index].file_rating=[rating floatValue]/10;
-                    
-                    we[we_index].file_type=1;
-                    
-                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                    
-                    we_index++;
-                }
-            }
         }
+        if (urlData_dic) urlData_dic=nil;
+        if (sem_arr) sem_arr=nil;
     }
         
     if (indexTitleMode) {
@@ -1072,24 +942,36 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
-        if (wef->file_type==1) dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@.zip",wef->file_name];
+        if (wef->file_type) dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@.rsn",wef->file_name];
         else dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
                 
-        if (wef->file_type==1) dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithFormat:@"Documents/VGMRips/%@/%@/%@/%@.zip",wef->file_company,wef->file_chipsets,wef->file_systems,wef->file_name];
+        if (wef->file_type) dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[NSString stringWithFormat:@"Documents/SNESM/%@.rsn",wef->file_name];
         else dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
         if (wef->file_URL) dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wef->file_URL];
         
-        if (wef->file_img_URL && ([wef->file_img_URL characterAtIndex:[wef->file_img_URL length]-1]!='/') ) dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=[NSString stringWithString:wef->file_img_URL];
-                
+        //if (wef->file_img_URL && ([wef->file_img_URL characterAtIndex:[wef->file_img_URL length]-1]!='/') ) dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=[NSString stringWithString:wef->file_img_URL];
+        
+        
+                        
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=wef->file_type;
         dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
         if (wef->file_type) {
-            dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%.1f/5・%@・%@・%@・%@",wef->file_rating,wef->file_company,wef->file_systems,wef->file_chipsets, [wef->file_details stringByReplacingOccurrencesOfString:@"&#13;\n" withString:@""]];
+            dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[dbWEB_entries[index][dbWEB_entries_count[index]].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+            
+            if (![[NSFileManager defaultManager] fileExistsAtPath:dbWEB_entries[index][dbWEB_entries_count[index]].img_URL]) dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=nil;
+            
+            if (wef->file_rating) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%d/100",(int)(wef->file_rating)];
             dbWEB_entries[index][dbWEB_entries_count[index]].webRating=wef->file_rating;
+            
+            if (wef->file_details) {
+                if (dbWEB_entries[index][dbWEB_entries_count[index]].info) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@・%@",dbWEB_entries[index][dbWEB_entries_count[index]].info,wef->file_details];
+                else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%@",wef->file_details];
+            }
         }
         else {
-            dbWEB_entries[index][dbWEB_entries_count[index]].info=[wef->file_details stringByReplacingOccurrencesOfString:@"&#13;\n" withString:@""];
+            if (wef->entries_nb>1) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%d Packs",wef->entries_nb];
+            else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"1 Pack"];
             dbWEB_entries[index][dbWEB_entries_count[index]].entries_nb=wef->entries_nb;
         }
         
@@ -1164,7 +1046,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     
 }
 -(void) refreshViewAfterDownload {
-    if (childController) [(RootViewControllerVGMRWebParser*)childController refreshViewAfterDownload];
+    if (childController) [(RootViewControllerSNESMWebParser*)childController refreshViewAfterDownload];
     else {
         [self fillKeys];
         [tableView reloadData];
@@ -1289,9 +1171,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
     bool has_mini_img=(cur_db_entries[section][indexPath.row].img_URL?TRUE:FALSE);
-    
-    
-    
+            
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if ((cell == nil)||forceReloadCells) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
@@ -1487,11 +1367,14 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         actionView.enabled=YES;
         actionView.hidden=NO;
         
+        NSString *imgPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+        
         if (cur_db_entries[section][indexPath.row].img_URL) {
-            coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
-                                                           prefix:@"vgmrips_mini"
+            coverImgView.image=[UIImage imageWithContentsOfFile:cur_db_entries[section][indexPath.row].img_URL];
+            /*coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
+                                                           prefix:@"SNESM_mini"
                                                              size:CGSizeMake(34.0f, 34.0f)
-                                                   forUIImageView:coverImgView];
+                                                   forUIImageView:coverImgView];*/
             //coverImgView.contentMode=UIViewContentModeScaleAspectFit;
         }
     } else { // DIR
@@ -1512,10 +1395,11 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
         
         if (cur_db_entries[section][indexPath.row].img_URL) {
-            coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
-                                                           prefix:@"vgmrips_mini"
+            coverImgView.image=[UIImage imageWithContentsOfFile:cur_db_entries[section][indexPath.row].img_URL];
+            /*coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[section][indexPath.row].img_URL
+                                                           prefix:@"SNESM_mini"
                                                              size:CGSizeMake(34.0f, 34.0f)
-                                                   forUIImageView:coverImgView];
+                                                   forUIImageView:coverImgView];*/
             coverImgView.contentMode=UIViewContentModeScaleAspectFit;
         }
         
@@ -1670,9 +1554,17 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 
                 [tableView reloadData];
             } else {
-                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-
-                [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+                t_WEB_browse_entry web_entry;
+                if ([self getSNESMDetails:cur_db_entries[section][indexPath.row].URL fullpath:cur_db_entries[section][indexPath.row].fullpath web_entry:&web_entry]) {
+                    
+                    [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                    
+                    cur_db_entries[section][indexPath.row].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+                    
+                    [downloadViewController addURLToDownloadList:web_entry.URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+                } else {
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file available for this entry",@"")];
+                }
                                 
             }
         }
@@ -1708,9 +1600,17 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             cur_db_entries[section][indexPath.row].rating=-1;
             [tableView reloadData];
         } else {
-            [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+            t_WEB_browse_entry web_entry;
+            if ([self getSNESMDetails:cur_db_entries[section][indexPath.row].URL fullpath:cur_db_entries[section][indexPath.row].fullpath web_entry:&web_entry]) {
+            
+                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
 
-            [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+                cur_db_entries[section][indexPath.row].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+
+                [downloadViewController addURLToDownloadList:web_entry.URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+            } else {
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file available for this entry",@"")];
+            }
         }
     }
     [self hideWaiting];
@@ -1757,21 +1657,27 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 }
             }
         } else {
-            [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+            t_WEB_browse_entry web_entry;
+            if ([self getSNESMDetails:cur_db_entries[section][indexPath.row].URL fullpath:cur_db_entries[section][indexPath.row].fullpath web_entry:&web_entry]) {
+                
+                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
 
-            
-            [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-            
+                cur_db_entries[section][indexPath.row].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+                
+                [downloadViewController addURLToDownloadList:web_entry.URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+            } else {
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file available for this entry",@"")];
+            }
         }
     } else {
-        childController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        childController = [[RootViewControllerSNESMWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
         //set new title
         childController.title = cur_db_entries[section][indexPath.row].fullpath;
         // Set new directory
-        ((RootViewControllerVGMRWebParser*)childController)->browse_depth = browse_depth+1;
-        ((RootViewControllerVGMRWebParser*)childController)->detailViewController=detailViewController;
-        ((RootViewControllerVGMRWebParser*)childController)->downloadViewController=downloadViewController;
-        ((RootViewControllerVGMRWebParser*)childController)->mWebBaseURL=cur_db_entries[section][indexPath.row].URL;
+        ((RootViewControllerSNESMWebParser*)childController)->browse_depth = browse_depth+1;
+        ((RootViewControllerSNESMWebParser*)childController)->detailViewController=detailViewController;
+        ((RootViewControllerSNESMWebParser*)childController)->downloadViewController=downloadViewController;
+        ((RootViewControllerSNESMWebParser*)childController)->mWebBaseURL=cur_db_entries[section][indexPath.row].URL;
         
         childController.view.frame=self.view.frame;
         // And push the window

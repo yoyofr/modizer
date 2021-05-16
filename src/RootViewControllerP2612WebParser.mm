@@ -41,6 +41,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
+enum {
+    BROWSE_DEFAULT=0,
+    BROWSE_COMPOSERS,
+    BROWSE_SYSTEMS
+};
+
 
 @implementation RootViewControllerP2612WebParser
 
@@ -217,6 +223,13 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     //set default sort mode
     if ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?sort=rating"]) sort_mode=1;
     
+    
+    browse_mode=BROWSE_DEFAULT;
+    if ([self.title isEqualToString:@"Composers"]) {
+        browse_mode=BROWSE_COMPOSERS;
+    } else if ([self.title isEqualToString:@"Systems"]) {
+        browse_mode=BROWSE_SYSTEMS;
+    }
     
     self.navigationController.delegate = self;
             
@@ -438,7 +451,8 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
         {@"All",@"https://project2612.org/list.php?page=all"},
-        {@"Top Packs",@"https://project2612.org/list.php?sort=rating"}
+        {@"Top Packs",@"https://project2612.org/list.php?sort=rating"},
+        {@"Composers",@"https://project2612.org/list.php?page=all"}
     };
 
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
@@ -488,7 +502,7 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         
         dbWEB_entries[index][dbWEB_entries_count[index]].label=[[NSString alloc] initWithFormat:@"%@",wentry->category];
                 
-        dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@",wentry->category];//@"P2612ips";
+        dbWEB_entries[index][dbWEB_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@",wentry->category];
                 
         dbWEB_entries[index][dbWEB_entries_count[index]].URL=[NSString stringWithString:wentry->url];
                                 
@@ -574,8 +588,66 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we=NULL;
           
-    if ( ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?page=all"]) ||
-         ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?sort=rating"]) ) {
+    if (browse_mode==BROWSE_COMPOSERS) {
+        ///////////////////////////////////////////////////////////////////////:
+        // P2612 All
+        ///////////////////////////////////////////////////////////////////////:
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        urlData = [NSData dataWithContentsOfURL:url];
+        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+            
+        NSArray *arr_url_dirty=[doc searchWithXPathQuery:@"/html/body//tr/td/a[contains(@href,'field=composer') and not(contains(@href,'%E'))]"];
+        NSMutableArray *arr_url=[[NSMutableArray alloc] init];
+        NSMutableArray *arr_name=[[NSMutableArray alloc] init];
+        NSMutableDictionary *dic_entries=[[NSMutableDictionary alloc] init];
+        for (int i=0;i<[arr_url_dirty count];i++) {
+            TFHppleElement *el=[arr_url_dirty objectAtIndex:i];
+            NSString *url=[el objectForKey:@"href"];
+            //NSLog(@"url: %@",url);
+            NSString *name=[el text];
+            //NSLog(@"name: %@",name);
+            if (name==nil) {
+                //NSLog(@"yo");
+            } else {
+                if (![arr_name containsObject:name]) {
+                    [arr_name addObject:name];
+                    [arr_url addObject:url];
+                    [dic_entries setValue:@1 forKey:name];
+                } else {
+                    int nb_entries=[[dic_entries valueForKey:name] intValue];
+                    nb_entries++;
+                    [dic_entries setValue:[NSNumber numberWithInt:nb_entries] forKey:name];
+                }
+            }
+        }
+        
+        /*NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][1]"];
+        NSArray *arr_size=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][2]"];
+        NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][3]"];*/
+        
+        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
+        int we_index=0;
+                
+        if (arr_url&&[arr_url count]) {
+            
+            for (int j=0;j<[arr_url count];j++) {
+                we[we_index].file_URL=[NSString stringWithFormat:@"https://project2612.org/%@",[arr_url objectAtIndex:j]];
+                                                          
+                //el=[arr_url objectAtIndex:j];
+                we[we_index].file_name=[NSString stringWithString:[arr_name objectAtIndex:j]];
+                
+                we[we_index].file_type=0;
+                
+                we[we_index].entries_nb=[[dic_entries valueForKey:we[we_index].file_name] intValue];
+                
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                
+                we_index++;
+            }
+        }
+    } else if ( ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?page=all"]) ||
+         ([mWebBaseURL isEqualToString:@"https://project2612.org/list.php?sort=rating"]) ||
+         ([mWebBaseURL containsString:@"https://project2612.org/search.php?query="]) ) {
         ///////////////////////////////////////////////////////////////////////:
         // P2612 All
         ///////////////////////////////////////////////////////////////////////:
@@ -604,8 +676,8 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
                 we[we_index].file_img_URL=[NSString stringWithFormat:@"https://project2612.org/thumb.php?%d",entry_id];
                 
                 //el=[arr_url objectAtIndex:j];
-                we[we_index].file_name=[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
-                we[we_index].file_details=[NSString stringWithString:[el objectForKey:@"title"]];
+                we[we_index].file_name=[[[[el text] stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                if ([el objectForKey:@"title"]) we[we_index].file_details=[NSString stringWithString:[el objectForKey:@"title"]];
                 we[we_index].file_type=1;
                 
                 el=[arr_rating objectAtIndex:j];
@@ -712,7 +784,8 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
             dbWEB_entries[index][dbWEB_entries_count[index]].webRating=wef->file_rating;
         }
         else {
-            dbWEB_entries[index][dbWEB_entries_count[index]].info=nil;
+            if (wef->entries_nb>1) dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"%d Packs",wef->entries_nb];
+            else dbWEB_entries[index][dbWEB_entries_count[index]].info=[NSString stringWithFormat:@"1 Pack"];
             dbWEB_entries[index][dbWEB_entries_count[index]].entries_nb=wef->entries_nb;
         }
         
@@ -1121,9 +1194,9 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
                                        tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
                                        18);
         if (cur_db_entries[section][indexPath.row].info) {
-            bottomLabel.text=[NSString stringWithFormat:@"%@・%@",cur_db_entries[section][indexPath.row].info,(cur_db_entries[section][indexPath.row].URL?cur_db_entries[section][indexPath.row].URL:@"")];
+            bottomLabel.text=[NSString stringWithFormat:@"%@",cur_db_entries[section][indexPath.row].info];
         } else {
-            bottomLabel.text=[NSString stringWithString:(cur_db_entries[section][indexPath.row].URL?cur_db_entries[section][indexPath.row].URL:@"")];
+            bottomLabel.text=nil;
         }
         topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                    0,
