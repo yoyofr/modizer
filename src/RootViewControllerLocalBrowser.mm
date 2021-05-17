@@ -67,8 +67,9 @@ extern "C" {
 #include "common/md5.h"
 }
 
-static char *browser_stil_info;//[MAX_STIL_DATA_LENGTH];
+
 static char browser_song_md5[33];
+static char *browser_stil_info;//[MAX_STIL_DATA_LENGTH];
 static char **browser_sidtune_title,**browser_sidtune_name;
 
 #include "MiniPlayerImplementTableView.h"
@@ -514,9 +515,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         }
     }
     
-    
-    browser_stil_info=(char*)malloc(MAX_STIL_DATA_LENGTH);
-    
     mFileMngr=[[NSFileManager alloc] init];
     
     mShowSubdir=0;
@@ -730,7 +728,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     browser_sidtune_title=(char**)calloc(subsongs_nb,sizeof(char*));
     
-    NSLog(@"stil info:\n%s\n",browser_stil_info);
+    //NSLog(@"stil info:\n%s\n",browser_stil_info);
     
     while (browser_stil_info[idx]) {
         if ((browser_stil_info[idx]=='(')&&(browser_stil_info[idx+1]=='#')) {
@@ -877,13 +875,22 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
     NSRange r;
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     search_local=0;
+    
+    if (search_local_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_local_entries_count[i];j++) {
+                search_local_entries[i][j].label=nil;
+                search_local_entries[i][j].fullpath=nil;
+            }
+            search_local_entries[i]=NULL;
+        }        
+        search_local_nb_entries=0;
+        free(search_local_entries_data);
+    }
+    
     if (mSearch) {
         search_local=1;
         
-        if (search_local_nb_entries) {
-            search_local_nb_entries=0;
-            free(search_local_entries_data);
-        }
         search_local_entries_data=(t_local_browse_entry*)calloc(local_nb_entries,sizeof(t_local_browse_entry));
         
         for (int i=0;i<27;i++) {
@@ -952,6 +959,13 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
         for (int i=0;i<local_nb_entries;i++) {
             local_entries_data[i].label=nil;
             local_entries_data[i].fullpath=nil;
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<local_entries_count[i];j++) {
+                local_entries[i][j].label=nil;
+                local_entries[i][j].fullpath=nil;
+            }
+            local_entries[i]=NULL;
         }
         free(local_entries_data);local_entries_data=NULL;
         local_nb_entries=0;
@@ -1032,10 +1046,11 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
             
             
             //Get STIL info
-            browser_stil_info[0]=0;
+            browser_stil_info=(char*)calloc(1,MAX_STIL_DATA_LENGTH);            
             [self getStilInfo:(char*)[cpath UTF8String]];
             
             [self sid_parseStilInfo:sidtune_info->songs()];
+            mdz_safe_free(browser_stil_info)
             
             for (int i=0;i<sidtune_info->songs();i++){
                 const SidTuneInfo *s_info;
@@ -1500,12 +1515,12 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                             if (found)  {
                                 const char *str;
                                 char tmp_str[1024];//,*tmp_convstr;
-                                int toto=0;
+                                int other_encoding=0;
                                 str=[[file lastPathComponent] UTF8String];
                                 if ([extension caseInsensitiveCompare:@"mdx"]==NSOrderedSame ) {
                                     [[file lastPathComponent] getFileSystemRepresentation:tmp_str maxLength:1024];
                                     //tmp_convstr=mdx_make_sjis_to_syscharset(tmp_str);
-                                    toto=1;
+                                    other_encoding=1;
                                 }
                                 int index=0;
                                 if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -1515,7 +1530,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 if ([archivetype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
                                 else if ([archivetype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
                                 //check if Multisongs file
-                                if (toto) {
+                                if (other_encoding) {
                                     local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
                                     //	free(tmp_convstr);
                                 } else local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
@@ -1767,12 +1782,12 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                 if (found)  {
                                     const char *str;
                                     char tmp_str[1024];//,*tmp_convstr;
-                                    int toto=0;
+                                    int other_encoding=0;
                                     str=[[file lastPathComponent] UTF8String];
                                     if ([extension caseInsensitiveCompare:@"mdx"]==NSOrderedSame ) {
                                         [[file lastPathComponent] getFileSystemRepresentation:tmp_str maxLength:1024];
                                         //tmp_convstr=mdx_make_sjis_to_syscharset(tmp_str);
-                                        toto=1;
+                                        other_encoding=1;
                                     }
                                     int index=0;
                                     if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -1784,10 +1799,10 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                                     //check if Multisongs file
                                     else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
                                     else if ([all_multisongstype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=3;
-                                    if (toto) {
-                                        local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
+                                    if (other_encoding) {
+                                        local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
                                         //	free(tmp_convstr);
-                                    } else local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
+                                    } else local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithString:[file lastPathComponent]];
                                     
                                     local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
                                     
@@ -2053,6 +2068,7 @@ static int shouldRestart=1;
 #pragma mark - Table view data source
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 0;
     if (mSearch) return 0;
     
     if (section==0) return 0;
@@ -2064,6 +2080,7 @@ static int shouldRestart=1;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    return nil;
     NSString *lbl=nil;
     
     if (mSearch) lbl=nil;
@@ -3716,9 +3733,26 @@ static int shouldRestart=1;
             local_entries_data[i].label=nil;
             local_entries_data[i].fullpath=nil;
         }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<local_entries_count[i];j++) {
+                local_entries[i][j].label=nil;
+                local_entries[i][j].fullpath=nil;
+            }
+            local_entries[i]=NULL;
+        }
         free(local_entries_data);
     }
     if (search_local_nb_entries) {
+        
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_local_entries_count[i];j++) {
+                search_local_entries[i][j].label=nil;
+                search_local_entries[i][j].fullpath=nil;
+            }
+            search_local_entries[i]=NULL;
+        }
+        
+        search_local_nb_entries=0;
         free(search_local_entries_data);
     }
     
@@ -3736,9 +3770,7 @@ static int shouldRestart=1;
         //[mFileMngr release];
         mFileMngr=nil;
     }
-    
-    if (browser_stil_info) free(browser_stil_info);
-    browser_stil_info=nil;
+        
     //[super dealloc];
 }
 

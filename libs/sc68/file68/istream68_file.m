@@ -87,6 +87,7 @@ static int isf_close(istream_t * istream)
     //[isf->fileHandle release];
     isf->fileHandle = nil;
   }
+  if (isf->name) isf->name=nil;
   return 0;
 }
 
@@ -203,7 +204,7 @@ istream_t * istream_file_create(const char * fname, int mode)
     return 0;
   }
 
-	isf->name = [[NSString alloc] initWithCString:fname encoding:NSUTF8StringEncoding];
+  isf->name = [[NSString alloc] initWithCString:fname encoding:NSUTF8StringEncoding];
 
   /* Copy istream functions. */
   memcpy(&isf->istream, &istream_file, sizeof(istream_file));

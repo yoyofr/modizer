@@ -167,7 +167,7 @@ void RenderUtils::DrawOscilloMultiple(signed char *snd_data,int num_voices,uint 
         min_gap=bufflen*256;
         //reset start offset / previous frame
         old_ofs=snd_data_ofs[j]<<10;
-        //start at 1/4 before previous one to help tuning
+        
         ofs=((snd_data_ofs[j])&(SOUND_BUFFER_SIZE_SAMPLE-1))<<10;
         for (int l=0;l<bufflen;l++) {
             // start analyzing

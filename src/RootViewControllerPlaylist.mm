@@ -2155,6 +2155,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
 #pragma mark Table view data source
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return nil;
     if (mSearch) return nil;
     if (show_playlist) return nil;
     if ((browse_depth>=2)&&(show_playlist==0)) {

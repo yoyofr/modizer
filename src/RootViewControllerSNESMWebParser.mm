@@ -407,6 +407,16 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         search_dbWEB=1;
         
         if (search_dbWEB_nb_entries) {
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                    search_dbWEB_entries[i][j].label=nil;
+                    search_dbWEB_entries[i][j].fullpath=nil;
+                    search_dbWEB_entries[i][j].URL=nil;
+                    search_dbWEB_entries[i][j].info=nil;
+                    search_dbWEB_entries[i][j].img_URL=nil;
+                }
+                search_dbWEB_entries[i]=NULL;
+            }
             search_dbWEB_nb_entries=0;
             free(search_dbWEB_entries_data);
         }
@@ -566,6 +576,8 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     [dataTask resume];
     
+    [manager invalidateSessionCancelingTasks:NO resetSession:NO];
+    
     return true;
 }
 
@@ -581,6 +593,16 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         search_dbWEB=1;
         
         if (search_dbWEB_nb_entries) {
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                    search_dbWEB_entries[i][j].label=nil;
+                    search_dbWEB_entries[i][j].fullpath=nil;
+                    search_dbWEB_entries[i][j].URL=nil;
+                    search_dbWEB_entries[i][j].info=nil;
+                    search_dbWEB_entries[i][j].img_URL=nil;
+                }
+                search_dbWEB_entries[i]=NULL;
+            }
             search_dbWEB_nb_entries=0;
             free(search_dbWEB_entries_data);
         }
@@ -867,8 +889,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                 }
             }
         }
-        if (urlData_dic) urlData_dic=nil;
-        if (sem_arr) sem_arr=nil;
+        [manager invalidateSessionCancelingTasks:NO resetSession:NO];
     }
         
     if (indexTitleMode) {
@@ -979,6 +1000,16 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         dbWEB_entries[index][dbWEB_entries_count[index]].playcount=-1;
         dbWEB_entries_count[index]++;
         dbWEB_entries_index++;
+    }
+    
+    for (int i=0;i<dbWEB_nb_entries;i++) {
+        we[i].file_URL=nil;
+        we[i].file_img_URL=nil;
+        we[i].file_name=nil;
+        we[i].file_details=nil;
+        we[i].file_company=nil;
+        we[i].file_chipsets=nil;
+        we[i].file_systems=nil;
     }
     
     mdz_safe_free(we);    
@@ -1760,6 +1791,17 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         free(dbWEB_entries_data);
     }
     if (search_dbWEB_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                search_dbWEB_entries[i][j].label=nil;
+                search_dbWEB_entries[i][j].fullpath=nil;
+                search_dbWEB_entries[i][j].URL=nil;
+                search_dbWEB_entries[i][j].info=nil;
+                search_dbWEB_entries[i][j].img_URL=nil;
+            }
+            search_dbWEB_entries[i]=NULL;
+        }
+        search_dbWEB_nb_entries=0;
         free(search_dbWEB_entries_data);
     }
     

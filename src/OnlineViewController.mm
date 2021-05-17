@@ -22,12 +22,11 @@ enum {
 //#define NB_HVSC_ENTRIES 43856
 //#define NB_ASMA_ENTRIES 4630
 
-#define WEBLINKS_VGM_NB 8
+#define WEBLINKS_VGM_NB 7
 #define WEBLINKS_MODS_NB 6
 #define WEBLINKS_Others_NB 2
 NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
     //VGM & assimilated
-    {@"http://snesmusic.org/v2/",@"SNES Music"},
     {@"http://snesmusic.org/pmh/",@"Portable Music History"},
     {@"http://snesmusic.org/cmh/",@"Console Music History"},
     {@"https://www.smspower.org/",@"Sega Master System"},

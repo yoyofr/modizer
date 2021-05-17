@@ -1882,6 +1882,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #pragma mark Table view data source
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    return nil;
     if (browse_depth==0) return nil;
     if (mSearch) return nil;	
         if (browse_depth==1) return nil; //Modland browse mode chooser

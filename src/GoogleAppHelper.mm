@@ -80,7 +80,7 @@
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"Error: %@", error);
     }];
-    
+    [manager invalidateSessionCancelingTasks:NO resetSession:NO];
     
 }
 

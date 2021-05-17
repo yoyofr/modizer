@@ -288,6 +288,16 @@ extern pthread_mutex_t db_mutex;
         search_dbWEB=1;
         
         if (search_dbWEB_nb_entries) {
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                    search_dbWEB_entries[i][j].label=nil;
+                    search_dbWEB_entries[i][j].fullpath=nil;
+                    search_dbWEB_entries[i][j].URL=nil;
+                    search_dbWEB_entries[i][j].info=nil;
+                    search_dbWEB_entries[i][j].img_URL=nil;
+                }
+                search_dbWEB_entries[i]=NULL;
+            }
             search_dbWEB_nb_entries=0;
             free(search_dbWEB_entries_data);
         }
@@ -404,6 +414,16 @@ extern pthread_mutex_t db_mutex;
         search_dbWEB=1;
         
         if (search_dbWEB_nb_entries) {
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                    search_dbWEB_entries[i][j].label=nil;
+                    search_dbWEB_entries[i][j].fullpath=nil;
+                    search_dbWEB_entries[i][j].URL=nil;
+                    search_dbWEB_entries[i][j].info=nil;
+                    search_dbWEB_entries[i][j].img_URL=nil;
+                }
+                search_dbWEB_entries[i]=NULL;
+            }
             search_dbWEB_nb_entries=0;
             free(search_dbWEB_entries_data);
         }
@@ -567,6 +587,16 @@ extern pthread_mutex_t db_mutex;
         search_dbWEB=1;
         
         if (search_dbWEB_nb_entries) {
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                    search_dbWEB_entries[i][j].label=nil;
+                    search_dbWEB_entries[i][j].fullpath=nil;
+                    search_dbWEB_entries[i][j].URL=nil;
+                    search_dbWEB_entries[i][j].info=nil;
+                    search_dbWEB_entries[i][j].img_URL=nil;
+                }
+                search_dbWEB_entries[i]=NULL;
+            }
             search_dbWEB_nb_entries=0;
             free(search_dbWEB_entries_data);
         }
@@ -618,7 +648,9 @@ extern pthread_mutex_t db_mutex;
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we[27];
+    int we_nb[27];
     for (int i=0;i<27;i++) {
+        we_nb[i]=0;
         [self updateWaitingDetail:[NSString stringWithFormat:@"%d/27",i+1]];
         [self flushMainLoop];
         
@@ -631,6 +663,7 @@ extern pthread_mutex_t db_mutex;
         NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/@href"];
         NSArray *arr_text=[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/following-sibling::text()[1]"];
         if (arr_url&&[arr_url count]) {
+            we_nb[i]=[arr_url count];
             we[i]=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
             for (int j=0;j<[arr_url count];j++) {
                 TFHppleElement *e_url=[arr_url objectAtIndex:j];
@@ -708,6 +741,10 @@ extern pthread_mutex_t db_mutex;
     }
     
     for (int i=0;i<27;i++) {
+        for (int j=0;j<we_nb[i];j++) {
+            we[i][j].file_URL=nil;
+            we[i][j].file_size=nil;
+        }
         mdz_safe_free(we[i]);
     }
 }
@@ -1424,6 +1461,17 @@ extern pthread_mutex_t db_mutex;
         free(dbWEB_entries_data);
     }
     if (search_dbWEB_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                search_dbWEB_entries[i][j].label=nil;
+                search_dbWEB_entries[i][j].fullpath=nil;
+                search_dbWEB_entries[i][j].URL=nil;
+                search_dbWEB_entries[i][j].info=nil;
+                search_dbWEB_entries[i][j].img_URL=nil;
+            }
+            search_dbWEB_entries[i]=NULL;
+        }
+        search_dbWEB_nb_entries=0;
         free(search_dbWEB_entries_data);
     }
     

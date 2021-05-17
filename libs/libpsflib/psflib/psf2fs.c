@@ -56,6 +56,7 @@ static void dir_cleanup_free(struct DIR_ENTRY *dir) {
   while(dir) {
     struct DIR_ENTRY *next = dir->next;
     if(dir->subdir) dir_cleanup_free(dir->subdir);
+    if (dir->offset_table) free(dir->offset_table);
     free( dir );
     dir = next;
   }
