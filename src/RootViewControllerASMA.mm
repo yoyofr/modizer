@@ -320,15 +320,28 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     NSRange r;
     
+    if (search_dbASMA_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbASMA_entries_count[i];j++) {
+                search_dbASMA_entries[i][j].label=nil;
+                search_dbASMA_entries[i][j].fullpath=nil;
+                search_dbASMA_entries[i][j].id_md5=nil;
+                search_dbASMA_entries[i][j].dir1=nil;
+                search_dbASMA_entries[i][j].dir2=nil;
+                search_dbASMA_entries[i][j].dir3=nil;                
+            }
+            search_dbASMA_entries[i]=NULL;
+        }
+        search_dbASMA_nb_entries=0;
+        free(search_dbASMA_entries_data);
+    }
+    
+    
     dbASMA_hasFiles=search_dbASMA_hasFiles=0;
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbASMA=1;
         
-        if (search_dbASMA_nb_entries) {
-            search_dbASMA_nb_entries=0;
-            free(search_dbASMA_entries_data);
-        }
         search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
         
         for (int i=0;i<27;i++) {
@@ -443,14 +456,26 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int index,previndex;
     
     NSRange r;
+    
+    if (search_dbASMA_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbASMA_entries_count[i];j++) {
+                search_dbASMA_entries[i][j].label=nil;
+                search_dbASMA_entries[i][j].fullpath=nil;
+                search_dbASMA_entries[i][j].id_md5=nil;
+                search_dbASMA_entries[i][j].dir1=nil;
+                search_dbASMA_entries[i][j].dir2=nil;
+                search_dbASMA_entries[i][j].dir3=nil;
+            }
+            search_dbASMA_entries[i]=NULL;
+        }
+        search_dbASMA_nb_entries=0;
+        free(search_dbASMA_entries_data);
+    }
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbASMA=1;
         
-        if (search_dbASMA_nb_entries) {
-            search_dbASMA_nb_entries=0;
-            free(search_dbASMA_entries_data);
-        }
         search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
         
         search_dbASMA_hasFiles=0;
@@ -585,14 +610,26 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int index,previndex;
     
     NSRange r;
+    
+    if (search_dbASMA_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbASMA_entries_count[i];j++) {
+                search_dbASMA_entries[i][j].label=nil;
+                search_dbASMA_entries[i][j].fullpath=nil;
+                search_dbASMA_entries[i][j].id_md5=nil;
+                search_dbASMA_entries[i][j].dir1=nil;
+                search_dbASMA_entries[i][j].dir2=nil;
+                search_dbASMA_entries[i][j].dir3=nil;
+            }
+            search_dbASMA_entries[i]=NULL;
+        }
+        search_dbASMA_nb_entries=0;
+        free(search_dbASMA_entries_data);
+    }
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbASMA=1;
         
-        if (search_dbASMA_nb_entries) {
-            search_dbASMA_nb_entries=0;
-            free(search_dbASMA_entries_data);
-        }
         search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
         search_dbASMA_hasFiles=0;
         for (int i=0;i<27;i++) {
@@ -729,14 +766,26 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int index,previndex;
     
     NSRange r;
+    
+    if (search_dbASMA_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbASMA_entries_count[i];j++) {
+                search_dbASMA_entries[i][j].label=nil;
+                search_dbASMA_entries[i][j].fullpath=nil;
+                search_dbASMA_entries[i][j].id_md5=nil;
+                search_dbASMA_entries[i][j].dir1=nil;
+                search_dbASMA_entries[i][j].dir2=nil;
+                search_dbASMA_entries[i][j].dir3=nil;
+            }
+            search_dbASMA_entries[i]=NULL;
+        }
+        search_dbASMA_nb_entries=0;
+        free(search_dbASMA_entries_data);
+    }
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbASMA=1;
         
-        if (search_dbASMA_nb_entries) {
-            search_dbASMA_nb_entries=0;
-            free(search_dbASMA_entries_data);
-        }
         search_dbASMA_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbASMA_nb_entries*sizeof(t_dbHVSC_browse_entry));
         search_dbASMA_hasFiles=0;
         for (int i=0;i<27;i++) {
@@ -1987,6 +2036,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
         free(dbASMA_entries_data);
     }
     if (search_dbASMA_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbASMA_entries_count[i];j++) {
+                search_dbASMA_entries[i][j].label=nil;
+                search_dbASMA_entries[i][j].fullpath=nil;
+                search_dbASMA_entries[i][j].id_md5=nil;
+                search_dbASMA_entries[i][j].dir1=nil;
+                search_dbASMA_entries[i][j].dir2=nil;
+                search_dbASMA_entries[i][j].dir3=nil;
+            }
+            search_dbASMA_entries[i]=NULL;
+        }
+        search_dbASMA_nb_entries=0;
         free(search_dbASMA_entries_data);
     }
     

@@ -47,7 +47,7 @@
     waitingView.hidden=FALSE;
 }
 -(void) hideWaiting{
-    waitingView.hidden=TRUE;
+    waitingView.hidden=TRUE;    
 }
 -(bool) isCancelPending {
     return [waitingView isCancelPending];

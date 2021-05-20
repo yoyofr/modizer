@@ -88,8 +88,6 @@ extern "C" signed char *m_voice_buff_ana_cpy[SOUND_BUFFER_NB];
 
 static RootViewControllerPlaylist *nowplayingPL;
 
-static t_playlist* temp_playlist;
-
 extern volatile t_settings settings[MAX_SETTINGS];
 
 extern int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
@@ -329,9 +327,9 @@ static int display_length_mode=0;
 
 -(void)didSelectRowInAlertArcController:(NSInteger)row {
     [mplayer selectArcEntry:(int)row];
-    [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-    [self showWaiting];
-    [self flushMainLoop];
+    
+    [self showWaitingLoading];
+    
     [self play_loadArchiveModule];
     [self hideWaiting];
     
@@ -1268,9 +1266,9 @@ static float movePinchScale,movePinchScaleOld;
 		else {
             if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)&&([mplayer getArcIndex]<[mplayer getArcEntriesCnt]-1)&&(mOnlyCurrentEntry==0)) {
                 [mplayer selectNextArcEntry];
-                [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-                [self showWaiting];
-                [self flushMainLoop];
+                
+                [self showWaitingLoading];
+                
                 [self play_loadArchiveModule];
                 [self hideWaiting];
             } else [self play_nextEntry];
@@ -1384,9 +1382,9 @@ static float movePinchScale,movePinchScaleOld;
 		
 	}
 	
-	if (updMPNowCnt==0) {
+	if (updMPNowCnt==0) {  // call 1/5 => 1/s
         [self updMediaCenter];
-        updMPNowCnt=10;
+        updMPNowCnt=5;
     } else updMPNowCnt--;
 	return;
 }
@@ -1415,9 +1413,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 
 
 - (IBAction)showPlaylist {
-    
-    temp_playlist=(t_playlist*)malloc(sizeof(t_playlist));
-    memset(temp_playlist,0,sizeof(t_playlist));
+    t_playlist* temp_playlist;
+    temp_playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
     
     if (mPlaylist_size) { //display current queue
         for (int i=0;i<mPlaylist_size;i++) {
@@ -1440,17 +1437,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         ((RootViewControllerPlaylist*)nowplayingPL)->browse_depth = 1;
         ((RootViewControllerPlaylist*)nowplayingPL)->detailViewController=self;
         ((RootViewControllerPlaylist*)nowplayingPL)->playlist=temp_playlist;
-        ((RootViewControllerPlaylist*)nowplayingPL)->mFreePlaylist=1;
         ((RootViewControllerPlaylist*)nowplayingPL)->mDetailPlayerMode=1;
         ((RootViewControllerPlaylist*)nowplayingPL)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
         ((RootViewControllerPlaylist*)nowplayingPL)->currentPlayedEntry=mPlaylist_pos+1;
         
         // And push the window
-        [self.navigationController pushViewController:nowplayingPL animated:YES];
-        
-/*        NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
-        [((RootViewControllerPlaylist*)childController)->tableView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos+1] animated:TRUE scrollPosition:UITableViewScrollPositionMiddle];*/
-        
+        [self.navigationController pushViewController:nowplayingPL animated:YES];        
     }
     
 }
@@ -1577,9 +1569,9 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         if ([mplayer isArchive]&&(mplayer.mod_subsongs<=1)) {
             [mplayer selectArcEntry:[mplayer getArcIndex]];
-            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-            [self showWaiting];
-            [self flushMainLoop];
+            
+            [self showWaitingLoading];
+            
             [self play_loadArchiveModule];
             [self hideWaiting];
             [self refreshCurrentVC];
@@ -1597,9 +1589,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([mplayer isArchive]&&((mplayer.mod_subsongs<=1)||(mplayer.mod_currentsub<=mplayer.mod_minsub))) {
         if ([mplayer getArcIndex]>0) {
             [mplayer selectPrevArcEntry];
-            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-            [self showWaiting];
-            [self flushMainLoop];
+            [self showWaitingLoading];
             [self play_loadArchiveModule];
             [self hideWaiting];
         } else [self playPrev];
@@ -1623,9 +1613,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         if ([mplayer getArcIndex]>=[mplayer getArcEntriesCnt]-1) [self playNext];
         else {
             [mplayer selectNextArcEntry];
-            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-            [self showWaiting];
-            [self flushMainLoop];
+            [self showWaitingLoading];
             [self play_loadArchiveModule];
             [self hideWaiting];
             [self refreshCurrentVC];
@@ -1646,9 +1634,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             [mplayer selectNextArcEntry];
-            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-            [self showWaiting];
-            [self flushMainLoop];
+            [self showWaitingLoading];
             [self play_loadArchiveModule];
             [self hideWaiting];
             [self refreshCurrentVC];
@@ -1661,9 +1647,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
         if ([mplayer isArchive]) {
             [mplayer selectPrevArcEntry];
-            [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-            [self showWaiting];
-            [self flushMainLoop];
+            [self showWaitingLoading];
             [self play_loadArchiveModule];
             [self hideWaiting];
             [self refreshCurrentVC];
@@ -1726,9 +1710,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
 	mPlaylist[mPlaylist_pos].mPlaylistCount++;
     
-    [waitingView setTitle:NSLocalizedString(@"Loading",@"")];
-    [self showWaiting];
-    [self flushMainLoop];
+    [self showWaitingLoading];
     
 	if ([self play_module:filePath fname:fileName]==FALSE) {
 		[self remove_from_playlist:mPlaylist_pos];
@@ -2365,7 +2347,7 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 	
 	[textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
 	//Activate timer for play infos
-	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.10f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
+	repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //5 times/second
 	
     if (settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value) {
         if (coverflow.hidden==FALSE) {
@@ -4063,35 +4045,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 /////////////////////////////////////////////////////////////////////////////////////////////
 // WaitingView methods
 /////////////////////////////////////////////////////////////////////////////////////////////
--(void) flushMainLoop {
-    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-}
--(void)hideWaitingCancel {
-    [waitingView hideCancel];
-}
--(void)showWaitingCancel {
-    [waitingView showCancel];
-}
--(void)showWaiting{
-    waitingView.hidden=FALSE;
-}
--(void)hideWaiting{
-    waitingView.hidden=TRUE;
-}
--(bool) isCancelPending {
-    return [waitingView isCancelPending];
-}
--(void) resetCancelStatus {
-    [waitingView resetCancelStatus];
-}
--(void) updateWaitingDetail:(NSString *)text {
-    [waitingView setDetail:text];
-}
--(void) updateWaitingTitle:(NSString *)text {
-    [waitingView setTitle:text];
-}
 /////////////////////////////////////////////////////////////////////////////////////////////
-
+#include "WaitingViewCommonMethods.h"
 
 -(void)orientationDidChange:(NSNotification*)notification
 {
@@ -4195,9 +4150,6 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
     mLoadIssueMessage=0;
     
     repeatingTimer=0;
-    
-    temp_playlist=NULL;
-    
     
     default_cover=[UIImage imageNamed:@"AppStore512.png"];
     //[default_cover retain];
@@ -5140,28 +5092,8 @@ void fxRadial(int fxtype,int _ww,int _hh,short int *spectrumDataL,short int *spe
 - (void)viewDidAppear:(BOOL)animated {
 	mHasFocus=1;
     
-/*    if (shouldRestart) {
-        shouldRestart=0;
-        [self play_restart];
-    }*/
-    
     nowplayingPL=nil;
-    // if temp_playlist, free it
-    if (temp_playlist) {
-        
-        if (mPlaylist_size) { //display current queue
-            for (int i=0;i<mPlaylist_size;i++) {
-                temp_playlist->entries[i].label=nil;
-                temp_playlist->entries[i].fullpath=nil;
-            }
-            //[temp_playlist->playlist_name release];
-        }
-        free(temp_playlist);
-        
-        temp_playlist=NULL;
-    }
     //
-    
     [super viewDidAppear:animated];
 }
 /*

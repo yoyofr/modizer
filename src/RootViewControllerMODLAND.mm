@@ -345,16 +345,35 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
+    
 	db_hasFiles=search_db_hasFiles=0;
 	
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
 		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
+        if (search_db_nb_entries) {
+            for (int i=0;i<27;i++) {
+                for (int j=0;j<search_db_entries_count[i];j++) {
+                    search_db_entries[i][j].label=nil;
+                }
+                search_db_entries[i]=NULL;
+            }
+            search_db_nb_entries=0;
+            free(search_db_entries_data);
+        }
+        
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -382,14 +401,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	
 	pthread_mutex_lock(&db_mutex);
 	
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -464,15 +487,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
+    
 	db_hasFiles=search_db_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
-		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
+				
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -498,14 +529,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		return;
 	}
 	pthread_mutex_lock(&db_mutex);
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -578,15 +613,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
+    
 	db_hasFiles=search_db_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
 		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -611,14 +654,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		return;
 	}
 	pthread_mutex_lock(&db_mutex);
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -695,15 +742,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
+    
 	db_hasFiles=search_db_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
 		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -731,14 +786,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		return;
 	}
 	pthread_mutex_lock(&db_mutex);
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -813,15 +872,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
+    
 	db_hasFiles=search_db_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
 		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -852,14 +919,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		return;
 	}
 	pthread_mutex_lock(&db_mutex);
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -955,15 +1026,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
+    
 	db_hasFiles=search_db_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
 		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -992,14 +1071,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		return;
 	}
 	pthread_mutex_lock(&db_mutex);
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -1102,16 +1185,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
 	
 	db_hasFiles=search_db_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
 		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -1140,14 +1230,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		return;
 	}
 	pthread_mutex_lock(&db_mutex);
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -1221,16 +1315,23 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int db_entries_index;
 	int index,previndex;
 	NSRange r;
+    
+    if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
+        free(search_db_entries_data);
+    }
 	
 	db_hasFiles=search_db_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_db=1;
 		
-		if (search_db_nb_entries) {
-			search_db_nb_entries=0;
-			free(search_db_entries_data);
-		}
 		search_db_entries_data=(t_db_browse_entry*)calloc(db_nb_entries,sizeof(t_db_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -1259,14 +1360,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
 		return;
 	}
 	pthread_mutex_lock(&db_mutex);
-	if (db_nb_entries) {
-		for (int i=0;i<db_nb_entries;i++) {
-			//[db_entries_data[i].label release];
+    if (db_nb_entries) {
+        for (int i=0;i<db_nb_entries;i++) {
             db_entries_data[i].label=nil;
-		}
-		free(db_entries_data);db_entries_data=NULL;
-		db_nb_entries=0;
-	}
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
+        free(db_entries_data);
+    }
 	if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
 		char sqlStatement[1024];
 		sqlite3_stmt *stmt;
@@ -2896,11 +3001,26 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     
     if (db_nb_entries) {
-        for (int i=0;i<db_nb_entries;i++) db_entries_data[i].label=nil;
-            //[db_entries_data[i].label release];
+        for (int i=0;i<db_nb_entries;i++) {
+            db_entries_data[i].label=nil;
+        }
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<db_entries_count[i];j++) {
+                db_entries[i][j].label=nil;
+            }
+            db_entries[i]=NULL;
+        }
         free(db_entries_data);
     }
+    
     if (search_db_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_db_entries_count[i];j++) {
+                search_db_entries[i][j].label=nil;
+            }
+            search_db_entries[i]=NULL;
+        }
+        search_db_nb_entries=0;
         free(search_db_entries_data);
     }
         

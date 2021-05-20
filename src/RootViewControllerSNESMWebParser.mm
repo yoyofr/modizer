@@ -35,7 +35,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "TTFadeAnimator.h"
 
 #import "AFNetworking.h"
-#import "AFHTTPSessionManager.h"
 #import "AFURLSessionManager.h"
 
 #include <pthread.h>
@@ -43,9 +42,7 @@ extern pthread_mutex_t db_mutex;
 
 enum {
     BROWSE_DEFAULT=0,
-    BROWSE_ALL,
-    BROWSE_COMPOSERS,
-    BROWSE_COMPANIES
+    BROWSE_ALL
 };
 
 
@@ -228,10 +225,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     browse_mode=BROWSE_DEFAULT;
     if ([self.title isEqualToString:@"All"]) {
         browse_mode=BROWSE_ALL;
-    } else if ([self.title isEqualToString:@"Composers"]) {
-        browse_mode=BROWSE_COMPOSERS;
-    } else if ([self.title isEqualToString:@"Companies"]) {
-        browse_mode=BROWSE_COMPANIES;
     }
     
     self.navigationController.delegate = self;
@@ -401,25 +394,27 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     NSRange r;
     
+    if (search_dbWEB_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                search_dbWEB_entries[i][j].label=nil;
+                search_dbWEB_entries[i][j].fullpath=nil;
+                search_dbWEB_entries[i][j].URL=nil;
+                search_dbWEB_entries[i][j].info=nil;
+                search_dbWEB_entries[i][j].img_URL=nil;
+            }
+            search_dbWEB_entries[i]=NULL;
+        }
+        search_dbWEB_nb_entries=0;
+        free(search_dbWEB_entries_data);
+    }
+    
     dbWEB_hasFiles=search_dbWEB_hasFiles=0;
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbWEB=1;
         
-        if (search_dbWEB_nb_entries) {
-            for (int i=0;i<27;i++) {
-                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
-                    search_dbWEB_entries[i][j].label=nil;
-                    search_dbWEB_entries[i][j].fullpath=nil;
-                    search_dbWEB_entries[i][j].URL=nil;
-                    search_dbWEB_entries[i][j].info=nil;
-                    search_dbWEB_entries[i][j].img_URL=nil;
-                }
-                search_dbWEB_entries[i]=NULL;
-            }
-            search_dbWEB_nb_entries=0;
-            free(search_dbWEB_entries_data);
-        }
+        
         search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
         
         for (int i=0;i<(indexTitleMode?27:1);i++) {
@@ -464,8 +459,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
         {@"All",@""},
-        {@"Top Packs",@"http://snesmusic.org/v2/stats.php"},
-        {@"Composers",@""}
+        {@"Top Packs",@"http://snesmusic.org/v2/stats.php"}
     };
 
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
@@ -563,7 +557,8 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
         uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
     }
-        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {        
+        
     }
         completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
             if (error) {
@@ -584,28 +579,29 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
 -(void) fillKeysWithWEBSource {
     int dbWEB_entries_index;
     int index,previndex;
-    
     NSRange r;
+    
+    if (search_dbWEB_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                search_dbWEB_entries[i][j].label=nil;
+                search_dbWEB_entries[i][j].fullpath=nil;
+                search_dbWEB_entries[i][j].URL=nil;
+                search_dbWEB_entries[i][j].info=nil;
+                search_dbWEB_entries[i][j].img_URL=nil;
+            }
+            search_dbWEB_entries[i]=NULL;
+        }
+        search_dbWEB_nb_entries=0;
+        free(search_dbWEB_entries_data);
+    }
     
     dbWEB_hasFiles=search_dbWEB_hasFiles=0;
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbWEB=1;
         
-        if (search_dbWEB_nb_entries) {
-            for (int i=0;i<27;i++) {
-                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
-                    search_dbWEB_entries[i][j].label=nil;
-                    search_dbWEB_entries[i][j].fullpath=nil;
-                    search_dbWEB_entries[i][j].URL=nil;
-                    search_dbWEB_entries[i][j].info=nil;
-                    search_dbWEB_entries[i][j].img_URL=nil;
-                }
-                search_dbWEB_entries[i]=NULL;
-            }
-            search_dbWEB_nb_entries=0;
-            free(search_dbWEB_entries_data);
-        }
+        
         search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
         
         for (int i=0;i<(indexTitleMode?27:1);i++) {
@@ -670,72 +666,15 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         // All entries / letter
         ////////////////////////////////////////////////
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*27);
-        we[0].file_URL=@"http://snesmusic.org/v2/select.php?view=games&char=n1-9&limit=0";
+        we[0].file_URL=@"http://snesmusic.org/v2/select.php?view=sets&char=n1-9&limit=0";
         we[0].file_name=@"#";
         we[0].file_type=0;
         [tmpArray addObject:[NSValue valueWithPointer:&(we[0])]];
         for (int i=0;i<26;i++) {
-            we[i+1].file_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/select.php?view=games&char=%c&limit=0",'A'+i];
+            we[i+1].file_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/select.php?view=sets&char=%c&limit=0",'A'+i];
             we[i+1].file_name=[NSString stringWithFormat:@"%c",'A'+i];
             we[i+1].file_type=0;
             [tmpArray addObject:[NSValue valueWithPointer:&(we[i+1])]];
-        }
-    } else if (browse_mode==BROWSE_COMPOSERS) {
-        ///////////////////////////////////////////////////////////////////////:
-        // SNESM All
-        ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-            
-        NSArray *arr_url_dirty=[doc searchWithXPathQuery:@"/html/body//tr/td/a[contains(@href,'field=composer') and not(contains(@href,'%E'))]"];
-        NSMutableArray *arr_url=[[NSMutableArray alloc] init];
-        NSMutableArray *arr_name=[[NSMutableArray alloc] init];
-        NSMutableDictionary *dic_entries=[[NSMutableDictionary alloc] init];
-        for (int i=0;i<[arr_url_dirty count];i++) {
-            TFHppleElement *el=[arr_url_dirty objectAtIndex:i];
-            NSString *url=[el objectForKey:@"href"];
-            //NSLog(@"url: %@",url);
-            NSString *name=[el text];
-            //NSLog(@"name: %@",name);
-            if (name==nil) {
-                //NSLog(@"yo");
-            } else {
-                if (![arr_name containsObject:name]) {
-                    [arr_name addObject:name];
-                    [arr_url addObject:url];
-                    [dic_entries setValue:@1 forKey:name];
-                } else {
-                    int nb_entries=[[dic_entries valueForKey:name] intValue];
-                    nb_entries++;
-                    [dic_entries setValue:[NSNumber numberWithInt:nb_entries] forKey:name];
-                }
-            }
-        }
-        
-        /*NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][1]"];
-        NSArray *arr_size=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][2]"];
-        NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][3]"];*/
-        
-        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-        int we_index=0;
-                
-        if (arr_url&&[arr_url count]) {
-            
-            for (int j=0;j<[arr_url count];j++) {
-                we[we_index].file_URL=[NSString stringWithFormat:@"https://project2612.org/%@",[arr_url objectAtIndex:j]];
-                                                          
-                //el=[arr_url objectAtIndex:j];
-                we[we_index].file_name=[NSString stringWithString:[arr_name objectAtIndex:j]];
-                
-                we[we_index].file_type=0;
-                
-                we[we_index].entries_nb=[[dic_entries valueForKey:we[we_index].file_name] intValue];
-                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                
-                we_index++;
-            }
         }
     } else if ([mWebBaseURL isEqualToString:@"http://snesmusic.org/v2/stats.php"]) {
         ///////////////////////////////////////////////////////////////////////:
@@ -769,7 +708,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                 we_index++;
             }
         }
-    } else if ([mWebBaseURL containsString:@"http://snesmusic.org/v2/select.php?view=games&char="]) {
+    } else if ([mWebBaseURL containsString:@"http://snesmusic.org/v2/select.php?view=sets&char="]) {
         ///////////////////////////////////////////////////////////////////////:
         // Games - #-A-Z page
         ///////////////////////////////////////////////////////////////////////:
@@ -880,10 +819,25 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                             we[we_index].file_type=2;
                             
                             we[we_index].file_rating=0;
-                                            
-                            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
                             
-                            we_index++;
+                            if (we_index) {
+                                //check previous entry
+                                if ([we[we_index-1].file_name isEqualToString:we[we_index].file_name]) {
+                                    //same name
+                                    we[we_index-1].file_details=[NSString stringWithFormat:@"%@・%@",we[we_index-1].file_details,we[we_index].file_details];
+                                    we[we_index].file_URL=nil;
+                                    we[we_index].file_name=nil;
+                                    we[we_index].file_details=nil;
+                                    we[we_index].file_type=0;
+                                    we[we_index].file_rating=0;
+                                } else {
+                                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                                    we_index++;
+                                }
+                            } else {
+                                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                                we_index++;
+                            }
                         }
                     }
                 }

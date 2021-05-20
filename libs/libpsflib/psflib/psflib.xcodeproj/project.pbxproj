@@ -45,7 +45,10 @@
 		59BDE843260F663C00FB0C69 = {
 			isa = PBXGroup;
 			children = (
-				59BDE84E260F663C00FB0C69 /* psflib */,
+				59BDE879260F66C300FB0C69 /* psf2fs.c */,
+				59BDE87A260F66C300FB0C69 /* psf2fs.h */,
+				59BDE878260F66C300FB0C69 /* psflib.c */,
+				59BDE877260F66C300FB0C69 /* psflib.h */,
 				59BDE84D260F663C00FB0C69 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,17 +59,6 @@
 				59BDE84C260F663C00FB0C69 /* libpsflib.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		59BDE84E260F663C00FB0C69 /* psflib */ = {
-			isa = PBXGroup;
-			children = (
-				59BDE879260F66C300FB0C69 /* psf2fs.c */,
-				59BDE87A260F66C300FB0C69 /* psf2fs.h */,
-				59BDE878260F66C300FB0C69 /* psflib.c */,
-				59BDE877260F66C300FB0C69 /* psflib.h */,
-			);
-			path = psflib;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -94,7 +94,6 @@
             ((RootViewControllerPlaylist*)nowplayingPL)->browse_depth = 1;
             ((RootViewControllerPlaylist*)nowplayingPL)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)nowplayingPL)->playlist=temp_playlist;
-            ((RootViewControllerPlaylist*)nowplayingPL)->mFreePlaylist=1;
             ((RootViewControllerPlaylist*)nowplayingPL)->mDetailPlayerMode=1;
             ((RootViewControllerPlaylist*)nowplayingPL)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
             ((RootViewControllerPlaylist*)nowplayingPL)->currentPlayedEntry=detailViewController.mPlaylist_pos+1;

@@ -4008,7 +4008,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (iModuleLength<1000) iModuleLength=1000;
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                                 
-                                
                                 iCurrentTime=0;
                                 //numChannels=8;//asap->moduleInfo.channels;
                                 
@@ -8319,14 +8318,14 @@ int vgmGetFileLength()
         mod_currentsub=track;
         
         // Start track
-        err=gme_start_track( gme_emu, track );
+        /*err=gme_start_track( gme_emu, track );
         if (err) {
             NSLog(@"gme_start_track error: %s",err);
             if (gme_emu) gme_delete( gme_emu );
             gme_emu=NULL;
             mPlayType=0;
             return -4;
-        }
+        }*/
         
         //////////////////////////////////
         //update DB with songlength
@@ -9532,6 +9531,14 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         xmp_free_context(xmp_ctx);
         xmp_ctx=NULL;
         mdz_safe_free(xmp_mi);
+        
+        if (ompt_patterns) {
+            for (int i=0;i<numPatterns;i++) {
+                if (ompt_patterns[i]) free(ompt_patterns[i]);
+            }
+            free(ompt_patterns);
+        }
+        ompt_patterns=NULL;
     }
     if (mPlayType==MMP_OPENMPT) {
         if (ompt_patterns) {
@@ -9679,8 +9686,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     //else [self iPhoneDrv_PlayStart];
     if (paused) AudioQueuePause(mAudioQueue);// [self iPhoneDrv_PlayStop];
     else AudioQueueStart(mAudioQueue,NULL);//[self iPhoneDrv_PlayStart];
-    
-    
+        
     mod_message_updated=1;
 }
 //*****************************************
@@ -9699,13 +9705,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 -(NSString*) getModFileTitle {
     //TODO: use title tag when available
     if (mod_title) return mod_title;
-    return [NSString stringWithFormat:@"%s",mod_filename];
+    return [[NSString stringWithFormat:@"%s",mod_filename] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
 }
 
 -(NSString*) getModName {
     NSString *modName;
-    if  ( (mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX) ) return [NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding];
-    modName=[NSString stringWithUTF8String:mod_name];
+    if  ( (mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX) ) return [[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];;
+    modName=[[NSString stringWithUTF8String:mod_name] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
     
     if (modName==nil) return @"";
     return modName;
@@ -9740,7 +9746,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (mPlayType==MMP_VGMSTREAM) {
         if (subsong==mod_currentsub) {
             if (vgmStream && vgmStream->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStream->stream_name];
-            else result=[NSString stringWithFormat:@"%.3d",subsong];
+            else result=[[NSString stringWithFormat:@"%.3d",subsong] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         } else {
             VGMSTREAM* vgmStreamTmp = NULL;
             STREAMFILE* vgmFileTmp = NULL;
@@ -9753,7 +9759,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
                 vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFileTmp);
                 close_streamfile(vgmFileTmp);
                 if (vgmStreamTmp) {
-                    if (vgmStreamTmp->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStreamTmp->stream_name];
+                    if (vgmStreamTmp->stream_name[0]) result=[[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStreamTmp->stream_name] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
                     else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
                     close_vgmstream(vgmStreamTmp);
                 } else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
@@ -9763,7 +9769,7 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     } else if (mPlayType==MMP_OPENMPT) {
         const char *ret=openmpt_module_get_subsong_name(openmpt_module_ext_get_module(ompt_mod), subsong);
         if (ret) {
-            result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:ret]];
+            result=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:ret]]  stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
             free((char*)ret);
         } else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
         return result;
@@ -9774,10 +9780,10 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
             
             result=nil;
             if (gme_info->song){
-                if (gme_info->song[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding]];
+                if (gme_info->song[0]) result=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding]]  stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
             }
             if ((!result)&&(gme_info->game)) {
-                if (gme_info->game[0]) result=[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->game encoding:NSShiftJISStringEncoding]];
+                if (gme_info->game[0]) result=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->game encoding:NSShiftJISStringEncoding]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
             }
             if (!result) result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
             gme_free_info(gme_info);
@@ -9785,23 +9791,23 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
         }
     } else if (mPlayType==MMP_SIDPLAY) {
         if (sidtune_name) {
-            if (sidtune_name[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]];
+            if (sidtune_name[subsong]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
         if (sidtune_title) {
-            if (sidtune_title[subsong]) return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]];
+            if (sidtune_title[subsong]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
         
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
-        if (sidtune_info->infoString(0)[0]) return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_info->infoString(0)]];
+        if (sidtune_info->infoString(0)[0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_info->infoString(0)]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         
         return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
     } else if (mPlayType==MMP_KSS) {
         if (m3uReader.size()-1>=subsong) {
-            return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ];
+            return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
         if (kss->info) {
-            return [NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:kss->info[subsong].title encoding:NSShiftJISStringEncoding] ];
+            return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:kss->info[subsong].title encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
     }
     return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];

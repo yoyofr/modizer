@@ -279,28 +279,28 @@ extern pthread_mutex_t db_mutex;
 -(void) fillKeysWithRepoCateg {
     int dbWEB_entries_index;
     int index,previndex;
-    
     NSRange r;
+    
+    if (search_dbWEB_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                search_dbWEB_entries[i][j].label=nil;
+                search_dbWEB_entries[i][j].fullpath=nil;
+                search_dbWEB_entries[i][j].URL=nil;
+                search_dbWEB_entries[i][j].info=nil;
+                search_dbWEB_entries[i][j].img_URL=nil;
+            }
+            search_dbWEB_entries[i]=NULL;
+        }
+        search_dbWEB_nb_entries=0;
+        free(search_dbWEB_entries_data);
+    }
     
     dbWEB_hasFiles=search_dbWEB_hasFiles=0;
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbWEB=1;
         
-        if (search_dbWEB_nb_entries) {
-            for (int i=0;i<27;i++) {
-                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
-                    search_dbWEB_entries[i][j].label=nil;
-                    search_dbWEB_entries[i][j].fullpath=nil;
-                    search_dbWEB_entries[i][j].URL=nil;
-                    search_dbWEB_entries[i][j].info=nil;
-                    search_dbWEB_entries[i][j].img_URL=nil;
-                }
-                search_dbWEB_entries[i]=NULL;
-            }
-            search_dbWEB_nb_entries=0;
-            free(search_dbWEB_entries_data);
-        }
         search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
         
         for (int i=0;i<27;i++) {
@@ -405,28 +405,28 @@ extern pthread_mutex_t db_mutex;
 -(void) fillKeysWithRepoList {
     int dbWEB_entries_index;
     int index,previndex;
-    
     NSRange r;
+    
+    if (search_dbWEB_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbWEB_entries_count[i];j++) {
+                search_dbWEB_entries[i][j].label=nil;
+                search_dbWEB_entries[i][j].fullpath=nil;
+                search_dbWEB_entries[i][j].URL=nil;
+                search_dbWEB_entries[i][j].info=nil;
+                search_dbWEB_entries[i][j].img_URL=nil;
+            }
+            search_dbWEB_entries[i]=NULL;
+        }
+        search_dbWEB_nb_entries=0;
+        free(search_dbWEB_entries_data);
+    }
     
     dbWEB_hasFiles=search_dbWEB_hasFiles=0;
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     if (mSearch) {
         search_dbWEB=1;
         
-        if (search_dbWEB_nb_entries) {
-            for (int i=0;i<27;i++) {
-                for (int j=0;j<search_dbWEB_entries_count[i];j++) {
-                    search_dbWEB_entries[i][j].label=nil;
-                    search_dbWEB_entries[i][j].fullpath=nil;
-                    search_dbWEB_entries[i][j].URL=nil;
-                    search_dbWEB_entries[i][j].info=nil;
-                    search_dbWEB_entries[i][j].img_URL=nil;
-                }
-                search_dbWEB_entries[i]=NULL;
-            }
-            search_dbWEB_nb_entries=0;
-            free(search_dbWEB_entries_data);
-        }
         search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
         
         for (int i=0;i<27;i++) {

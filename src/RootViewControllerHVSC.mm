@@ -323,16 +323,30 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int index,previndex;
 	
 	NSRange r;
+    
+    if (search_dbHVSC_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbHVSC_entries_count[i];j++) {
+                search_dbHVSC_entries[i][j].label=nil;
+                search_dbHVSC_entries[i][j].fullpath=nil;
+                search_dbHVSC_entries[i][j].id_md5=nil;
+                search_dbHVSC_entries[i][j].dir1=nil;
+                search_dbHVSC_entries[i][j].dir2=nil;
+                search_dbHVSC_entries[i][j].dir3=nil;
+                search_dbHVSC_entries[i][j].dir4=nil;
+                search_dbHVSC_entries[i][j].dir5=nil;
+            }
+            search_dbHVSC_entries[i]=NULL;
+        }
+        search_dbHVSC_nb_entries=0;
+        free(search_dbHVSC_entries_data);
+    }
 	
 	dbHVSC_hasFiles=search_dbHVSC_hasFiles=0;
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_dbHVSC=1;
 		
-		if (search_dbHVSC_nb_entries) {
-			search_dbHVSC_nb_entries=0;
-			free(search_dbHVSC_entries_data);
-		}
 		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -449,6 +463,25 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	sqlite3 *db;
 	int dbHVSC_entries_index;
 	int index,previndex;
+    
+    if (search_dbHVSC_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbHVSC_entries_count[i];j++) {
+                search_dbHVSC_entries[i][j].label=nil;
+                search_dbHVSC_entries[i][j].fullpath=nil;
+                search_dbHVSC_entries[i][j].id_md5=nil;
+                search_dbHVSC_entries[i][j].dir1=nil;
+                search_dbHVSC_entries[i][j].dir2=nil;
+                search_dbHVSC_entries[i][j].dir3=nil;
+                search_dbHVSC_entries[i][j].dir4=nil;
+                search_dbHVSC_entries[i][j].dir5=nil;
+            }
+            search_dbHVSC_entries[i]=NULL;
+        }
+        search_dbHVSC_nb_entries=0;
+        free(search_dbHVSC_entries_data);
+    }
+
 	
 	dbHVSC_hasFiles=search_dbHVSC_hasFiles=0;
 	
@@ -457,10 +490,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	if (mSearch) {
 		search_dbHVSC=1;
 		
-		if (search_dbHVSC_nb_entries) {
-			search_dbHVSC_nb_entries=0;
-			free(search_dbHVSC_entries_data);
-		}
 		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		
 		for (int i=0;i<27;i++) {
@@ -578,14 +607,29 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int index,previndex;
 	
 	NSRange r;
+    
+    if (search_dbHVSC_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbHVSC_entries_count[i];j++) {
+                search_dbHVSC_entries[i][j].label=nil;
+                search_dbHVSC_entries[i][j].fullpath=nil;
+                search_dbHVSC_entries[i][j].id_md5=nil;
+                search_dbHVSC_entries[i][j].dir1=nil;
+                search_dbHVSC_entries[i][j].dir2=nil;
+                search_dbHVSC_entries[i][j].dir3=nil;
+                search_dbHVSC_entries[i][j].dir4=nil;
+                search_dbHVSC_entries[i][j].dir5=nil;
+            }
+            search_dbHVSC_entries[i]=NULL;
+        }
+        search_dbHVSC_nb_entries=0;
+        free(search_dbHVSC_entries_data);
+    }
+    
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_dbHVSC=1;
 		
-		if (search_dbHVSC_nb_entries) {
-			search_dbHVSC_nb_entries=0;
-			free(search_dbHVSC_entries_data);
-		}
 		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		search_dbHVSC_hasFiles=0;
 		for (int i=0;i<27;i++) {
@@ -725,14 +769,29 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int index,previndex;
 	
 	NSRange r;
+    
+    if (search_dbHVSC_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbHVSC_entries_count[i];j++) {
+                search_dbHVSC_entries[i][j].label=nil;
+                search_dbHVSC_entries[i][j].fullpath=nil;
+                search_dbHVSC_entries[i][j].id_md5=nil;
+                search_dbHVSC_entries[i][j].dir1=nil;
+                search_dbHVSC_entries[i][j].dir2=nil;
+                search_dbHVSC_entries[i][j].dir3=nil;
+                search_dbHVSC_entries[i][j].dir4=nil;
+                search_dbHVSC_entries[i][j].dir5=nil;
+            }
+            search_dbHVSC_entries[i]=NULL;
+        }
+        search_dbHVSC_nb_entries=0;
+        free(search_dbHVSC_entries_data);
+    }
+    
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_dbHVSC=1;
 		
-		if (search_dbHVSC_nb_entries) {
-			search_dbHVSC_nb_entries=0;
-			free(search_dbHVSC_entries_data);
-		}
 		search_dbHVSC_hasFiles=0;
 		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		
@@ -873,14 +932,29 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int index,previndex;
 	
 	NSRange r;
+    
+    if (search_dbHVSC_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbHVSC_entries_count[i];j++) {
+                search_dbHVSC_entries[i][j].label=nil;
+                search_dbHVSC_entries[i][j].fullpath=nil;
+                search_dbHVSC_entries[i][j].id_md5=nil;
+                search_dbHVSC_entries[i][j].dir1=nil;
+                search_dbHVSC_entries[i][j].dir2=nil;
+                search_dbHVSC_entries[i][j].dir3=nil;
+                search_dbHVSC_entries[i][j].dir4=nil;
+                search_dbHVSC_entries[i][j].dir5=nil;
+            }
+            search_dbHVSC_entries[i]=NULL;
+        }
+        search_dbHVSC_nb_entries=0;
+        free(search_dbHVSC_entries_data);
+    }
+    
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_dbHVSC=1;
 		
-		if (search_dbHVSC_nb_entries) {
-			search_dbHVSC_nb_entries=0;
-			free(search_dbHVSC_entries_data);
-		}
 		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		search_dbHVSC_hasFiles=0;
 		for (int i=0;i<27;i++) {
@@ -1022,14 +1096,29 @@ extern volatile t_settings settings[MAX_SETTINGS];
 	int index,previndex;
 	
 	NSRange r;
+    
+    if (search_dbHVSC_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbHVSC_entries_count[i];j++) {
+                search_dbHVSC_entries[i][j].label=nil;
+                search_dbHVSC_entries[i][j].fullpath=nil;
+                search_dbHVSC_entries[i][j].id_md5=nil;
+                search_dbHVSC_entries[i][j].dir1=nil;
+                search_dbHVSC_entries[i][j].dir2=nil;
+                search_dbHVSC_entries[i][j].dir3=nil;
+                search_dbHVSC_entries[i][j].dir4=nil;
+                search_dbHVSC_entries[i][j].dir5=nil;
+            }
+            search_dbHVSC_entries[i]=NULL;
+        }
+        search_dbHVSC_nb_entries=0;
+        free(search_dbHVSC_entries_data);
+    }
+    
 	// in case of search, do not ask DB again => duplicate already found entries & filter them
 	if (mSearch) {
 		search_dbHVSC=1;
 		
-		if (search_dbHVSC_nb_entries) {
-			search_dbHVSC_nb_entries=0;
-			free(search_dbHVSC_entries_data);
-		}
 		search_dbHVSC_entries_data=(t_dbHVSC_browse_entry*)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
 		search_dbHVSC_hasFiles=0;
 		for (int i=0;i<27;i++) {
@@ -2265,6 +2354,20 @@ extern volatile t_settings settings[MAX_SETTINGS];
         free(dbHVSC_entries_data);
     }
     if (search_dbHVSC_nb_entries) {
+        for (int i=0;i<27;i++) {
+            for (int j=0;j<search_dbHVSC_entries_count[i];j++) {
+                search_dbHVSC_entries[i][j].label=nil;
+                search_dbHVSC_entries[i][j].fullpath=nil;
+                search_dbHVSC_entries[i][j].id_md5=nil;
+                search_dbHVSC_entries[i][j].dir1=nil;
+                search_dbHVSC_entries[i][j].dir2=nil;
+                search_dbHVSC_entries[i][j].dir3=nil;
+                search_dbHVSC_entries[i][j].dir4=nil;
+                search_dbHVSC_entries[i][j].dir5=nil;
+            }
+            search_dbHVSC_entries[i]=NULL;
+        }
+        search_dbHVSC_nb_entries=0;
         free(search_dbHVSC_entries_data);
     }
     

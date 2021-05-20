@@ -69,9 +69,7 @@ static NSFileManager *mFileMngr;
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:@"Warning"
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -81,8 +79,7 @@ static NSFileManager *mFileMngr;
 		[self _stopReceiveWithStatus:@"Download cancelled" status:-1];
 	} else if (mGetURLInProgress) {//HTTP
 		lCancelURL=1;
-		[mASIrequest cancel];
-        //[AFmanager.session invalidateAndCancel];
+        [AFmanager invalidateSessionCancelingTasks:YES resetSession:NO];
 	}
 }
 
@@ -126,8 +123,7 @@ static NSFileManager *mFileMngr;
 		[self _stopReceiveWithStatus:@"Download suspended" status:-2];
 	} else if (mGetURLInProgress) {//HTTP
 		lCancelURL=2;
-		[mASIrequest cancel];
-        //[AFmanager.session invalidateAndCancel];
+        [AFmanager invalidateSessionCancelingTasks:YES resetSession:NO];
 	}
 	downloadLabelName.text=NSLocalizedString(@"No download in progress",@"");
 	downloadLabelSize.text=@"";
@@ -158,8 +154,7 @@ static NSFileManager *mFileMngr;
  }
  */
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-}
+#include "AlertsCommonFunctions.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // WaitingView methods
@@ -411,8 +406,8 @@ static NSFileManager *mFileMngr;
     } else if (mFTPAskCancel==0) {
 		if (mConnectionIssue==0) {
 			mConnectionIssue=1;
-			UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Warning" message:statusString delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-			[alert show];
+			
+            [self showAlertMsg:NSLocalizedString(@"Warning", @"") message:statusString];
 		}
 	}
 }
@@ -1104,9 +1099,7 @@ static NSFileManager *mFileMngr;
 	}
 	
 	if (nb_added==0) {
-		UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Info"
-                                                         message:[NSString stringWithString:NSLocalizedString(@"Could not add files. Please check manually with file browser (Local Browsing/Downloads).",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-		[alert show];
+        [self showAlertMsg:NSLocalizedString(@"Info", @"") message:NSLocalizedString(@"Could not add files. Please check manually with file browser (Local Browsing/Downloads).",@"")];
 	} else {
 		switch ((int)(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value)) {
 			case 0://do nothing
@@ -1156,57 +1149,23 @@ static NSFileManager *mFileMngr;
     }
 }
 
-- (void)requestFinished:(ASIHTTPRequest *)request {
-	NSData *fileData;
+- (void)requestFinished:(NSArray *)arr_data {
 	NSString *fileName;
 	NSError *err;
-	char _strFilename[1024];
-	
+    NSString *localPath;
+    
+    NSData *fileData=[arr_data objectAtIndex:0];
+    NSString *suggested_filename=[arr_data objectAtIndex:1];
+    
 	fileName=mCurrentURLFilename;
-	if (fileName==nil) {
-		//Determine filename
-		NSDictionary *dict=[request responseHeaders];
+    if (fileName==nil) fileName=[NSString stringWithString:suggested_filename];
 		
-		
-		
-		NSString *contentDispo = [dict objectForKey:@"Content-Disposition"];
-		if (contentDispo) {
-			//With content-disposition header field
-			_strFilename[0]=0;
-			sscanf([contentDispo UTF8String],"attachment;\nfilename=%s",_strFilename);
-			if (_strFilename[0]) {
-				if (_strFilename[strlen(_strFilename)-1]==';') _strFilename[strlen(_strFilename)-1]=0;
-				if (_strFilename[strlen(_strFilename)-1]=='"') _strFilename[strlen(_strFilename)-1]=0;
-				if (_strFilename[0]=='"') for (int i=0;i<strlen(_strFilename);i++) _strFilename[i]=_strFilename[i+1];
-			} else {
-				//cannot determine a filename
-				[self updateToNextURL];
-				mGetURLInProgress=0;
-				[self checkNextQueuedItem];
-				NSLog(@"no filename");
-				return;
-			}
-		} else {
-			//no content-dispo
-			[self updateToNextURL];
-			mGetURLInProgress=0;
-			[self checkNextQueuedItem];
-			NSLog(@"no cont-disp");
-			return;
-		}
-		fileName=[NSString stringWithFormat:@"%s",_strFilename];
-	}
-	sprintf(_strFilename,"%s",[fileName UTF8String]);
-	
-	fileData = [request responseData];
-	NSString *localPath;
-	
-    if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%s",NSHomeDirectory(),_strFilename];
+    if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),fileName];
     else {
         if (mURLIsMODLAND[0]) {
             localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]];
         } else {
-            localPath=[[NSString alloc] initWithFormat:@"%@/%s",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],_strFilename];
+            localPath=[[NSString alloc] initWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
         }
     }
 	[mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
@@ -1237,24 +1196,27 @@ static NSFileManager *mFileMngr;
         //TODO: playlist
     } else [self checkIfShouldAddFile:localPath fileName:fileName];
 	//Remove file if it is not part of accepted one
+    
+    [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];
 	
 	[self updateToNextURL];
 	mGetURLInProgress=0;
 	[self checkNextQueuedItem];
 }
 
-- (void)requestFailed:(ASIHTTPRequest *)request {
-	UIAlertView *alert;
+- (void)requestFailed {
 	if (lCancelURL) {
 		lCancelURL=0;
-		//alert = [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"Cannot download from this URL."] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil] autorelease];
 	} else {
-		alert = [[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithString:NSLocalizedString(@"Cannot download from this URL.",@"")] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-		[alert show];
+        [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot download from this URL.",@"")];
 	}
 	[self updateToNextURL];
 	mGetURLInProgress=0;
 	[self checkNextQueuedItem];
+}
+
+-(void)updateHTTPProgress:(NSProgress*)downloadProgress{
+    downloadPrgView.progress=[downloadProgress fractionCompleted];
 }
 
 -(void) startReceiveCurrentURLEntry{
@@ -1273,21 +1235,38 @@ static NSFileManager *mFileMngr;
 	
 	mCurrentURLFilename=mURLFilename[0];
     mCurrentURLIsImage=mURLIsImage[0];
-        
     
-    mASIrequest = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:mURL[0]]];
-	[mASIrequest setDownloadProgressDelegate:downloadPrgView];
-	[mASIrequest setDelegate:self];
-	[mASIrequest startAsynchronous];
-        
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    AFmanager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+    AFmanager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
+    NSURL *URL = [NSURL URLWithString:mURL[0]];
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    
+    NSURLSessionDataTask *dataTask = [AFmanager dataTaskWithRequest:request
+        uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+    }
+        downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+        
+        [self performSelectorOnMainThread:@selector(updateHTTPProgress:) withObject:downloadProgress waitUntilDone:YES];
+        
+    }
+        completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+            if (error) {
+                [self performSelectorOnMainThread:@selector(requestFailed) withObject:nil waitUntilDone:YES];
+            } else {
+                NSArray *data=[NSArray arrayWithObjects:responseObject,[response suggestedFilename],nil];
+                [self performSelectorOnMainThread:@selector(requestFinished:) withObject:data waitUntilDone:YES];
+            }
+    }];
+    
+    [dataTask resume];
 }
 
 - (void)startReceiveCurrentFTPEntry {
     // Starts a connection to download the current URL.
     NSURL *             url;
     CFReadStreamRef     ftpStream;
-	UIAlertView *alert;
 	NSError *err;
     
     if (mSuspended) return;
@@ -1322,8 +1301,7 @@ static NSFileManager *mFileMngr;
 	url=[NSURL URLWithString:[NSString stringWithFormat:@"ftp://%@%@",mFTPhost[0],[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]]];
     ftpStream = CFReadStreamCreateWithFTPURL(NULL, (__bridge CFURLRef) url);
     if (ftpStream == NULL) {
-		alert = [[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"Cannot connect to FTP."] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-		[alert show];
+        [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot connect to FTP.", @"")];
 		return;
 	}
 	// Open a local stream for the file we're going to receive into.

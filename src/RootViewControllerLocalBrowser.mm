@@ -883,7 +883,7 @@ static void md5_from_buffer(char *dest, size_t destlen,char * buf, size_t bufsiz
                 search_local_entries[i][j].fullpath=nil;
             }
             search_local_entries[i]=NULL;
-        }        
+        }
         search_local_nb_entries=0;
         free(search_local_entries_data);
     }

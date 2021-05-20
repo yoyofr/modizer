@@ -272,11 +272,13 @@
 {
     NSString *filePathAndDirectory = [filePath stringByAppendingPathComponent:directoryName];
     NSError *error = nil;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePathAndDirectory]) return;
     if (![[NSFileManager defaultManager] createDirectoryAtPath:filePathAndDirectory
                                    withIntermediateDirectories:NO
                                                     attributes:nil
-                                                         error:&error])
+                                                         error:&error]) {
         NSLog(@"Create directory error: %@", error);
+    }
 }
 
 @end

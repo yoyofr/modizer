@@ -1129,7 +1129,8 @@ ECHO_CLOCK( 27 )
 	#else
 		sample_t* out = m.out;
 		WRITE_SAMPLES( l, r, out );
-		m.out = out;
+    
+        m.out = out;
 	#endif
 }
 ECHO_CLOCK( 28 )

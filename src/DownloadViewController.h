@@ -11,8 +11,11 @@
 #import "RootViewControllerLocalBrowser.h"
 #import "SearchViewController.h"
 #import "MoreViewController.h"
-#import "ASIHTTPRequest.h"
-//#import "AFNetworking.h"
+
+#import "AFNetworking.h"
+#import "AFURLSessionManager.h"
+
+
 #import "BButton.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
@@ -43,8 +46,7 @@
     bool darkMode;
     bool forceReloadCells;
 	
-	ASIHTTPRequest *mASIrequest;
-    //AFHTTPSessionManager *AFmanager;
+	AFURLSessionManager *AFmanager;
     
 	NSInputStream *networkStream;
 	NSOutputStream *fileStream;

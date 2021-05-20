@@ -69,11 +69,6 @@
 	NSURL *url=[NSURL URLWithString:urlString];
 	//NSLog(@"%@",[url absoluteString]);
 	
-    
-    //ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
-	//[request setDelegate:self];
-	//[request startAsynchronous];
-    
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     [manager GET:urlString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         //NSLog(@"JSON: %@", responseObject);

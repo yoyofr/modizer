@@ -182,7 +182,7 @@
     }
     
     
-    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(refreshMPItems) userInfo:nil repeats: YES]; //1 times/second
+    //repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(refreshMPItems) userInfo:nil repeats: YES]; //1 times/second
     
     return TRUE;
 }
