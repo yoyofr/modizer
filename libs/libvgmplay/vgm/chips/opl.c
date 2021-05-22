@@ -1317,13 +1317,14 @@ void ADLIBEMU(getsample)(void *chip, INT32** sndptr, INT32 numsamples)
     int m_voice_ofs=-1;
     int m_total_channels=max_channel+5;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii;
             break;
         }
     }
     //printf("opn:%d / %lf delta:%lf\n",OPN->ST.rate,OPN->ST.freqbase,DELTAT->freqbase);
-    int smplIncr=44100*1024/m_voice_current_samplerate+1;
+    int smplIncr;
+    if (m_voice_current_samplerate) smplIncr=44100*1024/m_voice_current_samplerate+1;
     m_voice_current_systemPairedOfs=m_total_channels;
     //TODO:  MODIZER changes end / YOYOFR
 	

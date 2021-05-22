@@ -17,6 +17,7 @@
 #import "RootViewControllerVGMRWebParser.h"
 #import "RootViewControllerP2612WebParser.h"
 #import "RootViewControllerSNESMWebParser.h"
+#import "RootViewControllerSMSPWebParser.h"
 #import "DownloadViewController.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"

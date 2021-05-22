@@ -162,6 +162,7 @@ extern pthread_mutex_t db_mutex;
     [SettingsGenViewController applyDefaultSettings];
     
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Settings reseted",@"")];
+    [self hideWaiting];
     
 }
 
@@ -187,6 +188,7 @@ extern pthread_mutex_t db_mutex;
 	sqlite3_close(db);
 
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Ratings reseted",@"")];
+    [self hideWaiting];
     
 	return TRUE;
 }
@@ -213,7 +215,7 @@ extern pthread_mutex_t db_mutex;
 	sqlite3_close(db);
     
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Played Counters reseted",@"")];
-    
+    [self hideWaiting];
 	return TRUE;
 }
 
@@ -298,7 +300,7 @@ extern pthread_mutex_t db_mutex;
     fileManager=nil;
 	
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database cleaned",@"")];
-    
+    [self hideWaiting];
 	return TRUE;
 }
 
@@ -309,6 +311,7 @@ extern pthread_mutex_t db_mutex;
     [rootVC createSamplesFromPackage:TRUE];
     
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Samples folder created",@"")];
+    [self hideWaiting];
 }
 
 -(void) clearImageCache {
@@ -323,6 +326,7 @@ extern pthread_mutex_t db_mutex;
     [self flushMainLoop];
     [rootVC createEditableCopyOfDatabaseIfNeeded:TRUE quiet:TRUE];
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database reseted",@"")];
+    [self hideWaiting];
 }
 
 -(void) removeCurrentCover {
@@ -334,6 +338,7 @@ extern pthread_mutex_t db_mutex;
     if (currentPlayFilepath==nil) {
         
         [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"No cover to remove",@"")];
+        [self hideWaiting];
         return;
     }
     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
@@ -345,6 +350,7 @@ extern pthread_mutex_t db_mutex;
     mFileMngr=nil;
     
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Cover removed",@"")];
+    [self hideWaiting];
 }
 
 

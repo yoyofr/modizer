@@ -646,7 +646,7 @@ void ymf278b_pcm_update(UINT8 ChipID, stream_sample_t** outputs, int samples)
     int m_voice_ofs=-1;
     int m_total_channels=18+24;
     for (int ii=0;ii<=SOUND_MAXVOICES_BUFFER_FX-m_total_channels;ii++) {
-        if (((m_voice_ChipID[ii]&0xFF)==m_voice_current_system)&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
+        if (((m_voice_ChipID[ii]&0x7F)==(m_voice_current_system&0x7F))&&(((m_voice_ChipID[ii]>>8)&0xFF)==m_voice_current_systemSub)) {
             m_voice_ofs=ii+18; //skip 18 FM, emulated by ymf262
             break;
         }

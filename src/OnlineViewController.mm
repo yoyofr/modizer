@@ -14,6 +14,7 @@ enum {
     ONLINE_COLLECTIONS_VGMRips,
     ONLINE_COLLECTIONS_P2612,
     ONLINE_COLLECTIONS_SNESM,
+    ONLINE_COLLECTIONS_SMSP,
     ONLINE_COLLECTIONS_NUMBER
 };
 
@@ -22,14 +23,13 @@ enum {
 //#define NB_HVSC_ENTRIES 43856
 //#define NB_ASMA_ENTRIES 4630
 
-#define WEBLINKS_VGM_NB 7
+#define WEBLINKS_VGM_NB 6
 #define WEBLINKS_MODS_NB 6
 #define WEBLINKS_Others_NB 2
 NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
     //VGM & assimilated
     {@"http://snesmusic.org/pmh/",@"Portable Music History"},
     {@"http://snesmusic.org/cmh/",@"Console Music History"},
-    {@"https://www.smspower.org/",@"Sega Master System"},
     {@"http://www.midishrine.com/",@"Midishrine"},
     {@"https://www.vgmusic.com/",@"VGMusic"},
     {@"http://www.mirsoft.info/gamemods-archive.php",@"Mirsoft MODS"},
@@ -447,6 +447,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_SNESM:topLabel.text=NSLocalizedString(@"SNESmusic collection",@"");
                     bottomLabel.text=NSLocalizedString(@"1500+ set / Super Nintendo/Famicom",@"");
                     break;
+                case ONLINE_COLLECTIONS_SMSP:topLabel.text=NSLocalizedString(@"SMS Power! collection",@"");
+                    bottomLabel.text=NSLocalizedString(@"Master System & Game gear sets",@"");
+                    break;
             }
         }
             break;
@@ -616,6 +619,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerSNESMWebParser*)collectionViewController)->browse_depth = 0;
                     ((RootViewControllerSNESMWebParser*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerSNESMWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    
+                    collectionViewController.view.frame=self.view.frame;
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
+                case ONLINE_COLLECTIONS_SMSP: //SMS Power!
+                    collectionViewController = [[RootViewControllerSMSPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"SMS Power!";
+                    // Set new directory
+                    ((RootViewControllerSMSPWebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerSMSPWebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerSMSPWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                     
                     collectionViewController.view.frame=self.view.frame;
                     // And push the window

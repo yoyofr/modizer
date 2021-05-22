@@ -183,7 +183,7 @@ class CGLString;
 @property (retain,nonatomic) UILabel *lblMainCoverflow,*lblSecCoverflow,*lblCurrentSongCFlow,*lblTimeFCflow;
 @property (retain,nonatomic) UIButton *btnPlayCFlow,*btnPauseCFlow,*btnBackCFlow,*btnNextCFlow,*btnPrevCFlow,*btnNextSubCFlow,*btnPrevSubCFlow,*btnAddToPl;
 @property BOOL mShuffle;
-@property int mShouldUpdateInfos;
+@property int mShouldUpdateInfos,mLoopMode;
 @property bool bShowVC,bShowEQ;
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
 
@@ -333,6 +333,9 @@ class CGLString;
 -(void) stop;
 -(void) clearQueue;
 -(void) seek:(NSNumber*)seekTime;
+-(void) updMediaCenterProgress;
 -(void) updMediaCenter;
+-(void) cmdLike;
+-(void) cmdDislike;
 
 @end

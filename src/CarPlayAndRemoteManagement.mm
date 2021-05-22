@@ -84,7 +84,7 @@
     if (1) {
         int nb_entries=[rootVCLocalB getLocalFilesCount];
         MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_RD"];
-        [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Random (%d)",@""),nb_entries]];
+        [item setTitle:NSLocalizedString(@"Random picks",@"")];
         if (nb_entries) [item setPlayable:TRUE];
         else [item setPlayable:FALSE];
         
@@ -109,13 +109,13 @@
     //////////////////////////
     MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
     
-    NSArray *commands = @[cmdCenter.playCommand, cmdCenter.pauseCommand, cmdCenter.nextTrackCommand, cmdCenter.previousTrackCommand, cmdCenter.bookmarkCommand, cmdCenter.changePlaybackPositionCommand, cmdCenter.changePlaybackRateCommand, cmdCenter.dislikeCommand, cmdCenter.enableLanguageOptionCommand, cmdCenter.likeCommand, cmdCenter.ratingCommand, cmdCenter.seekBackwardCommand, cmdCenter.seekForwardCommand, cmdCenter.skipBackwardCommand, cmdCenter.skipForwardCommand, cmdCenter.stopCommand, cmdCenter.togglePlayPauseCommand];
+    /*NSArray *commands = @[cmdCenter.playCommand, cmdCenter.pauseCommand, cmdCenter.nextTrackCommand, cmdCenter.previousTrackCommand, cmdCenter.bookmarkCommand, cmdCenter.changePlaybackPositionCommand, cmdCenter.changePlaybackRateCommand, cmdCenter.dislikeCommand, cmdCenter.enableLanguageOptionCommand, cmdCenter.likeCommand, cmdCenter.ratingCommand, cmdCenter.seekBackwardCommand, cmdCenter.seekForwardCommand, cmdCenter.skipBackwardCommand, cmdCenter.skipForwardCommand, cmdCenter.stopCommand, cmdCenter.togglePlayPauseCommand];
 
     
     for (MPRemoteCommand *command in commands) {
         [command removeTarget:nil];
         [command setEnabled:NO];
-    }
+    }*/
     
     [cmdCenter.playCommand setEnabled:YES];
     [cmdCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
@@ -129,6 +129,84 @@
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    [cmdCenter.togglePlayPauseCommand setEnabled:YES];
+    [cmdCenter.togglePlayPauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        if (self.detailViewController.mPaused) [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];
+        else [self.detailViewController performSelectorOnMainThread:@selector(pausePushed:) withObject:nil waitUntilDone:YES];
+                
+        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    cmdCenter.likeCommand.localizedTitle=NSLocalizedString(@"Add to favorites",@"");
+    cmdCenter.likeCommand.localizedShortTitle=NSLocalizedString(@"Add to favorites",@"");
+    cmdCenter.dislikeCommand.localizedTitle=NSLocalizedString(@"Remove from favorites",@"");
+    cmdCenter.dislikeCommand.localizedShortTitle=NSLocalizedString(@"Remove from favorites",@"");
+    [cmdCenter.likeCommand setEnabled:YES];
+    [cmdCenter.likeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        
+        [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
+                
+        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    [cmdCenter.dislikeCommand setEnabled:YES];
+    [cmdCenter.dislikeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        
+        [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
+                
+        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    switch (self.detailViewController.mLoopMode) {
+        case 0:
+            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
+            break;
+        case 1:
+            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeAll;
+            break;
+        case 2:
+            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
+            break;
+    }
+    [cmdCenter.changeRepeatModeCommand setEnabled:YES];
+    [cmdCenter.changeRepeatModeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        
+        [self.detailViewController performSelectorOnMainThread:@selector(changeLoopMode) withObject:nil waitUntilDone:YES];
+        
+        switch (self.detailViewController.mLoopMode) {
+            case 0:
+                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
+                break;
+            case 1:
+                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeAll;
+                break;
+            case 2:
+                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
+                break;
+        }
+                
+        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+                        
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
+    else cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeOff;
+    [cmdCenter.changeShuffleModeCommand setEnabled:YES];
+    [cmdCenter.changeShuffleModeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+        [self.detailViewController performSelectorOnMainThread:@selector(shuffle) withObject:nil waitUntilDone:YES];
+        
+        if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
+        else cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeOff;
+                
+        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    
+    
     [cmdCenter.previousTrackCommand setEnabled:YES];
     [cmdCenter.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         [self.detailViewController performSelectorOnMainThread:@selector(playPrevSub) withObject:nil waitUntilDone:YES];
@@ -143,8 +221,7 @@
     }];
     [cmdCenter.changePlaybackPositionCommand setEnabled:YES];
     [cmdCenter.changePlaybackPositionCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        
-        
+                
         NSNumber *seekTime=[[NSNumber alloc] initWithDouble:((MPChangePlaybackPositionCommandEvent*)event).positionTime*1000];
         [self.detailViewController performSelectorOnMainThread:@selector(seek:) withObject:seekTime waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
@@ -182,7 +259,7 @@
     }
     
     
-    //repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(refreshMPItems) userInfo:nil repeats: YES]; //1 times/second
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(refreshMPItems) userInfo:nil repeats: YES]; //1 times/second
     
     return TRUE;
 }
@@ -192,7 +269,9 @@
 ///////////////////////
 
 - (void)playableContentManager:(MPPlayableContentManager *)contentManager didUpdateContext:(MPPlayableContentManagerContext *)context {
-    //called when connecting/disconnecting    
+    //called when connecting/disconnecting
+    //NSLog(@"didupd context");
+    [self refreshMPItems];
 }
 
 
@@ -212,8 +291,8 @@
 /// If this method is not implemented, MediaPlayer will assume that progress is
 /// not supported for any content items.
 - (BOOL)childItemsDisplayPlaybackProgressAtIndexPath:(NSIndexPath *)indexPath {
-    //NSLog(@"yo2");
-    return YES;
+    if (indexPath.section==0) return YES;
+    else return NO;
 }
 
 /*
@@ -372,6 +451,7 @@
         
         [self performSelectorOnMainThread:@selector(launchUserPL:) withObject:[NSNumber numberWithInt:id_pl] waitUntilDone:YES];
     }
+    [self refreshMPItems];
     completionHandler(nil);
 }
 

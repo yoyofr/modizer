@@ -641,12 +641,12 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         
         [mode_entries addObject:NSLocalizedString(@"Random picks",@"")];
         [mode_entries_details addObject:NSLocalizedString(@"Generate a randomized playlist",@"")];
-        
+                
         [mode_entries addObject:NSLocalizedString(@"Most played...",@"")];
-        [mode_entries_details addObject:NSLocalizedString(@"Most played entries",@"")];
-        
+        [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getMostPlayedCountFromDB]]];
+                
         [mode_entries addObject:NSLocalizedString(@"Favorites...",@"")];
-        [mode_entries_details addObject:NSLocalizedString(@"Liked entries",@"")];
+        [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getFavoritesCountFromDB]]];
         
         [self loadPlayListsListFromDB:mode_entries list_id:list entries_details:mode_entries_details];
         NSDictionary *mode_entriesDict = [NSDictionary dictionaryWithObjectsAndKeys:mode_entries,@"entries",mode_entries_details,@"entries_details", nil];
@@ -2249,7 +2249,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         bool confirmed=false;
         
         if (browse_depth==0) {
-            if (indexPath.row>=4) {
+            if (indexPath.row>=5) {
                 //////////////////////////////////////////////////////////////////////////////////////:
                 //main playlist screen, delete a playlist
                 //////////////////////////////////////////////////////////////////////////////////////:
@@ -2259,7 +2259,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                  
                 UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive
                    handler:^(UIAlertAction * action) {
-                        if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-4]]) {
+                        if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-5]]) {
                             keys=nil;
                             list=nil;
                             [self fillKeys];
@@ -2788,8 +2788,8 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
                 [self replacePlaylistDBwithCurrent];
             }
         }
-        if ((browse_depth==0)&&(indexPath.row>=4)) {  //delete a playlist
-            if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-4]]) {
+        if ((browse_depth==0)&&(indexPath.row>=5)) {  //delete a playlist
+            if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-5]]) {
                 
                 keys=nil;
                 list=nil;
@@ -2888,7 +2888,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
         }
         return YES;
     }
-    if ((browse_depth==0)&&(indexPath.row>=4)) return YES;
+    if ((browse_depth==0)&&(indexPath.row>=5)) return YES;
     
     return NO;
 }

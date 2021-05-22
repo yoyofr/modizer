@@ -93,20 +93,6 @@
 		33E014F112FBEEE900345BE2 /* unrar.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0148312FBEEE900345BE2 /* unrar.h */; };
 		33E014F212FBEEE900345BE2 /* unrar_misc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33E0148412FBEEE900345BE2 /* unrar_misc.cpp */; };
 		33E014F312FBEEE900345BE2 /* unrar_open.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33E0148512FBEEE900345BE2 /* unrar_open.cpp */; };
-		33E014F412FBEEE900345BE2 /* adler32.c in Sources */ = {isa = PBXBuildFile; fileRef = 33E0148812FBEEE900345BE2 /* adler32.c */; };
-		33E014F512FBEEE900345BE2 /* crc32.c in Sources */ = {isa = PBXBuildFile; fileRef = 33E0148912FBEEE900345BE2 /* crc32.c */; };
-		33E014F612FBEEE900345BE2 /* crc32.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0148A12FBEEE900345BE2 /* crc32.h */; };
-		33E014F712FBEEE900345BE2 /* inffast.c in Sources */ = {isa = PBXBuildFile; fileRef = 33E0148B12FBEEE900345BE2 /* inffast.c */; };
-		33E014F812FBEEE900345BE2 /* inffast.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0148C12FBEEE900345BE2 /* inffast.h */; };
-		33E014F912FBEEE900345BE2 /* inffixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0148D12FBEEE900345BE2 /* inffixed.h */; };
-		33E014FA12FBEEE900345BE2 /* inflate.c in Sources */ = {isa = PBXBuildFile; fileRef = 33E0148E12FBEEE900345BE2 /* inflate.c */; };
-		33E014FB12FBEEE900345BE2 /* inflate.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0148F12FBEEE900345BE2 /* inflate.h */; };
-		33E014FC12FBEEE900345BE2 /* inftrees.c in Sources */ = {isa = PBXBuildFile; fileRef = 33E0149012FBEEE900345BE2 /* inftrees.c */; };
-		33E014FD12FBEEE900345BE2 /* inftrees.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0149112FBEEE900345BE2 /* inftrees.h */; };
-		33E014FE12FBEEE900345BE2 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0149312FBEEE900345BE2 /* zconf.h */; };
-		33E014FF12FBEEE900345BE2 /* zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0149412FBEEE900345BE2 /* zlib.h */; };
-		33E0150012FBEEE900345BE2 /* zutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 33E0149612FBEEE900345BE2 /* zutil.c */; };
-		33E0150112FBEEE900345BE2 /* zutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 33E0149712FBEEE900345BE2 /* zutil.h */; };
 		AA747D9F0F9514B9006C5449 /* FileExtractor_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* FileExtractor_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		CC33B63E1ABF2099009608E8 /* 7z.h in Headers */ = {isa = PBXBuildFile; fileRef = CC33B63D1ABF2099009608E8 /* 7z.h */; };
@@ -265,22 +251,6 @@
 		33E0148412FBEEE900345BE2 /* unrar_misc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unrar_misc.cpp; sourceTree = "<group>"; };
 		33E0148512FBEEE900345BE2 /* unrar_open.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unrar_open.cpp; sourceTree = "<group>"; };
 		33E0148612FBEEE900345BE2 /* whatsnew.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = whatsnew.txt; sourceTree = "<group>"; };
-		33E0148812FBEEE900345BE2 /* adler32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adler32.c; sourceTree = "<group>"; };
-		33E0148912FBEEE900345BE2 /* crc32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crc32.c; sourceTree = "<group>"; };
-		33E0148A12FBEEE900345BE2 /* crc32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crc32.h; sourceTree = "<group>"; };
-		33E0148B12FBEEE900345BE2 /* inffast.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inffast.c; sourceTree = "<group>"; };
-		33E0148C12FBEEE900345BE2 /* inffast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inffast.h; sourceTree = "<group>"; };
-		33E0148D12FBEEE900345BE2 /* inffixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inffixed.h; sourceTree = "<group>"; };
-		33E0148E12FBEEE900345BE2 /* inflate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inflate.c; sourceTree = "<group>"; };
-		33E0148F12FBEEE900345BE2 /* inflate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inflate.h; sourceTree = "<group>"; };
-		33E0149012FBEEE900345BE2 /* inftrees.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inftrees.c; sourceTree = "<group>"; };
-		33E0149112FBEEE900345BE2 /* inftrees.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inftrees.h; sourceTree = "<group>"; };
-		33E0149212FBEEE900345BE2 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
-		33E0149312FBEEE900345BE2 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
-		33E0149412FBEEE900345BE2 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
-		33E0149512FBEEE900345BE2 /* zlib.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = zlib.txt; sourceTree = "<group>"; };
-		33E0149612FBEEE900345BE2 /* zutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zutil.c; sourceTree = "<group>"; };
-		33E0149712FBEEE900345BE2 /* zutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zutil.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* FileExtractor_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileExtractor_Prefix.pch; sourceTree = "<group>"; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		CC33B63D1ABF2099009608E8 /* 7z.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 7z.h; sourceTree = "<group>"; };
@@ -372,7 +342,6 @@
 				33E0141A12FBEEE900345BE2 /* 7z_C */,
 				33E0143E12FBEEE900345BE2 /* fex */,
 				33E0145F12FBEEE900345BE2 /* unrar */,
-				33E0148712FBEEE900345BE2 /* zlib */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -581,30 +550,6 @@
 			path = ../unrar;
 			sourceTree = SOURCE_ROOT;
 		};
-		33E0148712FBEEE900345BE2 /* zlib */ = {
-			isa = PBXGroup;
-			children = (
-				33E0148812FBEEE900345BE2 /* adler32.c */,
-				33E0148912FBEEE900345BE2 /* crc32.c */,
-				33E0148A12FBEEE900345BE2 /* crc32.h */,
-				33E0148B12FBEEE900345BE2 /* inffast.c */,
-				33E0148C12FBEEE900345BE2 /* inffast.h */,
-				33E0148D12FBEEE900345BE2 /* inffixed.h */,
-				33E0148E12FBEEE900345BE2 /* inflate.c */,
-				33E0148F12FBEEE900345BE2 /* inflate.h */,
-				33E0149012FBEEE900345BE2 /* inftrees.c */,
-				33E0149112FBEEE900345BE2 /* inftrees.h */,
-				33E0149212FBEEE900345BE2 /* readme.txt */,
-				33E0149312FBEEE900345BE2 /* zconf.h */,
-				33E0149412FBEEE900345BE2 /* zlib.h */,
-				33E0149512FBEEE900345BE2 /* zlib.txt */,
-				33E0149612FBEEE900345BE2 /* zutil.c */,
-				33E0149712FBEEE900345BE2 /* zutil.h */,
-			);
-			name = zlib;
-			path = ../zlib;
-			sourceTree = SOURCE_ROOT;
-		};
 		CC35CEED1ABF2492004EDAC0 /* posix */ = {
 			isa = PBXGroup;
 			children = (
@@ -689,16 +634,8 @@
 				33E014EB12FBEEE900345BE2 /* unicode.hpp in Headers */,
 				33E014ED12FBEEE900345BE2 /* unpack.hpp in Headers */,
 				33E014F112FBEEE900345BE2 /* unrar.h in Headers */,
-				33E014F612FBEEE900345BE2 /* crc32.h in Headers */,
-				33E014F812FBEEE900345BE2 /* inffast.h in Headers */,
 				CC35CF171ABF2492004EDAC0 /* LzmaLib.h in Headers */,
-				33E014F912FBEEE900345BE2 /* inffixed.h in Headers */,
 				CC35CF221ABF2492004EDAC0 /* RotateDefs.h in Headers */,
-				33E014FB12FBEEE900345BE2 /* inflate.h in Headers */,
-				33E014FD12FBEEE900345BE2 /* inftrees.h in Headers */,
-				33E014FE12FBEEE900345BE2 /* zconf.h in Headers */,
-				33E014FF12FBEEE900345BE2 /* zlib.h in Headers */,
-				33E0150112FBEEE900345BE2 /* zutil.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -825,17 +762,11 @@
 				33E014F012FBEEE900345BE2 /* unrar.cpp in Sources */,
 				33E014F212FBEEE900345BE2 /* unrar_misc.cpp in Sources */,
 				33E014F312FBEEE900345BE2 /* unrar_open.cpp in Sources */,
-				33E014F412FBEEE900345BE2 /* adler32.c in Sources */,
-				33E014F512FBEEE900345BE2 /* crc32.c in Sources */,
-				33E014F712FBEEE900345BE2 /* inffast.c in Sources */,
 				CC35CF191ABF2492004EDAC0 /* MtCoder.c in Sources */,
 				CC35CF061ABF2492004EDAC0 /* Delta.c in Sources */,
 				CC35CF211ABF2492004EDAC0 /* Ppmd7Enc.c in Sources */,
-				33E014FA12FBEEE900345BE2 /* inflate.c in Sources */,
-				33E014FC12FBEEE900345BE2 /* inftrees.c in Sources */,
 				CC35CEFC1ABF2492004EDAC0 /* 7zDec.c in Sources */,
 				CC35CEB81ABF224A004EDAC0 /* blake2s.cpp in Sources */,
-				33E0150012FBEEE900345BE2 /* zutil.c in Sources */,
 				CC35CEFB1ABF2492004EDAC0 /* 7zCrcOpt.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

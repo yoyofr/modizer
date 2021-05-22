@@ -198,7 +198,12 @@ FILE *uade_open_amiga_file(char *aname, const char *playerdir)
                 tmp_str[0]='s';
                 tmp_str[1]='m';
                 tmp_str[2]='p';
-                //printf("real: %s\n",aname);
+                
+                file=fopen(aname,"rb");
+            } else if (strstr(aname,"Instruments")) { //SMUS file sometimes have case sensitive issues
+                char *tmp_str=strstr(aname,"Instruments");
+                tmp_str[0]='i';
+                
                 file=fopen(aname,"rb");
             }
         }

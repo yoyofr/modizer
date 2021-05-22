@@ -566,6 +566,7 @@
 		59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */; };
 		59E4A380261E7219000A31BA /* yrw801.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37E261E7219000A31BA /* yrw801.rom */; };
 		59E4A382261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
+		59F726B82657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */; };
 		59FF9943263C3256004152B8 /* libpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9941263C27D0004152B8 /* libpmdmini.a */; };
 		59FF9ACB263F350A004152B8 /* liblibkss.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9A4A263F34BE004152B8 /* liblibkss.a */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
@@ -2037,6 +2038,8 @@
 		59CA1B3C25BF6FD30010B6A5 /* modizer_icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = modizer_icon.icns; sourceTree = "<group>"; };
 		59E4A37E261E7219000A31BA /* yrw801.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = yrw801.rom; sourceTree = "<group>"; };
 		59E4A37F261E7219000A31BA /* VGMPlay.ini */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGMPlay.ini; sourceTree = "<group>"; };
+		59F726A02657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerSMSPWebParser.h; sourceTree = "<group>"; };
+		59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerSMSPWebParser.mm; sourceTree = "<group>"; };
 		59FF993C263C27D0004152B8 /* pmdmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = pmdmini.xcodeproj; sourceTree = "<group>"; };
 		59FF9944263D65CD004152B8 /* PlaylistCommonFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistCommonFunctions.h; sourceTree = "<group>"; };
 		59FF99DD263F34BD004152B8 /* libkss.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libkss.xcodeproj; sourceTree = "<group>"; };
@@ -2855,6 +2858,8 @@
 		336BF216144FF4CA0086700A /* RootViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				59F726A02657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.h */,
+				59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */,
 				5991486F2651632B005DEB44 /* RootViewControllerSNESMWebParser.h */,
 				599148862651632B005DEB44 /* RootViewControllerSNESMWebParser.mm */,
 				596BB1F426507733000E63A6 /* RootViewControllerP2612WebParser.h */,
@@ -5798,6 +5803,7 @@
 				CCCE9CD8123D807A007D9462 /* lineD_68.c in Sources */,
 				594CB8242633236900D154E5 /* mid.cpp in Sources */,
 				594CB8782633236900D154E5 /* hsc.cpp in Sources */,
+				59F726B82657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm in Sources */,
 				CCCE9CDA123D807A007D9462 /* lineE_68.c in Sources */,
 				594CB8442633236900D154E5 /* nemuopl.cpp in Sources */,
 				CCCE9CDC123D807A007D9462 /* lineF_68.c in Sources */,

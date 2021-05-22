@@ -6,7 +6,7 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
-
+#import <AVFAudio/AVAudioSession.h>
 
 #include <pthread.h>
 #include <sqlite3.h>
@@ -101,6 +101,7 @@ static char archive_filename[512];
 static int mSingleFileType;
 
 static char song_md5[33];
+static char file_md5[33];
 
 char mplayer_error_msg[1024];
 
@@ -1663,12 +1664,16 @@ void propertyListenerCallback (void                   *inUserData,              
                                 interruptionListenerCallback,
                                 (__bridge void*)self
                                 );
+        //[[AVAudioSession sharedInstance] setActive:YES error:nil];
+        
         UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
         AudioSessionSetProperty (
                                  kAudioSessionProperty_AudioCategory,
                                  sizeof (sessionCategory),
                                  &sessionCategory
                                  );
+        //NSString* sessionCategory = AVAudioSessionCategoryPlayback;
+        //[[AVAudioSession sharedInstance] setCategory:sessionCategory error:nil];
         
         //Check if still required or not
         Float32 preferredBufferDuration = SOUND_BUFFER_SIZE_SAMPLE*1.0f/PLAYBACK_FREQ;                      // 1
@@ -1732,6 +1737,7 @@ void propertyListenerCallback (void                   *inUserData,              
         mLoopMode=0;
         mCurrentSamples=0;
         m_voice_current_sample=0;
+        file_md5[0]=0;
         
         for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) m_voicesStatus[i]=1;
         
@@ -8543,6 +8549,13 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     if (no_reentrant) {
         return 2;
     }
+    
+    int tmp_md5_data_size=[_filePath length];
+    char *tmp_md5_data=(char*)malloc(tmp_md5_data_size+1);
+    strcpy(tmp_md5_data,[_filePath UTF8String]);
+    md5_from_buffer(file_md5,33,tmp_md5_data,tmp_md5_data_size);
+    mdz_safe_free(tmp_md5_data);
+    
     no_reentrant=true;
     
     detailViewControllerIphone=detailVC;
@@ -10916,6 +10929,10 @@ extern "C" void adjust_amplification(void);
         default:
             break;
     }
+}
+
+-(NSString *) getCurrentFilenameMD5 {
+    return [NSString stringWithFormat:@"%s",file_md5];
 }
 
 
