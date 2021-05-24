@@ -602,6 +602,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we=NULL;
+    int we_index=0;
           
     if ([mWebBaseURL rangeOfString:@"All"].location!=NSNotFound) {
         ///////////////////////////////////////////////
@@ -640,7 +641,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             //NSLog(@"Page nb: %d",pageNb);
             
             we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
-            int we_index=0;
             
             NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
             AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
@@ -778,7 +778,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         if (arr_tr&&[arr_tr count]) {
             we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_tr count]);
-            int we_index=0;
             for (int j=0;j<[arr_tr count];j++) {
                 TFHppleElement *el=[arr_tr objectAtIndex:j];
                 //NSLog(@"%@",[el raw]);
@@ -955,7 +954,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         //NSLog(@"Page nb: %d",pageNb);
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
-        int we_index=0;
         for (int i=0;i<pageNb;i++) {
             [self flushMainLoop];
             [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
@@ -1120,7 +1118,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         dbWEB_entries_index++;
     }
     
-    for (int i=0;i<dbWEB_nb_entries;i++) {
+    for (int i=0;i<we_index;i++) {
         we[i].file_URL=nil;
         we[i].file_img_URL=nil;
         we[i].file_name=nil;

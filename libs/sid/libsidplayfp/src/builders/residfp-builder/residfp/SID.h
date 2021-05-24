@@ -327,15 +327,13 @@ int SID::clock(unsigned int cycles, short* buf)
     ageBusValue(cycles);
     int s = 0;
     
-    
     //TODO:  MODIZER changes start / YOYOFR
     //check current active sid
     int sid_idx=(m_voice_current_system%3)*3; //should never have a voice > 3 (maxsids)
     int smplIncr=1024;//44100*1024/985248.6111f+1;
-    
+    bool all_muted=muted[0]&muted[1]&muted[2];
     //TODO:  MODIZER changes end / YOYOFR
     
-
     while (cycles != 0)
     {
         unsigned int delta_t = std::min(nextVoiceSync, cycles);
@@ -354,7 +352,7 @@ int SID::clock(unsigned int cycles, short* buf)
                 voice[1]->envelope()->clock();
                 voice[2]->envelope()->clock();
                 if (!mSIDSeekInProgress) {
-                    if (unlikely(resampler->input(output())))
+                    if (!all_muted && (unlikely(resampler->input(output()))))
                     {
                         //if (m_voice_current_sample<44100/10) buf[s++]=0;
                         //else

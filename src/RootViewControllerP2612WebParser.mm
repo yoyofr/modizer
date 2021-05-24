@@ -607,6 +607,7 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_web_file_entry *we=NULL;
+    int we_index=0;
           
     if (browse_mode==BROWSE_COMPOSERS) {
         ///////////////////////////////////////////////////////////////////////:
@@ -646,7 +647,6 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][3]"];*/
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-        int we_index=0;
                 
         if (arr_url&&[arr_url count]) {
             
@@ -681,8 +681,6 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][3]"];
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-        int we_index=0;
-        
         
         if (arr_url&&[arr_url count]) {
             
@@ -815,7 +813,7 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         dbWEB_entries_index++;
     }
     
-    for (int i=0;i<dbWEB_nb_entries;i++) {
+    for (int i=0;i<we_index;i++) {
         we[i].file_URL=nil;
         we[i].file_img_URL=nil;
         we[i].file_name=nil;

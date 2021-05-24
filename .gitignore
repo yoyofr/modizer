@@ -23,10 +23,12 @@ modizer/modizer.xcodeproj/xcuserdata/ymagnien.xcuserdatad/xcdebugger/Breakpoints
 
 modizer/modizer.xcodeproj/xcuserdata/yoyofr.xcuserdatad/xcschemes/modizer.xcscheme
 
-modizer/Resources/DB/ASMA/Asma.txt
+#DB resources
 
-modizer/Resources/DB/ASMA/trunk/*
+Resources/DB/ASMA/Asma.txt
+Resources/DB/database.modizerdb
+Resources/DB/databaseMAIN.modizerdb
 
-modizer/Resources/DB/database.modizerdb
-
-modizer/Resources/DB/databaseMAIN.modizerdb
+# ASMA svn repo
+Resources/DB/ASMA/trunk
+Resources/DB/ASMA/trunk/*

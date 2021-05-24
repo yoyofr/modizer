@@ -29,5 +29,7 @@ echo Create DB
 ./create_db.sh
 rm comp*.txt
 rm allmods.txt
+rm allmods.zip
 rm ASMA/asma*.txt
 rm HVSC/hvsc*.txt
+

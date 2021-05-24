@@ -2529,7 +2529,7 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             bottomLabel.text=[array_details objectAtIndex:indexPath.row];
             
-        } else if (indexPath.row<=2) {
+        } else if (indexPath.row<=1) {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             bottomLabel.text=[array_details objectAtIndex:indexPath.row];
             
@@ -3002,14 +3002,28 @@ int qsort_ComparePlaylistEntriesRev(const void *entryA, const void *entryB) {
             playlist=(t_playlist*)calloc(1,sizeof(t_playlist));
             
             if (indexPath.row==2) {
+                NSMutableArray *arrayLabels=[[NSMutableArray alloc] init];
+                NSMutableArray *arrayFullpaths=[[NSMutableArray alloc] init];
+                int pl_entries;
+                pl_entries=[self loadLocalFilesRandomPL:arrayLabels fullpaths:arrayFullpaths];
+                
+                playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Random picks",@"")];
+                playlist->playlist_id=nil;
+                playlist->nb_entries=pl_entries;
+                for (int i=0;i<[arrayLabels count];i++) {
+                    playlist->entries[i].label=[arrayLabels objectAtIndex:i];
+                    playlist->entries[i].fullpath=[arrayFullpaths objectAtIndex:i];
+                    playlist->entries[i].ratings=-1;
+                }
+            } else if (indexPath.row==3) {
                 [self loadMostPlayedList];
                 playlist->playlist_name=[[NSString alloc] initWithFormat:@"Most played"];
                 playlist->playlist_id=nil;
-            } else if (indexPath.row==3) {
+            } else if (indexPath.row==4) {
                 [self loadFavoritesList];
                 playlist->playlist_name=[[NSString alloc] initWithFormat:@"Favorites"];
                 playlist->playlist_id=nil;
-            } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-4)] intoPlaylist:playlist];
+            } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-5)] intoPlaylist:playlist];
             
             if (playlist->nb_entries) {
                 

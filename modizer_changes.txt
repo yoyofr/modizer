@@ -15,16 +15,16 @@ Todo/Requested:
 
 3.1
 ----
+- [UI] Carplay support (playlist based)
+- [UI] Improved playlists management
+- [UI] Volume bar adjustement for devices without physical home button
 - [PLAYER] LibKSS added to improve MSX based format playback (KSS, ...)
 - [PLAYER] Adplug/Rad bugfix for rad v1 file
 - [PLAYER] SNSF bugfix / crash when changing to next subsong
-- [PLAYER] PmdMini updated to latest version
+- [PLAYER] PMDMini updated to latest version
+- [DB] Better integration for JoshW, VGMRips, P2612, SMS Power! and Snesmusic repositories
 - [DB] MODLAND & ASMA updated with latest version
-- [DB] Better integration for JoshW repositories
 - [DB] MODLAND auto downloading "lib" files for "miniXXX" files (minipsf, miniusf, mini2sf, ...)
-- [UI] Improved playlists management
-- [UI] Carplay support (playlist based)
-- [UI] Volume bar adjustement for devices without physical home button
 - [FX] Fixed some issues / oscilloscope voices view
 - [PLAYER] Fixed a bug when PMD (.M, .M2, .MZ) are compressed in an archive (zip, 7z, ...)
 - [PLAYER] Fixed some bugs in UADE

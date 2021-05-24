@@ -109,13 +109,13 @@
     //////////////////////////
     MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
     
-    /*NSArray *commands = @[cmdCenter.playCommand, cmdCenter.pauseCommand, cmdCenter.nextTrackCommand, cmdCenter.previousTrackCommand, cmdCenter.bookmarkCommand, cmdCenter.changePlaybackPositionCommand, cmdCenter.changePlaybackRateCommand, cmdCenter.dislikeCommand, cmdCenter.enableLanguageOptionCommand, cmdCenter.likeCommand, cmdCenter.ratingCommand, cmdCenter.seekBackwardCommand, cmdCenter.seekForwardCommand, cmdCenter.skipBackwardCommand, cmdCenter.skipForwardCommand, cmdCenter.stopCommand, cmdCenter.togglePlayPauseCommand];
+    NSArray *commands = @[cmdCenter.playCommand, cmdCenter.pauseCommand, cmdCenter.nextTrackCommand, cmdCenter.previousTrackCommand, cmdCenter.bookmarkCommand, cmdCenter.changePlaybackPositionCommand, cmdCenter.changePlaybackRateCommand, cmdCenter.dislikeCommand, cmdCenter.enableLanguageOptionCommand, cmdCenter.likeCommand, cmdCenter.ratingCommand, cmdCenter.seekBackwardCommand, cmdCenter.seekForwardCommand, cmdCenter.skipBackwardCommand, cmdCenter.skipForwardCommand, cmdCenter.stopCommand, cmdCenter.togglePlayPauseCommand];
 
     
     for (MPRemoteCommand *command in commands) {
         [command removeTarget:nil];
         [command setEnabled:NO];
-    }*/
+    }
     
     [cmdCenter.playCommand setEnabled:YES];
     [cmdCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
@@ -138,11 +138,7 @@
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
-    cmdCenter.likeCommand.localizedTitle=NSLocalizedString(@"Add to favorites",@"");
-    cmdCenter.likeCommand.localizedShortTitle=NSLocalizedString(@"Add to favorites",@"");
-    cmdCenter.dislikeCommand.localizedTitle=NSLocalizedString(@"Remove from favorites",@"");
-    cmdCenter.dislikeCommand.localizedShortTitle=NSLocalizedString(@"Remove from favorites",@"");
-    [cmdCenter.likeCommand setEnabled:YES];
+    [cmdCenter.likeCommand setEnabled:NO];
     [cmdCenter.likeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         
         [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
@@ -151,7 +147,7 @@
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
-    [cmdCenter.dislikeCommand setEnabled:YES];
+    [cmdCenter.dislikeCommand setEnabled:NO];
     [cmdCenter.dislikeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         
         [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
@@ -160,22 +156,15 @@
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
-    switch (self.detailViewController.mLoopMode) {
-        case 0:
-            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
-            break;
-        case 1:
-            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeAll;
-            break;
-        case 2:
-            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
-            break;
-    }
+    cmdCenter.likeCommand.localizedTitle=NSLocalizedString(@"Add to favorites",@"");
+    cmdCenter.likeCommand.localizedShortTitle=NSLocalizedString(@"Add to favorites",@"");
+    cmdCenter.dislikeCommand.localizedTitle=NSLocalizedString(@"Remove from favorites",@"");
+    cmdCenter.dislikeCommand.localizedShortTitle=NSLocalizedString(@"Remove from favorites",@"");
+    
+    
     [cmdCenter.changeRepeatModeCommand setEnabled:YES];
     [cmdCenter.changeRepeatModeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        
         [self.detailViewController performSelectorOnMainThread:@selector(changeLoopMode) withObject:nil waitUntilDone:YES];
-        
         switch (self.detailViewController.mLoopMode) {
             case 0:
                 cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
@@ -187,14 +176,22 @@
                 cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
                 break;
         }
-                
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
-                        
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    switch (self.detailViewController.mLoopMode) {
+        case 0:
+            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
+            break;
+        case 1:
+            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeAll;
+            break;
+        case 2:
+            cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
+            break;
+    }
     
-    if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
-    else cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeOff;
+    
     [cmdCenter.changeShuffleModeCommand setEnabled:YES];
     [cmdCenter.changeShuffleModeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         [self.detailViewController performSelectorOnMainThread:@selector(shuffle) withObject:nil waitUntilDone:YES];
@@ -205,6 +202,8 @@
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
+    else cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeOff;
     
     
     [cmdCenter.previousTrackCommand setEnabled:YES];
@@ -271,7 +270,16 @@
 - (void)playableContentManager:(MPPlayableContentManager *)contentManager didUpdateContext:(MPPlayableContentManagerContext *)context {
     //called when connecting/disconnecting
     //NSLog(@"didupd context");
-    [self refreshMPItems];
+    if (context.endpointAvailable) {
+        [self refreshMPItems];
+        MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
+        [cmdCenter.likeCommand setEnabled:YES];
+        [cmdCenter.dislikeCommand setEnabled:YES];
+    } else {
+        MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
+        [cmdCenter.likeCommand setEnabled:NO];
+        [cmdCenter.dislikeCommand setEnabled:NO];
+    }
 }
 
 

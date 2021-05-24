@@ -3773,6 +3773,7 @@ MD5 (./Composers/Szpilowski_Michal/Trial1.sap) = 739b58e53c02d0895f41c4360549794
 MD5 (./Composers/Szpilowski_Michal/Wiosna_Ludzikuf_End.sap) = 82fe16029e784f22a17690e2c53bd57f
 MD5 (./Composers/Szpilowski_Michal/Sexy_Six_Title.sap) = caf62ba149aabe939e4818fef864a470
 MD5 (./Composers/Szpilowski_Michal/Misty_Day.sap) = 28ce39520580e1fbf85d701a721dcad7
+MD5 (./Composers/Szpilowski_Michal/Cybernoid_II.sap) = 483749f42b755e2dd85f3966b0038864
 MD5 (./Composers/Szpilowski_Michal/Framed_Again.sap) = 24cce4417030fb92e43de6478ef53c85
 MD5 (./Composers/Szpilowski_Michal/Soccer_Pong.sap) = 5368f1552b4cca72b299e0ac365786f5
 MD5 (./Composers/Szpilowski_Michal/Rubicon.sap) = 2a137259c7bab216f3180f87a8590261

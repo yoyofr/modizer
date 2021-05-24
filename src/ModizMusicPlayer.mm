@@ -1475,6 +1475,7 @@ void iPhoneDrv_AudioCallback(void *data, AudioQueueRef mQueue, AudioQueueBufferR
 /************************************************/
 /* Handle phone calls interruptions             */
 /************************************************/
+#if 0
 void interruptionListenerCallback (void *inUserData,UInt32 interruptionState ) {
     ModizMusicPlayer *mplayer=(__bridge ModizMusicPlayer*)inUserData;
     if (interruptionState == kAudioSessionBeginInterruption) {
@@ -1510,9 +1511,11 @@ void interruptionListenerCallback (void *inUserData,UInt32 interruptionState ) {
         AudioSessionSetActive (true);
     }
 }
+#endif
 /*************************************************/
 /* Audio property listener                       */
 /*************************************************/
+#if 0
 void propertyListenerCallback (void                   *inUserData,                                 // 1
                                AudioSessionPropertyID inPropertyID,                                // 2
                                UInt32                 inPropertyValueSize,                         // 3
@@ -1566,6 +1569,7 @@ void propertyListenerCallback (void                   *inUserData,              
         }
     }
 }
+#endif
 
 @implementation ModizMusicPlayer
 @synthesize artist,album;
@@ -1654,27 +1658,132 @@ void propertyListenerCallback (void                   *inUserData,              
     
     return api;
 }
+
+-(void) handleInterruption:(NSNotification *)notification {
+    AVAudioSessionInterruptionType interruptionType = (AVAudioSessionInterruptionType)[[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] unsignedIntegerValue];
+    if (AVAudioSessionInterruptionTypeBegan == interruptionType) {
+        
+        mInterruptShoudlRestart=0;
+        if ([self isPlaying] && (self.bGlobalAudioPause==0)) {
+            [self Pause:YES];
+            mInterruptShoudlRestart=1;
+        }
+        
+    }
+    else if (AVAudioSessionInterruptionTypeEnded == interruptionType) {
+        // if the interruption was removed, and the app had been playing, resume playback
+        if (mInterruptShoudlRestart) {
+            //check if headphone is used?
+            /*CFStringRef newRoute;
+            UInt32 size = sizeof(CFStringRef);
+            AudioSessionGetProperty(kAudioSessionProperty_AudioRoute,&size,&newRoute);
+            if (newRoute) {
+                if (CFStringCompare(newRoute,CFSTR("Headphone"),NULL)==kCFCompareEqualTo) {  //
+                    mInterruptShoudlRestart=0;
+                }
+            }*/
+            
+            if (mInterruptShoudlRestart) [self Pause:NO];
+            mInterruptShoudlRestart=0;
+        }
+    }
+}
+
+- (void)handleRouteChange:(NSNotification *)notification
+{
+    UInt8 reasonValue = [[notification.userInfo valueForKey:AVAudioSessionRouteChangeReasonKey] intValue];
+    AVAudioSessionRouteDescription *routeDescription = [notification.userInfo valueForKey:AVAudioSessionRouteChangePreviousRouteKey];
+    
+    //NSLog(@"Route change:");
+    switch (reasonValue) {
+        case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
+            //NSLog(@"     NewDeviceAvailable");
+            break;
+        case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
+            //NSLog(@"     OldDeviceUnavailable");
+            [self Pause:YES];
+            break;
+        case AVAudioSessionRouteChangeReasonCategoryChange:
+            //NSLog(@"     CategoryChange");
+            //NSLog(@" New Category: %@", [[AVAudioSession sharedInstance] category]);
+            break;
+        case AVAudioSessionRouteChangeReasonOverride:
+            //NSLog(@"     Override");
+            break;
+        case AVAudioSessionRouteChangeReasonWakeFromSleep:
+            //NSLog(@"     WakeFromSleep");
+            break;
+        case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
+            //NSLog(@"     NoSuitableRouteForCategory");
+            break;
+        default:
+            //NSLog(@"     ReasonUnknown");
+            break;
+    }
+    
+    //NSLog(@"Previous route:\n");
+    //NSLog(@"%@", routeDescription);
+}
+
+
+
 -(id) initMusicPlayer {
     mFileMngr=[[NSFileManager alloc] init];
     
     if ((self = [super init])) {
-        AudioSessionInitialize (
+        NSError *audioSessionError = nil;
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        
+        [session setCategory:AVAudioSessionCategoryPlayback error:&audioSessionError];
+        if (audioSessionError) {
+            NSLog(@"Audio session setCategory Error %ld, %@",
+                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+        }
+        
+        NSTimeInterval bufferDuration = SOUND_BUFFER_SIZE_SAMPLE*2.0f/PLAYBACK_FREQ;
+        [session setPreferredIOBufferDuration:bufferDuration error:&audioSessionError];
+        if (audioSessionError) {
+            NSLog(@"Error %ld, %@",
+                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+        }
+        
+        double sampleRate = PLAYBACK_FREQ;
+        [session setPreferredSampleRate:sampleRate error:&audioSessionError];
+        if (audioSessionError) {
+            NSLog(@"Error %ld, %@",
+                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+        }
+         
+        // Register for Route Change notifications
+        [[NSNotificationCenter defaultCenter] addObserver: self
+                                                 selector: @selector(handleRouteChange:)
+                                                     name: AVAudioSessionRouteChangeNotification
+                                                   object: session];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:)
+                name:AVAudioSessionInterruptionNotification object:session];
+        
+        [session setActive:YES error:&audioSessionError];
+        
+        // Get current values
+        sampleRate = session.sampleRate;
+        bufferDuration = session.IOBufferDuration;
+         
+        //NSLog(@"Sample Rate:%0.0fHz I/O Buffer Duration:%f", sampleRate, bufferDuration);
+        
+        /*AudioSessionInitialize (
                                 NULL,
                                 NULL,
                                 interruptionListenerCallback,
                                 (__bridge void*)self
-                                );
-        //[[AVAudioSession sharedInstance] setActive:YES error:nil];
+                                );*/
         
-        UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
+        
+        /*UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
         AudioSessionSetProperty (
                                  kAudioSessionProperty_AudioCategory,
                                  sizeof (sessionCategory),
                                  &sessionCategory
                                  );
-        //NSString* sessionCategory = AVAudioSessionCategoryPlayback;
-        //[[AVAudioSession sharedInstance] setCategory:sessionCategory error:nil];
-        
         //Check if still required or not
         Float32 preferredBufferDuration = SOUND_BUFFER_SIZE_SAMPLE*1.0f/PLAYBACK_FREQ;                      // 1
         AudioSessionSetProperty (                                     // 2
@@ -1688,7 +1797,7 @@ void propertyListenerCallback (void                   *inUserData,              
                                          propertyListenerCallback,                                      // 4
                                          (__bridge void*)self                                                       // 5
                                          );
-        AudioSessionSetActive (true);
+        AudioSessionSetActive (true);*/
         
         
         
@@ -8336,6 +8445,7 @@ int vgmGetFileLength()
         //////////////////////////////////
         //update DB with songlength
         //////////////////////////////////
+        if (mod_subsongs<256)
         for (int i=0;i<mod_subsongs; i++) {
             if (gme_track_info( gme_emu, &gme_info, i )==0) {
                 short int playcount;

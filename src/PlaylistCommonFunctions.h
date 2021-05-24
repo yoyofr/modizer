@@ -300,6 +300,44 @@
 }
 
 
+/*- (void)createNewPlaylistWithEntries:(NSArray*)fullPaths labels:(NSArrays*)labels {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
+                                        message:nil
+                                        preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakAlert = alertC;
+    [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"";
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [self freePlaylist];
+
+    }];
+    [alertC addAction:cancelAction];
+    
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *plName = weakAlert.textFields.firstObject;
+        if (![plName.text isEqualToString:@""]) {
+            
+            playlist->playlist_id=nil;
+            playlist->playlist_name=nil;
+            playlist->playlist_name=[[NSString alloc] initWithString:plName.text];
+            playlist->playlist_id=[self minitNewPlaylistDB:playlist->playlist_name];
+ .........
+ 
+                        
+        }
+        else{
+            [self presentViewController:weakAlert animated:YES completion:nil];
+        }
+    }];
+    [alertC addAction:saveAction];
+    
+    [self showAlert:alertC];
+}
+*/
+
+
 - (void) addToPlaylistSelView:(NSString*)fullPath label:(NSString*)label showNowListening:(bool)showNL{
     __block t_playlist_DB *plList;
     int plListsize=[self loadPlayListsListFromDB:&plList];
@@ -318,6 +356,20 @@
             mdz_safe_free(plList);
         }];
     [msgAlert addAction:cancelAction];
+    
+/*    UIAlertAction* newPlAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"New playlist",@"") style:UIAlertActionStyleDefault
+       handler:^(UIAlertAction * action) {
+            if ([detailViewController add_to_playlist:fullPath fileName:label forcenoplay:1]) {
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+            }
+            if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+            //free playlists list
+            for (int i=0;i<plListsize;i++) {
+                mdz_safe_free(plList[i].pl_name);
+            }
+            mdz_safe_free(plList);
+        }];
+    [msgAlert addAction:newPlAction];*/
 
     if (showNL) {
 #ifdef HAS_DETAILVIEW_CONT
